@@ -98,7 +98,6 @@ coverage.xml
 *.tmp
 *.temp
 *.bak
-*.har
 temp_*.json
 test_*.json
 *_body.json
@@ -129,5 +128,4 @@ docs/_build/
 site/
 
 # Miscellaneous project-specific
-*.har
 gap_analyse_*.txt

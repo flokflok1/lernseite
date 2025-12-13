@@ -128,9 +128,6 @@ dmypy.json
 docs/_build/
 site/
 
-# Screenshots and media (optional - remove if needed in repo)
-Screenshots/
-
 # Miscellaneous project-specific
 *.har
 gap_analyse_*.txt

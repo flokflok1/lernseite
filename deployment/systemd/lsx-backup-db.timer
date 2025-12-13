@@ -1,0 +1,18 @@
+[Unit]
+Description=LernsystemX Database Backup Timer
+Documentation=https://github.com/your-org/lernsystemx
+Requires=lsx-backup-db.service
+
+[Timer]
+# Run daily at 3:00 AM
+OnCalendar=daily
+OnCalendar=*-*-* 03:00:00
+
+# If system was off, run backup after boot
+Persistent=true
+
+# Randomize start time by up to 15 minutes to avoid load spikes
+RandomizedDelaySec=15min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,43 @@
+[Unit]
+Description=LernsystemX Backend API (Gunicorn)
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/lsx/backend
+Environment="PATH=/opt/lsx/backend/venv/bin"
+EnvironmentFile=/opt/lsx/backend/.env.production
+
+# Gunicorn with application factory
+ExecStart=/opt/lsx/backend/venv/bin/gunicorn \
+    -c /opt/lsx/backend/gunicorn.conf.py \
+    "run_production:application"
+
+# Process management
+Restart=always
+RestartSec=5
+KillMode=mixed
+KillSignal=SIGQUIT
+TimeoutStopSec=30
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/lsx/backend/uploads /var/log/lsx
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lsx-backend
+
+[Install]
+WantedBy=multi-user.target

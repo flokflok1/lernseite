@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   THEME VARIABLES (Phase B24 - Theme Support)
+   Dark Midnight & Light Themes
+   ============================================================================ */
+
+:root {
+  /* Light Theme (Default for non-dark mode) */
+  --color-bg: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f9fafb;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-tertiary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-accent: #4f46e5;
+  --color-accent-hover: #4338ca;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+}
+
+.dark {
+  /* Dark Midnight Theme */
+  --color-bg: #0a0f1a;
+  --color-surface: #0b1020;
+  --color-surface-secondary: #111827;
+  --color-text-primary: #e5e7eb;
+  --color-text-secondary: #9ca3af;
+  --color-text-tertiary: #6b7280;
+  --color-border: #1f2937;
+  --color-border-strong: #374151;
+  --color-accent: #6366f1;
+  --color-accent-hover: #818cf8;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
+}
+
+/* Global Styles */
+@layer base {
+  html, body, #app {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+  }
+
+  html {
+    /* Smooth theme transitions */
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Custom Component Styles */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 dark:bg-secondary-500 dark:hover:bg-secondary-600;
+  }
+
+  .btn-outline {
+    @apply border focus:ring-primary-500;
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+  }
+
+  .btn-outline:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-md {
+    @apply px-4 py-2 text-base;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+  }
+
+  .input-error {
+    @apply border-red-500 focus:ring-red-500;
+  }
+
+  .card {
+    @apply rounded-lg p-6;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
+
+  .card-header {
+    @apply border-b pb-4 mb-4;
+    border-color: var(--color-border);
+  }
+}
+
+/* Select/Dropdown Styling for Dark Mode */
+select {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+select option {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 8px 12px;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+/* Firefox specific styling */
+@-moz-document url-prefix() {
+  select option {
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Dark mode specific overrides */
+.dark select {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  color-scheme: dark;
+}
+
+.dark select option {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+.dark select option:checked {
+  background: linear-gradient(#4f46e5, #4f46e5);
+  color: white;
+}
+
+/* ADHD/Focus Mode Support */
+.adhd-mode {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+.adhd-mode * {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}

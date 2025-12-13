@@ -1,0 +1,33 @@
+[Unit]
+Description=LernsystemX Backup Cleanup (Retention Policy)
+Documentation=https://github.com/your-org/lernsystemx
+After=network.target
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+
+# Load environment variables from production config
+EnvironmentFile=/opt/lsx/backend/.env.production
+
+# Execute cleanup script
+ExecStart=/bin/bash /opt/lsx/deployment/backup/cleanup_backups.sh
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lsx-backup-cleanup
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/backups/lsx
+
+# Timeout (max 10 minutes for cleanup)
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

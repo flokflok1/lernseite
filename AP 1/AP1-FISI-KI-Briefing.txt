@@ -1,0 +1,382 @@
+================================================================================
+KI-STUDIO BRIEFING: AP1 FISI PRUEFUNGSVORBEREITUNG
+================================================================================
+Zielgruppe: Fachinformatiker Systemintegration (FISI) Baden-Wuerttemberg
+Pruefung: Abschlusspruefung Teil 1 (AP1), 90 Minuten, 90 Punkte
+Analysierte Pruefungen: 2022, 2023, 2024 (Sommer & Winter)
+================================================================================
+
+PRUEFUNGSSTRUKTUR AB 2024 (4 AUFGABEN):
+---------------------------------------
+IT 1: Beschaffung              - 30 Punkte - ~25 Min
+IT 2: Programmierung           - 15 Punkte - ~15 Min
+IT 3: Datenbank/SQL            - 15 Punkte - ~15 Min
+IT 4: Netzwerk + Sicherheit    - 30 Punkte - ~35 Min
+
+WICHTIG: Ab 2024 sind Netzwerk und IT-Sicherheit KOMBINIERT in IT4!
+
+================================================================================
+KRITISCHE THEMEN (60-70% DER PUNKTE):
+================================================================================
+
+1. HANDELSKALKULATION (~15 Punkte) - SEHR HOCH
+2. SUBNETTING IPv4 (~12 Punkte) - SEHR HOCH
+3. SCHUTZBEDARFSANALYSE (~8 Punkte) - HOCH
+4. ERM/RELATIONENMODELL (~10 Punkte) - HOCH
+5. SQL SELECT (~5 Punkte) - HOCH
+
+================================================================================
+MODUL 1: UNTERNEHMEN & BESCHAFFUNG
+================================================================================
+
+HANDELSKALKULATION - BEZUGSKALKULATION:
+---------------------------------------
+Listeneinkaufspreis (LEP)
+- Lieferantenrabatt (z.B. 10%)
+= Zieleinkaufspreis (ZEP)
+- Lieferantenskonto (z.B. 2%)
+= Bareinkaufspreis (BEP)
++ Bezugskosten (Transport, Verpackung)
+= Bezugspreis (Einstandspreis)
+
+HANDELSKALKULATION - VERKAUFSKALKULATION:
+-----------------------------------------
+Bezugspreis
++ Handlungskosten (z.B. 25%)
+= Selbstkosten
++ Gewinnzuschlag (z.B. 15%)
+= Barverkaufspreis
++ Kundenskonto (z.B. 3%)
+= Zielverkaufspreis
++ Kundenrabatt (z.B. 10%)
+= Listenverkaufspreis (netto)
++ Umsatzsteuer (19%)
+= Listenverkaufspreis (brutto)
+
+BEISPIELAUFGABE HANDELSKALKULATION:
+-----------------------------------
+Die Muster-IT GmbH kauft 50 Server zu je 2.400 EUR (LEP).
+- Rabatt: 15%
+- Skonto: 3%
+- Bezugskosten: 1.200 EUR gesamt
+- Handlungskostenzuschlag: 20%
+- Gewinnzuschlag: 12%
+- Kundenskonto: 2%
+- Kundenrabatt: 5%
+
+Berechnen Sie den Listenverkaufspreis (brutto) pro Server.
+
+ORGANISATIONSFORMEN:
+--------------------
+- Einlinienorganisation: Jeder Mitarbeiter hat genau einen Vorgesetzten
+- Mehrlinienorganisation: Mitarbeiter koennen mehrere Vorgesetzte haben
+- Matrixorganisation: Kombination aus Funktions- und Projektorganisation
+
+RECHTSFORMEN:
+-------------
+- GmbH: Haftungsbeschraenkung auf Stammkapital (25.000 EUR)
+- Einzelunternehmen: Volle persoenliche Haftung
+- KG: Komplementaer haftet voll, Kommanditist beschraenkt
+- GbR: Alle Gesellschafter haften voll
+
+ITIL-BEGRIFFE:
+--------------
+- Event: Jedes Ereignis im IT-Betrieb (automatisch erkannt)
+- Incident: Ungeplante Unterbrechung eines IT-Services
+- Service Request: Standardanfrage (z.B. Passwort zuruecksetzen)
+- Problem: Ursache fuer einen oder mehrere Incidents
+
+================================================================================
+MODUL 2: IT-SICHERHEIT
+================================================================================
+
+SCHUTZZIELE (CIA-TRIADE):
+-------------------------
+- Vertraulichkeit (Confidentiality): Nur Berechtigte haben Zugriff
+- Integritaet (Integrity): Daten sind korrekt und unveraendert
+- Verfuegbarkeit (Availability): Systeme sind erreichbar
+
+SCHUTZBEDARFSKATEGORIEN:
+------------------------
+| Kategorie  | Auswirkung bei Verletzung                    |
+|------------|----------------------------------------------|
+| normal     | begrenzte/ueberschaubare Schaeden            |
+| hoch       | betraechtliche Schaeden                      |
+| sehr hoch  | existenzbedrohende/katastrophale Schaeden    |
+
+MAXIMUMPRINZIP: Der hoechste Schutzbedarf eines Teilaspekts bestimmt
+den Gesamtschutzbedarf!
+
+BEISPIELAUFGABE SCHUTZBEDARFSANALYSE:
+-------------------------------------
+Fuellen Sie die Schutzbedarfsanalyse fuer eine Arztpraxis aus:
+
+| Schutzobjekt     | Vertraulichkeit | Integritaet | Verfuegbarkeit |
+|------------------|-----------------|-------------|----------------|
+| Patientendaten   | sehr hoch       | sehr hoch   | hoch           |
+| Terminkalender   | normal          | hoch        | hoch           |
+| Abrechnungsdaten | hoch            | sehr hoch   | hoch           |
+| Website          | normal          | normal      | normal         |
+
+WLAN-SICHERHEIT:
+----------------
+- WEP: Veraltet, unsicher (RC4-Verschluesselung, 64/128 Bit)
+- WPA2: Standard, sicher (AES-Verschluesselung)
+- WPA3: Aktuell, sehr sicher (SAE, Forward Secrecy)
+
+BEDROHUNGEN:
+------------
+- Ransomware: Verschluesselt Daten, fordert Loesegeld
+- Phishing: Taeuschende E-Mails/Websites zur Datendiebstahl
+- Social Engineering: Manipulation von Menschen zur Informationsbeschaffung
+
+================================================================================
+MODUL 3: NETZWERKTECHNIK (HAUPTMODUL!)
+================================================================================
+
+OSI-MODELL (7 SCHICHTEN):
+-------------------------
+7. Anwendungsschicht (Application)     - HTTP, FTP, SMTP, DNS
+6. Darstellungsschicht (Presentation)  - Verschluesselung, Kompression
+5. Sitzungsschicht (Session)           - Sitzungsverwaltung
+4. Transportschicht (Transport)        - TCP, UDP (Ports)
+3. Vermittlungsschicht (Network)       - IP-Adressen, Router
+2. Sicherungsschicht (Data Link)       - MAC-Adressen, Switch
+1. Bituebertragungs (Physical)         - Kabel, Hub
+
+WICHTIG: MAC-Adresse = Schicht 2, IP-Adresse = Schicht 3
+
+SUBNETTING IPv4:
+----------------
+Schritte:
+1. Subnetzmaske in CIDR: /24 = 255.255.255.0
+2. Netzwerkadresse: IP AND Subnetzmaske (binaer)
+3. Broadcastadresse: Alle Hostbits auf 1 setzen
+4. Hostbereich: Netzwerkadresse+1 bis Broadcast-1
+5. Anzahl Hosts: 2^n - 2 (n = Hostbits)
+
+CIDR-TABELLE:
+| CIDR | Subnetzmaske      | Hosts | Hostbits |
+|------|-------------------|-------|----------|
+| /24  | 255.255.255.0     | 254   | 8        |
+| /25  | 255.255.255.128   | 126   | 7        |
+| /26  | 255.255.255.192   | 62    | 6        |
+| /27  | 255.255.255.224   | 30    | 5        |
+| /28  | 255.255.255.240   | 14    | 4        |
+| /29  | 255.255.255.248   | 6     | 3        |
+| /30  | 255.255.255.252   | 2     | 2        |
+
+BEISPIELAUFGABE SUBNETTING:
+---------------------------
+Gegeben: IP 192.168.50.137/26
+
+Ermitteln Sie:
+a) Subnetzmaske in dezimaler Schreibweise: 255.255.255.192
+b) Netzwerkadresse: 192.168.50.128
+c) Broadcastadresse: 192.168.50.191
+d) Erster nutzbarer Host: 192.168.50.129
+e) Letzter nutzbarer Host: 192.168.50.190
+f) Anzahl maximal moeglicher Hosts: 62
+
+RECHENWEG:
+/26 = 26 Netzbits, 6 Hostbits
+137 dezimal = 10001001 binaer
+AND mit Maske (11000000) = 10000000 = 128 -> Netzwerkadresse
+Broadcast: 128 + 63 = 191 (6 Hostbits = 2^6 - 1 = 63)
+
+IPv6 ADRESSTYPEN:
+-----------------
+| Typ           | Praefix    | Beispiel        |
+|---------------|------------|-----------------|
+| Global Unicast| 2000::/3   | 2001:db8::1     |
+| Link-Local    | fe80::/10  | fe80::1         |
+| Unique Local  | fc00::/7   | fd00::1         |
+| Multicast     | ff00::/8   | ff02::1         |
+
+IPv6 KUERZUNGSREGELN:
+- Fuehrende Nullen weglassen: 2001:0db8 -> 2001:db8
+- Laengste Nullfolge durch :: ersetzen (nur einmal!)
+- Beispiel: 2001:0db8:0000:0000:0000:0000:0000:0001 -> 2001:db8::1
+
+DHCP (DORA-PROZESS):
+--------------------
+1. Discover (Client -> Broadcast): "Gibt es einen DHCP-Server?"
+2. Offer (Server -> Client): "Ich biete dir diese IP an"
+3. Request (Client -> Broadcast): "Ich nehme die IP von Server X"
+4. Acknowledge (Server -> Client): "Bestaetigt, du hast die IP"
+
+WLAN-STANDARDS:
+---------------
+| Standard   | Frequenz      | Max. Datenrate |
+|------------|---------------|----------------|
+| 802.11b    | 2,4 GHz       | 11 Mbit/s      |
+| 802.11g    | 2,4 GHz       | 54 Mbit/s      |
+| 802.11n    | 2,4/5 GHz     | 600 Mbit/s     |
+| 802.11ac   | 5 GHz         | 6,9 Gbit/s     |
+| 802.11ax   | 2,4/5/6 GHz   | 9,6 Gbit/s     |
+
+2,4 GHz: Bessere Reichweite, mehr Stoerungen
+5 GHz: Hoehere Geschwindigkeit, weniger Reichweite
+
+NETZWERKKOMPONENTEN:
+--------------------
+- Router: Verbindet Netzwerke, arbeitet auf Schicht 3 (IP)
+- Switch: Verbindet Geraete im LAN, arbeitet auf Schicht 2 (MAC)
+- Access Point: WLAN-Zugang, verbindet kabellos mit LAN
+- Firewall: Filtert Netzwerkverkehr nach Regeln
+- PoE (Power over Ethernet): Stromversorgung ueber Netzwerkkabel
+
+================================================================================
+MODUL 4: DATENBANKEN & SQL
+================================================================================
+
+DATENFORMATE:
+-------------
+- CSV: Comma-Separated Values, einfach, keine Struktur
+- XML: Extensible Markup Language, hierarchisch, Tags
+- JSON: JavaScript Object Notation, Key-Value, Arrays
+
+ERM KARDINALITAETEN:
+--------------------
+- 1:1 - Ein Mitarbeiter hat genau einen Dienstwagen
+- 1:n - Ein Kunde hat mehrere Bestellungen
+- m:n - Schueler besuchen mehrere Kurse, Kurse haben mehrere Schueler
+
+ERM -> RELATIONENMODELL:
+------------------------
+- 1:1 -> Fremdschluessel in einer der Tabellen
+- 1:n -> Fremdschluessel auf der n-Seite
+- m:n -> Zwischentabelle mit beiden Fremdschluesseln
+
+SQL-BEFEHLE:
+------------
+SELECT vorname, nachname FROM mitarbeiter WHERE abteilung = 'IT';
+
+SELECT * FROM produkte ORDER BY preis DESC;
+
+SELECT abteilung, COUNT(*) AS anzahl
+FROM mitarbeiter
+GROUP BY abteilung;
+
+SELECT k.name, b.bestelldatum
+FROM kunden k
+INNER JOIN bestellungen b ON k.kunden_id = b.kunden_id;
+
+INSERT INTO kunden (name, email) VALUES ('Mueller', 'mueller@mail.de');
+
+DELETE FROM bestellungen WHERE bestelldatum < '2023-01-01';
+
+CREATE TABLE produkte (
+    produkt_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    preis DECIMAL(10,2)
+);
+
+SQL-FEHLER FINDEN (TYPISCHE AUFGABE):
+-------------------------------------
+Fehlerhaft: SELECT COUNT(*) FROM mitarbeiter GROUP BY abteilung
+Problem: COUNT(*) ohne Alias
+Korrigiert: SELECT COUNT(*) AS anzahl FROM mitarbeiter GROUP BY abteilung
+
+Fehlerhaft: SELECT * FROM kunden WHERE name = 'Mueller
+Problem: Fehlender Apostroph
+Korrigiert: SELECT * FROM kunden WHERE name = 'Mueller'
+
+Fehlerhaft: SELECT * FROM produkte WHERE preis => 100
+Problem: Falscher Operator
+Korrigiert: SELECT * FROM produkte WHERE preis >= 100
+
+================================================================================
+MODUL 5: PROGRAMMIERUNG
+================================================================================
+
+KONTROLLSTRUKTUREN:
+-------------------
+// If-Else
+if (bedingung) {
+    // Anweisungen
+} else {
+    // Alternative
+}
+
+// For-Schleife
+for (int i = 0; i < 10; i++) {
+    // Wird 10x ausgefuehrt
+}
+
+// While-Schleife
+while (bedingung) {
+    // Solange bedingung true
+}
+
+STRUKTOGRAMM (NASSI-SHNEIDERMAN):
+---------------------------------
+- Rechteck: Anweisung
+- Dreieck nach unten: Verzweigung (if)
+- Rechteck mit Linie: Schleife
+
+FEHLER IN CODE FINDEN (TYPISCHE AUFGABE):
+-----------------------------------------
+Fehlerhafter Code:
+public double berechneDurchschnitt(int[] zahlen) {
+    int summe;                                    // FEHLER: Nicht initialisiert
+    for (int i = 0; i <= zahlen.length; i++) {   // FEHLER: <= statt <
+        summe = summe + zahlen[i];
+    }
+    return summe / zahlen.length;                 // FEHLER: Integer-Division
+}
+
+Korrigierter Code:
+public double berechneDurchschnitt(int[] zahlen) {
+    int summe = 0;                                // Initialisiert
+    for (int i = 0; i < zahlen.length; i++) {    // < statt <=
+        summe = summe + zahlen[i];
+    }
+    return (double) summe / zahlen.length;        // Cast zu double
+}
+
+================================================================================
+MODUL 6: PRUEFUNGSVORBEREITUNG
+================================================================================
+
+ZEITMANAGEMENT-STRATEGIE (90 MINUTEN):
+--------------------------------------
+1. Erst lesen: Alle Aufgaben ueberfliegen (5 Min)
+2. Leichte zuerst: Mit sicheren Punkten beginnen
+3. Punkte = Minuten: 30-Punkte-Aufgabe = max. 30 Min
+4. Nicht haengenbleiben: Bei Unklarheit weitergehen
+5. Kontrolle: Letzte 5 Min fuer Kontrolle reservieren
+
+TYPISCHE FEHLERQUELLEN:
+-----------------------
+- Handelskalkulation: Reihenfolge der Zu-/Abschlaege
+- Subnetting: AND-Verknuepfung falsch gerechnet
+- SQL: Semikolon vergessen, Apostrophe bei Strings
+- Schutzbedarfsanalyse: Begruendung vergessen
+
+================================================================================
+LERNMETHODEN-ZUORDNUNG FUER LERNSYSTEMX
+================================================================================
+
+| Lektion | Thema                    | Primaere LM | Sekundaere LM |
+|---------|--------------------------|-------------|---------------|
+| 1.5-1.8 | Handelskalkulation       | LM12        | LM19          |
+| 2.3-2.4 | Schutzbedarfsanalyse     | LM11        | LM19          |
+| 3.4-3.8 | Subnetting               | LM12        | LM10          |
+| 3.11    | DHCP DORA                | LM14        | -             |
+| 4.6-4.8 | SQL                      | LM09        | LM16          |
+| 5.5     | Fehler in Code           | LM16        | -             |
+| 6.2-6.5 | Pruefungssimulation      | LM21        | LM19          |
+
+LM09 = Code Sandbox (SQL, Programmierung)
+LM10 = Netzwerk-Simulation
+LM11 = IT-Szenario (Schutzbedarfsanalyse)
+LM12 = Mathe-Interaktiv (Kalkulation, Subnetting)
+LM14 = Drag & Drop (Zuordnungen)
+LM16 = Fehleranalyse
+LM19 = IHK-Stil Aufgaben
+LM21 = Zeitlimit-Training
+
+================================================================================
+ENDE DES BRIEFINGS
+================================================================================

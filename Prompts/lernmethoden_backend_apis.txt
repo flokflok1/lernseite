@@ -1,0 +1,456 @@
+# LERNMETHODEN-INSTANZEN: Backend + API + DB (Kapitelbezogen)
+
+## Ziel
+
+Die bestehenden Frontend-Features für Lernmethoden-Instanzen sollen voll funktionieren.
+Dazu wird eine saubere Backend-Struktur benötigt:
+
+- Neue DB-Tabelle: learning_method_instances (Kapitel-gebunden)
+- Repository: LearningMethodInstanceRepository
+- API-Routen unter /admin/chapters/<chapter_id>/learning-methods
+- Anpassung bestehender Migrationsdateien, falls sinnvoll
+- Keine .old/.bak Dateien, keine Duplikate – alles IN-PLACE
+
+---
+
+## PHASE 1: DB-Struktur prüfen und erweitern
+
+### 1.1 Prüfe aktuelle Migrationsdateien
+
+```bash
+ls backend/migrations
+
+# Suche nach vorhandenen Lernmethoden-Tabellen
+grep -n "learning_method" backend/migrations/*.sql || echo "Keine Treffer"
+```
+
+### 1.2 Fall A: Es existiert bereits eine Tabelle für Lernmethoden-Instanzen
+
+Wenn eine Tabelle existiert (z.B. learning_methods, module_learning_methods, chapter_learning_methods):
+
+1. Nutze diese Tabelle weiter, aber prüfe:
+   - Hat sie einen Primärschlüssel (UUID)?
+   - Gibt es einen Bezug zu chapter_id?
+   - Gibt es Felder für method_code, title, config (JSON)?
+
+2. Falls noch auf module_id referenziert wird:
+
+```sql
+-- In der entsprechenden Migration IN-PLACE anpassen:
+module_id UUID REFERENCES modules(module_id) → chapter_id UUID REFERENCES chapters(chapter_id)
+```
+
+3. Falls Spalten fehlen, erstelle eine neue Migration (NEU, nicht temporär):
+
+Datei: backend/migrations/060_update_learning_methods_for_chapters.sql
+
+```sql
+BEGIN;
+
+-- Beispiel: alte Spalte module_id in chapter_id umbenennen
+ALTER TABLE learning_methods_instances
+  RENAME COLUMN module_id TO chapter_id;
+
+-- Index anpassen
+DROP INDEX IF EXISTS idx_learning_methods_instances_module;
+CREATE INDEX idx_learning_methods_instances_chapter
+  ON learning_methods_instances(chapter_id);
+
+COMMIT;
+```
+
+### 1.3 Fall B: Es gibt NOCH KEINE Tabelle für Lernmethoden-Instanzen
+
+Erstelle neue Migration:
+
+Datei: backend/migrations/060_create_learning_method_instances.sql
+
+```sql
+BEGIN;
+
+CREATE TABLE learning_method_instances (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chapter_id UUID NOT NULL REFERENCES chapters(chapter_id) ON DELETE CASCADE,
+    method_code INTEGER NOT NULL,
+    title VARCHAR(255),
+    config JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_learning_method_instances_chapter
+  ON learning_method_instances(chapter_id);
+
+CREATE INDEX idx_learning_method_instances_method
+  ON learning_method_instances(method_code);
+
+COMMIT;
+```
+
+### 1.4 Migration ausführen
+
+```bash
+psql -U lernsystem -d lernsystemx_dev -h 10.0.10.222 -f backend/migrations/060_create_learning_method_instances.sql  # oder 060_update_...
+```
+
+---
+
+## PHASE 2: Backend-Model für Lernmethoden-Instanzen
+
+### 2.1 Neue Model-Datei
+
+Datei: backend/app/models/learning_method_instance.py
+
+```python
+"""Learning Method Instance Model (kapitelbezogen)"""
+from app.extensions import db
+from datetime import datetime
+import uuid
+
+class LearningMethodInstance(db.Model):
+    __tablename__ = 'learning_method_instances'
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    chapter_id = db.Column(db.String(36), db.ForeignKey('chapters.chapter_id'), nullable=False)
+    method_code = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(255))
+    config = db.Column(db.JSON, default=dict)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    chapter = db.relationship('Chapter', backref=db.backref('learning_method_instances', cascade='all, delete-orphan'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'chapterId': self.chapter_id,
+            'methodCode': self.method_code,
+            'title': self.title,
+            'config': self.config or {},
+            'createdAt': self.created_at.isoformat() if self.created_at else None,
+            'updatedAt': self.updated_at.isoformat() if self.updated_at else None,
+        }
+```
+
+### 2.2 Chapter-Model prüfen
+
+Datei: backend/app/models/chapter.py
+
+Prüfe/ergänze Beziehung:
+
+```python
+learning_method_instances = db.relationship(
+    'LearningMethodInstance',
+    back_populates='chapter',
+    cascade='all, delete-orphan'
+)
+```
+
+Falls back_populates schon gesetzt ist, anpassen, sonst backref wie im Model oben nutzen (nur eine Variante verwenden).
+
+---
+
+## PHASE 3: Repository für Lernmethoden-Instanzen
+
+### 3.1 Neue Datei anlegen
+
+Datei: backend/app/repositories/learning_method_instance_repository.py
+
+```python
+"""Repository für Lernmethoden-Instanzen"""
+from typing import List, Optional
+from app.extensions import db
+from app.models.learning_method_instance import LearningMethodInstance
+from datetime import datetime
+
+class LearningMethodInstanceRepository:
+
+    @staticmethod
+    def find_by_chapter(chapter_id: str) -> List[LearningMethodInstance]:
+        return LearningMethodInstance.query.filter_by(chapter_id=chapter_id).order_by(LearningMethodInstance.created_at.asc()).all()
+
+    @staticmethod
+    def find_by_id(instance_id: str) -> Optional[LearningMethodInstance]:
+        return LearningMethodInstance.query.get(instance_id)
+
+    @staticmethod
+    def create(chapter_id: str, method_code: int, title: str | None, config: dict | None) -> LearningMethodInstance:
+        instance = LearningMethodInstance(
+            chapter_id=chapter_id,
+            method_code=method_code,
+            title=title,
+            config=config or {},
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
+        db.session.add(instance)
+        db.session.commit()
+        return instance
+
+    @staticmethod
+    def update(instance_id: str, data: dict) -> LearningMethodInstance:
+        instance = LearningMethodInstance.query.get(instance_id)
+        if not instance:
+            raise ValueError('LearningMethodInstance not found')
+
+        if 'title' in data:
+            instance.title = data['title']
+        if 'config' in data:
+            instance.config = data['config'] or {}
+
+        instance.updated_at = datetime.utcnow()
+        db.session.commit()
+        return instance
+
+    @staticmethod
+    def delete(instance_id: str) -> bool:
+        instance = LearningMethodInstance.query.get(instance_id)
+        if not instance:
+            return False
+        db.session.delete(instance)
+        db.session.commit()
+        return True
+```
+
+---
+
+## PHASE 4: Admin-API für Lernmethoden-Instanzen
+
+### 4.1 Neue API-Datei oder bestehende erweitern
+
+Variante A: Eigene Datei
+
+Datei: backend/app/api/admin_learning_methods.py
+
+```python
+"""Admin API für kapitelbezogene Lernmethoden-Instanzen"""
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
+from app.decorators import require_role
+from app.repositories.learning_method_instance_repository import LearningMethodInstanceRepository
+
+admin_learning_methods_bp = Blueprint('admin_learning_methods', __name__)
+
+@admin_learning_methods_bp.route('/admin/chapters/<chapter_id>/learning-methods', methods=['GET'])
+@jwt_required()
+@require_role(['admin'])
+def get_learning_methods_for_chapter(chapter_id):
+    try:
+        instances = LearningMethodInstanceRepository.find_by_chapter(chapter_id)
+        return jsonify({
+            'success': True,
+            'data': {
+                'instances': [i.to_dict() for i in instances]
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_learning_methods_bp.route('/admin/chapters/<chapter_id>/learning-methods', methods=['POST'])
+@jwt_required()
+@require_role(['admin'])
+def create_learning_method_instance(chapter_id):
+    try:
+        data = request.get_json() or {}
+        method_code = int(data.get('methodCode'))
+        title = data.get('title')
+        config = data.get('config') or {}
+
+        instance = LearningMethodInstanceRepository.create(
+            chapter_id=chapter_id,
+            method_code=method_code,
+            title=title,
+            config=config,
+        )
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'instance': instance.to_dict()
+            }
+        }), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@admin_learning_methods_bp.route('/admin/learning-methods/<instance_id>', methods=['PATCH'])
+@jwt_required()
+@require_role(['admin'])
+def update_learning_method_instance(instance_id):
+    try:
+        data = request.get_json() or {}
+        instance = LearningMethodInstanceRepository.update(instance_id, data)
+        return jsonify({
+            'success': True,
+            'data': {
+                'instance': instance.to_dict()
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@admin_learning_methods_bp.route('/admin/learning-methods/<instance_id>', methods=['DELETE'])
+@jwt_required()
+@require_role(['admin'])
+def delete_learning_method_instance(instance_id):
+    try:
+        ok = LearningMethodInstanceRepository.delete(instance_id)
+        if not ok:
+            return jsonify({'error': 'Instance not found'}), 404
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+
+### 4.2 Blueprint registrieren
+
+Datei: backend/app/__init__.py
+
+```python
+from app.api.admin_learning_methods import admin_learning_methods_bp
+app.register_blueprint(admin_learning_methods_bp)
+```
+
+---
+
+## PHASE 5: Frontend API-Funktionen
+
+### 5.1 admin.api.ts erweitern
+
+Datei: frontend/src/api/admin.api.ts
+
+```typescript
+// Lernmethoden-Instanzen (kapitelbezogen)
+
+export const adminGetChapterLearningMethods = (chapterId: string) =>
+  api.get(`/admin/chapters/${chapterId}/learning-methods`)
+
+export const adminCreateLearningMethodInstance = (chapterId: string, data: {
+  methodCode: number
+  title?: string
+  config?: any
+}) => api.post(`/admin/chapters/${chapterId}/learning-methods`, data)
+
+export const adminUpdateLearningMethodInstance = (instanceId: string, data: {
+  title?: string
+  config?: any
+}) => api.patch(`/admin/learning-methods/${instanceId}`, data)
+
+export const adminDeleteLearningMethodInstance = (instanceId: string) =>
+  api.delete(`/admin/learning-methods/${instanceId}`)
+```
+
+---
+
+## PHASE 6: AdminLearningMethodEditorWindow mit API verbinden
+
+### 6.1 Im Script-Setup API-Funktionen importieren
+
+Datei: frontend/src/components/desktop/windows/AdminLearningMethodEditorWindow.vue
+
+```typescript
+import {
+  adminGetChapterLearningMethods,
+  adminCreateLearningMethodInstance,
+  adminUpdateLearningMethodInstance,
+  adminDeleteLearningMethodInstance
+} from '@/api/admin.api'
+```
+
+### 6.2 Instanzen beim Mount laden
+
+```typescript
+onMounted(async () => {
+  try {
+    const response = await adminGetChapterLearningMethods(props.window.payload.chapterId)
+    instances.value = response.data.instances || []
+  } catch (error) {
+    console.error('Fehler beim Laden der Lernmethoden-Instanzen:', error)
+    instances.value = []
+  }
+})
+```
+
+### 6.3 createInstance implementieren
+
+```typescript
+const createInstance = async () => {
+  if (!selectedMethod.value) return
+
+  try {
+    const response = await adminCreateLearningMethodInstance(props.window.payload.chapterId, {
+      methodCode: selectedMethod.value.code,
+      title: selectedMethod.value.nameDE,
+      config: {}
+    })
+
+    const instance = response.data.instance
+    instances.value.push(instance)
+  } catch (error) {
+    console.error('Fehler beim Erstellen der Instanz:', error)
+    alert('Fehler beim Erstellen der Lernmethode')
+  }
+}
+```
+
+### 6.4 deleteInstance implementieren
+
+```typescript
+const deleteInstance = async (instance: any) => {
+  if (!confirm('Möchten Sie diese Lernmethode wirklich löschen?')) return
+
+  try {
+    await adminDeleteLearningMethodInstance(instance.id)
+    instances.value = instances.value.filter(i => i.id !== instance.id)
+  } catch (error) {
+    console.error('Fehler beim Löschen der Instanz:', error)
+    alert('Fehler beim Löschen der Lernmethode')
+  }
+}
+```
+
+### 6.5 editInstance (Stub für spätere Formulare)
+
+```typescript
+const editInstance = (instance: any) => {
+  // Später: eigenes Formular-Fenster pro Methode
+  alert(`Bearbeiten von "${instance.title}" ist noch nicht implementiert.`)
+}
+```
+
+---
+
+## PHASE 7: Tests & Konsistenz
+
+### 7.1 Backend Tests
+
+- [ ] Backend starten ohne Fehler
+- [ ] GET /admin/chapters/<chapter_id>/learning-methods → 200, leere Liste
+- [ ] POST /admin/chapters/<chapter_id>/learning-methods → 201, Instanz zurück
+- [ ] PATCH /admin/learning-methods/<id> → 200
+- [ ] DELETE /admin/learning-methods/<id> → 200
+
+### 7.2 Frontend Tests
+
+1. Kurs-Detailseite öffnen → Kapitel bearbeiten → Tab "Lernmethoden"
+2. "Lernmethoden-Editor öffnen" → Fenster öffnet
+3. Links Gruppe wählen → Methode wählen
+4. "<Name> erstellen" klicken → Instanz erscheint in Liste
+5. Mehrfach auf dieselbe Methode klicken → mehrere Instanzen (z.B. Quiz 2x)
+6. Löschen-Button testen → Instanz verschwindet, API 200
+
+---
+
+## Wichtige Regeln
+
+- Keine Duplikate: Bestehende Migrationsdateien IN-PLACE anpassen, keine .old/.bak Dateien.
+- Wenn bereits eine passende Tabelle existiert, diese weiterverwenden und nur anpassen.
+- API-Routen konsistent unter /admin/chapters/<chapter_id>/learning-methods halten.
+- method_code nutzt die Codes 0-31 aus learningMethods.ts.
+
+---
+
+Führe alle PHASEN der Reihe nach aus.
+Am Ende sind Lernmethoden-Instanzen voll funktionsfähig (Erstellen/Laden/Löschen) pro Kapitel.

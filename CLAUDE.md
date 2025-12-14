@@ -157,7 +157,7 @@ backend/
 │   ├── monitoring/              # Prometheus metrics
 │   └── ki/                      # AI prompt system & learning method mapping
 ├── setup/                       # Setup Wizard
-├── database/                    # SQL migration files (001-046+)
+├── migrations/                  # SQL migration files (001-066)
 └── run.py                       # Entry point
 
 frontend/
@@ -176,8 +176,8 @@ frontend/
 
 ## Database
 
-**Numbered SQL migrations** in `backend/database/`. After full migration:
-- **114 tables**, ~560 indexes, 71+ migration files
+**Numbered SQL migrations** in `backend/migrations/`. After full migration:
+- **153 tables**, 66 migration files (001-066)
 - PostgreSQL with JSONB for flexible data (learning method content, whiteboard data, etc.)
 
 ### Key Tables
@@ -195,58 +195,76 @@ frontend/
 - `groups`, `group_members`, `group_resources` - Community groups
 - `course_categories` - 5-level hierarchical category system (8 main categories)
 
-## Learning Methods (33 Methods, LM00-LM32)
+## Learning Methods (31 Active, 6 Groups A-F)
 
 > **Master Document**: See `LernsystemX-Doku/02_Lernmethoden.md` for complete specifications.
 
-### Group A - Explanatory Methods (LM00-LM07) - 8 methods
-| ID | Name | KI Usage |
-|----|------|----------|
-| LM00 | Deep Explanation | Intensive |
-| LM01 | Step-by-Step Explanation | Medium |
-| LM02 | Interactive Theory | Medium |
-| LM03 | Diagram/Visualization | Medium |
-| LM04 | Glossary Auto-Generator | Medium |
-| LM05 | Mindmap Generator | Medium |
-| LM06 | Scenario Examples | Medium |
-| LM07 | NPC Tutor Lecture | Intensive |
+### Overview
+| Gruppe | Name | IDs | Anzahl | Fokus |
+|--------|------|-----|--------|-------|
+| **A** | Erklärend | LM00–LM03, LM06 | 5 | Verständnis aufbauen |
+| **B** | Praxis | LM08, LM12–LM15, LM17 | 6 | Anwenden & Üben |
+| **C** | Prüfung | LM18–LM25 | 8 | Prüfungsvorbereitung |
+| **D** | Pro | LM04 | 1 | Sokratischer Dialog (Premium) |
+| **E** | IT | LM09–LM11, LM16 | 4 | IT-spezifische Methoden |
+| **F** | Kollaborativ | LM26–LM32 | 7 | Zusammenarbeit & Reflexion |
 
-### Group B - Practice (LM08-LM17) - 10 methods
+**Deaktiviert:** LM05 (→ CourseFeatures), LM07 (→ TutorAgent)
+
+### Group A - Erklärend (5 methods)
 | ID | Name | KI Usage |
 |----|------|----------|
-| LM08 | Whiteboard Tasks | Intensive |
-| LM09 | Code/IT-Config Sandbox | Medium |
-| LM10 | Network Simulation | Medium |
-| LM11 | IT Scenario Solving | Intensive |
-| LM12 | Math Interactive | Medium |
+| LM00 | Tiefgehende Erklärung | Intensiv |
+| LM01 | Schritt-für-Schritt | Mittel |
+| LM02 | Interaktive Theorie | Mittel |
+| LM03 | Diagramm/Visualisierung | Mittel |
+| LM06 | Beispiel-Szenario | Mittel |
+
+### Group B - Praxis (6 methods)
+| ID | Name | KI Usage |
+|----|------|----------|
+| LM08 | Whiteboard-Aufgabe | Intensiv |
+| LM12 | Mathe-Interaktiv | Mittel |
 | LM13 | Flashcards | Optional |
 | LM14 | Drag & Drop | Optional |
-| LM15 | Fill-in-the-Blanks | Optional |
-| LM16 | Error Analysis | Medium |
-| LM17 | Hands-on Lab | Intensive |
+| LM15 | Lückentext | Optional |
+| LM17 | Hands-on Lab | Intensiv |
 
-### Group C - Exam-Oriented (LM18-LM25) - 8 methods
+### Group C - Prüfung (8 methods)
 | ID | Name | KI Usage |
 |----|------|----------|
-| LM18 | Free Text Long Answer | Medium |
-| LM19 | IHK-Style Tasks | Intensive |
-| LM20 | Multi-Step Practical Exam | Intensive |
-| LM21 | Time Limit Training | Optional |
-| LM22 | Exam Quiz (MC, Matching) | Optional |
-| LM23 | Comprehension Checks | Optional |
-| LM24 | Oral Explanation | Intensive |
-| LM25 | Chapter Final Exam | Medium |
+| LM18 | Freitext-Langantwort | Mittel |
+| LM19 | IHK-Stil Aufgaben | Intensiv |
+| LM20 | Multi-Step Praxisprüfung | Intensiv |
+| LM21 | Zeitlimit-Training | Optional |
+| LM22 | Prüfungs-Quiz | Optional |
+| LM23 | Verständnis-Checks | Optional |
+| LM24 | Mündliche Erklärung | Intensiv |
+| LM25 | Kapitel-Endprüfung | Mittel |
 
-### Group D - Pro/Gamification (LM26-LM32) - 7 methods
+### Group D - Pro (1 method)
 | ID | Name | KI Usage |
 |----|------|----------|
-| LM26 | Adaptive Difficulty | Intensive |
-| LM27 | Learning Path Generator | Intensive |
-| LM28 | Persona Tutor | Intensive |
-| LM29 | Socratic Dialog | Intensive |
-| LM30 | Daily Recall / Spaced Repetition | Medium |
-| LM31 | Quest/XP System | Optional |
-| LM32 | Vocabulary Trainer (Vokabel Trainer) | Medium |
+| LM04 | Sokratischer Dialog | Intensiv |
+
+### Group E - IT (4 methods)
+| ID | Name | KI Usage |
+|----|------|----------|
+| LM09 | Code/IT-Config Sandbox | Mittel |
+| LM10 | Netzwerk-Simulation | Mittel |
+| LM11 | IT-Szenario lösen | Intensiv |
+| LM16 | Fehleranalyse | Mittel |
+
+### Group F - Kollaborativ (7 methods)
+| ID | Name | KI Usage |
+|----|------|----------|
+| LM26 | Peer Instruction | Mittel |
+| LM27 | Team-Case / Gruppenfallarbeit | Mittel |
+| LM28 | Peer Review | Mittel |
+| LM29 | Lerntagebuch | Optional |
+| LM30 | Projekt-Portfolio | Optional |
+| LM31 | Projektbasiertes Lernen | Mittel |
+| LM32 | Inverted Classroom | Mittel |
 
 **Code Reference**: `backend/app/ki/learning_method_mapping.py`
 **DB Constraint**: `method_type BETWEEN 0 AND 32`

@@ -23,14 +23,17 @@ export type WindowType =
   | 'admin-ai-kapitel-generator'  // NEW: AI Kapitel Generator (2025-11-27)
   | 'admin-ai-studio'  // Phase D4: KI-Authoring-Studio (2025-12-02)
   | 'admin-lesson-editor'
-  | 'admin-learning-method-editor'  // Phase D3.4: Learning Methods Editor (32 Methoden)
+  | 'admin-learning-method-editor'  // Phase D3.4: Learning Methods Editor (19 Content-LMs)
   | 'admin-exam-manager'
   | 'admin-ai-job'
   | 'admin-window-manager'
   | 'admin-prompt-browser'
   | 'admin-model-selector'
   | 'admin-course-files'  // Phase: Desktop OS - Files Manager
-  // 32 Lernmethoden-Formulare (00-31) - Phase D3.5
+  | 'admin-file-preview'  // Phase D4: File Preview Window
+  | 'admin-lesson-preview'  // Phase D4: Lesson Preview Window
+  | 'admin-chapter-preview'  // Phase D4: Chapter Preview Window
+  // Lernmethoden-Formulare (Legacy: 00-31, aktiv: 19 Content-LMs) - Phase D3.5
   | 'learning-method-0-form'
   | 'learning-method-1-form'
   | 'learning-method-2-form'
@@ -87,8 +90,11 @@ export interface LsxWindow {
   title: string
   icon?: string
   minimized: boolean
+  maximized: boolean
   position: { x: number; y: number }
   size?: { width: number; height: number }
+  // Store position/size before maximize to restore later
+  preMaximizeState?: { position: { x: number; y: number }; size: { width: number; height: number } }
   payload?: Record<string, unknown>
   livePreview?: WindowLivePreview
   createdAt: string
@@ -255,6 +261,7 @@ export const useWindowStore = defineStore('window', () => {
       title: params.title,
       icon: params.icon,
       minimized: false,
+      maximized: false,
       position,
       size,
       payload: params.payload || {},
@@ -464,6 +471,36 @@ export const useWindowStore = defineStore('window', () => {
   }
 
   /**
+   * Toggle maximize/restore
+   */
+  function toggleMaximize(id: string): void {
+    const window = windows.value.find(w => w.id === id)
+    if (!window) return
+
+    if (window.maximized) {
+      // Restore from maximized state
+      if (window.preMaximizeState) {
+        window.position = { ...window.preMaximizeState.position }
+        window.size = { ...window.preMaximizeState.size }
+        window.preMaximizeState = undefined
+      }
+      window.maximized = false
+    } else {
+      // Save current state and maximize
+      window.preMaximizeState = {
+        position: { ...window.position },
+        size: window.size ? { ...window.size } : { width: 800, height: 600 }
+      }
+      window.maximized = true
+      // Position will be handled by CSS, but we set logical values
+      window.position = { x: 0, y: 0 }
+    }
+    window.updatedAt = new Date().toISOString()
+    window.zIndex = nextZIndex.value++
+    activeWindowId.value = id
+  }
+
+  /**
    * Close all windows
    */
   function closeAllWindows(): void {
@@ -509,6 +546,7 @@ export const useWindowStore = defineStore('window', () => {
     updateWindowTitle,
     updateWindowLivePreview,
     toggleMinimize,
+    toggleMaximize,
     closeAllWindows,
     closeWindowsByType,
     loadWindowSizesFromServer

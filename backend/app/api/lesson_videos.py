@@ -294,7 +294,7 @@ def get_lesson_audio(lesson_id: str):
     """
     try:
         from app.services.lesson_video_service import LessonVideoService
-        from app.repositories.base_repository import BaseRepository
+        from app.database.connection import fetch_one
 
         # Look for cached audio
         query = """
@@ -311,7 +311,7 @@ def get_lesson_audio(lesson_id: str):
             LIMIT 1
         """
 
-        result = BaseRepository.fetch_one(query, (lesson_id,))
+        result = fetch_one(query, (lesson_id,))
 
         if result and result.get('storage_path'):
             audio_path = result['storage_path']

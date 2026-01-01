@@ -3,21 +3,21 @@
     <!-- Page Header - Compact -->
     <div class="mb-3 flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold text-[var(--color-text-primary)]">Kurs Verwaltung</h1>
-        <p class="text-xs text-[var(--color-text-secondary)]">Verwaltung aller Kurse im System</p>
+        <h1 class="text-lg font-bold text-[var(--color-text-primary)]">{{ $t('admin.courses.title') }}</h1>
+        <p class="text-xs text-[var(--color-text-secondary)]">{{ $t('admin.courses.subtitle') }}</p>
       </div>
       <div class="flex gap-2">
         <button
           @click="openCourseCreateWindow"
           class="px-3 py-1.5 text-sm bg-[var(--color-primary)] text-white rounded hover:bg-[var(--color-primary-dark)] transition-colors font-medium"
         >
-          + Kurs erstellen
+          + {{ $t('admin.courses.create') }}
         </button>
         <button
           @click="openWindowManager"
           class="px-3 py-1.5 text-sm bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] rounded hover:bg-[var(--color-background)] transition-colors"
         >
-          Fenster
+          {{ $t('admin.courses.windows') }}
         </button>
       </div>
     </div>
@@ -28,12 +28,12 @@
         <!-- Search -->
         <div class="md:col-span-2">
           <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            Suche
+            {{ $t('common.search') }}
           </label>
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Kurs-Titel suchen..."
+            :placeholder="$t('admin.courses.searchPlaceholder')"
             class="w-full px-2 py-1.5 text-sm border border-[var(--color-border)] rounded bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:border-transparent"
             @input="debouncedSearch"
           />
@@ -42,14 +42,14 @@
         <!-- Category Filter -->
         <div>
           <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            Kategorie
+            {{ $t('courses.category') }}
           </label>
           <select
             v-model="categoryFilter"
             class="w-full px-2 py-1.5 text-sm border border-[var(--color-border)] rounded bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:border-transparent"
             @change="loadCourses"
           >
-            <option :value="undefined">Alle Kategorien</option>
+            <option :value="undefined">{{ $t('admin.courses.allCategories') }}</option>
             <option
               v-for="cat in flatCategories"
               :key="cat.category_id"
@@ -63,17 +63,17 @@
         <!-- Status Filter -->
         <div>
           <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            Status
+            {{ $t('common.status') }}
           </label>
           <select
             v-model="statusFilter"
             class="w-full px-2 py-1.5 text-sm border border-[var(--color-border)] rounded bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:border-transparent"
             @change="loadCourses"
           >
-            <option value="all">Alle Status</option>
-            <option value="draft">Entwurf</option>
-            <option value="published">Veröffentlicht</option>
-            <option value="archived">Archiviert</option>
+            <option value="all">{{ $t('admin.courses.allStatus') }}</option>
+            <option value="draft">{{ $t('admin.courses.draft') }}</option>
+            <option value="published">{{ $t('admin.courses.statusPublished') }}</option>
+            <option value="archived">{{ $t('admin.courses.archived') }}</option>
           </select>
         </div>
 
@@ -87,10 +87,10 @@
             class="w-full px-2 py-1.5 text-sm border border-[var(--color-border)] rounded bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:border-transparent"
             @change="loadCourses"
           >
-            <option value="">Alle Level</option>
-            <option value="beginner">Anfänger</option>
-            <option value="intermediate">Fortgeschritten</option>
-            <option value="advanced">Experte</option>
+            <option value="">{{ $t('courses.level_all') }}</option>
+            <option value="beginner">{{ $t('courses.level_beginner') }}</option>
+            <option value="intermediate">{{ $t('courses.level_intermediate') }}</option>
+            <option value="advanced">{{ $t('courses.level_advanced') }}</option>
           </select>
         </div>
 
@@ -100,7 +100,7 @@
             @click="resetFilters"
             class="w-full px-2 py-1.5 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] border border-[var(--color-border)] rounded hover:bg-[var(--color-background)]"
           >
-            Reset
+            {{ $t('common.reset') }}
           </button>
         </div>
       </div>
@@ -109,7 +109,7 @@
     <!-- Courses Table -->
     <div class="bg-[var(--color-surface)] rounded shadow-sm border border-[var(--color-border)]">
       <div v-if="adminStore.isLoading" class="p-4 text-center">
-        <p class="text-xs text-[var(--color-text-secondary)]">Lade Kurse...</p>
+        <p class="text-xs text-[var(--color-text-secondary)]">{{ $t('admin.courses.loading') }}</p>
       </div>
 
       <div v-else-if="adminStore.error" class="p-4 text-center">
@@ -117,7 +117,7 @@
       </div>
 
       <div v-else-if="adminStore.courses.length === 0" class="p-4 text-center">
-        <p class="text-xs text-[var(--color-text-secondary)]">Keine Kurse gefunden</p>
+        <p class="text-xs text-[var(--color-text-secondary)]">{{ $t('admin.courses.noCourses') }}</p>
       </div>
 
       <div v-else class="overflow-x-auto">
@@ -125,25 +125,25 @@
           <thead class="bg-[var(--color-background)] border-b border-[var(--color-border)]">
             <tr>
               <th class="px-3 py-2 text-left text-[10px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
-                Titel
+                {{ $t('admin.courses.columnTitle') }}
               </th>
               <th class="px-3 py-2 text-left text-[10px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
-                Ersteller
+                {{ $t('admin.courses.creator') }}
               </th>
               <th class="px-3 py-2 text-left text-[10px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
-                Status
+                {{ $t('common.status') }}
               </th>
               <th class="px-3 py-2 text-left text-[10px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
                 Level
               </th>
               <th class="px-3 py-2 text-left text-[10px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
-                Mod
+                {{ $t('admin.courses.chapters') }}
               </th>
               <th class="px-3 py-2 text-left text-[10px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
-                TN
+                {{ $t('admin.courses.enrollments') }}
               </th>
               <th class="px-3 py-2 text-right text-[10px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
-                Aktionen
+                {{ $t('common.actions') }}
               </th>
             </tr>
           </thead>
@@ -166,7 +166,7 @@
               <!-- Creator -->
               <td class="px-3 py-2">
                 <div class="text-xs text-[var(--color-text-primary)] truncate max-w-[100px]">
-                  {{ course.creator_name || 'Unbekannt' }}
+                  {{ course.creator_name || $t('admin.courses.unknown') }}
                 </div>
               </td>
 
@@ -203,7 +203,7 @@
                     @click="viewCourseDetail(course.course_id)"
                     class="text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] px-2 py-1 text-xs border border-[var(--color-primary)] rounded hover:bg-[var(--color-primary)] hover:text-white transition-colors"
                   >
-                    Details
+                    {{ $t('common.details') }}
                   </button>
 
                   <!-- Publish Button (only for drafts) -->
@@ -212,7 +212,7 @@
                     @click="publishCourse(course.course_id)"
                     class="text-green-600 hover:text-green-800 px-2 py-1 text-xs border border-green-600 rounded hover:bg-green-600 hover:text-white transition-colors"
                   >
-                    Publish
+                    {{ $t('admin.courses.publish') }}
                   </button>
 
                   <!-- Unpublish Button (only for published) -->
@@ -221,7 +221,7 @@
                     @click="unpublishCourse(course.course_id)"
                     class="text-yellow-600 hover:text-yellow-800 px-2 py-1 text-xs border border-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors"
                   >
-                    Unpublish
+                    {{ $t('admin.courses.unpublish') }}
                   </button>
 
                   <!-- Archive Button (only for draft/published) -->
@@ -230,7 +230,7 @@
                     @click="archiveCourse(course.course_id)"
                     class="text-yellow-600 hover:text-yellow-800 px-2 py-1 text-xs border border-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors"
                   >
-                    Archiv
+                    {{ $t('admin.courses.archive') }}
                   </button>
 
                   <!-- Restore Button (only for archived) -->
@@ -239,16 +239,16 @@
                     @click="unarchiveCourse(course.course_id)"
                     class="text-blue-600 hover:text-blue-800 px-2 py-1 text-xs border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors"
                   >
-                    Restore
+                    {{ $t('admin.courses.restore') }}
                   </button>
 
                   <!-- Permanent Delete Button (always visible) -->
                   <button
                     @click="permanentDeleteCourse(course.course_id, course.title)"
                     class="text-red-700 hover:text-white px-2 py-1 text-xs border border-red-700 rounded hover:bg-red-700 transition-colors"
-                    title="Permanent löschen - kann nicht rückgängig gemacht werden!"
+                    :title="$t('admin.courses.deleteWarning')"
                   >
-                    Löschen
+                    {{ $t('common.delete') }}
                   </button>
                 </div>
               </td>
@@ -292,10 +292,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/admin.store'
 import { useWindowStore } from '@/store/window.store'
 import type { Category } from '@/api/admin.api'
 
+const { t } = useI18n()
 const router = useRouter()
 const adminStore = useAdminStore()
 const windowStore = useWindowStore()
@@ -504,34 +506,34 @@ const getStatusBadgeClass = (status: string): string => {
 }
 
 /**
- * Get German label for status
+ * Get translated label for status
  */
 const getStatusLabel = (status: string): string => {
   switch (status) {
     case 'draft':
-      return 'Entwurf'
+      return t('admin.courses.draft')
     case 'published':
-      return 'Veröffentlicht'
+      return t('admin.courses.statusPublished')
     case 'archived':
-      return 'Archiviert'
+      return t('admin.courses.archived')
     default:
       return status
   }
 }
 
 /**
- * Get German label for level
+ * Get translated label for level
  */
 const getLevelLabel = (level?: string): string => {
-  if (!level) return 'Nicht angegeben'
+  if (!level) return t('admin.courses.notSpecified')
 
   switch (level) {
     case 'beginner':
-      return 'Anfänger'
+      return t('courses.level_beginner')
     case 'intermediate':
-      return 'Fortgeschritten'
+      return t('courses.level_intermediate')
     case 'advanced':
-      return 'Experte'
+      return t('courses.level_advanced')
     default:
       return level
   }
@@ -543,7 +545,7 @@ const getLevelLabel = (level?: string): string => {
 function openCourseCreateWindow(): void {
   windowStore.openWindow({
     type: 'admin-course-create',
-    title: 'Neuen Kurs erstellen',
+    title: t('admin.courses.createNewCourse'),
     icon: '📚'
   })
 }
@@ -554,7 +556,7 @@ function openCourseCreateWindow(): void {
 function openWindowManager(): void {
   windowStore.openWindow({
     type: 'admin-window-manager',
-    title: 'Fensterverwaltung',
+    title: t('admin.courses.windowManager'),
     icon: '🗂',
     size: { width: 400, height: 500 }
   })

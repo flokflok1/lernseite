@@ -1,39 +1,46 @@
 /**
  * Lernmethoden-Definitionen
  *
- * 31 aktive Lernmethoden in 6 Gruppen:
- * - A: Erklaerend (LM00-LM03, LM06) - 5 Methoden
- * - B: Praxis (LM08, LM12-LM15, LM17) - 6 Methoden
+ * 19 Content-Lernmethoden in 3 Gruppen (A-C):
+ * - A: Erklaerend (LM00, LM01, LM02, LM03, LM06) - 5 Methoden
+ * - B: Praxis (LM08, LM12, LM13, LM14, LM15, LM17) - 6 Methoden
  * - C: Pruefung (LM18-LM25) - 8 Methoden
- * - D: Pro (LM04) - 1 Methode
- * - E: IT (LM09-LM11, LM16) - 4 Methoden
- * - F: Kollaborativ (LM26-LM32) - 7 Methoden
  *
- * Deaktiviert (jetzt CourseFeatures/TutorAgent):
- * - LM05: Mindmap-Generator -> course_features.auto_mindmap_enabled
- * - LM07: NPC-Tutor -> TutorAgent System
+ * System-Features (fruehere LMs, jetzt eigenstaendige Module):
+ * - LM04: Sokratischer Dialog -> TutorAgent
+ * - LM05: Mindmap-Generator -> CourseFeatures.mindmap
+ * - LM07: NPC-Tutor -> TutorAgent
+ * - LM09-LM11, LM16: IT-Sandboxes -> System-Feature IT-Umgebungen
+ * - LM26-LM32: Kollaborativ -> System-Features Kollaboration
+ *
+ * Referenz: 02_Lernmethoden.md, 02a_System-Features.md
  *
  * Diese Konfiguration MUSS mit dem Backend uebereinstimmen!
  * Backend-Quelle: /api/v1/admin/learning-method-types
  */
 
-export type LearningMethodGroup = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+// Nur Content-Gruppen (A, B, C) - System-Features sind separat
+export type LearningMethodGroup = 'A' | 'B' | 'C'
+
+// Legacy-Support fuer alte Gruppen D, E, F (jetzt System-Features)
+export type LegacyGroup = 'D' | 'E' | 'F'
+export type AllGroups = LearningMethodGroup | LegacyGroup
 
 export interface LearningMethod {
-  id: string          // "00"-"32" (OHNE "LM")
-  code: number        // 0-32
+  id: string          // "00"-"25" (OHNE "LM")
+  code: number        // 0-25 (Content-LMs)
   name: string        // Deutscher Name
-  group: LearningMethodGroup
-  category: 'erklaerend' | 'praxis' | 'pruefung' | 'pro' | 'it' | 'kollaborativ'
+  group: AllGroups    // A, B, C = Content; D, E, F = System-Features (inaktiv)
+  category: 'erklaerend' | 'praxis' | 'pruefung' | 'system-feature'
   description: string
   icon: string        // Emoji
   promptKey: string   // Backend prompt_key
-  active: boolean     // Aktiv oder deaktiviert
+  active: boolean     // true = Content-LM, false = System-Feature
 }
 
 export const LEARNING_METHODS: LearningMethod[] = [
   // ============================================================================
-  // Gruppe A: Erklaerend (LM00-LM03, LM06) - 5 aktive Methoden
+  // Gruppe A: Erklaerend (LM00, LM01, LM02, LM03, LM06) - 5 Content-LMs
   // ============================================================================
   {
     id: '00',
@@ -79,7 +86,6 @@ export const LEARNING_METHODS: LearningMethod[] = [
     promptKey: 'visualization',
     active: true
   },
-  // LM05 Mindmap-Generator -> deaktiviert (jetzt CourseFeature)
   {
     id: '06',
     code: 6,
@@ -91,10 +97,9 @@ export const LEARNING_METHODS: LearningMethod[] = [
     promptKey: 'scenario_explanation',
     active: true
   },
-  // LM07 NPC-Tutor -> deaktiviert (jetzt TutorAgent)
 
   // ============================================================================
-  // Gruppe B: Praxis (LM08, LM12-LM15, LM17) - 6 aktive Methoden
+  // Gruppe B: Praxis (LM08, LM12, LM13, LM14, LM15, LM17) - 6 Content-LMs
   // ============================================================================
   {
     id: '08',
@@ -107,7 +112,6 @@ export const LEARNING_METHODS: LearningMethod[] = [
     promptKey: 'whiteboard',
     active: true
   },
-  // LM09-11, LM16 sind in Gruppe E (IT)
   {
     id: '12',
     code: 12,
@@ -165,7 +169,7 @@ export const LEARNING_METHODS: LearningMethod[] = [
   },
 
   // ============================================================================
-  // Gruppe C: Pruefungsorientiert (LM18-LM25) - 8 aktive Methoden
+  // Gruppe C: Pruefung (LM18-LM25) - 8 Content-LMs
   // ============================================================================
   {
     id: '18',
@@ -257,158 +261,174 @@ export const LEARNING_METHODS: LearningMethod[] = [
   },
 
   // ============================================================================
-  // Gruppe D: Pro (LM04) - 1 aktive Methode
+  // SYSTEM-FEATURES (fruehere LMs, jetzt eigenstaendige Module)
+  // Diese sind NICHT als Content-LMs verfuegbar!
+  // Siehe: 02a_System-Features.md
   // ============================================================================
+
+  // Gruppe D: TutorAgent (frueher Pro)
   {
     id: '04',
     code: 4,
-    name: 'Sokratischer Dialog',
+    name: '[System-Feature] Sokratischer Dialog',
     group: 'D',
-    category: 'pro',
-    description: 'KI fragt, User leitet Konzept selbst her',
+    category: 'system-feature',
+    description: 'Jetzt: TutorAgent-Modul',
     icon: '💬',
     promptKey: 'socratic_dialog',
-    active: true
+    active: false
+  },
+  {
+    id: '05',
+    code: 5,
+    name: '[System-Feature] Mindmap-Generator',
+    group: 'D',
+    category: 'system-feature',
+    description: 'Jetzt: CourseFeatures.mindmap',
+    icon: '🗺️',
+    promptKey: 'mindmap',
+    active: false
+  },
+  {
+    id: '07',
+    code: 7,
+    name: '[System-Feature] NPC-Tutor-Lecture',
+    group: 'D',
+    category: 'system-feature',
+    description: 'Jetzt: TutorAgent-Modul',
+    icon: '🤖',
+    promptKey: 'npc_tutor',
+    active: false
   },
 
-  // ============================================================================
-  // Gruppe E: IT-Spezifisch (LM09-LM11, LM16) - 4 aktive Methoden
-  // ============================================================================
+  // Gruppe E: IT-Sandbox
   {
     id: '09',
     code: 9,
-    name: 'Code/IT-Config Sandbox',
+    name: '[System-Feature] Code/IT-Config Sandbox',
     group: 'E',
-    category: 'it',
-    description: 'Code-/Config-Editor mit Tests & Output',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature IT-Umgebungen',
     icon: '💻',
     promptKey: 'code_sandbox',
-    active: true
+    active: false
   },
   {
     id: '10',
     code: 10,
-    name: 'Netzwerk-Simulation',
+    name: '[System-Feature] Netzwerk-Simulation',
     group: 'E',
-    category: 'it',
-    description: 'Simulierte Netzumgebung (Router, Switch, Ping)',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature IT-Umgebungen',
     icon: '🌐',
     promptKey: 'network_sim',
-    active: true
+    active: false
   },
   {
     id: '11',
     code: 11,
-    name: 'IT-Szenario loesen',
+    name: '[System-Feature] IT-Szenario loesen',
     group: 'E',
-    category: 'it',
-    description: 'Troubleshooting mit Logs/Configs',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature IT-Umgebungen',
     icon: '🔧',
     promptKey: 'it_scenario',
-    active: true
+    active: false
   },
   {
     id: '16',
     code: 16,
-    name: 'Fehleranalyse',
+    name: '[System-Feature] Fehleranalyse',
     group: 'E',
-    category: 'it',
-    description: 'Defekter Code/Config, Fehler finden & erklaeren',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature IT-Umgebungen',
     icon: '🔍',
     promptKey: 'error_analysis',
-    active: true
+    active: false
   },
 
-  // ============================================================================
-  // Gruppe F: Kollaborativ (LM26-LM32) - 7 aktive Methoden
-  // ============================================================================
+  // Gruppe F: Kollaboration
   {
     id: '26',
     code: 26,
-    name: 'Peer Instruction',
+    name: '[System-Feature] Peer Instruction',
     group: 'F',
-    category: 'kollaborativ',
-    description: 'Think-Pair-Share mit Erstantwort und Diskussion',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature Kollaboration',
     icon: '👥',
     promptKey: 'peer_instruction',
-    active: true
+    active: false
   },
   {
     id: '27',
     code: 27,
-    name: 'Team-Case / Gruppenfallarbeit',
+    name: '[System-Feature] Team-Case',
     group: 'F',
-    category: 'kollaborativ',
-    description: 'Teams loesen Fall mit Rollen',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature Kollaboration',
     icon: '🤝',
     promptKey: 'team_case',
-    active: true
+    active: false
   },
   {
     id: '28',
     code: 28,
-    name: 'Peer Review (strukturiert)',
+    name: '[System-Feature] Peer Review',
     group: 'F',
-    category: 'kollaborativ',
-    description: 'Rubric-basiertes Feedback zu Arbeiten anderer',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature Kollaboration',
     icon: '📋',
     promptKey: 'peer_review',
-    active: true
+    active: false
   },
   {
     id: '29',
     code: 29,
-    name: 'Lerntagebuch / Learning Journal',
+    name: '[System-Feature] Lerntagebuch',
     group: 'F',
-    category: 'kollaborativ',
-    description: 'Regelmaessige Reflexionseintraege',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature Kollaboration',
     icon: '📔',
     promptKey: 'learning_journal',
-    active: true
+    active: false
   },
   {
     id: '30',
     code: 30,
-    name: 'Projekt-Portfolio',
+    name: '[System-Feature] Projekt-Portfolio',
     group: 'F',
-    category: 'kollaborativ',
-    description: 'Artefakte-Sammlung mit Meta-Kommentar',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature Kollaboration',
     icon: '📁',
     promptKey: 'portfolio',
-    active: true
+    active: false
   },
   {
     id: '31',
     code: 31,
-    name: 'Projektbasiertes Lernen',
+    name: '[System-Feature] Projektbasiertes Lernen',
     group: 'F',
-    category: 'kollaborativ',
-    description: 'Mehrwoechiges IT-Projekt',
+    category: 'system-feature',
+    description: 'Jetzt: System-Feature Kollaboration',
     icon: '🏗️',
     promptKey: 'project_based',
-    active: true
-  },
-  {
-    id: '32',
-    code: 32,
-    name: 'Inverted Classroom',
-    group: 'F',
-    category: 'kollaborativ',
-    description: 'Async Theorie + sync Praxis',
-    icon: '🔄',
-    promptKey: 'inverted_classroom',
-    active: true
+    active: false
   }
 ]
 
-// Aktive Methoden (fuer Katalog etc.)
+// ============================================================================
+// Exports
+// ============================================================================
+
+// Nur aktive Content-LMs (19 Methoden)
 export const ACTIVE_LEARNING_METHODS = LEARNING_METHODS.filter(m => m.active)
 
+// Content-Gruppen (A, B, C)
 export const LEARNING_METHOD_GROUPS = {
   A: {
     id: 'A' as LearningMethodGroup,
     name: 'Erklaerend',
-    range: 'LM00-LM03, LM06',
+    range: 'LM00, LM01, LM02, LM03, LM06',
     icon: '📚',
     color: 'blue',
     count: 5
@@ -416,7 +436,7 @@ export const LEARNING_METHOD_GROUPS = {
   B: {
     id: 'B' as LearningMethodGroup,
     name: 'Praxis',
-    range: 'LM08, LM12-LM15, LM17',
+    range: 'LM08, LM12, LM13, LM14, LM15, LM17',
     icon: '🎯',
     color: 'green',
     count: 6
@@ -428,30 +448,34 @@ export const LEARNING_METHOD_GROUPS = {
     icon: '📝',
     color: 'orange',
     count: 8
-  },
+  }
+}
+
+// System-Features (frueher D, E, F - jetzt separate Module)
+export const SYSTEM_FEATURE_GROUPS = {
   D: {
-    id: 'D' as LearningMethodGroup,
-    name: 'Pro',
-    range: 'LM04',
+    id: 'D',
+    name: 'TutorAgent',
+    module: 'TutorAgent',
+    range: 'LM04, LM05, LM07',
     icon: '💬',
-    color: 'purple',
-    count: 1
+    color: 'purple'
   },
   E: {
-    id: 'E' as LearningMethodGroup,
-    name: 'IT',
-    range: 'LM09-LM11, LM16',
+    id: 'E',
+    name: 'IT-Umgebungen',
+    module: 'IT-Sandbox',
+    range: 'LM09, LM10, LM11, LM16',
     icon: '💻',
-    color: 'cyan',
-    count: 4
+    color: 'cyan'
   },
   F: {
-    id: 'F' as LearningMethodGroup,
-    name: 'Kollaborativ',
-    range: 'LM26-LM32',
+    id: 'F',
+    name: 'Kollaboration',
+    module: 'Collaboration',
+    range: 'LM26-LM31',
     icon: '👥',
-    color: 'pink',
-    count: 7
+    color: 'pink'
   }
 }
 
@@ -459,13 +483,13 @@ export const LEARNING_METHOD_GROUPS = {
 export const LEARNING_METHOD_CATEGORIES = {
   erklaerend: {
     name: 'Erklaerende Methoden',
-    range: 'LM00-LM03, LM06',
+    range: 'LM00, LM01, LM02, LM03, LM06',
     icon: '📚',
     color: 'blue'
   },
   praxis: {
     name: 'Praxis/Uebung',
-    range: 'LM08, LM12-LM15, LM17',
+    range: 'LM08, LM12, LM13, LM14, LM15, LM17',
     icon: '🎯',
     color: 'green'
   },
@@ -474,30 +498,15 @@ export const LEARNING_METHOD_CATEGORIES = {
     range: 'LM18-LM25',
     icon: '📝',
     color: 'orange'
-  },
-  pro: {
-    name: 'Pro',
-    range: 'LM04',
-    icon: '💬',
-    color: 'purple'
-  },
-  it: {
-    name: 'IT-Spezifisch',
-    range: 'LM09-LM11, LM16',
-    icon: '💻',
-    color: 'cyan'
-  },
-  kollaborativ: {
-    name: 'Kollaborativ',
-    range: 'LM26-LM32',
-    icon: '👥',
-    color: 'pink'
   }
 }
 
 export type LearningMethodCategory = keyof typeof LEARNING_METHOD_CATEGORIES
 
+// ============================================================================
 // Helper Funktionen
+// ============================================================================
+
 export function getLearningMethodsByCategory(category: LearningMethodCategory): LearningMethod[] {
   return ACTIVE_LEARNING_METHODS.filter(m => m.category === category)
 }
@@ -522,22 +531,33 @@ export function getLearningMethodByPromptKey(promptKey: string): LearningMethod 
   return LEARNING_METHODS.find(m => m.promptKey === promptKey)
 }
 
-// Tier-Berechnung basierend auf Gruppe
-export function getTierFromGroup(group: LearningMethodGroup): 'basic' | 'premium' | 'pro' {
+// Tier-Berechnung basierend auf Gruppe (nur Content-LMs)
+export function getTierFromGroup(group: LearningMethodGroup): 'basic' | 'premium' {
   if (group === 'A' || group === 'B') return 'basic'
-  if (group === 'C' || group === 'E') return 'premium'
-  return 'pro' // D, F
+  return 'premium' // C
 }
 
-export function getTierFromCode(code: number): 'basic' | 'premium' | 'pro' {
+export function getTierFromCode(code: number): 'basic' | 'premium' | 'system-feature' {
   const method = getLearningMethodByCode(code)
   if (!method) return 'basic'
-  return getTierFromGroup(method.group)
+  if (!method.active) return 'system-feature'
+  return getTierFromGroup(method.group as LearningMethodGroup)
 }
 
-// Fuer Legacy-Kompatibilitaet
-export function getTierFromCategory(category: LearningMethodCategory): 'basic' | 'premium' | 'pro' {
-  if (category === 'erklaerend' || category === 'praxis') return 'basic'
-  if (category === 'pruefung' || category === 'it') return 'premium'
-  return 'pro' // pro, kollaborativ
+// Prueft ob Code eine aktive Content-LM ist
+export function isContentLearningMethod(code: number): boolean {
+  const method = getLearningMethodByCode(code)
+  return method?.active ?? false
 }
+
+// Prueft ob Code ein System-Feature ist
+export function isSystemFeature(code: number): boolean {
+  const method = getLearningMethodByCode(code)
+  return method ? !method.active : false
+}
+
+// Gueltige Content-LM Codes
+export const VALID_CONTENT_LM_CODES = [0, 1, 2, 3, 6, 8, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+
+// System-Feature Codes (fuer Referenz)
+export const SYSTEM_FEATURE_CODES = [4, 5, 7, 9, 10, 11, 16, 26, 27, 28, 29, 30, 31]

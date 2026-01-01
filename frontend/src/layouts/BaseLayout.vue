@@ -13,6 +13,7 @@
 
           <!-- User Menu -->
           <div class="flex items-center space-x-4">
+            <LanguageSelector :show-label="false" :show-request-option="false" />
             <span class="text-sm text-[var(--color-text-primary)]">
               {{ authStore.fullName }}
             </span>
@@ -23,7 +24,7 @@
               @click="handleLogout"
               class="btn btn-outline btn-sm"
             >
-              Logout
+              {{ t('auth.logout') }}
             </button>
           </div>
         </div>
@@ -40,28 +41,28 @@
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"
           >
-            📊 Dashboard
+            📊 {{ t('nav.dashboard') }}
           </router-link>
           <router-link
             to="/courses"
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"
           >
-            📚 Kurse
+            📚 {{ t('nav.courses') }}
           </router-link>
           <router-link
             to="/profile"
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"
           >
-            👤 Profil
+            👤 {{ t('nav.profile') }}
           </router-link>
           <router-link
             to="/settings"
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"
           >
-            ⚙️ Einstellungen
+            ⚙️ {{ t('nav.settings') }}
           </router-link>
           <router-link
             v-if="authStore.isSystemAdmin"
@@ -69,7 +70,7 @@
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"
           >
-            🔧 Admin Panel
+            🔧 {{ t('nav.admin') }}
           </router-link>
         </nav>
       </aside>
@@ -88,10 +89,16 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Footer from '@/components/layout/Footer.vue'
+import LanguageSelector from '@/components/ui/LanguageSelector.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const { t, locale } = useI18n()
+
+// Force reactivity on locale change (used in template via t())
+void locale
 
 const handleLogout = async () => {
   await authStore.logout()

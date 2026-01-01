@@ -225,10 +225,10 @@ def admin_required(fn: Callable) -> Callable:
 
 def permission_required(*permissions: str) -> Callable:
     """
-    Decorator to require specific permissions
+    Decorator to require specific permissions (checks against database)
 
     Args:
-        *permissions: One or more required permissions
+        *permissions: One or more required permissions (ANY match = access granted)
 
     Usage:
         @app.route('/courses/publish')
@@ -236,9 +236,17 @@ def permission_required(*permissions: str) -> Callable:
         def publish_course():
             return jsonify({'message': 'Course published'})
 
+        # Multiple permissions (user needs ANY of these)
+        @app.route('/i18n/moderate')
+        @permission_required('i18n.moderate', 'i18n.edit')
+        def moderate_translations():
+            return jsonify({'message': 'Moderating...'})
+
     Note:
-        Permissions are checked against role-based permissions
-        stored in the roles table.
+        Permissions are checked against:
+        1. User-specific overrides (user_permissions table)
+        2. Role-based permissions (role_permissions table)
+        3. Admin role has all permissions
 
     Returns:
         401 if not authenticated
@@ -249,27 +257,41 @@ def permission_required(*permissions: str) -> Callable:
         @token_required
         def wrapper(*args, **kwargs):
             user = g.current_user
+            user_id = user.get('user_id')
             user_role = user.get('role', 'user')
 
-            # Superadmin has all permissions
-            if user_role == 'superadmin':
+            # Admin/Superadmin has all permissions
+            if user_role in ('admin', 'superadmin'):
                 return fn(*args, **kwargs)
 
-            # TODO: Implement permission checking against roles table
-            # For now, we'll use role hierarchy
-            role_level = ROLE_HIERARCHY.get(user_role, 0)
+            # Check permissions against database
+            from app.repositories.base_repository import BaseRepository
 
-            # Basic permission check (simplified)
-            # In production, fetch permissions from roles table
-            has_permission = role_level >= 5  # Admins and above
+            has_any_permission = False
+            for perm in permissions:
+                try:
+                    result = BaseRepository.fetch_one(
+                        "SELECT user_has_permission(%s, %s) as has_perm",
+                        (user_id, perm)
+                    )
+                    if result and result.get('has_perm'):
+                        has_any_permission = True
+                        break
+                except Exception:
+                    # If DB function doesn't exist, fall back to role hierarchy
+                    role_level = ROLE_HIERARCHY.get(user_role, 0)
+                    has_any_permission = role_level >= 5
+                    break
 
-            if not has_permission:
+            if not has_any_permission:
                 return jsonify({
                     'success': False,
-                    'error': 'Insufficient permissions',
-                    'message': f'This endpoint requires specific permissions',
-                    'required_permissions': list(permissions),
-                    'user_role': user_role
+                    'error': {
+                        'code': 'FORBIDDEN',
+                        'message': 'Insufficient permissions',
+                        'required_permissions': list(permissions),
+                        'user_role': user_role
+                    }
                 }), 403
 
             return fn(*args, **kwargs)

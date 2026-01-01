@@ -1,7 +1,12 @@
 """
 LernsystemX KI - Prompt Registry
 
-Central registry for managing prompt templates across all 32 learning methods (LM00-LM31).
+Central registry for managing prompt templates across 19 Content-Lernmethoden.
+
+Content-LMs (Gruppen A-C):
+- A: LM00, LM01, LM02, LM03, LM06 (Erklaerend)
+- B: LM08, LM12, LM13, LM14, LM15, LM17 (Praxis)
+- C: LM18-LM25 (Pruefung)
 
 Features:
 - Code-based default prompts (in PROMPT_REGISTRY)
@@ -11,16 +16,12 @@ Features:
 Functions:
 - register_prompt: Register a new prompt template
 - get_prompt_template: Retrieve a template by code (checks DB first, then code)
-- get_prompt_for_lm_id: Retrieve a template by LM-ID (0-31)
+- get_prompt_for_lm_id: Retrieve a template by LM-ID
 - list_all_prompts: Get all registered templates
 - init_default_prompts: Initialize standard learning method prompts
 - get_prompt_with_style: Get template for category+style (theory, adhs, etc.)
 
-Referenz: 02_Lernmethoden.md (32 Lernmethoden, LM00-LM31)
-
-Phase 24 - Developer Guide / KI-Prompts
-Phase D3.3 - 32 Lernmethoden Integration
-Phase KI-Studio - DB Override + Styles
+Referenz: 02_Lernmethoden.md, 02a_System-Features.md
 """
 
 from typing import Dict, List, Optional

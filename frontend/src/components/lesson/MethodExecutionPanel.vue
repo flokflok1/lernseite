@@ -84,20 +84,6 @@
         </button>
       </div>
 
-      <!-- Special: IHK Calculation Practice -->
-      <div class="calc-practice-section">
-        <button
-          @click="showCalcModal = true"
-          class="calc-btn"
-        >
-          <span class="calc-icon">🧮</span>
-          <span class="calc-text">
-            <strong>IHK Kalkulation üben</strong>
-            <small>Bezugs-, Verkaufs- & Handelskalkulation</small>
-          </span>
-          <span class="calc-badge">Offline</span>
-        </button>
-      </div>
     </div>
 
     <!-- Methods List -->
@@ -118,15 +104,15 @@
       >
         <div class="method-top">
           <div class="method-title-row">
-            <span class="method-icon">{{ method.icon || '📚' }}</span>
-            <span class="method-name">{{ method.method_name }}</span>
+            <span class="method-icon">{{ method.icon || getMethodIcon(method.method_type) }}</span>
+            <span class="method-name">{{ cleanMethodTitle(method.method_name, method.method_type) }}</span>
           </div>
-          <span class="method-badge" :class="getBadgeClass(method.category)">
-            {{ method.category }}
+          <span class="method-badge method-badge--type">
+            LM{{ String(method.method_type).padStart(2, '0') }}
           </span>
         </div>
 
-        <p class="method-desc">{{ method.description }}</p>
+        <p class="method-desc">{{ getMethodTypeName(method.method_type) }}</p>
 
         <div class="method-bottom">
           <div class="method-meta">
@@ -197,14 +183,6 @@
       :total-tasks="generatedTasks.length"
       @close="closeModal"
       @new-task="generateNewFromModal"
-    />
-
-    <!-- Calculation Modal (IHK-Style) -->
-    <CalculationModal
-      v-if="showCalcModal"
-      method-name="LM12 - Kaufmännisches Rechnen"
-      @close="showCalcModal = false"
-      @complete="handleCalcComplete"
     />
 
     <!-- All Tasks Modal (Enhanced) -->
@@ -326,7 +304,6 @@ import { useAuthStore } from '@/store/auth.store'
 import * as tokensApi from '@/api/tokens.api'
 import { getLessonExecutions, deleteExecution, type LearningMethod, type SavedTaskExecution } from '@/api/player.api'
 import MathTaskModal from './MathTaskModal.vue'
-import CalculationModal from './CalculationModal.vue'
 
 // Types
 interface TaskData {
@@ -364,7 +341,6 @@ const generatedTasks = ref<GeneratedTask[]>([])
 const currentTaskIdx = ref(0)
 const showModal = ref(false)
 const showAllModal = ref(false)
-const showCalcModal = ref(false)
 const errorMessage = ref<string | null>(null)
 const loadingTasks = ref(false)
 const shuffleMode = ref(false)
@@ -403,6 +379,53 @@ const displayTasks = computed(() => {
   }
   return shuffled
 })
+
+// Method Icons & Names
+const methodIcons: Record<number, string> = {
+  0: '📖', 1: '📝', 2: '🔄', 3: '📊', 4: '💭', 6: '🎯',
+  8: '✏️', 9: '💻', 10: '🌐', 11: '🔧', 12: '🔢', 13: '🃏',
+  14: '🎯', 15: '📝', 16: '🔍', 17: '🛠️', 18: '✍️', 19: '📋',
+  20: '📑', 21: '⏱️', 22: '❓', 23: '✅', 24: '🎤', 25: '🏆',
+  26: '👥', 27: '🤝', 28: '📊', 29: '📓', 30: '📁', 31: '🎓', 32: '🔄'
+}
+
+const methodNames: Record<number, string> = {
+  0: 'Tiefgehende Erklärung', 1: 'Schritt-für-Schritt', 2: 'Interaktive Theorie',
+  3: 'Diagramm/Visualisierung', 4: 'Sokratischer Dialog', 6: 'Beispiel-Szenario',
+  8: 'Whiteboard-Aufgabe', 9: 'Code Sandbox', 10: 'Netzwerk-Simulation',
+  11: 'IT-Szenario', 12: 'Mathe-Interaktiv', 13: 'Flashcards', 14: 'Drag & Drop',
+  15: 'Lückentext', 16: 'Fehleranalyse', 17: 'Hands-on Lab', 18: 'Freitext',
+  19: 'IHK-Stil Aufgaben', 20: 'Multi-Step Prüfung', 21: 'Zeitlimit-Training',
+  22: 'Prüfungs-Quiz', 23: 'Verständnis-Check', 24: 'Mündliche Erklärung',
+  25: 'Kapitel-Endprüfung', 26: 'Peer Instruction', 27: 'Team-Case',
+  28: 'Peer Review', 29: 'Lerntagebuch', 30: 'Portfolio', 31: 'Projektbasiert',
+  32: 'Inverted Classroom'
+}
+
+const getMethodIcon = (type: number | string | undefined): string => {
+  if (type === undefined || type === null) return '📚'
+  const t = typeof type === 'string' ? parseInt(type, 10) : type
+  return isNaN(t) ? '📚' : (methodIcons[t] || '📚')
+}
+
+const getMethodTypeName = (type: number | string | undefined): string => {
+  if (type === undefined || type === null) return 'Lernmethode'
+  const t = typeof type === 'string' ? parseInt(type, 10) : type
+  return isNaN(t) ? 'Lernmethode' : (methodNames[t] || `Lernmethode ${t}`)
+}
+
+const cleanMethodTitle = (title: string | undefined, methodType: number | string | undefined): string => {
+  if (!title) return 'Aufgabe'
+  // Remove "LM12:", "LM22:", etc. prefix from title
+  const t = typeof methodType === 'string' ? parseInt(methodType, 10) : methodType
+  if (t !== undefined && !isNaN(t)) {
+    const prefix = `LM${String(t).padStart(2, '0')}:`
+    if (title.startsWith(prefix)) {
+      return title.substring(prefix.length).trim()
+    }
+  }
+  return title
+}
 
 // Methods
 const getBadgeClass = (category: string) => {
@@ -646,11 +669,6 @@ const generateNewFromModal = async () => {
   if (selectedMethod.value) {
     await generateTask(selectedMethod.value)
   }
-}
-
-const handleCalcComplete = (result: { score: number; type: string }) => {
-  console.log('Calculation completed:', result)
-  // Could track stats here if needed
 }
 
 const truncateText = (text: string, len: number): string => {
@@ -988,6 +1006,7 @@ onMounted(async () => {
 .badge-basis { background-color: rgba(16, 185, 129, 0.15); color: #10b981; }
 .badge-premium { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; }
 .badge-pro { background-color: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+.method-badge--type { background-color: rgba(139, 92, 246, 0.2); color: #a78bfa; }
 .badge-default { background-color: var(--color-surface-secondary, #f9fafb); color: var(--color-text-secondary, #6b7280); }
 
 .method-desc {

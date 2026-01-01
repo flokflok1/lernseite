@@ -1,6 +1,7 @@
 /**
  * LernsystemX Frontend - Application Entry Point
  * Phase B24 - Theme Support with async initialization
+ * Phase i18n - Internationalization support
  */
 
 import { createApp } from 'vue'
@@ -9,6 +10,7 @@ import router from './router'
 import App from './App.vue'
 import './style.css'
 import { useThemeStore } from './store/theme.store'
+import { setupI18n, initializeI18n } from './plugins/i18n'
 
 // ============================================================================
 // Async App Initialization
@@ -31,10 +33,16 @@ import { useThemeStore } from './store/theme.store'
 
     console.log('[Main] Theme initialized, effective theme:', themeStore.effectiveTheme)
 
-    // 4. Install router
+    // 4. Initialize i18n (Internationalization)
+    setupI18n(app)
+    await initializeI18n()
+
+    console.log('[Main] i18n initialized')
+
+    // 5. Install router
     app.use(router)
 
-    // 5. Mount app (theme is already applied to DOM)
+    // 6. Mount app (theme and i18n are already applied)
     app.mount('#app')
 
     console.log('[Main] App mounted successfully')
@@ -47,6 +55,7 @@ import { useThemeStore } from './store/theme.store'
     try {
       const app = createApp(App)
       app.use(createPinia())
+      setupI18n(app)
       app.use(router)
       app.mount('#app')
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-6">Mein Profil</h1>
+    <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-6">{{ t('profile.title') }}</h1>
 
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center py-12">
@@ -9,39 +9,39 @@
 
     <div v-else class="space-y-6">
       <!-- Sektion: Meine Daten -->
-      <Card title="Meine Daten">
+      <Card :title="t('profile.my_data')">
         <div v-if="!editing" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p class="text-sm text-[var(--color-text-secondary)]">Vorname</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ t('auth.first_name') }}</p>
               <p class="font-medium text-[var(--color-text-primary)]">{{ authStore.profile?.first_name }}</p>
             </div>
             <div>
-              <p class="text-sm text-[var(--color-text-secondary)]">Nachname</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ t('auth.last_name') }}</p>
               <p class="font-medium text-[var(--color-text-primary)]">{{ authStore.profile?.last_name }}</p>
             </div>
           </div>
 
           <div>
-            <p class="text-sm text-[var(--color-text-secondary)]">E-Mail</p>
+            <p class="text-sm text-[var(--color-text-secondary)]">{{ t('auth.email') }}</p>
             <p class="font-medium text-[var(--color-text-primary)]">{{ authStore.profile?.email }}</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p class="text-sm text-[var(--color-text-secondary)]">Rolle</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.role') }}</p>
               <span class="px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded">
                 {{ roleLabel }}
               </span>
             </div>
             <div v-if="authStore.profile?.organisation_name">
-              <p class="text-sm text-[var(--color-text-secondary)]">Organisation</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.organisation') }}</p>
               <p class="font-medium text-[var(--color-text-primary)]">{{ authStore.profile.organisation_name }}</p>
             </div>
           </div>
 
           <div v-if="updateSuccess" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-            Profil erfolgreich aktualisiert!
+            {{ t('profile.update_success') }}
           </div>
 
           <div v-if="updateError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -54,12 +54,12 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               v-model="editForm.first_name"
-              label="Vorname"
+              :label="t('auth.first_name')"
               required
             />
             <Input
               v-model="editForm.last_name"
-              label="Nachname"
+              :label="t('auth.last_name')"
               required
             />
           </div>
@@ -67,7 +67,7 @@
           <Input
             v-model="editForm.email"
             type="email"
-            label="E-Mail"
+            :label="t('auth.email')"
             required
           />
 
@@ -77,25 +77,25 @@
 
           <div class="flex gap-3">
             <Button type="submit" variant="primary" :loading="updating">
-              Speichern
+              {{ t('common.save') }}
             </Button>
             <Button type="button" variant="outline" @click="cancelEdit">
-              Abbrechen
+              {{ t('common.cancel') }}
             </Button>
           </div>
         </form>
 
         <template #footer v-if="!editing">
           <Button variant="primary" @click="startEdit">
-            Bearbeiten
+            {{ t('profile.edit') }}
           </Button>
         </template>
       </Card>
 
       <!-- Sektion: Sicherheit -->
-      <Card title="Sicherheit">
+      <Card :title="t('profile.security')">
         <div v-if="!changingPassword" class="text-sm text-[var(--color-text-secondary)]">
-          <p>Ändere dein Passwort, um dein Konto zu schützen.</p>
+          <p>{{ t('profile.security_hint') }}</p>
         </div>
 
         <!-- Password Change Form -->
@@ -103,27 +103,27 @@
           <Input
             v-model="passwordForm.current_password"
             type="password"
-            label="Aktuelles Passwort"
+            :label="t('profile.current_password')"
             required
           />
 
           <Input
             v-model="passwordForm.new_password"
             type="password"
-            label="Neues Passwort"
+            :label="t('profile.new_password')"
             required
-            hint="Min. 8 Zeichen, 1 Großbuchstabe, 1 Zahl"
+            :hint="t('auth.password_hint')"
           />
 
           <Input
             v-model="passwordForm.confirm_password"
             type="password"
-            label="Neues Passwort wiederholen"
+            :label="t('profile.confirm_new_password')"
             required
           />
 
           <div v-if="passwordSuccess" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-            Passwort erfolgreich geändert!
+            {{ t('profile.password_success') }}
           </div>
 
           <div v-if="passwordError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -132,30 +132,30 @@
 
           <div class="flex gap-3">
             <Button type="submit" variant="primary" :loading="changingPasswordLoading">
-              Passwort ändern
+              {{ t('profile.change_password') }}
             </Button>
             <Button type="button" variant="outline" @click="cancelPasswordChange">
-              Abbrechen
+              {{ t('common.cancel') }}
             </Button>
           </div>
         </form>
 
         <template #footer v-if="!changingPassword">
           <Button variant="outline" @click="startPasswordChange">
-            Passwort ändern
+            {{ t('profile.change_password') }}
           </Button>
         </template>
       </Card>
 
       <!-- Sektion: Plan & Tokens (read-only) -->
-      <Card title="Plan & Tokens">
+      <Card :title="t('profile.plan_tokens')">
         <div class="space-y-4">
           <!-- Subscription Info -->
           <div class="border-b border-[var(--color-border)] pb-4">
-            <h3 class="text-sm font-medium text-[var(--color-text-primary)] mb-3">Abo-Informationen</h3>
+            <h3 class="text-sm font-medium text-[var(--color-text-primary)] mb-3">{{ t('profile.subscription_info') }}</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p class="text-sm text-[var(--color-text-secondary)]">Plan</p>
+                <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.plan') }}</p>
                 <p class="font-bold text-lg capitalize">{{ subscription?.plan || 'Free' }}</p>
                 <span
                   class="px-2 py-1 text-xs font-medium rounded mt-1 inline-block"
@@ -165,48 +165,48 @@
                 </span>
               </div>
               <div v-if="subscription?.status !== 'none'">
-                <p class="text-sm text-[var(--color-text-secondary)]">Quelle</p>
+                <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.source') }}</p>
                 <p class="font-medium text-[var(--color-text-primary)]">{{ subscriptionSourceLabel }}</p>
               </div>
             </div>
 
             <div v-if="subscription?.expires_at" class="mt-3">
-              <p class="text-sm text-[var(--color-text-secondary)]">Läuft ab am</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.expires_at') }}</p>
               <p class="font-medium text-[var(--color-text-primary)]">{{ formatDate(subscription.expires_at) }}</p>
             </div>
 
             <div v-if="subscription?.auto_renew" class="mt-3 bg-blue-50 border border-blue-200 p-3 rounded">
               <p class="text-sm text-blue-800">
-                Automatische Verlängerung ist aktiv
+                {{ t('profile.auto_renew_active') }}
               </p>
             </div>
           </div>
 
           <!-- Token Balance -->
           <div>
-            <h3 class="text-sm font-medium text-[var(--color-text-primary)] mb-3">Token-Guthaben</h3>
+            <h3 class="text-sm font-medium text-[var(--color-text-primary)] mb-3">{{ t('profile.token_balance') }}</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p class="text-sm text-[var(--color-text-secondary)]">Verfügbar</p>
+                <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.available') }}</p>
                 <p class="text-2xl font-bold" :class="tokenBalanceClass">
                   {{ tokenBalance?.available?.toLocaleString() || 0 }}
                 </p>
               </div>
               <div>
-                <p class="text-sm text-[var(--color-text-secondary)]">Gesamt erhalten</p>
+                <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.total_received') }}</p>
                 <p class="font-medium text-[var(--color-text-primary)]">
                   {{ (tokenBalance?.total_purchased || 0) + (tokenBalance?.total_granted || 0) | 0 }}
                 </p>
               </div>
               <div>
-                <p class="text-sm text-[var(--color-text-secondary)]">Verbraucht</p>
+                <p class="text-sm text-[var(--color-text-secondary)]">{{ t('profile.consumed') }}</p>
                 <p class="font-medium text-[var(--color-text-primary)]">{{ tokenBalance?.total_consumed?.toLocaleString() || 0 }}</p>
               </div>
             </div>
 
             <div v-if="tokenBalance?.monthly_grant" class="mt-3 bg-green-50 border border-green-200 p-3 rounded">
               <p class="text-sm text-green-800">
-                Du erhältst {{ tokenBalance.monthly_grant.toLocaleString() }} Tokens pro Monat
+                {{ t('profile.monthly_grant', { amount: tokenBalance.monthly_grant.toLocaleString() }) }}
               </p>
             </div>
           </div>
@@ -214,7 +214,7 @@
 
         <template #footer>
           <router-link to="/dashboard" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-            Zum Dashboard →
+            {{ t('profile.to_dashboard') }} →
           </router-link>
         </template>
       </Card>
@@ -224,6 +224,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import * as profileApi from '@/api/profile.api'
 import * as tokensApi from '@/api/tokens.api'
@@ -235,6 +236,7 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 
 const loading = ref(true)
@@ -264,14 +266,15 @@ const passwordForm = reactive<ChangePasswordRequest>({
 })
 
 const roleLabel = computed(() => {
+  void locale.value // Trigger reactivity on language change
   const roleMap: Record<string, string> = {
-    user: 'User',
-    premium: 'Premium',
-    creator: 'Creator',
-    teacher: 'Lehrer',
-    school_admin: 'Schule',
-    company_admin: 'Unternehmen',
-    admin: 'Admin'
+    user: t('profile.role_user'),
+    premium: t('profile.role_premium'),
+    creator: t('profile.role_creator'),
+    teacher: t('profile.role_teacher'),
+    school_admin: t('profile.role_school'),
+    company_admin: t('profile.role_company'),
+    admin: t('profile.role_admin')
   }
   return roleMap[authStore.userRole] || authStore.userRole
 })
@@ -294,25 +297,27 @@ const subscriptionStatusClass = computed(() => {
 })
 
 const subscriptionStatusLabel = computed(() => {
-  if (!subscription.value) return 'Kein Abo'
+  void locale.value // Trigger reactivity on language change
+  if (!subscription.value) return t('profile.status_none')
 
   const statusMap: Record<string, string> = {
-    active: 'Aktiv',
-    trial: 'Testversion',
-    cancelled: 'Gekündigt',
-    expired: 'Abgelaufen',
-    none: 'Kein Abo'
+    active: t('profile.status_active'),
+    trial: t('profile.status_trial'),
+    cancelled: t('profile.status_cancelled'),
+    expired: t('profile.status_expired'),
+    none: t('profile.status_none')
   }
   return statusMap[subscription.value.status] || subscription.value.status
 })
 
 const subscriptionSourceLabel = computed(() => {
+  void locale.value // Trigger reactivity on language change
   if (!subscription.value) return '-'
 
   const sourceMap: Record<string, string> = {
-    user: 'Persönliches Abo',
-    organisation: 'Organisations-Abo',
-    default: 'Standard (Free)'
+    user: t('profile.source_user'),
+    organisation: t('profile.source_organisation'),
+    default: t('profile.source_default')
   }
   return sourceMap[subscription.value.source] || subscription.value.source
 })
@@ -369,7 +374,7 @@ const saveProfile = async () => {
     }, 3000)
 
   } catch (err: any) {
-    updateError.value = err.response?.data?.message || 'Profil-Aktualisierung fehlgeschlagen'
+    updateError.value = err.response?.data?.message || t('profile.update_failed')
   } finally {
     updating.value = false
   }
@@ -395,12 +400,12 @@ const submitPasswordChange = async () => {
 
   // Client-side validation
   if (passwordForm.new_password !== passwordForm.confirm_password) {
-    passwordError.value = 'Passwörter stimmen nicht überein'
+    passwordError.value = t('errors.password_mismatch')
     return
   }
 
   if (passwordForm.new_password.length < 8) {
-    passwordError.value = 'Passwort muss mindestens 8 Zeichen lang sein'
+    passwordError.value = t('errors.password_min_length')
     return
   }
 
@@ -421,7 +426,7 @@ const submitPasswordChange = async () => {
     }, 2000)
 
   } catch (err: any) {
-    passwordError.value = err.response?.data?.message || 'Passwort-Änderung fehlgeschlagen'
+    passwordError.value = err.response?.data?.message || t('profile.password_failed')
   } finally {
     changingPasswordLoading.value = false
   }

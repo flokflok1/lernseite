@@ -1,6 +1,6 @@
 <template>
   <div class="courses-page">
-    <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-6">Kurse</h1>
+    <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-6">{{ t('courses.title') }}</h1>
 
     <!-- Main Tab Navigation -->
     <div class="flex border-b border-[var(--color-border)] mb-6">
@@ -40,7 +40,7 @@
             ? 'bg-primary-600 text-white'
             : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] border border-[var(--color-border)]'"
         >
-          Alle Kurse
+          {{ t('courses.all_courses') }}
         </button>
         <button
           v-for="category in topLevelCategories"
@@ -72,7 +72,7 @@
             ? 'bg-primary-500 text-white'
             : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] border border-[var(--color-border)]'"
         >
-          Alle in {{ getSelectedCategoryName() }}
+          {{ t('courses.all_in_category', { category: getSelectedCategoryName() }) }}
         </button>
         <button
           v-for="subcat in selectedCategoryChildren"
@@ -94,7 +94,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Kurse durchsuchen..."
+            :placeholder="t('courses.search_placeholder')"
             class="w-full px-4 py-2 pl-10 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
           <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]">🔍</span>
@@ -103,10 +103,10 @@
           v-model="selectedLevel"
           class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
-          <option value="">Alle Level</option>
-          <option value="beginner">Anfänger</option>
-          <option value="intermediate">Fortgeschritten</option>
-          <option value="advanced">Experte</option>
+          <option value="">{{ t('courses.level_all') }}</option>
+          <option value="beginner">{{ t('courses.level_beginner') }}</option>
+          <option value="intermediate">{{ t('courses.level_intermediate') }}</option>
+          <option value="advanced">{{ t('courses.level_advanced') }}</option>
         </select>
       </div>
 
@@ -128,9 +128,9 @@
       <!-- Empty State -->
       <div v-else class="text-center py-12">
         <div class="text-6xl mb-4">📚</div>
-        <h3 class="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Keine Kurse gefunden</h3>
+        <h3 class="text-xl font-semibold text-[var(--color-text-primary)] mb-2">{{ t('courses.no_courses') }}</h3>
         <p class="text-[var(--color-text-secondary)]">
-          {{ searchQuery ? 'Versuche andere Suchbegriffe' : 'Bald werden hier offizielle LSX Academy Kurse verfügbar sein!' }}
+          {{ searchQuery ? t('courses.no_courses_hint_search') : t('courses.no_courses_hint_academy') }}
         </p>
       </div>
     </div>
@@ -139,12 +139,12 @@
     <div v-else-if="activeTab === 'community'">
       <div class="text-center py-12 bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)]">
         <div class="text-6xl mb-4">🌍</div>
-        <h3 class="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Community Kurse</h3>
+        <h3 class="text-xl font-semibold text-[var(--color-text-primary)] mb-2">{{ t('courses.community_title') }}</h3>
         <p class="text-[var(--color-text-secondary)] mb-4">
-          Hier werden Kurse von anderen Nutzern angezeigt.
+          {{ t('courses.community_desc') }}
         </p>
         <span class="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-          🚧 Kommt in einer zukünftigen Version
+          🚧 {{ t('courses.coming_soon') }}
         </span>
       </div>
     </div>
@@ -153,7 +153,7 @@
     <div v-else-if="activeTab === 'own'">
       <!-- Enrolled Courses -->
       <div v-if="enrolledCourses.length > 0" class="mb-8">
-        <h2 class="text-xl font-semibold text-[var(--color-text-primary)] mb-4">Eingeschriebene Kurse</h2>
+        <h2 class="text-xl font-semibold text-[var(--color-text-primary)] mb-4">{{ t('courses.enrolled_courses') }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <EnrolledCourseCard
             v-for="enrollment in enrolledCourses"
@@ -166,7 +166,7 @@
 
       <!-- Created Courses (for Creators) -->
       <div v-if="myCourses.length > 0">
-        <h2 class="text-xl font-semibold text-[var(--color-text-primary)] mb-4">Erstellte Kurse</h2>
+        <h2 class="text-xl font-semibold text-[var(--color-text-primary)] mb-4">{{ t('courses.created_courses') }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <CourseCard
             v-for="course in myCourses"
@@ -182,12 +182,12 @@
       <!-- Empty State -->
       <div v-if="enrolledCourses.length === 0 && myCourses.length === 0" class="text-center py-12 bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)]">
         <div class="text-6xl mb-4">📖</div>
-        <h3 class="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Noch keine Kurse</h3>
+        <h3 class="text-xl font-semibold text-[var(--color-text-primary)] mb-2">{{ t('courses.no_courses_yet') }}</h3>
         <p class="text-[var(--color-text-secondary)] mb-4">
-          Schreibe dich in deinen ersten Kurs ein oder erstelle einen eigenen!
+          {{ t('courses.no_courses_hint_own') }}
         </p>
         <Button variant="primary" @click="activeTab = 'academy'">
-          Kurse entdecken
+          {{ t('courses.discover_courses') }}
         </Button>
       </div>
     </div>
@@ -197,6 +197,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   searchCourses,
   getMyEnrolledCourses,
@@ -216,6 +217,7 @@ import EnrolledCourseCard from '@/components/courses/EnrolledCourseCard.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t, locale } = useI18n()
 const loading = ref(true)
 const activeTab = ref<'academy' | 'community' | 'own'>('academy')
 const searchQuery = ref('')
@@ -239,11 +241,14 @@ const isAdmin = computed(() => {
 // Computed
 // ============================================================================
 
-const tabs = computed(() => [
-  { id: 'academy' as const, label: 'LSX Academy', icon: '🎓', count: academyCourses.value.length },
-  { id: 'community' as const, label: 'Community', icon: '🌍', count: undefined },
-  { id: 'own' as const, label: 'Meine Kurse', icon: '📖', count: enrolledCourses.value.length }
-])
+const tabs = computed(() => {
+  void locale.value // Trigger reactivity on language change
+  return [
+    { id: 'academy' as const, label: t('courses.tab_academy'), icon: '🎓', count: academyCourses.value.length },
+    { id: 'community' as const, label: t('courses.tab_community'), icon: '🌍', count: undefined },
+    { id: 'own' as const, label: t('courses.tab_own'), icon: '📖', count: enrolledCourses.value.length }
+  ]
+})
 
 // Top-level categories (no parent)
 const topLevelCategories = computed(() => {

@@ -1,5 +1,10 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex flex-col">
+    <!-- Language Selector (top-right) -->
+    <div class="absolute top-4 right-4">
+      <LanguageSelector :show-label="false" :show-request-option="false" />
+    </div>
+
     <!-- Main Content -->
     <div class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
       <div class="max-w-md w-full">
@@ -47,6 +52,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import LanguageSelector from '@/components/ui/LanguageSelector.vue'
 
 const currentYear = computed(() => new Date().getFullYear())
 </script>

@@ -2,10 +2,19 @@
   OnScreenCalculator - Kompakter, schöner Taschenrechner
 
   REDESIGNED: Smaller, cleaner, professional design
+  ENHANCED: Backend integration, Memory, History, Keystrokes
+
+  Features:
+  - Standard-Rechenoperationen
+  - Prozent-Taste
+  - Memory (M+, M-, MR, MC)
+  - Verlauf (History) mit Backend-Sync
+  - Keystroke-Tracking für Replay
+  - Session-Integration für MathToolkit
 -->
 
 <template>
-  <div class="calc-wrapper" :class="{ 'has-challenge': !!challenge }">
+  <div class="calc-wrapper" :class="{ 'has-challenge': !!challenge, 'expanded': showMemory || showHistory }">
     <!-- Challenge Header -->
     <div v-if="challenge" class="calc-challenge">
       <span class="challenge-icon">🧮</span>
@@ -14,12 +23,24 @@
 
     <!-- Display -->
     <div class="calc-display">
+      <div class="display-meta" v-if="memory !== 0 || sessionId">
+        <span v-if="memory !== 0" class="memory-indicator">M</span>
+        <span v-if="sessionId" class="session-indicator">●</span>
+      </div>
       <div class="display-input" :class="{ error: hasError }">
         {{ displayFormula || '0' }}
       </div>
       <div v-if="currentResult !== null" class="display-result">
         = {{ formatNumber(currentResult) }}
       </div>
+    </div>
+
+    <!-- Memory Row (optional) -->
+    <div v-if="showMemory" class="memory-row">
+      <button @click="memoryClear" class="btn mem" title="Memory Clear">MC</button>
+      <button @click="memoryRecall" class="btn mem" title="Memory Recall">MR</button>
+      <button @click="memoryAdd" class="btn mem" title="Memory Add">M+</button>
+      <button @click="memorySubtract" class="btn mem" title="Memory Subtract">M−</button>
     </div>
 
     <!-- Compact Button Grid -->
@@ -60,6 +81,25 @@
       Ergebnis prüfen
     </button>
 
+    <!-- History Panel (optional) -->
+    <div v-if="showHistory && history.length > 0" class="history-panel">
+      <div class="history-header">
+        <span>Verlauf</span>
+        <button @click="clearHistory" class="history-clear">Löschen</button>
+      </div>
+      <div class="history-list">
+        <div
+          v-for="(entry, idx) in history.slice(0, 5)"
+          :key="idx"
+          class="history-entry"
+          @click="useHistoryEntry(entry)"
+        >
+          <span class="entry-formula">{{ entry.formula }}</span>
+          <span class="entry-result">= {{ formatNumber(entry.result) }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Feedback Toast -->
     <Transition name="toast">
       <div v-if="feedbackMessage" class="feedback-toast" :class="feedbackType">
@@ -72,6 +112,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { mathToolkitApi } from '@/api/mathToolkit.api'
 
 interface CalculatorChallenge {
   prompt: string
@@ -80,16 +121,31 @@ interface CalculatorChallenge {
   hint?: string
 }
 
-const props = defineProps<{
+interface HistoryEntry {
+  formula: string
+  result: number
+  keystrokes?: string[]
+  timestamp?: Date
+}
+
+const props = withDefaults(defineProps<{
   challenge?: CalculatorChallenge
   showHistory?: boolean
-}>()
+  showMemory?: boolean
+  sessionId?: string
+  saveToBackend?: boolean
+}>(), {
+  showHistory: false,
+  showMemory: false,
+  saveToBackend: false
+})
 
 const emit = defineEmits<{
   (e: 'result-submitted', result: number): void
   (e: 'correct', result: number): void
   (e: 'wrong', result: number, expected: number): void
   (e: 'calculate', result: number): void
+  (e: 'keystroke', key: string): void
 }>()
 
 // State
@@ -100,6 +156,13 @@ const feedbackMessage = ref('')
 const feedbackType = ref<'correct' | 'wrong'>('correct')
 const waitingForOperator = ref(false)
 
+// Memory State
+const memory = ref(0)
+
+// History State
+const history = ref<HistoryEntry[]>([])
+const keystrokes = ref<string[]>([])
+
 // Format number German style
 function formatNumber(num: number): string {
   return num.toLocaleString('de-DE', {
@@ -108,7 +171,14 @@ function formatNumber(num: number): string {
   })
 }
 
+// Track keystrokes
+function trackKeystroke(key: string) {
+  keystrokes.value.push(key)
+  emit('keystroke', key)
+}
+
 function inputDigit(digit: string) {
+  trackKeystroke(digit)
   hasError.value = false
   if (waitingForOperator.value) {
     displayFormula.value = digit
@@ -120,6 +190,7 @@ function inputDigit(digit: string) {
 }
 
 function inputDecimal() {
+  trackKeystroke('.')
   hasError.value = false
   const parts = displayFormula.value.split(/[\+\-\*\/]/)
   const lastPart = parts[parts.length - 1]
@@ -134,6 +205,7 @@ function inputDecimal() {
 }
 
 function inputOperator(op: string) {
+  trackKeystroke(op)
   hasError.value = false
   if (displayFormula.value === '' && op === '-') {
     displayFormula.value = '-'
@@ -152,6 +224,7 @@ function inputOperator(op: string) {
 }
 
 function inputPercent() {
+  trackKeystroke('%')
   if (displayFormula.value === '') return
   try {
     const parts = displayFormula.value.split(/([+\-*/])/)
@@ -167,7 +240,8 @@ function inputPercent() {
   }
 }
 
-function calculate() {
+async function calculate() {
+  trackKeystroke('=')
   if (displayFormula.value === '') return
   try {
     let formula = displayFormula.value
@@ -182,6 +256,35 @@ function calculate() {
     currentResult.value = Math.round(result * 100) / 100
     waitingForOperator.value = true
     emit('calculate', currentResult.value)
+
+    // Add to local history
+    const entry: HistoryEntry = {
+      formula: displayFormula.value,
+      result: currentResult.value,
+      keystrokes: [...keystrokes.value],
+      timestamp: new Date()
+    }
+    history.value.unshift(entry)
+
+    // Save to backend if enabled
+    if (props.saveToBackend && currentResult.value !== null) {
+      try {
+        await mathToolkitApi.saveCalculatorEntry({
+          expression: displayFormula.value,
+          result: currentResult.value,
+          result_display: formatNumber(currentResult.value),
+          session_id: props.sessionId,
+          keystrokes: keystrokes.value,
+          memory_used: memory.value !== 0,
+          memory_value: memory.value
+        })
+      } catch (e) {
+        console.warn('Could not save to backend:', e)
+      }
+    }
+
+    // Reset keystrokes for next calculation
+    keystrokes.value = []
   } catch {
     hasError.value = true
     currentResult.value = null
@@ -189,17 +292,60 @@ function calculate() {
 }
 
 function clear() {
+  trackKeystroke('C')
   displayFormula.value = ''
   currentResult.value = null
   hasError.value = false
   waitingForOperator.value = false
+  keystrokes.value = []
 }
 
 function backspace() {
+  trackKeystroke('⌫')
   if (displayFormula.value.length > 0) {
     displayFormula.value = displayFormula.value.slice(0, -1)
     currentResult.value = null
   }
+}
+
+// Memory Functions
+function memoryAdd() {
+  trackKeystroke('M+')
+  const value = currentResult.value ?? parseFloat(displayFormula.value.replace(',', '.'))
+  if (!isNaN(value)) {
+    memory.value += value
+  }
+}
+
+function memorySubtract() {
+  trackKeystroke('M-')
+  const value = currentResult.value ?? parseFloat(displayFormula.value.replace(',', '.'))
+  if (!isNaN(value)) {
+    memory.value -= value
+  }
+}
+
+function memoryRecall() {
+  trackKeystroke('MR')
+  displayFormula.value = memory.value.toString()
+  currentResult.value = null
+  waitingForOperator.value = true
+}
+
+function memoryClear() {
+  trackKeystroke('MC')
+  memory.value = 0
+}
+
+// History Functions
+function useHistoryEntry(entry: HistoryEntry) {
+  displayFormula.value = entry.result.toString()
+  currentResult.value = entry.result
+  waitingForOperator.value = true
+}
+
+function clearHistory() {
+  history.value = []
 }
 
 function submitResult() {
@@ -256,7 +402,21 @@ watch(() => props.challenge, () => {
   feedbackMessage.value = ''
 })
 
-defineExpose({ clear, calculate, submitResult, currentResult, displayFormula })
+defineExpose({
+  clear,
+  calculate,
+  submitResult,
+  currentResult,
+  displayFormula,
+  memory,
+  history,
+  keystrokes,
+  memoryAdd,
+  memorySubtract,
+  memoryRecall,
+  memoryClear,
+  clearHistory
+})
 </script>
 
 <style scoped>
@@ -444,6 +604,114 @@ defineExpose({ clear, calculate, submitResult, currentResult, displayFormula })
 
 .feedback-icon {
   font-size: 1.125rem;
+}
+
+/* Display Meta (Memory & Session indicators) */
+.display-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.memory-indicator {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.session-indicator {
+  color: #10b981;
+}
+
+/* Memory Row */
+.memory-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn.mem {
+  height: 32px;
+  font-size: 0.75rem;
+  background: #1e293b;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn.mem:hover {
+  background: #334155;
+  color: #f59e0b;
+}
+
+/* History Panel */
+.history-panel {
+  margin-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.75rem;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.history-clear {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.history-clear:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.history-list {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.history-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.375rem 0.5rem;
+  margin-bottom: 0.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background 0.15s;
+}
+
+.history-entry:hover {
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.entry-formula {
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+.entry-result {
+  color: #6366f1;
+  font-weight: 500;
+}
+
+/* Expanded state */
+.calc-wrapper.expanded {
+  width: 280px;
 }
 
 /* Transitions */

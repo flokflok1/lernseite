@@ -1,6 +1,26 @@
 <template>
   <div class="text-lesson">
-    <!-- Lesson Content -->
+    <!-- Detailed Steps (if available) -->
+    <div v-if="hasDetailedSteps" class="detailed-section">
+      <DetailedSteps
+        :steps="detailedContent.steps"
+        @completed="$emit('completed')"
+      />
+
+      <!-- Additional detailed info -->
+      <div v-if="detailedContent.overview" class="detail-info overview">
+        <strong>Ubersicht:</strong> {{ detailedContent.overview }}
+      </div>
+      <div v-if="detailedContent.summary" class="detail-info summary">
+        <strong>Zusammenfassung:</strong> {{ detailedContent.summary }}
+      </div>
+      <div v-if="detailedContent.practiceTask" class="detail-info practice">
+        <strong>Ubungsaufgabe:</strong>
+        <p>{{ detailedContent.practiceTask.description }}</p>
+      </div>
+    </div>
+
+    <!-- Standard Lesson Content -->
     <div class="prose">
       <div v-if="content.html" v-html="sanitizedHtml"></div>
       <div v-else-if="content.markdown" class="whitespace-pre-wrap">
@@ -9,8 +29,8 @@
       <div v-else-if="content.text" class="whitespace-pre-wrap">
         {{ content.text }}
       </div>
-      <div v-else class="empty-content">
-        Kein Inhalt verfügbar
+      <div v-else-if="!hasDetailedSteps" class="empty-content">
+        Kein Inhalt verfugbar
       </div>
     </div>
 
@@ -51,6 +71,7 @@
 import { computed } from 'vue'
 import type { Lesson } from '@/api/player.api'
 import DOMPurify from 'dompurify'
+import DetailedSteps from './DetailedSteps.vue'
 
 // ============================================================================
 // Props
@@ -61,6 +82,10 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+defineEmits<{
+  (e: 'completed'): void
+}>()
 
 // ============================================================================
 // Computed
@@ -73,6 +98,15 @@ const content = computed(() => {
 const sanitizedHtml = computed(() => {
   if (!content.value.html) return ''
   return DOMPurify.sanitize(content.value.html)
+})
+
+// Check if detailed content is available
+const detailedContent = computed(() => {
+  return content.value.detailed || null
+})
+
+const hasDetailedSteps = computed(() => {
+  return detailedContent.value?.steps && detailedContent.value.steps.length > 0
 })
 </script>
 
@@ -211,5 +245,45 @@ const sanitizedHtml = computed(() => {
 
 .resource-link:hover {
   color: #2563eb;
+}
+
+/* Detailed Section */
+.detailed-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.detail-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.detail-info strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #111827);
+}
+
+.detail-info.overview {
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.detail-info.summary {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.detail-info.practice {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.detail-info p {
+  margin: 0;
 }
 </style>

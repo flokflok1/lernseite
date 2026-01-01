@@ -110,8 +110,12 @@ export const useTutorStore = defineStore('tutor', () => {
     page: 'dashboard',
     courseId: null as string | null,
     courseName: null as string | null,
-    lessonId: null as string | null,
-    lessonName: null as string | null
+    chapterId: null as string | null,
+    chapterName: null as string | null,
+    lessonId: null as string | number | null,
+    lessonName: null as string | null,
+    methodId: null as string | null,
+    methodType: null as number | null
   })
 
   // Computed
@@ -127,14 +131,34 @@ Antworte immer auf Deutsch, es sei denn der User spricht eine andere Sprache.`
 
   const contextDescription = computed(() => {
     const ctx = currentContext.value
-    if (ctx.lessonName && ctx.courseName) {
-      return `Der User ist gerade in der Lektion "${ctx.lessonName}" im Kurs "${ctx.courseName}".`
-    }
+    const parts: string[] = []
+
     if (ctx.courseName) {
-      return `Der User ist gerade im Kurs "${ctx.courseName}".`
+      parts.push(`Kurs: "${ctx.courseName}"`)
+    }
+    if (ctx.chapterName) {
+      parts.push(`Kapitel: "${ctx.chapterName}"`)
+    }
+    if (ctx.lessonName) {
+      parts.push(`Lektion: "${ctx.lessonName}"`)
+    }
+    if (ctx.methodType !== null) {
+      parts.push(`Lernmethode: LM${ctx.methodType.toString().padStart(2, '0')}`)
+    }
+
+    if (parts.length > 0) {
+      return `Der User ist gerade hier: ${parts.join(', ')}.`
     }
     return `Der User ist gerade auf der ${ctx.page}-Seite.`
   })
+
+  // Context IDs for API (for knowledge loading)
+  const contextIds = computed(() => ({
+    courseId: currentContext.value.courseId,
+    chapterId: currentContext.value.chapterId,
+    lessonId: currentContext.value.lessonId,
+    methodId: currentContext.value.methodId
+  }))
 
   // Actions
   const toggle = () => {
@@ -260,6 +284,7 @@ Antworte immer auf Deutsch, es sei denn der User spricht eine andere Sprache.`
     isOpen,
     effectiveSystemPrompt,
     contextDescription,
+    contextIds,
 
     // Actions
     toggle,

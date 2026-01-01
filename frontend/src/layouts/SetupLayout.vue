@@ -18,6 +18,7 @@
             </div>
           </div>
           <div class="flex items-center space-x-4">
+            <LanguageSelector :show-label="false" :show-request-option="false" />
             <div class="text-sm text-gray-400">
               Installation v1.0
             </div>
@@ -44,6 +45,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import LanguageSelector from '@/components/ui/LanguageSelector.vue'
 
 const currentYear = computed(() => new Date().getFullYear())
 

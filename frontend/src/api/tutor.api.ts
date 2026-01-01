@@ -1,5 +1,7 @@
 /**
  * Tutor API - API functions for the 3D AI Tutor Companion
+ *
+ * Supports context-aware tutoring with course/chapter/lesson knowledge.
  */
 
 import http from './http'
@@ -13,11 +15,17 @@ export interface TutorChatRequest {
     role: 'user' | 'assistant'
     content: string
   }>
+  // Context IDs for knowledge-aware responses
+  courseId?: string
+  chapterId?: string
+  lessonId?: number | string
+  methodId?: string
 }
 
 export interface TutorChatResponse {
   message: string
   tokens_used?: number
+  context_used?: boolean  // True if course/chapter context was loaded
 }
 
 export interface TutorTTSRequest {

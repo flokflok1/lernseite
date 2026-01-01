@@ -21,7 +21,7 @@
           class="flex items-center gap-2.5 px-4 py-2.5 mb-4 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] hover:text-[var(--color-text-primary)] transition-colors border border-dashed border-[var(--color-border)]"
         >
           <span>←</span>
-          <span>Zum User-Dashboard</span>
+          <span>{{ t('nav.back_to_dashboard') }}</span>
         </router-link>
 
         <div class="space-y-1.5">
@@ -61,7 +61,7 @@
           @click="handleLogout"
           class="w-full px-4 py-2.5 text-base font-medium text-red-700 hover:bg-red-50 rounded-lg transition-colors"
         >
-          Abmelden
+          {{ t('auth.logout') }}
         </button>
       </div>
     </aside>
@@ -77,7 +77,8 @@
           </div>
 
           <!-- Actions Slot -->
-          <div>
+          <div class="flex items-center gap-4">
+            <LanguageSelector :show-label="false" :show-request-option="false" />
             <slot name="header-actions"></slot>
           </div>
         </div>
@@ -100,9 +101,11 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import { useWindowStore } from '@/store/window.store'
 import LsxDesktopLayer from '@/components/desktop/LsxDesktopLayer.vue'
+import LanguageSelector from '@/components/ui/LanguageSelector.vue'
 
 // ============================================================================
 // Props
@@ -126,6 +129,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const router = useRouter()
 const route = useRoute()
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const windowStore = useWindowStore()
 
@@ -141,7 +145,9 @@ onMounted(async () => {
 // ============================================================================
 
 const sidebarTitle = computed(() => {
-  return props.isOrgAdmin ? 'Organisation Admin' : 'System Admin'
+  // locale.value triggers reactivity on language change
+  void locale.value
+  return props.isOrgAdmin ? t('admin.org_admin') : t('admin.system_admin')
 })
 
 const userInitials = computed(() => {
@@ -151,25 +157,29 @@ const userInitials = computed(() => {
 })
 
 const menuItems = computed(() => {
+  // locale.value triggers reactivity on language change
+  void locale.value
   if (props.isOrgAdmin) {
     return [
-      { path: '/org', label: 'Dashboard', icon: '📊' },
-      { path: '/org/users', label: 'Mitglieder', icon: '👥' },
-      { path: '/org/courses', label: 'Kurse', icon: '📚' },
-      { path: '/org/analytics', label: 'Analytics', icon: '📈' },
-      { path: '/org/settings', label: 'Einstellungen', icon: '⚙️' }
+      { path: '/org', label: t('org.nav.dashboard'), icon: '📊' },
+      { path: '/org/users', label: t('org.nav.members'), icon: '👥' },
+      { path: '/org/courses', label: t('org.nav.courses'), icon: '📚' },
+      { path: '/org/analytics', label: t('org.nav.analytics'), icon: '📈' },
+      { path: '/org/settings', label: t('org.nav.settings'), icon: '⚙️' }
     ]
   } else {
     return [
-      { path: '/admin', label: 'Dashboard', icon: '📊' },
-      { path: '/admin/users', label: 'Benutzer', icon: '👥' },
-      { path: '/admin/organisations', label: 'Organisationen', icon: '🏢' },
-      { path: '/admin/courses', label: 'Kurse', icon: '📚' },
-      { path: '/admin/categories', label: 'Kategorien', icon: '📁' },
-      { path: '/admin/ki-studio', label: 'KI-Studio', icon: '✨' },
-      { path: '/admin/billing', label: 'Billing', icon: '💰' },
-      { path: '/admin/analytics', label: 'Analytics', icon: '📈' },
-      { path: '/admin/audit-logs', label: 'Audit Logs', icon: '📋' }
+      { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
+      { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
+      { path: '/admin/roles', label: t('admin.nav.roles'), icon: '🔐' },
+      { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
+      { path: '/admin/courses', label: t('admin.nav.courses'), icon: '📚' },
+      { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
+      { path: '/admin/ki-studio', label: t('admin.nav.ki_studio'), icon: '✨' },
+      { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
+      { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },
+      { path: '/admin/analytics', label: t('admin.nav.analytics'), icon: '📈' },
+      { path: '/admin/audit-logs', label: t('admin.nav.audit_logs'), icon: '📋' }
     ]
   }
 })

@@ -26,26 +26,26 @@
       <div class="progress-stats grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div class="stat-card">
           <div class="stat-value">{{ completedChapters }}/{{ totalChapters }}</div>
-          <div class="stat-label">Kapitel abgeschlossen</div>
+          <div class="stat-label">{{ t('courses.chapters_completed') }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">{{ progressPercentage }}%</div>
-          <div class="stat-label">Gesamtfortschritt</div>
+          <div class="stat-label">{{ t('courses.overall_progress') }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">{{ averageGrade }}%</div>
-          <div class="stat-label">Durchschnittliche Note</div>
+          <div class="stat-label">{{ t('courses.average_grade') }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">{{ learningTimeFormatted }}</div>
-          <div class="stat-label">Lernzeit</div>
+          <div class="stat-label">{{ t('courses.learning_time') }}</div>
         </div>
       </div>
 
       <!-- Learning Journey Mountain Map -->
       <div class="map-section relative mb-12">
         <h2 class="map-title text-xl font-bold text-center mb-4">
-          Deine Lernreise
+          {{ t('courses.your_journey') }}
         </h2>
 
         <div class="mountain-journey-container">
@@ -207,7 +207,7 @@
           <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-primary-500">
             <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
           </svg>
-          Kapitel
+          {{ t('courses.chapters') }}
         </h2>
 
         <div class="chapters-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -244,7 +244,7 @@
                 <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
                   <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
                 </svg>
-                {{ chapter.lessons.length }} Lektionen
+                {{ t('courses.lessons_count', { count: chapter.lessons.length }) }}
               </span>
             </div>
 
@@ -253,19 +253,19 @@
                 <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-2">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
-                Abgeschlossen
+                {{ t('courses.status_completed') }}
               </template>
               <template v-else-if="isCurrent(index)">
                 <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-2">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
-                In Bearbeitung
+                {{ t('courses.status_in_progress') }}
               </template>
               <template v-else>
                 <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-2">
                   <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
                 </svg>
-                Gesperrt
+                {{ t('courses.status_locked') }}
               </template>
             </div>
           </div>
@@ -279,7 +279,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
             </svg>
-            Kursbeschreibung
+            {{ t('courses.description') }}
           </summary>
           <p class="mt-4 opacity-70 whitespace-pre-line">
             {{ playerStore.course.description }}
@@ -294,7 +294,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
-            Lernziele
+            {{ t('courses.learning_goals') }}
           </summary>
           <ul class="mt-4 list-disc list-inside space-y-2 opacity-70">
             <li v-for="(goal, idx) in playerStore.course.learning_goals" :key="idx">
@@ -308,9 +308,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/store/player.store'
+import { useTutorStore } from '@/store/tutor.store'
 import type { Chapter } from '@/api/player.api'
 
 interface Props {
@@ -318,7 +320,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 const playerStore = usePlayerStore()
+const tutorStore = useTutorStore()
 const router = useRouter()
 
 // Progress Stats
@@ -456,7 +460,7 @@ const formatDuration = (minutes: number): string => {
   const hours = Math.floor(minutes / 60)
   const mins = minutes % 60
   if (hours > 0) return `${hours}h ${mins}m`
-  return `${mins} Min.`
+  return `${mins} ${t('courses.minutes_short')}`
 }
 
 const truncateDescription = (text: string, maxLength = 120): string => {
@@ -485,6 +489,34 @@ const startChapter = (chapter: Chapter) => {
 
 onMounted(async () => {
   await playerStore.loadCourse(courseId.value)
+
+  // Update tutor context with course info
+  tutorStore.updateContext({
+    page: 'course',
+    courseId: playerStore.course?.course_id || courseId.value,
+    courseName: playerStore.course?.title || null,
+    chapterId: null,
+    chapterName: null,
+    lessonId: null,
+    lessonName: null,
+    methodId: null,
+    methodType: null
+  })
+})
+
+onUnmounted(() => {
+  // Clear tutor context when leaving the course
+  tutorStore.updateContext({
+    page: 'dashboard',
+    courseId: null,
+    courseName: null,
+    chapterId: null,
+    chapterName: null,
+    lessonId: null,
+    lessonName: null,
+    methodId: null,
+    methodType: null
+  })
 })
 </script>
 

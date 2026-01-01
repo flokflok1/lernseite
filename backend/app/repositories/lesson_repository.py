@@ -321,7 +321,7 @@ class LessonRepository(BaseRepository):
         Returns:
             Updated lesson progress record
         """
-        if time_spent_minutes is not None:
+        if time_spent_seconds is not None:
             query = """
                 INSERT INTO lesson_progress (
                     user_id, lesson_id, completion_percentage, time_spent_seconds,
@@ -336,8 +336,8 @@ class LessonRepository(BaseRepository):
                 RETURNING *
             """
             return fetch_one(query, (
-                user_id, lesson_id, progress_percentage, time_spent_minutes,
-                progress_percentage, time_spent_minutes
+                user_id, lesson_id, progress_percentage, time_spent_seconds,
+                progress_percentage, time_spent_seconds
             ))
         else:
             query = """

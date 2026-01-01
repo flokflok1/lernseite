@@ -1,220 +1,186 @@
-# LernsystemX Database Migrations
+# Database Migrations
 
-## Overview
-
-This directory contains 40 SQL migration files that define the complete LernsystemX database schema.
-
-**Total Migrations:** 40
-**Total Tables:** 102+
-**Database:** PostgreSQL 14+
-
-## Migration Structure
-
-Migrations are numbered from `001` to `040` and must be executed in sequential order to maintain referential integrity.
-
-### Migration Groups
-
-#### Core System (001-007)
-- **001_core_users_roles.sql** - Users, roles, permissions, sessions, recovery codes
-- **002_security_auth.sql** - Login attempts, 2FA, password reset, email verification, security audit
-- **003_organisations.sql** - Organizations, members, classes, enrollments
-- **004_organisation_settings.sql** - Organization settings, branding, features, quotas
-- **005_api_gateway.sql** - API clients, keys, routes, request logs, webhooks
-- **006_audit_logging.sql** - Audit logs, data access logs, change history
-- **007_system_settings.sql** - System settings, feature flags, maintenance windows
-
-#### Course & Learning (008-016)
-- **008_courses.sql** - Courses, categories, access, reviews
-- **009_chapters.sql** - Chapters, theory, resources
-- **010_lessons.sql** - Lessons, completions
-- **011_learning_methods.sql** - 32 learning methods (LM00-LM31), completions
-- **012_learning_progress.sql** - Enrollments, progress, streaks, achievements
-- **013_exams.sql** - Exams, questions
-- **014_exam_results.sql** - Attempts, results, answers
-- **015_certificates.sql** - Certificate templates, issued certificates
-- **016_certificates_progress.sql** - Requirements, skills, endorsements
-
-#### AI System (017-021)
-- **017_ai_providers.sql** - AI providers (OpenAI, Anthropic, etc.), health monitoring
-- **018_ai_models.sql** - AI models with pricing and capabilities
-- **019_ai_prompts.sql** - Prompt templates, versions, method mappings
-- **020_ai_usage_logs.sql** - KI requests, raw inputs, usage aggregates
-- **021_ai_jobs.sql** - Async AI job queue, job steps
-
-#### Analytics & Gamification (022-025)
-- **022_analytics_core.sql** - Analytics sessions, aggregates
-- **023_analytics_events.sql** - Detailed event tracking
-- **024_gamification.sql** - XP system, transactions, leaderboards
-- **025_badges.sql** - Badges, user badges
-
-#### LiveRooms (026-027)
-- **026_liverooms_core.sql** - Rooms, participants
-- **027_liverooms_chat.sql** - Whiteboards, transcripts, recordings, logs, AI stats
-
-#### Notifications (028-030)
-- **028_notifications_core.sql** - Notifications, preferences
-- **029_notifications_templates.sql** - Templates, channels
-- **030_notifications_logs.sql** - Delivery logs, email queue
-
-#### Media & Storage (031-032)
-- **031_media_files.sql** - Media files, thumbnails
-- **032_storage_versions.sql** - File versions, content versions
-
-#### Billing & Payments (033-035)
-- **033_billing_core.sql** - Subscriptions, payment methods
-- **034_billing_subscriptions.sql** - Subscription plans, changes
-- **035_billing_transactions.sql** - Token wallets, transactions, payment history
-
-#### Community (036-037)
-- **036_community_core.sql** - Groups, members, resources
-- **037_community_messages.sql** - Messages, discussions, posts
-
-#### System Infrastructure (038-040)
-- **038_translations.sql** - Translations (20 languages), cache, supported languages
-- **039_rate_limits.sql** - Rate limits, hits, quota usage
-- **040_integrity_checks.sql** - RLS policies, constraints, functions, views, verification
-
-## Running Migrations
-
-### Automatic (via Setup Wizard)
-
-```bash
-python run.py
-# Navigate to http://localhost:5000/setup/status
-# Click "Initialize Database"
-```
-
-### Manual (via Migration Manager)
-
-```python
-from backend.setup.migrations import MigrationManager
-
-# List all migrations
-migrations = MigrationManager.list_migrations()
-
-# Run all pending migrations
-result = MigrationManager.run_pending_migrations()
-```
-
-### Direct SQL Execution
-
-```bash
-# Execute migrations in order
-for i in {001..040}; do
-    psql -U postgres -d lernsystemx_dev -f $(printf "%03d" $i)_*.sql
-done
-```
-
-## Migration Naming Convention
-
-```
-{number}_{descriptive_name}.sql
-
-Examples:
-001_core_users_roles.sql
-020_ai_usage_logs.sql
-040_integrity_checks.sql
-```
-
-## Important Notes
-
-### Prerequisites
-- PostgreSQL 14+ with `uuid-ossp` and `pgcrypto` extensions
-- Migrations must be run in sequential order (001 → 040)
-- Each migration is idempotent (can be re-run safely)
-
-### System Seeds
-The following migrations include system seed data:
-- **001** - Standard roles (free, premium, creator, etc.)
-- **007** - System settings
-- **017** - AI providers (OpenAI, Anthropic, Google)
-- **018** - AI models (GPT-4o, Claude, etc.)
-- **034** - Subscription plans
-- **038** - Supported languages (20 languages)
-
-### No Demo Data
-These migrations contain **structure only** + **system seeds**. No demo courses, users, or content.
-
-## Table Count by Migration
-
-| Migration | Tables Created |
-|-----------|---------------|
-| 001 | 6 (users, roles, permissions, role_permissions, user_sessions, recovery_codes) |
-| 002 | 6 (login_attempts, 2fa_backups, password_reset, email_verification, security_audit, blocked_ips) |
-| 003 | 4 (organizations, members, classes, enrollments) |
-| 004 | 4 (org_settings, branding, features, quotas) |
-| 005 | 5 (api_clients, keys, routes, logs, webhooks) |
-| 006 | 3 (audit_logs, data_access_logs, change_history) |
-| 007 | 3 (system_settings, feature_flags, maintenance_windows) |
-| 008 | 4 (courses, categories, access, reviews) |
-| 009 | 3 (chapters, theory, resources) |
-| 010 | 2 (lessons, completions) |
-| 011 | 2 (learning_methods, completions) |
-| 012 | 4 (enrollments, progress, streaks, achievements) |
-| 013 | 2 (exams, questions) |
-| 014 | 3 (attempts, results, answers) |
-| 015 | 2 (templates, certificates) |
-| 016 | 3 (requirements, skills, endorsements) |
-| 017 | 2 (providers, health) |
-| 018 | 1 (models) |
-| 019 | 3 (prompts, versions, mappings) |
-| 020 | 3 (ki_requests, raw_inputs, aggregates) |
-| 021 | 2 (jobs, steps) |
-| 022 | 2 (sessions, aggregates) |
-| 023 | 1 (events) |
-| 024 | 3 (xp, transactions, leaderboards) |
-| 025 | 2 (badges, user_badges) |
-| 026 | 2 (rooms, participants) |
-| 027 | 5 (whiteboards, transcripts, recordings, logs, ai_stats) |
-| 028 | 2 (notifications, preferences) |
-| 029 | 2 (templates, channels) |
-| 030 | 2 (logs, email_queue) |
-| 031 | 2 (files, thumbnails) |
-| 032 | 2 (file_versions, content_versions) |
-| 033 | 2 (subscriptions, payment_methods) |
-| 034 | 2 (plans, changes) |
-| 035 | 3 (wallets, transactions, history) |
-| 036 | 3 (groups, members, resources) |
-| 037 | 3 (messages, discussions, posts) |
-| 038 | 3 (translations, cache, languages) |
-| 039 | 3 (limits, hits, quota_usage) |
-| 040 | 0 (RLS policies, functions, views) |
-
-**Total: 102 tables**
-
-## Verification
-
-After running all migrations, verify installation:
-
-```sql
--- Count tables
-SELECT COUNT(*) FROM information_schema.tables
-WHERE table_schema = 'public' AND table_type = 'BASE TABLE';
--- Expected: 102
-
--- Check for migration history
-SELECT * FROM migration_history ORDER BY executed_at DESC;
-
--- Verify RLS is enabled
-SELECT tablename, rowsecurity FROM pg_tables
-WHERE schemaname = 'public' AND rowsecurity = true;
-```
-
-## Rollback
-
-Migrations do NOT include down/rollback scripts. For rollback:
-- Restore from database backup
-- Or manually drop schema: `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`
-
-## Support
-
-For migration issues, check:
-1. `migration_history` table for execution status
-2. PostgreSQL logs for SQL errors
-3. Setup Wizard diagnostics at `/setup/status`
+> **68 Migrations** in **11 Kategorien** - PostgreSQL Schema für LernsystemX
 
 ---
 
-**Generated:** 2025-01-17
-**Version:** 1.0.0
-**Database:** PostgreSQL 14+
+## Ordnerstruktur
+
+| Ordner | Anzahl | Beschreibung |
+|--------|--------|--------------|
+| [01_Core](#01_core) | 9 | Users, Roles, Security, Organisations, Preferences |
+| [02_Content](#02_content) | 19 | Courses, Chapters, Lessons, LMs, Exams, Categories |
+| [03_AI](#03_ai) | 18 | Providers, Models, Prompts, Agents, TTS, Authoring |
+| [04_Analytics](#04_analytics) | 3 | Analytics, Events, Feedback |
+| [05_Gamification](#05_gamification) | 2 | XP, Badges |
+| [06_LiveRoom](#06_liveroom) | 2 | Rooms, Chat |
+| [07_Notifications](#07_notifications) | 3 | Notifications, Templates |
+| [08_Storage](#08_storage) | 3 | Media Files, Cache |
+| [09_Billing](#09_billing) | 3 | Subscriptions, Transactions |
+| [10_Community](#10_community) | 2 | Groups, Messages |
+| [11_System](#11_system) | 4 | Translations, Rate Limits, System Features |
+
+---
+
+## 01_Core
+
+Users, Authentifizierung, Organisationen, Einstellungen.
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 001 | core_users_roles | users, roles, permissions |
+| 002 | security_auth | sessions, tokens |
+| 003 | organisations | organisations, org_members |
+| 004 | organisation_settings | org_settings, branding |
+| 005 | api_gateway | api_keys, api_logs |
+| 006 | audit_logging | audit_logs |
+| 007 | system_settings | system_settings, flags |
+| 042 | add_theme_preference | User Theme Einstellungen |
+| 051 | user_preferences | User Preferences JSONB |
+
+---
+
+## 02_Content
+
+Kurse, Kapitel, Lektionen, Lernmethoden, Prüfungen.
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 008 | courses | courses, enrollments |
+| 009 | chapters | chapters |
+| 010 | lessons | lessons, content |
+| 011 | learning_methods | lm_instances |
+| 012 | learning_progress | progress, completions |
+| 013 | exams | exams, questions |
+| 014 | exam_results | attempts, scores |
+| 015 | certificates | certificates, templates |
+| 016 | certificates_progress | cert_progress |
+| 041 | learning_method_types | LM-Typen Tabelle |
+| 043 | course_prompts | Kurs-Prompt Overrides |
+| 044 | course_files | Datei-Anhänge |
+| 046 | rename_modules_to_chapters | Module→Chapter Refactoring |
+| 047 | learning_methods_module_to_chapter | LM Module→Chapter |
+| 049 | flexible_categories | Hierarchische Kategorien |
+| 054 | lm_refactoring_and_features | LM Refactoring |
+| 062 | **lm_19_content_methods** | **19 Content-LMs (aktuell)** |
+| 064 | math_toolkit | Math Toolkit |
+| 065 | exam_simulation_tables | Prüfungssimulation |
+
+---
+
+## 03_AI
+
+KI-Provider, Modelle, Prompts, Agents, TTS, Authoring.
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 017 | ai_providers | providers, config |
+| 018 | ai_models | models, capabilities |
+| 019 | ai_prompts | templates, versions |
+| 020 | ai_usage_logs | requests, token_usage |
+| 021 | ai_jobs | jobs, queue, results |
+| 045 | ai_models | Extended Model Registry |
+| 048 | ai_authoring_studio | Authoring Studio |
+| 050 | ai_models_sync_support | API Sync für Models |
+| 052 | learning_method_model_routing | LM Model Routing |
+| 053 | capability_slots | AI Capability Slots |
+| 055 | smart_agent_system | Smart Agent System |
+| 058 | learning_method_ai_tables | LM AI Tables |
+| 059 | tts_pronunciation | TTS Aussprache |
+| 060 | prompt_templates | Prompt Template System |
+| 061 | authoring_actions | Authoring Actions |
+| 066 | course_authoring_sessions | Authoring Sessions |
+| 067 | course_ai_settings | Course AI Settings |
+| 068 | ai_model_profiles_base | AI Model Profiles |
+
+---
+
+## 04_Analytics
+
+Analytics, Events, Feedback.
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 022 | analytics_core | metrics, dashboards |
+| 023 | analytics_events | events, aggregations |
+| 057 | feedback_system | Feedback Tables |
+
+---
+
+## 05_Gamification
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 024 | gamification | xp, levels, streaks |
+| 025 | badges | badges, user_badges |
+
+---
+
+## 06_LiveRoom
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 026 | liverooms_core | rooms, participants |
+| 027 | liverooms_chat | messages, whiteboards |
+
+---
+
+## 07_Notifications
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 028 | notifications_core | notifications |
+| 029 | notifications_templates | templates |
+| 030 | notifications_logs | delivery_logs |
+
+---
+
+## 08_Storage
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 031 | media_files | files, metadata |
+| 032 | storage_versions | versions, cleanup |
+| 056 | agent_media_cache | Agent Media Cache |
+
+---
+
+## 09_Billing
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 033 | billing_core | plans, pricing |
+| 034 | billing_subscriptions | subscriptions, tokens |
+| 035 | billing_transactions | transactions, invoices |
+
+---
+
+## 10_Community
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 036 | community_core | groups, memberships |
+| 037 | community_messages | posts, comments |
+
+---
+
+## 11_System
+
+| Nr | Datei | Beschreibung |
+|----|-------|--------------|
+| 038 | translations | translations, locales |
+| 039 | rate_limits | rate_limits, quotas |
+| 040 | integrity_checks | constraints, triggers |
+| 063 | system_features_tables | System Features |
+
+---
+
+## Archiviert
+
+Veraltete Migrations in `backend/_archive/old_database_migrations/`:
+- `046_add_gpt5_models.sql` - Fake GPT-5 Models (ersetzt durch API-Sync)
+- `047_learning_methods_32.sql` - Alte 32-LM Version (ersetzt durch 062)
+
+---
+
+*Stand: Dezember 2024*

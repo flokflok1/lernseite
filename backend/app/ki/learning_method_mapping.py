@@ -1,25 +1,31 @@
 """
-LernsystemX KI - Learning Method Mapping (31 Methoden, 6 Gruppen A-F)
+LernsystemX KI - Learning Method Mapping (19 Content-Lernmethoden, 3 Gruppen A-C)
 
-Vollständiges Mapping aller 31 aktiven Lernmethoden auf:
+Vollständiges Mapping aller 19 aktiven Content-Lernmethoden auf:
 - Name (Deutsch)
-- Gruppe (A, B, C, D, E, F)
-- Typ (explanatory, practice, exam, pro, it, collaborative)
+- Gruppe (A, B, C)
+- Typ (explanatory, practice, exam)
 - Default Prompt-Key
 - KI-Nutzungsintensität
 
-WICHTIG: LM05 (Mindmap) und LM07 (NPC-Tutor) sind deaktiviert und wurden
-zu CourseFeatures bzw. TutorAgent verschoben.
+WICHTIG: Dieses Modul enthält NUR Content-Lernmethoden (Aufgaben/Prüfungsformate).
+System-Features (Tutor, Gamification, IT-Umgebungen, Kollaboration) sind in
+separaten Modulen definiert (siehe 02a_System-Features.md).
 
-Aktuelle LM-Struktur (Stand: 2025):
+Aktuelle Content-LM-Struktur (Stand: 2025-12):
 - A: Erklärend (LM00-LM03, LM06) - 5 Methoden
 - B: Praxis (LM08, LM12-LM15, LM17) - 6 Methoden
 - C: Prüfung (LM18-LM25) - 8 Methoden
-- D: Pro (LM04) - 1 Methode
-- E: IT (LM09-LM11, LM16) - 4 Methoden
-- F: Kollaborativ (LM26-LM32) - 7 Methoden
 
-Referenz: 02_Lernmethoden.md (Master-Dokument - muss aktualisiert werden)
+DEAKTIVIERT / Zu System-Features verschoben:
+- LM04: Sokratischer Dialog → TutorAgent / Pro-Feature
+- LM05: Mindmap-Generator → CourseFeatures
+- LM07: NPC-Tutor-Lecture → TutorAgent
+- LM09-LM11, LM16: IT-Sandboxes → System-Feature IT-Umgebungen
+- LM26-LM32: Kollaborative Methoden → System-Features Kollaboration
+
+Referenz: 02_Lernmethoden.md (Master-Dokument)
+          02a_System-Features.md (System-Features)
 """
 
 from dataclasses import dataclass
@@ -28,23 +34,17 @@ from enum import Enum
 
 
 class LearningMethodGroup(str, Enum):
-    """Gruppen-Codes für die 31 aktiven Lernmethoden (6 Gruppen)"""
+    """Gruppen-Codes für die 19 Content-Lernmethoden (3 Gruppen)"""
     A = 'A'  # Erklärende Methoden (LM00-LM03, LM06) - 5 Methoden
     B = 'B'  # Praxis/Übung (LM08, LM12-LM15, LM17) - 6 Methoden
     C = 'C'  # Prüfungsorientiert (LM18-LM25) - 8 Methoden
-    D = 'D'  # Pro (LM04) - 1 Methode
-    E = 'E'  # IT-Spezifisch (LM09-LM11, LM16) - 4 Methoden
-    F = 'F'  # Kollaborativ (LM26-LM32) - 7 Methoden
 
 
 class LearningMethodType(str, Enum):
     """Methodentypen für semantische Klassifizierung"""
-    EXPLANATORY = 'explanatory'      # Erklärend (A)
-    PRACTICE = 'practice'            # Übung (B)
-    EXAM = 'exam'                    # Prüfung (C)
-    PRO = 'pro'                      # Pro (D)
-    IT = 'it'                        # IT-Spezifisch (E)
-    COLLABORATIVE = 'collaborative'  # Kollaborativ (F)
+    EXPLANATORY = 'explanatory'   # Erklärend (A)
+    PRACTICE = 'practice'         # Übung (B)
+    EXAM = 'exam'                 # Prüfung (C)
 
 
 class KIUsage(str, Enum):
@@ -56,11 +56,11 @@ class KIUsage(str, Enum):
 
 @dataclass(frozen=True)
 class LearningMethodDefinition:
-    """Definition einer Lernmethode"""
-    lm_id: int                          # 0-32 (mit Lücken bei 5, 7)
+    """Definition einer Content-Lernmethode"""
+    lm_id: int                          # 0-25 (mit Lücken bei 4, 5, 7, 9-11, 16)
     name: str                           # Deutscher Name
-    group: LearningMethodGroup          # A, B, C, D, E, F
-    method_type: LearningMethodType     # explanatory, practice, exam, pro, it, collaborative
+    group: LearningMethodGroup          # A, B, C
+    method_type: LearningMethodType     # explanatory, practice, exam
     ki_usage: KIUsage                   # intensive, medium, optional
     prompt_key: str                     # Prompt-Template-Key
     description: str                    # Kurzbeschreibung
@@ -68,7 +68,7 @@ class LearningMethodDefinition:
 
 
 # =============================================================================
-# VOLLSTÄNDIGES MAPPING ALLER 31 AKTIVEN LERNMETHODEN
+# VOLLSTÄNDIGES MAPPING ALLER 19 CONTENT-LERNMETHODEN
 # =============================================================================
 
 LEARNING_METHODS: Dict[int, LearningMethodDefinition] = {
@@ -111,7 +111,6 @@ LEARNING_METHODS: Dict[int, LearningMethodDefinition] = {
         prompt_key="visualization",
         description="Visuelle Modelle (Netzwerk, OSI, ER, Flows)"
     ),
-    # LM05 (Mindmap) ist DEAKTIVIERT - verschoben zu CourseFeatures
     6: LearningMethodDefinition(
         lm_id=6,
         name="Beispiel-Szenario",
@@ -121,7 +120,6 @@ LEARNING_METHODS: Dict[int, LearningMethodDefinition] = {
         prompt_key="scenario_explanation",
         description="Realitätsnahe Case-Erklärung eines Konzepts"
     ),
-    # LM07 (NPC-Tutor) ist DEAKTIVIERT - verschoben zu TutorAgent
 
     # =========================================================================
     # GRUPPE B – Praxis (6 Methoden)
@@ -256,144 +254,103 @@ LEARNING_METHODS: Dict[int, LearningMethodDefinition] = {
         prompt_key="chapter_exam",
         description="Größere Prüfung am Kapitelende"
     ),
-
-    # =========================================================================
-    # GRUPPE D – Pro (1 Methode)
-    # =========================================================================
-    4: LearningMethodDefinition(
-        lm_id=4,
-        name="Sokratischer Dialog",
-        group=LearningMethodGroup.D,
-        method_type=LearningMethodType.PRO,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="socratic_dialog",
-        description="KI fragt, User leitet Konzept selbst her"
-    ),
-
-    # =========================================================================
-    # GRUPPE E – IT-Spezifisch (4 Methoden)
-    # =========================================================================
-    9: LearningMethodDefinition(
-        lm_id=9,
-        name="Code/IT-Config Sandbox",
-        group=LearningMethodGroup.E,
-        method_type=LearningMethodType.IT,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="code_sandbox",
-        description="Code-/Config-Editor mit Tests & Output"
-    ),
-    10: LearningMethodDefinition(
-        lm_id=10,
-        name="Netzwerk-Simulation",
-        group=LearningMethodGroup.E,
-        method_type=LearningMethodType.IT,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="network_sim",
-        description="Simulierte Netzumgebung (Router, Switch, Ping)"
-    ),
-    11: LearningMethodDefinition(
-        lm_id=11,
-        name="IT-Szenario lösen",
-        group=LearningMethodGroup.E,
-        method_type=LearningMethodType.IT,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="it_scenario",
-        description="Troubleshooting mit Logs/Configs"
-    ),
-    16: LearningMethodDefinition(
-        lm_id=16,
-        name="Fehleranalyse",
-        group=LearningMethodGroup.E,
-        method_type=LearningMethodType.IT,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="error_analysis",
-        description="Defekter Code/Config, Fehler finden & erklären"
-    ),
-
-    # =========================================================================
-    # GRUPPE F – Kollaborativ (7 Methoden)
-    # =========================================================================
-    26: LearningMethodDefinition(
-        lm_id=26,
-        name="Peer Instruction",
-        group=LearningMethodGroup.F,
-        method_type=LearningMethodType.COLLABORATIVE,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="peer_instruction",
-        description="Think–Pair–Share mit Erstantwort → Diskussion"
-    ),
-    27: LearningMethodDefinition(
-        lm_id=27,
-        name="Team-Case / Gruppenfallarbeit",
-        group=LearningMethodGroup.F,
-        method_type=LearningMethodType.COLLABORATIVE,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="team_case",
-        description="Teams lösen Fall mit Rollen"
-    ),
-    28: LearningMethodDefinition(
-        lm_id=28,
-        name="Peer Review (strukturiert)",
-        group=LearningMethodGroup.F,
-        method_type=LearningMethodType.COLLABORATIVE,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="peer_review",
-        description="Rubric-basiertes Feedback zu Arbeiten anderer"
-    ),
-    29: LearningMethodDefinition(
-        lm_id=29,
-        name="Lerntagebuch / Learning Journal",
-        group=LearningMethodGroup.F,
-        method_type=LearningMethodType.COLLABORATIVE,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="learning_journal",
-        description="Regelmäßige Reflexionseinträge"
-    ),
-    30: LearningMethodDefinition(
-        lm_id=30,
-        name="Projekt-Portfolio",
-        group=LearningMethodGroup.F,
-        method_type=LearningMethodType.COLLABORATIVE,
-        ki_usage=KIUsage.OPTIONAL,
-        prompt_key="portfolio",
-        description="Artefakte-Sammlung mit Meta-Kommentar"
-    ),
-    31: LearningMethodDefinition(
-        lm_id=31,
-        name="Projektbasiertes Lernen",
-        group=LearningMethodGroup.F,
-        method_type=LearningMethodType.COLLABORATIVE,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="project_based",
-        description="Mehrwöchiges IT-Projekt"
-    ),
-    32: LearningMethodDefinition(
-        lm_id=32,
-        name="Inverted Classroom",
-        group=LearningMethodGroup.F,
-        method_type=LearningMethodType.COLLABORATIVE,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="inverted_classroom",
-        description="Async Theorie + sync Praxis"
-    ),
 }
 
 
 # =============================================================================
-# DEAKTIVIERTE METHODEN (für Referenz)
+# SYSTEM-FEATURES (frühere LMs, jetzt eigenständige Features)
 # =============================================================================
 
-DEACTIVATED_METHODS = {
+SYSTEM_FEATURES: Dict[int, Dict] = {
+    # Gruppe D (Pro) → TutorAgent
+    4: {
+        'name': 'Sokratischer Dialog',
+        'former_group': 'D',
+        'moved_to': 'TutorAgent / Pro-Feature',
+        'description': 'KI fragt, User leitet Konzept selbst her'
+    },
+    # Deaktivierte Visualisierung
     5: {
         'name': 'Mindmap-Generator',
-        'reason': 'Verschoben zu CourseFeatures (kurs-weite Funktion)',
-        'replacement': 'CourseFeatures.mindmap'
+        'former_group': 'A',
+        'moved_to': 'CourseFeatures.mindmap',
+        'description': 'Kursweite Mindmaps aus Theorie-Inhalten'
     },
+    # Deaktivierter Tutor
     7: {
         'name': 'NPC-Tutor-Lecture',
-        'reason': 'Verschoben zu TutorAgent (eigenständiges System)',
-        'replacement': 'TutorAgent'
-    }
+        'former_group': 'A',
+        'moved_to': 'TutorAgent',
+        'description': 'KI-basierter Tutor mit Personas'
+    },
+    # Gruppe E (IT) → IT-Umgebungen
+    9: {
+        'name': 'Code/IT-Config Sandbox',
+        'former_group': 'E',
+        'moved_to': 'System-Feature IT-Umgebungen',
+        'description': 'Code-/Config-Editor mit Tests & Output'
+    },
+    10: {
+        'name': 'Netzwerk-Simulation',
+        'former_group': 'E',
+        'moved_to': 'System-Feature IT-Umgebungen',
+        'description': 'Simulierte Netzumgebung (Router, Switch, Ping)'
+    },
+    11: {
+        'name': 'IT-Szenario lösen',
+        'former_group': 'E',
+        'moved_to': 'System-Feature IT-Umgebungen',
+        'description': 'Troubleshooting mit Logs/Configs'
+    },
+    16: {
+        'name': 'Fehleranalyse',
+        'former_group': 'E',
+        'moved_to': 'System-Feature IT-Umgebungen',
+        'description': 'Defekter Code/Config, Fehler finden & erklären'
+    },
+    # Gruppe F (Kollaborativ) → Kollaborations-Features
+    26: {
+        'name': 'Peer Instruction',
+        'former_group': 'F',
+        'moved_to': 'System-Feature Kollaboration',
+        'description': 'Think–Pair–Share mit Erstantwort → Diskussion'
+    },
+    27: {
+        'name': 'Team-Case / Gruppenfallarbeit',
+        'former_group': 'F',
+        'moved_to': 'System-Feature Kollaboration',
+        'description': 'Teams lösen Fall mit Rollen'
+    },
+    28: {
+        'name': 'Peer Review (strukturiert)',
+        'former_group': 'F',
+        'moved_to': 'System-Feature Kollaboration',
+        'description': 'Rubric-basiertes Feedback zu Arbeiten anderer'
+    },
+    29: {
+        'name': 'Lerntagebuch / Learning Journal',
+        'former_group': 'F',
+        'moved_to': 'System-Feature Kollaboration',
+        'description': 'Regelmäßige Reflexionseinträge'
+    },
+    30: {
+        'name': 'Projekt-Portfolio',
+        'former_group': 'F',
+        'moved_to': 'System-Feature Kollaboration',
+        'description': 'Artefakte-Sammlung mit Meta-Kommentar'
+    },
+    31: {
+        'name': 'Projektbasiertes Lernen',
+        'former_group': 'F',
+        'moved_to': 'System-Feature Kollaboration',
+        'description': 'Mehrwöchiges IT-Projekt'
+    },
+    32: {
+        'name': 'Inverted Classroom',
+        'former_group': 'F',
+        'moved_to': 'System-Feature Kollaboration',
+        'description': 'Async Theorie + sync Praxis'
+    },
 }
 
 
@@ -401,12 +358,12 @@ DEACTIVATED_METHODS = {
 # NAME-ZU-ID MAPPING (für Legacy-Kompatibilität)
 # =============================================================================
 
-# Mapping: Name (DE) -> LM-ID
+# Mapping: Name (DE) -> LM-ID (nur Content-LMs)
 LEARNING_METHOD_NAME_TO_ID: Dict[str, int] = {
     method.name: method.lm_id for method in LEARNING_METHODS.values()
 }
 
-# Mapping: Prompt-Key -> LM-ID
+# Mapping: Prompt-Key -> LM-ID (nur Content-LMs)
 PROMPT_KEY_TO_LM_ID: Dict[str, int] = {
     method.prompt_key: method.lm_id for method in LEARNING_METHODS.values()
 }
@@ -423,7 +380,7 @@ LEARNING_METHOD_TO_PROMPT: Dict[str, str] = {
 
 def get_method_by_id(lm_id: int) -> Optional[LearningMethodDefinition]:
     """
-    Holt Lernmethode nach ID.
+    Holt Content-Lernmethode nach ID.
 
     Args:
         lm_id: Lernmethoden-ID
@@ -436,7 +393,7 @@ def get_method_by_id(lm_id: int) -> Optional[LearningMethodDefinition]:
 
 def get_method_by_name(name: str) -> Optional[LearningMethodDefinition]:
     """
-    Holt Lernmethode nach deutschem Namen.
+    Holt Content-Lernmethode nach deutschem Namen.
 
     Args:
         name: Deutscher Name der Methode
@@ -452,10 +409,10 @@ def get_method_by_name(name: str) -> Optional[LearningMethodDefinition]:
 
 def get_methods_by_group(group: LearningMethodGroup) -> List[LearningMethodDefinition]:
     """
-    Holt alle Lernmethoden einer Gruppe.
+    Holt alle Content-Lernmethoden einer Gruppe.
 
     Args:
-        group: Gruppen-Code (A, B, C, D, E, F)
+        group: Gruppen-Code (A, B, C)
 
     Returns:
         Liste der Lernmethoden in der Gruppe
@@ -503,10 +460,10 @@ def get_prompt_key_for_lm_id(lm_id: int) -> Optional[str]:
 
 def get_all_methods_as_dict() -> List[Dict]:
     """
-    Gibt alle aktiven Lernmethoden als Liste von Dicts zurück (für API-Responses).
+    Gibt alle aktiven Content-Lernmethoden als Liste von Dicts zurück.
 
     Returns:
-        Liste mit allen Lernmethoden als Dicts
+        Liste mit allen 19 Content-Lernmethoden als Dicts
     """
     return [
         {
@@ -524,7 +481,7 @@ def get_all_methods_as_dict() -> List[Dict]:
 
 def get_group_info() -> Dict[str, Dict]:
     """
-    Gibt Informationen über alle 6 Gruppen zurück.
+    Gibt Informationen über alle 3 Content-LM-Gruppen zurück.
 
     Returns:
         Dict mit Gruppeninfos
@@ -539,34 +496,57 @@ def get_group_info() -> Dict[str, Dict]:
     return {
         'A': {'name': 'Erklärend', 'count': group_counts.get('A', 0)},
         'B': {'name': 'Praxis', 'count': group_counts.get('B', 0)},
-        'C': {'name': 'Prüfung', 'count': group_counts.get('C', 0)},
-        'D': {'name': 'Pro', 'count': group_counts.get('D', 0)},
-        'E': {'name': 'IT', 'count': group_counts.get('E', 0)},
-        'F': {'name': 'Kollaborativ', 'count': group_counts.get('F', 0)}
+        'C': {'name': 'Prüfung', 'count': group_counts.get('C', 0)}
     }
 
 
 def validate_lm_id(lm_id: int) -> bool:
     """
-    Validiert, ob eine LM-ID gültig ist (aktive Methode).
+    Validiert, ob eine LM-ID eine gültige Content-Lernmethode ist.
 
     Args:
         lm_id: Zu validierende ID
 
     Returns:
-        True wenn gültig und aktiv, False sonst
+        True wenn gültige Content-LM, False sonst
     """
     return lm_id in LEARNING_METHODS
 
 
-def is_method_deactivated(lm_id: int) -> bool:
+def is_system_feature(lm_id: int) -> bool:
     """
-    Prüft ob eine Methode deaktiviert wurde.
+    Prüft ob eine ID ein System-Feature ist (frühere LM).
 
     Args:
         lm_id: LM-ID
 
     Returns:
-        True wenn deaktiviert
+        True wenn System-Feature
     """
-    return lm_id in DEACTIVATED_METHODS
+    return lm_id in SYSTEM_FEATURES
+
+
+def get_system_feature_info(lm_id: int) -> Optional[Dict]:
+    """
+    Holt Info zu einem System-Feature (wenn vorhanden).
+
+    Args:
+        lm_id: Feature-ID
+
+    Returns:
+        Feature-Info oder None
+    """
+    return SYSTEM_FEATURES.get(lm_id)
+
+
+# =============================================================================
+# VALID LM IDs (für DB-Validierung)
+# =============================================================================
+
+# Alle gültigen Content-LM IDs (für Constraint-Checks)
+VALID_CONTENT_LM_IDS = frozenset(LEARNING_METHODS.keys())
+# {0, 1, 2, 3, 6, 8, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25}
+
+# Alle System-Feature IDs (für Referenz)
+SYSTEM_FEATURE_IDS = frozenset(SYSTEM_FEATURES.keys())
+# {4, 5, 7, 9, 10, 11, 16, 26, 27, 28, 29, 30, 31, 32}

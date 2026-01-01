@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 from app.api import api_v1
 from app.extensions import limiter
 from app.middleware.auth import token_required
-from app.repositories.base_repository import BaseRepository
+from app.database.connection import fetch_one, fetch_all, execute_query
 
 
 # ============================================================================
@@ -28,51 +28,113 @@ from app.repositories.base_repository import BaseRepository
 # ============================================================================
 
 def get_chapter_theory(chapter_id: str, style: str = 'adhs') -> dict | None:
-    """Get chapter theory from database."""
+    """Get chapter theory from database (legacy - gets first match)."""
     query = """
         SELECT
-            theory_id, chapter_id, style, theory_data,
+            theory_id, chapter_id, style, title, theory_data,
             audio_url, audio_duration_seconds,
             tokens_used, model_used, generated_by,
             created_at, updated_at
         FROM chapter_theory
         WHERE chapter_id = %s AND style = %s
+        ORDER BY created_at DESC
+        LIMIT 1
     """
-    return BaseRepository.fetch_one(query, (chapter_id, style))
+    return fetch_one(query, (chapter_id, style))
+
+
+def get_chapter_theory_by_id(theory_id: str) -> dict | None:
+    """Get chapter theory by ID."""
+    query = """
+        SELECT
+            theory_id, chapter_id, style, title, theory_data,
+            audio_url, audio_duration_seconds,
+            tokens_used, model_used, generated_by,
+            created_at, updated_at
+        FROM chapter_theory
+        WHERE theory_id = %s
+    """
+    return fetch_one(query, (theory_id,))
+
+
+def list_chapter_theories(chapter_id: str) -> list:
+    """List all theories for a chapter."""
+    query = """
+        SELECT
+            theory_id, chapter_id, style, title, theory_data,
+            audio_url, audio_duration_seconds,
+            tokens_used, model_used, generated_by,
+            created_at, updated_at
+        FROM chapter_theory
+        WHERE chapter_id = %s
+        ORDER BY created_at DESC
+    """
+    return fetch_all(query, (chapter_id,)) or []
 
 
 def save_chapter_theory(
     chapter_id: str,
     style: str,
     theory_data: dict,
+    title: str | None = None,
     audio_url: str | None = None,
     audio_duration: int | None = None,
     tokens_used: int = 0,
     model_used: str = None,
     user_id: str = None
 ) -> dict:
-    """Save or update chapter theory."""
+    """Create new chapter theory (always creates new, no upsert)."""
+    # Generate default title if not provided
+    if not title:
+        from datetime import datetime
+        timestamp = datetime.now().strftime('%d.%m.%Y %H:%M')
+        style_names = {
+            'adhs': 'ADHS-freundlich',
+            'detailed': 'Ausführlich',
+            'short': 'Kurz & Kompakt',
+            'exam_focus': 'Prüfungsfokus',
+            'standard': 'Standard'
+        }
+        style_name = style_names.get(style, style)
+        title = f"{style_name} ({timestamp})"
+
     query = """
         INSERT INTO chapter_theory (
-            chapter_id, style, theory_data,
+            chapter_id, style, title, theory_data,
             audio_url, audio_duration_seconds,
             tokens_used, model_used, generated_by
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (chapter_id, style)
-        DO UPDATE SET
-            theory_data = EXCLUDED.theory_data,
-            audio_url = EXCLUDED.audio_url,
-            audio_duration_seconds = EXCLUDED.audio_duration_seconds,
-            tokens_used = EXCLUDED.tokens_used,
-            model_used = EXCLUDED.model_used,
-            updated_at = NOW()
-        RETURNING theory_id, chapter_id, style, created_at, updated_at
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING theory_id, chapter_id, style, title, created_at, updated_at
     """
-    return BaseRepository.fetch_one(query, (
-        chapter_id, style, json.dumps(theory_data),
+    result = fetch_one(query, (
+        chapter_id, style, title, json.dumps(theory_data),
         audio_url, audio_duration,
         tokens_used, model_used, user_id
     ))
+    logger.info(f"Created chapter theory: {result}")
+    return result
+
+
+def update_chapter_theory_title(theory_id: str, title: str) -> dict | None:
+    """Update the title of a chapter theory."""
+    query = """
+        UPDATE chapter_theory
+        SET title = %s, updated_at = NOW()
+        WHERE theory_id = %s
+        RETURNING theory_id, title, updated_at
+    """
+    return fetch_one(query, (title, theory_id))
+
+
+def delete_chapter_theory_by_id(theory_id: str) -> bool:
+    """Delete a specific chapter theory by ID."""
+    query = """
+        DELETE FROM chapter_theory
+        WHERE theory_id = %s
+        RETURNING theory_id
+    """
+    result = fetch_one(query, (theory_id,))
+    return result is not None
 
 
 def get_chapter_info(chapter_id: str) -> dict | None:
@@ -85,7 +147,7 @@ def get_chapter_info(chapter_id: str) -> dict | None:
         JOIN courses co ON c.course_id = co.course_id
         WHERE c.chapter_id = %s
     """
-    return BaseRepository.fetch_one(query, (chapter_id,))
+    return fetch_one(query, (chapter_id,))
 
 
 def get_chapter_lessons(chapter_id: str) -> list:
@@ -97,12 +159,69 @@ def get_chapter_lessons(chapter_id: str) -> list:
         ORDER BY order_index
         LIMIT 15
     """
-    return BaseRepository.fetch_all(query, (chapter_id,)) or []
+    return fetch_all(query, (chapter_id,)) or []
 
 
 # ============================================================================
 # API Endpoints
 # ============================================================================
+
+@api_v1.route('/chapters/<chapter_id>/theories', methods=['GET'])
+@token_required
+@limiter.limit("30 per minute")
+def list_theories(chapter_id: str):
+    """
+    List all theories for a chapter.
+
+    Response 200:
+        {
+            "success": true,
+            "data": {
+                "theories": [
+                    {
+                        "theoryId": "uuid",
+                        "title": "ADHS-freundlich (15.12.2025)",
+                        "style": "adhs",
+                        "createdAt": "...",
+                        "hasAudio": true
+                    },
+                    ...
+                ],
+                "count": 3
+            }
+        }
+    """
+    try:
+        theories = list_chapter_theories(chapter_id)
+
+        theory_list = []
+        for t in theories:
+            theory_list.append({
+                'theoryId': str(t.get('theory_id')),
+                'title': t.get('title') or f"Theorieblatt ({t.get('style', 'standard')})",
+                'style': t.get('style'),
+                'hasAudio': bool(t.get('audio_url')),
+                'tokensUsed': t.get('tokens_used', 0),
+                'createdAt': t.get('created_at').isoformat() if t.get('created_at') else None,
+                'updatedAt': t.get('updated_at').isoformat() if t.get('updated_at') else None
+            })
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'theories': theory_list,
+                'count': len(theory_list)
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error listing chapter theories: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to list theories',
+            'message': str(e)
+        }), 500
+
 
 @api_v1.route('/chapters/<chapter_id>/theory', methods=['GET'])
 @token_required
@@ -110,15 +229,19 @@ def get_chapter_lessons(chapter_id: str) -> list:
 def get_theory(chapter_id: str):
     """
     Get chapter theory (cached from DB).
+    Returns the most recent theory, optionally filtered by style.
 
     Query params:
         style: Theory style (adhs, detailed, short, exam_focus, standard)
+        theory_id: Specific theory ID to fetch
 
     Response 200:
         {
             "success": true,
             "data": {
                 "hasTheory": true,
+                "theoryId": "uuid",
+                "title": "...",
                 "theory": {...},
                 "audioUrl": "...",
                 "style": "adhs",
@@ -127,15 +250,37 @@ def get_theory(chapter_id: str):
         }
     """
     try:
+        theory_id = request.args.get('theory_id')
         style = request.args.get('style', 'adhs')
 
-        # Validate style
-        valid_styles = ['adhs', 'detailed', 'short', 'exam_focus', 'standard']
-        if style not in valid_styles:
-            style = 'adhs'
+        # If specific theory_id requested, get that one
+        if theory_id:
+            theory_record = get_chapter_theory_by_id(theory_id)
+        else:
+            # Validate style
+            valid_styles = ['adhs', 'detailed', 'short', 'exam_focus', 'standard']
+            if style not in valid_styles:
+                style = 'adhs'
 
-        # Get from database
-        theory_record = get_chapter_theory(chapter_id, style)
+            # Get from database - try requested style first
+            theory_record = get_chapter_theory(chapter_id, style)
+
+            # Fallback: if no theory for requested style, try to find ANY available theory
+            if not theory_record:
+                fallback_query = """
+                    SELECT
+                        theory_id, chapter_id, style, title, theory_data,
+                        audio_url, audio_duration_seconds,
+                        tokens_used, model_used, generated_by,
+                        created_at, updated_at
+                    FROM chapter_theory
+                    WHERE chapter_id = %s
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                """
+                theory_record = fetch_one(fallback_query, (chapter_id,))
+                if theory_record:
+                    logger.info(f"Using fallback theory with style={theory_record.get('style')} for chapter {chapter_id}")
 
         if not theory_record:
             return jsonify({
@@ -153,14 +298,20 @@ def get_theory(chapter_id: str):
         if isinstance(theory_data, str):
             theory_data = json.loads(theory_data)
 
+        # Return actual style from record (might be different from requested if fallback was used)
+        actual_style = theory_record.get('style', style)
+
         return jsonify({
             'success': True,
             'data': {
                 'hasTheory': True,
+                'theoryId': str(theory_record.get('theory_id')),
+                'title': theory_record.get('title') or f"Theorieblatt ({actual_style})",
                 'theory': theory_data,
                 'audioUrl': theory_record.get('audio_url'),
                 'audioDuration': theory_record.get('audio_duration_seconds'),
-                'style': style,
+                'style': actual_style,
+                'requestedStyle': style,  # What was requested
                 'createdAt': theory_record.get('created_at').isoformat() if theory_record.get('created_at') else None,
                 'tokensUsed': theory_record.get('tokens_used', 0)
             }
@@ -171,6 +322,115 @@ def get_theory(chapter_id: str):
         return jsonify({
             'success': False,
             'error': 'Failed to get chapter theory',
+            'message': str(e)
+        }), 500
+
+
+@api_v1.route('/chapter-theory/<theory_id>', methods=['GET'])
+@token_required
+def get_theory_by_id(theory_id: str):
+    """Get a specific theory by ID."""
+    try:
+        theory_record = get_chapter_theory_by_id(theory_id)
+
+        if not theory_record:
+            return jsonify({
+                'success': False,
+                'error': 'Theory not found'
+            }), 404
+
+        # Parse theory_data from JSONB
+        theory_data = theory_record.get('theory_data', {})
+        if isinstance(theory_data, str):
+            theory_data = json.loads(theory_data)
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'theoryId': str(theory_record.get('theory_id')),
+                'chapterId': str(theory_record.get('chapter_id')),
+                'title': theory_record.get('title'),
+                'style': theory_record.get('style'),
+                'theory': theory_data,
+                'audioUrl': theory_record.get('audio_url'),
+                'audioDuration': theory_record.get('audio_duration_seconds'),
+                'createdAt': theory_record.get('created_at').isoformat() if theory_record.get('created_at') else None,
+                'tokensUsed': theory_record.get('tokens_used', 0)
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error getting theory by ID: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to get theory',
+            'message': str(e)
+        }), 500
+
+
+@api_v1.route('/chapter-theory/<theory_id>', methods=['PATCH'])
+@token_required
+def update_theory(theory_id: str):
+    """Update theory title."""
+    try:
+        data = request.get_json() or {}
+        title = data.get('title')
+
+        if not title:
+            return jsonify({
+                'success': False,
+                'error': 'Title is required'
+            }), 400
+
+        result = update_chapter_theory_title(theory_id, title)
+
+        if not result:
+            return jsonify({
+                'success': False,
+                'error': 'Theory not found'
+            }), 404
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'theoryId': str(result.get('theory_id')),
+                'title': result.get('title'),
+                'updatedAt': result.get('updated_at').isoformat() if result.get('updated_at') else None
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error updating theory: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to update theory',
+            'message': str(e)
+        }), 500
+
+
+@api_v1.route('/chapter-theory/<theory_id>', methods=['DELETE'])
+@token_required
+def delete_theory_by_id_endpoint(theory_id: str):
+    """Delete a specific theory by ID."""
+    try:
+        deleted = delete_chapter_theory_by_id(theory_id)
+
+        if not deleted:
+            return jsonify({
+                'success': False,
+                'error': 'Theory not found'
+            }), 404
+
+        return jsonify({
+            'success': True,
+            'message': 'Theory deleted successfully'
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error deleting theory: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to delete theory',
             'message': str(e)
         }), 500
 
@@ -534,72 +794,218 @@ def _parse_json_response(output_text: str, chapter_title: str) -> dict:
         }
 
 
+@api_v1.route('/chapters/<chapter_id>/theory', methods=['DELETE'])
+@token_required
+def delete_theory(chapter_id: str):
+    """
+    Delete chapter theory from database.
+
+    Query params:
+        style: Theory style (adhs, detailed, short, exam_focus, standard)
+               If not specified, deletes ALL theories for this chapter
+
+    Response 200:
+        {
+            "success": true,
+            "message": "Theory deleted"
+        }
+    """
+    try:
+        style = request.args.get('style')
+
+        if style:
+            # Delete specific style
+            query = """
+                DELETE FROM chapter_theory
+                WHERE chapter_id = %s AND style = %s
+                RETURNING theory_id
+            """
+            result = fetch_one(query, (chapter_id, style))
+        else:
+            # Delete all theories for this chapter
+            query = """
+                DELETE FROM chapter_theory
+                WHERE chapter_id = %s
+                RETURNING theory_id
+            """
+            result = fetch_one(query, (chapter_id,))
+
+        if result:
+            logger.info(f"Deleted chapter theory for {chapter_id} (style={style})")
+            return jsonify({
+                'success': True,
+                'message': f'Theory deleted successfully'
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Theory not found'
+            }), 404
+
+    except Exception as e:
+        logger.error(f"Error deleting chapter theory: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to delete theory',
+            'message': str(e)
+        }), 500
+
+
+@api_v1.route('/chapter-theory/<chapter_id>/audio', methods=['GET'])
+@token_required
+def get_theory_audio(chapter_id: str):
+    """
+    Serve cached TTS audio for chapter theory.
+
+    Query params:
+        v: voice (nova, alloy, echo, etc.)
+        style: theory style (adhs, detailed, etc.)
+
+    Returns:
+        Audio file (audio/mpeg)
+    """
+    from flask import send_file
+    from pathlib import Path
+    import os
+
+    try:
+        voice = request.args.get('v', 'nova')
+        style = request.args.get('style', 'adhs')
+
+        # Get theory record to find audio file
+        theory_record = get_chapter_theory(chapter_id, style)
+
+        if not theory_record:
+            return jsonify({
+                'success': False,
+                'error': 'Theory not found'
+            }), 404
+
+        audio_url = theory_record.get('audio_url')
+
+        # If no audio URL, generate it
+        if not audio_url:
+            return jsonify({
+                'success': False,
+                'error': 'No audio available for this theory'
+            }), 404
+
+        # Find audio file in storage
+        backend_root = Path(__file__).parent.parent.parent
+        cache_base = Path(os.getenv('MEDIA_CACHE_PATH', str(backend_root / 'storage' / 'media_cache')))
+        storage_dir = cache_base / 'chapter_theory_tts' / chapter_id[:8]
+
+        # Look for any audio file matching voice
+        audio_file = None
+        if storage_dir.exists():
+            for f in storage_dir.glob(f'theory_*_{voice}.mp3'):
+                audio_file = f
+                break
+
+        if not audio_file or not audio_file.exists():
+            return jsonify({
+                'success': False,
+                'error': 'Audio file not found'
+            }), 404
+
+        return send_file(
+            str(audio_file),
+            mimetype='audio/mpeg',
+            as_attachment=False
+        )
+
+    except Exception as e:
+        logger.error(f"Error serving theory audio: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to serve audio'
+        }), 500
+
+
 def _generate_theory_audio(theory_data: dict, voice: str, chapter_id: str, user_id: str) -> dict | None:
-    """Generate TTS audio for theory content."""
+    """Generate TTS audio for theory content using OpenAI TTS."""
     import re
     import hashlib
     from pathlib import Path
     import os
 
     try:
-        # Build speech text from theory data
+        # Build speech text from theory data - comprehensive explanation
         speech_parts = []
+
+        # Title and intro
+        speech_parts.append("Willkommen zu diesem Theorieblatt.")
 
         if theory_data.get('overview'):
             overview = re.sub('<[^<]+?>', '', str(theory_data['overview']))
-            speech_parts.append(f"Uebersicht. {overview}")
+            speech_parts.append(f"Ueberblick. {overview}")
 
         if theory_data.get('learningGoals'):
-            goals = theory_data['learningGoals'][:5]
-            speech_parts.append("Lernziele. " + ". ".join(goals))
+            goals = theory_data['learningGoals']
+            speech_parts.append("Die Lernziele fuer dieses Kapitel sind:")
+            for i, goal in enumerate(goals[:5], 1):
+                speech_parts.append(f"Erstens: {goal}" if i == 1 else f"Ausserdem: {goal}")
 
         if theory_data.get('concepts'):
-            speech_parts.append("Wichtige Konzepte.")
-            for concept in theory_data['concepts'][:5]:
+            speech_parts.append("Schauen wir uns die wichtigsten Konzepte an.")
+            for concept in theory_data['concepts'][:6]:
                 title = concept.get('title', concept.get('emoji', ''))
                 desc = concept.get('description', concept.get('oneLiner', ''))
+                example = concept.get('example', '')
+                tip = concept.get('tip', '')
+
                 if title and desc:
                     speech_parts.append(f"{title}. {desc}")
+                    if example:
+                        speech_parts.append(f"Ein Beispiel dazu: {example}")
+                    if tip:
+                        speech_parts.append(f"Merke dir: {tip}")
 
         if theory_data.get('terms'):
-            speech_parts.append("Wichtige Begriffe.")
-            for term in theory_data['terms'][:5]:
+            speech_parts.append("Nun zu den wichtigen Fachbegriffen.")
+            for term in theory_data['terms'][:6]:
                 term_name = term.get('term', '')
                 definition = term.get('definition', term.get('simple', ''))
                 if term_name and definition:
-                    speech_parts.append(f"{term_name}. {definition}")
+                    speech_parts.append(f"{term_name} bedeutet: {definition}")
 
         if theory_data.get('examTips'):
-            speech_parts.append("Pruefungstipps.")
-            for tip in theory_data['examTips'][:3]:
+            speech_parts.append("Fuer die Pruefung solltest du dir merken:")
+            for tip in theory_data['examTips'][:4]:
                 speech_parts.append(tip)
 
         if theory_data.get('summary'):
-            speech_parts.append(f"Zusammenfassung. {theory_data['summary']}")
+            speech_parts.append(f"Zusammenfassend laesst sich sagen: {theory_data['summary']}")
         elif theory_data.get('oneMinuteSummary'):
-            speech_parts.append(f"Zusammenfassung. {theory_data['oneMinuteSummary']}")
+            speech_parts.append(f"Die Zusammenfassung: {theory_data['oneMinuteSummary']}")
+
+        speech_parts.append("Das war die Erklaerung zu diesem Kapitel. Viel Erfolg beim Lernen!")
 
         speech_text = " ... ".join(speech_parts)
 
-        # Limit text length
+        # Limit text length for TTS
         if len(speech_text) > 4000:
-            speech_text = speech_text[:4000] + "..."
+            speech_text = speech_text[:3900] + " ... Das war eine verkuerzte Erklaerung."
 
         if len(speech_text) < 50:
+            logger.warning(f"Speech text too short ({len(speech_text)} chars), skipping TTS")
             return None
 
-        # Generate unique filename
+        logger.info(f"Generating TTS audio: {len(speech_text)} chars, voice={voice}")
+
+        # Generate unique filename based on content + voice
         text_hash = hashlib.sha256(speech_text.encode()).hexdigest()[:16]
 
-        # Storage path
+        # Storage path - use chapter_id subfolder for organization
         backend_root = Path(__file__).parent.parent.parent
-        storage_dir = Path(os.getenv('MEDIA_CACHE_PATH', str(backend_root / 'storage' / 'media_cache'))) / 'chapter_theory_tts' / chapter_id[:8]
+        cache_base = Path(os.getenv('MEDIA_CACHE_PATH', str(backend_root / 'storage' / 'media_cache')))
+        storage_dir = cache_base / 'chapter_theory_tts' / chapter_id[:8]
         storage_dir.mkdir(parents=True, exist_ok=True)
 
         filename = f"theory_{text_hash}_{voice}.mp3"
         file_path = storage_dir / filename
 
-        # Check cache
+        # Check if already cached
         from_cache = file_path.exists()
 
         if not from_cache:
@@ -607,6 +1013,8 @@ def _generate_theory_audio(theory_data: dict, voice: str, chapter_id: str, user_
 
             valid_voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
             tts_voice = voice if voice in valid_voices else 'nova'
+
+            logger.info(f"Calling OpenAI TTS with voice={tts_voice}")
 
             audio_bytes = AIAdapter.text_to_speech(
                 text=speech_text,
@@ -618,16 +1026,25 @@ def _generate_theory_audio(theory_data: dict, voice: str, chapter_id: str, user_
             with open(file_path, 'wb') as f:
                 f.write(audio_bytes)
 
-        # Calculate duration (roughly 150 words/min, 5 chars/word)
-        duration_seconds = int((len(speech_text) / 5 / 150) * 60)
+            logger.info(f"Saved TTS audio to {file_path} ({len(audio_bytes)} bytes)")
+        else:
+            logger.info(f"Using cached TTS audio: {file_path}")
 
-        audio_id = f"{text_hash}_{voice}_100"
+        # Calculate approximate duration (OpenAI TTS: ~150 words/min, avg 5 chars/word)
+        word_count = len(speech_text.split())
+        duration_seconds = int((word_count / 150) * 60)
 
+        # Audio ID for the TTS endpoint (text_hash_voice_speed)
+        audio_id = f"chtheory_{chapter_id[:8]}_{text_hash}_{voice}_100"
+
+        # Return URL using chapter_theory specific endpoint
         return {
-            'url': f"/api/v1/tts/audio/{audio_id}?path={str(file_path)}",
-            'duration_seconds': duration_seconds,
+            'url': f"/api/v1/chapter-theory/{chapter_id}/audio?v={voice}",
+            'duration_seconds': max(duration_seconds, 30),  # Minimum 30s
             'text_length': len(speech_text),
-            'from_cache': from_cache
+            'word_count': word_count,
+            'from_cache': from_cache,
+            'file_path': str(file_path)  # Store for internal use
         }
 
     except Exception as e:

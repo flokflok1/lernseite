@@ -1,7 +1,7 @@
 """
 LernsystemX Admin Learning Method API
 
-Admin-Endpoints für Learning Method Instances (31 aktive Lernmethoden, 6 Gruppen A-F):
+Admin-Endpoints für Learning Method Instances (19 Content-Lernmethoden, 3 Gruppen A-C):
 
 - GET    /api/v1/admin/chapters/{chapter_id}/learning-methods
 - POST   /api/v1/admin/chapters/{chapter_id}/learning-methods
@@ -10,8 +10,10 @@ Admin-Endpoints für Learning Method Instances (31 aktive Lernmethoden, 6 Gruppe
 - DELETE /api/v1/admin/learning-methods/{method_id}
 - GET    /api/v1/admin/learning-method-types - Alle aktiven Lernmethoden-Typen
 
-Phase D3.2 - Technische Integration (aktualisiert)
-Referenz: 02_Lernmethoden.md
+Content-LMs: LM00-LM03, LM06, LM08, LM12-LM15, LM17-LM25
+System-Features (D/E/F): Siehe 02a_System-Features.md
+
+Referenz: 02_Lernmethoden.md, 02a_System-Features.md
 """
 
 from flask import request, jsonify, g
@@ -113,7 +115,7 @@ def enrich_with_method_info(instance: Dict[str, Any]) -> Dict[str, Any]:
 @require_permission(Permissions.ADMIN_COURSE_READ)
 def admin_get_learning_method_types():
     """
-    Gibt alle aktiven Lernmethoden-Typen zurück (31 Methoden, 6 Gruppen A-F).
+    Gibt alle aktiven Lernmethoden-Typen zurück (19 Content-LMs, 3 Gruppen A-C).
 
     Response:
         200: Liste aller Lernmethoden-Typen

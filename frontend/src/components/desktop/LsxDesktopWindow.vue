@@ -13,23 +13,18 @@
     class="lsx-desktop-window"
     :class="{
       'lsx-desktop-window--active': isActive,
-      'lsx-desktop-window--dragging': isDragging
+      'lsx-desktop-window--dragging': isDragging,
+      'lsx-desktop-window--maximized': window.maximized
     }"
-    :style="{
-      left: `${window.position.x}px`,
-      top: `${window.position.y}px`,
-      width: window.size?.width ? `${window.size.width}px` : '800px',
-      height: window.size?.height ? `${window.size.height}px` : 'auto',
-      maxHeight: 'calc(100vh - 80px)',
-      zIndex: window.zIndex
-    }"
+    :style="windowStyle"
     @mousedown="handleWindowClick"
   >
-    <!-- Window Header (Draggable) -->
+    <!-- Window Header (Draggable, Double-click to maximize) -->
     <div
       ref="headerRef"
       class="lsx-window-header"
       @mousedown="handleDragStart"
+      @dblclick="handleMaximize"
     >
       <!-- Icon & Title -->
       <div class="lsx-window-title">
@@ -46,6 +41,20 @@
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button
+          class="lsx-window-control lsx-window-control--maximize"
+          @click.stop="handleMaximize"
+          :title="window.maximized ? 'Wiederherstellen' : 'Maximieren'"
+        >
+          <svg v-if="!window.maximized" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <!-- Maximize icon: single square -->
+            <rect x="2" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5" fill="none" rx="1"/>
+          </svg>
+          <svg v-else width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <!-- Restore icon: two cascaded squares (Windows-style) -->
+            <path d="M4 2h6v6M2 4h6v6H2z" stroke="currentColor" stroke-width="1.5" fill="none"/>
           </svg>
         </button>
         <button
@@ -78,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { LsxWindow } from '@/store/window.store'
 
 interface Props {
@@ -89,6 +98,7 @@ interface Props {
 interface Emits {
   (e: 'close', id: string): void
   (e: 'minimize', id: string): void
+  (e: 'maximize', id: string): void
   (e: 'focus', id: string): void
   (e: 'drag', id: string, position: { x: number; y: number }): void
   (e: 'resize', id: string, size: { width: number; height: number }): void
@@ -103,6 +113,33 @@ const windowRef = ref<HTMLElement | null>(null)
 const headerRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const isResizing = ref(false)
+
+/**
+ * Computed window style - handles both normal and maximized states
+ */
+const windowStyle = computed(() => {
+  if (props.window.maximized) {
+    return {
+      left: '0px',
+      top: '0px',
+      width: '100vw',
+      height: 'calc(100vh - 56px)', // Leave room for taskbar
+      maxHeight: 'none',
+      zIndex: props.window.zIndex,
+      borderRadius: '0',
+      display: 'flex',
+      flexDirection: 'column'
+    }
+  }
+  return {
+    left: `${props.window.position.x}px`,
+    top: `${props.window.position.y}px`,
+    width: props.window.size?.width ? `${props.window.size.width}px` : '800px',
+    height: props.window.size?.height ? `${props.window.size.height}px` : 'auto',
+    maxHeight: 'calc(100vh - 80px)',
+    zIndex: props.window.zIndex
+  }
+})
 
 // Drag state
 const dragState = ref<{
@@ -145,11 +182,21 @@ function handleClose(): void {
 }
 
 /**
+ * Handle maximize/restore button
+ */
+function handleMaximize(): void {
+  emit('maximize', props.window.id)
+}
+
+/**
  * Start dragging window
  */
 function handleDragStart(e: MouseEvent): void {
   // Only drag on left mouse button
   if (e.button !== 0) return
+
+  // Don't allow dragging when maximized
+  if (props.window.maximized) return
 
   // Focus window
   emit('focus', props.window.id)
@@ -215,6 +262,9 @@ function handleDragEnd(): void {
  */
 function handleResizeStart(e: MouseEvent, direction: ResizeDirection): void {
   if (e.button !== 0) return
+
+  // Don't allow resizing when maximized
+  if (props.window.maximized) return
 
   emit('focus', props.window.id)
 
@@ -335,6 +385,30 @@ function handleResizeEnd(): void {
   user-select: none;
 }
 
+.lsx-desktop-window--maximized {
+  border-radius: 0 !important;
+  box-shadow: none;
+  position: fixed;
+}
+
+.lsx-desktop-window--maximized .lsx-window-header {
+  cursor: default;
+  flex-shrink: 0;
+}
+
+.lsx-desktop-window--maximized .lsx-window-content {
+  position: absolute;
+  top: 57px; /* Header height */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.lsx-desktop-window--maximized .lsx-resize-handle {
+  display: none;
+}
+
 /* Window Header */
 .lsx-window-header {
   display: flex;
@@ -402,6 +476,11 @@ function handleResizeEnd(): void {
 
 .lsx-window-control--minimize:hover {
   background: var(--color-primary);
+  color: white;
+}
+
+.lsx-window-control--maximize:hover {
+  background: #10b981;
   color: white;
 }
 

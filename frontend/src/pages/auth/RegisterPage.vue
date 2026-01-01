@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">Registrieren</h2>
+    <h2 class="text-2xl font-bold text-[var(--color-text-primary)] mb-6">{{ t('auth.register') }}</h2>
 
     <form @submit.prevent="handleRegister" class="space-y-4">
       <div class="grid grid-cols-2 gap-4">
@@ -8,7 +8,7 @@
           id="first_name"
           v-model="form.first_name"
           type="text"
-          label="Vorname"
+          :label="t('auth.first_name')"
           placeholder="Max"
           :required="true"
           :error="errors.first_name"
@@ -18,7 +18,7 @@
           id="last_name"
           v-model="form.last_name"
           type="text"
-          label="Nachname"
+          :label="t('auth.last_name')"
           placeholder="Mustermann"
           :required="true"
           :error="errors.last_name"
@@ -29,7 +29,7 @@
         id="email"
         v-model="form.email"
         type="email"
-        label="E-Mail"
+        :label="t('auth.email')"
         placeholder="user@example.com"
         :required="true"
         :error="errors.email"
@@ -39,18 +39,18 @@
         id="password"
         v-model="form.password"
         type="password"
-        label="Passwort"
+        :label="t('auth.password')"
         placeholder="••••••••"
         :required="true"
         :error="errors.password"
-        hint="Mindestens 8 Zeichen, 1 Großbuchstabe, 1 Zahl"
+        :hint="t('auth.password_hint')"
       />
 
       <Input
         id="confirm_password"
         v-model="form.confirm_password"
         type="password"
-        label="Passwort wiederholen"
+        :label="t('auth.confirm_password')"
         placeholder="••••••••"
         :required="true"
         :error="errors.confirm_password"
@@ -72,15 +72,15 @@
         :loading="isLoading"
         :disabled="isLoading"
       >
-        Registrieren
+        {{ t('auth.register') }}
       </Button>
     </form>
 
     <div class="mt-6 text-center">
-      <p class="text-sm text-gray-600">
-        Bereits registriert?
+      <p class="text-sm text-[var(--color-text-secondary)]">
+        {{ t('auth.have_account') }}
         <router-link to="/login" class="text-primary-600 hover:text-primary-700 font-medium">
-          Jetzt anmelden
+          {{ t('auth.login_now') }}
         </router-link>
       </p>
     </div>
@@ -90,12 +90,14 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const form = reactive({
   first_name: '',
@@ -126,52 +128,52 @@ const validateForm = (): boolean => {
 
   // Validate first name
   if (!form.first_name) {
-    errors.first_name = 'Vorname ist erforderlich'
+    errors.first_name = t('errors.required')
     return false
   }
 
   // Validate last name
   if (!form.last_name) {
-    errors.last_name = 'Nachname ist erforderlich'
+    errors.last_name = t('errors.required')
     return false
   }
 
   // Validate email
   if (!form.email) {
-    errors.email = 'E-Mail ist erforderlich'
+    errors.email = t('errors.required')
     return false
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(form.email)) {
-    errors.email = 'Ungültige E-Mail-Adresse'
+    errors.email = t('errors.invalid_email')
     return false
   }
 
   // Validate password
   if (!form.password) {
-    errors.password = 'Passwort ist erforderlich'
+    errors.password = t('errors.required')
     return false
   }
 
   if (form.password.length < 8) {
-    errors.password = 'Passwort muss mindestens 8 Zeichen lang sein'
+    errors.password = t('errors.password_min_length')
     return false
   }
 
   if (!/[A-Z]/.test(form.password)) {
-    errors.password = 'Passwort muss mindestens einen Großbuchstaben enthalten'
+    errors.password = t('errors.password_uppercase')
     return false
   }
 
   if (!/[0-9]/.test(form.password)) {
-    errors.password = 'Passwort muss mindestens eine Zahl enthalten'
+    errors.password = t('errors.password_number')
     return false
   }
 
   // Validate password confirmation
   if (form.password !== form.confirm_password) {
-    errors.confirm_password = 'Passwörter stimmen nicht überein'
+    errors.confirm_password = t('errors.password_mismatch')
     return false
   }
 
@@ -194,7 +196,7 @@ const handleRegister = async () => {
       password: form.password,
     })
 
-    successMessage.value = 'Registrierung erfolgreich! Sie werden in Kürze weitergeleitet...'
+    successMessage.value = t('auth.register_success')
 
     // Redirect to login after 2 seconds
     setTimeout(() => {
@@ -202,7 +204,7 @@ const handleRegister = async () => {
     }, 2000)
 
   } catch (error: any) {
-    errorMessage.value = error.response?.data?.message || error.message || 'Registrierung fehlgeschlagen'
+    errorMessage.value = error.response?.data?.message || error.message || t('auth.register_failed')
 
   } finally {
     isLoading.value = false

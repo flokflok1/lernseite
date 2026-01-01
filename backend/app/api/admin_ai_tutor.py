@@ -73,6 +73,7 @@ def generate_chapter_theory():
         chapter_title = data.get('chapter_title', '')
         course_title = data.get('course_title', '')
         style = data.get('style', 'adhs')  # Default to ADHS-friendly
+        theory_title = data.get('title')  # Optional custom title for the theory
         generate_tts = data.get('generate_tts', False)
         tts_voice = data.get('tts_voice', 'alloy')
 
@@ -181,19 +182,20 @@ def generate_chapter_theory():
                 audio_url = audio_result.get('url')
                 audio_duration = audio_result.get('duration_seconds')
 
-        # Save to chapter_theory table for caching
+        # Save to chapter_theory table (always creates new entry)
         try:
             _save_chapter_theory(
                 chapter_id=chapter_id,
                 style=style,
                 theory_data=theory_data,
+                title=theory_title,  # Custom title from request (or auto-generated)
                 audio_url=audio_url,
                 audio_duration=audio_duration,
                 tokens_used=result.get('total_tokens', 0),
                 model_used=model,
                 user_id=user_id
             )
-            logger.info(f"Saved chapter theory to DB for {chapter_id}")
+            logger.info(f"Created new chapter theory in DB for {chapter_id}")
         except Exception as save_err:
             logger.warning(f"Could not save chapter theory to DB: {save_err}")
 
@@ -470,36 +472,45 @@ def _save_chapter_theory(
     chapter_id: str,
     style: str,
     theory_data: dict,
+    title: str = None,
     audio_url: str = None,
     audio_duration: int = None,
     tokens_used: int = 0,
     model_used: str = None,
     user_id: str = None
 ) -> dict:
-    """Save chapter theory to database for caching."""
-    from app.repositories.base_repository import BaseRepository
+    """Save chapter theory to database (always creates new entry)."""
+    from app.database.connection import fetch_one
+    from datetime import datetime
+
+    # Generate default title if not provided
+    if not title:
+        timestamp = datetime.now().strftime('%d.%m.%Y %H:%M')
+        style_names = {
+            'adhs': 'ADHS-freundlich',
+            'detailed': 'Ausführlich',
+            'short': 'Kurz & Kompakt',
+            'exam_focus': 'Prüfungsfokus',
+            'standard': 'Standard'
+        }
+        style_name = style_names.get(style, style)
+        title = f"{style_name} ({timestamp})"
 
     query = """
         INSERT INTO chapter_theory (
-            chapter_id, style, theory_data,
+            chapter_id, style, title, theory_data,
             audio_url, audio_duration_seconds,
             tokens_used, model_used, generated_by
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (chapter_id, style)
-        DO UPDATE SET
-            theory_data = EXCLUDED.theory_data,
-            audio_url = EXCLUDED.audio_url,
-            audio_duration_seconds = EXCLUDED.audio_duration_seconds,
-            tokens_used = EXCLUDED.tokens_used,
-            model_used = EXCLUDED.model_used,
-            updated_at = NOW()
-        RETURNING theory_id, chapter_id, style, created_at, updated_at
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING theory_id, chapter_id, style, title, created_at, updated_at
     """
-    return BaseRepository.fetch_one(query, (
-        chapter_id, style, json.dumps(theory_data),
+    result = fetch_one(query, (
+        chapter_id, style, title, json.dumps(theory_data),
         audio_url, audio_duration,
         tokens_used, model_used, user_id
     ))
+    logger.info(f"Created new chapter theory: {result}")
+    return result
 
 
 def _generate_theory_tts(theory_data: dict, voice: str, chapter_id: str, user_id: str) -> dict:
@@ -701,6 +712,258 @@ def _preprocess_tts_text(text: str) -> str:
     return processed
 
 
+@api_v1.route('/admin/ai/generate-lesson-detailed', methods=['POST'])
+@token_required
+@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@limiter.limit("10 per minute")
+def generate_lesson_detailed():
+    """
+    Generate ultra-detailed lesson content with calculator keystrokes.
+
+    This generates step-by-step content showing EXACTLY how to solve problems,
+    including every calculator button press and intermediate results.
+
+    Request Body:
+        {
+            "lesson_id": "uuid",
+            "lesson_title": "Bezugskalkulation berechnen",
+            "chapter_title": "IT1: Beschaffung & Kalkulation",
+            "course_title": "AP1 Pruefungsvorbereitung",
+            "context": "Optional additional context or example problem"
+        }
+
+    Response 200:
+        {
+            "success": true,
+            "data": {
+                "title": "Bezugskalkulation berechnen",
+                "overview": "Kurze Zusammenfassung",
+                "steps": [
+                    {
+                        "title": "Schritt 1: Rabatt berechnen",
+                        "speech": "Was der Tutor erklaert",
+                        "calculator": "1000 × 0.10 =",
+                        "result": "100,00",
+                        "schema": [...],
+                        "tip": "Merkhilfe"
+                    }
+                ],
+                "summary": "Was du gelernt hast",
+                "practiceTask": "Übungsaufgabe zum Selbsttest"
+            }
+        }
+    """
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Request body required'
+            }), 400
+
+        lesson_id = data.get('lesson_id')
+        lesson_title = data.get('lesson_title', '')
+        chapter_title = data.get('chapter_title', '')
+        course_title = data.get('course_title', '')
+        extra_context = data.get('context', '')
+
+        if not lesson_id or not lesson_title:
+            return jsonify({
+                'success': False,
+                'error': 'lesson_id and lesson_title are required'
+            }), 400
+
+        user_id = g.current_user['user_id']
+        start_time = time.time()
+
+        # Get lesson info for context
+        from app.repositories.lesson_repository import LessonRepository
+        lesson = LessonRepository.find_by_id(lesson_id) if lesson_id else None
+        lesson_description = lesson.get('description', '') if lesson else ''
+        lesson_content = lesson.get('content', {}) if lesson else {}
+
+        # Build ultra-detailed prompt
+        prompt = f"""Du bist ein erfahrener IHK-Pruefer und geduldiger Nachhilfelehrer fuer Fachinformatiker.
+
+Erstelle eine ULTRA-DETAILLIERTE Schritt-fuer-Schritt Anleitung fuer "{lesson_title}".
+
+## Kontext:
+- Lektion: {lesson_title}
+- Kapitel: {chapter_title}
+- Kurs: {course_title}
+- Beschreibung: {lesson_description}
+- Zielgruppe: Fachinformatiker Systemintegration (FISI) in Pruefungsvorbereitung
+{f'- Zusatzinfo: {extra_context}' if extra_context else ''}
+
+## WICHTIG - Das macht diese Anleitung besonders:
+1. ZEIGE JEDEN EINZELNEN TASCHENRECHNER-SCHRITT
+   - Welche Zahl eingeben
+   - Welche Taste druecken (×, ÷, +, -, =, %, etc.)
+   - Was auf dem Display erscheint
+
+2. BENUTZE EIN KONKRETES ZAHLENBEISPIEL
+   - Nimm realistische Zahlen aus der IHK-Pruefung
+   - Z.B. Listeneinkaufspreis 1.200,00 EUR, Rabatt 15%, Skonto 2%
+
+3. BAUE EIN SCHEMA SCHRITT FUER SCHRITT AUF
+   - Jeder Schritt fuegt eine Zeile hinzu
+   - Zeige Zwischenergebnisse
+
+4. ERKLAERE WIE EIN FREUNDLICHER TUTOR
+   - "Also, jetzt nehmen wir..."
+   - "Pass auf, das ist der Trick..."
+   - "Viele machen hier den Fehler..."
+
+## JSON-Format:
+{{
+    "title": "{lesson_title}",
+    "overview": "2-3 Saetze: Was lernen wir hier und warum ist es wichtig?",
+    "exampleProblem": "Die konkrete Aufgabenstellung mit Zahlen",
+    "steps": [
+        {{
+            "title": "Kurzname des Schritts (z.B. 'Rabatt berechnen')",
+            "speech": "Erklaerung wie ein freundlicher Tutor (2-4 Saetze). Erklaere WAS wir tun und WARUM.",
+            "calculator": "Exakte Eingabe: z.B. '1200 × 0.15 =' oder '1200 × 15 % ='",
+            "result": "Was erscheint auf dem Display: z.B. '180.00'",
+            "note": "Optional: '180,00 EUR Rabatt'",
+            "schema": [
+                {{"name": "Listeneinkaufspreis (LEP)", "operator": "", "value": "1.200,00 EUR", "highlight": false}},
+                {{"name": "- Rabatt 15%", "operator": "=", "value": "180,00 EUR", "highlight": true}}
+            ],
+            "tip": "Optional: Merkhilfe oder haeufiger Fehler"
+        }}
+    ],
+    "summary": "Zusammenfassung: Die wichtigsten 3-4 Punkte als Bullet-Points",
+    "practiceTask": {{
+        "description": "Aufgabe zum Selbsttest mit anderen Zahlen",
+        "values": {{"LEP": "980,00 EUR", "Rabatt": "12%", "Skonto": "3%"}},
+        "solution": "Bezugspreis = XXX EUR"
+    }},
+    "commonMistakes": [
+        "Haeufiger Fehler 1 und wie man ihn vermeidet",
+        "Haeufiger Fehler 2"
+    ]
+}}
+
+GENERIERE MINDESTENS 6-10 SCHRITTE mit allen Details!
+Jeder Rechenschritt = eigener Schritt mit Taschenrechner-Eingabe!
+"""
+
+        # Use AIAdapter
+        from app.services.ai_adapter import AIAdapter
+
+        adapter = AIAdapter(provider='openai', model='gpt-4o')
+
+        messages = [
+            {
+                'role': 'system',
+                'content': '''Du bist ein erfahrener IHK-Pruefer und geduldiger Nachhilfelehrer.
+Du erstellst ultra-detaillierte Schritt-fuer-Schritt Anleitungen fuer Fachinformatiker.
+Deine Staerke: Du zeigst JEDEN einzelnen Taschenrechner-Schritt.
+
+WICHTIG:
+- Antworte NUR mit validem JSON
+- Benutze realistische IHK-Pruefungszahlen
+- Zeige JEDEN Rechenschritt einzeln
+- Erklaere wie ein freundlicher Tutor'''
+            },
+            {'role': 'user', 'content': prompt}
+        ]
+
+        result = adapter.send_messages(
+            messages=messages,
+            temperature=0.7,
+            max_tokens=6000
+        )
+
+        output_text = result.get('output_text', '{}')
+
+        # Parse JSON response
+        lesson_data = _parse_json_response(output_text, lesson_title)
+
+        # Ensure required fields exist
+        if 'steps' not in lesson_data:
+            lesson_data['steps'] = []
+        if 'title' not in lesson_data:
+            lesson_data['title'] = lesson_title
+
+        response_time_ms = int((time.time() - start_time) * 1000)
+
+        logger.info(f"Generated detailed lesson for {lesson_id}, steps: {len(lesson_data.get('steps', []))}, tokens: {result.get('total_tokens', 0)}")
+
+        # Save to lesson_detailed_content table if exists, or update lesson content
+        try:
+            _save_lesson_detailed_content(
+                lesson_id=lesson_id,
+                detailed_data=lesson_data,
+                tokens_used=result.get('total_tokens', 0),
+                model_used='gpt-4o',
+                user_id=user_id
+            )
+        except Exception as save_err:
+            logger.warning(f"Could not save detailed content: {save_err}")
+
+        return jsonify({
+            'success': True,
+            'data': lesson_data,
+            'tokens_used': result.get('total_tokens', 0),
+            'cost_eur': result.get('cost_eur', 0),
+            'response_time_ms': response_time_ms
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error generating detailed lesson: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to generate detailed lesson content',
+            'message': str(e)
+        }), 500
+
+
+def _save_lesson_detailed_content(
+    lesson_id: str,
+    detailed_data: dict,
+    tokens_used: int = 0,
+    model_used: str = None,
+    user_id: str = None
+) -> dict:
+    """Save detailed lesson content to database."""
+    from app.database.connection import fetch_one
+    import json
+
+    # Check if table exists, if not just update the lesson's content
+    try:
+        query = """
+            INSERT INTO lesson_detailed_content (
+                lesson_id, detailed_data, tokens_used, model_used, generated_by
+            ) VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (lesson_id) DO UPDATE SET
+                detailed_data = EXCLUDED.detailed_data,
+                tokens_used = EXCLUDED.tokens_used,
+                model_used = EXCLUDED.model_used,
+                generated_by = EXCLUDED.generated_by,
+                updated_at = NOW()
+            RETURNING content_id, lesson_id, created_at, updated_at
+        """
+        result = fetch_one(query, (
+            lesson_id, json.dumps(detailed_data), tokens_used, model_used, user_id
+        ))
+        return result
+    except Exception as e:
+        # Table doesn't exist, update lesson content instead
+        logger.debug(f"lesson_detailed_content table not found, updating lesson content: {e}")
+        from app.repositories.lesson_repository import LessonRepository
+        LessonRepository.update(lesson_id, {
+            'content': {
+                'detailed': detailed_data,
+                'generated_at': datetime.now().isoformat(),
+                'model': model_used
+            }
+        })
+        return {'lesson_id': lesson_id}
+
+
 @api_v1.route('/admin/ai/generate-lesson-steps', methods=['POST'])
 @token_required
 @require_permission(Permissions.ADMIN_COURSE_WRITE)
@@ -853,19 +1116,47 @@ Wichtig:
 
         logger.info(f"Generated lesson steps ({style}) for {lesson_id}, tokens: {result.get('total_tokens', 0)}")
 
+        # Generate TTS for each step if requested
+        audio_url = None
+        audio_duration = None
+        audio_results = None
+        if generate_tts and steps_data.get('steps'):
+            audio_results = _generate_steps_tts(steps_data['steps'], tts_voice, lesson_id, user_id)
+            if audio_results:
+                audio_url = audio_results.get('files', [{}])[0].get('url') if audio_results.get('files') else None
+                audio_duration = audio_results.get('total_duration_seconds')
+
+        # Save to lesson_explanations table (always creates new entry)
+        explanation_id = None
+        try:
+            saved = _save_lesson_explanation(
+                lesson_id=lesson_id,
+                style=style,
+                explanation_data=steps_data,
+                title=data.get('title'),  # Optional custom title from request
+                audio_url=audio_url,
+                audio_duration=audio_duration,
+                tokens_used=result.get('total_tokens', 0),
+                model_used='gpt-4o-mini',
+                user_id=user_id
+            )
+            if saved:
+                explanation_id = str(saved.get('explanation_id'))
+            logger.info(f"Saved lesson explanation to DB: {explanation_id}")
+        except Exception as save_err:
+            logger.warning(f"Could not save lesson explanation to DB: {save_err}")
+
         response = {
             'success': True,
             'data': steps_data,
+            'explanationId': explanation_id,
             'style': style,
             'tokens_used': result.get('total_tokens', 0),
             'cost_eur': result.get('cost_eur', 0)
         }
 
-        # Generate TTS for each step if requested
-        if generate_tts and steps_data.get('steps'):
-            audio_results = _generate_steps_tts(steps_data['steps'], tts_voice, lesson_id, user_id)
-            if audio_results:
-                response['audio'] = audio_results
+        if audio_results:
+            response['audio'] = audio_results
 
         return jsonify(response), 200
 
@@ -939,6 +1230,51 @@ def _get_lesson_style_instructions(style: str) -> dict:
     }
 
     return styles.get(style, styles['standard'])
+
+
+def _save_lesson_explanation(
+    lesson_id: str,
+    style: str,
+    explanation_data: dict,
+    title: str = None,
+    audio_url: str = None,
+    audio_duration: int = None,
+    tokens_used: int = 0,
+    model_used: str = None,
+    user_id: str = None
+) -> dict:
+    """Save lesson explanation to database (always creates new entry)."""
+    from app.database.connection import fetch_one
+    from datetime import datetime
+
+    # Generate default title if not provided
+    if not title:
+        timestamp = datetime.now().strftime('%d.%m.%Y %H:%M')
+        style_names = {
+            'adhs': 'ADHS-freundlich',
+            'detailed': 'Ausführlich',
+            'short': 'Kurz & Kompakt',
+            'exam_focus': 'Prüfungsfokus',
+            'standard': 'Standard'
+        }
+        style_name = style_names.get(style, style)
+        title = f"{style_name} ({timestamp})"
+
+    query = """
+        INSERT INTO lesson_explanations (
+            lesson_id, style, title, explanation_data,
+            audio_url, audio_duration_seconds,
+            tokens_used, model_used, generated_by
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING explanation_id, lesson_id, style, title, created_at, updated_at
+    """
+    result = fetch_one(query, (
+        lesson_id, style, title, json.dumps(explanation_data),
+        audio_url, audio_duration,
+        tokens_used, model_used, user_id
+    ))
+    logger.info(f"Created new lesson explanation: {result}")
+    return result
 
 
 def _generate_steps_tts(steps: list, voice: str, lesson_id: str, user_id: str) -> dict:

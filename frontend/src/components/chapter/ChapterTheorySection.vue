@@ -1,5 +1,21 @@
 <template>
   <div class="chapter-theory-section">
+    <!-- Theory Selector (when multiple theories exist) -->
+    <div v-if="theoryList.length > 0" class="theory-selector">
+      <div class="selector-left">
+        <label>Theorieblatt:</label>
+        <select v-model="selectedTheoryId" @change="onTheorySelect" class="theory-dropdown">
+          <option v-for="t in theoryList" :key="t.theoryId" :value="t.theoryId">
+            {{ getStyleEmoji(t.style) }} {{ t.title }}
+          </option>
+        </select>
+        <span class="theory-count">{{ theoryList.length }} verfügbar</span>
+      </div>
+      <button class="new-theory-btn" @click="$emit('generate')" title="Neues Theorieblatt erstellen">
+        + Neu
+      </button>
+    </div>
+
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="loading-spinner"></div>
@@ -8,7 +24,7 @@
     </div>
 
     <!-- No Theory State -->
-    <div v-else-if="!hasTheory" class="no-theory-state">
+    <div v-else-if="!hasTheory && theoryList.length === 0" class="no-theory-state">
       <div class="no-theory-icon">&#128218;</div>
       <h3>Keine Theorie vorhanden</h3>
       <p>Lass dir die Theorie zu diesem Kapitel per KI generieren!</p>
@@ -23,7 +39,7 @@
     </div>
 
     <!-- Theory Content -->
-    <div v-else class="theory-content">
+    <div v-else-if="hasTheory" class="theory-content">
       <!-- Two Column Layout -->
       <div class="theory-layout">
         <!-- Left: Whiteboard -->
@@ -156,8 +172,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import InteractiveWhiteboard from '@/components/tutor/InteractiveWhiteboard.vue'
+import http from '@/api/http'
 
 // ============================================================================
 // Props & Emits
@@ -174,6 +191,14 @@ interface WhiteboardAction {
   schema?: Array<{ name: string, operator: string, value: string, highlight?: boolean }>
 }
 
+interface TheoryListItem {
+  theoryId: string
+  title: string
+  style: string
+  hasAudio: boolean
+  createdAt: string
+}
+
 interface Props {
   chapterId: string
   chapterTitle: string
@@ -187,6 +212,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'generate'): void
   (e: 'start-explanation'): void
+  (e: 'select-theory', theoryId: string): void
 }>()
 
 // ============================================================================
@@ -199,8 +225,63 @@ const isPlaying = ref(false)
 const currentActionIndex = ref(0)
 const selectedVoice = ref('nova')
 
+// Theory list management
+const theoryList = ref<TheoryListItem[]>([])
+const selectedTheoryId = ref<string | null>(null)
+
 // Audio element for TTS
 let audioElement: HTMLAudioElement | null = null
+
+// ============================================================================
+// Theory List Functions
+// ============================================================================
+
+async function loadTheoryList() {
+  if (!props.chapterId) return
+
+  try {
+    const response = await http.get(`/chapters/${props.chapterId}/theories`)
+    if (response.data.success) {
+      theoryList.value = response.data.data.theories || []
+
+      // Auto-select first if we have theories but none selected
+      if (theoryList.value.length > 0 && !selectedTheoryId.value) {
+        selectedTheoryId.value = theoryList.value[0].theoryId
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load theory list:', error)
+    theoryList.value = []
+  }
+}
+
+function onTheorySelect() {
+  if (selectedTheoryId.value) {
+    emit('select-theory', selectedTheoryId.value)
+  }
+}
+
+function getStyleEmoji(style: string): string {
+  const emojis: Record<string, string> = {
+    'adhs': '🎯',
+    'detailed': '📚',
+    'short': '⚡',
+    'exam_focus': '📝',
+    'standard': '📄'
+  }
+  return emojis[style] || '📄'
+}
+
+// Load theory list on mount and when chapterId changes
+onMounted(() => {
+  loadTheoryList()
+})
+
+watch(() => props.chapterId, () => {
+  theoryList.value = []
+  selectedTheoryId.value = null
+  loadTheoryList()
+})
 
 // ============================================================================
 // Computed
@@ -293,6 +374,75 @@ watch(() => props.chapterId, () => {
 <style scoped>
 .chapter-theory-section {
   min-height: 400px;
+}
+
+/* Theory Selector */
+.theory-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.selector-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.selector-left label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.theory-dropdown {
+  padding: 0.5rem 0.75rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 0.5rem;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 0.875rem;
+  min-width: 200px;
+  cursor: pointer;
+}
+
+.theory-dropdown:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.theory-dropdown:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.theory-count {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #64748b);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+}
+
+.new-theory-btn {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-theory-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 /* Loading State */

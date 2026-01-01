@@ -1,8 +1,8 @@
 <template>
   <div class="admin-dashboard-page">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">System Dashboard</h1>
-      <p class="text-[var(--color-text-secondary)] mt-1">Überblick über das gesamte System - Phase 2.1</p>
+      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">{{ $t('admin.dashboard.title') }}</h1>
+      <p class="text-[var(--color-text-secondary)] mt-1">{{ $t('admin.dashboard.subtitle') }}</p>
     </div>
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center py-12">
@@ -14,43 +14,43 @@
       <p class="text-red-700">{{ error }}</p>
     </div>
 
-    <!-- Dashboard Content - Phase 2.1 -->
+    <!-- Dashboard Content -->
     <div v-else class="space-y-6">
       <!-- User Stats Row -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
-          title="Total Users"
+          :title="$t('admin.dashboard.totalUsers')"
           :value="userStats.total_users"
           icon="👥"
           icon-color="primary"
-          subtitle="Alle registrierten Benutzer"
+          :subtitle="$t('admin.dashboard.totalUsersDesc')"
           :loading="loading"
         />
 
         <StatsCard
-          title="Active Users"
+          :title="$t('admin.dashboard.activeUsers')"
           :value="userStats.active_users"
           icon="✅"
           icon-color="success"
-          subtitle="Aktiv in den letzten 7 Tagen"
+          :subtitle="$t('admin.dashboard.activeUsersDesc')"
           :loading="loading"
         />
 
         <StatsCard
-          title="Banned Users"
+          :title="$t('admin.dashboard.bannedUsers')"
           :value="userStats.banned_users"
           icon="🚫"
           icon-color="danger"
-          subtitle="Gesperrte Konten"
+          :subtitle="$t('admin.dashboard.bannedUsersDesc')"
           :loading="loading"
         />
 
         <StatsCard
-          title="New Users (30d)"
+          :title="$t('admin.dashboard.newUsers30d')"
           :value="userStats.new_users_30d"
           icon="🆕"
           icon-color="info"
-          subtitle="Neue Registrierungen"
+          :subtitle="$t('admin.dashboard.newUsersDesc')"
           :loading="loading"
         />
       </div>
@@ -58,38 +58,38 @@
       <!-- Course Stats Row -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
-          title="Total Courses"
+          :title="$t('admin.dashboard.totalCourses')"
           :value="courseStats.total_courses"
           icon="📚"
           icon-color="primary"
-          subtitle="Alle Kurse im System"
+          :subtitle="$t('admin.dashboard.totalCoursesDesc')"
           :loading="loading"
         />
 
         <StatsCard
-          title="Published"
+          :title="$t('admin.dashboard.published')"
           :value="courseStats.published"
           icon="✅"
           icon-color="success"
-          subtitle="Veröffentlichte Kurse"
+          :subtitle="$t('admin.dashboard.publishedDesc')"
           :loading="loading"
         />
 
         <StatsCard
-          title="Pending Review"
+          :title="$t('admin.dashboard.pendingReview')"
           :value="courseStats.pending_review"
           icon="⏳"
           icon-color="warning"
-          subtitle="Warten auf Freigabe"
+          :subtitle="$t('admin.dashboard.pendingReviewDesc')"
           :loading="loading"
         />
 
         <StatsCard
-          title="Rejected"
+          :title="$t('admin.dashboard.rejected')"
           :value="courseStats.rejected"
           icon="❌"
           icon-color="danger"
-          subtitle="Abgelehnte Kurse"
+          :subtitle="$t('admin.dashboard.rejectedDesc')"
           :loading="loading"
         />
       </div>
@@ -104,21 +104,21 @@
         <!-- Request Volume Card -->
         <div class="space-y-6">
           <StatsCard
-            title="Uptime"
+            :title="$t('admin.dashboard.uptime')"
             :value="systemStats.uptime"
             icon="⏱️"
             icon-color="success"
             format="duration"
-            subtitle="System läuft seit"
+            :subtitle="$t('admin.dashboard.uptimeDesc')"
             :loading="loading"
           />
 
           <StatsCard
-            title="DB Latency"
+            :title="$t('admin.dashboard.dbLatency')"
             :value="systemStats.db_latency + ' ms'"
             icon="💾"
             :icon-color="dbLatencyColor"
-            subtitle="Datenbankgeschwindigkeit"
+            :subtitle="$t('admin.dashboard.dbLatencyDesc')"
             :loading="loading"
           />
         </div>
@@ -135,8 +135,8 @@
               👥
             </div>
             <div>
-              <p class="font-semibold text-[var(--color-text-primary)]">Benutzer verwalten</p>
-              <p class="text-sm text-[var(--color-text-secondary)]">Rollen, Status & mehr</p>
+              <p class="font-semibold text-[var(--color-text-primary)]">{{ $t('admin.dashboard.manageUsers') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('admin.dashboard.manageUsersDesc') }}</p>
             </div>
           </div>
         </router-link>
@@ -150,8 +150,8 @@
               🏢
             </div>
             <div>
-              <p class="font-semibold text-[var(--color-text-primary)]">Organisationen</p>
-              <p class="text-sm text-[var(--color-text-secondary)]">Schulen & Unternehmen</p>
+              <p class="font-semibold text-[var(--color-text-primary)]">{{ $t('admin.dashboard.organisations') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('admin.dashboard.organisationsDesc') }}</p>
             </div>
           </div>
         </router-link>
@@ -165,8 +165,8 @@
               📚
             </div>
             <div>
-              <p class="font-semibold text-[var(--color-text-primary)]">Kurse verwalten</p>
-              <p class="text-sm text-[var(--color-text-secondary)]">Freigabe & Archivierung</p>
+              <p class="font-semibold text-[var(--color-text-primary)]">{{ $t('admin.dashboard.manageCourses') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('admin.dashboard.manageCoursesDesc') }}</p>
             </div>
           </div>
         </router-link>
@@ -177,6 +177,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 import { adminGetUserStats, adminGetCourseStats, adminGetSystemStatsData } from '@/api/admin.api'
 import type { UserStatsData, CourseStatsData, SystemStatsData } from '@/api/admin.api'
 import StatsCard from '@/components/admin/StatsCard.vue'

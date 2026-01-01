@@ -14,21 +14,21 @@
     <!-- Page Header - Compact -->
     <div class="mb-4 flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold text-[var(--color-text-primary)]">Kategorie Verwaltung</h1>
-        <p class="text-xs text-[var(--color-text-secondary)]">Kurs-Kategorien (flexible Hierarchie, unbegrenzte Tiefe)</p>
+        <h1 class="text-lg font-bold text-[var(--color-text-primary)]">{{ $t('admin.categories.title') }}</h1>
+        <p class="text-xs text-[var(--color-text-secondary)]">{{ $t('admin.categories.subtitle') }}</p>
       </div>
       <button
         @click="openCreateModal"
         class="px-4 py-1.5 text-sm bg-[var(--color-primary)] text-white rounded hover:bg-[var(--color-primary-dark)] transition-colors font-medium"
       >
-        + Kategorie erstellen
+        + {{ $t('admin.categories.create') }}
       </button>
     </div>
 
     <!-- Category Tree -->
     <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-4">
       <div v-if="isLoading" class="text-center py-8">
-        <p class="text-[var(--color-text-secondary)]">Lade Kategorien...</p>
+        <p class="text-[var(--color-text-secondary)]">{{ $t('admin.categories.loading') }}</p>
       </div>
 
       <div v-else-if="error" class="text-center py-8">
@@ -37,17 +37,17 @@
           @click="loadCategories"
           class="mt-4 px-4 py-2 text-sm bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-dark)]"
         >
-          Neu laden
+          {{ $t('common.refresh') }}
         </button>
       </div>
 
       <div v-else-if="categoryTree.length === 0" class="text-center py-8">
-        <p class="text-[var(--color-text-secondary)] mb-4">Noch keine Kategorien vorhanden</p>
+        <p class="text-[var(--color-text-secondary)] mb-4">{{ $t('admin.categories.noCategories') }}</p>
         <button
           @click="openCreateModal"
           class="px-4 py-2 text-sm bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-dark)]"
         >
-          Erste Kategorie erstellen
+          {{ $t('admin.categories.createFirst') }}
         </button>
       </div>
 
@@ -87,11 +87,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/admin.store'
 import CategoryTreeNode from '@/components/admin/CategoryTreeNode.vue'
 import CategoryModal from '@/components/admin/CategoryModal.vue'
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal.vue'
 
+const { t } = useI18n()
 const adminStore = useAdminStore()
 
 // State
@@ -130,7 +132,7 @@ const loadCategories = async (forceReload = false) => {
   try {
     await adminStore.loadCategoryTree(false, forceReload) // Load all categories (including inactive)
   } catch (e) {
-    error.value = e.message || 'Fehler beim Laden der Kategorien'
+    error.value = e.message || t('admin.categories.loadError')
   } finally {
     isLoading.value = false
   }
@@ -145,7 +147,7 @@ const openCreateModal = () => {
 const openCreateChildModal = (parentCategory) => {
   // Check if we can add another level (practical limit is 20)
   if (parentCategory.level >= 20) {
-    alert('Maximale Verschachtelungstiefe von 20 Ebenen erreicht!')
+    alert(t('admin.categories.maxDepthReached'))
     return
   }
 
@@ -179,7 +181,7 @@ const handleSave = async (categoryData) => {
     closeModal()
     await loadCategories(true) // Force reload after save
   } catch (e) {
-    alert('Fehler beim Speichern: ' + (e.message || 'Unbekannter Fehler'))
+    alert(t('admin.categories.saveError') + ': ' + (e.message || t('common.unknownError')))
   }
 }
 
@@ -197,14 +199,14 @@ const handleDelete = async () => {
     deletingCategory.value = null
     await loadCategories(true) // Force reload after delete
   } catch (e) {
-    alert('Fehler beim Löschen: ' + (e.message || 'Unbekannter Fehler'))
+    alert(t('admin.categories.deleteError') + ': ' + (e.message || t('common.unknownError')))
   }
 }
 
 const toggleActive = async (category) => {
   if (!category || !category.category_id) {
     console.error('toggleActive: Invalid category object', category)
-    alert('Fehler: Kategorie-ID nicht gefunden')
+    alert(t('admin.categories.categoryIdNotFound'))
     return
   }
 
@@ -214,7 +216,7 @@ const toggleActive = async (category) => {
     })
     await loadCategories(true) // Force reload after toggle
   } catch (e) {
-    alert('Fehler beim Aktualisieren: ' + (e.message || 'Unbekannter Fehler'))
+    alert(t('admin.categories.updateError') + ': ' + (e.message || t('common.unknownError')))
   }
 }
 

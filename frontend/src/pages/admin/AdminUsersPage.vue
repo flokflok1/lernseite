@@ -2,8 +2,8 @@
   <div class="admin-users-page">
     <!-- Page Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">Benutzer Verwaltung</h1>
-      <p class="text-sm text-[var(--color-text-secondary)]">Alle Benutzer im System</p>
+      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">{{ $t('admin.users.title') }}</h1>
+      <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('admin.users.subtitle') }}</p>
     </div>
 
     <!-- Filters & Search -->
@@ -12,7 +12,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Suche nach Name oder Email..."
+          :placeholder="$t('admin.users.search_placeholder')"
           class="px-4 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           @input="debouncedSearch"
         />
@@ -21,7 +21,7 @@
           class="px-4 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           @change="loadUsers"
         >
-          <option value="">Alle Rollen</option>
+          <option value="">{{ $t('admin.users.allRoles') }}</option>
           <option value="user">User</option>
           <option value="premium">Premium</option>
           <option value="creator">Creator</option>
@@ -33,15 +33,15 @@
           class="px-4 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           @change="loadUsers"
         >
-          <option value="">Alle Status</option>
-          <option value="active">Aktiv</option>
-          <option value="inactive">Inaktiv</option>
+          <option value="">{{ $t('admin.users.allStatus') }}</option>
+          <option value="active">{{ $t('common.active') }}</option>
+          <option value="inactive">{{ $t('common.inactive') }}</option>
         </select>
         <button
           @click="resetFilters"
           class="px-4 py-2 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)]"
         >
-          Filter zurücksetzen
+          {{ $t('admin.users.resetFilters') }}
         </button>
       </div>
     </div>
@@ -53,19 +53,19 @@
       </div>
 
       <div v-else-if="adminStore.users.length === 0" class="p-8 text-center text-[var(--color-text-secondary)]">
-        Keine Benutzer gefunden
+        {{ $t('admin.users.noUsers') }}
       </div>
 
       <table v-else class="w-full">
         <thead class="bg-[var(--color-surface-secondary)] border-b border-[var(--color-border)]">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">Email</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">Rolle</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('admin.users.name') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('auth.email') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('admin.users.role') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('common.status') }}</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">Tokens</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">Organisation</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-[var(--color-text-secondary)] uppercase">Aktionen</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('profile.organisation') }}</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('common.actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border)]">
@@ -83,7 +83,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span :class="user.is_active ? 'text-green-600' : 'text-red-600'">
-                {{ user.is_active ? '✓ Aktiv' : '✗ Inaktiv' }}
+                {{ user.is_active ? '✓ ' + $t('common.active') : '✗ ' + $t('common.inactive') }}
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">
@@ -97,30 +97,30 @@
                 <button
                   @click="viewUserDetail(user.user_id)"
                   class="px-3 py-1 text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 rounded transition-colors"
-                  title="Details anzeigen"
+                  :title="$t('common.details')"
                 >
-                  Details
+                  {{ $t('common.details') }}
                 </button>
                 <button
                   v-if="user.is_active"
                   @click="openBanModal(user)"
                   class="px-3 py-1 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded transition-colors"
-                  title="Benutzer sperren"
+                  :title="$t('admin.users.banUser')"
                 >
-                  Sperren
+                  {{ $t('admin.users.ban') }}
                 </button>
                 <button
                   v-else
                   @click="openUnbanModal(user)"
                   class="px-3 py-1 text-green-600 hover:text-white hover:bg-green-600 border border-green-600 rounded transition-colors"
-                  title="Sperre aufheben"
+                  :title="$t('admin.users.unbanUser')"
                 >
-                  Entsperren
+                  {{ $t('admin.users.unban') }}
                 </button>
                 <button
                   @click="openGrantTokensModal(user)"
                   class="px-3 py-1 text-purple-600 hover:text-white hover:bg-purple-600 border border-purple-600 rounded transition-colors"
-                  title="Tokens gewähren"
+                  :title="$t('admin.users.grantTokens')"
                 >
                   Tokens
                 </button>
@@ -128,9 +128,9 @@
                   v-if="user.role === 'creator'"
                   @click="openVerifyCreatorModal(user)"
                   class="px-3 py-1 text-yellow-600 hover:text-white hover:bg-yellow-600 border border-yellow-600 rounded transition-colors"
-                  title="Creator verifizieren"
+                  :title="$t('admin.users.verifyCreator')"
                 >
-                  Verifizieren
+                  {{ $t('admin.users.verify') }}
                 </button>
               </div>
             </td>
@@ -141,7 +141,7 @@
       <!-- Pagination -->
       <div v-if="adminStore.usersTotalPages > 1" class="px-6 py-4 border-t border-[var(--color-border)] flex justify-between items-center">
         <p class="text-sm text-[var(--color-text-secondary)]">
-          Seite {{ adminStore.usersPage }} von {{ adminStore.usersTotalPages }} ({{ adminStore.usersTotal }} Benutzer)
+          {{ $t('admin.users.pagination', { page: adminStore.usersPage, total: adminStore.usersTotalPages, count: adminStore.usersTotal }) }}
         </p>
         <div class="flex gap-2">
           <button
@@ -149,14 +149,14 @@
             :disabled="adminStore.usersPage === 1"
             class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50"
           >
-            Zurück
+            {{ $t('common.back') }}
           </button>
           <button
             @click="changePage(adminStore.usersPage + 1)"
             :disabled="adminStore.usersPage >= adminStore.usersTotalPages"
             class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50"
           >
-            Weiter
+            {{ $t('common.next') }}
           </button>
         </div>
       </div>
@@ -166,17 +166,17 @@
     <div v-if="showBanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Benutzer sperren</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.users.banUser') }}</h3>
           <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Grund für Sperrung *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.users.banReason') }} *</label>
             <textarea
               v-model="banForm.reason"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Mindestens 10 Zeichen..."
+              :placeholder="$t('admin.users.minChars')"
             ></textarea>
           </div>
           <div class="mb-4">
@@ -186,18 +186,18 @@
                 type="checkbox"
                 class="rounded border-gray-300 text-red-600 focus:ring-red-500"
               />
-              <span class="ml-2 text-sm text-gray-700">Permanente Sperrung</span>
+              <span class="ml-2 text-sm text-gray-700">{{ $t('admin.users.permanentBan') }}</span>
             </label>
           </div>
           <div v-if="!banForm.permanent" class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Dauer (Tage)</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.users.durationDays') }}</label>
             <input
               v-model.number="banForm.duration_days"
               type="number"
               min="1"
               max="365"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="z.B. 30"
+              placeholder="30"
             />
           </div>
           <div class="mb-4">
@@ -207,7 +207,7 @@
                 type="checkbox"
                 class="rounded border-gray-300 text-red-600 focus:ring-red-500"
               />
-              <span class="ml-2 text-sm text-gray-700">Benutzer per E-Mail benachrichtigen</span>
+              <span class="ml-2 text-sm text-gray-700">{{ $t('admin.users.notifyByEmail') }}</span>
             </label>
           </div>
         </div>
@@ -216,14 +216,14 @@
             @click="closeBanModal"
             class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Abbrechen
+            {{ $t('common.cancel') }}
           </button>
           <button
             @click="confirmBan"
             :disabled="!canSubmitBan"
             class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Benutzer sperren
+            {{ $t('admin.users.banUser') }}
           </button>
         </div>
       </div>
@@ -233,17 +233,17 @@
     <div v-if="showUnbanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Sperre aufheben</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.users.unbanUser') }}</h3>
           <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Grund für Entsperrung *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.users.unbanReason') }} *</label>
             <textarea
               v-model="unbanForm.reason"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Mindestens 10 Zeichen..."
+              :placeholder="$t('admin.users.minChars')"
             ></textarea>
           </div>
         </div>
@@ -252,14 +252,14 @@
             @click="closeUnbanModal"
             class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Abbrechen
+            {{ $t('common.cancel') }}
           </button>
           <button
             @click="confirmUnban"
             :disabled="!canSubmitUnban"
             class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sperre aufheben
+            {{ $t('admin.users.unbanUser') }}
           </button>
         </div>
       </div>
@@ -269,29 +269,29 @@
     <div v-if="showGrantTokensModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Tokens gewähren</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.users.grantTokens') }}</h3>
           <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
-          <p class="text-xs text-gray-500 mt-1">Aktueller Kontostand: {{ selectedUser?.token_balance || 0 }} Tokens</p>
+          <p class="text-xs text-gray-500 mt-1">{{ $t('admin.users.currentBalance') }}: {{ selectedUser?.token_balance || 0 }} Tokens</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Anzahl Tokens *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.users.tokenAmount') }} *</label>
             <input
               v-model.number="grantTokensForm.amount"
               type="number"
               min="1"
               max="1000000"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="z.B. 5000"
+              placeholder="5000"
             />
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Grund *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.users.reason') }} *</label>
             <textarea
               v-model="grantTokensForm.reason"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Mindestens 10 Zeichen..."
+              :placeholder="$t('admin.users.minChars')"
             ></textarea>
           </div>
         </div>
@@ -300,14 +300,14 @@
             @click="closeGrantTokensModal"
             class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Abbrechen
+            {{ $t('common.cancel') }}
           </button>
           <button
             @click="confirmGrantTokens"
             :disabled="!canSubmitGrantTokens"
             class="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Tokens gewähren
+            {{ $t('admin.users.grantTokens') }}
           </button>
         </div>
       </div>
@@ -317,27 +317,27 @@
     <div v-if="showVerifyCreatorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Creator verifizieren</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.users.verifyCreator') }}</h3>
           <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Aktion *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.users.action') }} *</label>
             <select
               v-model="verifyCreatorForm.verified"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
             >
-              <option :value="true">Verifizieren</option>
-              <option :value="false">Verifizierung entziehen</option>
+              <option :value="true">{{ $t('admin.users.verify') }}</option>
+              <option :value="false">{{ $t('admin.users.revokeVerification') }}</option>
             </select>
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Grund *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.users.reason') }} *</label>
             <textarea
               v-model="verifyCreatorForm.reason"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Mindestens 10 Zeichen..."
+              :placeholder="$t('admin.users.minChars')"
             ></textarea>
           </div>
         </div>
@@ -346,14 +346,14 @@
             @click="closeVerifyCreatorModal"
             class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Abbrechen
+            {{ $t('common.cancel') }}
           </button>
           <button
             @click="confirmVerifyCreator"
             :disabled="!canSubmitVerifyCreator"
             class="px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ verifyCreatorForm.verified ? 'Verifizieren' : 'Entziehen' }}
+            {{ verifyCreatorForm.verified ? $t('admin.users.verify') : $t('admin.users.revoke') }}
           </button>
         </div>
       </div>
@@ -364,7 +364,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/admin.store'
+
+const { t } = useI18n()
 import type { AdminUser, BanUserRequest } from '@/api/admin.api'
 
 const adminStore = useAdminStore()

@@ -26,24 +26,24 @@
     <div class="dashboard-header">
       <div class="header-content">
         <h1 class="header-title">
-          Willkommen zurueck, {{ authStore.user?.first_name }}!
+          {{ t('dashboard.welcome_name', { name: authStore.user?.first_name }) }}
         </h1>
-        <p class="header-subtitle">Deine Lern-Abenteuer warten auf dich.</p>
+        <p class="header-subtitle">{{ t('dashboard.subtitle') }}</p>
       </div>
 
       <!-- Quick Stats Bar -->
       <div class="quick-stats-bar">
         <div class="quick-stat">
           <span class="quick-stat-icon">📈</span>
-          <span class="quick-stat-value">Level {{ gamificationStore.stats.level }}</span>
+          <span class="quick-stat-value">{{ t('dashboard.level', { level: gamificationStore.stats.level }) }}</span>
         </div>
         <div class="quick-stat">
           <span class="quick-stat-icon">📚</span>
-          <span class="quick-stat-value">{{ enrolledCourses.length }} Kurse</span>
+          <span class="quick-stat-value">{{ t('dashboard.courses_count', { count: enrolledCourses.length }) }}</span>
         </div>
         <div class="quick-stat">
           <span class="quick-stat-icon">🎯</span>
-          <span class="quick-stat-value">{{ gamificationStore.activeQuests.length }} Quests</span>
+          <span class="quick-stat-value">{{ t('dashboard.quests_count', { count: gamificationStore.activeQuests.length }) }}</span>
         </div>
       </div>
     </div>
@@ -51,14 +51,14 @@
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="loading-spinner"></div>
-      <span class="loading-text">Lade dein Abenteuer...</span>
+      <span class="loading-text">{{ t('dashboard.loading') }}</span>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="error-state">
       <span class="error-icon">⚠️</span>
       <span class="error-text">{{ error }}</span>
-      <button class="retry-btn" @click="loadDashboardData">Erneut versuchen</button>
+      <button class="retry-btn" @click="loadDashboardData">{{ t('dashboard.retry') }}</button>
     </div>
 
     <!-- Main Dashboard Grid -->
@@ -106,15 +106,15 @@
               <div class="section-header">
                 <h3 class="section-title">
                   <span class="section-icon">📚</span>
-                  Meine Kurse
+                  {{ t('dashboard.my_courses') }}
                 </h3>
-                <span class="course-count">{{ enrolledCourses.length }} eingeschrieben</span>
+                <span class="course-count">{{ t('dashboard.enrolled_count', { count: enrolledCourses.length }) }}</span>
               </div>
 
               <div v-if="enrolledCourses.length === 0" class="empty-courses">
                 <span class="empty-icon">📭</span>
-                <p class="empty-text">Du hast noch keine Kurse.</p>
-                <p class="empty-hint">Schreibe dich in Kurse ein, um Quests freizuschalten!</p>
+                <p class="empty-text">{{ t('dashboard.no_courses') }}</p>
+                <p class="empty-hint">{{ t('dashboard.no_courses_hint') }}</p>
               </div>
 
               <div v-else class="courses-list">
@@ -162,16 +162,16 @@
         <div class="progress-widget">
           <h4 class="widget-title">
             <span class="widget-icon">📊</span>
-            Lernfortschritt
+            {{ t('dashboard.learning_progress') }}
           </h4>
           <div class="progress-stats">
             <div class="progress-stat">
               <span class="stat-value">{{ totalProgress }}%</span>
-              <span class="stat-label">Gesamt</span>
+              <span class="stat-label">{{ t('dashboard.total') }}</span>
             </div>
             <div class="progress-stat">
               <span class="stat-value">{{ completedLessonsCount }}</span>
-              <span class="stat-label">Lektionen</span>
+              <span class="stat-label">{{ t('dashboard.lessons') }}</span>
             </div>
           </div>
           <div class="overall-progress-bar">
@@ -188,6 +188,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import { useGamificationStore } from '@/store/gamification.store'
 import * as tokensApi from '@/api/tokens.api'
@@ -204,9 +205,10 @@ import RpgSkillTree from '@/components/gamification/RpgSkillTree.vue'
 import RpgInventorySummary from '@/components/gamification/RpgInventorySummary.vue'
 
 // ============================================================================
-// Stores
+// Stores & i18n
 // ============================================================================
 
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const gamificationStore = useGamificationStore()
 
@@ -226,11 +228,14 @@ const enrolledCourses = ref<EnrolledCourse[]>([])
 // Tab Configuration
 // ============================================================================
 
-const tabs = [
-  { id: 'quests', label: 'Lern-Quests', icon: '📜' },
-  { id: 'skills', label: 'Skillbaum', icon: '🌟' },
-  { id: 'courses', label: 'Meine Kurse', icon: '📚' }
-]
+const tabs = computed(() => {
+  void locale.value // Trigger reactivity on language change
+  return [
+    { id: 'quests', label: t('dashboard.tab_quests'), icon: '📜' },
+    { id: 'skills', label: t('dashboard.tab_skills'), icon: '🌟' },
+    { id: 'courses', label: t('dashboard.tab_courses'), icon: '📚' }
+  ]
+})
 
 // ============================================================================
 // Computed
@@ -241,7 +246,7 @@ const fullName = computed(() => {
   if (user?.first_name && user?.last_name) {
     return `${user.first_name} ${user.last_name}`
   }
-  return user?.first_name || 'Abenteurer'
+  return user?.first_name || t('dashboard.adventurer')
 })
 
 const totalProgress = computed(() => {
@@ -328,7 +333,7 @@ const loadDashboardData = async () => {
     })
 
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Fehler beim Laden der Dashboard-Daten'
+    error.value = err.response?.data?.message || t('dashboard.load_error')
     console.error('Dashboard error:', err)
   } finally {
     loading.value = false

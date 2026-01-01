@@ -97,7 +97,8 @@ class MigrationManager:
         migrations: Dict[str, Migration] = {}
 
         # First, try to find new-style numbered migrations (001-040)
-        for migration_file in sorted(migrations_dir.glob("[0-9][0-9][0-9]_*.sql")):
+        # Support subdirectories with **/ glob pattern
+        for migration_file in sorted(migrations_dir.glob("**/[0-9][0-9][0-9]_*.sql")):
             # Skip verify_schema.sql and other non-migration files
             if migration_file.name.startswith('verify_'):
                 continue

@@ -44,6 +44,12 @@ import { useRouter } from 'vue-router'
 import * as setupApi from '@/api/setup.api'
 import Button from '@/components/ui/Button.vue'
 import { useAppStore } from '@/store/app.store'
+import http from '@/api/http'
+
+// Import locale files for auto-sync
+import deMessages from '@/locales/de.json'
+import enMessages from '@/locales/en.json'
+import plMessages from '@/locales/pl.json'
 
 defineEmits<{ back: [] }>();
 
@@ -62,6 +68,20 @@ interface VerifyResponse {
   timestamp?: string
 }
 
+// Flatten nested object to dot-notation keys
+function flattenMessages(obj: Record<string, any>, prefix = ''): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(obj)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      Object.assign(result, flattenMessages(value, fullKey))
+    } else if (typeof value === 'string') {
+      result[fullKey] = value
+    }
+  }
+  return result
+}
+
 const router = useRouter()
 const appStore = useAppStore()
 
@@ -70,6 +90,8 @@ const loading = ref(false)
 const completed = ref(false)
 const error = ref('')
 const verifyResult = ref<VerifyResponse | null>(null)
+const syncingLocales = ref(false)
+const localesSynced = ref(false)
 
 // Auto-run verification on mount
 onMounted(() => {
@@ -102,10 +124,37 @@ const complete = async () => {
     completed.value = true
     // Update app store to reflect installation complete
     await appStore.checkInstallationStatus()
+
+    // Auto-sync locale files to database
+    await syncLocales()
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Installation-Abschluss fehlgeschlagen'
   } finally {
     loading.value = false
+  }
+}
+
+const syncLocales = async () => {
+  syncingLocales.value = true
+  try {
+    const allLocaleMessages = {
+      de: flattenMessages(deMessages),
+      en: flattenMessages(enMessages),
+      pl: flattenMessages(plMessages)
+    }
+
+    await http.post('/i18n/admin/seed-all-locales', {
+      locales: allLocaleMessages,
+      primary_language: 'de'
+    })
+
+    localesSynced.value = true
+    console.log('[Setup] Locale files synced to database')
+  } catch (err) {
+    // Non-critical error, don't block completion
+    console.warn('[Setup] Failed to sync locales:', err)
+  } finally {
+    syncingLocales.value = false
   }
 }
 

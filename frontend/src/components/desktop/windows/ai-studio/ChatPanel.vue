@@ -56,16 +56,19 @@
         </div>
       </div>
 
-      <!-- Quick Actions -->
+      <!-- Quick Actions - Loaded from DB -->
       <div class="p-2 border-b border-[var(--color-border)]">
-        <div class="flex flex-wrap gap-1">
+        <div v-if="actionsLoading" class="text-xs text-center text-[var(--color-text-tertiary)] py-1">
+          Lade Actions...
+        </div>
+        <div v-else class="flex flex-wrap gap-1">
           <button
             v-for="action in quickActions"
-            :key="action.id"
+            :key="action.action_id"
             @click="executeAction(action)"
             class="px-2 py-1 text-xs bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)] rounded-lg hover:bg-[var(--color-primary-subtle)] hover:text-[var(--color-primary)] transition-colors"
           >
-            {{ action.emoji }} {{ action.label }}
+            {{ action.icon }} {{ action.label }}
           </button>
         </div>
       </div>
@@ -181,7 +184,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onMounted } from 'vue'
+import { getActionsByCategory, type AuthoringAction } from '@/api/authoring.api'
 
 interface Message {
   id: string
@@ -191,10 +195,11 @@ interface Message {
 }
 
 interface QuickAction {
-  id: string
+  action_id: string
+  action_key: string
   label: string
-  emoji: string
-  prompt: string
+  icon: string
+  prompt_template: string
 }
 
 interface Props {
@@ -210,14 +215,42 @@ const inputMessage = ref('')
 const messages = ref<Message[]>([])
 const isTyping = ref(false)
 const messagesContainer = ref<HTMLElement | null>(null)
+const actionsLoading = ref(false)
 
-// Quick Actions
-const quickActions: QuickAction[] = [
-  { id: 'explain', label: 'Erklären', emoji: '📚', prompt: 'Erkläre mir das aktuelle Thema einfach.' },
-  { id: 'improve', label: 'Verbessern', emoji: '✨', prompt: 'Wie kann ich den Content verbessern?' },
-  { id: 'quiz', label: 'Quiz', emoji: '❓', prompt: 'Erstelle ein Quiz zu diesem Thema.' },
-  { id: 'summary', label: 'Zusammenfassung', emoji: '📋', prompt: 'Fasse den Inhalt zusammen.' }
+// Quick Actions - loaded from database
+const quickActions = ref<QuickAction[]>([])
+
+// Fallback actions if DB is not available
+const fallbackActions: QuickAction[] = [
+  { action_id: 'fb-1', action_key: 'explain', label: 'Erklären', icon: '📖', prompt_template: 'Erkläre mir das aktuelle Thema einfach.' },
+  { action_id: 'fb-2', action_key: 'improve', label: 'Verbessern', icon: '✨', prompt_template: 'Wie kann ich den Content verbessern?' },
+  { action_id: 'fb-3', action_key: 'quiz_create', label: 'Quiz', icon: '❓', prompt_template: 'Erstelle ein Quiz zu diesem Thema.' },
+  { action_id: 'fb-4', action_key: 'summarize', label: 'Zusammenfassung', icon: '📝', prompt_template: 'Fasse den Inhalt zusammen.' }
 ]
+
+// Load actions from database
+async function loadQuickActions() {
+  actionsLoading.value = true
+  try {
+    const actions = await getActionsByCategory('chat')
+    if (actions && actions.length > 0) {
+      quickActions.value = actions.map(a => ({
+        action_id: a.action_id,
+        action_key: a.action_key,
+        label: a.label,
+        icon: a.icon || '📋',
+        prompt_template: a.prompt_template
+      }))
+    } else {
+      quickActions.value = fallbackActions
+    }
+  } catch (err) {
+    console.warn('Failed to load chat actions from DB, using fallback:', err)
+    quickActions.value = fallbackActions
+  } finally {
+    actionsLoading.value = false
+  }
+}
 
 // Suggestions based on context
 const suggestions = ref<string[]>([
@@ -290,7 +323,7 @@ function sendSuggestion(suggestion: string) {
 }
 
 function executeAction(action: QuickAction) {
-  inputMessage.value = action.prompt
+  inputMessage.value = action.prompt_template
   sendMessage()
 }
 
@@ -323,6 +356,11 @@ async function scrollToBottom() {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
   }
 }
+
+// Mount
+onMounted(async () => {
+  await loadQuickActions()
+})
 </script>
 
 <style scoped>

@@ -95,6 +95,13 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     props: true,
   },
+  {
+    path: '/course/:courseId/exam-simulation',
+    name: 'ExamSimulation',
+    component: () => import('@/pages/ExamSimulationPage.vue'),
+    meta: { requiresAuth: true },
+    props: true,
+  },
 
   // Admin Routes (System Admins only)
   {
@@ -157,6 +164,21 @@ const routes: RouteRecordRaw[] = [
         path: 'ki-studio',
         name: 'AdminKIStudio',
         component: () => import('@/pages/admin/AdminKIStudioPage.vue'),
+      },
+      {
+        path: 'translations',
+        name: 'AdminTranslations',
+        component: () => import('@/pages/admin/AdminTranslationsPage.vue'),
+      },
+      {
+        path: 'lm-routing',
+        name: 'AdminLMRouting',
+        component: () => import('@/pages/admin/AdminLMRoutingPage.vue'),
+      },
+      {
+        path: 'roles',
+        name: 'AdminRoles',
+        component: () => import('@/pages/admin/AdminRolesPage.vue'),
       },
     ],
   },

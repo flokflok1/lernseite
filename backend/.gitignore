@@ -115,3 +115,32 @@ secrets/
 # OS specific
 Thumbs.db
 .DS_Store
+
+# ============================================
+# CRITICAL: Storage & User Generated Content
+# ============================================
+
+# User uploads (AI jobs, course materials)
+app/uploads/
+storage/
+
+# Media cache (TTS audio, generated content)
+media_cache/
+
+# ============================================
+# CRITICAL: Credentials & Test Files
+# ============================================
+
+# Database credentials (NEVER commit!)
+db_credentials.txt
+*_credentials.txt
+*.credentials
+
+# Test files (development artifacts)
+test_*.json
+test_*.wav
+test_*.mp3
+test_*.pdf
+
+# HAR files (contain sensitive request data)
+*.har

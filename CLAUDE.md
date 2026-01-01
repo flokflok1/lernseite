@@ -1,13 +1,35 @@
 # CLAUDE.md
 
+> **CRITICAL: DOCUMENTATION-FIRST APPROACH**
+>
+> Before writing ANY code, you MUST:
+> 1. Read the relevant documentation in `/LernsystemX-Doku/`
+> 2. Check `35_Developer-Guide-KI.md` for coding standards and limits
+> 3. Verify component/file size limits (max 500 lines per file)
+> 4. Plan the structure BEFORE implementation
+>
+> **Key Documents (in order of priority):**
+> - `35_Developer-Guide-KI.md` - Developer standards, Quality Gates, size limits
+> - `02_Lernmethoden.md` - 19 Content-Lernmethoden (master document)
+> - `16_Frontend-Struktur.md` - Vue.js architecture
+> - `17_Backend-Struktur.md` - Flask backend patterns
+>
+> **NEVER create files >500 lines. Split into sub-components/modules immediately.**
+
+## Auto-Loaded Documentation
+
+The following documentation is automatically loaded into context:
+
+See @LernsystemX-Doku/07_Setup-Dev/03_Developer-Guide-KI.md for all developer standards, quality gates, and i18n rules.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-**LernsystemX (LSX)** is an AI-powered learning platform with 33 learning methods, 9 user roles, and real-time collaboration. Flask backend (Python 3.12+) and Vue.js 3 frontend.
+**LernsystemX (LSX)** is an AI-powered learning platform with 19 Content-Lernmethoden + System-Features, 9 user roles, and real-time collaboration. Flask backend (Python 3.12+) and Vue.js 3 frontend.
 
 **Key Features:**
-- 33 learning methods (LM00-LM32) in 4 groups (A-D)
+- 19 Content-Lernmethoden (LM00-LM25) in 3 groups (A-C) + System-Features
 - 9 roles: Free, Premium, Creator, Teacher, School, Company, Support, Moderator, Admin
 - AI content generation (Anthropic Claude, OpenAI GPT-4)
 - Token-based premium model (10,000 tokens/month)
@@ -33,11 +55,23 @@ npm install
 npm run dev                    # http://localhost:5173
 ```
 
-### Required Services
+### Required Services & Connections
+
+> **WICHTIG: NUR diese Befehle für Datenbankverbindungen verwenden!**
+
 ```bash
-# PostgreSQL must be running
-# Redis: redis-server
-# Celery (optional): celery -A app.extensions.celery worker --loglevel=info
+# PostgreSQL - IMMER so verbinden:
+psql service=devdb
+
+# Redis - IMMER so verbinden:
+redis-cli -h 10.0.43.2 -p 6379
+
+# VERBOTEN (alte Verbindungen):
+# - psql -h ... -U ...
+# - psql postgresql://...
+# - PGPASSWORD=...
+# - redis-cli -h localhost
+# - redis-cli -h 127.0.0.1
 ```
 
 ### First Time Setup
@@ -67,7 +101,7 @@ vue-tsc --noEmit     # Type check only
 ### Database
 ```bash
 # Direct PostgreSQL access
-psql -U lernsystem -d lernsystemx_dev -h 10.0.10.222
+psql service=devdb
 
 # Migrations (numbered SQL files in backend/database/)
 python run_migration.py      # Run migration
@@ -148,6 +182,16 @@ backend/
 │   ├── config.py                # Environment configs
 │   ├── extensions.py            # Flask extensions
 │   ├── api/                     # API blueprints (routes)
+│   │   ├── admin/               # Admin package (40 endpoints, 7 modules)
+│   │   │   ├── courses.py       # Course CRUD (7 endpoints)
+│   │   │   ├── chapters.py      # Chapter management (5 endpoints)
+│   │   │   ├── lessons.py       # Lesson management (5 endpoints)
+│   │   │   ├── ai_jobs.py       # AI job management (4 endpoints)
+│   │   │   ├── exams.py         # Exam management (6 endpoints)
+│   │   │   ├── course_prompts.py # Prompt overrides (6 endpoints)
+│   │   │   └── course_files.py  # File attachments (7 endpoints)
+│   │   ├── admin_ai_*.py        # KI-Studio endpoints
+│   │   └── ...
 │   ├── models/                  # Pydantic validation models
 │   ├── repositories/            # Database access (direct SQL)
 │   ├── services/                # Business logic
@@ -163,7 +207,18 @@ backend/
 frontend/
 ├── src/
 │   ├── api/                     # API services (Axios)
-│   │   └── http.ts              # Base instance with JWT interceptor
+│   │   ├── http.ts              # Base instance with JWT interceptor
+│   │   ├── admin.api.ts         # Re-exports from admin/
+│   │   └── admin/               # Admin API modules (14 files)
+│   │       ├── types.ts         # TypeScript interfaces
+│   │       ├── users.api.ts     # User management
+│   │       ├── courses.api.ts   # Course CRUD
+│   │       ├── chapters.api.ts  # Chapter & category
+│   │       ├── lessons.api.ts   # Lesson management
+│   │       ├── analytics.api.ts # System analytics
+│   │       ├── ai-models.api.ts # AI model management
+│   │       ├── lm-routing.api.ts # LM model routing
+│   │       └── ...              # 6 more modules
 │   ├── store/                   # Pinia stores
 │   ├── components/              # Vue components
 │   ├── pages/                   # Route pages
@@ -183,7 +238,7 @@ frontend/
 ### Key Tables
 - `users`, `roles`, `permissions`, `role_permissions` - User accounts & RBAC (10 roles, hierarchy level 1-9)
 - `courses`, `chapters`, `lessons` - Course hierarchy (Course → Chapters → Lessons → Learning Methods)
-- `learning_method_instances`, `learning_method_types` - 33 method types (LM00-LM32, JSONB data)
+- `learning_method_instances`, `learning_method_types` - 19 Content-LMs (aktiv) + System-Features (inaktiv)
 - `enrollments`, `course_access` - User-course relationships (access types: purchased, assigned, free, premium)
 - `subscriptions`, `token_wallets`, `token_transactions` - Premium/billing
 - `organisations`, `organisation_members` - Schools/Companies with token pools
@@ -195,21 +250,19 @@ frontend/
 - `groups`, `group_members`, `group_resources` - Community groups
 - `course_categories` - 5-level hierarchical category system (8 main categories)
 
-## Learning Methods (31 Active, 6 Groups A-F)
+## Learning Methods (19 Content-LMs + System-Features)
 
-> **Master Document**: See `LernsystemX-Doku/02_Lernmethoden.md` for complete specifications.
+> **Master Documents**:
+> - `LernsystemX-Doku/02_Lernmethoden.md` - 19 Content-Lernmethoden
+> - `LernsystemX-Doku/02a_System-Features.md` - System-Features
 
-### Overview
+### Content-Lernmethoden (19 aktive Methoden, 3 Gruppen A-C)
+
 | Gruppe | Name | IDs | Anzahl | Fokus |
 |--------|------|-----|--------|-------|
 | **A** | Erklärend | LM00–LM03, LM06 | 5 | Verständnis aufbauen |
 | **B** | Praxis | LM08, LM12–LM15, LM17 | 6 | Anwenden & Üben |
 | **C** | Prüfung | LM18–LM25 | 8 | Prüfungsvorbereitung |
-| **D** | Pro | LM04 | 1 | Sokratischer Dialog (Premium) |
-| **E** | IT | LM09–LM11, LM16 | 4 | IT-spezifische Methoden |
-| **F** | Kollaborativ | LM26–LM32 | 7 | Zusammenarbeit & Reflexion |
-
-**Deaktiviert:** LM05 (→ CourseFeatures), LM07 (→ TutorAgent)
 
 ### Group A - Erklärend (5 methods)
 | ID | Name | KI Usage |
@@ -242,32 +295,28 @@ frontend/
 | LM24 | Mündliche Erklärung | Intensiv |
 | LM25 | Kapitel-Endprüfung | Mittel |
 
-### Group D - Pro (1 method)
-| ID | Name | KI Usage |
-|----|------|----------|
-| LM04 | Sokratischer Dialog | Intensiv |
+### System-Features (frühere LMs, jetzt eigenständige Module)
 
-### Group E - IT (4 methods)
-| ID | Name | KI Usage |
-|----|------|----------|
-| LM09 | Code/IT-Config Sandbox | Mittel |
-| LM10 | Netzwerk-Simulation | Mittel |
-| LM11 | IT-Szenario lösen | Intensiv |
-| LM16 | Fehleranalyse | Mittel |
-
-### Group F - Kollaborativ (7 methods)
-| ID | Name | KI Usage |
-|----|------|----------|
-| LM26 | Peer Instruction | Mittel |
-| LM27 | Team-Case / Gruppenfallarbeit | Mittel |
-| LM28 | Peer Review | Mittel |
-| LM29 | Lerntagebuch | Optional |
-| LM30 | Projekt-Portfolio | Optional |
-| LM31 | Projektbasiertes Lernen | Mittel |
-| LM32 | Inverted Classroom | Mittel |
+| Bereich | Feature | Frühere ID | Modul |
+|---------|---------|------------|-------|
+| Tutor | Sokratischer Dialog | LM04 | TutorAgent |
+| Visualisierung | Mindmap-Generator | LM05 | CourseFeatures |
+| Tutor | NPC-Tutor-Lecture | LM07 | TutorAgent |
+| IT-Umgebungen | Code/Config Sandbox | LM09 | IT-Sandbox |
+| IT-Umgebungen | Netzwerk-Simulation | LM10 | IT-Sandbox |
+| IT-Umgebungen | IT-Szenario lösen | LM11 | IT-Sandbox |
+| IT-Umgebungen | Fehleranalyse | LM16 | IT-Sandbox |
+| Kollaboration | Peer Instruction | LM26 | Collaboration |
+| Kollaboration | Team-Case | LM27 | Collaboration |
+| Kollaboration | Peer Review | LM28 | Collaboration |
+| Kollaboration | Lerntagebuch | LM29 | Collaboration |
+| Kollaboration | Projekt-Portfolio | LM30 | Collaboration |
+| Kollaboration | Projektbasiertes Lernen | LM31 | Collaboration |
+| Kollaboration | Inverted Classroom | LM32 | Collaboration |
 
 **Code Reference**: `backend/app/ki/learning_method_mapping.py`
-**DB Constraint**: `method_type BETWEEN 0 AND 32`
+**DB Constraint**: `method_type BETWEEN 0 AND 31` (für Abwärtskompatibilität)
+**Gültige Content-LM IDs**: 0, 1, 2, 3, 6, 8, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25
 
 ## Coding Standards
 
@@ -339,7 +388,7 @@ const count = ref(0)
 3. **Setup Wizard first** - Most routes won't work until installation complete
 4. **Redis required** - For JWT blacklist, rate limiting, Celery, caching
 5. **Use `python run.py`** - Not `flask run` (SocketIO needs eventlet)
-6. **method_type validation** - Must be between 0 and 32 (LM00-LM32)
+6. **method_type validation** - Content-LMs: {0,1,2,3,6,8,12,13,14,15,17,18,19,20,21,22,23,24,25}
 
 ## AI Integration (13 KI Modules)
 
@@ -408,7 +457,8 @@ Comprehensive system specifications (50+ documents). Key files:
 |------|---------|
 | `00_System-Übersicht.md` | System architecture, C4 diagrams, full overview |
 | `01_Rollenmodell.md` | 9 roles with permissions |
-| `02_Lernmethoden.md` | **Master document** - All 33 learning methods (LM00-LM32) |
+| `02_Lernmethoden.md` | **Master document** - 19 Content-Lernmethoden (Gruppen A-C) |
+| `02a_System-Features.md` | System-Features (frühere LMs D-F) - Tutor, IT, Kollaboration |
 | `03_Zugriffssystem.md` | Access control & permissions |
 | `04_Kurs-Architektur.md` | Course → Chapters → Lessons → Learning Methods |
 | `09_KI-Pipeline.md` | 13 KI modules & workflows |
@@ -416,7 +466,7 @@ Comprehensive system specifications (50+ documents). Key files:
 | `16_Frontend-Struktur.md` | Vue.js frontend architecture |
 | `17_Backend-Struktur.md` | Flask backend with Repository Pattern |
 | `21_LiveRoom-System.md` | WebRTC, Whiteboard, Recordings |
-| `35_Developer-Guide-KI-Prompts.md` | KI prompts for each learning method |
+| `35_Developer-Guide-KI.md` | **Developer standards, Quality Gates, size limits** |
 
 ### API Docs
 - `/backend/docs/api/` - REST API documentation

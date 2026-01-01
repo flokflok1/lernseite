@@ -22,6 +22,7 @@
       :isActive="window.id === activeWindowId"
       @close="handleClose"
       @minimize="handleMinimize"
+      @maximize="handleMaximize"
       @focus="handleFocus"
       @drag="handleDrag"
       @resize="handleResize"
@@ -61,6 +62,9 @@ const AdminWindowManagerWindow = defineAsyncComponent(() => import('./windows/Ad
 const AdminPromptBrowserWindow = defineAsyncComponent(() => import('./windows/AdminPromptBrowserWindow.vue'))
 const AdminModelSelectorWindow = defineAsyncComponent(() => import('./windows/AdminModelSelectorWindow.vue'))
 const AdminCourseFilesWindow = defineAsyncComponent(() => import('./windows/AdminCourseFilesWindow.vue'))
+const AdminFilePreviewWindow = defineAsyncComponent(() => import('./windows/AdminFilePreviewWindow.vue'))  // Phase D4: File Preview
+const AdminLessonPreviewWindow = defineAsyncComponent(() => import('./windows/AdminLessonPreviewWindow.vue'))  // Phase D4: Lesson Preview
+const AdminChapterPreviewWindow = defineAsyncComponent(() => import('./windows/AdminChapterPreviewWindow.vue'))  // Phase D4: Chapter Preview
 
 // Learning Method Forms (33 Methoden: 00-32) - Explizite Imports für Vite
 const LearningMethodFormComponents: Record<number, ReturnType<typeof defineAsyncComponent>> = {
@@ -146,6 +150,12 @@ function resolveWindowComponent(type: WindowType) {
       return AdminModelSelectorWindow
     case 'admin-course-files':
       return AdminCourseFilesWindow
+    case 'admin-file-preview':
+      return AdminFilePreviewWindow
+    case 'admin-lesson-preview':
+      return AdminLessonPreviewWindow
+    case 'admin-chapter-preview':
+      return AdminChapterPreviewWindow
     default:
       // Fallback: simple placeholder
       return {
@@ -167,6 +177,13 @@ function handleClose(windowId: string): void {
  */
 function handleMinimize(windowId: string): void {
   windowStore.minimizeWindow(windowId)
+}
+
+/**
+ * Handle window maximize/restore
+ */
+function handleMaximize(windowId: string): void {
+  windowStore.toggleMaximize(windowId)
 }
 
 /**

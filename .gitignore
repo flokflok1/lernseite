@@ -129,3 +129,23 @@ site/
 
 # Miscellaneous project-specific
 gap_analyse_*.txt
+
+# ============================================
+# CRITICAL: User Content & Media
+# ============================================
+
+# Uploaded files
+uploads/
+storage/
+media_cache/
+
+# Test media files
+test_*.wav
+test_*.mp3
+
+# HAR files (contain request data)
+*.har
+
+# Credentials
+*_credentials.txt
+db_credentials.txt

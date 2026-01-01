@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-[var(--color-text-primary)] mb-6">Login</h2>
+    <h2 class="text-2xl font-bold text-[var(--color-text-primary)] mb-6">{{ t('auth.login') }}</h2>
 
     <form @submit.prevent="handleLogin" class="space-y-4">
       <Input
         id="email"
         v-model="form.email"
         type="email"
-        label="E-Mail"
+        :label="t('auth.email')"
         placeholder="user@example.com"
         :required="true"
         :error="errors.email"
@@ -17,7 +17,7 @@
         id="password"
         v-model="form.password"
         type="password"
-        label="Passwort"
+        :label="t('auth.password')"
         placeholder="••••••••"
         :required="true"
         :error="errors.password"
@@ -28,10 +28,10 @@
         id="totp"
         v-model="form.totp_code"
         type="text"
-        label="2FA Code"
+        :label="t('auth.2fa_code')"
         placeholder="123456"
         :required="show2FA"
-        hint="Geben Sie Ihren 6-stelligen 2FA-Code ein"
+        :hint="t('auth.2fa_hint')"
       />
 
       <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -46,15 +46,15 @@
         :loading="isLoading"
         :disabled="isLoading"
       >
-        Anmelden
+        {{ t('auth.login') }}
       </Button>
     </form>
 
     <div class="mt-6 text-center">
       <p class="text-sm text-[var(--color-text-secondary)]">
-        Noch kein Account?
+        {{ t('auth.no_account') }}
         <router-link to="/register" class="text-primary-600 hover:text-primary-700 font-medium">
-          Jetzt registrieren
+          {{ t('auth.register') }}
         </router-link>
       </p>
     </div>
@@ -64,12 +64,14 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const form = reactive({
   email: '',
@@ -94,12 +96,12 @@ const handleLogin = async () => {
 
   // Basic validation
   if (!form.email) {
-    errors.email = 'E-Mail ist erforderlich'
+    errors.email = t('errors.required')
     return
   }
 
   if (!form.password) {
-    errors.password = 'Passwort ist erforderlich'
+    errors.password = t('errors.required')
     return
   }
 
@@ -119,12 +121,12 @@ const handleLogin = async () => {
     // Check if 2FA is required
     if (error.response?.data?.two_factor_required) {
       show2FA.value = true
-      errorMessage.value = 'Bitte geben Sie Ihren 2FA-Code ein'
+      errorMessage.value = t('auth.2fa_required')
       return
     }
 
     // Show error message
-    errorMessage.value = error.response?.data?.message || error.message || 'Login fehlgeschlagen'
+    errorMessage.value = error.response?.data?.message || error.message || t('auth.login_failed')
 
   } finally {
     isLoading.value = false

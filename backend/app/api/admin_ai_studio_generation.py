@@ -296,6 +296,20 @@ def finalize_ai_studio_session(session_id: str):
             "chapter_title": "Kapitel 1: Einfuehrung",
             "publish_immediately": false
         }
+
+    Response 200:
+        {
+            "success": true,
+            "message": "Session finalized successfully",
+            "chapter_id": "uuid",
+            "lesson_ids": ["uuid1", "uuid2"],
+            "method_ids": ["uuid1", "uuid2", "uuid3"],
+            "stats": {
+                "chapters_created": 1,
+                "lessons_created": 2,
+                "methods_created": 3
+            }
+        }
     """
     try:
         session = AIStudioRepository.find_by_id(session_id)
@@ -313,28 +327,22 @@ def finalize_ai_studio_session(session_id: str):
                 'error': 'Access denied'
             }), 403
 
-        data = request.get_json()
+        data = request.get_json() or {}
         req = AIStudioFinalizeRequest(**data)
 
-        # TODO: Implement actual chapter creation from generated content
-        # from app.services.ai_studio_service import AIStudioService
-        # result = AIStudioService.finalize_session(session_id, req)
+        # Use AI Studio Service to finalize session and create content
+        from app.services.ai_studio_service import AiStudioService, AiStudioServiceError
 
-        # For now, mark as completed
-        AIStudioRepository.update_status(session_id, 'completed')
-
-        # Log analytics
-        AIStudioAnalyticsRepository.log_event({
-            'session_id': session_id,
-            'user_id': user_id,
-            'event_type': 'session_finalized',
-            'event_data': {
-                'create_chapter': req.create_chapter,
-                'create_lessons': req.create_lessons,
-                'create_methods': req.create_methods
-            },
-            'step_name': 'finalize'
-        })
+        service = AiStudioService()
+        result = service.finalize_session(
+            session_id=session_id,
+            create_chapter=req.create_chapter,
+            create_lessons=req.create_lessons,
+            create_methods=req.create_methods,
+            chapter_title=req.chapter_title,
+            publish_immediately=req.publish_immediately,
+            user_id=user_id
+        )
 
         # Audit log
         AuditService.log_action(
@@ -342,14 +350,21 @@ def finalize_ai_studio_session(session_id: str):
             action='ai_studio_session_finalized',
             resource_type='ai_authoring_session',
             resource_id=session_id,
-            details={'course_id': session['course_id']}
+            details={
+                'course_id': session['course_id'],
+                'chapter_id': result.get('chapter_id'),
+                'lessons_created': result['stats']['lessons_created'],
+                'methods_created': result['stats']['methods_created']
+            }
         )
 
         return jsonify({
             'success': True,
-            'message': 'Session finalized',
-            'chapter_id': None,  # Will be populated when implemented
-            'note': 'Chapter creation will be implemented in Phase 4'
+            'message': 'Session finalized successfully',
+            'chapter_id': result.get('chapter_id'),
+            'lesson_ids': result.get('lesson_ids', []),
+            'method_ids': result.get('method_ids', []),
+            'stats': result.get('stats', {})
         }), 200
 
     except ValidationError as e:
@@ -357,6 +372,13 @@ def finalize_ai_studio_session(session_id: str):
             'success': False,
             'error': 'Validation error',
             'details': e.errors()
+        }), 400
+    except AiStudioServiceError as e:
+        logger.error(f"AI Studio service error finalizing session: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Finalization failed',
+            'message': str(e)
         }), 400
     except Exception as e:
         logger.error(f"Error finalizing session: {str(e)}")
@@ -522,5 +544,528 @@ def get_ai_studio_stats():
         return jsonify({
             'success': False,
             'error': 'Failed to get stats',
+            'message': str(e)
+        }), 500
+
+
+# ============================================================================
+# KI-Prüfungsgenerator (AI Studio Exams Tab)
+# ============================================================================
+
+@api_v1.route('/admin/ai/generate-exam', methods=['POST'])
+@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@limiter.limit("10 per minute")
+def generate_exam_chat():
+    """
+    Generate exam via AI for the KI-Studio Exams Tab (synchronous/chat-based).
+
+    This endpoint generates exam questions immediately and returns them,
+    suitable for the interactive chat-based workflow in KI-Studio.
+
+    Supports using course files (PDF, TXT, etc.) as source material for context.
+
+    Request Body:
+        {
+            "course_id": "uuid" (required),
+            "chapter_id": "uuid" (optional),
+            "prompt": "Erstelle 10 MC-Fragen zur Kalkulation",
+            "exam_type": "mixed",
+            "question_count": 10,
+            "duration_minutes": 30,
+            "difficulty": "medium",
+            "source_files": ["course_file_id_1", "course_file_id_2"] (optional, max 5)
+        }
+
+    Response 200:
+        {
+            "success": true,
+            "data": {
+                "title": "Prüfung: Kalkulation",
+                "description": "...",
+                "duration_minutes": 30,
+                "difficulty": "medium",
+                "questions": [
+                    {
+                        "type": "mc",
+                        "question": "Was ist der Listenverkaufspreis?",
+                        "options": ["A", "B", "C", "D"],
+                        "correct_answer": 0,
+                        "points": 1,
+                        "difficulty": "medium"
+                    },
+                    ...
+                ],
+                "tokens_used": 1500,
+                "cost_eur": 0.0045,
+                "generation_time_ms": 3200,
+                "files_used": [{"id": "uuid", "name": "Script.pdf"}, ...]
+            }
+        }
+    """
+    try:
+        user_id = g.current_user['user_id']
+        data = request.get_json() or {}
+
+        course_id = data.get('course_id')
+        chapter_id = data.get('chapter_id')
+        prompt = data.get('prompt', '')
+        exam_type = data.get('exam_type', 'mixed')
+        question_count = data.get('question_count', 10)
+        duration_minutes = data.get('duration_minutes', 30)
+        source_files = data.get('source_files', [])  # List of course_file_ids
+        difficulty = data.get('difficulty', 'medium')
+
+        if not course_id:
+            return jsonify({
+                'success': False,
+                'error': 'course_id is required'
+            }), 400
+
+        # Get course info for context
+        from app.repositories.course_repository import CourseRepository
+        from app.repositories.chapter_repository import ChapterRepository
+        from app.repositories.course_file_repository import CourseFileRepository
+
+        course = CourseRepository.find_by_id(course_id)
+        if not course:
+            return jsonify({
+                'success': False,
+                'error': 'Course not found'
+            }), 404
+
+        # Get chapter info if provided
+        chapter_context = ""
+        if chapter_id:
+            chapter = ChapterRepository.find_by_id(chapter_id)
+            if chapter:
+                chapter_context = f"\nKapitel: {chapter['title']}"
+
+                # Get lessons for more context
+                from app.repositories.lesson_repository import LessonRepository
+                lessons = LessonRepository.find_by_chapter(chapter_id)
+                if lessons:
+                    lesson_titles = [l['title'] for l in lessons[:10]]
+                    chapter_context += f"\nLektionen: {', '.join(lesson_titles)}"
+
+        # Get file content for context
+        file_context = ""
+        files_used = []
+        if source_files:
+            for file_id in source_files[:5]:  # Limit to 5 files
+                file_record = CourseFileRepository.find_by_id(file_id)
+                if file_record and file_record.get('course_id') == course_id:
+                    files_used.append({
+                        'id': file_id,
+                        'name': file_record.get('display_name') or file_record.get('file_name')
+                    })
+
+                    # Use already extracted text if available
+                    if file_record.get('ai_extracted_text'):
+                        extracted = file_record['ai_extracted_text']
+                        # Limit text per file to prevent context overflow
+                        if len(extracted) > 8000:
+                            extracted = extracted[:8000] + "...[gekürzt]"
+                        file_context += f"\n\n--- Datei: {file_record.get('display_name', file_record['file_name'])} ---\n{extracted}"
+
+                    # For PDFs without extracted text, try to extract on-the-fly
+                    elif file_record.get('file_type') == 'pdf' and file_record.get('storage_path'):
+                        try:
+                            import os
+                            from app.services.pdf_service import PDFService
+
+                            storage_path = file_record['storage_path']
+                            if os.path.exists(storage_path):
+                                with open(storage_path, 'rb') as f:
+                                    pdf_content = f.read()
+
+                                pdf_result = PDFService.extract_text(pdf_content, file_record['file_name'])
+                                extracted = pdf_result.get('extracted_text', '')
+
+                                if extracted:
+                                    # Cache the extracted text for future use
+                                    CourseFileRepository.mark_ai_processed(
+                                        file_id,
+                                        extracted_text=extracted[:50000]  # Limit stored text
+                                    )
+
+                                    if len(extracted) > 8000:
+                                        extracted = extracted[:8000] + "...[gekürzt]"
+                                    file_context += f"\n\n--- Datei: {file_record.get('display_name', file_record['file_name'])} ---\n{extracted}"
+                        except Exception as pdf_err:
+                            logger.warning(f"Could not extract PDF {file_id}: {str(pdf_err)}")
+
+                    # For text files
+                    elif file_record.get('file_type') in ['txt', 'md'] and file_record.get('storage_path'):
+                        try:
+                            import os
+                            storage_path = file_record['storage_path']
+                            if os.path.exists(storage_path):
+                                with open(storage_path, 'r', encoding='utf-8') as f:
+                                    text_content = f.read()
+                                if len(text_content) > 8000:
+                                    text_content = text_content[:8000] + "...[gekürzt]"
+                                file_context += f"\n\n--- Datei: {file_record.get('display_name', file_record['file_name'])} ---\n{text_content}"
+                        except Exception as txt_err:
+                            logger.warning(f"Could not read text file {file_id}: {str(txt_err)}")
+
+        # Build AI prompt
+        import time
+        start_time = time.time()
+
+        # Build source material section
+        source_material = ""
+        if file_context:
+            source_material = f"""
+
+QUELLMATERIAL (basiere die Fragen auf diesem Inhalt):
+{file_context}
+
+"""
+
+        system_prompt = f"""Du bist ein Prüfungsexperte für IT-Ausbildungen (IHK FISI, FIAE, etc.).
+Erstelle Prüfungsfragen basierend auf dem Kurs: {course['title']}{chapter_context}{source_material}
+
+Ausgabeformat: JSON mit folgender Struktur:
+{{
+    "title": "Titel der Prüfung",
+    "description": "Kurze Beschreibung",
+    "questions": [
+        {{
+            "type": "mc",
+            "question": "Fragetext",
+            "options": ["Option A", "Option B", "Option C", "Option D"],
+            "correct_answer": 0,
+            "points": 1,
+            "difficulty": "medium"
+        }},
+        {{
+            "type": "free_text",
+            "question": "Fragetext für Freitext",
+            "sample_answer": "Musterantwort",
+            "points": 3,
+            "difficulty": "hard"
+        }}
+    ]
+}}
+
+Fragentypen:
+- mc: Multiple Choice (4 Optionen, correct_answer = Index 0-3)
+- free_text: Freitext mit Musterantwort
+- matching: Zuordnung (options = items, correct_answer = mapping)
+- fill_blank: Lückentext (question mit ___ für Lücken)
+
+Schwierigkeiten: easy, medium, hard"""
+
+        user_prompt = f"""Erstelle {question_count} Prüfungsfragen.
+Prüfungstyp: {exam_type}
+Schwierigkeit: {difficulty}
+Dauer: {duration_minutes} Minuten
+
+Benutzeranfrage: {prompt}
+
+{"WICHTIG: Basiere die Fragen primär auf dem bereitgestellten Quellmaterial!" if file_context else ""}
+
+Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text."""
+
+        # Call AI service
+        from app.services.ai_adapter import AIAdapter
+
+        try:
+            result = AIAdapter.generate_content(
+                provider='anthropic',
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                user_id=user_id,
+                max_tokens=4000
+            )
+
+            generation_time_ms = int((time.time() - start_time) * 1000)
+
+            # Parse response
+            response_text = result.get('content', '{}')
+
+            # Extract JSON from response
+            import re
+            json_match = re.search(r'\{[\s\S]*\}', response_text)
+            if json_match:
+                exam_data = json.loads(json_match.group())
+            else:
+                exam_data = {'title': 'Generierte Prüfung', 'questions': []}
+
+            # Ensure questions have required fields
+            for q in exam_data.get('questions', []):
+                if 'points' not in q:
+                    q['points'] = 1
+                if 'difficulty' not in q:
+                    q['difficulty'] = 'medium'
+
+            # Calculate tokens and cost
+            tokens_used = result.get('tokens_used', 0)
+            cost_eur = tokens_used * 0.000003  # Approximate Claude cost
+
+            # Log analytics
+            AIStudioAnalyticsRepository.log_event({
+                'session_id': None,
+                'user_id': user_id,
+                'event_type': 'exam_generated',
+                'event_data': {
+                    'course_id': course_id,
+                    'chapter_id': chapter_id,
+                    'question_count': len(exam_data.get('questions', [])),
+                    'exam_type': exam_type,
+                    'difficulty': difficulty,
+                    'files_used': [f['id'] for f in files_used],
+                    'tokens_used': tokens_used
+                },
+                'tokens_used': tokens_used,
+                'step_name': 'exam_generation'
+            })
+
+            return jsonify({
+                'success': True,
+                'data': {
+                    'title': exam_data.get('title', f'Prüfung: {course["title"]}'),
+                    'description': exam_data.get('description', ''),
+                    'duration_minutes': duration_minutes,
+                    'difficulty': difficulty,
+                    'questions': exam_data.get('questions', []),
+                    'tokens_used': tokens_used,
+                    'cost_eur': cost_eur,
+                    'generation_time_ms': generation_time_ms,
+                    'files_used': files_used
+                }
+            }), 200
+
+        except Exception as ai_error:
+            logger.error(f"AI generation error: {str(ai_error)}")
+            return jsonify({
+                'success': False,
+                'error': 'AI generation failed',
+                'message': str(ai_error)
+            }), 500
+
+    except ValidationError as e:
+        return jsonify({
+            'success': False,
+            'error': 'Validation error',
+            'details': e.errors()
+        }), 400
+    except Exception as e:
+        logger.error(f"Error generating exam: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to generate exam',
+            'message': str(e)
+        }), 500
+
+
+@api_v1.route('/admin/ai/regenerate-question', methods=['POST'])
+@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@limiter.limit("20 per minute")
+def regenerate_exam_question():
+    """
+    Regenerate a single exam question.
+
+    Request Body:
+        {
+            "course_id": "uuid",
+            "chapter_id": "uuid" (optional),
+            "question_type": "mc",
+            "context": "Original question text for context"
+        }
+
+    Response 200:
+        {
+            "success": true,
+            "data": {
+                "question": { ... },
+                "tokens_used": 300
+            }
+        }
+    """
+    try:
+        user_id = g.current_user['user_id']
+        data = request.get_json() or {}
+
+        course_id = data.get('course_id')
+        chapter_id = data.get('chapter_id')
+        question_type = data.get('question_type', 'mc')
+        context = data.get('context', '')
+
+        if not course_id:
+            return jsonify({
+                'success': False,
+                'error': 'course_id is required'
+            }), 400
+
+        # Get course info
+        from app.repositories.course_repository import CourseRepository
+        course = CourseRepository.find_by_id(course_id)
+        if not course:
+            return jsonify({
+                'success': False,
+                'error': 'Course not found'
+            }), 404
+
+        # Build prompt for single question
+        type_instructions = {
+            'mc': 'Multiple Choice mit 4 Optionen',
+            'free_text': 'Freitext mit Musterantwort',
+            'matching': 'Zuordnungsaufgabe',
+            'fill_blank': 'Lückentext'
+        }
+
+        system_prompt = f"""Du bist ein Prüfungsexperte. Erstelle eine neue {type_instructions.get(question_type, 'Multiple Choice')} Frage.
+Kurs: {course['title']}
+
+Ausgabe als JSON:
+{{
+    "type": "{question_type}",
+    "question": "...",
+    "options": ["A", "B", "C", "D"],
+    "correct_answer": 0,
+    "points": 1,
+    "difficulty": "medium"
+}}"""
+
+        user_prompt = f"Erstelle eine alternative Frage zu diesem Thema: {context}\n\nAntwort NUR als JSON."
+
+        # Call AI
+        from app.services.ai_adapter import AIAdapter
+
+        result = AIAdapter.generate_content(
+            provider='anthropic',
+            prompt=user_prompt,
+            system_prompt=system_prompt,
+            user_id=user_id,
+            max_tokens=1000
+        )
+
+        # Parse response
+        import re
+        response_text = result.get('content', '{}')
+        json_match = re.search(r'\{[\s\S]*\}', response_text)
+
+        if json_match:
+            question = json.loads(json_match.group())
+        else:
+            question = {
+                'type': question_type,
+                'question': 'Frage konnte nicht generiert werden',
+                'options': ['A', 'B', 'C', 'D'] if question_type == 'mc' else None,
+                'correct_answer': 0,
+                'points': 1,
+                'difficulty': 'medium'
+            }
+
+        tokens_used = result.get('tokens_used', 0)
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'question': question,
+                'tokens_used': tokens_used
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error regenerating question: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to regenerate question',
+            'message': str(e)
+        }), 500
+
+
+@api_v1.route('/admin/exams', methods=['POST'])
+@require_permission(Permissions.ADMIN_COURSE_WRITE)
+def create_exam():
+    """
+    Create/save an exam from generated content.
+
+    Request Body:
+        {
+            "course_id": "uuid",
+            "chapter_id": "uuid" (optional),
+            "title": "Prüfung: Kalkulation",
+            "description": "...",
+            "duration_minutes": 30,
+            "questions": [...],
+            "exam_type": "ai_generated"
+        }
+
+    Response 201:
+        {
+            "success": true,
+            "data": {
+                "exam_id": "uuid"
+            }
+        }
+    """
+    try:
+        user_id = g.current_user['user_id']
+        data = request.get_json() or {}
+
+        course_id = data.get('course_id')
+        if not course_id:
+            return jsonify({
+                'success': False,
+                'error': 'course_id is required'
+            }), 400
+
+        # Create exam record
+        from app.database.connection import insert_returning
+
+        exam_data = {
+            'course_id': course_id,
+            'chapter_id': data.get('chapter_id'),
+            'title': data.get('title', 'Generierte Prüfung'),
+            'description': data.get('description', ''),
+            'duration_minutes': data.get('duration_minutes', 30),
+            'exam_type': data.get('exam_type', 'quiz'),
+            'questions': json.dumps(data.get('questions', [])),
+            'settings': json.dumps({
+                'created_by': user_id,
+                'ai_generated': True,
+                'question_count': len(data.get('questions', []))
+            }),
+            'published': False,
+            'passing_score': 50,
+            'total_points': sum(q.get('points', 1) for q in data.get('questions', []))
+        }
+
+        result = insert_returning('exams', exam_data)
+
+        if result:
+            # Audit log
+            AuditService.log_action(
+                user_id=user_id,
+                action='exam_created',
+                resource_type='exam',
+                resource_id=str(result['exam_id']),
+                details={
+                    'course_id': course_id,
+                    'title': exam_data['title'],
+                    'question_count': len(data.get('questions', []))
+                }
+            )
+
+            return jsonify({
+                'success': True,
+                'data': {
+                    'exam_id': str(result['exam_id'])
+                }
+            }), 201
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to create exam'
+            }), 500
+
+    except Exception as e:
+        logger.error(f"Error creating exam: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to create exam',
             'message': str(e)
         }), 500

@@ -10,7 +10,7 @@
       <div class="error-box">
         {{ playerStore.error }}
       </div>
-      <Button @click="$router.push({ name: 'Courses' })">Zurück zu den Kursen</Button>
+      <Button @click="$router.push({ name: 'Courses' })">{{ t('lesson.back_to_courses') }}</Button>
     </div>
 
     <!-- Player Layout -->
@@ -24,7 +24,7 @@
               size="sm"
               @click="goBackToCourse"
             >
-              ← Zurück zum Kurs
+              ← {{ t('chapter.back_to_course') }}
             </Button>
             <div class="course-info">
               <h2 class="course-title">
@@ -38,8 +38,11 @@
 
           <div class="top-bar-right">
             <!-- Progress Indicator -->
-            <div v-if="playerStore.lessonProgress" class="progress-text">
-              {{ Math.round(playerStore.lessonProgress.progress_percentage) }}% abgeschlossen
+            <div v-if="playerStore.lessonProgress?.progress_percentage != null" class="progress-text">
+              {{ t('lesson.progress_completed', { progress: Math.round(playerStore.lessonProgress.progress_percentage) }) }}
+            </div>
+            <div v-else-if="playerStore.isLessonCompleted" class="progress-text">
+              {{ t('lesson.progress_completed', { progress: 100 }) }}
             </div>
 
             <!-- Complete Button -->
@@ -49,21 +52,21 @@
               size="sm"
               @click="completeLesson"
             >
-              ✓ Als abgeschlossen markieren
+              ✓ {{ t('lesson.mark_completed') }}
             </Button>
             <span v-else class="completed-badge">
-              ✓ Abgeschlossen
+              ✓ {{ t('lesson.completed') }}
             </span>
           </div>
         </div>
       </div>
 
       <!-- Main Content Area -->
-      <div class="main-area">
-        <!-- Left Sidebar: Chapter Navigation -->
-        <div class="sidebar-left">
+      <div class="main-area" :class="{ 'main-area--tasks-only': isInteractiveLesson }">
+        <!-- Left Sidebar: Chapter Navigation (hidden for interactive lessons) -->
+        <div v-if="!isInteractiveLesson" class="sidebar-left">
           <div class="sidebar-content">
-            <h3 class="sidebar-title">Inhalte</h3>
+            <h3 class="sidebar-title">{{ t('lesson.contents') }}</h3>
 
             <div v-if="playerStore.currentChapter?.lessons" class="lesson-list">
               <div
@@ -85,7 +88,7 @@
                         {{ lessonTypeLabel(lesson.lesson_type) }}
                       </span>
                       <span v-if="lesson.duration_minutes" class="lesson-duration">
-                        {{ lesson.duration_minutes }} Min.
+                        {{ lesson.duration_minutes }} {{ t('courses.minutes_short') }}
                       </span>
                     </div>
                   </div>
@@ -95,21 +98,22 @@
           </div>
         </div>
 
-        <!-- Center: Lesson Content -->
-        <div class="content-center">
+        <!-- Center: Lesson Content (hidden for interactive lessons) -->
+        <div v-if="!isInteractiveLesson" class="content-center">
           <div class="content-wrapper">
             <!-- Lesson Header -->
             <div class="lesson-header">
               <h1 class="lesson-title">
                 {{ playerStore.currentLesson.title }}
               </h1>
-              <p v-if="playerStore.currentLesson.description" class="lesson-description">
+              <p v-if="playerStore.currentLesson.description && !isInteractiveLesson" class="lesson-description">
                 {{ playerStore.currentLesson.description }}
               </p>
             </div>
 
-            <!-- Lesson Content Component (Dynamic) -->
+            <!-- Lesson Content Component (Dynamic) - NOT for interactive lessons -->
             <component
+              v-if="!isInteractiveLesson"
               :is="lessonComponent"
               :lesson="playerStore.currentLesson"
               :course-id="courseId"
@@ -119,6 +123,11 @@
               @continue="goToNextLesson"
             />
 
+            <!-- For interactive lessons: Simple prompt to use tasks -->
+            <div v-else class="interactive-prompt">
+              <p>{{ t('lesson.interactive_hint') }}</p>
+            </div>
+
             <!-- Navigation Buttons -->
             <div class="nav-buttons">
               <Button
@@ -126,7 +135,7 @@
                 variant="outline"
                 @click="goToPreviousLesson"
               >
-                ← Vorherige Lektion
+                ← {{ t('lesson.previous_lesson') }}
               </Button>
               <div v-else></div>
 
@@ -135,14 +144,14 @@
                 variant="primary"
                 @click="goToNextLesson"
               >
-                Nächste Lektion →
+                {{ t('lesson.next_lesson') }} →
               </Button>
               <Button
                 v-else
                 variant="primary"
                 @click="goBackToCourse"
               >
-                Kurs abschließen
+                {{ t('lesson.finish_course') }}
               </Button>
             </div>
           </div>
@@ -162,9 +171,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, defineAsyncComponent } from 'vue'
+import { onMounted, onUnmounted, computed, defineAsyncComponent, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/store/player.store'
+import { useTutorStore } from '@/store/tutor.store'
 import Button from '@/components/ui/Button.vue'
 import MethodExecutionPanel from '@/components/lesson/MethodExecutionPanel.vue'
 
@@ -184,7 +195,9 @@ const props = defineProps<Props>()
 // Store & Router
 // ============================================================================
 
+const { t } = useI18n()
 const playerStore = usePlayerStore()
+const tutorStore = useTutorStore()
 const router = useRouter()
 
 // ============================================================================
@@ -213,17 +226,23 @@ const lessonComponent = computed(() => {
   return lessonComponents[type] || lessonComponents.text
 })
 
+const isInteractiveLesson = computed(() => {
+  const type = playerStore.currentLesson?.lesson_type
+  return ['ai', 'interactive'].includes(type)
+})
+
 // ============================================================================
 // Methods
 // ============================================================================
 
 const lessonTypeLabel = (type: string): string => {
   const typeMap: Record<string, string> = {
-    text: 'Text',
-    video: 'Video',
-    quiz: 'Quiz',
-    ai: 'KI',
-    mixed: 'Mix'
+    text: t('lesson.type_text'),
+    video: t('lesson.type_video'),
+    quiz: t('lesson.type_quiz'),
+    ai: t('lesson.type_ai'),
+    interactive: t('lesson.type_interactive'),
+    mixed: t('lesson.type_mixed')
   }
   return typeMap[type] || type
 }
@@ -272,6 +291,36 @@ const handleLessonCompleted = () => {
   console.log('Lesson completed')
 }
 
+// Update tutor context with current course/chapter/lesson
+const updateTutorContext = () => {
+  tutorStore.updateContext({
+    page: 'lesson',
+    courseId: playerStore.course?.course_id || null,
+    courseName: playerStore.course?.title || null,
+    chapterId: playerStore.currentChapter?.chapter_id || null,
+    chapterName: playerStore.currentChapter?.title || null,
+    lessonId: playerStore.currentLesson?.lesson_id || null,
+    lessonName: playerStore.currentLesson?.title || null,
+    methodId: null,
+    methodType: null
+  })
+}
+
+// Clear tutor context when leaving
+const clearTutorContext = () => {
+  tutorStore.updateContext({
+    page: 'dashboard',
+    courseId: null,
+    courseName: null,
+    chapterId: null,
+    chapterName: null,
+    lessonId: null,
+    lessonName: null,
+    methodId: null,
+    methodType: null
+  })
+}
+
 // ============================================================================
 // Lifecycle
 // ============================================================================
@@ -289,6 +338,19 @@ onMounted(async () => {
 
   // Load lesson
   await playerStore.loadLesson(courseId.value, chapterId.value, lessonId.value)
+
+  // Update tutor context with current lesson info
+  updateTutorContext()
+})
+
+// Watch for lesson changes and update tutor context
+watch(() => playerStore.currentLesson, () => {
+  updateTutorContext()
+})
+
+onUnmounted(() => {
+  // Clear tutor context when leaving the lesson
+  clearTutorContext()
 })
 </script>
 
@@ -405,6 +467,15 @@ onMounted(async () => {
   overflow: hidden;
 }
 
+.main-area--tasks-only {
+  justify-content: center;
+}
+
+.main-area--tasks-only .sidebar-right {
+  flex: 0 0 600px;
+  max-width: 800px;
+}
+
 /* Left Sidebar */
 .sidebar-left {
   width: 16rem;
@@ -509,9 +580,22 @@ onMounted(async () => {
   background-color: var(--color-bg, #f5f5f7);
 }
 
+.content-center--minimal {
+  flex: 0 0 auto;
+  max-width: 300px;
+  min-width: 250px;
+}
+
 .content-wrapper {
   max-width: 56rem;
   margin: 0 auto;
+}
+
+.interactive-prompt {
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-text-secondary, #64748b);
+  font-size: 0.9rem;
 }
 
 .lesson-header {

@@ -6,12 +6,18 @@
  * Avatar and Chat window are SEPARATE - Avatar floats freely, chat opens separately.
  */
 
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import * as THREE from 'three'
 import { useTutorStore, DEFAULT_PERSONALITIES } from '@/store/tutor.store'
 import { tutorChat, tutorTTS } from '@/api/tutor.api'
 
 const tutorStore = useTutorStore()
+
+// Check if tutor has context (course/chapter/lesson loaded)
+const hasContext = computed(() => {
+  const ctx = tutorStore.contextIds
+  return !!(ctx.courseId || ctx.chapterId || ctx.lessonId || ctx.methodId)
+})
 
 // Refs
 const avatarContainer = ref<HTMLDivElement | null>(null)
@@ -278,7 +284,8 @@ const sendMessage = async () => {
   tutorStore.isTyping = true
 
   try {
-    // Call API
+    // Call API with context IDs for knowledge-aware responses
+    const contextIds = tutorStore.contextIds
     const response = await tutorChat({
       message,
       context: tutorStore.contextDescription,
@@ -286,7 +293,12 @@ const sendMessage = async () => {
       history: tutorStore.messages.slice(-10).map(m => ({
         role: m.role === 'user' ? 'user' : 'assistant',
         content: m.content
-      }))
+      })),
+      // Pass context IDs for DB-based knowledge loading
+      courseId: contextIds.courseId || undefined,
+      chapterId: contextIds.chapterId || undefined,
+      lessonId: contextIds.lessonId || undefined,
+      methodId: contextIds.methodId || undefined
     })
 
     tutorStore.isTyping = false
@@ -468,8 +480,20 @@ const formatTime = (date: Date) => {
               {{ tutorStore.settings.customPersonalityText ? 'Mein Tutor' : tutorStore.settings.personality.name }}
             </h3>
             <p class="text-indigo-200 text-sm truncate">
-              {{ tutorStore.isTyping ? 'schreibt...' : tutorStore.isSpeaking ? 'spricht...' : 'KI-Lernbegleiter' }}
+              {{ tutorStore.isTyping ? 'schreibt...' : tutorStore.isSpeaking ? 'spricht...' : hasContext ? 'Kurs-Kontext aktiv' : 'KI-Lernbegleiter' }}
             </p>
+          </div>
+
+          <!-- Context indicator -->
+          <div
+            v-if="hasContext"
+            class="px-2 py-0.5 rounded-full bg-green-500/30 text-green-100 text-xs flex items-center gap-1"
+            :title="tutorStore.contextDescription"
+          >
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+            Kontext
           </div>
 
           <div class="flex items-center gap-1">

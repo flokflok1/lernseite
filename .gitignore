@@ -149,3 +149,6 @@ test_*.mp3
 # Credentials
 *_credentials.txt
 db_credentials.txt
+
+# Large model files
+backend/models/piper/*.onnx

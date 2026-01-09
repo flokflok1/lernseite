@@ -1,0 +1,183 @@
+"""
+LernsystemX AI Adapter - Google Provider
+
+Google-specific request handling for Gemini models.
+"""
+
+from typing import Dict, Any, Optional, List
+import requests
+from requests.exceptions import RequestException, Timeout
+
+from ..exceptions import (
+    AIProviderError,
+    AIQuotaExceededError,
+    AIInvalidKeyError,
+    AITimeoutError
+)
+
+
+class GoogleProvider:
+    """Google provider implementation for Gemini models."""
+
+    @staticmethod
+    def send_request(
+        api_key: str,
+        api_url: str,
+        model: str,
+        prompt: str,
+        context: Optional[str],
+        language: str,
+        temperature: float,
+        max_tokens: int,
+        conversation_history: Optional[list],
+        timeout: int
+    ) -> Dict[str, Any]:
+        """
+        Send request to Google Gemini API.
+
+        Args:
+            api_key: Google API key
+            api_url: API endpoint URL template
+            model: Model name (e.g., 'gemini-1.5-pro')
+            prompt: User's input/question
+            context: Additional context about the learning material
+            language: Response language ('de', 'en', etc.)
+            temperature: Randomness (0.0-1.0)
+            max_tokens: Maximum output tokens
+            conversation_history: Previous conversation turns
+            timeout: Request timeout in seconds
+
+        Returns:
+            Dict with output_text, input_tokens, output_tokens
+        """
+        # Build prompt
+        full_prompt = f"You are an expert AI tutor. Respond in {language}.\n\n"
+        if context:
+            full_prompt += f"Context: {context}\n\n"
+        full_prompt += prompt
+
+        # Format API URL
+        formatted_url = api_url.format(model=model)
+        url_with_key = f"{formatted_url}?key={api_key}"
+
+        payload = {
+            'contents': [{
+                'parts': [{'text': full_prompt}]
+            }],
+            'generationConfig': {
+                'temperature': temperature,
+                'maxOutputTokens': max_tokens
+            }
+        }
+
+        return GoogleProvider._execute_request(url_with_key, payload, full_prompt, timeout)
+
+    @staticmethod
+    def send_messages(
+        api_key: str,
+        api_url: str,
+        model: str,
+        messages: List[Dict[str, str]],
+        temperature: float,
+        max_tokens: int,
+        timeout: int
+    ) -> Dict[str, Any]:
+        """
+        Send pre-formatted messages to Google Gemini API.
+
+        Args:
+            api_key: Google API key
+            api_url: API endpoint URL template
+            model: Model name
+            messages: List of message dicts with 'role' and 'content'
+            temperature: Randomness (0.0-1.0)
+            max_tokens: Maximum output tokens
+            timeout: Request timeout in seconds
+
+        Returns:
+            Dict with output_text, input_tokens, output_tokens
+        """
+        # Google Gemini uses a different format - convert messages
+        system_instruction = None
+        conversation_parts = []
+
+        for msg in messages:
+            if msg['role'] == 'system':
+                system_instruction = msg['content']
+            elif msg['role'] == 'user':
+                conversation_parts.append({'role': 'user', 'parts': [{'text': msg['content']}]})
+            elif msg['role'] == 'assistant':
+                conversation_parts.append({'role': 'model', 'parts': [{'text': msg['content']}]})
+
+        formatted_url = api_url.format(model=model)
+        url_with_key = f"{formatted_url}?key={api_key}"
+
+        payload = {
+            'contents': conversation_parts,
+            'generationConfig': {
+                'temperature': temperature,
+                'maxOutputTokens': max_tokens
+            }
+        }
+
+        if system_instruction:
+            payload['systemInstruction'] = {'parts': [{'text': system_instruction}]}
+
+        # Create combined text for token estimation
+        combined_text = ' '.join([m['content'] for m in messages])
+
+        return GoogleProvider._execute_request(url_with_key, payload, combined_text, timeout)
+
+    @staticmethod
+    def _execute_request(
+        url: str,
+        payload: Dict[str, Any],
+        input_text: str,
+        timeout: int
+    ) -> Dict[str, Any]:
+        """
+        Execute the actual Google API request.
+
+        Args:
+            url: Complete API URL with key
+            payload: Request payload
+            input_text: Input text for token estimation
+            timeout: Request timeout in seconds
+
+        Returns:
+            Dict with output_text, input_tokens, output_tokens
+
+        Raises:
+            AITimeoutError: On timeout
+            AIQuotaExceededError: On quota exceeded
+            AIInvalidKeyError: On invalid API key
+            AIProviderError: On other API errors
+        """
+        try:
+            response = requests.post(url, json=payload, timeout=timeout)
+            response.raise_for_status()
+            data = response.json()
+
+            output_text = data['candidates'][0]['content']['parts'][0]['text']
+
+            # Google doesn't always return token counts - estimate if needed
+            input_tokens = data.get('usageMetadata', {}).get('promptTokenCount', len(input_text) // 4)
+            output_tokens = data.get('usageMetadata', {}).get('candidatesTokenCount', len(output_text) // 4)
+
+            return {
+                'output_text': output_text,
+                'input_tokens': input_tokens,
+                'output_tokens': output_tokens
+            }
+
+        except Timeout:
+            raise AITimeoutError(f'Google request timed out after {timeout}s')
+        except requests.HTTPError as e:
+            if e.response.status_code == 429:
+                raise AIQuotaExceededError('Google quota exceeded')
+            elif e.response.status_code == 401:
+                raise AIInvalidKeyError('Invalid Google API key')
+            else:
+                raise AIProviderError(f'Google API error: {e.response.text}')
+        except RequestException as e:
+            raise AIProviderError(f'Google request failed: {str(e)}')

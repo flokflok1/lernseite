@@ -1,16 +1,12 @@
 -- ============================================================================
 -- Migration: 017_ai_providers.sql
--- Description: AI providers configuration
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: ai_providers
--- Description: AI service providers (OpenAI, Anthropic, etc.)
--- ============================================================================
-CREATE TABLE IF NOT EXISTS ai_providers (
+CREATE TABLE IF NOT EXISTS ai_pipeline.ai_providers (
     provider_id SERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
     display_name VARCHAR(255) NOT NULL,
@@ -29,20 +25,20 @@ CREATE TABLE IF NOT EXISTS ai_providers (
     CONSTRAINT chk_provider_type CHECK (provider_type IN ('openai', 'anthropic', 'google', 'cohere', 'huggingface', 'ollama', 'custom'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_ai_providers_name ON ai_providers(name);
-CREATE INDEX IF NOT EXISTS idx_ai_providers_active ON ai_providers(active, priority DESC);
-CREATE INDEX IF NOT EXISTS idx_ai_providers_type ON ai_providers(provider_type);
+CREATE INDEX IF NOT EXISTS idx_ai_providers_name ON ai_pipeline.ai_providers(name);
+CREATE INDEX IF NOT EXISTS idx_ai_providers_active ON ai_pipeline.ai_providers(active, priority DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_providers_type ON ai_pipeline.ai_providers(provider_type);
 
-COMMENT ON TABLE ai_providers IS 'AI service providers with encrypted API keys';
-COMMENT ON COLUMN ai_providers.priority IS 'Higher priority providers are used first (0 = lowest)';
+COMMENT ON TABLE ai_pipeline.ai_providers IS 'AI service providers with encrypted API keys';
+COMMENT ON COLUMN ai_pipeline.ai_providers.priority IS 'Higher priority providers are used first (0 = lowest)';
 
 -- ============================================================================
 -- TABLE: ai_provider_health
 -- Description: Provider health monitoring
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS ai_provider_health (
+CREATE TABLE IF NOT EXISTS ai_pipeline.ai_provider_health (
     health_id BIGSERIAL PRIMARY KEY,
-    provider_id INTEGER REFERENCES ai_providers(provider_id) ON DELETE CASCADE,
+    provider_id INTEGER REFERENCES ai_pipeline.ai_providers(provider_id) ON DELETE CASCADE,
     status VARCHAR(20) NOT NULL,
     response_time_ms INTEGER,
     error_message TEXT,
@@ -50,15 +46,16 @@ CREATE TABLE IF NOT EXISTS ai_provider_health (
     CONSTRAINT chk_provider_health CHECK (status IN ('healthy', 'degraded', 'down', 'unknown'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_ai_provider_health_provider ON ai_provider_health(provider_id, checked_at DESC);
-CREATE INDEX IF NOT EXISTS idx_ai_provider_health_status ON ai_provider_health(status, checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_provider_health_provider ON ai_pipeline.ai_provider_health(provider_id, checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_provider_health_status ON ai_pipeline.ai_provider_health(status, checked_at DESC);
 
-COMMENT ON TABLE ai_provider_health IS 'AI provider health check history';
+COMMENT ON TABLE ai_pipeline.ai_provider_health IS 'AI provider health check history';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_ai_providers_updated_at BEFORE UPDATE ON ai_providers
+DROP TRIGGER IF EXISTS update_ai_providers_updated_at ON ai_pipeline.ai_providers;
+CREATE TRIGGER update_ai_providers_updated_at BEFORE UPDATE ON ai_pipeline.ai_providers
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

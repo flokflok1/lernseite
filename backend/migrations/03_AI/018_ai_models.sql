@@ -1,18 +1,14 @@
 -- ============================================================================
 -- Migration: 018_ai_models.sql
--- Description: AI models configuration
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: ai_models
--- Description: AI model definitions with costs and capabilities
--- ============================================================================
-CREATE TABLE IF NOT EXISTS ai_models (
+CREATE TABLE IF NOT EXISTS ai_pipeline.ai_models (
     model_id SERIAL PRIMARY KEY,
-    provider_id INTEGER REFERENCES ai_providers(provider_id) ON DELETE CASCADE,
+    provider_id INTEGER REFERENCES ai_pipeline.ai_providers(provider_id) ON DELETE CASCADE,
     model_name VARCHAR(100) NOT NULL,
     display_name VARCHAR(255) NOT NULL,
     model_type VARCHAR(50) NOT NULL,
@@ -31,13 +27,13 @@ CREATE TABLE IF NOT EXISTS ai_models (
     UNIQUE (provider_id, model_name)
 );
 
-CREATE INDEX IF NOT EXISTS idx_ai_models_provider ON ai_models(provider_id);
-CREATE INDEX IF NOT EXISTS idx_ai_models_name ON ai_models(model_name);
-CREATE INDEX IF NOT EXISTS idx_ai_models_type ON ai_models(model_type);
-CREATE INDEX IF NOT EXISTS idx_ai_models_active ON ai_models(active) WHERE active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_ai_models_provider ON ai_pipeline.ai_models(provider_id);
+CREATE INDEX IF NOT EXISTS idx_ai_models_name ON ai_pipeline.ai_models(model_name);
+CREATE INDEX IF NOT EXISTS idx_ai_models_type ON ai_pipeline.ai_models(model_type);
+CREATE INDEX IF NOT EXISTS idx_ai_models_active ON ai_pipeline.ai_models(active) WHERE active = TRUE;
 
-COMMENT ON TABLE ai_models IS 'AI model definitions with pricing and capabilities';
-COMMENT ON COLUMN ai_models.capabilities IS 'Array of capabilities: code, analysis, creative, etc.';
+COMMENT ON TABLE ai_pipeline.ai_models IS 'AI model definitions with pricing and capabilities';
+COMMENT ON COLUMN ai_pipeline.ai_models.capabilities IS 'Array of capabilities: code, analysis, creative, etc.';
 
 -- ============================================================================
 -- NOTE: Keine Seed-Daten - Models werden via API synchronisiert
@@ -46,7 +42,8 @@ COMMENT ON COLUMN ai_models.capabilities IS 'Array of capabilities: code, analys
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_ai_models_updated_at BEFORE UPDATE ON ai_models
+DROP TRIGGER IF EXISTS update_ai_models_updated_at ON ai_pipeline.ai_models;
+CREATE TRIGGER update_ai_models_updated_at BEFORE UPDATE ON ai_pipeline.ai_models
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

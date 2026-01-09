@@ -37,6 +37,15 @@ export function useTranslation() {
       return
     }
 
+    // Check if system is installed
+    const isInstalled = localStorage.getItem('lsx-setup-completed') === 'true'
+
+    // If not installed, file-based translations are already loaded, no API needed
+    if (!isInstalled) {
+      console.log(`[i18n] Using file-based translations for ${lang} (system not installed)`)
+      return
+    }
+
     isLoading.value = true
     loadError.value = null
 
@@ -92,11 +101,51 @@ export function useTranslation() {
   }
 
   /**
-   * Get available languages
+   * Get available languages dynamically from vue-i18n
    */
   async function fetchLanguages(): Promise<LanguageProgress[]> {
     if (languagesCache.value) {
       return languagesCache.value
+    }
+
+    // Check if system is installed
+    const isInstalled = localStorage.getItem('lsx-setup-completed') === 'true'
+
+    // Language metadata (flexible - can be extended)
+    const languageMetadata: Record<string, { name: string; nativeName: string; flag: string }> = {
+      de: { name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
+      en: { name: 'English', nativeName: 'English', flag: '🇬🇧' },
+      pl: { name: 'Polish', nativeName: 'Polski', flag: '🇵🇱' }
+    }
+
+    if (!isInstalled) {
+      // Build language list dynamically from available locales
+      const fallbackLanguages: LanguageProgress[] = availableLocales
+        .map((code, index) => {
+          const meta = languageMetadata[code] || {
+            name: code.toUpperCase(),
+            nativeName: code.toUpperCase(),
+            flag: '🌐'
+          }
+          return {
+            language_code: code,
+            language_name: meta.name,
+            native_name: meta.nativeName,
+            flag_emoji: meta.flag,
+            is_primary: true,
+            priority: index + 1,
+            fallback_language: code === 'de' ? null : 'de',
+            rtl: false,
+            active: true,
+            total_keys: 0,
+            translated_keys: 0,
+            completion_percent: 100,
+            verified_keys: 0,
+            pending_suggestions: 0
+          }
+        })
+
+      return fallbackLanguages
     }
 
     try {
@@ -104,9 +153,35 @@ export function useTranslation() {
       languagesCache.value = languages
       return languages
     } catch (error) {
-      // API not available - return empty, UI should handle this gracefully
-      console.warn('[i18n] Could not fetch languages from API')
-      return []
+      // API not available - build from available locales
+      console.warn('[i18n] Could not fetch languages from API, using available locales')
+
+      const fallbackLanguages: LanguageProgress[] = availableLocales
+        .map((code, index) => {
+          const meta = languageMetadata[code] || {
+            name: code.toUpperCase(),
+            nativeName: code.toUpperCase(),
+            flag: '🌐'
+          }
+          return {
+            language_code: code,
+            language_name: meta.name,
+            native_name: meta.nativeName,
+            flag_emoji: meta.flag,
+            is_primary: true,
+            priority: index + 1,
+            fallback_language: code === 'de' ? null : 'de',
+            rtl: false,
+            active: true,
+            total_keys: 0,
+            translated_keys: 0,
+            completion_percent: 100,
+            verified_keys: 0,
+            pending_suggestions: 0
+          }
+        })
+
+      return fallbackLanguages
     }
   }
 

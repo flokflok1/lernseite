@@ -563,7 +563,7 @@ org --> academy : Abonniert
 
 note right of internal
   ✅ Volle Kontrolle
-  ✅ Alle 19 Content-LMs (A-C)
+  ✅ Alle 12 Content-LMs (A-C)
   ✅ KI-Unterstützung
   ✅ Versionierung
 end note
@@ -1334,7 +1334,7 @@ Content-Type: application/json
 | Feature | Status | Details |
 |---------|--------|---------|
 | **Nutzerverwaltung** | ✅ | Unbegrenzte Nutzer, Rollen, Klassen |
-| **Kursverwaltung** | ✅ | Interne Kurse, Importe, 19 Content-LMs (A-C) |
+| **Kursverwaltung** | ✅ | Interne Kurse, Importe, 12 Content-LMs (A-C) |
 | **LiveRoom Pro** | ✅ | Unbegrenzte Teilnehmer, Aufzeichnung, Breakout Rooms |
 | **Prüfungssystem** | ✅ | KI-Generierung (IHK, CompTIA), Auto-Bewertung |
 | **Lernpfade** | ✅ | Strukturierte Pfade, Deadlines, AI-Optimierung |

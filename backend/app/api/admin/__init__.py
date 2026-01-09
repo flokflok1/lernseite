@@ -1,38 +1,91 @@
 """
 LernsystemX Admin API Module
 
-Split from admin_courses.py for better maintainability.
-All routes remain at /api/v1/admin/...
+Refactored: 2026-01-08 - ISO/IEC 26515 + DDD compliant
+Struktur parallel zu Frontend (components/admin/)
 
-Modules:
-- courses: Course CRUD operations (7 endpoints)
-- chapters: Chapter management (5 endpoints)
-- lessons: Lesson management (5 endpoints)
-- ai_jobs: AI job management (4 endpoints)
-- exams: Exam management (6 endpoints)
-- course_prompts: Course-specific prompt overrides (6 endpoints)
-- course_files: Course file attachments (7 endpoints)
+Admin-Bereiche:
+├── ai-operations/          # AI-Funktionen (Proxy zu system_features/ai/)
+├── content-management/     # Content-Verwaltung (Kurse, Lektionen, Kapitel)
+├── assessment/             # Prüfungsverwaltung
+├── user-management/        # Benutzerverwaltung (Proxy zu users/admin/)
+└── system-operations/      # System-Einstellungen
 
-Total: 40 endpoints (from original admin_courses.py 3624 lines)
-Refactored: 2025-12-29 per Developer-Guide-KI Section 9
+Total: ~150 endpoints
 """
 
-# Import all route modules to register them with Flask
-# Each module registers its routes with api_v1 blueprint
-from app.api.admin import courses
-from app.api.admin import chapters
-from app.api.admin import lessons
-from app.api.admin import ai_jobs
-from app.api.admin import exams
-from app.api.admin import course_prompts
-from app.api.admin import course_files
+# AI Operations (Proxies zu system_features/ai/)
+try:
+    from app.api.admin.ai_operations import (
+        authoring_bp,
+        generation_bp,
+        jobs_bp,
+        models_bp,
+        pricing_bp,
+        profiles_bp,
+        studio_bp,
+        tutor_bp
+    )
+except ImportError as e:
+    print(f"Warning: AI Operations import failed: {e}")
+    authoring_bp = generation_bp = jobs_bp = models_bp = None
+    pricing_bp = profiles_bp = studio_bp = tutor_bp = None
+
+# Content Management
+try:
+    from app.api.admin.content_management import (
+        courses_crud,
+        chapters,
+        lessons,
+        exams,
+        prompts,
+        files
+    )
+except ImportError as e:
+    print(f"Warning: Content Management import failed: {e}")
+    courses_crud = chapters = lessons = exams = prompts = files = None
+
+# User Management (Proxies zu users/admin/)
+try:
+    from app.api.admin.user_management import (
+        admin_users_crud_bp,
+        admin_users_roles_bp,
+        admin_users_actions_bp
+    )
+except ImportError as e:
+    print(f"Warning: User Management import failed: {e}")
+    admin_users_crud_bp = admin_users_roles_bp = admin_users_actions_bp = None
+
+# System Operations
+try:
+    from app.api.admin.system_operations import (
+        system_settings_module
+    )
+except ImportError as e:
+    print(f"Warning: System Operations import failed: {e}")
+    system_settings_module = None
 
 __all__ = [
-    'courses',
+    # AI Operations
+    'authoring_bp',
+    'generation_bp',
+    'jobs_bp',
+    'models_bp',
+    'pricing_bp',
+    'profiles_bp',
+    'studio_bp',
+    'tutor_bp',
+    # Content Management
+    'courses_crud',
     'chapters',
     'lessons',
-    'ai_jobs',
     'exams',
-    'course_prompts',
-    'course_files'
+    'prompts',
+    'files',
+    # User Management
+    'admin_users_crud_bp',
+    'admin_users_roles_bp',
+    'admin_users_actions_bp',
+    # System Operations
+    'system_settings_module',
 ]

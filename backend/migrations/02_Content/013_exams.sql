@@ -1,21 +1,16 @@
 -- ============================================================================
 -- Migration: 013_exams.sql
--- Description: Examination system tables
--- Version: 2.0.0
+-- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
--- Updated: 2025-11-27 (Refactoring: modules → chapters)
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: exams
--- Description: Exam definitions (IHK, CompTIA, custom)
--- ============================================================================
-CREATE TABLE IF NOT EXISTS exams (
+CREATE TABLE IF NOT EXISTS assessments.exams (
     exam_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    course_id UUID REFERENCES courses(course_id) ON DELETE CASCADE,
-    chapter_id UUID REFERENCES chapters(chapter_id) ON DELETE SET NULL,
-    created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    course_id UUID REFERENCES courses.courses(course_id) ON DELETE CASCADE,
+    chapter_id UUID REFERENCES courses.chapters(chapter_id) ON DELETE SET NULL,
+    created_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
     exam_type VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -34,22 +29,22 @@ CREATE TABLE IF NOT EXISTS exams (
     CONSTRAINT chk_exam_type CHECK (exam_type IN ('simulation', 'real', 'custom', 'practice', 'quiz'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_exams_course ON exams(course_id);
-CREATE INDEX IF NOT EXISTS idx_exams_chapter ON exams(chapter_id);
-CREATE INDEX IF NOT EXISTS idx_exams_type ON exams(exam_type);
-CREATE INDEX IF NOT EXISTS idx_exams_creator ON exams(created_by);
-CREATE INDEX IF NOT EXISTS idx_exams_published ON exams(published) WHERE published = TRUE;
+CREATE INDEX IF NOT EXISTS idx_exams_course ON assessments.exams(course_id);
+CREATE INDEX IF NOT EXISTS idx_exams_chapter ON assessments.exams(chapter_id);
+CREATE INDEX IF NOT EXISTS idx_exams_type ON assessments.exams(exam_type);
+CREATE INDEX IF NOT EXISTS idx_exams_creator ON assessments.exams(created_by);
+CREATE INDEX IF NOT EXISTS idx_exams_published ON assessments.exams(published) WHERE published = TRUE;
 
-COMMENT ON TABLE exams IS 'Exam definitions: simulations, practice tests, real exams';
-COMMENT ON COLUMN exams.settings IS 'JSONB: proctoring, calculator, notes, break times, etc.';
+COMMENT ON TABLE assessments.exams IS 'Exam definitions: simulations, practice tests, real exams';
+COMMENT ON COLUMN assessments.exams.settings IS 'JSONB: proctoring, calculator, notes, break times, etc.';
 
 -- ============================================================================
 -- TABLE: exam_questions
 -- Description: Questions within exams
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS exam_questions (
+CREATE TABLE IF NOT EXISTS assessments.exam_questions (
     question_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    exam_id UUID REFERENCES exams(exam_id) ON DELETE CASCADE,
+    exam_id UUID REFERENCES assessments.exams(exam_id) ON DELETE CASCADE,
     question_type VARCHAR(50) NOT NULL,
     question_text TEXT NOT NULL,
     data JSONB NOT NULL,
@@ -63,18 +58,19 @@ CREATE TABLE IF NOT EXISTS exam_questions (
     CONSTRAINT chk_question_difficulty CHECK (difficulty IN ('easy', 'medium', 'hard'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_exam_questions_exam ON exam_questions(exam_id);
-CREATE INDEX IF NOT EXISTS idx_exam_questions_type ON exam_questions(question_type);
-CREATE INDEX IF NOT EXISTS idx_exam_questions_order ON exam_questions(exam_id, order_index);
-CREATE INDEX IF NOT EXISTS idx_exam_questions_difficulty ON exam_questions(difficulty);
+CREATE INDEX IF NOT EXISTS idx_exam_questions_exam ON assessments.exam_questions(exam_id);
+CREATE INDEX IF NOT EXISTS idx_exam_questions_type ON assessments.exam_questions(question_type);
+CREATE INDEX IF NOT EXISTS idx_exam_questions_order ON assessments.exam_questions(exam_id, order_index);
+CREATE INDEX IF NOT EXISTS idx_exam_questions_difficulty ON assessments.exam_questions(difficulty);
 
-COMMENT ON TABLE exam_questions IS 'Exam questions with various types (MCQ, essay, code, etc.)';
-COMMENT ON COLUMN exam_questions.data IS 'JSONB: question-specific data (options, code template, etc.)';
+COMMENT ON TABLE assessments.exam_questions IS 'Exam questions with various types (MCQ, essay, code, etc.)';
+COMMENT ON COLUMN assessments.exam_questions.data IS 'JSONB: question-specific data (options, code template, etc.)';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_exams_updated_at BEFORE UPDATE ON exams
+DROP TRIGGER IF EXISTS update_exams_updated_at ON assessments.exams;
+CREATE TRIGGER update_exams_updated_at BEFORE UPDATE ON assessments.exams
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

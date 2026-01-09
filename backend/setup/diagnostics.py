@@ -117,8 +117,8 @@ class SystemDiagnostics:
             if redis_client is None:
                 return DiagnosticCheckResult(
                     name="Redis Connection",
-                    status="fail",
-                    message="Redis client not initialized",
+                    status="warn",
+                    message="Redis client not initialized (normal during setup)",
                     details={"error": "redis_client is None"},
                     auto_fix_available=False
                 )
@@ -143,8 +143,8 @@ class SystemDiagnostics:
         except Exception as e:
             return DiagnosticCheckResult(
                 name="Redis Connection",
-                status="fail",
-                message=f"Redis connection failed: {str(e)}",
+                status="warn",
+                message=f"Redis not available (normal during setup): {str(e)}",
                 details={"error": str(e)},
                 auto_fix_available=False
             )
@@ -458,6 +458,20 @@ class SystemDiagnostics:
         # Try to ping Celery broker (Redis)
         try:
             from app.extensions import redis_client
+
+            # Check if Redis client is available
+            if redis_client is None:
+                return DiagnosticCheckResult(
+                    name="Celery Configuration",
+                    status="warn",
+                    message="Celery broker not accessible (Redis not initialized)",
+                    details={
+                        "broker_configured": True,
+                        "broker_accessible": False,
+                        "error": "redis_client is None"
+                    }
+                )
+
             redis_client.ping()
 
             return DiagnosticCheckResult(

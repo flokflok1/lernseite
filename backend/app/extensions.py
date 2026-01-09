@@ -7,6 +7,10 @@ Extensions are initialized here and then bound to the app in the factory pattern
 
 import os
 import redis
+from dotenv import load_dotenv
+
+# Load .env file first (before any os.getenv() calls)
+load_dotenv()
 from psycopg_pool import ConnectionPool
 from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO
@@ -65,14 +69,23 @@ def refresh_db_pool(database_url: str = None):
 
     # Reinitialize with new or existing URL
     if database_url:
-        init_db_pool(database_url)
+        try:
+            init_db_pool(database_url)
+        except Exception as e:
+            print(f"Warning: Could not initialize DB pool (normal during setup): {e}")
+            db_pool = None
     else:
         # Use existing DATABASE_URL from environment
         database_url = os.getenv('DATABASE_URL')
         if database_url:
-            init_db_pool(database_url)
+            try:
+                init_db_pool(database_url)
+            except Exception as e:
+                print(f"Warning: Could not initialize DB pool (normal during setup): {e}")
+                db_pool = None
         else:
-            raise ValueError("DATABASE_URL not set in environment")
+            print("Warning: DATABASE_URL not set - DB pool will be initialized later")
+            db_pool = None
 
 # JWT Authentication
 jwt = JWTManager()
@@ -85,13 +98,20 @@ socketio = SocketIO(
     engineio_logger=True
 )
 
-# Redis Client
-redis_client = redis.Redis(
-    host=os.getenv('REDIS_HOST', 'localhost'),
-    port=int(os.getenv('REDIS_PORT', 6379)),
-    db=int(os.getenv('REDIS_DB', 0)),
-    decode_responses=True
-)
+# Redis Client (lazy initialization - will be None during setup)
+try:
+    redis_client = redis.Redis(
+        host=os.getenv('REDIS_HOST', 'localhost'),
+        port=int(os.getenv('REDIS_PORT', 6379)),
+        db=int(os.getenv('REDIS_DB', 0)),
+        decode_responses=True,
+        socket_connect_timeout=2  # Fast fail if Redis not available
+    )
+    # Test connection
+    redis_client.ping()
+except Exception as e:
+    print(f"Warning: Redis not available (normal during setup): {e}")
+    redis_client = None
 
 # Celery Task Queue
 celery = Celery(
@@ -112,11 +132,46 @@ def rate_limit_key_func():
         return None  # Exempt OPTIONS from rate limiting
     return get_remote_address()
 
-limiter = Limiter(
-    key_func=rate_limit_key_func,
-    storage_uri=os.getenv('RATELIMIT_STORAGE_URL', 'redis://localhost:6379/4'),
-    default_limits=[os.getenv('RATELIMIT_DEFAULT', '200 per hour')]
-)
+# Dummy limiter class for setup mode (when Redis not available)
+class DummyLimiter:
+    """No-op limiter for setup mode"""
+    def limit(self, *args, **kwargs):
+        def decorator(f):
+            return f
+        return decorator
+
+    def exempt(self, f):
+        """No-op exempt decorator"""
+        return f
+
+    def init_app(self, app):
+        pass
+
+    def reset(self):
+        """No-op reset"""
+        pass
+
+# Rate limiter (optional - Dummy during setup without Redis)
+# IMPORTANT: Only create real limiter if Redis is actually connected
+if redis_client is not None:
+    try:
+        ratelimit_storage = os.getenv('RATELIMIT_STORAGE_URL')
+        if not ratelimit_storage:
+            redis_host = os.getenv('REDIS_HOST', 'localhost')
+            redis_port = os.getenv('REDIS_PORT', '6379')
+            ratelimit_storage = f'redis://{redis_host}:{redis_port}/4'
+
+        limiter = Limiter(
+            key_func=rate_limit_key_func,
+            storage_uri=ratelimit_storage,
+            default_limits=[os.getenv('RATELIMIT_DEFAULT', '200 per hour')]
+        )
+    except Exception as e:
+        print(f"Warning: Rate limiter not available (normal during setup): {e}")
+        limiter = DummyLimiter()
+else:
+    print("Warning: Redis not available - using DummyLimiter (normal during setup)")
+    limiter = DummyLimiter()
 
 # Email Support
 mail = Mail()
@@ -135,9 +190,17 @@ def check_if_token_revoked(jwt_header, jwt_payload):
     Returns:
         bool: True if token is revoked, False otherwise
     """
+    # If Redis not available (during setup), allow all tokens
+    if redis_client is None:
+        return False
+
     jti = jwt_payload['jti']
-    token_in_redis = redis_client.get(f'revoked_token:{jti}')
-    return token_in_redis is not None
+    try:
+        token_in_redis = redis_client.get(f'revoked_token:{jti}')
+        return token_in_redis is not None
+    except Exception:
+        # Redis connection failed, allow token to continue
+        return False
 
 
 @jwt.expired_token_loader

@@ -17,7 +17,7 @@
 -- 1. math_pattern_categories - Kategorien für Rechenarten
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_pattern_categories (
+CREATE TABLE IF NOT EXISTS learning_methods.math_pattern_categories (
     category_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     category_code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
@@ -30,16 +30,16 @@ CREATE TABLE IF NOT EXISTS math_pattern_categories (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_math_pattern_cat_active ON math_pattern_categories(is_active, sort_order);
+CREATE INDEX IF NOT EXISTS idx_math_pattern_cat_active ON learning_methods.math_pattern_categories (is_active, sort_order);
 
-COMMENT ON TABLE math_pattern_categories IS
+COMMENT ON TABLE learning_methods.math_pattern_categories IS
 'Kategorien für Rechenarten (z.B. Prozent, Kalkulation, Zins). Dynamisch erweiterbar.';
 
 -- ============================================================================
 -- 1b. Standard Math Pattern Categories (IHK-relevant)
 -- ============================================================================
 
-INSERT INTO math_pattern_categories (category_code, name, description, icon, color, sort_order)
+INSERT INTO learning_methods.math_pattern_categories (category_code, name, description, icon, color, sort_order)
 VALUES
     ('percent', 'Prozentrechnung', 'Grundwert, Prozentsatz, Prozentwert', '📊', '#3B82F6', 10),
     ('calculation', 'Handelskalkulation', 'Bezugs-, Verkaufs- und Selbstkostenkalkulation', '🧮', '#10B981', 20),
@@ -61,9 +61,9 @@ ON CONFLICT (category_code) DO UPDATE SET
 -- 2. math_patterns - Dynamische Rechenmuster
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_patterns (
+CREATE TABLE IF NOT EXISTS learning_methods.math_patterns (
     pattern_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    category_id UUID REFERENCES math_pattern_categories(category_id) ON DELETE SET NULL,
+    category_id UUID REFERENCES learning_methods.math_pattern_categories(category_id) ON DELETE SET NULL,
     pattern_code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(150) NOT NULL,
     description TEXT,
@@ -94,12 +94,12 @@ CREATE TABLE IF NOT EXISTS math_patterns (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_math_patterns_category ON math_patterns(category_id);
-CREATE INDEX IF NOT EXISTS idx_math_patterns_active ON math_patterns(is_active, sort_order);
-CREATE INDEX IF NOT EXISTS idx_math_patterns_ihk ON math_patterns(ihk_relevant) WHERE ihk_relevant = TRUE;
-CREATE INDEX IF NOT EXISTS idx_math_patterns_tags ON math_patterns USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_math_patterns_category ON learning_methods.math_patterns (category_id);
+CREATE INDEX IF NOT EXISTS idx_math_patterns_active ON learning_methods.math_patterns (is_active, sort_order);
+CREATE INDEX IF NOT EXISTS idx_math_patterns_ihk ON learning_methods.math_patterns (ihk_relevant) WHERE ihk_relevant = TRUE;
+CREATE INDEX IF NOT EXISTS idx_math_patterns_tags ON learning_methods.math_patterns USING GIN(tags);
 
-COMMENT ON TABLE math_patterns IS
+COMMENT ON TABLE learning_methods.math_patterns IS
 'Dynamische Rechenmuster mit Formel-Templates und Schritt-Definitionen.
 Alles über JSONB konfigurierbar, keine hardcoded Logik.';
 
@@ -107,10 +107,10 @@ Alles über JSONB konfigurierbar, keine hardcoded Logik.';
 -- 3. math_formulas - Formel-Bibliothek
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_formulas (
+CREATE TABLE IF NOT EXISTS learning_methods.math_formulas (
     formula_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    category_id UUID REFERENCES math_pattern_categories(category_id) ON DELETE SET NULL,
-    pattern_id UUID REFERENCES math_patterns(pattern_id) ON DELETE SET NULL,
+    category_id UUID REFERENCES learning_methods.math_pattern_categories(category_id) ON DELETE SET NULL,
+    pattern_id UUID REFERENCES learning_methods.math_patterns(pattern_id) ON DELETE SET NULL,
 
     name VARCHAR(150) NOT NULL,
     description TEXT,
@@ -137,29 +137,29 @@ CREATE TABLE IF NOT EXISTS math_formulas (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_math_formulas_category ON math_formulas(category_id);
-CREATE INDEX IF NOT EXISTS idx_math_formulas_pattern ON math_formulas(pattern_id);
-CREATE INDEX IF NOT EXISTS idx_math_formulas_favorite ON math_formulas(is_favorite) WHERE is_favorite = TRUE;
+CREATE INDEX IF NOT EXISTS idx_math_formulas_category ON learning_methods.math_formulas (category_id);
+CREATE INDEX IF NOT EXISTS idx_math_formulas_pattern ON learning_methods.math_formulas (pattern_id);
+CREATE INDEX IF NOT EXISTS idx_math_formulas_favorite ON learning_methods.math_formulas (is_favorite) WHERE is_favorite = TRUE;
 
-COMMENT ON TABLE math_formulas IS
+COMMENT ON TABLE learning_methods.math_formulas IS
 'Formel-Bibliothek für Schnellzugriff. Verknüpft mit Patterns.';
 
 -- ============================================================================
 -- 4. math_toolkit_sessions - Übungssitzungen
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_toolkit_sessions (
+CREATE TABLE IF NOT EXISTS learning_methods.math_toolkit_sessions (
     session_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
 
     -- Kontext (optional)
-    course_id UUID REFERENCES courses(course_id) ON DELETE SET NULL,
-    lesson_id UUID REFERENCES lessons(lesson_id) ON DELETE SET NULL,
+    course_id UUID REFERENCES courses.courses(course_id) ON DELETE SET NULL,
+    lesson_id UUID REFERENCES courses.lessons(lesson_id) ON DELETE SET NULL,
     learning_method_id UUID,
 
     -- Session-Typ
     session_type VARCHAR(30) NOT NULL DEFAULT 'practice',
-    pattern_id UUID REFERENCES math_patterns(pattern_id) ON DELETE SET NULL,
+    pattern_id UUID REFERENCES learning_methods.math_patterns(pattern_id) ON DELETE SET NULL,
 
     -- Scaffolding-Level (1=volle Hilfe, 2=Hinweise, 3=selbstständig)
     scaffolding_level INTEGER DEFAULT 1 CHECK (scaffolding_level BETWEEN 1 AND 3),
@@ -178,20 +178,20 @@ CREATE TABLE IF NOT EXISTS math_toolkit_sessions (
     ))
 );
 
-CREATE INDEX IF NOT EXISTS idx_math_sessions_user ON math_toolkit_sessions(user_id, started_at DESC);
-CREATE INDEX IF NOT EXISTS idx_math_sessions_pattern ON math_toolkit_sessions(pattern_id);
-CREATE INDEX IF NOT EXISTS idx_math_sessions_active ON math_toolkit_sessions(ended_at) WHERE ended_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_math_sessions_user ON learning_methods.math_toolkit_sessions (user_id, started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_math_sessions_pattern ON learning_methods.math_toolkit_sessions (pattern_id);
+CREATE INDEX IF NOT EXISTS idx_math_sessions_active ON learning_methods.math_toolkit_sessions (ended_at) WHERE ended_at IS NULL;
 
-COMMENT ON TABLE math_toolkit_sessions IS
+COMMENT ON TABLE learning_methods.math_toolkit_sessions IS
 'Übungssitzungen im MathToolkit. Trackt Fortschritt und Scaffolding-Level.';
 
 -- ============================================================================
 -- 5. math_calculation_steps - Gespeicherte Rechenschritte
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_calculation_steps (
+CREATE TABLE IF NOT EXISTS learning_methods.math_calculation_steps (
     step_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    session_id UUID NOT NULL REFERENCES math_toolkit_sessions(session_id) ON DELETE CASCADE,
+    session_id UUID NOT NULL REFERENCES learning_methods.math_toolkit_sessions(session_id) ON DELETE CASCADE,
 
     -- Schritt-Nummer
     step_number INTEGER NOT NULL,
@@ -216,19 +216,19 @@ CREATE TABLE IF NOT EXISTS math_calculation_steps (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_math_steps_session ON math_calculation_steps(session_id, step_number);
+CREATE INDEX IF NOT EXISTS idx_math_steps_session ON learning_methods.math_calculation_steps (session_id, step_number);
 
-COMMENT ON TABLE math_calculation_steps IS
+COMMENT ON TABLE learning_methods.math_calculation_steps IS
 'Einzelne Rechenschritte mit Taschenrechner-Eingaben für Replay und Analyse.';
 
 -- ============================================================================
 -- 6. math_calculator_history - Taschenrechner-Verlauf
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_calculator_history (
+CREATE TABLE IF NOT EXISTS learning_methods.math_calculator_history (
     history_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    session_id UUID REFERENCES math_toolkit_sessions(session_id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    session_id UUID REFERENCES learning_methods.math_toolkit_sessions(session_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
 
     -- Eingabe
     expression TEXT NOT NULL,
@@ -247,20 +247,20 @@ CREATE TABLE IF NOT EXISTS math_calculator_history (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_calc_history_user ON math_calculator_history(user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_calc_history_session ON math_calculator_history(session_id);
+CREATE INDEX IF NOT EXISTS idx_calc_history_user ON learning_methods.math_calculator_history (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_calc_history_session ON learning_methods.math_calculator_history (session_id);
 
-COMMENT ON TABLE math_calculator_history IS
+COMMENT ON TABLE learning_methods.math_calculator_history IS
 'Taschenrechner-Verlauf für Analyse und Replay.';
 
 -- ============================================================================
 -- 7. math_user_progress - User-Fortschritt pro Pattern
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_user_progress (
+CREATE TABLE IF NOT EXISTS learning_methods.math_user_progress (
     progress_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    pattern_id UUID NOT NULL REFERENCES math_patterns(pattern_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
+    pattern_id UUID NOT NULL REFERENCES learning_methods.math_patterns(pattern_id) ON DELETE CASCADE,
 
     -- Fortschritt
     current_level INTEGER DEFAULT 1 CHECK (current_level BETWEEN 1 AND 3),
@@ -284,21 +284,21 @@ CREATE TABLE IF NOT EXISTS math_user_progress (
     UNIQUE (user_id, pattern_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_math_progress_user ON math_user_progress(user_id);
-CREATE INDEX IF NOT EXISTS idx_math_progress_pattern ON math_user_progress(pattern_id);
-CREATE INDEX IF NOT EXISTS idx_math_progress_review ON math_user_progress(next_review_at)
+CREATE INDEX IF NOT EXISTS idx_math_progress_user ON learning_methods.math_user_progress (user_id);
+CREATE INDEX IF NOT EXISTS idx_math_progress_pattern ON learning_methods.math_user_progress (pattern_id);
+CREATE INDEX IF NOT EXISTS idx_math_progress_review ON learning_methods.math_user_progress (next_review_at)
     WHERE next_review_at IS NOT NULL;
 
-COMMENT ON TABLE math_user_progress IS
+COMMENT ON TABLE learning_methods.math_user_progress IS
 'User-Fortschritt pro Rechenmuster. Trackt Mastery und Spaced Repetition.';
 
 -- ============================================================================
 -- 8. math_pattern_recognition_tasks - Muster-Erkennungs-Aufgaben
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_pattern_recognition_tasks (
+CREATE TABLE IF NOT EXISTS learning_methods.math_pattern_recognition_tasks (
     task_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    pattern_id UUID NOT NULL REFERENCES math_patterns(pattern_id) ON DELETE CASCADE,
+    pattern_id UUID NOT NULL REFERENCES learning_methods.math_patterns(pattern_id) ON DELETE CASCADE,
 
     -- Aufgabenstellung
     task_type VARCHAR(30) NOT NULL,
@@ -327,20 +327,20 @@ CREATE TABLE IF NOT EXISTS math_pattern_recognition_tasks (
     ))
 );
 
-CREATE INDEX IF NOT EXISTS idx_pattern_tasks_pattern ON math_pattern_recognition_tasks(pattern_id);
-CREATE INDEX IF NOT EXISTS idx_pattern_tasks_type ON math_pattern_recognition_tasks(task_type);
-CREATE INDEX IF NOT EXISTS idx_pattern_tasks_difficulty ON math_pattern_recognition_tasks(difficulty);
+CREATE INDEX IF NOT EXISTS idx_pattern_tasks_pattern ON learning_methods.math_pattern_recognition_tasks (pattern_id);
+CREATE INDEX IF NOT EXISTS idx_pattern_tasks_type ON learning_methods.math_pattern_recognition_tasks (task_type);
+CREATE INDEX IF NOT EXISTS idx_pattern_tasks_difficulty ON learning_methods.math_pattern_recognition_tasks (difficulty);
 
-COMMENT ON TABLE math_pattern_recognition_tasks IS
+COMMENT ON TABLE learning_methods.math_pattern_recognition_tasks IS
 'Muster-Erkennungs-Aufgaben. task_data und solution sind dynamisch per JSONB.';
 
 -- ============================================================================
 -- 9. math_scaffolding_hints - Dynamische Hilfe-Texte
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS math_scaffolding_hints (
+CREATE TABLE IF NOT EXISTS learning_methods.math_scaffolding_hints (
     hint_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    pattern_id UUID REFERENCES math_patterns(pattern_id) ON DELETE CASCADE,
+    pattern_id UUID REFERENCES learning_methods.math_patterns(pattern_id) ON DELETE CASCADE,
 
     -- Hint-Kontext
     hint_type VARCHAR(30) NOT NULL,
@@ -369,10 +369,10 @@ CREATE TABLE IF NOT EXISTS math_scaffolding_hints (
     ))
 );
 
-CREATE INDEX IF NOT EXISTS idx_scaffolding_pattern ON math_scaffolding_hints(pattern_id);
-CREATE INDEX IF NOT EXISTS idx_scaffolding_type ON math_scaffolding_hints(hint_type);
+CREATE INDEX IF NOT EXISTS idx_scaffolding_pattern ON learning_methods.math_scaffolding_hints (pattern_id);
+CREATE INDEX IF NOT EXISTS idx_scaffolding_type ON learning_methods.math_scaffolding_hints (hint_type);
 
-COMMENT ON TABLE math_scaffolding_hints IS
+COMMENT ON TABLE learning_methods.math_scaffolding_hints IS
 'Dynamische Hilfe-Texte für verschiedene Scaffolding-Level.';
 
 -- ============================================================================
@@ -380,9 +380,9 @@ COMMENT ON TABLE math_scaffolding_hints IS
 -- ============================================================================
 
 -- Bezugskalkulation Pattern
-INSERT INTO math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
+INSERT INTO learning_methods.math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
 SELECT
-    (SELECT category_id FROM math_pattern_categories WHERE category_code = 'calculation'),
+    (SELECT category_id FROM learning_methods.math_pattern_categories WHERE category_code = 'calculation'),
     'bezugskalkulation',
     'Bezugskalkulation',
     'Berechnung des Einstandspreises (Bezugspreis) aus Listeneinkaufspreis abzüglich Rabatt und Skonto plus Bezugskosten.',
@@ -400,12 +400,12 @@ SELECT
       {"step": 5, "description": "Bezugskosten addieren", "formula": "BEP = BEP_bar + BK", "hint": "Transport, Verpackung, Versicherung"}]'::jsonb,
     '{"LEP": 1000, "r": 20, "s": 2, "BK": 50}'::jsonb,
     3, TRUE, '["ihk", "kaufmann", "bwl", "kalkulation"]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM math_patterns WHERE pattern_code = 'bezugskalkulation');
+WHERE NOT EXISTS (SELECT 1 FROM learning_methods.math_patterns WHERE pattern_code = 'bezugskalkulation');
 
 -- Prozentrechnung Grundwert
-INSERT INTO math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
+INSERT INTO learning_methods.math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
 SELECT
-    (SELECT category_id FROM math_pattern_categories WHERE category_code = 'percent'),
+    (SELECT category_id FROM learning_methods.math_pattern_categories WHERE category_code = 'percent'),
     'prozent_grundwert',
     'Prozent: Grundwert berechnen',
     'Berechnung des Grundwerts aus Prozentwert und Prozentsatz.',
@@ -417,12 +417,12 @@ SELECT
     '[{"step": 1, "description": "Formel anwenden", "formula": "G = W × 100 / p", "hint": "Prozentwert durch Prozentsatz, dann mal 100"}]'::jsonb,
     '{"W": 150, "p": 25}'::jsonb,
     1, TRUE, '["prozent", "grundlagen"]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM math_patterns WHERE pattern_code = 'prozent_grundwert');
+WHERE NOT EXISTS (SELECT 1 FROM learning_methods.math_patterns WHERE pattern_code = 'prozent_grundwert');
 
 -- Prozentrechnung Prozentwert
-INSERT INTO math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
+INSERT INTO learning_methods.math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
 SELECT
-    (SELECT category_id FROM math_pattern_categories WHERE category_code = 'percent'),
+    (SELECT category_id FROM learning_methods.math_pattern_categories WHERE category_code = 'percent'),
     'prozent_prozentwert',
     'Prozent: Prozentwert berechnen',
     'Berechnung des Prozentwerts aus Grundwert und Prozentsatz.',
@@ -434,12 +434,12 @@ SELECT
     '[{"step": 1, "description": "Formel anwenden", "formula": "W = G × p / 100", "hint": "Grundwert mal Prozentsatz, geteilt durch 100"}]'::jsonb,
     '{"G": 600, "p": 25}'::jsonb,
     1, TRUE, '["prozent", "grundlagen"]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM math_patterns WHERE pattern_code = 'prozent_prozentwert');
+WHERE NOT EXISTS (SELECT 1 FROM learning_methods.math_patterns WHERE pattern_code = 'prozent_prozentwert');
 
 -- Dreisatz
-INSERT INTO math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
+INSERT INTO learning_methods.math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
 SELECT
-    (SELECT category_id FROM math_pattern_categories WHERE category_code = 'ratio'),
+    (SELECT category_id FROM learning_methods.math_pattern_categories WHERE category_code = 'ratio'),
     'dreisatz_einfach',
     'Einfacher Dreisatz',
     'Proportionale Zuordnung: Je mehr, desto mehr.',
@@ -453,12 +453,12 @@ SELECT
       {"step": 2, "description": "Auf gesuchte Menge hochrechnen", "formula": "x = (b1 / a1) × a2", "hint": "Multipliziere mit der gesuchten A-Menge"}]'::jsonb,
     '{"a1": 5, "b1": 15, "a2": 8}'::jsonb,
     1, TRUE, '["dreisatz", "grundlagen"]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM math_patterns WHERE pattern_code = 'dreisatz_einfach');
+WHERE NOT EXISTS (SELECT 1 FROM learning_methods.math_patterns WHERE pattern_code = 'dreisatz_einfach');
 
 -- Einfache Zinsrechnung
-INSERT INTO math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
+INSERT INTO learning_methods.math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
 SELECT
-    (SELECT category_id FROM math_pattern_categories WHERE category_code = 'interest'),
+    (SELECT category_id FROM learning_methods.math_pattern_categories WHERE category_code = 'interest'),
     'zins_einfach',
     'Einfache Zinsrechnung',
     'Berechnung der Zinsen für Kapital, Zinssatz und Zeit.',
@@ -472,12 +472,12 @@ SELECT
       {"step": 2, "description": "Tageszinsen ermitteln", "formula": "Z = Jahreszins × t / 360", "hint": "Kaufmännisches Jahr = 360 Tage"}]'::jsonb,
     '{"K": 10000, "p": 5, "t": 90}'::jsonb,
     2, TRUE, '["zins", "bankkaufmann", "ihk"]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM math_patterns WHERE pattern_code = 'zins_einfach');
+WHERE NOT EXISTS (SELECT 1 FROM learning_methods.math_patterns WHERE pattern_code = 'zins_einfach');
 
 -- Verkaufskalkulation
-INSERT INTO math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
+INSERT INTO learning_methods.math_patterns (category_id, pattern_code, name, description, formula_template, formula_latex, variables, steps_template, example_values, difficulty, ihk_relevant, tags)
 SELECT
-    (SELECT category_id FROM math_pattern_categories WHERE category_code = 'calculation'),
+    (SELECT category_id FROM learning_methods.math_pattern_categories WHERE category_code = 'calculation'),
     'verkaufskalkulation',
     'Verkaufskalkulation',
     'Ermittlung des Bruttoverkaufspreises aus Selbstkostenpreis über Gewinn, Kundenskonto, Kundenrabatt und MwSt.',
@@ -495,22 +495,22 @@ SELECT
       {"step": 4, "description": "MwSt aufschlagen", "formula": "Bruttoverkaufspreis = NVP × (1 + MwSt%/100)", "hint": "19% oder 7% MwSt"}]'::jsonb,
     '{"SKP": 800, "gewinn_pct": 25, "skonto_pct": 2, "rabatt_pct": 10, "mwst_pct": 19}'::jsonb,
     4, TRUE, '["ihk", "kaufmann", "bwl", "kalkulation"]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM math_patterns WHERE pattern_code = 'verkaufskalkulation');
+WHERE NOT EXISTS (SELECT 1 FROM learning_methods.math_patterns WHERE pattern_code = 'verkaufskalkulation');
 
 -- ============================================================================
 -- 12. Trigger für updated_at
 -- ============================================================================
 
 CREATE TRIGGER update_math_pattern_categories_updated_at
-    BEFORE UPDATE ON math_pattern_categories
+    BEFORE UPDATE ON learning_methods.math_pattern_categories
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_math_patterns_updated_at
-    BEFORE UPDATE ON math_patterns
+    BEFORE UPDATE ON learning_methods.math_patterns
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_math_user_progress_updated_at
-    BEFORE UPDATE ON math_user_progress
+    BEFORE UPDATE ON learning_methods.math_user_progress
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

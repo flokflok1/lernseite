@@ -1,0 +1,140 @@
+{
+  "setup": {
+    "steps": {
+      "environment": "Środowisko",
+      "system": "Konfiguracja",
+      "database": "Baza danych",
+      "admin": "Admin",
+      "organisation": "Organizacja",
+      "ai": "Konfiguracja AI",
+      "seed": "Dane",
+      "finish": "Zakończenie"
+    },
+    "database": {
+      "title": "Inicjalizacja bazy danych",
+      "description": "Tworzy wszystkie tabele, indeksy i strukturę bazy danych.",
+      "success": "Sukces!",
+      "error": "Błąd",
+      "schemas": "Schematy",
+      "tables": "Tabele",
+      "indexes": "Indeksy",
+      "initialize": "Inicjalizuj",
+      "initFailed": "Inicjalizacja bazy danych nie powiodła się"
+    },
+    "admin": {
+      "title": "Utwórz konto administratora",
+      "description": "Utwórz pierwsze konto administratora.",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "password": "Hasło",
+      "passwordHint": "Min. 8 znaków, 1 wielka litera, 1 cyfra",
+      "confirmPassword": "Potwierdź hasło",
+      "success": "Konto administratora utworzone pomyślnie!",
+      "passwordMismatch": "Hasła nie pasują do siebie",
+      "createFailed": "Tworzenie administratora nie powiodło się"
+    },
+    "organisation": {
+      "title": "Konfiguruj organizację",
+      "description": "Utwórz swoją pierwszą organizację (szkoła/firma).",
+      "name": "Nazwa organizacji",
+      "namePlaceholder": "Moja szkoła",
+      "type": "Typ",
+      "typeAcademy": "Akademia (Platforma)",
+      "typeSchool": "Szkoła",
+      "typeCompany": "Firma",
+      "typeCreator": "Organizacja twórców",
+      "typeCommunity": "Społeczność",
+      "typeSystem": "System",
+      "success": "Organizacja utworzona!",
+      "createFailed": "Tworzenie organizacji nie powiodło się"
+    },
+    "seed": {
+      "title": "Zainstaluj dane początkowe",
+      "description": "Instaluje metody uczenia się, kategorie i role.",
+      "install": "Zainstaluj",
+      "success": "Sukces!",
+      "error": "Błąd",
+      "learningMethods": "Metody uczenia się",
+      "systemFeatures": "Funkcje systemowe",
+      "categories": "Kategorie",
+      "roles": "Role",
+      "installFailed": "Instalacja danych początkowych nie powiodła się"
+    },
+    "ai": {
+      "title": "Konfiguracja AI",
+      "description": "Skonfiguruj dostawców AI (opcjonalne, można dodać później).",
+      "skip": "Pomiń",
+      "openaiKey": "Klucz API OpenAI",
+      "anthropicKey": "Klucz API Anthropic",
+      "deeplKey": "Klucz API DeepL",
+      "optional": "Opcjonalne",
+      "success": "Konfiguracja AI zapisana!",
+      "saveFailed": "Konfiguracja AI nie powiodła się"
+    },
+    "finish": {
+      "title": "Zakończ instalację",
+      "description": "Zweryfikuj instalację i zakończ proces konfiguracji.",
+      "verify": "Weryfikuj",
+      "verifyFailed": "Weryfikacja nie powiodła się",
+      "allChecksPassed": "Wszystkie testy zakończone pomyślnie!",
+      "verifying": "Weryfikacja...",
+      "complete": "Zakończ instalację",
+      "success": "Instalacja zakończona pomyślnie!",
+      "successDesc": "System jest teraz gotowy do użycia.",
+      "reloadNote": "Strona zostanie przeładowana po kliknięciu 'Przejdź do logowania'.",
+      "completeFailed": "Zakończenie instalacji nie powiodło się",
+      "goToLogin": "Przejdź do logowania"
+    },
+    "systemCheck": {
+      "title": "Konfiguracja systemu",
+      "description": "Skonfiguruj połączenia z bazą danych i Redis.",
+      "database": "Baza danych PostgreSQL",
+      "host": "Host",
+      "port": "Port",
+      "dbName": "Nazwa bazy danych",
+      "user": "Użytkownik",
+      "password": "Hasło",
+      "redis": "Redis",
+      "db": "DB",
+      "testConnection": "Testuj połączenie",
+      "connectionTested": "Połączenie przetestowane",
+      "connectionFailed": "Połączenie nie powiodło się"
+    },
+    "common": {
+      "back": "Wstecz",
+      "next": "Dalej",
+      "create": "Utwórz",
+      "save": "Zapisz"
+    },
+    "environment": {
+      "title": "Wybór środowiska",
+      "description": "Wybierz środowisko dla instalacji LernsystemX.",
+      "development": {
+        "title": "Development",
+        "description": "Dla lokalnego rozwoju i testów",
+        "debugMode": "Tryb debugowania włączony",
+        "localhostCors": "Localhost CORS dozwolony",
+        "detailedLogging": "Szczegółowe logowanie",
+        "hotReload": "Hot-reload dla zmian w kodzie"
+      },
+      "production": {
+        "title": "Production",
+        "description": "Do wdrożenia produkcyjnego",
+        "optimizedPerformance": "Zoptymalizowana wydajność",
+        "securityHeaders": "Nagłówki bezpieczeństwa włączone",
+        "rateLimiting": "Ograniczenie żądań",
+        "productionLogging": "Logowanie produkcyjne"
+      },
+      "infoBox": {
+        "title": "Automatyczna konfiguracja",
+        "description": "Plik .env zostanie automatycznie utworzony z bezpiecznymi losowymi kluczami. SECRET_KEY i JWT_SECRET_KEY zostaną wygenerowane kryptograficznie."
+      },
+      "configuring": "Konfiguracja...",
+      "configureButton": "Skonfiguruj środowisko",
+      "success": "Środowisko \"{env}\" skonfigurowane pomyślnie! Bezpieczne klucze zostały automatycznie wygenerowane.",
+      "configFailed": "Błąd konfiguracji",
+      "networkError": "Błąd sieci podczas konfiguracji"
+    }
+  }
+}

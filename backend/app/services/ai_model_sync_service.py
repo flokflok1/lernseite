@@ -16,8 +16,8 @@ import requests
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 
-from app.repositories.ai_provider_repository import AIProviderRepository
-from app.repositories.ai_models_repository import AIModelsRepository
+from app.repositories.ai.providers import AIProviderRepository
+from app.repositories.ai_models import AIModelsRepository
 from app.services.ai_adapter import AIAdapter
 
 

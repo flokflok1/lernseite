@@ -1,0 +1,183 @@
+{
+  "errors": {
+    "INTERNAL_ERROR": "Ein interner Fehler ist aufgetreten",
+    "NOT_FOUND": "Nicht gefunden",
+    "BAD_REQUEST": "Ungültige Anfrage",
+    "UNAUTHORIZED": "Nicht authentifiziert",
+    "FORBIDDEN": "Zugriff verweigert",
+    "VALIDATION_ERROR": "Validierungsfehler",
+
+    "AUTH_INVALID_CREDENTIALS": "Ungültige Anmeldedaten",
+    "AUTH_TOKEN_EXPIRED": "Sitzung abgelaufen",
+    "AUTH_TOKEN_INVALID": "Ungültiger Token",
+    "AUTH_TOKEN_MISSING": "Authentifizierung erforderlich",
+    "AUTH_INSUFFICIENT_PERMISSIONS": "Unzureichende Berechtigungen",
+    "AUTH_ACCOUNT_DISABLED": "Konto deaktiviert",
+    "AUTH_EMAIL_NOT_VERIFIED": "E-Mail nicht verifiziert",
+    "AUTH_SESSION_EXPIRED": "Sitzung abgelaufen",
+
+    "USER_NOT_FOUND": "Benutzer nicht gefunden",
+    "USER_EMAIL_EXISTS": "E-Mail-Adresse bereits registriert",
+    "USER_USERNAME_EXISTS": "Benutzername bereits vergeben",
+    "USER_CREATE_FAILED": "Benutzer konnte nicht erstellt werden",
+    "USER_UPDATE_FAILED": "Benutzer konnte nicht aktualisiert werden",
+    "USER_DELETE_FAILED": "Benutzer konnte nicht gelöscht werden",
+
+    "COURSE_NOT_FOUND": "Kurs nicht gefunden",
+    "COURSE_CREATE_FAILED": "Kurs konnte nicht erstellt werden",
+    "COURSE_UPDATE_FAILED": "Kurs konnte nicht aktualisiert werden",
+    "COURSE_DELETE_FAILED": "Kurs konnte nicht gelöscht werden",
+    "COURSE_ACCESS_DENIED": "Kein Zugriff auf diesen Kurs",
+    "COURSE_ALREADY_ENROLLED": "Bereits in diesem Kurs eingeschrieben",
+    "COURSE_NOT_ENROLLED": "Nicht in diesem Kurs eingeschrieben",
+    "COURSE_TITLE_REQUIRED": "Kurstitel erforderlich",
+
+    "CHAPTER_NOT_FOUND": "Kapitel nicht gefunden",
+    "CHAPTER_CREATE_FAILED": "Kapitel konnte nicht erstellt werden",
+    "CHAPTER_UPDATE_FAILED": "Kapitel konnte nicht aktualisiert werden",
+    "CHAPTER_DELETE_FAILED": "Kapitel konnte nicht gelöscht werden",
+    "CHAPTER_TITLE_REQUIRED": "Kapiteltitel erforderlich",
+
+    "LESSON_NOT_FOUND": "Lektion nicht gefunden",
+    "LESSON_CREATE_FAILED": "Lektion konnte nicht erstellt werden",
+    "LESSON_UPDATE_FAILED": "Lektion konnte nicht aktualisiert werden",
+    "LESSON_DELETE_FAILED": "Lektion konnte nicht gelöscht werden",
+
+    "LM_NOT_FOUND": "Lernmethode nicht gefunden",
+    "LM_CREATE_FAILED": "Lernmethode konnte nicht erstellt werden",
+    "LM_UPDATE_FAILED": "Lernmethode konnte nicht aktualisiert werden",
+    "LM_DELETE_FAILED": "Lernmethode konnte nicht gelöscht werden",
+    "LM_INVALID_TYPE": "Ungültiger Lernmethoden-Typ",
+    "LM_GENERATION_FAILED": "Lernmethode konnte nicht generiert werden",
+
+    "AI_GENERATION_FAILED": "KI-Generierung fehlgeschlagen",
+    "AI_PROVIDER_ERROR": "KI-Anbieter nicht verfügbar",
+    "AI_QUOTA_EXCEEDED": "Token-Kontingent erschöpft",
+    "AI_MODEL_NOT_FOUND": "KI-Modell nicht gefunden",
+    "AI_JOB_NOT_FOUND": "KI-Job nicht gefunden",
+    "AI_JOB_FAILED": "KI-Job fehlgeschlagen",
+    "AI_SESSION_NOT_FOUND": "KI-Session nicht gefunden",
+    "AI_SESSION_CREATE_FAILED": "KI-Session konnte nicht erstellt werden",
+
+    "THEORY_NOT_FOUND": "Theorie nicht gefunden",
+    "THEORY_ALREADY_EXISTS": "Theorie existiert bereits",
+    "THEORY_GENERATION_FAILED": "Theorie konnte nicht generiert werden",
+    "THEORY_UPDATE_FAILED": "Theorie konnte nicht aktualisiert werden",
+    "THEORY_DELETE_FAILED": "Theorie konnte nicht gelöscht werden",
+    "THEORY_TITLE_REQUIRED": "Theorietitel erforderlich",
+    "THEORY_NO_AUDIO": "Keine Audiodatei verfügbar",
+
+    "EXAM_NOT_FOUND": "Prüfung nicht gefunden",
+    "EXAM_CREATE_FAILED": "Prüfung konnte nicht erstellt werden",
+    "EXAM_GENERATION_FAILED": "Prüfung konnte nicht generiert werden",
+    "EXAM_SUBMIT_FAILED": "Prüfung konnte nicht eingereicht werden",
+    "EXAM_ALREADY_SUBMITTED": "Prüfung wurde bereits eingereicht",
+
+    "FILE_NOT_FOUND": "Datei nicht gefunden",
+    "FILE_UPLOAD_FAILED": "Datei konnte nicht hochgeladen werden",
+    "FILE_TOO_LARGE": "Datei zu groß",
+    "FILE_INVALID_FORMAT": "Ungültiges Dateiformat",
+    "FILE_NO_FILE_PROVIDED": "Keine Datei ausgewählt",
+    "FILE_INVALID_BASE64": "Ungültige Base64-Daten",
+
+    "AUDIO_NOT_FOUND": "Audiodatei nicht gefunden",
+    "AUDIO_UPLOAD_FAILED": "Audio konnte nicht hochgeladen werden",
+    "AUDIO_NO_FILE_PROVIDED": "Keine Audiodatei ausgewählt",
+    "AUDIO_INVALID_FORMAT": "Ungültiges Audioformat",
+    "AUDIO_TOO_LARGE": "Audiodatei zu groß (max. 25MB)",
+    "AUDIO_TRANSCRIPTION_FAILED": "Transkription fehlgeschlagen",
+
+    "ORG_NOT_FOUND": "Organisation nicht gefunden",
+    "ORG_CREATE_FAILED": "Organisation konnte nicht erstellt werden",
+    "ORG_UPDATE_FAILED": "Organisation konnte nicht aktualisiert werden",
+    "ORG_MEMBER_NOT_FOUND": "Organisationsmitglied nicht gefunden",
+    "ORG_QUOTA_EXCEEDED": "Organisationskontingent erschöpft",
+
+    "CATEGORY_NOT_FOUND": "Kategorie nicht gefunden",
+    "CATEGORY_CREATE_FAILED": "Kategorie konnte nicht erstellt werden",
+    "CATEGORY_DELETE_FAILED": "Kategorie konnte nicht gelöscht werden",
+    "CATEGORY_HAS_COURSES": "Kategorie enthält noch Kurse",
+
+    "VALIDATION_REQUIRED_FIELD": "Pflichtfeld nicht ausgefüllt",
+    "VALIDATION_INVALID_FORMAT": "Ungültiges Format",
+    "VALIDATION_INVALID_VALUE": "Ungültiger Wert",
+    "VALIDATION_REQUEST_BODY_REQUIRED": "Anfragedaten erforderlich",
+
+    "MATH_PATTERN_NOT_FOUND": "Muster nicht gefunden",
+    "MATH_FORMULA_NOT_FOUND": "Formel nicht gefunden",
+    "MATH_SESSION_NOT_FOUND": "Mathe-Session nicht gefunden",
+    "MATH_SESSION_CREATE_FAILED": "Mathe-Session konnte nicht erstellt werden",
+    "MATH_EXPRESSION_REQUIRED": "Ausdruck erforderlich",
+    "MATH_PATTERN_CREATE_FAILED": "Muster konnte nicht erstellt werden",
+    "MATH_FORMULA_CREATE_FAILED": "Formel konnte nicht erstellt werden",
+
+    "FEEDBACK_CREATE_FAILED": "Feedback konnte nicht gesendet werden",
+    "FEEDBACK_INVALID_TYPE": "Ungültiger Feedback-Typ"
+  },
+  "messages": {
+    "SUCCESS": "Erfolgreich",
+    "CREATED": "Erfolgreich erstellt",
+    "UPDATED": "Erfolgreich aktualisiert",
+    "DELETED": "Erfolgreich gelöscht",
+
+    "AUTH_LOGIN_SUCCESS": "Erfolgreich angemeldet",
+    "AUTH_LOGOUT_SUCCESS": "Erfolgreich abgemeldet",
+    "AUTH_PASSWORD_CHANGED": "Passwort geändert",
+    "AUTH_EMAIL_VERIFIED": "E-Mail verifiziert",
+
+    "USER_CREATED": "Benutzer erstellt",
+    "USER_UPDATED": "Benutzer aktualisiert",
+    "USER_DELETED": "Benutzer gelöscht",
+    "USER_PROFILE_UPDATED": "Profil aktualisiert",
+
+    "COURSE_CREATED": "Kurs erstellt",
+    "COURSE_UPDATED": "Kurs aktualisiert",
+    "COURSE_DELETED": "Kurs gelöscht",
+    "COURSE_ENROLLED": "Erfolgreich eingeschrieben",
+    "COURSE_UNENROLLED": "Einschreibung aufgehoben",
+    "COURSE_PUBLISHED": "Kurs veröffentlicht",
+
+    "CHAPTER_CREATED": "Kapitel erstellt",
+    "CHAPTER_UPDATED": "Kapitel aktualisiert",
+    "CHAPTER_DELETED": "Kapitel gelöscht",
+
+    "LESSON_CREATED": "Lektion erstellt",
+    "LESSON_UPDATED": "Lektion aktualisiert",
+    "LESSON_DELETED": "Lektion gelöscht",
+    "LESSON_COMPLETED": "Lektion abgeschlossen",
+
+    "LM_CREATED": "Lernmethode erstellt",
+    "LM_UPDATED": "Lernmethode aktualisiert",
+    "LM_DELETED": "Lernmethode gelöscht",
+    "LM_GENERATED": "Lernmethode generiert",
+
+    "AI_GENERATION_STARTED": "KI-Generierung gestartet",
+    "AI_GENERATION_COMPLETED": "KI-Generierung abgeschlossen",
+    "AI_JOB_STARTED": "KI-Job gestartet",
+    "AI_JOB_COMPLETED": "KI-Job abgeschlossen",
+    "AI_SESSION_CREATED": "KI-Session erstellt",
+
+    "THEORY_CREATED": "Theorie erstellt",
+    "THEORY_UPDATED": "Theorie aktualisiert",
+    "THEORY_DELETED": "Theorie gelöscht",
+    "THEORY_GENERATED": "Theorie generiert",
+
+    "EXAM_CREATED": "Prüfung erstellt",
+    "EXAM_SUBMITTED": "Prüfung eingereicht",
+    "EXAM_GRADED": "Prüfung bewertet",
+
+    "FILE_UPLOADED": "Datei hochgeladen",
+    "FILE_DELETED": "Datei gelöscht",
+
+    "CATEGORY_CREATED": "Kategorie erstellt",
+    "CATEGORY_UPDATED": "Kategorie aktualisiert",
+    "CATEGORY_DELETED": "Kategorie gelöscht",
+
+    "FEEDBACK_SENT": "Feedback gesendet",
+
+    "ORG_CREATED": "Organisation erstellt",
+    "ORG_UPDATED": "Organisation aktualisiert",
+    "ORG_MEMBER_ADDED": "Mitglied hinzugefügt",
+    "ORG_MEMBER_REMOVED": "Mitglied entfernt"
+  }
+}

@@ -14,13 +14,13 @@
               </svg>
             </button>
             <h1 class="text-2xl font-bold text-gray-900">
-              {{ mode === 'create' ? 'Neuer Kurs' : 'Kurs bearbeiten' }}
+              {{ mode === 'create' ? $t('courseEditor.newCourse') : $t('courseEditor.editCourse') }}
             </h1>
             <span
               v-if="editorStore.isDirty"
               class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
             >
-              Nicht gespeichert
+              {{ $t('courseEditor.unsaved') }}
             </span>
           </div>
           <div class="flex items-center space-x-3">
@@ -29,14 +29,14 @@
               :disabled="editorStore.saving"
               class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
             >
-              Verwerfen
+              {{ $t('courseEditor.discard') }}
             </button>
             <button
               @click="handleSave"
               :disabled="editorStore.saving || !editorStore.hasCourse"
               class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
             >
-              {{ editorStore.saving ? 'Speichern...' : 'Speichern' }}
+              {{ editorStore.saving ? $t('courseEditor.saving') : $t('courseEditor.save') }}
             </button>
           </div>
         </div>
@@ -77,11 +77,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useCourseEditorStore } from '@/store/courseEditor.store'
-import CourseMetaForm from '@/components/editor/CourseMetaForm.vue'
-import ModuleLessonTree from '@/components/editor/ChapterLessonTree.vue'
-import LessonContentEditor from '@/components/editor/LessonContentEditor.vue'
+
+const { t } = useI18n()
+import CourseMetaForm from '@/components/admin/content-management/editor/CourseMetaForm.vue'
+import ModuleLessonTree from '@/components/admin/content-management/editor/ChapterLessonTree.vue'
+import LessonContentEditor from '@/components/admin/content-management/editor/LessonContentEditor.vue'
 
 const props = defineProps<{
   courseId?: number
@@ -105,7 +108,7 @@ onBeforeUnmount(() => {
 
 onBeforeRouteLeave((_to, _from, next) => {
   if (editorStore.isDirty) {
-    const answer = window.confirm('Es gibt ungespeicherte Änderungen. Seite wirklich verlassen?')
+    const answer = window.confirm(t('courseEditor.confirmLeave'))
     if (!answer) {
       next(false)
       return
@@ -119,14 +122,14 @@ const handleSave = async () => {
 }
 
 const handleDiscard = async () => {
-  if (confirm('Alle Änderungen verwerfen?')) {
+  if (confirm(t('courseEditor.confirmDiscard'))) {
     await editorStore.discardChanges()
   }
 }
 
 const handleCancel = () => {
   if (editorStore.isDirty) {
-    if (!confirm('Es gibt ungespeicherte Änderungen. Wirklich abbrechen?')) {
+    if (!confirm(t('courseEditor.confirmCancel'))) {
       return
     }
   }

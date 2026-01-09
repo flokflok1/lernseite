@@ -14,7 +14,7 @@
 -- 1. i18n_namespaces - Gruppierung der Übersetzungen
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_namespaces (
+CREATE TABLE IF NOT EXISTS translations.i18n_namespaces (
     namespace_id SERIAL PRIMARY KEY,
     namespace_code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
@@ -26,17 +26,17 @@ CREATE TABLE IF NOT EXISTS i18n_namespaces (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_i18n_namespaces_code ON i18n_namespaces(namespace_code);
-CREATE INDEX IF NOT EXISTS idx_i18n_namespaces_active ON i18n_namespaces(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_i18n_namespaces_code ON translations.i18n_namespaces (namespace_code);
+CREATE INDEX IF NOT EXISTS idx_i18n_namespaces_active ON translations.i18n_namespaces (is_active) WHERE is_active = TRUE;
 
-COMMENT ON TABLE i18n_namespaces IS
+COMMENT ON TABLE translations.i18n_namespaces IS
 'Namespaces für i18n-Keys (common, auth, dashboard, admin, courses, errors, emails, etc.)';
 
 -- ============================================================================
 -- 1b. Standard Namespaces
 -- ============================================================================
 
-INSERT INTO i18n_namespaces (namespace_code, name, description, icon, sort_order)
+INSERT INTO translations.i18n_namespaces (namespace_code, name, description, icon, sort_order)
 VALUES
     ('common', 'Allgemein', 'Allgemeine UI-Elemente (Buttons, Labels, etc.)', '🔤', 10),
     ('auth', 'Authentifizierung', 'Login, Registrierung, Passwort-Reset', '🔐', 20),
@@ -66,9 +66,9 @@ ON CONFLICT (namespace_code) DO UPDATE SET
 -- 2. i18n_keys - Übersetzungs-Schlüssel
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_keys (
+CREATE TABLE IF NOT EXISTS translations.i18n_keys (
     key_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    namespace_id INTEGER NOT NULL REFERENCES i18n_namespaces(namespace_id) ON DELETE CASCADE,
+    namespace_id INTEGER NOT NULL REFERENCES translations.i18n_namespaces(namespace_id) ON DELETE CASCADE,
 
     -- Key-Pfad (z.B. "button.save", "error.required")
     key_path VARCHAR(255) NOT NULL,
@@ -92,26 +92,26 @@ CREATE TABLE IF NOT EXISTS i18n_keys (
     -- Meta
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by UUID REFERENCES users(user_id),
+    created_by UUID REFERENCES core.users(user_id),
 
     UNIQUE (namespace_id, key_path)
 );
 
-CREATE INDEX IF NOT EXISTS idx_i18n_keys_namespace ON i18n_keys(namespace_id);
-CREATE INDEX IF NOT EXISTS idx_i18n_keys_path ON i18n_keys(key_path);
-CREATE INDEX IF NOT EXISTS idx_i18n_keys_plural ON i18n_keys(is_plural) WHERE is_plural = TRUE;
+CREATE INDEX IF NOT EXISTS idx_i18n_keys_namespace ON translations.i18n_keys (namespace_id);
+CREATE INDEX IF NOT EXISTS idx_i18n_keys_path ON translations.i18n_keys (key_path);
+CREATE INDEX IF NOT EXISTS idx_i18n_keys_plural ON translations.i18n_keys (is_plural) WHERE is_plural = TRUE;
 
-COMMENT ON TABLE i18n_keys IS
+COMMENT ON TABLE translations.i18n_keys IS
 'Alle übersetzbaren Text-Schlüssel mit Kontext für Übersetzer';
 
 -- ============================================================================
 -- 3. i18n_translations - Die eigentlichen Übersetzungen
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_translations (
+CREATE TABLE IF NOT EXISTS translations.i18n_translations (
     translation_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    key_id UUID NOT NULL REFERENCES i18n_keys(key_id) ON DELETE CASCADE,
-    language_code VARCHAR(10) NOT NULL REFERENCES supported_languages(language_code),
+    key_id UUID NOT NULL REFERENCES translations.i18n_keys(key_id) ON DELETE CASCADE,
+    language_code VARCHAR(10) NOT NULL REFERENCES translations.supported_languages(language_code),
 
     -- Übersetzter Text
     value TEXT NOT NULL,
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS i18n_translations (
 
     -- Qualitätssicherung
     is_verified BOOLEAN DEFAULT FALSE,
-    verified_by UUID REFERENCES users(user_id),
+    verified_by UUID REFERENCES core.users(user_id),
     verified_at TIMESTAMPTZ,
 
     -- Wenn maschinell übersetzt: Confidence
@@ -140,32 +140,32 @@ CREATE TABLE IF NOT EXISTS i18n_translations (
     -- Meta
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by UUID REFERENCES users(user_id),
+    created_by UUID REFERENCES core.users(user_id),
 
     UNIQUE (key_id, language_code),
     CONSTRAINT chk_translation_status CHECK (status IN ('draft', 'active', 'needs_review', 'outdated')),
     CONSTRAINT chk_translation_source CHECK (source IN ('manual', 'deepl', 'google', 'community', 'ai', 'import'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_i18n_translations_key ON i18n_translations(key_id);
-CREATE INDEX IF NOT EXISTS idx_i18n_translations_lang ON i18n_translations(language_code);
-CREATE INDEX IF NOT EXISTS idx_i18n_translations_status ON i18n_translations(status);
-CREATE INDEX IF NOT EXISTS idx_i18n_translations_unverified ON i18n_translations(is_verified) WHERE is_verified = FALSE;
+CREATE INDEX IF NOT EXISTS idx_i18n_translations_key ON translations.i18n_translations (key_id);
+CREATE INDEX IF NOT EXISTS idx_i18n_translations_lang ON translations.i18n_translations (language_code);
+CREATE INDEX IF NOT EXISTS idx_i18n_translations_status ON translations.i18n_translations (status);
+CREATE INDEX IF NOT EXISTS idx_i18n_translations_unverified ON translations.i18n_translations (is_verified) WHERE is_verified = FALSE;
 
-COMMENT ON TABLE i18n_translations IS
+COMMENT ON TABLE translations.i18n_translations IS
 'Übersetzungen für alle Keys in allen Sprachen';
 
 -- ============================================================================
 -- 4. i18n_suggestions - Community-Übersetzungsvorschläge
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_suggestions (
+CREATE TABLE IF NOT EXISTS translations.i18n_suggestions (
     suggestion_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    translation_id UUID REFERENCES i18n_translations(translation_id) ON DELETE CASCADE,
+    translation_id UUID REFERENCES translations.i18n_translations(translation_id) ON DELETE CASCADE,
 
     -- Alternativ: Direkter Bezug auf Key (wenn noch keine Übersetzung existiert)
-    key_id UUID REFERENCES i18n_keys(key_id) ON DELETE CASCADE,
-    language_code VARCHAR(10) NOT NULL REFERENCES supported_languages(language_code),
+    key_id UUID REFERENCES translations.i18n_keys(key_id) ON DELETE CASCADE,
+    language_code VARCHAR(10) NOT NULL REFERENCES translations.supported_languages(language_code),
 
     -- Vorgeschlagener Text
     suggested_value TEXT NOT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS i18n_suggestions (
     reason TEXT,
 
     -- Wer hat vorgeschlagen
-    suggested_by UUID NOT NULL REFERENCES users(user_id),
+    suggested_by UUID NOT NULL REFERENCES core.users(user_id),
     suggested_at TIMESTAMPTZ DEFAULT NOW(),
 
     -- Community-Voting
@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS i18n_suggestions (
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
 
     -- Review
-    reviewed_by UUID REFERENCES users(user_id),
+    reviewed_by UUID REFERENCES core.users(user_id),
     reviewed_at TIMESTAMPTZ,
     review_comment TEXT,
 
@@ -197,23 +197,23 @@ CREATE TABLE IF NOT EXISTS i18n_suggestions (
     CONSTRAINT chk_suggestion_ref CHECK (translation_id IS NOT NULL OR key_id IS NOT NULL)
 );
 
-CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_translation ON i18n_suggestions(translation_id);
-CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_key ON i18n_suggestions(key_id);
-CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_status ON i18n_suggestions(status);
-CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_score ON i18n_suggestions(vote_score DESC);
-CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_user ON i18n_suggestions(suggested_by);
+CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_translation ON translations.i18n_suggestions (translation_id);
+CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_key ON translations.i18n_suggestions (key_id);
+CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_status ON translations.i18n_suggestions (status);
+CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_score ON translations.i18n_suggestions (vote_score DESC);
+CREATE INDEX IF NOT EXISTS idx_i18n_suggestions_user ON translations.i18n_suggestions (suggested_by);
 
-COMMENT ON TABLE i18n_suggestions IS
+COMMENT ON TABLE translations.i18n_suggestions IS
 'Community-Übersetzungsvorschläge mit Voting-System';
 
 -- ============================================================================
 -- 5. i18n_suggestion_votes - Votes für Vorschläge
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_suggestion_votes (
+CREATE TABLE IF NOT EXISTS translations.i18n_suggestion_votes (
     vote_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    suggestion_id UUID NOT NULL REFERENCES i18n_suggestions(suggestion_id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    suggestion_id UUID NOT NULL REFERENCES translations.i18n_suggestions(suggestion_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
     vote_type VARCHAR(10) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
 
@@ -221,26 +221,26 @@ CREATE TABLE IF NOT EXISTS i18n_suggestion_votes (
     CONSTRAINT chk_vote_type CHECK (vote_type IN ('up', 'down'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_i18n_votes_suggestion ON i18n_suggestion_votes(suggestion_id);
-CREATE INDEX IF NOT EXISTS idx_i18n_votes_user ON i18n_suggestion_votes(user_id);
+CREATE INDEX IF NOT EXISTS idx_i18n_votes_suggestion ON translations.i18n_suggestion_votes (suggestion_id);
+CREATE INDEX IF NOT EXISTS idx_i18n_votes_user ON translations.i18n_suggestion_votes (user_id);
 
 -- ============================================================================
 -- 6. i18n_translation_requests - On-Demand Übersetzungs-Anfragen
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_translation_requests (
+CREATE TABLE IF NOT EXISTS translations.i18n_translation_requests (
     request_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
     -- Was soll übersetzt werden
-    target_language VARCHAR(10) NOT NULL REFERENCES supported_languages(language_code),
+    target_language VARCHAR(10) NOT NULL REFERENCES translations.supported_languages(language_code),
 
     -- Scope: 'full' (alle Keys), 'namespace' (ein Namespace), 'key' (einzelner Key)
     scope VARCHAR(20) NOT NULL DEFAULT 'full',
-    namespace_id INTEGER REFERENCES i18n_namespaces(namespace_id),
-    key_id UUID REFERENCES i18n_keys(key_id),
+    namespace_id INTEGER REFERENCES translations.i18n_namespaces(namespace_id),
+    key_id UUID REFERENCES translations.i18n_keys(key_id),
 
     -- Wer hat angefragt
-    requested_by UUID REFERENCES users(user_id),
+    requested_by UUID REFERENCES core.users(user_id),
     requested_at TIMESTAMPTZ DEFAULT NOW(),
 
     -- Priorität (mehr Anfragen = höher)
@@ -263,11 +263,11 @@ CREATE TABLE IF NOT EXISTS i18n_translation_requests (
     CONSTRAINT chk_request_scope CHECK (scope IN ('full', 'namespace', 'key'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_i18n_requests_lang ON i18n_translation_requests(target_language);
-CREATE INDEX IF NOT EXISTS idx_i18n_requests_status ON i18n_translation_requests(status);
-CREATE INDEX IF NOT EXISTS idx_i18n_requests_priority ON i18n_translation_requests(priority DESC);
+CREATE INDEX IF NOT EXISTS idx_i18n_requests_lang ON translations.i18n_translation_requests (target_language);
+CREATE INDEX IF NOT EXISTS idx_i18n_requests_status ON translations.i18n_translation_requests (status);
+CREATE INDEX IF NOT EXISTS idx_i18n_requests_priority ON translations.i18n_translation_requests (priority DESC);
 
-COMMENT ON TABLE i18n_translation_requests IS
+COMMENT ON TABLE translations.i18n_translation_requests IS
 'On-Demand Übersetzungs-Anfragen für neue Sprachen';
 
 -- ============================================================================
@@ -275,7 +275,7 @@ COMMENT ON TABLE i18n_translation_requests IS
 -- ============================================================================
 
 -- Neue Spalten hinzufügen
-ALTER TABLE supported_languages
+ALTER TABLE translations.supported_languages
     ADD COLUMN IF NOT EXISTS is_primary BOOLEAN DEFAULT FALSE,
     ADD COLUMN IF NOT EXISTS priority INTEGER DEFAULT 100,
     ADD COLUMN IF NOT EXISTS fallback_language VARCHAR(10),
@@ -291,7 +291,7 @@ ALTER TABLE supported_languages
 -- 8. Primär-Sprachen setzen: DE → PL → EN
 -- ============================================================================
 
-UPDATE supported_languages SET
+UPDATE translations.supported_languages SET
     is_primary = TRUE,
     priority = 1,
     fallback_language = NULL,
@@ -300,7 +300,7 @@ UPDATE supported_languages SET
     updated_at = NOW()
 WHERE language_code = 'de';
 
-UPDATE supported_languages SET
+UPDATE translations.supported_languages SET
     is_primary = TRUE,
     priority = 2,
     fallback_language = 'de',
@@ -309,7 +309,7 @@ UPDATE supported_languages SET
     updated_at = NOW()
 WHERE language_code = 'pl';
 
-UPDATE supported_languages SET
+UPDATE translations.supported_languages SET
     is_primary = TRUE,
     priority = 3,
     fallback_language = 'de',
@@ -319,7 +319,7 @@ UPDATE supported_languages SET
 WHERE language_code = 'en';
 
 -- Alle anderen Sprachen: Fallback auf DE, On-Demand
-UPDATE supported_languages SET
+UPDATE translations.supported_languages SET
     is_primary = FALSE,
     fallback_language = 'de',
     auto_translate = TRUE,
@@ -350,10 +350,10 @@ SELECT
     END AS completion_percent,
     COUNT(DISTINCT CASE WHEN it.is_verified THEN it.key_id END) AS verified_keys,
     COUNT(DISTINCT isug.suggestion_id) FILTER (WHERE isug.status = 'pending') AS pending_suggestions
-FROM supported_languages sl
-CROSS JOIN i18n_keys ik
-LEFT JOIN i18n_translations it ON ik.key_id = it.key_id AND sl.language_code = it.language_code
-LEFT JOIN i18n_suggestions isug ON it.translation_id = isug.translation_id
+FROM translations.supported_languages sl
+CROSS JOIN translations.i18n_keys ik
+LEFT JOIN translations.i18n_translations it ON ik.key_id = it.key_id AND sl.language_code = it.language_code
+LEFT JOIN translations.i18n_suggestions isug ON it.translation_id = isug.translation_id
 GROUP BY sl.language_code, sl.language_name, sl.native_name, sl.flag_emoji,
          sl.is_primary, sl.priority, sl.fallback_language, sl.active
 ORDER BY sl.priority, sl.language_name;
@@ -374,11 +374,11 @@ SELECT
     ik.key_path,
     ik.context,
     de_trans.value AS german_value
-FROM supported_languages sl
-CROSS JOIN i18n_keys ik
-JOIN i18n_namespaces ns ON ik.namespace_id = ns.namespace_id
-LEFT JOIN i18n_translations it ON ik.key_id = it.key_id AND sl.language_code = it.language_code
-LEFT JOIN i18n_translations de_trans ON ik.key_id = de_trans.key_id AND de_trans.language_code = 'de'
+FROM translations.supported_languages sl
+CROSS JOIN translations.i18n_keys ik
+JOIN translations.i18n_namespaces ns ON ik.namespace_id = ns.namespace_id
+LEFT JOIN translations.i18n_translations it ON ik.key_id = it.key_id AND sl.language_code = it.language_code
+LEFT JOIN translations.i18n_translations de_trans ON ik.key_id = de_trans.key_id AND de_trans.language_code = 'de'
 WHERE sl.active = TRUE
   AND it.translation_id IS NULL
 ORDER BY sl.priority, ns.sort_order, ik.key_path;
@@ -401,7 +401,7 @@ DECLARE
 BEGIN
     -- Fallback-Sprache ermitteln
     SELECT fallback_language INTO v_fallback
-    FROM supported_languages
+    FROM translations.supported_languages
     WHERE language_code = p_language_code;
 
     -- Translations sammeln (mit Fallback)
@@ -409,10 +409,10 @@ BEGIN
         ns.namespace_code || '.' || ik.key_path,
         COALESCE(it.value, fb.value, ik.key_path)
     ) INTO v_result
-    FROM i18n_keys ik
-    JOIN i18n_namespaces ns ON ik.namespace_id = ns.namespace_id
-    LEFT JOIN i18n_translations it ON ik.key_id = it.key_id AND it.language_code = p_language_code
-    LEFT JOIN i18n_translations fb ON ik.key_id = fb.key_id AND fb.language_code = v_fallback
+    FROM translations.i18n_keys ik
+    JOIN translations.i18n_namespaces ns ON ik.namespace_id = ns.namespace_id
+    LEFT JOIN translations.i18n_translations it ON ik.key_id = it.key_id AND it.language_code = p_language_code
+    LEFT JOIN translations.i18n_translations fb ON ik.key_id = fb.key_id AND fb.language_code = v_fallback
     WHERE (p_namespace_code IS NULL OR ns.namespace_code = p_namespace_code)
       AND ns.is_active = TRUE;
 
@@ -432,27 +432,27 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         IF NEW.vote_type = 'up' THEN
-            UPDATE i18n_suggestions SET votes_up = votes_up + 1 WHERE suggestion_id = NEW.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_up = votes_up + 1 WHERE suggestion_id = NEW.suggestion_id;
         ELSE
-            UPDATE i18n_suggestions SET votes_down = votes_down + 1 WHERE suggestion_id = NEW.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_down = votes_down + 1 WHERE suggestion_id = NEW.suggestion_id;
         END IF;
     ELSIF TG_OP = 'DELETE' THEN
         IF OLD.vote_type = 'up' THEN
-            UPDATE i18n_suggestions SET votes_up = votes_up - 1 WHERE suggestion_id = OLD.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_up = votes_up - 1 WHERE suggestion_id = OLD.suggestion_id;
         ELSE
-            UPDATE i18n_suggestions SET votes_down = votes_down - 1 WHERE suggestion_id = OLD.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_down = votes_down - 1 WHERE suggestion_id = OLD.suggestion_id;
         END IF;
     ELSIF TG_OP = 'UPDATE' THEN
         -- Vote geändert
         IF OLD.vote_type = 'up' THEN
-            UPDATE i18n_suggestions SET votes_up = votes_up - 1 WHERE suggestion_id = OLD.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_up = votes_up - 1 WHERE suggestion_id = OLD.suggestion_id;
         ELSE
-            UPDATE i18n_suggestions SET votes_down = votes_down - 1 WHERE suggestion_id = OLD.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_down = votes_down - 1 WHERE suggestion_id = OLD.suggestion_id;
         END IF;
         IF NEW.vote_type = 'up' THEN
-            UPDATE i18n_suggestions SET votes_up = votes_up + 1 WHERE suggestion_id = NEW.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_up = votes_up + 1 WHERE suggestion_id = NEW.suggestion_id;
         ELSE
-            UPDATE i18n_suggestions SET votes_down = votes_down + 1 WHERE suggestion_id = NEW.suggestion_id;
+            UPDATE translations.i18n_suggestions SET votes_down = votes_down + 1 WHERE suggestion_id = NEW.suggestion_id;
         END IF;
     END IF;
     RETURN NULL;
@@ -460,32 +460,32 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_suggestion_votes
-    AFTER INSERT OR UPDATE OR DELETE ON i18n_suggestion_votes
+    AFTER INSERT OR UPDATE OR DELETE ON translations.i18n_suggestion_votes
     FOR EACH ROW EXECUTE FUNCTION update_suggestion_vote_counts();
 
 -- ============================================================================
 -- 13. Trigger: updated_at
 -- ============================================================================
 
-CREATE TRIGGER update_i18n_namespaces_updated_at BEFORE UPDATE ON i18n_namespaces
+CREATE TRIGGER update_i18n_namespaces_updated_at BEFORE UPDATE ON translations.i18n_namespaces
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_i18n_keys_updated_at BEFORE UPDATE ON i18n_keys
+CREATE TRIGGER update_i18n_keys_updated_at BEFORE UPDATE ON translations.i18n_keys
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_i18n_translations_updated_at BEFORE UPDATE ON i18n_translations
+CREATE TRIGGER update_i18n_translations_updated_at BEFORE UPDATE ON translations.i18n_translations
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
 -- 14. i18n_ai_reviews - KI-Moderation für Übersetzungen
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_ai_reviews (
+CREATE TABLE IF NOT EXISTS translations.i18n_ai_reviews (
     review_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
     -- Was wurde geprüft
-    translation_id UUID REFERENCES i18n_translations(translation_id) ON DELETE CASCADE,
-    suggestion_id UUID REFERENCES i18n_suggestions(suggestion_id) ON DELETE CASCADE,
+    translation_id UUID REFERENCES translations.i18n_translations(translation_id) ON DELETE CASCADE,
+    suggestion_id UUID REFERENCES translations.i18n_suggestions(suggestion_id) ON DELETE CASCADE,
 
     -- KI-Modell das geprüft hat
     ai_model VARCHAR(100) NOT NULL,  -- 'gpt-5.2', 'claude-opus-4', etc.
@@ -519,25 +519,25 @@ CREATE TABLE IF NOT EXISTS i18n_ai_reviews (
     CONSTRAINT chk_review_ref CHECK (translation_id IS NOT NULL OR suggestion_id IS NOT NULL)
 );
 
-CREATE INDEX IF NOT EXISTS idx_ai_reviews_translation ON i18n_ai_reviews(translation_id);
-CREATE INDEX IF NOT EXISTS idx_ai_reviews_suggestion ON i18n_ai_reviews(suggestion_id);
-CREATE INDEX IF NOT EXISTS idx_ai_reviews_recommendation ON i18n_ai_reviews(recommendation);
-CREATE INDEX IF NOT EXISTS idx_ai_reviews_model ON i18n_ai_reviews(ai_model);
+CREATE INDEX IF NOT EXISTS idx_ai_reviews_translation ON translations.i18n_ai_reviews (translation_id);
+CREATE INDEX IF NOT EXISTS idx_ai_reviews_suggestion ON translations.i18n_ai_reviews (suggestion_id);
+CREATE INDEX IF NOT EXISTS idx_ai_reviews_recommendation ON translations.i18n_ai_reviews (recommendation);
+CREATE INDEX IF NOT EXISTS idx_ai_reviews_model ON translations.i18n_ai_reviews (ai_model);
 
-COMMENT ON TABLE i18n_ai_reviews IS
+COMMENT ON TABLE translations.i18n_ai_reviews IS
 'KI-Moderation für Übersetzungen und Community-Vorschläge';
 
 -- ============================================================================
 -- 15. i18n_moderation_queue - Moderations-Warteschlange
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_moderation_queue (
+CREATE TABLE IF NOT EXISTS translations.i18n_moderation_queue (
     queue_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
     -- Was soll moderiert werden
     item_type VARCHAR(20) NOT NULL, -- 'translation', 'suggestion'
-    translation_id UUID REFERENCES i18n_translations(translation_id) ON DELETE CASCADE,
-    suggestion_id UUID REFERENCES i18n_suggestions(suggestion_id) ON DELETE CASCADE,
+    translation_id UUID REFERENCES translations.i18n_translations(translation_id) ON DELETE CASCADE,
+    suggestion_id UUID REFERENCES translations.i18n_suggestions(suggestion_id) ON DELETE CASCADE,
 
     -- Priorität (höher = dringender)
     priority INTEGER DEFAULT 0,
@@ -549,10 +549,10 @@ CREATE TABLE IF NOT EXISTS i18n_moderation_queue (
     moderation_type VARCHAR(20), -- 'ai', 'human', 'ai_then_human'
 
     -- KI-Review (falls vorhanden)
-    ai_review_id UUID REFERENCES i18n_ai_reviews(review_id),
+    ai_review_id UUID REFERENCES translations.i18n_ai_reviews(review_id),
 
     -- Human-Review (falls nötig)
-    assigned_to UUID REFERENCES users(user_id),
+    assigned_to UUID REFERENCES core.users(user_id),
     human_decision VARCHAR(20),
     human_comment TEXT,
 
@@ -567,28 +567,28 @@ CREATE TABLE IF NOT EXISTS i18n_moderation_queue (
     CONSTRAINT chk_moderation_type CHECK (moderation_type IN ('ai', 'human', 'ai_then_human'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_moderation_queue_status ON i18n_moderation_queue(status);
-CREATE INDEX IF NOT EXISTS idx_moderation_queue_priority ON i18n_moderation_queue(priority DESC, created_at);
-CREATE INDEX IF NOT EXISTS idx_moderation_queue_assigned ON i18n_moderation_queue(assigned_to) WHERE assigned_to IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_moderation_queue_status ON translations.i18n_moderation_queue (status);
+CREATE INDEX IF NOT EXISTS idx_moderation_queue_priority ON translations.i18n_moderation_queue (priority DESC, created_at);
+CREATE INDEX IF NOT EXISTS idx_moderation_queue_assigned ON translations.i18n_moderation_queue (assigned_to) WHERE assigned_to IS NOT NULL;
 
-COMMENT ON TABLE i18n_moderation_queue IS
+COMMENT ON TABLE translations.i18n_moderation_queue IS
 'Warteschlange für KI- und Human-Moderation von Übersetzungen';
 
 -- ============================================================================
 -- 16. i18n_ai_config - KI-Konfiguration für Moderation
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS i18n_ai_config (
+CREATE TABLE IF NOT EXISTS translations.i18n_ai_config (
     config_id SERIAL PRIMARY KEY,
     config_key VARCHAR(100) NOT NULL UNIQUE,
     config_value JSONB NOT NULL,
     description TEXT,
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_by UUID REFERENCES users(user_id)
+    updated_by UUID REFERENCES core.users(user_id)
 );
 
 -- Standard-Konfiguration
-INSERT INTO i18n_ai_config (config_key, config_value, description) VALUES
+INSERT INTO translations.i18n_ai_config (config_key, config_value, description) VALUES
     ('moderation_model', '"gpt-4o"', 'Standard-Modell für Moderation'),
     ('auto_approve_threshold', '0.95', 'Ab diesem Score automatisch genehmigen'),
     ('auto_reject_threshold', '0.3', 'Unter diesem Score automatisch ablehnen'),
@@ -609,7 +609,7 @@ ON CONFLICT (config_key) DO UPDATE SET
     config_value = EXCLUDED.config_value,
     updated_at = NOW();
 
-COMMENT ON TABLE i18n_ai_config IS
+COMMENT ON TABLE translations.i18n_ai_config IS
 'Konfiguration für KI-gestützte Übersetzungsmoderation';
 
 -- ============================================================================
@@ -627,11 +627,11 @@ SELECT
     COUNT(DISTINCT isug.suggestion_id) FILTER (WHERE isug.status = 'pending') AS pending_suggestions,
     COUNT(DISTINCT ar.review_id) FILTER (WHERE ar.reviewed_at > NOW() - INTERVAL '24 hours') AS ai_reviews_24h,
     AVG(ar.quality_score) FILTER (WHERE ar.reviewed_at > NOW() - INTERVAL '7 days') AS avg_quality_7d
-FROM supported_languages sl
-LEFT JOIN i18n_translations it ON sl.language_code = it.language_code
-LEFT JOIN i18n_moderation_queue mq ON it.translation_id = mq.translation_id
-LEFT JOIN i18n_suggestions isug ON it.translation_id = isug.translation_id
-LEFT JOIN i18n_ai_reviews ar ON it.translation_id = ar.translation_id
+FROM translations.supported_languages sl
+LEFT JOIN translations.i18n_translations it ON sl.language_code = it.language_code
+LEFT JOIN translations.i18n_moderation_queue mq ON it.translation_id = mq.translation_id
+LEFT JOIN translations.i18n_suggestions isug ON it.translation_id = isug.translation_id
+LEFT JOIN translations.i18n_ai_reviews ar ON it.translation_id = ar.translation_id
 WHERE sl.active = TRUE
 GROUP BY sl.language_code, sl.language_name, sl.flag_emoji
 ORDER BY pending_count DESC;

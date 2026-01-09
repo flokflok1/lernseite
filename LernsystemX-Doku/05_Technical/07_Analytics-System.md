@@ -213,7 +213,7 @@ rectangle "LSX Datenquellen" {
 Analytics erhält Daten aus:
 
 - **Kursaktivität** – Modul gestartet, abgeschlossen, Lernzeit
-- **Lernmethoden-Nutzung** – 19 Content-Lernmethoden (A-C), Fehlerquoten
+- **Lernmethoden-Nutzung** – 12 Content-Lernmethoden (A-C), Fehlerquoten
 - **Prüfungen & Simulationen** – Ergebnisse, Scores, Zeitaufwand
 - **PDFs / KI-generierten Inhalten** – Downloads, Nutzung
 - **LiveRooms** – Teilnahme, Dauer, Chat, Whiteboard

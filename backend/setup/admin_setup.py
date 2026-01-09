@@ -14,7 +14,7 @@ import re
 import secrets
 from typing import Dict, Tuple, List, Optional
 
-from app.repositories.user_repository import UserRepository
+from app.repositories.user import UserRepository
 from app.database.connection import execute_query, fetch_one
 
 
@@ -166,7 +166,7 @@ class AdminSetup:
         if organisation_id is None:
             # Get LSX Academy organisation
             org = fetch_one(
-                "SELECT organization_id FROM organizations WHERE name = %s",
+                "SELECT organization_id FROM organisations.organisations WHERE name = %s",
                 ('LSX Academy',)
             )
             organisation_id = org['organization_id'] if org else None
@@ -264,7 +264,7 @@ class AdminSetup:
 
             execute_query(
                 """
-                INSERT INTO recovery_codes (user_id, code_hash, used, created_at)
+                INSERT INTO core.two_factor_backups (user_id, code_hash, used, created_at)
                 VALUES (%s, %s, false, NOW())
                 ON CONFLICT DO NOTHING
                 """,

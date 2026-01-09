@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import LanguageSelector from '@/components/ui/LanguageSelector.vue'
+import { LanguageSelector } from '@/components/core/i18n'
 
 const currentYear = computed(() => new Date().getFullYear())
 

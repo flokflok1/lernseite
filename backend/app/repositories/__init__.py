@@ -8,7 +8,7 @@ ISO 9001:2015 compliant - Data access standardization
 """
 
 from app.repositories.base_repository import BaseRepository
-from app.repositories.user_repository import UserRepository
+from app.repositories.user import UserRepository
 
 __all__ = [
     'BaseRepository',

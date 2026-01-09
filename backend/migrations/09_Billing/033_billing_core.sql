@@ -1,19 +1,15 @@
 -- ============================================================================
 -- Migration: 033_billing_core.sql
--- Description: Core billing and payment tables
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: subscriptions
--- Description: User and organization subscriptions
--- ============================================================================
-CREATE TABLE IF NOT EXISTS subscriptions (
+CREATE TABLE IF NOT EXISTS billing_storage.subscriptions (
     subscription_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
+    organization_id UUID REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE,
     plan_type VARCHAR(50) NOT NULL,
     status VARCHAR(50) NOT NULL,
     billing_cycle VARCHAR(20) NOT NULL,
@@ -39,23 +35,23 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     )
 );
 
-CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id);
-CREATE INDEX IF NOT EXISTS idx_subscriptions_org ON subscriptions(organization_id);
-CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
-CREATE INDEX IF NOT EXISTS idx_subscriptions_plan ON subscriptions(plan_type);
-CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_sub ON subscriptions(stripe_subscription_id);
-CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_customer ON subscriptions(stripe_customer_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON billing_storage.subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_org ON billing_storage.subscriptions(organization_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON billing_storage.subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_plan ON billing_storage.subscriptions(plan_type);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_sub ON billing_storage.subscriptions(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_customer ON billing_storage.subscriptions(stripe_customer_id);
 
-COMMENT ON TABLE subscriptions IS 'User and organization subscription plans';
+COMMENT ON TABLE billing_storage.subscriptions IS 'User and organization subscription plans';
 
 -- ============================================================================
 -- TABLE: payment_methods
 -- Description: Saved payment methods
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS payment_methods (
+CREATE TABLE IF NOT EXISTS billing_storage.payment_methods (
     payment_method_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
+    organization_id UUID REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE,
     stripe_payment_method_id VARCHAR(255) NOT NULL,
     payment_type VARCHAR(50) NOT NULL,
     card_brand VARCHAR(50),
@@ -71,16 +67,17 @@ CREATE TABLE IF NOT EXISTS payment_methods (
     )
 );
 
-CREATE INDEX IF NOT EXISTS idx_payment_methods_user ON payment_methods(user_id);
-CREATE INDEX IF NOT EXISTS idx_payment_methods_org ON payment_methods(organization_id);
-CREATE INDEX IF NOT EXISTS idx_payment_methods_stripe ON payment_methods(stripe_payment_method_id);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_user ON billing_storage.payment_methods(user_id);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_org ON billing_storage.payment_methods(organization_id);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_stripe ON billing_storage.payment_methods(stripe_payment_method_id);
 
-COMMENT ON TABLE payment_methods IS 'Saved payment methods for users and organizations';
+COMMENT ON TABLE billing_storage.payment_methods IS 'Saved payment methods for users and organizations';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_subscriptions_updated_at BEFORE UPDATE ON subscriptions
+DROP TRIGGER IF EXISTS update_subscriptions_updated_at ON billing_storage.subscriptions;
+CREATE TRIGGER update_subscriptions_updated_at BEFORE UPDATE ON billing_storage.subscriptions
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

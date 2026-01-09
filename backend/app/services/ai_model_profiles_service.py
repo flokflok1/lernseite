@@ -12,8 +12,8 @@ ISO 9001:2015 compliant - Service layer
 
 from typing import Dict, Optional, List, Any
 
-from app.repositories.ai_model_profiles_repository import AiModelProfilesRepository
-from app.repositories.ai_models_repository import AIModelsRepository
+from app.repositories.ai.profiles import AiModelProfilesRepository
+from app.repositories.ai_models import AIModelsRepository
 
 
 class AiModelProfilesService:

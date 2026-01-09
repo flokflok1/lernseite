@@ -180,6 +180,11 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminRoles',
         component: () => import('@/pages/admin/AdminRolesPage.vue'),
       },
+      {
+        path: 'system-settings',
+        name: 'AdminSystemSettings',
+        component: () => import('@/pages/admin/AdminSystemSettingsPage.vue'),
+      },
     ],
   },
 

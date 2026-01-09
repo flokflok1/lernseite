@@ -22,8 +22,8 @@ try:
 except ImportError:
     DOCX_AVAILABLE = False
 
-from app.services.pdf_service import PDFService, PDFExtractionError
-from app.repositories.course_file_repository import CourseFileRepository
+from app.services.pdf import PDFService, PDFExtractionError
+from app.repositories.courses.files import CourseFileRepository
 
 logger = logging.getLogger(__name__)
 

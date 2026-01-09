@@ -10,7 +10,7 @@ Provides text-to-speech functionality with:
 import re
 import hashlib
 from typing import Optional, Dict, Any, List, Tuple
-from app.repositories.tts_repository import TTSRepository
+from app.repositories.tts.core import TTSRepository
 from app.services.ai_adapter import AIAdapter
 import logging
 

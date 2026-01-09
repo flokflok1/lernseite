@@ -305,7 +305,7 @@ stop
 start
 :Durchsuchen Community;
 :Alle Kurse sehen;
-:Alle 19 Content-LMs konsumieren (A-C);
+:Alle 12 Content-LMs konsumieren (A-C);
 :Community-Kurse veröffentlichen (kostenlos);
 :Private Gruppen erstellen;
 note right
@@ -490,7 +490,7 @@ deactivate UI
 | **Preis** | Kostenlos, Bezahlt (€0-€500) | Alle |
 | **Sprache** | DE, EN, FR, ES, IT, etc. (20 Sprachen) | Alle |
 | **Schwierigkeit** | Anfänger, Fortgeschritten, Experte | Alle |
-| **Lernmethoden** | Anzahl verfügbarer Methoden (19 Content-LMs) | Alle |
+| **Lernmethoden** | Anzahl verfügbarer Methoden (12 Content-LMs) | Alle |
 | **Bewertung** | 1-5 Sterne | Alle |
 | **Erstellungsdatum** | Letzte Woche, Monat, Jahr | Alle |
 | **Beliebtheit** | Trending, Most Popular, Editor's Pick | Alle |
@@ -590,7 +590,7 @@ end note
 
 note right of premium_community
   ✅ "Premium Recommended" Badge
-  ✅ Alle 19 Content-LMs (A-C)
+  ✅ Alle 12 Content-LMs (A-C)
   ✅ KI-optimiert
   ✅ Hochwertige Inhalte
 end note
@@ -620,7 +620,7 @@ end note
 | **Ersteller** | Premium User, Creator |
 | **Preis** | Kostenlos |
 | **Sichtbarkeit** | Öffentlich |
-| **Lernmethoden** | Gruppe A–C (LM00–LM25) |
+| **Lernmethoden** | Gruppe A–C (LM00–LM11) |
 | **KI** | Optional |
 | **Nutzung** | Alle Rollen können lernen |
 | **Import** | Lehrer/Schule/Unternehmen können kopieren |
@@ -659,7 +659,7 @@ end note
 |-------------|---------|
 | **Ersteller** | Creator (verifiziert) |
 | **Badge** | "Premium Recommended" |
-| **Lernmethoden** | Alle 19 Content-LMs (A-C) |
+| **Lernmethoden** | Alle 12 Content-LMs (A-C) |
 | **KI** | Intensiv genutzt |
 | **Qualität** | KI-verifiziert, mind. 4.5 Sterne |
 | **Sichtbarkeit** | Featured, Trending |
@@ -681,7 +681,7 @@ end note
 | **Ersteller** | Creator |
 | **Preis** | €5 - €500 |
 | **Revenue Share** | 75% an Creator |
-| **Lernmethoden** | 19 Content-LMs (A-C) |
+| **Lernmethoden** | 12 Content-LMs (A-C) |
 | **Global Publishing** | 20 Sprachen |
 | **Analytics** | Vollständig |
 

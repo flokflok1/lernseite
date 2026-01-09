@@ -220,11 +220,11 @@ def register_blueprints(app):
 
         # Future API Blueprints:
         # Course routes (Phase 9)
-        # from app.api.courses import courses_bp
+        # from app.api.user.courses import courses_bp
         # app.register_blueprint(courses_bp)
 
         # Organisation routes (Phase 10)
-        # from app.api.organisations import organisations_bp
+        # from app.api.shared.organisations import organisations_bp
         # app.register_blueprint(organisations_bp)
 
         # AI routes (Phase 11)
@@ -349,7 +349,7 @@ def register_blueprints(app):
             }), 200
 
     # Health check endpoints (always available)
-    from app.api.health import health_check, health_check_detailed, readiness_check, liveness_check
+    from app.api.core.health import health_check, health_check_detailed, readiness_check, liveness_check
 
     @app.route('/health')
     def health():
@@ -525,18 +525,18 @@ def register_shell_context(app):
     @app.shell_context_processor
     def make_shell_context():
         """Add database pool and utilities to shell context"""
-        from app.repositories.user_repository import UserRepository
-        from app.repositories.course_repository import CourseRepository
-        from app.repositories.chapter_repository import ChapterRepository
-        from app.repositories.lesson_repository import LessonRepository
-        from app.repositories.enrollment_repository import EnrollmentRepository
-        from app.repositories.category_repository import CategoryRepository
-        from app.repositories.learning_method_repository import LearningMethodRepository
-        from app.repositories.token_repository import TokenRepository
-        from app.repositories.subscription_repository import SubscriptionRepository
-        from app.repositories.organisation_repository import OrganisationRepository
-        from app.repositories.dashboard_repository import DashboardRepository
-        from app.repositories.analytics_repository import AnalyticsRepository
+        from app.repositories.user import UserRepository
+        from app.repositories.courses import CourseRepository
+        from app.repositories.courses.chapters import ChapterRepository
+        from app.repositories.courses.lessons import LessonRepository
+        from app.repositories.enrollments.core import EnrollmentRepository
+        from app.repositories.category import CategoryRepository
+        from app.repositories.learning_method import LearningMethodRepository
+        from app.repositories.token import TokenRepository
+        from app.repositories.subscription import SubscriptionRepository
+        from app.repositories.organisations.core import OrganisationRepository
+        from app.repositories.dashboard.core import DashboardRepository
+        from app.repositories.analytics import AnalyticsRepository
         from app.services.ai_adapter import AIAdapter
         from app.services.billing_service import BillingService
 

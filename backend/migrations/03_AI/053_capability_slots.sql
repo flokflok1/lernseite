@@ -22,7 +22,7 @@
 -- Definition of all available capability slots
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS capability_slots (
+CREATE TABLE IF NOT EXISTS learning_methods.capability_slots (
     slot_id SERIAL PRIMARY KEY,
 
     -- Unique slot code (used in code/API)
@@ -56,16 +56,16 @@ CREATE TABLE IF NOT EXISTS capability_slots (
 );
 
 -- Comments
-COMMENT ON TABLE capability_slots IS 'Definition of capability slots for multi-model LM routing';
-COMMENT ON COLUMN capability_slots.slot_code IS 'Unique code for slot (used in code/API): chat, stt, tts, vision, realtime, etc.';
-COMMENT ON COLUMN capability_slots.required_category IS 'Primary ai_models.category this slot accepts';
-COMMENT ON COLUMN capability_slots.accepted_categories IS 'Additional categories that can be assigned to this slot';
+COMMENT ON TABLE learning_methods.capability_slots IS 'Definition of capability slots for multi-model LM routing';
+COMMENT ON COLUMN learning_methods.capability_slots.slot_code IS 'Unique code for slot (used in code/API): chat, stt, tts, vision, realtime, etc.';
+COMMENT ON COLUMN learning_methods.capability_slots.required_category IS 'Primary ai_models.category this slot accepts';
+COMMENT ON COLUMN learning_methods.capability_slots.accepted_categories IS 'Additional categories that can be assigned to this slot';
 
 -- ============================================================================
 -- SEED: Default capability slots
 -- ============================================================================
 
-INSERT INTO capability_slots (slot_code, display_name, description, required_category, accepted_categories, icon, sort_order) VALUES
+INSERT INTO learning_methods.capability_slots (slot_code, display_name, description, required_category, accepted_categories, icon, sort_order) VALUES
     ('chat', 'Chat/Text', 'Standard text generation and chat completions', 'chat', ARRAY['reasoning', 'multimodal'], 'message-square', 10),
     ('reasoning', 'Reasoning', 'Complex reasoning and analysis tasks (o1, o3)', 'reasoning', ARRAY['chat'], 'brain', 20),
     ('vision', 'Vision', 'Image analysis and visual understanding', 'chat', ARRAY['multimodal'], 'eye', 30),
@@ -90,14 +90,14 @@ ON CONFLICT (slot_code) DO UPDATE SET
 -- Which capability slots does each Learning Method require/support
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS lm_slot_requirements (
+CREATE TABLE IF NOT EXISTS learning_methods.lm_slot_requirements (
     requirement_id SERIAL PRIMARY KEY,
 
     -- Learning Method ID (0-25 = Content-LMs, 26-31 für Abwärtskompatibilität)
     learning_method_id INTEGER NOT NULL,
 
     -- Capability slot reference
-    slot_id INTEGER NOT NULL REFERENCES capability_slots(slot_id) ON DELETE CASCADE,
+    slot_id INTEGER NOT NULL REFERENCES learning_methods.capability_slots(slot_id) ON DELETE CASCADE,
 
     -- Is this slot required for the LM to function?
     is_required BOOLEAN NOT NULL DEFAULT FALSE,
@@ -119,14 +119,14 @@ CREATE TABLE IF NOT EXISTS lm_slot_requirements (
 );
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS idx_lm_slot_req_lm ON lm_slot_requirements(learning_method_id);
-CREATE INDEX IF NOT EXISTS idx_lm_slot_req_slot ON lm_slot_requirements(slot_id);
-CREATE INDEX IF NOT EXISTS idx_lm_slot_req_required ON lm_slot_requirements(is_required) WHERE is_required = TRUE;
+CREATE INDEX IF NOT EXISTS idx_lm_slot_req_lm ON learning_methods.lm_slot_requirements (learning_method_id);
+CREATE INDEX IF NOT EXISTS idx_lm_slot_req_slot ON learning_methods.lm_slot_requirements (slot_id);
+CREATE INDEX IF NOT EXISTS idx_lm_slot_req_required ON learning_methods.lm_slot_requirements (is_required) WHERE is_required = TRUE;
 
 -- Comments
-COMMENT ON TABLE lm_slot_requirements IS 'Defines which capability slots each Learning Method needs';
-COMMENT ON COLUMN lm_slot_requirements.is_required IS 'TRUE = LM will not work without this slot assigned';
-COMMENT ON COLUMN lm_slot_requirements.is_primary IS 'TRUE = Primary/fallback slot for this LM';
+COMMENT ON TABLE learning_methods.lm_slot_requirements IS 'Defines which capability slots each Learning Method needs';
+COMMENT ON COLUMN learning_methods.lm_slot_requirements.is_required IS 'TRUE = LM will not work without this slot assigned';
+COMMENT ON COLUMN learning_methods.lm_slot_requirements.is_primary IS 'TRUE = Primary/fallback slot for this LM';
 
 -- ============================================================================
 -- SEED: LM Slot Requirements für alle Lernmethoden
@@ -134,11 +134,11 @@ COMMENT ON COLUMN lm_slot_requirements.is_primary IS 'TRUE = Primary/fallback sl
 
 -- Helper function to get slot_id by code
 CREATE OR REPLACE FUNCTION get_slot_id(p_slot_code VARCHAR) RETURNS INTEGER AS $$
-    SELECT slot_id FROM capability_slots WHERE slot_code = p_slot_code;
+    SELECT slot_id FROM learning_methods.capability_slots WHERE slot_code = p_slot_code;
 $$ LANGUAGE SQL STABLE;
 
 -- Group A - Explanatory Methods (LM00-LM07)
-INSERT INTO lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
+INSERT INTO learning_methods.lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
     (0, get_slot_id('chat'), TRUE, TRUE, 'Haupttext-Generierung für tiefe Erklärungen'),
     (0, get_slot_id('tts'), FALSE, FALSE, 'Optionale Vorlesefunktion'),
     (1, get_slot_id('chat'), TRUE, TRUE, 'Sequenzielle Erklärungen generieren'),
@@ -158,7 +158,7 @@ ON CONFLICT (learning_method_id, slot_id) DO UPDATE SET
     updated_at = NOW();
 
 -- Group B - Practice (LM08-LM17)
-INSERT INTO lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
+INSERT INTO learning_methods.lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
     (8, get_slot_id('chat'), TRUE, TRUE, 'Aufgaben generieren'),
     (8, get_slot_id('vision'), TRUE, FALSE, 'Zeichnungen analysieren'),
     (9, get_slot_id('chat'), TRUE, TRUE, 'Code-Generierung und Erklärung'),
@@ -184,7 +184,7 @@ ON CONFLICT (learning_method_id, slot_id) DO UPDATE SET
     updated_at = NOW();
 
 -- Group C - Exam-Oriented (LM18-LM25)
-INSERT INTO lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
+INSERT INTO learning_methods.lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
     (18, get_slot_id('chat'), TRUE, TRUE, 'Antworten bewerten'),
     (18, get_slot_id('reasoning'), FALSE, FALSE, 'Tiefe Bewertung komplexer Antworten'),
     (19, get_slot_id('chat'), TRUE, TRUE, 'Prüfungsaufgaben generieren'),
@@ -206,7 +206,7 @@ ON CONFLICT (learning_method_id, slot_id) DO UPDATE SET
     updated_at = NOW();
 
 -- Group D - Pro/Gamification (LM26-LM32)
-INSERT INTO lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
+INSERT INTO learning_methods.lm_slot_requirements (learning_method_id, slot_id, is_required, is_primary, usage_description) VALUES
     (26, get_slot_id('chat'), TRUE, TRUE, 'Schwierigkeit anpassen'),
     (26, get_slot_id('reasoning'), FALSE, FALSE, 'Performance-Analyse'),
     (27, get_slot_id('chat'), TRUE, TRUE, 'Lernpfade generieren'),
@@ -233,17 +233,17 @@ DROP FUNCTION IF EXISTS get_slot_id(VARCHAR);
 -- Admin assignments of models to slots per LM
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS lm_slot_assignments (
+CREATE TABLE IF NOT EXISTS learning_methods.lm_slot_assignments (
     assignment_id SERIAL PRIMARY KEY,
 
     -- Learning Method ID (0-25 = Content-LMs, 26-31 für Abwärtskompatibilität)
     learning_method_id INTEGER NOT NULL,
 
     -- Capability slot reference
-    slot_id INTEGER NOT NULL REFERENCES capability_slots(slot_id) ON DELETE CASCADE,
+    slot_id INTEGER NOT NULL REFERENCES learning_methods.capability_slots(slot_id) ON DELETE CASCADE,
 
     -- Assigned AI model
-    model_id INTEGER NOT NULL REFERENCES ai_models(model_id) ON DELETE CASCADE,
+    model_id INTEGER NOT NULL REFERENCES ai_pipeline.ai_models(model_id) ON DELETE CASCADE,
 
     -- Scope: 'system' (global), 'course', or 'chapter'
     scope VARCHAR(20) NOT NULL DEFAULT 'system',
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS lm_slot_assignments (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    created_by UUID NULL REFERENCES users(user_id),
+    created_by UUID NULL REFERENCES core.users(user_id),
 
     -- Constraints (0-31 für Abwärtskompatibilität)
     CONSTRAINT chk_lm_slot_assign_lm_id CHECK (learning_method_id >= 0 AND learning_method_id <= 31),
@@ -273,26 +273,26 @@ CREATE TABLE IF NOT EXISTS lm_slot_assignments (
 
 -- Unique indexes per scope level
 CREATE UNIQUE INDEX IF NOT EXISTS idx_lm_slot_assign_system_unique
-ON lm_slot_assignments(learning_method_id, slot_id)
+ON learning_methods.lm_slot_assignments (learning_method_id, slot_id)
 WHERE scope = 'system' AND active = TRUE;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_lm_slot_assign_course_unique
-ON lm_slot_assignments(learning_method_id, slot_id, scope_reference_id)
+ON learning_methods.lm_slot_assignments (learning_method_id, slot_id, scope_reference_id)
 WHERE scope = 'course' AND active = TRUE;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_lm_slot_assign_chapter_unique
-ON lm_slot_assignments(learning_method_id, slot_id, scope_reference_id)
+ON learning_methods.lm_slot_assignments (learning_method_id, slot_id, scope_reference_id)
 WHERE scope = 'chapter' AND active = TRUE;
 
 -- General indexes
-CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_lm ON lm_slot_assignments(learning_method_id);
-CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_slot ON lm_slot_assignments(slot_id);
-CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_model ON lm_slot_assignments(model_id);
-CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_active ON lm_slot_assignments(active) WHERE active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_lm ON learning_methods.lm_slot_assignments (learning_method_id);
+CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_slot ON learning_methods.lm_slot_assignments (slot_id);
+CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_model ON learning_methods.lm_slot_assignments (model_id);
+CREATE INDEX IF NOT EXISTS idx_lm_slot_assign_active ON learning_methods.lm_slot_assignments (active) WHERE active = TRUE;
 
 -- Comments
-COMMENT ON TABLE lm_slot_assignments IS 'Admin assignments of AI models to capability slots per Learning Method';
-COMMENT ON COLUMN lm_slot_assignments.scope IS 'system = global default, course/chapter = override';
+COMMENT ON TABLE learning_methods.lm_slot_assignments IS 'Admin assignments of AI models to capability slots per Learning Method';
+COMMENT ON COLUMN learning_methods.lm_slot_assignments.scope IS 'system = global default, course/chapter = override';
 
 -- ============================================================================
 -- DATA MIGRATION: Migrate existing assignments to chat slot
@@ -303,10 +303,10 @@ DO $$
 DECLARE
     v_chat_slot_id INTEGER;
 BEGIN
-    SELECT slot_id INTO v_chat_slot_id FROM capability_slots WHERE slot_code = 'chat';
+    SELECT slot_id INTO v_chat_slot_id FROM learning_methods.capability_slots WHERE slot_code = 'chat';
 
     -- Migrate existing learning_method_model_assignments to lm_slot_assignments
-    INSERT INTO lm_slot_assignments (
+    INSERT INTO learning_methods.lm_slot_assignments (
         learning_method_id,
         slot_id,
         model_id,
@@ -329,11 +329,11 @@ BEGIN
         created_at,
         updated_at,
         created_by
-    FROM learning_method_model_assignments
+    FROM learning_methods.learning_method_model_assignments
     WHERE active = TRUE
     ON CONFLICT DO NOTHING;
 
-    RAISE NOTICE 'Migrated % existing assignments to chat slot', (SELECT COUNT(*) FROM learning_method_model_assignments WHERE active = TRUE);
+    RAISE NOTICE 'Migrated % existing assignments to chat slot', (SELECT COUNT(*) FROM learning_methods.learning_method_model_assignments WHERE active = TRUE);
 END $$;
 
 -- ============================================================================
@@ -368,7 +368,7 @@ BEGIN
             COALESCE(lsr.is_required, FALSE) AS is_required,
             COALESCE(lsr.is_primary, FALSE) AS is_primary
         FROM capability_slots cs
-        LEFT JOIN lm_slot_requirements lsr ON cs.slot_id = lsr.slot_id
+        LEFT JOIN learning_methods.lm_slot_requirements lsr ON cs.slot_id = lsr.slot_id
             AND lsr.learning_method_id = p_learning_method_id
         WHERE lsr.requirement_id IS NOT NULL  -- Only slots that this LM uses
     ),
@@ -381,7 +381,7 @@ BEGIN
             lsa.priority,
             -- Priority order: chapter=1, course=2, system=3
             CASE lsa.scope WHEN 'chapter' THEN 1 WHEN 'course' THEN 2 ELSE 3 END AS scope_priority
-        FROM lm_slot_assignments lsa
+        FROM learning_methods.lm_slot_assignments lsa
         WHERE lsa.learning_method_id = p_learning_method_id
         AND lsa.active = TRUE
         AND (
@@ -415,8 +415,8 @@ BEGIN
             ba.assigned_scope AS resolved_scope
         FROM slot_requirements sr
         LEFT JOIN best_assignments ba ON sr.slot_id = ba.slot_id
-        LEFT JOIN ai_models m ON ba.assigned_model_id = m.model_id
-        LEFT JOIN ai_providers p ON m.provider_id = p.provider_id
+        LEFT JOIN ai_pipeline.ai_models m ON ba.assigned_model_id = m.model_id
+        LEFT JOIN ai_pipeline.ai_providers p ON m.provider_id = p.provider_id
     )
     SELECT
         ra.slot_code::VARCHAR(30),
@@ -454,8 +454,8 @@ WITH lm_slots AS (
         lsr.is_primary
     -- Nur Content-LMs (0-25), System-Features werden separat behandelt
     FROM (SELECT generate_series(0, 25) AS learning_method_id) lm
-    CROSS JOIN capability_slots cs
-    LEFT JOIN lm_slot_requirements lsr ON lm.learning_method_id = lsr.learning_method_id
+    CROSS JOIN learning_methods.capability_slots cs
+    LEFT JOIN learning_methods.lm_slot_requirements lsr ON lm.learning_method_id = lsr.learning_method_id
         AND cs.slot_id = lsr.slot_id
     WHERE lsr.requirement_id IS NOT NULL
 )
@@ -473,12 +473,12 @@ SELECT
     p.name AS provider_name,
     p.display_name AS provider_display_name
 FROM lm_slots ls
-LEFT JOIN lm_slot_assignments a ON ls.learning_method_id = a.learning_method_id
+LEFT JOIN learning_methods.lm_slot_assignments a ON ls.learning_method_id = a.learning_method_id
     AND ls.slot_id = a.slot_id
     AND a.scope = 'system'
     AND a.active = TRUE
-LEFT JOIN ai_models m ON a.model_id = m.model_id
-LEFT JOIN ai_providers p ON m.provider_id = p.provider_id
+LEFT JOIN ai_pipeline.ai_models m ON a.model_id = m.model_id
+LEFT JOIN ai_pipeline.ai_providers p ON m.provider_id = p.provider_id
 ORDER BY ls.learning_method_id, ls.is_primary DESC, ls.is_required DESC, ls.slot_code;
 
 COMMENT ON VIEW v_lm_slot_overview IS 'Admin overview of LM capability slot configurations';
@@ -487,13 +487,13 @@ COMMENT ON VIEW v_lm_slot_overview IS 'Admin overview of LM capability slot conf
 -- Trigger: Update timestamps
 -- ============================================================================
 
-CREATE TRIGGER update_capability_slots_updated_at BEFORE UPDATE ON capability_slots
+CREATE TRIGGER update_capability_slots_updated_at BEFORE UPDATE ON learning_methods.capability_slots
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_lm_slot_requirements_updated_at BEFORE UPDATE ON lm_slot_requirements
+CREATE TRIGGER update_lm_slot_requirements_updated_at BEFORE UPDATE ON learning_methods.lm_slot_requirements
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_lm_slot_assignments_updated_at BEFORE UPDATE ON lm_slot_assignments
+CREATE TRIGGER update_lm_slot_assignments_updated_at BEFORE UPDATE ON learning_methods.lm_slot_assignments
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

@@ -14,7 +14,7 @@
 -- ============================================================================
 -- Stores customizable prompt templates for AI content generation
 
-CREATE TABLE IF NOT EXISTS prompt_templates (
+CREATE TABLE IF NOT EXISTS ai_pipeline.prompt_templates (
     template_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Template identification
@@ -66,11 +66,11 @@ CREATE TABLE IF NOT EXISTS prompt_templates (
 
     -- Versioning
     version INTEGER DEFAULT 1,
-    parent_template_id UUID REFERENCES prompt_templates(template_id),  -- For version history
+    parent_template_id UUID REFERENCES ai_pipeline.prompt_templates(template_id),  -- For version history
 
     -- Audit
-    created_by UUID REFERENCES users(user_id),
-    updated_by UUID REFERENCES users(user_id),
+    created_by UUID REFERENCES core.users(user_id),
+    updated_by UUID REFERENCES core.users(user_id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
@@ -82,22 +82,22 @@ CREATE TABLE IF NOT EXISTS prompt_templates (
 );
 
 -- Indexes
-CREATE INDEX idx_prompt_templates_category ON prompt_templates(category);
-CREATE INDEX idx_prompt_templates_style ON prompt_templates(style);
-CREATE INDEX idx_prompt_templates_category_style ON prompt_templates(category, style);
-CREATE INDEX idx_prompt_templates_lm_type ON prompt_templates(lm_type) WHERE lm_type IS NOT NULL;
-CREATE INDEX idx_prompt_templates_active ON prompt_templates(is_active) WHERE is_active = true;
-CREATE INDEX idx_prompt_templates_default ON prompt_templates(category, style, is_default) WHERE is_default = true;
+CREATE INDEX idx_prompt_templates_category ON ai_pipeline.prompt_templates (category);
+CREATE INDEX idx_prompt_templates_style ON ai_pipeline.prompt_templates (style);
+CREATE INDEX idx_prompt_templates_category_style ON ai_pipeline.prompt_templates (category, style);
+CREATE INDEX idx_prompt_templates_lm_type ON ai_pipeline.prompt_templates (lm_type) WHERE lm_type IS NOT NULL;
+CREATE INDEX idx_prompt_templates_active ON ai_pipeline.prompt_templates (is_active) WHERE is_active = true;
+CREATE INDEX idx_prompt_templates_default ON ai_pipeline.prompt_templates (category, style, is_default) WHERE is_default = true;
 
 -- ============================================================================
 -- 2. Prompt Template Usage Tracking
 -- ============================================================================
 -- Tracks usage statistics for each template
 
-CREATE TABLE IF NOT EXISTS prompt_template_usage (
+CREATE TABLE IF NOT EXISTS ai_pipeline.prompt_template_usage (
     usage_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    template_id UUID NOT NULL REFERENCES prompt_templates(template_id) ON DELETE CASCADE,
-    user_id UUID REFERENCES users(user_id),
+    template_id UUID NOT NULL REFERENCES ai_pipeline.prompt_templates(template_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id),
 
     -- What was generated
     content_type VARCHAR(50) NOT NULL,         -- 'chapter_theory', 'lesson_steps', 'quiz'
@@ -127,16 +127,16 @@ CREATE TABLE IF NOT EXISTS prompt_template_usage (
 );
 
 -- Indexes
-CREATE INDEX idx_prompt_usage_template ON prompt_template_usage(template_id);
-CREATE INDEX idx_prompt_usage_user ON prompt_template_usage(user_id);
-CREATE INDEX idx_prompt_usage_created ON prompt_template_usage(created_at);
+CREATE INDEX idx_prompt_usage_template ON ai_pipeline.prompt_template_usage (template_id);
+CREATE INDEX idx_prompt_usage_user ON ai_pipeline.prompt_template_usage (user_id);
+CREATE INDEX idx_prompt_usage_created ON ai_pipeline.prompt_template_usage (created_at);
 
 -- ============================================================================
 -- 3. Insert Default Prompt Templates
 -- ============================================================================
 
 -- Theory Sheet Templates (verschiedene Stile)
-INSERT INTO prompt_templates (
+INSERT INTO ai_pipeline.prompt_templates (
     code, category, style, title, description, icon,
     system_prompt, user_prompt_template,
     variables, output_format, output_schema,
@@ -372,7 +372,7 @@ JSON-Struktur:
 );
 
 -- Lesson Steps Templates
-INSERT INTO prompt_templates (
+INSERT INTO ai_pipeline.prompt_templates (
     code, category, style, title, description, icon,
     system_prompt, user_prompt_template,
     variables, output_format,
@@ -429,13 +429,13 @@ JSON-Struktur:
 -- ============================================================================
 -- Stores generated content and associated TTS audio
 
-CREATE TABLE IF NOT EXISTS generated_theory_sheets (
+CREATE TABLE IF NOT EXISTS ai_pipeline.generated_theory_sheets (
     sheet_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- References
-    chapter_id UUID REFERENCES chapters(chapter_id) ON DELETE CASCADE,
-    course_id UUID REFERENCES courses(course_id) ON DELETE CASCADE,
-    template_id UUID REFERENCES prompt_templates(template_id),
+    chapter_id UUID REFERENCES courses.chapters(chapter_id) ON DELETE CASCADE,
+    course_id UUID REFERENCES courses.courses(course_id) ON DELETE CASCADE,
+    template_id UUID REFERENCES ai_pipeline.prompt_templates(template_id),
 
     -- Content
     style VARCHAR(50) NOT NULL,                -- Which style was used
@@ -459,16 +459,16 @@ CREATE TABLE IF NOT EXISTS generated_theory_sheets (
     is_published BOOLEAN DEFAULT false,
 
     -- Audit
-    created_by UUID REFERENCES users(user_id),
+    created_by UUID REFERENCES core.users(user_id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Indexes
-CREATE INDEX idx_theory_sheets_chapter ON generated_theory_sheets(chapter_id);
-CREATE INDEX idx_theory_sheets_course ON generated_theory_sheets(course_id);
-CREATE INDEX idx_theory_sheets_style ON generated_theory_sheets(style);
-CREATE INDEX idx_theory_sheets_has_audio ON generated_theory_sheets(has_audio) WHERE has_audio = true;
+CREATE INDEX idx_theory_sheets_chapter ON ai_pipeline.generated_theory_sheets (chapter_id);
+CREATE INDEX idx_theory_sheets_course ON ai_pipeline.generated_theory_sheets (course_id);
+CREATE INDEX idx_theory_sheets_style ON ai_pipeline.generated_theory_sheets (style);
+CREATE INDEX idx_theory_sheets_has_audio ON ai_pipeline.generated_theory_sheets (has_audio) WHERE has_audio = true;
 
 -- ============================================================================
 -- 5. Update Trigger
@@ -483,12 +483,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_prompt_templates_updated
-    BEFORE UPDATE ON prompt_templates
+    BEFORE UPDATE ON ai_pipeline.prompt_templates
     FOR EACH ROW
     EXECUTE FUNCTION update_prompt_templates_timestamp();
 
 CREATE TRIGGER trigger_theory_sheets_updated
-    BEFORE UPDATE ON generated_theory_sheets
+    BEFORE UPDATE ON ai_pipeline.generated_theory_sheets
     FOR EACH ROW
     EXECUTE FUNCTION update_prompt_templates_timestamp();
 

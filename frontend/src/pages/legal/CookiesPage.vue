@@ -10,13 +10,13 @@
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Zurück zur Startseite
+          {{ $t('legal.backToHome') }}
         </router-link>
         <h1 class="text-3xl font-bold text-[var(--color-text-primary)]">
-          Cookie-Richtlinie
+          {{ $t('legal.cookies.title') }}
         </h1>
         <p class="mt-2 text-[var(--color-text-secondary)]">
-          Informationen über die Verwendung von Cookies auf unserer Plattform
+          {{ $t('legal.cookies.subtitle') }}
         </p>
       </div>
     </header>
@@ -26,15 +26,12 @@
       <div class="prose prose-lg max-w-none text-[var(--color-text-primary)]">
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Was sind Cookies?</h2>
-          <p>
-            Cookies sind kleine Textdateien, die von Websites auf Ihrem Gerät gespeichert werden.
-            Sie helfen dabei, Ihre Präferenzen zu speichern und die Website-Nutzung zu verbessern.
-          </p>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.cookies.whatAreCookies') }}</h2>
+          <p>{{ $t('legal.cookies.whatAreCookiesText') }}</p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Welche Cookies verwenden wir?</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.cookies.whichCookies') }}</h2>
 
           <!-- Notwendige Cookies -->
           <div class="bg-[var(--color-surface-secondary)] rounded-lg p-6 mb-4 border border-[var(--color-border)]">
@@ -44,38 +41,38 @@
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
               </div>
-              <h3 class="text-lg font-medium m-0">Notwendige Cookies</h3>
+              <h3 class="text-lg font-medium m-0">{{ $t('legal.cookies.necessary.title') }}</h3>
               <span class="ml-auto text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
-                Immer aktiv
+                {{ $t('legal.cookies.necessary.alwaysActive') }}
               </span>
             </div>
             <p class="text-sm text-[var(--color-text-secondary)] mb-3">
-              Diese Cookies sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.
+              {{ $t('legal.cookies.necessary.description') }}
             </p>
             <div class="bg-[var(--color-surface)] rounded p-3 text-sm">
               <table class="w-full">
                 <thead>
                   <tr class="text-left text-[var(--color-text-tertiary)]">
-                    <th class="pb-2">Cookie</th>
-                    <th class="pb-2">Zweck</th>
-                    <th class="pb-2">Dauer</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.cookie') }}</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.purpose') }}</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.duration') }}</th>
                   </tr>
                 </thead>
                 <tbody class="text-[var(--color-text-secondary)]">
                   <tr>
                     <td class="py-1 font-mono text-xs">lsx_session</td>
-                    <td class="py-1">Sitzungsverwaltung</td>
-                    <td class="py-1">Sitzung</td>
+                    <td class="py-1">{{ $t('legal.cookies.necessary.session') }}</td>
+                    <td class="py-1">{{ $t('legal.cookies.necessary.duration.session') }}</td>
                   </tr>
                   <tr>
                     <td class="py-1 font-mono text-xs">lsx_auth</td>
-                    <td class="py-1">Authentifizierung</td>
-                    <td class="py-1">7 Tage</td>
+                    <td class="py-1">{{ $t('legal.cookies.necessary.auth') }}</td>
+                    <td class="py-1">{{ $t('legal.cookies.necessary.duration.days7') }}</td>
                   </tr>
                   <tr>
                     <td class="py-1 font-mono text-xs">lsx_csrf</td>
-                    <td class="py-1">Sicherheit (CSRF-Schutz)</td>
-                    <td class="py-1">Sitzung</td>
+                    <td class="py-1">{{ $t('legal.cookies.necessary.csrf') }}</td>
+                    <td class="py-1">{{ $t('legal.cookies.necessary.duration.session') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -90,35 +87,35 @@
                   <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                 </svg>
               </div>
-              <h3 class="text-lg font-medium m-0">Funktionale Cookies</h3>
+              <h3 class="text-lg font-medium m-0">{{ $t('legal.cookies.functional.title') }}</h3>
             </div>
             <p class="text-sm text-[var(--color-text-secondary)] mb-3">
-              Diese Cookies ermöglichen erweiterte Funktionen wie Personalisierung und das Speichern Ihrer Präferenzen.
+              {{ $t('legal.cookies.functional.description') }}
             </p>
             <div class="bg-[var(--color-surface)] rounded p-3 text-sm">
               <table class="w-full">
                 <thead>
                   <tr class="text-left text-[var(--color-text-tertiary)]">
-                    <th class="pb-2">Cookie</th>
-                    <th class="pb-2">Zweck</th>
-                    <th class="pb-2">Dauer</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.cookie') }}</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.purpose') }}</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.duration') }}</th>
                   </tr>
                 </thead>
                 <tbody class="text-[var(--color-text-secondary)]">
                   <tr>
                     <td class="py-1 font-mono text-xs">lsx_theme</td>
-                    <td class="py-1">Theme-Präferenz (Hell/Dunkel)</td>
-                    <td class="py-1">1 Jahr</td>
+                    <td class="py-1">{{ $t('legal.cookies.functional.theme') }}</td>
+                    <td class="py-1">{{ $t('legal.cookies.functional.duration.year1') }}</td>
                   </tr>
                   <tr>
                     <td class="py-1 font-mono text-xs">lsx_lang</td>
-                    <td class="py-1">Spracheinstellung</td>
-                    <td class="py-1">1 Jahr</td>
+                    <td class="py-1">{{ $t('legal.cookies.functional.language') }}</td>
+                    <td class="py-1">{{ $t('legal.cookies.functional.duration.year1') }}</td>
                   </tr>
                   <tr>
                     <td class="py-1 font-mono text-xs">lsx_sidebar</td>
-                    <td class="py-1">Seitenleisten-Status</td>
-                    <td class="py-1">30 Tage</td>
+                    <td class="py-1">{{ $t('legal.cookies.functional.sidebar') }}</td>
+                    <td class="py-1">{{ $t('legal.cookies.functional.duration.days30') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -133,28 +130,28 @@
                   <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                 </svg>
               </div>
-              <h3 class="text-lg font-medium m-0">Analytische Cookies</h3>
+              <h3 class="text-lg font-medium m-0">{{ $t('legal.cookies.analytics.title') }}</h3>
               <span class="ml-auto text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
-                Optional
+                {{ $t('legal.cookies.analytics.optional') }}
               </span>
             </div>
             <p class="text-sm text-[var(--color-text-secondary)] mb-3">
-              Diese Cookies helfen uns zu verstehen, wie Besucher die Website nutzen. Alle Daten sind anonymisiert.
+              {{ $t('legal.cookies.analytics.description') }}
             </p>
             <div class="bg-[var(--color-surface)] rounded p-3 text-sm">
               <table class="w-full">
                 <thead>
                   <tr class="text-left text-[var(--color-text-tertiary)]">
-                    <th class="pb-2">Cookie</th>
-                    <th class="pb-2">Zweck</th>
-                    <th class="pb-2">Dauer</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.cookie') }}</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.purpose') }}</th>
+                    <th class="pb-2">{{ $t('legal.cookies.tableHeaders.duration') }}</th>
                   </tr>
                 </thead>
                 <tbody class="text-[var(--color-text-secondary)]">
                   <tr>
                     <td class="py-1 font-mono text-xs">lsx_analytics</td>
-                    <td class="py-1">Anonyme Nutzungsstatistiken</td>
-                    <td class="py-1">90 Tage</td>
+                    <td class="py-1">{{ $t('legal.cookies.analytics.stats') }}</td>
+                    <td class="py-1">{{ $t('legal.cookies.analytics.duration.days90') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -163,55 +160,44 @@
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Wie können Sie Cookies verwalten?</h2>
-          <p>
-            Sie können Ihre Cookie-Einstellungen jederzeit in Ihrem Browser anpassen:
-          </p>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.cookies.manage') }}</h2>
+          <p>{{ $t('legal.cookies.manageText') }}</p>
           <ul>
-            <li>
-              <strong>Chrome:</strong> Einstellungen → Datenschutz und Sicherheit → Cookies
-            </li>
-            <li>
-              <strong>Firefox:</strong> Einstellungen → Datenschutz & Sicherheit → Cookies
-            </li>
-            <li>
-              <strong>Safari:</strong> Einstellungen → Datenschutz → Cookies und Websitedaten
-            </li>
-            <li>
-              <strong>Edge:</strong> Einstellungen → Cookies und Websiteberechtigungen
-            </li>
+            <li><strong>Chrome:</strong> {{ $t('legal.cookies.browsers.chrome') }}</li>
+            <li><strong>Firefox:</strong> {{ $t('legal.cookies.browsers.firefox') }}</li>
+            <li><strong>Safari:</strong> {{ $t('legal.cookies.browsers.safari') }}</li>
+            <li><strong>Edge:</strong> {{ $t('legal.cookies.browsers.edge') }}</li>
           </ul>
           <p class="mt-4">
-            <strong>Hinweis:</strong> Das Deaktivieren notwendiger Cookies kann die Funktionalität
-            der Website einschränken.
+            <strong>{{ $t('legal.placeholderNotice') }}</strong> {{ $t('legal.cookies.manageNote') }}
           </p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Cookie-Einstellungen anpassen</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.cookies.settings') }}</h2>
           <div class="bg-[var(--color-surface-secondary)] rounded-lg p-6 border border-[var(--color-border)]">
             <p class="text-[var(--color-text-secondary)] mb-4">
-              Sie können Ihre Cookie-Präferenzen hier anpassen:
+              {{ $t('legal.cookies.settingsText') }}
             </p>
             <button
               @click="openCookieSettings"
               class="btn btn-primary"
             >
-              Cookie-Einstellungen öffnen
+              {{ $t('legal.cookies.openSettings') }}
             </button>
           </div>
         </section>
 
         <section>
-          <h2 class="text-xl font-semibold mb-4">Weitere Informationen</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.cookies.moreInfo') }}</h2>
           <p>
-            Weitere Informationen zum Datenschutz finden Sie in unserer
+            {{ $t('legal.cookies.moreInfoText') }}
             <router-link to="/legal/privacy" class="text-[var(--color-accent)] hover:underline">
-              Datenschutzerklärung
+              {{ $t('legal.privacy.title') }}
             </router-link>.
           </p>
           <p class="text-sm text-[var(--color-text-tertiary)] mt-4">
-            Stand: {{ currentDate }}
+            {{ $t('legal.lastUpdated', { date: currentDate }) }}
           </p>
         </section>
       </div>
@@ -224,10 +210,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import Footer from '@/components/layout/Footer.vue'
+import { useI18n } from 'vue-i18n'
+import { Footer } from '@/components/shared/layout'
+
+const { t, locale } = useI18n()
 
 const currentDate = computed(() => {
-  return new Date().toLocaleDateString('de-DE', {
+  const localeMap: Record<string, string> = {
+    de: 'de-DE',
+    en: 'en-US',
+    pl: 'pl-PL'
+  }
+  return new Date().toLocaleDateString(localeMap[locale.value] || 'de-DE', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -236,6 +230,6 @@ const currentDate = computed(() => {
 
 const openCookieSettings = () => {
   // TODO: Implement cookie consent modal
-  alert('Cookie-Einstellungen werden in einer zukünftigen Version implementiert.')
+  alert(t('common.loading'))
 }
 </script>

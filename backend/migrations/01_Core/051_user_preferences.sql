@@ -1,69 +1,54 @@
-/**
- * Migration 058: User Preferences Table
- *
- * Purpose:
- *   Create user_preferences table for storing user-specific settings
- *   such as UI preferences, window sizes, and other customizations.
- *
- * Changes:
- *   - Create user_preferences table with JSONB columns for flexibility
- *   - Support for window_sizes, ui_settings, and general preferences
- *
- * Compliance: PostgreSQL 14+
- * Impact: New table, no breaking changes
- * Rollback: DROP TABLE user_preferences;
- */
-
 -- ============================================================================
--- TABLE: user_preferences
--- Description: User-specific preferences and UI settings
+-- Migration: 051_user_preferences.sql
+-- Version: 1.0.0
+-- Description: Create user_preferences table for storing user-specific settings
+-- Author: LernsystemX Migration System
+-- Date: 2026-01-02
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS user_preferences (
-    preference_id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+-- Note: user_preferences table base structure is already defined in 001_core_users_roles.sql
+-- This migration adds additional UI preference columns
 
-    -- UI Settings (window sizes, layout preferences)
-    window_sizes JSONB DEFAULT '{}'::JSONB,
+-- ============================================================================
+-- ALTER TABLE: user_preferences - Add UI preference columns
+-- Description: Add window_sizes, ui_settings, general_settings for desktop UI
+-- ============================================================================
 
-    -- Desktop UI preferences (taskbar position, default views, etc.)
-    ui_settings JSONB DEFAULT '{}'::JSONB,
+-- Add UI Settings columns if they don't exist
+ALTER TABLE core.user_preferences
+ADD COLUMN IF NOT EXISTS window_sizes JSONB DEFAULT '{}'::JSONB;
 
-    -- General preferences (notification settings, defaults, etc.)
-    general_settings JSONB DEFAULT '{}'::JSONB,
+ALTER TABLE core.user_preferences
+ADD COLUMN IF NOT EXISTS ui_settings JSONB DEFAULT '{}'::JSONB;
 
-    -- Timestamps
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-
-    -- Each user has only one preferences row
-    CONSTRAINT uq_user_preferences_user UNIQUE (user_id)
-);
+ALTER TABLE core.user_preferences
+ADD COLUMN IF NOT EXISTS general_settings JSONB DEFAULT '{}'::JSONB;
 
 -- ============================================================================
 -- Indexes
 -- ============================================================================
 
-CREATE INDEX IF NOT EXISTS idx_user_preferences_user ON user_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_preferences_user ON core.user_preferences(user_id);
 
 -- GIN index for JSONB queries if needed
-CREATE INDEX IF NOT EXISTS idx_user_preferences_window_sizes ON user_preferences USING GIN (window_sizes);
+CREATE INDEX IF NOT EXISTS idx_user_preferences_window_sizes ON core.user_preferences USING GIN (window_sizes);
 
 -- ============================================================================
 -- Comments
 -- ============================================================================
 
-COMMENT ON TABLE user_preferences IS 'User-specific preferences and UI settings';
-COMMENT ON COLUMN user_preferences.window_sizes IS 'Window size preferences per window type, e.g. {"admin-model-selector": {"width": 800, "height": 600}}';
-COMMENT ON COLUMN user_preferences.ui_settings IS 'UI-related settings like taskbar position, sidebar state, etc.';
-COMMENT ON COLUMN user_preferences.general_settings IS 'General preferences like notification settings, defaults, etc.';
+COMMENT ON TABLE core.user_preferences IS 'User-specific preferences and UI settings';
+COMMENT ON COLUMN core.user_preferences.window_sizes IS 'Window size preferences per window type, e.g. {"admin-model-selector": {"width": 800, "height": 600}}';
+COMMENT ON COLUMN core.user_preferences.ui_settings IS 'UI-related settings like taskbar position, sidebar state, etc.';
+COMMENT ON COLUMN core.user_preferences.general_settings IS 'General preferences like notification settings, defaults, etc.';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
 
+DROP TRIGGER IF EXISTS update_user_preferences_updated_at ON core.user_preferences;
 CREATE TRIGGER update_user_preferences_updated_at
-    BEFORE UPDATE ON user_preferences
+    BEFORE UPDATE ON core.user_preferences
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

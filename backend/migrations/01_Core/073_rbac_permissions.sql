@@ -1,39 +1,33 @@
 -- ============================================================================
--- Migration 073: RBAC Permissions System
--- ============================================================================
--- Erweitert das Berechtigungssystem mit:
--- 1. Granulare Permissions für alle Module
--- 2. Dynamische Permission-Zuweisung zu Rollen
--- 3. Custom Roles erstellen
--- 4. User-spezifische Permission-Overrides
+-- Migration: 073_rbac_permissions.sql
+-- Version: 1.0.0
+-- Description: RBAC Permissions System
+-- Author: LernsystemX Migration System
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- 1. Permissions Tabelle erweitern
--- ============================================================================
-
-ALTER TABLE permissions
+ALTER TABLE core.permissions
     ADD COLUMN IF NOT EXISTS category VARCHAR(50),
     ADD COLUMN IF NOT EXISTS display_name VARCHAR(100),
     ADD COLUMN IF NOT EXISTS is_system BOOLEAN DEFAULT FALSE,
     ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
-CREATE INDEX IF NOT EXISTS idx_permissions_category ON permissions(category);
-CREATE INDEX IF NOT EXISTS idx_permissions_system ON permissions(is_system);
+CREATE INDEX IF NOT EXISTS idx_permissions_category ON core.permissions(category);
+CREATE INDEX IF NOT EXISTS idx_permissions_system ON core.permissions(is_system);
 
 -- ============================================================================
 -- 2. Custom Roles Support
 -- ============================================================================
 
-ALTER TABLE roles
+ALTER TABLE core.roles
     ADD COLUMN IF NOT EXISTS is_system BOOLEAN DEFAULT FALSE,
     ADD COLUMN IF NOT EXISTS is_custom BOOLEAN DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(user_id),
+    ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES core.users(user_id),
     ADD COLUMN IF NOT EXISTS color VARCHAR(20) DEFAULT '#6b7280',
     ADD COLUMN IF NOT EXISTS icon VARCHAR(50) DEFAULT '👤';
 
 -- Markiere bestehende Rollen als System-Rollen
-UPDATE roles SET is_system = TRUE WHERE role_name IN (
+UPDATE core.roles SET is_system = TRUE WHERE role_name IN (
     'free', 'premium', 'creator', 'teacher', 
     'school_admin', 'company_admin', 'support', 'moderator', 'admin'
 );
@@ -42,27 +36,27 @@ UPDATE roles SET is_system = TRUE WHERE role_name IN (
 -- 3. User Permission Overrides (für spezifische User-Berechtigungen)
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS user_permissions (
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-    permission_id INTEGER REFERENCES permissions(permission_id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS core.user_permissions (
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
+    permission_id INTEGER REFERENCES core.permissions(permission_id) ON DELETE CASCADE,
     granted BOOLEAN DEFAULT TRUE,  -- TRUE = gewährt, FALSE = explizit entzogen
-    granted_by UUID REFERENCES users(user_id),
+    granted_by UUID REFERENCES core.users(user_id),
     granted_at TIMESTAMPTZ DEFAULT NOW(),
     expires_at TIMESTAMPTZ,  -- NULL = permanent
     reason TEXT,
     PRIMARY KEY (user_id, permission_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_user_perms_user ON user_permissions(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_perms_expires ON user_permissions(expires_at) WHERE expires_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_user_perms_user ON core.user_permissions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_perms_expires ON core.user_permissions(expires_at) WHERE expires_at IS NOT NULL;
 
-COMMENT ON TABLE user_permissions IS 'User-spezifische Permission-Overrides (zusätzlich zu Rollen-Permissions)';
+COMMENT ON TABLE core.user_permissions IS 'User-spezifische Permission-Overrides (zusätzlich zu Rollen-Permissions)';
 
 -- ============================================================================
 -- 4. System Permissions erstellen
 -- ============================================================================
 
-INSERT INTO permissions (permission_key, display_name, description, module, category, is_system, sort_order) VALUES
+INSERT INTO core.permissions (permission_key, display_name, description, module, category, is_system, sort_order) VALUES
     -- Users Module
     ('users.view', 'Benutzer anzeigen', 'Benutzer-Liste und Details ansehen', 'users', 'Benutzer', TRUE, 10),
     ('users.create', 'Benutzer erstellen', 'Neue Benutzer anlegen', 'users', 'Benutzer', TRUE, 20),
@@ -133,11 +127,11 @@ DECLARE
     v_role_id INTEGER;
     v_permission_id INTEGER;
 BEGIN
-    SELECT role_id INTO v_role_id FROM roles WHERE role_name = p_role_name;
-    SELECT permission_id INTO v_permission_id FROM permissions WHERE permission_key = p_permission_key;
+    SELECT role_id INTO v_role_id FROM core.roles WHERE role_name = p_role_name;
+    SELECT permission_id INTO v_permission_id FROM core.permissions WHERE permission_key = p_permission_key;
     
     IF v_role_id IS NOT NULL AND v_permission_id IS NOT NULL THEN
-        INSERT INTO role_permissions (role_id, permission_id)
+        INSERT INTO core.role_permissions (role_id, permission_id)
         VALUES (v_role_id, v_permission_id)
         ON CONFLICT DO NOTHING;
     END IF;
@@ -197,10 +191,10 @@ DO $$
 DECLARE
     v_admin_role_id INTEGER;
 BEGIN
-    SELECT role_id INTO v_admin_role_id FROM roles WHERE role_name = 'admin';
+    SELECT role_id INTO v_admin_role_id FROM core.roles WHERE role_name = 'admin';
     
-    INSERT INTO role_permissions (role_id, permission_id)
-    SELECT v_admin_role_id, permission_id FROM permissions
+    INSERT INTO core.role_permissions (role_id, permission_id)
+    SELECT v_admin_role_id, permission_id FROM core.permissions
     ON CONFLICT DO NOTHING;
 END $$;
 
@@ -217,8 +211,8 @@ DECLARE
 BEGIN
     -- 1. Check user-specific override (explicit grant/deny)
     SELECT granted INTO v_has_permission
-    FROM user_permissions up
-    JOIN permissions p ON up.permission_id = p.permission_id
+    FROM core.user_permissions up
+    JOIN core.permissions p ON up.permission_id = p.permission_id
     WHERE up.user_id = p_user_id 
       AND p.permission_key = p_permission_key
       AND (up.expires_at IS NULL OR up.expires_at > NOW());
@@ -229,8 +223,8 @@ BEGIN
     
     -- 2. Check role-based permissions
     SELECT u.role_id, r.role_name INTO v_role_id, v_role_name
-    FROM users u
-    JOIN roles r ON u.role_id = r.role_id
+    FROM core.users u
+    JOIN core.roles r ON u.role_id = r.role_id
     WHERE u.user_id = p_user_id;
     
     -- Admin has all permissions
@@ -240,8 +234,8 @@ BEGIN
     
     -- 3. Check role permissions
     SELECT TRUE INTO v_has_permission
-    FROM role_permissions rp
-    JOIN permissions p ON rp.permission_id = p.permission_id
+    FROM core.role_permissions rp
+    JOIN core.permissions p ON rp.permission_id = p.permission_id
     WHERE rp.role_id = v_role_id AND p.permission_key = p_permission_key;
     
     RETURN COALESCE(v_has_permission, FALSE);
@@ -267,15 +261,15 @@ DECLARE
 BEGIN
     -- Get user role
     SELECT u.role_id, r.role_name INTO v_role_id, v_role_name
-    FROM users u
-    JOIN roles r ON u.role_id = r.role_id
+    FROM core.users u
+    JOIN core.roles r ON u.role_id = r.role_id
     WHERE u.user_id = p_user_id;
     
     -- Admin gets all permissions
     IF v_role_name = 'admin' THEN
         RETURN QUERY
         SELECT p.permission_key, p.display_name, p.module, 'role'::VARCHAR as source
-        FROM permissions p
+        FROM core.permissions p
         ORDER BY p.module, p.sort_order;
         RETURN;
     END IF;
@@ -284,9 +278,9 @@ BEGIN
     RETURN QUERY
     SELECT DISTINCT p.permission_key, p.display_name, p.module,
            CASE WHEN up.user_id IS NOT NULL THEN 'user_override' ELSE 'role' END::VARCHAR as source
-    FROM permissions p
-    LEFT JOIN role_permissions rp ON p.permission_id = rp.permission_id AND rp.role_id = v_role_id
-    LEFT JOIN user_permissions up ON p.permission_id = up.permission_id 
+    FROM core.permissions p
+    LEFT JOIN core.role_permissions rp ON p.permission_id = rp.permission_id AND rp.role_id = v_role_id
+    LEFT JOIN core.user_permissions up ON p.permission_id = up.permission_id 
         AND up.user_id = p_user_id 
         AND up.granted = TRUE
         AND (up.expires_at IS NULL OR up.expires_at > NOW())
@@ -315,9 +309,9 @@ SELECT
     p.display_name as permission_display_name,
     p.module,
     p.category
-FROM roles r
-LEFT JOIN role_permissions rp ON r.role_id = rp.role_id
-LEFT JOIN permissions p ON rp.permission_id = p.permission_id
+FROM core.roles r
+LEFT JOIN core.role_permissions rp ON r.role_id = rp.role_id
+LEFT JOIN core.permissions p ON rp.permission_id = p.permission_id
 ORDER BY r.hierarchy_level, p.module, p.sort_order;
 
 COMMENT ON VIEW v_role_permissions IS 'Übersicht aller Rollen mit ihren Permissions';

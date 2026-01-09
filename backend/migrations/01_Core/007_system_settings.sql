@@ -1,16 +1,15 @@
 -- ============================================================================
 -- Migration: 007_system_settings.sql
--- Description: System-wide settings and feature flags
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: system_settings
--- Description: Global system configuration
--- ============================================================================
-CREATE TABLE IF NOT EXISTS system_settings (
+-- Drop old version of system_settings from Migration 001 (different schema)
+DROP TABLE IF EXISTS core.system_settings CASCADE;
+
+CREATE TABLE IF NOT EXISTS core.system_settings (
     setting_id SERIAL PRIMARY KEY,
     key VARCHAR(255) UNIQUE NOT NULL,
     value TEXT,
@@ -24,16 +23,16 @@ CREATE TABLE IF NOT EXISTS system_settings (
     CONSTRAINT chk_system_setting_type CHECK (value_type IN ('string', 'number', 'boolean', 'json', 'array'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_system_settings_key ON system_settings(key);
-CREATE INDEX IF NOT EXISTS idx_system_settings_category ON system_settings(category);
+CREATE INDEX IF NOT EXISTS idx_system_settings_key ON core.system_settings(key);
+CREATE INDEX IF NOT EXISTS idx_system_settings_category ON core.system_settings(category);
 
-COMMENT ON TABLE system_settings IS 'Global system configuration and preferences';
+COMMENT ON TABLE core.system_settings IS 'Global system configuration and preferences';
 
 -- ============================================================================
 -- TABLE: feature_flags
 -- Description: System-wide feature toggles
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS feature_flags (
+CREATE TABLE IF NOT EXISTS core.feature_flags (
     flag_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     key VARCHAR(100) UNIQUE NOT NULL,
     enabled BOOLEAN DEFAULT FALSE,
@@ -48,17 +47,17 @@ CREATE TABLE IF NOT EXISTS feature_flags (
     CONSTRAINT chk_feature_rollout CHECK (rollout_percentage BETWEEN 0 AND 100)
 );
 
-CREATE INDEX IF NOT EXISTS idx_feature_flags_key ON feature_flags(key);
-CREATE INDEX IF NOT EXISTS idx_feature_flags_enabled ON feature_flags(enabled) WHERE enabled = TRUE;
-CREATE INDEX IF NOT EXISTS idx_feature_flags_dates ON feature_flags(start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_feature_flags_key ON core.feature_flags(key);
+CREATE INDEX IF NOT EXISTS idx_feature_flags_enabled ON core.feature_flags(enabled) WHERE enabled = TRUE;
+CREATE INDEX IF NOT EXISTS idx_feature_flags_dates ON core.feature_flags(start_date, end_date);
 
-COMMENT ON TABLE feature_flags IS 'System-wide feature toggles and gradual rollouts';
+COMMENT ON TABLE core.feature_flags IS 'System-wide feature toggles and gradual rollouts';
 
 -- ============================================================================
 -- TABLE: maintenance_windows
 -- Description: Scheduled maintenance periods
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS maintenance_windows (
+CREATE TABLE IF NOT EXISTS core.maintenance_windows (
     window_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -67,20 +66,20 @@ CREATE TABLE IF NOT EXISTS maintenance_windows (
     affected_services TEXT[],
     status VARCHAR(20) DEFAULT 'scheduled',
     notification_sent BOOLEAN DEFAULT FALSE,
-    created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    created_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT chk_maintenance_status CHECK (status IN ('scheduled', 'in_progress', 'completed', 'cancelled'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_maintenance_time ON maintenance_windows(start_time, end_time);
-CREATE INDEX IF NOT EXISTS idx_maintenance_status ON maintenance_windows(status);
+CREATE INDEX IF NOT EXISTS idx_maintenance_time ON core.maintenance_windows(start_time, end_time);
+CREATE INDEX IF NOT EXISTS idx_maintenance_status ON core.maintenance_windows(status);
 
-COMMENT ON TABLE maintenance_windows IS 'Scheduled maintenance windows and notifications';
+COMMENT ON TABLE core.maintenance_windows IS 'Scheduled maintenance windows and notifications';
 
 -- ============================================================================
 -- Seed System Settings
 -- ============================================================================
-INSERT INTO system_settings (key, value, value_type, category, description, editable) VALUES
+INSERT INTO core.system_settings (key, value, value_type, category, description, editable) VALUES
     ('system.name', 'LernsystemX', 'string', 'general', 'System name', false),
     ('system.version', '1.0.0', 'string', 'general', 'Current system version', false),
     ('system.installed', 'true', 'boolean', 'setup', 'Installation completed', false),
@@ -101,10 +100,12 @@ ON CONFLICT (key) DO NOTHING;
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_system_settings_updated_at BEFORE UPDATE ON system_settings
+DROP TRIGGER IF EXISTS update_system_settings_updated_at ON core.system_settings;
+CREATE TRIGGER update_system_settings_updated_at BEFORE UPDATE ON core.system_settings
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_feature_flags_updated_at BEFORE UPDATE ON feature_flags
+DROP TRIGGER IF EXISTS update_feature_flags_updated_at ON core.feature_flags;
+CREATE TRIGGER update_feature_flags_updated_at BEFORE UPDATE ON core.feature_flags
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

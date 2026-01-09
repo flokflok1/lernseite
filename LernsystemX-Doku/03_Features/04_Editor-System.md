@@ -14,7 +14,7 @@ Das Editor-System ist **zentral** für das Erstellen, Bearbeiten und Optimieren 
 - 📚 **Kursen**
 - 📖 **Modulen**
 - 📄 **Theorieblättern**
-- 🎯 **Lernmethoden** (19 Content-LMs, A-C)
+- 🎯 **Lernmethoden** (12 Content-LMs, A-C)
 - 📝 **Prüfungen**
 - 🌍 **Übersetzungen**
 - 🎨 **Whiteboard-Inhalten**
@@ -39,7 +39,7 @@ Person(admin, "Admin", "Verwaltet System")
 System_Boundary(editor, "Editor-System") {
     Container(course_editor, "Kurs-Editor", "Vue.js", "Kurs-Verwaltung")
     Container(module_editor, "Modul-Editor", "Vue.js", "Modul-Bearbeitung")
-    Container(method_editor, "Methoden-Editor", "Vue.js", "19 Content-LMs (A-C)")
+    Container(method_editor, "Methoden-Editor", "Vue.js", "12 Content-LMs (A-C)")
     Container(theory_editor, "Theorieblatt-Editor", "Vue.js", "Markdown Editor")
     Container(exam_editor, "Prüfungs-Editor", "Vue.js", "Exam Builder")
     Container(whiteboard_editor, "Whiteboard-Editor", "Canvas API", "Zeichnen + KI")
@@ -124,7 +124,7 @@ end note
 |------|-----------|
 | 🎯 **Intuitive Bearbeitung** | Drag & Drop, WYSIWYG |
 | 👥 **Professionelle Tools** | Creator, Lehrer, Schulen, Admins |
-| 📝 **19 Content-Lernmethoden (A-C)** | Konsistente Bearbeitung |
+| 📝 **12 Content-Lernmethoden (A-C)** | Konsistente Bearbeitung |
 | 🤖 **KI-Unterstützung** | Automatisierung & Optimierung |
 | 💾 **Strukturierte Daten** | JSON-Schema Validierung |
 | 🔄 **Versionierung** | Git-ähnliches System |
@@ -415,9 +415,9 @@ stop
 
 ---
 
-## 7. Methoden-Editor (19 Content-LMs)
+## 7. Methoden-Editor (12 Content-LMs)
 
-### 🎯 Alle 19 Content-Lernmethoden (Gruppen A-C)
+### 🎯 Alle 12 Content-Lernmethoden (Gruppen A-C)
 
 | Nr | Methode | Editor-Typ |
 |----|---------|-----------|
@@ -502,7 +502,7 @@ MethodEditor <|-- WhiteboardEditor
 
 note right of MethodEditor
   Basis-Klasse für
-  alle 19 Content-LM-Editoren
+  alle 12 Content-LM-Editoren
 end note
 @enduml
 ```
@@ -1153,7 +1153,7 @@ stop
 | 🤖 **KI-unterstützt** | ✅ Anthropic/OpenAI |
 | 💼 **Professionell** | ✅ Enterprise-Ready |
 | 🔧 **Anpassbar** | ✅ Für alle Rollen |
-| 📝 **19 Content-Lernmethoden (A-C)** | ✅ Vollständig |
+| 📝 **12 Content-Lernmethoden (A-C)** | ✅ Vollständig |
 | 🔄 **Versioniert** | ✅ Git-ähnlich |
 | ✅ **Validierung** | ✅ Qualitätssystem |
 | 🌍 **Mehrsprachig** | ✅ i18n Support |
@@ -1195,4 +1195,4 @@ stop
 ## 📌 Dokument abgeschlossen
 ---
 
-> 💡 **Hinweis:** Dieses Dokument ist Teil der LSX-Systemdokumentation und beschreibt das vollständige Editor-System mit allen 19 Content-Lernmethoden (Gruppen A-C), KI-Integration und Qualitätssicherung.
+> 💡 **Hinweis:** Dieses Dokument ist Teil der LSX-Systemdokumentation und beschreibt das vollständige Editor-System mit allen 12 Content-Lernmethoden (Gruppen A-C), KI-Integration und Qualitätssicherung.

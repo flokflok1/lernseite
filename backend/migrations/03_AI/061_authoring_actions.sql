@@ -14,7 +14,7 @@
 -- ============================================================================
 -- Stores Quick-Actions for KI-Studio (KursBuilder, Chat, Content, Tutor)
 
-CREATE TABLE IF NOT EXISTS authoring_actions (
+CREATE TABLE IF NOT EXISTS learning_methods.authoring_actions (
     action_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Action identification
@@ -68,28 +68,28 @@ CREATE TABLE IF NOT EXISTS authoring_actions (
     is_active BOOLEAN DEFAULT true,
 
     -- Audit
-    created_by UUID REFERENCES users(user_id),
-    updated_by UUID REFERENCES users(user_id),
+    created_by UUID REFERENCES core.users(user_id),
+    updated_by UUID REFERENCES core.users(user_id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Indexes
-CREATE INDEX idx_authoring_actions_category ON authoring_actions(category);
-CREATE INDEX idx_authoring_actions_mode ON authoring_actions(mode);
-CREATE INDEX idx_authoring_actions_active ON authoring_actions(is_active) WHERE is_active = true;
-CREATE INDEX idx_authoring_actions_context_entity ON authoring_actions(context_entity);
-CREATE INDEX idx_authoring_actions_order ON authoring_actions(category, order_index);
+CREATE INDEX idx_authoring_actions_category ON learning_methods.authoring_actions (category);
+CREATE INDEX idx_authoring_actions_mode ON learning_methods.authoring_actions (mode);
+CREATE INDEX idx_authoring_actions_active ON learning_methods.authoring_actions (is_active) WHERE is_active = true;
+CREATE INDEX idx_authoring_actions_context_entity ON learning_methods.authoring_actions (context_entity);
+CREATE INDEX idx_authoring_actions_order ON learning_methods.authoring_actions (category, order_index);
 
 -- ============================================================================
 -- 2. Authoring Action Usage Tracking
 -- ============================================================================
 -- Tracks usage statistics for analytics and improvement
 
-CREATE TABLE IF NOT EXISTS authoring_action_usage (
+CREATE TABLE IF NOT EXISTS learning_methods.authoring_action_usage (
     usage_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    action_id UUID NOT NULL REFERENCES authoring_actions(action_id) ON DELETE CASCADE,
-    user_id UUID REFERENCES users(user_id),
+    action_id UUID NOT NULL REFERENCES learning_methods.authoring_actions(action_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id),
     session_id UUID,                             -- Reference to authoring session
 
     -- Context when action was used
@@ -115,16 +115,16 @@ CREATE TABLE IF NOT EXISTS authoring_action_usage (
 );
 
 -- Indexes
-CREATE INDEX idx_action_usage_action ON authoring_action_usage(action_id);
-CREATE INDEX idx_action_usage_user ON authoring_action_usage(user_id);
-CREATE INDEX idx_action_usage_session ON authoring_action_usage(session_id);
-CREATE INDEX idx_action_usage_created ON authoring_action_usage(created_at);
+CREATE INDEX idx_action_usage_action ON learning_methods.authoring_action_usage (action_id);
+CREATE INDEX idx_action_usage_user ON learning_methods.authoring_action_usage (user_id);
+CREATE INDEX idx_action_usage_session ON learning_methods.authoring_action_usage (session_id);
+CREATE INDEX idx_action_usage_created ON learning_methods.authoring_action_usage (created_at);
 
 -- ============================================================================
 -- 3. Standard Authoring Actions (Quick-Actions für KI-Studio)
 -- ============================================================================
 
-INSERT INTO authoring_actions (action_key, category, label, description, icon, prompt_template, mode, context_entity, action_type, output_format, is_system, order_index)
+INSERT INTO learning_methods.authoring_actions (action_key, category, label, description, icon, prompt_template, mode, context_entity, action_type, output_format, is_system, order_index)
 VALUES
     -- Course Builder Actions
     ('structure_suggest', 'course_builder', 'Struktur vorschlagen', 'Analysiert das Kursmaterial und schlägt eine Kapitelstruktur vor', '📋',
@@ -201,7 +201,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_authoring_actions_updated
-    BEFORE UPDATE ON authoring_actions
+    BEFORE UPDATE ON learning_methods.authoring_actions
     FOR EACH ROW
     EXECUTE FUNCTION update_authoring_actions_timestamp();
 

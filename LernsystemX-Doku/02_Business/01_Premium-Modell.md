@@ -7,7 +7,7 @@
 
 ## Überblick
 
-Das LSX-Premium-Modell bietet Nutzern maximalen Lernnutzen durch Zugang zu allen 19 Content-Lernmethoden (Gruppen A-C), KI-gestützten Features und erweiterten Kollaborationsfunktionen. Es ist die zentrale Einnahmequelle der Plattform und muss klar definiert, fair, skalierbar, wertvoll und transparent gestaltet sein.
+Das LSX-Premium-Modell bietet Nutzern maximalen Lernnutzen durch Zugang zu allen 12 Content-Lernmethoden (Gruppen A-C), KI-gestützten Features und erweiterten Kollaborationsfunktionen. Es ist die zentrale Einnahmequelle der Plattform und muss klar definiert, fair, skalierbar, wertvoll und transparent gestaltet sein.
 
 ### 🎯 Premium-Positionierung
 
@@ -32,7 +32,7 @@ content_creator --> creator : Monetarisierung
 organisation --> org : Enterprise
 
 note right of premium
-  ✅ Alle 19 Content-LMs (A-C)
+  ✅ Alle 12 Content-LMs (A-C)
   ✅ KI-Vollzugriff
   ✅ Community-Publishing
   ✅ Private Gruppen
@@ -68,7 +68,7 @@ Person(free_user, "Free User", "Kann zu Premium upgraden")
 System(premium_system, "Premium System", "Subscription, Tokens, Features")
 
 System_Ext(payment, "Payment Gateway", "Stripe")
-System_Ext(learning, "Lern-System", "19 Content-LMs (A-C)")
+System_Ext(learning, "Lern-System", "12 Content-LMs (A-C)")
 System_Ext(ai_pipeline, "KI-Pipeline", "AI-Features")
 System_Ext(community, "Community-System", "Gruppen & Publishing")
 System_Ext(analytics, "Analytics", "Nutzungsdaten")
@@ -77,7 +77,7 @@ Rel(premium_user, premium_system, "Abonniert, nutzt Tokens")
 Rel(free_user, premium_system, "Upgrade-Option")
 
 Rel(premium_system, payment, "Verarbeitet Zahlungen")
-Rel(premium_system, learning, "Schaltet alle 19 Content-LMs frei")
+Rel(premium_system, learning, "Schaltet alle 12 Content-LMs frei")
 Rel(premium_system, ai_pipeline, "Gewährt KI-Zugriff")
 Rel(premium_system, community, "Aktiviert Community-Features")
 Rel(premium_system, analytics, "Trackt Nutzung & Tokens")
@@ -310,7 +310,7 @@ end note
 
 | Zielgruppe | Motivation | Hauptnutzen | Typischer Use-Case |
 |------------|------------|-------------|---------------------|
-| **Azubis** | IHK-Prüfungsvorbereitung | Alle 19 Content-LMs, KI-Prüfungssimulation | FIAE, FISI, Kaufmännische Berufe |
+| **Azubis** | IHK-Prüfungsvorbereitung | Alle 12 Content-LMs, KI-Prüfungssimulation | FIAE, FISI, Kaufmännische Berufe |
 | **Schüler** | Abitur, MSA, Grundschule | KI-Erklärungen, Spaced Repetition | Mathe, Deutsch, Englisch |
 | **Studierende** | Prüfungsvorbereitung | Case Studies, Mind Maps, Whiteboard | BWL, IT, Ingenieurwesen |
 | **Private Lerner** | Persönliche Weiterbildung | Flexibilität, Community-Kurse | Sprachen, Hobbies, IT-Skills |
@@ -330,7 +330,7 @@ end note
 title Premium Feature-Set
 
 Container_Boundary(premium_features, "Premium Features") {
-  Component(learning_methods, "19 Content-Lernmethoden (A-C)", "Vue.js", "Voller Zugang")
+  Component(learning_methods, "12 Content-Lernmethoden (A-C)", "Vue.js", "Voller Zugang")
   Component(ai_features, "KI-Features", "Python/AI", "Token-basiert")
   Component(course_creation, "Kurserstellung", "Vue.js", "Private & Community")
   Component(community, "Community-Tools", "Vue.js", "Gruppen & Publishing")
@@ -1423,7 +1423,7 @@ Rel(revenue, reporting, "Visualisiert")
 |--------|---------|
 | **Preis** | 14,99 € / Monat (129,99 € / Jahr) |
 | **Zielgruppe** | Einzelpersonen, Lerner, Studenten |
-| **Lernmethoden** | Alle 19 Content-Lernmethoden (A-C) |
+| **Lernmethoden** | Alle 12 Content-Lernmethoden (A-C) |
 | **KI-Zugriff** | Vollzugriff (token-basiert, 10.000/Monat) |
 | **Kurserstellung** | Private & Community (kostenlos) |
 | **Community** | Gruppen erstellen, Publishing |
@@ -1439,7 +1439,7 @@ Rel(revenue, reporting, "Visualisiert")
 - **Flexibel:** Monatlich kündbar, Tokens laufen nicht ab
 - **Skalierbar:** Token-Nachkauf für Power-User
 - **Klar abgegrenzt:** Premium ist Lerner-Konto, kein Business-Account
-- **Wertvoll:** Alle 19 Content-LMs (A-C) + KI rechtfertigen Preis
+- **Wertvoll:** Alle 12 Content-LMs (A-C) + KI rechtfertigen Preis
 
 ---
 

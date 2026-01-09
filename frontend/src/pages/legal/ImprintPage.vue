@@ -10,13 +10,13 @@
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Zurück zur Startseite
+          {{ $t('legal.backToHome') }}
         </router-link>
         <h1 class="text-3xl font-bold text-[var(--color-text-primary)]">
-          Impressum
+          {{ $t('legal.imprint.title') }}
         </h1>
         <p class="mt-2 text-[var(--color-text-secondary)]">
-          Angaben gemäß § 5 TMG
+          {{ $t('legal.imprint.subtitle') }}
         </p>
       </div>
     </header>
@@ -32,13 +32,13 @@
               <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
             <p class="text-sm text-amber-800 dark:text-amber-200 m-0">
-              <strong>Hinweis:</strong> Die folgenden Angaben sind Platzhalter und müssen vor dem Produktivbetrieb durch die korrekten Unternehmensdaten ersetzt werden. Bitte konsultieren Sie einen Rechtsanwalt.
+              <strong>{{ $t('legal.placeholderNotice') }}</strong> {{ $t('legal.imprint.placeholderText') }}
             </p>
           </div>
         </div>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Anbieter</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.provider') }}</h2>
           <p>
             LernsystemX GmbH<br />
             Musterstraße 123<br />
@@ -48,38 +48,38 @@
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Vertreten durch</h2>
-          <p>Geschäftsführer: Max Mustermann</p>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.representedBy') }}</h2>
+          <p>{{ $t('legal.imprint.managingDirector', { name: 'Max Mustermann' }) }}</p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Kontakt</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.contact') }}</h2>
           <p>
-            Telefon: +49 (0) 123 456789<br />
-            E-Mail: info@lernsystemx.de<br />
-            Website: www.lernsystemx.de
+            {{ $t('legal.imprint.phone', { phone: '+49 (0) 123 456789' }) }}<br />
+            {{ $t('legal.imprint.email', { email: 'info@lernsystemx.de' }) }}<br />
+            {{ $t('legal.imprint.website', { website: 'www.lernsystemx.de' }) }}
           </p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Registereintrag</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.registry') }}</h2>
           <p>
-            Eintragung im Handelsregister<br />
-            Registergericht: Amtsgericht Musterstadt<br />
-            Registernummer: HRB 12345
+            {{ $t('legal.imprint.registryEntry') }}<br />
+            {{ $t('legal.imprint.registryCourt', { court: 'Amtsgericht Musterstadt' }) }}<br />
+            {{ $t('legal.imprint.registryNumber', { number: 'HRB 12345' }) }}
           </p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Umsatzsteuer-ID</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.vatId') }}</h2>
           <p>
-            Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
+            {{ $t('legal.imprint.vatIdText') }}<br />
             DE 123456789
           </p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.responsible') }}</h2>
           <p>
             Max Mustermann<br />
             Musterstraße 123<br />
@@ -88,42 +88,29 @@
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">EU-Streitschlichtung</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.euDispute') }}</h2>
           <p>
-            Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
+            {{ $t('legal.imprint.euDisputeText') }}
             <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" class="text-[var(--color-accent)] hover:underline">
               https://ec.europa.eu/consumers/odr/
             </a>
           </p>
-          <p>Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>
+          <p>{{ $t('legal.imprint.euDisputeEmail') }}</p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Verbraucherstreitbeilegung/Universalschlichtungsstelle</h2>
-          <p>
-            Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
-            Verbraucherschlichtungsstelle teilzunehmen.
-          </p>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.consumerDispute') }}</h2>
+          <p>{{ $t('legal.imprint.consumerDisputeText') }}</p>
         </section>
 
         <section class="mb-8">
-          <h2 class="text-xl font-semibold mb-4">Haftung für Inhalte</h2>
-          <p>
-            Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach
-            den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter
-            jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen
-            oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-          </p>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.liability') }}</h2>
+          <p>{{ $t('legal.imprint.liabilityText') }}</p>
         </section>
 
         <section>
-          <h2 class="text-xl font-semibold mb-4">Haftung für Links</h2>
-          <p>
-            Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen
-            Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.
-            Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der
-            Seiten verantwortlich.
-          </p>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('legal.imprint.links') }}</h2>
+          <p>{{ $t('legal.imprint.linksText') }}</p>
         </section>
       </div>
     </main>
@@ -134,5 +121,8 @@
 </template>
 
 <script setup lang="ts">
-import Footer from '@/components/layout/Footer.vue'
+import { useI18n } from 'vue-i18n'
+import { Footer } from '@/components/shared/layout'
+
+useI18n()
 </script>

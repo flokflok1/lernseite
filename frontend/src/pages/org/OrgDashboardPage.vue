@@ -1,11 +1,11 @@
 <template>
-  <AdminLayout page-title="Organisation Dashboard" page-subtitle="Überblick über Ihre Organisation" :is-org-admin="true">
+  <AdminLayout :page-title="$t('admin.orgDashboardPage.title')" :page-subtitle="$t('admin.orgDashboardPage.subtitle')" :is-org-admin="true">
     <div v-if="orgAdminStore.loading" class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
     </div>
 
     <div v-else-if="!authStore.currentOrganisationId" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-      <p class="text-yellow-800">Sie sind keiner Organisation zugeordnet.</p>
+      <p class="text-yellow-800">{{ $t('admin.orgDashboardPage.noOrganisation') }}</p>
     </div>
 
     <div v-else>
@@ -16,8 +16,8 @@
             <span class="text-3xl">👥</span>
           </div>
           <p class="text-3xl font-bold text-gray-900">{{ orgAdminStore.memberCount }}</p>
-          <p class="text-sm text-gray-600 mt-1">Mitglieder</p>
-          <p class="text-xs text-gray-500 mt-2">{{ orgAdminStore.activeMembersCount }} aktiv</p>
+          <p class="text-sm text-gray-600 mt-1">{{ $t('admin.orgDashboardPage.members') }}</p>
+          <p class="text-xs text-gray-500 mt-2">{{ $t('admin.orgDashboardPage.active', { count: orgAdminStore.activeMembersCount }) }}</p>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
@@ -25,7 +25,7 @@
             <span class="text-3xl">📚</span>
           </div>
           <p class="text-3xl font-bold text-gray-900">{{ orgAdminStore.orgCourseCount }}</p>
-          <p class="text-sm text-gray-600 mt-1">Kurse</p>
+          <p class="text-sm text-gray-600 mt-1">{{ $t('admin.orgDashboardPage.courses') }}</p>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
@@ -33,8 +33,8 @@
             <span class="text-3xl">🪙</span>
           </div>
           <p class="text-3xl font-bold text-gray-900">{{ formatNumber(orgAdminStore.tokenAvailable) }}</p>
-          <p class="text-sm text-gray-600 mt-1">Token verfügbar</p>
-          <p class="text-xs text-gray-500 mt-2">{{ Math.round(orgAdminStore.tokenUsagePercentage) }}% verbraucht</p>
+          <p class="text-sm text-gray-600 mt-1">{{ $t('admin.orgDashboardPage.tokensAvailable') }}</p>
+          <p class="text-xs text-gray-500 mt-2">{{ $t('admin.orgDashboardPage.consumed', { percent: Math.round(orgAdminStore.tokenUsagePercentage) }) }}</p>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
@@ -42,7 +42,7 @@
             <span class="text-3xl">📈</span>
           </div>
           <p class="text-3xl font-bold text-gray-900">{{ Math.round(orgAdminStore.orgCompletionRate) }}%</p>
-          <p class="text-sm text-gray-600 mt-1">Abschlussrate</p>
+          <p class="text-sm text-gray-600 mt-1">{{ $t('admin.orgDashboardPage.completionRate') }}</p>
         </div>
       </div>
 
@@ -52,8 +52,8 @@
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">👥</div>
             <div>
-              <p class="font-semibold text-gray-900">Mitglieder verwalten</p>
-              <p class="text-sm text-gray-600">Einladen & zuweisen</p>
+              <p class="font-semibold text-gray-900">{{ $t('admin.orgDashboardPage.manageMembers') }}</p>
+              <p class="text-sm text-gray-600">{{ $t('admin.orgDashboardPage.manageMembersDesc') }}</p>
             </div>
           </div>
         </router-link>
@@ -62,8 +62,8 @@
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl">📚</div>
             <div>
-              <p class="font-semibold text-gray-900">Kurse zuweisen</p>
-              <p class="text-sm text-gray-600">Lernpfade verwalten</p>
+              <p class="font-semibold text-gray-900">{{ $t('admin.orgDashboardPage.assignCourses') }}</p>
+              <p class="text-sm text-gray-600">{{ $t('admin.orgDashboardPage.assignCoursesDesc') }}</p>
             </div>
           </div>
         </router-link>
@@ -72,8 +72,8 @@
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-2xl">📈</div>
             <div>
-              <p class="font-semibold text-gray-900">Fortschritt ansehen</p>
-              <p class="text-sm text-gray-600">Analytics & Reports</p>
+              <p class="font-semibold text-gray-900">{{ $t('admin.orgDashboardPage.viewProgress') }}</p>
+              <p class="text-sm text-gray-600">{{ $t('admin.orgDashboardPage.viewProgressDesc') }}</p>
             </div>
           </div>
         </router-link>

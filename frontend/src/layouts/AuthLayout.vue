@@ -22,26 +22,26 @@
         <!-- Mini Footer with Legal Links -->
         <div class="text-center mt-6 space-y-3">
           <p class="text-sm text-gray-500">
-            &copy; {{ currentYear }} LernsystemX. Alle Rechte vorbehalten.
+            {{ $t('legal.footer.copyright', { year: currentYear }) }}
           </p>
           <div class="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
             <router-link
               to="/legal/imprint"
               class="hover:text-primary-600 transition-colors"
             >
-              Impressum
+              {{ $t('legal.footer.imprint') }}
             </router-link>
             <router-link
               to="/legal/privacy"
               class="hover:text-primary-600 transition-colors"
             >
-              Datenschutz
+              {{ $t('legal.footer.privacy') }}
             </router-link>
             <router-link
               to="/legal/terms"
               class="hover:text-primary-600 transition-colors"
             >
-              AGB
+              {{ $t('legal.footer.terms') }}
             </router-link>
           </div>
         </div>
@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import LanguageSelector from '@/components/ui/LanguageSelector.vue'
+import { LanguageSelector } from '@/components/core/i18n'
 
 const currentYear = computed(() => new Date().getFullYear())
 </script>

@@ -71,7 +71,7 @@ class OrganisationSetup:
         # Check domain uniqueness
         if domain:
             existing = fetch_one(
-                "SELECT organization_id FROM organizations WHERE domain = %s",
+                "SELECT organization_id FROM organisations.organisations WHERE domain = %s",
                 (domain,)
             )
             if existing:
@@ -86,7 +86,7 @@ class OrganisationSetup:
             logo_url = branding.get('logo_url')
 
         org = insert_returning(
-            'organizations',
+            'organisations.organisations',
             {
                 'name': name,
                 'type': org_type,
@@ -128,7 +128,7 @@ class OrganisationSetup:
         """
         # Check if LSX Academy already exists
         existing = fetch_one(
-            "SELECT * FROM organizations WHERE name = %s OR domain = %s",
+            "SELECT * FROM organisations.organisations WHERE name = %s OR domain = %s",
             ('LSX Academy', 'lsx.de')
         )
 
@@ -257,7 +257,7 @@ class OrganisationSetup:
             >>> org = OrganisationSetup.get_organisation(1)
         """
         return fetch_one(
-            "SELECT * FROM organizations WHERE organization_id = %s",
+            "SELECT * FROM organisations.organisations WHERE organization_id = %s",
             (organisation_id,)
         )
 
@@ -276,7 +276,7 @@ class OrganisationSetup:
             >>> org = OrganisationSetup.get_organisation_by_domain('school.example.com')
         """
         return fetch_one(
-            "SELECT * FROM organizations WHERE domain = %s",
+            "SELECT * FROM organisations.organisations WHERE domain = %s",
             (domain,)
         )
 
@@ -296,12 +296,12 @@ class OrganisationSetup:
         """
         if org_type:
             return fetch_all(
-                "SELECT * FROM organizations WHERE type = %s ORDER BY created_at DESC",
+                "SELECT * FROM organisations.organisations WHERE type = %s ORDER BY created_at DESC",
                 (org_type,)
             )
         else:
             return fetch_all(
-                "SELECT * FROM organizations ORDER BY created_at DESC"
+                "SELECT * FROM organisations.organisations ORDER BY created_at DESC"
             )
 
     @classmethod
@@ -332,7 +332,7 @@ class OrganisationSetup:
 
         execute_query(
             """
-            UPDATE organizations
+            UPDATE organisations.organisations
             SET logo_url = %s, updated_at = NOW()
             WHERE organization_id = %s
             """,
@@ -356,7 +356,7 @@ class OrganisationSetup:
             >>> OrganisationSetup.activate_organisation(5)
         """
         execute_query(
-            "UPDATE organizations SET status = 'active' WHERE organization_id = %s",
+            "UPDATE organisations.organisations SET status = 'active' WHERE organization_id = %s",
             (organisation_id,)
         )
         return True
@@ -376,7 +376,7 @@ class OrganisationSetup:
             >>> OrganisationSetup.deactivate_organisation(5)
         """
         execute_query(
-            "UPDATE organizations SET status = 'inactive' WHERE organization_id = %s",
+            "UPDATE organisations.organisations SET status = 'inactive' WHERE organization_id = %s",
             (organisation_id,)
         )
         return True
@@ -395,19 +395,19 @@ class OrganisationSetup:
             >>> print(f"Schools: {stats['by_type']['school']}")
         """
         # Total organisations
-        total_result = fetch_one("SELECT COUNT(*) FROM organizations")
+        total_result = fetch_one("SELECT COUNT(*) FROM organisations.organisations")
         total = total_result['count'] if total_result else 0
 
         # Active organisations
         active_result = fetch_one(
-            "SELECT COUNT(*) FROM organizations WHERE status = 'active'"
+            "SELECT COUNT(*) FROM organisations.organisations WHERE status = 'active'"
         )
         active = active_result['count'] if active_result else 0
 
         # By type
         by_type_results = fetch_all("""
             SELECT type, COUNT(*) as count
-            FROM organizations
+            FROM organisations.organisations
             WHERE status = 'active'
             GROUP BY type
         """)

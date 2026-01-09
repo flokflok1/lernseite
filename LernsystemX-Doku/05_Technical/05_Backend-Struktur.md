@@ -1,7 +1,7 @@
 # 17 – Backend-Struktur (Final)
 
-**Version:** 1.1
-**Stand:** 01.12.2025
+**Version:** 1.2
+**Stand:** 02.01.2026
 
 ---
 
@@ -132,7 +132,13 @@ graph LR
 │   │   ├── courses.py           # /api/v1/courses - Kurs-Operationen
 │   │   ├── categories.py        # /api/v1/categories - Kategorien
 │   │   ├── learning_methods.py  # /api/v1/learning-methods
-│   │   ├── dashboard.py         # /api/v1/dashboard - Dashboard Widgets
+│   │   │
+│   │   ├── /dashboard           # Dashboard Package (11 endpoints, 2 modules)
+│   │   │   ├── __init__.py
+│   │   │   ├── widgets.py       # Widget management (7 endpoints)
+│   │   │   └── recommendations.py # KI recommendations (4 endpoints)
+│   │   │
+│   │   ├── dashboard.py         # /api/v1/dashboard - Dashboard Layouts (deprecated, use /dashboard package)
 │   │   ├── subscriptions.py     # /api/v1/subscriptions - Premium
 │   │   ├── tokens.py            # /api/v1/tokens - Token Wallet
 │   │   ├── organisations.py     # /api/v1/organisations - Org Management
@@ -205,7 +211,7 @@ graph LR
 │   │   ├── learning_method.py
 │   │   └── ...
 │   │
-│   ├── /repositories            # 🗄️ Database Access Layer (33 Dateien)
+│   ├── /repositories            # 🗄️ Database Access Layer (36 Dateien)
 │   │   ├── base_repository.py   # 🔧 Connection Pool Management
 │   │   ├── user_repository.py
 │   │   ├── course_repository.py
@@ -230,6 +236,13 @@ graph LR
 │   │   ├── exam_repository.py
 │   │   ├── analytics_repository.py
 │   │   ├── dashboard_repository.py
+│   │   │
+│   │   ├── /widgets             # Dashboard/Widget Repositories (3 Dateien)
+│   │   │   ├── __init__.py
+│   │   │   ├── widget_repository.py              # Widget type registry
+│   │   │   ├── widget_instance_repository.py     # User widget instances
+│   │   │   └── recommendation_repository.py      # KI recommendations
+│   │   │
 │   │   ├── organisation_repository.py
 │   │   ├── subscription_repository.py
 │   │   ├── token_repository.py
@@ -240,7 +253,7 @@ graph LR
 │   │   ├── admin_repository.py
 │   │   └── user_preferences_repository.py
 │   │
-│   ├── /services                # ⚙️ Business Logic (27 Dateien)
+│   ├── /services                # ⚙️ Business Logic (29 Dateien)
 │   │   ├── ai_adapter.py        # KI-Provider Adapter
 │   │   ├── ai_studio_service.py # AI-Studio Logik
 │   │   ├── ai_job_service.py    # KI-Job Verwaltung
@@ -254,7 +267,13 @@ graph LR
 │   │   ├── cache_service.py     # Redis Cache
 │   │   ├── course_ai_settings_service.py
 │   │   ├── course_authoring_service.py
-│   │   ├── dashboard_service.py
+│   │   │
+│   │   ├── /dashboard           # Dashboard Services (2 Dateien)
+│   │   │   ├── __init__.py
+│   │   │   ├── widget_service.py         # Widget management logic
+│   │   │   └── recommendation_service.py # KI recommendations logic
+│   │   │
+│   │   ├── dashboard_service.py # Dashboard layouts (deprecated, use /dashboard package)
 │   │   ├── exam_context_detector.py
 │   │   ├── feedback_service.py
 │   │   ├── file_context_service.py
@@ -270,7 +289,7 @@ graph LR
 │   │   └── tutor_knowledge_service.py
 │   │
 │   ├── /ki                      # 🤖 KI/AI System
-│   │   ├── learning_method_mapping.py  # 19 Lernmethoden (LM00-LM25)
+│   │   ├── learning_method_mapping.py  # 12 Lernmethoden (LM00-LM11)
 │   │   ├── /prompts             # KI Prompt Templates
 │   │   └── ...
 │   │
@@ -692,8 +711,8 @@ graph TB
 | `profile_bp` | `/api/v1/profile` | User Profile |
 | `courses_bp` | `/api/v1/courses` | Course CRUD |
 | `categories_bp` | `/api/v1/categories` | Kurs-Kategorien |
-| `learning_methods_bp` | `/api/v1/learning-methods` | 19 Lernmethoden (LM00-LM25) |
-| `dashboard_bp` | `/api/v1/dashboard` | Dashboard Widgets |
+| `learning_methods_bp` | `/api/v1/learning-methods` | 12 Lernmethoden (LM00-LM11) |
+| `dashboard_bp` | `/api/v1/dashboard` | Dashboard Widgets (11 endpoints: widgets, recommendations, layouts) |
 | `tokens_bp` | `/api/v1/tokens` | Token Wallet |
 | `subscriptions_bp` | `/api/v1/subscriptions` | Premium Subscriptions |
 | `organisations_bp` | `/api/v1/organisations` | School/Company Management |
@@ -752,6 +771,29 @@ graph TB
 | **AI Settings** | `/admin/course-ai-settings` | KI-Einstellungen | `admin_course_ai_settings.py` |
 | **Authoring** | `/admin/course-authoring` | Kurs-Authoring | `admin_course_authoring.py` |
 | **Features** | `/admin/system-features` | System-Features | `admin_course_system_features.py` |
+
+**Dashboard/Widget Endpoints:**
+
+| Modul | Prefix | Beschreibung | Datei |
+|-------|--------|--------------|-------|
+| **Widget Management** | `/dashboard/widgets` | Widget CRUD, Position, Settings | `dashboard/widgets.py` |
+| **KI Recommendations** | `/dashboard/recommendations` | KI-Empfehlungen, Dismiss, Accept | `dashboard/recommendations.py` |
+| **Layouts (Legacy)** | `/dashboard` | Dashboard-Layouts | `dashboard.py` (deprecated) |
+
+**Widget Endpoints (dashboard/widgets.py):**
+- `GET /api/v1/dashboard/widgets` - Get available widgets for role
+- `GET /api/v1/dashboard/widgets/user` - Get user's widget instances
+- `POST /api/v1/dashboard/widgets/add` - Add widget to dashboard
+- `DELETE /api/v1/dashboard/widgets/{id}` - Remove widget
+- `PATCH /api/v1/dashboard/widgets/{id}/position` - Update position (Drag & Drop)
+- `PATCH /api/v1/dashboard/widgets/{id}/settings` - Update custom settings
+- `PATCH /api/v1/dashboard/widgets/{id}/toggle` - Toggle visibility
+
+**Recommendation Endpoints (dashboard/recommendations.py):**
+- `GET /api/v1/dashboard/recommendations` - Get KI recommendations
+- `POST /api/v1/dashboard/recommendations/{id}/dismiss` - Dismiss recommendation
+- `POST /api/v1/dashboard/recommendations/{id}/accept` - Accept recommendation
+- `GET /api/v1/dashboard/recommendations/stats` - Get recommendation statistics
 
 ---
 
@@ -1271,9 +1313,10 @@ graph LR
 
 ## 📌 Dokument abgeschlossen
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** Final
-**Letzte Aktualisierung:** 01.12.2025
+**Letzte Aktualisierung:** 02.01.2026
+**Änderungen:** Dashboard/Widget System hinzugefügt (modular: repositories/widgets/, services/dashboard/, api/dashboard/)
 
 ---
 

@@ -790,6 +790,63 @@ export interface AIModelRegistryResponse {
 }
 
 // ============================================================================
+// AI Model Pricing Types
+// ============================================================================
+
+export interface AIModelPricing {
+  model_id: number
+  provider_id: number
+  provider_name: string
+  provider_display_name?: string
+  model_name: string
+  display_name: string
+  category: string
+  cost_per_1k_input: number | null    // Einkaufspreis (Provider-Kosten)
+  cost_per_1k_output: number | null
+  input_price_per_1k: number | null   // Verkaufspreis (Kundenpreis)
+  output_price_per_1k: number | null
+  margin_input: number | null         // Berechnete Marge %
+  margin_output: number | null
+  active: boolean
+  is_default: boolean
+  updated_at: string
+}
+
+export interface AIModelPricingResponse {
+  success: boolean
+  data: {
+    models: AIModelPricing[]
+    count: number
+    categories: string[]
+    providers: string[]
+  }
+}
+
+export interface AIModelPricingUpdateRequest {
+  cost_per_1k_input?: number | null
+  cost_per_1k_output?: number | null
+  input_price_per_1k?: number | null
+  output_price_per_1k?: number | null
+}
+
+export interface AIModelBulkPricingRequest {
+  model_ids: number[]
+  updates: AIModelPricingUpdateRequest
+}
+
+export interface AIModelApplyMarginRequest {
+  model_ids: number[] | 'all'
+  margin_percent: number
+  apply_to: 'input' | 'output' | 'both'
+}
+
+export interface AIModelBulkPricingResponse {
+  success: boolean
+  data: { updated_count: number }
+  message: string
+}
+
+// ============================================================================
 // Learning Methods Types
 // ============================================================================
 

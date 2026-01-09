@@ -155,7 +155,8 @@ def configure_environment():
                 'error': f'Invalid environment: {environment}. Must be "development" or "production"'
             }), 400
 
-        overwrite = data.get('overwrite', False)
+        # Always overwrite .env during setup wizard - if user is running setup, they want a fresh install
+        overwrite = data.get('overwrite', True)
         custom_values = data.get('custom_values', {})
 
         # Setup environment
@@ -241,8 +242,10 @@ def initialize_database():
         {
             "success": bool,
             "database_created": bool,
-            "tables_created": int,
             "migrations_executed": int,
+            "schemas_created": int,
+            "tables_created": int,
+            "indexes_created": int,
             "errors": [str]
         }
 
@@ -251,8 +254,10 @@ def initialize_database():
         Response: {
             "success": true,
             "database_created": false,
-            "tables_created": 65,
-            "migrations_executed": 40
+            "migrations_executed": 74,
+            "schemas_created": 22,
+            "tables_created": 211,
+            "indexes_created": 1032
         }
     """
     try:
@@ -708,8 +713,9 @@ def seed_database():
         }
 
     Creates:
-    - Learning methods (21)
-    - Roles (10)
+    - Learning methods (12 Content-Lernmethoden)
+    - System features (25 features)
+    - Roles (9)
     - Categories (8)
 
     Returns:
@@ -717,6 +723,7 @@ def seed_database():
         {
             "success": bool,
             "learning_methods": int,
+            "system_features": int,
             "roles": int,
             "categories": int,
             "errors": [str]
@@ -727,8 +734,9 @@ def seed_database():
         Body: {"skip_existing": true}
         Response: {
             "success": true,
-            "learning_methods": 21,
-            "roles": 10,
+            "learning_methods": 12,
+            "system_features": 25,
+            "roles": 9,
             "categories": 8
         }
     """
@@ -750,6 +758,7 @@ def seed_database():
         return jsonify({
             'success': True,
             'learning_methods': results['learning_methods'],
+            'system_features': results['system_features'],
             'roles': results['roles'],
             'categories': results['categories'],
             'message': 'Database seeded successfully'
@@ -843,6 +852,47 @@ def complete_setup():
         # Get admin email from request
         data = request.get_json() or {}
         admin_email = data.get('admin_email')
+
+        # Initialize system settings in database
+        try:
+            from app.repositories.settings.system import SystemSettingsRepository
+            import os
+
+            # Get environment from .env (created during setup)
+            current_env = os.getenv('FLASK_ENV', 'development')
+
+            # Write environment to DB for GUI management
+            SystemSettingsRepository.create_setting(
+                key='system.environment',
+                value=current_env,
+                category='system',
+                description='System environment mode (development/production)',
+                editable=True,
+                value_type='string'
+            )
+
+            # Initialize other system settings
+            SystemSettingsRepository.create_setting(
+                key='system.debug_enabled',
+                value=(current_env == 'development'),
+                category='system',
+                description='Debug mode enabled',
+                editable=True,
+                value_type='boolean'
+            )
+
+            SystemSettingsRepository.create_setting(
+                key='system.maintenance_mode',
+                value=False,
+                category='system',
+                description='Maintenance mode flag',
+                editable=True,
+                value_type='boolean'
+            )
+
+        except Exception as e:
+            # Log but don't fail the installation
+            print(f"Warning: Could not initialize system settings: {e}")
 
         # Mark as installed
         success = InstallationChecker.mark_as_installed(
@@ -1430,15 +1480,15 @@ def configure_database():
         # Connection successful - save to .env
         env_file = Path(__file__).parent.parent / '.env'
 
-        set_key(env_file, 'DB_HOST', host)
-        set_key(env_file, 'DB_PORT', str(port))
-        set_key(env_file, 'DB_NAME', dbname)
-        set_key(env_file, 'DB_USER', user)
-        set_key(env_file, 'DB_PASSWORD', password)
+        set_key(env_file, 'DB_HOST', host, quote_mode='never')
+        set_key(env_file, 'DB_PORT', str(port), quote_mode='never')
+        set_key(env_file, 'DB_NAME', dbname, quote_mode='never')
+        set_key(env_file, 'DB_USER', user, quote_mode='never')
+        set_key(env_file, 'DB_PASSWORD', password, quote_mode='never')
 
         # Update DATABASE_URL
         database_url = f"postgresql://{user}:{password}@{host}:{port}/{dbname}"
-        set_key(env_file, 'DATABASE_URL', database_url)
+        set_key(env_file, 'DATABASE_URL', database_url, quote_mode='never')
 
         return jsonify({
             'success': True,
@@ -1506,9 +1556,9 @@ def configure_redis():
         # Connection successful - save to .env
         env_file = Path(__file__).parent.parent / '.env'
 
-        set_key(env_file, 'REDIS_HOST', host)
-        set_key(env_file, 'REDIS_PORT', str(port))
-        set_key(env_file, 'REDIS_DB', str(db))
+        set_key(env_file, 'REDIS_HOST', host, quote_mode='never')
+        set_key(env_file, 'REDIS_PORT', str(port), quote_mode='never')
+        set_key(env_file, 'REDIS_DB', str(db), quote_mode='never')
 
         # Build Redis URL
         if password:
@@ -1516,14 +1566,14 @@ def configure_redis():
         else:
             redis_url = f"redis://{host}:{port}/{db}"
 
-        set_key(env_file, 'REDIS_URL', redis_url)
+        set_key(env_file, 'REDIS_URL', redis_url, quote_mode='never')
 
         # Also update other Redis URLs (Celery, SocketIO, etc.)
-        set_key(env_file, 'CELERY_BROKER_URL', f"redis://{host}:{port}/1")
-        set_key(env_file, 'CELERY_RESULT_BACKEND', f"redis://{host}:{port}/2")
-        set_key(env_file, 'SOCKETIO_MESSAGE_QUEUE', f"redis://{host}:{port}/3")
-        set_key(env_file, 'RATELIMIT_STORAGE_URL', f"redis://{host}:{port}/4")
-        set_key(env_file, 'SESSION_REDIS_URL', f"redis://{host}:{port}/5")
+        set_key(env_file, 'CELERY_BROKER_URL', f"redis://{host}:{port}/1", quote_mode='never')
+        set_key(env_file, 'CELERY_RESULT_BACKEND', f"redis://{host}:{port}/2", quote_mode='never')
+        set_key(env_file, 'SOCKETIO_MESSAGE_QUEUE', f"redis://{host}:{port}/3", quote_mode='never')
+        set_key(env_file, 'RATELIMIT_STORAGE_URL', f"redis://{host}:{port}/4", quote_mode='never')
+        set_key(env_file, 'SESSION_REDIS_URL', f"redis://{host}:{port}/5", quote_mode='never')
 
         return jsonify({
             'success': True,

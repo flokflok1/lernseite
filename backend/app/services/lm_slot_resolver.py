@@ -30,7 +30,7 @@ from app.ki.lm_slot_requirements import (
     get_lm_required_slots,
     ALL_LM_CONFIGS
 )
-from app.repositories.lm_slot_repository import (
+from app.repositories.lm_slot import (
     LMSlotAssignmentRepository,
     LMSlotResolverRepository,
     CapabilitySlotRepository

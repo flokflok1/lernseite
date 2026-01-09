@@ -13,7 +13,7 @@ from app.ki.prompt_models import (
     PromptContext
 )
 
-from app.ki.prompt_registry import (
+from app.ki.prompts.registry import (
     PROMPT_REGISTRY,
     DB_OVERRIDE_ENABLED,
     register_prompt,

@@ -104,8 +104,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import { useWindowStore } from '@/store/window.store'
-import LsxDesktopLayer from '@/components/desktop/LsxDesktopLayer.vue'
-import LanguageSelector from '@/components/ui/LanguageSelector.vue'
+import { LsxDesktopLayer } from '@/components/shared'
+import { LanguageSelector } from '@/components/core/i18n'
 
 // ============================================================================
 // Props
@@ -179,7 +179,8 @@ const menuItems = computed(() => {
       { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
       { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },
       { path: '/admin/analytics', label: t('admin.nav.analytics'), icon: '📈' },
-      { path: '/admin/audit-logs', label: t('admin.nav.audit_logs'), icon: '📋' }
+      { path: '/admin/audit-logs', label: t('admin.nav.audit_logs'), icon: '📋' },
+      { path: '/admin/system-settings', label: t('admin.nav.settings'), icon: '⚙️' }
     ]
   }
 })

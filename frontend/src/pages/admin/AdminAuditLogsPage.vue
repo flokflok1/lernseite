@@ -1,64 +1,64 @@
 <template>
   <div class="admin-audit-logs-page">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">Audit Logs</h1>
-      <p class="text-[var(--color-text-secondary)] mt-1">System-Auditprotokoll</p>
+      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">{{ $t('admin.auditLogs.title') }}</h1>
+      <p class="text-[var(--color-text-secondary)] mt-1">{{ $t('admin.auditLogs.subtitle') }}</p>
     </div>
     <!-- Filters -->
     <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Benutzer-ID</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.auditLogs.userId') }}</label>
           <input
             v-model.number="filters.user_id"
             type="number"
-            placeholder="z.B. 123"
+            :placeholder="$t('admin.auditLogs.userIdPlaceholder')"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Aktion</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.auditLogs.action') }}</label>
           <select
             v-model="filters.action"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
-            <option value="">Alle Aktionen</option>
-            <option value="ban_user">Benutzer sperren</option>
-            <option value="unban_user">Benutzer entsperren</option>
-            <option value="grant_tokens">Tokens gewähren</option>
-            <option value="verify_creator">Creator verifizieren</option>
-            <option value="update_role">Rolle ändern</option>
-            <option value="delete_user">Benutzer löschen</option>
+            <option value="">{{ $t('admin.auditLogs.allActions') }}</option>
+            <option value="ban_user">{{ $t('admin.auditLogs.actions.ban_user') }}</option>
+            <option value="unban_user">{{ $t('admin.auditLogs.actions.unban_user') }}</option>
+            <option value="grant_tokens">{{ $t('admin.auditLogs.actions.grant_tokens') }}</option>
+            <option value="verify_creator">{{ $t('admin.auditLogs.actions.verify_creator') }}</option>
+            <option value="update_role">{{ $t('admin.auditLogs.actions.update_role') }}</option>
+            <option value="delete_user">{{ $t('admin.auditLogs.actions.delete_user') }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.auditLogs.category') }}</label>
           <select
             v-model="filters.event_category"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
-            <option value="">Alle Kategorien</option>
-            <option value="user_management">Benutzerverwaltung</option>
-            <option value="token_management">Token-Verwaltung</option>
-            <option value="auth">Authentifizierung</option>
-            <option value="system">System</option>
+            <option value="">{{ $t('admin.auditLogs.allCategories') }}</option>
+            <option value="user_management">{{ $t('admin.auditLogs.categories.user_management') }}</option>
+            <option value="token_management">{{ $t('admin.auditLogs.categories.token_management') }}</option>
+            <option value="auth">{{ $t('admin.auditLogs.categories.auth') }}</option>
+            <option value="system">{{ $t('admin.auditLogs.categories.system') }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.auditLogs.status') }}</label>
           <select
             v-model="filters.success"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
-            <option value="">Alle</option>
-            <option :value="true">Erfolgreich</option>
-            <option :value="false">Fehlgeschlagen</option>
+            <option value="">{{ $t('admin.auditLogs.allStatus') }}</option>
+            <option :value="true">{{ $t('admin.auditLogs.successful') }}</option>
+            <option :value="false">{{ $t('admin.auditLogs.failed') }}</option>
           </select>
         </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Von (Datum)</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.auditLogs.dateFrom') }}</label>
           <input
             v-model="filters.from"
             type="date"
@@ -66,7 +66,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Bis (Datum)</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.auditLogs.dateTo') }}</label>
           <input
             v-model="filters.to"
             type="date"
@@ -78,13 +78,13 @@
             @click="loadLogs"
             class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
           >
-            Filter anwenden
+            {{ $t('admin.auditLogs.applyFilter') }}
           </button>
           <button
             @click="resetFilters"
             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
-            Zurücksetzen
+            {{ $t('admin.auditLogs.resetFilters') }}
           </button>
         </div>
       </div>
@@ -97,20 +97,20 @@
       </div>
 
       <div v-else-if="adminStore.auditLogs.length === 0" class="p-8 text-center text-gray-500">
-        Keine Audit-Logs gefunden
+        {{ $t('admin.auditLogs.noLogs') }}
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zeitpunkt</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benutzer</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktion</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategorie</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Beschreibung</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Details</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.auditLogs.timestamp') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.auditLogs.user') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.auditLogs.action') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.auditLogs.category') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.auditLogs.description') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.auditLogs.status') }}</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ $t('admin.auditLogs.details') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
@@ -119,7 +119,7 @@
                 {{ formatDateTime(log.created_at) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ log.user_email || 'System' }}</div>
+                <div class="text-sm text-gray-900">{{ log.user_email || $t('admin.auditLogs.system') }}</div>
                 <div class="text-xs text-gray-500">{{ log.user_role || '-' }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -134,15 +134,15 @@
                 {{ log.description || '-' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span v-if="log.success" class="text-green-600 text-sm">✓ Erfolg</span>
-                <span v-else class="text-red-600 text-sm">✗ Fehler</span>
+                <span v-if="log.success" class="text-green-600 text-sm">✓ {{ $t('admin.auditLogs.success') }}</span>
+                <span v-else class="text-red-600 text-sm">✗ {{ $t('admin.auditLogs.error') }}</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                 <button
                   @click="viewLogDetail(log)"
                   class="text-blue-600 hover:text-blue-900"
                 >
-                  Anzeigen
+                  {{ $t('admin.auditLogs.view') }}
                 </button>
               </td>
             </tr>
@@ -156,8 +156,7 @@
         class="px-6 py-4 border-t border-gray-200 flex justify-between items-center"
       >
         <p class="text-sm text-gray-600">
-          Seite {{ adminStore.auditLogsPage }} von {{ adminStore.auditLogsTotalPages }}
-          ({{ adminStore.auditLogsTotal }} Einträge)
+          {{ $t('admin.auditLogs.pagination', { page: adminStore.auditLogsPage, total: adminStore.auditLogsTotalPages, count: adminStore.auditLogsTotal }) }}
         </p>
         <div class="flex gap-2">
           <button
@@ -165,14 +164,14 @@
             :disabled="adminStore.auditLogsPage === 1"
             class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
           >
-            Zurück
+            {{ $t('admin.auditLogs.prev') }}
           </button>
           <button
             @click="changePage(adminStore.auditLogsPage + 1)"
             :disabled="adminStore.auditLogsPage >= adminStore.auditLogsTotalPages"
             class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
           >
-            Weiter
+            {{ $t('admin.auditLogs.next') }}
           </button>
         </div>
       </div>
@@ -182,71 +181,71 @@
     <div v-if="selectedLog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto">
         <div class="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
-          <h3 class="text-lg font-semibold text-gray-900">Audit Log Details</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.auditLogs.logDetails') }}</h3>
         </div>
         <div class="px-6 py-4">
           <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <dt class="text-sm font-medium text-gray-500">Log-ID</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.logId') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.log_id }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Zeitpunkt</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.timestamp') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ formatDateTime(selectedLog.created_at) }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Benutzer-Email</dt>
-              <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.user_email || 'System' }}</dd>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.userEmail') }}</dt>
+              <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.user_email || $t('admin.auditLogs.system') }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Benutzer-Rolle</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.userRole') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.user_role || '-' }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Aktion</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.action') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.action }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Kategorie</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.category') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.event_category || '-' }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Ressourcentyp</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.resourceType') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.resource_type || '-' }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Ressourcen-ID</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.resourceId') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.resource_id || '-' }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">IP-Adresse</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.ipAddress') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.ip_address || '-' }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Session-ID</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.sessionId') }}</dt>
               <dd class="text-sm text-gray-900 mt-1 truncate">{{ selectedLog.session_id || '-' }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Status</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.status') }}</dt>
               <dd class="text-sm mt-1">
-                <span v-if="selectedLog.success" class="text-green-600">✓ Erfolgreich</span>
-                <span v-else class="text-red-600">✗ Fehlgeschlagen</span>
+                <span v-if="selectedLog.success" class="text-green-600">✓ {{ $t('admin.auditLogs.successful') }}</span>
+                <span v-else class="text-red-600">✗ {{ $t('admin.auditLogs.failed') }}</span>
               </dd>
             </div>
             <div v-if="!selectedLog.success && selectedLog.error_message" class="col-span-2">
-              <dt class="text-sm font-medium text-gray-500">Fehlermeldung</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.errorMessage') }}</dt>
               <dd class="text-sm text-red-600 mt-1">{{ selectedLog.error_message }}</dd>
             </div>
             <div class="col-span-2">
-              <dt class="text-sm font-medium text-gray-500">Beschreibung</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.description') }}</dt>
               <dd class="text-sm text-gray-900 mt-1">{{ selectedLog.description || '-' }}</dd>
             </div>
             <div class="col-span-2">
-              <dt class="text-sm font-medium text-gray-500">User-Agent</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.auditLogs.userAgent') }}</dt>
               <dd class="text-sm text-gray-900 mt-1 break-all">{{ selectedLog.user_agent || '-' }}</dd>
             </div>
             <div v-if="selectedLog.meta" class="col-span-2">
-              <dt class="text-sm font-medium text-gray-500 mb-2">Metadaten (JSON)</dt>
+              <dt class="text-sm font-medium text-gray-500 mb-2">{{ $t('admin.auditLogs.metadata') }}</dt>
               <dd class="text-xs text-gray-900 bg-gray-50 p-3 rounded border border-gray-200 overflow-auto">
                 <pre>{{ JSON.stringify(selectedLog.meta, null, 2) }}</pre>
               </dd>
@@ -258,7 +257,7 @@
             @click="closeLogDetail"
             class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
           >
-            Schließen
+            {{ $t('admin.auditLogs.close') }}
           </button>
         </div>
       </div>
@@ -268,9 +267,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/admin.store'
 import type { AuditLog, AuditLogsFilterParams } from '@/api/admin.api'
 
+const { locale } = useI18n()
 const adminStore = useAdminStore()
 
 const filters = reactive<AuditLogsFilterParams>({
@@ -328,7 +329,12 @@ const closeLogDetail = () => {
 
 const formatDateTime = (dateString: string): string => {
   const date = new Date(dateString)
-  return date.toLocaleString('de-DE', {
+  const localeMap: Record<string, string> = {
+    de: 'de-DE',
+    en: 'en-US',
+    pl: 'pl-PL'
+  }
+  return date.toLocaleString(localeMap[locale.value] || 'de-DE', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

@@ -108,24 +108,24 @@ class SubscriptionBase(BaseModel):
         ... )
     """
     user_id: Optional[int] = Field(None, description="User ID (for individual subscriptions)")
-    organisation_id: Optional[int] = Field(None, description="Organisation ID (for org subscriptions)")
+    organization_id: Optional[int] = Field(None, description="Organisation ID (for org subscriptions)")
     plan_id: int = Field(..., description="Subscription plan ID")
     status: SubscriptionStatus = Field(default=SubscriptionStatus.ACTIVE, description="Subscription status")
     billing_cycle: BillingCycle = Field(default=BillingCycle.MONTHLY, description="Billing cycle")
     auto_renew: bool = Field(default=True, description="Auto-renewal enabled")
 
-    @field_validator('user_id', 'organisation_id')
+    @field_validator('user_id', 'organization_id')
     @classmethod
     def validate_owner(cls, v, info):
-        """Ensure exactly one of user_id or organisation_id is set"""
+        """Ensure exactly one of user_id or organization_id is set"""
         data = info.data
-        if info.field_name == 'organisation_id':
+        if info.field_name == 'organization_id':
             user_id = data.get('user_id')
             org_id = v
             if user_id is None and org_id is None:
-                raise ValueError('Must specify either user_id or organisation_id')
+                raise ValueError('Must specify either user_id or organization_id')
             if user_id is not None and org_id is not None:
-                raise ValueError('Cannot specify both user_id and organisation_id')
+                raise ValueError('Cannot specify both user_id and organization_id')
         return v
 
     model_config = ConfigDict(from_attributes=True)

@@ -10,13 +10,13 @@
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Zurück zur Startseite
+          {{ $t('legal.backToHome') }}
         </router-link>
         <h1 class="text-3xl font-bold text-[var(--color-text-primary)]">
-          Nutzungsbedingungen für Inhalte
+          {{ $t('legal.contentUsage.title') }}
         </h1>
         <p class="mt-2 text-[var(--color-text-secondary)]">
-          Informationen zur erlaubten und unerlaubten Nutzung unserer Lerninhalte
+          {{ $t('legal.contentUsage.subtitle') }}
         </p>
       </div>
     </header>
@@ -34,7 +34,7 @@
               </svg>
             </div>
             <h2 class="text-2xl font-bold text-[var(--color-text-primary)] m-0">
-              Erlaubte Nutzung
+              {{ $t('legal.contentUsage.allowedTitle') }}
             </h2>
           </div>
 
@@ -44,31 +44,31 @@
                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Persönliches Lernen</strong> – Nutzung der Inhalte im Rahmen Ihrer gebuchten Kurse für Ihre persönliche Weiterbildung.</span>
+                <span><strong>{{ $t('legal.contentUsage.allowed.personalLearning') }}</strong> – {{ $t('legal.contentUsage.allowed.personalLearningDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Lehren (mit Lizenz)</strong> – Nutzung als Lehrer/Dozent im Rahmen einer gültigen Schul- oder Unternehmenslizenz.</span>
+                <span><strong>{{ $t('legal.contentUsage.allowed.teaching') }}</strong> – {{ $t('legal.contentUsage.allowed.teachingDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Zitate mit Quellenangabe</strong> – Kurze Zitate (max. 10% eines Textes) für wissenschaftliche oder journalistische Zwecke mit vollständiger Quellenangabe: "Quelle: LernsystemX (www.lernsystemx.de)"</span>
+                <span><strong>{{ $t('legal.contentUsage.allowed.quotes') }}</strong> – {{ $t('legal.contentUsage.allowed.quotesDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Screenshots für Support</strong> – Screenshots von Fehlermeldungen oder Problemen zur Einreichung von Support-Anfragen.</span>
+                <span><strong>{{ $t('legal.contentUsage.allowed.screenshots') }}</strong> – {{ $t('legal.contentUsage.allowed.screenshotsDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Offline-Nutzung</strong> – Speichern von Inhalten für die Offline-Nutzung auf Ihren persönlichen Geräten (sofern durch Ihre Lizenz gedeckt).</span>
+                <span><strong>{{ $t('legal.contentUsage.allowed.offline') }}</strong> – {{ $t('legal.contentUsage.allowed.offlineDesc') }}</span>
               </li>
             </ul>
           </div>
@@ -83,7 +83,7 @@
               </svg>
             </div>
             <h2 class="text-2xl font-bold text-[var(--color-text-primary)] m-0">
-              Verbotene Nutzung
+              {{ $t('legal.contentUsage.forbiddenTitle') }}
             </h2>
           </div>
 
@@ -93,37 +93,37 @@
                 <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Kommerzielle Weitergabe</strong> – Verkauf, Vermietung oder sonstige kommerzielle Weitergabe von Kursinhalten an Dritte.</span>
+                <span><strong>{{ $t('legal.contentUsage.forbidden.commercial') }}</strong> – {{ $t('legal.contentUsage.forbidden.commercialDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Vollständige Vervielfältigung</strong> – Kopieren, Downloaden oder Verbreiten ganzer Kurse, Kapitel oder wesentlicher Teile davon.</span>
+                <span><strong>{{ $t('legal.contentUsage.forbidden.duplication') }}</strong> – {{ $t('legal.contentUsage.forbidden.duplicationDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Entfernung von Schutzmaßnahmen</strong> – Entfernen, Umgehen oder Manipulieren von Wasserzeichen, Copyright-Hinweisen oder technischen Schutzmaßnahmen.</span>
+                <span><strong>{{ $t('legal.contentUsage.forbidden.protection') }}</strong> – {{ $t('legal.contentUsage.forbidden.protectionDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Automatisiertes Scraping</strong> – Einsatz von Bots, Crawlern oder anderen automatisierten Tools zum Extrahieren von Inhalten.</span>
+                <span><strong>{{ $t('legal.contentUsage.forbidden.scraping') }}</strong> – {{ $t('legal.contentUsage.forbidden.scrapingDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Account-Sharing</strong> – Weitergabe Ihrer Zugangsdaten an Dritte oder gemeinsame Nutzung eines Accounts durch mehrere Personen.</span>
+                <span><strong>{{ $t('legal.contentUsage.forbidden.sharing') }}</strong> – {{ $t('legal.contentUsage.forbidden.sharingDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
-                <span><strong>Upload auf fremde Plattformen</strong> – Hochladen unserer Inhalte auf YouTube, andere Lernplattformen, Filesharing-Dienste oder soziale Medien.</span>
+                <span><strong>{{ $t('legal.contentUsage.forbidden.upload') }}</strong> – {{ $t('legal.contentUsage.forbidden.uploadDesc') }}</span>
               </li>
             </ul>
           </div>
@@ -138,30 +138,30 @@
               </svg>
             </div>
             <h2 class="text-2xl font-bold text-[var(--color-text-primary)] m-0">
-              Rechtliche Folgen bei Verstößen
+              {{ $t('legal.contentUsage.consequencesTitle') }}
             </h2>
           </div>
 
           <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6">
             <p class="text-[var(--color-text-primary)] mb-4">
-              Bei Verstößen gegen diese Nutzungsbedingungen behalten wir uns folgende Maßnahmen vor:
+              {{ $t('legal.contentUsage.consequencesIntro') }}
             </p>
             <ul class="space-y-3 text-[var(--color-text-primary)]">
               <li class="flex items-start gap-3">
                 <span class="text-amber-600 font-bold">1.</span>
-                <span><strong>Sofortige Accountsperrung</strong> – Ohne Vorwarnung und ohne Erstattung bereits gezahlter Gebühren.</span>
+                <span><strong>{{ $t('legal.contentUsage.consequences.ban') }}</strong> – {{ $t('legal.contentUsage.consequences.banDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <span class="text-amber-600 font-bold">2.</span>
-                <span><strong>Zivilrechtliche Ansprüche</strong> – Schadensersatzforderungen für entstandene wirtschaftliche Schäden, einschließlich entgangener Lizenzgebühren.</span>
+                <span><strong>{{ $t('legal.contentUsage.consequences.civil') }}</strong> – {{ $t('legal.contentUsage.consequences.civilDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <span class="text-amber-600 font-bold">3.</span>
-                <span><strong>Strafrechtliche Verfolgung</strong> – Bei schwerem oder gewerbsmäßigem Urheberrechtsverstoß erstatten wir Strafanzeige (§ 106 ff. UrhG).</span>
+                <span><strong>{{ $t('legal.contentUsage.consequences.criminal') }}</strong> – {{ $t('legal.contentUsage.consequences.criminalDesc') }}</span>
               </li>
               <li class="flex items-start gap-3">
                 <span class="text-amber-600 font-bold">4.</span>
-                <span><strong>Abmahnkosten</strong> – Übernahme sämtlicher Anwalts- und Gerichtskosten durch den Verursacher.</span>
+                <span><strong>{{ $t('legal.contentUsage.consequences.costs') }}</strong> – {{ $t('legal.contentUsage.consequences.costsDesc') }}</span>
               </li>
             </ul>
           </div>
@@ -176,20 +176,19 @@
               </svg>
             </div>
             <h2 class="text-2xl font-bold text-[var(--color-text-primary)] m-0">
-              Kontakt für Lizenzanfragen
+              {{ $t('legal.contentUsage.licenseTitle') }}
             </h2>
           </div>
 
           <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
             <p class="text-[var(--color-text-primary)] mb-4">
-              Sie möchten unsere Inhalte kommerziell nutzen oder benötigen eine Sonderlizenz?
-              Wir bieten verschiedene Lizenzmodelle an:
+              {{ $t('legal.contentUsage.licenseIntro') }}
             </p>
             <ul class="space-y-2 text-[var(--color-text-primary)] mb-6">
-              <li>• <strong>Bildungslizenz</strong> – Für Schulen, Universitäten und Bildungseinrichtungen</li>
-              <li>• <strong>Unternehmenslizenz</strong> – Für interne Mitarbeiterschulungen</li>
-              <li>• <strong>Weiterverkaufslizenz</strong> – Für Wiederverkäufer und Partner</li>
-              <li>• <strong>White-Label-Lizenz</strong> – Für die Integration in eigene Produkte</li>
+              <li>• <strong>{{ $t('legal.contentUsage.licenses.education') }}</strong> – {{ $t('legal.contentUsage.licenses.educationDesc') }}</li>
+              <li>• <strong>{{ $t('legal.contentUsage.licenses.enterprise') }}</strong> – {{ $t('legal.contentUsage.licenses.enterpriseDesc') }}</li>
+              <li>• <strong>{{ $t('legal.contentUsage.licenses.reseller') }}</strong> – {{ $t('legal.contentUsage.licenses.resellerDesc') }}</li>
+              <li>• <strong>{{ $t('legal.contentUsage.licenses.whiteLabel') }}</strong> – {{ $t('legal.contentUsage.licenses.whiteLabelDesc') }}</li>
             </ul>
 
             <div class="flex flex-col sm:flex-row gap-4">
@@ -206,7 +205,7 @@
                 to="/contact?subject=license"
                 class="btn btn-outline inline-flex items-center justify-center"
               >
-                Lizenzanfrage stellen
+                {{ $t('legal.contentUsage.requestLicense') }}
               </router-link>
             </div>
           </div>
@@ -214,12 +213,12 @@
 
         <!-- Stand der Information -->
         <section class="text-sm text-[var(--color-text-tertiary)] border-t border-[var(--color-border)] pt-6">
-          <p>Stand: {{ currentDate }}</p>
-          <p>Version: 1.0</p>
+          <p>{{ $t('legal.lastUpdated', { date: currentDate }) }}</p>
+          <p>{{ $t('legal.version', { version: '1.0' }) }}</p>
           <p class="mt-2">
-            Diese Nutzungsbedingungen sind Teil unserer
+            {{ $t('legal.partOfTerms') }}
             <router-link to="/legal/terms" class="text-[var(--color-accent)] hover:underline">
-              Allgemeinen Geschäftsbedingungen
+              {{ $t('legal.generalTerms') }}
             </router-link>.
           </p>
         </section>
@@ -233,10 +232,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import Footer from '@/components/layout/Footer.vue'
+import { useI18n } from 'vue-i18n'
+import { Footer } from '@/components/shared/layout'
+
+const { locale } = useI18n()
 
 const currentDate = computed(() => {
-  return new Date().toLocaleDateString('de-DE', {
+  const localeMap: Record<string, string> = {
+    de: 'de-DE',
+    en: 'en-US',
+    pl: 'pl-PL'
+  }
+  return new Date().toLocaleDateString(localeMap[locale.value] || 'de-DE', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

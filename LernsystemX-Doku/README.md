@@ -26,7 +26,7 @@ Grundlegende Systemkonzepte und Architektur.
 |-------|--------------|
 | `00_System-Übersicht` | Gesamtübersicht, C4-Diagramme, Architektur |
 | `01_Rollenmodell` | 9 Benutzerrollen (Free → Admin) mit Berechtigungen |
-| `02_Lernmethoden` | **Master-Dokument:** 19 Content-Lernmethoden (Gruppen A-C) |
+| `02_Lernmethoden` | **Master-Dokument:** 12 Content-Lernmethoden (Gruppen A-C) |
 | `02a_System-Features` | System-Features (frühere LMs D-F): Tutor, IT-Sandbox, Kollaboration |
 | `03_Zugriffssystem` | Berechtigungen, Zugriffskontrolle, RBAC |
 | `04_Kurs-Architektur` | Kurs → Kapitel → Lektionen → Lernmethoden |

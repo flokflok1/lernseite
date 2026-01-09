@@ -1,0 +1,100 @@
+{
+  "windowManager": {
+    "title": "Minimierte Fenster",
+    "noMinimized": "Keine minimierten Fenster",
+    "noMinimizedHint": "Minimierte Fenster erscheinen hier",
+    "restore": "Wiederherstellen",
+    "close": "Schließen",
+    "noPreview": "Keine Vorschau verfügbar",
+    "types": {
+      "adminCourseCreate": "Kurs erstellen",
+      "adminCourseEditor": "Kurs bearbeiten",
+      "adminModuleEditor": "Modul bearbeiten",
+      "adminLessonEditor": "Lektion bearbeiten",
+      "adminAiJob": "KI-Kursgenerator",
+      "adminWindowManager": "Fensterverwaltung"
+    },
+    "defaults": {
+      "newCourse": "Neuer Kurs",
+      "editCourse": "Kurs bearbeiten",
+      "newModule": "Neues Modul",
+      "newLesson": "Neue Lektion",
+      "aiCourse": "KI-Kurs"
+    },
+    "status": {
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "archived": "Archiviert",
+      "aiActive": "KI aktiv",
+      "done": "Fertig",
+      "error": "Fehler",
+      "waiting": "Warten"
+    }
+  },
+  "modelSelector": {
+    "title": "AI Model Selector",
+    "scopeCourse": "Modell für Kurs auswählen",
+    "scopeModule": "Modell für Modul auswählen",
+    "scopeGlobal": "System-Default Modell auswählen",
+    "sync": "Modelle sync",
+    "syncing": "Synchronisiere...",
+    "modelCount": "{count} Modelle",
+    "searchPlaceholder": "Modell suchen...",
+    "onlyConfigured": "Nur konfiguriert",
+    "loading": "Lade Modelle...",
+    "noModels": "Keine Modelle gefunden",
+    "all": "Alle",
+    "allProviders": "Alle Provider",
+    "noApiKey": "Kein API Key",
+    "default": "Default",
+    "vision": "Vision",
+    "functions": "Functions",
+    "input": "Input:",
+    "output": "Output:",
+    "prices": "Preise",
+    "editPrices": "Preise bearbeiten",
+    "selected": "Ausgewählt:",
+    "category": "Kategorie:",
+    "cost": "Kosten:",
+    "speed": "Geschwindigkeit:",
+    "context": "Kontext:",
+    "tokens": "{count} Tokens",
+    "cancel": "Abbrechen",
+    "setAsDefault": "Als Default setzen",
+    "isDefault": "Ist Default",
+    "setting": "Setze...",
+    "selectForCourse": "Für Kurs übernehmen",
+    "selectForModule": "Für Modul übernehmen",
+    "selectModel": "Modell auswählen",
+    "priceInfo": "Preise werden pro 1.000 Tokens in USD angegeben.",
+    "priceExample": "Beispiel: 0.005 = $0.005 pro 1K Tokens",
+    "inputPrice": "Input-Preis (pro 1K Tokens)",
+    "outputPrice": "Output-Preis (pro 1K Tokens)",
+    "provider": "Provider:",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "categories": {
+      "chat": "Chat",
+      "reasoning": "Reasoning",
+      "realtime": "Realtime",
+      "audio": "Audio",
+      "image": "Bild",
+      "video": "Video",
+      "embedding": "Embedding",
+      "moderation": "Moderation"
+    },
+    "costLevels": {
+      "free": "Kostenlos",
+      "low": "Günstig",
+      "medium": "Mittel",
+      "high": "Teuer",
+      "veryHigh": "Sehr teuer"
+    },
+    "speedLevels": {
+      "veryFast": "Sehr schnell",
+      "fast": "Schnell",
+      "medium": "Mittel",
+      "slow": "Langsam"
+    }
+  }
+}

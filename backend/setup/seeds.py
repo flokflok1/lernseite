@@ -2,7 +2,14 @@
 LernsystemX Setup - Seed Data
 
 Seeds initial data for:
-- Learning methods (21 methods: basic, premium, pro)
+- Learning methods (12 Content-Lernmethoden: lm00-lm11)
+  - Gruppe A (Erklärend): lm00-lm04 (5 methods)
+  - Gruppe B (Praxis): lm05-lm08 (4 methods)
+  - Gruppe C (Prüfung): lm09-lm11 (3 methods)
+- System features (25 features across 9 categories)
+  - Interactive Tools (3), Exam & Assessment (4), Meta Features (1)
+  - Visualization (1), Tutor & Coaching (2), Gamification (3)
+  - Learning Paths (1), Collaboration (7), IT Environments (3)
 - User roles (9 roles with hierarchy)
 - Categories/Domains (5-level categorization)
 - Default system data
@@ -40,6 +47,7 @@ class SeedData:
         """
         results = {
             'learning_methods': 0,
+            'system_features': 0,
             'roles': 0,
             'categories': 0,
             'errors': []
@@ -48,6 +56,9 @@ class SeedData:
         try:
             # Attempt to seed learning methods
             cls.seed_learning_methods(skip_existing)
+
+            # Attempt to seed system features
+            cls.seed_system_features(skip_existing)
 
             # Attempt to seed roles
             cls.seed_roles(skip_existing)
@@ -59,6 +70,9 @@ class SeedData:
             # This ensures the user sees the correct numbers even if data already exists
             methods_result = fetch_one("SELECT COUNT(*) as count FROM learning_method_types")
             results['learning_methods'] = methods_result['count'] if methods_result else 0
+
+            features_result = fetch_one("SELECT COUNT(*) as count FROM support_systems.system_features")
+            results['system_features'] = features_result['count'] if features_result else 0
 
             roles_result = fetch_one("SELECT COUNT(*) as count FROM roles")
             results['roles'] = roles_result['count'] if roles_result else 0
@@ -74,7 +88,11 @@ class SeedData:
     @classmethod
     def seed_learning_methods(cls, skip_existing: bool = True) -> int:
         """
-        Seed 21 learning method TYPES (11 basic, 6 premium, 4 pro)
+        Seed 12 Content-Lernmethoden (lm00-lm11)
+
+        Gruppe A (Erklärend): lm00-lm04
+        Gruppe B (Praxis): lm05-lm08
+        Gruppe C (Prüfung): lm09-lm11
 
         Args:
             skip_existing: Skip if method types already exist
@@ -93,266 +111,212 @@ class SeedData:
                 return 0
 
         learning_methods = [
-            # Basic Methods (11) - Free for all users
+            # Gruppe A - Erklärend (5 Methoden)
             {
+                'method_type': 0,
+                'name': 'Tiefgehende Erklärung',
+                'description': 'Ausführliche KI-gestützte Erklärung von Konzepten',
+                'group_code': 'A',
+                'tier': 'basic',
+                'ki_usage': 'intensiv',
+                'active': True,
+                'config': {
+                    'ai_enabled': True,
+                    'supports_examples': True,
+                    'supports_diagrams': True
+                }
+            },
+            {
+                'method_type': 1,
+                'name': 'Schritt-für-Schritt',
+                'description': 'Schrittweise Anleitung durch komplexe Themen',
+                'group_code': 'A',
+                'tier': 'basic',
+                'ki_usage': 'mittel',
+                'active': True,
+                'config': {
+                    'ai_enabled': True,
+                    'numbered_steps': True,
+                    'interactive': True
+                }
+            },
+            {
+                'method_type': 2,
+                'name': 'Interaktive Theorie',
+                'description': 'Interaktive Theorievermittlung mit Fragen',
+                'group_code': 'A',
+                'tier': 'basic',
+                'ki_usage': 'mittel',
+                'active': True,
+                'config': {
+                    'ai_enabled': True,
+                    'inline_questions': True,
+                    'adaptive_content': True
+                }
+            },
+            {
+                'method_type': 3,
+                'name': 'Diagramm/Visualisierung',
+                'description': 'Visuelle Darstellung von Konzepten',
+                'group_code': 'A',
+                'tier': 'basic',
+                'ki_usage': 'mittel',
+                'active': True,
+                'config': {
+                    'ai_enabled': True,
+                    'diagram_types': ['flowchart', 'mindmap', 'timeline', 'network'],
+                    'export_formats': ['png', 'svg', 'pdf']
+                }
+            },
+            {
+                'method_type': 4,
+                'name': 'Beispiel-Szenario',
+                'description': 'Praxisnahe Beispiele und Szenarien',
+                'group_code': 'A',
+                'tier': 'basic',
+                'ki_usage': 'mittel',
+                'active': True,
+                'config': {
+                    'ai_enabled': True,
+                    'context_adaptable': True,
+                    'real_world_examples': True
+                }
+            },
+
+            # Gruppe B - Praxis (4 Methoden)
+            {
+                'method_type': 5,
+                'name': 'Mathe-Interaktiv',
+                'description': 'Interaktive Mathematik-Aufgaben',
+                'group_code': 'B',
+                'tier': 'basic',
+                'ki_usage': 'mittel',
+                'active': True,
+                'config': {
+                    'ai_enabled': True,
+                    'step_by_step_solution': True,
+                    'latex_support': True,
+                    'formula_editor': True
+                }
+            },
+            {
+                'method_type': 6,
                 'name': 'Flashcards',
                 'description': 'Klassische Lernkarten mit Frage und Antwort',
+                'group_code': 'B',
                 'tier': 'basic',
+                'ki_usage': 'optional',
                 'active': True,
                 'config': {
                     'supports_images': True,
                     'supports_audio': True,
                     'ai_enabled': False,
-                    'max_cards_per_set': 500
+                    'max_cards_per_set': 500,
+                    'spaced_repetition': True
                 }
             },
             {
-                'name': 'Quiz',
-                'description': 'Multiple-Choice Quiz mit sofortigem Feedback',
+                'method_type': 7,
+                'name': 'Drag & Drop',
+                'description': 'Zuordnungs- und Sortieraufgaben',
+                'group_code': 'B',
                 'tier': 'basic',
+                'ki_usage': 'optional',
                 'active': True,
                 'config': {
-                    'question_types': ['multiple_choice', 'true_false', 'fill_blank'],
                     'ai_enabled': False,
-                    'max_questions': 100
+                    'max_items': 20,
+                    'shuffle_items': True,
+                    'supports_images': True
                 }
             },
             {
+                'method_type': 8,
                 'name': 'Lückentext',
                 'description': 'Texte mit Lücken zum Ausfüllen',
+                'group_code': 'B',
                 'tier': 'basic',
+                'ki_usage': 'optional',
                 'active': True,
                 'config': {
-                    'auto_generate': False,
-                    'difficulty_levels': ['easy', 'medium', 'hard']
-                }
-            },
-            {
-                'name': 'Multiple Choice',
-                'description': 'Fragen mit mehreren Antwortmöglichkeiten',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'min_options': 2,
-                    'max_options': 6,
-                    'shuffle_answers': True
-                }
-            },
-            {
-                'name': 'True/False',
-                'description': 'Wahr oder Falsch Fragen',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'explanation_required': True
-                }
-            },
-            {
-                'name': 'Zuordnung',
-                'description': 'Zuordnungsaufgaben (Matching)',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'max_pairs': 20,
-                    'shuffle_items': True
-                }
-            },
-            {
-                'name': 'Sortierung',
-                'description': 'Elemente in richtige Reihenfolge bringen',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'max_items': 15,
-                    'show_hints': True
-                }
-            },
-            {
-                'name': 'Mindmap',
-                'description': 'Visuelles Mindmapping Tool',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'max_nodes': 100,
-                    'supports_images': True,
-                    'export_formats': ['png', 'pdf', 'json']
-                }
-            },
-            {
-                'name': 'Video',
-                'description': 'Video-basiertes Lernen mit Notizen',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'supports_youtube': True,
-                    'supports_vimeo': True,
-                    'supports_upload': True,
-                    'max_duration_minutes': 120
-                }
-            },
-            {
-                'name': 'Audio',
-                'description': 'Audio-Lernmaterial (Podcasts, Vorlesungen)',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'supports_upload': True,
-                    'max_duration_minutes': 180,
-                    'playback_speeds': [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
-                }
-            },
-            {
-                'name': 'PDF',
-                'description': 'PDF-Dokumente mit Annotation-Funktion',
-                'tier': 'basic',
-                'active': True,
-                'config': {
-                    'max_size_mb': 50,
-                    'supports_annotations': True,
-                    'supports_highlights': True
+                    'ai_enabled': False,
+                    'auto_generate': True,
+                    'difficulty_levels': ['easy', 'medium', 'hard'],
+                    'hint_system': True
                 }
             },
 
-            # Premium Methods (6) - Requires Premium subscription
+            # Gruppe C - Prüfung (3 Methoden)
             {
-                'name': 'KI-Tutor',
-                'description': 'KI-gestützter persönlicher Tutor',
+                'method_type': 9,
+                'name': 'Freitext-Langantwort',
+                'description': 'Lange Textantworten mit KI-Bewertung',
+                'group_code': 'C',
                 'tier': 'premium',
+                'ki_usage': 'mittel',
                 'active': True,
                 'config': {
-                    'ai_model': 'gpt-4',
-                    'context_memory': True,
-                    'adaptive_difficulty': True,
-                    'max_conversation_turns': 50
+                    'ai_enabled': True,
+                    'ai_grading': True,
+                    'min_words': 50,
+                    'max_words': 1000,
+                    'rubric_support': True
                 }
             },
             {
-                'name': 'KI-Glossar',
-                'description': 'Automatisch generiertes Glossar mit KI-Erklärungen',
+                'method_type': 10,
+                'name': 'IHK-Stil Aufgaben',
+                'description': 'Prüfungsaufgaben im IHK-Format',
+                'group_code': 'C',
                 'tier': 'premium',
+                'ki_usage': 'intensiv',
                 'active': True,
                 'config': {
-                    'auto_extract_terms': True,
-                    'multilingual': True,
-                    'max_terms': 500
+                    'ai_enabled': True,
+                    'question_types': ['gebunden', 'ungebunden', 'handlungssituation'],
+                    'points_based_grading': True,
+                    'time_tracking': True
                 }
             },
             {
-                'name': 'Braindump',
-                'description': 'Freies Schreiben mit KI-Feedback',
+                'method_type': 11,
+                'name': 'Multi-Step Praxisprüfung',
+                'description': 'Mehrstufige praktische Prüfung',
+                'group_code': 'C',
                 'tier': 'premium',
+                'ki_usage': 'intensiv',
                 'active': True,
                 'config': {
-                    'ai_feedback': True,
-                    'grammar_check': True,
-                    'structure_suggestions': True
-                }
-            },
-            {
-                'name': 'Zertifikatsprüfung',
-                'description': 'Offizielle Prüfung mit Zertifikat',
-                'tier': 'premium',
-                'active': True,
-                'config': {
-                    'time_limited': True,
-                    'proctoring_available': True,
-                    'certificate_template': 'default',
-                    'min_pass_percentage': 70
-                }
-            },
-            {
-                'name': 'Lernpfad-KI',
-                'description': 'KI-optimierte personalisierte Lernpfade',
-                'tier': 'premium',
-                'active': True,
-                'config': {
-                    'adaptive_sequencing': True,
-                    'difficulty_adjustment': True,
-                    'prerequisite_checking': True
-                }
-            },
-            {
-                'name': 'Live-Raum',
-                'description': 'Virtuelle Live-Sessions mit Videokonferenz',
-                'tier': 'premium',
-                'active': True,
-                'config': {
-                    'max_participants': 50,
-                    'screen_sharing': True,
-                    'whiteboard': True,
-                    'recording': True
-                }
-            },
-
-            # Pro Methods (4) - Requires Pro subscription
-            {
-                'name': 'Deep Praxis',
-                'description': 'Tiefgreifende Praxisübungen mit KI-Bewertung',
-                'tier': 'pro',
-                'active': True,
-                'config': {
-                    'ai_code_review': True,
-                    'ai_essay_feedback': True,
-                    'complexity_levels': ['beginner', 'intermediate', 'advanced', 'expert'],
-                    'peer_review': True
-                }
-            },
-            {
-                'name': 'Deep Scenario',
-                'description': 'Komplexe Szenario-basierte Simulationen',
-                'tier': 'pro',
-                'active': True,
-                'config': {
-                    'branching_scenarios': True,
-                    'ai_npcs': True,
-                    'consequence_tracking': True,
-                    'max_decision_points': 100
-                }
-            },
-            {
-                'name': 'Projekt-Simulation',
-                'description': 'Realistische Projekt-Simulationen',
-                'tier': 'pro',
-                'active': True,
-                'config': {
-                    'team_collaboration': True,
-                    'ai_stakeholders': True,
-                    'resource_management': True,
-                    'timeline_simulation': True
-                }
-            },
-            {
-                'name': 'Echtzeit-Debugging',
-                'description': 'Live-Code-Debugging mit KI-Unterstützung',
-                'tier': 'pro',
-                'active': True,
-                'config': {
-                    'supported_languages': ['python', 'javascript', 'java', 'cpp', 'csharp'],
-                    'ai_hints': True,
-                    'step_by_step_debugging': True,
-                    'code_execution': True
+                    'ai_enabled': True,
+                    'min_steps': 2,
+                    'max_steps': 10,
+                    'progressive_unlock': True,
+                    'partial_grading': True
                 }
             }
         ]
 
         created = 0
-        for idx, method in enumerate(learning_methods, start=1):
+        for method in learning_methods:
             try:
                 import json
                 result = execute_query(
                     """
                     INSERT INTO learning_method_types (
-                        method_number, name, description, tier, active, config, created_at
+                        method_type, name, description, group_code, tier,
+                        ki_usage, active, config, created_at
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, NOW())
-                    ON CONFLICT (name) DO NOTHING
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                    ON CONFLICT (method_type) DO NOTHING
                     RETURNING *
                     """,
                     (
-                        idx,
+                        method['method_type'],
                         method['name'],
                         method['description'],
+                        method['group_code'],
                         method['tier'],
+                        method['ki_usage'],
                         method['active'],
                         json.dumps(method['config'])
                     ),
@@ -362,6 +326,482 @@ class SeedData:
                     created += 1
             except Exception as e:
                 print(f"Error creating learning method type '{method['name']}': {str(e)}")
+
+        return created
+
+    @classmethod
+    def seed_system_features(cls, skip_existing: bool = True) -> int:
+        """
+        Seed 25 System-Features
+
+        Categories:
+        - Interactive Tools (3)
+        - Exam & Assessment (4)
+        - Meta Features (1)
+        - Visualization (1)
+        - Tutor & Coaching (2)
+        - Gamification (3)
+        - Learning Paths (1)
+        - Collaboration (7)
+        - IT Environments (3)
+
+        Args:
+            skip_existing: Skip if features already exist
+
+        Returns:
+            Number of system features created
+
+        Example:
+            >>> count = SeedData.seed_system_features()
+            >>> print(f"Created {count} system features")
+        """
+        # Check if features already exist
+        if skip_existing:
+            existing = fetch_one("SELECT COUNT(*) FROM support_systems.system_features")
+            if existing and existing['count'] > 0:
+                return 0
+
+        system_features = [
+            # Interactive Tools (3)
+            {
+                'feature_code': 'whiteboard_engine',
+                'feature_name': 'Whiteboard-Engine',
+                'description': 'Interaktive Whiteboard-Aufgaben mit KI-Erkennung',
+                'category': 'interactive_tools',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': 5,
+                'icon': 'pencil',
+                'config': {
+                    'recognition_types': ['formula', 'diagram', 'network', 'keywords'],
+                    'ai_feedback': True,
+                    'save_history': True
+                }
+            },
+            {
+                'feature_code': 'it_sandbox',
+                'feature_name': 'IT-Sandbox',
+                'description': 'Praktische Übungen in simulierten IT-Umgebungen',
+                'category': 'interactive_tools',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': 10,
+                'icon': 'terminal',
+                'config': {
+                    'sandbox_types': ['code', 'config', 'network', 'terminal'],
+                    'max_duration': 3600,
+                    'auto_cleanup': True
+                }
+            },
+            {
+                'feature_code': 'speech_to_text',
+                'feature_name': 'Speech-to-Text Engine',
+                'description': 'Sprachaufnahme mit KI-Transkription & Bewertung',
+                'category': 'interactive_tools',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': 17,
+                'icon': 'microphone',
+                'config': {
+                    'max_duration': 600,
+                    'language': 'de-DE',
+                    'ai_grading': True,
+                    'provider': 'whisper'
+                }
+            },
+
+            # Exam & Assessment (4)
+            {
+                'feature_code': 'ihk_exam_system',
+                'feature_name': 'IHK-Prüfungssystem',
+                'description': 'Prüfungsaufgaben im IHK/Kammer-Format',
+                'category': 'exam_systems',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': 10,
+                'icon': 'certificate',
+                'config': {
+                    'exam_format': 'ihk_it',
+                    'time_limit': 180,
+                    'passing_score': 50
+                }
+            },
+            {
+                'feature_code': 'practical_exam_engine',
+                'feature_name': 'Praxisprüfungs-Engine',
+                'description': 'Mehrstufige praktische Prüfungsaufgaben',
+                'category': 'exam_systems',
+                'requires_infrastructure': True,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 11,
+                'icon': 'clipboard-check',
+                'config': {
+                    'max_steps': 10,
+                    'allow_skip': False,
+                    'partial_credit': True,
+                    'dependency_mode': 'strict'
+                }
+            },
+            {
+                'feature_code': 'comprehension_checker',
+                'feature_name': 'Verständnis-Checker',
+                'description': 'Mikro-Checks basierend auf Bloom-Taxonomie',
+                'category': 'tutor',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': 13,
+                'icon': 'check-circle',
+                'config': {
+                    'bloom_levels': ['recall', 'understand', 'apply', 'analyze', 'evaluate', 'create'],
+                    'min_questions_per_level': 2,
+                    'adaptive': True,
+                    'immediate_feedback': True
+                }
+            },
+            {
+                'feature_code': 'chapter_completion_system',
+                'feature_name': 'Kapitelabschluss-System',
+                'description': 'Umfassende Kapitelabschluss-Prüfung',
+                'category': 'exam_systems',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': 14,
+                'icon': 'trophy',
+                'config': {
+                    'pass_threshold': 70,
+                    'certificate_on_pass': True,
+                    'show_correct_answers': True
+                }
+            },
+
+            # Meta Features (1)
+            {
+                'feature_code': 'timer_wrapper',
+                'feature_name': 'Timer/Zeitlimit',
+                'description': 'Zeitbegrenzung für beliebige Aufgaben',
+                'category': 'meta_features',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 14,
+                'icon': 'clock',
+                'config': {
+                    'default_time_limit': 60,
+                    'show_remaining_time': True,
+                    'auto_submit': True
+                }
+            },
+
+            # Visualization (1)
+            {
+                'feature_code': 'mindmap_generator',
+                'feature_name': 'Mindmap-Generator',
+                'description': 'Generiert kursweite Mindmaps aus Theorie-Inhalten',
+                'category': 'visualization',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': 5,
+                'icon': 'sitemap',
+                'config': {
+                    'auto_generate': True,
+                    'max_depth': 3,
+                    'style': 'hierarchical'
+                }
+            },
+
+            # Tutor & Coaching (2)
+            {
+                'feature_code': 'npc_tutor',
+                'feature_name': 'NPC-/Persona-Tutor',
+                'description': 'KI-basierter Tutor mit verschiedenen Rollen/Personas',
+                'category': 'tutor',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'user-tie',
+                'config': {
+                    'personas': ['professor', 'peer', 'mentor', 'coach'],
+                    'conversation_style': 'adaptive',
+                    'remember_context': True
+                }
+            },
+            {
+                'feature_code': 'socratic_dialog',
+                'feature_name': 'Sokratischer Dialog',
+                'description': 'KI-geführter Dialog zur Wissensvermittlung durch Fragen',
+                'category': 'tutor',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'comments',
+                'config': {
+                    'max_questions': 10,
+                    'difficulty_adaptation': True
+                }
+            },
+
+            # Gamification (3)
+            {
+                'feature_code': 'adaptive_difficulty',
+                'feature_name': 'Adaptive Schwierigkeit',
+                'description': 'Passt Aufgabenschwierigkeit automatisch an',
+                'category': 'gamification',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'chart-line',
+                'config': {
+                    'adjustment_algorithm': 'elo',
+                    'min_attempts': 3
+                }
+            },
+            {
+                'feature_code': 'xp_quest_system',
+                'feature_name': 'XP & Quest System',
+                'description': 'Erfahrungspunkte, Level, Achievements, Daily Quests',
+                'category': 'gamification',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'star',
+                'config': {
+                    'xp_per_task': 100,
+                    'daily_quests_count': 3
+                }
+            },
+            {
+                'feature_code': 'daily_recall',
+                'feature_name': 'Daily Recall',
+                'description': 'Tägliche Wiederholungslogik (Spaced Repetition)',
+                'category': 'gamification',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'calendar-check',
+                'config': {
+                    'algorithm': 'sm2',
+                    'daily_limit': 20
+                }
+            },
+
+            # Learning Paths (1)
+            {
+                'feature_code': 'learning_path_generator',
+                'feature_name': 'Lernpfad-Generator',
+                'description': 'KI-gestützte Lernpfad-Erstellung und -Optimierung',
+                'category': 'learning_paths',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'route',
+                'config': {
+                    'personalized': True,
+                    'adapt_to_performance': True
+                }
+            },
+
+            # Collaboration (7)
+            {
+                'feature_code': 'peer_instruction',
+                'feature_name': 'Peer Instruction',
+                'description': 'Peer Instruction Methode (Think-Pair-Share)',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 26,
+                'icon': 'users',
+                'config': {
+                    'phases': ['think', 'pair', 'share'],
+                    'time_per_phase': 300
+                }
+            },
+            {
+                'feature_code': 'team_case',
+                'feature_name': 'Team-Case',
+                'description': 'Kollaborative Fallbearbeitung',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 27,
+                'icon': 'briefcase',
+                'config': {
+                    'max_team_size': 5,
+                    'collaborative_editing': True
+                }
+            },
+            {
+                'feature_code': 'peer_review',
+                'feature_name': 'Peer Review',
+                'description': 'Gegenseitige Bewertung von Lösungen',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 28,
+                'icon': 'user-check',
+                'config': {
+                    'anonymous': True,
+                    'min_reviews': 2
+                }
+            },
+            {
+                'feature_code': 'learning_journal',
+                'feature_name': 'Lerntagebuch',
+                'description': 'Persönliche Reflexion und Dokumentation',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 29,
+                'icon': 'book',
+                'config': {
+                    'prompts_enabled': True,
+                    'private': True
+                }
+            },
+            {
+                'feature_code': 'project_portfolio',
+                'feature_name': 'Projekt-Portfolio',
+                'description': 'Sammlung eigener Projekte',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 30,
+                'icon': 'folder-open',
+                'config': {
+                    'max_projects': 50,
+                    'public_sharing': True
+                }
+            },
+            {
+                'feature_code': 'project_based_learning',
+                'feature_name': 'Projektbasiertes Lernen',
+                'description': 'Project-Based Learning Workflows',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 31,
+                'icon': 'tasks',
+                'config': {
+                    'phases': ['planning', 'execution', 'presentation'],
+                    'team_based': True
+                }
+            },
+            {
+                'feature_code': 'inverted_classroom',
+                'feature_name': 'Inverted Classroom',
+                'description': 'Flipped Classroom Unterstützung',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'active': True,
+                'former_lm_id': 32,
+                'icon': 'sync-alt',
+                'config': {
+                    'pre_class_materials': True,
+                    'in_class_activities': True
+                }
+            },
+
+            # IT Environments (3)
+            {
+                'feature_code': 'code_sandbox',
+                'feature_name': 'Code-Sandbox',
+                'description': 'Isolierte Code-Ausführungsumgebung',
+                'category': 'it_environments',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'code',
+                'config': {
+                    'languages': ['python', 'javascript', 'java', 'go'],
+                    'max_execution_time': 30
+                }
+            },
+            {
+                'feature_code': 'network_simulation',
+                'feature_name': 'Netzwerk-Simulation',
+                'description': 'Virtuelle Netzwerk-Topologien',
+                'category': 'it_environments',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'network-wired',
+                'config': {
+                    'max_nodes': 20,
+                    'protocols': ['tcp', 'udp', 'icmp']
+                }
+            },
+            {
+                'feature_code': 'terminal_access',
+                'feature_name': 'Terminal-Zugriff',
+                'description': 'Web-basierter Terminal-Zugang',
+                'category': 'it_environments',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'active': True,
+                'former_lm_id': None,
+                'icon': 'terminal',
+                'config': {
+                    'shell': 'bash',
+                    'max_session_time': 1800
+                }
+            }
+        ]
+
+        created = 0
+        for feature in system_features:
+            try:
+                import json
+                result = execute_query(
+                    """
+                    INSERT INTO support_systems.system_features (
+                        feature_code, feature_name, description, category,
+                        requires_infrastructure, requires_external_service,
+                        active, config, icon, former_lm_id, created_at
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                    ON CONFLICT (feature_code) DO NOTHING
+                    RETURNING *
+                    """,
+                    (
+                        feature['feature_code'],
+                        feature['feature_name'],
+                        feature['description'],
+                        feature['category'],
+                        feature['requires_infrastructure'],
+                        feature['requires_external_service'],
+                        feature['active'],
+                        json.dumps(feature['config']),
+                        feature['icon'],
+                        feature['former_lm_id']
+                    ),
+                    fetch_one=True
+                )
+                if result:
+                    created += 1
+            except Exception as e:
+                print(f"Error creating system feature '{feature['feature_name']}': {str(e)}")
 
         return created
 
@@ -684,27 +1124,32 @@ class SeedData:
         """
         try:
             methods_count = fetch_one("SELECT COUNT(*) FROM learning_method_types")
+            features_count = fetch_one("SELECT COUNT(*) FROM support_systems.system_features")
             roles_count = fetch_one("SELECT COUNT(*) FROM roles")
             categories_count = fetch_one("SELECT COUNT(*) FROM course_categories")
 
             return {
                 'learning_methods': methods_count['count'] if methods_count else 0,
+                'system_features': features_count['count'] if features_count else 0,
                 'roles': roles_count['count'] if roles_count else 0,
                 'categories': categories_count['count'] if categories_count else 0,
                 'expected': {
-                    'learning_methods': 21,
-                    'roles': 10,
+                    'learning_methods': 12,
+                    'system_features': 25,
+                    'roles': 9,
                     'categories': 8
                 }
             }
         except Exception:
             return {
                 'learning_methods': 0,
+                'system_features': 0,
                 'roles': 0,
                 'categories': 0,
                 'expected': {
-                    'learning_methods': 21,
-                    'roles': 10,
+                    'learning_methods': 12,
+                    'system_features': 25,
+                    'roles': 9,
                     'categories': 8
                 }
             }
@@ -719,6 +1164,11 @@ def seed_all(**kwargs) -> Dict:
 def seed_learning_methods(**kwargs) -> int:
     """Quick function to seed learning methods"""
     return SeedData.seed_learning_methods(**kwargs)
+
+
+def seed_system_features(**kwargs) -> int:
+    """Quick function to seed system features"""
+    return SeedData.seed_system_features(**kwargs)
 
 
 def seed_roles(**kwargs) -> int:

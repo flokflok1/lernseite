@@ -12,16 +12,16 @@
   <div class="admin-ai-settings-page p-6">
     <!-- Page Header -->
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-2">KI-Einstellungen</h1>
+      <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-2">{{ $t('admin.aiSettingsPage.title') }}</h1>
       <p class="text-[var(--color-text-secondary)]">
-        Verwalten Sie API-Keys und Einstellungen für KI-Provider
+        {{ $t('admin.aiSettingsPage.subtitle') }}
       </p>
     </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]"></div>
-      <span class="ml-3 text-[var(--color-text-secondary)]">Lade Provider...</span>
+      <span class="ml-3 text-[var(--color-text-secondary)]">{{ $t('admin.aiSettingsPage.loadingProviders') }}</span>
     </div>
 
     <!-- Error State -->
@@ -34,7 +34,7 @@
         @click="loadProviders"
         class="mt-2 text-sm text-red-600 hover:text-red-800 underline"
       >
-        Erneut versuchen
+        {{ $t('admin.aiSettingsPage.retry') }}
       </button>
     </div>
 
@@ -45,7 +45,7 @@
         <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-[var(--color-text-secondary)] mb-1">Provider Gesamt</p>
+              <p class="text-sm text-[var(--color-text-secondary)] mb-1">{{ $t('admin.aiSettingsPage.stats.providersTotal') }}</p>
               <p class="text-2xl font-bold text-[var(--color-text-primary)]">{{ providers.length }}</p>
             </div>
             <div class="text-3xl">&#x1F916;</div>
@@ -55,7 +55,7 @@
         <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-[var(--color-text-secondary)] mb-1">Aktiv</p>
+              <p class="text-sm text-[var(--color-text-secondary)] mb-1">{{ $t('admin.aiSettingsPage.stats.active') }}</p>
               <p class="text-2xl font-bold text-green-600">{{ activeProviders }}</p>
             </div>
             <div class="text-3xl">&#x2705;</div>
@@ -65,7 +65,7 @@
         <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-[var(--color-text-secondary)] mb-1">Konfiguriert</p>
+              <p class="text-sm text-[var(--color-text-secondary)] mb-1">{{ $t('admin.aiSettingsPage.stats.configured') }}</p>
               <p class="text-2xl font-bold text-blue-600">{{ configuredProviders }}</p>
             </div>
             <div class="text-3xl">&#x1F511;</div>
@@ -104,7 +104,7 @@
                     : 'bg-gray-100 text-gray-600'
                 ]"
               >
-                {{ provider.active ? 'Aktiv' : 'Inaktiv' }}
+                {{ provider.active ? $t('admin.aiSettingsPage.status.active') : $t('admin.aiSettingsPage.status.inactive') }}
               </span>
 
               <!-- API Key Badge -->
@@ -116,7 +116,7 @@
                     : 'bg-yellow-100 text-yellow-700'
                 ]"
               >
-                {{ provider.has_api_key ? 'API-Key gesetzt' : 'Kein API-Key' }}
+                {{ provider.has_api_key ? $t('admin.aiSettingsPage.status.apiKeySet') : $t('admin.aiSettingsPage.status.noApiKey') }}
               </span>
             </div>
           </div>
@@ -127,19 +127,19 @@
               <!-- Left Column: API Key Input -->
               <div>
                 <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  API-Key
+                  {{ $t('admin.aiSettingsPage.apiKey.label') }}
                 </label>
                 <div class="flex gap-2">
                   <input
                     v-model="apiKeys[provider.provider_id]"
                     :type="showApiKey[provider.provider_id] ? 'text' : 'password'"
-                    :placeholder="provider.has_api_key ? '********** (bereits gesetzt)' : 'API-Key eingeben...'"
+                    :placeholder="provider.has_api_key ? $t('admin.aiSettingsPage.apiKey.placeholderSet') : $t('admin.aiSettingsPage.apiKey.placeholderEmpty')"
                     class="flex-1 px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
                   />
                   <button
                     @click="toggleShowApiKey(provider.provider_id)"
                     class="px-3 py-2 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-surface-secondary)] transition-colors"
-                    :title="showApiKey[provider.provider_id] ? 'Verbergen' : 'Anzeigen'"
+                    :title="showApiKey[provider.provider_id] ? $t('admin.aiSettingsPage.apiKey.hide') : $t('admin.aiSettingsPage.apiKey.show')"
                   >
                     {{ showApiKey[provider.provider_id] ? '&#x1F648;' : '&#x1F441;' }}
                   </button>
@@ -153,7 +153,7 @@
                     class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center gap-2"
                   >
                     <span v-if="savingKey[provider.provider_id]" class="animate-spin">&#x23F3;</span>
-                    <span>{{ savingKey[provider.provider_id] ? 'Speichert...' : 'Speichern' }}</span>
+                    <span>{{ savingKey[provider.provider_id] ? $t('admin.aiSettingsPage.apiKey.saving') : $t('admin.aiSettingsPage.apiKey.save') }}</span>
                   </button>
 
                   <button
@@ -163,7 +163,7 @@
                     class="px-4 py-2 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-surface-secondary)] disabled:opacity-50 transition-colors flex items-center gap-2"
                   >
                     <span v-if="testingKey[provider.provider_id]" class="animate-spin">&#x23F3;</span>
-                    <span>{{ testingKey[provider.provider_id] ? 'Testet...' : 'Testen' }}</span>
+                    <span>{{ testingKey[provider.provider_id] ? $t('admin.aiSettingsPage.apiKey.testing') : $t('admin.aiSettingsPage.apiKey.test') }}</span>
                   </button>
 
                   <button
@@ -172,7 +172,7 @@
                     :disabled="deletingKey[provider.provider_id]"
                     class="px-4 py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
                   >
-                    Entfernen
+                    {{ $t('admin.aiSettingsPage.apiKey.remove') }}
                   </button>
                 </div>
 
@@ -191,7 +191,7 @@
                     <div>
                       <p class="font-medium">{{ testResults[provider.provider_id].message }}</p>
                       <p v-if="testResults[provider.provider_id].response_time" class="text-xs opacity-75">
-                        Antwortzeit: {{ testResults[provider.provider_id].response_time }}ms
+                        {{ $t('admin.aiSettingsPage.messages.responseTime', { time: testResults[provider.provider_id].response_time }) }}
                       </p>
                     </div>
                   </div>
@@ -204,7 +204,7 @@
                   <!-- Active Toggle -->
                   <div class="flex items-center justify-between">
                     <label class="text-sm font-medium text-[var(--color-text-primary)]">
-                      Provider aktivieren
+                      {{ $t('admin.aiSettingsPage.settings.enableProvider') }}
                     </label>
                     <button
                       @click="toggleActive(provider)"
@@ -225,7 +225,7 @@
                   <!-- Priority -->
                   <div>
                     <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-                      Prioritaet (hoeher = bevorzugt)
+                      {{ $t('admin.aiSettingsPage.settings.priority') }}
                     </label>
                     <input
                       type="number"
@@ -240,7 +240,7 @@
                   <!-- Rate Limit -->
                   <div>
                     <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-                      Rate Limit (Anfragen/Minute)
+                      {{ $t('admin.aiSettingsPage.settings.rateLimit') }}
                     </label>
                     <input
                       type="number"
@@ -254,7 +254,7 @@
 
                   <!-- Last Validated -->
                   <div v-if="provider.last_validated" class="text-sm text-[var(--color-text-secondary)]">
-                    Zuletzt validiert: {{ formatDate(provider.last_validated) }}
+                    {{ $t('admin.aiSettingsPage.settings.lastValidated') }} {{ formatDate(provider.last_validated) }}
                   </div>
                 </div>
               </div>
@@ -267,10 +267,10 @@
       <div class="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] overflow-hidden">
         <div class="px-6 py-4 border-b border-[var(--color-border)]">
           <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
-            Standard KI-Modell
+            {{ $t('admin.aiSettingsPage.defaultModel.title') }}
           </h3>
           <p class="text-sm text-[var(--color-text-secondary)]">
-            Waehlen Sie den Standard-Provider und das Modell fuer KI-Operationen
+            {{ $t('admin.aiSettingsPage.defaultModel.subtitle') }}
           </p>
         </div>
 
@@ -279,7 +279,7 @@
             <!-- Default Provider Selection -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                Standard-Provider
+                {{ $t('admin.aiSettingsPage.defaultModel.defaultProvider') }}
               </label>
               <select
                 v-model="defaultSettings.provider"
@@ -299,7 +299,7 @@
             <!-- Default Model Selection -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                Standard-Modell
+                {{ $t('admin.aiSettingsPage.defaultModel.defaultModelLabel') }}
               </label>
               <select
                 v-model="defaultSettings.model"
@@ -310,7 +310,7 @@
                   :key="model.name"
                   :value="model.name"
                 >
-                  {{ model.name }} ({{ formatPrice(model.input_price) }}/{{ formatPrice(model.output_price) }} pro 1K Token)
+                  {{ model.name }} ({{ formatPrice(model.input_price) }}/{{ formatPrice(model.output_price) }} {{ $t('admin.aiSettingsPage.defaultModel.perThousandTokens') }})
                 </option>
               </select>
             </div>
@@ -322,7 +322,7 @@
               <div>
                 <p class="font-medium text-[var(--color-text-primary)]">{{ selectedModelInfo.name }}</p>
                 <p class="text-sm text-[var(--color-text-secondary)]">
-                  Input: {{ formatPrice(selectedModelInfo.input_price) }} | Output: {{ formatPrice(selectedModelInfo.output_price) }} pro 1K Token
+                  {{ $t('admin.aiSettingsPage.defaultModel.input') }}: {{ formatPrice(selectedModelInfo.input_price) }} | {{ $t('admin.aiSettingsPage.defaultModel.output') }}: {{ formatPrice(selectedModelInfo.output_price) }} {{ $t('admin.aiSettingsPage.defaultModel.perThousandTokens') }}
                 </p>
               </div>
               <div class="text-2xl">
@@ -339,7 +339,7 @@
               class="px-6 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center gap-2"
             >
               <span v-if="savingSettings" class="animate-spin">&#x23F3;</span>
-              <span>{{ savingSettings ? 'Speichert...' : 'Einstellungen speichern' }}</span>
+              <span>{{ savingSettings ? $t('admin.aiSettingsPage.defaultModel.savingSettings') : $t('admin.aiSettingsPage.defaultModel.saveSettings') }}</span>
             </button>
           </div>
 
@@ -364,10 +364,10 @@
           <div class="flex items-center gap-4">
             <div>
               <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
-                Verfuegbare Modelle
+                {{ $t('admin.aiSettingsPage.availableModels.title') }}
               </h3>
               <p class="text-sm text-[var(--color-text-secondary)]">
-                {{ totalModelCount }} Modelle von {{ Object.keys(availableModels).length }} Providern
+                {{ $t('admin.aiSettingsPage.availableModels.modelsFromProviders', { count: totalModelCount, providers: Object.keys(availableModels).length }) }}
               </p>
             </div>
             <!-- Provider Badges -->
@@ -387,7 +387,7 @@
             class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-colors flex items-center gap-2"
           >
             <span>&#x1F50D;</span>
-            <span>Model Selector</span>
+            <span>{{ $t('admin.aiSettingsPage.availableModels.modelSelector') }}</span>
           </button>
         </div>
       </div>
@@ -398,8 +398,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import { useWindowStore } from '@/store/window.store'
+
+const { t } = useI18n()
 
 // Window store for opening Model Selector
 const windowStore = useWindowStore()
@@ -541,14 +544,14 @@ const loadProviders = async () => {
         deletingKey.value[p.provider_id] = false
       })
     } else {
-      error.value = response.data.error || 'Fehler beim Laden der Provider'
+      error.value = response.data.error || t('admin.aiSettingsPage.messages.loadError')
     }
   } catch (err: unknown) {
     console.error('Error loading providers:', err)
     if (axios.isAxiosError(err)) {
-      error.value = err.response?.data?.error || 'Netzwerkfehler beim Laden der Provider'
+      error.value = err.response?.data?.error || t('admin.aiSettingsPage.messages.networkError')
     } else {
-      error.value = 'Unbekannter Fehler beim Laden der Provider'
+      error.value = t('admin.aiSettingsPage.messages.unknownError')
     }
   } finally {
     loading.value = false
@@ -640,12 +643,12 @@ const saveDefaultSettings = async () => {
     if (response.data.success) {
       settingsResult.value = {
         success: true,
-        message: 'Einstellungen erfolgreich gespeichert'
+        message: t('admin.aiSettingsPage.messages.settingsSaved')
       }
     } else {
       settingsResult.value = {
         success: false,
-        message: response.data.error || 'Fehler beim Speichern'
+        message: response.data.error || t('admin.aiSettingsPage.messages.settingsSaveError')
       }
     }
   } catch (err: unknown) {
@@ -653,8 +656,8 @@ const saveDefaultSettings = async () => {
     settingsResult.value = {
       success: false,
       message: axios.isAxiosError(err)
-        ? (err.response?.data?.error || 'Netzwerkfehler')
-        : 'Unbekannter Fehler'
+        ? (err.response?.data?.error || t('admin.aiSettingsPage.messages.networkErrorGeneric'))
+        : t('admin.aiSettingsPage.messages.unknownErrorGeneric')
     }
   } finally {
     savingSettings.value = false
@@ -685,12 +688,12 @@ const saveApiKey = async (provider: AIProvider) => {
       apiKeys.value[provider.provider_id] = ''
       testResults.value[provider.provider_id] = {
         success: true,
-        message: 'API-Key erfolgreich gespeichert'
+        message: t('admin.aiSettingsPage.messages.apiKeySaved')
       }
     } else {
       testResults.value[provider.provider_id] = {
         success: false,
-        message: response.data.error || 'Fehler beim Speichern'
+        message: response.data.error || t('admin.aiSettingsPage.messages.apiKeySaveError')
       }
     }
   } catch (err: unknown) {
@@ -698,8 +701,8 @@ const saveApiKey = async (provider: AIProvider) => {
     testResults.value[provider.provider_id] = {
       success: false,
       message: axios.isAxiosError(err)
-        ? (err.response?.data?.error || 'Netzwerkfehler')
-        : 'Unbekannter Fehler'
+        ? (err.response?.data?.error || t('admin.aiSettingsPage.messages.networkErrorGeneric'))
+        : t('admin.aiSettingsPage.messages.unknownErrorGeneric')
     }
   } finally {
     savingKey.value[provider.provider_id] = false
@@ -721,8 +724,8 @@ const testApiKey = async (provider: AIProvider) => {
     testResults.value[provider.provider_id] = {
       success: response.data.success,
       message: response.data.success
-        ? 'Verbindung erfolgreich!'
-        : (response.data.error || 'Verbindung fehlgeschlagen'),
+        ? t('admin.aiSettingsPage.messages.connectionSuccess')
+        : (response.data.error || t('admin.aiSettingsPage.messages.connectionFailed')),
       response_time: response.data.data?.response_time_ms
     }
   } catch (err: unknown) {
@@ -730,8 +733,8 @@ const testApiKey = async (provider: AIProvider) => {
     testResults.value[provider.provider_id] = {
       success: false,
       message: axios.isAxiosError(err)
-        ? (err.response?.data?.error || 'Netzwerkfehler beim Testen')
-        : 'Unbekannter Fehler'
+        ? (err.response?.data?.error || t('admin.aiSettingsPage.messages.testNetworkError'))
+        : t('admin.aiSettingsPage.messages.unknownErrorGeneric')
     }
   } finally {
     testingKey.value[provider.provider_id] = false
@@ -739,7 +742,7 @@ const testApiKey = async (provider: AIProvider) => {
 }
 
 const deleteApiKey = async (provider: AIProvider) => {
-  if (!confirm(`API-Key fuer ${provider.display_name} wirklich entfernen?`)) {
+  if (!confirm(t('admin.aiSettingsPage.messages.confirmRemove', { provider: provider.display_name }))) {
     return
   }
 
@@ -761,7 +764,7 @@ const deleteApiKey = async (provider: AIProvider) => {
       }
       testResults.value[provider.provider_id] = {
         success: true,
-        message: 'API-Key erfolgreich entfernt'
+        message: t('admin.aiSettingsPage.messages.apiKeyRemoved')
       }
     }
   } catch (err: unknown) {
@@ -769,8 +772,8 @@ const deleteApiKey = async (provider: AIProvider) => {
     testResults.value[provider.provider_id] = {
       success: false,
       message: axios.isAxiosError(err)
-        ? (err.response?.data?.error || 'Fehler beim Entfernen')
-        : 'Unbekannter Fehler'
+        ? (err.response?.data?.error || t('admin.aiSettingsPage.messages.removeError'))
+        : t('admin.aiSettingsPage.messages.unknownErrorGeneric')
     }
   } finally {
     deletingKey.value[provider.provider_id] = false

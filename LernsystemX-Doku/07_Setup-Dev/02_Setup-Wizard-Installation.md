@@ -135,7 +135,7 @@ package "Phase 5: KI-Konfiguration" #Lavender {
 }
 
 package "Phase 6: Seeds & Abschluss" #LightGray {
-    [19 Content-Lernmethoden (A-C)] as methods
+    [12 Content-Lernmethoden (A-C)] as methods
     [Kategorien] as cats
     [Rollen] as roles
     [Branding] as brand
@@ -1422,54 +1422,34 @@ class SeedData:
 
     @staticmethod
     def _seed_learning_methods() -> int:
-        """Seed 19 Content-Lernmethoden (Gruppen A-C)"""
+        """Seed 12 Content-Lernmethoden (Gruppen A-C)"""
         from backend.models import LearningMethod
         from backend.database import db
 
-        # 19 Content-Lernmethoden gemäß 02_Lernmethoden.md
-        # Gruppe A: Erklärend (LM00-03, LM06)
-        # Gruppe B: Praxis (LM08, LM12-15, LM17)
-        # Gruppe C: Prüfung (LM18–LM25)
+        # 12 Content-Lernmethoden gemäß 02_Lernmethoden.md
+        # 12 Content-Lernmethoden (LM00-LM11) in 3 Gruppen
+        # Gruppe A: Erklärend (LM00-LM04) - 5 Methoden
+        # Gruppe B: Praxis (LM05-LM08) - 4 Methoden
+        # Gruppe C: Prüfung (LM09-LM11) - 3 Methoden
+        # System-Features sind separat in support_systems.system_features (25 Features)
         methods = [
-            # Gruppe A – Erklärend (LM00–LM07)
-            {'name': 'Textlektion', 'category': 'gruppe_a', 'icon': 'text', 'method_type': 0},
-            {'name': 'Video', 'category': 'gruppe_a', 'icon': 'video', 'method_type': 1},
-            {'name': 'Audio', 'category': 'gruppe_a', 'icon': 'headphones', 'method_type': 2},
-            {'name': 'Glossar', 'category': 'gruppe_a', 'icon': 'book', 'method_type': 3},
-            {'name': 'Mindmap', 'category': 'gruppe_a', 'icon': 'network', 'method_type': 4},
-            {'name': 'Theorieblatt', 'category': 'gruppe_a', 'icon': 'file-text', 'method_type': 5},
-            {'name': 'Zusammenfassung', 'category': 'gruppe_a', 'icon': 'list', 'method_type': 6},
-            {'name': 'Lernkarten', 'category': 'gruppe_a', 'icon': 'cards', 'method_type': 7},
+            # Gruppe A – Erklärend (LM00–LM04)
+            {'name': 'Tiefgehende Erklärung', 'group_code': 'A', 'icon': 'book-open', 'method_type': 0},
+            {'name': 'Schritt-für-Schritt', 'group_code': 'A', 'icon': 'list-ordered', 'method_type': 1},
+            {'name': 'Interaktive Theorie', 'group_code': 'A', 'icon': 'lightbulb', 'method_type': 2},
+            {'name': 'Diagramm/Visualisierung', 'group_code': 'A', 'icon': 'chart-network', 'method_type': 3},
+            {'name': 'Beispiel-Szenario', 'group_code': 'A', 'icon': 'clipboard-list', 'method_type': 4},
 
-            # Gruppe B – Praxis/Übung (LM08–LM17)
-            {'name': 'Flashcards', 'category': 'gruppe_b', 'icon': 'cards', 'method_type': 8},
-            {'name': 'Quiz', 'category': 'gruppe_b', 'icon': 'question', 'method_type': 9},
-            {'name': 'Lückentext', 'category': 'gruppe_b', 'icon': 'text', 'method_type': 10},
-            {'name': 'Multiple Choice', 'category': 'gruppe_b', 'icon': 'check-square', 'method_type': 11},
-            {'name': 'True/False', 'category': 'gruppe_b', 'icon': 'toggle', 'method_type': 12},
-            {'name': 'Zuordnung', 'category': 'gruppe_b', 'icon': 'link', 'method_type': 13},
-            {'name': 'Sortierung', 'category': 'gruppe_b', 'icon': 'sort', 'method_type': 14},
-            {'name': 'Coding-Übung', 'category': 'gruppe_b', 'icon': 'code', 'method_type': 15},
-            {'name': 'Schreibübung', 'category': 'gruppe_b', 'icon': 'pen', 'method_type': 16},
-            {'name': 'KI-Tutor', 'category': 'gruppe_b', 'icon': 'robot', 'method_type': 17},
+            # Gruppe B – Praxis (LM05–LM08)
+            {'name': 'Mathe-Interaktiv', 'group_code': 'B', 'icon': 'calculator', 'method_type': 5},
+            {'name': 'Flashcards', 'group_code': 'B', 'icon': 'cards', 'method_type': 6},
+            {'name': 'Drag & Drop', 'group_code': 'B', 'icon': 'hand-pointer', 'method_type': 7},
+            {'name': 'Lückentext', 'group_code': 'B', 'icon': 'align-left', 'method_type': 8},
 
-            # Gruppe C – Prüfungsorientiert (LM18–LM25)
-            {'name': 'Spaced Repetition', 'category': 'gruppe_c', 'icon': 'clock', 'method_type': 18},
-            {'name': 'Prüfungssimulation', 'category': 'gruppe_c', 'icon': 'certificate', 'method_type': 19},
-            {'name': 'Zeitprüfung', 'category': 'gruppe_c', 'icon': 'timer', 'method_type': 20},
-            {'name': 'Kompetenztest', 'category': 'gruppe_c', 'icon': 'check-circle', 'method_type': 21},
-            {'name': 'Fehleranalyse', 'category': 'gruppe_c', 'icon': 'search', 'method_type': 22},
-            {'name': 'Wiederholungstest', 'category': 'gruppe_c', 'icon': 'repeat', 'method_type': 23},
-            {'name': 'Abschlussprüfung', 'category': 'gruppe_c', 'icon': 'award', 'method_type': 24},
-            {'name': 'Zertifikatsprüfung', 'category': 'gruppe_c', 'icon': 'badge', 'method_type': 25},
-
-            # Gruppe D – Pro/Gamification (LM26–LM31)
-            {'name': 'Case Study', 'category': 'gruppe_d', 'icon': 'briefcase', 'method_type': 26},
-            {'name': 'Gamification', 'category': 'gruppe_d', 'icon': 'gamepad', 'method_type': 27},
-            {'name': 'Projekt-Simulation', 'category': 'gruppe_d', 'icon': 'project-diagram', 'method_type': 28},
-            {'name': 'Rollenspiel', 'category': 'gruppe_d', 'icon': 'users', 'method_type': 29},
-            {'name': 'Deep Scenario', 'category': 'gruppe_d', 'icon': 'sitemap', 'method_type': 30},
-            {'name': 'Live-Wettbewerb', 'category': 'gruppe_d', 'icon': 'trophy', 'method_type': 31}
+            # Gruppe C – Prüfung (LM09–LM11)
+            {'name': 'Freitext-Langantwort', 'group_code': 'C', 'icon': 'pen-fancy', 'method_type': 9},
+            {'name': 'IHK-Stil Aufgaben', 'group_code': 'C', 'icon': 'file-certificate', 'method_type': 10},
+            {'name': 'Multi-Step Praxisprüfung', 'group_code': 'C', 'icon': 'tasks', 'method_type': 11}
         ]
 
         created = 0
@@ -2295,7 +2275,7 @@ Das Setup Wizard System ermöglicht:
 | **Admin-Setup** | ✓ | Superadmin mit 2FA, Recovery Codes |
 | **Org-Setup** | ✓ | Multi-Org von Anfang an |
 | **KI-Config** | ✓ | API Keys verschlüsselt, Pipeline |
-| **Seeds** | ✓ | 19 Content-LMs (A-C), Rollen, Kategorien |
+| **Seeds** | ✓ | 12 Content-LMs (A-C), Rollen, Kategorien |
 | **Verification** | ✓ | Post-Install Checks |
 | **Web-UI** | ✓ | Vue.js Wizard mit Fortschritt |
 
@@ -2730,5 +2710,5 @@ Dieses Dokument beschreibt den vollständigen Setup Wizard für LSX mit:
 • Database-Migrationen
 • Admin-Setup mit 2FA
 • KI-Pipeline-Konfiguration
-• Seed-Daten (19 Content-LMs A-C, Kategorien, Rollen)
+• Seed-Daten (12 Content-LMs A-C, Kategorien, Rollen)
 • Post-Installation Verification

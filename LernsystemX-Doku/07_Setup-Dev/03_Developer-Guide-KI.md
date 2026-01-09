@@ -136,7 +136,7 @@ claude code --cache-min-tokens 2048 --model opus-4-5
 Du arbeitest am **LSX LernSystemX**.
 
 ## Kontext
-- 19 Content-Lernmethoden (LM00–LM25): `02_Lernmethoden.md`
+- 12 Content-Lernmethoden (LM00–LM11): `02_Lernmethoden.md`
 - System-Features: `02a_System-Features.md`
 - Kurs-Struktur: `37_Kurs-Lektions-Struktur.md`
 

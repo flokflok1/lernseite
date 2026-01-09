@@ -19,7 +19,7 @@ from flask_jwt_extended import (
     get_jwt
 )
 
-from app.repositories.user_repository import UserRepository
+from app.repositories.user import UserRepository
 
 
 # Role hierarchy for RBAC
@@ -309,7 +309,7 @@ def organisation_member_required(fn: Callable) -> Callable:
         @organisation_member_required
         def org_courses():
             user = get_current_user()
-            org_id = user['organisation_id']
+            org_id = user['organization_id']
             return jsonify({'org_id': org_id})
 
     Returns:
@@ -321,7 +321,7 @@ def organisation_member_required(fn: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         user = g.current_user
 
-        if not user.get('organisation_id'):
+        if not user.get('organization_id'):
             return jsonify({
                 'success': False,
                 'error': 'Organisation membership required',
@@ -424,8 +424,8 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
     # Organisation admins can manage users in their organisation
     if current_role in ['school_admin', 'company_admin']:
         same_org = (
-            current_user.get('organisation_id') ==
-            target_user.get('organisation_id')
+            current_user.get('organization_id') ==
+            target_user.get('organization_id')
         )
         can_manage_role = target_role in [
             'user', 'premium', 'teacher', 'creator'
@@ -435,8 +435,8 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
     # Teachers can manage students in their organisation
     if current_role == 'teacher':
         same_org = (
-            current_user.get('organisation_id') ==
-            target_user.get('organisation_id')
+            current_user.get('organization_id') ==
+            target_user.get('organization_id')
         )
         can_manage_role = target_role in ['user', 'premium']
         return same_org and can_manage_role

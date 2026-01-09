@@ -1,29 +1,27 @@
 -- ============================================================================
--- Migration: 054_learning_methods_module_to_chapter.sql
--- Description: Renames module_id to chapter_id in learning_methods table
--- Version: 2.1.1
+-- Migration: 047_learning_methods_module_to_chapter.sql
+-- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-11-29
+-- Date: 2026-01-02
 -- ============================================================================
 
--- Rename column module_id → chapter_id in learning_methods
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.columns
-               WHERE table_name = 'learning_methods' AND column_name = 'module_id') THEN
-        ALTER TABLE learning_methods RENAME COLUMN module_id TO chapter_id;
-        RAISE NOTICE 'Renamed column in learning_methods: module_id → chapter_id';
+               WHERE table_schema = 'learning_methods' AND table_name = 'learning_method_instances' AND column_name = 'module_id') THEN
+        ALTER TABLE learning_methods.learning_method_instances RENAME COLUMN module_id TO chapter_id;
+        RAISE NOTICE 'Renamed column in learning_method_instances: module_id → chapter_id';
     ELSE
-        RAISE NOTICE 'Column chapter_id already exists in learning_methods - no migration needed';
+        RAISE NOTICE 'Column chapter_id already exists in learning_method_instances - no migration needed';
     END IF;
 END $$;
 
 -- Update indexes
-DROP INDEX IF EXISTS idx_learning_methods_module;
-DROP INDEX IF EXISTS idx_learning_methods_order;
+DROP INDEX IF EXISTS learning_methods.idx_lm_instances_module;
+DROP INDEX IF EXISTS learning_methods.idx_lm_instances_order;
 
-CREATE INDEX IF NOT EXISTS idx_learning_methods_chapter ON learning_methods(chapter_id);
-CREATE INDEX IF NOT EXISTS idx_learning_methods_chapter_order ON learning_methods(chapter_id, order_index);
+-- Note: idx_lm_instances_chapter and idx_lm_instances_order are already created in 011_learning_methods.sql
 
 -- ============================================================================
 -- End of Migration: 054_learning_methods_module_to_chapter.sql

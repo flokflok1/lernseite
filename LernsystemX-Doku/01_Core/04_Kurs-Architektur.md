@@ -25,7 +25,7 @@ Container_Boundary(course_system, "Kurssystem") {
     Container(course, "Kurs", "Core Entity", "Metadaten, Einstellungen, Sichtbarkeit")
     Container(modules, "Module", "Lerneinheiten", "Strukturiert Kursinhalte in Themen")
     Container(theory, "Theorie-Blätter", "Wissensbasis", "Zentrale Lerndokumente")
-    Container(methods, "Lernmethoden", "19 Content-LMs (A-C)", "Interaktive Übungen & Tests")
+    Container(methods, "Lernmethoden", "12 Content-LMs (A-C)", "Interaktive Übungen & Tests")
     Container(exams, "Prüfungen", "Assessment", "Tests & Zertifikate")
 }
 
@@ -65,7 +65,7 @@ end note
 note right of modules
   Jedes Modul (Kapitel):
   - 1 Theorie-Blatt (Pflicht)
-  - 19 Content-Lernmethoden (siehe 02_Lernmethoden.md)
+  - 12 Content-Lernmethoden (siehe 02_Lernmethoden.md)
   - Optional: Quiz-Pool
   - Optional: Kapitel-Endprüfung (LM25)
 end note
@@ -86,7 +86,7 @@ Ein LSX-Kurs besteht aus folgenden Hauptkomponenten:
 | **Kurs-Metadaten** | Titel, Beschreibung, Kategorie, Sprache | ✅ |
 | **Module** | Thematische Lerneinheiten | ✅ (mind. 1) |
 | **Theorie-Blätter** | Zentrale Wissensdokumente pro Modul | ✅ (1 pro Modul) |
-| **Lernmethoden** | 19 Content-Lernmethoden (siehe [02_Lernmethoden.md](02_Lernmethoden.md)) | Optional |
+| **Lernmethoden** | 12 Content-Lernmethoden (siehe [02_Lernmethoden.md](02_Lernmethoden.md)) | Optional |
 | **Prüfungen** | Tests & Simulationen | Optional |
 | **KI-Materialien** | Zusatzinhalte, Zusammenfassungen | Optional |
 | **Ressourcen** | PDFs, Videos, Links | Optional |
@@ -598,7 +598,7 @@ end note
 
 ### 🎯 Methoden-Integration
 
-Ein Modul kann **mehrere Lernmethoden** enthalten. Jede Methode ist eine Instanz eines der 19 Content-Lernmethodentypen (definiert in [02_Lernmethoden.md](02_Lernmethoden.md)).
+Ein Modul kann **mehrere Lernmethoden** enthalten. Jede Methode ist eine Instanz eines der 12 Content-Lernmethodentypen (definiert in [02_Lernmethoden.md](02_Lernmethoden.md)).
 
 ```plantuml
 @startuml
@@ -641,7 +641,7 @@ end note
 |------|-----|--------------|
 | `method_instance_id` | UUID | Eindeutige Instanz-ID |
 | `module_id` | UUID | Zugehöriges Modul |
-| `method_type` | INTEGER | Methodentyp (19 Content-LMs, siehe 02_Lernmethoden.md) |
+| `method_type` | INTEGER | Methodentyp (12 Content-LMs, siehe 02_Lernmethoden.md) |
 | `method_data` | JSONB | Methodenspezifische Daten |
 | `requires_ki` | BOOLEAN | KI erforderlich? |
 | `created_by` | UUID | Ersteller |
@@ -901,7 +901,7 @@ package "Editor-Features" {
   }
 
   rectangle "Creator-Features" #LightYellow {
-    [Alle 19 Content-Lernmethoden]
+    [Alle 12 Content-Lernmethoden]
     [Marketplace Publishing]
     [Global Publishing (20 Sprachen)]
     [Revenue Analytics]
@@ -1336,7 +1336,7 @@ end note
 | Aspekt | Details |
 |--------|---------|
 | **Modularität** | Kurse → Module → Theorie-Blätter → Methoden |
-| **Flexibilität** | 19 Content-Lernmethoden pro Modul |
+| **Flexibilität** | 12 Content-Lernmethoden pro Modul |
 | **KI-Integration** | Content-Generierung, Übersetzung, Prüfungen |
 | **Rollenbasiert** | Strikte Trennung: Premium/Creator/Teacher/School/Company |
 | **International** | Global Publishing in 20 Sprachen |
@@ -1354,7 +1354,7 @@ end note
 │    ├── Metadaten (Titel, Kategorie)    │
 │    ├── Module (1-n)                     │
 │    │    ├── Theorie-Blatt (1:1)        │
-│    │    └── Lernmethoden (19 Content-LMs)   │
+│    │    └── Lernmethoden (12 Content-LMs)   │
 │    ├── Prüfungen (optional)            │
 │    └── Versionen                        │
 │                                         │

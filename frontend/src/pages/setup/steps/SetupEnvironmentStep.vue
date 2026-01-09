@@ -1,10 +1,10 @@
 <template>
   <div>
     <h2 class="text-xl font-bold text-white mb-3">
-      Umgebungs-Auswahl
+      {{ $t('setup.environment.title') }}
     </h2>
     <p class="text-sm text-gray-400 mb-5">
-      Wähle die Umgebung für deine LernsystemX Installation.
+      {{ $t('setup.environment.description') }}
     </p>
 
     <!-- Environment Selection Cards -->
@@ -22,10 +22,10 @@
         <div class="flex items-start justify-between mb-3">
           <div>
             <h3 class="text-lg font-semibold text-white mb-1">
-              Development
+              {{ $t('setup.environment.development.title') }}
             </h3>
             <p class="text-xs text-gray-400">
-              Für lokale Entwicklung und Tests
+              {{ $t('setup.environment.development.description') }}
             </p>
           </div>
           <div
@@ -58,25 +58,25 @@
             <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Debug-Modus aktiviert
+            {{ $t('setup.environment.development.debugMode') }}
           </li>
           <li class="flex items-center">
             <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Localhost CORS erlaubt
+            {{ $t('setup.environment.development.localhostCors') }}
           </li>
           <li class="flex items-center">
             <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Detailliertes Logging
+            {{ $t('setup.environment.development.detailedLogging') }}
           </li>
           <li class="flex items-center">
             <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Hot-Reload für Code-Änderungen
+            {{ $t('setup.environment.development.hotReload') }}
           </li>
         </ul>
       </div>
@@ -94,10 +94,10 @@
         <div class="flex items-start justify-between mb-3">
           <div>
             <h3 class="text-lg font-semibold text-white mb-1">
-              Production
+              {{ $t('setup.environment.production.title') }}
             </h3>
             <p class="text-xs text-gray-400">
-              Für Live-Deployment
+              {{ $t('setup.environment.production.description') }}
             </p>
           </div>
           <div
@@ -130,25 +130,25 @@
             <svg class="w-4 h-4 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Optimierte Performance
+            {{ $t('setup.environment.production.optimizedPerformance') }}
           </li>
           <li class="flex items-center">
             <svg class="w-4 h-4 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Security Headers aktiviert
+            {{ $t('setup.environment.production.securityHeaders') }}
           </li>
           <li class="flex items-center">
             <svg class="w-4 h-4 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Rate Limiting
+            {{ $t('setup.environment.production.rateLimiting') }}
           </li>
           <li class="flex items-center">
             <svg class="w-4 h-4 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Produktions-Logging
+            {{ $t('setup.environment.production.productionLogging') }}
           </li>
         </ul>
       </div>
@@ -197,11 +197,10 @@
         </svg>
         <div>
           <p class="text-sm text-blue-200 font-semibold mb-1">
-            Automatische Konfiguration
+            {{ $t('setup.environment.infoBox.title') }}
           </p>
           <p class="text-xs text-blue-300/80">
-            Die .env Datei wird automatisch mit sicheren Zufallsschlüsseln erstellt.
-            SECRET_KEY und JWT_SECRET_KEY werden kryptografisch sicher generiert.
+            {{ $t('setup.environment.infoBox.description') }}
           </p>
         </div>
       </div>
@@ -216,7 +215,7 @@
         variant="primary"
         class="px-6"
       >
-        {{ loading ? 'Konfiguriere...' : 'Umgebung konfigurieren' }}
+        {{ loading ? $t('setup.environment.configuring') : $t('setup.environment.configureButton') }}
       </Button>
     </div>
   </div>
@@ -224,8 +223,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Button from '@/components/ui/Button.vue'
+import { useI18n } from 'vue-i18n'
+import Button from '@/components/shared/ui/Button.vue'
 import * as setupApi from '@/api/setup.api'
+
+const { t } = useI18n()
 
 const emit = defineEmits(['next', 'back'])
 
@@ -248,8 +250,7 @@ const configureEnvironment = async () => {
 
     if (response.success) {
       statusSuccess.value = true
-      statusMessage.value = `Umgebung "${selectedEnvironment.value}" erfolgreich konfiguriert! ` +
-        `Sichere Keys wurden automatisch generiert.`
+      statusMessage.value = t('setup.environment.success', { env: selectedEnvironment.value })
 
       // Auto-advance after 1.5 seconds
       setTimeout(() => {
@@ -257,11 +258,11 @@ const configureEnvironment = async () => {
       }, 1500)
     } else {
       statusSuccess.value = false
-      statusMessage.value = response.error || 'Fehler bei der Konfiguration'
+      statusMessage.value = response.error || t('setup.environment.configFailed')
     }
   } catch (error: any) {
     statusSuccess.value = false
-    statusMessage.value = error.message || 'Netzwerkfehler bei der Konfiguration'
+    statusMessage.value = error.message || t('setup.environment.networkError')
   } finally {
     loading.value = false
   }

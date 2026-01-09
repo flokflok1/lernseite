@@ -1,552 +1,433 @@
 """
-LernsystemX KI - Learning Method Mapping (19 Content-Lernmethoden, 3 Gruppen A-C)
+Learning Method Mapping - Content-LMs Only (12 Methoden)
 
-Vollständiges Mapping aller 19 aktiven Content-Lernmethoden auf:
-- Name (Deutsch)
-- Gruppe (A, B, C)
-- Typ (explanatory, practice, exam)
-- Default Prompt-Key
-- KI-Nutzungsintensität
+Defines the 12 Content-Lernmethoden (lm00-lm11).
+System-Features are in system_features_mapping.py
 
-WICHTIG: Dieses Modul enthält NUR Content-Lernmethoden (Aufgaben/Prüfungsformate).
-System-Features (Tutor, Gamification, IT-Umgebungen, Kollaboration) sind in
-separaten Modulen definiert (siehe 02a_System-Features.md).
+Structure:
+- Gruppe A (Erklärend): lm00-lm04 (5 Methoden)
+- Gruppe B (Praxis):    lm05-lm08 (4 Methoden)
+- Gruppe C (Prüfung):   lm09-lm11 (3 Methoden)
 
-Aktuelle Content-LM-Struktur (Stand: 2025-12):
-- A: Erklärend (LM00-LM03, LM06) - 5 Methoden
-- B: Praxis (LM08, LM12-LM15, LM17) - 6 Methoden
-- C: Prüfung (LM18-LM25) - 8 Methoden
-
-DEAKTIVIERT / Zu System-Features verschoben:
-- LM04: Sokratischer Dialog → TutorAgent / Pro-Feature
-- LM05: Mindmap-Generator → CourseFeatures
-- LM07: NPC-Tutor-Lecture → TutorAgent
-- LM09-LM11, LM16: IT-Sandboxes → System-Feature IT-Umgebungen
-- LM26-LM32: Kollaborative Methoden → System-Features Kollaboration
+REMOVED (now System-Features):
+- Whiteboard-Aufgabe (old lm05) → whiteboard_engine
+- Hands-on Lab (old lm10) → it_sandbox
+- Zeitlimit-Training (old lm14) → timer_wrapper
+- Mündliche Erklärung (old lm17) → speech_to_text
+- IHK-Stil Aufgaben (old lm10) → ihk_exam_system
+- Multi-Step Praxisprüfung (old lm11) → practical_exam_engine
+- Verständnis-Checks (old lm13) → comprehension_checker
+- Kapitel-Endprüfung (old lm14) → chapter_completion_system
 
 Referenz: 02_Lernmethoden.md (Master-Dokument)
           02a_System-Features.md (System-Features)
 """
 
 from dataclasses import dataclass
-from typing import Optional, Dict, List
-from enum import Enum
+from typing import Dict, List, Optional, Any
 
 
-class LearningMethodGroup(str, Enum):
-    """Gruppen-Codes für die 19 Content-Lernmethoden (3 Gruppen)"""
-    A = 'A'  # Erklärende Methoden (LM00-LM03, LM06) - 5 Methoden
-    B = 'B'  # Praxis/Übung (LM08, LM12-LM15, LM17) - 6 Methoden
-    C = 'C'  # Prüfungsorientiert (LM18-LM25) - 8 Methoden
+@dataclass
+class AgentSupport:
+    """Agent-based learning support configuration"""
+    agent_can_handle: bool  # Can agent answer without AI?
+    requires_fresh_ai: bool  # Always needs fresh AI generation?
+    knowledge_domains: List[str]  # Which knowledge domains? (networking, programming, etc.)
+    knowledge_cacheable: bool  # Can agent cache answers for this LM?
+    complexity_threshold: int  # 1-5: When to escalate to AI (1=low, 5=high)
 
 
-class LearningMethodType(str, Enum):
-    """Methodentypen für semantische Klassifizierung"""
-    EXPLANATORY = 'explanatory'   # Erklärend (A)
-    PRACTICE = 'practice'         # Übung (B)
-    EXAM = 'exam'                 # Prüfung (C)
-
-
-class KIUsage(str, Enum):
-    """KI-Nutzungsintensität"""
-    INTENSIVE = 'intensive'  # KI-intensiv (Vollgenerierung)
-    MEDIUM = 'medium'        # Mittlere KI-Nutzung (Unterstützung)
-    OPTIONAL = 'optional'    # KI optional (manuelle Erstellung möglich)
-
-
-@dataclass(frozen=True)
+@dataclass
 class LearningMethodDefinition:
-    """Definition einer Content-Lernmethode"""
-    lm_id: int                          # 0-25 (mit Lücken bei 4, 5, 7, 9-11, 16)
-    name: str                           # Deutscher Name
-    group: LearningMethodGroup          # A, B, C
-    method_type: LearningMethodType     # explanatory, practice, exam
-    ki_usage: KIUsage                   # intensive, medium, optional
-    prompt_key: str                     # Prompt-Template-Key
-    description: str                    # Kurzbeschreibung
-    active: bool = True                 # Ob die Methode aktiv ist
+    """Definition of a Content-Lernmethode (Aufgabenformat)"""
+    lm_id: int
+    name: str
+    description: str
+    group: str  # A, B, C
+    tier: str  # basic, premium
+    icon: str
+    prompt_template: Optional[str] = None
+    default_config: Optional[dict] = None
+    agent_support: Optional[AgentSupport] = None  # New: Agent-based intelligence
 
 
-# =============================================================================
-# VOLLSTÄNDIGES MAPPING ALLER 19 CONTENT-LERNMETHODEN
-# =============================================================================
+# ============================================================================
+# Content-Lernmethoden Registry (12 LMs)
+# ============================================================================
 
 LEARNING_METHODS: Dict[int, LearningMethodDefinition] = {
-    # =========================================================================
-    # GRUPPE A – Erklärend (5 Methoden)
-    # =========================================================================
+    # ========================================================================
+    # Gruppe A: Erklärend (lm00-lm04) - 5 Methoden
+    # ========================================================================
     0: LearningMethodDefinition(
         lm_id=0,
         name="Tiefgehende Erklärung",
-        group=LearningMethodGroup.A,
-        method_type=LearningMethodType.EXPLANATORY,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="deep_explanation",
-        description="KI-generierte Erklärung mit Beispielen & Analogien"
+        description="Erklärung mit Beispielen & Analogien (Agent entscheidet: DB vs AI)",
+        group="A",
+        tier="basic",
+        icon="book-open",
+        prompt_template="deep_explanation",
+        default_config={"min_examples": 2, "include_analogies": True},
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["general"],
+            knowledge_cacheable=True,
+            complexity_threshold=2
+        )
     ),
     1: LearningMethodDefinition(
         lm_id=1,
         name="Schritt-für-Schritt",
-        group=LearningMethodGroup.A,
-        method_type=LearningMethodType.EXPLANATORY,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="step_by_step",
-        description="Sequenzielle Anleitung in nummerierten Schritten"
+        description="Sequenzielle Anleitung in nummerierten Schritten",
+        group="A",
+        tier="basic",
+        icon="list-ordered",
+        prompt_template="step_by_step",
+        default_config={"min_steps": 3, "max_steps": 10},
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["general"],
+            knowledge_cacheable=True,
+            complexity_threshold=2
+        )
     ),
     2: LearningMethodDefinition(
         lm_id=2,
         name="Interaktive Theorie",
-        group=LearningMethodGroup.A,
-        method_type=LearningMethodType.EXPLANATORY,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="interactive_theory",
-        description="Theorieblöcke mit eingebetteten Kontrollfragen"
+        description="Theorie mit interaktiven Frage-Antwort-Elementen",
+        group="A",
+        tier="basic",
+        icon="lightbulb",
+        prompt_template="interactive_theory",
+        default_config={"question_frequency": "medium", "feedback_mode": "immediate"},
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["general"],
+            knowledge_cacheable=True,
+            complexity_threshold=2
+        )
     ),
     3: LearningMethodDefinition(
         lm_id=3,
         name="Diagramm/Visualisierung",
-        group=LearningMethodGroup.A,
-        method_type=LearningMethodType.EXPLANATORY,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="visualization",
-        description="Visuelle Modelle (Netzwerk, OSI, ER, Flows)"
+        description="Grafische Darstellung komplexer Konzepte (User erstellt Diagramm)",
+        group="A",
+        tier="basic",
+        icon="chart-network",
+        prompt_template="diagram_visualization",
+        default_config={"diagram_type": "network", "render_engine": "mermaid"},
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["general"],
+            knowledge_cacheable=True,
+            complexity_threshold=3
+        )
+    ),
+    4: LearningMethodDefinition(
+        lm_id=4,
+        name="Beispiel-Szenario",
+        description="Praxisnahes Anwendungsbeispiel mit Kontext",
+        group="A",
+        tier="basic",
+        icon="clipboard-list",
+        prompt_template="example_scenario",
+        default_config={"complexity": "medium", "allow_multiple_solutions": True},
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["general"],
+            knowledge_cacheable=True,
+            complexity_threshold=3
+        )
+    ),
+
+    # ========================================================================
+    # Gruppe B: Praxis (lm05-lm08) - 4 Methoden
+    # ========================================================================
+    5: LearningMethodDefinition(
+        lm_id=5,
+        name="Mathe-Interaktiv",
+        description="Mathematische Aufgaben mit Schritt-Erkennung",
+        group="B",
+        tier="basic",
+        icon="calculator",
+        prompt_template="math_interactive",
+        default_config={"show_steps": True, "allow_calculator": False},
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["math"],
+            knowledge_cacheable=True,
+            complexity_threshold=3
+        )
     ),
     6: LearningMethodDefinition(
         lm_id=6,
-        name="Beispiel-Szenario",
-        group=LearningMethodGroup.A,
-        method_type=LearningMethodType.EXPLANATORY,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="scenario_explanation",
-        description="Realitätsnahe Case-Erklärung eines Konzepts"
+        name="Flashcards",
+        description="Digitale Lernkarten für Wiederholung",
+        group="B",
+        tier="basic",
+        icon="cards",
+        prompt_template="flashcards",
+        default_config={"spaced_repetition": True, "shuffle": True},
+        agent_support=AgentSupport(
+            agent_can_handle=False,
+            requires_fresh_ai=False,
+            knowledge_domains=[],
+            knowledge_cacheable=False,
+            complexity_threshold=1
+        )
     ),
-
-    # =========================================================================
-    # GRUPPE B – Praxis (6 Methoden)
-    # =========================================================================
+    7: LearningMethodDefinition(
+        lm_id=7,
+        name="Drag & Drop",
+        description="Zuordnungsaufgaben per Drag & Drop",
+        group="B",
+        tier="basic",
+        icon="hand-pointer",
+        prompt_template="drag_drop",
+        default_config={"randomize_order": True, "show_hints": False},
+        agent_support=AgentSupport(
+            agent_can_handle=False,
+            requires_fresh_ai=False,
+            knowledge_domains=[],
+            knowledge_cacheable=False,
+            complexity_threshold=1
+        )
+    ),
     8: LearningMethodDefinition(
         lm_id=8,
-        name="Whiteboard-Aufgabe",
-        group=LearningMethodGroup.B,
-        method_type=LearningMethodType.PRACTICE,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="whiteboard",
-        description="Lernende zeichnen/verbinden Topologien, Skizzen"
-    ),
-    12: LearningMethodDefinition(
-        lm_id=12,
-        name="Mathe-Interaktiv",
-        group=LearningMethodGroup.B,
-        method_type=LearningMethodType.PRACTICE,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="math_interactive",
-        description="Rechenaufgaben mit Schritt-für-Schritt-Erklärung"
-    ),
-    13: LearningMethodDefinition(
-        lm_id=13,
-        name="Flashcards",
-        group=LearningMethodGroup.B,
-        method_type=LearningMethodType.PRACTICE,
-        ki_usage=KIUsage.OPTIONAL,
-        prompt_key="flashcards",
-        description="Karteikarten mit Spaced-Repetition"
-    ),
-    14: LearningMethodDefinition(
-        lm_id=14,
-        name="Drag & Drop",
-        group=LearningMethodGroup.B,
-        method_type=LearningMethodType.PRACTICE,
-        ki_usage=KIUsage.OPTIONAL,
-        prompt_key="drag_drop",
-        description="Zuordnungs-/Matching-Aufgaben"
-    ),
-    15: LearningMethodDefinition(
-        lm_id=15,
         name="Lückentext",
-        group=LearningMethodGroup.B,
-        method_type=LearningMethodType.PRACTICE,
-        ki_usage=KIUsage.OPTIONAL,
-        prompt_key="fill_blanks",
-        description="Fill-in-the-blanks in Texten/Configs"
-    ),
-    17: LearningMethodDefinition(
-        lm_id=17,
-        name="Hands-on Lab",
-        group=LearningMethodGroup.B,
-        method_type=LearningMethodType.PRACTICE,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="hands_on_lab",
-        description="Virtuelle Umgebung (Terminal/IDE) mit Aufgabe"
+        description="Lückentexte mit Auto-Korrektur",
+        group="B",
+        tier="basic",
+        icon="align-left",
+        prompt_template="fill_blanks",
+        default_config={"case_sensitive": False, "allow_synonyms": True},
+        agent_support=AgentSupport(
+            agent_can_handle=False,
+            requires_fresh_ai=False,
+            knowledge_domains=[],
+            knowledge_cacheable=False,
+            complexity_threshold=1
+        )
     ),
 
-    # =========================================================================
-    # GRUPPE C – Prüfung (8 Methoden)
-    # =========================================================================
-    18: LearningMethodDefinition(
-        lm_id=18,
+    # ========================================================================
+    # Gruppe C: Prüfung (lm09-lm11) - 3 Methoden
+    # ========================================================================
+    9: LearningMethodDefinition(
+        lm_id=9,
         name="Freitext-Langantwort",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="long_answer",
-        description="Lange Antworten, KI bewertet mit Rubric"
+        description="Offene Fragen mit Agent-Bewertung (nutzt DB-Wissen + AI bei Bedarf)",
+        group="C",
+        tier="premium",
+        icon="pen-fancy",
+        prompt_template="long_answer",
+        default_config={"min_words": 100, "ai_grading": True},
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["general"],
+            knowledge_cacheable=True,
+            complexity_threshold=4
+        )
     ),
-    19: LearningMethodDefinition(
-        lm_id=19,
-        name="IHK-Stil Aufgaben",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="ihk_style",
-        description="Prüfungsnahe MC/Lückentext/Szenario"
+    10: LearningMethodDefinition(
+        lm_id=10,
+        name="Multiple-Choice Quiz",
+        description="Multiple-Choice Quiz in Prüfungsformat",
+        group="C",
+        tier="basic",
+        icon="question-circle",
+        prompt_template="multiple_choice_quiz",
+        default_config={"questions_per_set": 20, "randomize": True},
+        agent_support=AgentSupport(
+            agent_can_handle=False,
+            requires_fresh_ai=False,
+            knowledge_domains=[],
+            knowledge_cacheable=False,
+            complexity_threshold=1
+        )
     ),
-    20: LearningMethodDefinition(
-        lm_id=20,
-        name="Multi-Step Praxisprüfung",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="multi_step_exam",
-        description="Mehrstufige Prüfungsketten"
-    ),
-    21: LearningMethodDefinition(
-        lm_id=21,
-        name="Zeitlimit-Training",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.OPTIONAL,
-        prompt_key="time_limit",
-        description="Aufgaben unter Zeitdruck (Countdown)"
-    ),
-    22: LearningMethodDefinition(
-        lm_id=22,
-        name="Prüfungs-Quiz",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.OPTIONAL,
-        prompt_key="exam_quiz",
-        description="Quiz mit sofortigem Feedback"
-    ),
-    23: LearningMethodDefinition(
-        lm_id=23,
-        name="Verständnis-Checks",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.OPTIONAL,
-        prompt_key="comprehension_check",
-        description="Single-Item-Checks nach Lerneinheit"
-    ),
-    24: LearningMethodDefinition(
-        lm_id=24,
-        name="Mündliche Erklärung",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.INTENSIVE,
-        prompt_key="oral_explanation",
-        description="User erklärt mündlich, KI bewertet"
-    ),
-    25: LearningMethodDefinition(
-        lm_id=25,
-        name="Kapitel-Endprüfung",
-        group=LearningMethodGroup.C,
-        method_type=LearningMethodType.EXAM,
-        ki_usage=KIUsage.MEDIUM,
-        prompt_key="chapter_exam",
-        description="Größere Prüfung am Kapitelende"
+    11: LearningMethodDefinition(
+        lm_id=11,
+        name="True/False",
+        description="Richtig/Falsch Aussagen bewerten",
+        group="C",
+        tier="basic",
+        icon="check-circle",
+        prompt_template="true_false",
+        default_config={"randomize": True, "show_explanations": True},
+        agent_support=AgentSupport(
+            agent_can_handle=False,
+            requires_fresh_ai=False,
+            knowledge_domains=[],
+            knowledge_cacheable=False,
+            complexity_threshold=1
+        )
     ),
 }
 
 
-# =============================================================================
-# SYSTEM-FEATURES (frühere LMs, jetzt eigenständige Features)
-# =============================================================================
-
-SYSTEM_FEATURES: Dict[int, Dict] = {
-    # Gruppe D (Pro) → TutorAgent
-    4: {
-        'name': 'Sokratischer Dialog',
-        'former_group': 'D',
-        'moved_to': 'TutorAgent / Pro-Feature',
-        'description': 'KI fragt, User leitet Konzept selbst her'
-    },
-    # Deaktivierte Visualisierung
-    5: {
-        'name': 'Mindmap-Generator',
-        'former_group': 'A',
-        'moved_to': 'CourseFeatures.mindmap',
-        'description': 'Kursweite Mindmaps aus Theorie-Inhalten'
-    },
-    # Deaktivierter Tutor
-    7: {
-        'name': 'NPC-Tutor-Lecture',
-        'former_group': 'A',
-        'moved_to': 'TutorAgent',
-        'description': 'KI-basierter Tutor mit Personas'
-    },
-    # Gruppe E (IT) → IT-Umgebungen
-    9: {
-        'name': 'Code/IT-Config Sandbox',
-        'former_group': 'E',
-        'moved_to': 'System-Feature IT-Umgebungen',
-        'description': 'Code-/Config-Editor mit Tests & Output'
-    },
-    10: {
-        'name': 'Netzwerk-Simulation',
-        'former_group': 'E',
-        'moved_to': 'System-Feature IT-Umgebungen',
-        'description': 'Simulierte Netzumgebung (Router, Switch, Ping)'
-    },
-    11: {
-        'name': 'IT-Szenario lösen',
-        'former_group': 'E',
-        'moved_to': 'System-Feature IT-Umgebungen',
-        'description': 'Troubleshooting mit Logs/Configs'
-    },
-    16: {
-        'name': 'Fehleranalyse',
-        'former_group': 'E',
-        'moved_to': 'System-Feature IT-Umgebungen',
-        'description': 'Defekter Code/Config, Fehler finden & erklären'
-    },
-    # Gruppe F (Kollaborativ) → Kollaborations-Features
-    26: {
-        'name': 'Peer Instruction',
-        'former_group': 'F',
-        'moved_to': 'System-Feature Kollaboration',
-        'description': 'Think–Pair–Share mit Erstantwort → Diskussion'
-    },
-    27: {
-        'name': 'Team-Case / Gruppenfallarbeit',
-        'former_group': 'F',
-        'moved_to': 'System-Feature Kollaboration',
-        'description': 'Teams lösen Fall mit Rollen'
-    },
-    28: {
-        'name': 'Peer Review (strukturiert)',
-        'former_group': 'F',
-        'moved_to': 'System-Feature Kollaboration',
-        'description': 'Rubric-basiertes Feedback zu Arbeiten anderer'
-    },
-    29: {
-        'name': 'Lerntagebuch / Learning Journal',
-        'former_group': 'F',
-        'moved_to': 'System-Feature Kollaboration',
-        'description': 'Regelmäßige Reflexionseinträge'
-    },
-    30: {
-        'name': 'Projekt-Portfolio',
-        'former_group': 'F',
-        'moved_to': 'System-Feature Kollaboration',
-        'description': 'Artefakte-Sammlung mit Meta-Kommentar'
-    },
-    31: {
-        'name': 'Projektbasiertes Lernen',
-        'former_group': 'F',
-        'moved_to': 'System-Feature Kollaboration',
-        'description': 'Mehrwöchiges IT-Projekt'
-    },
-    32: {
-        'name': 'Inverted Classroom',
-        'former_group': 'F',
-        'moved_to': 'System-Feature Kollaboration',
-        'description': 'Async Theorie + sync Praxis'
-    },
-}
+# ============================================================================
+# Active Content-LMs (12)
+# ============================================================================
+ACTIVE_LEARNING_METHODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 
-# =============================================================================
-# NAME-ZU-ID MAPPING (für Legacy-Kompatibilität)
-# =============================================================================
-
-# Mapping: Name (DE) -> LM-ID (nur Content-LMs)
-LEARNING_METHOD_NAME_TO_ID: Dict[str, int] = {
-    method.name: method.lm_id for method in LEARNING_METHODS.values()
-}
-
-# Mapping: Prompt-Key -> LM-ID (nur Content-LMs)
-PROMPT_KEY_TO_LM_ID: Dict[str, int] = {
-    method.prompt_key: method.lm_id for method in LEARNING_METHODS.values()
-}
-
-# Legacy-Mapping für Abwärtskompatibilität
-LEARNING_METHOD_TO_PROMPT: Dict[str, str] = {
-    method.name: method.prompt_key for method in LEARNING_METHODS.values()
-}
+# ============================================================================
+# Groups
+# ============================================================================
+GROUP_A_EXPLAINING = [0, 1, 2, 3, 4]  # 5 LMs
+GROUP_B_PRACTICE = [5, 6, 7, 8]  # 4 LMs
+GROUP_C_EXAM = [9, 10, 11]  # 3 LMs
 
 
-# =============================================================================
-# HELPER-FUNKTIONEN
-# =============================================================================
+# ============================================================================
+# Helper Functions
+# ============================================================================
 
-def get_method_by_id(lm_id: int) -> Optional[LearningMethodDefinition]:
-    """
-    Holt Content-Lernmethode nach ID.
-
-    Args:
-        lm_id: Lernmethoden-ID
-
-    Returns:
-        LearningMethodDefinition oder None
-    """
+def get_learning_method(lm_id: int) -> Optional[LearningMethodDefinition]:
+    """Get learning method definition by ID"""
     return LEARNING_METHODS.get(lm_id)
 
 
-def get_method_by_name(name: str) -> Optional[LearningMethodDefinition]:
-    """
-    Holt Content-Lernmethode nach deutschem Namen.
-
-    Args:
-        name: Deutscher Name der Methode
-
-    Returns:
-        LearningMethodDefinition oder None
-    """
-    lm_id = LEARNING_METHOD_NAME_TO_ID.get(name)
-    if lm_id is not None:
-        return LEARNING_METHODS.get(lm_id)
-    return None
+def get_learning_methods_by_group(group: str) -> List[LearningMethodDefinition]:
+    """Get all learning methods for a specific group (A, B, C)"""
+    return [lm for lm in LEARNING_METHODS.values() if lm.group == group]
 
 
-def get_methods_by_group(group: LearningMethodGroup) -> List[LearningMethodDefinition]:
-    """
-    Holt alle Content-Lernmethoden einer Gruppe.
-
-    Args:
-        group: Gruppen-Code (A, B, C)
-
-    Returns:
-        Liste der Lernmethoden in der Gruppe
-    """
-    return [m for m in LEARNING_METHODS.values() if m.group == group]
+def get_learning_methods_by_tier(tier: str) -> List[LearningMethodDefinition]:
+    """Get all learning methods for a specific tier (basic, premium)"""
+    return [lm for lm in LEARNING_METHODS.values() if lm.tier == tier]
 
 
-def get_prompt_template_for_method(method_name: str) -> str:
-    """
-    Legacy-Funktion: Holt Prompt-Template-Code für eine Lernmethode.
-
-    Args:
-        method_name: Lernmethoden-Name
-
-    Returns:
-        Prompt-Template-Code
-
-    Raises:
-        ValueError: Wenn Methode nicht gefunden
-    """
-    template_code = LEARNING_METHOD_TO_PROMPT.get(method_name)
-
-    if not template_code:
-        raise ValueError(
-            f"Kein Prompt-Template für Lernmethode '{method_name}'. "
-            f"Verfügbare Methoden: {', '.join(LEARNING_METHOD_TO_PROMPT.keys())}"
-        )
-
-    return template_code
+def get_learning_methods_with_agent_support() -> List[LearningMethodDefinition]:
+    """Get all learning methods that have agent support enabled"""
+    return [lm for lm in LEARNING_METHODS.values() if lm.agent_support and lm.agent_support.agent_can_handle]
 
 
-def get_prompt_key_for_lm_id(lm_id: int) -> Optional[str]:
-    """
-    Holt Prompt-Key für eine LM-ID.
-
-    Args:
-        lm_id: Lernmethoden-ID
-
-    Returns:
-        Prompt-Key oder None
-    """
-    method = LEARNING_METHODS.get(lm_id)
-    return method.prompt_key if method else None
-
-
-def get_all_methods_as_dict() -> List[Dict]:
-    """
-    Gibt alle aktiven Content-Lernmethoden als Liste von Dicts zurück.
-
-    Returns:
-        Liste mit allen 19 Content-Lernmethoden als Dicts
-    """
+def get_learning_methods_by_domain(domain: str) -> List[LearningMethodDefinition]:
+    """Get all learning methods for a specific knowledge domain"""
     return [
-        {
-            "lm_id": m.lm_id,
-            "name": m.name,
-            "group": m.group.value,
-            "method_type": m.method_type.value,
-            "ki_usage": m.ki_usage.value,
-            "prompt_key": m.prompt_key,
-            "description": m.description,
-        }
-        for m in LEARNING_METHODS.values()
+        lm for lm in LEARNING_METHODS.values()
+        if lm.agent_support and domain in lm.agent_support.knowledge_domains
     ]
 
 
-def get_group_info() -> Dict[str, Dict]:
-    """
-    Gibt Informationen über alle 3 Content-LM-Gruppen zurück.
-
-    Returns:
-        Dict mit Gruppeninfos
-    """
-    group_counts = {}
-    for method in LEARNING_METHODS.values():
-        group = method.group.value
-        if group not in group_counts:
-            group_counts[group] = 0
-        group_counts[group] += 1
-
-    return {
-        'A': {'name': 'Erklärend', 'count': group_counts.get('A', 0)},
-        'B': {'name': 'Praxis', 'count': group_counts.get('B', 0)},
-        'C': {'name': 'Prüfung', 'count': group_counts.get('C', 0)}
-    }
+def is_valid_lm_id(lm_id: int) -> bool:
+    """Check if LM ID is valid (0-11 for Content-LMs)"""
+    return lm_id in ACTIVE_LEARNING_METHODS
 
 
+# Backward compatibility aliases
 def validate_lm_id(lm_id: int) -> bool:
-    """
-    Validiert, ob eine LM-ID eine gültige Content-Lernmethode ist.
+    """Alias for is_valid_lm_id (backward compatibility)"""
+    return is_valid_lm_id(lm_id)
 
-    Args:
-        lm_id: Zu validierende ID
+
+def get_method_by_id(lm_id: int) -> Optional[LearningMethodDefinition]:
+    """Alias for get_learning_method (backward compatibility)"""
+    return get_learning_method(lm_id)
+
+
+def get_all_methods_as_dict() -> Dict[int, Dict[str, Any]]:
+    """
+    Get all learning methods as dictionary (for API responses)
 
     Returns:
-        True wenn gültige Content-LM, False sonst
+        Dict mapping lm_id to serialized LearningMethodDefinition
     """
-    return lm_id in LEARNING_METHODS
+    result = {}
+    for lm_id, lm in LEARNING_METHODS.items():
+        result[lm_id] = {
+            "lm_id": lm.lm_id,
+            "name": lm.name,
+            "description": lm.description,
+            "group": lm.group,
+            "tier": lm.tier,
+            "icon": lm.icon,
+            "prompt_template": lm.prompt_template,
+            "default_config": lm.default_config,
+            "agent_support": {
+                "agent_can_handle": lm.agent_support.agent_can_handle,
+                "requires_fresh_ai": lm.agent_support.requires_fresh_ai,
+                "knowledge_domains": lm.agent_support.knowledge_domains,
+                "knowledge_cacheable": lm.agent_support.knowledge_cacheable,
+                "complexity_threshold": lm.agent_support.complexity_threshold
+            } if lm.agent_support else None
+        }
+    return result
 
 
-def is_system_feature(lm_id: int) -> bool:
+def get_group_info(group: str) -> Optional[Dict[str, Any]]:
     """
-    Prüft ob eine ID ein System-Feature ist (frühere LM).
+    Get information about a learning method group
 
     Args:
-        lm_id: LM-ID
+        group: Group identifier (A, B, C)
 
     Returns:
-        True wenn System-Feature
+        Dict with group info or None if invalid
     """
-    return lm_id in SYSTEM_FEATURES
+    groups = {
+        "A": {
+            "name": "Erklärend",
+            "description": "Explaining methods for understanding concepts",
+            "lm_ids": GROUP_A_EXPLAINING,
+            "count": len(GROUP_A_EXPLAINING)
+        },
+        "B": {
+            "name": "Praxis",
+            "description": "Practice methods for applying knowledge",
+            "lm_ids": GROUP_B_PRACTICE,
+            "count": len(GROUP_B_PRACTICE)
+        },
+        "C": {
+            "name": "Prüfung",
+            "description": "Exam preparation methods",
+            "lm_ids": GROUP_C_EXAM,
+            "count": len(GROUP_C_EXAM)
+        }
+    }
+    return groups.get(group.upper())
 
 
-def get_system_feature_info(lm_id: int) -> Optional[Dict]:
+def get_lm_prompt_template(lm_id: int) -> Optional[str]:
+    """Get prompt template key for LM"""
+    lm = get_learning_method(lm_id)
+    return lm.prompt_template if lm else None
+
+
+def get_lm_default_config(lm_id: int) -> Optional[dict]:
+    """Get default config for LM"""
+    lm = get_learning_method(lm_id)
+    return lm.default_config if lm else None
+
+
+# ============================================================================
+# Validation
+# ============================================================================
+
+def validate_lm_data(lm_id: int, data: dict) -> tuple[bool, Optional[str]]:
     """
-    Holt Info zu einem System-Feature (wenn vorhanden).
-
-    Args:
-        lm_id: Feature-ID
+    Validate LM data structure
 
     Returns:
-        Feature-Info oder None
+        (is_valid, error_message)
     """
-    return SYSTEM_FEATURES.get(lm_id)
+    lm = get_learning_method(lm_id)
+    if not lm:
+        return False, f"Invalid LM ID: {lm_id}. Valid range: 0-11"
 
+    # Add specific validation logic per LM type here
+    # For now, just basic validation
+    if not isinstance(data, dict):
+        return False, "Data must be a dictionary"
 
-# =============================================================================
-# VALID LM IDs (für DB-Validierung)
-# =============================================================================
-
-# Alle gültigen Content-LM IDs (für Constraint-Checks)
-VALID_CONTENT_LM_IDS = frozenset(LEARNING_METHODS.keys())
-# {0, 1, 2, 3, 6, 8, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25}
-
-# Alle System-Feature IDs (für Referenz)
-SYSTEM_FEATURE_IDS = frozenset(SYSTEM_FEATURES.keys())
-# {4, 5, 7, 9, 10, 11, 16, 26, 27, 28, 29, 30, 31, 32}
+    return True, None

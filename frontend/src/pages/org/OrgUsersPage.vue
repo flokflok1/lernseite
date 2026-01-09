@@ -1,7 +1,7 @@
 <template>
-  <AdminLayout page-title="Mitglieder" page-subtitle="Organisations-Mitglieder" :is-org-admin="true">
+  <AdminLayout :page-title="$t('admin.orgUsersPage.title')" :page-subtitle="$t('admin.orgUsersPage.subtitle')" :is-org-admin="true">
     <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-      <p class="text-gray-600">Mitglieder-Management - Implementierung in Arbeit</p>
+      <p class="text-gray-600">{{ $t('common.workInProgress') }}</p>
     </div>
   </AdminLayout>
 </template>

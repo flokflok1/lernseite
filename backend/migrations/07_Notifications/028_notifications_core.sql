@@ -1,18 +1,14 @@
 -- ============================================================================
 -- Migration: 028_notifications_core.sql
--- Description: Core notification system
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: notifications
--- Description: User notifications
--- ============================================================================
-CREATE TABLE IF NOT EXISTS notifications (
+CREATE TABLE IF NOT EXISTS support_systems.notifications (
     notification_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
     notification_type VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
@@ -28,20 +24,20 @@ CREATE TABLE IF NOT EXISTS notifications (
     CONSTRAINT chk_notification_priority CHECK (priority IN ('low', 'normal', 'high', 'urgent'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(notification_type);
-CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(user_id, read) WHERE read = FALSE;
-CREATE INDEX IF NOT EXISTS idx_notifications_expires ON notifications(expires_at) WHERE expires_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON support_systems.notifications(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_type ON support_systems.notifications(notification_type);
+CREATE INDEX IF NOT EXISTS idx_notifications_unread ON support_systems.notifications(user_id, read) WHERE read = FALSE;
+CREATE INDEX IF NOT EXISTS idx_notifications_expires ON support_systems.notifications(expires_at) WHERE expires_at IS NOT NULL;
 
-COMMENT ON TABLE notifications IS 'In-app user notifications';
+COMMENT ON TABLE support_systems.notifications IS 'In-app user notifications';
 
 -- ============================================================================
 -- TABLE: notification_preferences
 -- Description: User notification preferences
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS notification_preferences (
+CREATE TABLE IF NOT EXISTS support_systems.notification_preferences (
     preference_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
     notification_type VARCHAR(50) NOT NULL,
     channel VARCHAR(20) NOT NULL,
     enabled BOOLEAN DEFAULT TRUE,
@@ -53,15 +49,16 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
     UNIQUE (user_id, notification_type, channel)
 );
 
-CREATE INDEX IF NOT EXISTS idx_notif_prefs_user ON notification_preferences(user_id);
-CREATE INDEX IF NOT EXISTS idx_notif_prefs_type ON notification_preferences(notification_type, enabled);
+CREATE INDEX IF NOT EXISTS idx_notif_prefs_user ON support_systems.notification_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_notif_prefs_type ON support_systems.notification_preferences(notification_type, enabled);
 
-COMMENT ON TABLE notification_preferences IS 'User preferences for notification delivery';
+COMMENT ON TABLE support_systems.notification_preferences IS 'User preferences for notification delivery';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_notif_prefs_updated_at BEFORE UPDATE ON notification_preferences
+DROP TRIGGER IF EXISTS update_notif_prefs_updated_at ON support_systems.notification_preferences;
+CREATE TRIGGER update_notif_prefs_updated_at BEFORE UPDATE ON support_systems.notification_preferences
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

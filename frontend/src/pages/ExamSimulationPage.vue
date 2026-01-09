@@ -10,6 +10,7 @@
  */
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import {
   getExamContext,
@@ -27,6 +28,7 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 
 // Course ID from route
@@ -88,7 +90,7 @@ async function loadExamContext() {
       customFocus.value = { ...examContext.value.recommended_focus }
     }
   } catch (e: any) {
-    error.value = 'Fehler beim Laden des Prüfungskontexts'
+    error.value = t('examSimulation.errors.loadContext')
     console.error(e)
   }
 }
@@ -120,7 +122,7 @@ async function createNewSimulation() {
     await generateExamSimulation(simulation.simulation_id)
     pollGenerationStatus()
   } catch (e: any) {
-    error.value = 'Fehler beim Erstellen der Simulation'
+    error.value = t('examSimulation.errors.createSimulation')
     generating.value = false
     console.error(e)
   }
@@ -140,7 +142,7 @@ async function pollGenerationStatus() {
         activeTab.value = 'exam'
       } else if (sim.status === 'failed') {
         generating.value = false
-        error.value = sim.error_message || 'Generierung fehlgeschlagen'
+        error.value = sim.error_message || t('examSimulation.errors.generationFailed')
       } else if (sim.status === 'generating') {
         setTimeout(checkStatus, 3000)
       }
@@ -166,7 +168,7 @@ async function startExam() {
     showResults.value = false
     attemptResult.value = null
   } catch (e: any) {
-    error.value = 'Fehler beim Starten der Prüfung'
+    error.value = t('examSimulation.errors.startExam')
     console.error(e)
   }
 }
@@ -195,7 +197,7 @@ async function submitExam() {
     currentAttempt.value = null
     await loadSimulations()
   } catch (e: any) {
-    error.value = 'Fehler beim Einreichen der Prüfung'
+    error.value = t('examSimulation.errors.submitExam')
     console.error(e)
   }
 }
@@ -222,19 +224,19 @@ function getTopicColor(score: number): string {
 
 function getDifficultyLabel(diff: string): string {
   const labels: Record<string, string> = {
-    easy: 'Leicht',
-    realistic: 'Realistisch',
-    hard: 'Schwer'
+    easy: t('examSimulation.config.easy'),
+    realistic: t('examSimulation.config.realistic'),
+    hard: t('examSimulation.config.hard')
   }
   return labels[diff] || diff
 }
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    pending: 'Ausstehend',
-    generating: 'Wird generiert...',
-    ready: 'Bereit',
-    failed: 'Fehlgeschlagen'
+    pending: t('examSimulation.status.pending'),
+    generating: t('examSimulation.status.generating'),
+    ready: t('examSimulation.status.ready'),
+    failed: t('examSimulation.status.failed')
   }
   return labels[status] || status
 }
@@ -262,11 +264,11 @@ function getStatusColor(status: string): string {
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Zurück zum Kurs
+          {{ $t('examSimulation.backToCourse') }}
         </button>
-        <h1 class="text-3xl font-bold text-gray-900">KI-Prüfungssimulation</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('examSimulation.title') }}</h1>
         <p class="text-gray-600 mt-2">
-          Erstelle realistische Prüfungssimulationen basierend auf deinem Lernfortschritt
+          {{ $t('examSimulation.description') }}
         </p>
       </div>
 
@@ -279,7 +281,7 @@ function getStatusColor(status: string): string {
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
         <p class="text-red-800">{{ error }}</p>
         <button @click="error = null" class="text-red-600 hover:text-red-800 mt-2 text-sm">
-          Schließen
+          {{ $t('examSimulation.close') }}
         </button>
       </div>
 
@@ -288,23 +290,23 @@ function getStatusColor(status: string): string {
         <!-- Left Sidebar: Context Overview -->
         <div class="lg:col-span-1">
           <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 class="text-lg font-semibold mb-4">Erkannter Kontext</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ $t('examSimulation.detectedContext') }}</h2>
 
             <div v-if="examContext" class="space-y-3">
               <div v-if="examContext.profession">
-                <span class="text-gray-500 text-sm">Beruf:</span>
+                <span class="text-gray-500 text-sm">{{ $t('examSimulation.profession') }}</span>
                 <p class="font-medium">{{ examContext.profession }}</p>
               </div>
               <div v-if="examContext.exam_level">
-                <span class="text-gray-500 text-sm">Prüfung:</span>
+                <span class="text-gray-500 text-sm">{{ $t('examSimulation.examLevel') }}</span>
                 <p class="font-medium">{{ examContext.exam_level }}</p>
               </div>
               <div v-if="examContext.region">
-                <span class="text-gray-500 text-sm">Region:</span>
+                <span class="text-gray-500 text-sm">{{ $t('examSimulation.region') }}</span>
                 <p class="font-medium">{{ examContext.region }}</p>
               </div>
               <div class="pt-2 border-t">
-                <span class="text-gray-500 text-sm">Konfidenz:</span>
+                <span class="text-gray-500 text-sm">{{ $t('examSimulation.confidence') }}</span>
                 <div class="flex items-center gap-2 mt-1">
                   <div class="flex-1 bg-gray-200 rounded-full h-2">
                     <div
@@ -322,7 +324,7 @@ function getStatusColor(status: string): string {
 
           <!-- Weak Topics -->
           <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 class="text-lg font-semibold mb-4">Schwache Themen</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ $t('examSimulation.weakTopics') }}</h2>
             <div v-if="examContext?.weak_topics?.length" class="space-y-2">
               <div
                 v-for="topic in examContext.weak_topics"
@@ -335,12 +337,12 @@ function getStatusColor(status: string): string {
                 </span>
               </div>
             </div>
-            <p v-else class="text-gray-500 text-sm">Keine Daten vorhanden</p>
+            <p v-else class="text-gray-500 text-sm">{{ $t('examSimulation.noDataAvailable') }}</p>
           </div>
 
           <!-- Strong Topics -->
           <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Starke Themen</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ $t('examSimulation.strongTopics') }}</h2>
             <div v-if="examContext?.strong_topics?.length" class="space-y-2">
               <div
                 v-for="topic in examContext.strong_topics"
@@ -353,7 +355,7 @@ function getStatusColor(status: string): string {
                 </span>
               </div>
             </div>
-            <p v-else class="text-gray-500 text-sm">Keine Daten vorhanden</p>
+            <p v-else class="text-gray-500 text-sm">{{ $t('examSimulation.noDataAvailable') }}</p>
           </div>
         </div>
 
@@ -362,10 +364,9 @@ function getStatusColor(status: string): string {
           <!-- Student Notice (if no simulations available) -->
           <div v-if="isStudent && simulations.length === 0" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6 text-center">
             <div class="text-4xl mb-3">📚</div>
-            <h3 class="text-lg font-semibold text-yellow-800 mb-2">Keine Prüfungen verfügbar</h3>
+            <h3 class="text-lg font-semibold text-yellow-800 mb-2">{{ $t('examSimulation.noExamsAvailable') }}</h3>
             <p class="text-yellow-700">
-              Für diesen Kurs wurden noch keine Prüfungssimulationen erstellt.
-              Wende dich an deinen Lehrer oder Administrator.
+              {{ $t('examSimulation.noExamsAvailableDesc') }}
             </p>
           </div>
 
@@ -381,7 +382,7 @@ function getStatusColor(status: string): string {
                     : 'text-gray-500 hover:text-gray-700'
                 ]"
               >
-                Übersicht
+                {{ $t('examSimulation.tabs.overview') }}
               </button>
               <!-- Only show config tab for creators -->
               <button
@@ -394,7 +395,7 @@ function getStatusColor(status: string): string {
                     : 'text-gray-500 hover:text-gray-700'
                 ]"
               >
-                Neue Simulation
+                {{ $t('examSimulation.tabs.newSimulation') }}
               </button>
               <button
                 v-if="currentSimulation?.status === 'ready'"
@@ -406,7 +407,7 @@ function getStatusColor(status: string): string {
                     : 'text-gray-500 hover:text-gray-700'
                 ]"
               >
-                Prüfung
+                {{ $t('examSimulation.tabs.exam') }}
               </button>
               <button
                 @click="activeTab = 'history'"
@@ -417,7 +418,7 @@ function getStatusColor(status: string): string {
                     : 'text-gray-500 hover:text-gray-700'
                 ]"
               >
-                Verlauf
+                {{ $t('examSimulation.tabs.history') }}
               </button>
             </div>
 
@@ -425,18 +426,18 @@ function getStatusColor(status: string): string {
             <div class="p-6">
               <!-- Overview Tab -->
               <div v-if="activeTab === 'overview'">
-                <h3 class="text-lg font-semibold mb-4">Deine Simulationen</h3>
+                <h3 class="text-lg font-semibold mb-4">{{ $t('examSimulation.overview.title') }}</h3>
 
                 <div v-if="simulations.length === 0" class="text-center py-10">
                   <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <p class="text-gray-500 mb-4">Noch keine Simulationen erstellt</p>
+                  <p class="text-gray-500 mb-4">{{ $t('examSimulation.overview.noSimulations') }}</p>
                   <button
                     @click="activeTab = 'config'"
                     class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                   >
-                    Erste Simulation erstellen
+                    {{ $t('examSimulation.overview.createFirst') }}
                   </button>
                 </div>
 
@@ -461,12 +462,12 @@ function getStatusColor(status: string): string {
                     </div>
                     <div class="mt-2 flex items-center gap-4 text-sm text-gray-600">
                       <span>{{ getDifficultyLabel(sim.config.difficulty) }}</span>
-                      <span>{{ sim.config.time_limit_minutes }} Min</span>
+                      <span>{{ sim.config.time_limit_minutes }} {{ $t('examSimulation.overview.minutes') }}</span>
                       <span v-if="sim.attempt_count > 0">
-                        {{ sim.attempt_count }} Versuch(e)
+                        {{ $t('examSimulation.overview.attempts', { count: sim.attempt_count }) }}
                       </span>
                       <span v-if="sim.best_score" class="text-green-600 font-medium">
-                        Beste: {{ Math.round(sim.best_score) }}%
+                        {{ $t('examSimulation.overview.best') }} {{ Math.round(sim.best_score) }}%
                       </span>
                     </div>
                   </div>
@@ -475,11 +476,11 @@ function getStatusColor(status: string): string {
 
               <!-- Config Tab -->
               <div v-else-if="activeTab === 'config'">
-                <h3 class="text-lg font-semibold mb-6">Neue Prüfungssimulation</h3>
+                <h3 class="text-lg font-semibold mb-6">{{ $t('examSimulation.config.title') }}</h3>
 
                 <!-- Mode Selection -->
                 <div class="mb-6">
-                  <label class="block text-sm font-medium text-gray-700 mb-3">Modus</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-3">{{ $t('examSimulation.config.mode') }}</label>
                   <div class="grid grid-cols-2 gap-4">
                     <button
                       @click="mode = 'smart'"
@@ -490,9 +491,9 @@ function getStatusColor(status: string): string {
                           : 'border-gray-200 hover:border-gray-300'
                       ]"
                     >
-                      <div class="font-medium">Smart Modus</div>
+                      <div class="font-medium">{{ $t('examSimulation.config.smartMode') }}</div>
                       <p class="text-sm text-gray-500 mt-1">
-                        KI wählt Fokus basierend auf deinen Schwächen
+                        {{ $t('examSimulation.config.smartModeDesc') }}
                       </p>
                     </button>
                     <button
@@ -504,9 +505,9 @@ function getStatusColor(status: string): string {
                           : 'border-gray-200 hover:border-gray-300'
                       ]"
                     >
-                      <div class="font-medium">Manueller Modus</div>
+                      <div class="font-medium">{{ $t('examSimulation.config.manualMode') }}</div>
                       <p class="text-sm text-gray-500 mt-1">
-                        Du bestimmst die Themenverteilung selbst
+                        {{ $t('examSimulation.config.manualModeDesc') }}
                       </p>
                     </button>
                   </div>
@@ -514,7 +515,7 @@ function getStatusColor(status: string): string {
 
                 <!-- Difficulty -->
                 <div class="mb-6">
-                  <label class="block text-sm font-medium text-gray-700 mb-3">Schwierigkeit</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-3">{{ $t('examSimulation.config.difficulty') }}</label>
                   <div class="flex gap-4">
                     <button
                       v-for="diff in ['easy', 'realistic', 'hard'] as const"
@@ -535,7 +536,7 @@ function getStatusColor(status: string): string {
                 <!-- Time Limit -->
                 <div class="mb-6">
                   <label class="block text-sm font-medium text-gray-700 mb-3">
-                    Zeitlimit: {{ timeLimit }} Minuten
+                    {{ $t('examSimulation.config.timeLimit', { minutes: timeLimit }) }}
                   </label>
                   <input
                     type="range"
@@ -546,16 +547,16 @@ function getStatusColor(status: string): string {
                     class="w-full"
                   />
                   <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>15 Min</span>
-                    <span>90 Min</span>
-                    <span>180 Min</span>
+                    <span>15 {{ $t('examSimulation.overview.minutes') }}</span>
+                    <span>90 {{ $t('examSimulation.overview.minutes') }}</span>
+                    <span>180 {{ $t('examSimulation.overview.minutes') }}</span>
                   </div>
                 </div>
 
                 <!-- Manual Focus Distribution -->
                 <div v-if="mode === 'manual' && Object.keys(customFocus).length > 0" class="mb-6">
                   <label class="block text-sm font-medium text-gray-700 mb-3">
-                    Themenverteilung
+                    {{ $t('examSimulation.config.topicDistribution') }}
                   </label>
                   <div class="space-y-3">
                     <div v-for="(percent, topic) in customFocus" :key="topic" class="flex items-center gap-3">
@@ -581,10 +582,10 @@ function getStatusColor(status: string): string {
                 >
                   <template v-if="generating">
                     <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Wird generiert...
+                    {{ $t('examSimulation.config.generating') }}
                   </template>
                   <template v-else>
-                    Prüfung generieren
+                    {{ $t('examSimulation.config.generateExam') }}
                   </template>
                 </button>
               </div>
@@ -595,15 +596,15 @@ function getStatusColor(status: string): string {
                 <div v-if="!currentAttempt && !showResults" class="text-center py-10">
                   <h3 class="text-xl font-semibold mb-2">{{ currentSimulation.title }}</h3>
                   <p class="text-gray-500 mb-6">
-                    {{ currentSimulation.result?.questions?.length || 0 }} Fragen |
-                    {{ currentSimulation.result?.total_points || 100 }} Punkte |
-                    {{ currentSimulation.config.time_limit_minutes }} Minuten
+                    {{ currentSimulation.result?.questions?.length || 0 }} {{ $t('examSimulation.exam.questions') }} |
+                    {{ currentSimulation.result?.total_points || 100 }} {{ $t('examSimulation.exam.points') }} |
+                    {{ currentSimulation.config.time_limit_minutes }} {{ $t('examSimulation.overview.minutes') }}
                   </p>
                   <button
                     @click="startExam"
                     class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 text-lg"
                   >
-                    Prüfung starten
+                    {{ $t('examSimulation.exam.startExam') }}
                   </button>
                 </div>
 
@@ -611,7 +612,7 @@ function getStatusColor(status: string): string {
                 <div v-else-if="currentAttempt && !showResults">
                   <div class="mb-6 flex items-center justify-between">
                     <div>
-                      <span class="text-sm text-gray-500">Frage {{ currentQuestionIndex + 1 }} von {{ questions.length }}</span>
+                      <span class="text-sm text-gray-500">{{ $t('examSimulation.exam.questionOf', { current: currentQuestionIndex + 1, total: questions.length }) }}</span>
                       <div class="h-2 w-48 bg-gray-200 rounded-full mt-1">
                         <div
                           class="h-2 bg-blue-600 rounded-full"
@@ -620,7 +621,7 @@ function getStatusColor(status: string): string {
                       </div>
                     </div>
                     <span class="text-sm font-medium">
-                      {{ questions[currentQuestionIndex]?.points }} Punkte
+                      {{ questions[currentQuestionIndex]?.points }} {{ $t('examSimulation.exam.points') }}
                     </span>
                   </div>
 
@@ -663,7 +664,7 @@ function getStatusColor(status: string): string {
                       v-model="userAnswers[questions[currentQuestionIndex]?.question_id]"
                       rows="4"
                       class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Deine Antwort..."
+                      :placeholder="$t('examSimulation.exam.yourAnswer')"
                     ></textarea>
                   </div>
 
@@ -674,7 +675,7 @@ function getStatusColor(status: string): string {
                       :disabled="currentQuestionIndex === 0"
                       class="px-4 py-2 border rounded-lg disabled:opacity-50 hover:bg-gray-50"
                     >
-                      Zurück
+                      {{ $t('examSimulation.exam.back') }}
                     </button>
 
                     <div class="flex gap-2">
@@ -683,14 +684,14 @@ function getStatusColor(status: string): string {
                         @click="currentQuestionIndex++"
                         class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                       >
-                        Weiter
+                        {{ $t('examSimulation.exam.next') }}
                       </button>
                       <button
                         v-else
                         @click="submitExam"
                         class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                       >
-                        Abgeben
+                        {{ $t('examSimulation.exam.submit') }}
                       </button>
                     </div>
                   </div>
@@ -708,17 +709,17 @@ function getStatusColor(status: string): string {
                       {{ Math.round(attemptResult.percentage) }}%
                     </div>
                     <p class="text-xl">
-                      {{ attemptResult.passed ? 'Bestanden!' : 'Nicht bestanden' }}
+                      {{ attemptResult.passed ? $t('examSimulation.results.passed') : $t('examSimulation.results.notPassed') }}
                     </p>
                     <p class="text-gray-500 mt-2">
-                      {{ attemptResult.score }} / {{ attemptResult.max_score }} Punkte |
+                      {{ attemptResult.score }} / {{ attemptResult.max_score }} {{ $t('examSimulation.exam.points') }} |
                       {{ formatTime(attemptResult.time_spent_seconds) }}
                     </p>
                   </div>
 
                   <!-- Results by Topic -->
                   <div class="mb-6">
-                    <h4 class="font-medium mb-3">Ergebnisse nach Thema</h4>
+                    <h4 class="font-medium mb-3">{{ $t('examSimulation.results.resultsByTopic') }}</h4>
                     <div class="space-y-2">
                       <div
                         v-for="(data, topic) in attemptResult.results_by_topic"
@@ -728,10 +729,10 @@ function getStatusColor(status: string): string {
                         <span>{{ topic }}</span>
                         <div class="flex items-center gap-4">
                           <span class="text-sm text-gray-500">
-                            {{ data.correct }} / {{ data.total }} richtig
+                            {{ data.correct }} / {{ data.total }} {{ $t('examSimulation.results.correct') }}
                           </span>
                           <span class="font-medium">
-                            {{ data.points }} / {{ data.max_points }} Punkte
+                            {{ data.points }} / {{ data.max_points }} {{ $t('examSimulation.exam.points') }}
                           </span>
                         </div>
                       </div>
@@ -742,17 +743,17 @@ function getStatusColor(status: string): string {
                     @click="showResults = false; activeTab = 'overview'"
                     class="w-full py-3 border rounded-lg hover:bg-gray-50"
                   >
-                    Zur Übersicht
+                    {{ $t('examSimulation.results.backToOverview') }}
                   </button>
                 </div>
               </div>
 
               <!-- History Tab -->
               <div v-else-if="activeTab === 'history'">
-                <h3 class="text-lg font-semibold mb-4">Prüfungsverlauf</h3>
+                <h3 class="text-lg font-semibold mb-4">{{ $t('examSimulation.history.title') }}</h3>
 
                 <div v-if="simulations.length === 0" class="text-center py-10 text-gray-500">
-                  Noch keine Prüfungen absolviert
+                  {{ $t('examSimulation.history.noExams') }}
                 </div>
 
                 <div v-else class="space-y-4">
@@ -764,18 +765,18 @@ function getStatusColor(status: string): string {
                     <div class="flex items-start justify-between mb-2">
                       <h4 class="font-medium">{{ sim.title }}</h4>
                       <span class="text-sm text-gray-500">
-                        {{ sim.attempt_count }} Versuch(e)
+                        {{ $t('examSimulation.history.attempts', { count: sim.attempt_count }) }}
                       </span>
                     </div>
                     <div class="flex items-center gap-6 text-sm">
                       <div>
-                        <span class="text-gray-500">Beste:</span>
+                        <span class="text-gray-500">{{ $t('examSimulation.history.best') }}</span>
                         <span class="font-medium text-green-600 ml-1">
                           {{ sim.best_score ? Math.round(sim.best_score) + '%' : '-' }}
                         </span>
                       </div>
                       <div>
-                        <span class="text-gray-500">Durchschnitt:</span>
+                        <span class="text-gray-500">{{ $t('examSimulation.history.average') }}</span>
                         <span class="font-medium ml-1">
                           {{ sim.avg_score ? Math.round(sim.avg_score) + '%' : '-' }}
                         </span>

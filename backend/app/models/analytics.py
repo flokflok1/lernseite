@@ -113,7 +113,7 @@ class AnalyticsEventResponse(AnalyticsEventBase):
     """
     event_id: int = Field(..., description="Event ID")
     user_id: Union[int, str] = Field(..., description="User ID (UUID or int)")
-    organisation_id: Optional[Union[int, str]] = Field(None, description="Organisation ID (UUID or int)")
+    organization_id: Optional[Union[int, str]] = Field(None, description="Organisation ID (UUID or int)")
     ip_address_hash: Optional[str] = Field(None, description="Anonymized IP address hash")
     created_at: str = Field(..., description="Event timestamp (ISO 8601)")
 
@@ -154,7 +154,7 @@ class AnalyticsOrgStats(BaseModel):
 
     Aggregated statistics for entire organisation
     """
-    organisation_id: Union[int, str] = Field(..., description="Organisation ID (UUID or int)")
+    organization_id: Union[int, str] = Field(..., description="Organisation ID (UUID or int)")
     total_events: int = Field(0, description="Total number of events")
     total_users: int = Field(0, description="Number of users in organisation")
     active_users_30d: int = Field(0, description="Users active in last 30 days")

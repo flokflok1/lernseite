@@ -190,16 +190,23 @@ class EnvironmentSetup:
             Tuple of (success: bool, message: str)
 
         Steps:
-        1. Check if .env already exists
+        1. Delete existing .env (prevents stale DB connections)
         2. Read appropriate template
         3. Generate secure keys
         4. Apply replacements
-        5. Write .env file
+        5. Write new .env file
         """
         try:
-            # Check if .env exists
-            if EnvironmentSetup.env_exists() and not overwrite:
-                return False, ".env file already exists. Use overwrite=True to replace it."
+            # Always delete existing .env at start of Setup Wizard Step 1
+            # This prevents stale DATABASE_URL from previous setup attempts
+            # which causes 30-second timeouts on every request
+            if EnvironmentSetup.env_exists():
+                import os
+                try:
+                    os.remove(EnvironmentSetup.ENV_FILE)
+                except Exception as e:
+                    # If we can't delete, log but continue (will overwrite anyway)
+                    print(f"Warning: Could not delete old .env: {e}")
 
             # Validate environment
             if environment not in ['development', 'production']:
@@ -208,7 +215,7 @@ class EnvironmentSetup:
             # Generate content
             content = EnvironmentSetup.generate_env_content(environment, custom_values)
 
-            # Write file
+            # Write file (creates new clean .env)
             EnvironmentSetup.write_env_file(content)
 
             return True, f"Environment configured successfully for {environment}"

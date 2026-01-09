@@ -5,9 +5,9 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Meine Kurse</h1>
+            <h1 class="text-3xl font-bold text-gray-900">{{ $t('creator.myCourses') }}</h1>
             <p class="mt-1 text-sm text-gray-600">
-              Erstellen und verwalten Sie Ihre Lerninhalte
+              {{ $t('creator.myCoursesDesc') }}
             </p>
           </div>
           <router-link
@@ -26,7 +26,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-            Neuer Kurs
+            {{ $t('creator.newCourse') }}
           </router-link>
         </div>
       </div>
@@ -38,7 +38,7 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <!-- Search -->
           <div class="col-span-2">
-            <label for="search" class="sr-only">Suche</label>
+            <label for="search" class="sr-only">{{ $t('common.search') }}</label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
@@ -58,7 +58,7 @@
                 id="search"
                 v-model="searchQuery"
                 type="text"
-                placeholder="Kurs suchen..."
+                :placeholder="$t('creator.searchCourse')"
                 class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
@@ -66,15 +66,15 @@
 
           <!-- Status Filter -->
           <div>
-            <label for="status-filter" class="sr-only">Status Filter</label>
+            <label for="status-filter" class="sr-only">{{ $t('common.filter') }}</label>
             <select
               id="status-filter"
               v-model="statusFilter"
               class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
             >
-              <option value="all">Alle Status</option>
-              <option value="draft">Entwurf</option>
-              <option value="published">Veröffentlicht</option>
+              <option value="all">{{ $t('creator.allStatus') }}</option>
+              <option value="draft">{{ $t('creator.draft') }}</option>
+              <option value="published">{{ $t('creator.published') }}</option>
             </select>
           </div>
         </div>
@@ -86,7 +86,7 @@
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p class="mt-4 text-gray-600">Kurse werden geladen...</p>
+        <p class="mt-4 text-gray-600">{{ $t('creator.loading') }}</p>
       </div>
 
       <!-- Error State -->
@@ -134,9 +134,9 @@
             d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
           />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Keine Kurse vorhanden</h3>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">{{ $t('creator.noCourses') }}</h3>
         <p class="mt-1 text-sm text-gray-500">
-          Erstellen Sie Ihren ersten Kurs
+          {{ $t('creator.createFirst') }}
         </p>
         <div class="mt-6">
           <router-link
@@ -155,7 +155,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-            Neuer Kurs
+            {{ $t('creator.newCourse') }}
           </router-link>
         </div>
       </div>
@@ -187,7 +187,7 @@
                     : 'bg-yellow-100 text-yellow-800',
                 ]"
               >
-                {{ course.is_published ? 'Veröffentlicht' : 'Entwurf' }}
+                {{ course.is_published ? $t('creator.published') : $t('creator.draft') }}
               </span>
             </div>
           </div>
@@ -198,7 +198,7 @@
               {{ course.title }}
             </h3>
             <p class="mt-1 text-sm text-gray-500 line-clamp-2">
-              {{ course.description || 'Keine Beschreibung vorhanden' }}
+              {{ course.description || $t('creator.noDescription') }}
             </p>
 
             <!-- Meta -->
@@ -212,7 +212,7 @@
                 >
                   <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                 </svg>
-                {{ course.total_modules || 0 }} Module
+                {{ course.total_modules || 0 }} {{ $t('creator.modules') }}
               </div>
               <div class="flex items-center">
                 <svg
@@ -227,7 +227,7 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-                {{ course.total_lessons || 0 }} Lessons
+                {{ course.total_lessons || 0 }} {{ $t('creator.lessons') }}
               </div>
             </div>
 
@@ -245,14 +245,14 @@
                 >
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
-                Bearbeiten
+                {{ $t('creator.edit') }}
               </router-link>
 
               <button
                 @click="deleteCourseConfirm(course)"
                 class="text-red-600 hover:text-red-800 text-sm font-medium"
               >
-                Löschen
+                {{ $t('creator.delete') }}
               </button>
             </div>
           </div>
@@ -264,10 +264,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import * as coursesApi from '@/api/courses.api'
 import type { CourseListItem } from '@/api/courses.api'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // State
@@ -311,7 +313,7 @@ const loadCourses = async () => {
   try {
     courses.value = await coursesApi.getMyCourses(false)
   } catch (err: any) {
-    error.value = err.response?.data?.message || err.message || 'Fehler beim Laden der Kurse'
+    error.value = err.response?.data?.message || err.message || t('creator.loadError')
     console.error('Failed to load courses:', err)
   } finally {
     loading.value = false
@@ -319,11 +321,7 @@ const loadCourses = async () => {
 }
 
 const deleteCourseConfirm = async (course: CourseListItem) => {
-  if (
-    !confirm(
-      `Möchten Sie den Kurs "${course.title}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`
-    )
-  ) {
+  if (!confirm(t('creator.deleteConfirm', { title: course.title }))) {
     return
   }
 
@@ -331,7 +329,7 @@ const deleteCourseConfirm = async (course: CourseListItem) => {
     await coursesApi.deleteCourse(course.course_id)
     courses.value = courses.value.filter((c) => c.course_id !== course.course_id)
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Fehler beim Löschen des Kurses')
+    alert(err.response?.data?.message || t('creator.deleteError'))
     console.error('Failed to delete course:', err)
   }
 }

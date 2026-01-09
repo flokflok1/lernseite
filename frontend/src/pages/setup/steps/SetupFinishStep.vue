@@ -1,38 +1,39 @@
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-gray-900 mb-4">Installation abschließen</h2>
-    <p class="text-gray-600 mb-6">Überprüfe die Installation und schließe den Setup-Prozess ab.</p>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ $t('setup.finish.title') }}</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ $t('setup.finish.description') }}</p>
 
     <div v-if="verifyResult" class="mb-6 space-y-3">
-      <div class="p-4 rounded-lg border" :class="verifyResult.success ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'">
-        <p class="font-medium mb-3">{{ verifyResult.success ? 'Alle Checks erfolgreich!' : 'Verifizierung läuft...' }}</p>
+      <div class="p-4 rounded-lg border" :class="verifyResult.success ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700' : 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700'">
+        <p class="font-medium mb-3 text-gray-900 dark:text-gray-100">{{ verifyResult.success ? $t('setup.finish.allChecksPassed') : $t('setup.finish.verifying') }}</p>
 
         <div class="space-y-2">
           <div v-for="(check, index) in verifyResult.checks" :key="index" class="flex items-center text-sm">
-            <span v-if="check.status === 'passed'" class="text-green-600 mr-2">✓</span>
-            <span v-else class="text-red-600 mr-2">✗</span>
-            <span>{{ check.name }}</span>
+            <span v-if="check.status === 'passed'" class="text-green-600 dark:text-green-400 mr-2">✓</span>
+            <span v-else class="text-red-600 dark:text-red-400 mr-2">✗</span>
+            <span class="text-gray-800 dark:text-gray-200">{{ check.name }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div v-if="completed" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-      <p class="font-medium text-green-900 mb-2">Installation erfolgreich abgeschlossen!</p>
-      <p class="text-sm text-green-700">Das System ist jetzt einsatzbereit.</p>
+    <div v-if="completed" class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg">
+      <p class="font-medium text-green-900 dark:text-green-100 mb-2">{{ $t('setup.finish.success') }}</p>
+      <p class="text-sm text-green-700 dark:text-green-300 mb-2">{{ $t('setup.finish.successDesc') }}</p>
+      <p class="text-sm text-blue-600 dark:text-blue-400">{{ $t('setup.finish.reloadNote') }}</p>
     </div>
 
-    <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{{ error }}</div>
+    <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">{{ error }}</div>
 
     <div class="flex justify-between">
-      <Button v-if="!completed" variant="outline" @click="$emit('back')">Zurück</Button>
+      <Button v-if="!completed" variant="outline" @click="$emit('back')">{{ $t('setup.common.back') }}</Button>
       <div v-else></div>
       <div class="flex gap-3">
-        <Button v-if="!verifyResult" variant="outline" :loading="verifying" @click="verify">Verifizieren</Button>
+        <Button v-if="!verifyResult" variant="outline" :loading="verifying" @click="verify">{{ $t('setup.finish.verify') }}</Button>
         <Button v-if="verifyResult && !completed" variant="primary" :loading="loading" @click="complete">
-          Installation abschließen
+          {{ $t('setup.finish.complete') }}
         </Button>
-        <Button v-if="completed" variant="primary" @click="goToLogin">Zum Login</Button>
+        <Button v-if="completed" variant="primary" @click="goToLogin">{{ $t('setup.finish.goToLogin') }}</Button>
       </div>
     </div>
   </div>
@@ -40,16 +41,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import * as setupApi from '@/api/setup.api'
-import Button from '@/components/ui/Button.vue'
+import Button from '@/components/shared/ui/Button.vue'
 import { useAppStore } from '@/store/app.store'
-import http from '@/api/http'
 
-// Import locale files for auto-sync
-import deMessages from '@/locales/de.json'
-import enMessages from '@/locales/en.json'
-import plMessages from '@/locales/pl.json'
+const { t } = useI18n()
 
 defineEmits<{ back: [] }>();
 
@@ -68,20 +66,6 @@ interface VerifyResponse {
   timestamp?: string
 }
 
-// Flatten nested object to dot-notation keys
-function flattenMessages(obj: Record<string, any>, prefix = ''): Record<string, string> {
-  const result: Record<string, string> = {}
-  for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      Object.assign(result, flattenMessages(value, fullKey))
-    } else if (typeof value === 'string') {
-      result[fullKey] = value
-    }
-  }
-  return result
-}
-
 const router = useRouter()
 const appStore = useAppStore()
 
@@ -90,18 +74,11 @@ const loading = ref(false)
 const completed = ref(false)
 const error = ref('')
 const verifyResult = ref<VerifyResponse | null>(null)
-const syncingLocales = ref(false)
-const localesSynced = ref(false)
 
 // Auto-run verification on mount
 onMounted(() => {
   verify()
 })
-
-const formatCheckName = (name: string): string => {
-  // Use the name from backend as-is
-  return name
-}
 
 const verify = async () => {
   verifying.value = true
@@ -110,7 +87,7 @@ const verify = async () => {
     const response = await setupApi.verifyInstallation()
     verifyResult.value = response as VerifyResponse
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Verifizierung fehlgeschlagen'
+    error.value = err.response?.data?.message || t('setup.finish.verifyFailed')
   } finally {
     verifying.value = false
   }
@@ -124,41 +101,15 @@ const complete = async () => {
     completed.value = true
     // Update app store to reflect installation complete
     await appStore.checkInstallationStatus()
-
-    // Auto-sync locale files to database
-    await syncLocales()
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Installation-Abschluss fehlgeschlagen'
+    error.value = err.response?.data?.message || t('setup.finish.completeFailed')
   } finally {
     loading.value = false
   }
 }
 
-const syncLocales = async () => {
-  syncingLocales.value = true
-  try {
-    const allLocaleMessages = {
-      de: flattenMessages(deMessages),
-      en: flattenMessages(enMessages),
-      pl: flattenMessages(plMessages)
-    }
-
-    await http.post('/i18n/admin/seed-all-locales', {
-      locales: allLocaleMessages,
-      primary_language: 'de'
-    })
-
-    localesSynced.value = true
-    console.log('[Setup] Locale files synced to database')
-  } catch (err) {
-    // Non-critical error, don't block completion
-    console.warn('[Setup] Failed to sync locales:', err)
-  } finally {
-    syncingLocales.value = false
-  }
-}
-
 const goToLogin = () => {
-  router.push({ name: 'Login' })
+  // Full page reload to ensure fresh app state after setup
+  window.location.href = '/login'
 }
 </script>

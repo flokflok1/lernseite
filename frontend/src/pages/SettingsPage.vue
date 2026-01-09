@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-6">Einstellungen</h1>
+    <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-6">{{ $t('settings.title') }}</h1>
 
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center py-12">
@@ -9,11 +9,11 @@
 
     <div v-else class="space-y-6">
       <!-- Sektion: Darstellung / Theme -->
-      <Card title="Darstellung">
+      <Card :title="$t('settings.appearance')">
         <div class="space-y-6">
           <div>
             <p class="text-sm text-[var(--color-text-secondary)] mb-4">
-              Wähle dein bevorzugtes Theme. Die Änderung wird sofort übernommen.
+              {{ $t('settings.appearanceDesc') }}
             </p>
 
             <!-- Theme Selection Buttons -->
@@ -30,9 +30,9 @@
                 :disabled="saving"
               >
                 <div class="text-3xl mb-2">🖥️</div>
-                <div class="font-semibold text-[var(--color-text-primary)]">System</div>
+                <div class="font-semibold text-[var(--color-text-primary)]">{{ $t('settings.theme_system') }}</div>
                 <div class="text-xs text-[var(--color-text-secondary)] mt-1 text-center">
-                  Folgt deinem Betriebssystem
+                  {{ $t('settings.theme_system_desc') }}
                 </div>
                 <div
                   v-if="themeStore.themePreference === 'system'"
@@ -56,9 +56,9 @@
                 :disabled="saving"
               >
                 <div class="text-3xl mb-2">☀️</div>
-                <div class="font-semibold text-[var(--color-text-primary)]">Hell</div>
+                <div class="font-semibold text-[var(--color-text-primary)]">{{ $t('settings.theme_light') }}</div>
                 <div class="text-xs text-[var(--color-text-secondary)] mt-1 text-center">
-                  Heller Modus
+                  {{ $t('settings.theme_light_desc') }}
                 </div>
                 <div
                   v-if="themeStore.themePreference === 'light'"
@@ -82,9 +82,9 @@
                 :disabled="saving"
               >
                 <div class="text-3xl mb-2">🌙</div>
-                <div class="font-semibold text-[var(--color-text-primary)]">Dunkel</div>
+                <div class="font-semibold text-[var(--color-text-primary)]">{{ $t('settings.theme_dark') }}</div>
                 <div class="text-xs text-[var(--color-text-secondary)] mt-1 text-center">
-                  Dark Midnight
+                  {{ $t('settings.theme_dark_desc') }}
                 </div>
                 <div
                   v-if="themeStore.themePreference === 'dark'"
@@ -104,13 +104,13 @@
               <div class="text-2xl">ℹ️</div>
               <div class="flex-1">
                 <div class="font-medium text-[var(--color-text-primary)] mb-1">
-                  Aktuelles Theme
+                  {{ $t('settings.currentTheme') }}
                 </div>
                 <div class="text-sm text-[var(--color-text-secondary)]">
-                  <span class="font-semibold">Präferenz:</span> {{ themePreferenceLabel }}<br>
-                  <span class="font-semibold">Aktiv:</span> {{ effectiveThemeLabel }}
+                  <span class="font-semibold">{{ $t('settings.preference') }}:</span> {{ themePreferenceLabel }}<br>
+                  <span class="font-semibold">{{ $t('settings.active') }}:</span> {{ effectiveThemeLabel }}
                   <span v-if="themeStore.themePreference === 'system'" class="text-[var(--color-text-tertiary)]">
-                    (von deinem Betriebssystem)
+                    {{ $t('settings.fromSystem') }}
                   </span>
                 </div>
               </div>
@@ -125,7 +125,7 @@
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
             </svg>
-            <span>Theme erfolgreich gespeichert!</span>
+            <span>{{ $t('settings.themeSaved') }}</span>
           </div>
 
           <!-- Error Message -->
@@ -149,11 +149,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/store/theme.store'
 import { useAuthStore } from '@/store/auth.store'
 import type { ThemePreference } from '@/store/theme.store'
-import Card from '@/components/ui/Card.vue'
+import Card from '@/components/shared/ui/Card.vue'
 
+const { t } = useI18n()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
 
@@ -165,15 +167,15 @@ const saveError = ref('')
 // Computed labels for display
 const themePreferenceLabel = computed(() => {
   const labels: Record<ThemePreference, string> = {
-    system: 'System',
-    light: 'Hell',
-    dark: 'Dunkel'
+    system: t('settings.theme_system'),
+    light: t('settings.theme_light'),
+    dark: t('settings.theme_dark')
   }
   return labels[themeStore.themePreference]
 })
 
 const effectiveThemeLabel = computed(() => {
-  return themeStore.effectiveTheme === 'dark' ? 'Dunkel (Dark Midnight)' : 'Hell'
+  return themeStore.effectiveTheme === 'dark' ? t('settings.darkMidnight') : t('settings.theme_light')
 })
 
 /**
@@ -202,7 +204,7 @@ const selectTheme = async (theme: ThemePreference) => {
 
   } catch (err: any) {
     // Show error message
-    saveError.value = err.response?.data?.message || 'Theme-Speicherung fehlgeschlagen. Bitte versuche es erneut.'
+    saveError.value = err.response?.data?.message || t('settings.themeSaveFailed')
 
     console.error('[Settings] Failed to save theme:', err)
 

@@ -7,6 +7,7 @@
  */
 
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   getAllLMSlotsOverview,
   adminGetAIModels,
@@ -15,6 +16,8 @@ import {
   type LMSlotOverview,
   type AIModel
 } from '@/api/admin.api'
+
+const { t } = useI18n()
 
 // State
 const loading = ref(true)
@@ -29,17 +32,17 @@ const models = ref<AIModel[]>([])
 const selectedDefaults = ref<Record<string, number | null>>({})
 
 // Category definitions - same as AI Model Selector
-const categories = [
-  { code: 'audio', name: 'Audio', emoji: '🎵', color: 'bg-green-500' },
-  { code: 'chat', name: 'Chat', emoji: '💬', color: 'bg-blue-500' },
-  { code: 'embedding', name: 'Embedding', emoji: '📊', color: 'bg-cyan-500' },
-  { code: 'image', name: 'Bild', emoji: '🖼️', color: 'bg-pink-500' },
-  { code: 'moderation', name: 'Moderation', emoji: '🛡️', color: 'bg-gray-500' },
-  { code: 'realtime', name: 'Realtime', emoji: '⚡', color: 'bg-yellow-500' },
-  { code: 'reasoning', name: 'Reasoning', emoji: '🧠', color: 'bg-orange-500' },
-  { code: 'video', name: 'Video', emoji: '🎬', color: 'bg-red-500' },
-  { code: 'vision', name: 'Vision', emoji: '👁️', color: 'bg-indigo-500' }
-]
+const categories = computed(() => [
+  { code: 'audio', name: t('admin.lmRouting.categories.audio'), emoji: '🎵', color: 'bg-green-500' },
+  { code: 'chat', name: t('admin.lmRouting.categories.chat'), emoji: '💬', color: 'bg-blue-500' },
+  { code: 'embedding', name: t('admin.lmRouting.categories.embedding'), emoji: '📊', color: 'bg-cyan-500' },
+  { code: 'image', name: t('admin.lmRouting.categories.image'), emoji: '🖼️', color: 'bg-pink-500' },
+  { code: 'moderation', name: t('admin.lmRouting.categories.moderation'), emoji: '🛡️', color: 'bg-gray-500' },
+  { code: 'realtime', name: t('admin.lmRouting.categories.realtime'), emoji: '⚡', color: 'bg-yellow-500' },
+  { code: 'reasoning', name: t('admin.lmRouting.categories.reasoning'), emoji: '🧠', color: 'bg-orange-500' },
+  { code: 'video', name: t('admin.lmRouting.categories.video'), emoji: '🎬', color: 'bg-red-500' },
+  { code: 'vision', name: t('admin.lmRouting.categories.vision'), emoji: '👁️', color: 'bg-indigo-500' }
+])
 
 // Models grouped by category
 const modelsByCategory = computed(() => {
@@ -91,7 +94,7 @@ const loadData = async () => {
     const modelsArray = (modelsData as any)?.data?.models || (modelsData as any)?.models || []
     models.value = Array.isArray(modelsArray) ? modelsArray : []
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Fehler beim Laden'
+    error.value = err instanceof Error ? err.message : t('admin.lmRouting.loadError')
   } finally {
     loading.value = false
   }
@@ -104,11 +107,11 @@ const applyPreset = async (preset: 'cheap' | 'medium' | 'expensive') => {
   presetRunning.value = preset
   try {
     const result = await applySlotPreset(preset)
-    successMessage.value = `${result.configured} Slots konfiguriert`
+    successMessage.value = t('admin.lmRouting.slotsConfigured', { count: result.configured })
     await loadData()
     setTimeout(() => { successMessage.value = null }, 3000)
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Fehler'
+    error.value = err instanceof Error ? err.message : t('admin.lmRouting.loadError')
   } finally {
     presetRunning.value = null
   }
@@ -124,10 +127,10 @@ const saveDefaultModel = async (categoryCode: string, modelId: number | null) =>
   savingCategory.value = categoryCode
   try {
     await setDefaultModelForCategory(categoryCode, modelId)
-    successMessage.value = `Default-Modell für ${categoryCode} gesetzt`
+    successMessage.value = t('admin.lmRouting.defaultModelSet', { category: categoryCode })
     setTimeout(() => { successMessage.value = null }, 2000)
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Fehler beim Speichern'
+    error.value = err instanceof Error ? err.message : t('admin.lmRouting.saveError')
   } finally {
     savingCategory.value = null
   }
@@ -155,14 +158,7 @@ const lmGroups = computed(() => {
   return groups
 })
 
-const groupNames: Record<string, string> = {
-  'A': 'Erklarend',
-  'B': 'Praxis',
-  'C': 'Prufung',
-  'D': 'Pro',
-  'E': 'IT',
-  'F': 'Kollaborativ'
-}
+const getGroupName = (key: string) => t(`admin.lmRouting.groupNames.${key}`)
 
 onMounted(() => {
   loadData()
@@ -173,9 +169,9 @@ onMounted(() => {
   <div class="p-6 max-w-7xl mx-auto">
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">KI-Modell Konfiguration</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('admin.lmRouting.title') }}</h1>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-        Wahle Default-Modelle fur jede Kategorie. Bei den LMs siehst du welche Kategorien sie brauchen.
+        {{ $t('admin.lmRouting.subtitle') }}
       </p>
     </div>
 
@@ -196,28 +192,28 @@ onMounted(() => {
       <!-- SECTION 1: Quick Presets -->
       <div class="mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
         <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Schnell-Setup:</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('admin.lmRouting.quickSetup') }}</span>
           <div class="flex gap-2">
             <button
               @click="applyPreset('cheap')"
               :disabled="presetRunning !== null"
               class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium disabled:opacity-50"
             >
-              {{ presetRunning === 'cheap' ? '...' : '💰 Gunstig' }}
+              {{ presetRunning === 'cheap' ? '...' : '💰 ' + $t('admin.lmRouting.presetCheap') }}
             </button>
             <button
               @click="applyPreset('medium')"
               :disabled="presetRunning !== null"
               class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium disabled:opacity-50"
             >
-              {{ presetRunning === 'medium' ? '...' : '⚖️ Mittel' }}
+              {{ presetRunning === 'medium' ? '...' : '⚖️ ' + $t('admin.lmRouting.presetMedium') }}
             </button>
             <button
               @click="applyPreset('expensive')"
               :disabled="presetRunning !== null"
               class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium disabled:opacity-50"
             >
-              {{ presetRunning === 'expensive' ? '...' : '👑 Premium' }}
+              {{ presetRunning === 'expensive' ? '...' : '👑 ' + $t('admin.lmRouting.presetPremium') }}
             </button>
           </div>
         </div>
@@ -225,7 +221,7 @@ onMounted(() => {
 
       <!-- SECTION 2: Category Model Selection -->
       <div class="mb-8">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Default-Modelle pro Kategorie</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('admin.lmRouting.defaultModelsPerCategory') }}</h2>
         <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
           <div
             v-for="cat in categories"
@@ -256,13 +252,13 @@ onMounted(() => {
 
       <!-- SECTION 3: LMs and their requirements -->
       <div>
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Lernmethoden & ihre Anforderungen</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('admin.lmRouting.lmRequirements') }}</h2>
 
         <div class="space-y-6">
           <div v-for="(lms, groupKey) in lmGroups" :key="groupKey">
             <template v-if="lms.length > 0">
               <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                Gruppe {{ groupKey }} - {{ groupNames[groupKey] }}
+                {{ $t('admin.lmRouting.group', { key: groupKey, name: getGroupName(groupKey as string) }) }}
               </h3>
 
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -319,16 +315,16 @@ onMounted(() => {
 
       <!-- Legend -->
       <div class="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <h4 class="font-medium text-blue-900 dark:text-blue-300 mb-2">Legende</h4>
+        <h4 class="font-medium text-blue-900 dark:text-blue-300 mb-2">{{ $t('admin.lmRouting.legend') }}</h4>
         <div class="flex flex-wrap gap-4 text-sm text-blue-700 dark:text-blue-400">
-          <span>🎵 Audio = TTS + STT</span>
-          <span>💬 Chat = Text-Generierung</span>
-          <span>🎬 Video = Sora (Video + Audio!)</span>
-          <span>⚡ Realtime = Live-Tutor</span>
-          <span>🧠 Reasoning = o1/DeepSeek</span>
+          <span>🎵 {{ $t('admin.lmRouting.legendAudio') }}</span>
+          <span>💬 {{ $t('admin.lmRouting.legendChat') }}</span>
+          <span>🎬 {{ $t('admin.lmRouting.legendVideo') }}</span>
+          <span>⚡ {{ $t('admin.lmRouting.legendRealtime') }}</span>
+          <span>🧠 {{ $t('admin.lmRouting.legendReasoning') }}</span>
         </div>
         <div class="mt-2 text-xs text-blue-600 dark:text-blue-500">
-          Farbige Badges = Required | Graue Badges = Optional
+          {{ $t('admin.lmRouting.legendColoredRequired') }} | {{ $t('admin.lmRouting.legendGrayOptional') }}
         </div>
       </div>
     </template>

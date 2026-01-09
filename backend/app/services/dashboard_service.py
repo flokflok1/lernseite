@@ -14,7 +14,7 @@ ISO 9001:2015 compliant - Service layer
 from typing import Dict, Optional
 from datetime import datetime
 
-from app.repositories.dashboard_repository import DashboardRepository
+from app.repositories.dashboard.core import DashboardRepository
 from app.models.dashboard import (
     DashboardLayout,
     DashboardWidgetInstance,
@@ -50,13 +50,13 @@ class DashboardService:
         3. Default layouts are defined in dashboard.py models
 
         Args:
-            user: User dict with keys: user_id, role, organisation_id
+            user: User dict with keys: user_id, role, organization_id
 
         Returns:
             DashboardLayout: User's layout or role default
 
         Example:
-            >>> user = {'user_id': 123, 'role': 'premium', 'organisation_id': None}
+            >>> user = {'user_id': 123, 'role': 'premium', 'organization_id': None}
             >>> layout = DashboardService.get_effective_layout(user)
             >>> print(len(layout.widgets))
         """
@@ -100,7 +100,7 @@ class DashboardService:
         - Free users get 403
 
         Args:
-            user: User dict with keys: user_id, role, organisation_id
+            user: User dict with keys: user_id, role, organization_id
             layout: DashboardLayout to save
 
         Returns:
@@ -110,7 +110,7 @@ class DashboardService:
             PermissionError: If user role cannot customize dashboard
 
         Example:
-            >>> user = {'user_id': 123, 'role': 'premium', 'organisation_id': None}
+            >>> user = {'user_id': 123, 'role': 'premium', 'organization_id': None}
             >>> layout = DashboardLayout(userId=123, role='premium', widgets=[...])
             >>> saved = DashboardService.save_layout(user, layout)
         """
@@ -140,7 +140,7 @@ class DashboardService:
             user_id=user_id,
             role=role,
             layout_json=layout_json,
-            organisation_id=user.get('organisation_id'),
+            organization_id=user.get('organization_id'),
             source='user'
         )
 
@@ -174,7 +174,7 @@ class DashboardService:
         - Only customizable roles can reset layouts
 
         Args:
-            user: User dict with keys: user_id, role, organisation_id
+            user: User dict with keys: user_id, role, organization_id
 
         Returns:
             DashboardLayout: Default layout for role
@@ -183,7 +183,7 @@ class DashboardService:
             PermissionError: If user role cannot customize dashboard
 
         Example:
-            >>> user = {'user_id': 123, 'role': 'premium', 'organisation_id': None}
+            >>> user = {'user_id': 123, 'role': 'premium', 'organization_id': None}
             >>> default_layout = DashboardService.reset_layout(user)
         """
         user_id = user['user_id']

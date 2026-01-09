@@ -52,7 +52,7 @@ class UserCreate(UserBase):
         default="user",
         description="User role (user, premium, teacher, admin, etc.)"
     )
-    organisation_id: Optional[int] = Field(
+    organization_id: Optional[int] = Field(
         default=None,
         description="Organisation ID (for school/company users)"
     )
@@ -115,7 +115,7 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)
     role: Optional[str] = None
-    organisation_id: Optional[int] = None
+    organization_id: Optional[int] = None
     is_active: Optional[bool] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -163,7 +163,7 @@ class UserResponse(UserBase):
     """
     user_id: str = Field(..., description="User ID (UUID)")
     role: str = Field(..., description="User role")
-    organisation_id: Optional[int] = Field(None, description="Organisation ID")
+    organization_id: Optional[int] = Field(None, description="Organisation ID")
     two_factor_enabled: bool = Field(default=False, description="2FA enabled")
     email_verified: bool = Field(default=False, description="Email verified")
     status: str = Field(default="active", description="Account status", alias="is_active")

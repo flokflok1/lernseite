@@ -101,7 +101,7 @@ FROM (VALUES
     ('users'),
     ('roles'),
     ('permissions'),
-    ('organizations'),
+    ('organisations'),
     ('courses'),
     ('chapters'),
     ('lessons'),
@@ -153,7 +153,7 @@ SELECT
     version,
     executed_at,
     execution_time_ms || 'ms' AS duration
-FROM migration_history
+FROM public.migration_history
 ORDER BY executed_at DESC
 LIMIT 10;
 \echo ''
@@ -185,11 +185,11 @@ LIMIT 10;
 -- 13. Verify system seeds
 \echo '13. SYSTEM SEED DATA VERIFICATION'
 \echo '---'
-SELECT 'Roles:' AS entity, COUNT(*)::TEXT AS count FROM roles
+SELECT 'Roles:' AS entity, COUNT(*)::TEXT AS count FROM core.roles
 UNION ALL
-SELECT 'AI Providers:', COUNT(*)::TEXT FROM ai_providers
+SELECT 'AI Providers:', COUNT(*)::TEXT FROM ai_pipeline.ai_providers
 UNION ALL
-SELECT 'AI Models:', COUNT(*)::TEXT FROM ai_models
+SELECT 'AI Models:', COUNT(*)::TEXT FROM ai_pipeline.ai_models
 UNION ALL
 SELECT 'Subscription Plans:', COUNT(*)::TEXT FROM subscription_plans
 UNION ALL
@@ -207,7 +207,7 @@ SELECT
 FROM information_schema.tables
 WHERE table_schema = 'public'
 AND table_type = 'BASE TABLE'
-AND table_name IN ('users', 'courses', 'organizations', 'subscriptions', 'rooms')
+AND table_name IN ('users', 'courses', 'organisations', 'subscriptions', 'rooms')
 ORDER BY table_name;
 \echo ''
 

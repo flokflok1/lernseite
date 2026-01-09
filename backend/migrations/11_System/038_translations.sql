@@ -10,7 +10,7 @@
 -- TABLE: translations
 -- Description: Content translations (courses, chapters, etc.)
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS translations (
+CREATE TABLE IF NOT EXISTS translations.translations (
     translation_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     content_type VARCHAR(50) NOT NULL,
     content_id UUID NOT NULL,
@@ -27,18 +27,18 @@ CREATE TABLE IF NOT EXISTS translations (
     UNIQUE (content_type, content_id, language)
 );
 
-CREATE INDEX IF NOT EXISTS idx_translations_content ON translations(content_type, content_id);
-CREATE INDEX IF NOT EXISTS idx_translations_language ON translations(language);
-CREATE INDEX IF NOT EXISTS idx_translations_status ON translations(status) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_translations_content ON translations.translations (content_type, content_id);
+CREATE INDEX IF NOT EXISTS idx_translations_language ON translations.translations (language);
+CREATE INDEX IF NOT EXISTS idx_translations_status ON translations.translations (status) WHERE status = 'active';
 
-COMMENT ON TABLE translations IS 'Multi-language translations for all content (20 languages via DeepL)';
-COMMENT ON COLUMN translations.translated_json IS 'JSONB: translated fields (title, description, content, etc.)';
+COMMENT ON TABLE translations.translations IS 'Multi-language translations for all content (20 languages via DeepL)';
+COMMENT ON COLUMN translations.translations.translated_json IS 'JSONB: translated fields (title, description, content, etc.)';
 
 -- ============================================================================
 -- TABLE: translation_cache
 -- Description: Translation cache for performance
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS translation_cache (
+CREATE TABLE IF NOT EXISTS translations.translation_cache (
     cache_id BIGSERIAL PRIMARY KEY,
     source_text_hash VARCHAR(64) NOT NULL,
     source_language VARCHAR(10) NOT NULL,
@@ -49,16 +49,16 @@ CREATE TABLE IF NOT EXISTS translation_cache (
     UNIQUE (source_text_hash, source_language, target_language)
 );
 
-CREATE INDEX IF NOT EXISTS idx_translation_cache_hash ON translation_cache(source_text_hash, target_language);
-CREATE INDEX IF NOT EXISTS idx_translation_cache_languages ON translation_cache(source_language, target_language);
+CREATE INDEX IF NOT EXISTS idx_translation_cache_hash ON translations.translation_cache (source_text_hash, target_language);
+CREATE INDEX IF NOT EXISTS idx_translation_cache_languages ON translations.translation_cache (source_language, target_language);
 
-COMMENT ON TABLE translation_cache IS 'Translation cache to avoid redundant API calls';
+COMMENT ON TABLE translations.translation_cache IS 'Translation cache to avoid redundant API calls';
 
 -- ============================================================================
 -- TABLE: supported_languages
 -- Description: Supported languages configuration
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS supported_languages (
+CREATE TABLE IF NOT EXISTS translations.supported_languages (
     language_code VARCHAR(10) PRIMARY KEY,
     language_name VARCHAR(100) NOT NULL,
     native_name VARCHAR(100) NOT NULL,
@@ -68,14 +68,14 @@ CREATE TABLE IF NOT EXISTS supported_languages (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_supported_languages_active ON supported_languages(active) WHERE active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_supported_languages_active ON translations.supported_languages (active) WHERE active = TRUE;
 
-COMMENT ON TABLE supported_languages IS 'Supported languages for the platform';
+COMMENT ON TABLE translations.supported_languages IS 'Supported languages for the platform';
 
 -- ============================================================================
 -- Seed Supported Languages (20 languages)
 -- ============================================================================
-INSERT INTO supported_languages (language_code, language_name, native_name, flag_emoji, active) VALUES
+INSERT INTO translations.supported_languages (language_code, language_name, native_name, flag_emoji, active) VALUES
     ('de', 'German', 'Deutsch', '🇩🇪', true),
     ('en', 'English', 'English', '🇬🇧', true),
     ('fr', 'French', 'Français', '🇫🇷', true),
@@ -101,7 +101,7 @@ ON CONFLICT (language_code) DO NOTHING;
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_translations_updated_at BEFORE UPDATE ON translations
+CREATE TRIGGER update_translations_updated_at BEFORE UPDATE ON translations.translations
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

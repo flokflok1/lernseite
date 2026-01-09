@@ -15,9 +15,9 @@ from datetime import datetime
 from psycopg.rows import dict_row
 
 from app.extensions import db_pool
-from app.repositories.token_repository import TokenRepository
-from app.repositories.subscription_repository import SubscriptionRepository
-from app.repositories.user_repository import UserRepository
+from app.repositories.token import TokenRepository
+from app.repositories.subscription import SubscriptionRepository
+from app.repositories.user import UserRepository
 from app.models.learning_method import get_required_tier, check_tier_access
 
 
@@ -125,7 +125,7 @@ class BillingService:
     @staticmethod
     def charge_ai_usage(
         user_id: str,
-        organisation_id: Optional[str],
+        organization_id: Optional[str],
         method_id: str,
         tokens_used: int,
         provider: str,
@@ -136,7 +136,7 @@ class BillingService:
 
         Args:
             user_id: User ID
-            organisation_id: Organisation ID (if applicable)
+            organization_id: Organisation ID (if applicable)
             method_id: Learning method ID
             tokens_used: Tokens consumed
             provider: AI provider
@@ -150,8 +150,8 @@ class BillingService:
             }
         """
         # Determine which wallet to charge
-        if organisation_id:
-            wallet = TokenRepository.get_or_create_organisation_wallet(organisation_id)
+        if organization_id:
+            wallet = TokenRepository.get_or_create_organisation_wallet(organization_id)
         else:
             wallet = TokenRepository.get_or_create_user_wallet(user_id)
 
@@ -278,7 +278,7 @@ class BillingService:
         elif subscription.get('organization_id'):
             wallet = TokenRepository.get_or_create_organisation_wallet(subscription['organization_id'])
         else:
-            raise ValueError('Subscription has no user_id or organisation_id')
+            raise ValueError('Subscription has no user_id or organization_id')
 
         # Grant tokens
         transaction = TokenRepository.change_balance(

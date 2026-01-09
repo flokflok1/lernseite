@@ -46,6 +46,8 @@ export interface SystemCheckResponse {
 export interface DatabaseInitResponse {
   success: boolean
   database_created: boolean
+  migrations_executed: number
+  schemas_created: number
   tables_created: number
   indexes_created: number
   errors?: string[]
@@ -105,6 +107,7 @@ export interface SeedDataRequest {
 export interface SeedDataResponse {
   success: boolean
   learning_methods?: number
+  system_features?: number
   categories?: number
   roles?: number
   message?: string

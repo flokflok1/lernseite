@@ -67,7 +67,7 @@ class CourseCreate(CourseBase):
         ... )
     """
     category_id: Optional[int] = Field(None, description="Course category ID")
-    organisation_id: Optional[int] = Field(None, description="Organisation ID (for school/company courses)")
+    organization_id: Optional[int] = Field(None, description="Organisation ID (for school/company courses)")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -129,7 +129,7 @@ class CourseResponse(CourseBase):
     """
     course_id: int = Field(..., description="Course ID")
     creator_id: int = Field(..., description="Course creator user ID")
-    organisation_id: Optional[int] = Field(None, description="Organisation ID")
+    organization_id: Optional[int] = Field(None, description="Organisation ID")
     category_id: Optional[int] = Field(None, description="Category ID")
     is_published: bool = Field(default=False, description="Course published status")
     published_at: Optional[datetime] = Field(None, description="Publication timestamp")

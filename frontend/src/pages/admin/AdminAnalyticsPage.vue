@@ -1,13 +1,13 @@
 <template>
   <div class="admin-analytics-page">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">Analytics</h1>
-      <p class="text-[var(--color-text-secondary)] mt-1">System-weite Statistiken & Trends</p>
+      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">{{ $t('admin.analyticsPage.title') }}</h1>
+      <p class="text-[var(--color-text-secondary)] mt-1">{{ $t('admin.analyticsPage.subtitle') }}</p>
     </div>
     <!-- Timeframe Filter -->
     <div class="mb-6 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <label class="text-sm font-medium text-gray-700">Zeitraum:</label>
+        <label class="text-sm font-medium text-gray-700">{{ $t('admin.analyticsPage.timeframe') }}</label>
         <div class="flex gap-2">
           <button
             v-for="tf in timeframeOptions"
@@ -30,7 +30,7 @@
         :disabled="analyticsLoading"
         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
       >
-        {{ analyticsLoading ? 'Laden...' : 'Aktualisieren' }}
+        {{ analyticsLoading ? $t('admin.analyticsPage.loading') : $t('admin.analyticsPage.refresh') }}
       </button>
     </div>
 
@@ -39,7 +39,7 @@
       <div class="flex justify-center mb-4">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
-      <p class="text-gray-600">Analytics-Daten werden geladen...</p>
+      <p class="text-gray-600">{{ $t('admin.analyticsPage.loadingData') }}</p>
     </div>
 
     <!-- Error State -->
@@ -50,7 +50,7 @@
       <div class="flex items-center gap-3">
         <span class="text-2xl">⚠️</span>
         <div>
-          <p class="font-medium text-red-800">Fehler beim Laden der Analytics-Daten</p>
+          <p class="font-medium text-red-800">{{ $t('admin.analyticsPage.loadError') }}</p>
           <p class="text-sm text-red-600 mt-1">{{ analyticsError }}</p>
         </div>
       </div>
@@ -61,54 +61,54 @@
       <!-- KPI Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         <AnalyticsKpiCard
-          label="Gesamt Nutzer"
+          :label="$t('admin.analyticsPage.totalUsers')"
           :value="systemStats?.total_users || 0"
           format="number"
           icon="👥"
           :trend="userTrend"
-          :description="`${systemStats?.new_users_7_days || 0} neue in 7 Tagen`"
+          :description="$t('admin.analyticsPage.newIn7Days', { count: systemStats?.new_users_7_days || 0 })"
         />
         <AnalyticsKpiCard
-          label="Aktive Nutzer (7d)"
+          :label="$t('admin.analyticsPage.activeUsers7d')"
           :value="systemStats?.active_users_7_days || 0"
           format="number"
           icon="⚡"
           :trend="activeUserTrend"
         />
         <AnalyticsKpiCard
-          label="Organisationen"
+          :label="$t('admin.analyticsPage.organisations')"
           :value="systemStats?.total_organisations || 0"
           format="number"
           icon="🏢"
         />
         <AnalyticsKpiCard
-          label="Kurse (Veröffentlicht)"
+          :label="$t('admin.analyticsPage.coursesPublished')"
           :value="systemStats?.published_courses || 0"
           format="number"
           icon="📚"
-          :description="`${systemStats?.total_courses || 0} gesamt`"
+          :description="`${systemStats?.total_courses || 0} ${$t('admin.analyticsPage.total')}`"
         />
         <AnalyticsKpiCard
-          label="Gesamt Einschreibungen"
+          :label="$t('admin.analyticsPage.totalEnrollments')"
           :value="systemStats?.total_enrollments || 0"
           format="number"
           icon="✍️"
         />
         <AnalyticsKpiCard
-          label="Premium Abos"
+          :label="$t('admin.analyticsPage.premiumSubscriptions')"
           :value="systemStats?.premium_subscriptions || 0"
           format="number"
           icon="💎"
         />
         <AnalyticsKpiCard
-          label="Tokens verfügbar"
+          :label="$t('admin.analyticsPage.tokensAvailable')"
           :value="systemStats?.token_stats?.total_tokens_available || 0"
           format="number"
           icon="🪙"
-          :description="`${systemStats?.token_stats?.total_tokens_used || 0} verwendet`"
+          :description="`${systemStats?.token_stats?.total_tokens_used || 0} ${$t('admin.analyticsPage.tokensUsed')}`"
         />
         <AnalyticsKpiCard
-          label="Tokens (30d)"
+          :label="$t('admin.analyticsPage.tokens30d')"
           :value="systemStats?.token_stats?.tokens_used_30_days || 0"
           format="number"
           icon="📊"
@@ -120,26 +120,26 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Events Time Series -->
         <div class="bg-white rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Events pro Tag</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.analyticsPage.eventsPerDay') }}</h3>
           <LineChart
             v-if="eventsChartData.labels.length > 0"
             :labels="eventsChartData.labels"
             :datasets="eventsChartData.datasets"
             :height="300"
           />
-          <p v-else class="text-center text-gray-500 py-8">Keine Daten verfügbar</p>
+          <p v-else class="text-center text-gray-500 py-8">{{ $t('admin.analyticsPage.noDataAvailable') }}</p>
         </div>
 
         <!-- Active Users Time Series -->
         <div class="bg-white rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Aktive Nutzer pro Tag</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.analyticsPage.activeUsersPerDay') }}</h3>
           <LineChart
             v-if="activeUsersChartData.labels.length > 0"
             :labels="activeUsersChartData.labels"
             :datasets="activeUsersChartData.datasets"
             :height="300"
           />
-          <p v-else class="text-center text-gray-500 py-8">Keine Daten verfügbar</p>
+          <p v-else class="text-center text-gray-500 py-8">{{ $t('admin.analyticsPage.noDataAvailable') }}</p>
         </div>
       </div>
 
@@ -147,7 +147,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Top Courses -->
         <div class="bg-white rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Kurse</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.analyticsPage.topCourses') }}</h3>
           <div v-if="topCourses.length > 0" class="space-y-3">
             <div
               v-for="(course, index) in topCourses"
@@ -159,30 +159,30 @@
                 <div class="flex-1">
                   <p class="font-medium text-gray-900 text-sm">{{ course.title }}</p>
                   <p class="text-xs text-gray-600">
-                    {{ course.enrollments || 0 }} Einschreibungen ·
-                    {{ course.completions || 0 }} Abschlüsse
+                    {{ course.enrollments || 0 }} {{ $t('admin.analyticsPage.enrollments') }} ·
+                    {{ course.completions || 0 }} {{ $t('admin.analyticsPage.completions') }}
                   </p>
                 </div>
               </div>
               <div class="text-right">
                 <p class="text-sm font-semibold text-blue-600">
-                  {{ course.events_count || 0 }} Events
+                  {{ course.events_count || 0 }} {{ $t('admin.analyticsPage.events') }}
                 </p>
                 <p
                   v-if="course.avg_completion_rate !== undefined"
                   class="text-xs text-gray-600"
                 >
-                  {{ Math.round(course.avg_completion_rate) }}% Abschlussrate
+                  {{ Math.round(course.avg_completion_rate) }}% {{ $t('admin.analyticsPage.completionRate') }}
                 </p>
               </div>
             </div>
           </div>
-          <p v-else class="text-center text-gray-500 py-8">Keine Daten verfügbar</p>
+          <p v-else class="text-center text-gray-500 py-8">{{ $t('admin.analyticsPage.noDataAvailable') }}</p>
         </div>
 
         <!-- Top Learning Methods -->
         <div class="bg-white rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Lernmethoden</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.analyticsPage.topLearningMethods') }}</h3>
           <div v-if="topMethods.length > 0" class="space-y-3">
             <div
               v-for="(method, index) in topMethods"
@@ -193,20 +193,20 @@
                 <span class="text-sm font-bold text-gray-500 w-6">{{ index + 1 }}</span>
                 <div class="flex-1">
                   <p class="font-medium text-gray-900 text-sm">{{ method.name }}</p>
-                  <p class="text-xs text-gray-600">{{ method.calls || 0 }} Aufrufe</p>
+                  <p class="text-xs text-gray-600">{{ method.calls || 0 }} {{ $t('admin.analyticsPage.calls') }}</p>
                 </div>
               </div>
               <div class="text-right">
                 <p class="text-sm font-semibold text-green-600">
-                  {{ formatNumber(method.tokens_used || 0) }} Tokens
+                  {{ formatNumber(method.tokens_used || 0) }} {{ $t('admin.analyticsPage.tokens') }}
                 </p>
                 <p v-if="method.avg_tokens" class="text-xs text-gray-600">
-                  Ø {{ formatNumber(method.avg_tokens) }} pro Aufruf
+                  {{ $t('admin.analyticsPage.avgPerCall', { count: formatNumber(method.avg_tokens) }) }}
                 </p>
               </div>
             </div>
           </div>
-          <p v-else class="text-center text-gray-500 py-8">Keine Daten verfügbar</p>
+          <p v-else class="text-center text-gray-500 py-8">{{ $t('admin.analyticsPage.noDataAvailable') }}</p>
         </div>
       </div>
     </div>
@@ -217,9 +217,9 @@
       class="bg-white rounded-lg shadow-sm p-16 text-center"
     >
       <span class="text-6xl mb-4 block">📊</span>
-      <p class="text-gray-600 mb-2">Keine Analytics-Daten verfügbar</p>
+      <p class="text-gray-600 mb-2">{{ $t('admin.analyticsPage.noData') }}</p>
       <p class="text-sm text-gray-500">
-        Bitte stellen Sie sicher, dass das System konfiguriert ist.
+        {{ $t('admin.analyticsPage.noDataHint') }}
       </p>
     </div>
   </div>
@@ -227,9 +227,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/admin.store'
-import AnalyticsKpiCard from '@/components/analytics/AnalyticsKpiCard.vue'
-import LineChart from '@/components/analytics/LineChart.vue'
+import AnalyticsKpiCard from '@/components/shared/charts/AnalyticsKpiCard.vue'
+import LineChart from '@/components/shared/charts/LineChart.vue'
+
+const { t } = useI18n()
 
 // ============================================================================
 // Store
@@ -244,11 +247,11 @@ const adminStore = useAdminStore()
 const selectedTimeframe = ref<7 | 30 | 90>(7)
 const initialLoading = ref(true)
 
-const timeframeOptions = [
-  { label: '7 Tage', value: 7 as const },
-  { label: '30 Tage', value: 30 as const },
-  { label: '90 Tage', value: 90 as const }
-]
+const timeframeOptions = computed(() => [
+  { label: t('admin.analyticsPage.days7'), value: 7 as const },
+  { label: t('admin.analyticsPage.days30'), value: 30 as const },
+  { label: t('admin.analyticsPage.days90'), value: 90 as const }
+])
 
 // ============================================================================
 // Computed

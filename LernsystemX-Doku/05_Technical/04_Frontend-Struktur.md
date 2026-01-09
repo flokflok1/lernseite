@@ -1288,7 +1288,7 @@ onMounted(async () => {
 └── ExamGenerator.vue
 ```
 
-> Für jede der **19 Content-Lernmethoden (Gruppen A-C)** existiert ein spezialisierter Editor.
+> Für jede der **12 Content-Lernmethoden (Gruppen A-C)** existiert ein spezialisierter Editor.
 
 ---
 
@@ -2505,7 +2505,7 @@ export const sanitizeHtml = (dirty) => {
 │  🔌 Axios API Layer                  │
 │  🎥 WebRTC LiveRoom                  │
 │  🧩 15+ Widgets                      │
-│  📝 19 Content-LM-Editoren (A-C)     │
+│  📝 12 Content-LM-Editoren (A-C)     │
 └─────────────────────────────────────┘
 ```
 

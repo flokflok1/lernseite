@@ -15,7 +15,7 @@ Date: 2025-01-23
 
 from typing import Optional, Dict, Any, List
 import logging
-from app.repositories.course_prompt_repository import CoursePromptRepository
+from app.repositories.course_prompt import CoursePromptRepository
 from app.ki.prompt_registry import get_prompt_template, PROMPT_REGISTRY
 from app.ki.prompt_models import PromptTemplate
 

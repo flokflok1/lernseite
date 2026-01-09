@@ -1,5 +1,5 @@
 # KI Prompts Package
-from .authoring_prompts import (
+from .authoring import (
     get_authoring_prompt,
     get_quick_prompts,
     format_user_prompt,

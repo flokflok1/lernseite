@@ -11,10 +11,10 @@
 -- Description: Links uploaded files to specific courses for management
 -- Supports PDF scripts, reference materials, supplementary documents
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS course_files (
+CREATE TABLE IF NOT EXISTS courses.course_files (
     course_file_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    course_id UUID NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
-    file_id UUID REFERENCES media_files(file_id) ON DELETE SET NULL,
+    course_id UUID NOT NULL REFERENCES courses.courses(course_id) ON DELETE CASCADE,
+    file_id UUID REFERENCES billing_storage.media_files(file_id) ON DELETE SET NULL,
 
     -- File metadata (stored separately if file_id is null for external files)
     file_name VARCHAR(255) NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS course_files (
     external_url VARCHAR(500),
 
     -- Audit
-    uploaded_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    uploaded_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 
@@ -52,23 +52,23 @@ CREATE TABLE IF NOT EXISTS course_files (
 );
 
 -- Indexes for efficient querying
-CREATE INDEX IF NOT EXISTS idx_course_files_course ON course_files(course_id, order_index);
-CREATE INDEX IF NOT EXISTS idx_course_files_media ON course_files(file_id) WHERE file_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_course_files_category ON course_files(file_category);
-CREATE INDEX IF NOT EXISTS idx_course_files_uploader ON course_files(uploaded_by);
-CREATE INDEX IF NOT EXISTS idx_course_files_public ON course_files(is_public) WHERE is_public = TRUE;
-CREATE INDEX IF NOT EXISTS idx_course_files_ai ON course_files(processed_for_ai) WHERE processed_for_ai = FALSE;
+CREATE INDEX IF NOT EXISTS idx_course_files_course ON courses.course_files (course_id, order_index);
+CREATE INDEX IF NOT EXISTS idx_course_files_media ON courses.course_files (file_id) WHERE file_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_course_files_category ON courses.course_files (file_category);
+CREATE INDEX IF NOT EXISTS idx_course_files_uploader ON courses.course_files (uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_course_files_public ON courses.course_files (is_public) WHERE is_public = TRUE;
+CREATE INDEX IF NOT EXISTS idx_course_files_ai ON courses.course_files (processed_for_ai) WHERE processed_for_ai = FALSE;
 
-COMMENT ON TABLE course_files IS 'Links uploaded files to courses for content management and AI processing';
-COMMENT ON COLUMN course_files.file_category IS 'script=Kurs-Skript, material=Begleitmaterial, exercise=Übung, solution=Lösung, reference=Referenz, template=Vorlage';
-COMMENT ON COLUMN course_files.processed_for_ai IS 'Flag for AI content extraction pipeline';
-COMMENT ON COLUMN course_files.ai_extracted_text IS 'Full text extracted from document for AI indexing';
-COMMENT ON COLUMN course_files.ai_summary IS 'AI-generated summary of the document';
+COMMENT ON TABLE courses.course_files IS 'Links uploaded files to courses for content management and AI processing';
+COMMENT ON COLUMN courses.course_files.file_category IS 'script=Kurs-Skript, material=Begleitmaterial, exercise=Übung, solution=Lösung, reference=Referenz, template=Vorlage';
+COMMENT ON COLUMN courses.course_files.processed_for_ai IS 'Flag for AI content extraction pipeline';
+COMMENT ON COLUMN courses.course_files.ai_extracted_text IS 'Full text extracted from document for AI indexing';
+COMMENT ON COLUMN courses.course_files.ai_summary IS 'AI-generated summary of the document';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_course_files_updated_at BEFORE UPDATE ON course_files
+CREATE TRIGGER update_course_files_updated_at BEFORE UPDATE ON courses.course_files
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

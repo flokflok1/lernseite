@@ -1,0 +1,113 @@
+# Diff for CLAUDE.md Updates (Phase 8)
+
+**File:** /home/pascal/Lernsystem/CLAUDE.md
+**Section:** "Project Structure" (around line 177)
+
+---
+
+## BEFORE (OLD):
+
+```markdown
+backend/
+├── app/
+│   ├── __init__.py              # Factory pattern (create_app)
+│   ├── config.py                # Environment configs
+│   ├── extensions.py            # Flask extensions
+│   ├── api/                     # API blueprints (routes)
+│   │   ├── admin/               # Admin package (40 endpoints, 7 modules)
+│   │   │   ├── courses.py       # Course CRUD (7 endpoints)
+│   │   │   ├── chapters.py      # Chapter management (5 endpoints)
+│   │   │   ├── lessons.py       # Lesson management (5 endpoints)
+│   │   │   ├── ai_jobs.py       # AI job management (4 endpoints)
+│   │   │   ├── exams.py         # Exam management (6 endpoints)
+│   │   │   ├── course_prompts.py # Prompt overrides (6 endpoints)
+│   │   │   └── course_files.py  # File attachments (7 endpoints)
+│   │   ├── admin_ai_*.py        # KI-Studio endpoints
+│   │   └── ...
+```
+
+---
+
+## AFTER (NEW):
+
+```markdown
+backend/
+├── app/
+│   ├── __init__.py              # Factory pattern (create_app)
+│   ├── config.py                # Environment configs
+│   ├── extensions.py            # Flask extensions
+│   ├── api/                     # API blueprints (routes)
+│   │   ├── admin/               # Admin API (85 files, 20,149 LOC) - Phase 8a
+│   │   │   ├── courses/         # Course Management (10 modules)
+│   │   │   │   ├── crud.py, chapters.py, lessons.py, exams.py
+│   │   │   │   ├── prompts.py, files.py, ai_settings.py
+│   │   │   │   ├── authoring.py, analytics.py, system_features.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── ai/              # AI Core (8 modules)
+│   │   │   ├── ai_models/       # AI Model Admin (5 modules)
+│   │   │   ├── ai_authoring/    # AI Authoring (7 modules)
+│   │   │   ├── ai_generation/   # AI Content Generation (5 modules)
+│   │   │   ├── ai_tutor/        # AI Tutor Admin (5 modules)
+│   │   │   ├── system/          # System Administration (9 modules)
+│   │   │   ├── learning_methods/ # Learning Methods Admin (6 modules)
+│   │   │   ├── lm_routing/      # LM Model Routing (9 modules)
+│   │   │   ├── prompts/         # Prompt Management (5 modules)
+│   │   │   ├── users/           # User Management (4 modules)
+│   │   │   └── analytics/       # System Analytics (2 modules)
+│   │   ├── tokens/              # Token Management (5 modules) - Phase 8b
+│   │   │   ├── wallet.py, transactions.py, stats.py, admin.py
+│   │   │   └── __init__.py
+│   │   ├── math/                # Math Toolkit (5 modules) - Phase 8c
+│   │   │   ├── reference.py, calculator.py, sessions.py, interactive.py
+│   │   │   └── __init__.py
+│   │   ├── exams/               # Exam System (7 modules) - Phase 8d
+│   │   │   ├── simulations.py, attempts.py, generation.py
+│   │   │   ├── context.py, user_profile.py, models.py
+│   │   │   └── __init__.py
+│   │   ├── media/               # Media Management
+│   │   │   ├── tts/             # Text-to-Speech (8 modules)
+│   │   │   │   ├── synthesis.py, voices.py, config.py
+│   │   │   │   ├── scripts.py, pronunciation.py, tutor.py
+│   │   │   │   └── helpers.py, __init__.py
+│   │   │   └── audio.py
+│   │   ├── tokens.py            # DEPRECATED - Bridge file (use tokens/ package)
+│   │   ├── math_toolkit.py      # DEPRECATED - Bridge file (use math/ package)
+│   │   └── ... (other packages unchanged)
+```
+
+---
+
+## Additional Changes:
+
+### Add Note After Project Structure:
+
+```markdown
+### Phase 8 Refactoring (2026-01-08)
+
+The API layer was refactored to comply with the 500 LOC per file limit (Quality Gate G01):
+
+**Major Changes:**
+- **Admin API:** Split from 7 large files into 13 focused packages (85 files total)
+- **Tokens API:** Refactored into modular package (wallet, transactions, stats, admin)
+- **Math Toolkit:** Split into 4 modules (reference, calculator, sessions, interactive)
+- **Exams:** Consolidated `exam_simulations/` → `exams/`
+- **TTS:** Consolidated `tts/` → `media/tts/`
+
+**Bridge Files (Deprecated):**
+- `tokens.py` - Re-exports from `tokens/` package
+- `math_toolkit.py` - Re-exports from `math/` package
+
+See `backend/BACKEND_STRUCTURE_PHASE8.md` for full details.
+```
+
+---
+
+## Remove References:
+
+1. Remove any mentions of `exam_simulations/` as a separate package
+2. Remove any mentions of root-level `tts/` package
+3. Update admin description from "40 endpoints, 7 modules" to "100+ endpoints, 13 packages"
+
+---
+
+**End of CLAUDE.md Updates**

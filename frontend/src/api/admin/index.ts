@@ -1,8 +1,8 @@
 /**
  * LernsystemX Admin API
  *
- * Refactored from admin.api.ts (3024 lines) into 14 focused modules:
- * - types.ts: All TypeScript interfaces (750 lines)
+ * Refactored from admin.api.ts (3024 lines) into 15 focused modules:
+ * - types.ts: All TypeScript interfaces (850 lines)
  * - users.api.ts: User management (110 lines)
  * - organisations.api.ts: Organisation management (55 lines)
  * - courses.api.ts: Course CRUD (105 lines)
@@ -14,10 +14,11 @@
  * - prompts.api.ts: Course prompts (95 lines)
  * - files.api.ts: Course files (100 lines)
  * - ai-models.api.ts: AI model management (95 lines)
+ * - ai-pricing.api.ts: AI model pricing (75 lines)
  * - learning-methods.api.ts: Learning methods (95 lines)
  * - lm-routing.api.ts: LM model routing & slots (340 lines)
  *
- * Total: ~2145 lines (-30% reduction, better organization)
+ * Total: ~2220 lines
  */
 
 // Re-export all types
@@ -35,5 +36,6 @@ export * from './exams.api'
 export * from './prompts.api'
 export * from './files.api'
 export * from './ai-models.api'
+export * from './ai-pricing.api'
 export * from './learning-methods.api'
 export * from './lm-routing.api'

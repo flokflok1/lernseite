@@ -19,10 +19,90 @@
 import { createI18n } from 'vue-i18n'
 import type { App } from 'vue'
 
-// Import locale files (available at startup, no API needed)
-import de from '@/locales/de.json'
-import pl from '@/locales/pl.json'
-import en from '@/locales/en.json'
+// =============================================================================
+// Import split locale files (organized by feature domain)
+// =============================================================================
+
+// German (de)
+import deCommon from '@/locales/de/common.json'
+import deAdmin from '@/locales/de/admin.json'
+import deWindowsAdmin from '@/locales/de/windows/admin.json'
+import deWindowsAiStudio from '@/locales/de/windows/aiStudio.json'
+import deWindowsAiPricing from '@/locales/de/windows/aiPricing.json'
+import deWindowsCommon from '@/locales/de/windows/common.json'
+import deWindowsViewer from '@/locales/de/windows/viewer.json'
+import deWindowsLearningMethods from '@/locales/de/windows/learningMethods.json'
+import deCourses from '@/locales/de/courses.json'
+import deDashboard from '@/locales/de/dashboard.json'
+import deSetup from '@/locales/de/setup.json'
+import deLegal from '@/locales/de/legal.json'
+
+// English (en)
+import enCommon from '@/locales/en/common.json'
+import enAdmin from '@/locales/en/admin.json'
+import enWindowsAdmin from '@/locales/en/windows/admin.json'
+import enWindowsAiStudio from '@/locales/en/windows/aiStudio.json'
+import enWindowsAiPricing from '@/locales/en/windows/aiPricing.json'
+import enWindowsCommon from '@/locales/en/windows/common.json'
+import enWindowsViewer from '@/locales/en/windows/viewer.json'
+import enWindowsLearningMethods from '@/locales/en/windows/learningMethods.json'
+import enCourses from '@/locales/en/courses.json'
+import enDashboard from '@/locales/en/dashboard.json'
+import enSetup from '@/locales/en/setup.json'
+import enLegal from '@/locales/en/legal.json'
+
+// Polish (pl)
+import plCommon from '@/locales/pl/common.json'
+import plAdmin from '@/locales/pl/admin.json'
+import plWindowsAdmin from '@/locales/pl/windows/admin.json'
+import plWindowsAiStudio from '@/locales/pl/windows/aiStudio.json'
+import plWindowsAiPricing from '@/locales/pl/windows/aiPricing.json'
+import plWindowsCommon from '@/locales/pl/windows/common.json'
+import plWindowsViewer from '@/locales/pl/windows/viewer.json'
+import plWindowsLearningMethods from '@/locales/pl/windows/learningMethods.json'
+import plCourses from '@/locales/pl/courses.json'
+import plDashboard from '@/locales/pl/dashboard.json'
+import plSetup from '@/locales/pl/setup.json'
+import plLegal from '@/locales/pl/legal.json'
+
+// Merge window modules
+const deWindows = {
+  windows: {
+    ...deWindowsAdmin,
+    ...deWindowsAiStudio,
+    ...deWindowsAiPricing,
+    ...deWindowsCommon,
+    ...deWindowsViewer,
+    learningMethods: deWindowsLearningMethods
+  }
+}
+
+const enWindows = {
+  windows: {
+    ...enWindowsAdmin,
+    ...enWindowsAiStudio,
+    ...enWindowsAiPricing,
+    ...enWindowsCommon,
+    ...enWindowsViewer,
+    learningMethods: enWindowsLearningMethods
+  }
+}
+
+const plWindows = {
+  windows: {
+    ...plWindowsAdmin,
+    ...plWindowsAiStudio,
+    ...plWindowsAiPricing,
+    ...plWindowsCommon,
+    ...plWindowsViewer,
+    learningMethods: plWindowsLearningMethods
+  }
+}
+
+// Merge all modules into single language objects
+const de = { ...deCommon, ...deAdmin, ...deWindows, ...deCourses, ...deDashboard, ...deSetup, ...deLegal }
+const en = { ...enCommon, ...enAdmin, ...enWindows, ...enCourses, ...enDashboard, ...enSetup, ...enLegal }
+const pl = { ...plCommon, ...plAdmin, ...plWindows, ...plCourses, ...plDashboard, ...plSetup, ...plLegal }
 
 // Type for nested message objects
 type MessageValue = string | { [key: string]: MessageValue }
@@ -85,32 +165,47 @@ export function setupI18n(app: App): void {
  */
 export async function initializeI18n(): Promise<void> {
   try {
-    // Import API dynamically to avoid circular dependencies
-    const { getBundle } = await import('@/api/i18n.api')
     const savedLang = localStorage.getItem('lsx-language') || 'de'
 
-    // Load German (base language) from API and merge with file translations
-    try {
-      const deBundle = await getBundle('de')
-      if (deBundle && Object.keys(deBundle).length > 0) {
-        const currentDe = i18n.global.getLocaleMessage('de')
-        i18n.global.setLocaleMessage('de', { ...currentDe, ...deBundle })
-      }
-    } catch (e) {
-      console.warn('[i18n] Failed to load German bundle from API, using file translations')
-    }
+    // Check if system is installed (has setup_completed flag)
+    const isInstalled = localStorage.getItem('lsx-setup-completed') === 'true'
 
-    // Load user's preferred language if different from German
-    if (savedLang !== 'de') {
+    // Only try to load from API if system is installed
+    if (isInstalled) {
       try {
-        const bundle = await getBundle(savedLang)
-        if (bundle && Object.keys(bundle).length > 0) {
-          const currentLang = i18n.global.getLocaleMessage(savedLang)
-          i18n.global.setLocaleMessage(savedLang, { ...currentLang, ...bundle })
+        // Import API dynamically to avoid circular dependencies
+        const { getBundle } = await import('@/api/i18n.api')
+
+        // Load German (base language) from API and merge with file translations
+        try {
+          const deBundle = await getBundle('de')
+          if (deBundle && Object.keys(deBundle).length > 0) {
+            const currentDe = i18n.global.getLocaleMessage('de')
+            i18n.global.setLocaleMessage('de', { ...currentDe, ...deBundle })
+            console.log('[i18n] Merged German API bundle with file translations')
+          }
+        } catch (e) {
+          // Silently fall back to file translations (expected during setup)
         }
-      } catch (e) {
-        console.warn(`[i18n] Failed to load ${savedLang} bundle from API`)
+
+        // Load user's preferred language if different from German
+        if (savedLang !== 'de') {
+          try {
+            const bundle = await getBundle(savedLang)
+            if (bundle && Object.keys(bundle).length > 0) {
+              const currentLang = i18n.global.getLocaleMessage(savedLang)
+              i18n.global.setLocaleMessage(savedLang, { ...currentLang, ...bundle })
+              console.log(`[i18n] Merged ${savedLang} API bundle with file translations`)
+            }
+          } catch (e) {
+            // Silently fall back to file translations
+          }
+        }
+      } catch (error) {
+        // API not available, using file-based translations only
       }
+    } else {
+      console.log('[i18n] System not installed - using file-based translations only')
     }
 
     // Set locale

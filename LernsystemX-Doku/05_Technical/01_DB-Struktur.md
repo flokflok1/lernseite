@@ -12,7 +12,7 @@ Dieses Dokument definiert die vollständige Datenbankstruktur des LSX Lernsystem
 Die Struktur ist **modular**, **skalierbar** und unterstützt:
 
 - 👥 Rollen & Berechtigungen
-- 📚 Kurse, Kapitel, Lernmethoden (19 Content-LMs, A-C)
+- 📚 Kurse, Kapitel, Lernmethoden (12 Content-LMs, A-C)
 - 🤖 KI-Generierung & Tokenverbrauch
 - 🌐 Community, Creator & Academy
 - 🏫 Schulen, Unternehmen, Lehrer, Dozenten
@@ -608,9 +608,9 @@ CREATE INDEX idx_module_theory_module ON module_theory(module_id);
 
 ---
 
-## 6. Lernmethoden (19 Content-LMs, Gruppen A-C)
+## 6. Lernmethoden (12 Content-LMs, Gruppen A-C)
 
-> **Master-Dokument:** Die vollständige Spezifikation aller 19 Content-Lernmethoden befindet sich in [02_Lernmethoden.md](02_Lernmethoden.md). System-Features (frühere LMs D-F) sind in [02a_System-Features.md](02a_System-Features.md) dokumentiert.
+> **Master-Dokument:** Die vollständige Spezifikation aller 12 Content-Lernmethoden (LM00-LM11) befindet sich in [02_Lernmethoden.md](../01_Core/02_Lernmethoden.md). 25 System-Features sind in [02a_System-Features.md](../01_Core/02a_System-Features.md) dokumentiert.
 
 ### 🎯 Tabelle: `learning_methods`
 
@@ -618,7 +618,7 @@ CREATE INDEX idx_module_theory_module ON module_theory(module_id);
 CREATE TABLE learning_methods (
     method_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     module_id UUID REFERENCES modules(module_id) ON DELETE CASCADE,
-    method_type INTEGER CHECK (method_type BETWEEN 0 AND 31),
+    method_type INTEGER CHECK (method_type BETWEEN 0 AND 11),
     title VARCHAR(255) NOT NULL,
     instructions TEXT,
     data JSONB NOT NULL,
@@ -639,9 +639,9 @@ CREATE INDEX idx_methods_tier ON learning_methods(tier);
 CREATE INDEX idx_methods_published ON learning_methods(published) WHERE published = TRUE;
 ```
 
-> **Migration 052 (Phase D3 – abgeschlossen):** Der Constraint wurde von `method_type BETWEEN 1 AND 21` auf `method_type BETWEEN 0 AND 31` erweitert. Die ID-Zuordnung ist: LM00 = 0, LM01 = 1, ..., LM31 = 31.
+> **Stand 2026-01:** Der Constraint ist `method_type BETWEEN 0 AND 11` für 12 Content-Lernmethoden. Die ID-Zuordnung ist: LM00 = 0, LM01 = 1, ..., LM11 = 11.
 
-### 🎴 Beispiel: Flashcards (LM13)
+### 🎴 Beispiel: Flashcards (LM06)
 
 ```json
 {
@@ -658,7 +658,7 @@ CREATE INDEX idx_methods_published ON learning_methods(published) WHERE publishe
 }
 ```
 
-### ❓ Beispiel: Quiz (LM22)
+### ❓ Beispiel: Quiz (LM09 - Freitext)
 
 ```json
 {
@@ -672,61 +672,38 @@ CREATE INDEX idx_methods_published ON learning_methods(published) WHERE publishe
 }
 ```
 
-### 📋 19 Content-Lernmethoden (Gruppen A-C)
+### 📋 12 Content-Lernmethoden (Gruppen A-C)
 
-> **Hinweis:** Nur 19 Content-LMs sind aktiv: LM00-03, LM06, LM08, LM12-15, LM17-25. Die DB-Constraint (0-31) erlaubt Abwärtskompatibilität. Vollständige Liste in [02_Lernmethoden.md](02_Lernmethoden.md).
+> **Hinweis:** 12 Content-LMs sind aktiv: LM00-LM11. System-Features (25 Stück) sind separat in `support_systems.system_features`. Vollständige Liste in [02_Lernmethoden.md](../01_Core/02_Lernmethoden.md).
 
-**Gruppe A – Erklärende Methoden (LM00–LM07):**
+**Gruppe A – Erklärend (LM00–LM04):**
 
 | ID | Name | Beschreibung |
 |----|------|-------------|
-| LM00 | Deep Explanation | KI-generierte tiefgehende Erklärungen |
-| LM01 | Schritt-für-Schritt-Erklärung | Sequenzielle Anleitungen |
+| LM00 | Tiefgehende Erklärung | KI-generierte Erklärung mit Beispielen |
+| LM01 | Schritt-für-Schritt | Sequenzielle Anleitungen |
 | LM02 | Interaktive Theorie | Theorie mit Rückfragen |
 | LM03 | Diagramm/Visualisierung | Visuelle Darstellungen |
-| LM04 | Glossar-Autogenerator | Automatische Glossare |
-| LM05 | Mindmap-Generator | Wissenslandkarten |
-| LM06 | Beispiel-Szenario-Erklärung | Real-World-Cases |
-| LM07 | NPC-Tutor-Lecture | Virtueller Tutor (Text/Audio/Video) |
+| LM04 | Beispiel-Szenario | Praxisnahes Anwendungsbeispiel |
 
-**Gruppe B – Praxis/Übung (LM08–LM17):**
+**Gruppe B – Praxis (LM05–LM08):**
 
 | ID | Name | Beschreibung |
 |----|------|-------------|
-| LM08 | Whiteboard-Aufgabe | Zeichnen, Skizzieren, KI-Bewertung |
-| LM09 | Code/IT-Config Sandbox | Code-Editor mit Feedback |
-| LM10 | Netzwerk-Aufbau Simulation | Netzwerktopologien |
-| LM11 | IT-Szenario lösen | Mehrstufige Case Studies |
-| LM12 | Mathe-Interaktiv | Schritt-für-Schritt-Rechnung |
-| LM13 | Flashcards | Karteikarten mit Spaced-Repetition |
-| LM14 | Drag & Drop Aufgaben | Interaktive Zuordnung |
-| LM15 | Lückentext-Aufgaben | Fill in the Blanks |
-| LM16 | Fehleranalyse | Finde den Fehler |
-| LM17 | Hands-on Lab | Geführte Praxislabs |
+| LM05 | Mathe-Interaktiv | Mathematische Aufgaben mit Schritt-Erkennung |
+| LM06 | Flashcards | Digitale Lernkarten |
+| LM07 | Drag & Drop | Zuordnungsaufgaben |
+| LM08 | Lückentext | Lückentexte mit Auto-Korrektur |
 
-**Gruppe C – Prüfungsorientiert (LM18–LM25):**
+**Gruppe C – Prüfung (LM09–LM11):**
 
 | ID | Name | Beschreibung |
 |----|------|-------------|
-| LM18 | Freitext-Langantwort | Essay, IHK-Stil |
-| LM19 | IHK-Stil Aufgaben | Standardkonforme Prüfungen |
-| LM20 | Multi-Step Praxisprüfung | Mehrstufige Prüfungen |
-| LM21 | Zeitlimit-Training | Prüfungssimulation mit Timer |
-| LM22 | Prüfungs-Quiz | MC, Single Choice, Matching |
-| LM23 | Verständnis-Checks | Micro-Questions |
-| LM24 | Mündliche Erklärung | User erklärt, KI bewertet |
-| LM25 | Kapitel-Endprüfung | Abschlussprüfung pro Kapitel |
+| LM09 | Freitext-Langantwort | Offene Fragen mit KI-Bewertung |
+| LM10 | IHK-Stil Aufgaben | Prüfungsaufgaben nach IHK-Standard |
+| LM11 | Multi-Step Praxisprüfung | Mehrstufige praktische Prüfung |
 
-**Gruppe D – Pro/Premium/Gamification (LM26–LM31):**
-
-| ID | Name | Beschreibung |
-|----|------|-------------|
-| LM26 | Adaptive Difficulty | Dynamische Schwierigkeit |
-| LM27 | Lernpfad-Autogenerator | KI-generierte Lernpfade |
-| LM28 | Persona-Tutor | Tutor mit Persönlichkeit |
-| LM29 | Sokratischer Dialog | KI-Gegenfragen |
-| LM30 | Daily Recall / Spaced Repetition | Wiederholungsalgorithmus |
-| LM31 | Quest-/XP-Verknüpfung | Gamification-Hooks |
+> **System-Features:** Die 25 System-Features (wie Whiteboard, IT-Sandbox, Tutor, Gamification) sind in `support_systems.system_features` gespeichert. Siehe [02a_System-Features.md](../01_Core/02a_System-Features.md).
 
 ---
 
@@ -2510,7 +2487,7 @@ Nach vollständiger Migration (Version 042):
 | **Rollen** | 10 | Hierarchie Level 1-9 + Superadmin |
 | **Kategorien** | Flexibel | Unbegrenzte Tiefe (max 20 Level) |
 
-### 🎯 Learning Methods (19 Content-LMs, Gruppen A-C)
+### 🎯 Learning Methods (12 Content-LMs, Gruppen A-C)
 
 #### Basic Methods (11) - Kostenlos für alle
 

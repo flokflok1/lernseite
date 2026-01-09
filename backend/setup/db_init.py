@@ -64,6 +64,7 @@ class DatabaseInitializer:
             - success: bool
             - database_created: bool
             - migrations_executed: int
+            - schemas_created: int
             - tables_created: int
             - indexes_created: int
             - errors: List[str]
@@ -78,6 +79,7 @@ class DatabaseInitializer:
             'success': False,
             'database_created': False,
             'migrations_executed': 0,
+            'schemas_created': 0,
             'tables_created': 0,
             'indexes_created': 0,
             'errors': []
@@ -106,8 +108,9 @@ class DatabaseInitializer:
                 results['errors'].append(f"Migration failed: {migration_result.get('error', 'Unknown error')}")
                 return results
 
-            # 6. Count created tables and indexes for reporting
+            # 6. Count created schemas, tables and indexes for reporting
             with psycopg.connect(self.conninfo) as conn:
+                results['schemas_created'] = self._count_schemas(conn)
                 results['tables_created'] = self._count_tables(conn)
                 results['indexes_created'] = self._count_indexes(conn)
 
@@ -154,10 +157,13 @@ class DatabaseInitializer:
             raise Exception(f'Database creation failed: {str(e)}')
 
     def _create_migration_table(self, conn):
-        """Create migration tracking table"""
+        """Create migration tracking table in core schema"""
         with conn.cursor() as cur:
+            # Ensure core schema exists first
+            cur.execute("CREATE SCHEMA IF NOT EXISTS core;")
+
             cur.execute("""
-                CREATE TABLE IF NOT EXISTS migration_history (
+                CREATE TABLE IF NOT EXISTS core.migration_history (
                     migration_id SERIAL PRIMARY KEY,
                     migration_name VARCHAR(255) NOT NULL UNIQUE,
                     version VARCHAR(50),
@@ -170,9 +176,9 @@ class DatabaseInitializer:
                     CONSTRAINT chk_migration_status CHECK (status IN ('success', 'failed', 'rolled_back'))
                 );
 
-                CREATE INDEX IF NOT EXISTS idx_migration_version ON migration_history(version);
-                CREATE INDEX IF NOT EXISTS idx_migration_executed_at ON migration_history(executed_at);
-                CREATE INDEX IF NOT EXISTS idx_migration_status ON migration_history(status);
+                CREATE INDEX IF NOT EXISTS idx_migration_version ON core.migration_history(version);
+                CREATE INDEX IF NOT EXISTS idx_migration_executed_at ON core.migration_history(executed_at);
+                CREATE INDEX IF NOT EXISTS idx_migration_status ON core.migration_history(status);
             """)
         conn.commit()
 
@@ -203,13 +209,22 @@ class DatabaseInitializer:
                 migrations_dir = backend_path / 'migrations'
                 executed = []
 
-                # Get all .sql files (exclude backups, verify scripts, and files starting with _)
-                sql_files = sorted([
-                    f for f in migrations_dir.glob('*.sql')
+                # Get all .sql files recursively from subdirectories (exclude backups, verify scripts, and files starting with _)
+                all_sql_files = [
+                    f for f in migrations_dir.glob('**/*.sql')  # Recursive search in subdirectories
                     if not f.name.startswith('_')  # Exclude files starting with underscore
                     and 'verify' not in f.name.lower()  # Exclude verify scripts
                     and not f.name.endswith(('.bak', '.old', '.tmp'))  # Exclude backups
-                ])
+                ]
+
+                # Sort by migration number (001, 002, ...) extracted from filename
+                def get_migration_number(filepath):
+                    """Extract migration number from filename (e.g., 001 from 001_core_users_roles.sql)"""
+                    import re
+                    match = re.match(r'^(\d+)', filepath.name)
+                    return int(match.group(1)) if match else 9999
+
+                sql_files = sorted(all_sql_files, key=get_migration_number)
 
                 logger.info(f"[DB_INIT] Found {len(sql_files)} migration files")
                 if len(sql_files) == 0:
@@ -223,7 +238,7 @@ class DatabaseInitializer:
                     # Check if already executed
                     with conn.cursor() as cur:
                         cur.execute(
-                            "SELECT 1 FROM migration_history WHERE migration_name = %s",
+                            "SELECT 1 FROM core.migration_history WHERE migration_name = %s",
                             (migration_name,)
                         )
                         if cur.fetchone():
@@ -247,7 +262,7 @@ class DatabaseInitializer:
                         # Record in history
                         with conn.cursor() as cur:
                             cur.execute("""
-                                INSERT INTO migration_history
+                                INSERT INTO core.migration_history
                                 (migration_name, executed_at, execution_time_ms, status)
                                 VALUES (%s, NOW(), %s, 'success')
                             """, (migration_name, execution_time))
@@ -280,22 +295,33 @@ class DatabaseInitializer:
             }
 
     def _count_tables(self, conn) -> int:
-        """Count total tables in database"""
+        """Count total tables in database across all application schemas"""
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT COUNT(*)
                 FROM information_schema.tables
-                WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+                WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+                  AND table_type = 'BASE TABLE'
             """)
             return cur.fetchone()[0]
 
     def _count_indexes(self, conn) -> int:
-        """Count total indexes in database"""
+        """Count total indexes in database across all application schemas"""
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT COUNT(*)
                 FROM pg_indexes
-                WHERE schemaname = 'public'
+                WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+            """)
+            return cur.fetchone()[0]
+
+    def _count_schemas(self, conn) -> int:
+        """Count total application schemas (excluding system schemas)"""
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT COUNT(*)
+                FROM information_schema.schemata
+                WHERE schema_name NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
             """)
             return cur.fetchone()[0]
 

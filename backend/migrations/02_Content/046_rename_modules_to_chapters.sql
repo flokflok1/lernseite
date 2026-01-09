@@ -1,17 +1,11 @@
 -- ============================================================================
--- Migration: 053_rename_modules_to_chapters.sql
--- Description: Renames modules table to chapters (modules → chapters refactoring)
--- Version: 2.1.0
+-- Migration: 046_rename_modules_to_chapters.sql
+-- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-11-28
+-- Date: 2026-01-02
 -- ============================================================================
 
--- Check if 'modules' table exists and 'chapters' doesn't
--- This migration safely renames the table if needed
-
--- ============================================================================
--- STEP 1: Rename the main table
--- ============================================================================
 DO $$
 BEGIN
     -- Check if modules table exists and chapters doesn't
@@ -23,7 +17,7 @@ BEGIN
         RAISE NOTICE 'Renamed table: modules → chapters';
 
         -- Rename primary key column
-        ALTER TABLE chapters RENAME COLUMN module_id TO chapter_id;
+        ALTER TABLE courses.chapters RENAME COLUMN module_id TO chapter_id;
         RAISE NOTICE 'Renamed column: module_id → chapter_id';
 
     ELSIF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'chapters') THEN
@@ -44,7 +38,7 @@ BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'module_theory')
        AND NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'chapter_theory') THEN
         ALTER TABLE module_theory RENAME TO chapter_theory;
-        ALTER TABLE chapter_theory RENAME COLUMN module_id TO chapter_id;
+        ALTER TABLE courses.chapter_theory RENAME COLUMN module_id TO chapter_id;
         RAISE NOTICE 'Renamed table: module_theory → chapter_theory';
     END IF;
 END $$;
@@ -55,7 +49,7 @@ BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'module_resources')
        AND NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'chapter_resources') THEN
         ALTER TABLE module_resources RENAME TO chapter_resources;
-        ALTER TABLE chapter_resources RENAME COLUMN module_id TO chapter_id;
+        ALTER TABLE courses.chapter_resources RENAME COLUMN module_id TO chapter_id;
         RAISE NOTICE 'Renamed table: module_resources → chapter_resources';
     END IF;
 END $$;
@@ -69,7 +63,7 @@ DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.columns
                WHERE table_name = 'lessons' AND column_name = 'module_id') THEN
-        ALTER TABLE lessons RENAME COLUMN module_id TO chapter_id;
+        ALTER TABLE courses.lessons RENAME COLUMN module_id TO chapter_id;
         RAISE NOTICE 'Renamed column in lessons: module_id → chapter_id';
     END IF;
 END $$;
@@ -79,7 +73,7 @@ DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.columns
                WHERE table_name = 'learning_method_instances' AND column_name = 'module_id') THEN
-        ALTER TABLE learning_method_instances RENAME COLUMN module_id TO chapter_id;
+        ALTER TABLE learning_methods.learning_method_instances RENAME COLUMN module_id TO chapter_id;
         RAISE NOTICE 'Renamed column in learning_method_instances: module_id → chapter_id';
     END IF;
 END $$;
@@ -95,7 +89,7 @@ BEGIN
 
     IF EXISTS (SELECT 1 FROM information_schema.columns
                WHERE table_name = 'chapter_progress' AND column_name = 'module_id') THEN
-        ALTER TABLE chapter_progress RENAME COLUMN module_id TO chapter_id;
+        ALTER TABLE courses.chapter_progress RENAME COLUMN module_id TO chapter_id;
         RAISE NOTICE 'Renamed column in chapter_progress: module_id → chapter_id';
     END IF;
 END $$;
@@ -115,7 +109,7 @@ DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.columns
                WHERE table_name = 'exam_results' AND column_name = 'module_id') THEN
-        ALTER TABLE exam_results RENAME COLUMN module_id TO chapter_id;
+        ALTER TABLE assessments.exam_results RENAME COLUMN module_id TO chapter_id;
         RAISE NOTICE 'Renamed column in exam_results: module_id → chapter_id';
     END IF;
 END $$;
@@ -136,13 +130,13 @@ BEGIN
 END $$;
 
 -- Create new indexes if table exists
-CREATE INDEX IF NOT EXISTS idx_chapters_course ON chapters(course_id);
-CREATE INDEX IF NOT EXISTS idx_chapters_order ON chapters(course_id, order_index);
-CREATE INDEX IF NOT EXISTS idx_chapters_published ON chapters(published) WHERE published = TRUE;
+CREATE INDEX IF NOT EXISTS idx_chapters_course ON courses.chapters(course_id);
+CREATE INDEX IF NOT EXISTS idx_chapters_order ON courses.chapters(course_id, order_index);
+CREATE INDEX IF NOT EXISTS idx_chapters_published ON courses.chapters(published) WHERE published = TRUE;
 
--- Update lessons foreign key index
+-- Update courses.lessons foreign key index
 DROP INDEX IF EXISTS idx_lessons_module;
-CREATE INDEX IF NOT EXISTS idx_lessons_chapter ON lessons(chapter_id);
+CREATE INDEX IF NOT EXISTS idx_lessons_chapter ON courses.lessons(chapter_id);
 
 -- ============================================================================
 -- STEP 5: Verify migration

@@ -14,7 +14,7 @@ Die **KI-Pipeline** ist das Herzstück des LSX-Systems und ermöglicht intellige
 - 📄 Automatische Dateiverarbeitung (PDF, DOCX, PPTX)
 - 🎓 KI-gestützte Kurserstellung
 - 📚 Intelligente Modulstrukturierung
-- 🔧 Automatische Generierung aller 19 Content-Lernmethoden (A-C)
+- 🔧 Automatische Generierung aller 12 Content-Lernmethoden (A-C)
 - ✅ IHK/CompTIA-konforme Prüfungsgenerierung
 - 🌍 Übersetzung in 20 Sprachen
 - 🔢 Mathe-Erkennung und Rechenweg-Analyse
@@ -78,7 +78,7 @@ System_Boundary(lsx_boundary, "LSX System") {
         Container(ocr_module, "OCR Module", "Tesseract", "Bild-Text-Extraktion")
         Container(module_gen, "Module Generator", "GPT-4", "Kurs-Strukturierung")
         Container(theory_gen, "Theory Generator", "GPT-4", "Theorieblätter")
-        Container(method_gen, "Method Generator", "GPT-4", "19 Content-LMs (A-C)")
+        Container(method_gen, "Method Generator", "GPT-4", "12 Content-LMs (A-C)")
         Container(quiz_gen, "Quiz Generator", "GPT-4", "Fragen-Generierung")
         Container(exam_gen, "Exam Generator", "GPT-4", "Prüfungssimulation")
         Container(whiteboard_ai, "Whiteboard AI", "Claude Vision", "Diagramm-Erkennung")
@@ -205,7 +205,7 @@ Container_Boundary(ki_pipeline, "KI-Pipeline") {
     Component_Boundary(generators, "Generation Layer") {
         Component(module_gen, "Module Generator", "GPT-4", "Kursstruktur")
         Component(theory_gen, "Theory Generator", "GPT-4", "Theorieblätter")
-        Component(method_gen, "Method Generator", "GPT-4", "19 Content-LMs (A-C)")
+        Component(method_gen, "Method Generator", "GPT-4", "12 Content-LMs (A-C)")
         Component(quiz_gen, "Quiz Generator", "GPT-4", "Fragen/Antworten")
         Component(exam_gen, "Exam Simulator", "GPT-4", "Vollständige Prüfungen")
     }
@@ -253,7 +253,7 @@ Rel(validator, optimizer, "Flagged Content")
 | 4 | **OCR Engine** | Bild → Text | Tesseract, Cloud Vision | Bilder | Text + Bounding Boxes |
 | 5 | **Module Generator** | Kursstruktur | GPT-4 | Parsed Content | Modul-Liste |
 | 6 | **Theory Generator** | Theorieblätter | GPT-4 | Modul-Kontext | Theory Sheet |
-| 7 | **Method Generator** | 19 Content-LMs befüllen (A-C) | GPT-4 | Theory + Lernziele | Method Data |
+| 7 | **Method Generator** | 12 Content-LMs befüllen (A-C) | GPT-4 | Theory + Lernziele | Method Data |
 | 8 | **Quiz Generator** | Fragen/Antworten | GPT-4 | Theory | Fragen-JSON |
 | 9 | **Exam Simulator** | Vollständige Prüfungen | GPT-4 | Course Data | Exam-JSON |
 | 10 | **Whiteboard AI** | Diagramm-Analyse | Claude Vision | Canvas/Bild | Interpretation + Feedback |
@@ -1804,7 +1804,7 @@ end note
 | 🧩 **Modular** | 13 spezialisierte Module für unterschiedliche Aufgaben |
 | 🔐 **Gesichert** | Rollen- und tokenbasierte Zugriffskontrolle |
 | 📚 **Umfassend** | Deckt alle Lernprozesse ab: Import → Generierung → Prüfung |
-| 🎯 **Flexibel** | Unterstützt alle 19 Content-Lernmethoden (A-C) |
+| 🎯 **Flexibel** | Unterstützt alle 12 Content-Lernmethoden (A-C) |
 | 🎓 **Automatisiert** | Vollständige Kurserstellung aus PDF/DOCX/PPTX |
 | 🖊️ **Vielseitig** | Whiteboard-Analyse, Mathe-Erkennung, Diagramme |
 | 🌍 **International** | LSX Global Publishing für 20 Sprachen |

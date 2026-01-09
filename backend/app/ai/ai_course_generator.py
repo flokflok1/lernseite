@@ -20,9 +20,9 @@ from typing import Dict, Any, Optional
 
 from app.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError
 from app.services.ai_job_service import AIJobService
-from app.repositories.course_repository import CourseRepository
-from app.repositories.chapter_repository import ChapterRepository
-from app.repositories.lesson_repository import LessonRepository
+from app.repositories.courses import CourseRepository
+from app.repositories.courses.chapters import ChapterRepository
+from app.repositories.courses.lessons import LessonRepository
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -492,7 +492,7 @@ def run_ai_course_generation(job_id: str, ai_provider: str = 'openai', ai_model:
     Returns:
         True if successful, False otherwise
     """
-    from app.repositories.ai_job_repository import AIJobRepository
+    from app.repositories.ai.jobs import AIJobRepository
 
     # Phase C3.4: Check if job has a model override
     job = AIJobRepository.find_by_id(job_id)

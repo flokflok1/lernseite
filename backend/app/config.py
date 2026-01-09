@@ -22,10 +22,8 @@ class Config:
     TESTING = False
 
     # Database Configuration (psycopg)
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        'DATABASE_URL',
-        'postgresql://username:password@localhost:5432/lernsystemx_dev'
-    )
+    # NOTE: No default value - must be configured via Setup Wizard or .env
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', None)
 
     # Database Connection Pool Configuration
     DB_POOL_MIN_SIZE = int(os.getenv('DB_POOL_MIN_SIZE', 2))
@@ -34,9 +32,10 @@ class Config:
     DB_POOL_MAX_IDLE = int(os.getenv('DB_POOL_MAX_IDLE', 300))
 
     # Redis Configuration
-    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
-    REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+    # NOTE: No default values - must be configured via Setup Wizard or .env
+    REDIS_URL = os.getenv('REDIS_URL', None)
+    REDIS_HOST = os.getenv('REDIS_HOST', None)
+    REDIS_PORT = int(os.getenv('REDIS_PORT', 0)) if os.getenv('REDIS_PORT') else 0
     REDIS_DB = int(os.getenv('REDIS_DB', 0))
 
     # Cache TTL Configuration (in seconds)

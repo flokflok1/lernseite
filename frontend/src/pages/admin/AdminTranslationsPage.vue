@@ -226,10 +226,77 @@ import http from '@/api/http'
 // i18n
 const { t } = useI18n()
 
-// Import locale files for sync
-import deMessages from '@/locales/de.json'
-import enMessages from '@/locales/en.json'
-import plMessages from '@/locales/pl.json'
+// Import locale files for sync (split by domain)
+import deCommon from '@/locales/de/common.json'
+import deAdmin from '@/locales/de/admin.json'
+import deWindowsAdmin from '@/locales/de/windows/admin.json'
+import deWindowsAiStudio from '@/locales/de/windows/aiStudio.json'
+import deWindowsCommon from '@/locales/de/windows/common.json'
+import deWindowsViewer from '@/locales/de/windows/viewer.json'
+import deWindowsLearningMethods from '@/locales/de/windows/learningMethods.json'
+import deCourses from '@/locales/de/courses.json'
+import deDashboard from '@/locales/de/dashboard.json'
+import deSetup from '@/locales/de/setup.json'
+import deLegal from '@/locales/de/legal.json'
+
+import enCommon from '@/locales/en/common.json'
+import enAdmin from '@/locales/en/admin.json'
+import enWindowsAdmin from '@/locales/en/windows/admin.json'
+import enWindowsAiStudio from '@/locales/en/windows/aiStudio.json'
+import enWindowsCommon from '@/locales/en/windows/common.json'
+import enWindowsViewer from '@/locales/en/windows/viewer.json'
+import enWindowsLearningMethods from '@/locales/en/windows/learningMethods.json'
+import enCourses from '@/locales/en/courses.json'
+import enDashboard from '@/locales/en/dashboard.json'
+import enSetup from '@/locales/en/setup.json'
+import enLegal from '@/locales/en/legal.json'
+
+import plCommon from '@/locales/pl/common.json'
+import plAdmin from '@/locales/pl/admin.json'
+import plWindowsAdmin from '@/locales/pl/windows/admin.json'
+import plWindowsAiStudio from '@/locales/pl/windows/aiStudio.json'
+import plWindowsCommon from '@/locales/pl/windows/common.json'
+import plWindowsViewer from '@/locales/pl/windows/viewer.json'
+import plWindowsLearningMethods from '@/locales/pl/windows/learningMethods.json'
+import plCourses from '@/locales/pl/courses.json'
+import plDashboard from '@/locales/pl/dashboard.json'
+import plSetup from '@/locales/pl/setup.json'
+import plLegal from '@/locales/pl/legal.json'
+
+// Merge window modules
+const deWindows = {
+  windows: {
+    ...deWindowsAdmin,
+    ...deWindowsAiStudio,
+    ...deWindowsCommon,
+    ...deWindowsViewer,
+    learningMethods: deWindowsLearningMethods
+  }
+}
+
+const enWindows = {
+  windows: {
+    ...enWindowsAdmin,
+    ...enWindowsAiStudio,
+    ...enWindowsCommon,
+    ...enWindowsViewer,
+    learningMethods: enWindowsLearningMethods
+  }
+}
+
+const plWindows = {
+  windows: {
+    ...plWindowsAdmin,
+    ...plWindowsAiStudio,
+    ...plWindowsCommon,
+    ...plWindowsViewer,
+    learningMethods: plWindowsLearningMethods
+  }
+}
+
+const deMessages = { ...deCommon, ...deAdmin, ...deWindows, ...deCourses, ...deDashboard, ...deSetup, ...deLegal }
+const enMessages = { ...enCommon, ...enAdmin, ...enWindows, ...enCourses, ...enDashboard, ...enSetup, ...enLegal }
+const plMessages = { ...plCommon, ...plAdmin, ...plWindows, ...plCourses, ...plDashboard, ...plSetup, ...plLegal }
 
 // Types
 interface Language {

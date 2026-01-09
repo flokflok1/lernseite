@@ -4,41 +4,48 @@
       <!-- Progress Stepper -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
-          <div
-            v-for="(step, index) in steps"
-            :key="step.id"
-            class="flex-1"
-          >
-            <div class="flex items-center">
+          <template v-for="(step, index) in steps" :key="step.id">
+            <!-- Step Circle and Label -->
+            <div class="flex flex-col items-center" style="flex: 0 0 11%;">
+              <!-- Circle -->
               <div
                 :class="[
-                  'w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm',
+                  'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 mb-1.5',
                   currentStepIndex >= index
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/50'
+                    : currentStepIndex === index - 1
+                    ? 'bg-[#3a4570] text-gray-300'
                     : 'bg-[#2a3350] text-gray-500'
                 ]"
               >
-                {{ index + 1 }}
+                <span v-if="currentStepIndex > index">✓</span>
+                <span v-else>{{ index + 1 }}</span>
               </div>
-              <div
-                v-if="index < steps.length - 1"
-                :class="[
-                  'flex-1 h-1 mx-2',
-                  currentStepIndex > index ? 'bg-primary-600' : 'bg-[#2a3350]'
-                ]"
-              />
-            </div>
-            <div class="mt-2">
+
+              <!-- Label -->
               <p
                 :class="[
-                  'text-sm font-medium',
-                  currentStepIndex >= index ? 'text-white' : 'text-gray-400'
+                  'text-[9px] font-medium leading-tight text-center truncate w-full',
+                  currentStepIndex >= index
+                    ? 'text-white font-semibold'
+                    : currentStepIndex === index - 1
+                    ? 'text-gray-300'
+                    : 'text-gray-400'
                 ]"
+                :title="$t(step.titleKey)"
               >
-                {{ step.title }}
+                {{ $t(step.titleKey) }}
               </p>
             </div>
-          </div>
+
+            <!-- Connector Line -->
+            <div
+              v-if="index < steps.length - 1"
+              class="h-[2px] transition-all duration-300"
+              style="flex: 0 0 1.5%;"
+              :class="currentStepIndex > index ? 'bg-primary-600' : 'bg-[#2a3350]'"
+            />
+          </template>
         </div>
       </div>
 
@@ -57,6 +64,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import SetupLayout from '@/layouts/SetupLayout.vue'
 import SetupEnvironmentStep from './steps/SetupEnvironmentStep.vue'
 import SetupSystemCheckStep from './steps/SetupSystemCheckStep.vue'
@@ -68,22 +76,23 @@ import SetupSeedStep from './steps/SetupSeedStep.vue'
 import SetupFinishStep from './steps/SetupFinishStep.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 
 interface Step {
   id: string
-  title: string
+  titleKey: string
   component: any
 }
 
 const steps: Step[] = [
-  { id: 'environment', title: 'Umgebung', component: SetupEnvironmentStep },
-  { id: 'system', title: 'Konfiguration', component: SetupSystemCheckStep },
-  { id: 'database', title: 'Datenbank', component: SetupDatabaseStep },
-  { id: 'admin', title: 'Admin', component: SetupAdminStep },
-  { id: 'organisation', title: 'Organisation', component: SetupOrganisationStep },
-  { id: 'ai', title: 'KI-Config', component: SetupAIConfigStep },
-  { id: 'seed', title: 'Daten', component: SetupSeedStep },
-  { id: 'finish', title: 'Abschluss', component: SetupFinishStep },
+  { id: 'environment', titleKey: 'setup.steps.environment', component: SetupEnvironmentStep },
+  { id: 'system', titleKey: 'setup.steps.system', component: SetupSystemCheckStep },
+  { id: 'database', titleKey: 'setup.steps.database', component: SetupDatabaseStep },
+  { id: 'admin', titleKey: 'setup.steps.admin', component: SetupAdminStep },
+  { id: 'organisation', titleKey: 'setup.steps.organisation', component: SetupOrganisationStep },
+  { id: 'ai', titleKey: 'setup.steps.ai', component: SetupAIConfigStep },
+  { id: 'seed', titleKey: 'setup.steps.seed', component: SetupSeedStep },
+  { id: 'finish', titleKey: 'setup.steps.finish', component: SetupFinishStep },
 ]
 
 const currentStepIndex = ref(0)

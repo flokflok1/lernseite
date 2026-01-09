@@ -46,7 +46,7 @@ note right of free
 end note
 
 note right of premium
-  Alle 19 Content-Lernmethoden (A-C)
+  Alle 12 Content-Lernmethoden (A-C)
   KI-Zugriff
   Private Gruppen
 end note
@@ -129,7 +129,7 @@ title Premium User - Feature-Set
 actor "Premium User" as premium
 
 package "Premium Features" {
-  component "19 Content-Lernmethoden" as methods {
+  component "12 Content-Lernmethoden" as methods {
     [Gruppe A: Erklärend (LM00-03, LM06)]
     [Gruppe B: Praxis (LM08, LM12-15, LM17)]
     [Gruppe C: Prüfung (LM18–LM25)]
@@ -169,7 +169,7 @@ premium --> liveroom
 premium --> dashboard
 
 note right of methods
-  Vollzugriff auf alle 19 Content-LMs
+  Vollzugriff auf alle 12 Content-LMs
   (Gruppen A–C)
 end note
 
@@ -183,7 +183,7 @@ end note
 
 | Kategorie | Details |
 |-----------|---------|
-| ✅ **19 Content-Lernmethoden** | Gruppen A–C (Vollzugriff) |
+| ✅ **12 Content-Lernmethoden** | Gruppen A–C (Vollzugriff) |
 | 🤖 **KI-Zugriff** | Vollständig, Token-basiert |
 | 👥 **Private Gruppen** | Erstellen & Verwalten |
 | 🎥 **LiveRoom Basic** | 4 Teilnehmer, Whiteboard, Chat |
@@ -253,7 +253,7 @@ end note
 
 | Kategorie | Details |
 |-----------|---------|
-| 🎨 **Kurserstellung** | Voller Zugriff auf alle 19 Content-Lernmethoden (A-C) |
+| 🎨 **Kurserstellung** | Voller Zugriff auf alle 12 Content-Lernmethoden (A-C) |
 | 🤖 **KI-Tools** | KI-Kursgenerator, Modulgenerator, Methodengenerator |
 | 🌍 **Global Publishing** | 20 Sprachen, kostenlos |
 | 💰 **Revenue Share** | 75% Creator / 25% Plattform |
@@ -298,7 +298,7 @@ package "Prüfungen" {
 
 package "Content Tools" {
   [Theorieblätter]
-  [19 Content-Lernmethoden (A-C)]
+  [12 Content-Lernmethoden (A-C)]
   [KI-Unterstützung]
 }
 

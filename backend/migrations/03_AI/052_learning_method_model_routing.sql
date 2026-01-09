@@ -1,25 +1,24 @@
 -- ============================================================================
--- Migration: 059_learning_method_model_routing.sql
--- Description: Learning Method to AI Model Routing System
+-- Migration: 052_learning_method_model_routing.sql
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-12-04
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
 -- CREATE: learning_method_model_assignments table
 -- Mapping 19 Content-Lernmethoden to AI Models
 -- Supports hierarchical overrides: System -> Course -> Chapter -> LM
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS learning_method_model_assignments (
+CREATE TABLE IF NOT EXISTS learning_methods.learning_method_model_assignments (
     assignment_id SERIAL PRIMARY KEY,
 
     -- Learning Method ID (0-25 Content-LMs, 0-31 für Abwärtskompatibilität)
     learning_method_id INTEGER NOT NULL,
 
     -- AI Model reference
-    model_id INTEGER NOT NULL REFERENCES ai_models(model_id) ON DELETE CASCADE,
+    model_id INTEGER NOT NULL REFERENCES ai_pipeline.ai_models(model_id) ON DELETE CASCADE,
 
     -- Scope: 'system' (global), 'course', or 'chapter'
     scope VARCHAR(20) NOT NULL DEFAULT 'system',
@@ -36,7 +35,7 @@ CREATE TABLE IF NOT EXISTS learning_method_model_assignments (
     -- Metadata
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    created_by UUID NULL REFERENCES users(user_id),
+    created_by UUID NULL REFERENCES core.users(user_id),
 
     -- Constraints
     CONSTRAINT chk_learning_method_id CHECK (learning_method_id >= 0 AND learning_method_id <= 32),
@@ -49,39 +48,39 @@ CREATE TABLE IF NOT EXISTS learning_method_model_assignments (
 
 -- Create unique constraint for system-level assignments (one per LM)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_lm_model_system_unique
-ON learning_method_model_assignments(learning_method_id)
+ON learning_methods.learning_method_model_assignments(learning_method_id)
 WHERE scope = 'system' AND active = TRUE;
 
 -- Create unique constraint for course-level assignments (one per LM per course)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_lm_model_course_unique
-ON learning_method_model_assignments(learning_method_id, scope_reference_id)
+ON learning_methods.learning_method_model_assignments(learning_method_id, scope_reference_id)
 WHERE scope = 'course' AND active = TRUE;
 
 -- Create unique constraint for chapter-level assignments (one per LM per chapter)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_lm_model_chapter_unique
-ON learning_method_model_assignments(learning_method_id, scope_reference_id)
+ON learning_methods.learning_method_model_assignments(learning_method_id, scope_reference_id)
 WHERE scope = 'chapter' AND active = TRUE;
 
 -- General indexes for performance
-CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_lm_id ON learning_method_model_assignments(learning_method_id);
-CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_model_id ON learning_method_model_assignments(model_id);
-CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_scope ON learning_method_model_assignments(scope);
-CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_active ON learning_method_model_assignments(active) WHERE active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_lm_id ON learning_methods.learning_method_model_assignments(learning_method_id);
+CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_model_id ON learning_methods.learning_method_model_assignments(model_id);
+CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_scope ON learning_methods.learning_method_model_assignments(scope);
+CREATE INDEX IF NOT EXISTS idx_lm_model_assignments_active ON learning_methods.learning_method_model_assignments(active) WHERE active = TRUE;
 
 -- Comments
-COMMENT ON TABLE learning_method_model_assignments IS 'Maps 19 Content-Lernmethoden to AI Models with hierarchical scope support';
-COMMENT ON COLUMN learning_method_model_assignments.learning_method_id IS 'Content-LM ID (0-25), 0-31 für Abwärtskompatibilität';
-COMMENT ON COLUMN learning_method_model_assignments.model_id IS 'Reference to ai_models table';
-COMMENT ON COLUMN learning_method_model_assignments.scope IS 'Assignment scope: system (global), course, or chapter';
-COMMENT ON COLUMN learning_method_model_assignments.scope_reference_id IS 'Course ID or Chapter ID depending on scope';
-COMMENT ON COLUMN learning_method_model_assignments.priority IS 'Priority for resolution (lower = higher priority)';
+COMMENT ON TABLE learning_methods.learning_method_model_assignments IS 'Maps 19 Content-Lernmethoden to AI Models with hierarchical scope support';
+COMMENT ON COLUMN learning_methods.learning_method_model_assignments.learning_method_id IS 'Content-LM ID (0-25), 0-31 für Abwärtskompatibilität';
+COMMENT ON COLUMN learning_methods.learning_method_model_assignments.model_id IS 'Reference to ai_models table';
+COMMENT ON COLUMN learning_methods.learning_method_model_assignments.scope IS 'Assignment scope: system (global), course, or chapter';
+COMMENT ON COLUMN learning_methods.learning_method_model_assignments.scope_reference_id IS 'Course ID or Chapter ID depending on scope';
+COMMENT ON COLUMN learning_methods.learning_method_model_assignments.priority IS 'Priority for resolution (lower = higher priority)';
 
 -- ============================================================================
 -- CREATE: learning_method_model_requirements table
 -- Tracks which LMs require a model assignment (no fallback allowed)
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS learning_method_model_requirements (
+CREATE TABLE IF NOT EXISTS learning_methods.learning_method_model_requirements (
     requirement_id SERIAL PRIMARY KEY,
 
     -- Learning Method ID
@@ -107,16 +106,16 @@ CREATE TABLE IF NOT EXISTS learning_method_model_requirements (
     CONSTRAINT chk_lm_req_id CHECK (learning_method_id >= 0 AND learning_method_id <= 32)
 );
 
-COMMENT ON TABLE learning_method_model_requirements IS 'Defines model requirements for each Learning Method';
-COMMENT ON COLUMN learning_method_model_requirements.required IS 'If TRUE, generation will fail without explicit model assignment';
-COMMENT ON COLUMN learning_method_model_requirements.recommended_categories IS 'Model categories suitable for this LM (chat, reasoning, etc.)';
+COMMENT ON TABLE learning_methods.learning_method_model_requirements IS 'Defines model requirements for each Learning Method';
+COMMENT ON COLUMN learning_methods.learning_method_model_requirements.required IS 'If TRUE, generation will fail without explicit model assignment';
+COMMENT ON COLUMN learning_methods.learning_method_model_requirements.recommended_categories IS 'Model categories suitable for this LM (chat, reasoning, etc.)';
 
 -- ============================================================================
 -- INSERT: Default requirements for all Learning Methods (0-32)
 -- Based on ki_usage: intensive requires model, optional doesn't
 -- ============================================================================
 
-INSERT INTO learning_method_model_requirements (learning_method_id, required, recommended_categories, requires_vision, description)
+INSERT INTO learning_methods.learning_method_model_requirements (learning_method_id, required, recommended_categories, requires_vision, description)
 VALUES
     -- Group A - Explanatory (LM00-LM07)
     (0, TRUE, ARRAY['chat', 'reasoning'], FALSE, 'Deep Explanation - KI-intensiv'),
@@ -190,7 +189,7 @@ DECLARE
 BEGIN
     -- Check if model is required
     SELECT required INTO v_is_required
-    FROM learning_method_model_requirements
+    FROM learning_methods.learning_method_model_requirements
     WHERE learning_method_id = p_learning_method_id;
 
     -- Default to required if not in requirements table
@@ -200,9 +199,9 @@ BEGIN
     IF p_chapter_id IS NOT NULL THEN
         SELECT a.model_id, m.model_name, p.name, 'chapter'
         INTO v_model_id, v_model_name, v_provider_name, v_scope
-        FROM learning_method_model_assignments a
-        JOIN ai_models m ON a.model_id = m.model_id
-        LEFT JOIN ai_providers p ON m.provider_id = p.provider_id
+        FROM learning_methods.learning_method_model_assignments a
+        JOIN ai_pipeline.ai_models m ON a.model_id = m.model_id
+        LEFT JOIN ai_pipeline.ai_providers p ON m.provider_id = p.provider_id
         WHERE a.learning_method_id = p_learning_method_id
         AND a.scope = 'chapter'
         AND a.scope_reference_id = p_chapter_id
@@ -220,9 +219,9 @@ BEGIN
     IF p_course_id IS NOT NULL THEN
         SELECT a.model_id, m.model_name, p.name, 'course'
         INTO v_model_id, v_model_name, v_provider_name, v_scope
-        FROM learning_method_model_assignments a
-        JOIN ai_models m ON a.model_id = m.model_id
-        LEFT JOIN ai_providers p ON m.provider_id = p.provider_id
+        FROM learning_methods.learning_method_model_assignments a
+        JOIN ai_pipeline.ai_models m ON a.model_id = m.model_id
+        LEFT JOIN ai_pipeline.ai_providers p ON m.provider_id = p.provider_id
         WHERE a.learning_method_id = p_learning_method_id
         AND a.scope = 'course'
         AND a.scope_reference_id = p_course_id
@@ -239,9 +238,9 @@ BEGIN
     -- Try system-level (global default)
     SELECT a.model_id, m.model_name, p.name, 'system'
     INTO v_model_id, v_model_name, v_provider_name, v_scope
-    FROM learning_method_model_assignments a
-    JOIN ai_models m ON a.model_id = m.model_id
-    LEFT JOIN ai_providers p ON m.provider_id = p.provider_id
+    FROM learning_methods.learning_method_model_assignments a
+    JOIN ai_pipeline.ai_models m ON a.model_id = m.model_id
+    LEFT JOIN ai_pipeline.ai_providers p ON m.provider_id = p.provider_id
     WHERE a.learning_method_id = p_learning_method_id
     AND a.scope = 'system'
     AND a.active = TRUE
@@ -283,10 +282,10 @@ SELECT
     p.display_name AS provider_display_name
 FROM
     (SELECT generate_series(0, 32) AS learning_method_id) lm
-LEFT JOIN learning_method_model_requirements lmr ON lm.learning_method_id = lmr.learning_method_id
-LEFT JOIN learning_method_model_assignments a ON lm.learning_method_id = a.learning_method_id AND a.scope = 'system' AND a.active = TRUE
-LEFT JOIN ai_models m ON a.model_id = m.model_id
-LEFT JOIN ai_providers p ON m.provider_id = p.provider_id
+LEFT JOIN learning_methods.learning_method_model_requirements lmr ON lm.learning_method_id = lmr.learning_method_id
+LEFT JOIN learning_methods.learning_method_model_assignments a ON lm.learning_method_id = a.learning_method_id AND a.scope = 'system' AND a.active = TRUE
+LEFT JOIN ai_pipeline.ai_models m ON a.model_id = m.model_id
+LEFT JOIN ai_pipeline.ai_providers p ON m.provider_id = p.provider_id
 ORDER BY lm.learning_method_id;
 
 COMMENT ON VIEW v_learning_method_model_overview IS 'Admin overview of Learning Method model assignments';

@@ -21,9 +21,9 @@ ISO 9001:2015 compliant - Service layer
 from typing import Dict, Optional, List, Any
 from flask import current_app
 
-from app.repositories.course_ai_settings_repository import CourseAiSettingsRepository
-from app.repositories.ai_model_profiles_repository import AiModelProfilesRepository
-from app.repositories.course_repository import CourseRepository
+from app.repositories.courses.ai_settings import CourseAiSettingsRepository
+from app.repositories.ai.profiles import AiModelProfilesRepository
+from app.repositories.courses import CourseRepository
 from app.services.cache_service import CacheService
 
 

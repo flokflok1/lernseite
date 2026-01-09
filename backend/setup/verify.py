@@ -28,20 +28,23 @@ class SetupVerification:
     Validates that all setup steps completed successfully.
     """
 
+    # Tables with schema prefixes (schema.table format)
     REQUIRED_TABLES = [
-        'users',
-        'roles',
-        'organizations',
-        'courses',
-        'modules',
-        'learning_method_types',
-        'token_wallets',
-        'token_transactions',
-        'subscriptions',
-        'audit_logs',
-        'migration_history',
-        'course_categories',
-        'recovery_codes'
+        ('core', 'users'),
+        ('core', 'roles'),
+        ('core', 'permissions'),
+        ('organisations', 'organisations'),
+        ('courses', 'courses'),
+        ('courses', 'chapters'),
+        ('courses', 'lessons'),
+        ('courses', 'course_categories'),
+        ('learning_methods', 'learning_method_types'),
+        ('learning_methods', 'learning_method_instances'),
+        ('billing_storage', 'token_wallets'),
+        ('billing_storage', 'subscriptions'),
+        ('core', 'audit_logs'),
+        ('core', 'migration_history'),
+        ('support_systems', 'system_features')
     ]
 
     REQUIRED_DIRECTORIES = [
@@ -144,27 +147,32 @@ class SetupVerification:
 
     @classmethod
     def _check_database_tables(cls) -> Dict:
-        """Check all required tables exist"""
+        """Check all required tables exist in their respective schemas"""
         try:
+            # Get all tables from all schemas
             existing_tables = fetch_all(
                 """
-                SELECT table_name
+                SELECT table_schema, table_name
                 FROM information_schema.tables
-                WHERE table_schema = 'public'
+                WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
                 AND table_type = 'BASE TABLE'
                 """
             )
 
-            existing_table_names = {row['table_name'] for row in existing_tables}
-            missing_tables = set(cls.REQUIRED_TABLES) - existing_table_names
+            existing_table_set = {(row['table_schema'], row['table_name']) for row in existing_tables}
+            missing_tables = []
+
+            for schema, table in cls.REQUIRED_TABLES:
+                if (schema, table) not in existing_table_set:
+                    missing_tables.append(f'{schema}.{table}')
 
             if missing_tables:
                 return {
                     'passed': False,
                     'message': f'Missing tables: {", ".join(missing_tables)}',
                     'details': {
-                        'missing': list(missing_tables),
-                        'existing': len(existing_table_names),
+                        'missing': missing_tables,
+                        'existing': len(existing_table_set),
                         'required': len(cls.REQUIRED_TABLES)
                     }
                 }
@@ -173,8 +181,8 @@ class SetupVerification:
                 'passed': True,
                 'message': f'All {len(cls.REQUIRED_TABLES)} required tables exist',
                 'details': {
-                    'table_count': len(existing_table_names),
-                    'tables': list(existing_table_names)
+                    'table_count': len(existing_table_set),
+                    'schemas': list(set(row['table_schema'] for row in existing_tables if row['table_schema'] not in ('pg_catalog', 'information_schema')))
                 }
             }
 
@@ -186,13 +194,13 @@ class SetupVerification:
 
     @staticmethod
     def _check_database_indexes() -> Dict:
-        """Check database indexes exist"""
+        """Check database indexes exist across all schemas"""
         try:
             indexes = fetch_all(
                 """
                 SELECT schemaname, tablename, indexname
                 FROM pg_indexes
-                WHERE schemaname = 'public'
+                WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
                 """
             )
 
@@ -217,10 +225,13 @@ class SetupVerification:
 
     @staticmethod
     def _check_learning_methods() -> Dict:
-        """Check learning methods are seeded"""
+        """Check learning methods are seeded (12 Content-LMs expected)"""
         try:
-            count = fetch_one("SELECT COUNT(*) FROM learning_method_types")
+            count = fetch_one("SELECT COUNT(*) FROM learning_methods.learning_method_types")
             method_count = count['count'] if count else 0
+
+            # We expect exactly 12 Content-Lernmethoden (LM00-LM11)
+            EXPECTED_LM_COUNT = 12
 
             if method_count == 0:
                 return {
@@ -228,31 +239,31 @@ class SetupVerification:
                     'message': 'No learning methods found in database'
                 }
 
-            if method_count < 21:
+            if method_count < EXPECTED_LM_COUNT:
                 return {
                     'passed': True,
-                    'message': f'{method_count} learning methods found (expected 21)',
+                    'message': f'{method_count} learning methods found (expected {EXPECTED_LM_COUNT})',
                     'warnings': ['Not all learning methods may be seeded'],
-                    'details': {'count': method_count, 'expected': 21}
+                    'details': {'count': method_count, 'expected': EXPECTED_LM_COUNT}
                 }
 
-            # Check tier distribution
-            tiers = fetch_all(
+            # Check group distribution (A, B, C)
+            groups = fetch_all(
                 """
-                SELECT tier, COUNT(*) as count
-                FROM learning_method_types
-                GROUP BY tier
+                SELECT group_code, COUNT(*) as count
+                FROM learning_methods.learning_method_types
+                GROUP BY group_code
                 """
             )
 
-            tier_counts = {row['tier']: row['count'] for row in tiers}
+            group_counts = {row['group_code']: row['count'] for row in groups}
 
             return {
                 'passed': True,
                 'message': f'{method_count} learning methods seeded successfully',
                 'details': {
                     'total': method_count,
-                    'by_tier': tier_counts
+                    'by_group': group_counts
                 }
             }
 
@@ -266,7 +277,7 @@ class SetupVerification:
     def _check_roles() -> Dict:
         """Check user roles are seeded"""
         try:
-            count = fetch_one("SELECT COUNT(*) FROM roles")
+            count = fetch_one("SELECT COUNT(*) FROM core.roles")
             role_count = count['count'] if count else 0
 
             if role_count == 0:
@@ -277,7 +288,7 @@ class SetupVerification:
 
             # Check critical roles exist
             critical_roles = ['free', 'premium', 'admin']
-            existing_roles = fetch_all("SELECT role_name FROM roles WHERE role_name = ANY(%s)", (critical_roles,))
+            existing_roles = fetch_all("SELECT role_name FROM core.roles WHERE role_name = ANY(%s)", (critical_roles,))
             existing_role_names = {row['role_name'] for row in existing_roles}
 
             missing_critical = set(critical_roles) - existing_role_names
@@ -305,7 +316,7 @@ class SetupVerification:
     def _check_categories() -> Dict:
         """Check categories are seeded"""
         try:
-            count = fetch_one("SELECT COUNT(*) FROM course_categories")
+            count = fetch_one("SELECT COUNT(*) FROM courses.course_categories")
             category_count = count['count'] if count else 0
 
             if category_count == 0:
@@ -335,8 +346,8 @@ class SetupVerification:
             admin = fetch_one(
                 """
                 SELECT u.user_id, u.email, u.firstname, u.lastname
-                FROM users u
-                JOIN roles r ON u.role_id = r.role_id
+                FROM core.users u
+                JOIN core.roles r ON u.role_id = r.role_id
                 WHERE r.role_name = %s
                 """,
                 ('admin',)
@@ -369,7 +380,7 @@ class SetupVerification:
         """Check LSX Academy organisation exists"""
         try:
             org = fetch_one(
-                "SELECT organization_id, name, type, domain FROM organizations WHERE type IN ('system', 'academy')",
+                "SELECT organization_id, name, type, domain FROM organisations.organisations WHERE type IN ('system', 'academy')",
                 ()
             )
 
@@ -611,12 +622,13 @@ class SetupVerification:
 
             # Get table counts
             table_counts = {}
-            for table in cls.REQUIRED_TABLES:
+            for schema, table in cls.REQUIRED_TABLES:
+                full_name = f"{schema}.{table}"
                 try:
-                    count = fetch_one(f"SELECT COUNT(*) FROM {table}")
-                    table_counts[table] = count['count'] if count else 0
+                    count = fetch_one(f"SELECT COUNT(*) FROM {full_name}")
+                    table_counts[full_name] = count['count'] if count else 0
                 except:
-                    table_counts[table] = 'Error'
+                    table_counts[full_name] = 'Error'
 
             return {
                 'python_version': sys.version,

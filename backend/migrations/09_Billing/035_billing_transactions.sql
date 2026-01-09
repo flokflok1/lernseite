@@ -1,19 +1,15 @@
 -- ============================================================================
 -- Migration: 035_billing_transactions.sql
--- Description: Token wallets and payment transactions
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: token_wallets
--- Description: Token balances for users and organizations
--- ============================================================================
-CREATE TABLE IF NOT EXISTS token_wallets (
+CREATE TABLE IF NOT EXISTS billing_storage.token_wallets (
     wallet_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
+    organization_id UUID REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE,
     balance INTEGER DEFAULT 0,
     total_purchased INTEGER DEFAULT 0,
     total_granted INTEGER DEFAULT 0,
@@ -30,20 +26,20 @@ CREATE TABLE IF NOT EXISTS token_wallets (
     UNIQUE (organization_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_token_wallets_user ON token_wallets(user_id);
-CREATE INDEX IF NOT EXISTS idx_token_wallets_org ON token_wallets(organization_id);
+CREATE INDEX IF NOT EXISTS idx_token_wallets_user ON billing_storage.token_wallets(user_id);
+CREATE INDEX IF NOT EXISTS idx_token_wallets_org ON billing_storage.token_wallets(organization_id);
 
-COMMENT ON TABLE token_wallets IS 'Token balance management for AI usage';
+COMMENT ON TABLE billing_storage.token_wallets IS 'Token balance management for AI usage';
 
 -- ============================================================================
 -- TABLE: token_transactions
 -- Description: Token transaction history
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS token_transactions (
+CREATE TABLE IF NOT EXISTS billing_storage.token_transactions (
     transaction_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    wallet_id UUID REFERENCES token_wallets(wallet_id) ON DELETE CASCADE,
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    wallet_id UUID REFERENCES billing_storage.token_wallets(wallet_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
+    organization_id UUID REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE,
     transaction_type VARCHAR(50) NOT NULL,
     amount INTEGER NOT NULL,
     balance_after INTEGER NOT NULL,
@@ -59,23 +55,23 @@ CREATE TABLE IF NOT EXISTS token_transactions (
     )
 );
 
-CREATE INDEX IF NOT EXISTS idx_token_transactions_wallet ON token_transactions(wallet_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_token_transactions_user ON token_transactions(user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_token_transactions_org ON token_transactions(organization_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_token_transactions_type ON token_transactions(transaction_type);
-CREATE INDEX IF NOT EXISTS idx_token_transactions_reference ON token_transactions(reference_type, reference_id);
+CREATE INDEX IF NOT EXISTS idx_token_transactions_wallet ON billing_storage.token_transactions(wallet_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_token_transactions_user ON billing_storage.token_transactions(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_token_transactions_org ON billing_storage.token_transactions(organization_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_token_transactions_type ON billing_storage.token_transactions(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_token_transactions_reference ON billing_storage.token_transactions(reference_type, reference_id);
 
-COMMENT ON TABLE token_transactions IS 'Token transaction history for AI usage tracking';
+COMMENT ON TABLE billing_storage.token_transactions IS 'Token transaction history for AI usage tracking';
 
 -- ============================================================================
 -- TABLE: payment_history
 -- Description: Payment transaction records
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS payment_history (
+CREATE TABLE IF NOT EXISTS billing_storage.payment_history (
     payment_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    subscription_id UUID REFERENCES subscriptions(subscription_id) ON DELETE SET NULL,
-    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    subscription_id UUID REFERENCES billing_storage.subscriptions(subscription_id) ON DELETE SET NULL,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
+    organization_id UUID REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE,
     amount DECIMAL(10,2) NOT NULL,
     currency VARCHAR(3) DEFAULT 'EUR',
     status VARCHAR(50) NOT NULL,
@@ -96,18 +92,19 @@ CREATE TABLE IF NOT EXISTS payment_history (
     )
 );
 
-CREATE INDEX IF NOT EXISTS idx_payment_history_subscription ON payment_history(subscription_id);
-CREATE INDEX IF NOT EXISTS idx_payment_history_user ON payment_history(user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_payment_history_org ON payment_history(organization_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_payment_history_status ON payment_history(status);
-CREATE INDEX IF NOT EXISTS idx_payment_history_stripe_intent ON payment_history(stripe_payment_intent_id);
+CREATE INDEX IF NOT EXISTS idx_payment_history_subscription ON billing_storage.payment_history(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_payment_history_user ON billing_storage.payment_history(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_payment_history_org ON billing_storage.payment_history(organization_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_payment_history_status ON billing_storage.payment_history(status);
+CREATE INDEX IF NOT EXISTS idx_payment_history_stripe_intent ON billing_storage.payment_history(stripe_payment_intent_id);
 
-COMMENT ON TABLE payment_history IS 'Payment transaction history';
+COMMENT ON TABLE billing_storage.payment_history IS 'Payment transaction history';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_token_wallets_updated_at BEFORE UPDATE ON token_wallets
+DROP TRIGGER IF EXISTS update_token_wallets_updated_at ON billing_storage.token_wallets;
+CREATE TRIGGER update_token_wallets_updated_at BEFORE UPDATE ON billing_storage.token_wallets
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

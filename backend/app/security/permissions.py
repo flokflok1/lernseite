@@ -385,7 +385,7 @@ def require_org_member(fn):
     """
     Decorator to check if user is member of an organisation.
 
-    Checks if user has organisation_id set and matches the org_id parameter.
+    Checks if user has organization_id set and matches the org_id parameter.
 
     Usage:
         @app.route('/organisations/<org_id>/courses')
@@ -397,14 +397,14 @@ def require_org_member(fn):
     @token_required
     def wrapper(*args, **kwargs):
         current_user = g.current_user
-        user_org_id = current_user.get('organisation_id')
+        user_org_id = current_user.get('organization_id')
 
         # System admins can access any org
         if current_user.get('role') in ['admin', 'superadmin']:
             return fn(*args, **kwargs)
 
         # Get org_id from URL parameters
-        org_id = kwargs.get('org_id') or kwargs.get('organisation_id')
+        org_id = kwargs.get('org_id') or kwargs.get('organization_id')
 
         if not org_id:
             return jsonify({

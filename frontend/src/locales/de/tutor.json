@@ -1,0 +1,11 @@
+{
+  "tutor": {
+    "avatar": {
+      "loading": "Lade Lehrer...",
+      "error_loading_scene": "Fehler beim Laden der 3D-Szene",
+      "error_no_vrm": "Keine VRM-Daten in der Datei gefunden",
+      "error_load_vrm": "VRM-Avatar konnte nicht geladen werden",
+      "error_no_glb": "Kein GLB-Avatar verfügbar"
+    }
+  }
+}

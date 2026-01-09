@@ -207,9 +207,9 @@ import {
 } from '@/api/courses.api'
 import { getCategoryTree, type Category, type CategoryTreeNode } from '@/api/categories.api'
 import { useAuthStore } from '@/store/auth.store'
-import Button from '@/components/ui/Button.vue'
-import CourseCard from '@/components/courses/CourseCard.vue'
-import EnrolledCourseCard from '@/components/courses/EnrolledCourseCard.vue'
+import Button from '@/components/shared/ui/Button.vue'
+import CourseCard from '@/components/user/courses/CourseCard.vue'
+import EnrolledCourseCard from '@/components/user/courses/EnrolledCourseCard.vue'
 
 // ============================================================================
 // State

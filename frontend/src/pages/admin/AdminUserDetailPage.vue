@@ -6,9 +6,9 @@
         <button
           @click="router.back()"
           class="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-          title="Zurück"
+          :title="$t('admin.userDetail.back')"
         >
-          ← Zurück
+          ← {{ $t('admin.userDetail.back') }}
         </button>
         <div>
           <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">
@@ -23,20 +23,20 @@
           @click="openBanModal"
           class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
         >
-          Benutzer sperren
+          {{ $t('admin.userDetail.banUser') }}
         </button>
         <button
           v-else
           @click="openUnbanModal"
           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
-          Sperre aufheben
+          {{ $t('admin.userDetail.unbanUser') }}
         </button>
         <button
           @click="openGrantTokensModal"
           class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
         >
-          Tokens gewähren
+          {{ $t('admin.userDetail.grantTokens') }}
         </button>
       </div>
     </div>
@@ -57,14 +57,14 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Basic Info -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Basisinformationen</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.userDetail.basicInfo') }}</h3>
           <dl class="space-y-3">
             <div>
-              <dt class="text-sm font-medium text-gray-500">Benutzer-ID</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.userId') }}</dt>
               <dd class="text-sm text-gray-900">{{ user.user_id }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Rolle</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.role') }}</dt>
               <dd class="text-sm">
                 <span class="px-2 py-1 text-xs font-medium rounded-full" :class="getRoleBadgeClass(user.role)">
                   {{ user.role }}
@@ -72,51 +72,51 @@
               </dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Status</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.status') }}</dt>
               <dd class="text-sm">
                 <span :class="user.is_active ? 'text-green-600' : 'text-red-600'">
-                  {{ user.is_active ? '✓ Aktiv' : '✗ Inaktiv' }}
+                  {{ user.is_active ? '✓ ' + $t('admin.userDetail.active') : '✗ ' + $t('admin.userDetail.inactive') }}
                 </span>
               </dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Erstellt am</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.createdAt') }}</dt>
               <dd class="text-sm text-gray-900">{{ formatDate(user.created_at) }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">Letzter Login</dt>
-              <dd class="text-sm text-gray-900">{{ user.last_login ? formatDate(user.last_login) : 'Nie' }}</dd>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.lastLogin') }}</dt>
+              <dd class="text-sm text-gray-900">{{ user.last_login ? formatDate(user.last_login) : $t('admin.userDetail.never') }}</dd>
             </div>
           </dl>
         </div>
 
         <!-- Token Info -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Token-Guthaben</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.userDetail.tokenBalance') }}</h3>
           <div class="text-center py-4">
             <div class="text-4xl font-bold text-purple-600">
               {{ user.token_balance || 0 }}
             </div>
-            <div class="text-sm text-gray-500 mt-1">Verfügbare Tokens</div>
+            <div class="text-sm text-gray-500 mt-1">{{ $t('admin.userDetail.availableTokens') }}</div>
           </div>
           <button
             @click="openGrantTokensModal"
             class="w-full mt-4 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200"
           >
-            Tokens hinzufügen
+            {{ $t('admin.userDetail.addTokens') }}
           </button>
         </div>
 
         <!-- Organisation Info -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Organisation</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.userDetail.organisation') }}</h3>
           <dl class="space-y-3">
             <div>
-              <dt class="text-sm font-medium text-gray-500">Name</dt>
-              <dd class="text-sm text-gray-900">{{ user.organisation_name || 'Keine Organisation' }}</dd>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.name') }}</dt>
+              <dd class="text-sm text-gray-900">{{ user.organisation_name || $t('admin.userDetail.noOrganisation') }}</dd>
             </div>
             <div v-if="user.organisation_id">
-              <dt class="text-sm font-medium text-gray-500">Organisations-ID</dt>
+              <dt class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.organisationId') }}</dt>
               <dd class="text-sm text-gray-900">{{ user.organisation_id }}</dd>
             </div>
           </dl>
@@ -126,19 +126,19 @@
       <!-- Statistics Row -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">Kurse erstellt</div>
+          <div class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.coursesCreated') }}</div>
           <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
         </div>
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">Kurse belegt</div>
+          <div class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.coursesEnrolled') }}</div>
           <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
         </div>
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">Tokens verwendet</div>
+          <div class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.tokensUsed') }}</div>
           <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
         </div>
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">Logins (30 Tage)</div>
+          <div class="text-sm font-medium text-gray-500">{{ $t('admin.userDetail.logins30d') }}</div>
           <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
         </div>
       </div>
@@ -146,11 +146,11 @@
       <!-- Action History -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Aktionsverlauf</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.userDetail.actionHistory') }}</h3>
         </div>
         <div class="p-6">
           <p class="text-sm text-gray-500 text-center py-8">
-            Keine Aktionen vorhanden
+            {{ $t('admin.userDetail.noActions') }}
           </p>
         </div>
       </div>
@@ -160,17 +160,17 @@
     <div v-if="showBanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Benutzer sperren</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.userDetail.banModal.title') }}</h3>
           <p class="text-sm text-gray-600 mt-1">{{ user?.first_name }} {{ user?.last_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Grund für Sperrung *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.userDetail.banModal.reasonLabel') }}</label>
             <textarea
               v-model="banForm.reason"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Mindestens 10 Zeichen..."
+              :placeholder="$t('admin.userDetail.banModal.reasonPlaceholder')"
             ></textarea>
           </div>
           <div class="mb-4">
@@ -180,18 +180,18 @@
                 type="checkbox"
                 class="rounded border-gray-300 text-red-600 focus:ring-red-500"
               />
-              <span class="ml-2 text-sm text-gray-700">Permanente Sperrung</span>
+              <span class="ml-2 text-sm text-gray-700">{{ $t('admin.userDetail.banModal.permanent') }}</span>
             </label>
           </div>
           <div v-if="!banForm.permanent" class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Dauer (Tage)</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.userDetail.banModal.durationLabel') }}</label>
             <input
               v-model.number="banForm.duration_days"
               type="number"
               min="1"
               max="365"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="z.B. 30"
+              :placeholder="$t('admin.userDetail.banModal.durationPlaceholder')"
             />
           </div>
           <div class="mb-4">
@@ -201,7 +201,7 @@
                 type="checkbox"
                 class="rounded border-gray-300 text-red-600 focus:ring-red-500"
               />
-              <span class="ml-2 text-sm text-gray-700">Benutzer per E-Mail benachrichtigen</span>
+              <span class="ml-2 text-sm text-gray-700">{{ $t('admin.userDetail.banModal.notifyUser') }}</span>
             </label>
           </div>
         </div>
@@ -210,14 +210,14 @@
             @click="closeBanModal"
             class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Abbrechen
+            {{ $t('admin.userDetail.banModal.cancel') }}
           </button>
           <button
             @click="confirmBan"
             :disabled="!canSubmitBan"
             class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
           >
-            Benutzer sperren
+            {{ $t('admin.userDetail.banModal.confirm') }}
           </button>
         </div>
       </div>
@@ -227,17 +227,17 @@
     <div v-if="showUnbanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Sperre aufheben</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.userDetail.unbanModal.title') }}</h3>
           <p class="text-sm text-gray-600 mt-1">{{ user?.first_name }} {{ user?.last_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Grund für Entsperrung *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.userDetail.unbanModal.reasonLabel') }}</label>
             <textarea
               v-model="unbanForm.reason"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Mindestens 10 Zeichen..."
+              :placeholder="$t('admin.userDetail.unbanModal.reasonPlaceholder')"
             ></textarea>
           </div>
         </div>
@@ -246,14 +246,14 @@
             @click="closeUnbanModal"
             class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Abbrechen
+            {{ $t('admin.userDetail.unbanModal.cancel') }}
           </button>
           <button
             @click="confirmUnban"
             :disabled="!canSubmitUnban"
             class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
-            Sperre aufheben
+            {{ $t('admin.userDetail.unbanModal.confirm') }}
           </button>
         </div>
       </div>
@@ -263,29 +263,29 @@
     <div v-if="showGrantTokensModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Tokens gewähren</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.userDetail.grantTokensModal.title') }}</h3>
           <p class="text-sm text-gray-600 mt-1">{{ user?.first_name }} {{ user?.last_name }}</p>
-          <p class="text-xs text-gray-500 mt-1">Aktueller Kontostand: {{ user?.token_balance || 0 }} Tokens</p>
+          <p class="text-xs text-gray-500 mt-1">{{ $t('admin.userDetail.grantTokensModal.currentBalance', { balance: user?.token_balance || 0 }) }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Anzahl Tokens *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.userDetail.grantTokensModal.amountLabel') }}</label>
             <input
               v-model.number="grantTokensForm.amount"
               type="number"
               min="1"
               max="1000000"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="z.B. 5000"
+              :placeholder="$t('admin.userDetail.grantTokensModal.amountPlaceholder')"
             />
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Grund *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.userDetail.grantTokensModal.reasonLabel') }}</label>
             <textarea
               v-model="grantTokensForm.reason"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Mindestens 10 Zeichen..."
+              :placeholder="$t('admin.userDetail.grantTokensModal.reasonPlaceholder')"
             ></textarea>
           </div>
         </div>
@@ -294,14 +294,14 @@
             @click="closeGrantTokensModal"
             class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Abbrechen
+            {{ $t('admin.userDetail.grantTokensModal.cancel') }}
           </button>
           <button
             @click="confirmGrantTokens"
             :disabled="!canSubmitGrantTokens"
             class="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50"
           >
-            Tokens gewähren
+            {{ $t('admin.userDetail.grantTokensModal.confirm') }}
           </button>
         </div>
       </div>
@@ -312,10 +312,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/admin.store'
 import type { AdminUser, BanUserRequest } from '@/api/admin.api'
 import { adminGetUserDetail } from '@/api/admin.api'
 
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const adminStore = useAdminStore()
@@ -362,7 +364,7 @@ const loadUserDetail = async () => {
     const userId = route.params.userId as string
     user.value = await adminGetUserDetail(userId)
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Fehler beim Laden der Benutzerdaten'
+    error.value = err.response?.data?.message || t('admin.userDetail.loadError')
     console.error('Failed to load user detail:', err)
   } finally {
     loading.value = false
@@ -458,7 +460,7 @@ const getRoleBadgeClass = (role: string): string => {
 
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
-  return date.toLocaleDateString('de-DE', {
+  return date.toLocaleDateString(locale.value, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

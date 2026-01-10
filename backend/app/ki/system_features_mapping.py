@@ -291,6 +291,26 @@ SYSTEM_FEATURES: Dict[str, SystemFeatureDefinition] = {
         icon="chalkboard-teacher",
         former_lm_id=None
     ),
+    "peer_instruction": SystemFeatureDefinition(
+        feature_code="peer_instruction",
+        feature_name="Peer Instruction",
+        description="Peer Instruction Methode mit interaktiven Diskussionen",
+        category="collaboration",
+        requires_infrastructure=False,
+        requires_external_service=False,
+        icon="comments",
+        former_lm_id=None
+    ),
+    "project_based_learning": SystemFeatureDefinition(
+        feature_code="project_based_learning",
+        feature_name="Project-Based Learning",
+        description="Projektbasiertes Lernen mit Kollaborations-Tools",
+        category="collaboration",
+        requires_infrastructure=False,
+        requires_external_service=False,
+        icon="project-diagram",
+        former_lm_id=None
+    ),
 
     # ========================================================================
     # Exam & Assessment Systems
@@ -450,7 +470,7 @@ FEATURE_CATEGORIES = {
     "tutor": ["npc_tutor", "socratic_dialog", "comprehension_checker"],
     "gamification": ["adaptive_difficulty", "xp_quest_system", "daily_recall"],
     "learning_paths": ["learning_path_generator"],
-    "collaboration": ["peer_review", "team_case", "learning_journal", "project_portfolio", "inverted_classroom"],
+    "collaboration": ["peer_review", "team_case", "learning_journal", "project_portfolio", "inverted_classroom", "peer_instruction", "project_based_learning"],
     "exam_systems": ["ihk_exam_system", "practical_exam_engine", "chapter_completion_system"],
     "it_environments": ["code_sandbox", "network_simulation", "terminal_access"],
     "audio": ["speech_to_text"]

@@ -9,5 +9,14 @@ Handles:
 - Database connectivity check
 - Redis connectivity check
 - Application uptime
+
+Journeys:
+- Public: health_check, health_check_detailed
 """
-# Health checks are routes only - no domain entities
+from src.api.health.journeys import ALL_HEALTH_ROUTES, health_check, health_check_detailed
+
+__all__ = [
+    'ALL_HEALTH_ROUTES',
+    'health_check',
+    'health_check_detailed',
+]

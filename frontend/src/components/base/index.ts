@@ -27,3 +27,16 @@ export { AudioRecorder } from './audio'
 
 // Ads Components
 export { AdSlot } from './ads'
+
+// Dialog Components
+export { DeleteConfirmModal, DialogManager, TaskManagerModal } from './dialogs'
+
+// Widget Components
+export {
+  CoursesProgressWidget,
+  EnrolledCoursesWidget,
+  WelcomeWidget,
+  PlanTokensWidget,
+  OrgOverviewWidget,
+  ProfileSummaryWidget
+} from './widgets'

@@ -95,7 +95,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
-import { BaseLearningMethodForm } from '@/components/admin/content-management/learning-methods/forms'
+import { BaseLearningMethodForm } from '@/components/content/admin/learning-methods/forms'
 
 const { t } = useI18n()
 

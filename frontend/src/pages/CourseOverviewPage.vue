@@ -68,7 +68,7 @@ import {
   ChapterGridList,
   CourseDetailsSections,
   useCourseOverview
-} from '@/components/user/courses/overview'
+} from '@/components/content/user/courses/overview'
 import type { Chapter } from '@/api/player.api'
 
 // ============================================================================

@@ -284,7 +284,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { LsxWindow } from '@/store/window.store'
-import { BaseLearningMethodForm } from '@/components/admin/content-management/learning-methods/forms'
+import { BaseLearningMethodForm } from '@/components/content/admin/learning-methods/forms'
 
 const METHOD_CODE = 25
 

@@ -82,9 +82,9 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useCourseEditorStore } from '@/store/courseEditor.store'
 
 const { t } = useI18n()
-import CourseMetaForm from '@/components/admin/content-management/editor/CourseMetaForm.vue'
-import ModuleLessonTree from '@/components/admin/content-management/editor/ChapterLessonTree.vue'
-import LessonContentEditor from '@/components/admin/content-management/editor/LessonContentEditor.vue'
+import CourseMetaForm from '@/components/content/admin/editor/CourseMetaForm.vue'
+import ModuleLessonTree from '@/components/content/admin/editor/ChapterLessonTree.vue'
+import LessonContentEditor from '@/components/content/admin/editor/LessonContentEditor.vue'
 
 const props = defineProps<{
   courseId?: number

@@ -40,3 +40,6 @@ export {
   OrgOverviewWidget,
   ProfileSummaryWidget
 } from './widgets'
+
+// Lesson Components (Shared)
+export { DetailedSteps, MathTaskModal, MethodExecutionPanel } from './lessons'

@@ -224,7 +224,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import Button from '@/components/shared/ui/Button.vue'
+import Button from '@/components/base/Button.vue'
 import * as setupApi from '@/api/setup.api'
 
 const { t } = useI18n()

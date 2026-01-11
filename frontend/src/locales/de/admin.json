@@ -254,6 +254,21 @@
         "vision": "Vision"
       }
     },
+    "aiStudio": {
+      "title": "KI-Studio Pro",
+      "chat": "Chat",
+      "tabs": {
+        "builder": "Kurs-Builder",
+        "tutor": "KI-Tutor",
+        "methods": "Lernmethoden",
+        "exams": "Prüfungen",
+        "features": "System-Features",
+        "prompts": "Prompts",
+        "analytics": "Analytics",
+        "settings": "Einstellungen",
+        "global": "Global"
+      }
+    },
     "kiStudio": {
       "title": "KI-Studio Pro",
       "description": "Dein All-in-One Tool für KI-gestützte Kurserstellung. Generiere Videos, verwalte Prompts und konfiguriere Modelle.",

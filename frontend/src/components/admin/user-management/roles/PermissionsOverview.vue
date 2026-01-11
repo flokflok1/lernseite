@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import Card from '@/components/shared/ui/Card.vue'
+import Card from '@/components/base/Card.vue'
 import type { Permission } from '@/api/admin/roles.api'
 
 interface Props {

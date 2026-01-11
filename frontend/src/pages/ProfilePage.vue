@@ -232,9 +232,9 @@ import * as subscriptionsApi from '@/api/subscriptions.api'
 import type { UpdateProfileRequest, ChangePasswordRequest } from '@/api/profile.api'
 import type { TokenBalanceResponse } from '@/api/tokens.api'
 import type { SubscriptionResponse } from '@/api/subscriptions.api'
-import Card from '@/components/shared/ui/Card.vue'
-import Button from '@/components/shared/ui/Button.vue'
-import Input from '@/components/shared/ui/Input.vue'
+import Card from '@/components/base/Card.vue'
+import Button from '@/components/base/Button.vue'
+import Input from '@/components/base/Input.vue'
 
 const { t, locale } = useI18n()
 const authStore = useAuthStore()

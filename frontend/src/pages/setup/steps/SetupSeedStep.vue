@@ -26,7 +26,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as setupApi from '@/api/setup.api'
 import type { SeedDataResponse } from '@/api/setup.api'
-import Button from '@/components/shared/ui/Button.vue'
+import Button from '@/components/base/Button.vue'
 
 const { t } = useI18n()
 

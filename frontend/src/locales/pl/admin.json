@@ -254,6 +254,21 @@
         "vision": "Vision"
       }
     },
+    "aiStudio": {
+      "title": "AI Studio Pro",
+      "chat": "Czat",
+      "tabs": {
+        "builder": "Kreator Kursu",
+        "tutor": "AI Tutor",
+        "methods": "Metody Nauki",
+        "exams": "Egzaminy",
+        "features": "Funkcje Systemowe",
+        "prompts": "Prompty",
+        "analytics": "Analityka",
+        "settings": "Ustawienia",
+        "global": "Globalne"
+      }
+    },
     "kiStudio": {
       "title": "AI Studio Pro",
       "description": "Twoje kompleksowe narzędzie do tworzenia kursów wspomaganych AI. Generuj filmy, zarządzaj promptami i konfiguruj modele.",

@@ -229,8 +229,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/admin.store'
-import AnalyticsKpiCard from '@/components/shared/charts/AnalyticsKpiCard.vue'
-import LineChart from '@/components/shared/charts/LineChart.vue'
+import AnalyticsKpiCard from '@/components/base/charts/AnalyticsKpiCard.vue'
+import LineChart from '@/components/base/charts/LineChart.vue'
 
 const { t } = useI18n()
 

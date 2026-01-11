@@ -137,7 +137,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Footer } from '@/components/shared/layout'
+import { Footer } from '@/components/base/layout'
 
 const { locale } = useI18n()
 

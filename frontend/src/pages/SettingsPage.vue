@@ -153,7 +153,7 @@ import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/store/theme.store'
 import { useAuthStore } from '@/store/auth.store'
 import type { ThemePreference } from '@/store/theme.store'
-import Card from '@/components/shared/ui/Card.vue'
+import Card from '@/components/base/Card.vue'
 
 const { t } = useI18n()
 const themeStore = useThemeStore()

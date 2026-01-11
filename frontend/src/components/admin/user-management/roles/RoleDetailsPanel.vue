@@ -140,8 +140,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import Card from '@/components/shared/ui/Card.vue'
-import Button from '@/components/shared/ui/Button.vue'
+import Card from '@/components/base/Card.vue'
+import Button from '@/components/base/Button.vue'
 import type { Role, Permission, RoleUser } from '@/api/admin/roles.api'
 
 const { t } = useI18n()

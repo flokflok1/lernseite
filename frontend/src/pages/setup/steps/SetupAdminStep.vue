@@ -32,8 +32,8 @@
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as setupApi from '@/api/setup.api'
-import Input from '@/components/shared/ui/Input.vue'
-import Button from '@/components/shared/ui/Button.vue'
+import Input from '@/components/base/Input.vue'
+import Button from '@/components/base/Button.vue'
 
 const { t } = useI18n()
 

@@ -146,9 +146,9 @@ export const useGamificationStore = defineStore('gamification', () => {
     gold: 0,
     skillPoints: 0,
     baseStats: {
-      strength: 5,
-      intelligence: 5,
-      stamina: 5
+      strength: 0,  // Load from API instead of default
+      intelligence: 0,  // Load from API instead of default
+      stamina: 0  // Load from API instead of default
     }
   })
 
@@ -200,38 +200,45 @@ export const useGamificationStore = defineStore('gamification', () => {
   // ============================================================================
 
   /**
-   * Load gamification state from profile and courses
+   * Load gamification state from API
    */
-  const loadFromProfile = (data: {
+  const loadFromProfile = async (data: {
     profile?: any
     courses?: any[]
     progress?: Record<string, number>
   }) => {
-    // Try to load saved state first
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        if (parsed.stats) stats.value = parsed.stats
-        if (parsed.quests) quests.value = parsed.quests
-        if (parsed.skillTree) skillTree.value = parsed.skillTree
-        if (parsed.xpBonus !== undefined) xpBonus.value = parsed.xpBonus
-        if (parsed.goldBonus !== undefined) goldBonus.value = parsed.goldBonus
-      } catch (e) {
-        console.error('Failed to parse gamification state:', e)
+    try {
+      // Load from API instead of localStorage
+      const { getMyGamificationData } = await import('../api/gamification.api')
+      const apiData = await getMyGamificationData()
+
+      // Update stats from API
+      stats.value = {
+        level: apiData.level,
+        xp: apiData.xp,
+        xpToNext: apiData.xpToNext,
+        gold: apiData.gold,
+        skillPoints: apiData.skillPoints,
+        baseStats: apiData.baseStats
       }
+
+      console.log('[Gamification] Loaded from API:', stats.value)
+    } catch (error) {
+      console.error('[Gamification] Failed to load from API:', error)
+      // Fallback: Keep default values (0, 0, 0)
     }
 
-    // Generate quests from courses if no quests exist
-    if (quests.value.length === 0 && data.courses && data.courses.length > 0) {
+    // Generate quests from courses
+    if (data.courses && data.courses.length > 0) {
       generateQuestsFromCourses(data.courses, data.progress)
     }
 
-    // If still no quests, add default starter quests
+    // If no quests, add default starter quests
     if (quests.value.length === 0) {
       addDefaultQuests()
     }
 
+    // Save state to localStorage for caching
     saveState()
   }
 
@@ -496,9 +503,9 @@ export const useGamificationStore = defineStore('gamification', () => {
       gold: 0,
       skillPoints: 0,
       baseStats: {
-        strength: 5,
-        intelligence: 5,
-        stamina: 5
+        strength: 0,  // Start with 0, will be loaded from API
+        intelligence: 0,
+        stamina: 0
       }
     }
     quests.value = []

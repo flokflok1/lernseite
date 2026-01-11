@@ -71,8 +71,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useDashboardStore } from '@/store/dashboard.store'
-import Card from '@/components/shared/ui/Card.vue'
-import Button from '@/components/shared/ui/Button.vue'
+import Card from '@/components/base/Card.vue'
+import Button from '@/components/base/Button.vue'
 
 // ============================================================================
 // Emits

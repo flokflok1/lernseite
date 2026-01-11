@@ -77,9 +77,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import Card from '@/components/shared/ui/Card.vue'
-import Button from '@/components/shared/ui/Button.vue'
-import Input from '@/components/shared/ui/Input.vue'
+import Card from '@/components/base/Card.vue'
+import Button from '@/components/base/Button.vue'
+import Input from '@/components/base/Input.vue'
 import type { Role } from '@/api/admin/roles.api'
 
 const { t } = useI18n()

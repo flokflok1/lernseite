@@ -110,7 +110,7 @@ import {
   TaskManagerModal,
   useMethodExecution,
   type GeneratedTask
-} from '@/components/base/lessons/method-execution'
+} from '@/components/learning/methods/method-execution'
 
 const { t } = useI18n()
 

@@ -122,7 +122,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { Footer } from '@/components/base/layout'
+import { Footer } from '@/components/layout'
 
 useI18n()
 </script>

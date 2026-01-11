@@ -90,7 +90,7 @@
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Footer } from '@/components/base/layout'
+import { Footer } from '@/components/layout'
 import { LanguageSelector } from '@/components/core/i18n'
 
 const authStore = useAuthStore()

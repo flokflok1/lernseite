@@ -260,8 +260,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useOrgAdminStore } from '@/store/orgAdmin.store'
 import AdminLayout from '@/layouts/AdminLayout.vue'
-import AnalyticsKpiCard from '@/components/base/charts/AnalyticsKpiCard.vue'
-import LineChart from '@/components/base/charts/LineChart.vue'
+import { AnalyticsKpiCard, LineChart } from '@/components/analytics/charts'
 
 const { t } = useI18n()
 

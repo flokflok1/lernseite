@@ -6,7 +6,7 @@ Supports multiple configurations (development, production, testing).
 """
 
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
@@ -227,17 +227,44 @@ def register_blueprints(app):
         # from app.api.shared.organisations import organisations_bp
         # app.register_blueprint(organisations_bp)
 
-        # AI routes (Phase 11)
-        # from app.api.ai import ai_bp
-        # app.register_blueprint(ai_bp)
+        # AI Operations routes (Admin) - TODO: Complete refactoring needed
+        # These blueprints are still being migrated and have missing dependencies
+        # For now, endpoints are registered via api_v1 blueprint in app/api/admin/
+        app.logger.info("ℹ AI Operations routes: Available via API Gateway")
 
         # Payment routes (Phase 12)
         # from app.api.payments import payments_bp
         # app.register_blueprint(payments_bp)
 
+        # Social Platform routes (New) - ✅ Feature flags refactored to BaseRepository
+        try:
+            from app.api.social import posts_bp, feed_bp, follow_bp, likes_bp, comments_bp
+            app.register_blueprint(posts_bp)
+            app.register_blueprint(feed_bp)
+            app.register_blueprint(follow_bp)
+            app.register_blueprint(likes_bp)
+            app.register_blueprint(comments_bp)
+            app.logger.info("✓ Social platform routes registered (5 blueprints)")
+        except Exception as e:
+            app.logger.warning(f"Social platform routes not available: {e}")
+
+        # Messaging routes (New)
+        try:
+            from app.api.messaging import direct_messages as dm_bp, group_chat as gc_bp
+            app.register_blueprint(dm_bp.dm_bp)
+            app.register_blueprint(gc_bp.group_chat_bp)
+            app.logger.info("✓ Messaging routes registered (2 blueprints)")
+        except Exception as e:
+            app.logger.warning(f"Messaging routes not available: {e}")
+
         # Community routes (Phase 13)
-        # from app.api.community import community_bp
-        # app.register_blueprint(community_bp)
+        try:
+            from app.api.community import forums, groups
+            app.register_blueprint(forums.forums_bp)
+            app.register_blueprint(groups.groups_bp)
+            app.logger.info("✓ Community routes registered (2 blueprints)")
+        except Exception as e:
+            app.logger.warning(f"Community routes not available: {e}")
 
         # LiveRoom routes (Phase 14)
         # from app.api.liveroom import liveroom_bp
@@ -510,9 +537,29 @@ def configure_cors(app):
         app,
         origins=app.config['CORS_ORIGINS'],
         supports_credentials=True,
-        allow_headers=['Content-Type', 'Authorization'],
-        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+        allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
+        expose_headers=['Content-Type', 'Authorization'],
+        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        max_age=3600  # Cache preflight requests for 1 hour
     )
+
+    # Add global OPTIONS handler for all routes
+    @app.after_request
+    def after_request(response):
+        """Add CORS headers to all responses"""
+        origin = request.headers.get('Origin')
+
+        # Allow configured origins
+        if origin:
+            allowed_origins = app.config.get('CORS_ORIGINS', ['*'])
+            if '*' in allowed_origins or origin in allowed_origins:
+                response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers['Access-Control-Allow-Credentials'] = 'true'
+                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+                response.headers['Access-Control-Max-Age'] = '3600'
+
+        return response
 
 
 def register_shell_context(app):

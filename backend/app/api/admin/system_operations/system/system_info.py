@@ -13,7 +13,7 @@ Based on Dok 33 (Versioning-Change-Management.md)
 from flask import jsonify, current_app
 from datetime import datetime
 
-from app.api.admin.system import api_v1
+from app.api.admin.system_operations.system import api_v1
 from app.security.permissions import require_permission, Permissions
 from app.gateway.versioning import get_version_info
 from app.api.core.deprecation import list_deprecated_endpoints

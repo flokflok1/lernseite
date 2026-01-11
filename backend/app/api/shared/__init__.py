@@ -17,6 +17,13 @@ Example usage:
     >>> from app.api.shared.media import tts
 """
 
+# Import packages to trigger blueprint registration
+from app.api.shared import categories
+from app.api.shared import feedback
+from app.api.shared import media
+from app.api.shared import organisations
+from app.api.shared import users
+
 __all__ = [
     'categories',
     'feedback',

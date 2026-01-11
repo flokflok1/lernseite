@@ -16,4 +16,7 @@ Example usage:
     >>> from app.api.core.auth import login
 """
 
+# Import auth module to trigger blueprint registration
+from app.api.core import auth
+
 __all__ = ['health', 'deprecation', 'auth', 'i18n']

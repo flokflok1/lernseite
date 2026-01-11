@@ -126,3 +126,16 @@ class UserSubscriptionRepository:
                 """, (user_id,))
 
                 return cur.fetchone()
+
+    @classmethod
+    def get_subscription_for_user(cls, user_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Alias for get_subscription() for backward compatibility
+
+        Args:
+            user_id: User identifier
+
+        Returns:
+            Subscription with plan details or None if not found
+        """
+        return cls.get_subscription(user_id)

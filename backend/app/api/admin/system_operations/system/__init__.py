@@ -19,10 +19,10 @@ Refactored: 2026-01-07 per Developer-Guide-KI Section 10
 """
 
 # CIRCULAR IMPORT FIX (Phase 8g):
-# Problem: app.api → admin → admin.system → settings → app.api (CIRCULAR!)
+# Problem: app.api → admin → admin.system_operations.system → settings → app.api (CIRCULAR!)
 # Solution: Import api_v1 here ONCE, then submodules import from this package
 # Submodules changed from: from app.api import api_v1
-# To: from app.api.admin.system import api_v1
+# To: from app.api.admin.system_operations.system import api_v1
 
 # Import parent blueprint BEFORE importing submodules
 # Import from app.api.BLUEPRINT directly (defined at app/api/__init__.py:25-29)
@@ -30,15 +30,15 @@ Refactored: 2026-01-07 per Developer-Guide-KI Section 10
 from app.api import api_v1
 
 # Import all route modules to register them with Flask
-# Each module imports api_v1 from this package (admin.system), not from app.api
-from app.api.admin.system import settings
-from app.api.admin.system import system_info
-from app.api.admin.system import system_stats
-from app.api.admin.system import audit_logs
-from app.api.admin.system import ai_providers
-from app.api.admin.system import ai_models
-from app.api.admin.system import ai_settings
-from app.api.admin.system import roles
+# Each module imports api_v1 from this package (admin.system_operations.system), not from app.api
+from app.api.admin.system_operations.system import settings
+from app.api.admin.system_operations.system import system_info
+from app.api.admin.system_operations.system import system_stats
+from app.api.admin.system_operations.system import audit_logs
+from app.api.admin.system_operations.system import ai_providers
+from app.api.admin.system_operations.system import ai_models
+from app.api.admin.system_operations.system import ai_settings
+from app.api.admin.system_operations.system import roles
 
 __all__ = [
     'api_v1',  # Re-export for submodules

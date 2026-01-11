@@ -13,7 +13,7 @@ ISO 27001:2013 compliant - Admin API
 from flask import request, jsonify
 from pydantic import ValidationError
 
-from app.api.admin.system import api_v1
+from app.api.admin.system_operations.system import api_v1
 from app.middleware.auth import token_required, admin_required, get_current_user
 from app.services.system.system_mode_service import SystemModeService
 from app.repositories.settings.system import SystemSettingsRepository

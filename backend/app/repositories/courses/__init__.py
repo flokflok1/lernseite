@@ -29,6 +29,9 @@ from app.repositories.courses.lessons import LessonRepository
 from app.repositories.courses.ai_settings import CourseAiSettingsRepository
 from app.repositories.courses.files import CourseFileRepository
 
+# Alias for backward compatibility (AI vs Ai naming)
+CourseAISettingsRepository = CourseAiSettingsRepository
+
 
 class CourseRepository(
     CourseRepositoryCRUD,
@@ -66,5 +69,6 @@ __all__ = [
     'ChapterRepository',
     'LessonRepository',
     'CourseAiSettingsRepository',
+    'CourseAISettingsRepository',  # Alias
     'CourseFileRepository',
 ]

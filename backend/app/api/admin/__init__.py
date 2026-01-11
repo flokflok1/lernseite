@@ -33,17 +33,10 @@ except ImportError as e:
 
 # Content Management
 try:
-    from app.api.admin.content_management import (
-        courses_crud,
-        chapters,
-        lessons,
-        exams,
-        prompts,
-        files
-    )
+    from app.api.admin import content_management
 except ImportError as e:
     print(f"Warning: Content Management import failed: {e}")
-    courses_crud = chapters = lessons = exams = prompts = files = None
+    content_management = None
 
 # User Management (Proxies zu users/admin/)
 try:
@@ -76,12 +69,7 @@ __all__ = [
     'studio_bp',
     'tutor_bp',
     # Content Management
-    'courses_crud',
-    'chapters',
-    'lessons',
-    'exams',
-    'prompts',
-    'files',
+    'content_management',
     # User Management
     'admin_users_crud_bp',
     'admin_users_roles_bp',

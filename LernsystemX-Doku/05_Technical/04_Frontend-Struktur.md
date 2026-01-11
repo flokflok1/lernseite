@@ -1,399 +1,1768 @@
 # 16 – Frontend-Struktur (Final)
 
-**Version:** 1.0  
-**Stand:** Final
+**Version:** 2.0  
+**Stand:** 10.01.2026  
+**Änderungen:** Complete Enterprise Architecture mit Social Network UI, Compliance Components, Feature Flags UI, Moderation Dashboard
 
 ---
 
 ## Überblick
 
-Dieses Dokument definiert die vollständige Frontend-Architektur des LSX Lernsystems.
+Dieses Dokument definiert die vollständige **Enterprise-Grade Frontend-Architektur** des LSX Lernsystems.
 
-Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **performant** und für **ADHD/ADHS optimiert**.
+Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **performant**, **compliance-konform** und für **ADHD/ADHS optimiert**.
 
-### 🛠️ Empfohlener Tech-Stack
+### 🎯 Neue Features in v2.0
+
+- ✅ **Social Network UI** - Posts, Feed, Follow, Engagement Components
+- ✅ **Compliance Components** - Cookie Consent, Age Gates, Privacy Controls
+- ✅ **Moderation Dashboard** - Content Review, Reports, Statistics
+- ✅ **Feature Flag UI** - Admin Controls, A/B Testing, Rollout Management
+- ✅ **Content Reporting** - User Report Forms, Evidence Collection
+- ✅ **Privacy Dashboard** - GDPR Controls, Data Export, Consent Management
+- ✅ **Child Safety UI** - Parental Controls, Safe Mode, Age Verification
+- ✅ **DRM UI Components** - License Display, Watermarks, Access Gates
+
+### 🛠️ Tech-Stack
 
 | Technologie | Verwendung |
 |------------|-----------|
 | ⚡ **Vue.js 3** | Composition API |
 | 🚀 **Vite** | Build Tool |
 | 📦 **Pinia** | State Management |
-| 🛣️ **Vue Router** | Routing |
+| 🛣️ **Vue Router** | Routing mit Feature Flag Guards |
 | 🎨 **TailwindCSS** | Styling |
-| 🌍 **vue-i18n** | Internationalisierung |
+| 🌍 **vue-i18n** | Internationalisierung (20+ Sprachen) |
 | 🎥 **WebRTC** | Video/Audio (LiveRoom) |
-| 🔌 **WebSockets** | Real-time Communication |
-| 📡 **Axios** | API Requests |
+| 🔌 **WebSockets** | Real-time (Notifications, Feed) |
+| 📡 **Axios** | API Requests mit Interceptors |
+| 🎚️ **Feature Flags** | Progressive Feature Rollout |
+| 🛡️ **DOMPurify** | XSS Protection |
+| 🍪 **js-cookie** | Cookie Management (GDPR) |
+| 📊 **Chart.js** | Analytics & Statistics |
+| 🔒 **CryptoJS** | Client-side Encryption (DRM) |
 
-> Alle Komponenten sind **klar getrennt**, **gut wartbar** und **erweiterbar**.
+> Alle Komponenten sind **klar getrennt**, **gut wartbar**, **erweiterbar** und **compliance-konform**.
 
 ---
 
 ## 1. Projektstruktur (Frontend-Verzeichnis)
 
-### 📁 Komplette Verzeichnisstruktur
+### 📁 Komplette Verzeichnisstruktur v2.0
 
 ```
 /frontend
 ├── /public
 │   ├── favicon.ico
-│   └── assets/
+│   └── /assets
+│       ├── /images
+│       ├── /icons
+│       └── /legal          # ⭐ Legal Documents
+│           ├── privacy-policy.pdf
+│           ├── terms-of-service.pdf
+│           ├── community-guidelines.pdf
+│           └── cookie-policy.pdf
+│
 ├── /src
 │   ├── /assets
 │   │   ├── /images
 │   │   ├── /icons
 │   │   └── styles.css
-│   ├── /components
-│   ├── /layouts
-│   ├── /pages
-│   ├── /router
-│   ├── /store
-│   ├── /services
-│   ├── /widgets
-│   ├── /modules
-│   ├── /liveroom
-│   ├── /i18n
-│   ├── /utils
-│   ├── App.vue
-│   └── main.js
+│   │
+│   ├── /components         # 🧩 UI COMPONENTS
+│   │   ├── /base           # Base Components
+│   │   │   ├── Button.vue
+│   │   │   ├── Input.vue
+│   │   │   ├── Textarea.vue
+│   │   │   ├── Modal.vue
+│   │   │   ├── Dropdown.vue
+│   │   │   ├── Tabs.vue
+│   │   │   ├── Loader.vue
+│   │   │   ├── Alert.vue
+│   │   │   ├── Card.vue
+│   │   │   ├── ProgressBar.vue
+│   │   │   ├── Tooltip.vue
+│   │   │   ├── Badge.vue
+│   │   │   ├── Avatar.vue
+│   │   │   └── Pagination.vue
+│   │   │
+│   │   ├── /social         # ⭐ SOCIAL NETWORK COMPONENTS
+│   │   │   ├── PostCard.vue              # Single Post Display
+│   │   │   ├── PostComposer.vue          # Create Post
+│   │   │   ├── PostList.vue              # Post Feed List
+│   │   │   ├── CommentSection.vue        # Comments
+│   │   │   ├── CommentInput.vue          # Comment Input
+│   │   │   ├── LikeButton.vue            # Like/Unlike
+│   │   │   ├── ShareButton.vue           # Share Post
+│   │   │   ├── FollowButton.vue          # Follow/Unfollow User
+│   │   │   ├── FollowersList.vue         # Followers List
+│   │   │   ├── FollowingList.vue         # Following List
+│   │   │   ├── UserCard.vue              # User Profile Card
+│   │   │   ├── UserBadge.vue             # User Achievement Badge
+│   │   │   ├── HashtagChip.vue           # Hashtag Display
+│   │   │   ├── MentionInput.vue          # @mention Input
+│   │   │   ├── TrendingCard.vue          # Trending Posts
+│   │   │   ├── SuggestedUsers.vue        # Follow Suggestions
+│   │   │   └── ActivityFeed.vue          # Notification Feed
+│   │   │
+│   │   ├── /compliance     # ⭐ COMPLIANCE COMPONENTS
+│   │   │   ├── CookieConsent.vue         # GDPR Cookie Banner
+│   │   │   ├── CookieSettings.vue        # Granular Cookie Control
+│   │   │   ├── AgeGate.vue               # Age Verification Gate
+│   │   │   ├── ParentalConsent.vue       # COPPA Consent Form
+│   │   │   ├── PrivacyDashboard.vue      # User Privacy Controls
+│   │   │   ├── DataExport.vue            # GDPR Data Export
+│   │   │   ├── DataDeletion.vue          # Right to Erasure
+│   │   │   ├── ConsentManager.vue        # Consent Management
+│   │   │   ├── ReportContent.vue         # Report Form (DSA)
+│   │   │   ├── ReportStatus.vue          # Track Report Status
+│   │   │   ├── ContentWarning.vue        # Content Warning Overlay
+│   │   │   ├── SafeMode.vue              # Child Safe Mode Toggle
+│   │   │   ├── ParentalControls.vue      # Parent Dashboard
+│   │   │   ├── ScreenTimeWidget.vue      # Usage Tracking
+│   │   │   └── TransparencyReport.vue    # Public Transparency Reports
+│   │   │
+│   │   ├── /moderation     # ⭐ MODERATION COMPONENTS
+│   │   │   ├── ModerationQueue.vue       # Review Queue
+│   │   │   ├── ContentReview.vue         # Single Content Review
+│   │   │   ├── ReportDetails.vue         # Report Details View
+│   │   │   ├── ModerationActions.vue     # Action Buttons
+│   │   │   ├── UserHistory.vue           # User Violation History
+│   │   │   ├── ModerationStats.vue       # Statistics Dashboard
+│   │   │   ├── SLAMonitor.vue            # 24h/7d Deadline Tracker
+│   │   │   └── AppealReview.vue          # Appeal Review (DSA Art. 17)
+│   │   │
+│   │   ├── /security       # 🔒 SECURITY COMPONENTS
+│   │   │   ├── TwoFactorAuth.vue         # 2FA Setup
+│   │   │   ├── SessionManager.vue        # Active Sessions
+│   │   │   ├── SecurityLog.vue           # Security Event Log
+│   │   │   ├── DRMLicenseDisplay.vue     # License Information
+│   │   │   ├── Watermark.vue             # Visible Watermark
+│   │   │   └── AccessGate.vue            # DRM Access Gate
+│   │   │
+│   │   └── /feature-flags  # ⭐ FEATURE FLAG COMPONENTS
+│   │       ├── FeatureGate.vue           # Feature Flag Wrapper
+│   │       ├── FeatureFlagBadge.vue      # "Beta" Badge
+│   │       ├── RolloutProgress.vue       # Rollout Stats
+│   │       └── ABTestBanner.vue          # A/B Test Info
+│   │
+│   ├── /layouts            # 🏗️ LAYOUTS
+│   │   ├── MainLayout.vue
+│   │   ├── AuthLayout.vue
+│   │   ├── DashboardLayout.vue
+│   │   ├── AdminLayout.vue
+│   │   ├── ModeratorLayout.vue          # ⭐ NEW: Moderation Layout
+│   │   ├── OrganizationLayout.vue
+│   │   └── MinimalLayout.vue            # ⭐ NEW: Age Gate, Consent
+│   │
+│   ├── /pages              # 📄 PAGES/VIEWS
+│   │   ├── /auth
+│   │   │   ├── Login.vue
+│   │   │   ├── Register.vue
+│   │   │   ├── RegisterWithConsent.vue  # ⭐ NEW: GDPR Consent
+│   │   │   ├── ForgotPassword.vue
+│   │   │   └── AgeVerification.vue      # ⭐ NEW: Age Gate
+│   │   │
+│   │   ├── /dashboard
+│   │   │   ├── Index.vue
+│   │   │   ├── Settings.vue
+│   │   │   ├── Notifications.vue
+│   │   │   └── LayoutManager.vue
+│   │   │
+│   │   ├── /social         # ⭐ NEW: SOCIAL PAGES
+│   │   │   ├── Feed.vue                  # Main Feed
+│   │   │   ├── Explore.vue               # Explore/Discovery
+│   │   │   ├── Trending.vue              # Trending Page
+│   │   │   ├── Profile.vue               # User Profile
+│   │   │   ├── EditProfile.vue           # Edit Profile
+│   │   │   ├── Followers.vue             # Followers List
+│   │   │   ├── Following.vue             # Following List
+│   │   │   ├── Post.vue                  # Single Post View
+│   │   │   ├── Bookmarks.vue             # Saved Posts
+│   │   │   ├── Messages.vue              # Direct Messages
+│   │   │   └── Notifications.vue         # Social Notifications
+│   │   │
+│   │   ├── /privacy        # ⭐ NEW: PRIVACY & COMPLIANCE
+│   │   │   ├── PrivacySettings.vue       # Privacy Dashboard
+│   │   │   ├── DataExport.vue            # GDPR Export
+│   │   │   ├── DataDeletion.vue          # Right to Erasure
+│   │   │   ├── ConsentHistory.vue        # Consent Log
+│   │   │   ├── CookiePreferences.vue     # Cookie Settings
+│   │   │   ├── PrivacyPolicy.vue         # Privacy Policy Page
+│   │   │   ├── TermsOfService.vue        # ToS Page
+│   │   │   └── CommunityGuidelines.vue   # Content Policy
+│   │   │
+│   │   ├── /moderation     # ⭐ NEW: MODERATION DASHBOARD
+│   │   │   ├── Dashboard.vue             # Moderator Dashboard
+│   │   │   ├── Queue.vue                 # Review Queue
+│   │   │   ├── Reports.vue               # All Reports
+│   │   │   ├── ReviewContent.vue         # Content Review Page
+│   │   │   ├── Appeals.vue               # Appeal Queue (DSA)
+│   │   │   ├── Statistics.vue            # Mod Statistics
+│   │   │   ├── TransparencyReports.vue   # Generate Reports
+│   │   │   └── UserProfile.vue           # User Moderation View
+│   │   │
+│   │   ├── /parental       # ⭐ NEW: PARENTAL CONTROLS
+│   │   │   ├── Dashboard.vue             # Parent Dashboard
+│   │   │   ├── ActivityLog.vue           # Child Activity
+│   │   │   ├── ScreenTime.vue            # Usage Limits
+│   │   │   ├── ContentApproval.vue       # Pre-approval Queue
+│   │   │   ├── Restrictions.vue          # Content Restrictions
+│   │   │   └── Reports.vue               # Activity Reports
+│   │   │
+│   │   ├── /admin          # 👑 ADMIN PAGES (Extended)
+│   │   │   ├── AdminDashboard.vue
+│   │   │   ├── UserManagement.vue
+│   │   │   ├── FeatureFlags.vue          # ⭐ NEW: Feature Flag Admin
+│   │   │   ├── RolloutControl.vue        # ⭐ NEW: Rollout Management
+│   │   │   ├── ABTesting.vue             # ⭐ NEW: A/B Test Config
+│   │   │   ├── ComplianceDashboard.vue   # ⭐ NEW: Compliance Overview
+│   │   │   ├── ModerationSettings.vue    # ⭐ NEW: Mod Config
+│   │   │   ├── ContentPolicies.vue       # ⭐ NEW: Policy Management
+│   │   │   ├── Logs.vue
+│   │   │   ├── WidgetRegistry.vue
+│   │   │   └── RoleManagement.vue
+│   │   │
+│   │   ├── ProfilePage.vue
+│   │   ├── SettingsPage.vue
+│   │   ├── /courses                      # (existing course pages)
+│   │   ├── /creator                      # (existing creator pages)
+│   │   ├── /community                    # (existing community pages)
+│   │   └── /org                          # (existing org pages)
+│   │
+│   ├── /router             # 🛣️ ROUTER
+│   │   ├── index.js                      # Main Router
+│   │   ├── guards.js                     # Route Guards
+│   │   └── featureGuards.js              # ⭐ NEW: Feature Flag Guards
+│   │
+│   ├── /store              # 📦 PINIA STORES
+│   │   ├── /modules
+│   │   │   ├── user.js                   # User Store
+│   │   │   ├── auth.js                   # Auth Store
+│   │   │   ├── courses.js                # Courses Store
+│   │   │   ├── dashboard.js              # Dashboard Store
+│   │   │   │
+│   │   │   ├── /social                   # ⭐ NEW: SOCIAL STORES
+│   │   │   │   ├── posts.js              # Posts State
+│   │   │   │   ├── feed.js               # Feed State
+│   │   │   │   ├── follows.js            # Follow Relationships
+│   │   │   │   ├── likes.js              # Likes State
+│   │   │   │   ├── comments.js           # Comments State
+│   │   │   │   ├── notifications.js      # Social Notifications
+│   │   │   │   └── messages.js           # Direct Messages
+│   │   │   │
+│   │   │   ├── /compliance               # ⭐ NEW: COMPLIANCE STORES
+│   │   │   │   ├── consent.js            # Cookie/Privacy Consents
+│   │   │   │   ├── privacy.js            # Privacy Settings
+│   │   │   │   ├── reports.js            # User Reports
+│   │   │   │   └── childSafety.js        # Parental Controls
+│   │   │   │
+│   │   │   ├── /moderation               # ⭐ NEW: MODERATION STORES
+│   │   │   │   ├── queue.js              # Review Queue
+│   │   │   │   ├── reports.js            # All Reports
+│   │   │   │   ├── actions.js            # Mod Actions
+│   │   │   │   └── statistics.js         # Mod Stats
+│   │   │   │
+│   │   │   ├── /admin                    # Admin Stores
+│   │   │   │   ├── featureFlags.js       # ⭐ NEW: Feature Flags
+│   │   │   │   ├── rollout.js            # ⭐ NEW: Rollout Control
+│   │   │   │   └── analytics.js          # Admin Analytics
+│   │   │   │
+│   │   │   └── /security                 # ⭐ NEW: SECURITY STORES
+│   │   │       ├── drm.js                # DRM State
+│   │   │       ├── sessions.js           # Session Management
+│   │   │       └── auditLog.js           # Security Audit Log
+│   │   │
+│   │   └── index.js                      # Root Store
+│   │
+│   ├── /services           # 📡 API SERVICES
+│   │   ├── api.js                        # Base Axios Instance
+│   │   ├── interceptors.js               # Request/Response Interceptors
+│   │   │
+│   │   ├── /core                         # Core Services
+│   │   │   ├── auth.service.js
+│   │   │   ├── user.service.js
+│   │   │   └── course.service.js
+│   │   │
+│   │   ├── /social                       # ⭐ NEW: SOCIAL SERVICES
+│   │   │   ├── post.service.js
+│   │   │   ├── feed.service.js
+│   │   │   ├── follow.service.js
+│   │   │   ├── like.service.js
+│   │   │   ├── comment.service.js
+│   │   │   ├── share.service.js
+│   │   │   ├── message.service.js
+│   │   │   └── notification.service.js
+│   │   │
+│   │   ├── /compliance                   # ⭐ NEW: COMPLIANCE SERVICES
+│   │   │   ├── consent.service.js        # Consent Management
+│   │   │   ├── privacy.service.js        # Privacy Export/Deletion
+│   │   │   ├── report.service.js         # Content Reporting
+│   │   │   └── ageVerification.service.js # Age Verification
+│   │   │
+│   │   ├── /moderation                   # ⭐ NEW: MODERATION SERVICES
+│   │   │   ├── queue.service.js
+│   │   │   ├── review.service.js
+│   │   │   ├── action.service.js
+│   │   │   └── statistics.service.js
+│   │   │
+│   │   └── /admin                        # Admin Services
+│   │       ├── featureFlag.service.js    # ⭐ NEW: Feature Flags API
+│   │       └── analytics.service.js
+│   │
+│   ├── /composables        # 🔄 VUE COMPOSABLES
+│   │   ├── /core
+│   │   │   ├── useAuth.js
+│   │   │   ├── useToast.js
+│   │   │   └── useModal.js
+│   │   │
+│   │   ├── /social                       # ⭐ NEW: SOCIAL COMPOSABLES
+│   │   │   ├── usePost.js                # Post CRUD
+│   │   │   ├── useFeed.js                # Feed Management
+│   │   │   ├── useFollow.js              # Follow Logic
+│   │   │   ├── useLike.js                # Like Logic
+│   │   │   ├── useComment.js             # Comment Logic
+│   │   │   ├── useNotifications.js       # Real-time Notifications
+│   │   │   └── useInfiniteScroll.js      # Infinite Scroll
+│   │   │
+│   │   ├── /compliance                   # ⭐ NEW: COMPLIANCE COMPOSABLES
+│   │   │   ├── useConsent.js             # Cookie Consent
+│   │   │   ├── usePrivacy.js             # Privacy Controls
+│   │   │   ├── useReport.js              # Content Reporting
+│   │   │   └── useAgeGate.js             # Age Verification
+│   │   │
+│   │   ├── /moderation                   # ⭐ NEW: MODERATION COMPOSABLES
+│   │   │   ├── useModerationQueue.js
+│   │   │   ├── useContentReview.js
+│   │   │   └── useModerationStats.js
+│   │   │
+│   │   ├── /security                     # ⭐ NEW: SECURITY COMPOSABLES
+│   │   │   ├── useDRM.js                 # DRM Logic
+│   │   │   ├── useSession.js             # Session Management
+│   │   │   └── useAuditLog.js            # Security Logging
+│   │   │
+│   │   └── /admin
+│   │       ├── useFeatureFlags.js        # ⭐ NEW: Feature Flag Logic
+│   │       └── useRollout.js             # ⭐ NEW: Rollout Logic
+│   │
+│   ├── /widgets            # 🎨 DASHBOARD WIDGETS (existing)
+│   ├── /modules            # 📝 LEARNING METHOD MODULES (existing)
+│   ├── /liveroom           # 🎥 LIVEROOM COMPONENTS (existing)
+│   │
+│   ├── /i18n               # 🌍 INTERNATIONALIZATION
+│   │   ├── index.js
+│   │   └── /locales
+│   │       ├── de.json                   # German
+│   │       ├── en.json                   # English
+│   │       ├── fr.json                   # French
+│   │       ├── es.json                   # Spanish
+│   │       └── ... (20+ languages)
+│   │
+│   ├── /utils              # 🛠️ UTILITIES
+│   │   ├── formatDate.js
+│   │   ├── validation.js
+│   │   ├── sanitize.js                   # XSS Protection
+│   │   ├── storage.js                    # LocalStorage Wrapper
+│   │   ├── crypto.js                     # ⭐ NEW: Client Crypto (DRM)
+│   │   ├── featureFlags.js               # ⭐ NEW: Feature Flag Helpers
+│   │   └── gdpr.js                       # ⭐ NEW: GDPR Helpers
+│   │
+│   ├── /plugins            # 🔌 VUE PLUGINS
+│   │   ├── featureFlags.js               # ⭐ NEW: Feature Flag Plugin
+│   │   ├── analytics.js                  # Analytics Plugin
+│   │   └── errorTracking.js              # Error Tracking
+│   │
+│   ├── /directives         # 🎯 CUSTOM DIRECTIVES
+│   │   ├── v-feature.js                  # ⭐ NEW: v-feature="'posts'"
+│   │   ├── v-tooltip.js
+│   │   └── v-click-outside.js
+│   │
+│   ├── /middleware         # 🛡️ MIDDLEWARE
+│   │   ├── auth.js
+│   │   ├── role.js
+│   │   ├── featureFlag.js                # ⭐ NEW: Feature Flag Middleware
+│   │   └── ageGate.js                    # ⭐ NEW: Age Verification
+│   │
+│   ├── App.vue             # 🎯 Root Component
+│   └── main.js             # 🚀 Application Entry Point
+│
+├── /tests                  # 🧪 TESTS
+│   ├── /unit
+│   ├── /integration
+│   └── /e2e
+│
 ├── index.html
 ├── vite.config.js
 ├── tailwind.config.js
 ├── package.json
-└── .env
+├── .env
+├── .env.production
+└── .eslintrc.js
 ```
 
 ---
 
-## 2. Komponentenübersicht
+## 2. System-Architektur (C4 Model - Context)
 
-### 🧩 System-Architektur (C4 Model - Context)
+```mermaid
+graph TB
+    subgraph "Externe Systeme"
+        USER[👤 User]
+        PARENT[👨‍👩‍👧 Parent]
+        MODERATOR[👮 Moderator]
+        ADMIN[👑 Admin]
+    end
 
-```plantuml
-@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+    subgraph "LSX Frontend System"
+        SPA[⚡ Vue.js SPA<br/>Vue 3 + Vite]
+        ROUTER[🛣️ Vue Router<br/>+ Feature Guards]
+        STORE[📦 Pinia Store<br/>State Management]
+        SERVICES[📡 API Services<br/>Axios + Interceptors]
+        SOCKET[🔌 WebSocket<br/>Real-time]
+        FF[🎚️ Feature Flags<br/>Client-side]
+        COMPLIANCE[⚖️ Compliance UI<br/>Cookie/Age/Privacy]
+    end
 
-LAYOUT_WITH_LEGEND()
+    subgraph "External Services"
+        API[🌶️ Backend API<br/>REST + GraphQL]
+        WEBRTC[🎥 WebRTC Server]
+        CDN[📦 CDN<br/>Static Assets]
+    end
 
-Person(user, "User", "LSX Nutzer (Free/Premium/Creator)")
-Person(teacher, "Lehrer/Dozent", "Unterrichtet & verwaltet")
-Person(admin, "Admin", "System-Administrator")
+    USER -->|HTTPS| SPA
+    PARENT -->|Parental Dashboard| SPA
+    MODERATOR -->|Moderation Dashboard| SPA
+    ADMIN -->|Admin Panel| SPA
 
-System_Boundary(lsx, "LSX Frontend") {
-    Container(spa, "Vue.js SPA", "Vue 3, Vite", "Single Page Application")
-    Container(router, "Vue Router", "Routing", "Navigation & Guards")
-    Container(store, "Pinia Store", "State Management", "Zentrale Zustandsverwaltung")
-    Container(services, "API Services", "Axios", "Backend-Kommunikation")
-}
+    SPA --> ROUTER
+    SPA --> STORE
+    SPA --> FF
+    SPA --> COMPLIANCE
 
-System_Ext(api, "LSX Backend API", "REST API, WebSockets")
-System_Ext(webrtc, "WebRTC Server", "LiveRoom Video/Audio")
+    ROUTER --> FF
+    SERVICES --> API
+    SOCKET --> API
+    SPA --> SOCKET
+    SPA --> WEBRTC
 
-Rel(user, spa, "Nutzt", "HTTPS")
-Rel(teacher, spa, "Nutzt", "HTTPS")
-Rel(admin, spa, "Nutzt", "HTTPS")
+    SPA --> CDN
 
-Rel(spa, router, "Verwendet")
-Rel(spa, store, "Verwendet")
-Rel(spa, services, "Verwendet")
-
-Rel(services, api, "API Calls", "JSON/REST")
-Rel(spa, webrtc, "Video/Audio", "WebRTC")
-
-@enduml
+    style SPA fill:#42b883,color:#fff
+    style FF fill:#4CAF50,color:#fff
+    style COMPLIANCE fill:#FF6B6B,color:#fff
 ```
 
-### 🏗️ Frontend-Komponenten (C4 Model - Component)
+---
 
-```plantuml
-@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+## 3. Feature Flag Integration
 
-Container_Boundary(spa, "Vue.js SPA") {
-    Component(app, "App.vue", "Root Component", "Haupt-Vue-Komponente")
+### 🎚️ Feature Flag Plugin
+
+```javascript
+// src/plugins/featureFlags.js
+
+import { ref } from 'vue'
+import { featureFlagService } from '@/services/admin/featureFlag.service'
+
+export const featureFlags = ref({
+  // Social Features
+  user_posts: false,
+  feed_system: false,
+  follow_system: false,
+  likes_reactions: false,
+  comments: true,
+  shares: false,
+  bookmarks: false,
+  
+  // Discovery
+  trending_discovery: false,
+  hashtags: false,
+  mentions: false,
+  explore_page: false,
+  
+  // Messaging
+  direct_messages: false,
+  group_chat: true,
+  
+  // Moderation
+  community_moderation: false,
+  
+  // Child Safety
+  child_safety_strict: true,
+})
+
+export const isFeatureEnabled = (featureName) => {
+  return featureFlags.value[featureName] === true
+}
+
+export const loadFeatureFlags = async () => {
+  try {
+    const flags = await featureFlagService.getUserFlags()
+    featureFlags.value = { ...featureFlags.value, ...flags }
+  } catch (error) {
+    console.error('Failed to load feature flags:', error)
+  }
+}
+
+// Vue Plugin
+export default {
+  install(app) {
+    app.config.globalProperties.$features = {
+      isEnabled: isFeatureEnabled,
+      flags: featureFlags
+    }
     
-    Component(layouts, "Layouts", "Vue Components", "MainLayout, DashboardLayout, AuthLayout")
-    Component(pages, "Pages", "Vue Components", "Dashboard, Courses, Creator")
-    Component(components, "UI Components", "Vue Components", "Button, Modal, Card")
-    Component(widgets, "Widgets", "Vue Components", "ProgressWidget, TokenWidget")
-    Component(liveroom, "LiveRoom", "Vue Components", "Whiteboard, Chat, Video")
+    // Load flags on app mount
+    loadFeatureFlags()
+  }
+}
+```
+
+### 🎯 v-feature Directive
+
+```javascript
+// src/directives/v-feature.js
+
+export default {
+  mounted(el, binding) {
+    const featureName = binding.value
+    const isEnabled = isFeatureEnabled(featureName)
+    
+    if (!isEnabled) {
+      // Hide element if feature is disabled
+      el.style.display = 'none'
+      
+      // Optionally show "Coming Soon" badge
+      if (binding.modifiers.badge) {
+        const badge = document.createElement('span')
+        badge.className = 'feature-badge'
+        badge.textContent = 'Coming Soon'
+        el.parentNode.insertBefore(badge, el)
+      }
+    }
+  }
 }
 
-Container_Boundary(core, "Core Services") {
-    Component(router, "Vue Router", "Routing", "Navigation Management")
-    Component(store, "Pinia Stores", "State", "user, courses, dashboard")
-    Component(i18n, "vue-i18n", "i18n", "Mehrsprachigkeit")
-    Component(api, "API Layer", "Axios", "HTTP Client")
+// Usage in component:
+// <PostComposer v-feature="'user_posts'" />
+// <FollowButton v-feature.badge="'follow_system'" />
+```
+
+### 🔒 Feature Flag Route Guard
+
+```javascript
+// src/router/featureGuards.js
+
+import { isFeatureEnabled } from '@/plugins/featureFlags'
+
+export const requireFeature = (featureName) => {
+  return (to, from, next) => {
+    if (isFeatureEnabled(featureName)) {
+      next()
+    } else {
+      // Redirect to dashboard with message
+      next({
+        name: 'Dashboard',
+        query: {
+          featureDisabled: featureName
+        }
+      })
+    }
+  }
 }
 
-Rel(app, layouts, "Verwendet")
-Rel(layouts, pages, "Enthält")
-Rel(pages, components, "Verwendet")
-Rel(pages, widgets, "Enthält")
-Rel(pages, liveroom, "Verwendet")
-
-Rel(app, router, "Routing")
-Rel(pages, store, "State Management")
-Rel(pages, i18n, "Übersetzungen")
-Rel(pages, api, "API Calls")
-
-@enduml
+// Usage in router:
+// {
+//   path: '/social/feed',
+//   component: Feed,
+//   beforeEnter: requireFeature('feed_system')
+// }
 ```
 
 ---
 
-### 2.1 📦 `/components`
+## 4. Social Network Components
 
-**Allgemeine, wiederverwendbare UI-Komponenten:**
-
-```
-/components
-├── Button.vue
-├── Input.vue
-├── Textarea.vue
-├── Modal.vue
-├── Dropdown.vue
-├── Tabs.vue
-├── Loader.vue
-├── Alert.vue
-├── Card.vue
-├── ProgressBar.vue
-├── Tooltip.vue
-├── Badge.vue
-├── Avatar.vue
-└── Pagination.vue
-```
-
-#### 💡 Beispiel: `Button.vue`
+### 🌟 PostCard Component
 
 ```vue
+<!-- src/components/social/PostCard.vue -->
+
 <template>
-  <button
-    :class="buttonClasses"
-    :disabled="disabled"
-    @click="$emit('click', $event)"
-  >
-    <slot />
-  </button>
+  <Card class="post-card">
+    <!-- User Info -->
+    <div class="post-header">
+      <Avatar :user="post.author" />
+      <div class="user-info">
+        <router-link :to="`/profile/${post.author.id}`">
+          <h4>{{ post.author.username }}</h4>
+        </router-link>
+        <span class="post-time">{{ formatTime(post.created_at) }}</span>
+      </div>
+      
+      <!-- Report Button -->
+      <Dropdown v-if="!isOwnPost">
+        <DropdownItem @click="reportPost">
+          🚩 Report Post
+        </DropdownItem>
+      </Dropdown>
+    </div>
+
+    <!-- Content Warning (Child Safety) -->
+    <ContentWarning 
+      v-if="post.has_warning"
+      :type="post.warning_type"
+      @reveal="revealContent"
+    />
+
+    <!-- Post Content -->
+    <div v-show="!post.has_warning || contentRevealed" class="post-content">
+      <p v-html="sanitizedContent"></p>
+      
+      <!-- Media -->
+      <div v-if="post.media_urls" class="post-media">
+        <img 
+          v-for="media in post.media_urls" 
+          :key="media.url"
+          :src="media.url"
+          :alt="media.alt"
+        />
+      </div>
+      
+      <!-- Hashtags -->
+      <div v-if="post.hashtags" class="post-hashtags">
+        <HashtagChip 
+          v-for="tag in post.hashtags"
+          :key="tag"
+          :tag="tag"
+        />
+      </div>
+    </div>
+
+    <!-- Engagement Actions -->
+    <div v-feature="'likes_reactions'" class="post-actions">
+      <LikeButton 
+        :post-id="post.id"
+        :initial-liked="post.user_liked"
+        :count="post.likes_count"
+      />
+      
+      <CommentButton 
+        :count="post.comments_count"
+        @click="toggleComments"
+      />
+      
+      <ShareButton 
+        v-feature="'shares'"
+        :post-id="post.id"
+        :count="post.shares_count"
+      />
+      
+      <BookmarkButton 
+        v-feature="'bookmarks'"
+        :post-id="post.id"
+        :initial-bookmarked="post.user_bookmarked"
+      />
+    </div>
+
+    <!-- Comments Section -->
+    <CommentSection 
+      v-if="showComments && commentsEnabled"
+      :post-id="post.id"
+    />
+
+    <!-- DRM Watermark (if applicable) -->
+    <Watermark 
+      v-if="post.is_premium_content"
+      :user="currentUser"
+    />
+  </Card>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { usePost } from '@/composables/social/usePost'
+import { sanitizeHtml } from '@/utils/sanitize'
+import { useReport } from '@/composables/compliance/useReport'
 
 const props = defineProps({
-  variant: {
-    type: String,
-    default: 'primary'
-  },
-  size: {
-    type: String,
-    default: 'md'
-  },
-  disabled: Boolean
+  post: {
+    type: Object,
+    required: true
+  }
 })
 
-const buttonClasses = computed(() => {
-  return [
-    'btn',
-    `btn-${props.variant}`,
-    `btn-${props.size}`
-  ]
+const { currentUser } = useAuth()
+const { openReportModal } = useReport()
+
+const contentRevealed = ref(false)
+const showComments = ref(false)
+
+const isOwnPost = computed(() => {
+  return props.post.author.id === currentUser.value?.id
 })
+
+const sanitizedContent = computed(() => {
+  return sanitizeHtml(props.post.content)
+})
+
+const commentsEnabled = computed(() => {
+  return isFeatureEnabled('comments')
+})
+
+const revealContent = () => {
+  contentRevealed.value = true
+}
+
+const toggleComments = () => {
+  showComments.value = !showComments.value
+}
+
+const reportPost = () => {
+  openReportModal({
+    content_id: props.post.id,
+    content_type: 'post',
+    author: props.post.author
+  })
+}
 </script>
 ```
 
----
-
-## 3. Layouts
-
-### 🏗️ Layout-System & Routing
-
-```plantuml
-@startuml
-|User|
-start
-:Öffnet URL;
-
-|Vue Router|
-:Prüft Route;
-
-if (Route erfordert Auth?) then (ja)
-  |Router Guard|
-  if (User authenticated?) then (ja)
-    if (Rolle passt?) then (ja)
-      :Lade Layout;
-    else (nein)
-      :Redirect zu Dashboard;
-      stop
-    endif
-  else (nein)
-    :Redirect zu Login;
-    stop
-  endif
-else (nein)
-  :Lade Layout;
-endif
-
-|Layout Component|
-:Rendere Layout;
-:Lade Page Component;
-
-|Page|
-:Rendere Inhalt;
-
-|User|
-:Sieht Seite;
-stop
-@enduml
-```
-
----
-
-### 3.1 📐 `/layouts`
-
-**Layouts definieren die Seitenstruktur:**
-
-```
-/layouts
-├── MainLayout.vue
-├── AuthLayout.vue
-├── DashboardLayout.vue
-├── AdminLayout.vue
-└── OrganizationLayout.vue
-```
-
-#### 📄 Beispiel: `DashboardLayout.vue`
+### 💬 CommentSection Component
 
 ```vue
+<!-- src/components/social/CommentSection.vue -->
+
 <template>
-  <div class="dashboard-layout">
-    <Header />
-    <Sidebar />
-    <main class="content">
-      <router-view />
-    </main>
-    <Footer />
+  <div class="comment-section">
+    <!-- Comment Input -->
+    <CommentInput 
+      v-if="canComment"
+      :post-id="postId"
+      @submit="handleNewComment"
+    />
+
+    <!-- Comments List -->
+    <div class="comments-list">
+      <div 
+        v-for="comment in comments"
+        :key="comment.id"
+        class="comment"
+      >
+        <Avatar :user="comment.author" size="sm" />
+        
+        <div class="comment-content">
+          <div class="comment-header">
+            <strong>{{ comment.author.username }}</strong>
+            <span class="comment-time">{{ formatTime(comment.created_at) }}</span>
+          </div>
+          
+          <p v-html="sanitizeHtml(comment.content)"></p>
+          
+          <!-- Comment Actions -->
+          <div class="comment-actions">
+            <LikeButton 
+              v-feature="'likes_reactions'"
+              type="comment"
+              :comment-id="comment.id"
+              :count="comment.likes_count"
+              size="sm"
+            />
+            
+            <button @click="replyToComment(comment)">
+              Reply
+            </button>
+            
+            <button 
+              v-if="!isOwnComment(comment)"
+              @click="reportComment(comment)"
+            >
+              🚩 Report
+            </button>
+          </div>
+          
+          <!-- Nested Replies -->
+          <div v-if="comment.replies_count > 0" class="comment-replies">
+            <CommentSection 
+              :post-id="postId"
+              :parent-comment-id="comment.id"
+              nested
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Load More -->
+    <button 
+      v-if="hasMore"
+      @click="loadMoreComments"
+      class="btn-load-more"
+    >
+      Load More Comments
+    </button>
   </div>
 </template>
 
 <script setup>
-import Header from '@/components/Header.vue'
-import Sidebar from '@/components/Sidebar.vue'
-import Footer from '@/components/Footer.vue'
+import { ref, computed, onMounted } from 'vue'
+import { useComment } from '@/composables/social/useComment'
+import { useAuth } from '@/composables/core/useAuth'
+import { useReport } from '@/composables/compliance/useReport'
+
+const props = defineProps({
+  postId: {
+    type: String,
+    required: true
+  },
+  parentCommentId: {
+    type: String,
+    default: null
+  },
+  nested: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const { currentUser } = useAuth()
+const { 
+  comments, 
+  hasMore,
+  loadComments, 
+  addComment 
+} = useComment(props.postId, props.parentCommentId)
+
+const { openReportModal } = useReport()
+
+const canComment = computed(() => {
+  return currentUser.value && !props.nested
+})
+
+const isOwnComment = (comment) => {
+  return comment.author.id === currentUser.value?.id
+}
+
+const handleNewComment = async (commentData) => {
+  await addComment(commentData)
+}
+
+const loadMoreComments = async () => {
+  await loadComments()
+}
+
+const reportComment = (comment) => {
+  openReportModal({
+    content_id: comment.id,
+    content_type: 'comment',
+    author: comment.author
+  })
+}
+
+onMounted(() => {
+  loadComments()
+})
 </script>
 ```
 
 ---
 
-## 4. Pages (Routen)
+## 5. Compliance Components
 
-### 📄 `/pages` Struktur
+### 🍪 CookieConsent Component (GDPR)
 
+```vue
+<!-- src/components/compliance/CookieConsent.vue -->
+
+<template>
+  <div v-if="!hasConsent" class="cookie-banner">
+    <div class="cookie-content">
+      <h3>{{ $t('compliance.cookies.title') }}</h3>
+      <p>{{ $t('compliance.cookies.description') }}</p>
+      
+      <div class="cookie-options">
+        <!-- Essential Cookies (always on) -->
+        <label class="cookie-option">
+          <input type="checkbox" checked disabled>
+          <span>{{ $t('compliance.cookies.essential') }}</span>
+          <small>{{ $t('compliance.cookies.essential_desc') }}</small>
+        </label>
+        
+        <!-- Analytics Cookies -->
+        <label class="cookie-option">
+          <input 
+            type="checkbox" 
+            v-model="preferences.analytics"
+          >
+          <span>{{ $t('compliance.cookies.analytics') }}</span>
+          <small>{{ $t('compliance.cookies.analytics_desc') }}</small>
+        </label>
+        
+        <!-- Marketing Cookies -->
+        <label class="cookie-option">
+          <input 
+            type="checkbox" 
+            v-model="preferences.marketing"
+          >
+          <span>{{ $t('compliance.cookies.marketing') }}</span>
+          <small>{{ $t('compliance.cookies.marketing_desc') }}</small>
+        </label>
+      </div>
+      
+      <div class="cookie-actions">
+        <button @click="acceptAll" class="btn btn-primary">
+          {{ $t('compliance.cookies.accept_all') }}
+        </button>
+        
+        <button @click="acceptSelected" class="btn btn-secondary">
+          {{ $t('compliance.cookies.accept_selected') }}
+        </button>
+        
+        <button @click="rejectAll" class="btn btn-text">
+          {{ $t('compliance.cookies.reject_all') }}
+        </button>
+      </div>
+      
+      <div class="cookie-links">
+        <router-link to="/privacy/cookie-policy">
+          {{ $t('compliance.cookies.learn_more') }}
+        </router-link>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useConsent } from '@/composables/compliance/useConsent'
+
+const { 
+  hasConsent, 
+  preferences, 
+  saveConsent, 
+  loadConsent 
+} = useConsent()
+
+const acceptAll = async () => {
+  preferences.value = {
+    essential: true,
+    analytics: true,
+    marketing: true
+  }
+  await saveConsent(preferences.value)
+}
+
+const acceptSelected = async () => {
+  await saveConsent(preferences.value)
+}
+
+const rejectAll = async () => {
+  preferences.value = {
+    essential: true,
+    analytics: false,
+    marketing: false
+  }
+  await saveConsent(preferences.value)
+}
+
+onMounted(() => {
+  loadConsent()
+})
+</script>
+
+<style scoped>
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+  padding: 24px;
+  z-index: 9999;
+}
+
+.cookie-options {
+  margin: 16px 0;
+}
+
+.cookie-option {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.cookie-option input {
+  margin-right: 12px;
+}
+
+.cookie-option small {
+  display: block;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .cookie-actions {
+    flex-direction: column;
+  }
+}
+</style>
 ```
-/pages
-├── /auth
-│   ├── Login.vue
-│   ├── Register.vue
-│   └── ForgotPassword.vue
-├── /dashboard
-│   ├── Index.vue
-│   ├── Settings.vue
-│   ├── Notifications.vue
-│   └── LayoutManager.vue
-├── ProfilePage.vue
-├── SettingsPage.vue
-├── /courses
-│   ├── CourseList.vue
-│   ├── CourseView.vue
-│   ├── CourseModules.vue
-│   ├── ModuleView.vue
-│   ├── MethodView.vue
-│   └── ExamView.vue
-├── /creator
-│   ├── CreatorDashboard.vue
-│   ├── CourseEditor.vue
-│   ├── ModuleEditor.vue
-│   ├── MethodEditor.vue
-│   └── Publish.vue
-├── /community
-│   ├── CommunityHome.vue
-│   ├── CourseView.vue
-│   └── CreatorProfile.vue
-├── /org
-│   ├── OrgDashboard.vue
-│   ├── Classes.vue
-│   ├── Members.vue
-│   ├── Billing.vue
-│   └── TokenPool.vue
-└── /admin
-    ├── AdminDashboard.vue
-    ├── UserManagement.vue
-    ├── Logs.vue
-    ├── WidgetRegistry.vue
-    └── RoleManagement.vue
+
+### 👶 AgeGate Component (Child Safety)
+
+```vue
+<!-- src/components/compliance/AgeGate.vue -->
+
+<template>
+  <div v-if="!ageVerified" class="age-gate-overlay">
+    <div class="age-gate-modal">
+      <img src="@/assets/logo.svg" alt="LSX" class="logo" />
+      
+      <h2>{{ $t('compliance.age_gate.title') }}</h2>
+      <p>{{ $t('compliance.age_gate.description') }}</p>
+      
+      <!-- Age Input -->
+      <form @submit.prevent="verifyAge">
+        <div class="form-group">
+          <label>{{ $t('compliance.age_gate.birthdate') }}</label>
+          <input 
+            type="date" 
+            v-model="birthdate"
+            :max="maxDate"
+            required
+          />
+        </div>
+        
+        <!-- Parental Consent (if under 13) -->
+        <div v-if="requiresParentalConsent" class="parental-consent">
+          <h3>{{ $t('compliance.age_gate.parental_consent_required') }}</h3>
+          <p>{{ $t('compliance.age_gate.coppa_notice') }}</p>
+          
+          <div class="form-group">
+            <label>{{ $t('compliance.age_gate.parent_email') }}</label>
+            <input 
+              type="email" 
+              v-model="parentEmail"
+              required
+            />
+          </div>
+        </div>
+        
+        <!-- Terms Agreement -->
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" v-model="agreeTerms" required />
+            {{ $t('compliance.age_gate.agree_terms') }}
+            <router-link to="/privacy/terms" target="_blank">
+              {{ $t('compliance.age_gate.read_terms') }}
+            </router-link>
+          </label>
+        </div>
+        
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          :disabled="!canSubmit"
+        >
+          {{ $t('compliance.age_gate.continue') }}
+        </button>
+      </form>
+      
+      <div class="age-gate-footer">
+        <a href="/privacy/age-verification" target="_blank">
+          {{ $t('compliance.age_gate.why_ask') }}
+        </a>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { useAgeGate } from '@/composables/compliance/useAgeGate'
+
+const {
+  ageVerified,
+  verifyAge: submitVerification,
+  requestParentalConsent
+} = useAgeGate()
+
+const birthdate = ref('')
+const parentEmail = ref('')
+const agreeTerms = ref(false)
+
+const maxDate = computed(() => {
+  const today = new Date()
+  return today.toISOString().split('T')[0]
+})
+
+const age = computed(() => {
+  if (!birthdate.value) return 0
+  
+  const today = new Date()
+  const birth = new Date(birthdate.value)
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  
+  return age
+})
+
+const requiresParentalConsent = computed(() => {
+  return age.value > 0 && age.value < 13 // COPPA
+})
+
+const canSubmit = computed(() => {
+  return agreeTerms.value && 
+         birthdate.value &&
+         (!requiresParentalConsent.value || parentEmail.value)
+})
+
+const verifyAge = async () => {
+  if (requiresParentalConsent.value) {
+    // Request parental consent via email
+    await requestParentalConsent({
+      birthdate: birthdate.value,
+      parent_email: parentEmail.value
+    })
+    
+    // Show message: "Parental consent email sent"
+    alert($t('compliance.age_gate.consent_email_sent'))
+  } else {
+    // Verify age directly
+    await submitVerification({
+      birthdate: birthdate.value,
+      agree_terms: agreeTerms.value
+    })
+  }
+}
+</script>
+
+<style scoped>
+.age-gate-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.age-gate-modal {
+  background: white;
+  padding: 48px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+}
+
+.logo {
+  width: 120px;
+  margin-bottom: 24px;
+}
+
+.parental-consent {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+</style>
+```
+
+### 🚩 ReportContent Component (DSA Art. 14)
+
+```vue
+<!-- src/components/compliance/ReportContent.vue -->
+
+<template>
+  <Modal 
+    :show="isOpen"
+    @close="closeModal"
+    size="large"
+  >
+    <template #header>
+      <h2>{{ $t('compliance.report.title') }}</h2>
+    </template>
+
+    <template #body>
+      <form @submit.prevent="submitReport">
+        <!-- Report Category -->
+        <div class="form-group">
+          <label>{{ $t('compliance.report.category') }} *</label>
+          <select v-model="form.category" required>
+            <option value="">{{ $t('compliance.report.select_category') }}</option>
+            <option value="hate_speech">{{ $t('compliance.report.hate_speech') }}</option>
+            <option value="harassment">{{ $t('compliance.report.harassment') }}</option>
+            <option value="spam">{{ $t('compliance.report.spam') }}</option>
+            <option value="violence">{{ $t('compliance.report.violence') }}</option>
+            <option value="nsfw">{{ $t('compliance.report.nsfw') }}</option>
+            <option value="csam">🚨 {{ $t('compliance.report.csam') }}</option>
+            <option value="misinformation">{{ $t('compliance.report.misinformation') }}</option>
+            <option value="copyright">{{ $t('compliance.report.copyright') }}</option>
+            <option value="other">{{ $t('compliance.report.other') }}</option>
+          </select>
+        </div>
+
+        <!-- CSAM Warning -->
+        <Alert v-if="form.category === 'csam'" type="error">
+          <strong>{{ $t('compliance.report.csam_warning') }}</strong>
+          <p>{{ $t('compliance.report.csam_notice') }}</p>
+        </Alert>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>{{ $t('compliance.report.description') }} *</label>
+          <textarea 
+            v-model="form.description"
+            rows="5"
+            :placeholder="$t('compliance.report.description_placeholder')"
+            required
+          ></textarea>
+          <small>{{ $t('compliance.report.be_specific') }}</small>
+        </div>
+
+        <!-- Evidence Upload -->
+        <div class="form-group">
+          <label>{{ $t('compliance.report.evidence') }}</label>
+          <input 
+            type="file"
+            @change="handleFileUpload"
+            accept="image/*,.pdf"
+            multiple
+          />
+          <small>{{ $t('compliance.report.evidence_help') }}</small>
+        </div>
+
+        <!-- Anonymous Reporting -->
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" v-model="form.anonymous" />
+            {{ $t('compliance.report.report_anonymously') }}
+          </label>
+          <small>{{ $t('compliance.report.anonymous_notice') }}</small>
+        </div>
+
+        <!-- Content Preview -->
+        <div class="content-preview">
+          <h4>{{ $t('compliance.report.reported_content') }}</h4>
+          <PostCard 
+            v-if="contentType === 'post'"
+            :post="content"
+            preview-mode
+          />
+          <!-- Other content types... -->
+        </div>
+      </form>
+    </template>
+
+    <template #footer>
+      <button 
+        @click="closeModal"
+        class="btn btn-secondary"
+      >
+        {{ $t('common.cancel') }}
+      </button>
+      
+      <button 
+        @click="submitReport"
+        class="btn btn-primary"
+        :disabled="!canSubmit || isSubmitting"
+      >
+        <Loader v-if="isSubmitting" size="sm" />
+        {{ $t('compliance.report.submit') }}
+      </button>
+    </template>
+  </Modal>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { useReport } from '@/composables/compliance/useReport'
+import { useToast } from '@/composables/core/useToast'
+
+const props = defineProps({
+  contentId: String,
+  contentType: String,
+  content: Object
+})
+
+const {
+  isOpen,
+  closeModal,
+  submitReport: submitToAPI
+} = useReport()
+
+const { showToast } = useToast()
+
+const form = ref({
+  category: '',
+  description: '',
+  evidence: [],
+  anonymous: false
+})
+
+const isSubmitting = ref(false)
+
+const canSubmit = computed(() => {
+  return form.value.category && form.value.description.length >= 20
+})
+
+const handleFileUpload = (event) => {
+  form.value.evidence = Array.from(event.target.files)
+}
+
+const submitReport = async () => {
+  if (!canSubmit.value) return
+
+  isSubmitting.value = true
+
+  try {
+    await submitToAPI({
+      content_id: props.contentId,
+      content_type: props.contentType,
+      category: form.value.category,
+      description: form.value.description,
+      evidence: form.value.evidence,
+      anonymous: form.value.anonymous
+    })
+
+    showToast({
+      type: 'success',
+      message: $t('compliance.report.success')
+    })
+
+    closeModal()
+  } catch (error) {
+    showToast({
+      type: 'error',
+      message: $t('compliance.report.error')
+    })
+  } finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+
+<style scoped>
+.content-preview {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.checkbox-group small {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+}
+</style>
 ```
 
 ---
 
-## 5. Router
+## 6. Moderation Dashboard
 
-### 🛣️ Vue Router Konfiguration
+### 🛡️ ModerationQueue Component
 
-#### 5.1 📂 `/router/index.js`
+```vue
+<!-- src/pages/moderation/Queue.vue -->
+
+<template>
+  <ModeratorLayout>
+    <div class="moderation-queue">
+      <header class="queue-header">
+        <h1>{{ $t('moderation.queue.title') }}</h1>
+        
+        <!-- Filters -->
+        <div class="queue-filters">
+          <select v-model="filters.priority">
+            <option value="">All Priorities</option>
+            <option value="critical">🚨 Critical</option>
+            <option value="high">⚠️ High</option>
+            <option value="medium">📊 Medium</option>
+            <option value="low">ℹ️ Low</option>
+          </select>
+          
+          <select v-model="filters.category">
+            <option value="">All Categories</option>
+            <option value="hate_speech">Hate Speech</option>
+            <option value="harassment">Harassment</option>
+            <option value="spam">Spam</option>
+            <option value="csam">CSAM</option>
+          </select>
+          
+          <select v-model="filters.sla">
+            <option value="">All SLA</option>
+            <option value="overdue">Overdue</option>
+            <option value="urgent">< 2h</option>
+            <option value="soon">< 24h</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="queue-stats">
+        <StatCard 
+          title="Pending"
+          :value="stats.pending"
+          icon="⏳"
+        />
+        <StatCard 
+          title="Overdue (SLA)"
+          :value="stats.overdue"
+          icon="🚨"
+          type="danger"
+        />
+        <StatCard 
+          title="Reviewed Today"
+          :value="stats.reviewed_today"
+          icon="✅"
+        />
+        <StatCard 
+          title="Avg. Response Time"
+          :value="stats.avg_response_time"
+          icon="⏱️"
+        />
+      </div>
+
+      <!-- Queue List -->
+      <div class="queue-list">
+        <ContentReview 
+          v-for="report in filteredReports"
+          :key="report.id"
+          :report="report"
+          @action="handleModerationAction"
+        />
+        
+        <!-- Empty State -->
+        <div v-if="filteredReports.length === 0" class="empty-state">
+          <p>✅ {{ $t('moderation.queue.empty') }}</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <Pagination 
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @change="changePage"
+      />
+    </div>
+  </ModeratorLayout>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useModerationQueue } from '@/composables/moderation/useModerationQueue'
+import { useModerationStats } from '@/composables/moderation/useModerationStats'
+
+const {
+  reports,
+  stats,
+  filters,
+  currentPage,
+  totalPages,
+  loadQueue,
+  takeAction
+} = useModerationQueue()
+
+const filteredReports = computed(() => {
+  let filtered = reports.value
+
+  if (filters.value.priority) {
+    filtered = filtered.filter(r => r.priority === filters.value.priority)
+  }
+
+  if (filters.value.category) {
+    filtered = filtered.filter(r => r.category === filters.value.category)
+  }
+
+  if (filters.value.sla) {
+    const now = new Date()
+    filtered = filtered.filter(r => {
+      const deadline = new Date(r.sla_deadline)
+      const hoursLeft = (deadline - now) / (1000 * 60 * 60)
+
+      if (filters.value.sla === 'overdue') {
+        return hoursLeft < 0
+      } else if (filters.value.sla === 'urgent') {
+        return hoursLeft < 2 && hoursLeft > 0
+      } else if (filters.value.sla === 'soon') {
+        return hoursLeft < 24 && hoursLeft > 2
+      }
+
+      return true
+    })
+  }
+
+  return filtered
+})
+
+const handleModerationAction = async (action) => {
+  await takeAction(action)
+  await loadQueue()
+}
+
+const changePage = (page) => {
+  currentPage.value = page
+  loadQueue()
+}
+
+onMounted(() => {
+  loadQueue()
+  
+  // Auto-refresh every 30 seconds
+  setInterval(() => {
+    loadQueue()
+  }, 30000)
+})
+</script>
+
+<style scoped>
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.queue-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.queue-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+</style>
+```
+
+---
+
+## 7. Router mit Feature Guards
 
 ```javascript
+// src/router/index.js
+
 import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/store/user'
+import { useUserStore } from '@/store/modules/user'
+import { requireAuth, requireRole } from './guards'
+import { requireFeature } from './featureGuards'
 
 const routes = [
+  // ... existing routes
+
+  // Social Routes (Feature-Flagged)
   {
-    path: '/',
+    path: '/social',
     component: () => import('@/layouts/MainLayout.vue'),
+    beforeEnter: requireFeature('feed_system'),
     children: [
       {
-        path: '',
-        name: 'Home',
-        component: () => import('@/pages/Home.vue')
-      }
-    ]
-  },
-  {
-    path: '/auth',
-    component: () => import('@/layouts/AuthLayout.vue'),
-    children: [
-      {
-        path: 'login',
-        name: 'Login',
-        component: () => import('@/pages/auth/Login.vue')
+        path: 'feed',
+        name: 'SocialFeed',
+        component: () => import('@/pages/social/Feed.vue'),
+        meta: { requiresAuth: true }
       },
       {
-        path: 'register',
-        name: 'Register',
-        component: () => import('@/pages/auth/Register.vue')
+        path: 'explore',
+        name: 'Explore',
+        component: () => import('@/pages/social/Explore.vue'),
+        beforeEnter: requireFeature('explore_page')
+      },
+      {
+        path: 'trending',
+        name: 'Trending',
+        component: () => import('@/pages/social/Trending.vue'),
+        beforeEnter: requireFeature('trending_discovery')
+      },
+      {
+        path: 'profile/:userId',
+        name: 'UserProfile',
+        component: () => import('@/pages/social/Profile.vue')
+      },
+      {
+        path: 'messages',
+        name: 'Messages',
+        component: () => import('@/pages/social/Messages.vue'),
+        beforeEnter: [requireAuth, requireFeature('direct_messages')]
       }
     ]
   },
+
+  // Privacy & Compliance Routes
   {
-    path: '/dashboard',
-    component: () => import('@/layouts/DashboardLayout.vue'),
-    meta: { requiresAuth: true },
+    path: '/privacy',
+    component: () => import('@/layouts/MinimalLayout.vue'),
+    children: [
+      {
+        path: 'settings',
+        name: 'PrivacySettings',
+        component: () => import('@/pages/privacy/PrivacySettings.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'export',
+        name: 'DataExport',
+        component: () => import('@/pages/privacy/DataExport.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'delete',
+        name: 'DataDeletion',
+        component: () => import('@/pages/privacy/DataDeletion.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'policy',
+        name: 'PrivacyPolicy',
+        component: () => import('@/pages/privacy/PrivacyPolicy.vue')
+      },
+      {
+        path: 'terms',
+        name: 'TermsOfService',
+        component: () => import('@/pages/privacy/TermsOfService.vue')
+      },
+      {
+        path: 'guidelines',
+        name: 'CommunityGuidelines',
+        component: () => import('@/pages/privacy/CommunityGuidelines.vue')
+      }
+    ]
+  },
+
+  // Moderation Routes
+  {
+    path: '/moderation',
+    component: () => import('@/layouts/ModeratorLayout.vue'),
+    beforeEnter: [requireAuth, requireRole('moderator')],
     children: [
       {
         path: '',
-        name: 'Dashboard',
-        component: () => import('@/pages/dashboard/Index.vue')
+        name: 'ModerationDashboard',
+        component: () => import('@/pages/moderation/Dashboard.vue')
+      },
+      {
+        path: 'queue',
+        name: 'ModerationQueue',
+        component: () => import('@/pages/moderation/Queue.vue')
+      },
+      {
+        path: 'reports',
+        name: 'ModerationReports',
+        component: () => import('@/pages/moderation/Reports.vue')
+      },
+      {
+        path: 'review/:reportId',
+        name: 'ReviewContent',
+        component: () => import('@/pages/moderation/ReviewContent.vue')
+      },
+      {
+        path: 'appeals',
+        name: 'Appeals',
+        component: () => import('@/pages/moderation/Appeals.vue')
+      },
+      {
+        path: 'statistics',
+        name: 'ModerationStatistics',
+        component: () => import('@/pages/moderation/Statistics.vue')
       }
     ]
   },
+
+  // Parental Control Routes
+  {
+    path: '/parental',
+    component: () => import('@/layouts/MainLayout.vue'),
+    beforeEnter: [requireAuth, requireRole('parent')],
+    children: [
+      {
+        path: '',
+        name: 'ParentalDashboard',
+        component: () => import('@/pages/parental/Dashboard.vue')
+      },
+      {
+        path: 'activity',
+        name: 'ChildActivity',
+        component: () => import('@/pages/parental/ActivityLog.vue')
+      },
+      {
+        path: 'screen-time',
+        name: 'ScreenTime',
+        component: () => import('@/pages/parental/ScreenTime.vue')
+      },
+      {
+        path: 'restrictions',
+        name: 'ContentRestrictions',
+        component: () => import('@/pages/parental/Restrictions.vue')
+      }
+    ]
+  },
+
+  // Admin Feature Flag Routes
   {
     path: '/admin',
     component: () => import('@/layouts/AdminLayout.vue'),
-    meta: { requiresAuth: true, role: 'admin' },
+    beforeEnter: [requireAuth, requireRole('admin')],
     children: [
+      // ... existing admin routes
+      
       {
-        path: '',
-        name: 'AdminDashboard',
-        component: () => import('@/pages/admin/AdminDashboard.vue')
+        path: 'features',
+        name: 'AdminFeatureFlags',
+        component: () => import('@/pages/admin/FeatureFlags.vue')
+      },
+      {
+        path: 'rollout',
+        name: 'AdminRollout',
+        component: () => import('@/pages/admin/RolloutControl.vue')
+      },
+      {
+        path: 'compliance',
+        name: 'AdminCompliance',
+        component: () => import('@/pages/admin/ComplianceDashboard.vue')
       }
     ]
   }
@@ -404,17 +1773,23 @@ const router = createRouter({
   routes
 })
 
-// Route Guards
-router.beforeEach((to, from, next) => {
+// Global Guards
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   
+  // Check authentication
   if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-    next('/auth/login')
-  } else if (to.meta.role && userStore.role !== to.meta.role) {
-    next('/dashboard')
-  } else {
-    next()
+    next({ name: 'Login', query: { redirect: to.fullPath } })
+    return
   }
+  
+  // Age gate check
+  if (!userStore.ageVerified && to.name !== 'AgeVerification') {
+    next({ name: 'AgeVerification' })
+    return
+  }
+  
+  next()
 })
 
 export default router
@@ -422,2116 +1797,89 @@ export default router
 
 ---
 
-## 6. State Management (Pinia)
-
-### 📦 Store-Architektur
-
-```mermaid
-graph TD
-    A[Pinia Stores] --> B[user]
-    A --> C[dashboard]
-    A --> D[courses]
-    A --> E[methods]
-    A --> F[exams]
-    A --> G[notifications]
-    A --> H[liveroom]
-    A --> I[tokens]
-    
-    style A fill:#fff4e1
-```
-
----
-
-### 6.1 🗂️ `/store` Struktur
-
-```
-/store
-├── user.js
-├── dashboard.js
-├── courses.js
-├── methods.js
-├── exams.js
-├── notifications.js
-├── liveroom.js
-├── tokens.js
-└── theme.store.ts
-```
-
----
-
-### 📝 Beispiel: `user.js`
-
-```javascript
-import { defineStore } from 'pinia'
-import * as userService from '@/services/userService'
-
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    user: null,
-    role: null,
-    token: null,
-    isAuthenticated: false
-  }),
-  
-  getters: {
-    fullName: (state) => {
-      if (!state.user) return ''
-      return `${state.user.firstname} ${state.user.lastname}`
-    },
-    
-    isPremium: (state) => {
-      return state.role === 'premium' || state.role === 'creator'
-    }
-  },
-  
-  actions: {
-    async login(email, password) {
-      try {
-        const res = await userService.login(email, password)
-        this.token = res.data.access_token
-        this.user = res.data.user
-        this.role = res.data.user.role
-        this.isAuthenticated = true
-        
-        // Store token
-        localStorage.setItem('access_token', this.token)
-      } catch (error) {
-        throw error
-      }
-    },
-    
-    async logout() {
-      this.user = null
-      this.token = null
-      this.role = null
-      this.isAuthenticated = false
-      localStorage.removeItem('access_token')
-    },
-    
-    async fetchProfile() {
-      const res = await userService.getProfile()
-      this.user = res.data
-      this.role = res.data.role
-    }
-  }
-})
-```
-
-### 📊 User Store State Diagram
-
-```plantuml
-@startuml
-[*] --> Unauthenticated
-
-state Unauthenticated {
-  [*] --> Idle
-}
-
-Unauthenticated --> Authenticating : login()
-state Authenticating {
-  [*] --> ValidatingCredentials
-  ValidatingCredentials --> StoringToken : success
-}
-
-Authenticating --> Authenticated : token received
-Authenticating --> Unauthenticated : error
-
-state Authenticated {
-  [*] --> Idle
-  Idle --> Loading : fetchProfile()
-  Loading --> Idle : success
-  Loading --> Error : failure
-  Error --> Idle : retry()
-}
-
-Authenticated --> RefreshingToken : token expiring
-RefreshingToken --> Authenticated : new token
-RefreshingToken --> Unauthenticated : refresh failed
-
-Authenticated --> Unauthenticated : logout()
-
-Unauthenticated --> [*]
-
-note right of Authenticating
-  Validiert Credentials
-  beim Backend
-end note
-
-note right of RefreshingToken
-  Automatischer
-  Token Refresh
-end note
-@enduml
-```
-
----
-
-### 6.2 🎨 Theme Store (Dark/Light Mode)
-
-**Phase B24 - Theme Support**
-
-Der Theme Store verwaltet das globale Theme-System mit Dark Midnight (Standard), Light und System-Modi.
-
-#### Theme-Architektur
-
-```plantuml
-@startuml
-package "Theme System" {
-  component ThemeStore {
-    [themePreference]
-    [systemTheme]
-    [effectiveTheme]
-  }
-
-  component "DOM" {
-    [<html class="dark">]
-  }
-
-  component "CSS Variables" {
-    [:root]
-    [.dark]
-  }
-}
-
-component "API" {
-  [GET /profile/theme]
-  [PATCH /profile/theme]
-}
-
-component "OS" {
-  [prefers-color-scheme]
-}
-
-ThemeStore --> [<html class="dark">] : "applyTheme()"
-ThemeStore --> [GET /profile/theme] : "load on login"
-ThemeStore --> [PATCH /profile/theme] : "save preference"
-[prefers-color-scheme] --> ThemeStore : "system theme change"
-[<html class="dark">] --> CSS Variables : "activates"
-
-note right of ThemeStore
-  Verwaltet Theme-Präferenz
-  und wendet sie auf DOM an
-end note
-@enduml
-```
-
-#### Store-Implementierung
-
-**Datei:** `frontend/src/store/theme.store.ts`
-
-**State:**
-- `themePreference`: User-Präferenz ('system' | 'light' | 'dark')
-- `systemTheme`: Erkanntes OS-Theme ('light' | 'dark')
-- `effectiveTheme`: Aktuell angewendetes Theme ('light' | 'dark')
-- `isReady`: Theme-Initialisierung abgeschlossen
-- `isUpdating`: Theme wird gerade aktualisiert
-
-**Actions:**
-- `initTheme()`: Initialisiert Theme-System (lädt von API, erkennt OS-Theme)
-- `setThemePreference(theme)`: Setzt neue Theme-Präferenz (mit API-Sync)
-- `detectSystemTheme()`: Erkennt OS-Theme via matchMedia
-- `applyTheme()`: Wendet effektives Theme auf DOM an (add/remove 'dark' class)
-- `setupSystemThemeListener()`: Registriert MediaQuery-Listener für OS-Änderungen
-
-**Getters:**
-- `isDarkMode`: computed, gibt `true` zurück wenn effectiveTheme === 'dark'
-
-#### Theme-Anwendung
-
-**CSS-Variablen in `style.css`:**
-
-```css
-:root {
-  /* Light Theme */
-  --color-bg: #f5f5f7;
-  --color-surface: #ffffff;
-  --color-text-primary: #111827;
-  /* ... */
-}
-
-.dark {
-  /* Dark Midnight Theme */
-  --color-bg: #050814;
-  --color-surface: #0b1020;
-  --color-text-primary: #e5e7eb;
-  /* ... */
-}
-```
-
-**TailwindCSS Dark Mode:**
-
-```javascript
-// tailwind.config.js
-export default {
-  darkMode: 'class', // Class-basierter Dark Mode
-  // ...
-}
-```
-
-**Komponenten nutzen automatisch dark: Varianten:**
-
-```vue
-<template>
-  <div class="bg-white dark:bg-gray-900">
-    <h1 class="text-gray-900 dark:text-gray-100">Titel</h1>
-  </div>
-</template>
-```
-
-#### Theme-Initialisierung in main.ts
-
-```typescript
-import { useThemeStore } from './store/theme.store'
-
-;(async () => {
-  const app = createApp(App)
-  const pinia = createPinia()
-  app.use(pinia)
-
-  // Theme vor App-Mount initialisieren (verhindert FOUC)
-  const themeStore = useThemeStore()
-  await themeStore.initTheme()
-
-  app.use(router)
-  app.mount('#app')
-})()
-```
-
-#### API-Integration
-
-**Backend-Endpoints:**
-- `GET /api/v1/profile/theme` - Theme-Präferenz laden
-- `PATCH /api/v1/profile/theme` - Theme-Präferenz speichern
-
-**Frontend API Service (`api/profile.api.ts`):**
-
-```typescript
-export interface ThemePreferenceResponse {
-  theme: 'system' | 'light' | 'dark'
-}
-
-export const getThemePreference = async (): Promise<ThemePreferenceResponse>
-export const updateThemePreference = async (data: UpdateThemePreferenceRequest): Promise<ThemePreferenceResponse>
-```
-
-#### Fehlerbehandlung
-
-- **API-Fehler beim Laden:** Fallback zu 'dark' (Default)
-- **API-Fehler beim Speichern:** Optimistic Update mit Rollback
-- **Keine Authentifizierung:** Verwendet 'dark' als Default
-- **Browser ohne matchMedia:** SSR-Fallback zu 'dark'
-
-#### Theme-Wechsel-Ablauf
-
-```plantuml
-@startuml
-actor User
-participant Component
-participant ThemeStore
-participant DOM
-participant API
-
-User -> Component: Theme wechseln
-Component -> ThemeStore: setThemePreference('light')
-activate ThemeStore
-
-ThemeStore -> ThemeStore: Update State (optimistic)
-ThemeStore -> ThemeStore: calculateEffectiveTheme()
-ThemeStore -> DOM: applyTheme()
-DOM -> DOM: classList.remove('dark')
-
-ThemeStore -> API: PATCH /profile/theme
-activate API
-API --> ThemeStore: 200 OK
-deactivate API
-
-ThemeStore --> Component: Success
-deactivate ThemeStore
-Component --> User: UI aktualisiert
-
-note right of ThemeStore
-  Bei API-Fehler:
-  Rollback State & DOM
-end note
-@enduml
-```
-
----
-
-### 6.3 ⚙️ Settings Page (User Theme Preferences)
-
-**Phase B24 - Theme Settings UI**
-
-Die Settings-Seite ermöglicht Benutzern die Verwaltung ihrer UI-Präferenzen, insbesondere des Themes.
-
-#### Seiten-Struktur
-
-**Datei:** `frontend/src/pages/SettingsPage.vue`
-
-**Route:** `/settings` (nur für authentifizierte Benutzer)
-
-**Features:**
-- Theme-Auswahl mit 3 Optionen (System, Hell, Dunkel)
-- Live-Vorschau (sofortige Anwendung)
-- Automatische Speicherung via API
-- Erfolgs-/Fehlermeldungen
-- Responsive Grid-Layout
-- Dark Mode Support
-
-#### UI-Komponenten
-
-**Theme-Auswahl Buttons:**
-
-```vue
-<template>
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-    <!-- System Theme Button -->
-    <button @click="selectTheme('system')">
-      <div class="text-3xl">🖥️</div>
-      <div class="font-semibold">System</div>
-      <div class="text-xs">Folgt deinem Betriebssystem</div>
-    </button>
-
-    <!-- Light Theme Button -->
-    <button @click="selectTheme('light')">
-      <div class="text-3xl">☀️</div>
-      <div class="font-semibold">Hell</div>
-      <div class="text-xs">Heller Modus</div>
-    </button>
-
-    <!-- Dark Theme Button -->
-    <button @click="selectTheme('dark')">
-      <div class="text-3xl">🌙</div>
-      <div class="font-semibold">Dunkel</div>
-      <div class="text-xs">Dark Midnight</div>
-    </button>
-  </div>
-</template>
-```
-
-**Features:**
-- Aktives Theme wird visuell hervorgehoben (Border + Checkmark)
-- Hover-States für bessere UX
-- Disabled-State während Speichervorgang
-- Responsive Grid (1 Spalte mobil, 3 Spalten Desktop)
-
-#### Integration mit Theme Store
-
-```typescript
-import { useThemeStore } from '@/store/theme.store'
-
-const themeStore = useThemeStore()
-
-const selectTheme = async (theme: ThemePreference) => {
-  try {
-    // Optimistic update + API call
-    await themeStore.setThemePreference(theme)
-
-    // Show success message
-    saveSuccess.value = true
-  } catch (err) {
-    // Handle error, rollback already done by store
-    saveError.value = err.message
-  }
-}
-```
-
-#### Sidebar-Navigation
-
-**Datei:** `frontend/src/layouts/BaseLayout.vue`
-
-Der Einstellungen-Link wurde zur Sidebar hinzugefügt:
-
-```vue
-<router-link
-  to="/settings"
-  class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-  active-class="bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-100"
->
-  ⚙️ Einstellungen
-</router-link>
-```
-
-**Position:** Nach "Profil", vor "Admin Panel"
-
-**Sichtbarkeit:** Alle authentifizierten Benutzer
-
-#### Dark Mode Support in BaseLayout
-
-Das BaseLayout wurde um vollständigen Dark Mode Support erweitert:
-
-**Header:**
-```vue
-<header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-```
-
-**Sidebar:**
-```vue
-<aside class="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
-```
-
-**Navigation Links:**
-```vue
-<router-link
-  class="text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-  active-class="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100"
->
-```
-
-#### User Flow
-
-```plantuml
-@startuml
-actor User
-participant SettingsPage
-participant ThemeStore
-participant API
-participant DOM
-
-User -> SettingsPage: Klick auf Theme-Button
-activate SettingsPage
-
-SettingsPage -> ThemeStore: setThemePreference('light')
-activate ThemeStore
-
-ThemeStore -> ThemeStore: Update local state
-ThemeStore -> DOM: applyTheme() - classList.remove('dark')
-DOM --> User: UI wechselt zu Hell
-
-ThemeStore -> API: PATCH /profile/theme
-activate API
-API --> ThemeStore: 200 OK
-deactivate API
-
-ThemeStore --> SettingsPage: Success
-deactivate ThemeStore
-
-SettingsPage --> User: Zeige Erfolgs-Meldung
-deactivate SettingsPage
-
-note right of User
-  Theme wird sofort angewendet,
-  dann im Hintergrund gespeichert
-end note
-@enduml
-```
-
-#### Error Handling
-
-**Optimistic Update mit Rollback:**
-- UI ändert sich sofort beim Klick
-- Falls API-Call fehlschlägt: Automatischer Rollback zum vorherigen Theme
-- Fehlermeldung wird angezeigt
-- Benutzer kann erneut versuchen zu speichern
-
-**Beispiel Fehlermeldung:**
-```vue
-<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-  Theme-Speicherung fehlgeschlagen. Bitte versuche es erneut.
-</div>
-```
-
-#### Zukünftige Erweiterungen
-
-Die SettingsPage ist erweiterbar für weitere Einstellungen:
-- Sprache / Language
-- Benachrichtigungen
-- ADHD/Fokus-Modus
-- Barrierefreiheit
-- Datenschutz-Präferenzen
-
-**Struktur ermöglicht einfaches Hinzufügen neuer Card-Sektionen:**
-
-```vue
-<Card title="Benachrichtigungen">
-  <!-- Notification settings -->
-</Card>
-
-<Card title="Sprache">
-  <!-- Language selection -->
-</Card>
-```
-
----
-
-## 7. Services (API Layer)
-
-### 🔌 Service-Architektur (Component Diagram)
-
-```plantuml
-@startuml
-package "Vue Components" {
-  [Login.vue]
-  [Dashboard.vue]
-  [CourseView.vue]
-}
-
-package "Services Layer" {
-  [userService]
-  [courseService]
-  [kiService]
-  [dashboardService]
-  [liveroomService]
-}
-
-component "API Layer" {
-  [Axios Instance] as axios
-  [Interceptors] as interceptors
-}
-
-component "Backend API" {
-  [REST Endpoints] as rest
-  [WebSocket] as ws
-}
-
-[Login.vue] --> [userService] : "login()"
-[Dashboard.vue] --> [dashboardService] : "fetchData()"
-[CourseView.vue] --> [courseService] : "getCourse()"
-
-[userService] --> axios : "api.post()"
-[courseService] --> axios : "api.get()"
-[kiService] --> axios : "api.post()"
-
-axios --> interceptors : "request/response"
-interceptors --> rest : "HTTP Request"
-[liveroomService] --> ws : "WebSocket"
-
-note right of interceptors
-  - Token injection
-  - Error handling
-  - Auto-logout on 401
-end note
-@enduml
-```
-
-### 🔄 API Call Flow (Sequence Diagram)
-
-```plantuml
-@startuml
-actor User
-participant "Vue Component" as Component
-participant "Pinia Store" as Store
-participant "Service Layer" as Service
-participant "Axios" as Axios
-participant "API Backend" as API
-
-User -> Component: Click "Login"
-activate Component
-
-Component -> Store: login(email, password)
-activate Store
-
-Store -> Service: userService.login(email, password)
-activate Service
-
-Service -> Axios: api.post('/auth/login', data)
-activate Axios
-
-Axios -> Axios: Add Authorization header
-Axios -> API: POST /api/v1/auth/login
-activate API
-
-API --> Axios: 200 OK {token, user}
-deactivate API
-
-Axios --> Service: Response
-deactivate Axios
-
-Service --> Store: {token, user}
-deactivate Service
-
-Store -> Store: Set token & user state
-Store --> Component: Success
-deactivate Store
-
-Component -> Component: Redirect to /dashboard
-Component --> User: Show Dashboard
-deactivate Component
-@enduml
-```
-
----
-
-### 7.1 🛠️ `/api` Struktur (TypeScript)
-
-```
-/api
-├── http.ts                    # Axios Instance + Interceptors
-├── auth.api.ts                # Authentication
-├── courses.api.ts             # Courses
-├── dashboard.api.ts           # Dashboard
-├── profile.api.ts             # User Profile
-├── tutor.api.ts               # AI Tutor
-├── admin.api.ts               # 🔄 Re-exports from admin/
-│
-└── /admin                     # 🆕 Admin API Module (14 files)
-    ├── index.ts               # Re-exports
-    ├── types.ts               # TypeScript Interfaces (750+ LOC)
-    ├── users.api.ts           # User Management
-    ├── organisations.api.ts   # Organisation Management
-    ├── courses.api.ts         # Course CRUD
-    ├── chapters.api.ts        # Chapter & Category
-    ├── lessons.api.ts         # Lesson Management
-    ├── analytics.api.ts       # System Analytics, Billing
-    ├── ai-jobs.api.ts         # AI Job Management
-    ├── exams.api.ts           # Exam Management
-    ├── prompts.api.ts         # Course Prompts
-    ├── files.api.ts           # Course Files
-    ├── ai-models.api.ts       # AI Model Management
-    ├── learning-methods.api.ts # Learning Methods
-    └── lm-routing.api.ts      # LM Model Routing
-```
-
-> **Refactored (2025-12-29):** admin.api.ts (3024 LOC) → 14 focused modules
-
----
-
-### 📡 Beispiel: `api.js` (Axios Wrapper)
-
-```javascript
-import axios from 'axios'
-import { useUserStore } from '@/store/user'
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
-
-// Request Interceptor
-api.interceptors.request.use(
-  (config) => {
-    const userStore = useUserStore()
-    if (userStore.token) {
-      config.headers.Authorization = `Bearer ${userStore.token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
-
-// Response Interceptor
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      const userStore = useUserStore()
-      await userStore.logout()
-      window.location.href = '/auth/login'
-    }
-    return Promise.reject(error)
-  }
-)
-
-export default api
-```
-
----
-
-### 📝 Beispiel: `courseService.js`
-
-```javascript
-import api from './api'
-
-export const getCourses = (params) => {
-  return api.get('/courses', { params })
-}
-
-export const getCourseById = (id) => {
-  return api.get(`/courses/${id}`)
-}
-
-export const createCourse = (data) => {
-  return api.post('/courses', data)
-}
-
-export const updateCourse = (id, data) => {
-  return api.patch(`/courses/${id}`, data)
-}
-
-export const publishCourse = (id) => {
-  return api.post(`/courses/${id}/publish`)
-}
-```
-
----
-
-## 8. Widgets
-
-### 🧩 Widget-System (Component Diagram)
-
-```plantuml
-@startuml
-package "Dashboard" {
-  component DashboardPage
-  component WidgetRegistry
-  component GridLayout
-}
-
-package "Widgets" <<Cloud>> {
-  component ProgressWidget
-  component TokenWidget
-  component KIRecommendations
-  component LiveRoomWidget
-  component CoursesWidget
-  component TasksWidget
-  component ExamScoreWidget
-}
-
-package "Store" {
-  component DashboardStore
-  component UserStore
-  component CoursesStore
-}
-
-DashboardPage --> WidgetRegistry : "lädt"
-DashboardPage --> GridLayout : "verwendet"
-GridLayout --> ProgressWidget : "rendert"
-GridLayout --> TokenWidget : "rendert"
-GridLayout --> KIRecommendations : "rendert"
-GridLayout --> LiveRoomWidget : "rendert"
-
-ProgressWidget --> CoursesStore : "liest"
-TokenWidget --> UserStore : "liest"
-KIRecommendations --> DashboardStore : "liest"
-CoursesWidget --> CoursesStore : "liest"
-
-note right of WidgetRegistry
-  Widgets sind über Registry
-  dynamisch ladbar
-end note
-@enduml
-```
-
----
-
-### 8.1 🎨 `/widgets` Struktur
-
-```
-/widgets
-├── ProgressWidget.vue
-├── ExamScoreWidget.vue
-├── CoursesWidget.vue
-├── KIRecommendations.vue
-├── TokenWidget.vue
-├── TasksWidget.vue
-├── CalendarWidget.vue
-├── LiveRoomWidget.vue
-├── GroupsWidget.vue
-├── LibraryWidget.vue
-├── TheoryWidget.vue
-├── ExamSimWidget.vue
-└── KIQuickPanel.vue
-```
-
-> Widgets sind über **Registry dynamisch ladbar**.
-
----
-
-### 💡 Beispiel: `ProgressWidget.vue`
-
-```vue
-<template>
-  <Card class="progress-widget">
-    <h3>{{ $t('widgets.progress.title') }}</h3>
-    <div class="progress-data">
-      <ProgressBar :value="progress" />
-      <p>{{ progress }}% {{ $t('widgets.progress.complete') }}</p>
-      <div class="stats">
-        <span>{{ activeCourses }} {{ $t('widgets.progress.active') }}</span>
-        <span>{{ completedModules }} / {{ totalModules }} {{ $t('widgets.progress.modules') }}</span>
-      </div>
-    </div>
-  </Card>
-</template>
-
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useCoursesStore } from '@/store/courses'
-
-const coursesStore = useCoursesStore()
-const progress = ref(0)
-const activeCourses = ref(0)
-const completedModules = ref(0)
-const totalModules = ref(0)
-
-onMounted(async () => {
-  await coursesStore.fetchProgress()
-  progress.value = coursesStore.overallProgress
-  activeCourses.value = coursesStore.activeCourses
-  completedModules.value = coursesStore.completedModules
-  totalModules.value = coursesStore.totalModules
-})
-</script>
-```
-
----
-
-## 9. Module-Editor & Methoden-Editor
-
-### 🎓 Editor-System
-
-```
-/modules
-├── TheoryEditor.vue
-├── FlashcardEditor.vue
-├── QuizEditor.vue
-├── MatchingEditor.vue
-├── TimelineEditor.vue
-├── CaseStudyEditor.vue
-├── ProblemSolvingEditor.vue
-├── StoryEditor.vue
-├── WhiteboardAnalysis.vue
-└── ExamGenerator.vue
-```
-
-> Für jede der **12 Content-Lernmethoden (Gruppen A-C)** existiert ein spezialisierter Editor.
-
----
-
-### 💡 Beispiel: `QuizEditor.vue`
-
-```vue
-<template>
-  <div class="quiz-editor">
-    <h2>{{ $t('editor.quiz.title') }}</h2>
-    
-    <div v-for="(question, index) in questions" :key="index" class="question-block">
-      <Input 
-        v-model="question.q" 
-        :label="$t('editor.quiz.question')" 
-      />
-      
-      <div class="answers">
-        <div v-for="(answer, aIndex) in question.a" :key="aIndex">
-          <Input 
-            v-model="question.a[aIndex]" 
-            :label="`${$t('editor.quiz.answer')} ${aIndex + 1}`" 
-          />
-          <input 
-            type="checkbox" 
-            v-model="question.correct" 
-            :value="aIndex"
-          />
-        </div>
-      </div>
-      
-      <Button @click="addAnswer(index)">
-        {{ $t('editor.quiz.addAnswer') }}
-      </Button>
-    </div>
-    
-    <Button @click="addQuestion">
-      {{ $t('editor.quiz.addQuestion') }}
-    </Button>
-    
-    <Button variant="primary" @click="save">
-      {{ $t('common.save') }}
-    </Button>
-  </div>
-</template>
-
-<script setup>
-import { ref } from 'vue'
-import * as methodService from '@/services/methodService'
-
-const questions = ref([
-  {
-    q: '',
-    a: ['', '', ''],
-    correct: []
-  }
-])
-
-const addQuestion = () => {
-  questions.value.push({
-    q: '',
-    a: ['', '', ''],
-    correct: []
-  })
-}
-
-const addAnswer = (qIndex) => {
-  questions.value[qIndex].a.push('')
-}
-
-const save = async () => {
-  const data = {
-    method_type: 2, // Quiz
-    data: { questions: questions.value }
-  }
-  await methodService.createMethod(data)
-}
-</script>
-```
-
----
-
-## 10. LiveRoom-Frontend
-
-### 🎥 LiveRoom-Komponenten (Component Diagram)
-
-```plantuml
-@startuml
-package "LiveRoom System" {
-  component LiveRoom.vue {
-    portin " " as lr_in
-    portout " " as lr_out
-  }
-  
-  component Whiteboard.vue {
-    portin " " as wb_in
-  }
-  
-  component Participants.vue {
-    portin " " as part_in
-  }
-  
-  component Chat.vue {
-    portin " " as chat_in
-  }
-  
-  component ScreenShare.vue {
-    portin " " as screen_in
-  }
-  
-  component Recording.vue {
-    portin " " as rec_in
-  }
-}
-
-package "Technology Stack" {
-  component WebRTC {
-    portout "Video/Audio Stream" as webrtc_out
-  }
-  
-  component WebSocket {
-    portout "Real-time Events" as ws_out
-  }
-  
-  component "Canvas API" {
-    portout "Drawing" as canvas_out
-  }
-  
-  component "KI Service" {
-    portout "Analysis" as ki_out
-  }
-}
-
-lr_in --> wb_in
-lr_in --> part_in
-lr_in --> chat_in
-lr_in --> screen_in
-lr_in --> rec_in
-
-WebRTC --> lr_out : "Streaming"
-WebSocket --> lr_out : "Signaling"
-
-wb_in --> canvas_out : "Drawing"
-wb_in --> ki_out : "Recognition"
-screen_in --> webrtc_out : "Screen Capture"
-
-note right of WebRTC
-  - Peer-to-Peer Video/Audio
-  - STUN/TURN Server
-end note
-
-note right of Whiteboard.vue
-  - Canvas-basiert
-  - KI-Analyse für Mathe
-  - Netzwerk-Diagramme
-end note
-@enduml
-```
-
-### 🔄 LiveRoom Session Flow (Activity Diagram)
-
-```plantuml
-@startuml
-|User|
-start
-:Click "LiveRoom erstellen";
-
-|Frontend|
-:POST /api/liveroom/create;
-
-|Backend|
-:Erstelle Room;
-:Generiere room_id;
-:Return room_id;
-
-|Frontend|
-:Redirect zu /liveroom/{id};
-:Initialisiere WebRTC;
-:Verbinde WebSocket;
-
-fork
-  |WebRTC|
-  :Setup Peer Connection;
-  :Request Media Devices;
-  :Start Video/Audio Stream;
-fork again
-  |WebSocket|
-  :Subscribe to room events;
-  :Listen for participants;
-end fork
-
-|Frontend|
-:Zeige LiveRoom UI;
-
-|User|
-:Nutzt Whiteboard & Chat;
-
-if (Recording aktiv?) then (ja)
-  |Backend|
-  :Speichere Stream;
-endif
-
-|User|
-:Click "Verlassen";
-
-|Frontend|
-:Close WebRTC;
-:Disconnect WebSocket;
-:POST /api/liveroom/{id}/leave;
-
-stop
-@enduml
-```
-
----
-
-### 10.1 📂 `/liveroom` Struktur
-
-```
-/liveroom
-├── LiveRoom.vue
-├── Whiteboard.vue
-├── Participants.vue
-├── Chat.vue
-├── ScreenShare.vue
-├── Recording.vue
-├── Breakouts.vue
-└── ResourceShare.vue
-```
-
-**Diese Komponenten nutzen:**
-
-- 🎥 **WebRTC** - Video/Audio Streaming
-- 🔌 **WebSockets** - Real-time Communication
-- 🎨 **Canvas-Whiteboard** - Zeichenfunktionen
-- 🤖 **KI-Analyse** - Whiteboard-Erkennung
-
----
-
-## 11. Internationalisierung
-
-### 🌍 i18n-System (Component Diagram)
-
-```plantuml
-@startuml
-package "Frontend" {
-  component "Vue Components" as components
-  component "vue-i18n Plugin" as i18n
-}
-
-package "Translation Sources" {
-  component "Static Translations" as static {
-    [de.json]
-    [en.json]
-    [pl.json]
-  }
-  
-  component "API Translations" as api {
-    [Course Content]
-    [Module Content]
-    [Method Content]
-  }
-}
-
-component "Translation Service" as service
-
-components --> i18n : "$t('key')"
-i18n --> static : "UI Strings"
-i18n --> service : "Dynamic Content"
-service --> api : "GET /translation/{type}/{id}/{lang}"
-
-note right of static
-  Manuell gepflegt
-  für UI-Texte
-end note
-
-note right of api
-  KI-generiert
-  für Kursinhalte
-end note
-@enduml
-```
-
----
-
-### 11.1 🗂️ `/i18n` Struktur
-
-```
-/i18n
-├── index.js
-├── de.json
-├── en.json
-└── pl.json
-```
-
----
-
-### 📝 Beispiel: `de.json`
-
-```json
-{
-  "login": {
-    "title": "Anmelden",
-    "email": "E-Mail",
-    "password": "Passwort",
-    "submit": "Anmelden",
-    "forgot": "Passwort vergessen?",
-    "register": "Noch kein Konto? Registrieren"
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "welcome": "Willkommen zurück",
-    "progress": "Dein Fortschritt",
-    "courses": "Meine Kurse"
-  },
-  "widgets": {
-    "progress": {
-      "title": "Lernfortschritt",
-      "complete": "abgeschlossen",
-      "active": "aktive Kurse",
-      "modules": "Module"
-    }
-  }
-}
-```
-
----
-
-### ⚙️ i18n Setup (`/i18n/index.js`)
-
-```javascript
-import { createI18n } from 'vue-i18n'
-import de from './de.json'
-import en from './en.json'
-import pl from './pl.json'
-
-const i18n = createI18n({
-  locale: localStorage.getItem('language') || 'de',
-  fallbackLocale: 'en',
-  messages: {
-    de,
-    en,
-    pl
-  }
-})
-
-export default i18n
-```
-
-> **Kursübersetzungen** kommen dynamisch aus der API via Translation-Service.
-
----
-
-## 12. Styles & UI
-
-### 🎨 Dark Mode Theme Variables (Phase B24)
-
-**WICHTIG:** Alle Komponenten verwenden CSS-Variablen statt hard-coded Tailwind-Farben für konsistente Dark Mode Unterstützung.
-
-**KRITISCH:** Theme wird AUSSCHLIESSLICH über CSS-Variablen gesteuert. NIEMALS CSS-Variablen mit Tailwind `dark:` Modifikatoren mischen, da dies zu visuellen Inkonsistenzen im Light Mode führt.
-
-#### CSS-Variablen Definition
-
-**Datei:** `frontend/src/style.css`
-
-```css
-:root {
-  /* Light Theme (Default) */
-  --color-bg: #f5f5f7;
-  --color-surface: #ffffff;
-  --color-surface-secondary: #f9fafb;
-  --color-text-primary: #111827;
-  --color-text-secondary: #4b5563;
-  --color-text-tertiary: #6b7280;
-  --color-border: #e5e7eb;
-  --color-border-strong: #d1d5db;
-  --color-accent: #4f46e5;
-  --color-accent-hover: #4338ca;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-}
-
-.dark {
-  /* Dark Midnight Theme */
-  --color-bg: #050814;
-  --color-surface: #0b1020;
-  --color-surface-secondary: #111827;
-  --color-text-primary: #e5e7eb;
-  --color-text-secondary: #9ca3af;
-  --color-text-tertiary: #6b7280;
-  --color-border: #1f2937;
-  --color-border-strong: #374151;
-  --color-accent: #6366f1;
-  --color-accent-hover: #818cf8;
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
-  --color-error: #f87171;
-  --color-info: #60a5fa;
-}
-```
-
-#### Refactoring Guidelines für Komponenten
-
-**REGEL:** Ersetze alle hard-coded Tailwind-Farben durch CSS-Variablen.
-
-**WICHTIG - Theme-Strategie:**
-- ✅ **Richtig:** Ausschließlich CSS-Variablen verwenden (z.B. `bg-[var(--color-bg)]`)
-- ❌ **Falsch:** CSS-Variablen mit `dark:` Modifikatoren mischen (z.B. `bg-[var(--color-bg)] dark:bg-gray-900`)
-- **Grund:** Mischung führt im Light Mode zu inkorrekten Farben, da `dark:` Modifier die Variablen überschreibt
-
-**Layout-Strategie:**
-- **Outer Layouts** (BaseLayout, AdminLayout): IMMER `bg-[var(--color-bg)]` verwenden
-- **Surface Elements** (Cards, Panels, Sidebar, Header): IMMER `bg-[var(--color-surface)]` verwenden
-- **Borders**: IMMER `border-[var(--color-border)]` verwenden
-
-**Mapping:**
-
-| Hard-coded Tailwind | CSS-Variable | Anwendung |
-|---------------------|--------------|-----------|
-| `text-gray-900` | `text-[var(--color-text-primary)]` | Haupttext, Überschriften |
-| `text-gray-800` | `text-[var(--color-text-primary)]` | Haupttext |
-| `text-gray-600` | `text-[var(--color-text-secondary)]` | Sekundärtext, Labels |
-| `text-gray-500` | `text-[var(--color-text-secondary)]` | Sekundärtext |
-| `bg-white` | `bg-[var(--color-surface)]` | Karten, Panels |
-| `bg-gray-50` | `bg-[var(--color-bg)]` | Hintergründe |
-| `border-gray-200` | `border-[var(--color-border)]` | Standardränder |
-| `border-gray-300` | `border-[var(--color-border)]` | Standardränder |
-
-**Beispiel-Refactoring:**
-
-**Vorher (Hard-coded):**
-```vue
-<h1 class="text-gray-900">Überschrift</h1>
-<p class="text-gray-600">Beschreibung</p>
-<div class="bg-white border border-gray-200">
-  <!-- Content -->
-</div>
-```
-
-**Nachher (CSS-Variablen):**
-```vue
-<h1 class="text-[var(--color-text-primary)]">Überschrift</h1>
-<p class="text-[var(--color-text-secondary)]">Beschreibung</p>
-<div class="bg-[var(--color-surface)] border border-[var(--color-border)]">
-  <!-- Content -->
-</div>
-```
-
-**Anti-Pattern (VERMEIDEN):**
-```vue
-<!-- ❌ FALSCH: Mischung von Variablen und dark: Modifikatoren -->
-<div class="bg-gray-50 dark:bg-gray-950">
-  <!-- Problem: Im Light Mode wird bg-gray-50 angezeigt (nicht #f5f5f7 aus --color-bg) -->
-  <!-- Problem: Im Dark Mode wird bg-gray-950 angezeigt (nicht #050814 aus --color-bg) -->
-  <!-- Lösung: bg-[var(--color-bg)] verwenden -->
-</div>
-
-<!-- ✅ RICHTIG: Nur CSS-Variablen -->
-<div class="bg-[var(--color-bg)]">
-  <!-- Light Mode: #f5f5f7, Dark Mode: #050814 -->
-</div>
-```
-
-**Ausnahmen:**
-- Accent-Farben: `primary-*`, `secondary-*` (bereits theme-aware via Tailwind config)
-- Status-Farben: `green-*`, `red-*`, `yellow-*`, `blue-*` (semantisch korrekt, theme-agnostic)
-
-#### Dashboard Header Ownership (Phase B24 Bugfix)
-
-**Problem:** Doppelte Begrüßungstexte zwischen DashboardPage und WelcomeWidget
-
-**Lösung:**
-
-**DashboardPage.vue** - Verantwortlich für globalen Header:
-```vue
-<h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-  Willkommen zurück, {{ authStore.user?.first_name }}! 👋
-</h1>
-<p class="text-[var(--color-text-secondary)]">
-  Schön, dass du wieder da bist. Hier ist deine Übersicht.
-</p>
-```
-
-**WelcomeWidget.vue** - Umbenannt zu "Schnellübersicht", nur Stats:
-- ❌ NICHT: Begrüßungstext duplizieren
-- ❌ NICHT: "Willkommen zurück" oder ähnliche Texte
-- ✅ NUR: Quick Stats anzeigen (Rolle, Plan, Tokens, Kurse)
-- ✅ Widget-Titel: "Schnellübersicht"
-
-**Regel:**
-- **Header-Texte** (Begrüßungen, Seitentitel, Beschreibungen) gehören auf die **Page-Ebene**
-- **Widgets** zeigen NUR **Daten und Statistiken**, KEINE narrativen Texte
-- **Kontext**: Der User sieht bereits die Begrüßung im Page-Header, Widgets müssen diese nicht wiederholen
-
----
-
-### 🎨 TailwindCSS Konfiguration
-
-#### 12.1 📄 `tailwind.config.js`
-
-```javascript
-module.exports = {
-  darkMode: 'class', // Class-based dark mode (Phase B24 - Theme Support)
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1'
-        },
-        secondary: {
-          500: '#8b5cf6',
-          600: '#7c3aed'
-        }
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif']
-      }
-    },
-  },
-  plugins: []
-}
-```
-
----
-
-### 🎨 Design-Prinzipien
-
-| Prinzip | Umsetzung |
-|---------|-----------|
-| 🎨 **Ruhige Farben** | Gedämpfte Palette |
-| 📏 **Klare Abgrenzungen** | Whitespace & Borders |
-| ♿ **Barrierefreiheit** | WCAG 2.1 AA |
-| 🌙 **Dark Mode** | Theme-Toggle |
-| 🧠 **ADHD-konform** | Reduzierte Animationen |
-
----
-
-### 🧠 ADHD/ADHS-Theme
-
-```css
-/* ADHD-optimiertes Theme */
-.adhd-mode {
-  --animation-speed: 0s;
-  --focus-highlight: 3px solid #0ea5e9;
-  --spacing: 2rem;
-}
-
-.adhd-mode * {
-  animation-duration: 0s !important;
-  transition-duration: 0s !important;
-}
-
-.adhd-mode .widget {
-  margin: var(--spacing);
-  border: 2px solid #e5e7eb;
-}
-```
-
----
-
-### 🔍 12.3 Theme Compliance Audit (Phase B24 Fix - Final)
-
-**Status:** LSX Theme System wurde vollständig auf reine CSS-Variablen umgestellt.
-
-#### ✅ Bereits refactored (Theme-compliant)
-
-Die folgenden Komponenten und Seiten wurden vollständig auf CSS-Variablen umgestellt:
-
-**Core Layouts:**
-- `BaseLayout.vue` ✅
-- `AdminLayout.vue` ✅
-- `AuthLayout.vue` ⚠️ (teilweise)
-
-**UI-Komponenten:**
-- `Card.vue` ✅
-- `Button.vue` ✅ (CSS in style.css)
-- `Input.vue` ✅
-
-**Seiten:**
-- `DashboardPage.vue` ✅
-- `ProfilePage.vue` ✅
-- `SettingsPage.vue` ✅
-- `LoginPage.vue` ✅
-- `WelcomeWidget.vue` ✅
-- `DashboardWidgetsArea.vue` ✅
-
-**CSS-Klassen (style.css):**
-- `body` ✅
-- `.btn-outline` ✅
-- `.input-field` ✅
-- `.card` ✅
-- `.card-header` ✅
-
-#### ⚠️ Noch zu refactoren (52 Dateien)
-
-**Admin Pages:**
-- `AdminDashboardPage.vue`
-- `AdminUsersPage.vue`
-- `AdminUserDetailPage.vue`
-- `AdminAuditLogsPage.vue`
-- `AdminCoursesPage.vue`
-- `AdminOrganisationsPage.vue`
-- `AdminBillingPage.vue`
-- `AdminAnalyticsPage.vue`
-
-**Setup Wizard:**
-- `SetupWizardPage.vue`
-- `SetupLayout.vue`
-- Alle Setup-Step-Komponenten (8 Dateien)
-
-**Organisation Pages:**
-- `OrgDashboardPage.vue`
-- `OrgUsersPage.vue`
-- `OrgCoursesPage.vue`
-- `OrgSettingsPage.vue`
-- `OrgAnalyticsPage.vue`
-
-**Creator Pages:**
-- `CreatorCoursesPage.vue`
-- `CourseEditorPage.vue`
-- Editor-Komponenten (3 Dateien)
-
-**Lesson Player:**
-- `LessonPlayerPage.vue`
-- Lesson-Komponenten (7 Dateien)
-- Quiz-Komponenten (4 Dateien)
-
-**Dashboard Widgets:**
-- `ProfileSummaryWidget.vue`
-- `PlanTokensWidget.vue`
-- `EnrolledCoursesWidget.vue`
-- `CoursesProgressWidget.vue`
-- `OrgOverviewWidget.vue`
-- `WidgetConfigPanel.vue`
-
-**Sonstige:**
-- `RegisterPage.vue`
-- `CoursesPage.vue`
-- `CourseOverviewPage.vue`
-- `NotFoundPage.vue`
-- `AnalyticsKpiCard.vue`
-
-#### 🚫 Verbotene Klassen (Theme-Breaking)
-
-Diese Tailwind-Klassen dürfen **NICHT mehr** verwendet werden:
-
-| Kategorie | Verbotene Klassen | Grund |
-|-----------|-------------------|-------|
-| **Text-Farben** | `text-gray-900`, `text-gray-800`, `text-gray-700`, `text-gray-600`, `text-gray-500`, `text-gray-400` | Hard-coded, nicht theme-aware |
-| **Hintergründe** | `bg-white`, `bg-gray-50`, `bg-gray-100`, `bg-gray-200`, `bg-gray-800`, `bg-gray-900`, `bg-gray-950` | Hard-coded, nicht theme-aware |
-| **Borders** | `border-gray-200`, `border-gray-300`, `border-gray-400`, `border-gray-600`, `border-gray-700` | Hard-coded, nicht theme-aware |
-| **Shadows** | `shadow-md`, `shadow-lg`, `shadow-xl` MIT `dark:shadow-*` | Mischung problematisch |
-| **dark: Modifikatoren** | `dark:bg-*`, `dark:text-*`, `dark:border-*`, `dark:hover:*` | Verhindert reine CSS-Variable-Logik |
-
-#### ✅ Erlaubte CSS-Variablen (Theme-Safe)
-
-**Alle Farben MÜSSEN über CSS-Variablen definiert werden:**
-
-| Variable | Verwendung | Light Mode | Dark Mode |
-|----------|------------|------------|-----------|
-| `--color-bg` | Seiten-Hintergrund, Outer Layouts | `#f5f5f7` | `#050814` |
-| `--color-surface` | Cards, Panels, Sidebar, Header | `#ffffff` | `#0b1020` |
-| `--color-surface-secondary` | Hover, Info-Boxen | `#f9fafb` | `#111827` |
-| `--color-text-primary` | Überschriften, Haupttext | `#111827` | `#e5e7eb` |
-| `--color-text-secondary` | Labels, Sekundärtext | `#4b5563` | `#9ca3af` |
-| `--color-text-tertiary` | Hints, Tertiary Text | `#6b7280` | `#6b7280` |
-| `--color-border` | Standardränder | `#e5e7eb` | `#1f2937` |
-| `--color-border-strong` | Betonte Ränder | `#d1d5db` | `#374151` |
-
-**Verwendung in Templates:**
-```vue
-<!-- ✅ RICHTIG -->
-<div class="bg-[var(--color-surface)] border border-[var(--color-border)]">
-  <h2 class="text-[var(--color-text-primary)]">Titel</h2>
-  <p class="text-[var(--color-text-secondary)]">Beschreibung</p>
-</div>
-
-<!-- ❌ FALSCH -->
-<div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-  <h2 class="text-gray-900 dark:text-gray-100">Titel</h2>
-  <p class="text-gray-600 dark:text-gray-400">Beschreibung</p>
-</div>
-```
-
-#### 📝 Refactoring-Guidelines für neue Komponenten
-
-**1. Text-Farben ersetzen:**
-```vue
-<!-- Vorher -->
-<h1 class="text-gray-900">Überschrift</h1>
-<p class="text-gray-600">Text</p>
-<span class="text-gray-500">Hint</span>
-
-<!-- Nachher -->
-<h1 class="text-[var(--color-text-primary)]">Überschrift</h1>
-<p class="text-[var(--color-text-secondary)]">Text</p>
-<span class="text-[var(--color-text-tertiary)]">Hint</span>
-```
-
-**2. Hintergründe ersetzen:**
-```vue
-<!-- Vorher -->
-<div class="bg-white">Card</div>
-<div class="bg-gray-50">Page</div>
-<div class="bg-gray-100">Info Box</div>
-
-<!-- Nachher -->
-<div class="bg-[var(--color-surface)]">Card</div>
-<div class="bg-[var(--color-bg)]">Page</div>
-<div class="bg-[var(--color-surface-secondary)]">Info Box</div>
-```
-
-**3. Borders ersetzen:**
-```vue
-<!-- Vorher -->
-<div class="border border-gray-200">Content</div>
-
-<!-- Nachher -->
-<div class="border border-[var(--color-border)]">Content</div>
-```
-
-**4. dark: Modifikatoren entfernen:**
-```vue
-<!-- Vorher -->
-<button class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
-  Button
-</button>
-
-<!-- Nachher -->
-<button class="bg-[var(--color-surface)] hover:bg-[var(--color-surface-secondary)]">
-  Button
-</button>
-```
-
-**5. Status-Farben (Ausnahmen):**
-```vue
-<!-- ✅ Diese dürfen bleiben (semantisch korrekt) -->
-<div class="bg-red-50 border border-red-200 text-red-700">Error</div>
-<div class="bg-green-50 border border-green-200 text-green-700">Success</div>
-<div class="bg-yellow-50 border border-yellow-200 text-yellow-700">Warning</div>
-<div class="bg-blue-50 border border-blue-200 text-blue-700">Info</div>
-
-<!-- ✅ Primary/Secondary bleiben (theme-aware via Tailwind config) -->
-<button class="bg-primary-600 hover:bg-primary-700">Primary</button>
-<span class="bg-primary-100 text-primary-800">Badge</span>
-```
-
-#### 🔧 Automatisiertes Refactoring
-
-**Script: `refactor-theme-colors.sh`**
-
-Für Bulk-Refactoring der verbleibenden 52 Dateien wurde ein Script erstellt:
-
-```bash
-cd frontend
-bash refactor-theme-colors.sh
-```
-
-**Was das Script macht:**
-- Ersetzt ALLE `text-gray-*` → `text-[var(--color-text-*)]`
-- Ersetzt ALLE `bg-gray-*` und `bg-white` → `bg-[var(--color-*)]`
-- Ersetzt ALLE `border-gray-*` → `border-[var(--color-border*)]`
-- Entfernt ALLE `dark:*` Modifikatoren für ersetzte Farben
-- Erstellt `.bak` Backups aller geänderten Dateien
-
-**Nach dem Script:**
-1. Manuell prüfen: Semantische Farben (green, red, yellow, blue) ggf. wiederherstellen
-2. Testen: Light Mode + Dark Mode in allen betroffenen Seiten
-3. Backups löschen: `find . -name "*.bak" -delete`
-
-#### 🎯 Qualitätskontrolle
-
-**Checkliste für neue/geänderte Komponenten:**
-
-- [ ] Keine `text-gray-*`, `bg-gray-*`, `border-gray-*` Klassen
-- [ ] Keine `bg-white` Klassen
-- [ ] Keine `dark:*` Modifikatoren für Grau-Farben
-- [ ] Alle Farben über `var(--color-*)` definiert
-- [ ] Light Mode getestet (visuell korrekt, lesbar)
-- [ ] Dark Mode getestet (visuell korrekt, lesbar)
-- [ ] Status-Farben (red, green, yellow, blue) semantisch korrekt verwendet
-- [ ] Primary/Secondary Farben für Aktionen verwendet
-
-**Manuelle Tests:**
-```bash
-# 1. Light Mode aktivieren
-# Browser: Einstellungen → Theme → Hell
-
-# 2. Folgende Seiten visuell prüfen:
-- /dashboard
-- /settings
-- /profile
-- /admin
-- /login
-
-# 3. Dark Mode aktivieren
-# Browser: Einstellungen → Theme → Dunkel
-
-# 4. Gleiche Seiten erneut prüfen
-```
-
-#### 📊 Fortschritt-Tracking
-
-**Phase B24 Theme System:**
-- ✅ CSS-Variablen definiert (style.css)
-- ✅ Theme Store implementiert (theme.store.ts)
-- ✅ Theme Selection UI (SettingsPage.vue)
-- ✅ Core Layouts refactored (3/3)
-- ✅ UI-Komponenten refactored (3/3)
-- ⚠️ Pages refactored (6/65) - **9% complete**
-- ⏳ **52 Pages verbleibend** → Bulk-Refactoring via Script empfohlen
-
-**Nächste Schritte:**
-1. `refactor-theme-colors.sh` ausführen für Bulk-Refactoring
-2. Manuelle Nachbearbeitung für semantische Farben
-3. Visuelle Tests für alle Pages (Light + Dark)
-4. Alle `.bak` Dateien löschen
-
----
-
-## 13. AI-Studio Komponenten-Struktur
-
-### 🤖 AI-Studio Desktop-Anwendung
-
-Das AI-Studio ist eine komplexe Admin-Oberfläche für KI-Konfiguration und Content-Generierung.
-
-```
-/components/desktop/windows/ai-studio/
-├── AdminAiStudioProWindow.vue    # Hauptfenster (Tab-Navigation)
-│
-├── /tutor/                       # Tutor-Tab Sub-Komponenten
-│   ├── ChapterTheoryView.vue     # Kapitel-Theorie Anzeige/Editor
-│   └── LessonExplanationView.vue # Lektions-Erklärungen mit Steps
-│
-├── /kurs-builder/                # KursBuilder-Tab Sub-Komponenten
-│   ├── ChatPanel.vue             # Chat-Nachrichten und Input
-│   ├── WorkflowPanel.vue         # Kontext-Workflow (Analyze, Theory, LM)
-│   ├── StructurePanel.vue        # Kursstruktur-Baum mit Drag&Drop
-│   ├── MaterialsPanel.vue        # Materialien-Liste (PDF, Docs)
-│   ├── ConfirmationPanel.vue     # Bestätigungs-Dialog für Content
-│   └── index.ts                  # Re-exports
-│
-├── /exams/                       # Exams-Tab Sub-Komponenten
-│   ├── FilesPanel.vue            # Datei-Browser mit Kategorien
-│   ├── ActivityPanel.vue         # KI-Aktivitäts-Log und Settings
-│   ├── ExamPreviewPanel.vue      # Prüfungs-Vorschau und Editor
-│   └── index.ts                  # Re-exports
-│
-├── /global-settings/             # GlobalSettings-Tab Sub-Komponenten
-│   ├── ProviderGrid.vue          # AI-Provider Karten (OpenAI, Anthropic)
-│   ├── ProfileList.vue           # Liste der Modell-Profile
-│   ├── ProfileEditor.vue         # Profil-Editor (Key, Name, Models)
-│   ├── ApiKeyModal.vue           # API-Key Eingabe Modal
-│   └── index.ts                  # Re-exports
-│
-├── TutorTab.vue                  # Tutor-Tab Orchestrierung (~140 LOC)
-├── KursBuilderTab.vue            # KursBuilder-Tab (~500 LOC nach Refactoring)
-├── ExamsTab.vue                  # Prüfungs-Tab
-├── GlobalSettingsTab.vue         # Globale Einstellungen
-├── ContentTab.vue                # Content-Tab
-├── ModelsTab.vue                 # Modell-Verwaltung
-├── SettingsTab.vue               # Tab-spezifische Settings
-├── LernmethodenTab.vue           # Lernmethoden-Konfiguration
-├── SystemFeaturesTab.vue         # System-Features
-├── AnalyticsTab.vue              # Analytics Dashboard
-├── StatsTab.vue                  # Statistiken
-├── PromptsTab.vue                # Prompt-Verwaltung
-├── AssetsTab.vue                 # Asset-Verwaltung
-└── ChatPanel.vue                 # Globaler Chat-Panel
-```
-
-### 📦 Composables (Shared Logic)
-
-Wiederverwendbare Composition-Functions für AI-Studio und andere Komponenten:
-
-```
-/composables/
-├── useTheoryManagement.ts   # Kapitel-Theorien & Lektions-Erklärungen laden
-├── useTTS.ts                # Text-to-Speech Management
-├── useAiStudioSocket.ts     # WebSocket für AI-Studio Events
-├── useLessonVideo.ts        # Video-Player Logik
-└── useTeachingTimeline.ts   # Lehr-Timeline Steuerung
-```
-
-#### 💡 Beispiel: useTheoryManagement.ts
-
-```typescript
-import { ref, computed } from 'vue'
-import { loadChapterTheories, loadLessonExplanations } from '@/api/tutor.api'
-
-export function useTheoryManagement() {
-  const chapterTheories = ref<ChapterTheory[]>([])
-  const lessonExplanations = ref<LessonExplanation[]>([])
-  const isLoading = ref(false)
-  const selectedTheoryId = ref<string | null>(null)
-
-  async function fetchChapterTheories(chapterId: string) {
-    isLoading.value = true
-    try {
-      chapterTheories.value = await loadChapterTheories(chapterId)
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  async function fetchLessonExplanations(lessonId: string) {
-    isLoading.value = true
-    try {
-      lessonExplanations.value = await loadLessonExplanations(lessonId)
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  return {
-    // State (readonly)
-    chapterTheories: computed(() => chapterTheories.value),
-    lessonExplanations: computed(() => lessonExplanations.value),
-    isLoading: computed(() => isLoading.value),
-    selectedTheoryId,
-    // Actions
-    fetchChapterTheories,
-    fetchLessonExplanations
-  }
-}
-```
-
-#### 💡 Beispiel: useTTS.ts
-
-```typescript
-import { ref, computed } from 'vue'
-
-export function useTTS() {
-  const isSpeaking = ref(false)
-  const ttsEnabled = ref(true)
-  const selectedModel = ref('nova')
-  const selectedVoice = ref('default')
-  const availableModels = ref<TTSModel[]>([])
-
-  async function speak(text: string, options?: TTSOptions) {
-    if (!ttsEnabled.value) return
-    isSpeaking.value = true
-    try {
-      // TTS API call
-      await playAudio(text, options)
-    } finally {
-      isSpeaking.value = false
-    }
-  }
-
-  function stopSpeaking() {
-    // Stop current audio
-    isSpeaking.value = false
-  }
-
-  return {
-    isSpeaking: computed(() => isSpeaking.value),
-    ttsEnabled,
-    selectedModel,
-    selectedVoice,
-    availableModels,
-    speak,
-    stopSpeaking
-  }
-}
-```
-
-### 🎯 Komponenten-Größenlimits
-
-> **KRITISCH:** Alle Komponenten müssen diese Limits einhalten!
-
-| Metrik | Maximum | Aktion bei Überschreitung |
-|--------|---------|---------------------------|
-| Zeilen pro Komponente | 500 | Sofort aufteilen |
-| Template-Zeilen | 200 | UI in Sub-Komponenten |
-| Script-Zeilen | 250 | Composables extrahieren |
-| State-Variablen | 15 | In Stores oder Composables |
-
-### 📊 Sub-Komponenten Pattern
-
-**Hauptkomponente (Orchestrierung):**
-```vue
-<template>
-  <div class="tab-content">
-    <LeftPanel :data="leftData" @select="handleSelect" />
-    <RightPanel :selected="selected" @save="handleSave" />
-  </div>
-</template>
-
-<script setup lang="ts">
-import { LeftPanel, RightPanel } from './subfolder'
-import { useSharedLogic } from '@/composables/useSharedLogic'
-
-const { data, selected, handleSelect, handleSave } = useSharedLogic()
-</script>
-```
-
-**Sub-Komponente (fokussierte UI):**
-```vue
-<template>
-  <div class="panel">
-    <!-- Nur dieser Teil der UI -->
-  </div>
-</template>
-
-<script setup lang="ts">
-defineProps<{ data: DataType }>()
-defineEmits<{ (e: 'select', item: Item): void }>()
-</script>
-```
-
----
-
-## 14. Utility-Funktionen
-
-### 🛠️ `/utils` Struktur
-
-```
-/utils
-├── formatDate.js
-├── computeScore.js
-├── parseExam.js
-├── validation.js
-├── throttle.js
-├── debounce.js
-├── sanitize.js
-└── storage.js
-```
-
----
-
-### 💡 Beispiele
-
-#### `formatDate.js`
-
-```javascript
-export const formatDate = (date, format = 'DD.MM.YYYY') => {
-  const d = new Date(date)
-  const day = String(d.getDate()).padStart(2, '0')
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const year = d.getFullYear()
-  
-  return format
-    .replace('DD', day)
-    .replace('MM', month)
-    .replace('YYYY', year)
-}
-```
-
-#### `validation.js`
-
-```javascript
-export const isValidEmail = (email) => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return regex.test(email)
-}
-
-export const isStrongPassword = (password) => {
-  // Min 8 chars, 1 upper, 1 lower, 1 number
-  return password.length >= 8 &&
-         /[A-Z]/.test(password) &&
-         /[a-z]/.test(password) &&
-         /[0-9]/.test(password)
-}
-```
-
----
-
-## 14. Sicherheit im Frontend
-
-### 🔒 Security Flow (Activity Diagram)
-
-```plantuml
-@startuml
-|Client|
-start
-:HTTP Request;
-
-|Axios Interceptor|
-:Request Interceptor;
-
-if (Token vorhanden?) then (ja)
-  :Add Authorization Header;
-else (nein)
-  :Continue ohne Token;
-endif
-
-|Backend API|
-:Empfange Request;
-
-if (Auth required?) then (ja)
-  if (Valid Token?) then (ja)
-    if (Rolle passt?) then (ja)
-      :Process Request;
-      :Return Response;
-    else (nein)
-      :Return 403 Forbidden;
-      stop
-    endif
-  else (nein)
-    :Return 401 Unauthorized;
-    |Axios Interceptor|
-    :Response Interceptor;
-    :Logout User;
-    :Clear Token;
-    :Redirect to Login;
-    stop
-  endif
-else (nein)
-  :Process Request;
-  :Return Response;
-endif
-
-|Axios Interceptor|
-:Response Interceptor;
-
-if (Rate Limit?) then (ja)
-  :Show Rate Limit Warning;
-  stop
-endif
-
-|Client|
-:Handle Response;
-stop
-@enduml
-```
-
----
-
-### 🛡️ Security Features
-
-| Feature | Implementation |
-|---------|---------------|
-| 🔑 **Token Storage** | HTTP-only Cookies (preferred) |
-| ⏱️ **Auto-Logout** | Token Expiry Detection |
-| 🛣️ **Route Guards** | Rollenbasierte Navigation |
-| ✅ **Input Validation** | Client & Server-side |
-| 🚫 **XSS Protection** | Sanitization & CSP |
-| 📤 **Upload Validation** | File Type & Size Checks |
-
----
-
-### 🔐 Beispiel: Auto-Logout
-
-```javascript
-// In api.js Interceptor
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      const userStore = useUserStore()
-      await userStore.logout()
-      router.push('/auth/login')
-    }
-    return Promise.reject(error)
-  }
-)
-```
-
----
-
-### 🚫 XSS Protection
-
-```javascript
-import DOMPurify from 'dompurify'
-
-export const sanitizeHtml = (dirty) => {
-  return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a'],
-    ALLOWED_ATTR: ['href']
-  })
-}
-```
-
----
-
-## 15. Zusammenfassung
-
-### ✅ Das LSX-Frontend ist:
-
-| Feature | Status |
-|---------|--------|
-| 🧩 **Modular** | ✅ |
-| 👥 **Rollenbasiert** | ✅ |
-| 🎨 **Komponentengetrieben** | ✅ |
-| ⚡ **Vue 3 Composition API** | ✅ |
-| 🤖 **KI-Integration** | ✅ |
-| ♿ **Barrierefrei** | ✅ |
-| 🌍 **Multilingual** | ✅ |
-| 🔄 **Erweiterbar** | ✅ |
-| 🔒 **Sicher** | ✅ |
-| 🚀 **Performant** | ✅ |
-
----
-
-### 💡 Architektur-Highlights
-
-```
-┌─────────────────────────────────────┐
-│  ⚡ Vue 3 + Vite                     │
-│  📦 Pinia State Management           │
-│  🎨 TailwindCSS                      │
-│  🌍 vue-i18n                         │
-│  🛣️ Vue Router                       │
-│  🔌 Axios API Layer                  │
-│  🎥 WebRTC LiveRoom                  │
-│  🧩 15+ Widgets                      │
-│  📝 12 Content-LM-Editoren (A-C)     │
-└─────────────────────────────────────┘
-```
-
----
-
-### 🎯 Komponenten-Übersicht
+## 8. Zusammenfassung
+
+### ✅ LSX Frontend Features v2.0
+
+| Feature | Status | Technologie |
+|---------|--------|-------------|
+| 🧩 **Modular** | ✅ | Component-based Architecture |
+| 👥 **Rollenbasiert** | ✅ | Router Guards + RBAC |
+| 🎨 **Komponentengetrieben** | ✅ | Vue 3 Composition API |
+| ⚡ **Vue 3 Composition API** | ✅ | Composables Pattern |
+| 🤖 **KI-Integration** | ✅ | AI Services Integration |
+| ♿ **Barrierefrei** | ✅ | WCAG 2.1 AA |
+| 🌍 **Multilingual** | ✅ | vue-i18n (20+ Languages) |
+| 🔄 **Erweiterbar** | ✅ | Plugin System |
+| 🔒 **Sicher** | ✅ | XSS Protection, CSP, DRM |
+| 🚀 **Performant** | ✅ | Lazy Loading, Code Splitting |
+| 🎚️ **Feature Flags** | ✅ | Progressive Rollout |
+| 🌟 **Social Network** | ✅ | Posts, Feed, Follow, Engagement |
+| ⚖️ **Compliance UI** | ✅ | Cookie Consent, Age Gates, Privacy |
+| 🛡️ **Moderation Dashboard** | ✅ | Content Review, Reports, Appeals |
+| 👶 **Child Safety** | ✅ | Parental Controls, Safe Mode |
+| 📊 **Analytics** | ✅ | Feature Usage, A/B Testing |
+
+### 💡 Enterprise Architecture Highlights
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  🎯 Enterprise-Grade Social Learning Frontend            │
+│  ─────────────────────────────────────────────────────── │
+│                                                           │
+│  ✅ Vue 3 Composition API + Vite                         │
+│  ✅ Feature Flag System (v-feature directive)            │
+│  ✅ Social Network Components (50+ components)           │
+│  ✅ Compliance UI (GDPR, Age Gates, Reporting)           │
+│  ✅ Moderation Dashboard (Review Queue, Stats)           │
+│  ✅ Child Safety (Parental Controls, Safe Mode)          │
+│  ✅ DRM UI Components (License, Watermarks)              │
+│  ✅ Real-time Notifications (WebSockets)                 │
+│  ✅ Internationalization (20+ Languages)                 │
+│  ✅ Progressive Web App (PWA)                            │
+│                                                           │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 🎯 Component Overview
 
 | Kategorie | Anzahl | Beispiele |
 |-----------|--------|-----------|
-| 🧩 **Core Components** | 15+ | Button, Modal, Card |
-| 🏗️ **Layouts** | 5 | Main, Dashboard, Admin |
-| 📄 **Pages** | 30+ | Login, Dashboard, Courses |
-| 🎨 **Widgets** | 13 | Progress, Token, KI |
-| 📝 **Editoren** | 32 | Quiz, Flashcards, Timeline |
-| 🎥 **LiveRoom** | 8 | Whiteboard, Chat, Recording |
-
-> **Es bildet die komplette Benutzeroberfläche des LSX Lernsystems.**
+| 🧩 **Base Components** | 15+ | Button, Modal, Card |
+| 🌟 **Social Components** | 20+ | PostCard, CommentSection, FollowButton |
+| ⚖️ **Compliance Components** | 15+ | CookieConsent, AgeGate, ReportContent |
+| 🛡️ **Moderation Components** | 8+ | ModerationQueue, ContentReview, SLAMonitor |
+| 🔒 **Security Components** | 6+ | TwoFactorAuth, DRMLicense, Watermark |
+| 🏗️ **Layouts** | 7 | Main, Dashboard, Admin, Moderator |
+| 📄 **Pages** | 60+ | Feed, Explore, Profile, Moderation |
+| 🎨 **Widgets** | 13 | Progress, Token, KI (existing) |
+| 🎥 **LiveRoom** | 8 | Whiteboard, Chat, Recording (existing) |
 
 ---
 
 ## 📌 Dokument abgeschlossen
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Status:** Final  
-**Letzte Aktualisierung:** November 2024
+**Letzte Aktualisierung:** 10.01.2026
+
+**Änderungen v2.0:**
+- ✅ Complete Enterprise Frontend Architecture
+- ✅ Feature Flag System (v-feature directive, guards)
+- ✅ Social Network UI Layer (50+ components)
+- ✅ Full Compliance Components (GDPR, Age Gates, Privacy)
+- ✅ Moderation Dashboard (Review Queue, Reports, Appeals)
+- ✅ Child Safety UI (Parental Controls, Safe Mode)
+- ✅ DRM UI Components (License Display, Watermarks)
+- ✅ Extended Router (Feature Guards, Compliance Routes)
+- ✅ Updated Store Architecture (Social, Compliance, Moderation)
+- ✅ 60+ New Pages & Components
 
 ---
 
-> 💡 **Hinweis:** Dieses Dokument ist Teil der LSX-Systemdokumentation und beschreibt die vollständige Frontend-Architektur mit Vue.js 3, Komponenten-Struktur und Best Practices.
+> ⚠️ **WICHTIG:**
+> - **Feature Flags** steuern alle neuen Social Features
+> - **v-feature** Directive für Feature-basierte UI
+> - **Progressive Rollout**: Phase 0 → 1 → 2 → 3
+> - **Compliance-Ready** für internationale Expansion
+> - **Child Safety First** - Immer aktiviert

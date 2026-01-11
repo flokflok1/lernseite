@@ -16,10 +16,12 @@ from app.repositories.ai.jobs import AIJobRepository
 from app.repositories.ai.profiles import AiModelProfilesRepository
 from app.repositories.ai.providers import AIProviderRepository
 from app.repositories.ai.studio import AIStudioRepository
+from app.repositories.ai.usage import AIUsageRepository
 
 __all__ = [
     'AIJobRepository',
     'AiModelProfilesRepository',
     'AIProviderRepository',
     'AIStudioRepository',
+    'AIUsageRepository',
 ]

@@ -11,7 +11,7 @@ Phase C3.0 - AI Model Selector System
 from flask import request, jsonify, current_app, g
 from datetime import datetime
 
-from app.api.admin.system import api_v1
+from app.api.admin.system_operations.system import api_v1
 from app.security.permissions import require_permission, Permissions
 from app.services.audit_service import AuditService
 

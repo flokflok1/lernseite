@@ -16,7 +16,7 @@ from flask import request, jsonify, current_app, g
 from datetime import datetime
 import time
 
-from app.api.admin.system import api_v1
+from app.api.admin.system_operations.system import api_v1
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.providers import AIProviderRepository
 from app.services.audit_service import AuditService

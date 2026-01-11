@@ -84,6 +84,9 @@ from .core import (
     BillingModel
 )
 
+# Export helpers for use by admin package
+from . import _helpers
+
 # Export all blueprints and DDD components for direct import
 __all__ = [
     # Blueprints
@@ -99,4 +102,6 @@ __all__ = [
     'OrgType',
     'MemberRole',
     'BillingModel',
+    # Helpers
+    '_helpers',
 ]

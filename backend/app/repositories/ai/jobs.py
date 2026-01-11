@@ -440,3 +440,7 @@ class AIJobRepository:
         for result in results:
             result['id'] = result['job_id']
         return results
+
+
+# Alias for backward compatibility
+AIJobsRepository = AIJobRepository

@@ -22,8 +22,12 @@ Example usage:
     >>> from app.api.user.dashboard import widgets
 """
 
-# Import user packages (lazy loading - only when needed)
-# Prevents circular imports and reduces startup time
+# Import user packages to trigger blueprint registration
+from app.api.user import profile
+from app.api.user import subscriptions
+from app.api.user import tokens
+from app.api.user import courses
+from app.api.user import gamification
 
 __all__ = [
     'courses',

@@ -29,8 +29,8 @@ from flask import Blueprint
 # Import core layer (makes Factory & Services available)
 from . import core
 
-# Import admin module (registers admin routes)
-from . import admin
+# Note: Admin routes moved to app.api.admin.content_management.courses
+# from . import admin  # REMOVED - duplicate with admin package
 
 # Import user-facing modules
 from .crud.courses import courses_bp
@@ -56,7 +56,7 @@ for bp in ALL_BLUEPRINTS:
 # Export all blueprints for direct import
 __all__ = [
     'core',
-    'admin',
+    # 'admin',  # Removed - admin routes in app.api.admin package
     'courses_bp',
     'enrollment_bp',
     'chapters_bp',

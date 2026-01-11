@@ -49,7 +49,7 @@ class DomainEvent:
         }
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class AIModelSyncedEvent(DomainEvent):
     """
     Event: AI model synchronization completed.
@@ -78,7 +78,7 @@ class AIModelSyncedEvent(DomainEvent):
         return base
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class AIJobCompletedEvent(DomainEvent):
     """
     Event: AI job completed successfully.
@@ -107,7 +107,7 @@ class AIJobCompletedEvent(DomainEvent):
         return base
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class AIJobCancelledEvent(DomainEvent):
     """
     Event: AI job was cancelled.
@@ -136,7 +136,7 @@ class AIJobCancelledEvent(DomainEvent):
         return base
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class AIProviderHealthChangedEvent(DomainEvent):
     """
     Event: Provider health status changed.
@@ -170,7 +170,7 @@ class AIProviderHealthChangedEvent(DomainEvent):
         return self.new_status == 'down'
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class AIModelDefaultSetEvent(DomainEvent):
     """
     Event: Default model changed for a category.
@@ -195,7 +195,7 @@ class AIModelDefaultSetEvent(DomainEvent):
         return base
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class AIProfileUpdatedEvent(DomainEvent):
     """
     Event: AI profile configuration updated.

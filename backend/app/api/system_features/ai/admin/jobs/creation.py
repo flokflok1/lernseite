@@ -52,7 +52,7 @@ VALID_JOB_TYPES = {
 
 @jobs_creation_bp.route('', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_CONTENT_WRITE)
+@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
 def create_ai_job() -> Tuple[Dict[str, Any], int]:
     """
     Create a new AI job.
@@ -156,7 +156,7 @@ def create_ai_job() -> Tuple[Dict[str, Any], int]:
 
 @jobs_creation_bp.route('/<job_id>/submit', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_CONTENT_WRITE)
+@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
 def submit_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Submit AI job for processing.

@@ -6,6 +6,7 @@ Admin-only endpoints for organisation CRUD and member management.
 Modules:
     - crud.py: Organisation CRUD operations (list, create, get, update)
     - members.py: Member management (list users, assign user)
+    - _helpers: Helper functions (re-exported from parent)
 
 Permissions:
     - All endpoints require @admin_required or @token_required + org_admin
@@ -17,7 +18,11 @@ Endpoints:
     - POST /api/v1/organisations/<id>/assign-user
 """
 
-# Placeholder - will contain actual crud.py and members.py
-# For now, keep using the old structure for backward compatibility
+# Import modules to trigger blueprint registration
+from app.api.shared.organisations.admin import crud
+from app.api.shared.organisations.admin import members
 
-__all__ = []
+# Re-export helpers from parent package for backward compatibility
+from app.api.shared.organisations import _helpers
+
+__all__ = ['crud', 'members', '_helpers']

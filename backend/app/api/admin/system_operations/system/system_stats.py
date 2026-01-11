@@ -12,7 +12,7 @@ Phase 2.1 - Admin Dashboard Implementation
 from flask import jsonify, current_app, g
 from datetime import datetime
 
-from app.api.admin.system import api_v1
+from app.api.admin.system_operations.system import api_v1
 from app.security.permissions import require_permission, Permissions
 from app.repositories.admin.core import AdminRepository
 from app.models.admin import UserStatsResponse, CourseStatsResponse, SystemStatsResponse

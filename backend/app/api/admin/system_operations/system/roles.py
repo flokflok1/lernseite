@@ -355,5 +355,5 @@ def check_user_permission(user_id: str, permission_key: str):
 # Register Blueprint
 # =============================================================================
 
-from app.api.admin.system import api_v1
+from app.api.admin.system_operations.system import api_v1
 api_v1.register_blueprint(bp)

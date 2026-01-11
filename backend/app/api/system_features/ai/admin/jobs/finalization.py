@@ -20,7 +20,7 @@ import uuid
 from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.jobs import AIJobsRepository
-from app.repositories.courses import CoursesRepository
+from app.repositories.courses import CourseRepository
 from app.services.audit_service import AuditService
 
 # DDD Core Domain
@@ -41,7 +41,7 @@ jobs_finalization_bp = Blueprint(
 
 @jobs_finalization_bp.route('/<job_id>/complete', methods=['PUT'])
 @token_required
-@require_permission(Permissions.ADMIN_CONTENT_WRITE)
+@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
 def complete_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Mark AI job as completed.
@@ -175,7 +175,7 @@ def complete_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
 @jobs_finalization_bp.route('/<job_id>/create-course', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_CONTENT_WRITE)
+@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
 def create_course_from_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Create course from completed AI job.
@@ -283,7 +283,7 @@ def create_course_from_job(job_id: str) -> Tuple[Dict[str, Any], int]:
             'created_at': datetime.utcnow()
         }
 
-        created_course = CoursesRepository.create(course_data)
+        created_course = CourseRepository.create(course_data)
 
         # TODO: Create chapters and lessons from job result
         # This would be implemented in a separate service

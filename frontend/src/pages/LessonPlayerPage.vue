@@ -177,7 +177,7 @@ import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/store/player.store'
 import { useTutorStore } from '@/store/tutor.store'
 import Button from '@/components/base/Button.vue'
-import { MethodExecutionPanel } from '@/components/user/lessons'
+import { MethodExecutionPanel } from '@/components/learning/methods'
 
 // ============================================================================
 // Props

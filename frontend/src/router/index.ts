@@ -129,16 +129,40 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminOrganisations',
         component: () => import('@/pages/admin/AdminOrganisationsPage.vue'),
       },
+      // Redirects for renamed routes (Wave 6)
       {
-        path: 'courses',
-        name: 'AdminCourses',
+        path: 'kurse',
+        redirect: '/admin/kurs-editor',
+      },
+      {
+        path: 'ki-studio',
+        redirect: '/admin/ai-studio',
+      },
+      // New route names (Wave 6)
+      {
+        path: 'kurs-editor',
+        name: 'AdminCourseEditor',
         component: () => import('@/pages/admin/AdminCoursesPage.vue'),
       },
       {
-        path: 'courses/:id',
+        path: 'kurs-editor/:id',
         name: 'admin-course-detail',
         component: () => import('@/pages/admin/AdminCourseDetailPage.vue'),
         props: true,
+      },
+      {
+        path: 'ai-studio',
+        name: 'AdminAIStudio',
+        component: () => import('@/pages/admin/AdminKIStudioPage.vue'),
+      },
+      // Legacy route (old name)
+      {
+        path: 'courses',
+        redirect: '/admin/kurs-editor',
+      },
+      {
+        path: 'courses/:id',
+        redirect: (to) => `/admin/kurs-editor/${to.params.id}`,
       },
       {
         path: 'categories',
@@ -159,11 +183,6 @@ const routes: RouteRecordRaw[] = [
         path: 'audit-logs',
         name: 'AdminAuditLogs',
         component: () => import('@/pages/admin/AdminAuditLogsPage.vue'),
-      },
-      {
-        path: 'ki-studio',
-        name: 'AdminKIStudio',
-        component: () => import('@/pages/admin/AdminKIStudioPage.vue'),
       },
       {
         path: 'translations',

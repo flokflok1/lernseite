@@ -150,11 +150,11 @@
 import { ref, computed } from 'vue'
 import { useWindowStore } from '@/store/window.store'
 import type { LsxWindow, WindowType } from '@/store/window.store'
-import PreviewCourseCreate from '@/components/admin/shared/previews/PreviewCourseCreate.vue'
-import PreviewCourseEditor from '@/components/admin/shared/previews/PreviewCourseEditor.vue'
-import PreviewKapitelEditor from '@/components/admin/shared/previews/PreviewKapitelEditor.vue'
-import PreviewLessonEditor from '@/components/admin/shared/previews/PreviewLessonEditor.vue'
-import PreviewAIJob from '@/components/admin/shared/previews/PreviewAIJob.vue'
+import PreviewCourseCreate from '@/components/system/shared/previews/PreviewCourseCreate.vue'
+import PreviewCourseEditor from '@/components/system/shared/previews/PreviewCourseEditor.vue'
+import PreviewKapitelEditor from '@/components/system/shared/previews/PreviewKapitelEditor.vue'
+import PreviewLessonEditor from '@/components/system/shared/previews/PreviewLessonEditor.vue'
+import PreviewAIJob from '@/components/system/shared/previews/PreviewAIJob.vue'
 
 interface Props {
   window: LsxWindow

@@ -94,7 +94,7 @@ import {
   PermissionsOverview,
   useRolesManagement,
   type RoleFormData
-} from '@/components/admin/user-management/roles'
+} from '@/components/users/admin/roles'
 import type { Role } from '@/api/admin/roles.api'
 
 const {

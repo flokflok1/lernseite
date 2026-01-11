@@ -12,3 +12,18 @@ export { default as Avatar } from './Avatar.vue'
 
 // i18n Components
 export { default as LanguageSelector } from './i18n/LanguageSelector.vue'
+
+// Chart Components
+export { BarChart, LineChart, AnalyticsKpiCard } from './charts'
+
+// Layout Components
+export { Footer, ProtectedContent } from './layout'
+
+// Application Interface Components
+export { Taskbar, MiniPreview, WindowComponent, DesktopLayer } from './application-interface'
+
+// Audio Components
+export { AudioRecorder } from './audio'
+
+// Ads Components
+export { AdSlot } from './ads'

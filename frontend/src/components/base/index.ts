@@ -43,3 +43,21 @@ export {
 
 // Lesson Components (Shared)
 export { DetailedSteps, MathTaskModal, MethodExecutionPanel } from './lessons'
+
+// Quiz Components
+export {
+  QuizLesson,
+  QuizResult,
+  SingleChoiceQuestion,
+  MultipleChoiceQuestion,
+  TrueFalseQuestion
+} from './lessons'
+
+// Lesson Types
+export {
+  TextLesson,
+  VideoLesson,
+  AiLesson,
+  OralExplanationLesson,
+  WhiteboardTutorLesson
+} from './lessons'

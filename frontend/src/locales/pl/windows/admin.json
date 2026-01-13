@@ -541,6 +541,24 @@
       "D": "D: Pro",
       "E": "E: IT",
       "F": "F: Współpraca"
+    },
+    "form": {
+      "titleLabel": "Tytuł *",
+      "titlePlaceholder": "np. Trener słówek - Lekcja 1",
+      "instructionsLabel": "Instrukcje",
+      "instructionsPlaceholder": "Opcjonalne instrukcje dla uczącego się...",
+      "durationLabel": "Czas trwania (minuty)",
+      "difficultyLabel": "Trudność",
+      "difficultyEasy": "Łatwy",
+      "difficultyMedium": "Średni",
+      "difficultyHard": "Trudny",
+      "cancelButton": "Anuluj",
+      "createButton": "Utwórz",
+      "updateButton": "Aktualizuj",
+      "savingButton": "Zapisywanie...",
+      "emptyTitleError": "Proszę wpisać tytuł",
+      "noChapterIdError": "Nie znaleziono ID rozdziału",
+      "saveErrorMessage": "Błąd podczas zapisywania"
     }
   },
   "examManager": {

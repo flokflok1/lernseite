@@ -300,7 +300,8 @@
     }
   },
   "aiStudioPro": {
-    "title": "KI-Authoring-Studio Pro",
+    "title": "AI Studio Pro",
+    "chat": "Chat",
     "selectCourse": "Kurs auswählen",
     "selectCoursePlaceholder": "Kurs auswählen...",
     "lessonsLabel": "Lektionen:",
@@ -341,13 +342,12 @@
     "createCourse": "Kurs erstellen",
     "selectACourse": "Wähle einen Kurs aus",
     "newChapter": "Neues Kapitel",
-    "chat": "Chat",
     "tabs": {
       "builder": "Kurs-Builder",
-      "tutor": "Tutor",
+      "tutor": "KI-Tutor",
       "methods": "Lernmethoden",
       "exams": "Prüfungen",
-      "features": "Features",
+      "features": "System-Features",
       "prompts": "Prompts",
       "analytics": "Analytics",
       "settings": "Einstellungen",

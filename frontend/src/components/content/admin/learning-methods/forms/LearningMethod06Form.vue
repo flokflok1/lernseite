@@ -1,5 +1,5 @@
 <!--
-  LearningMethod06Form - Beispiel-Szenario-Erklärung
+  LearningMethod04Form - Beispiel-Szenario
 
   Reale Anwendungsfälle, Case Studies und praxisnahe Szenarien
   zur Veranschaulichung theoretischer Konzepte.
@@ -17,12 +17,12 @@
       <!-- Thema -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Thema / Konzept *
+          {{ $t('windows.learningMethods.lm04.topicLabel') }}
         </label>
         <input
           v-model="methodData.topic"
           type="text"
-          placeholder="z.B. Subnetting in der Praxis, DSGVO-Umsetzung, Agile Methoden"
+          :placeholder="$t('windows.learningMethods.lm04.topicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -31,23 +31,23 @@
       <!-- Branche/Kontext -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Branche / Kontext
+          {{ $t('windows.learningMethods.lm04.industryContextLabel') }}
         </label>
         <select
           v-model="methodData.industry_context"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="">Allgemein</option>
-          <option value="it_admin">IT-Administration</option>
-          <option value="software_dev">Softwareentwicklung</option>
-          <option value="network">Netzwerktechnik</option>
-          <option value="business">Betriebswirtschaft</option>
-          <option value="finance">Finanzen/Buchhaltung</option>
-          <option value="healthcare">Gesundheitswesen</option>
-          <option value="education">Bildung</option>
-          <option value="manufacturing">Produktion/Fertigung</option>
-          <option value="retail">Handel</option>
-          <option value="other">Sonstiges</option>
+          <option value="">{{ $t('windows.learningMethods.lm04.industryContextDefault') }}</option>
+          <option value="it_admin">{{ $t('windows.learningMethods.lm04.industryContextItAdmin') }}</option>
+          <option value="software_dev">{{ $t('windows.learningMethods.lm04.industryContextSoftwareDev') }}</option>
+          <option value="network">{{ $t('windows.learningMethods.lm04.industryContextNetwork') }}</option>
+          <option value="business">{{ $t('windows.learningMethods.lm04.industryContextBusiness') }}</option>
+          <option value="finance">{{ $t('windows.learningMethods.lm04.industryContextFinance') }}</option>
+          <option value="healthcare">{{ $t('windows.learningMethods.lm04.industryContextHealthcare') }}</option>
+          <option value="education">{{ $t('windows.learningMethods.lm04.industryContextEducation') }}</option>
+          <option value="manufacturing">{{ $t('windows.learningMethods.lm04.industryContextManufacturing') }}</option>
+          <option value="retail">{{ $t('windows.learningMethods.lm04.industryContextRetail') }}</option>
+          <option value="other">{{ $t('windows.learningMethods.lm04.industryContextOther') }}</option>
         </select>
       </div>
 
@@ -55,32 +55,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            Szenarien *
+            {{ $t('windows.learningMethods.lm04.scenariosLabel') }}
           </label>
           <button
             @click="addScenario"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            + Szenario hinzufügen
+            {{ $t('windows.learningMethods.lm04.addScenario') }}
           </button>
         </div>
 
         <div v-if="methodData.scenarios.length === 0" class="text-sm text-[var(--color-text-secondary)] italic mb-3">
-          Keine Szenarien vorhanden. Fügen Sie mindestens ein Szenario hinzu oder lassen Sie die KI generieren.
+          {{ $t('windows.learningMethods.lm04.noScenarios') }}
         </div>
 
         <div v-for="(scenario, index) in methodData.scenarios" :key="index" class="mb-4 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface-secondary)]">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-bold text-[var(--color-primary)]">
-              Szenario {{ index + 1 }}
+              {{ $t('windows.learningMethods.lm04.scenarioNumber', { n: index + 1 }) }}
             </span>
             <button
               @click="removeScenario(index)"
               type="button"
               class="text-sm text-red-500 hover:underline"
             >
-              Entfernen
+              {{ $t('windows.learningMethods.lm04.removeScenario') }}
             </button>
           </div>
 
@@ -88,12 +88,12 @@
             <!-- Szenario-Titel -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Titel *
+                {{ $t('windows.learningMethods.lm04.scenarioTitleLabel') }}
               </label>
               <input
                 v-model="scenario.title"
                 type="text"
-                placeholder="z.B. Netzwerkausfall im Rechenzentrum"
+                :placeholder="$t('windows.learningMethods.lm04.scenarioTitlePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -102,12 +102,12 @@
             <!-- Ausgangssituation -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Ausgangssituation *
+                {{ $t('windows.learningMethods.lm04.situationLabel') }}
               </label>
               <textarea
                 v-model="scenario.situation"
                 rows="3"
-                placeholder="Beschreiben Sie die Ausgangssituation des Szenarios..."
+                :placeholder="$t('windows.learningMethods.lm04.situationPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -116,12 +116,12 @@
             <!-- Herausforderung/Problem -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Herausforderung / Problem
+                {{ $t('windows.learningMethods.lm04.challengeLabel') }}
               </label>
               <textarea
                 v-model="scenario.challenge"
                 rows="2"
-                placeholder="Welches Problem muss gelöst werden?"
+                :placeholder="$t('windows.learningMethods.lm04.challengePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -129,12 +129,12 @@
             <!-- Lösung/Erklärung -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Lösung / Erklärung *
+                {{ $t('windows.learningMethods.lm04.solutionLabel') }}
               </label>
               <textarea
                 v-model="scenario.solution"
                 rows="4"
-                placeholder="Wie wird das Konzept angewendet? Was ist die Lösung?"
+                :placeholder="$t('windows.learningMethods.lm04.solutionPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -143,12 +143,12 @@
             <!-- Lernerkenntnis -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Lernerkenntnis
+                {{ $t('windows.learningMethods.lm04.takeawayLabel') }}
               </label>
               <input
                 v-model="scenario.takeaway"
                 type="text"
-                placeholder="Was lernt man aus diesem Szenario?"
+                :placeholder="$t('windows.learningMethods.lm04.takeawayPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -159,27 +159,27 @@
       <!-- Schwierigkeitsgrad -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Komplexitätsgrad
+          {{ $t('windows.learningMethods.lm04.complexityLabel') }}
         </label>
         <select
           v-model="methodData.complexity"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="simple">Einfach - Einzelne Konzepte</option>
-          <option value="moderate">Moderat - Mehrere Konzepte</option>
-          <option value="complex">Komplex - Vernetztes Wissen</option>
+          <option value="simple">{{ $t('windows.learningMethods.lm04.complexitySimple') }}</option>
+          <option value="moderate">{{ $t('windows.learningMethods.lm04.complexityModerate') }}</option>
+          <option value="complex">{{ $t('windows.learningMethods.lm04.complexityComplex') }}</option>
         </select>
       </div>
 
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Übergeordnetes Lernziel
+          {{ $t('windows.learningMethods.lm04.learningGoalLabel') }}
         </label>
         <input
           v-model="methodData.learning_goal"
           type="text"
-          placeholder="Was soll der Lernende durch diese Szenarien verstehen?"
+          :placeholder="$t('windows.learningMethods.lm04.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -187,8 +187,7 @@
       <!-- KI-Generierung Info -->
       <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
         <p class="text-sm text-amber-800 dark:text-amber-200">
-          <strong>KI-Unterstützung:</strong> Die KI kann passende Praxis-Szenarien basierend auf dem Thema generieren.
-          Lassen Sie die Szenario-Liste leer für automatische Generierung.
+          <strong>{{ $t('windows.learningMethods.lm04.aiSupportText') }}</strong>
         </p>
       </div>
     </template>
@@ -197,10 +196,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
-const METHOD_CODE = 6
+const { t } = useI18n()
+const METHOD_CODE = 4
 
 interface Props {
   window: LsxWindow

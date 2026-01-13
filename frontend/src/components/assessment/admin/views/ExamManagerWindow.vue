@@ -145,7 +145,7 @@
                   @click="deleteExam(exam)"
                   class="px-2 py-1 text-xs rounded transition-colors"
                   style="color: var(--color-error, #dc2626);"
-                  title="Löschen"
+                  :title="t('admin.actions.delete')"
                 >
                   🗑️
                 </button>
@@ -371,6 +371,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   adminListExams,
   adminCreateExam,
@@ -380,6 +381,8 @@ import {
   type ExamCreateRequest,
   type ExamGenerateRequest
 } from '@/api/admin.api'
+
+const { t } = useI18n()
 
 interface Props {
   courseId: string
@@ -464,7 +467,7 @@ const createExam = async () => {
     await loadExams()
   } catch (err: any) {
     console.error('Error creating exam:', err)
-    alert('Fehler beim Erstellen: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.createFailed')
   }
 }
 
@@ -474,13 +477,6 @@ const generateExam = async () => {
   try {
     const result = await adminGenerateExam(props.courseId, generateForm.value)
     showGenerateDialog.value = false
-
-    alert(
-      `✅ KI-Prüfung wird generiert!\n\n` +
-      `Job ID: ${result.job_id}\n` +
-      `Exam ID: ${result.exam_id}\n\n` +
-      `Die Generierung kann 2-5 Minuten dauern. Die Prüfung erscheint automatisch in der Liste, sobald sie fertig ist.`
-    )
 
     // Reset form
     generateForm.value = {
@@ -503,19 +499,19 @@ const generateExam = async () => {
     setTimeout(() => loadExams(), 5000)
   } catch (err: any) {
     console.error('Error generating exam:', err)
-    alert('Fehler bei der KI-Generierung: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.generateFailed')
   }
 }
 
 const deleteExam = async (exam: Exam) => {
-  if (!confirm(`Möchten Sie die Prüfung "${exam.title}" wirklich löschen?`)) return
+  if (!confirm(t('admin.exams.confirmDelete', { title: exam.title }))) return
 
   try {
     await adminDeleteExam(exam.exam_id)
     await loadExams()
   } catch (err: any) {
     console.error('Error deleting exam:', err)
-    alert('Fehler beim Löschen: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.deleteFailed')
   }
 }
 

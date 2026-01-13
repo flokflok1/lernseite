@@ -8,37 +8,37 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Code/IT-Config Sandbox
+            {{ $t('windows.lm09.codeSandboxTitle') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            Interaktive Coding-/Konfigurations-Umgebung
+            {{ $t('windows.lm09.codeSandboxDesc') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Aufgabenstellung
+            {{ $t('windows.lm09.instructionLabel') }}
           </label>
           <textarea
             v-model="methodData.instruction"
             rows="3"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Beschreiben Sie, was der Lernende programmieren/konfigurieren soll..."
+            :placeholder="$t('windows.lm09.instructionPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Programmiersprache / Konfigurationstyp
+            {{ $t('windows.lm09.languageLabel') }}
           </label>
           <select
             v-model="methodData.language"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">Typ wählen...</option>
-            <optgroup label="Programmiersprachen">
+            <option value="">{{ $t('windows.lm09.selectTypeOption') }}</option>
+            <optgroup :label="$t('windows.lm09.languagesOptGroup')">
               <option value="python">Python</option>
               <option value="javascript">JavaScript</option>
               <option value="typescript">TypeScript</option>
@@ -50,7 +50,7 @@
               <option value="go">Go</option>
               <option value="rust">Rust</option>
             </optgroup>
-            <optgroup label="Konfiguration">
+            <optgroup :label="$t('windows.lm09.configurationOptGroup')">
               <option value="sql">SQL</option>
               <option value="bash">Bash/Shell</option>
               <option value="powershell">PowerShell</option>
@@ -61,7 +61,7 @@
               <option value="apache">Apache Config</option>
               <option value="docker">Dockerfile</option>
             </optgroup>
-            <optgroup label="Web">
+            <optgroup :label="$t('windows.lm09.webOptGroup')">
               <option value="html">HTML</option>
               <option value="css">CSS</option>
             </optgroup>
@@ -70,50 +70,50 @@
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Code-Vorlage (Starter Code)
+            {{ $t('windows.lm09.codeTemplateLabel') }}
           </label>
           <textarea
             v-model="methodData.code_template"
             rows="8"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            placeholder="// Geben Sie hier den Starter-Code ein, den der Lernende sieht..."
+            :placeholder="$t('windows.lm09.codeTemplatePlaceholder')"
           ></textarea>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Optional: Vorausgefüllter Code, mit dem der Lernende startet
+            {{ $t('windows.lm09.codeTemplateHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Musterlösung
+            {{ $t('windows.lm09.solutionLabel') }}
           </label>
           <textarea
             v-model="methodData.solution"
             rows="10"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            placeholder="// Geben Sie hier die Musterlösung ein..."
+            :placeholder="$t('windows.lm09.solutionPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Test-Fälle (einer pro Zeile)
+            {{ $t('windows.lm09.testCasesLabel') }}
           </label>
           <textarea
             v-model="methodData.tests"
             rows="5"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            placeholder="Input: [1, 2, 3] -> Expected: 6&#10;Input: [] -> Expected: 0&#10;Input: [-1, 1] -> Expected: 0"
+            :placeholder="$t('windows.lm09.testCasesPlaceholder')"
           ></textarea>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Format: Input: [Wert] -> Expected: [Erwartetes Ergebnis] (ein Test pro Zeile)
+            {{ $t('windows.lm09.testCasesHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Optionen
+            {{ $t('windows.lm09.optionsLabel') }}
           </label>
           <div class="space-y-2">
             <label class="flex items-center space-x-2">
@@ -123,7 +123,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Code-Ausführung erlauben (Lernende können den Code testen)
+                {{ $t('windows.lm09.allowRunCheckbox') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -133,7 +133,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Hinweise anzeigen (bei Fehlern)
+                {{ $t('windows.lm09.showHintsCheckbox') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -143,7 +143,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Musterlösung nach Abgabe zeigen
+                {{ $t('windows.lm09.showSolutionCheckbox') }}
               </span>
             </label>
           </div>

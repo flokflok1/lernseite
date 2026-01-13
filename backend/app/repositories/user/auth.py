@@ -114,7 +114,7 @@ class UserAuthRepository(BaseRepository):
         """
         user = fetch_one(
             """
-            SELECT u.*, r.role_name as role
+            SELECT u.*, r.role_name as role, r.hierarchy_level
             FROM core.users u
             JOIN core.roles r ON u.role_id = r.role_id
             WHERE u.email = %s

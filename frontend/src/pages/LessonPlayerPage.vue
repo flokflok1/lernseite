@@ -205,12 +205,12 @@ const router = useRouter()
 // ============================================================================
 
 const lessonComponents = {
-  text: defineAsyncComponent(() => import('@/components/user/lessons/text/TextLesson.vue')),
-  video: defineAsyncComponent(() => import('@/components/user/lessons/video/VideoLesson.vue')),
-  quiz: defineAsyncComponent(() => import('@/components/user/lessons/quiz/QuizLesson.vue')),
-  ai: defineAsyncComponent(() => import('@/components/user/lessons/ai/AiLesson.vue')),
-  interactive: defineAsyncComponent(() => import('@/components/user/lessons/ai/AiLesson.vue')), // Interactive lessons
-  mixed: defineAsyncComponent(() => import('@/components/user/lessons/text/TextLesson.vue')) // Fallback
+  text: defineAsyncComponent(() => import('@/components/learning/methods/TextLesson.vue')),
+  video: defineAsyncComponent(() => import('@/components/learning/methods/VideoLesson.vue')),
+  quiz: defineAsyncComponent(() => import('@/components/learning/methods/quiz/QuizLesson.vue')),
+  ai: defineAsyncComponent(() => import('@/components/learning/methods/AiLesson.vue')),
+  interactive: defineAsyncComponent(() => import('@/components/learning/methods/AiLesson.vue')), // Interactive lessons
+  mixed: defineAsyncComponent(() => import('@/components/learning/methods/TextLesson.vue')) // Fallback
 }
 
 // ============================================================================

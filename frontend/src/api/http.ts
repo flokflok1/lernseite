@@ -13,6 +13,9 @@ import router from '@/router'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
 
+// Flag to prevent infinite logout loop
+let isLoggingOut = false
+
 // Create Axios instance
 const http: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -50,8 +53,17 @@ http.interceptors.response.use(
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (error.response?.status === 401) {
-      // Logout user and redirect to login
-      await authStore.logout()
+      // Prevent infinite logout loop
+      if (!isLoggingOut) {
+        isLoggingOut = true
+        try {
+          // Logout user and redirect to login
+          await authStore.logout()
+        } finally {
+          isLoggingOut = false
+        }
+      }
+
       router.push('/login')
 
       return Promise.reject({

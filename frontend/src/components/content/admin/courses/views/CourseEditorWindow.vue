@@ -70,7 +70,7 @@
                 type="text"
                 required
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                placeholder="Kurstititel eingeben..."
+                :placeholder="$t('admin.courses.placeholders.titleInput')"
               />
             </div>
 
@@ -83,7 +83,7 @@
                 v-model="form.description"
                 rows="4"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                placeholder="Kursbeschreibung eingeben..."
+                :placeholder="$t('admin.courses.placeholders.descriptionInput')"
               ></textarea>
             </div>
 
@@ -347,8 +347,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/store/window.store'
 import type { LsxWindow } from '@/store/window.store'
+
+const { t } = useI18n()
+
 import {
   adminGetCourseDetail,
   adminUpdateCourse,
@@ -422,9 +426,9 @@ const flatCategories = computed(() => {
 
 // Computed
 const tabs = computed(() => [
-  { id: 'metadata', label: 'Metadaten', icon: '📝' },
-  { id: 'chapters', label: 'Kapitel', icon: '📚' },
-  { id: 'actions', label: 'Aktionen', icon: '⚡' }
+  { id: 'metadata', label: t('admin.courses.tabs.metadata'), icon: '📝' },
+  { id: 'chapters', label: t('admin.courses.tabs.chapters'), icon: '📚' },
+  { id: 'actions', label: t('admin.courses.tabs.actions'), icon: '⚡' }
 ])
 
 const courseId = computed(() => props.window.payload?.courseId as string)
@@ -530,71 +534,63 @@ const saveCourse = async () => {
     windowStore.updateWindowPayload(props.window.id, {
       course: course.value
     })
-
-    alert('Änderungen gespeichert!')
   } catch (err: any) {
     console.error('Error saving course:', err)
-    alert('Fehler beim Speichern: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.saveFailed')
   } finally {
     saving.value = false
   }
 }
 
 const publishCourse = async () => {
-  if (!courseId.value || !confirm('Möchten Sie diesen Kurs wirklich veröffentlichen?')) return
+  if (!courseId.value || !confirm(t('admin.courses.confirmPublish'))) return
 
   try {
     await adminPublishCourse(courseId.value)
     await loadCourse()
-    alert('Kurs wurde veröffentlicht!')
   } catch (err: any) {
     console.error('Error publishing course:', err)
-    alert('Fehler beim Veröffentlichen: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.publishFailed')
   }
 }
 
 const unpublishCourse = async () => {
-  if (!courseId.value || !confirm('Möchten Sie die Veröffentlichung wirklich zurückziehen?')) return
+  if (!courseId.value || !confirm(t('admin.courses.confirmUnpublish'))) return
 
   try {
     await adminUnpublishCourse(courseId.value)
     await loadCourse()
-    alert('Veröffentlichung wurde zurückgezogen!')
   } catch (err: any) {
     console.error('Error unpublishing course:', err)
-    alert('Fehler: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.unpublishFailed')
   }
 }
 
 const archiveCourse = async () => {
-  if (!courseId.value || !confirm('Möchten Sie diesen Kurs wirklich archivieren?')) return
+  if (!courseId.value || !confirm(t('admin.courses.confirmArchive'))) return
 
   try {
     await adminArchiveCourse(courseId.value)
     await loadCourse()
-    alert('Kurs wurde archiviert!')
   } catch (err: any) {
     console.error('Error archiving course:', err)
-    alert('Fehler: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.archiveFailed')
   }
 }
 
 const deleteCourse = async () => {
   if (!courseId.value) return
 
-  const confirmed = confirm(
-    'WARNUNG: Möchten Sie diesen Kurs wirklich PERMANENT löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!'
-  )
+  const confirmed = confirm(t('admin.courses.confirmDeleteWarning'))
 
   if (!confirmed) return
 
   try {
     await adminDeleteCourse(courseId.value, 'Manuell durch Admin gelöscht')
-    alert('Kurs wurde gelöscht!')
     emit('close')
   } catch (err: any) {
     console.error('Error deleting course:', err)
-    alert('Fehler beim Löschen: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.deleteFailed')
   }
 }
 
@@ -613,15 +609,14 @@ const openChapterEditor = (chapter: AdminChapter | null) => {
 }
 
 const deleteChapter = async (chapterId: string) => {
-  if (!confirm('Möchten Sie dieses Kapitel wirklich löschen?')) return
+  if (!confirm(t('admin.chapters.confirmDelete'))) return
 
   try {
     await adminDeleteChapter(chapterId, 'Gelöscht durch Admin')
     await loadChapters()
-    alert('Kapitel wurde gelöscht!')
   } catch (err: any) {
     console.error('Error deleting chapter:', err)
-    alert('Fehler: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.deleteFailed')
   }
 }
 

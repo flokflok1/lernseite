@@ -20,15 +20,20 @@ CREATE INDEX IF NOT EXISTS idx_permissions_system ON core.permissions(is_system)
 -- ============================================================================
 
 ALTER TABLE core.roles
-    ADD COLUMN IF NOT EXISTS is_system BOOLEAN DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS is_custom BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS is_builtin BOOLEAN DEFAULT TRUE,
+    ADD COLUMN IF NOT EXISTS is_administrator BOOLEAN DEFAULT FALSE,
     ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES core.users(user_id),
     ADD COLUMN IF NOT EXISTS color VARCHAR(20) DEFAULT '#6b7280',
     ADD COLUMN IF NOT EXISTS icon VARCHAR(50) DEFAULT '👤';
 
--- Markiere bestehende Rollen als System-Rollen
-UPDATE core.roles SET is_system = TRUE WHERE role_name IN (
-    'free', 'premium', 'creator', 'teacher', 
+-- Ensure is_builtin/is_administrator are NOT NULL
+ALTER TABLE core.roles
+    ALTER COLUMN is_builtin SET NOT NULL,
+    ALTER COLUMN is_administrator SET NOT NULL;
+
+-- Markiere bestehende Rollen als System-Rollen (is_builtin=true)
+UPDATE core.roles SET is_builtin = TRUE WHERE role_name IN (
+    'free', 'premium', 'creator', 'teacher',
     'school_admin', 'company_admin', 'support', 'moderator', 'admin'
 );
 
@@ -296,12 +301,13 @@ COMMENT ON FUNCTION get_user_permissions IS 'Gibt alle Permissions eines Users z
 -- ============================================================================
 
 CREATE OR REPLACE VIEW v_role_permissions AS
-SELECT 
+SELECT
     r.role_id,
     r.role_name,
     r.display_name as role_display_name,
     r.hierarchy_level,
-    r.is_system,
+    r.is_builtin,
+    r.is_administrator,
     r.color,
     r.icon,
     p.permission_id,
@@ -314,11 +320,143 @@ LEFT JOIN core.role_permissions rp ON r.role_id = rp.role_id
 LEFT JOIN core.permissions p ON rp.permission_id = p.permission_id
 ORDER BY r.hierarchy_level, p.module, p.sort_order;
 
-COMMENT ON VIEW v_role_permissions IS 'Übersicht aller Rollen mit ihren Permissions';
+COMMENT ON VIEW v_role_permissions IS 'Übersicht aller Rollen mit ihren Permissions - Vereinfachte Struktur (is_builtin/is_administrator)';
 
 -- Cleanup helper function
 DROP FUNCTION IF EXISTS assign_permission_to_role(VARCHAR, VARCHAR);
 
 -- ============================================================================
--- Migration 073 abgeschlossen
+-- 9. RBAC 2.0: Owner Role Addition
+-- ============================================================================
+
+-- Add owner role (if not exists)
+INSERT INTO core.roles (role_name, display_name, description, hierarchy_level, is_system, color, icon)
+VALUES ('owner', 'Owner', 'System Owner (höchste Berechtigung)', 10, TRUE, '#ff0000', '👑')
+ON CONFLICT (role_name) DO UPDATE SET
+    hierarchy_level = 10,
+    is_system = TRUE,
+    description = 'System Owner (höchste Berechtigung)'
+WHERE core.roles.role_name = 'owner';
+
+-- Assign ALL permissions to owner role
+DO $$
+DECLARE
+    v_owner_role_id INTEGER;
+BEGIN
+    SELECT role_id INTO v_owner_role_id FROM core.roles WHERE role_name = 'owner';
+
+    INSERT INTO core.role_permissions (role_id, permission_id)
+    SELECT v_owner_role_id, permission_id FROM core.permissions
+    ON CONFLICT DO NOTHING;
+END $$;
+
+-- ============================================================================
+-- 10. Update Permission Function: Support Owner Role
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION user_has_permission(p_user_id UUID, p_permission_key VARCHAR)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_has_permission BOOLEAN := FALSE;
+    v_role_id INTEGER;
+    v_role_name VARCHAR;
+BEGIN
+    -- 1. Check user-specific override (explicit grant/deny)
+    SELECT granted INTO v_has_permission
+    FROM core.user_permissions up
+    JOIN core.permissions p ON up.permission_id = p.permission_id
+    WHERE up.user_id = p_user_id
+      AND p.permission_key = p_permission_key
+      AND (up.expires_at IS NULL OR up.expires_at > NOW());
+
+    IF FOUND THEN
+        RETURN v_has_permission;
+    END IF;
+
+    -- 2. Check role-based permissions
+    SELECT u.role_id, r.role_name INTO v_role_id, v_role_name
+    FROM core.users u
+    JOIN core.roles r ON u.role_id = r.role_id
+    WHERE u.user_id = p_user_id;
+
+    -- Owner and Admin have all permissions
+    IF v_role_name IN ('admin', 'owner') THEN
+        RETURN TRUE;
+    END IF;
+
+    -- 3. Check role permissions
+    SELECT TRUE INTO v_has_permission
+    FROM core.role_permissions rp
+    JOIN core.permissions p ON rp.permission_id = p.permission_id
+    WHERE rp.role_id = v_role_id AND p.permission_key = p_permission_key;
+
+    RETURN COALESCE(v_has_permission, FALSE);
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION user_has_permission IS 'Prüft ob ein User eine bestimmte Permission hat (via Rolle oder Override). Owner und Admin erhalten alle Permissions.';
+
+-- ============================================================================
+-- 11. Update Get Permissions Function: Support Owner Role
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION get_user_permissions(p_user_id UUID)
+RETURNS TABLE (
+    permission_key VARCHAR,
+    display_name VARCHAR,
+    module VARCHAR,
+    source VARCHAR  -- 'role' or 'user_override'
+) AS $$
+DECLARE
+    v_role_id INTEGER;
+    v_role_name VARCHAR;
+BEGIN
+    -- Get user role
+    SELECT u.role_id, r.role_name INTO v_role_id, v_role_name
+    FROM core.users u
+    JOIN core.roles r ON u.role_id = r.role_id
+    WHERE u.user_id = p_user_id;
+
+    -- Admin and Owner get all permissions
+    IF v_role_name IN ('admin', 'owner') THEN
+        RETURN QUERY
+        SELECT p.permission_key, p.display_name, p.module, 'role'::VARCHAR as source
+        FROM core.permissions p
+        ORDER BY p.module, p.sort_order;
+        RETURN;
+    END IF;
+
+    -- Return combined role + user permissions
+    RETURN QUERY
+    SELECT DISTINCT p.permission_key, p.display_name, p.module,
+           CASE WHEN up.user_id IS NOT NULL THEN 'user_override' ELSE 'role' END::VARCHAR as source
+    FROM core.permissions p
+    LEFT JOIN core.role_permissions rp ON p.permission_id = rp.permission_id AND rp.role_id = v_role_id
+    LEFT JOIN core.user_permissions up ON p.permission_id = up.permission_id
+        AND up.user_id = p_user_id
+        AND up.granted = TRUE
+        AND (up.expires_at IS NULL OR up.expires_at > NOW())
+    WHERE rp.role_id IS NOT NULL OR up.user_id IS NOT NULL
+    ORDER BY p.module, p.sort_order;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION get_user_permissions IS 'Gibt alle Permissions eines Users zurück (Rolle + Overrides). Owner und Admin bekommen alle Permissions.';
+
+-- Update hierarchy constraint to allow level 10 (for owner)
+ALTER TABLE core.roles
+DROP CONSTRAINT IF EXISTS chk_role_hierarchy;
+
+ALTER TABLE core.roles
+ADD CONSTRAINT chk_role_hierarchy CHECK (hierarchy_level BETWEEN 1 AND 10);
+
+-- ============================================================================
+-- 12. Create indexes on new role columns for performance
+-- ============================================================================
+
+CREATE INDEX IF NOT EXISTS idx_roles_builtin ON core.roles(is_builtin);
+CREATE INDEX IF NOT EXISTS idx_roles_administrator ON core.roles(is_administrator);
+
+-- ============================================================================
+-- Migration 073 - RBAC 2.0: Complete Role & Permission System
 -- ============================================================================

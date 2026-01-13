@@ -17,12 +17,12 @@
       <!-- Themenbereich -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Thema / Konzept *
+          {{ $t('windows.lm04.topicLabel') }}
         </label>
         <input
           v-model="methodData.topic"
           type="text"
-          placeholder="z.B. Subnetting, Rekursion, SOLID-Prinzipien"
+          :placeholder="$t('windows.lm04.topicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -31,12 +31,12 @@
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Lernziel
+          {{ $t('windows.lm04.learningGoalLabel') }}
         </label>
         <textarea
           v-model="methodData.learning_goal"
           rows="2"
-          placeholder="Was soll der Lernende am Ende verstanden haben?"
+          :placeholder="$t('windows.lm04.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -44,23 +44,23 @@
       <!-- Vorwissen -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Vorausgesetztes Vorwissen
+          {{ $t('windows.lm04.priorKnowledgeLabel') }}
         </label>
         <select
           v-model="methodData.prior_knowledge"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="none">Kein Vorwissen noetig</option>
-          <option value="basic">Grundlagen bekannt</option>
-          <option value="intermediate">Fortgeschrittenes Wissen</option>
-          <option value="advanced">Expertenwissen</option>
+          <option value="none">{{ $t('windows.lm04.priorKnowledgeNone') }}</option>
+          <option value="basic">{{ $t('windows.lm04.priorKnowledgeBasic') }}</option>
+          <option value="intermediate">{{ $t('windows.lm04.priorKnowledgeIntermediate') }}</option>
+          <option value="advanced">{{ $t('windows.lm04.priorKnowledgeAdvanced') }}</option>
         </select>
       </div>
 
       <!-- Dialog-Stil -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Dialog-Stil
+          {{ $t('windows.lm04.dialogStyleLabel') }}
         </label>
         <div class="grid grid-cols-2 gap-3">
           <label
@@ -89,7 +89,7 @@
       <!-- Fragen-Tiefe -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Fragen-Tiefe
+          {{ $t('windows.lm04.questionDepthLabel') }}
         </label>
         <div class="flex items-center gap-4">
           <input
@@ -105,14 +105,14 @@
           </span>
         </div>
         <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-          Wie tief soll die KI nachfragen? (1 = Oberflaeche, 5 = Tiefgruendig)
+          {{ $t('windows.lm04.questionDepthHint') }}
         </p>
       </div>
 
       <!-- Max Fragen -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Maximale Frageanzahl
+          {{ $t('windows.lm04.maxQuestionsLabel') }}
         </label>
         <div class="flex items-center gap-4">
           <input
@@ -132,7 +132,7 @@
       <!-- Optionen -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Dialog-Optionen
+          {{ $t('windows.lm04.dialogOptionsLabel') }}
         </label>
         <div class="space-y-2">
           <label class="flex items-center gap-2 cursor-pointer">
@@ -141,7 +141,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Hinweise auf Anfrage geben</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm04.allowHints') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -149,7 +149,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Zusammenfassung am Ende</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm04.provideSummary') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -157,7 +157,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Schwierigkeit adaptiv anpassen</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm04.adaptiveDifficulty') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -165,7 +165,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Fortschritt anzeigen</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm04.showProgress') }}</span>
           </label>
         </div>
       </div>
@@ -173,12 +173,12 @@
       <!-- Start-Frage (optional) -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Start-Frage (optional)
+          {{ $t('windows.lm04.initialQuestionLabel') }}
         </label>
         <textarea
           v-model="methodData.initial_question"
           rows="2"
-          placeholder="Optional: Eigene Einstiegsfrage definieren..."
+          :placeholder="$t('windows.lm04.initialQuestionPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -186,9 +186,7 @@
       <!-- KI-Hinweis -->
       <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
         <p class="text-sm text-purple-800 dark:text-purple-200">
-          <strong>Sokratische Methode:</strong> Die KI stellt gezielte Fragen, um den Lernenden
-          zum selbstaendigen Denken anzuregen. Statt Antworten zu geben, fuehrt sie durch
-          Fragen zur Erkenntnis.
+          <strong>{{ $t('windows.lm04.aiHintTitle') }}:</strong> {{ $t('windows.lm04.aiHintText') }}
         </p>
       </div>
     </template>
@@ -196,11 +194,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const METHOD_CODE = 4
+const { t } = useI18n()
 
 interface Props {
   window: LsxWindow
@@ -208,34 +208,40 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const dialogStyles = [
+const dialogStyles = computed(() => [
   {
     value: 'classic',
     icon: '🏛️',
-    label: 'Klassisch',
-    description: 'Traditionelle sokratische Fragen'
+    label: t('windows.lm04.dialogStyleClassic'),
+    description: t('windows.lm04.dialogStyleClassicDesc')
   },
   {
     value: 'guided',
     icon: '🧭',
-    label: 'Gefuehrt',
-    description: 'Mehr Struktur und Hinweise'
+    label: t('windows.lm04.dialogStyleGuided'),
+    description: t('windows.lm04.dialogStyleGuidedDesc')
   },
   {
     value: 'challenging',
     icon: '🎯',
-    label: 'Herausfordernd',
-    description: 'Anspruchsvolle Rueckfragen'
+    label: t('windows.lm04.dialogStyleChallenging'),
+    description: t('windows.lm04.dialogStyleChallengingDesc')
   },
   {
     value: 'exploratory',
     icon: '🔍',
-    label: 'Explorativ',
-    description: 'Offene Erkundung des Themas'
+    label: t('windows.lm04.dialogStyleExploratory'),
+    description: t('windows.lm04.dialogStyleExploratoryDesc')
   }
-]
+])
 
-const depthLabels = ['Oberflaeche', 'Einstieg', 'Mittel', 'Vertiefung', 'Tiefgruendig']
+const depthLabels = computed(() => [
+  t('windows.lm04.depthLabelSurface'),
+  t('windows.lm04.depthLabelEntry'),
+  t('windows.lm04.depthLabelModerate'),
+  t('windows.lm04.depthLabelDeep'),
+  t('windows.lm04.depthLabelVeryDeep')
+])
 
 // Methoden-spezifische Daten
 const methodData = ref({

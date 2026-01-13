@@ -6,7 +6,6 @@ Centralized security, permissions, and RBAC management.
 
 from .permissions import (
     Permissions,
-    ROLE_PERMISSIONS,
     user_has_permission,
     get_user_permissions,
     require_permission,
@@ -28,7 +27,6 @@ from .rate_limit import (
 __all__ = [
     # Permissions
     'Permissions',
-    'ROLE_PERMISSIONS',
     'user_has_permission',
     'get_user_permissions',
     'require_permission',

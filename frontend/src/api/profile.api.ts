@@ -10,6 +10,7 @@ export interface ProfileResponse {
   first_name: string
   last_name: string
   role: string
+  hierarchy_level?: number // RBAC 2.0: Hierarchy level (1-10, owner=10)
   organisation_id?: number
   organisation_name?: string
   is_active: boolean

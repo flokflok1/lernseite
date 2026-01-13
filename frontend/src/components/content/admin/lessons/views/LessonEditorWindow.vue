@@ -44,7 +44,7 @@
         <!-- Title -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            Lektionstitel *
+            {{ $t('windows.lessonEditor.titleLabel') }}
           </label>
           <input
             v-model="form.title"
@@ -52,28 +52,28 @@
             type="text"
             required
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            placeholder="z.B. Variablen und Datentypen"
+            :placeholder="$t('windows.lessonEditor.titlePlaceholder')"
           />
         </div>
 
         <!-- Description -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            Beschreibung
+            {{ $t('windows.lessonEditor.descriptionLabel') }}
           </label>
           <textarea
             v-model="form.description"
             @input="debouncedSave"
             rows="3"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            placeholder="Kurze Beschreibung der Lektion..."
+            :placeholder="$t('windows.lessonEditor.descriptionPlaceholder')"
           ></textarea>
         </div>
 
         <!-- Lesson Type -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            Lektionstyp *
+            {{ $t('windows.lessonEditor.typeLabel') }}
           </label>
           <select
             v-model="form.lesson_type"
@@ -81,14 +81,14 @@
             required
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           >
-            <option value="">Bitte wählen...</option>
-            <option value="text">📄 Text</option>
-            <option value="video">🎥 Video</option>
-            <option value="quiz">❓ Quiz</option>
-            <option value="interactive">🎮 Interaktiv</option>
-            <option value="exercise">💪 Übung</option>
-            <option value="ai">🤖 KI-Lektion</option>
-            <option value="exam">📝 Prüfung</option>
+            <option value="">{{ $t('windows.lessonEditor.selectType') }}</option>
+            <option value="text">📄 {{ $t('windows.lessonEditor.typeText') }}</option>
+            <option value="video">🎥 {{ $t('windows.lessonEditor.typeVideo') }}</option>
+            <option value="quiz">❓ {{ $t('windows.lessonEditor.typeQuiz') }}</option>
+            <option value="interactive">🎮 {{ $t('windows.lessonEditor.typeInteractive') }}</option>
+            <option value="exercise">💪 {{ $t('windows.lessonEditor.typeExercise') }}</option>
+            <option value="ai">🤖 {{ $t('windows.lessonEditor.typeAI') }}</option>
+            <option value="exam">📝 {{ $t('windows.lessonEditor.typeExam') }}</option>
           </select>
         </div>
 
@@ -96,7 +96,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              Reihenfolge
+              {{ $t('windows.lessonEditor.orderLabel') }}
             </label>
             <input
               v-model.number="form.order_index"
@@ -104,13 +104,13 @@
               type="number"
               min="1"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-              placeholder="1"
+              :placeholder="$t('windows.lessonEditor.orderPlaceholder')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              Dauer (Minuten)
+              {{ $t('windows.lessonEditor.durationLabel') }}
             </label>
             <input
               v-model.number="form.duration_minutes"
@@ -118,7 +118,7 @@
               type="number"
               min="0"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-              placeholder="15"
+              :placeholder="$t('windows.lessonEditor.durationPlaceholder')"
             />
           </div>
         </div>
@@ -263,7 +263,7 @@
             </div>
 
             <div v-if="form.content.questions.length === 0" class="text-center py-8 text-[var(--color-text-tertiary)]">
-              Noch keine Fragen. Klicken Sie auf "+ Frage hinzufügen"
+              {{ $t('windows.lessonEditor.emptyQuestions') }}
             </div>
           </div>
 
@@ -323,7 +323,7 @@
             </div>
 
             <div v-if="form.content.exam_questions.length === 0" class="text-center py-8 text-[var(--color-text-tertiary)]">
-              Noch keine Prüfungsfragen
+              {{ $t('windows.lessonEditor.emptyExamQuestions') }}
             </div>
           </div>
 

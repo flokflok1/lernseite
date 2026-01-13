@@ -114,21 +114,21 @@
                 type="text"
                 required
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                placeholder="z.B. Einführung in Python"
+                :placeholder="$t('windows.kapitelEditor.titlePlaceholder')"
               />
             </div>
 
             <!-- Description -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                Beschreibung
+                {{ $t('windows.kapitelEditor.descriptionLabel') }}
               </label>
               <textarea
                 v-model="form.description"
                 @input="debouncedSave"
                 rows="6"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                placeholder="Was wird in diesem Kapitel behandelt?"
+                :placeholder="$t('windows.kapitelEditor.descriptionPlaceholder')"
               ></textarea>
             </div>
 
@@ -207,8 +207,8 @@
             <!-- Videos List -->
             <div v-if="videos.length === 0" class="text-center py-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg">
               <div class="text-4xl mb-3">🎥</div>
-              <p class="text-[var(--color-text-secondary)]">Noch keine Videos vorhanden</p>
-              <p class="text-sm text-[var(--color-text-secondary)] mt-1">Klicken Sie auf "Video hinzufügen" um zu starten</p>
+              <p class="text-[var(--color-text-secondary)]">{{ $t('windows.kapitelEditor.noVideos') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ $t('windows.kapitelEditor.noVideosHint') }}</p>
             </div>
 
             <div v-else class="space-y-4">
@@ -222,13 +222,13 @@
                     <input
                       v-model="video.title"
                       type="text"
-                      placeholder="Video-Titel"
+                      :placeholder="$t('windows.kapitelEditor.videoTitlePlaceholder')"
                       class="w-full px-3 py-2 mb-2 border border-[var(--color-border)] rounded bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                     />
                     <input
                       v-model="video.url"
                       type="text"
-                      placeholder="Video-URL (YouTube, Vimeo, oder direkte MP4-URL)"
+                      :placeholder="$t('windows.kapitelEditor.videoUrlPlaceholder')"
                       class="w-full px-3 py-2 border border-[var(--color-border)] rounded bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                     />
                   </div>
@@ -265,10 +265,10 @@
                 </h3>
                 <p class="text-sm text-[var(--color-text-secondary)] mt-1">
                   <span v-if="learningMethods.length > 0">
-                    {{ learningMethods.filter(m => m.published).length }} veröffentlicht,
-                    {{ learningMethods.filter(m => !m.published).length }} Entwurf
+                    {{ learningMethods.filter(m => m.published).length }} {{ $t('windows.kapitelEditor.published') }},
+                    {{ learningMethods.filter(m => !m.published).length }} {{ $t('windows.kapitelEditor.draft') }}
                   </span>
-                  <span v-else>Noch keine Lernmethoden hinzugefügt</span>
+                  <span v-else>{{ $t('windows.kapitelEditor.noMethods') }}</span>
                 </p>
               </div>
               <button
@@ -484,7 +484,7 @@
                   <button
                     @click="editLesson(lesson)"
                     class="p-1.5 rounded hover:bg-blue-500/10 text-[var(--color-text-secondary)] hover:text-blue-600 transition-colors"
-                    title="Bearbeiten"
+                    :title="t('admin.actions.edit')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -493,7 +493,7 @@
                   <button
                     @click="deleteLesson(lesson.lesson_id)"
                     class="p-1.5 rounded hover:bg-red-500/10 text-[var(--color-text-secondary)] hover:text-red-600 transition-colors"
-                    title="Löschen"
+                    :title="t('admin.actions.delete')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -511,6 +511,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/store/window.store'
 import type { LsxWindow } from '@/store/window.store'
 import {
@@ -528,6 +529,8 @@ import {
   type AdminLearningMethod,
   type LearningMethodType
 } from '@/api/admin.api'
+
+const { t } = useI18n()
 
 interface Props {
   window: LsxWindow
@@ -588,11 +591,11 @@ let saveTimeout: number | null = null
 
 // Computed
 const tabs = computed(() => [
-  { id: 'info', label: 'Kapitel-Info', icon: '📝' },
-  { id: 'theory', label: 'Theorieblätter', icon: '📄' },
-  { id: 'videos', label: 'Videos', icon: '🎥' },
-  { id: 'methods', label: 'Lernmethoden', icon: '🎯' },
-  { id: 'lessons', label: 'Lektionen', icon: '📚' }
+  { id: 'info', label: t('admin.chapters.tabs.info'), icon: '📝' },
+  { id: 'theory', label: t('admin.chapters.tabs.theory'), icon: '📄' },
+  { id: 'videos', label: t('admin.chapters.tabs.videos'), icon: '🎥' },
+  { id: 'methods', label: t('admin.chapters.tabs.methods'), icon: '🎯' },
+  { id: 'lessons', label: t('admin.chapters.tabs.lessons'), icon: '📚' }
 ])
 
 const isNewChapter = computed(() => !props.window.payload?.chapterId)
@@ -724,7 +727,7 @@ const saveChapter = async () => {
 // Save module and enable current tab (for use from info boxes)
 const saveAndEnableTab = async () => {
   if (!form.value.title.trim()) {
-    alert('Bitte geben Sie einen Kapiteltitel ein.')
+    error.value = t('admin.chapters.errors.titleRequired')
     return
   }
 
@@ -738,13 +741,13 @@ const saveAndEnableTab = async () => {
 
 const addLesson = () => {
   if (isNewChapter.value || !chapterId.value) {
-    alert('Bitte speichern Sie zuerst das Kapitel.')
+    error.value = t('admin.chapters.errors.saveFirst')
     return
   }
 
   windowStore.openWindow({
     type: 'admin-lesson-editor',
-    title: 'Neue Lektion',
+    title: t('admin.lessons.createNew'),
     icon: '📄',
     payload: {
       courseId: courseId.value,
@@ -758,7 +761,7 @@ const addLesson = () => {
 const editLesson = (lesson: AdminLesson) => {
   windowStore.openWindow({
     type: 'admin-lesson-editor',
-    title: `Lektion bearbeiten: ${lesson.title}`,
+    title: `${t('admin.lessons.edit')}: ${lesson.title}`,
     icon: '📄',
     payload: {
       courseId: courseId.value,
@@ -770,7 +773,7 @@ const editLesson = (lesson: AdminLesson) => {
 }
 
 const deleteLesson = async (lessonId: string) => {
-  if (!confirm('Möchten Sie diese Lektion wirklich löschen?')) return
+  if (!confirm(t('admin.lessons.confirmDelete'))) return
 
   try {
     await adminDeleteLesson(lessonId)
@@ -778,7 +781,7 @@ const deleteLesson = async (lessonId: string) => {
     await loadLessons()
   } catch (err: any) {
     console.error('Error deleting lesson:', err)
-    alert('Fehler beim Löschen: ' + (err.response?.data?.message || err.message))
+    error.value = err.response?.data?.message || t('common.errors.deleteFailed')
   }
 }
 
@@ -927,13 +930,13 @@ const getGroupInfo = (group: string) => {
 // D3.4: Open Learning Methods Editor Window (with optional group filter)
 const openLearningMethodsEditor = (preSelectedGroup?: string) => {
   if (isNewChapter.value || !chapterId.value) {
-    alert('Bitte speichern Sie zuerst das Kapitel.')
+    error.value = t('admin.chapters.errors.saveFirst')
     return
   }
 
   windowStore.openWindow({
     type: 'admin-learning-method-editor',
-    title: `Lernmethoden: ${form.value.title || 'Kapitel'}`,
+    title: `${t('admin.methods.title')}: ${form.value.title || t('admin.chapters.chapter')}`,
     icon: '🎯',
     payload: {
       courseId: courseId.value,

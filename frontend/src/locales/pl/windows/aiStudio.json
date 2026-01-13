@@ -300,7 +300,8 @@
     }
   },
   "aiStudioPro": {
-    "title": "AI Authoring Studio Pro",
+    "title": "AI Studio Pro",
+    "chat": "Czat",
     "selectCourse": "Wybierz kurs",
     "selectCoursePlaceholder": "Wybierz kurs...",
     "lessonsLabel": "Lekcje:",
@@ -341,13 +342,12 @@
     "createCourse": "Utwórz kurs",
     "selectACourse": "Wybierz kurs",
     "newChapter": "Nowy rozdział",
-    "chat": "Czat",
     "tabs": {
       "builder": "Kreator kursów",
-      "tutor": "Tutor",
+      "tutor": "AI Tutor",
       "methods": "Metody nauki",
       "exams": "Egzaminy",
-      "features": "Funkcje",
+      "features": "Funkcje systemowe",
       "prompts": "Prompty",
       "analytics": "Analityka",
       "settings": "Ustawienia",

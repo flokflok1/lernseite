@@ -18,12 +18,12 @@
       <!-- Prozess-Titel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Prozess / Thema *
+          {{ $t('windows.lm01.processTitleLabel') }}
         </label>
         <input
           v-model="methodData.process_title"
           type="text"
-          placeholder="z.B. Windows Server Installation, Git Workflow, Subnetting berechnen"
+          :placeholder="$t('windows.lm01.processTitlePlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -32,12 +32,12 @@
       <!-- Einleitung -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Einleitung
+          {{ $t('windows.lm01.introductionLabel') }}
         </label>
         <textarea
           v-model="methodData.introduction"
           rows="2"
-          placeholder="Kurze Einführung in den Prozess (optional)..."
+          :placeholder="$t('windows.lm01.introductionPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -46,25 +46,25 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            Schritte *
+            {{ $t('windows.lm01.stepsLabel') }}
           </label>
           <button
             @click="addStep"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            + Schritt hinzufügen
+            {{ $t('windows.lm01.addStep') }}
           </button>
         </div>
 
         <div v-if="methodData.steps.length === 0" class="text-sm text-[var(--color-text-secondary)] italic mb-3">
-          Keine Schritte vorhanden. Fügen Sie mindestens einen Schritt hinzu.
+          {{ $t('windows.lm01.noSteps') }}
         </div>
 
         <div v-for="(step, index) in methodData.steps" :key="index" class="mb-4 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface-secondary)]">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-bold text-[var(--color-primary)]">
-              Schritt {{ index + 1 }}
+              {{ $t('windows.lm01.stepNumber', { n: index + 1 }) }}
             </span>
             <div class="flex gap-2">
               <button
@@ -73,7 +73,7 @@
                 type="button"
                 class="text-sm text-[var(--color-primary)] hover:underline disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                ↑
+                {{ $t('windows.lm01.moveUp') }}
               </button>
               <button
                 @click="moveStepDown(index)"
@@ -81,14 +81,14 @@
                 type="button"
                 class="text-sm text-[var(--color-primary)] hover:underline disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                ↓
+                {{ $t('windows.lm01.moveDown') }}
               </button>
               <button
                 @click="removeStep(index)"
                 type="button"
                 class="text-sm text-red-500 hover:underline"
               >
-                Entfernen
+                {{ $t('windows.lm01.removeStep') }}
               </button>
             </div>
           </div>
@@ -97,12 +97,12 @@
             <!-- Schritt-Titel -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Titel *
+                {{ $t('windows.lm01.stepTitleLabel') }}
               </label>
               <input
                 v-model="step.title"
                 type="text"
-                placeholder="z.B. Vorbereitung, Server konfigurieren..."
+                :placeholder="$t('windows.lm01.stepTitlePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -111,12 +111,12 @@
             <!-- Schritt-Beschreibung -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Beschreibung *
+                {{ $t('windows.lm01.stepDescriptionLabel') }}
               </label>
               <textarea
                 v-model="step.description"
                 rows="3"
-                placeholder="Detaillierte Anleitung für diesen Schritt..."
+                :placeholder="$t('windows.lm01.stepDescriptionPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -125,12 +125,12 @@
             <!-- Hinweis (optional) -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Hinweis / Tipp
+                {{ $t('windows.lm01.stepHintLabel') }}
               </label>
               <input
                 v-model="step.hint"
                 type="text"
-                placeholder="Optional: Wichtiger Hinweis oder Tipp..."
+                :placeholder="$t('windows.lm01.stepHintPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -141,12 +141,12 @@
       <!-- Zusammenfassung -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Zusammenfassung / Abschluss
+          {{ $t('windows.lm01.summaryLabel') }}
         </label>
         <textarea
           v-model="methodData.summary"
           rows="2"
-          placeholder="Optional: Abschließende Zusammenfassung oder nächste Schritte..."
+          :placeholder="$t('windows.lm01.summaryPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -156,9 +156,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
+const { t } = useI18n()
 const METHOD_CODE = 1
 
 interface Props {

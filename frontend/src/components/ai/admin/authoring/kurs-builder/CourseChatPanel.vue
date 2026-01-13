@@ -12,7 +12,7 @@
     <div class="panel-header">
       <span class="panel-icon">💬</span>
       <span class="panel-title">Chat</span>
-      <button @click="clearChat" class="clear-btn" title="Chat leeren">🗑️</button>
+      <button @click="clearChat" class="clear-btn" :title="$t('admin.actions.clearChat')">🗑️</button>
     </div>
 
     <!-- Chat Messages -->
@@ -89,7 +89,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import CourseChatMessage from './CourseChatMessage.vue'
 
 interface ChatMessage {
@@ -118,41 +119,43 @@ const emit = defineEmits<{
   (e: 'clear'): void
 }>()
 
+const { t } = useI18n()
+
 const inputMessage = ref('')
 const selectedMode = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
 const inputField = ref<HTMLTextAreaElement | null>(null)
 
-const quickActions: QuickAction[] = [
+const quickActions = computed<QuickAction[]>(() => [
   {
     id: 'structure',
-    label: 'Struktur vorschlagen',
+    label: t('admin.courseChat.suggestStructure'),
     icon: '📋',
     prompt: 'Analysiere das Kursmaterial und schlage eine passende Kapitelstruktur vor.',
     mode: 'structure'
   },
   {
     id: 'chapters',
-    label: '3 Kapitel erstellen',
+    label: t('admin.courseChat.createChapters'),
     icon: '📚',
     prompt: 'Erstelle 3 Kapitel mit je 3-5 Lektionen basierend auf dem Kursmaterial.',
     mode: 'structure'
   },
   {
     id: 'calculator',
-    label: 'Taschenrechner-Tutorial',
+    label: t('admin.courseChat.calculatorTutorial'),
     icon: '🧮',
     prompt: 'Erstelle ein Taschenrechner-Tutorial für das aktuelle Thema mit Casio fx-991.',
     mode: 'calculator'
   },
   {
     id: 'exam',
-    label: 'Prüfung generieren',
+    label: t('admin.courseChat.generateExam'),
     icon: '🎓',
     prompt: 'Generiere IHK-Stil Prüfungsfragen basierend auf den vorhandenen Kapiteln.',
     mode: 'exam'
   }
-]
+])
 
 function sendMessage() {
   if (!inputMessage.value.trim() || props.isLoading) return

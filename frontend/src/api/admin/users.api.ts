@@ -76,6 +76,21 @@ export const adminUnbanUser = async (
   await http.post(`/admin/users/${userId}/unban`, { reason })
 }
 
+export const adminCreateUser = async (userData: {
+  email: string
+  password: string
+  first_name: string
+  last_name: string
+  role: string
+}): Promise<AdminUser> => {
+  const response = await http.post<{
+    success: boolean
+    user: AdminUser
+  }>('/admin/users', userData)
+
+  return response.data.user
+}
+
 export const adminGrantTokens = async (
   userId: string,
   amount: number,

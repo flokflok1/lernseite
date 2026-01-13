@@ -30,8 +30,8 @@ class RolesService:
                     r.display_name,
                     r.description,
                     r.hierarchy_level,
-                    r.is_system,
-                    r.is_custom,
+                    r.is_builtin,
+                    r.is_administrator,
                     r.color,
                     r.icon,
                     r.created_at,
@@ -40,7 +40,7 @@ class RolesService:
                 FROM roles r
                 LEFT JOIN role_permissions rp ON r.role_id = rp.role_id
                 LEFT JOIN users u ON r.role_id = u.role_id
-                WHERE (%s = TRUE OR r.is_system = FALSE)
+                WHERE (%s = TRUE OR r.is_builtin = FALSE)
                 GROUP BY r.role_id
                 ORDER BY r.hierarchy_level DESC, r.role_name
             """
@@ -60,8 +60,8 @@ class RolesService:
                     r.display_name,
                     r.description,
                     r.hierarchy_level,
-                    r.is_system,
-                    r.is_custom,
+                    r.is_builtin,
+                    r.is_administrator,
                     r.color,
                     r.icon,
                     r.created_by,
@@ -92,8 +92,8 @@ class RolesService:
             query = """
                 INSERT INTO roles
                     (role_name, display_name, description, hierarchy_level,
-                     is_system, is_custom, color, icon, created_by)
-                VALUES (%s, %s, %s, %s, FALSE, TRUE, %s, %s, %s)
+                     is_builtin, is_administrator, color, icon, created_by)
+                VALUES (%s, %s, %s, %s, FALSE, FALSE, %s, %s, %s)
                 RETURNING role_id
             """
             result = fetch_one(query, (
@@ -142,7 +142,7 @@ class RolesService:
             params.append(role_id)
             query = f"""
                 UPDATE roles SET {', '.join(updates)}
-                WHERE role_id = %s AND is_system = FALSE
+                WHERE role_id = %s AND is_builtin = FALSE
             """
             execute_query(query, tuple(params))
             return True
@@ -164,7 +164,7 @@ class RolesService:
             )
             # Delete role (only custom roles)
             execute_query(
-                "DELETE FROM roles WHERE role_id = %s AND is_custom = TRUE",
+                "DELETE FROM roles WHERE role_id = %s AND is_builtin = FALSE",
                 (role_id,)
             )
             return True

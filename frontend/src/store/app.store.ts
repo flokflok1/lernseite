@@ -32,11 +32,17 @@ export const useAppStore = defineStore('app', () => {
       setupRequired.value = response.requires_setup
       version.value = response.version
 
+      // Persist to localStorage so i18n system knows setup is complete
+      if (response.installed) {
+        localStorage.setItem('lsx-setup-completed', 'true')
+      }
+
     } catch (error) {
       console.error('Failed to check installation status:', error)
       // Assume not installed if check fails
       installed.value = false
       setupRequired.value = true
+      localStorage.removeItem('lsx-setup-completed')
     } finally {
       isCheckingStatus.value = false
     }
@@ -48,6 +54,7 @@ export const useAppStore = defineStore('app', () => {
   const markAsInstalled = (): void => {
     installed.value = true
     setupRequired.value = false
+    localStorage.setItem('lsx-setup-completed', 'true')
   }
 
   return {

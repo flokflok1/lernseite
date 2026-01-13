@@ -81,7 +81,7 @@
           v-if="category.level < 20"
           @click="$emit('create-child', category)"
           class="w-7 h-7 flex items-center justify-center text-xs bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded hover:bg-[var(--color-background)] transition-colors"
-          title="Unterkategorie erstellen"
+          :title="$t('admin.actions.createSubcategory')"
         >
           +
         </button>
@@ -100,7 +100,7 @@
         <button
           @click="$emit('edit', category)"
           class="w-7 h-7 flex items-center justify-center text-xs bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
-          title="Bearbeiten"
+          :title="$t('admin.actions.edit')"
         >
           ✏️
         </button>
@@ -108,7 +108,7 @@
         <button
           @click="$emit('delete', category)"
           class="w-7 h-7 flex items-center justify-center text-xs bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors"
-          title="Löschen"
+          :title="$t('admin.actions.delete')"
         >
           🗑️
         </button>
@@ -133,6 +133,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   category: any

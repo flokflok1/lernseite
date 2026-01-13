@@ -403,7 +403,7 @@ const viewCourseDetail = (courseId: string) => {
  * Publish a course
  */
 const publishCourse = async (courseId: string) => {
-  if (!confirm('Möchten Sie diesen Kurs wirklich veröffentlichen?')) {
+  if (!confirm(t('admin.courses.confirmPublish'))) {
     return
   }
 
@@ -419,7 +419,7 @@ const publishCourse = async (courseId: string) => {
  * Unpublish a course
  */
 const unpublishCourse = async (courseId: string) => {
-  if (!confirm('Möchten Sie diesen Kurs wirklich zurückziehen?')) {
+  if (!confirm(t('admin.courses.confirmUnpublish'))) {
     return
   }
 
@@ -435,7 +435,7 @@ const unpublishCourse = async (courseId: string) => {
  * Archive a course
  */
 const archiveCourse = async (courseId: string) => {
-  if (!confirm('Möchten Sie diesen Kurs wirklich archivieren?')) {
+  if (!confirm(t('admin.courses.confirmArchive'))) {
     return
   }
 
@@ -451,7 +451,7 @@ const archiveCourse = async (courseId: string) => {
  * Unarchive (restore) a course
  */
 const unarchiveCourse = async (courseId: string) => {
-  if (!confirm('Möchten Sie diesen Kurs wirklich wiederherstellen?')) {
+  if (!confirm(t('admin.courses.confirmRestore'))) {
     return
   }
 
@@ -467,16 +467,15 @@ const unarchiveCourse = async (courseId: string) => {
  * Permanently delete a course (hard delete)
  */
 const permanentDeleteCourse = async (courseId: string, courseTitle: string) => {
-  const confirmMessage = `WARNUNG: Der Kurs "${courseTitle}" wird PERMANENT gelöscht!\n\nDies kann NICHT rückgängig gemacht werden.\nAlle Kapitel, Lektionen und Einschreibungen werden ebenfalls gelöscht.\n\nSind Sie absolut sicher?`
+  const confirmMessage = t('admin.courses.confirmDeleteWarning', { title: courseTitle })
 
   if (!confirm(confirmMessage)) {
     return
   }
 
   // Double confirmation for safety
-  const doubleConfirm = prompt(`Geben Sie "LÖSCHEN" ein, um den Kurs "${courseTitle}" permanent zu löschen:`)
+  const doubleConfirm = prompt(t('admin.courses.confirmDeletePrompt', { title: courseTitle }))
   if (doubleConfirm !== 'LÖSCHEN') {
-    alert('Löschvorgang abgebrochen.')
     return
   }
 
@@ -485,7 +484,6 @@ const permanentDeleteCourse = async (courseId: string, courseTitle: string) => {
     loadCourses() // Reload to update list
   } catch (error) {
     console.error('Failed to permanently delete course:', error)
-    alert('Fehler beim Löschen des Kurses.')
   }
 }
 

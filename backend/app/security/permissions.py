@@ -1,21 +1,26 @@
 """
-LernsystemX - Central Permission & RBAC System
+LernsystemX - Central Permission & RBAC System (RBAC 2.0)
 
 Based on Dok 19 (Sicherheit & Berechtigungen) and Dok 31 (Security Architecture).
 
 Implements:
 - Permission constants
-- Role-Permission mapping (RBAC Matrix)
-- Permission checking decorators
+- Database-driven permission checking (via PermissionRepository)
+- Permission decorators for role-based access control
 - Helper functions for authorization
 
-ISO 27001:2013 compliant - Access Control
+NOTE: As of RBAC 2.0, actual permission checking uses database via
+PermissionRepository instead of hardcoded ROLE_PERMISSIONS matrix.
+See app/repositories/permission_repository.py for database logic.
+
+ISO 27001:2013 compliant - Access Control (database-driven audit trail)
 """
 
 from functools import wraps
 from typing import Dict, List, Set
 from flask import jsonify, g
 from app.middleware.auth import token_required
+from app.repositories.permission_repository import PermissionRepository
 
 # ==========================================
 # PERMISSION CONSTANTS
@@ -95,145 +100,36 @@ class Permissions:
 
 
 # ==========================================
-# RBAC MATRIX: ROLE → PERMISSIONS
+# DEPRECATED: ROLE → PERMISSIONS MATRIX
 # ==========================================
-
-ROLE_PERMISSIONS: Dict[str, Set[str]] = {
-    # 1. Free User (Basis-Nutzer)
-    'user': {
-        Permissions.VIEW_OWN_ANALYTICS,
-        # Kann nur eigene Daten lesen, keine besonderen Permissions
-    },
-
-    # 2. Premium User
-    'premium': {
-        Permissions.VIEW_OWN_ANALYTICS,
-        Permissions.USE_AI_BASIC,
-        Permissions.USE_AI_PREMIUM,
-        Permissions.CREATE_COURSES,  # Private Kurse
-        Permissions.CREATE_LIVEROOM_BASIC,
-        Permissions.VIEW_TOKEN_POOL,
-    },
-
-    # 3. Creator
-    'creator': {
-        Permissions.VIEW_OWN_ANALYTICS,
-        Permissions.USE_AI_BASIC,
-        Permissions.USE_AI_PREMIUM,
-        Permissions.USE_AI_PRO,
-        Permissions.CREATE_COURSES,
-        Permissions.MANAGE_COURSES,  # Eigene Kurse
-        Permissions.PUBLISH_COURSES,  # Global Publishing
-        Permissions.CREATE_AI_CONTENT,
-        Permissions.CREATE_LIVEROOM_BASIC,
-        Permissions.VIEW_TOKEN_POOL,
-        Permissions.VIEW_BILLING,
-    },
-
-    # 4. Teacher (Lehrer/Dozent)
-    'teacher': {
-        Permissions.VIEW_OWN_ANALYTICS,
-        Permissions.VIEW_ORG_ANALYTICS,  # Nur eigene Org
-        Permissions.USE_AI_BASIC,
-        Permissions.USE_AI_PREMIUM,
-        Permissions.USE_AI_PRO,
-        Permissions.CREATE_COURSES,
-        Permissions.MANAGE_COURSES,
-        Permissions.CREATE_AI_CONTENT,
-        Permissions.CREATE_LIVEROOM_BASIC,
-        Permissions.CREATE_LIVEROOM_PRO,
-        Permissions.VIEW_TOKEN_POOL,
-    },
-
-    # 5. School Admin / Company Admin
-    'school_admin': {
-        Permissions.VIEW_ORG_ANALYTICS,
-        Permissions.MANAGE_ORG_MEMBERS,
-        Permissions.MANAGE_ORG_SETTINGS,
-        Permissions.USE_AI_BASIC,
-        Permissions.USE_AI_PREMIUM,
-        Permissions.USE_AI_PRO,
-        Permissions.CREATE_COURSES,
-        Permissions.MANAGE_COURSES,
-        Permissions.PUBLISH_COURSES,  # 20 Sprachen
-        Permissions.CREATE_AI_CONTENT,
-        Permissions.CREATE_LIVEROOM_PRO,
-        Permissions.MANAGE_TOKEN_POOL,
-        Permissions.MANAGE_BILLING,
-    },
-
-    'company_admin': {
-        # Same as school_admin
-        Permissions.VIEW_ORG_ANALYTICS,
-        Permissions.MANAGE_ORG_MEMBERS,
-        Permissions.MANAGE_ORG_SETTINGS,
-        Permissions.USE_AI_BASIC,
-        Permissions.USE_AI_PREMIUM,
-        Permissions.USE_AI_PRO,
-        Permissions.CREATE_COURSES,
-        Permissions.MANAGE_COURSES,
-        Permissions.PUBLISH_COURSES,
-        Permissions.CREATE_AI_CONTENT,
-        Permissions.CREATE_LIVEROOM_PRO,
-        Permissions.MANAGE_TOKEN_POOL,
-        Permissions.MANAGE_BILLING,
-    },
-
-    # 6. Moderator
-    'moderator': {
-        Permissions.VIEW_USERS,
-        Permissions.VIEW_ORGANISATIONS,
-        Permissions.MODERATE_CONTENT,
-        Permissions.MODERATE_USERS,
-        Permissions.VIEW_SYSTEM_ANALYTICS,
-    },
-
-    # 7. Support
-    'support': {
-        Permissions.VIEW_USERS,
-        Permissions.VIEW_ORGANISATIONS,
-        Permissions.VIEW_SYSTEM_ANALYTICS,
-        Permissions.VIEW_SYSTEM_LOGS,
-    },
-
-    # 8. Admin
-    'admin': {
-        Permissions.MANAGE_USERS,
-        Permissions.MODIFY_USER_ROLES,
-        Permissions.MANAGE_ORGANISATIONS,
-        Permissions.VIEW_ORGANISATIONS,
-        Permissions.MANAGE_COURSES,
-        Permissions.MODERATE_COURSES,
-        Permissions.MODERATE_CONTENT,
-        Permissions.MODERATE_USERS,
-        Permissions.VIEW_SYSTEM_ANALYTICS,
-        Permissions.VIEW_ORG_ANALYTICS,
-        Permissions.MANAGE_BILLING,
-        Permissions.MANAGE_TOKEN_POOL,
-        Permissions.VIEW_SYSTEM_LOGS,
-        Permissions.MANAGE_FEATURE_FLAGS,
-        Permissions.ADMIN_SYSTEM_READ,  # Phase 22: System version/info
-        Permissions.ADMIN_SYSTEM_WRITE,  # Phase 22: System configuration
-        Permissions.ADMIN_USER_READ,  # Phase B24: Admin user management
-        Permissions.ADMIN_USER_WRITE,  # Phase B24: Admin user management
-        Permissions.ADMIN_USER_DELETE,  # Phase B24: Admin user management
-        Permissions.ADMIN_COURSE_READ,  # Phase B24-02: Admin course management
-        Permissions.ADMIN_COURSE_WRITE,  # Phase B24-02: Admin course management
-        Permissions.ADMIN_COURSE_DELETE,  # Phase B24-02: Admin course management
-        Permissions.ADMIN_LESSON_READ,  # Phase B24-04: Admin lesson management
-        Permissions.ADMIN_LESSON_WRITE,  # Phase B24-04: Admin lesson management
-        Permissions.ADMIN_LESSON_DELETE,  # Phase B24-04: Admin lesson management
-        Permissions.ADMIN_AI_JOBS_READ,  # Phase B24-05: AI job management
-        Permissions.ADMIN_AI_JOBS_WRITE,  # Phase B24-05: AI job management
-        Permissions.ADMIN_AI_JOBS_EXECUTE,  # Phase B24-05: AI job management
-        # Admin has most permissions except full system control
-    },
-
-    # 9. Superadmin
-    'superadmin': {
-        '*'  # All permissions
-    }
-}
+#
+# NOTE: As of RBAC 2.0 (2026-01-12), this hardcoded matrix is DEPRECATED.
+# Permission checking is now database-driven via PermissionRepository.
+#
+# All role-permission relationships are stored in:
+# - core.role_permissions (role → permission)
+# - core.user_permissions (user-specific overrides)
+# - core.permission_thresholds (hierarchy-based access)
+#
+# This dictionary is kept as documentation/reference only.
+# DO NOT USE for permission checks - use PermissionRepository instead!
+#
+# Old implementation (kept for reference):
+# ROLE_PERMISSIONS: Dict[str, Set[str]] = {
+#     'user': {...},
+#     'premium': {...},
+#     'creator': {...},
+#     'teacher': {...},
+#     'school_admin': {...},
+#     'company_admin': {...},
+#     'moderator': {...},
+#     'support': {...},
+#     'admin': {...},
+#     'superadmin': {'*'},
+#     'owner': {'*'},
+# }
+#
+# Use PermissionRepository.get_role_permissions(role_id) to fetch from database.
 
 
 # ==========================================
@@ -242,48 +138,46 @@ ROLE_PERMISSIONS: Dict[str, Set[str]] = {
 
 def user_has_permission(user: dict, permission: str) -> bool:
     """
-    Check if user has a specific permission based on their role.
+    Check if user has a specific permission.
+
+    DEPRECATED: This function is kept for backward compatibility.
+    New code should use PermissionRepository.user_has_permission() directly.
 
     Args:
-        user: User dict with 'role' key
-        permission: Permission string (e.g., 'admin:users')
+        user: User dict with 'user_id' key
+        permission: Permission key (e.g., 'admin:users')
 
     Returns:
         True if user has permission, False otherwise
-
-    Example:
-        >>> user = {'user_id': 123, 'role': 'admin'}
-        >>> user_has_permission(user, Permissions.MANAGE_USERS)
-        True
     """
-    if not user or 'role' not in user:
+    if not user or 'user_id' not in user:
         return False
 
-    role = user['role']
-    role_perms = ROLE_PERMISSIONS.get(role, set())
-
-    # Superadmin has all permissions
-    if '*' in role_perms:
-        return True
-
-    return permission in role_perms
+    # Use database-driven permission check
+    return PermissionRepository.user_has_permission(
+        user_id=user['user_id'],
+        permission_key=permission
+    )
 
 
 def get_user_permissions(user: dict) -> Set[str]:
     """
-    Get all permissions for a user based on their role.
+    Get all permissions for a user (via role + overrides).
+
+    DEPRECATED: This function is kept for backward compatibility.
+    New code should use PermissionRepository.get_user_permissions() directly.
 
     Args:
-        user: User dict with 'role' key
+        user: User dict with 'user_id' key
 
     Returns:
-        Set of permission strings
+        Set of permission keys
     """
-    if not user or 'role' not in user:
+    if not user or 'user_id' not in user:
         return set()
 
-    role = user['role']
-    return ROLE_PERMISSIONS.get(role, set())
+    # Use database-driven permission check
+    return PermissionRepository.get_user_permissions(user_id=user['user_id'])
 
 
 # ==========================================
@@ -292,16 +186,19 @@ def get_user_permissions(user: dict) -> Set[str]:
 
 def require_permission(permission: str):
     """
-    Decorator to require a specific permission.
+    Decorator to require a specific permission (database-driven).
+
+    Checks user's permission against database via PermissionRepository.
+    Supports role-based permissions and user-specific overrides.
 
     Usage:
         @app.route('/admin/users')
-        @require_permission(Permissions.MANAGE_USERS)
-        def manage_users():
+        @require_permission(Permissions.ADMIN_USER_READ)
+        def list_users():
             ...
 
     Args:
-        permission: Permission string required
+        permission: Permission key required (e.g., 'admin:users')
 
     Returns:
         403 Forbidden if user doesn't have permission
@@ -311,8 +208,13 @@ def require_permission(permission: str):
         @token_required
         def wrapper(*args, **kwargs):
             current_user = g.current_user
+            user_id = current_user.get('user_id')
 
-            if not user_has_permission(current_user, permission):
+            # Check permission via database
+            if not PermissionRepository.user_has_permission(
+                user_id=user_id,
+                permission_key=permission
+            ):
                 return jsonify({
                     'success': False,
                     'error': 'Forbidden',
@@ -326,7 +228,9 @@ def require_permission(permission: str):
 
 def require_system_admin(fn):
     """
-    Decorator to require system admin role (admin or superadmin).
+    Decorator to require system admin role (admin, superadmin, or owner).
+
+    RBAC 2.0: Also accepts users with hierarchy_level >= 9.
 
     Usage:
         @app.route('/admin/system')
@@ -339,21 +243,26 @@ def require_system_admin(fn):
     def wrapper(*args, **kwargs):
         current_user = g.current_user
         role = current_user.get('role')
+        hierarchy_level = current_user.get('hierarchy_level', 0)
 
-        if role not in ['admin', 'superadmin']:
-            return jsonify({
-                'success': False,
-                'error': 'Forbidden',
-                'message': 'System administrator access required'
-            }), 403
+        # RBAC 2.0: Allow by hierarchy_level OR role
+        if role in ['admin', 'superadmin', 'owner'] or hierarchy_level >= 9:
+            return fn(*args, **kwargs)
 
-        return fn(*args, **kwargs)
+        return jsonify({
+            'success': False,
+            'error': 'Forbidden',
+            'message': 'System administrator access required'
+        }), 403
+
     return wrapper
 
 
 def require_org_admin(fn):
     """
     Decorator to require organisation admin role (school_admin, company_admin, or higher).
+
+    RBAC 2.0: Also accepts users with hierarchy_level >= 5.
 
     Usage:
         @app.route('/organisations/<org_id>/settings')
@@ -366,18 +275,21 @@ def require_org_admin(fn):
     def wrapper(*args, **kwargs):
         current_user = g.current_user
         role = current_user.get('role')
+        hierarchy_level = current_user.get('hierarchy_level', 0)
 
         # Org admins + system admins
-        allowed_roles = ['school_admin', 'company_admin', 'admin', 'superadmin']
+        allowed_roles = ['school_admin', 'company_admin', 'admin', 'superadmin', 'owner']
 
-        if role not in allowed_roles:
-            return jsonify({
-                'success': False,
-                'error': 'Forbidden',
-                'message': 'Organisation administrator access required'
-            }), 403
+        # RBAC 2.0: Allow by hierarchy_level OR role
+        if role in allowed_roles or hierarchy_level >= 5:
+            return fn(*args, **kwargs)
 
-        return fn(*args, **kwargs)
+        return jsonify({
+            'success': False,
+            'error': 'Forbidden',
+            'message': 'Organisation administrator access required'
+        }), 403
+
     return wrapper
 
 
@@ -400,7 +312,7 @@ def require_org_member(fn):
         user_org_id = current_user.get('organization_id')
 
         # System admins can access any org
-        if current_user.get('role') in ['admin', 'superadmin']:
+        if current_user.get('role') in ['admin', 'superadmin', 'owner']:
             return fn(*args, **kwargs)
 
         # Get org_id from URL parameters

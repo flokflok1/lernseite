@@ -68,8 +68,14 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const isSystemAdmin = computed(() => {
-    const systemAdminRoles = ['admin', 'superadmin']
-    return systemAdminRoles.includes(user.value?.role || '')
+    // RBAC 2.0: Use hierarchy_level instead of hardcoded roles
+    // Admin panel requires level 8+ (moderator, admin, superadmin, owner)
+    const hierarchyLevel = user.value?.hierarchy_level || 0
+    return hierarchyLevel >= 8
+  })
+
+  const isOwner = computed(() => {
+    return user.value?.role === 'owner'
   })
 
   const currentOrganisationId = computed(() => {
@@ -134,15 +140,36 @@ export const useAuthStore = defineStore('auth', () => {
    */
   const logout = async (): Promise<void> => {
     try {
-      // Call logout API (optional - to blacklist token)
+      // Try to logout with current access token
       if (accessToken.value) {
-        await authApi.logout()
+        try {
+          await authApi.logout()
+        } catch (err: any) {
+          // If token expired (401), try to refresh first
+          if (err.response?.status === 401 && refreshToken.value) {
+            try {
+              console.log('Access token expired, attempting refresh before logout...')
+              const refreshResponse = await authApi.refresh()
+              // Update tokens and retry logout
+              accessToken.value = refreshResponse.access_token
+              localStorage.setItem('access_token', refreshResponse.access_token)
+              // Now try logout again with fresh token
+              await authApi.logout()
+            } catch (refreshErr) {
+              // Refresh also failed - just proceed with local logout
+              console.log('Refresh failed during logout, proceeding with local logout')
+            }
+          } else {
+            // Other error - just log and proceed
+            console.log('Logout API error:', err)
+          }
+        }
       }
     } catch (err) {
-      // Ignore errors during logout
-      console.error('Logout API error:', err)
+      // Unexpected error - just log
+      console.error('Logout error:', err)
     } finally {
-      // Clear state
+      // Always clear local state
       user.value = null
       accessToken.value = null
       refreshToken.value = null
@@ -173,6 +200,7 @@ export const useAuthStore = defineStore('auth', () => {
         first_name: profileData.first_name,
         last_name: profileData.last_name,
         role: profileData.role,
+        hierarchy_level: profileData.hierarchy_level, // RBAC 2.0: Keep hierarchy_level!
         organisation_id: profileData.organisation_id,
         is_active: profileData.is_active
       }
@@ -265,6 +293,7 @@ export const useAuthStore = defineStore('auth', () => {
     isCreator,
     isOrgAdmin,
     isSystemAdmin,
+    isOwner,
     currentOrganisationId,
 
     // Actions

@@ -128,7 +128,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/api/http'
-import { MethodCard } from '../../settings/exams'
+import { MethodCard } from '@/components/assessment/admin/settings/exams'
 
 const { t } = useI18n()
 

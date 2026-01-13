@@ -22,7 +22,7 @@ from flask_jwt_extended import (
 from app.repositories.user import UserRepository
 
 
-# Role hierarchy for RBAC
+# Role hierarchy for RBAC (RBAC 2.0 - Owner at level 10)
 ROLE_HIERARCHY = {
     'user': 1,
     'premium': 2,
@@ -33,7 +33,8 @@ ROLE_HIERARCHY = {
     'moderator': 6,
     'support': 7,
     'admin': 8,
-    'superadmin': 9
+    'superadmin': 9,
+    'owner': 10  # RBAC 2.0: Owner-Administrator (highest level)
 }
 
 
@@ -209,12 +210,13 @@ def admin_required(fn: Callable) -> Callable:
         user = g.current_user
         user_role = user.get('role', 'user')
 
-        # Check if user is admin or superadmin
-        if user_role not in ['admin', 'superadmin']:
+        # Check if user is admin or above (RBAC 2.0: dynamic from DB)
+        from app.services.permission_service import PermissionService
+        if not PermissionService.check_threshold(user, 'view_any_resource'):
             return jsonify({
                 'success': False,
                 'error': 'Admin access required',
-                'message': 'This endpoint requires admin or superadmin privileges',
+                'message': 'This endpoint requires admin privileges or higher',
                 'user_role': user_role
             }), 403
 
@@ -260,8 +262,9 @@ def permission_required(*permissions: str) -> Callable:
             user_id = user.get('user_id')
             user_role = user.get('role', 'user')
 
-            # Admin/Superadmin has all permissions
-            if user_role in ('admin', 'superadmin'):
+            # Admin and above has all permissions (RBAC 2.0: dynamic from DB)
+            from app.services.permission_service import PermissionService
+            if PermissionService.check_threshold(user, 'view_any_resource'):
                 return fn(*args, **kwargs)
 
             # Check permissions against database
@@ -410,36 +413,38 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
         >>> can_manage = can_manage_user(admin_user, student_user)
         >>> print(can_manage)  # True
     """
+    # Use hierarchy_level for dynamic permission checking (RBAC 2.0)
+    current_hierarchy = current_user.get('hierarchy_level', 1)
+    target_hierarchy = target_user.get('hierarchy_level', 1)
     current_role = current_user.get('role', 'user')
     target_role = target_user.get('role', 'user')
 
-    # Superadmin can manage anyone
-    if current_role == 'superadmin':
+    # Users can only manage users with LOWER hierarchy
+    # (Admin hierarchy 8 can manage up to 7, Owner hierarchy 10 can manage all)
+    if current_hierarchy > target_hierarchy:
         return True
 
-    # Admin can manage non-admins and non-superadmins
-    if current_role == 'admin':
-        return target_role not in ['admin', 'superadmin']
-
-    # Organisation admins can manage users in their organisation
-    if current_role in ['school_admin', 'company_admin']:
+    # Organisation admins can manage users in their organisation (RBAC 2.0)
+    # hierarchy_level 5 = school_admin, company_admin
+    if current_hierarchy == 5:
         same_org = (
             current_user.get('organization_id') ==
             target_user.get('organization_id')
         )
-        can_manage_role = target_role in [
-            'user', 'premium', 'teacher', 'creator'
-        ]
-        return same_org and can_manage_role
+        # Can manage users with hierarchy <= 4 (user, premium, creator, teacher)
+        can_manage_hierarchy = target_hierarchy <= 4
+        return same_org and can_manage_hierarchy
 
-    # Teachers can manage students in their organisation
-    if current_role == 'teacher':
+    # Teachers can manage students in their organisation (RBAC 2.0)
+    # hierarchy_level 4 = teacher
+    if current_hierarchy == 4:
         same_org = (
             current_user.get('organization_id') ==
             target_user.get('organization_id')
         )
-        can_manage_role = target_role in ['user', 'premium']
-        return same_org and can_manage_role
+        # Can manage users with hierarchy <= 2 (user, premium)
+        can_manage_hierarchy = target_hierarchy <= 2
+        return same_org and can_manage_hierarchy
 
     # Regular users cannot manage others
     return False

@@ -76,7 +76,7 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/api/http'
-import { ProfileSelector, ModelConfigCard, EffectiveSettings, PromptTemplatesList } from '../../settings/exams'
+import { ProfileSelector, ModelConfigCard, EffectiveSettings, PromptTemplatesList } from '@/components/assessment/admin/settings/exams'
 
 const { t } = useI18n()
 

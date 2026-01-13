@@ -99,7 +99,9 @@ const complete = async () => {
   try {
     await setupApi.completeInstallation()
     completed.value = true
-    // Update app store to reflect installation complete
+    // Mark installation as complete in app store (which also saves to localStorage)
+    appStore.markAsInstalled()
+    // Also update full status from backend
     await appStore.checkInstallationStatus()
   } catch (err: any) {
     error.value = err.response?.data?.message || t('setup.finish.completeFailed')

@@ -178,6 +178,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 
 // Types
@@ -230,15 +231,17 @@ const selectedScope = ref('all')
 const selectedPrompt = ref<Prompt | null>(null)
 const copied = ref(false)
 
-// Available scopes for filtering
-const availableScopes = [
-  { value: 'all', label: 'Alle', icon: '📋' },
-  { value: 'course_generation', label: 'Kurs-Generierung', icon: '📚' },
-  { value: 'module_generation', label: 'Modul-Generierung', icon: '📖' },
-  { value: 'lesson_generation', label: 'Lektion-Generierung', icon: '📄' },
-  { value: 'quiz_generation', label: 'Quiz-Generierung', icon: '❓' },
-  { value: 'exam_generation', label: 'Prüfungs-Generierung', icon: '📝' }
-]
+const { t } = useI18n()
+
+// Available scopes for filtering - using computed for i18n support
+const availableScopes = computed(() => [
+  { value: 'all', label: t('admin.prompts.scopes.all'), icon: '📋' },
+  { value: 'course_generation', label: t('admin.prompts.types.courseGeneration'), icon: '📚' },
+  { value: 'module_generation', label: t('admin.prompts.scopes.moduleGeneration'), icon: '📖' },
+  { value: 'lesson_generation', label: t('admin.prompts.types.lessonGeneration'), icon: '📄' },
+  { value: 'quiz_generation', label: t('admin.prompts.scopes.quizGeneration'), icon: '❓' },
+  { value: 'exam_generation', label: t('admin.prompts.scopes.examGeneration'), icon: '📝' }
+])
 
 // Computed
 const filteredPrompts = computed(() => {

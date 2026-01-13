@@ -117,9 +117,30 @@ entity role_permissions {
   PRIMARY KEY (role_id, permission_id)
 }
 
+entity role_feature_assignments {
+  primary_key(assignment_id) : SERIAL
+  --
+  foreign_key(role_id) : INTEGER
+  foreign_key(feature_id) : INTEGER
+  column(enabled) : BOOLEAN
+  column(created_at) : TIMESTAMP
+  column(created_by) : UUID
+}
+
+entity system_features {
+  primary_key(feature_id) : SERIAL
+  --
+  column(feature_code) : VARCHAR(50) UNIQUE
+  column(feature_name) : VARCHAR(100)
+  column(category) : VARCHAR(50)
+  column(active) : BOOLEAN
+}
+
 users }o--|| roles : "n:1"
 roles ||--o{ role_permissions : "1:n"
 permissions ||--o{ role_permissions : "1:n"
+roles ||--o{ role_feature_assignments : "1:n"
+system_features ||--o{ role_feature_assignments : "1:n"
 users }o..o{ permissions : "n:m"
 
 note right of users
@@ -136,6 +157,16 @@ note right of roles
   - school_admin
   - company_admin
   - admin
+
+  Custom-Rollen:
+  - is_custom = TRUE
+  - Erstellt via Admin-Panel
+end note
+
+note right of role_feature_assignments
+  Dynamische Feature-Zuweisung
+  für Custom-Rollen
+  (25 System-Features)
 end note
 
 @enduml
@@ -156,12 +187,23 @@ CREATE TABLE users (
     language VARCHAR(10) DEFAULT 'de',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'banned', 'deleted'))
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'banned', 'deleted')),
+    is_owner BOOLEAN DEFAULT FALSE  -- Owner-Admin flag (only one user can be owner)
 );
 
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role_id);
+CREATE UNIQUE INDEX idx_single_owner ON users(is_owner) WHERE is_owner = TRUE;  -- Ensures only one owner
 ```
+
+**Owner-Admin:**
+- `is_owner = TRUE` - Nur EIN User kann Owner sein (Database Constraint)
+- Wird automatisch beim Setup Wizard erstellt (erster Admin = Owner-Admin)
+- Hat exklusive Rechte:
+  - Custom-Rollen erstellen/bearbeiten/löschen
+  - Ownership übertragen
+  - Compliance-Einstellungen verwalten
+  - Vollständige Audit-Logs einsehen
 
 ---
 
@@ -171,21 +213,42 @@ CREATE INDEX idx_users_role ON users(role_id);
 CREATE TABLE roles (
     role_id SERIAL PRIMARY KEY,
     role_name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
+    display_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    hierarchy_level INTEGER NOT NULL DEFAULT 1 CHECK (hierarchy_level >= 1 AND hierarchy_level <= 9),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    is_system BOOLEAN DEFAULT FALSE,
+    is_custom BOOLEAN DEFAULT FALSE,
+    created_by UUID REFERENCES users(user_id),
+    color VARCHAR(20) DEFAULT '#6b7280',
+    icon VARCHAR(50) DEFAULT '👤'
 );
 
--- Standard-Rollen
-INSERT INTO roles (role_name, description) VALUES
-    ('free', 'Kostenloser Basis-Zugang'),
-    ('premium', 'Premium-Mitgliedschaft'),
-    ('creator', 'Kurs-Ersteller'),
-    ('teacher', 'Lehrer/Dozent'),
-    ('school_admin', 'Schul-Administrator'),
-    ('company_admin', 'Unternehmens-Administrator'),
-    ('admin', 'System-Administrator'),
-    ('support', 'Support-Team'),
-    ('moderator', 'Community-Moderator');
+CREATE INDEX idx_roles_hierarchy ON roles(hierarchy_level);
+CREATE INDEX idx_roles_name ON roles(role_name);
+
+-- Standard-Rollen (is_system = TRUE, is_custom = FALSE)
+INSERT INTO roles (role_name, display_name, description, hierarchy_level, is_system) VALUES
+    ('free', 'Free User', 'Kostenloser Basis-Zugang', 1, TRUE),
+    ('premium', 'Premium User', 'Premium-Mitgliedschaft', 2, TRUE),
+    ('creator', 'Content Creator', 'Kurs-Ersteller', 3, TRUE),
+    ('teacher', 'Teacher', 'Lehrer/Dozent', 4, TRUE),
+    ('school_admin', 'School Admin', 'Schul-Administrator', 5, TRUE),
+    ('company_admin', 'Company Admin', 'Unternehmens-Administrator', 6, TRUE),
+    ('support', 'Support', 'Support-Team', 7, TRUE),
+    ('moderator', 'Moderator', 'Community-Moderator', 8, TRUE),
+    ('admin', 'Administrator', 'System-Administrator', 9, TRUE);
 ```
+
+**Custom-Rollen:**
+- `is_custom = TRUE` - Über Admin-Panel erstellbar
+- `created_by` - Owner-Admin der die Rolle erstellt hat
+- Können System-Features dynamisch zugewiesen bekommen (via role_feature_assignments)
+
+**Owner-Admin:**
+- Erster Admin beim Setup wird automatisch Owner-Admin (`users.is_owner = TRUE`)
+- Nur Owner-Admin kann Custom-Rollen erstellen/bearbeiten/löschen
 
 ---
 
@@ -209,6 +272,45 @@ CREATE TABLE role_permissions (
     permission_id INTEGER REFERENCES permissions(permission_id),
     PRIMARY KEY (role_id, permission_id)
 );
+```
+
+---
+
+### 2.5 🎯 Tabelle: `role_feature_assignments`
+
+**Zweck:** Dynamische Zuweisung von System-Features zu Rollen (Custom RBAC)
+
+```sql
+CREATE TABLE core.role_feature_assignments (
+    assignment_id SERIAL PRIMARY KEY,
+    role_id INTEGER NOT NULL REFERENCES core.roles(role_id) ON DELETE CASCADE,
+    feature_id INTEGER NOT NULL REFERENCES support_systems.system_features(feature_id) ON DELETE CASCADE,
+    enabled BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by UUID REFERENCES core.users(user_id),
+    UNIQUE(role_id, feature_id)
+);
+
+CREATE INDEX idx_role_feature_role ON core.role_feature_assignments(role_id);
+CREATE INDEX idx_role_feature_feature ON core.role_feature_assignments(feature_id);
+CREATE INDEX idx_role_feature_enabled ON core.role_feature_assignments(enabled) WHERE enabled = TRUE;
+```
+
+**Verwendung:**
+- Ermöglicht Custom-Rollen über Admin-Panel
+- Owner-Admin kann Rollen erstellen und Features zuweisen
+- Role Templates: Parent, Enterprise Admin, Auditor, etc.
+- Verknüpft Rollen mit 25 System-Features (support_systems.system_features)
+
+**Beispiel:**
+```sql
+-- Premium-Rolle bekommt interaktive Features
+INSERT INTO core.role_feature_assignments (role_id, feature_id, enabled)
+SELECT r.role_id, f.feature_id, TRUE
+FROM core.roles r
+CROSS JOIN support_systems.system_features f
+WHERE r.role_name = 'premium'
+  AND f.category IN ('interactive_tools', 'visualization', 'audio');
 ```
 
 ---

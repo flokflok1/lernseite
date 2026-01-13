@@ -107,10 +107,10 @@ import {
   TokenBalanceDisplay,
   TaskStatsPanel,
   MethodCardList,
-  TaskManagerModal,
   useMethodExecution,
   type GeneratedTask
 } from '@/components/learning/methods/method-execution'
+import { TaskManagerModal } from '@/components/system/shared/dialogs'
 
 const { t } = useI18n()
 

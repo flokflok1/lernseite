@@ -1,8 +1,20 @@
 {
   "installed": true,
-  "installed_at": "2026-01-06T13:51:54.909056",
+  "installed_at": "2026-01-12T13:00:00Z",
   "version": "1.0.0",
-  "database_version": "1.0.0",
-  "python_version": "3.13",
-  "admin_email": null
+  "database": "lernsystem_dev",
+  "admin_email": "admin@lsx.de",
+  "admin_role": "owner",
+  "features_enabled": [
+    "rbac_2.0",
+    "ai_studio",
+    "learning_methods",
+    "analytics",
+    "gamification",
+    "liveroom",
+    "community"
+  ],
+  "migrations_count": 79,
+  "installation_method": "full_migration",
+  "note": "Kompletter DB-Reset mit allen 79 Migrations"
 }

@@ -87,11 +87,11 @@
       <!-- Page Content with Desktop Layer -->
       <div class="flex-1 relative">
         <div class="absolute inset-0 overflow-hidden">
-          <LsxDesktopLayer>
+          <DesktopLayer>
             <div class="p-2">
               <router-view></router-view>
             </div>
-          </LsxDesktopLayer>
+          </DesktopLayer>
         </div>
       </div>
     </main>
@@ -104,7 +104,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/auth.store'
 import { useWindowStore } from '@/store/window.store'
-import { LsxDesktopLayer } from '@/components/shared'
+import { DesktopLayer } from '@/components/layout'
 import { LanguageSelector } from '@/components/core/i18n'
 
 // ============================================================================

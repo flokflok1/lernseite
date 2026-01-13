@@ -8,32 +8,32 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Lückentext-Aufgaben
+            {{ $t('windows.lm08.title') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            Text mit auszufüllenden Lücken
+            {{ $t('windows.lm08.description') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Text mit Lücken
+            {{ $t('windows.lm08.textLabel') }}
           </label>
           <textarea
             v-model="methodData.text"
             rows="8"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            placeholder="Geben Sie den Text ein und markieren Sie Lücken mit {{Wort}}..."
+            :placeholder="$t('windows.lm08.textPlaceholder')"
             required
           ></textarea>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Tipp: Markieren Sie Lücken mit doppelten geschweiften Klammern, z.B. {{Antwort}}
+            {{ $t('windows.lm08.textHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Lücken (automatisch erkannt)
+            {{ $t('windows.lm08.blanksLabel') }}
           </label>
           <div v-if="detectedBlanks.length > 0" class="space-y-2">
             <div
@@ -49,7 +49,7 @@
                   v-model="methodData.blanks[index].answer"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Korrekte Antwort"
+                  :placeholder="$t('windows.lm08.answerPlaceholder')"
                   required
                 />
               </div>
@@ -58,13 +58,13 @@
                   v-model="methodData.blanks[index].alternatives"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  placeholder="Alt. (opt.)"
+                  :placeholder="$t('windows.lm08.alternativesPlaceholder')"
                 />
               </div>
             </div>
           </div>
           <div v-else class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-center text-sm text-gray-500 dark:text-gray-400">
-            Keine Lücken erkannt. Verwenden Sie {{Wort}} im Text oben.
+            {{ $t('windows.lm08.noBlanks') }}
           </div>
         </div>
 
@@ -76,7 +76,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              Groß-/Kleinschreibung beachten
+              {{ $t('windows.lm08.caseSensitiveLabel') }}
             </span>
           </label>
         </div>
@@ -89,7 +89,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              Hinweise anzeigen (erste Buchstaben)
+              {{ $t('windows.lm08.showHintsLabel') }}
             </span>
           </label>
         </div>
@@ -102,7 +102,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              Wortbank anzeigen (alle möglichen Antworten zur Auswahl)
+              {{ $t('windows.lm08.showWordBankLabel') }}
             </span>
           </label>
         </div>
@@ -112,11 +112,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, computed, watch, onMounted } from 'vue'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
-const METHOD_CODE = 15
+const { t } = useI18n()
+const METHOD_CODE = 8
 
 interface Blank {
   answer: string

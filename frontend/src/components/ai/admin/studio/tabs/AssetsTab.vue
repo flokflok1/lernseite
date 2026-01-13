@@ -206,7 +206,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FormulaModal, AssetDetailsSidebar } from '../../settings/exams'
+import { FormulaModal, AssetDetailsSidebar } from '@/components/assessment/admin/settings/exams'
 
 const { t } = useI18n()
 

@@ -11,7 +11,6 @@
       "courses": "Kursy",
       "courseEditor": "Edytor kursów",
       "categories": "Kategorie",
-      "ki_studio": "Studio AI",
       "aiStudio": "Studio AI",
       "translations": "Tłumaczenia",
       "billing": "Rozliczenia",
@@ -25,6 +24,8 @@
       "subtitle": "Wszyscy użytkownicy w systemie",
       "list": "Lista użytkowników",
       "create": "Utwórz użytkownika",
+      "createUser": "Utwórz nowego użytkownika",
+      "createUserError": "Błąd tworzenia użytkownika",
       "edit": "Edytuj użytkownika",
       "delete": "Usuń użytkownika",
       "role": "Rola",
@@ -258,7 +259,22 @@
     },
     "aiStudio": {
       "title": "AI Studio Pro",
+      "description": "Twoje kompleksowe narzędzie do tworzenia kursów wspomaganych AI. Generuj filmy, zarządzaj promptami i konfiguruj modele.",
+      "openStudio": "Otwórz AI Studio",
       "chat": "Czat",
+      "selectCourse": "Wybierz kurs",
+      "selectCourseHint": "Wybierz kurs, aby zacząć",
+      "newCourse": "Nowy kurs",
+      "lessons": "Lekcje",
+      "searchCourse": "Szukaj kursów...",
+      "search": "Szukaj...",
+      "allCourses": "Wszystkie kursy",
+      "allCategories": "Wszystkie kategorie",
+      "noCategory": "Bez kategorii",
+      "recentlyEdited": "Ostatnio edytowane",
+      "noCoursesFound": "Nie znaleziono kursów",
+      "noCoursesAvailable": "Brak dostępnych kursów",
+      "searchResults": "Wyniki wyszukiwania",
       "tabs": {
         "builder": "Kreator Kursu",
         "tutor": "AI Tutor",
@@ -269,12 +285,7 @@
         "analytics": "Analityka",
         "settings": "Ustawienia",
         "global": "Globalne"
-      }
-    },
-    "kiStudio": {
-      "title": "AI Studio Pro",
-      "description": "Twoje kompleksowe narzędzie do tworzenia kursów wspomaganych AI. Generuj filmy, zarządzaj promptami i konfiguruj modele.",
-      "openStudio": "Otwórz AI Studio",
+      },
       "features": {
         "videos": "Filmy",
         "videosDesc": "Generator wideo Sora 2",
@@ -760,6 +771,397 @@
         "point2": "Tryb konserwacji blokuje system dla wszystkich użytkowników z wyjątkiem administratorów",
         "point3": "Po zmianie trybu środowiskowego system musi zostać ponownie uruchomiony",
         "point4": "Informacje systemowe pokazują status połączenia z bazą danych i pamięcią podręczną Redis w czasie rzeczywistym"
+      }
+    },
+    "plugins": {
+      "title": "Wtyczki metod nauczania",
+      "subtitle": "Zarządzanie dynamicznymi rozszerzeniami metod nauczania",
+      "scanPlugins": "Skanuj wtyczki",
+      "scanning": "Skanowanie wtyczek...",
+      "pending": "Oczekujące",
+      "active": "Aktywne",
+      "approved": "Zatwierdzone",
+      "rejected": "Odrzucone",
+      "info": "Info",
+      "schema": "Schemat",
+      "preview": "Podgląd",
+      "pluginCode": "Kod wtyczki",
+      "description": "Opis",
+      "group": "Grupa",
+      "tier": "Poziom",
+      "kiUsage": "Użycie AI",
+      "filePath": "Ścieżka pliku",
+      "fileHash": "Hash pliku",
+      "approve": "Zatwierdź",
+      "reject": "Odrzuć",
+      "activate": "Aktywuj",
+      "deactivate": "Dezaktywuj",
+      "approving": "Zatwierdzanie...",
+      "rejecting": "Odrzucanie...",
+      "activating": "Aktywowanie...",
+      "deactivating": "Dezaktywowanie...",
+      "approveSuccess": "Wtyczka została zatwierdzona",
+      "rejectSuccess": "Wtyczka została odrzucona",
+      "activateSuccess": "Wtyczka została aktywowana",
+      "deactivateSuccess": "Wtyczka została dezaktywowana",
+      "scanSuccess": "Znaleziono i zarejestrowano {count} wtyczek",
+      "rejectReason": "Powód odrzucenia",
+      "rejectReasonPlaceholder": "Proszę podać powód odrzucenia...",
+      "rejectReasonRequired": "Powód odrzucenia jest wymagany",
+      "noPlugins": "Nie znaleziono wtyczek",
+      "noActivePlugins": "Brak aktywnych wtyczek",
+      "noPendingPlugins": "Brak oczekujących wtyczek",
+      "previewPlaceholder": "Podgląd wtyczki nie jest jeszcze dostępny",
+      "inUse": "Wtyczka jest używana i nie można jej dezaktywować",
+      "notApproved": "Wtyczka nie jest zatwierdzona",
+      "confirmApprove": "Czy na pewno chcesz zatwierdzić wtyczkę \"{name}\"?",
+      "confirmActivate": "Czy na pewno chcesz aktywować wtyczkę \"{name}\"?",
+      "confirmDeactivate": "Czy na pewno chcesz dezaktywować wtyczkę \"{name}\"?",
+      "errors": {
+        "scanFailed": "Skanowanie wtyczek nie powiodło się",
+        "approveFailed": "Zatwierdzenie nie powiodło się",
+        "rejectFailed": "Odrzucenie nie powiodło się",
+        "activateFailed": "Aktywacja nie powiodła się",
+        "deactivateFailed": "Dezaktywacja nie powiodła się",
+        "loadFailed": "Nie udało się załadować wtyczek"
+      }
+    },
+    "roles": {
+      "title": "Zarządzanie rolami",
+      "subtitle": "Dynamiczny system ról z niestandardowymi rolami i przypisaniami funkcji (RBAC 2.0)",
+      "ownerOnly": "Tylko Owner-Admin",
+      "list": "Lista ról",
+      "create": "Utwórz rolę",
+      "createCustom": "Utwórz niestandardową rolę",
+      "edit": "Edytuj rolę",
+      "delete": "Usuń rolę",
+      "details": "Szczegóły roli",
+      "systemRoles": "Role systemowe",
+      "customRoles": "Role niestandardowe",
+      "allRoles": "Wszystkie role",
+      "filterCustom": "Tylko role niestandardowe",
+      "filterSystem": "Tylko role systemowe",
+      "searchPlaceholder": "Wyszukaj rolę...",
+      "noRoles": "Nie znaleziono ról",
+      "noCustomRoles": "Brak dostępnych ról niestandardowych",
+      "loading": "Ładowanie ról...",
+      "roleName": "Nazwa roli",
+      "displayName": "Nazwa wyświetlana",
+      "description": "Opis",
+      "hierarchyLevel": "Poziom hierarchii",
+      "color": "Kolor",
+      "icon": "Ikona",
+      "features": "Funkcje",
+      "permissions": "Uprawnienia",
+      "featureCount": "Funkcje",
+      "permissionCount": "Uprawnienia",
+      "userCount": "Użytkownicy",
+      "createdAt": "Utworzono",
+      "createdBy": "Utworzył",
+      "isSystem": "Rola systemowa",
+      "isCustom": "Rola niestandardowa",
+      "actions": "Akcje",
+      "assignFeatures": "Przypisz funkcje",
+      "assignPermissions": "Przypisz uprawnienia",
+      "manageUsers": "Zarządzaj użytkownikami",
+      "viewUsers": "Wyświetl użytkowników",
+      "deleteWarning": "Usunąć rolę? Wszyscy użytkownicy z tą rolą zostaną przypisani do innej roli.",
+      "deleteSystemWarning": "Ról systemowych nie można usuwać",
+      "reassignTo": "Przypisz użytkowników do",
+      "selectTargetRole": "Wybierz rolę docelową",
+      "affectedUsers": "Dotknięci użytkownicy",
+      "deleteSuccess": "Rola usunięta pomyślnie",
+      "createSuccess": "Rola utworzona pomyślnie",
+      "updateSuccess": "Rola zaktualizowana pomyślnie",
+      "templates": {
+        "title": "Szablony ról",
+        "subtitle": "Szybkie tworzenie predefiniowanych ról",
+        "useTemplate": "Użyj szablonu",
+        "selectTemplate": "Wybierz szablon",
+        "customize": "Dostosuj",
+        "parent": "Rodzic",
+        "parentDesc": "Kontrola rodzicielska i monitorowanie aktywności",
+        "enterpriseAdmin": "Administrator przedsiębiorstwa",
+        "enterpriseAdminDesc": "Zarządzanie zbiorcze dla klientów korporacyjnych",
+        "auditor": "Audytor",
+        "auditorDesc": "Dostęp tylko do odczytu dla audytów zgodności",
+        "librarian": "Bibliotekarz",
+        "librarianDesc": "Kurator treści i organizator ścieżek uczenia się",
+        "courseManager": "Menedżer kursów",
+        "courseManagerDesc": "Skupienie na tworzeniu i zarządzaniu kursami",
+        "createFromTemplate": "Utwórz z szablonu"
+      },
+      "form": {
+        "basic": "Informacje podstawowe",
+        "roleNamePlaceholder": "np. content_curator",
+        "roleNameHint": "Małe litery, podkreślenia dozwolone, 3-50 znaków",
+        "roleNamePattern": "Tylko małe litery, cyfry i podkreślenia",
+        "roleNameReserved": "Ta nazwa roli jest zarezerwowana",
+        "displayNamePlaceholder": "np. Kurator treści",
+        "displayNameHint": "Nazwa wyświetlana dla roli, 3-100 znaków",
+        "descriptionPlaceholder": "Opis roli i jej obowiązków...",
+        "descriptionHint": "Opcjonalnie, maks. 500 znaków",
+        "hierarchyLevelHint": "1-8 (9 zarezerwowany dla administratora)",
+        "hierarchyLevelLabel": "Poziom hierarchii (1-8)",
+        "colorHint": "Kolor szesnastkowy dla odznaki roli",
+        "iconPlaceholder": "👤",
+        "iconHint": "Emoji lub znak Unicode",
+        "selectFeatures": "Wybierz funkcje",
+        "selectPermissions": "Wybierz uprawnienia",
+        "featuresHint": "Funkcje systemowe przypisane do tej roli",
+        "permissionsHint": "Uprawnienia przypisane do tej roli",
+        "validate": "Waliduj",
+        "create": "Utwórz rolę",
+        "update": "Zaktualizuj rolę",
+        "cancel": "Anuluj",
+        "replaceMode": "Tryb zastępowania",
+        "replaceModeHint": "Zastąp wszystkie istniejące funkcje/uprawnienia",
+        "addMode": "Tryb dodawania",
+        "addModeHint": "Dodaj do istniejących funkcji/uprawnień"
+      },
+      "features": {
+        "title": "Przypisania funkcji",
+        "subtitle": "Funkcje systemowe dla tej roli",
+        "available": "Dostępne funkcje",
+        "assigned": "Przypisane funkcje",
+        "category": "Kategoria",
+        "featureCode": "Kod funkcji",
+        "featureName": "Nazwa funkcji",
+        "enabled": "Włączone",
+        "disabled": "Wyłączone",
+        "selectAll": "Zaznacz wszystkie",
+        "deselectAll": "Odznacz wszystkie",
+        "categories": {
+          "audio": "Audio",
+          "collaboration": "Współpraca",
+          "exam_systems": "Systemy egzaminacyjne",
+          "gamification": "Gamifikacja",
+          "interactive_tools": "Narzędzia interaktywne",
+          "it_environments": "Środowiska IT",
+          "learning_paths": "Ścieżki uczenia się",
+          "meta_features": "Meta funkcje",
+          "tutor": "Tutor",
+          "visualization": "Wizualizacja"
+        },
+        "assign": "Przypisz funkcje",
+        "assignSuccess": "{count} funkcji przypisanych pomyślnie",
+        "noFeatures": "Brak dostępnych funkcji",
+        "loadError": "Nie udało się załadować funkcji"
+      },
+      "permissions": {
+        "title": "Przypisania uprawnień",
+        "subtitle": "Uprawnienia dla tej roli",
+        "available": "Dostępne uprawnienia",
+        "assigned": "Przypisane uprawnienia",
+        "permissionKey": "Uprawnienie",
+        "module": "Moduł",
+        "category": "Kategoria",
+        "selectAll": "Zaznacz wszystkie",
+        "deselectAll": "Odznacz wszystkie",
+        "assign": "Przypisz uprawnienia",
+        "assignSuccess": "{count} uprawnień przypisanych pomyślnie",
+        "noPermissions": "Brak dostępnych uprawnień",
+        "loadError": "Nie udało się załadować uprawnień"
+      },
+      "stats": {
+        "totalRoles": "Wszystkie role",
+        "customRolesCount": "Role niestandardowe",
+        "systemRolesCount": "Role systemowe",
+        "totalUsers": "Przypisani użytkownicy",
+        "avgFeatures": "Średnio funkcji na rolę",
+        "avgPermissions": "Średnio uprawnień na rolę"
+      },
+      "errors": {
+        "loadFailed": "Nie udało się załadować ról",
+        "createFailed": "Nie udało się utworzyć roli",
+        "updateFailed": "Nie udało się zaktualizować roli",
+        "deleteFailed": "Nie udało się usunąć roli",
+        "roleExists": "Rola o tej nazwie już istnieje",
+        "invalidHierarchy": "Nieprawidłowy poziom hierarchii (dozwolone 1-8)",
+        "roleNotFound": "Nie znaleziono roli",
+        "systemRoleImmutable": "Ról systemowych nie można modyfikować",
+        "reassignmentRequired": "Proszę wybrać rolę docelową dla użytkowników",
+        "noOwnerPermission": "Tylko Owner-Admin może zarządzać rolami"
+      }
+    },
+    "prompts": {
+      "title": "Szablony",
+      "actions": {
+        "newTemplate": "Nowy szablon",
+        "preview": "Podgląd",
+        "edit": "Edytuj",
+        "duplicate": "Duplikuj",
+        "delete": "Usuń"
+      },
+      "errors": {
+        "duplicateFailed": "Nie udało się zduplikować",
+        "deleteFailed": "Nie udało się usunąć",
+        "saveFailed": "Nie udało się zapisać"
+      },
+      "empty": {
+        "noDescription": "Brak dostępnego opisu"
+      },
+      "modal": {
+        "previewTitle": "Podgląd",
+        "deleteTitle": "Potwierdź usunięcie"
+      },
+      "placeholders": {
+        "templateName": "Nazwa szablonu",
+        "code": "Kod",
+        "description": "Opis",
+        "systemPrompt": "System prompt",
+        "userPrompt": "Prompt użytkownika",
+        "expectedJson": "Oczekiwany format JSON"
+      },
+      "categories": {
+        "theory": "Teoria",
+        "quiz": "Quiz",
+        "exam": "Egzamin"
+      },
+      "styles": {
+        "standard": "Standardowy",
+        "adhsFriendly": "Przyjazny ADHD",
+        "dyslexiaFriendly": "Przyjazny dysleksji"
+      }
+    },
+    "courses": {
+      "errors": {
+        "deleteFailed": "Nie udało się usunąć",
+        "uploadFailed": "Nie udało się przesłać",
+        "createFailed": "Nie udało się utworzyć",
+        "saveFailed": "Nie udało się zapisać",
+        "publishFailed": "Nie udało się opublikować",
+        "genericError": "Wystąpił błąd"
+      }
+    },
+    "chapters": {
+      "errors": {
+        "deleteFailed": "Nie udało się usunąć",
+        "createFailed": "Nie udało się utworzyć"
+      },
+      "actions": {
+        "creating": "Tworzenie...",
+        "create": "Utwórz"
+      },
+      "labels": {
+        "title": "Tytuł"
+      },
+      "placeholders": {
+        "description": "Opis"
+      },
+      "help": {
+        "saveFirst": "Proszę najpierw zapisać rozdział"
+      },
+      "sections": {
+        "learningMethods": "Metody nauki"
+      },
+      "empty": {
+        "noMethods": "Brak dostępnych metod nauki"
+      },
+      "info": {
+        "saveCFirst": "Zapisz rozdział najpierw"
+      },
+      "loading": {
+        "methods": "Ładowanie metod nauki..."
+      },
+      "tabs": {
+        "info": "Info",
+        "methods": "Metody nauki",
+        "lessons": "Lekcje"
+      }
+    },
+    "exams": {
+      "errors": {
+        "createFailed": "Nie udało się utworzyć",
+        "generationFailed": "Nie udało się wygenerować",
+        "deleteFailed": "Nie udało się usunąć"
+      }
+    },
+    "learning": {
+      "tiers": {
+        "basic": "Podstawowy",
+        "premium": "Premium",
+        "pro": "Pro"
+      }
+    },
+    "actions": {
+      "edit": "Edytuj",
+      "delete": "Usuń",
+      "clearChat": "Wyczyść czat",
+      "dragToReorder": "Przeciągnij, aby zmienić kolejność",
+      "createSubcategory": "Utwórz podkategorię",
+      "removeFile": "Usuń plik",
+      "download": "Pobierz",
+      "preview": "Podgląd",
+      "editWithAi": "Edytuj za pomocą AI",
+      "duplicate": "Duplikuj"
+    },
+    "chapters": {
+      "tabs": {
+        "info": "Informacje o rozdziale",
+        "theory": "Arkusze teorii",
+        "videos": "Wideo",
+        "methods": "Metody nauki",
+        "lessons": "Lekcje"
+      }
+    },
+    "courses": {
+      "tabs": {
+        "metadata": "Metadane",
+        "chapters": "Rozdziały",
+        "actions": "Działania"
+      },
+      "placeholders": {
+        "titleInput": "Wpisz tytuł kursu...",
+        "descriptionInput": "Wpisz opis kursu..."
+      }
+    },
+    "prompts": {
+      "types": {
+        "courseGeneration": "Generowanie kursów",
+        "lessonGeneration": "Generowanie lekcji"
+      },
+      "scopes": {
+        "all": "Wszystkie",
+        "moduleGeneration": "Generowanie modułów",
+        "quizGeneration": "Generowanie testów",
+        "examGeneration": "Generowanie egzaminów"
+      }
+    },
+    "learningMethods": {
+      "tabs": {
+        "instances": "Metody nauki",
+        "catalog": "Katalog (31)",
+        "stats": "Statystyka"
+      },
+      "form": {
+        "titleLabel": "Tytuł *",
+        "titlePlaceholder": "np. Wprowadzenie do...",
+        "instructionsLabel": "Instrukcje",
+        "instructionsPlaceholder": "Opcjonalne instrukcje dla ucznia...",
+        "durationLabel": "Czas trwania (minuty)",
+        "difficultyLabel": "Trudność",
+        "difficultyEasy": "Łatwy",
+        "difficultyMedium": "Średni",
+        "difficultyHard": "Trudny",
+        "cancelButton": "Anuluj",
+        "savingButton": "Zapisywanie...",
+        "updateButton": "Zapisz",
+        "createButton": "Utwórz"
+      }
+    },
+    "courseChat": {
+      "suggestStructure": "Zasugeruj strukturę",
+      "createChapters": "Utwórz 3 rozdziały",
+      "calculatorTutorial": "Samouczek kalkulatora",
+      "generateExam": "Wygeneruj egzamin"
+    },
+    "systemFeatures": {
+      "invertedClassroom": {
+        "videos": "Filmy wyjaśniające"
+      },
+      "projectPortfolio": {
+        "videos": "Filmy"
       }
     }
   }

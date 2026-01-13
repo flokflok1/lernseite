@@ -25,7 +25,7 @@
           v-if="previewType === 'file' && fileUrl"
           @click="downloadFile"
           class="action-btn"
-          title="Herunterladen"
+          :title="$t('admin.actions.download')"
         >
           ⬇️
         </button>
@@ -33,7 +33,7 @@
           v-if="previewType !== 'file'"
           @click="openEditor"
           class="action-btn"
-          title="Bearbeiten"
+          :title="$t('admin.actions.edit')"
         >
           ✏️
         </button>
@@ -152,9 +152,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import { useWindowStore } from '@/store/window.store'
 import http from '@/api/http'
+
+const { t } = useI18n()
 
 interface FilePayload {
   id: string

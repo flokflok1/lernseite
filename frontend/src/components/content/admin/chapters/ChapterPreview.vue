@@ -194,40 +194,6 @@ const methodIcons: Record<number, string> = {
   31: '🎓', 32: '🔄'
 }
 
-const methodNames: Record<number, string> = {
-  0: 'Tiefgehende Erklärung',
-  1: 'Schritt-für-Schritt',
-  2: 'Interaktive Theorie',
-  3: 'Diagramm/Visualisierung',
-  4: 'Sokratischer Dialog',
-  6: 'Beispiel-Szenario',
-  8: 'Whiteboard-Aufgabe',
-  9: 'Code Sandbox',
-  10: 'Netzwerk-Simulation',
-  11: 'IT-Szenario',
-  12: 'Mathe-Interaktiv',
-  13: 'Flashcards',
-  14: 'Drag & Drop',
-  15: 'Lückentext',
-  16: 'Fehleranalyse',
-  17: 'Hands-on Lab',
-  18: 'Freitext',
-  19: 'IHK-Stil',
-  20: 'Multi-Step',
-  21: 'Zeitlimit',
-  22: 'Quiz',
-  23: 'Verständnis-Check',
-  24: 'Mündlich',
-  25: 'Endprüfung',
-  26: 'Peer Instruction',
-  27: 'Team-Case',
-  28: 'Peer Review',
-  29: 'Lerntagebuch',
-  30: 'Portfolio',
-  31: 'Projektbasiert',
-  32: 'Inverted Classroom'
-}
-
 function getMethodIcon(type: number | string | undefined): string {
   if (type === undefined || type === null) return '📚'
   const numType = typeof type === 'string' ? parseInt(type, 10) : type
@@ -236,10 +202,12 @@ function getMethodIcon(type: number | string | undefined): string {
 }
 
 function getMethodName(type: number | string | undefined): string {
-  if (type === undefined || type === null) return 'LM'
+  if (type === undefined || type === null) return t('windows.chapterPreview.methodDefault')
   const numType = typeof type === 'string' ? parseInt(type, 10) : type
-  if (isNaN(numType)) return 'LM'
-  return methodNames[numType] || `LM${numType}`
+  if (isNaN(numType)) return t('windows.chapterPreview.methodDefault')
+  const key = `windows.chapterPreview.methodNames.lm${numType}`
+  const name = t(key)
+  return name === key ? `LM${numType}` : name
 }
 
 function formatDate(dateStr?: string): string {

@@ -63,6 +63,79 @@ export interface RoleUser {
 }
 
 // =============================================================================
+// RBAC 2.0 Types (Owner-Admin Custom Roles)
+// =============================================================================
+
+export interface SystemFeature {
+  feature_id: number
+  feature_code: string
+  feature_name: string
+  category: string
+  active: boolean
+  enabled_for_role?: boolean
+}
+
+export interface RoleWithStats extends Role {
+  feature_count?: number
+  permission_count?: number
+  user_count?: number
+  features?: SystemFeature[]
+}
+
+export interface RoleTemplate {
+  template: 'parent' | 'enterprise_admin' | 'auditor' | 'librarian' | 'course_manager'
+  display_name: string
+  description: string
+  recommended_hierarchy: number
+  default_features: string[]
+  default_color: string
+  default_icon: string
+}
+
+export interface CreateRoleRequest {
+  role_name: string
+  display_name: string
+  description?: string
+  hierarchy_level: number
+  color?: string
+  icon?: string
+  feature_ids?: number[]
+  permission_ids?: number[]
+}
+
+export interface UpdateRoleRequest {
+  display_name?: string
+  description?: string
+  hierarchy_level?: number
+  color?: string
+  icon?: string
+}
+
+export interface AssignFeaturesRequest {
+  feature_ids: number[]
+  replace?: boolean
+}
+
+export interface AssignPermissionsRequest {
+  permission_ids: number[]
+  replace?: boolean
+}
+
+export interface CreateFromTemplateRequest {
+  template: 'parent' | 'enterprise_admin' | 'auditor' | 'librarian' | 'course_manager'
+  role_name: string
+  display_name?: string
+  customize_features?: number[]
+}
+
+export interface DeleteRoleResponse {
+  success: boolean
+  message: string
+  affected_users: number
+  reassigned_to_role?: string
+}
+
+// =============================================================================
 // Roles CRUD
 // =============================================================================
 
@@ -279,17 +352,124 @@ export async function checkUserPermission(
   return response.data.data.has_permission
 }
 
+// =============================================================================
+// RBAC 2.0 API (Owner-Admin Custom Roles)
+// =============================================================================
+
+/**
+ * Get all roles with filtering and statistics (RBAC 2.0)
+ */
+export async function getRolesV2(params?: {
+  is_custom?: boolean
+  hierarchy_min?: number
+  hierarchy_max?: number
+  search?: string
+  include_features?: boolean
+  include_permissions?: boolean
+}): Promise<{ roles: RoleWithStats[]; total: number }> {
+  const response = await http.get('/admin/roles', { params })
+  return response.data.data
+}
+
+/**
+ * Get role details with features and permissions (RBAC 2.0)
+ */
+export async function getRoleV2(roleId: number): Promise<RoleWithStats> {
+  const response = await http.get(`/admin/roles/${roleId}`)
+  return response.data.data
+}
+
+/**
+ * Create custom role with features and permissions (RBAC 2.0)
+ */
+export async function createRoleV2(data: CreateRoleRequest): Promise<RoleWithStats> {
+  const response = await http.post('/admin/roles', data)
+  return response.data.data
+}
+
+/**
+ * Update custom role (RBAC 2.0)
+ */
+export async function updateRoleV2(
+  roleId: number,
+  data: UpdateRoleRequest
+): Promise<RoleWithStats> {
+  const response = await http.put(`/admin/roles/${roleId}`, data)
+  return response.data.data
+}
+
+/**
+ * Delete custom role with user reassignment (RBAC 2.0)
+ */
+export async function deleteRoleV2(
+  roleId: number,
+  reassignTo?: number
+): Promise<DeleteRoleResponse> {
+  const response = await http.delete(`/admin/roles/${roleId}`, {
+    params: { reassign_to: reassignTo }
+  })
+  return response.data.data
+}
+
+/**
+ * Assign system features to role (RBAC 2.0)
+ */
+export async function assignRoleFeatures(
+  roleId: number,
+  data: AssignFeaturesRequest
+): Promise<{ features_assigned: number; total_features: number }> {
+  const response = await http.post(`/admin/roles/${roleId}/features`, data)
+  return response.data.data
+}
+
+/**
+ * Assign permissions to role (RBAC 2.0)
+ */
+export async function assignRolePermissionsV2(
+  roleId: number,
+  data: AssignPermissionsRequest
+): Promise<{ permissions_assigned: number; total_permissions: number }> {
+  const response = await http.post(`/admin/roles/${roleId}/permissions`, data)
+  return response.data.data
+}
+
+/**
+ * Get all role templates (RBAC 2.0)
+ */
+export async function getRoleTemplates(): Promise<RoleTemplate[]> {
+  const response = await http.get('/admin/roles/templates')
+  return response.data.data.templates
+}
+
+/**
+ * Create role from template (RBAC 2.0)
+ */
+export async function createRoleFromTemplate(
+  data: CreateFromTemplateRequest
+): Promise<RoleWithStats> {
+  const response = await http.post('/admin/roles/from-template', data)
+  return response.data.data
+}
+
+/**
+ * Get all system features (for feature assignment)
+ */
+export async function getSystemFeatures(): Promise<SystemFeature[]> {
+  const response = await http.get('/admin/roles/system-features')
+  return response.data.data
+}
+
 export default {
-  // Roles
+  // Roles (Legacy)
   getRoles,
   getRole,
   createRole,
   updateRole,
   deleteRole,
-  // Permissions
+  // Permissions (Legacy)
   getPermissions,
   getPermissionsGrouped,
-  // Role-Permission
+  // Role-Permission (Legacy)
   getRolePermissions,
   setRolePermissions,
   addRolePermission,
@@ -301,5 +481,16 @@ export default {
   getUserPermissions,
   setUserPermissionOverride,
   removeUserPermissionOverride,
-  checkUserPermission
+  checkUserPermission,
+  // RBAC 2.0 (Owner-Admin)
+  getRolesV2,
+  getRoleV2,
+  createRoleV2,
+  updateRoleV2,
+  deleteRoleV2,
+  assignRoleFeatures,
+  assignRolePermissionsV2,
+  getRoleTemplates,
+  createRoleFromTemplate,
+  getSystemFeatures
 }

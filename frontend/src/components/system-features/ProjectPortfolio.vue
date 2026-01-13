@@ -197,11 +197,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import { BaseLearningMethodForm } from '@/components/content/admin/learning-methods/forms'
 
 const METHOD_CODE = 30
+
+const { t } = useI18n()
 
 interface Props {
   window: LsxWindow
@@ -209,16 +212,16 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const artifactTypes = [
+const artifactTypes = computed(() => [
   { value: 'document', label: 'Dokumente (PDF, Word)' },
   { value: 'code', label: 'Code/Skripte' },
   { value: 'diagram', label: 'Diagramme' },
   { value: 'screenshot', label: 'Screenshots' },
-  { value: 'video', label: 'Videos' },
+  { value: 'video', label: t('admin.systemFeatures.projectPortfolio.videos') },
   { value: 'presentation', label: 'Praesentationen' },
   { value: 'config', label: 'Konfigurationsdateien' },
   { value: 'other', label: 'Sonstiges' }
-]
+])
 
 const methodData = ref({
   portfolio_title: '',

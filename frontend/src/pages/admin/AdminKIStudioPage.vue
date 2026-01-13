@@ -17,34 +17,34 @@
         <div class="w-20 h-20 mx-auto mb-6 bg-white/20 rounded-2xl flex items-center justify-center">
           <span class="text-5xl">✨</span>
         </div>
-        <h1 class="text-3xl font-bold mb-3">{{ $t('admin.kiStudio.title') }}</h1>
+        <h1 class="text-3xl font-bold mb-3">{{ $t('admin.aiStudio.title') }}</h1>
         <p class="text-white/80 mb-6 max-w-md mx-auto">
-          {{ $t('admin.kiStudio.description') }}
+          {{ $t('admin.aiStudio.description') }}
         </p>
 
         <button
           @click="openKIStudio()"
           class="px-8 py-4 bg-white text-violet-600 font-bold rounded-xl hover:bg-white/90 transition-colors text-lg"
         >
-          {{ $t('admin.kiStudio.openStudio') }}
+          {{ $t('admin.aiStudio.openStudio') }}
         </button>
 
         <!-- Features -->
         <div class="grid grid-cols-3 gap-4 mt-8 text-sm">
           <div class="bg-white/10 rounded-xl p-4">
             <span class="text-2xl mb-2 block">🎬</span>
-            <span class="font-medium">{{ $t('admin.kiStudio.features.videos') }}</span>
-            <p class="text-white/60 text-xs mt-1">{{ $t('admin.kiStudio.features.videosDesc') }}</p>
+            <span class="font-medium">{{ $t('admin.aiStudio.features.videos') }}</span>
+            <p class="text-white/60 text-xs mt-1">{{ $t('admin.aiStudio.features.videosDesc') }}</p>
           </div>
           <div class="bg-white/10 rounded-xl p-4">
             <span class="text-2xl mb-2 block">📝</span>
-            <span class="font-medium">{{ $t('admin.kiStudio.features.prompts') }}</span>
-            <p class="text-white/60 text-xs mt-1">{{ $t('admin.kiStudio.features.promptsDesc') }}</p>
+            <span class="font-medium">{{ $t('admin.aiStudio.features.prompts') }}</span>
+            <p class="text-white/60 text-xs mt-1">{{ $t('admin.aiStudio.features.promptsDesc') }}</p>
           </div>
           <div class="bg-white/10 rounded-xl p-4">
             <span class="text-2xl mb-2 block">⚙️</span>
-            <span class="font-medium">{{ $t('admin.kiStudio.features.models') }}</span>
-            <p class="text-white/60 text-xs mt-1">{{ $t('admin.kiStudio.features.modelsDesc') }}</p>
+            <span class="font-medium">{{ $t('admin.aiStudio.features.models') }}</span>
+            <p class="text-white/60 text-xs mt-1">{{ $t('admin.aiStudio.features.modelsDesc') }}</p>
           </div>
         </div>
       </div>
@@ -56,28 +56,28 @@
             <span v-if="loading" class="animate-pulse">--</span>
             <span v-else>{{ stats.videos }}</span>
           </div>
-          <div class="text-sm text-gray-500">{{ $t('admin.kiStudio.stats.videosGenerated') }}</div>
+          <div class="text-sm text-gray-500">{{ $t('admin.aiStudio.stats.videosGenerated') }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             <span v-if="loading" class="animate-pulse">--</span>
             <span v-else>{{ stats.prompts }}</span>
           </div>
-          <div class="text-sm text-gray-500">{{ $t('admin.kiStudio.stats.prompts') }}</div>
+          <div class="text-sm text-gray-500">{{ $t('admin.aiStudio.stats.prompts') }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             <span v-if="loading" class="animate-pulse">--</span>
             <span v-else>{{ stats.tokens }}</span>
           </div>
-          <div class="text-sm text-gray-500">{{ $t('admin.kiStudio.stats.tokensMonth') }}</div>
+          <div class="text-sm text-gray-500">{{ $t('admin.aiStudio.stats.tokensMonth') }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
           <div class="text-2xl font-bold text-green-600">
             <span v-if="loading" class="animate-pulse">--</span>
             <span v-else>{{ stats.cost }}</span>
           </div>
-          <div class="text-sm text-gray-500">{{ $t('admin.kiStudio.stats.costMonth') }}</div>
+          <div class="text-sm text-gray-500">{{ $t('admin.aiStudio.stats.costMonth') }}</div>
         </div>
       </div>
     </div>

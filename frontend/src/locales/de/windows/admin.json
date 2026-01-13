@@ -541,6 +541,24 @@
       "D": "D: Pro",
       "E": "E: IT",
       "F": "F: Kollaborativ"
+    },
+    "form": {
+      "titleLabel": "Titel *",
+      "titlePlaceholder": "z.B. Vokabeltrainer - Lektion 1",
+      "instructionsLabel": "Anweisungen",
+      "instructionsPlaceholder": "Optionale Anweisungen für den Lernenden...",
+      "durationLabel": "Dauer (Minuten)",
+      "difficultyLabel": "Schwierigkeit",
+      "difficultyEasy": "Einfach",
+      "difficultyMedium": "Mittel",
+      "difficultyHard": "Schwer",
+      "cancelButton": "Abbrechen",
+      "createButton": "Erstellen",
+      "updateButton": "Aktualisieren",
+      "savingButton": "Speichern...",
+      "emptyTitleError": "Bitte gib einen Titel ein",
+      "noChapterIdError": "Keine Kapitel-ID gefunden",
+      "saveErrorMessage": "Fehler beim Speichern"
     }
   },
   "examManager": {

@@ -70,7 +70,7 @@
                 @click="clearFile"
                 :disabled="isProcessing"
                 class="p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-error,#dc2626)] rounded transition-colors"
-                title="Datei entfernen"
+                :title="$t('admin.actions.removeFile')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -131,7 +131,7 @@
             rows="3"
             :disabled="isProcessing"
             class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent disabled:opacity-50 resize-none"
-            placeholder="Kursbeschreibung..."
+            :placeholder="$t('admin.courses.placeholders.descriptionInput')"
           ></textarea>
         </div>
 
@@ -250,11 +250,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/store/admin.store'
 import { useAuthStore } from '@/store/auth.store'
 import { useWindowStore } from '@/store/window.store'
 import type { LsxWindow } from '@/store/window.store'
+
+const { t } = useI18n()
 
 interface Props {
   window: LsxWindow
@@ -487,7 +490,7 @@ const createCourse = async (): Promise<void> => {
     }
   } catch (error: any) {
     console.error('Failed to create course:', error)
-    alert('Fehler beim Erstellen des Kurses: ' + (error.message || 'Unbekannter Fehler'))
+    fileError.value = error.message || 'Error creating course'
   } finally {
     isCreating.value = false
   }

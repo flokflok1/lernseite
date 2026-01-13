@@ -185,7 +185,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestPromptModal, PromptEditor } from '../../settings/exams'
+import { TestPromptModal, PromptEditor } from '@/components/assessment/admin/settings/exams'
 
 const { t } = useI18n()
 

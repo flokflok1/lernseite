@@ -108,7 +108,7 @@
               <button
                 @click="downloadFile(file)"
                 class="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
-                title="Herunterladen"
+                :title="$t('admin.actions.download')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -117,7 +117,7 @@
               <button
                 @click="deleteFile(file)"
                 class="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                title="Löschen"
+                :title="t('admin.actions.delete')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -162,6 +162,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import {
   adminListCourseFiles,
@@ -170,6 +171,8 @@ import {
   type CourseFile,
   type CourseFileCategory
 } from '@/api/admin.api'
+
+const { t } = useI18n()
 
 // ============================================================================
 // Props
@@ -242,15 +245,12 @@ const handleFileSelect = async (event: Event) => {
         file_category: 'material'
       })
 
-      if (response.already_exists) {
-        alert(response.message || `Datei "${file.name}" ist bereits vorhanden.`)
-      }
     }
 
     await loadFiles()
   } catch (err: any) {
     console.error('Error uploading file:', err)
-    alert('Fehler beim Hochladen: ' + (err.response?.data?.error || err.message))
+    error.value = err.response?.data?.error || t('common.errors.uploadFailed')
   } finally {
     isUploading.value = false
     if (target) target.value = ''
@@ -266,7 +266,7 @@ const downloadFile = (file: CourseFile) => {
 const deleteFile = async (file: CourseFile) => {
   if (!courseId.value) return
 
-  const confirmed = confirm(`Möchten Sie die Datei "${file.display_name || file.file_name}" wirklich löschen?`)
+  const confirmed = confirm(t('admin.files.confirmDelete', { name: file.display_name || file.file_name }))
   if (!confirmed) return
 
   try {
@@ -274,7 +274,7 @@ const deleteFile = async (file: CourseFile) => {
     await loadFiles()
   } catch (err: any) {
     console.error('Error deleting file:', err)
-    alert('Fehler beim Löschen: ' + (err.response?.data?.error || err.message))
+    error.value = err.response?.data?.error || t('common.errors.deleteFailed')
   }
 }
 

@@ -10,6 +10,3 @@ export { default as ProtectedContent } from './ProtectedContent.vue'
 
 // Ads Components (base/ads/)
 export * from './ads'
-
-// i18n Components (base/i18n/)
-export * from './i18n'

@@ -37,7 +37,48 @@
     "unknownError": "Unknown error",
     "course": "Course",
     "note": "Note",
-    "workInProgress": "Implementation in progress"
+    "workInProgress": "Implementation in progress",
+    "notSpecified": "Not specified",
+    "createdAt": "Created at",
+    "reviewedAt": "Reviewed at",
+    "defaultConfig": "Default Configuration",
+    "agentSupport": "Agent Support",
+    "confirmAction": "Confirm action",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "genericError": "An error occurred"
+  },
+  "languages": {
+    "de": "German",
+    "en": "English",
+    "pl": "Polish"
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "close": "Close",
+    "retry": "Retry"
+  },
+  "placeholders": {
+    "search": "Search...",
+    "firstName": "First name",
+    "lastName": "Last name"
+  },
+  "errors": {
+    "unknownError": "Unknown error",
+    "genericError": "An error occurred"
+  },
+  "status": {
+    "active": "Active"
+  },
+  "plans": {
+    "free": "Free"
+  },
+  "tiers": {
+    "premium": "Premium"
   },
   "auth": {
     "login": "Log in",

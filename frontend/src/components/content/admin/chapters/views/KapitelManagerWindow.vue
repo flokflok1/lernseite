@@ -68,16 +68,16 @@
             </svg>
           </div>
           <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
-            Noch keine Kapitel
+            {{ $t('windows.kapitelManager.noChapters') }}
           </h3>
           <p class="text-sm text-[var(--color-text-secondary)] mb-6 max-w-sm mx-auto">
-            Erstelle dein erstes Kapitel oder nutze das KI-Authoring-Studio für KI-gestützte Erstellung.
+            {{ $t('windows.kapitelManager.createFirstHint') }}
           </p>
           <button
             @click="createManual"
             class="px-4 py-2 text-sm font-medium rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] transition-colors"
           >
-            Erstes Kapitel erstellen
+            {{ $t('windows.kapitelManager.createFirst') }}
           </button>
         </div>
 
@@ -117,7 +117,7 @@
                 <button
                   @click="editChapter(chapter)"
                   class="p-2 rounded-lg hover:bg-blue-100 text-[var(--color-text-secondary)] hover:text-blue-600 transition-colors"
-                  title="Bearbeiten"
+                  :title="$t('admin.actions.edit')"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -126,7 +126,7 @@
                 <button
                   @click="deleteChapter(chapter)"
                   class="p-2 rounded-lg hover:bg-red-100 text-[var(--color-text-secondary)] hover:text-red-600 transition-colors"
-                  title="Löschen"
+                  :title="$t('admin.actions.delete')"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -150,7 +150,7 @@
               v-model="newChapter.title"
               type="text"
               class="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-              placeholder="z.B. Einführung in Python"
+              :placeholder="$t('windows.kapitelManager.titlePlaceholder')"
               @keydown.enter="saveNewChapter"
             />
           </div>
@@ -164,7 +164,7 @@
               v-model="newChapter.description"
               rows="4"
               class="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
-              placeholder="Was wird in diesem Kapitel behandelt?"
+              :placeholder="$t('windows.kapitelManager.descriptionPlaceholder')"
             ></textarea>
           </div>
 
@@ -203,7 +203,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/store/window.store'
+
+const { t } = useI18n()
 import type { LsxWindow } from '@/store/window.store'
 import {
   adminGetCourseChapters,

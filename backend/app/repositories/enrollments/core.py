@@ -453,3 +453,32 @@ class EnrollmentRepository(BaseRepository):
             'avg_progress': float(result['avg_progress']) if result['avg_progress'] else 0.0,
             'total_revenue': float(result['total_revenue']) if result['total_revenue'] else 0.0
         }
+
+    @classmethod
+    def count_by_user(cls, user_id: str, status: Optional[str] = None) -> int:
+        """
+        Count enrollments for a user
+
+        Args:
+            user_id: User UUID
+            status: Optional status filter ('active', 'completed', 'cancelled')
+
+        Returns:
+            Count of enrollments
+        """
+        if status:
+            query = """
+                SELECT COUNT(*) as count
+                FROM courses.course_enrollments
+                WHERE user_id = %s AND status = %s
+            """
+            result = fetch_one(query, (user_id, status))
+        else:
+            query = """
+                SELECT COUNT(*) as count
+                FROM courses.course_enrollments
+                WHERE user_id = %s
+            """
+            result = fetch_one(query, (user_id,))
+
+        return result['count'] if result else 0

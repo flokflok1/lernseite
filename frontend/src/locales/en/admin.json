@@ -11,7 +11,6 @@
       "courses": "Courses",
       "courseEditor": "Course Editor",
       "categories": "Categories",
-      "ki_studio": "AI Studio",
       "aiStudio": "AI Studio",
       "translations": "Translations",
       "billing": "Billing",
@@ -25,6 +24,8 @@
       "subtitle": "All users in the system",
       "list": "User List",
       "create": "Create User",
+      "createUser": "Create New User",
+      "createUserError": "Error creating user",
       "edit": "Edit User",
       "delete": "Delete User",
       "role": "Role",
@@ -258,7 +259,22 @@
     },
     "aiStudio": {
       "title": "AI Studio Pro",
+      "description": "Your all-in-one tool for AI-powered course creation. Generate videos, manage prompts and configure models.",
+      "openStudio": "Open AI Studio",
       "chat": "Chat",
+      "selectCourse": "Select course",
+      "selectCourseHint": "Choose a course to get started",
+      "newCourse": "New course",
+      "lessons": "Lessons",
+      "searchCourse": "Search courses...",
+      "search": "Search...",
+      "allCourses": "All courses",
+      "allCategories": "All categories",
+      "noCategory": "No category",
+      "recentlyEdited": "Recently edited",
+      "noCoursesFound": "No courses found",
+      "noCoursesAvailable": "No courses available",
+      "searchResults": "Search results",
       "tabs": {
         "builder": "Course Builder",
         "tutor": "AI Tutor",
@@ -269,12 +285,7 @@
         "analytics": "Analytics",
         "settings": "Settings",
         "global": "Global"
-      }
-    },
-    "kiStudio": {
-      "title": "AI Studio Pro",
-      "description": "Your all-in-one tool for AI-powered course creation. Generate videos, manage prompts and configure models.",
-      "openStudio": "Open AI Studio",
+      },
       "features": {
         "videos": "Videos",
         "videosDesc": "Sora 2 Video Generator",
@@ -760,6 +771,397 @@
         "point2": "Maintenance mode locks the system for all users except administrators",
         "point3": "After changing environment mode, the system must be restarted",
         "point4": "System info shows real-time status of database connection and Redis cache"
+      }
+    },
+    "plugins": {
+      "title": "Learning Method Plugins",
+      "subtitle": "Management of dynamic learning method extensions",
+      "scanPlugins": "Scan Plugins",
+      "scanning": "Scanning plugins...",
+      "pending": "Pending",
+      "active": "Active",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "info": "Info",
+      "schema": "Schema",
+      "preview": "Preview",
+      "pluginCode": "Plugin Code",
+      "description": "Description",
+      "group": "Group",
+      "tier": "Tier",
+      "kiUsage": "AI Usage",
+      "filePath": "File Path",
+      "fileHash": "File Hash",
+      "approve": "Approve",
+      "reject": "Reject",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "approving": "Approving...",
+      "rejecting": "Rejecting...",
+      "activating": "Activating...",
+      "deactivating": "Deactivating...",
+      "approveSuccess": "Plugin approved successfully",
+      "rejectSuccess": "Plugin rejected",
+      "activateSuccess": "Plugin activated",
+      "deactivateSuccess": "Plugin deactivated",
+      "scanSuccess": "Found and registered {count} plugin(s)",
+      "rejectReason": "Rejection Reason",
+      "rejectReasonPlaceholder": "Please provide a reason for rejection...",
+      "rejectReasonRequired": "A rejection reason is required",
+      "noPlugins": "No plugins found",
+      "noActivePlugins": "No active plugins",
+      "noPendingPlugins": "No pending plugins",
+      "previewPlaceholder": "Plugin preview is not yet available",
+      "inUse": "Plugin is in use and cannot be deactivated",
+      "notApproved": "Plugin is not approved",
+      "confirmApprove": "Do you really want to approve the plugin \"{name}\"?",
+      "confirmActivate": "Do you really want to activate the plugin \"{name}\"?",
+      "confirmDeactivate": "Do you really want to deactivate the plugin \"{name}\"?",
+      "errors": {
+        "scanFailed": "Plugin scan failed",
+        "approveFailed": "Approval failed",
+        "rejectFailed": "Rejection failed",
+        "activateFailed": "Activation failed",
+        "deactivateFailed": "Deactivation failed",
+        "loadFailed": "Failed to load plugins"
+      }
+    },
+    "roles": {
+      "title": "Role Management",
+      "subtitle": "Dynamic role system with custom roles & feature assignments (RBAC 2.0)",
+      "ownerOnly": "Owner-Admin only",
+      "list": "Role list",
+      "create": "Create role",
+      "createCustom": "Create custom role",
+      "edit": "Edit role",
+      "delete": "Delete role",
+      "details": "Role details",
+      "systemRoles": "System roles",
+      "customRoles": "Custom roles",
+      "allRoles": "All roles",
+      "filterCustom": "Custom roles only",
+      "filterSystem": "System roles only",
+      "searchPlaceholder": "Search role...",
+      "noRoles": "No roles found",
+      "noCustomRoles": "No custom roles available",
+      "loading": "Loading roles...",
+      "roleName": "Role name",
+      "displayName": "Display name",
+      "description": "Description",
+      "hierarchyLevel": "Hierarchy level",
+      "color": "Color",
+      "icon": "Icon",
+      "features": "Features",
+      "permissions": "Permissions",
+      "featureCount": "Features",
+      "permissionCount": "Permissions",
+      "userCount": "Users",
+      "createdAt": "Created at",
+      "createdBy": "Created by",
+      "isSystem": "System role",
+      "isCustom": "Custom role",
+      "actions": "Actions",
+      "assignFeatures": "Assign features",
+      "assignPermissions": "Assign permissions",
+      "manageUsers": "Manage users",
+      "viewUsers": "View users",
+      "deleteWarning": "Delete role? All users with this role will be reassigned to another role.",
+      "deleteSystemWarning": "System roles cannot be deleted",
+      "reassignTo": "Reassign users to",
+      "selectTargetRole": "Select target role",
+      "affectedUsers": "Affected users",
+      "deleteSuccess": "Role deleted successfully",
+      "createSuccess": "Role created successfully",
+      "updateSuccess": "Role updated successfully",
+      "templates": {
+        "title": "Role templates",
+        "subtitle": "Quick create predefined roles",
+        "useTemplate": "Use template",
+        "selectTemplate": "Select template",
+        "customize": "Customize",
+        "parent": "Parent",
+        "parentDesc": "Parental control and activity monitoring",
+        "enterpriseAdmin": "Enterprise Admin",
+        "enterpriseAdminDesc": "Bulk management for enterprise customers",
+        "auditor": "Auditor",
+        "auditorDesc": "Read-only access for compliance audits",
+        "librarian": "Librarian",
+        "librarianDesc": "Content curator and learning path organizer",
+        "courseManager": "Course Manager",
+        "courseManagerDesc": "Focused on course creation and management",
+        "createFromTemplate": "Create from template"
+      },
+      "form": {
+        "basic": "Basic information",
+        "roleNamePlaceholder": "e.g. content_curator",
+        "roleNameHint": "Lowercase, underscores allowed, 3-50 characters",
+        "roleNamePattern": "Only lowercase letters, numbers and underscores",
+        "roleNameReserved": "This role name is reserved",
+        "displayNamePlaceholder": "e.g. Content Curator",
+        "displayNameHint": "Display name for the role, 3-100 characters",
+        "descriptionPlaceholder": "Description of the role and its responsibilities...",
+        "descriptionHint": "Optional, max. 500 characters",
+        "hierarchyLevelHint": "1-8 (9 reserved for admin)",
+        "hierarchyLevelLabel": "Hierarchy level (1-8)",
+        "colorHint": "Hex color for role badge",
+        "iconPlaceholder": "👤",
+        "iconHint": "Emoji or Unicode character",
+        "selectFeatures": "Select features",
+        "selectPermissions": "Select permissions",
+        "featuresHint": "System features assigned to this role",
+        "permissionsHint": "Permissions assigned to this role",
+        "validate": "Validate",
+        "create": "Create role",
+        "update": "Update role",
+        "cancel": "Cancel",
+        "replaceMode": "Replace mode",
+        "replaceModeHint": "Replace all existing features/permissions",
+        "addMode": "Add mode",
+        "addModeHint": "Add to existing features/permissions"
+      },
+      "features": {
+        "title": "Feature assignments",
+        "subtitle": "System features for this role",
+        "available": "Available features",
+        "assigned": "Assigned features",
+        "category": "Category",
+        "featureCode": "Feature code",
+        "featureName": "Feature name",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "selectAll": "Select all",
+        "deselectAll": "Deselect all",
+        "categories": {
+          "audio": "Audio",
+          "collaboration": "Collaboration",
+          "exam_systems": "Exam systems",
+          "gamification": "Gamification",
+          "interactive_tools": "Interactive tools",
+          "it_environments": "IT environments",
+          "learning_paths": "Learning paths",
+          "meta_features": "Meta features",
+          "tutor": "Tutor",
+          "visualization": "Visualization"
+        },
+        "assign": "Assign features",
+        "assignSuccess": "{count} features assigned successfully",
+        "noFeatures": "No features available",
+        "loadError": "Failed to load features"
+      },
+      "permissions": {
+        "title": "Permission assignments",
+        "subtitle": "Permissions for this role",
+        "available": "Available permissions",
+        "assigned": "Assigned permissions",
+        "permissionKey": "Permission",
+        "module": "Module",
+        "category": "Category",
+        "selectAll": "Select all",
+        "deselectAll": "Deselect all",
+        "assign": "Assign permissions",
+        "assignSuccess": "{count} permissions assigned successfully",
+        "noPermissions": "No permissions available",
+        "loadError": "Failed to load permissions"
+      },
+      "stats": {
+        "totalRoles": "Total roles",
+        "customRolesCount": "Custom roles",
+        "systemRolesCount": "System roles",
+        "totalUsers": "Assigned users",
+        "avgFeatures": "Avg features per role",
+        "avgPermissions": "Avg permissions per role"
+      },
+      "errors": {
+        "loadFailed": "Failed to load roles",
+        "createFailed": "Failed to create role",
+        "updateFailed": "Failed to update role",
+        "deleteFailed": "Failed to delete role",
+        "roleExists": "A role with this name already exists",
+        "invalidHierarchy": "Invalid hierarchy level (1-8 allowed)",
+        "roleNotFound": "Role not found",
+        "systemRoleImmutable": "System roles cannot be modified",
+        "reassignmentRequired": "Please select a target role for the users",
+        "noOwnerPermission": "Only Owner-Admin can manage roles"
+      }
+    },
+    "prompts": {
+      "title": "Prompts",
+      "actions": {
+        "newTemplate": "New Template",
+        "preview": "Preview",
+        "edit": "Edit",
+        "duplicate": "Duplicate",
+        "delete": "Delete"
+      },
+      "errors": {
+        "duplicateFailed": "Failed to duplicate",
+        "deleteFailed": "Failed to delete",
+        "saveFailed": "Failed to save"
+      },
+      "empty": {
+        "noDescription": "No description available"
+      },
+      "modal": {
+        "previewTitle": "Preview",
+        "deleteTitle": "Confirm deletion"
+      },
+      "placeholders": {
+        "templateName": "Template name",
+        "code": "Code",
+        "description": "Description",
+        "systemPrompt": "System prompt",
+        "userPrompt": "User prompt",
+        "expectedJson": "Expected JSON format"
+      },
+      "categories": {
+        "theory": "Theory",
+        "quiz": "Quiz",
+        "exam": "Exam"
+      },
+      "styles": {
+        "standard": "Standard",
+        "adhsFriendly": "ADHD-friendly",
+        "dyslexiaFriendly": "Dyslexia-friendly"
+      }
+    },
+    "courses": {
+      "errors": {
+        "deleteFailed": "Failed to delete",
+        "uploadFailed": "Failed to upload",
+        "createFailed": "Failed to create",
+        "saveFailed": "Failed to save",
+        "publishFailed": "Failed to publish",
+        "genericError": "An error occurred"
+      }
+    },
+    "chapters": {
+      "errors": {
+        "deleteFailed": "Failed to delete",
+        "createFailed": "Failed to create"
+      },
+      "actions": {
+        "creating": "Creating...",
+        "create": "Create"
+      },
+      "labels": {
+        "title": "Title"
+      },
+      "placeholders": {
+        "description": "Description"
+      },
+      "help": {
+        "saveFirst": "Please save the chapter first"
+      },
+      "sections": {
+        "learningMethods": "Learning Methods"
+      },
+      "empty": {
+        "noMethods": "No learning methods available"
+      },
+      "info": {
+        "saveCFirst": "Save the chapter first"
+      },
+      "loading": {
+        "methods": "Loading learning methods..."
+      },
+      "tabs": {
+        "info": "Info",
+        "methods": "Learning Methods",
+        "lessons": "Lessons"
+      }
+    },
+    "exams": {
+      "errors": {
+        "createFailed": "Failed to create",
+        "generationFailed": "Failed to generate",
+        "deleteFailed": "Failed to delete"
+      }
+    },
+    "learning": {
+      "tiers": {
+        "basic": "Basic",
+        "premium": "Premium",
+        "pro": "Pro"
+      }
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "clearChat": "Clear Chat",
+      "dragToReorder": "Drag to reorder",
+      "createSubcategory": "Create Subcategory",
+      "removeFile": "Remove File",
+      "download": "Download",
+      "preview": "Preview",
+      "editWithAi": "Edit with AI",
+      "duplicate": "Duplicate"
+    },
+    "chapters": {
+      "tabs": {
+        "info": "Chapter Info",
+        "theory": "Theory Sheets",
+        "videos": "Videos",
+        "methods": "Learning Methods",
+        "lessons": "Lessons"
+      }
+    },
+    "courses": {
+      "tabs": {
+        "metadata": "Metadata",
+        "chapters": "Chapters",
+        "actions": "Actions"
+      },
+      "placeholders": {
+        "titleInput": "Enter course title...",
+        "descriptionInput": "Enter course description..."
+      }
+    },
+    "prompts": {
+      "types": {
+        "courseGeneration": "Course Generation",
+        "lessonGeneration": "Lesson Generation"
+      },
+      "scopes": {
+        "all": "All",
+        "moduleGeneration": "Module Generation",
+        "quizGeneration": "Quiz Generation",
+        "examGeneration": "Exam Generation"
+      }
+    },
+    "learningMethods": {
+      "tabs": {
+        "instances": "Learning Methods",
+        "catalog": "Catalog (31)",
+        "stats": "Statistics"
+      },
+      "form": {
+        "titleLabel": "Title *",
+        "titlePlaceholder": "e.g. Introduction to...",
+        "instructionsLabel": "Instructions",
+        "instructionsPlaceholder": "Optional instructions for the learner...",
+        "durationLabel": "Duration (Minutes)",
+        "difficultyLabel": "Difficulty",
+        "difficultyEasy": "Easy",
+        "difficultyMedium": "Medium",
+        "difficultyHard": "Hard",
+        "cancelButton": "Cancel",
+        "savingButton": "Saving...",
+        "updateButton": "Save",
+        "createButton": "Create"
+      }
+    },
+    "courseChat": {
+      "suggestStructure": "Suggest Structure",
+      "createChapters": "Create 3 Chapters",
+      "calculatorTutorial": "Calculator Tutorial",
+      "generateExam": "Generate Exam"
+    },
+    "systemFeatures": {
+      "invertedClassroom": {
+        "videos": "Explanation Videos"
+      },
+      "projectPortfolio": {
+        "videos": "Videos"
       }
     }
   }

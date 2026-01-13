@@ -134,7 +134,7 @@ class CourseRepositoryCRUD(BaseRepository):
                         (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count
                     FROM courses.courses c
                     LEFT JOIN core.users u ON c.creator_user_id = u.user_id
-                    LEFT JOIN organisations.organisations o ON c.organization_id = o.organization_id
+                    LEFT JOIN organisations.organizations o ON c.organization_id = o.organization_id
                     WHERE c.course_id = %s
                 """
                 return fetch_one(query, (course_id,))
@@ -152,7 +152,7 @@ class CourseRepositoryCRUD(BaseRepository):
                 (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count
             FROM courses.courses c
             LEFT JOIN core.users u ON c.creator_user_id = u.user_id
-            LEFT JOIN organisations.organisations o ON c.organization_id = o.organization_id
+            LEFT JOIN organisations.organizations o ON c.organization_id = o.organization_id
             WHERE c.course_id = %s
         """
 
@@ -163,7 +163,9 @@ class CourseRepositoryCRUD(BaseRepository):
         cls,
         creator_id: int,
         include_archived: bool = False,
-        course_type: str = 'creator'
+        course_type: str = 'creator',
+        limit: Optional[int] = None,
+        offset: Optional[int] = None
     ) -> List[Dict[str, Any]]:
         """
         Find all courses by creator
@@ -172,6 +174,8 @@ class CourseRepositoryCRUD(BaseRepository):
             creator_id: Creator user ID
             include_archived: Include archived courses
             course_type: Filter by course type ('creator', 'academy', or None for all)
+            limit: Maximum number of results (optional)
+            offset: Number of results to skip (optional)
 
         Returns:
             List of courses
@@ -196,6 +200,14 @@ class CourseRepositoryCRUD(BaseRepository):
             query += " AND c.status != 'archived'"
 
         query += " ORDER BY c.created_at DESC"
+
+        # Add pagination
+        if limit is not None:
+            query += " LIMIT %s"
+            params.append(limit)
+        if offset is not None:
+            query += " OFFSET %s"
+            params.append(offset)
 
         return fetch_all(query, tuple(params))
 

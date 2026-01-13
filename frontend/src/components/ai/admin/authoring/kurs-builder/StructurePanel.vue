@@ -33,7 +33,6 @@
           @dragend="handleDragEnd"
         >
           <div class="chapter-header">
-            <span class="drag-handle" title="Ziehen zum Umsortieren">⋮⋮</span>
             <span
               class="expand-icon"
               @click.stop="toggleChapter(chapter.id)"
@@ -45,22 +44,22 @@
               <button
                 @click.stop="$emit('select-chapter', chapter)"
                 class="action-btn action-btn--primary"
-                title="Mit KI bearbeiten"
+                :title="$t('admin.actions.editWithAi')"
               >🤖</button>
               <button
                 @click.stop="$emit('preview-chapter', chapter)"
                 class="action-btn"
-                title="Vorschau"
+                :title="$t('admin.actions.preview')"
               >👁️</button>
               <button
                 @click.stop="$emit('edit-chapter', chapter)"
                 class="action-btn"
-                title="Bearbeiten"
+                :title="$t('admin.actions.edit')"
               >✏️</button>
               <button
                 @click.stop="$emit('delete-chapter', chapter.id, chapterIndex)"
                 class="action-btn action-btn--danger"
-                title="Löschen"
+                :title="$t('admin.actions.delete')"
               >🗑️</button>
             </div>
           </div>
@@ -78,7 +77,7 @@
               @drop.stop="handleLessonDrop($event, chapterIndex, lessonIndex)"
               @dragend="handleDragEnd"
             >
-              <span class="drag-handle" title="Ziehen zum Umsortieren">⋮⋮</span>
+              <span class="drag-handle" :title="$t('admin.actions.dragToReorder')">⋮⋮</span>
               <span class="lesson-icon">📄</span>
               <span class="lesson-title">{{ lesson.title }}</span>
               <span v-if="lesson.methods?.length" class="lesson-methods">
@@ -95,22 +94,22 @@
                 <button
                   @click.stop="$emit('select-lesson', chapter, lesson)"
                   class="action-btn action-btn--primary"
-                  title="Mit KI bearbeiten"
+                  :title="$t('admin.actions.editWithAi')"
                 >🤖</button>
                 <button
                   @click.stop="$emit('preview-lesson', chapter, lesson)"
                   class="action-btn"
-                  title="Vorschau"
+                  :title="$t('admin.actions.preview')"
                 >👁️</button>
                 <button
                   @click.stop="$emit('edit-lesson', chapter, lesson)"
                   class="action-btn"
-                  title="Bearbeiten"
+                  :title="$t('admin.actions.edit')"
                 >✏️</button>
                 <button
                   @click.stop="$emit('delete-lesson', chapter.id, chapterIndex, lesson.id, lessonIndex)"
                   class="action-btn action-btn--danger"
-                  title="Löschen"
+                  :title="$t('admin.actions.delete')"
                 >🗑️</button>
               </div>
             </div>
@@ -127,6 +126,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Types
 interface Lesson {

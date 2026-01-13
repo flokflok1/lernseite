@@ -205,11 +205,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import { BaseLearningMethodForm } from '@/components/content/admin/learning-methods/forms'
 
 const METHOD_CODE = 32
+
+const { t } = useI18n()
 
 interface Props {
   window: LsxWindow
@@ -217,13 +220,13 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const materialTypes = [
-  { value: 'video', label: 'Erklaer-Videos' },
+const materialTypes = computed(() => [
+  { value: 'video', label: t('admin.systemFeatures.invertedClassroom.videos') },
   { value: 'text', label: 'Texte/Artikel' },
   { value: 'slides', label: 'Praesentationen' },
   { value: 'podcast', label: 'Audio/Podcast' },
   { value: 'interactive', label: 'Interaktive Inhalte' }
-]
+])
 
 const presenceActivities = [
   { value: 'discussion', label: 'Diskussion' },

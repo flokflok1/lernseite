@@ -28,12 +28,12 @@
         <!-- Standard-Felder (alle Methoden haben diese) -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            Titel *
+            {{ $t('admin.learningMethods.form.titleLabel') }}
           </label>
           <input
             v-model="form.title"
             type="text"
-            placeholder="z.B. Einführung in..."
+            :placeholder="$t('admin.learningMethods.form.titlePlaceholder')"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             required
           />
@@ -41,12 +41,12 @@
 
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            Anweisungen
+            {{ $t('admin.learningMethods.form.instructionsLabel') }}
           </label>
           <textarea
             v-model="form.instructions"
             rows="3"
-            placeholder="Optionale Anweisungen für den Lernenden..."
+            :placeholder="$t('admin.learningMethods.form.instructionsPlaceholder')"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
@@ -58,7 +58,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              Dauer (Minuten)
+              {{ $t('admin.learningMethods.form.durationLabel') }}
             </label>
             <input
               v-model.number="form.duration_minutes"
@@ -69,15 +69,15 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              Schwierigkeit
+              {{ $t('admin.learningMethods.form.difficultyLabel') }}
             </label>
             <select
               v-model="form.difficulty"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             >
-              <option value="easy">Leicht</option>
-              <option value="medium">Mittel</option>
-              <option value="hard">Schwer</option>
+              <option value="easy">{{ $t('admin.learningMethods.form.difficultyEasy') }}</option>
+              <option value="medium">{{ $t('admin.learningMethods.form.difficultyMedium') }}</option>
+              <option value="hard">{{ $t('admin.learningMethods.form.difficultyHard') }}</option>
             </select>
           </div>
         </div>
@@ -91,14 +91,14 @@
           @click="close"
           class="px-4 py-2 border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] hover:bg-[var(--color-background)] transition-colors"
         >
-          Abbrechen
+          {{ $t('admin.learningMethods.form.cancelButton') }}
         </button>
         <button
           @click="save"
           :disabled="isSaving || !form.title"
           class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-colors"
         >
-          {{ isSaving ? 'Wird gespeichert...' : (isEditMode ? 'Speichern' : 'Erstellen') }}
+          {{ isSaving ? $t('admin.learningMethods.form.savingButton') : (isEditMode ? $t('admin.learningMethods.form.updateButton') : $t('admin.learningMethods.form.createButton')) }}
         </button>
       </div>
     </div>
@@ -107,6 +107,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/store/window.store'
 import type { LsxWindow } from '@/store/window.store'
 import { getLearningMethodByCode, getTierFromCode } from '@/config/learningMethods'
@@ -165,14 +166,16 @@ watch(() => props.additionalData, (newData) => {
   }
 }, { deep: true })
 
+const { t } = useI18n()
+
 const save = async () => {
   if (!form.value.title.trim()) {
-    alert('Bitte gib einen Titel ein')
+    alert(t('admin.learningMethods.form.emptyTitleError'))
     return
   }
 
   if (!chapterId.value) {
-    alert('Keine Kapitel-ID gefunden')
+    alert(t('admin.learningMethods.form.noChapterIdError'))
     return
   }
 
@@ -200,7 +203,7 @@ const save = async () => {
     close()
   } catch (error: any) {
     console.error('Fehler beim Speichern:', error)
-    alert(error.response?.data?.message || 'Fehler beim Speichern')
+    alert(error.response?.data?.message || t('admin.learningMethods.form.saveErrorMessage'))
   } finally {
     isSaving.value = false
   }

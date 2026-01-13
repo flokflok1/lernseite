@@ -241,6 +241,26 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
+  /**
+   * Create new user (admin only)
+   */
+  const createUser = async (userData: {
+    email: string
+    password: string
+    first_name: string
+    last_name: string
+    role: string
+  }): Promise<AdminUser> => {
+    try {
+      const user = await adminApi.adminCreateUser(userData)
+      return user
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Fehler beim Erstellen des Benutzers'
+      console.error('Failed to create user:', err)
+      throw err
+    }
+  }
+
   // ============================================================================
   // Actions - Users (Phase B24-01: Ban, Unban, Grant, Verify)
   // ============================================================================
@@ -1291,6 +1311,7 @@ export const useAdminStore = defineStore('admin', () => {
     updateUserRole,
     toggleUserActive,
     deleteUser,
+    createUser,
 
     // Actions - Users (Phase B24-01)
     banUser,

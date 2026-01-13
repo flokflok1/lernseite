@@ -18,12 +18,12 @@
       <!-- Thema -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Thema *
+          {{ $t('windows.lm02.topicLabel') }}
         </label>
         <input
           v-model="methodData.topic"
           type="text"
-          placeholder="z.B. OSI-Modell, Datenbankdesign, Buchhaltungsgrundlagen"
+          :placeholder="$t('windows.lm02.topicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -33,32 +33,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            Theorie-Abschnitte mit Rückfragen *
+            {{ $t('windows.lm02.sectionsLabel') }}
           </label>
           <button
             @click="addSection"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            + Abschnitt hinzufügen
+            {{ $t('windows.lm02.addSection') }}
           </button>
         </div>
 
         <div v-if="methodData.sections.length === 0" class="text-sm text-[var(--color-text-secondary)] italic mb-3">
-          Keine Abschnitte vorhanden. Fügen Sie mindestens einen Theorie-Abschnitt hinzu.
+          {{ $t('windows.lm02.noSections') }}
         </div>
 
         <div v-for="(section, index) in methodData.sections" :key="index" class="mb-4 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface-secondary)]">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-bold text-[var(--color-primary)]">
-              Abschnitt {{ index + 1 }}
+              {{ $t('windows.lm02.sectionNumber', { n: index + 1 }) }}
             </span>
             <button
               @click="removeSection(index)"
               type="button"
               class="text-sm text-red-500 hover:underline"
             >
-              Entfernen
+              {{ $t('windows.lm02.removeSection') }}
             </button>
           </div>
 
@@ -66,12 +66,12 @@
             <!-- Abschnitt-Titel -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Überschrift
+                {{ $t('windows.lm02.sectionTitleLabel') }}
               </label>
               <input
                 v-model="section.title"
                 type="text"
-                placeholder="z.B. Einführung, Kernkonzept, Anwendung..."
+                :placeholder="$t('windows.lm02.sectionTitlePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -79,12 +79,12 @@
             <!-- Theorie-Text -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Theorie-Erklärung *
+                {{ $t('windows.lm02.theoryLabel') }}
               </label>
               <textarea
                 v-model="section.theory"
                 rows="4"
-                placeholder="Theoretische Erklärung des Konzepts..."
+                :placeholder="$t('windows.lm02.theoryPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -93,12 +93,12 @@
             <!-- Verständnisfrage -->
             <div class="border-t border-[var(--color-border)] pt-3 mt-3">
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Verständnisfrage *
+                {{ $t('windows.lm02.questionLabel') }}
               </label>
               <input
                 v-model="section.question"
                 type="text"
-                placeholder="z.B. Was ist der Hauptzweck von...?"
+                :placeholder="$t('windows.lm02.questionPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -107,12 +107,12 @@
             <!-- Erwartete Antwort -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Erwartete Antwort / Schlüsselwörter
+                {{ $t('windows.lm02.answerLabel') }}
               </label>
               <input
                 v-model="section.expected_answer"
                 type="text"
-                placeholder="Schlüsselwörter oder kurze Musterantwort..."
+                :placeholder="$t('windows.lm02.answerPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -123,12 +123,12 @@
       <!-- Abschlussfrage -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Abschlussfrage (optional)
+          {{ $t('windows.lm02.finalQuestionLabel') }}
         </label>
         <textarea
           v-model="methodData.final_question"
           rows="2"
-          placeholder="Optionale zusammenfassende Frage am Ende..."
+          :placeholder="$t('windows.lm02.finalQuestionPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -137,9 +137,12 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
+
+const { t } = useI18n()
 
 const METHOD_CODE = 2
 

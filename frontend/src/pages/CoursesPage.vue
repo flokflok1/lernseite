@@ -208,8 +208,8 @@ import {
 import { getCategoryTree, type Category, type CategoryTreeNode } from '@/api/categories.api'
 import { useAuthStore } from '@/store/auth.store'
 import Button from '@/components/base/Button.vue'
-import CourseCard from '@/components/content/user/courses.vue'
-import EnrolledCourseCard from '@/components/content/user/courses.vue'
+import CourseCard from '@/components/content/user/courses/CourseCard.vue'
+import EnrolledCourseCard from '@/components/content/user/courses/EnrolledCourseCard.vue'
 
 // ============================================================================
 // State
@@ -231,10 +231,11 @@ const myCourses = ref<CourseListItem[]>([])
 const categories = ref<Category[]>([])
 const categoryTree = ref<CategoryTreeNode[]>([])
 
-// Check if user is admin
+// Check if user is admin (RBAC 2.0: hierarchy-based, dynamic from DB)
+// hierarchy_level >= 6 = moderator and above (moderator, support, admin, superadmin, owner)
 const isAdmin = computed(() => {
-  const role = authStore.user?.role
-  return role === 'admin' || role === 'superadmin' || role === 'moderator'
+  const hierarchyLevel = authStore.user?.hierarchy_level
+  return hierarchyLevel !== undefined && hierarchyLevel >= 6
 })
 
 // ============================================================================

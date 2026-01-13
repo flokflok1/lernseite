@@ -210,7 +210,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/api/http'
-import { StatsCard } from '../../settings/exams'
+import { StatsCard } from '@/components/assessment/admin/settings/exams'
 
 const { t } = useI18n()
 

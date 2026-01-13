@@ -24,7 +24,7 @@
         v-model="localData.description"
         rows="4"
         class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-        placeholder="Kursbeschreibung..."
+        :placeholder="$t('admin.courses.placeholders.descriptionInput')"
       ></textarea>
     </div>
 

@@ -54,11 +54,22 @@
   body {
     background-color: var(--color-bg);
     color: var(--color-text-primary);
+    /* Support emoji rendering across browsers */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   }
 
   html {
     /* Smooth theme transitions */
     transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Emoji font stack for cross-browser rendering */
+  .emoji,
+  .flag,
+  .language-flag,
+  [class*="flag"],
+  [class*="emoji"] {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif !important;
   }
 }
 

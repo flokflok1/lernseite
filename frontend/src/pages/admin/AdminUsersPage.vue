@@ -1,9 +1,17 @@
 <template>
   <div class="admin-users-page">
-    <!-- Page Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">{{ $t('admin.users.title') }}</h1>
-      <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('admin.users.subtitle') }}</p>
+    <!-- Page Header with Create Button -->
+    <div class="mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">{{ $t('admin.users.title') }}</h1>
+        <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('admin.users.subtitle') }}</p>
+      </div>
+      <button
+        @click="openCreateUserModal"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        {{ $t('admin.users.createUser') }}
+      </button>
     </div>
 
     <!-- Filters & Search -->
@@ -358,6 +366,86 @@
         </div>
       </div>
     </div>
+
+    <!-- Create User Modal -->
+    <div v-if="showCreateUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('admin.users.createUser') }}</h3>
+        </div>
+        <div class="px-6 py-4">
+          <!-- Error Message -->
+          <div v-if="createUserError" class="mb-4 p-4 bg-red-50 dark:bg-red-900 rounded-lg border border-red-200 dark:border-red-700">
+            <p class="text-sm text-red-800 dark:text-red-100">{{ createUserError }}</p>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('auth.email') }} *</label>
+            <input
+              v-model="createUserForm.email"
+              type="email"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="user@example.com"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('auth.password') }} *</label>
+            <input
+              v-model="createUserForm.password"
+              type="password"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Min. 8 Zeichen"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('profile.firstName') }} *</label>
+            <input
+              v-model="createUserForm.first_name"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Max"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('profile.lastName') }} *</label>
+            <input
+              v-model="createUserForm.last_name"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Mustermann"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('admin.users.role') }} *</label>
+            <select
+              v-model="createUserForm.role"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="free">Free</option>
+              <option value="premium">Premium</option>
+              <option value="creator">Creator</option>
+              <option value="teacher">Teacher</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+          <button
+            @click="closeCreateUserModal"
+            class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+          >
+            {{ $t('common.cancel') }}
+          </button>
+          <button
+            @click="confirmCreateUser"
+            :disabled="!canSubmitCreateUser || isCreatingUser"
+            class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ isCreatingUser ? '...' : $t('admin.users.createUser') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -413,6 +501,7 @@ const showBanModal = ref(false)
 const showUnbanModal = ref(false)
 const showGrantTokensModal = ref(false)
 const showVerifyCreatorModal = ref(false)
+const showCreateUserModal = ref(false)
 const selectedUser = ref<AdminUser | null>(null)
 
 // Form Data
@@ -437,6 +526,17 @@ const verifyCreatorForm = ref({
   reason: ''
 })
 
+const createUserForm = ref({
+  email: '',
+  password: '',
+  first_name: '',
+  last_name: '',
+  role: 'free'
+})
+
+const isCreatingUser = ref(false)
+const createUserError = ref<string | null>(null)
+
 // Computed Validations
 const canSubmitBan = computed(() => banForm.value.reason.length >= 10)
 const canSubmitUnban = computed(() => unbanForm.value.reason.length >= 10)
@@ -444,6 +544,14 @@ const canSubmitGrantTokens = computed(
   () => grantTokensForm.value.amount > 0 && grantTokensForm.value.reason.length >= 10
 )
 const canSubmitVerifyCreator = computed(() => verifyCreatorForm.value.reason.length >= 10)
+const canSubmitCreateUser = computed(() => {
+  const form = createUserForm.value
+  return form.email.length > 0 &&
+    form.password.length >= 8 &&
+    form.first_name.length > 0 &&
+    form.last_name.length > 0 &&
+    form.role.length > 0
+})
 
 // Navigation
 const viewUserDetail = (userId: string) => {
@@ -556,6 +664,51 @@ const confirmVerifyCreator = async () => {
     await loadUsers()
   } catch (err) {
     console.error('Failed to verify creator:', err)
+  }
+}
+
+// Create User
+const openCreateUserModal = () => {
+  createUserForm.value = {
+    email: '',
+    password: '',
+    first_name: '',
+    last_name: '',
+    role: 'free'
+  }
+  createUserError.value = null
+  showCreateUserModal.value = true
+}
+
+const closeCreateUserModal = () => {
+  showCreateUserModal.value = false
+  createUserForm.value = {
+    email: '',
+    password: '',
+    first_name: '',
+    last_name: '',
+    role: 'free'
+  }
+}
+
+const confirmCreateUser = async () => {
+  if (!canSubmitCreateUser.value || isCreatingUser.value) return
+
+  try {
+    isCreatingUser.value = true
+    createUserError.value = null
+    await adminStore.createUser(createUserForm.value)
+    closeCreateUserModal()
+    await loadUsers()
+  } catch (err: any) {
+    const message = err.response?.data?.message ||
+                   err.response?.data?.error ||
+                   err.message ||
+                   t('admin.users.createUserError')
+    createUserError.value = message
+    console.error('Failed to create user:', err)
+  } finally {
+    isCreatingUser.value = false
   }
 }
 

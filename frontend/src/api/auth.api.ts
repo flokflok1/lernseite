@@ -43,6 +43,7 @@ export interface User {
   first_name: string
   last_name: string
   role: string
+  hierarchy_level?: number // RBAC 2.0: Dynamic hierarchy level (1-10, owner=10)
   organisation_id: number | null
   is_active: boolean
   created_at: string

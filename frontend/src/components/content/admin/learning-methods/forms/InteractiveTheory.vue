@@ -107,12 +107,12 @@
             <!-- Erwartete Antwort -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                Erwartete Antwort / Schlüsselwörter
+                {{ $t('windows.learningMethods.lm02.answerLabel') }}
               </label>
               <input
                 v-model="section.expected_answer"
                 type="text"
-                placeholder="Schlüsselwörter oder kurze Musterantwort..."
+                :placeholder="$t('windows.learningMethods.lm02.answerPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -123,12 +123,12 @@
       <!-- Abschlussfrage -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Abschlussfrage (optional)
+          {{ $t('windows.learningMethods.lm02.finalQuestionLabel') }}
         </label>
         <textarea
           v-model="methodData.final_question"
           rows="2"
-          placeholder="Optionale zusammenfassende Frage am Ende..."
+          :placeholder="$t('windows.learningMethods.lm02.finalQuestionPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>

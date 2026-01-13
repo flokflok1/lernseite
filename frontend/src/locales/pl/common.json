@@ -37,7 +37,48 @@
     "unknownError": "Nieznany błąd",
     "course": "Kurs",
     "note": "Uwaga",
-    "workInProgress": "Implementacja w toku"
+    "workInProgress": "Implementacja w toku",
+    "notSpecified": "Nie określono",
+    "createdAt": "Utworzono",
+    "reviewedAt": "Przejrzano",
+    "defaultConfig": "Konfiguracja domyślna",
+    "agentSupport": "Wsparcie agenta",
+    "confirmAction": "Potwierdź akcję",
+    "saving": "Zapisywanie...",
+    "deleting": "Usuwanie...",
+    "genericError": "Wystąpił błąd"
+  },
+  "languages": {
+    "de": "Niemiecki",
+    "en": "Angielski",
+    "pl": "Polski"
+  },
+  "actions": {
+    "save": "Zapisz",
+    "saving": "Zapisywanie...",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "deleting": "Usuwanie...",
+    "close": "Zamknij",
+    "retry": "Spróbuj ponownie"
+  },
+  "placeholders": {
+    "search": "Szukaj...",
+    "firstName": "Imię",
+    "lastName": "Nazwisko"
+  },
+  "errors": {
+    "unknownError": "Nieznany błąd",
+    "genericError": "Wystąpił błąd"
+  },
+  "status": {
+    "active": "Aktywny"
+  },
+  "plans": {
+    "free": "Darmowy"
+  },
+  "tiers": {
+    "premium": "Premium"
   },
   "auth": {
     "login": "Zaloguj się",

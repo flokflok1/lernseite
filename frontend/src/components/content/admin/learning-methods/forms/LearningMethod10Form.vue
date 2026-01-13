@@ -8,49 +8,49 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Netzwerk-Aufbau Simulation
+            {{ $t('windows.lm10.title') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            Simulierte Netzwerkumgebung für Topologie-Aufbau
+            {{ $t('windows.lm10.description') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Aufgabenstellung
+            {{ $t('windows.lm10.instructionLabel') }}
           </label>
           <textarea
             v-model="methodData.instruction"
             rows="3"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Beschreiben Sie die Netzwerk-Aufgabe..."
+            :placeholder="$t('windows.lm10.instructionPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Netzwerk-Typ
+            {{ $t('windows.lm10.networkTypeLabel') }}
           </label>
           <select
             v-model="methodData.network_type"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">Typ wählen...</option>
-            <option value="lan">LAN (Local Area Network)</option>
-            <option value="wan">WAN (Wide Area Network)</option>
-            <option value="vlan">VLAN-Konfiguration</option>
-            <option value="routing">Routing-Topologie</option>
-            <option value="firewall">Firewall-Konfiguration</option>
-            <option value="vpn">VPN-Setup</option>
-            <option value="wifi">WLAN-Netzwerk</option>
+            <option value="">{{ $t('windows.lm10.networkTypeDefault') }}</option>
+            <option value="lan">{{ $t('windows.lm10.networkTypeLan') }}</option>
+            <option value="wan">{{ $t('windows.lm10.networkTypeWan') }}</option>
+            <option value="vlan">{{ $t('windows.lm10.networkTypeVlan') }}</option>
+            <option value="routing">{{ $t('windows.lm10.networkTypeRouting') }}</option>
+            <option value="firewall">{{ $t('windows.lm10.networkTypeFirewall') }}</option>
+            <option value="vpn">{{ $t('windows.lm10.networkTypeVpn') }}</option>
+            <option value="wifi">{{ $t('windows.lm10.networkTypeWifi') }}</option>
           </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Verfügbare Komponenten
+            {{ $t('windows.lm10.componentsLabel') }}
           </label>
           <div class="grid grid-cols-2 gap-2">
             <label v-for="comp in availableComponents" :key="comp.id" class="flex items-center space-x-2">
@@ -60,33 +60,33 @@
                 type="checkbox"
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">{{ comp.name }}</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t(`windows.lm10.component_${comp.id}`) }}</span>
             </label>
           </div>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Erwartete Topologie
+            {{ $t('windows.lm10.topologyLabel') }}
           </label>
           <textarea
             v-model="methodData.expected_topology"
             rows="4"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Beschreiben Sie die erwartete Netzwerk-Topologie..."
+            :placeholder="$t('windows.lm10.topologyPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            IP-Adressbereich (optional)
+            {{ $t('windows.lm10.ipRangeLabel') }}
           </label>
           <input
             v-model="methodData.ip_range"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="z.B. 192.168.1.0/24"
+            :placeholder="$t('windows.lm10.ipRangePlaceholder')"
           />
         </div>
 
@@ -98,7 +98,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              Konnektivität prüfen (Ping-Test)
+              {{ $t('windows.lm10.connectivityLabel') }}
             </span>
           </label>
         </div>
@@ -109,6 +109,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 

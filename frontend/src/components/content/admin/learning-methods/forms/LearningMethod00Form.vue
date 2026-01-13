@@ -11,47 +11,47 @@
     :additional-data="methodData"
   >
     <template #method-fields="{ form }">
-      <!-- Konzept -->
+      <!-- Concept -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Konzept *
+          {{ $t('windows.lm00.conceptLabel') }}
         </label>
         <input
           v-model="methodData.concept"
           type="text"
-          placeholder="z.B. Photosynthese, Quantenmechanik, etc."
+          :placeholder="$t('windows.lm00.conceptPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
       </div>
 
-      <!-- Erklärung -->
+      <!-- Explanation -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Erklärung *
+          {{ $t('windows.lm00.explanationLabel') }}
         </label>
         <textarea
           v-model="methodData.explanation"
           rows="6"
-          placeholder="Detaillierte Erklärung des Konzepts..."
+          :placeholder="$t('windows.lm00.explanationPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
       </div>
 
-      <!-- Beispiele -->
+      <!-- Examples -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Beispiele
+          {{ $t('windows.lm00.examplesLabel') }}
         </label>
         <textarea
           v-model="methodData.examples"
           rows="4"
-          placeholder="Praktische Beispiele (ein Beispiel pro Zeile oder durch Kommas getrennt)..."
+          :placeholder="$t('windows.lm00.examplesPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
         <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-          Optional: Geben Sie konkrete Beispiele an, um das Konzept zu veranschaulichen
+          {{ $t('windows.lm00.examplesHint') }}
         </p>
       </div>
     </template>
@@ -60,10 +60,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const METHOD_CODE = 0
+const { t } = useI18n()
 
 interface Props {
   window: LsxWindow

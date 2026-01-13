@@ -18,12 +18,12 @@
       <!-- Diagramm-Titel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Diagramm-Titel *
+          {{ $t('windows.lm03.diagramTitleLabel') }}
         </label>
         <input
           v-model="methodData.diagram_title"
           type="text"
-          placeholder="z.B. OSI-Modell Schichten, Netzwerktopologie Büro, ER-Diagramm Kundendatenbank"
+          :placeholder="t('windows.lm03.diagramTitlePlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -32,37 +32,37 @@
       <!-- Diagramm-Typ -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Diagramm-Typ *
+          {{ $t('windows.lm03.diagramTypeLabel') }}
         </label>
         <select
           v-model="methodData.diagram_type"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         >
-          <option value="">Bitte wählen...</option>
-          <option value="flowchart">Flussdiagramm (Flowchart)</option>
-          <option value="network">Netzwerk-Topologie</option>
-          <option value="uml_class">UML Klassendiagramm</option>
-          <option value="uml_sequence">UML Sequenzdiagramm</option>
-          <option value="uml_usecase">UML Use-Case-Diagramm</option>
-          <option value="er_diagram">ER-Diagramm (Datenbank)</option>
-          <option value="hierarchy">Hierarchie / Organigramm</option>
-          <option value="timeline">Zeitstrahl / Timeline</option>
-          <option value="process">Prozessdiagramm</option>
-          <option value="architecture">Architektur-Diagramm</option>
-          <option value="other">Sonstiges</option>
+          <option value="">{{ $t('windows.lm03.diagramTypeDefault') }}</option>
+          <option value="flowchart">{{ $t('windows.lm03.diagramTypeFlowchart') }}</option>
+          <option value="network">{{ $t('windows.lm03.diagramTypeNetwork') }}</option>
+          <option value="uml_class">{{ $t('windows.lm03.diagramTypeUmlClass') }}</option>
+          <option value="uml_sequence">{{ $t('windows.lm03.diagramTypeUmlSequence') }}</option>
+          <option value="uml_usecase">{{ $t('windows.lm03.diagramTypeUmlUsecase') }}</option>
+          <option value="er_diagram">{{ $t('windows.lm03.diagramTypeErDiagram') }}</option>
+          <option value="hierarchy">{{ $t('windows.lm03.diagramTypeHierarchy') }}</option>
+          <option value="timeline">{{ $t('windows.lm03.diagramTypeTimeline') }}</option>
+          <option value="process">{{ $t('windows.lm03.diagramTypeProcess') }}</option>
+          <option value="architecture">{{ $t('windows.lm03.diagramTypeArchitecture') }}</option>
+          <option value="other">{{ $t('windows.lm03.diagramTypeOther') }}</option>
         </select>
       </div>
 
       <!-- Beschreibung -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Beschreibung / Kontext
+          {{ $t('windows.lm03.descriptionLabel') }}
         </label>
         <textarea
           v-model="methodData.description"
           rows="3"
-          placeholder="Was zeigt dieses Diagramm? Welchen Kontext hat es?"
+          :placeholder="t('windows.lm03.descriptionPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -70,7 +70,7 @@
       <!-- Mermaid/PlantUML Code -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Diagramm-Code (Mermaid/PlantUML)
+          {{ $t('windows.lm03.diagramCodeLabel') }}
         </label>
         <textarea
           v-model="methodData.diagram_code"
@@ -84,7 +84,7 @@
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] font-mono text-sm"
         />
         <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-          Unterstützt Mermaid-Syntax. Leer lassen für KI-Generierung.
+          {{ $t('windows.lm03.diagramCodeHint') }}
         </p>
       </div>
 
@@ -92,32 +92,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            Diagramm-Elemente
+            {{ $t('windows.lm03.elementsLabel') }}
           </label>
           <button
             @click="addElement"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            + Element hinzufügen
+            {{ $t('windows.lm03.addElement') }}
           </button>
         </div>
 
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          Optional: Beschreiben Sie die wichtigsten Elemente des Diagramms.
+          {{ $t('windows.lm03.elementsHint') }}
         </p>
 
         <div v-for="(element, index) in methodData.elements" :key="index" class="mb-2 flex gap-2">
           <input
             v-model="element.name"
             type="text"
-            placeholder="Element-Name"
+            :placeholder="t('windows.lm03.elementNamePlaceholder')"
             class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <input
             v-model="element.description"
             type="text"
-            placeholder="Beschreibung"
+            :placeholder="t('windows.lm03.elementDescriptionPlaceholder')"
             class="flex-[2] px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <button
@@ -133,12 +133,12 @@
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Lernziel
+          {{ $t('windows.lm03.learningGoalLabel') }}
         </label>
         <input
           v-model="methodData.learning_goal"
           type="text"
-          placeholder="Was soll der Lernende durch dieses Diagramm verstehen?"
+          :placeholder="t('windows.lm03.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -148,9 +148,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
+const { t } = useI18n()
 const METHOD_CODE = 3
 
 interface Props {

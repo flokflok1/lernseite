@@ -332,9 +332,28 @@ entity role_permissions {
   PRIMARY KEY (role_id, permission_id)
 }
 
+entity role_feature_assignments {
+  primary_key(assignment_id) : SERIAL
+  --
+  foreign_key(role_id) : INTEGER
+  foreign_key(feature_id) : INTEGER
+  column(enabled) : BOOLEAN
+  column(created_by) : UUID
+}
+
+entity system_features {
+  primary_key(feature_id) : SERIAL
+  --
+  column(feature_code) : VARCHAR(50) UNIQUE
+  column(feature_name) : VARCHAR(100)
+  column(category) : VARCHAR(50)
+}
+
 users }o--|| roles : "n:1"
 roles ||--o{ role_permissions : "1:n"
 permissions ||--o{ role_permissions : "1:n"
+roles ||--o{ role_feature_assignments : "1:n"
+system_features ||--o{ role_feature_assignments : "1:n"
 
 note right of roles
   Standard-Rollen:
@@ -345,6 +364,17 @@ note right of roles
   - school_admin (5)
   - company_admin (6)
   - admin (7)
+
+  Custom-Rollen:
+  - is_custom = TRUE
+  - Erstellt via Admin-Panel
+end note
+
+note right of role_feature_assignments
+  RBAC 2.0:
+  Dynamische Feature-Zuweisung
+  für Custom-Rollen
+  (25 System-Features)
 end note
 
 note right of permissions
@@ -423,6 +453,164 @@ end note
 | 🏫 **School Admin** | ✅ | ✅ (pool) | ❌ | ⚠️ (Org) |
 | 🏢 **Company Admin** | ✅ | ✅ (pool) | ❌ | ⚠️ (Org) |
 | 👑 **Admin** | ✅ | ✅ (unlimited) | ✅ | ✅ |
+
+---
+
+### 👑 Owner-Admin & Custom Roles (RBAC 2.0)
+
+**Status:** ✅ **IMPLEMENTIERT** (Migration 067, 068)
+
+#### Owner-Admin System
+
+Der **Owner-Admin** ist eine spezielle Admin-Rolle mit erweiterten Berechtigungen:
+
+```sql
+-- users table
+ALTER TABLE users ADD COLUMN is_owner BOOLEAN DEFAULT FALSE;
+CREATE UNIQUE INDEX idx_single_owner ON users(is_owner) WHERE is_owner = TRUE;
+```
+
+**Eigenschaften:**
+- ✅ Nur **EIN** Owner-Admin möglich (Database Constraint)
+- ✅ Wird automatisch beim **Setup Wizard** erstellt (erster Admin = Owner)
+- ✅ Kann **Custom-Rollen** erstellen/bearbeiten/löschen
+- ✅ Kann **Ownership übertragen** (an anderen Admin)
+- ✅ Hat Zugriff auf **vollständige Audit-Logs**
+- ✅ Kann **Compliance-Einstellungen** verwalten
+
+**Owner-Admin Berechtigungen (Exklusiv):**
+```python
+OWNER_ADMIN_ONLY_PERMISSIONS = [
+    'manage_roles',           # Create/Edit/Delete Custom-Rollen
+    'manage_owner_transfer',  # Owner an anderen Admin übertragen
+    'delete_system_data',     # System-Daten löschen
+    'access_audit_logs',      # Vollständige Audit Logs
+    'manage_compliance',      # Compliance-Einstellungen
+    'emergency_access'        # Notfall-Zugriff auf alles
+]
+```
+
+#### Custom Roles (Dynamisches Rollen-System)
+
+**Zweck:** Owner-Admin kann neue Rollen über Admin-Panel erstellen und Features zuweisen.
+
+**Datenbank-Schema:**
+
+```sql
+-- roles table (erweitert)
+ALTER TABLE roles ADD COLUMN is_custom BOOLEAN DEFAULT FALSE;
+ALTER TABLE roles ADD COLUMN created_by UUID REFERENCES users(user_id);
+ALTER TABLE roles ADD COLUMN template_name VARCHAR(50);
+
+-- role_feature_assignments (NEW)
+CREATE TABLE core.role_feature_assignments (
+    assignment_id SERIAL PRIMARY KEY,
+    role_id INTEGER NOT NULL REFERENCES roles(role_id) ON DELETE CASCADE,
+    feature_id INTEGER NOT NULL REFERENCES support_systems.system_features(feature_id) ON DELETE CASCADE,
+    enabled BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by UUID REFERENCES users(user_id),
+    UNIQUE(role_id, feature_id)
+);
+```
+
+**Role Templates (Vordefiniert):**
+
+| Template | Beschreibung | Features |
+|----------|--------------|----------|
+| 👪 **Parent** | Eltern-Rolle für Kinderkontrolle | Content-Freigabe, Activity-Monitoring |
+| 🏢 **Enterprise Admin** | Unternehmens-Admin mit Bulk-Features | Bulk-Import, SSO-Config, Analytics |
+| 🔍 **Auditor** | Compliance-Auditor | Audit-Logs, Export, Compliance-Reports |
+| 📚 **Librarian** | Content-Kurator | Content-Moderation, Kategorien |
+| 🎓 **Course Manager** | Kurs-Manager ohne Admin-Rechte | Course CRUD, Publishing |
+
+**Feature-Zuweisung:**
+
+Custom-Rollen können **System-Features** (25 Features) individuell zugewiesen bekommen:
+
+```typescript
+// Beispiel: Parent-Rolle erstellen
+const parentRole = {
+  role_name: 'parent',
+  display_name: 'Parent',
+  description: 'Elternkonto mit Kinderkontrolle',
+  is_custom: true,
+  created_by: owner_admin_id,
+
+  // Zugewiesene Features:
+  features: [
+    'parental_controls',    // Kinderkontrolle
+    'content_approval',     // Content-Freigabe
+    'screen_time_mgmt',     // Bildschirmzeit
+    'activity_reports'      // Activity-Reports
+  ]
+}
+```
+
+#### Admin-Panel: Role Management
+
+**Endpoints (TODO):**
+```
+GET    /api/v1/admin/roles              # List all roles
+POST   /api/v1/admin/roles              # Create custom role (Owner-Admin only)
+PUT    /api/v1/admin/roles/{role_id}    # Update role (Owner-Admin only)
+DELETE /api/v1/admin/roles/{role_id}    # Delete custom role (Owner-Admin only)
+
+GET    /api/v1/admin/roles/{role_id}/permissions    # Get role permissions
+POST   /api/v1/admin/roles/{role_id}/permissions    # Assign permissions
+
+GET    /api/v1/admin/roles/templates    # Get role templates
+POST   /api/v1/admin/roles/from-template # Create role from template
+```
+
+**Frontend-Komponenten (TODO):**
+```
+frontend/src/pages/admin/RoleManagement.vue
+frontend/src/components/admin/roles/
+├── RoleList.vue
+├── RoleForm.vue
+├── RolePermissionsMatrix.vue
+├── RoleTemplateSelector.vue
+└── RoleDeleteConfirm.vue
+```
+
+#### Permission-Middleware (Erweiterung)
+
+**Backend-Check:**
+```python
+# backend/app/middleware/auth.py
+@require_permission('manage_roles')  # ← Nur Owner-Admin
+def create_custom_role():
+    """Create custom role with feature assignments"""
+    pass
+```
+
+**Frontend-Check:**
+```typescript
+// Frontend Permission Guard
+const canManageRoles = computed(() => {
+  return authStore.user?.is_owner === true
+})
+```
+
+#### Aktueller Status
+
+| Komponente | Status |
+|------------|--------|
+| Owner-Admin (users.is_owner) | ✅ Implementiert (Migration 067) |
+| Unique Constraint (nur 1 Owner) | ✅ Implementiert (idx_single_owner) |
+| Setup Wizard Owner Creation | ✅ Implementiert (admin_setup.py) |
+| role_feature_assignments Table | ✅ Implementiert (Migration 068) |
+| Custom Roles (roles.is_custom) | ✅ Schema vorhanden |
+| Backend API (admin/roles.py) | 🟡 TODO |
+| Frontend Admin-Panel | 🟡 TODO |
+| Permission Middleware | 🟡 TODO |
+
+**Nächste Schritte:**
+1. Backend API für Rollen-Management implementieren
+2. Frontend Admin-Panel für Custom-Rollen erstellen
+3. Permission Middleware erweitern
+4. Unit Tests für RBAC 2.0 schreiben
 
 ---
 

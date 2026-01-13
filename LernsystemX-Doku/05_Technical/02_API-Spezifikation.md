@@ -334,17 +334,536 @@ curl -X PATCH https://api.lernsystemx.com/api/v1/profile/theme \
 
 ## 3. Rollen & Permissions
 
-### 🎭 Rollen-Management
+### 🎭 Rollen-Management (User-Facing)
 
 | Endpunkt | Methode | Beschreibung |
 |----------|---------|-------------|
 | `/api/v1/roles` | GET | Liste aller Rollen |
 | `/api/v1/roles/{role_id}` | GET | Details einer Rolle |
-| `/api/v1/roles/assign` | POST | Rolle zuweisen (Admin) |
 
 ---
 
-### 3.1 📋 GET `/api/v1/roles`
+### 👑 Owner-Admin RBAC 2.0 (Custom Roles)
+
+**Status:** ✅ **IMPLEMENTIERT** (Migration 068, Backend API komplett)
+**Zugriff:** Nur Owner-Admin (höchste Hierarchie)
+
+Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über das Admin-Panel zu erstellen und System-Features zuzuweisen.
+
+#### 📋 RBAC Admin Endpoints (13 Endpoints)
+
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/admin/roles` | GET | Liste aller Rollen mit Statistiken | Owner |
+| `/api/v1/admin/roles/{id}` | GET | Details einer Rolle inkl. Features/Permissions | Owner |
+| `/api/v1/admin/roles` | POST | Custom Rolle erstellen | Owner |
+| `/api/v1/admin/roles/{id}` | PUT | Rolle aktualisieren | Owner |
+| `/api/v1/admin/roles/{id}` | DELETE | Rolle löschen (mit User-Reassignment) | Owner |
+| `/api/v1/admin/roles/{id}/features` | POST | Features zu Rolle zuweisen | Owner |
+| `/api/v1/admin/roles/{id}/permissions` | POST | Permissions zu Rolle zuweisen | Owner |
+| `/api/v1/admin/roles/templates` | GET | Liste aller Role Templates | Owner |
+| `/api/v1/admin/roles/from-template` | POST | Rolle aus Template erstellen | Owner |
+
+**Role Templates:**
+- 👪 **Parent** - Parental control account (Kinderkontrolle)
+- 🏢 **Enterprise Admin** - Bulk management (Massen-Management)
+- 🔍 **Auditor** - Read-only compliance reports
+- 📚 **Librarian** - Content curator (Inhalts-Kurator)
+- 🎓 **Course Manager** - Course-focused management
+
+---
+
+### 3.1 📋 GET `/api/v1/admin/roles`
+
+**Liste aller Rollen mit Filterung und Statistiken**
+
+**Auth:** Owner-Admin only (`@require_owner()`)
+
+#### Query Parameter
+
+| Parameter | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `is_custom` | boolean | Filter: Custom Roles (true) oder System Roles (false) |
+| `hierarchy_min` | integer | Minimale Hierarchie (1-9) |
+| `hierarchy_max` | integer | Maximale Hierarchie (1-9) |
+| `search` | string | Suche in role_name oder display_name |
+| `include_features` | boolean | Feature-Assignments mit ausgeben (default: false) |
+| `include_permissions` | boolean | Permission-Assignments mit ausgeben (default: false) |
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "roles": [
+      {
+        "role_id": 1,
+        "role_name": "admin",
+        "display_name": "Administrator",
+        "description": "Full system access",
+        "hierarchy_level": 9,
+        "color": "#dc2626",
+        "icon": "👑",
+        "is_system": true,
+        "is_custom": false,
+        "created_at": "2025-01-10T10:00:00Z",
+        "updated_at": "2025-01-10T10:00:00Z",
+        "feature_count": 25,
+        "permission_count": 50,
+        "user_count": 1
+      },
+      {
+        "role_id": 10,
+        "role_name": "content_curator",
+        "display_name": "Content Curator",
+        "description": "Manages and approves content",
+        "hierarchy_level": 5,
+        "color": "#10b981",
+        "icon": "📚",
+        "is_system": false,
+        "is_custom": true,
+        "created_at": "2025-01-12T14:30:00Z",
+        "updated_at": "2025-01-12T14:30:00Z",
+        "created_by": "owner-uuid",
+        "feature_count": 8,
+        "permission_count": 12,
+        "user_count": 3
+      }
+    ],
+    "total": 2
+  }
+}
+```
+
+---
+
+### 3.2 📋 GET `/api/v1/admin/roles/{role_id}`
+
+**Details einer Rolle mit allen Features und Permissions**
+
+**Auth:** Owner-Admin only
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "role_id": 10,
+    "role_name": "content_curator",
+    "display_name": "Content Curator",
+    "description": "Manages and approves content",
+    "hierarchy_level": 5,
+    "color": "#10b981",
+    "icon": "📚",
+    "is_system": false,
+    "is_custom": true,
+    "created_at": "2025-01-12T14:30:00Z",
+    "updated_at": "2025-01-12T14:30:00Z",
+    "created_by": "owner-uuid",
+    "features": [
+      {
+        "feature_id": 1,
+        "feature_code": "content_approval",
+        "feature_name": "Content Approval",
+        "category": "meta_features",
+        "active": true,
+        "enabled_for_role": true
+      },
+      {
+        "feature_id": 5,
+        "feature_code": "ai_tutor",
+        "feature_name": "AI Tutor",
+        "category": "tutor",
+        "active": true,
+        "enabled_for_role": true
+      }
+    ],
+    "permissions": [
+      {
+        "permission_id": 10,
+        "permission_key": "manage_courses",
+        "display_name": "Manage Courses",
+        "description": "Create, edit, and delete courses",
+        "module": "content",
+        "category": "management"
+      }
+    ],
+    "user_count": 3
+  }
+}
+```
+
+---
+
+### 3.3 ✏️ POST `/api/v1/admin/roles`
+
+**Custom Rolle erstellen**
+
+**Auth:** Owner-Admin only
+
+#### Request Body
+
+```json
+{
+  "role_name": "content_reviewer",
+  "display_name": "Content Reviewer",
+  "description": "Reviews and moderates user-generated content",
+  "hierarchy_level": 4,
+  "color": "#3b82f6",
+  "icon": "🔍",
+  "feature_ids": [1, 5, 8],
+  "permission_ids": [10, 15, 20]
+}
+```
+
+**Validation:**
+- `role_name`: 3-50 chars, lowercase, pattern: `^[a-z][a-z0-9_]*$`, nicht reserviert (free, premium, admin, etc.)
+- `display_name`: 3-100 chars
+- `hierarchy_level`: 1-8 (9 reserviert für admin)
+- `color`: Hex-Format `#RRGGBB`
+- `icon`: Max 10 chars (emoji/unicode)
+
+#### Response (201 Created)
+
+```json
+{
+  "success": true,
+  "data": {
+    "role_id": 11,
+    "role_name": "content_reviewer",
+    "display_name": "Content Reviewer",
+    "hierarchy_level": 4,
+    "color": "#3b82f6",
+    "icon": "🔍",
+    "is_custom": true,
+    "created_at": "2025-01-12T15:00:00Z",
+    "feature_count": 3,
+    "permission_count": 3
+  }
+}
+```
+
+#### Error Responses
+
+**409 Conflict** - Role name already exists
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ROLE_EXISTS",
+    "message": "Role with name 'content_reviewer' already exists"
+  }
+}
+```
+
+**400 Bad Request** - Validation error
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_INPUT",
+    "message": "Role name 'admin' is reserved for system roles",
+    "field": "role_name"
+  }
+}
+```
+
+---
+
+### 3.4 ✏️ PUT `/api/v1/admin/roles/{role_id}`
+
+**Rolle aktualisieren (nur custom roles)**
+
+**Auth:** Owner-Admin only
+
+#### Request Body
+
+```json
+{
+  "display_name": "Senior Content Reviewer",
+  "description": "Experienced content reviewer with expanded permissions",
+  "hierarchy_level": 5,
+  "color": "#6366f1",
+  "icon": "👁️"
+}
+```
+
+**Note:** `role_name` kann nicht geändert werden. Alle Felder sind optional.
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "role_id": 11,
+    "role_name": "content_reviewer",
+    "display_name": "Senior Content Reviewer",
+    "hierarchy_level": 5,
+    "color": "#6366f1",
+    "icon": "👁️",
+    "updated_at": "2025-01-12T16:00:00Z"
+  }
+}
+```
+
+#### Error Responses
+
+**403 Forbidden** - System role cannot be modified
+```json
+{
+  "success": false,
+  "error": {
+    "code": "SYSTEM_ROLE_IMMUTABLE",
+    "message": "System roles cannot be modified"
+  }
+}
+```
+
+---
+
+### 3.5 🗑️ DELETE `/api/v1/admin/roles/{role_id}`
+
+**Custom Rolle löschen mit User-Reassignment**
+
+**Auth:** Owner-Admin only
+
+#### Query Parameter
+
+| Parameter | Typ | Beschreibung | Required |
+|-----------|-----|-------------|----------|
+| `reassign_to` | integer | Role ID für User-Reassignment | Ja (wenn Users vorhanden) |
+
+**Beispiel:** `DELETE /api/v1/admin/roles/11?reassign_to=2`
+
+**Ablauf:**
+1. Prüfung: Ist es eine custom role?
+2. Prüfung: Haben User diese Rolle?
+3. Reassignment: Alle User werden zu `reassign_to` Role verschoben
+4. Löschung: Role wird gelöscht (CASCADE löscht auch Feature/Permission-Assignments)
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "Role 'content_reviewer' deleted successfully",
+    "affected_users": 5,
+    "reassigned_to_role": "premium"
+  }
+}
+```
+
+#### Error Responses
+
+**403 Forbidden** - System role cannot be deleted
+```json
+{
+  "success": false,
+  "error": {
+    "code": "SYSTEM_ROLE_IMMUTABLE",
+    "message": "System roles cannot be deleted"
+  }
+}
+```
+
+**400 Bad Request** - Missing reassignment for users
+```json
+{
+  "success": false,
+  "error": {
+    "code": "REASSIGNMENT_REQUIRED",
+    "message": "Role has 5 users, reassign_to parameter required"
+  }
+}
+```
+
+---
+
+### 3.6 🎯 POST `/api/v1/admin/roles/{role_id}/features`
+
+**Features zu Rolle zuweisen**
+
+**Auth:** Owner-Admin only
+
+#### Request Body
+
+```json
+{
+  "feature_ids": [1, 5, 8, 12, 15],
+  "replace": false
+}
+```
+
+**Parameter:**
+- `feature_ids`: Liste von Feature-IDs aus `support_systems.system_features`
+- `replace`: `true` = Alle bisherigen Features ersetzen, `false` = Hinzufügen (default)
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "features_assigned": 5,
+    "total_features": 8
+  }
+}
+```
+
+---
+
+### 3.7 🔐 POST `/api/v1/admin/roles/{role_id}/permissions`
+
+**Permissions zu Rolle zuweisen**
+
+**Auth:** Owner-Admin only
+
+#### Request Body
+
+```json
+{
+  "permission_ids": [10, 15, 20, 25],
+  "replace": false
+}
+```
+
+**Parameter:**
+- `permission_ids`: Liste von Permission-IDs aus `core.permissions`
+- `replace`: `true` = Alle bisherigen Permissions ersetzen, `false` = Hinzufügen (default)
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "permissions_assigned": 4,
+    "total_permissions": 15
+  }
+}
+```
+
+---
+
+### 3.8 📋 GET `/api/v1/admin/roles/templates`
+
+**Liste aller Role Templates**
+
+**Auth:** Owner-Admin only
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "templates": [
+      {
+        "template": "parent",
+        "display_name": "Parent",
+        "description": "Parental control account for monitoring child activity",
+        "recommended_hierarchy": 2,
+        "default_features": ["content_approval", "activity_reports", "screen_time"],
+        "default_color": "#10b981",
+        "default_icon": "👪"
+      },
+      {
+        "template": "enterprise_admin",
+        "display_name": "Enterprise Admin",
+        "description": "Enterprise-level admin with bulk management capabilities",
+        "recommended_hierarchy": 7,
+        "default_features": ["bulk_user_management", "sso_integration", "custom_branding"],
+        "default_color": "#6366f1",
+        "default_icon": "🏢"
+      },
+      {
+        "template": "auditor",
+        "display_name": "Auditor",
+        "description": "Read-only access for compliance auditing",
+        "recommended_hierarchy": 6,
+        "default_features": ["audit_logs", "compliance_reports", "user_analytics"],
+        "default_color": "#f59e0b",
+        "default_icon": "🔍"
+      },
+      {
+        "template": "librarian",
+        "display_name": "Librarian",
+        "description": "Content curator and learning path organizer",
+        "recommended_hierarchy": 5,
+        "default_features": ["content_approval", "learning_paths", "media_library"],
+        "default_color": "#8b5cf6",
+        "default_icon": "📚"
+      },
+      {
+        "template": "course_manager",
+        "display_name": "Course Manager",
+        "description": "Focused on course creation and management",
+        "recommended_hierarchy": 4,
+        "default_features": ["course_authoring", "ai_content_generation", "student_analytics"],
+        "default_color": "#3b82f6",
+        "default_icon": "🎓"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 3.9 ✏️ POST `/api/v1/admin/roles/from-template`
+
+**Rolle aus Template erstellen**
+
+**Auth:** Owner-Admin only
+
+#### Request Body
+
+```json
+{
+  "template": "parent",
+  "role_name": "school_parent",
+  "display_name": "School Parent",
+  "customize_features": [1, 5, 8]
+}
+```
+
+**Parameter:**
+- `template`: Enum (parent, enterprise_admin, auditor, librarian, course_manager)
+- `role_name`: Unique role name (required)
+- `display_name`: Optional, überschreibt Template-Default
+- `customize_features`: Optional, überschreibt Template-Features
+
+#### Response (201 Created)
+
+```json
+{
+  "success": true,
+  "data": {
+    "role_id": 12,
+    "role_name": "school_parent",
+    "display_name": "School Parent",
+    "hierarchy_level": 2,
+    "color": "#10b981",
+    "icon": "👪",
+    "is_custom": true,
+    "created_from_template": "parent",
+    "feature_count": 3
+  }
+}
+```
+
+---
+
+### 3.10 📋 GET `/api/v1/roles` (User-Facing)
+
+**Liste aller verfügbaren Rollen (für User-Ansicht)**
+
+**Auth:** Optional (public endpoint)
 
 #### Response (200 OK)
 
@@ -355,12 +874,14 @@ curl -X PATCH https://api.lernsystemx.com/api/v1/profile/theme \
     {
       "role_id": 1,
       "role_name": "free",
+      "display_name": "Free",
       "description": "Kostenloser Basis-Zugang"
     },
     {
       "role_id": 2,
       "role_name": "premium",
-      "description": "Premium-Mitgliedschaft"
+      "display_name": "Premium",
+      "description": "Premium-Mitgliedschaft mit erweiterten Features"
     }
   ]
 }

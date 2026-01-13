@@ -17,12 +17,12 @@
       <!-- Zentrales Thema -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Zentrales Thema *
+          {{ $t('windows.lm05.centralTopicLabel') }}
         </label>
         <input
           v-model="methodData.central_topic"
           type="text"
-          placeholder="z.B. OSI-Modell, Datenbankdesign, Projektmanagement"
+          :placeholder="$t('windows.lm05.centralTopicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -31,12 +31,12 @@
       <!-- Beschreibung/Kontext -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Kontext / Fokus
+          {{ $t('windows.lm05.contextLabel') }}
         </label>
         <textarea
           v-model="methodData.context"
           rows="2"
-          placeholder="Optional: Worauf soll die Mindmap fokussieren?"
+          :placeholder="$t('windows.lm05.contextPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -44,15 +44,15 @@
       <!-- Tiefe der Mindmap -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Tiefe der Mindmap
+          {{ $t('windows.lm05.depthLevelLabel') }}
         </label>
         <select
           v-model="methodData.depth_level"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="shallow">Flach (2 Ebenen) - Überblick</option>
-          <option value="medium">Mittel (3 Ebenen) - Detailliert</option>
-          <option value="deep">Tief (4+ Ebenen) - Umfassend</option>
+          <option value="shallow">{{ $t('windows.lm05.depthLevelShallow') }}</option>
+          <option value="medium">{{ $t('windows.lm05.depthLevelMedium') }}</option>
+          <option value="deep">{{ $t('windows.lm05.depthLevelDeep') }}</option>
         </select>
       </div>
 
@@ -60,32 +60,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            Hauptzweige (optional)
+            {{ $t('windows.lm05.mainBranchesLabel') }}
           </label>
           <button
             @click="addBranch"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            + Zweig hinzufügen
+            {{ $t('windows.lm05.addBranch') }}
           </button>
         </div>
 
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          Optional: Definieren Sie Hauptzweige, oder lassen Sie die KI diese automatisch generieren.
+          {{ $t('windows.lm05.branchesHint') }}
         </p>
 
         <div v-for="(branch, index) in methodData.main_branches" :key="index" class="mb-2 flex gap-2">
           <input
             v-model="branch.name"
             type="text"
-            placeholder="Zweig-Name"
+            :placeholder="$t('windows.lm05.branchNamePlaceholder')"
             class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <input
             v-model="branch.description"
             type="text"
-            placeholder="Kurzbeschreibung (optional)"
+            :placeholder="$t('windows.lm05.branchDescriptionPlaceholder')"
             class="flex-[2] px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <button
@@ -101,22 +101,22 @@
       <!-- Visualisierungsstil -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Visualisierungsstil
+          {{ $t('windows.lm05.visualizationStyleLabel') }}
         </label>
         <select
           v-model="methodData.visualization_style"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="radial">Radial - Klassische Mindmap</option>
-          <option value="hierarchical">Hierarchisch - Baumstruktur</option>
-          <option value="network">Netzwerk - Verbindungsorientiert</option>
+          <option value="radial">{{ $t('windows.lm05.visualizationStyleRadial') }}</option>
+          <option value="hierarchical">{{ $t('windows.lm05.visualizationStyleHierarchical') }}</option>
+          <option value="network">{{ $t('windows.lm05.visualizationStyleNetwork') }}</option>
         </select>
       </div>
 
       <!-- Optionen -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Optionen
+          {{ $t('windows.lm05.optionsLabel') }}
         </label>
         <div class="space-y-2">
           <label class="flex items-center gap-2 cursor-pointer">
@@ -125,7 +125,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Beschreibungen bei Hover anzeigen</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.showDescriptionsLabel') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -133,7 +133,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Querverbindungen zwischen Konzepten zeigen</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.showConnectionsLabel') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -141,7 +141,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Farbcodierung nach Kategorien</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.colorCodedLabel') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -149,7 +149,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">Interaktiv erweiterbar (Nodes aufklappen)</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.interactiveLabel') }}</span>
           </label>
         </div>
       </div>
@@ -157,12 +157,12 @@
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Lernziel
+          {{ $t('windows.lm05.learningGoalLabel') }}
         </label>
         <input
           v-model="methodData.learning_goal"
           type="text"
-          placeholder="Was soll der Lernende durch diese Mindmap verstehen?"
+          :placeholder="$t('windows.lm05.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -170,8 +170,7 @@
       <!-- KI-Hinweis -->
       <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <p class="text-sm text-blue-800 dark:text-blue-200">
-          <strong>KI-generiert:</strong> Die Mindmap wird automatisch aus dem Kapitel-Inhalt erstellt.
-          Die KI identifiziert Konzepte und deren Beziehungen.
+          <strong>{{ $t('windows.lm05.aiHintTitle') }}:</strong> {{ $t('windows.lm05.aiHintText') }}
         </p>
       </div>
     </template>
@@ -180,9 +179,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
+const { t } = useI18n()
 const METHOD_CODE = 5
 
 interface Props {

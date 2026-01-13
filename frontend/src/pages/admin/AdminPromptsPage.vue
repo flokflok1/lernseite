@@ -164,21 +164,21 @@
               <button
                 @click="previewTemplate(template)"
                 class="px-3 py-1.5 text-sm rounded-lg border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg)] transition-colors"
-                title="Vorschau"
+                :title="$t('admin.actions.preview')"
               >
                 Vorschau
               </button>
               <button
                 @click="editTemplate(template)"
                 class="px-3 py-1.5 text-sm rounded-lg border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg)] transition-colors"
-                title="Bearbeiten"
+                :title="$t('admin.actions.edit')"
               >
                 Bearbeiten
               </button>
               <button
                 @click="duplicateTemplate(template)"
                 class="px-3 py-1.5 text-sm rounded-lg border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg)] transition-colors"
-                title="Duplizieren"
+                :title="$t('admin.actions.duplicate')"
               >
                 Duplizieren
               </button>
@@ -186,7 +186,7 @@
                 v-if="!template.is_default"
                 @click="confirmDelete(template)"
                 class="px-3 py-1.5 text-sm rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
-                title="Loeschen"
+                :title="$t('admin.actions.delete')"
               >
                 X
               </button>
@@ -484,7 +484,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { http } from '@/api/http'
+
+const { t } = useI18n()
 
 interface PromptTemplate {
   template_id?: string
@@ -664,7 +667,7 @@ async function duplicateTemplate(template: PromptTemplate) {
     }
   } catch (e: any) {
     console.error('Error duplicating template:', e)
-    alert('Fehler beim Duplizieren: ' + (e.response?.data?.error || e.message))
+    error.value = e.response?.data?.error || t('admin.prompts.errors.duplicateFailed')
   }
 }
 
@@ -716,7 +719,7 @@ async function deleteTemplate() {
     deleteTarget.value = null
   } catch (e: any) {
     console.error('Error deleting template:', e)
-    alert('Fehler beim Loeschen: ' + (e.response?.data?.error || e.message))
+    error.value = e.response?.data?.error || t('admin.prompts.errors.deleteFailed')
   } finally {
     deleting.value = false
   }
@@ -724,7 +727,7 @@ async function deleteTemplate() {
 
 async function saveTemplate() {
   if (!editingTemplate.value.name || !editingTemplate.value.code) {
-    alert('Name und Code sind erforderlich')
+    error.value = t('admin.prompts.errors.nameAndCodeRequired')
     return
   }
 
@@ -749,7 +752,7 @@ async function saveTemplate() {
     closeModal()
   } catch (e: any) {
     console.error('Error saving template:', e)
-    alert('Fehler beim Speichern: ' + (e.response?.data?.error || e.message))
+    error.value = e.response?.data?.error || t('admin.prompts.errors.saveFailed')
   } finally {
     saving.value = false
   }

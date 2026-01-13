@@ -19,14 +19,14 @@
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>Lade Lektionsdaten...</p>
+      <p>{{ $t('common.loading') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="error-state">
       <span class="error-icon">⚠️</span>
       <p>{{ error }}</p>
-      <button @click="loadLessonData" class="retry-btn">Erneut versuchen</button>
+      <button @click="loadLessonData" class="retry-btn">{{ $t('common.retry') }}</button>
     </div>
 
     <!-- Content -->
@@ -60,8 +60,8 @@
           </div>
           <div v-else class="empty-state">
             <span class="empty-icon">📝</span>
-            <p>Keine Theorie vorhanden</p>
-            <p class="empty-hint">Theorie kann im KI-Studio generiert werden</p>
+            <p>{{ $t('admin.lessons.noTheory') }}</p>
+            <p class="empty-hint">{{ $t('admin.lessons.theoryCanBeGenerated') }}</p>
           </div>
         </div>
 
@@ -98,8 +98,8 @@
           </div>
           <div v-else class="empty-state">
             <span class="empty-icon">📭</span>
-            <p>Keine Lernmethoden vorhanden</p>
-            <p class="empty-hint">Lernmethoden werden im KI-Studio erstellt</p>
+            <p>{{ $t('admin.lessons.noMethods') }}</p>
+            <p class="empty-hint">{{ $t('admin.lessons.methodsAreCreatedInStudio') }}</p>
           </div>
         </div>
 
@@ -107,27 +107,27 @@
         <div v-if="activeTab === 'info'" class="tab-content">
           <div class="info-grid">
             <div class="info-card">
-              <span class="info-label">Lektion</span>
+              <span class="info-label">{{ $t('admin.lessons.lesson') }}</span>
               <span class="info-value">{{ lessonData?.title }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">Typ</span>
+              <span class="info-label">{{ $t('common.type') }}</span>
               <span class="info-value">{{ lessonData?.lesson_type || 'text' }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">Dauer</span>
-              <span class="info-value">{{ lessonData?.duration_minutes || 0 }} Min.</span>
+              <span class="info-label">{{ $t('admin.lessons.duration') }}</span>
+              <span class="info-value">{{ lessonData?.duration_minutes || 0 }} {{ $t('common.minutes') }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">Lernmethoden</span>
+              <span class="info-label">{{ $t('admin.lessons.learningMethods') }}</span>
               <span class="info-value">{{ methods.length }}</span>
             </div>
             <div v-if="lessonData?.chapter_id" class="info-card full-width">
-              <span class="info-label">Kapitel</span>
+              <span class="info-label">{{ $t('admin.chapters.chapter') }}</span>
               <span class="info-value">{{ chapterTitle }}</span>
             </div>
             <div v-if="lessonData?.created_at" class="info-card">
-              <span class="info-label">Erstellt</span>
+              <span class="info-label">{{ $t('common.created') }}</span>
               <span class="info-value">{{ formatDate(lessonData.created_at) }}</span>
             </div>
           </div>
@@ -141,7 +141,7 @@
         <span v-if="chapterTitle">📖 {{ chapterTitle }}</span>
       </div>
       <div class="footer-actions">
-        <button class="action-btn secondary" @click="$emit('close')">Schließen</button>
+        <button class="action-btn secondary" @click="$emit('close')">{{ $t('common.close') }}</button>
       </div>
     </div>
   </div>
@@ -149,8 +149,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, defineAsyncComponent, h } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import http from '@/api/http'
+
+const { t } = useI18n()
 
 interface Props {
   window: LsxWindow
@@ -178,9 +181,9 @@ const chapterTitle = computed(() => props.window.payload?.chapter?.title || less
 
 // Tabs
 const tabs = computed(() => [
-  { id: 'exercises', label: 'Aufgaben', icon: '📝', count: methods.value.length },
-  { id: 'theory', label: 'Theorie', icon: '📖' },
-  { id: 'info', label: 'Info', icon: 'ℹ️' }
+  { id: 'exercises', label: t('admin.lessons.exercises'), icon: '📝', count: methods.value.length },
+  { id: 'theory', label: t('admin.lessons.theory'), icon: '📖' },
+  { id: 'info', label: t('common.info'), icon: 'ℹ️' }
 ])
 
 // Load data on mount
@@ -247,19 +250,6 @@ const methodIcons: Record<number, string> = {
   26: '👥', 27: '🤝', 28: '📊', 29: '📓', 30: '📁', 31: '🎓', 32: '🔄'
 }
 
-const methodNames: Record<number, string> = {
-  0: 'Tiefgehende Erklärung', 1: 'Schritt-für-Schritt', 2: 'Interaktive Theorie',
-  3: 'Diagramm/Visualisierung', 4: 'Sokratischer Dialog', 6: 'Beispiel-Szenario',
-  8: 'Whiteboard-Aufgabe', 9: 'Code Sandbox', 10: 'Netzwerk-Simulation',
-  11: 'IT-Szenario', 12: 'Mathe-Interaktiv', 13: 'Flashcards', 14: 'Drag & Drop',
-  15: 'Lückentext', 16: 'Fehleranalyse', 17: 'Hands-on Lab', 18: 'Freitext',
-  19: 'IHK-Stil Aufgaben', 20: 'Multi-Step Prüfung', 21: 'Zeitlimit-Training',
-  22: 'Prüfungs-Quiz', 23: 'Verständnis-Check', 24: 'Mündliche Erklärung',
-  25: 'Kapitel-Endprüfung', 26: 'Peer Instruction', 27: 'Team-Case',
-  28: 'Peer Review', 29: 'Lerntagebuch', 30: 'Portfolio', 31: 'Projektbasiert',
-  32: 'Inverted Classroom'
-}
-
 function getMethodIcon(type: number | string | undefined): string {
   if (type === undefined || type === null) return '📚'
   const t = typeof type === 'string' ? parseInt(type, 10) : type
@@ -267,13 +257,16 @@ function getMethodIcon(type: number | string | undefined): string {
 }
 
 function getMethodName(type: number | string | undefined): string {
-  if (type === undefined || type === null) return 'Lernmethode'
-  const t = typeof type === 'string' ? parseInt(type, 10) : type
-  return isNaN(t) ? 'Lernmethode' : (methodNames[t] || `Lernmethode ${t}`)
+  if (type === undefined || type === null) return t('windows.lessonPreview.methodDefault')
+  const numType = typeof type === 'string' ? parseInt(type, 10) : type
+  if (isNaN(numType)) return t('windows.lessonPreview.methodDefault')
+  const key = `windows.lessonPreview.methodNames.lm${numType}`
+  const name = t(key)
+  return name === key ? t('windows.lessonPreview.methodWithId', { id: numType }) : name
 }
 
 function cleanMethodTitle(title: string | undefined, methodType: number | string | undefined): string {
-  if (!title) return 'Aufgabe'
+  if (!title) return t('windows.lessonPreview.task')
   // Remove "LM12:", "LM22:", etc. prefix from title
   const t = typeof methodType === 'string' ? parseInt(methodType, 10) : methodType
   if (t !== undefined && !isNaN(t)) {

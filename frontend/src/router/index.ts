@@ -198,6 +198,7 @@ const routes: RouteRecordRaw[] = [
         path: 'roles',
         name: 'AdminRoles',
         component: () => import('@/pages/admin/AdminRolesPage.vue'),
+        meta: { requiresOwner: true }, // RBAC 2.0 - Only Owner can manage roles
       },
       {
         path: 'system-settings',
@@ -356,6 +357,13 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   // Role-based access control
+  // Check Owner access (RBAC 2.0)
+  if (to.meta.requiresOwner && !authStore.isOwner) {
+    console.warn('Access denied: Owner role required')
+    next({ name: 'Dashboard' })
+    return
+  }
+
   // Check System Admin access
   if (to.meta.requiresSystemAdmin && !authStore.isSystemAdmin) {
     console.warn('Access denied: System Admin required')

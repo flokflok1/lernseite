@@ -1,0 +1,110 @@
+Dashboard DDD Structure
+=======================
+
+dashboard/
+│
+├── admin/                              # Admin Domain (System Analytics)
+│   ├── __init__.py
+│   └── system_dashboard.py             240 LOC - 5 endpoints
+│       ├── GET  /dashboard/admin/system/overview
+│       ├── GET  /dashboard/admin/system/activity
+│       ├── GET  /dashboard/admin/system/users
+│       ├── GET  /dashboard/admin/system/courses
+│       └── GET  /dashboard/admin/system/ai-usage
+│
+├── user/                               # User Domain (Dashboard Features)
+│   └── __init__.py                     Re-exports from existing packages:
+│       ├── layouts_bp
+│       ├── widgets_registry_bp
+│       ├── widgets_instances_bp
+│       └── recommendations_bp
+│
+├── core/                               # Core Domain (Business Logic)
+│   ├── __init__.py
+│   └── services.py                     480 LOC - 3 service classes
+│       ├── DashboardLayoutService      (Layout management)
+│       ├── DashboardWidgetService      (Widget operations)
+│       └── DashboardRecommendationService (KI recommendations)
+│
+├── layouts/                            # Layout Management (User)
+│   ├── __init__.py
+│   └── endpoints.py                    230 LOC - 3 endpoints
+│       ├── GET  /dashboard/layout
+│       ├── PUT  /dashboard/layout
+│       └── POST /dashboard/layout/reset
+│
+├── widgets/                            # Widget Management (User)
+│   ├── __init__.py
+│   ├── models.py                       35 LOC - Pydantic models
+│   ├── registry.py                     70 LOC - 1 endpoint
+│   │   └── GET  /dashboard/widgets
+│   └── instances.py                    400 LOC - 6 endpoints
+│       ├── GET    /dashboard/widgets/user
+│       ├── POST   /dashboard/widgets/add
+│       ├── DELETE /dashboard/widgets/{id}
+│       ├── PATCH  /dashboard/widgets/{id}/position
+│       ├── PATCH  /dashboard/widgets/{id}/settings
+│       └── PATCH  /dashboard/widgets/{id}/toggle
+│
+├── recommendations/                    # KI Recommendations (User, Premium+)
+│   ├── __init__.py
+│   └── endpoints.py                    210 LOC - 4 endpoints
+│       ├── GET  /dashboard/recommendations
+│       ├── POST /dashboard/recommendations/{id}/dismiss
+│       ├── POST /dashboard/recommendations/{id}/accept
+│       └── GET  /dashboard/recommendations/stats
+│
+├── __init__.py                         84 LOC - DDD structure, exports all
+│
+├── core.py.deprecated                  [TO DELETE]
+├── recommendations.py.deprecated       [TO DELETE]
+└── widgets.py.deprecated               [TO DELETE]
+
+
+Total Endpoints: 19
+├── Admin:  5 endpoints (admin-only)
+└── User:  14 endpoints (layouts 3 + widgets 7 + recommendations 4)
+
+Total LOC: ~1799 lines
+├── New:  ~772 lines (core 480 + admin 240 + user 25 + main 27)
+├── Existing:  ~1027 lines (unchanged, service refs updated)
+└── Deprecated: ~800 lines (to delete)
+
+
+DDD Pattern Applied:
+├── admin/      → System-wide analytics (Admin role)
+├── user/       → User-facing features (All users, Premium+)
+└── core/       → Shared business logic (Service layer)
+
+
+Service Layer Architecture:
+┌─────────────────────────────────────────────────────────────┐
+│                      API Layer (Blueprints)                  │
+│  layouts_bp  widgets_bp  recommendations_bp  admin_bp        │
+└────────────────────────┬────────────────────────────────────┘
+                         │ uses
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Service Layer (core/services.py)           │
+│  DashboardLayoutService                                      │
+│  DashboardWidgetService                                      │
+│  DashboardRecommendationService                              │
+└────────────────────────┬────────────────────────────────────┘
+                         │ uses
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Repository Layer (data access)              │
+│  DashboardRepository                                         │
+│  WidgetRepository                                            │
+│  RecommendationRepository                                    │
+│  AdminDashboardRepository (NEW - to implement)               │
+└─────────────────────────────────────────────────────────────┘
+
+
+Key Benefits:
+✅ Clear domain separation (admin vs. user vs. core)
+✅ Single source of truth for business logic (services)
+✅ Improved testability (isolated services)
+✅ Better maintainability (thin API layer)
+✅ Scalability (easy to add features)
+✅ ISO/IEC 26515 compliance (functional organization)

@@ -541,6 +541,24 @@
       "D": "D: Pro",
       "E": "E: IT",
       "F": "F: Collaborative"
+    },
+    "form": {
+      "titleLabel": "Title *",
+      "titlePlaceholder": "e.g. Vocabulary Trainer - Lesson 1",
+      "instructionsLabel": "Instructions",
+      "instructionsPlaceholder": "Optional instructions for the learner...",
+      "durationLabel": "Duration (Minutes)",
+      "difficultyLabel": "Difficulty",
+      "difficultyEasy": "Easy",
+      "difficultyMedium": "Medium",
+      "difficultyHard": "Hard",
+      "cancelButton": "Cancel",
+      "createButton": "Create",
+      "updateButton": "Update",
+      "savingButton": "Saving...",
+      "emptyTitleError": "Please enter a title",
+      "noChapterIdError": "No chapter ID found",
+      "saveErrorMessage": "Error saving"
     }
   },
   "examManager": {

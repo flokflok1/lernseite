@@ -65,6 +65,10 @@ def validate_content_type(app: Flask):
     if request.method not in ['POST', 'PUT', 'PATCH']:
         return None
 
+    # Skip validation for requests without body (e.g., logout)
+    if request.content_length is None or request.content_length == 0:
+        return None
+
     # Skip validation for certain endpoints
     skip_paths = ['/health', '/metrics']
     if any(request.path.startswith(path) for path in skip_paths):

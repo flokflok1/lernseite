@@ -8,62 +8,62 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            IT-Szenario lösen
+            {{ $t('windows.lm11.scenarioTitle') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            Komplexe, mehrstufige IT-Case-Studies
+            {{ $t('windows.lm11.scenarioDescription') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Szenario-Titel
+            {{ $t('windows.lm11.scenarioTitleLabel') }}
           </label>
           <input
             v-model="methodData.title"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="z.B. Netzwerkausfall im Unternehmen"
+            :placeholder="$t('windows.lm11.scenarioTitlePlaceholder')"
             required
           />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Ausgangssituation
+            {{ $t('windows.lm11.situationLabel') }}
           </label>
           <textarea
             v-model="methodData.scenario"
             rows="5"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Beschreiben Sie die IT-Situation und das Problem..."
+            :placeholder="$t('windows.lm11.situationPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            IT-Bereich
+            {{ $t('windows.lm11.itAreaLabel') }}
           </label>
           <select
             v-model="methodData.it_area"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">Bereich wählen...</option>
-            <option value="network">Netzwerk</option>
-            <option value="security">IT-Sicherheit</option>
-            <option value="server">Server-Administration</option>
-            <option value="database">Datenbank</option>
-            <option value="cloud">Cloud Computing</option>
-            <option value="devops">DevOps</option>
-            <option value="helpdesk">Helpdesk/Support</option>
+            <option value="">{{ $t('windows.lm11.itAreaDefault') }}</option>
+            <option value="network">{{ $t('windows.lm11.itAreaNetwork') }}</option>
+            <option value="security">{{ $t('windows.lm11.itAreaSecurity') }}</option>
+            <option value="server">{{ $t('windows.lm11.itAreaServer') }}</option>
+            <option value="database">{{ $t('windows.lm11.itAreaDatabase') }}</option>
+            <option value="cloud">{{ $t('windows.lm11.itAreaCloud') }}</option>
+            <option value="devops">{{ $t('windows.lm11.itAreaDevops') }}</option>
+            <option value="helpdesk">{{ $t('windows.lm11.itAreaHelpdesk') }}</option>
           </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Aufgaben / Schritte
+            {{ $t('windows.lm11.stepsLabel') }}
           </label>
           <div class="space-y-3">
             <div
@@ -73,7 +73,7 @@
             >
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Schritt {{ index + 1 }}
+                  {{ $t('windows.lm11.stepLabel', { n: index + 1 }) }}
                 </span>
                 <button
                   type="button"
@@ -90,14 +90,14 @@
                 v-model="step.description"
                 rows="2"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white mb-2"
-                placeholder="Aufgabenbeschreibung..."
+                :placeholder="$t('windows.lm11.stepDescriptionPlaceholder')"
                 required
               ></textarea>
               <textarea
                 v-model="step.expected_answer"
                 rows="2"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                placeholder="Erwartete Lösung..."
+                :placeholder="$t('windows.lm11.stepAnswerPlaceholder')"
               ></textarea>
             </div>
           </div>
@@ -106,7 +106,7 @@
             @click="addStep"
             class="mt-2 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            + Schritt hinzufügen
+            {{ $t('windows.lm11.addStepButton') }}
           </button>
         </div>
 
@@ -118,7 +118,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              Hinweise bei Bedarf anzeigen
+              {{ $t('windows.lm11.allowHintsLabel') }}
             </span>
           </label>
         </div>
@@ -129,8 +129,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
+
+const { t } = useI18n()
 
 const METHOD_CODE = 11
 

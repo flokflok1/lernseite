@@ -50,12 +50,14 @@ def maintenance_mode_check():
     if not SystemModeService.is_maintenance_mode():
         return None
 
-    # Check if user is authenticated and is admin
+    # Check if user is authenticated and is admin (RBAC 2.0: dynamic from DB)
     user = g.get('current_user')
-    if user and user.get('role') in ['admin', 'superadmin']:
-        # Admin can access - add header to indicate maintenance mode
-        g.maintenance_mode_active = True
-        return None
+    if user:
+        from app.services.permission_service import PermissionService
+        if PermissionService.check_threshold(user, 'maintenance.access'):
+            # Admin+ can access - add header to indicate maintenance mode
+            g.maintenance_mode_active = True
+            return None
 
     # Maintenance mode is active and user is not admin
     maintenance_message = SystemModeService.get_maintenance_message()

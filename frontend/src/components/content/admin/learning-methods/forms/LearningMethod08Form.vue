@@ -8,64 +8,64 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Whiteboard-Aufgabe
+            {{ $t('windows.lm08.whiteboardTitle') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            Zeichenaufgaben auf digitalem Whiteboard mit KI-Analyse
+            {{ $t('windows.lm08.whiteboardDescription') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Aufgabenstellung
+            {{ $t('windows.lm08.instructionLabel') }}
           </label>
           <textarea
             v-model="methodData.instruction"
             rows="3"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Beschreiben Sie, was der Lernende zeichnen/skizzieren soll..."
+            :placeholder="$t('windows.lm08.instructionPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Aufgabentyp
+            {{ $t('windows.lm08.taskTypeLabel') }}
           </label>
           <select
             v-model="methodData.task_type"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">Typ wählen...</option>
-            <option value="diagram">Diagramm erstellen</option>
-            <option value="flowchart">Flowchart zeichnen</option>
-            <option value="network">Netzwerkskizze</option>
-            <option value="uml">UML-Diagramm</option>
-            <option value="mindmap">Mindmap erstellen</option>
-            <option value="architecture">Architekturdiagramm</option>
-            <option value="freeform">Freie Zeichnung</option>
+            <option value="">{{ $t('windows.lm08.taskTypeDefault') }}</option>
+            <option value="diagram">{{ $t('windows.lm08.taskTypeDiagram') }}</option>
+            <option value="flowchart">{{ $t('windows.lm08.taskTypeFlowchart') }}</option>
+            <option value="network">{{ $t('windows.lm08.taskTypeNetwork') }}</option>
+            <option value="uml">{{ $t('windows.lm08.taskTypeUml') }}</option>
+            <option value="mindmap">{{ $t('windows.lm08.taskTypeMindmap') }}</option>
+            <option value="architecture">{{ $t('windows.lm08.taskTypeArchitecture') }}</option>
+            <option value="freeform">{{ $t('windows.lm08.taskTypeFreeform') }}</option>
           </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Erwartete Elemente (eines pro Zeile)
+            {{ $t('windows.lm08.expectedElementsLabel') }}
           </label>
           <textarea
             v-model="methodData.expected_elements"
             rows="5"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Server&#10;Datenbank&#10;Client&#10;Firewall&#10;Verbindungslinien"
+            :placeholder="$t('windows.lm08.expectedElementsPlaceholder')"
           ></textarea>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Die KI prüft, ob diese Elemente in der Zeichnung vorhanden sind
+            {{ $t('windows.lm08.expectedElementsHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Bewertungskriterien
+            {{ $t('windows.lm08.evaluationCriteriaLabel') }}
           </label>
           <div class="space-y-2">
             <label class="flex items-center space-x-2">
@@ -75,7 +75,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Vollständigkeit prüfen (alle erwarteten Elemente vorhanden)
+                {{ $t('windows.lm08.checkCompletenessLabel') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -85,7 +85,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Verbindungen/Relationen prüfen
+                {{ $t('windows.lm08.checkConnectionsLabel') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -95,7 +95,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Beschriftungen prüfen
+                {{ $t('windows.lm08.checkLabelsLabel') }}
               </span>
             </label>
           </div>
@@ -103,16 +103,16 @@
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Referenzbild (optional)
+            {{ $t('windows.lm08.referenceImageLabel') }}
           </label>
           <input
             v-model="methodData.reference_image"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="URL zum Referenzbild..."
+            :placeholder="$t('windows.lm08.referenceImagePlaceholder')"
           />
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Optional: Musterlösung oder Orientierungsbild
+            {{ $t('windows.lm08.referenceImageHint') }}
           </p>
         </div>
 
@@ -124,7 +124,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              KI-Feedback aktivieren (Analyse der Zeichnung)
+              {{ $t('windows.lm08.aiFeatureLabel') }}
             </span>
           </label>
         </div>

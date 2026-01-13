@@ -1,5 +1,5 @@
 <!--
-  LearningMethod06Form - Beispiel-Szenario-Erklärung
+  LearningMethod04Form - Beispiel-Szenario-Erklärung
 
   Reale Anwendungsfälle, Case Studies und praxisnahe Szenarien
   zur Veranschaulichung theoretischer Konzepte.
@@ -17,12 +17,12 @@
       <!-- Thema -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm06.topicLabel') }}
+          {{ $t('windows.learningMethods.lm04.topicLabel') }}
         </label>
         <input
           v-model="methodData.topic"
           type="text"
-          :placeholder="$t('windows.learningMethods.lm06.topicPlaceholder')"
+          :placeholder="$t('windows.learningMethods.lm04.topicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -31,23 +31,23 @@
       <!-- Branche/Kontext -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm06.industryContextLabel') }}
+          {{ $t('windows.learningMethods.lm04.industryContextLabel') }}
         </label>
         <select
           v-model="methodData.industry_context"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="">{{ $t('windows.learningMethods.lm06.industryContextDefault') }}</option>
-          <option value="it_admin">{{ $t('windows.learningMethods.lm06.industryContextItAdmin') }}</option>
-          <option value="software_dev">{{ $t('windows.learningMethods.lm06.industryContextSoftwareDev') }}</option>
-          <option value="network">{{ $t('windows.learningMethods.lm06.industryContextNetwork') }}</option>
-          <option value="business">{{ $t('windows.learningMethods.lm06.industryContextBusiness') }}</option>
-          <option value="finance">{{ $t('windows.learningMethods.lm06.industryContextFinance') }}</option>
-          <option value="healthcare">{{ $t('windows.learningMethods.lm06.industryContextHealthcare') }}</option>
-          <option value="education">{{ $t('windows.learningMethods.lm06.industryContextEducation') }}</option>
-          <option value="manufacturing">{{ $t('windows.learningMethods.lm06.industryContextManufacturing') }}</option>
-          <option value="retail">{{ $t('windows.learningMethods.lm06.industryContextRetail') }}</option>
-          <option value="other">{{ $t('windows.learningMethods.lm06.industryContextOther') }}</option>
+          <option value="">{{ $t('windows.learningMethods.lm04.industryContextDefault') }}</option>
+          <option value="it_admin">{{ $t('windows.learningMethods.lm04.industryContextItAdmin') }}</option>
+          <option value="software_dev">{{ $t('windows.learningMethods.lm04.industryContextSoftwareDev') }}</option>
+          <option value="network">{{ $t('windows.learningMethods.lm04.industryContextNetwork') }}</option>
+          <option value="business">{{ $t('windows.learningMethods.lm04.industryContextBusiness') }}</option>
+          <option value="finance">{{ $t('windows.learningMethods.lm04.industryContextFinance') }}</option>
+          <option value="healthcare">{{ $t('windows.learningMethods.lm04.industryContextHealthcare') }}</option>
+          <option value="education">{{ $t('windows.learningMethods.lm04.industryContextEducation') }}</option>
+          <option value="manufacturing">{{ $t('windows.learningMethods.lm04.industryContextManufacturing') }}</option>
+          <option value="retail">{{ $t('windows.learningMethods.lm04.industryContextRetail') }}</option>
+          <option value="other">{{ $t('windows.learningMethods.lm04.industryContextOther') }}</option>
         </select>
       </div>
 
@@ -55,32 +55,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            {{ $t('windows.learningMethods.lm06.scenariosLabel') }}
+            {{ $t('windows.learningMethods.lm04.scenariosLabel') }}
           </label>
           <button
             @click="addScenario"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            {{ $t('windows.learningMethods.lm06.addScenario') }}
+            {{ $t('windows.learningMethods.lm04.addScenario') }}
           </button>
         </div>
 
         <div v-if="methodData.scenarios.length === 0" class="text-sm text-[var(--color-text-secondary)] italic mb-3">
-          {{ $t('windows.learningMethods.lm06.noScenarios') }}
+          {{ $t('windows.learningMethods.lm04.noScenarios') }}
         </div>
 
         <div v-for="(scenario, index) in methodData.scenarios" :key="index" class="mb-4 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface-secondary)]">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-bold text-[var(--color-primary)]">
-              {{ $t('windows.learningMethods.lm06.scenarioNumber', { n: index + 1 }) }}
+              {{ $t('windows.learningMethods.lm04.scenarioNumber', { n: index + 1 }) }}
             </span>
             <button
               @click="removeScenario(index)"
               type="button"
               class="text-sm text-red-500 hover:underline"
             >
-              {{ $t('windows.learningMethods.lm06.removeScenario') }}
+              {{ $t('windows.learningMethods.lm04.removeScenario') }}
             </button>
           </div>
 
@@ -88,12 +88,12 @@
             <!-- Szenario-Titel -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm06.scenarioTitleLabel') }}
+                {{ $t('windows.learningMethods.lm04.scenarioTitleLabel') }}
               </label>
               <input
                 v-model="scenario.title"
                 type="text"
-                :placeholder="$t('windows.learningMethods.lm06.scenarioTitlePlaceholder')"
+                :placeholder="$t('windows.learningMethods.lm04.scenarioTitlePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -102,12 +102,12 @@
             <!-- Ausgangssituation -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm06.situationLabel') }}
+                {{ $t('windows.learningMethods.lm04.situationLabel') }}
               </label>
               <textarea
                 v-model="scenario.situation"
                 rows="3"
-                :placeholder="$t('windows.learningMethods.lm06.situationPlaceholder')"
+                :placeholder="$t('windows.learningMethods.lm04.situationPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -116,12 +116,12 @@
             <!-- Herausforderung/Problem -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm06.challengeLabel') }}
+                {{ $t('windows.learningMethods.lm04.challengeLabel') }}
               </label>
               <textarea
                 v-model="scenario.challenge"
                 rows="2"
-                :placeholder="$t('windows.learningMethods.lm06.challengePlaceholder')"
+                :placeholder="$t('windows.learningMethods.lm04.challengePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -129,12 +129,12 @@
             <!-- Lösung/Erklärung -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm06.solutionLabel') }}
+                {{ $t('windows.learningMethods.lm04.solutionLabel') }}
               </label>
               <textarea
                 v-model="scenario.solution"
                 rows="4"
-                :placeholder="$t('windows.learningMethods.lm06.solutionPlaceholder')"
+                :placeholder="$t('windows.learningMethods.lm04.solutionPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -143,12 +143,12 @@
             <!-- Lernerkenntnis -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm06.takeawayLabel') }}
+                {{ $t('windows.learningMethods.lm04.takeawayLabel') }}
               </label>
               <input
                 v-model="scenario.takeaway"
                 type="text"
-                :placeholder="$t('windows.learningMethods.lm06.takeawayPlaceholder')"
+                :placeholder="$t('windows.learningMethods.lm04.takeawayPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -159,27 +159,27 @@
       <!-- Schwierigkeitsgrad -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm06.complexityLabel') }}
+          {{ $t('windows.learningMethods.lm04.complexityLabel') }}
         </label>
         <select
           v-model="methodData.complexity"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="simple">{{ $t('windows.learningMethods.lm06.complexitySimple') }}</option>
-          <option value="moderate">{{ $t('windows.learningMethods.lm06.complexityModerate') }}</option>
-          <option value="complex">{{ $t('windows.learningMethods.lm06.complexityComplex') }}</option>
+          <option value="simple">{{ $t('windows.learningMethods.lm04.complexitySimple') }}</option>
+          <option value="moderate">{{ $t('windows.learningMethods.lm04.complexityModerate') }}</option>
+          <option value="complex">{{ $t('windows.learningMethods.lm04.complexityComplex') }}</option>
         </select>
       </div>
 
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm06.learningGoalLabel') }}
+          {{ $t('windows.learningMethods.lm04.learningGoalLabel') }}
         </label>
         <input
           v-model="methodData.learning_goal"
           type="text"
-          :placeholder="$t('windows.learningMethods.lm06.learningGoalPlaceholder')"
+          :placeholder="$t('windows.learningMethods.lm04.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -187,7 +187,7 @@
       <!-- KI-Generierung Info -->
       <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
         <p class="text-sm text-amber-800 dark:text-amber-200">
-          <strong>{{ $t('windows.learningMethods.lm06.aiSupportText') }}</strong>
+          <strong>{{ $t('windows.learningMethods.lm04.aiSupportText') }}</strong>
         </p>
       </div>
     </template>
@@ -201,7 +201,7 @@ import type { LsxWindow } from '@/store/window.store'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const { t } = useI18n()
-const METHOD_CODE = 6
+const METHOD_CODE = 4
 
 interface Props {
   window: LsxWindow

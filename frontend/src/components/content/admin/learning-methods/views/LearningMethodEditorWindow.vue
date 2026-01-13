@@ -113,9 +113,9 @@
           <!-- Empty State -->
           <div v-if="methods.length === 0" class="text-center py-12">
             <div class="text-5xl mb-3">🎯</div>
-            <p class="text-[var(--color-text-secondary)] mb-2">Noch keine Lernmethoden vorhanden</p>
+            <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('windows.learningMethodEditor.noMethods') }}</p>
             <p class="text-sm text-[var(--color-text-tertiary)]">
-              Klicken Sie auf "Lernmethode hinzufügen", um aus 32 Methoden auszuwählen
+              {{ $t('windows.learningMethodEditor.noMethodsHint') }}
             </p>
           </div>
 
@@ -179,7 +179,7 @@
                     @click="editMethod(method)"
                     class="p-1.5 rounded transition-colors"
                     style="color: var(--color-text-secondary);"
-                    title="Bearbeiten"
+                    :title="$t('admin.actions.edit')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -203,7 +203,7 @@
                     @click="deleteMethod(method.method_id)"
                     class="p-1.5 rounded transition-colors"
                     style="color: var(--color-error, #dc2626);"
-                    title="Löschen"
+                    :title="$t('admin.actions.delete')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -468,7 +468,7 @@
               v-model="editForm.title"
               type="text"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-              placeholder="z.B. Vokabeltrainer - Lektion 1"
+              :placeholder="$t('windows.learningMethodEditor.titlePlaceholder')"
             />
           </div>
 
@@ -481,7 +481,7 @@
               v-model="editForm.instructions"
               rows="3"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-              placeholder="Optionale Anweisungen für den Lernenden..."
+              :placeholder="$t('windows.learningMethodEditor.instructionsPlaceholder')"
             ></textarea>
           </div>
 
@@ -550,7 +550,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/store/window.store'
+
+const { t } = useI18n()
 import type { LsxWindow } from '@/store/window.store'
 import {
   adminGetLearningMethodTypes,
@@ -631,9 +634,9 @@ const dragState = ref({
 
 // Computed
 const tabs = computed(() => [
-  { id: 'instances', label: 'Lernmethoden', icon: '🎯' },
-  { id: 'catalog', label: 'Katalog (31)', icon: '📖' },
-  { id: 'stats', label: 'Statistiken', icon: '📊' }
+  { id: 'instances', label: t('admin.learningMethods.tabs.instances'), icon: '🎯' },
+  { id: 'catalog', label: t('admin.learningMethods.tabs.catalog'), icon: '📖' },
+  { id: 'stats', label: t('admin.learningMethods.tabs.stats'), icon: '📊' }
 ])
 
 const chapterId = computed(() => props.window.payload?.chapterId as string)

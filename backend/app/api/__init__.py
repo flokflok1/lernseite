@@ -3,75 +3,81 @@ LernsystemX API Package
 
 RESTful API endpoints organized by ISO/IEC 26515 + DDD principles.
 
-Refactored: 2026-01-08 - Complete API restructuring
-Structure parallel to Frontend (components/)
+Refactored: 2026-01-11 - Flat structure matching 05_Backend-Struktur.md
+All endpoints now under /api/v1/ with flat organization.
 
 Package Structure:
-├── admin/           # Admin-only endpoints (roles, courses, AI, analytics)
-├── user/            # User-facing endpoints (courses, lessons, dashboard, exams)
-├── shared/          # Role-independent (categories, feedback, organisations, media)
-├── core/            # Framework-core (auth, health, i18n, deprecation)
-└── system_features/ # System-Features (AI, agents, math, tutor)
+└── v1/                  # API Version 1 (flat structure)
+    ├── auth.py          # Authentication
+    ├── users.py         # User management
+    ├── courses.py       # Courses
+    ├── /dashboard/      # Dashboard
+    ├── /admin/          # Admin API
+    ├── /social/         # Social (feature-flagged)
+    ├── /community/      # Community
+    └── /messaging/      # Messaging (feature-flagged)
 
 Uses:
 - Flask Blueprints for modular routing
 - Pydantic for request/response validation
-- JWT for authentication (core/auth/)
+- JWT for authentication
 - RBAC for authorization
 - Repository Pattern (no ORM)
 
 ISO/IEC/IEEE 26515:2018 compliant - Functional organization
-Domain-Driven Design (DDD) - Bounded contexts
 """
 
-from flask import Blueprint
-
-# Create API blueprint (version 1)
-api_v1 = Blueprint(
-    'api_v1',
-    __name__,
-    url_prefix='/api/v1'
-)
-
 # =============================================================================
-# Import packages after blueprint creation to avoid circular imports
-# Refactored 2026-01-08: ISO + DDD compliant parallel structure
+# Import v1 package which contains the api_v1 blueprint
+# Refactored 2026-01-11: Flat structure under /api/v1/
+# Refactored 2026-01-12: Import api_v1 from v1 package (not create duplicate!)
 # =============================================================================
 
-# Core Framework (Health, Auth, i18n)
-try:
-    from app.api import core
-    from app.api.core import health, deprecation
-except ImportError as e:
-    print(f"Warning: Core package import failed: {e}")
-    core = None
+# Import v1 package (contains all API endpoints and api_v1 blueprint)
+from app.api import v1
+from app.api.v1 import api_v1  # Import the ONLY api_v1 blueprint
 
-# Admin Package
-try:
-    from app.api import admin
-except ImportError as e:
-    print(f"Warning: Admin package import failed: {e}")
-    admin = None
+# Register Social/Messaging/Community blueprints from v1/ (if available)
+if hasattr(v1, 'social') and v1.social:
+    try:
+        for bp in [v1.social.posts_bp, v1.social.feed_bp, v1.social.follow_bp, v1.social.likes_bp, v1.social.comments_bp]:
+            api_v1.register_blueprint(bp)
+    except Exception:
+        pass  # Social feature not fully implemented yet
 
-# User Package
-try:
-    from app.api import user
-except ImportError as e:
-    print(f"Warning: User package import failed: {e}")
-    user = None
+if hasattr(v1, 'messaging') and v1.messaging:
+    try:
+        for bp in [v1.messaging.dm_bp, v1.messaging.group_chat_bp]:
+            api_v1.register_blueprint(bp)
+    except Exception:
+        pass  # Messaging feature not fully implemented yet
 
-# Shared Package
-try:
-    from app.api import shared
-except ImportError as e:
-    print(f"Warning: Shared package import failed: {e}")
-    shared = None
+if hasattr(v1, 'community') and v1.community:
+    try:
+        for bp in [v1.community.forums_bp, v1.community.groups_bp]:
+            api_v1.register_blueprint(bp)
+    except Exception:
+        pass  # Community feature not fully implemented yet
 
-# System Features Package
-try:
-    from app.api import system_features
-except ImportError as e:
-    print(f"Warning: System Features package import failed: {e}")
-    system_features = None
+# Register Owner-Admin blueprint
+if hasattr(v1, 'admin') and hasattr(v1.admin, 'owner'):
+    try:
+        api_v1.register_blueprint(v1.admin.owner.owner_bp)
+    except Exception:
+        pass  # Owner not available
 
-__all__ = ['api_v1', 'core', 'admin', 'user', 'shared', 'system_features']
+# Register Roles Management blueprint (Owner-Admin only)
+if hasattr(v1, 'admin') and hasattr(v1.admin, 'roles'):
+    try:
+        api_v1.register_blueprint(v1.admin.roles.roles_bp)
+    except Exception:
+        pass  # Roles management not available
+
+# Register Permission Thresholds blueprint (Admin+, RBAC 2.0)
+if hasattr(v1, 'admin') and hasattr(v1.admin, 'permission_thresholds'):
+    try:
+        api_v1.register_blueprint(v1.admin.permission_thresholds.permission_thresholds_bp)
+    except Exception:
+        pass  # Permission thresholds not available
+
+__all__ = ['api_v1', 'v1']

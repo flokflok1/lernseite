@@ -102,9 +102,9 @@
 import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/store/auth.store'
-import { useWindowStore } from '@/store/window.store'
-import { DesktopLayer } from '@/components/layout'
+import { useAuthStore } from '@/store/modules/core'
+import { useWindowStore } from '@/store/modules/desktop'
+import { DesktopLayer } from '@/components/workspace'
 import { LanguageSelector } from '@/components/core/i18n'
 
 // ============================================================================

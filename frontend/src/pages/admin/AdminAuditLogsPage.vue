@@ -268,7 +268,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/store/admin.store'
+import { useAdminStore } from '@/store/modules/admin'
 import type { AuditLog, AuditLogsFilterParams } from '@/api/admin.api'
 
 const { locale } = useI18n()

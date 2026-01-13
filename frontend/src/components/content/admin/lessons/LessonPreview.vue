@@ -150,7 +150,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, defineAsyncComponent, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/store/modules/desktop'
 import http from '@/api/http'
 
 const { t, locale } = useI18n()

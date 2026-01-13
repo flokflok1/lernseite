@@ -9,7 +9,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as THREE from 'three'
-import { useTutorStore, DEFAULT_PERSONALITIES } from '@/store/tutor.store'
+import { useTutorStore, DEFAULT_PERSONALITIES } from '@/store/modules/learning'
 import { tutorChat, tutorTTS } from '@/api/tutor.api'
 
 const { t } = useI18n()

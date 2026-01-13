@@ -150,9 +150,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useThemeStore } from '@/store/theme.store'
-import { useAuthStore } from '@/store/auth.store'
-import type { ThemePreference } from '@/store/theme.store'
+import { useThemeStore } from '@/store/modules/ui'
+import { useAuthStore } from '@/store/modules/core'
+import type { ThemePreference } from '@/store/modules/ui'
 import Card from '@/components/base/Card.vue'
 
 const { t } = useI18n()

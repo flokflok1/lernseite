@@ -313,7 +313,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/store/admin.store'
+import { useAdminStore } from '@/store/modules/admin'
 import type { AdminUser, BanUserRequest } from '@/api/admin.api'
 import { adminGetUserDetail } from '@/api/admin.api'
 

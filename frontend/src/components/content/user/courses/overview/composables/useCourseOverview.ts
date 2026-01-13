@@ -5,8 +5,8 @@
  */
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePlayerStore } from '@/store/player.store'
-import { useTutorStore } from '@/store/tutor.store'
+import { usePlayerStore } from '@/store/modules/content'
+import { useTutorStore } from '@/store/modules/learning'
 import type { Chapter } from '@/api/player.api'
 
 export function useCourseOverview(courseId: string) {

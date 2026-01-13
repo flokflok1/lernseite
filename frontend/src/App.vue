@@ -13,8 +13,8 @@ import { useRoute } from 'vue-router'
 import BaseLayout from '@/layouts/BaseLayout.vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import { TutorCompanion } from '@/components/system-features/tutor/user'
-import { useAuthStore } from '@/store/auth.store'
-import { useTutorStore } from '@/store/tutor.store'
+import { useAuthStore } from '@/store/modules/core'
+import { useTutorStore } from '@/store/modules/learning'
 
 const route = useRoute()
 const authStore = useAuthStore()

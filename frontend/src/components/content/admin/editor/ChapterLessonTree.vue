@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCourseEditorStore } from '@/store/courseEditor.store'
+import { useCourseEditorStore } from '@/store/modules/content'
 
 const editorStore = useCourseEditorStore()
 

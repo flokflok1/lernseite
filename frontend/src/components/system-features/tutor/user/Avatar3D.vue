@@ -14,8 +14,8 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { VRMLoaderPlugin, VRM, VRMExpressionPresetName } from '@pixiv/three-vrm'
-import { useAvatarStore } from '@/store/avatar.store'
-import { useTutorStore } from '@/store/tutor.store'
+import { useAvatarStore } from '@/store/modules/ui'
+import { useTutorStore } from '@/store/modules/learning'
 
 // Props
 const props = defineProps<{

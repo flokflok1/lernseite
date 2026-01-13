@@ -11,7 +11,7 @@
 
 import { ref, onUnmounted, watch } from 'vue'
 import { io, Socket } from 'socket.io-client'
-import { useAuthStore } from '@/store/auth.store'
+import { useAuthStore } from '@/store/modules/core'
 
 // Event types
 export interface GenerationProgressEvent {

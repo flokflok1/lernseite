@@ -9,7 +9,7 @@ import { createPinia } from 'pinia'
 import router from './router'
 import App from './App.vue'
 import './style.css'
-import { useThemeStore } from './store/theme.store'
+import { useThemeStore } from '@/store/modules/ui'
 import { setupI18n, initializeI18n } from './plugins/i18n'
 
 // ============================================================================

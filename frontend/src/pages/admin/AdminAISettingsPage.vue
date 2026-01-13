@@ -400,7 +400,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
-import { useWindowStore } from '@/store/window.store'
+import { useWindowStore } from '@/store/modules/desktop'
 
 const { t } = useI18n()
 

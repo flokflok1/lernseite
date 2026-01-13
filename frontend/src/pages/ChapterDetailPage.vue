@@ -125,7 +125,7 @@
  */
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useTutorStore } from '@/store/tutor.store'
+import { useTutorStore } from '@/store/modules/learning'
 import {
   ChapterHeader,
   ChapterNavigation,

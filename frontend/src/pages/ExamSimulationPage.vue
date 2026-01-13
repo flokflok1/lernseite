@@ -11,7 +11,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/store/auth.store'
+import { useAuthStore } from '@/store/modules/core'
 import {
   getExamContext,
   createExamSimulation,

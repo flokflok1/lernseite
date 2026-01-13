@@ -225,7 +225,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/store/auth.store'
+import { useAuthStore } from '@/store/modules/core'
 import * as profileApi from '@/api/profile.api'
 import * as tokensApi from '@/api/tokens.api'
 import * as subscriptionsApi from '@/api/subscriptions.api'

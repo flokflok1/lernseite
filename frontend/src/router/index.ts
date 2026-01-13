@@ -12,8 +12,8 @@
  */
 
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { useAuthStore } from '@/store/auth.store'
-import { useAppStore } from '@/store/app.store'
+import { useAuthStore } from '@/store/modules/core'
+import { useAppStore } from '@/store/modules/core'
 
 const routes: RouteRecordRaw[] = [
   // Setup Wizard Routes

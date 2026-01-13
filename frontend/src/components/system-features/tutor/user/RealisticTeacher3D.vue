@@ -47,7 +47,7 @@
  */
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAvatarStore } from '@/store/avatar.store'
+import { useAvatarStore } from '@/store/modules/ui'
 import {
   use3DAvatar,
   VRMAvatarLoader,

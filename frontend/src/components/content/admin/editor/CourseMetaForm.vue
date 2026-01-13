@@ -121,7 +121,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
-import { useCourseEditorStore } from '@/store/courseEditor.store'
+import { useCourseEditorStore } from '@/store/modules/content'
 import { getCategoryTree, type Category, type CategoryTreeNode } from '@/api/categories.api'
 
 const editorStore = useCourseEditorStore()

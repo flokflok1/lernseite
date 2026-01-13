@@ -42,8 +42,8 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
-import { useWindowStore } from '@/store/window.store'
-import type { WindowType } from '@/store/window.store'
+import { useWindowStore } from '@/store/modules/desktop'
+import type { WindowType } from '@/store/modules/desktop'
 import WindowComponent from './WindowComponent.vue'
 import Taskbar from './Taskbar.vue'
 

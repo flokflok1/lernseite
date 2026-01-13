@@ -205,7 +205,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/store/modules/desktop'
 
 const { t } = useI18n()
 

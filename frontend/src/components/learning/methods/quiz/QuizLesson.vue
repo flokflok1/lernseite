@@ -183,7 +183,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { usePlayerStore } from '@/store/player.store'
+import { usePlayerStore } from '@/store/modules/content'
 
 const { t } = useI18n()
 import type { Lesson, QuizAnswerSubmission } from '@/api/player.api'

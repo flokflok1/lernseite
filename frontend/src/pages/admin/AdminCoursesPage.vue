@@ -293,8 +293,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/store/admin.store'
-import { useWindowStore } from '@/store/window.store'
+import { useAdminStore } from '@/store/modules/admin'
+import { useWindowStore } from '@/store/modules/desktop'
 import type { Category } from '@/api/admin.api'
 
 const { t } = useI18n()

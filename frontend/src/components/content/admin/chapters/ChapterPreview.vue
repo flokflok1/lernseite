@@ -133,7 +133,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/store/modules/desktop'
 
 const { t, locale } = useI18n()
 

@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/window.store'
+import { useWindowStore } from '@/store/modules/desktop'
 import http from '@/api/http'
 
 useI18n()

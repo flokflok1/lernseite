@@ -8,7 +8,7 @@
  */
 
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore } from '@/store/auth.store'
+import { useAuthStore } from '@/store/modules/core'
 import router from '@/router'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'

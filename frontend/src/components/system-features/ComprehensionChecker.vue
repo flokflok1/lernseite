@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/store/modules/desktop'
 import { BaseLearningMethodForm } from '@/components/content/admin/learning-methods/forms'
 
 const METHOD_CODE = 16

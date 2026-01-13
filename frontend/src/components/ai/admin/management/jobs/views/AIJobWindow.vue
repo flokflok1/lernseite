@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/store/modules/desktop'
 
 interface Props {
   window: LsxWindow

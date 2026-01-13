@@ -109,8 +109,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useGamificationStore } from '@/store/gamification.store'
-import type { GamificationStats, BaseStats } from '@/store/gamification.store'
+import { useGamificationStore } from '@/store/modules/system'
+import type { GamificationStats, BaseStats } from '@/store/modules/system'
 
 // ============================================================================
 // Props

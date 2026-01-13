@@ -157,7 +157,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/window.store'
+import { useWindowStore } from '@/store/modules/desktop'
 import { useTheoryManagement } from '@/composables/useTheoryManagement'
 import http from '@/api/http'
 import {

@@ -80,7 +80,7 @@
  */
 import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/window.store'
+import { useWindowStore } from '@/store/modules/desktop'
 import {
   CourseDetailHeader,
   CourseQuickActions,

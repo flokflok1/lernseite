@@ -189,8 +189,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useGamificationStore } from '@/store/gamification.store'
-import type { SkillNode } from '@/store/gamification.store'
+import { useGamificationStore } from '@/store/modules/system'
+import type { SkillNode } from '@/store/modules/system'
 
 // ============================================================================
 // Store

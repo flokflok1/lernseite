@@ -128,8 +128,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useGamificationStore } from '@/store/gamification.store'
-import type { Quest, QuestDifficulty } from '@/store/gamification.store'
+import { useGamificationStore } from '@/store/modules/system'
+import type { Quest, QuestDifficulty } from '@/store/modules/system'
 
 // ============================================================================
 // Store

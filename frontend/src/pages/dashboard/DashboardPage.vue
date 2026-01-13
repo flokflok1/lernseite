@@ -189,8 +189,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/store/auth.store'
-import { useGamificationStore } from '@/store/gamification.store'
+import { useAuthStore } from '@/store/modules/core'
+import { useGamificationStore } from '@/store/modules/system'
 import * as tokensApi from '@/api/tokens.api'
 import * as subscriptionsApi from '@/api/subscriptions.api'
 import * as coursesApi from '@/api/courses.api'

@@ -45,7 +45,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import * as setupApi from '@/api/setup.api'
 import Button from '@/components/base/Button.vue'
-import { useAppStore } from '@/store/app.store'
+import { useAppStore } from '@/store/modules/core'
 
 const { t } = useI18n()
 

@@ -65,7 +65,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/store/auth.store'
+import { useAuthStore } from '@/store/modules/core'
 import Input from '@/components/base/Input.vue'
 import Button from '@/components/base/Button.vue'
 

@@ -125,7 +125,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/api/http'
-import { useWindowStore } from '@/store/window.store'
+import { useWindowStore } from '@/store/modules/desktop'
 import { ProviderGrid, ProfileList, ProfileEditor, ApiKeyModal } from '../../settings/global-settings'
 
 const { t } = useI18n()

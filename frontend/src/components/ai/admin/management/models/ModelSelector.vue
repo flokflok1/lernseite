@@ -360,7 +360,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/store/modules/desktop'
 import * as adminApi from '@/api/admin.api'
 import type { AIModelRegistryItem, AIModelRegistryCategory, AIModelUpdateRequest, AIProviderInfo } from '@/api/admin.api'
 

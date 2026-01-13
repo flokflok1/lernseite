@@ -84,8 +84,8 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useOrgAdminStore } from '@/store/orgAdmin.store'
-import { useAuthStore } from '@/store/auth.store'
+import { useOrgAdminStore } from '@/store/modules/admin'
+import { useAuthStore } from '@/store/modules/core'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const orgAdminStore = useOrgAdminStore()

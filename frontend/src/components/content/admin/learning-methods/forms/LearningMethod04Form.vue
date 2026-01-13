@@ -196,7 +196,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const METHOD_CODE = 4

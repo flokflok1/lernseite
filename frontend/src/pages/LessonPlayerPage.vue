@@ -174,8 +174,8 @@
 import { onMounted, onUnmounted, computed, defineAsyncComponent, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { usePlayerStore } from '@/store/player.store'
-import { useTutorStore } from '@/store/tutor.store'
+import { usePlayerStore } from '@/store/modules/content'
+import { useTutorStore } from '@/store/modules/learning'
 import Button from '@/components/base/Button.vue'
 import { MethodExecutionPanel } from '@/components/learning/methods'
 

@@ -79,7 +79,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { useCourseEditorStore } from '@/store/courseEditor.store'
+import { useCourseEditorStore } from '@/store/modules/content'
 
 const { t } = useI18n()
 import CourseMetaForm from '@/components/content/admin/editor/CourseMetaForm.vue'

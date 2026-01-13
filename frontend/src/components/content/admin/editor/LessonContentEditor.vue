@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useCourseEditorStore } from '@/store/courseEditor.store'
+import { useCourseEditorStore } from '@/store/modules/content'
 
 const editorStore = useCourseEditorStore()
 

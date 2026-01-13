@@ -13,8 +13,8 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import Avatar3D from './Avatar3D.vue'
 import FeedbackWindow from './FeedbackWindow.vue'
-import { useAvatarStore, PRESET_AVATARS, type AvatarMode } from '@/store/avatar.store'
-import { useTutorStore, DEFAULT_PERSONALITIES } from '@/store/tutor.store'
+import { useAvatarStore, PRESET_AVATARS, type AvatarMode } from '@/store/modules/ui'
+import { useTutorStore, DEFAULT_PERSONALITIES } from '@/store/modules/learning'
 import { tutorChat, tutorTTS } from '@/api/tutor.api'
 
 // Stores

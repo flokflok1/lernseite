@@ -1,54 +1,54 @@
-# 16 – Frontend-Struktur (Final)
+# 16 – Frontend-Struktur (Final) + API Contracts
 
-**Version:** 2.0  
-**Stand:** 10.01.2026  
-**Änderungen:** Complete Enterprise Architecture mit Social Network UI, Compliance Components, Feature Flags UI, Moderation Dashboard
+**Version:** 3.0  
+**Stand:** 13.01.2026  
+**Änderungen:** Complete Frontend Architecture mit API Contracts, Store Mappings, WebSocket Events, TypeScript Types
 
 ---
 
 ## Überblick
 
-Dieses Dokument definiert die vollständige **Enterprise-Grade Frontend-Architektur** des LSX Lernsystems.
+Dieses Dokument definiert die **Enterprise-Grade Frontend-Architektur** des LSX Lernsystems **mit kompletten API Contracts**.
 
-Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **performant**, **compliance-konform** und für **ADHD/ADHS optimiert**.
+Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **performant**, **compliance-konform**, **typesicher** und für **ADHD/ADHS optimiert**.
 
-### 🎯 Neue Features in v2.0
+### 🎯 Features v3.0
 
 - ✅ **Social Network UI** - Posts, Feed, Follow, Engagement Components
 - ✅ **Compliance Components** - Cookie Consent, Age Gates, Privacy Controls
 - ✅ **Moderation Dashboard** - Content Review, Reports, Statistics
 - ✅ **Feature Flag UI** - Admin Controls, A/B Testing, Rollout Management
-- ✅ **Content Reporting** - User Report Forms, Evidence Collection
-- ✅ **Privacy Dashboard** - GDPR Controls, Data Export, Consent Management
-- ✅ **Child Safety UI** - Parental Controls, Safe Mode, Age Verification
-- ✅ **DRM UI Components** - License Display, Watermarks, Access Gates
+- ✅ **API Contract Integration** - Jede Component hat klaren API-Endpoint
+- ✅ **Pinia Store Mappings** - Store ↔ Backend Service
+- ✅ **WebSocket Events** - Real-time Datenflüsse dokumentiert
+- ✅ **TypeScript Types** - Alle Models definiert
+- ✅ **Error Handling** - Standardisierte Error Codes
 
 ### 🛠️ Tech-Stack
 
 | Technologie | Verwendung |
 |------------|-----------|
-| ⚡ **Vue.js 3** | Composition API |
+| ⚡ **Vue.js 3** | Composition API + TypeScript |
 | 🚀 **Vite** | Build Tool |
-| 📦 **Pinia** | State Management |
+| 📦 **Pinia** | State Management (Type-Safe) |
 | 🛣️ **Vue Router** | Routing mit Feature Flag Guards |
 | 🎨 **TailwindCSS** | Styling |
 | 🌍 **vue-i18n** | Internationalisierung (20+ Sprachen) |
 | 🎥 **WebRTC** | Video/Audio (LiveRoom) |
 | 🔌 **WebSockets** | Real-time (Notifications, Feed) |
-| 📡 **Axios** | API Requests mit Interceptors |
+| 📡 **Axios** | API Requests mit Interceptors & Type Safety |
 | 🎚️ **Feature Flags** | Progressive Feature Rollout |
 | 🛡️ **DOMPurify** | XSS Protection |
 | 🍪 **js-cookie** | Cookie Management (GDPR) |
 | 📊 **Chart.js** | Analytics & Statistics |
 | 🔒 **CryptoJS** | Client-side Encryption (DRM) |
-
-> Alle Komponenten sind **klar getrennt**, **gut wartbar**, **erweiterbar** und **compliance-konform**.
+| **TypeScript** | Full Type Coverage |
 
 ---
 
 ## 1. Projektstruktur (Frontend-Verzeichnis)
 
-### 📁 Komplette Verzeichnisstruktur v2.0
+### 📁 Komplette Verzeichnisstruktur v3.0
 
 ```
 /frontend
@@ -57,7 +57,7 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   └── /assets
 │       ├── /images
 │       ├── /icons
-│       └── /legal          # ⭐ Legal Documents
+│       └── /legal
 │           ├── privacy-policy.pdf
 │           ├── terms-of-service.pdf
 │           ├── community-guidelines.pdf
@@ -69,8 +69,58 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   ├── /icons
 │   │   └── styles.css
 │   │
-│   ├── /components         # 🧩 UI COMPONENTS
-│   │   ├── /base           # Base Components
+│   ├── /types                  # ⭐ SHARED TYPE DEFINITIONS
+│   │   ├── index.ts            # Main export
+│   │   ├── auth.types.ts       # Auth Models
+│   │   ├── user.types.ts       # User Models
+│   │   ├── social.types.ts     # Social Models (Post, Comment, etc.)
+│   │   ├── moderation.types.ts # Moderation Models
+│   │   ├── compliance.types.ts # Compliance Models
+│   │   ├── course.types.ts     # Course Models
+│   │   ├── studio.types.ts     # 🎨 AI Studio Models (NEW)
+│   │   ├── api.types.ts        # API Response Wrapper
+│   │   └── common.types.ts     # Common Models
+│   │
+│   ├── /constants              # ⭐ SHARED CONSTANTS
+│   │   ├── api.constants.ts    # Endpoints, Status Codes
+│   │   ├── events.constants.ts # WebSocket Events
+│   │   ├── feature-flags.ts    # Feature Flag Names
+│   │   └── errors.ts           # Error Codes
+│   │
+│   ├── /api                    # 🌐 API CLIENT LAYER
+│   │   ├── index.ts            # Main API Client
+│   │   ├── auth.api.ts         # Auth Endpoints
+│   │   ├── user.api.ts         # User Endpoints
+│   │   ├── social.api.ts       # Social Endpoints
+│   │   ├── moderation.api.ts   # Moderation Endpoints
+│   │   ├── compliance.api.ts   # Compliance Endpoints
+│   │   ├── course.api.ts       # Course Endpoints
+│   │   ├── studio.api.ts       # 🎨 AI Studio Endpoints (NEW)
+│   │   ├── interceptors.ts     # Axios Interceptors (Auth, Errors)
+│   │   └── websocket.ts        # WebSocket Client
+│   │
+│   ├── /stores                 # 📦 PINIA STORES
+│   │   ├── index.ts
+│   │   ├── auth.store.ts       # Auth State & Actions
+│   │   ├── user.store.ts       # User State & Actions
+│   │   ├── social.store.ts     # Social State (Posts, Feed, Likes)
+│   │   ├── feed.store.ts       # Feed Management
+│   │   ├── moderation.store.ts # Moderation State
+│   │   ├── compliance.store.ts # Compliance State
+│   │   ├── studio.store.ts     # 🎨 AI Studio State (NEW)
+│   │   ├── feature.store.ts    # Feature Flags State
+│   │   └── ui.store.ts         # UI State (modals, etc.)
+│   │
+│   ├── /composables            # 🪝 COMPOSITION API HOOKS
+│   │   ├── useAuth.ts          # Auth Hooks
+│   │   ├── useSocial.ts        # Social Hooks
+│   │   ├── useWebSocket.ts     # WebSocket Hooks
+│   │   ├── useFeatureFlags.ts  # Feature Flag Hooks
+│   │   ├── usePagination.ts    # Pagination Hooks
+│   │   └── useApi.ts           # Generic API Hooks
+│   │
+│   ├── /components             # 🧩 UI COMPONENTS
+│   │   ├── /base
 │   │   │   ├── Button.vue
 │   │   │   ├── Input.vue
 │   │   │   ├── Textarea.vue
@@ -86,1800 +136,999 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   │   ├── Avatar.vue
 │   │   │   └── Pagination.vue
 │   │   │
-│   │   ├── /social         # ⭐ SOCIAL NETWORK COMPONENTS
-│   │   │   ├── PostCard.vue              # Single Post Display
-│   │   │   ├── PostComposer.vue          # Create Post
-│   │   │   ├── PostList.vue              # Post Feed List
-│   │   │   ├── CommentSection.vue        # Comments
-│   │   │   ├── CommentInput.vue          # Comment Input
-│   │   │   ├── LikeButton.vue            # Like/Unlike
-│   │   │   ├── ShareButton.vue           # Share Post
-│   │   │   ├── FollowButton.vue          # Follow/Unfollow User
-│   │   │   ├── FollowersList.vue         # Followers List
-│   │   │   ├── FollowingList.vue         # Following List
-│   │   │   ├── UserCard.vue              # User Profile Card
-│   │   │   ├── UserBadge.vue             # User Achievement Badge
-│   │   │   ├── HashtagChip.vue           # Hashtag Display
-│   │   │   ├── MentionInput.vue          # @mention Input
-│   │   │   ├── TrendingCard.vue          # Trending Posts
-│   │   │   ├── SuggestedUsers.vue        # Follow Suggestions
-│   │   │   └── ActivityFeed.vue          # Notification Feed
+│   │   ├── /social             # 🌟 SOCIAL COMPONENTS
+│   │   │   ├── PostCard.vue              # [API] GET /api/v1/social/posts/:id
+│   │   │   ├── PostComposer.vue          # [API] POST /api/v1/social/posts
+│   │   │   ├── PostList.vue              # [API] GET /api/v1/social/posts
+│   │   │   ├── CommentSection.vue        # [API] GET /api/v1/social/posts/:id/comments
+│   │   │   ├── CommentInput.vue          # [API] POST /api/v1/social/posts/:id/comments
+│   │   │   ├── LikeButton.vue            # [API] POST /api/v1/social/posts/:id/likes
+│   │   │   ├── ShareButton.vue           # [API] POST /api/v1/social/posts/:id/share
+│   │   │   ├── FollowButton.vue          # [API] POST /api/v1/users/:id/follow
+│   │   │   ├── FollowersList.vue         # [API] GET /api/v1/users/:id/followers
+│   │   │   ├── FollowingList.vue         # [API] GET /api/v1/users/:id/following
+│   │   │   ├── UserCard.vue              # [API] GET /api/v1/profile/:id
+│   │   │   ├── UserBadge.vue             # Display Achievement Badge
+│   │   │   ├── HashtagChip.vue           # Display Hashtag
+│   │   │   ├── MentionInput.vue          # @mention Autocomplete
+│   │   │   ├── TrendingCard.vue          # [API] GET /api/v1/social/trending
+│   │   │   ├── SuggestedUsers.vue        # [API] GET /api/v1/users/suggestions
+│   │   │   └── ActivityFeed.vue          # [WS] notification events
 │   │   │
-│   │   ├── /compliance     # ⭐ COMPLIANCE COMPONENTS
-│   │   │   ├── CookieConsent.vue         # GDPR Cookie Banner
-│   │   │   ├── CookieSettings.vue        # Granular Cookie Control
-│   │   │   ├── AgeGate.vue               # Age Verification Gate
-│   │   │   ├── ParentalConsent.vue       # COPPA Consent Form
-│   │   │   ├── PrivacyDashboard.vue      # User Privacy Controls
-│   │   │   ├── DataExport.vue            # GDPR Data Export
-│   │   │   ├── DataDeletion.vue          # Right to Erasure
-│   │   │   ├── ConsentManager.vue        # Consent Management
-│   │   │   ├── ReportContent.vue         # Report Form (DSA)
-│   │   │   ├── ReportStatus.vue          # Track Report Status
-│   │   │   ├── ContentWarning.vue        # Content Warning Overlay
-│   │   │   ├── SafeMode.vue              # Child Safe Mode Toggle
-│   │   │   ├── ParentalControls.vue      # Parent Dashboard
-│   │   │   ├── ScreenTimeWidget.vue      # Usage Tracking
-│   │   │   └── TransparencyReport.vue    # Public Transparency Reports
+│   │   ├── /compliance         # ⚖️ COMPLIANCE COMPONENTS
+│   │   │   ├── CookieConsent.vue         # [Local] js-cookie
+│   │   │   ├── CookieSettings.vue        # [Local] js-cookie + [API] PUT /api/v1/compliance/cookies
+│   │   │   ├── AgeGate.vue               # [API] POST /api/v1/auth/verify-age
+│   │   │   ├── ParentalConsent.vue       # [API] POST /api/v1/compliance/parental-consent
+│   │   │   ├── PrivacyDashboard.vue      # [API] GET /api/v1/compliance/privacy
+│   │   │   ├── DataExport.vue            # [API] POST /api/v1/compliance/data-export
+│   │   │   ├── DataDeletion.vue          # [API] POST /api/v1/compliance/data-deletion
+│   │   │   ├── ConsentManager.vue        # [API] GET /api/v1/compliance/consent
+│   │   │   ├── ReportContent.vue         # [API] POST /api/v1/moderation/reports
+│   │   │   ├── ReportStatus.vue          # [API] GET /api/v1/moderation/reports/:id
+│   │   │   ├── ContentWarning.vue        # Display Warning
+│   │   │   ├── SafeMode.vue              # [API] PUT /api/v1/user/safe-mode
+│   │   │   ├── ParentalControls.vue      # [API] GET /api/v1/parental/dashboard
+│   │   │   ├── ScreenTimeWidget.vue      # [API] GET /api/v1/parental/screen-time
+│   │   │   └── TransparencyReport.vue    # [API] GET /api/v1/transparency/reports
 │   │   │
-│   │   ├── /moderation     # ⭐ MODERATION COMPONENTS
-│   │   │   ├── ModerationQueue.vue       # Review Queue
-│   │   │   ├── ContentReview.vue         # Single Content Review
-│   │   │   ├── ReportDetails.vue         # Report Details View
-│   │   │   ├── ModerationActions.vue     # Action Buttons
-│   │   │   ├── UserHistory.vue           # User Violation History
-│   │   │   ├── ModerationStats.vue       # Statistics Dashboard
-│   │   │   ├── SLAMonitor.vue            # 24h/7d Deadline Tracker
-│   │   │   └── AppealReview.vue          # Appeal Review (DSA Art. 17)
+│   │   ├── /moderation         # 🛡️ MODERATION COMPONENTS
+│   │   │   ├── ModerationQueue.vue       # [API] GET /api/v1/moderation/queue
+│   │   │   ├── ContentReview.vue         # [API] GET /api/v1/moderation/queue/:id
+│   │   │   ├── ReportDetails.vue         # [API] GET /api/v1/moderation/reports/:id
+│   │   │   ├── ModerationActions.vue     # [API] POST /api/v1/moderation/actions
+│   │   │   ├── UserHistory.vue           # [API] GET /api/v1/moderation/users/:id/history
+│   │   │   ├── ModerationStats.vue       # [API] GET /api/v1/moderation/statistics
+│   │   │   ├── SLAMonitor.vue            # [API] GET /api/v1/moderation/sla-monitor
+│   │   │   └── AppealReview.vue          # [API] GET /api/v1/moderation/appeals/:id
 │   │   │
-│   │   ├── /security       # 🔒 SECURITY COMPONENTS
-│   │   │   ├── TwoFactorAuth.vue         # 2FA Setup
-│   │   │   ├── SessionManager.vue        # Active Sessions
-│   │   │   ├── SecurityLog.vue           # Security Event Log
-│   │   │   ├── DRMLicenseDisplay.vue     # License Information
-│   │   │   ├── Watermark.vue             # Visible Watermark
-│   │   │   └── AccessGate.vue            # DRM Access Gate
+│   │   ├── /security           # 🔒 SECURITY COMPONENTS
+│   │   │   ├── TwoFactorAuth.vue         # [API] POST /api/v1/auth/2fa-setup
+│   │   │   ├── SessionManager.vue        # [API] GET /api/v1/auth/sessions
+│   │   │   ├── SecurityLog.vue           # [API] GET /api/v1/security/logs
+│   │   │   ├── DRMLicenseDisplay.vue     # [API] GET /api/v1/drm/license
+│   │   │   ├── Watermark.vue             # Display Watermark
+│   │   │   └── AccessGate.vue            # [API] POST /api/v1/drm/verify-access
 │   │   │
-│   │   └── /feature-flags  # ⭐ FEATURE FLAG COMPONENTS
-│   │       ├── FeatureGate.vue           # Feature Flag Wrapper
-│   │       ├── FeatureFlagBadge.vue      # "Beta" Badge
-│   │       ├── RolloutProgress.vue       # Rollout Stats
-│   │       └── ABTestBanner.vue          # A/B Test Info
+│   │   ├── /feature-flags      # 🎚️ FEATURE FLAG COMPONENTS
+│   │   │   ├── FeatureGate.vue           # Conditionally render content
+│   │   │   ├── FeatureFlagBadge.vue      # Display "Beta" badge
+│   │   │   ├── RolloutProgress.vue       # [API] GET /api/v1/admin/features/:id/rollout
+│   │   │   └── ABTestBanner.vue          # Display A/B Test info
+│   │   │
+│   │   └── /studio             # 🎨 AI STUDIO COMPONENTS (NEW)
+│   │       ├── StudioChat.vue            # [API] POST /api/v1/studio/chat, [WS] studio:*
+│   │       ├── StudioGenerator.vue       # [API] POST /api/v1/studio/generate
+│   │       ├── VariantComparison.vue     # Display Variants side-by-side
+│   │       ├── TemplateSelector.vue      # [API] GET /api/v1/studio/templates
+│   │       ├── ProjectList.vue           # [API] GET /api/v1/studio/projects
+│   │       ├── ProjectCard.vue           # Display Project Preview
+│   │       ├── SessionHistory.vue        # [API] GET /api/v1/studio/history
+│   │       ├── ContentPreview.vue        # Preview Generated Content
+│   │       ├── GenerationProgress.vue    # Loading State with Tokens
+│   │       └── StudioSettings.vue        # [API] PUT /api/v1/studio/settings
 │   │
-│   ├── /layouts            # 🏗️ LAYOUTS
+│   ├── /layouts                # 🏗️ LAYOUTS
 │   │   ├── MainLayout.vue
 │   │   ├── AuthLayout.vue
 │   │   ├── DashboardLayout.vue
 │   │   ├── AdminLayout.vue
-│   │   ├── ModeratorLayout.vue          # ⭐ NEW: Moderation Layout
+│   │   ├── ModeratorLayout.vue
 │   │   ├── OrganizationLayout.vue
-│   │   └── MinimalLayout.vue            # ⭐ NEW: Age Gate, Consent
+│   │   └── MinimalLayout.vue
 │   │
-│   ├── /pages              # 📄 PAGES/VIEWS
+│   ├── /pages                  # 📄 PAGES/VIEWS
 │   │   ├── /auth
-│   │   │   ├── Login.vue
-│   │   │   ├── Register.vue
-│   │   │   ├── RegisterWithConsent.vue  # ⭐ NEW: GDPR Consent
-│   │   │   ├── ForgotPassword.vue
-│   │   │   └── AgeVerification.vue      # ⭐ NEW: Age Gate
+│   │   │   ├── Login.vue                 # [API] POST /api/v1/auth/login
+│   │   │   ├── Register.vue              # [API] POST /api/v1/auth/register
+│   │   │   ├── RegisterWithConsent.vue   # [API] POST /api/v1/auth/register
+│   │   │   ├── ForgotPassword.vue        # [API] POST /api/v1/auth/forgot-password
+│   │   │   └── AgeVerification.vue       # [API] POST /api/v1/auth/verify-age
 │   │   │
 │   │   ├── /dashboard
-│   │   │   ├── Index.vue
-│   │   │   ├── Settings.vue
-│   │   │   ├── Notifications.vue
-│   │   │   └── LayoutManager.vue
+│   │   │   ├── Index.vue                 # [API] GET /api/v1/dashboard
+│   │   │   ├── Settings.vue              # [API] PUT /api/v1/user/settings
+│   │   │   ├── Notifications.vue         # [API] GET /api/v1/notifications
+│   │   │   └── LayoutManager.vue         # [API] PUT /api/v1/user/dashboard-layout
 │   │   │
-│   │   ├── /social         # ⭐ NEW: SOCIAL PAGES
-│   │   │   ├── Feed.vue                  # Main Feed
-│   │   │   ├── Explore.vue               # Explore/Discovery
-│   │   │   ├── Trending.vue              # Trending Page
-│   │   │   ├── Profile.vue               # User Profile
-│   │   │   ├── EditProfile.vue           # Edit Profile
-│   │   │   ├── Followers.vue             # Followers List
-│   │   │   ├── Following.vue             # Following List
-│   │   │   ├── Post.vue                  # Single Post View
-│   │   │   ├── Bookmarks.vue             # Saved Posts
-│   │   │   ├── Messages.vue              # Direct Messages
-│   │   │   └── Notifications.vue         # Social Notifications
+│   │   ├── /social
+│   │   │   ├── Feed.vue                  # [API] GET /api/v1/social/posts
+│   │   │   ├── Explore.vue               # [API] GET /api/v1/social/explore
+│   │   │   ├── Trending.vue              # [API] GET /api/v1/social/trending
+│   │   │   ├── Profile.vue               # [API] GET /api/v1/profile/:user_id
+│   │   │   ├── EditProfile.vue           # [API] PUT /api/v1/profile
+│   │   │   ├── Followers.vue             # [API] GET /api/v1/users/:id/followers
+│   │   │   ├── Following.vue             # [API] GET /api/v1/users/:id/following
+│   │   │   ├── Post.vue                  # [API] GET /api/v1/social/posts/:id
+│   │   │   ├── Bookmarks.vue             # [API] GET /api/v1/social/bookmarks
+│   │   │   ├── Messages.vue              # [WS] message events
+│   │   │   └── Notifications.vue         # [API] GET /api/v1/notifications
 │   │   │
-│   │   ├── /privacy        # ⭐ NEW: PRIVACY & COMPLIANCE
-│   │   │   ├── PrivacySettings.vue       # Privacy Dashboard
-│   │   │   ├── DataExport.vue            # GDPR Export
-│   │   │   ├── DataDeletion.vue          # Right to Erasure
-│   │   │   ├── ConsentHistory.vue        # Consent Log
-│   │   │   ├── CookiePreferences.vue     # Cookie Settings
-│   │   │   ├── PrivacyPolicy.vue         # Privacy Policy Page
-│   │   │   ├── TermsOfService.vue        # ToS Page
-│   │   │   └── CommunityGuidelines.vue   # Content Policy
+│   │   ├── /privacy
+│   │   │   ├── PrivacySettings.vue       # [API] GET/PUT /api/v1/compliance/privacy
+│   │   │   ├── DataExport.vue            # [API] POST /api/v1/compliance/data-export
+│   │   │   ├── DataDeletion.vue          # [API] POST /api/v1/compliance/data-deletion
+│   │   │   ├── ConsentHistory.vue        # [API] GET /api/v1/compliance/consent-history
+│   │   │   ├── CookiePreferences.vue     # [Local] js-cookie
+│   │   │   ├── PrivacyPolicy.vue         # [Static]
+│   │   │   ├── TermsOfService.vue        # [Static]
+│   │   │   └── CommunityGuidelines.vue   # [Static]
 │   │   │
-│   │   ├── /moderation     # ⭐ NEW: MODERATION DASHBOARD
-│   │   │   ├── Dashboard.vue             # Moderator Dashboard
-│   │   │   ├── Queue.vue                 # Review Queue
-│   │   │   ├── Reports.vue               # All Reports
-│   │   │   ├── ReviewContent.vue         # Content Review Page
-│   │   │   ├── Appeals.vue               # Appeal Queue (DSA)
-│   │   │   ├── Statistics.vue            # Mod Statistics
-│   │   │   ├── TransparencyReports.vue   # Generate Reports
-│   │   │   └── UserProfile.vue           # User Moderation View
+│   │   ├── /moderation
+│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/moderation/dashboard
+│   │   │   ├── Queue.vue                 # [API] GET /api/v1/moderation/queue
+│   │   │   ├── Reports.vue               # [API] GET /api/v1/moderation/reports
+│   │   │   ├── ReviewContent.vue         # [API] GET /api/v1/moderation/queue/:id
+│   │   │   ├── Appeals.vue               # [API] GET /api/v1/moderation/appeals
+│   │   │   ├── Statistics.vue            # [API] GET /api/v1/moderation/statistics
+│   │   │   ├── TransparencyReports.vue   # [API] GET /api/v1/transparency/reports
+│   │   │   └── UserProfile.vue           # [API] GET /api/v1/moderation/users/:id
 │   │   │
-│   │   ├── /parental       # ⭐ NEW: PARENTAL CONTROLS
-│   │   │   ├── Dashboard.vue             # Parent Dashboard
-│   │   │   ├── ActivityLog.vue           # Child Activity
-│   │   │   ├── ScreenTime.vue            # Usage Limits
-│   │   │   ├── ContentApproval.vue       # Pre-approval Queue
-│   │   │   ├── Restrictions.vue          # Content Restrictions
-│   │   │   └── Reports.vue               # Activity Reports
+│   │   ├── /parental
+│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/parental/dashboard
+│   │   │   ├── ActivityLog.vue           # [API] GET /api/v1/parental/activity
+│   │   │   ├── ScreenTime.vue            # [API] GET /api/v1/parental/screen-time
+│   │   │   ├── ContentApproval.vue       # [API] GET /api/v1/parental/approvals
+│   │   │   ├── Restrictions.vue          # [API] PUT /api/v1/parental/restrictions
+│   │   │   └── Reports.vue               # [API] GET /api/v1/parental/reports
 │   │   │
-│   │   ├── /admin          # 👑 ADMIN PAGES (Extended)
-│   │   │   ├── AdminDashboard.vue
-│   │   │   ├── UserManagement.vue
-│   │   │   ├── FeatureFlags.vue          # ⭐ NEW: Feature Flag Admin
-│   │   │   ├── RolloutControl.vue        # ⭐ NEW: Rollout Management
-│   │   │   ├── ABTesting.vue             # ⭐ NEW: A/B Test Config
-│   │   │   ├── ComplianceDashboard.vue   # ⭐ NEW: Compliance Overview
-│   │   │   ├── ModerationSettings.vue    # ⭐ NEW: Mod Config
-│   │   │   ├── ContentPolicies.vue       # ⭐ NEW: Policy Management
-│   │   │   ├── Logs.vue
-│   │   │   ├── WidgetRegistry.vue
-│   │   │   └── RoleManagement.vue
+│   │   ├── /admin
+│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/admin/dashboard
+│   │   │   ├── Users.vue                 # [API] GET /api/v1/admin/users
+│   │   │   ├── Organizations.vue         # [API] GET /api/v1/admin/organizations
+│   │   │   ├── Courses.vue               # [API] GET /api/v1/admin/courses
+│   │   │   ├── FeatureFlags.vue          # [API] GET /api/v1/admin/features
+│   │   │   ├── RolloutControl.vue        # [API] PUT /api/v1/admin/features/:id/rollout
+│   │   │   └── ComplianceDashboard.vue   # [API] GET /api/v1/admin/compliance
 │   │   │
-│   │   ├── ProfilePage.vue
-│   │   ├── SettingsPage.vue
-│   │   ├── /courses                      # (existing course pages)
-│   │   ├── /creator                      # (existing creator pages)
-│   │   ├── /community                    # (existing community pages)
-│   │   └── /org                          # (existing org pages)
+│   │   └── /liveroom
+│   │       ├── Room.vue                  # [WS] video, chat
+│   │       ├── Whiteboard.vue            # [WS] whiteboard events
+│   │       ├── Chat.vue                  # [WS] chat messages
+│   │       ├── Recording.vue             # [API] POST /api/v1/liveroom/record
+│   │       └── Participants.vue          # [WS] participant events
 │   │
-│   ├── /router             # 🛣️ ROUTER
-│   │   ├── index.js                      # Main Router
-│   │   ├── guards.js                     # Route Guards
-│   │   └── featureGuards.js              # ⭐ NEW: Feature Flag Guards
+│   │   └── /studio              # 🎨 AI STUDIO PAGES (NEW)
+│   │       ├── Dashboard.vue             # [API] GET /api/v1/studio/projects
+│   │       ├── Editor.vue                # [API] POST /api/v1/studio/chat + generate
+│   │       ├── Project.vue               # [API] GET /api/v1/studio/projects/:id
+│   │       ├── Chat.vue                  # [WS] studio:message_received
+│   │       ├── Generator.vue             # [API] POST /api/v1/studio/generate
+│   │       ├── Variants.vue              # [API] POST /api/v1/studio/variants
+│   │       ├── Templates.vue             # [API] GET /api/v1/studio/templates
+│   │       ├── History.vue               # [API] GET /api/v1/studio/history
+│   │       └── Settings.vue              # [API] PUT /api/v1/studio/settings
 │   │
-│   ├── /store              # 📦 PINIA STORES
-│   │   ├── /modules
-│   │   │   ├── user.js                   # User Store
-│   │   │   ├── auth.js                   # Auth Store
-│   │   │   ├── courses.js                # Courses Store
-│   │   │   ├── dashboard.js              # Dashboard Store
-│   │   │   │
-│   │   │   ├── /social                   # ⭐ NEW: SOCIAL STORES
-│   │   │   │   ├── posts.js              # Posts State
-│   │   │   │   ├── feed.js               # Feed State
-│   │   │   │   ├── follows.js            # Follow Relationships
-│   │   │   │   ├── likes.js              # Likes State
-│   │   │   │   ├── comments.js           # Comments State
-│   │   │   │   ├── notifications.js      # Social Notifications
-│   │   │   │   └── messages.js           # Direct Messages
-│   │   │   │
-│   │   │   ├── /compliance               # ⭐ NEW: COMPLIANCE STORES
-│   │   │   │   ├── consent.js            # Cookie/Privacy Consents
-│   │   │   │   ├── privacy.js            # Privacy Settings
-│   │   │   │   ├── reports.js            # User Reports
-│   │   │   │   └── childSafety.js        # Parental Controls
-│   │   │   │
-│   │   │   ├── /moderation               # ⭐ NEW: MODERATION STORES
-│   │   │   │   ├── queue.js              # Review Queue
-│   │   │   │   ├── reports.js            # All Reports
-│   │   │   │   ├── actions.js            # Mod Actions
-│   │   │   │   └── statistics.js         # Mod Stats
-│   │   │   │
-│   │   │   ├── /admin                    # Admin Stores
-│   │   │   │   ├── featureFlags.js       # ⭐ NEW: Feature Flags
-│   │   │   │   ├── rollout.js            # ⭐ NEW: Rollout Control
-│   │   │   │   └── analytics.js          # Admin Analytics
-│   │   │   │
-│   │   │   └── /security                 # ⭐ NEW: SECURITY STORES
-│   │   │       ├── drm.js                # DRM State
-│   │   │       ├── sessions.js           # Session Management
-│   │   │       └── auditLog.js           # Security Audit Log
-│   │   │
-│   │   └── index.js                      # Root Store
+│   ├── /router
+│   │   ├── index.ts            # Router Config
+│   │   ├── routes.ts           # Route Definitions
+│   │   ├── guards.ts           # Route Guards (Auth, Feature Flags)
+│   │   └── middleware.ts       # Route Middleware
 │   │
-│   ├── /services           # 📡 API SERVICES
-│   │   ├── api.js                        # Base Axios Instance
-│   │   ├── interceptors.js               # Request/Response Interceptors
-│   │   │
-│   │   ├── /core                         # Core Services
-│   │   │   ├── auth.service.js
-│   │   │   ├── user.service.js
-│   │   │   └── course.service.js
-│   │   │
-│   │   ├── /social                       # ⭐ NEW: SOCIAL SERVICES
-│   │   │   ├── post.service.js
-│   │   │   ├── feed.service.js
-│   │   │   ├── follow.service.js
-│   │   │   ├── like.service.js
-│   │   │   ├── comment.service.js
-│   │   │   ├── share.service.js
-│   │   │   ├── message.service.js
-│   │   │   └── notification.service.js
-│   │   │
-│   │   ├── /compliance                   # ⭐ NEW: COMPLIANCE SERVICES
-│   │   │   ├── consent.service.js        # Consent Management
-│   │   │   ├── privacy.service.js        # Privacy Export/Deletion
-│   │   │   ├── report.service.js         # Content Reporting
-│   │   │   └── ageVerification.service.js # Age Verification
-│   │   │
-│   │   ├── /moderation                   # ⭐ NEW: MODERATION SERVICES
-│   │   │   ├── queue.service.js
-│   │   │   ├── review.service.js
-│   │   │   ├── action.service.js
-│   │   │   └── statistics.service.js
-│   │   │
-│   │   └── /admin                        # Admin Services
-│   │       ├── featureFlag.service.js    # ⭐ NEW: Feature Flags API
-│   │       └── analytics.service.js
+│   ├── /utils
+│   │   ├── api-helpers.ts      # API Helper Functions
+│   │   ├── date.ts             # Date Utilities
+│   │   ├── format.ts           # Format Utilities
+│   │   ├── validation.ts       # Validators
+│   │   └── storage.ts          # Local Storage Helpers
 │   │
-│   ├── /composables        # 🔄 VUE COMPOSABLES
-│   │   ├── /core
-│   │   │   ├── useAuth.js
-│   │   │   ├── useToast.js
-│   │   │   └── useModal.js
-│   │   │
-│   │   ├── /social                       # ⭐ NEW: SOCIAL COMPOSABLES
-│   │   │   ├── usePost.js                # Post CRUD
-│   │   │   ├── useFeed.js                # Feed Management
-│   │   │   ├── useFollow.js              # Follow Logic
-│   │   │   ├── useLike.js                # Like Logic
-│   │   │   ├── useComment.js             # Comment Logic
-│   │   │   ├── useNotifications.js       # Real-time Notifications
-│   │   │   └── useInfiniteScroll.js      # Infinite Scroll
-│   │   │
-│   │   ├── /compliance                   # ⭐ NEW: COMPLIANCE COMPOSABLES
-│   │   │   ├── useConsent.js             # Cookie Consent
-│   │   │   ├── usePrivacy.js             # Privacy Controls
-│   │   │   ├── useReport.js              # Content Reporting
-│   │   │   └── useAgeGate.js             # Age Verification
-│   │   │
-│   │   ├── /moderation                   # ⭐ NEW: MODERATION COMPOSABLES
-│   │   │   ├── useModerationQueue.js
-│   │   │   ├── useContentReview.js
-│   │   │   └── useModerationStats.js
-│   │   │
-│   │   ├── /security                     # ⭐ NEW: SECURITY COMPOSABLES
-│   │   │   ├── useDRM.js                 # DRM Logic
-│   │   │   ├── useSession.js             # Session Management
-│   │   │   └── useAuditLog.js            # Security Logging
-│   │   │
-│   │   └── /admin
-│   │       ├── useFeatureFlags.js        # ⭐ NEW: Feature Flag Logic
-│   │       └── useRollout.js             # ⭐ NEW: Rollout Logic
-│   │
-│   ├── /widgets            # 🎨 DASHBOARD WIDGETS (existing)
-│   ├── /modules            # 📝 LEARNING METHOD MODULES (existing)
-│   ├── /liveroom           # 🎥 LIVEROOM COMPONENTS (existing)
-│   │
-│   ├── /i18n               # 🌍 INTERNATIONALIZATION
-│   │   ├── index.js
-│   │   └── /locales
-│   │       ├── de.json                   # German
-│   │       ├── en.json                   # English
-│   │       ├── fr.json                   # French
-│   │       ├── es.json                   # Spanish
-│   │       └── ... (20+ languages)
-│   │
-│   ├── /utils              # 🛠️ UTILITIES
-│   │   ├── formatDate.js
-│   │   ├── validation.js
-│   │   ├── sanitize.js                   # XSS Protection
-│   │   ├── storage.js                    # LocalStorage Wrapper
-│   │   ├── crypto.js                     # ⭐ NEW: Client Crypto (DRM)
-│   │   ├── featureFlags.js               # ⭐ NEW: Feature Flag Helpers
-│   │   └── gdpr.js                       # ⭐ NEW: GDPR Helpers
-│   │
-│   ├── /plugins            # 🔌 VUE PLUGINS
-│   │   ├── featureFlags.js               # ⭐ NEW: Feature Flag Plugin
-│   │   ├── analytics.js                  # Analytics Plugin
-│   │   └── errorTracking.js              # Error Tracking
-│   │
-│   ├── /directives         # 🎯 CUSTOM DIRECTIVES
-│   │   ├── v-feature.js                  # ⭐ NEW: v-feature="'posts'"
-│   │   ├── v-tooltip.js
-│   │   └── v-click-outside.js
-│   │
-│   ├── /middleware         # 🛡️ MIDDLEWARE
-│   │   ├── auth.js
-│   │   ├── role.js
-│   │   ├── featureFlag.js                # ⭐ NEW: Feature Flag Middleware
-│   │   └── ageGate.js                    # ⭐ NEW: Age Verification
-│   │
-│   ├── App.vue             # 🎯 Root Component
-│   └── main.js             # 🚀 Application Entry Point
+│   ├── App.vue                 # Root Component
+│   └── main.ts                 # Application Entry Point
 │
-├── /tests                  # 🧪 TESTS
-│   ├── /unit
-│   ├── /integration
-│   └── /e2e
-│
-├── index.html
-├── vite.config.js
+├── vite.config.ts
+├── tsconfig.json               # TypeScript Config
 ├── tailwind.config.js
-├── package.json
-├── .env
-├── .env.production
-└── .eslintrc.js
+└── package.json
 ```
 
 ---
 
-## 2. System-Architektur (C4 Model - Context)
+## 2. TypeScript Type Definitions
 
-```mermaid
-graph TB
-    subgraph "Externe Systeme"
-        USER[👤 User]
-        PARENT[👨‍👩‍👧 Parent]
-        MODERATOR[👮 Moderator]
-        ADMIN[👑 Admin]
-    end
+### 📋 auth.types.ts
 
-    subgraph "LSX Frontend System"
-        SPA[⚡ Vue.js SPA<br/>Vue 3 + Vite]
-        ROUTER[🛣️ Vue Router<br/>+ Feature Guards]
-        STORE[📦 Pinia Store<br/>State Management]
-        SERVICES[📡 API Services<br/>Axios + Interceptors]
-        SOCKET[🔌 WebSocket<br/>Real-time]
-        FF[🎚️ Feature Flags<br/>Client-side]
-        COMPLIANCE[⚖️ Compliance UI<br/>Cookie/Age/Privacy]
-    end
+```typescript
+// src/types/auth.types.ts
 
-    subgraph "External Services"
-        API[🌶️ Backend API<br/>REST + GraphQL]
-        WEBRTC[🎥 WebRTC Server]
-        CDN[📦 CDN<br/>Static Assets]
-    end
+export interface User {
+  id: string
+  email: string
+  username: string
+  role: 'user' | 'moderator' | 'admin' | 'parent'
+  avatar?: string
+  age_verified: boolean
+  is_online: boolean
+  created_at: string
+  updated_at: string
+}
 
-    USER -->|HTTPS| SPA
-    PARENT -->|Parental Dashboard| SPA
-    MODERATOR -->|Moderation Dashboard| SPA
-    ADMIN -->|Admin Panel| SPA
+export interface LoginRequest {
+  email: string
+  password: string
+}
 
-    SPA --> ROUTER
-    SPA --> STORE
-    SPA --> FF
-    SPA --> COMPLIANCE
+export interface LoginResponse {
+  access_token: string
+  refresh_token: string
+  user: User
+  expires_in: number
+}
 
-    ROUTER --> FF
-    SERVICES --> API
-    SOCKET --> API
-    SPA --> SOCKET
-    SPA --> WEBRTC
+export interface RegisterRequest {
+  email: string
+  password: string
+  username: string
+  age_verified: boolean
+  consent: {
+    terms: boolean
+    privacy: boolean
+    marketing?: boolean
+  }
+}
 
-    SPA --> CDN
+export interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+  accessToken: string | null
+  refreshToken: string | null
+  loading: boolean
+  error: string | null
+}
+```
 
-    style SPA fill:#42b883,color:#fff
-    style FF fill:#4CAF50,color:#fff
-    style COMPLIANCE fill:#FF6B6B,color:#fff
+### 📋 social.types.ts
+
+```typescript
+// src/types/social.types.ts
+
+export interface Post {
+  id: string
+  author_id: string
+  author: User
+  title: string
+  content: string
+  media: Media[]
+  likes_count: number
+  comments_count: number
+  shares_count: number
+  is_liked_by_user: boolean
+  is_bookmarked_by_user: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreatePostRequest {
+  title: string
+  content: string
+  media?: File[]
+  tags?: string[]
+}
+
+export interface Comment {
+  id: string
+  post_id: string
+  author_id: string
+  author: User
+  content: string
+  likes_count: number
+  is_liked_by_user: boolean
+  created_at: string
+}
+
+export interface CreateCommentRequest {
+  content: string
+  parent_comment_id?: string
+}
+
+export interface Like {
+  id: string
+  user_id: string
+  post_id?: string
+  comment_id?: string
+  created_at: string
+}
+
+export interface Media {
+  id: string
+  url: string
+  type: 'image' | 'video'
+  width?: number
+  height?: number
+}
+
+export interface Feed {
+  posts: Post[]
+  total: number
+  page: number
+  limit: number
+  has_more: boolean
+}
+```
+
+### 📋 moderation.types.ts
+
+```typescript
+// src/types/moderation.types.ts
+
+export interface ContentReport {
+  id: string
+  reporter_id: string
+  content_type: 'post' | 'comment' | 'user' | 'message'
+  content_id: string
+  reason: string
+  description?: string
+  status: 'new' | 'assigned' | 'under_review' | 'resolved' | 'rejected'
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  assignee_id?: string
+  created_at: string
+  updated_at: string
+  resolved_at?: string
+  sla_deadline: string
+}
+
+export interface CreateReportRequest {
+  content_type: string
+  content_id: string
+  reason: string
+  description?: string
+  evidence?: string[]
+}
+
+export interface ModerationAction {
+  report_id: string
+  action: 'approve' | 'remove' | 'warn_user' | 'suspend_user' | 'ban_user'
+  reason: string
+  duration?: number // in days, null = permanent
+}
+
+export interface ModerationQueue {
+  reports: ContentReport[]
+  total: number
+  page: number
+  limit: number
+  has_more: boolean
+}
+
+export interface ModerationStats {
+  total_reports: number
+  pending: number
+  under_review: number
+  resolved: number
+  avg_response_time: number
+  sla_compliance: number
+}
 ```
 
 ---
 
-## 3. Feature Flag Integration
+## 3. API Endpoints & Store Mappings
 
-### 🎚️ Feature Flag Plugin
+### 🌐 AUTH Endpoints
 
-```javascript
-// src/plugins/featureFlags.js
+| Endpoint | Method | Store Action | Component | Request | Response | WebSocket Event |
+|----------|--------|--------------|-----------|---------|----------|-----------------|
+| `/api/v1/auth/register` | POST | `authStore.register()` | RegisterWithConsent.vue | `RegisterRequest` | `LoginResponse` | — |
+| `/api/v1/auth/login` | POST | `authStore.login()` | Login.vue | `LoginRequest` | `LoginResponse` | `auth:login` |
+| `/api/v1/auth/logout` | POST | `authStore.logout()` | (Global) | — | `{ success }` | `auth:logout` |
+| `/api/v1/auth/refresh` | POST | `authStore.refreshToken()` | (Interceptor) | `{ refresh_token }` | `{ access_token }` | — |
+| `/api/v1/auth/verify-age` | POST | `authStore.verifyAge()` | AgeVerification.vue | `{ age_verified }` | `{ success }` | — |
 
-import { ref } from 'vue'
-import { featureFlagService } from '@/services/admin/featureFlag.service'
+**Store Implementation:**
+```typescript
+// src/stores/auth.store.ts
+import { defineStore } from 'pinia'
+import { authApi } from '@/api/auth.api'
+import type { User, LoginRequest, LoginResponse } from '@/types'
 
-export const featureFlags = ref({
-  // Social Features
-  user_posts: false,
-  feed_system: false,
-  follow_system: false,
-  likes_reactions: false,
-  comments: true,
-  shares: false,
-  bookmarks: false,
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    user: null as User | null,
+    accessToken: null as string | null,
+    refreshToken: null as string | null,
+    isAuthenticated: false,
+    loading: false,
+    error: null as string | null,
+  }),
+
+  actions: {
+    async login(credentials: LoginRequest) {
+      this.loading = true
+      try {
+        const response = await authApi.login(credentials)
+        this.user = response.user
+        this.accessToken = response.access_token
+        this.refreshToken = response.refresh_token
+        this.isAuthenticated = true
+        localStorage.setItem('accessToken', response.access_token)
+        localStorage.setItem('refreshToken', response.refresh_token)
+        return response
+      } catch (err) {
+        this.error = err.message
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async logout() {
+      try {
+        await authApi.logout()
+        this.user = null
+        this.accessToken = null
+        this.refreshToken = null
+        this.isAuthenticated = false
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+      } catch (err) {
+        console.error('Logout error:', err)
+      }
+    },
+  },
+})
+```
+
+### 🌟 SOCIAL Endpoints
+
+| Endpoint | Method | Store Action | Component | Request | Response | WebSocket Event |
+|----------|--------|--------------|-----------|---------|----------|-----------------|
+| `/api/v1/social/posts` | GET | `socialStore.loadFeed()` | Feed.vue | `{ page, limit, sort }` | `Feed` | `feed:updated` |
+| `/api/v1/social/posts/:post_id` | GET | `socialStore.loadPost()` | Post.vue | — | `Post` | — |
+| `/api/v1/social/posts` | POST | `socialStore.createPost()` | PostComposer.vue | `CreatePostRequest` | `Post` | `post:created` |
+| `/api/v1/social/posts/:post_id/likes` | POST | `socialStore.likePost()` | LikeButton.vue | — | `{ likes_count }` | `post:liked` |
+| `/api/v1/social/posts/:post_id/likes` | DELETE | `socialStore.unlikePost()` | LikeButton.vue | — | `{ likes_count }` | `post:unliked` |
+| `/api/v1/social/posts/:post_id/comments` | GET | `socialStore.loadComments()` | CommentSection.vue | `{ page, limit }` | `Comment[]` | — |
+| `/api/v1/social/posts/:post_id/comments` | POST | `socialStore.createComment()` | CommentInput.vue | `CreateCommentRequest` | `Comment` | `comment:created` |
+| `/api/v1/users/:user_id/follow` | POST | `userStore.followUser()` | FollowButton.vue | — | `{ following: true }` | `user:followed` |
+| `/api/v1/users/:user_id/unfollow` | DELETE | `userStore.unfollowUser()` | FollowButton.vue | — | `{ following: false }` | `user:unfollowed` |
+| `/api/v1/social/trending` | GET | `socialStore.loadTrending()` | Trending.vue | — | `Post[]` | — |
+| `/api/v1/social/explore` | GET | `socialStore.loadExplore()` | Explore.vue | `{ page, category }` | `Feed` | — |
+| `/api/v1/social/bookmarks` | GET | `socialStore.loadBookmarks()` | Bookmarks.vue | `{ page, limit }` | `Post[]` | — |
+| `/api/v1/social/posts/:post_id/bookmark` | POST | `socialStore.bookmarkPost()` | PostCard.vue | — | `{ bookmarked: true }` | — |
+
+**Store Implementation:**
+```typescript
+// src/stores/social.store.ts
+import { defineStore } from 'pinia'
+import { socialApi } from '@/api/social.api'
+import type { Post, Feed, CreatePostRequest } from '@/types'
+
+export const useSocialStore = defineStore('social', {
+  state: () => ({
+    feed: {
+      posts: [] as Post[],
+      total: 0,
+      page: 1,
+      limit: 20,
+      has_more: false,
+    } as Feed,
+    currentPost: null as Post | null,
+    loading: false,
+    error: null as string | null,
+  }),
+
+  actions: {
+    async loadFeed(page = 1, limit = 20) {
+      this.loading = true
+      try {
+        const response = await socialApi.getFeed({ page, limit, sort: 'recent' })
+        if (page === 1) {
+          this.feed = response
+        } else {
+          this.feed.posts = [...this.feed.posts, ...response.posts]
+          this.feed.page = page
+          this.feed.has_more = response.has_more
+        }
+      } catch (err) {
+        this.error = err.message
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async createPost(data: CreatePostRequest) {
+      try {
+        const newPost = await socialApi.createPost(data)
+        this.feed.posts.unshift(newPost)
+        this.feed.total += 1
+        return newPost
+      } catch (err) {
+        this.error = err.message
+        throw err
+      }
+    },
+
+    async likePost(postId: string) {
+      try {
+        const response = await socialApi.likePost(postId)
+        const post = this.feed.posts.find(p => p.id === postId)
+        if (post) {
+          post.likes_count = response.likes_count
+          post.is_liked_by_user = true
+        }
+      } catch (err) {
+        this.error = err.message
+      }
+    },
+  },
+})
+```
+
+### 🛡️ MODERATION Endpoints
+
+| Endpoint | Method | Store Action | Component | Request | Response | WebSocket Event |
+|----------|--------|--------------|-----------|---------|----------|-----------------|
+| `/api/v1/moderation/queue` | GET | `moderationStore.loadQueue()` | ModerationQueue.vue | `{ page, limit, status }` | `ModerationQueue` | — |
+| `/api/v1/moderation/queue/:report_id` | GET | `moderationStore.loadReport()` | ContentReview.vue | — | `ContentReport` | — |
+| `/api/v1/moderation/actions` | POST | `moderationStore.takeAction()` | ModerationActions.vue | `ModerationAction` | `{ success }` | `moderation:action` |
+| `/api/v1/moderation/reports` | GET | `moderationStore.loadReports()` | Reports.vue | `{ page, status }` | `ContentReport[]` | — |
+| `/api/v1/moderation/statistics` | GET | `moderationStore.loadStats()` | ModerationStats.vue | — | `ModerationStats` | — |
+| `/api/v1/moderation/sla-monitor` | GET | `moderationStore.loadSLA()` | SLAMonitor.vue | — | `{ reports, compliance }` | — |
+
+---
+
+## 4. WebSocket Events
+
+### 📡 Real-time Event Streams
+
+```typescript
+// src/constants/events.constants.ts
+
+export const WEBSOCKET_EVENTS = {
+  // Auth
+  AUTH_LOGIN: 'auth:login',
+  AUTH_LOGOUT: 'auth:logout',
   
-  // Discovery
-  trending_discovery: false,
-  hashtags: false,
-  mentions: false,
-  explore_page: false,
+  // Social
+  POST_CREATED: 'post:created',
+  POST_DELETED: 'post:deleted',
+  POST_LIKED: 'post:liked',
+  POST_UNLIKED: 'post:unliked',
+  COMMENT_CREATED: 'comment:created',
+  COMMENT_DELETED: 'comment:deleted',
+  FEED_UPDATED: 'feed:updated',
   
-  // Messaging
-  direct_messages: false,
-  group_chat: true,
+  // User
+  USER_FOLLOWED: 'user:followed',
+  USER_UNFOLLOWED: 'user:unfollowed',
+  USER_ONLINE: 'user:online',
+  USER_OFFLINE: 'user:offline',
+  
+  // Notifications
+  NOTIFICATION_NEW: 'notification:new',
+  NOTIFICATION_READ: 'notification:read',
   
   // Moderation
-  community_moderation: false,
+  MODERATION_ACTION: 'moderation:action',
+  REPORT_STATUS_CHANGED: 'report:status_changed',
   
-  // Child Safety
-  child_safety_strict: true,
-})
-
-export const isFeatureEnabled = (featureName) => {
-  return featureFlags.value[featureName] === true
-}
-
-export const loadFeatureFlags = async () => {
-  try {
-    const flags = await featureFlagService.getUserFlags()
-    featureFlags.value = { ...featureFlags.value, ...flags }
-  } catch (error) {
-    console.error('Failed to load feature flags:', error)
-  }
-}
-
-// Vue Plugin
-export default {
-  install(app) {
-    app.config.globalProperties.$features = {
-      isEnabled: isFeatureEnabled,
-      flags: featureFlags
-    }
-    
-    // Load flags on app mount
-    loadFeatureFlags()
-  }
+  // Messages
+  MESSAGE_NEW: 'message:new',
+  MESSAGE_READ: 'message:read',
+  
+  // LiveRoom
+  PARTICIPANT_JOINED: 'participant:joined',
+  PARTICIPANT_LEFT: 'participant:left',
+  WHITEBOARD_UPDATED: 'whiteboard:updated',
 }
 ```
 
-### 🎯 v-feature Directive
+**Beispiel Event Handler:**
+```typescript
+// In Feed.vue
+import { useWebSocket } from '@/composables/useWebSocket'
+import { WEBSOCKET_EVENTS } from '@/constants/events.constants'
 
-```javascript
-// src/directives/v-feature.js
+export default defineComponent({
+  setup() {
+    const socialStore = useSocialStore()
+    const { on, emit } = useWebSocket()
 
-export default {
-  mounted(el, binding) {
-    const featureName = binding.value
-    const isEnabled = isFeatureEnabled(featureName)
-    
-    if (!isEnabled) {
-      // Hide element if feature is disabled
-      el.style.display = 'none'
-      
-      // Optionally show "Coming Soon" badge
-      if (binding.modifiers.badge) {
-        const badge = document.createElement('span')
-        badge.className = 'feature-badge'
-        badge.textContent = 'Coming Soon'
-        el.parentNode.insertBefore(badge, el)
-      }
-    }
-  }
-}
-
-// Usage in component:
-// <PostComposer v-feature="'user_posts'" />
-// <FollowButton v-feature.badge="'follow_system'" />
-```
-
-### 🔒 Feature Flag Route Guard
-
-```javascript
-// src/router/featureGuards.js
-
-import { isFeatureEnabled } from '@/plugins/featureFlags'
-
-export const requireFeature = (featureName) => {
-  return (to, from, next) => {
-    if (isFeatureEnabled(featureName)) {
-      next()
-    } else {
-      // Redirect to dashboard with message
-      next({
-        name: 'Dashboard',
-        query: {
-          featureDisabled: featureName
-        }
+    onMounted(() => {
+      // Subscribe to post creation
+      on(WEBSOCKET_EVENTS.POST_CREATED, (post) => {
+        socialStore.feed.posts.unshift(post)
       })
+
+      // Subscribe to likes
+      on(WEBSOCKET_EVENTS.POST_LIKED, ({ post_id, likes_count }) => {
+        const post = socialStore.feed.posts.find(p => p.id === post_id)
+        if (post) post.likes_count = likes_count
+      })
+    })
+
+    return { socialStore }
+  },
+})
+```
+
+---
+
+## 5. Feature Flags Integration
+
+### 🎚️ Feature Flag Management
+
+```typescript
+// src/composables/useFeatureFlags.ts
+import { computed } from 'vue'
+import { useFeatureStore } from '@/stores/feature.store'
+
+export function useFeatureFlags() {
+  const featureStore = useFeatureStore()
+
+  return {
+    // Check if feature is enabled
+    isFeatureEnabled: (featureName: string) => 
+      computed(() => featureStore.isFeatureEnabled(featureName)),
+    
+    // Check if feature is in beta
+    isFeatureBeta: (featureName: string) => 
+      computed(() => featureStore.isFeatureBeta(featureName)),
+    
+    // Get rollout percentage
+    getRolloutPercentage: (featureName: string) => 
+      computed(() => featureStore.getRolloutPercentage(featureName)),
+  }
+}
+```
+
+**In Komponenten verwenden:**
+```vue
+<template>
+  <!-- Option 1: v-feature Directive -->
+  <div v-feature="'social-network'">
+    <Feed />
+  </div>
+
+  <!-- Option 2: v-if -->
+  <div v-if="isFeatureEnabled('social-network')">
+    <Feed />
+  </div>
+
+  <!-- Option 3: Component-level -->
+  <FeatureGate feature-name="social-network">
+    <Feed />
+  </FeatureGate>
+</template>
+
+<script setup lang="ts">
+import { useFeatureFlags } from '@/composables/useFeatureFlags'
+
+const { isFeatureEnabled } = useFeatureFlags()
+</script>
+```
+
+---
+
+## 6. Error Handling
+
+### 🛑 Standardisierte Error Codes
+
+```typescript
+// src/constants/errors.ts
+
+export const ERROR_CODES = {
+  // Auth Errors
+  INVALID_CREDENTIALS: 'AUTH_001',
+  USER_NOT_FOUND: 'AUTH_002',
+  EMAIL_ALREADY_EXISTS: 'AUTH_003',
+  TOKEN_EXPIRED: 'AUTH_004',
+  INVALID_TOKEN: 'AUTH_005',
+  
+  // Validation Errors
+  INVALID_INPUT: 'VALIDATION_001',
+  REQUIRED_FIELD: 'VALIDATION_002',
+  
+  // Permission Errors
+  UNAUTHORIZED: 'PERMISSION_001',
+  FORBIDDEN: 'PERMISSION_002',
+  
+  // Resource Errors
+  NOT_FOUND: 'RESOURCE_001',
+  CONFLICT: 'RESOURCE_002',
+  
+  // Server Errors
+  INTERNAL_SERVER_ERROR: 'SERVER_001',
+  SERVICE_UNAVAILABLE: 'SERVER_002',
+}
+
+export const ERROR_MESSAGES: Record<string, string> = {
+  [ERROR_CODES.INVALID_CREDENTIALS]: 'Invalid email or password',
+  [ERROR_CODES.USER_NOT_FOUND]: 'User not found',
+  [ERROR_CODES.EMAIL_ALREADY_EXISTS]: 'Email already exists',
+  [ERROR_CODES.TOKEN_EXPIRED]: 'Session expired. Please login again',
+  [ERROR_CODES.UNAUTHORIZED]: 'You are not authorized to access this resource',
+}
+```
+
+**Error Handler in API:**
+```typescript
+// src/api/interceptors.ts
+export function setupInterceptors(apiClient) {
+  apiClient.interceptors.response.use(
+    response => response,
+    error => {
+      const errorCode = error.response?.data?.code
+      const message = ERROR_MESSAGES[errorCode] || error.message
+      
+      // Handle token expiration
+      if (errorCode === ERROR_CODES.TOKEN_EXPIRED) {
+        const authStore = useAuthStore()
+        authStore.logout()
+        window.location.href = '/login'
+      }
+      
+      return Promise.reject({ code: errorCode, message })
     }
-  }
+  )
 }
-
-// Usage in router:
-// {
-//   path: '/social/feed',
-//   component: Feed,
-//   beforeEnter: requireFeature('feed_system')
-// }
 ```
 
 ---
 
-## 4. Social Network Components
+## 7. API Client Setup
 
-### 🌟 PostCard Component
+### 📡 Axios Configuration
 
-```vue
-<!-- src/components/social/PostCard.vue -->
+```typescript
+// src/api/index.ts
+import axios, { AxiosInstance } from 'axios'
+import { setupInterceptors } from './interceptors'
 
-<template>
-  <Card class="post-card">
-    <!-- User Info -->
-    <div class="post-header">
-      <Avatar :user="post.author" />
-      <div class="user-info">
-        <router-link :to="`/profile/${post.author.id}`">
-          <h4>{{ post.author.username }}</h4>
-        </router-link>
-        <span class="post-time">{{ formatTime(post.created_at) }}</span>
-      </div>
-      
-      <!-- Report Button -->
-      <Dropdown v-if="!isOwnPost">
-        <DropdownItem @click="reportPost">
-          🚩 Report Post
-        </DropdownItem>
-      </Dropdown>
-    </div>
-
-    <!-- Content Warning (Child Safety) -->
-    <ContentWarning 
-      v-if="post.has_warning"
-      :type="post.warning_type"
-      @reveal="revealContent"
-    />
-
-    <!-- Post Content -->
-    <div v-show="!post.has_warning || contentRevealed" class="post-content">
-      <p v-html="sanitizedContent"></p>
-      
-      <!-- Media -->
-      <div v-if="post.media_urls" class="post-media">
-        <img 
-          v-for="media in post.media_urls" 
-          :key="media.url"
-          :src="media.url"
-          :alt="media.alt"
-        />
-      </div>
-      
-      <!-- Hashtags -->
-      <div v-if="post.hashtags" class="post-hashtags">
-        <HashtagChip 
-          v-for="tag in post.hashtags"
-          :key="tag"
-          :tag="tag"
-        />
-      </div>
-    </div>
-
-    <!-- Engagement Actions -->
-    <div v-feature="'likes_reactions'" class="post-actions">
-      <LikeButton 
-        :post-id="post.id"
-        :initial-liked="post.user_liked"
-        :count="post.likes_count"
-      />
-      
-      <CommentButton 
-        :count="post.comments_count"
-        @click="toggleComments"
-      />
-      
-      <ShareButton 
-        v-feature="'shares'"
-        :post-id="post.id"
-        :count="post.shares_count"
-      />
-      
-      <BookmarkButton 
-        v-feature="'bookmarks'"
-        :post-id="post.id"
-        :initial-bookmarked="post.user_bookmarked"
-      />
-    </div>
-
-    <!-- Comments Section -->
-    <CommentSection 
-      v-if="showComments && commentsEnabled"
-      :post-id="post.id"
-    />
-
-    <!-- DRM Watermark (if applicable) -->
-    <Watermark 
-      v-if="post.is_premium_content"
-      :user="currentUser"
-    />
-  </Card>
-</template>
-
-<script setup>
-import { ref, computed } from 'vue'
-import { usePost } from '@/composables/social/usePost'
-import { sanitizeHtml } from '@/utils/sanitize'
-import { useReport } from '@/composables/compliance/useReport'
-
-const props = defineProps({
-  post: {
-    type: Object,
-    required: true
-  }
+const apiClient: AxiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
 
-const { currentUser } = useAuth()
-const { openReportModal } = useReport()
+setupInterceptors(apiClient)
 
-const contentRevealed = ref(false)
-const showComments = ref(false)
-
-const isOwnPost = computed(() => {
-  return props.post.author.id === currentUser.value?.id
-})
-
-const sanitizedContent = computed(() => {
-  return sanitizeHtml(props.post.content)
-})
-
-const commentsEnabled = computed(() => {
-  return isFeatureEnabled('comments')
-})
-
-const revealContent = () => {
-  contentRevealed.value = true
-}
-
-const toggleComments = () => {
-  showComments.value = !showComments.value
-}
-
-const reportPost = () => {
-  openReportModal({
-    content_id: props.post.id,
-    content_type: 'post',
-    author: props.post.author
-  })
-}
-</script>
+export default apiClient
 ```
 
-### 💬 CommentSection Component
+### 🔐 JWT Token Management
 
-```vue
-<!-- src/components/social/CommentSection.vue -->
+```typescript
+// src/api/interceptors.ts
+import { useAuthStore } from '@/stores/auth.store'
 
-<template>
-  <div class="comment-section">
-    <!-- Comment Input -->
-    <CommentInput 
-      v-if="canComment"
-      :post-id="postId"
-      @submit="handleNewComment"
-    />
-
-    <!-- Comments List -->
-    <div class="comments-list">
-      <div 
-        v-for="comment in comments"
-        :key="comment.id"
-        class="comment"
-      >
-        <Avatar :user="comment.author" size="sm" />
-        
-        <div class="comment-content">
-          <div class="comment-header">
-            <strong>{{ comment.author.username }}</strong>
-            <span class="comment-time">{{ formatTime(comment.created_at) }}</span>
-          </div>
-          
-          <p v-html="sanitizeHtml(comment.content)"></p>
-          
-          <!-- Comment Actions -->
-          <div class="comment-actions">
-            <LikeButton 
-              v-feature="'likes_reactions'"
-              type="comment"
-              :comment-id="comment.id"
-              :count="comment.likes_count"
-              size="sm"
-            />
-            
-            <button @click="replyToComment(comment)">
-              Reply
-            </button>
-            
-            <button 
-              v-if="!isOwnComment(comment)"
-              @click="reportComment(comment)"
-            >
-              🚩 Report
-            </button>
-          </div>
-          
-          <!-- Nested Replies -->
-          <div v-if="comment.replies_count > 0" class="comment-replies">
-            <CommentSection 
-              :post-id="postId"
-              :parent-comment-id="comment.id"
-              nested
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+export function setupInterceptors(apiClient) {
+  // Request Interceptor - Add JWT Token
+  apiClient.interceptors.request.use(config => {
+    const authStore = useAuthStore()
+    const token = authStore.accessToken
     
-    <!-- Load More -->
-    <button 
-      v-if="hasMore"
-      @click="loadMoreComments"
-      class="btn-load-more"
-    >
-      Load More Comments
-    </button>
-  </div>
-</template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useComment } from '@/composables/social/useComment'
-import { useAuth } from '@/composables/core/useAuth'
-import { useReport } from '@/composables/compliance/useReport'
-
-const props = defineProps({
-  postId: {
-    type: String,
-    required: true
-  },
-  parentCommentId: {
-    type: String,
-    default: null
-  },
-  nested: {
-    type: Boolean,
-    default: false
-  }
-})
-
-const { currentUser } = useAuth()
-const { 
-  comments, 
-  hasMore,
-  loadComments, 
-  addComment 
-} = useComment(props.postId, props.parentCommentId)
-
-const { openReportModal } = useReport()
-
-const canComment = computed(() => {
-  return currentUser.value && !props.nested
-})
-
-const isOwnComment = (comment) => {
-  return comment.author.id === currentUser.value?.id
-}
-
-const handleNewComment = async (commentData) => {
-  await addComment(commentData)
-}
-
-const loadMoreComments = async () => {
-  await loadComments()
-}
-
-const reportComment = (comment) => {
-  openReportModal({
-    content_id: comment.id,
-    content_type: 'comment',
-    author: comment.author
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    
+    return config
   })
-}
 
-onMounted(() => {
-  loadComments()
-})
-</script>
+  // Response Interceptor - Handle Errors & Token Refresh
+  apiClient.interceptors.response.use(
+    response => response,
+    async error => {
+      const authStore = useAuthStore()
+      const originalRequest = error.config
+      
+      // Token expired - try refresh
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true
+        
+        try {
+          const newToken = await authStore.refreshToken()
+          originalRequest.headers.Authorization = `Bearer ${newToken}`
+          return apiClient(originalRequest)
+        } catch (err) {
+          authStore.logout()
+          window.location.href = '/login'
+        }
+      }
+      
+      return Promise.reject(error)
+    }
+  )
+}
 ```
 
 ---
 
-## 5. Compliance Components
+## 8. Component-Store-API Flow Beispiele
 
-### 🍪 CookieConsent Component (GDPR)
+### 📝 Post erstellen - Complete Flow
 
+**1. Component (PostComposer.vue)**
 ```vue
-<!-- src/components/compliance/CookieConsent.vue -->
-
 <template>
-  <div v-if="!hasConsent" class="cookie-banner">
-    <div class="cookie-content">
-      <h3>{{ $t('compliance.cookies.title') }}</h3>
-      <p>{{ $t('compliance.cookies.description') }}</p>
-      
-      <div class="cookie-options">
-        <!-- Essential Cookies (always on) -->
-        <label class="cookie-option">
-          <input type="checkbox" checked disabled>
-          <span>{{ $t('compliance.cookies.essential') }}</span>
-          <small>{{ $t('compliance.cookies.essential_desc') }}</small>
-        </label>
-        
-        <!-- Analytics Cookies -->
-        <label class="cookie-option">
-          <input 
-            type="checkbox" 
-            v-model="preferences.analytics"
-          >
-          <span>{{ $t('compliance.cookies.analytics') }}</span>
-          <small>{{ $t('compliance.cookies.analytics_desc') }}</small>
-        </label>
-        
-        <!-- Marketing Cookies -->
-        <label class="cookie-option">
-          <input 
-            type="checkbox" 
-            v-model="preferences.marketing"
-          >
-          <span>{{ $t('compliance.cookies.marketing') }}</span>
-          <small>{{ $t('compliance.cookies.marketing_desc') }}</small>
-        </label>
-      </div>
-      
-      <div class="cookie-actions">
-        <button @click="acceptAll" class="btn btn-primary">
-          {{ $t('compliance.cookies.accept_all') }}
-        </button>
-        
-        <button @click="acceptSelected" class="btn btn-secondary">
-          {{ $t('compliance.cookies.accept_selected') }}
-        </button>
-        
-        <button @click="rejectAll" class="btn btn-text">
-          {{ $t('compliance.cookies.reject_all') }}
-        </button>
-      </div>
-      
-      <div class="cookie-links">
-        <router-link to="/privacy/cookie-policy">
-          {{ $t('compliance.cookies.learn_more') }}
-        </router-link>
-      </div>
-    </div>
-  </div>
+  <form @submit.prevent="submitPost">
+    <textarea v-model="formData.content" placeholder="Was möchtest du teilen?"></textarea>
+    <input type="file" multiple @change="handleMediaUpload" />
+    <button type="submit" :disabled="isSubmitting">Posten</button>
+  </form>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useConsent } from '@/composables/compliance/useConsent'
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useSocialStore } from '@/stores/social.store'
+import type { CreatePostRequest } from '@/types'
 
-const { 
-  hasConsent, 
-  preferences, 
-  saveConsent, 
-  loadConsent 
-} = useConsent()
-
-const acceptAll = async () => {
-  preferences.value = {
-    essential: true,
-    analytics: true,
-    marketing: true
-  }
-  await saveConsent(preferences.value)
-}
-
-const acceptSelected = async () => {
-  await saveConsent(preferences.value)
-}
-
-const rejectAll = async () => {
-  preferences.value = {
-    essential: true,
-    analytics: false,
-    marketing: false
-  }
-  await saveConsent(preferences.value)
-}
-
-onMounted(() => {
-  loadConsent()
-})
-</script>
-
-<style scoped>
-.cookie-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-  padding: 24px;
-  z-index: 9999;
-}
-
-.cookie-options {
-  margin: 16px 0;
-}
-
-.cookie-option {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 12px;
-  padding: 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-}
-
-.cookie-option input {
-  margin-right: 12px;
-}
-
-.cookie-option small {
-  display: block;
-  color: #666;
-  font-size: 0.875rem;
-}
-
-.cookie-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-@media (max-width: 768px) {
-  .cookie-actions {
-    flex-direction: column;
-  }
-}
-</style>
-```
-
-### 👶 AgeGate Component (Child Safety)
-
-```vue
-<!-- src/components/compliance/AgeGate.vue -->
-
-<template>
-  <div v-if="!ageVerified" class="age-gate-overlay">
-    <div class="age-gate-modal">
-      <img src="@/assets/logo.svg" alt="LSX" class="logo" />
-      
-      <h2>{{ $t('compliance.age_gate.title') }}</h2>
-      <p>{{ $t('compliance.age_gate.description') }}</p>
-      
-      <!-- Age Input -->
-      <form @submit.prevent="verifyAge">
-        <div class="form-group">
-          <label>{{ $t('compliance.age_gate.birthdate') }}</label>
-          <input 
-            type="date" 
-            v-model="birthdate"
-            :max="maxDate"
-            required
-          />
-        </div>
-        
-        <!-- Parental Consent (if under 13) -->
-        <div v-if="requiresParentalConsent" class="parental-consent">
-          <h3>{{ $t('compliance.age_gate.parental_consent_required') }}</h3>
-          <p>{{ $t('compliance.age_gate.coppa_notice') }}</p>
-          
-          <div class="form-group">
-            <label>{{ $t('compliance.age_gate.parent_email') }}</label>
-            <input 
-              type="email" 
-              v-model="parentEmail"
-              required
-            />
-          </div>
-        </div>
-        
-        <!-- Terms Agreement -->
-        <div class="form-group checkbox-group">
-          <label>
-            <input type="checkbox" v-model="agreeTerms" required />
-            {{ $t('compliance.age_gate.agree_terms') }}
-            <router-link to="/privacy/terms" target="_blank">
-              {{ $t('compliance.age_gate.read_terms') }}
-            </router-link>
-          </label>
-        </div>
-        
-        <button 
-          type="submit" 
-          class="btn btn-primary"
-          :disabled="!canSubmit"
-        >
-          {{ $t('compliance.age_gate.continue') }}
-        </button>
-      </form>
-      
-      <div class="age-gate-footer">
-        <a href="/privacy/age-verification" target="_blank">
-          {{ $t('compliance.age_gate.why_ask') }}
-        </a>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { ref, computed } from 'vue'
-import { useAgeGate } from '@/composables/compliance/useAgeGate'
-
-const {
-  ageVerified,
-  verifyAge: submitVerification,
-  requestParentalConsent
-} = useAgeGate()
-
-const birthdate = ref('')
-const parentEmail = ref('')
-const agreeTerms = ref(false)
-
-const maxDate = computed(() => {
-  const today = new Date()
-  return today.toISOString().split('T')[0]
-})
-
-const age = computed(() => {
-  if (!birthdate.value) return 0
-  
-  const today = new Date()
-  const birth = new Date(birthdate.value)
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
-  
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
-  }
-  
-  return age
-})
-
-const requiresParentalConsent = computed(() => {
-  return age.value > 0 && age.value < 13 // COPPA
-})
-
-const canSubmit = computed(() => {
-  return agreeTerms.value && 
-         birthdate.value &&
-         (!requiresParentalConsent.value || parentEmail.value)
-})
-
-const verifyAge = async () => {
-  if (requiresParentalConsent.value) {
-    // Request parental consent via email
-    await requestParentalConsent({
-      birthdate: birthdate.value,
-      parent_email: parentEmail.value
-    })
-    
-    // Show message: "Parental consent email sent"
-    alert($t('compliance.age_gate.consent_email_sent'))
-  } else {
-    // Verify age directly
-    await submitVerification({
-      birthdate: birthdate.value,
-      agree_terms: agreeTerms.value
-    })
-  }
-}
-</script>
-
-<style scoped>
-.age-gate-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.95);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.age-gate-modal {
-  background: white;
-  padding: 48px;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-}
-
-.logo {
-  width: 120px;
-  margin-bottom: 24px;
-}
-
-.parental-consent {
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  padding: 16px;
-  border-radius: 8px;
-  margin: 16px 0;
-}
-
-.checkbox-group label {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-</style>
-```
-
-### 🚩 ReportContent Component (DSA Art. 14)
-
-```vue
-<!-- src/components/compliance/ReportContent.vue -->
-
-<template>
-  <Modal 
-    :show="isOpen"
-    @close="closeModal"
-    size="large"
-  >
-    <template #header>
-      <h2>{{ $t('compliance.report.title') }}</h2>
-    </template>
-
-    <template #body>
-      <form @submit.prevent="submitReport">
-        <!-- Report Category -->
-        <div class="form-group">
-          <label>{{ $t('compliance.report.category') }} *</label>
-          <select v-model="form.category" required>
-            <option value="">{{ $t('compliance.report.select_category') }}</option>
-            <option value="hate_speech">{{ $t('compliance.report.hate_speech') }}</option>
-            <option value="harassment">{{ $t('compliance.report.harassment') }}</option>
-            <option value="spam">{{ $t('compliance.report.spam') }}</option>
-            <option value="violence">{{ $t('compliance.report.violence') }}</option>
-            <option value="nsfw">{{ $t('compliance.report.nsfw') }}</option>
-            <option value="csam">🚨 {{ $t('compliance.report.csam') }}</option>
-            <option value="misinformation">{{ $t('compliance.report.misinformation') }}</option>
-            <option value="copyright">{{ $t('compliance.report.copyright') }}</option>
-            <option value="other">{{ $t('compliance.report.other') }}</option>
-          </select>
-        </div>
-
-        <!-- CSAM Warning -->
-        <Alert v-if="form.category === 'csam'" type="error">
-          <strong>{{ $t('compliance.report.csam_warning') }}</strong>
-          <p>{{ $t('compliance.report.csam_notice') }}</p>
-        </Alert>
-
-        <!-- Description -->
-        <div class="form-group">
-          <label>{{ $t('compliance.report.description') }} *</label>
-          <textarea 
-            v-model="form.description"
-            rows="5"
-            :placeholder="$t('compliance.report.description_placeholder')"
-            required
-          ></textarea>
-          <small>{{ $t('compliance.report.be_specific') }}</small>
-        </div>
-
-        <!-- Evidence Upload -->
-        <div class="form-group">
-          <label>{{ $t('compliance.report.evidence') }}</label>
-          <input 
-            type="file"
-            @change="handleFileUpload"
-            accept="image/*,.pdf"
-            multiple
-          />
-          <small>{{ $t('compliance.report.evidence_help') }}</small>
-        </div>
-
-        <!-- Anonymous Reporting -->
-        <div class="form-group checkbox-group">
-          <label>
-            <input type="checkbox" v-model="form.anonymous" />
-            {{ $t('compliance.report.report_anonymously') }}
-          </label>
-          <small>{{ $t('compliance.report.anonymous_notice') }}</small>
-        </div>
-
-        <!-- Content Preview -->
-        <div class="content-preview">
-          <h4>{{ $t('compliance.report.reported_content') }}</h4>
-          <PostCard 
-            v-if="contentType === 'post'"
-            :post="content"
-            preview-mode
-          />
-          <!-- Other content types... -->
-        </div>
-      </form>
-    </template>
-
-    <template #footer>
-      <button 
-        @click="closeModal"
-        class="btn btn-secondary"
-      >
-        {{ $t('common.cancel') }}
-      </button>
-      
-      <button 
-        @click="submitReport"
-        class="btn btn-primary"
-        :disabled="!canSubmit || isSubmitting"
-      >
-        <Loader v-if="isSubmitting" size="sm" />
-        {{ $t('compliance.report.submit') }}
-      </button>
-    </template>
-  </Modal>
-</template>
-
-<script setup>
-import { ref, computed } from 'vue'
-import { useReport } from '@/composables/compliance/useReport'
-import { useToast } from '@/composables/core/useToast'
-
-const props = defineProps({
-  contentId: String,
-  contentType: String,
-  content: Object
-})
-
-const {
-  isOpen,
-  closeModal,
-  submitReport: submitToAPI
-} = useReport()
-
-const { showToast } = useToast()
-
-const form = ref({
-  category: '',
-  description: '',
-  evidence: [],
-  anonymous: false
-})
-
+const socialStore = useSocialStore()
+const formData = ref<CreatePostRequest>({ title: '', content: '', media: [] })
 const isSubmitting = ref(false)
 
-const canSubmit = computed(() => {
-  return form.value.category && form.value.description.length >= 20
-})
-
-const handleFileUpload = (event) => {
-  form.value.evidence = Array.from(event.target.files)
-}
-
-const submitReport = async () => {
-  if (!canSubmit.value) return
-
+async function submitPost() {
   isSubmitting.value = true
-
   try {
-    await submitToAPI({
-      content_id: props.contentId,
-      content_type: props.contentType,
-      category: form.value.category,
-      description: form.value.description,
-      evidence: form.value.evidence,
-      anonymous: form.value.anonymous
-    })
-
-    showToast({
-      type: 'success',
-      message: $t('compliance.report.success')
-    })
-
-    closeModal()
-  } catch (error) {
-    showToast({
-      type: 'error',
-      message: $t('compliance.report.error')
-    })
+    // Action ruft API Endpoint auf (siehe Store)
+    await socialStore.createPost(formData.value)
+    formData.value = { title: '', content: '', media: [] }
+  } catch (err) {
+    console.error('Error creating post:', err)
   } finally {
     isSubmitting.value = false
   }
 }
 </script>
-
-<style scoped>
-.content-preview {
-  background: #f5f5f5;
-  padding: 16px;
-  border-radius: 8px;
-  margin-top: 16px;
-}
-
-.checkbox-group small {
-  display: block;
-  margin-top: 4px;
-  color: #666;
-}
-</style>
 ```
 
----
-
-## 6. Moderation Dashboard
-
-### 🛡️ ModerationQueue Component
-
-```vue
-<!-- src/pages/moderation/Queue.vue -->
-
-<template>
-  <ModeratorLayout>
-    <div class="moderation-queue">
-      <header class="queue-header">
-        <h1>{{ $t('moderation.queue.title') }}</h1>
-        
-        <!-- Filters -->
-        <div class="queue-filters">
-          <select v-model="filters.priority">
-            <option value="">All Priorities</option>
-            <option value="critical">🚨 Critical</option>
-            <option value="high">⚠️ High</option>
-            <option value="medium">📊 Medium</option>
-            <option value="low">ℹ️ Low</option>
-          </select>
-          
-          <select v-model="filters.category">
-            <option value="">All Categories</option>
-            <option value="hate_speech">Hate Speech</option>
-            <option value="harassment">Harassment</option>
-            <option value="spam">Spam</option>
-            <option value="csam">CSAM</option>
-          </select>
-          
-          <select v-model="filters.sla">
-            <option value="">All SLA</option>
-            <option value="overdue">Overdue</option>
-            <option value="urgent">< 2h</option>
-            <option value="soon">< 24h</option>
-          </select>
-        </div>
-      </header>
-
-      <!-- Stats -->
-      <div class="queue-stats">
-        <StatCard 
-          title="Pending"
-          :value="stats.pending"
-          icon="⏳"
-        />
-        <StatCard 
-          title="Overdue (SLA)"
-          :value="stats.overdue"
-          icon="🚨"
-          type="danger"
-        />
-        <StatCard 
-          title="Reviewed Today"
-          :value="stats.reviewed_today"
-          icon="✅"
-        />
-        <StatCard 
-          title="Avg. Response Time"
-          :value="stats.avg_response_time"
-          icon="⏱️"
-        />
-      </div>
-
-      <!-- Queue List -->
-      <div class="queue-list">
-        <ContentReview 
-          v-for="report in filteredReports"
-          :key="report.id"
-          :report="report"
-          @action="handleModerationAction"
-        />
-        
-        <!-- Empty State -->
-        <div v-if="filteredReports.length === 0" class="empty-state">
-          <p>✅ {{ $t('moderation.queue.empty') }}</p>
-        </div>
-      </div>
-
-      <!-- Pagination -->
-      <Pagination 
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @change="changePage"
-      />
-    </div>
-  </ModeratorLayout>
-</template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useModerationQueue } from '@/composables/moderation/useModerationQueue'
-import { useModerationStats } from '@/composables/moderation/useModerationStats'
-
-const {
-  reports,
-  stats,
-  filters,
-  currentPage,
-  totalPages,
-  loadQueue,
-  takeAction
-} = useModerationQueue()
-
-const filteredReports = computed(() => {
-  let filtered = reports.value
-
-  if (filters.value.priority) {
-    filtered = filtered.filter(r => r.priority === filters.value.priority)
+**2. Store Action (social.store.ts)**
+```typescript
+async createPost(data: CreatePostRequest) {
+  try {
+    // Ruft API Endpoint auf
+    const newPost = await socialApi.createPost(data)
+    
+    // Aktualisiert lokalen State
+    this.feed.posts.unshift(newPost)
+    this.feed.total += 1
+    
+    return newPost
+  } catch (err) {
+    this.error = err.message
+    throw err
   }
-
-  if (filters.value.category) {
-    filtered = filtered.filter(r => r.category === filters.value.category)
-  }
-
-  if (filters.value.sla) {
-    const now = new Date()
-    filtered = filtered.filter(r => {
-      const deadline = new Date(r.sla_deadline)
-      const hoursLeft = (deadline - now) / (1000 * 60 * 60)
-
-      if (filters.value.sla === 'overdue') {
-        return hoursLeft < 0
-      } else if (filters.value.sla === 'urgent') {
-        return hoursLeft < 2 && hoursLeft > 0
-      } else if (filters.value.sla === 'soon') {
-        return hoursLeft < 24 && hoursLeft > 2
-      }
-
-      return true
-    })
-  }
-
-  return filtered
-})
-
-const handleModerationAction = async (action) => {
-  await takeAction(action)
-  await loadQueue()
 }
+```
 
-const changePage = (page) => {
-  currentPage.value = page
-  loadQueue()
+**3. API Client (social.api.ts)**
+```typescript
+export const socialApi = {
+  async createPost(data: CreatePostRequest): Promise<Post> {
+    // Ruft Backend Endpoint auf: POST /api/v1/social/posts
+    const response = await apiClient.post('/api/v1/social/posts', data)
+    return response.data
+  },
 }
+```
 
-onMounted(() => {
-  loadQueue()
+**4. WebSocket Event**
+```
+Backend emittet nach erfolgreicher Erstellung:
+  → WebSocket Event: post:created { id, author, title, content, ... }
   
-  // Auto-refresh every 30 seconds
-  setInterval(() => {
-    loadQueue()
-  }, 30000)
-})
-</script>
-
-<style scoped>
-.queue-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.queue-filters {
-  display: flex;
-  gap: 12px;
-}
-
-.queue-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.queue-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 48px;
-  background: #f5f5f5;
-  border-radius: 8px;
-}
-</style>
+Frontend empfängt in Feed.vue:
+  → Aktualisiert feed Store automatisch
+  → UI re-rendert sofort
 ```
 
 ---
 
-## 7. Router mit Feature Guards
+## 9. Router Guards & Feature Flags
 
-```javascript
-// src/router/index.js
+```typescript
+// src/router/guards.ts
+import { useAuthStore } from '@/stores/auth.store'
+import { useFeatureStore } from '@/stores/feature.store'
 
-import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/store/modules/user'
-import { requireAuth, requireRole } from './guards'
-import { requireFeature } from './featureGuards'
+export function requireAuth(to, from, next) {
+  const authStore = useAuthStore()
+  
+  if (!authStore.isAuthenticated) {
+    next({ name: 'Login', query: { redirect: to.fullPath } })
+  } else {
+    next()
+  }
+}
 
+export function requireRole(role: string) {
+  return (to, from, next) => {
+    const authStore = useAuthStore()
+    
+    if (authStore.user?.role === role || authStore.user?.role === 'admin') {
+      next()
+    } else {
+      next({ name: 'Unauthorized' })
+    }
+  }
+}
+
+export function requireFeature(featureName: string) {
+  return (to, from, next) => {
+    const featureStore = useFeatureStore()
+    
+    if (featureStore.isFeatureEnabled(featureName)) {
+      next()
+    } else {
+      next({ name: 'FeatureNotAvailable' })
+    }
+  }
+}
+```
+
+**Route Definition:**
+```typescript
+// src/router/routes.ts
 const routes = [
-  // ... existing routes
-
-  // Social Routes (Feature-Flagged)
   {
     path: '/social',
     component: () => import('@/layouts/MainLayout.vue'),
-    beforeEnter: requireFeature('feed_system'),
+    beforeEnter: [requireAuth, requireFeature('social-network')],
     children: [
       {
         path: 'feed',
-        name: 'SocialFeed',
+        name: 'Feed',
         component: () => import('@/pages/social/Feed.vue'),
-        meta: { requiresAuth: true }
       },
-      {
-        path: 'explore',
-        name: 'Explore',
-        component: () => import('@/pages/social/Explore.vue'),
-        beforeEnter: requireFeature('explore_page')
-      },
-      {
-        path: 'trending',
-        name: 'Trending',
-        component: () => import('@/pages/social/Trending.vue'),
-        beforeEnter: requireFeature('trending_discovery')
-      },
-      {
-        path: 'profile/:userId',
-        name: 'UserProfile',
-        component: () => import('@/pages/social/Profile.vue')
-      },
-      {
-        path: 'messages',
-        name: 'Messages',
-        component: () => import('@/pages/social/Messages.vue'),
-        beforeEnter: [requireAuth, requireFeature('direct_messages')]
-      }
-    ]
+    ],
   },
-
-  // Privacy & Compliance Routes
-  {
-    path: '/privacy',
-    component: () => import('@/layouts/MinimalLayout.vue'),
-    children: [
-      {
-        path: 'settings',
-        name: 'PrivacySettings',
-        component: () => import('@/pages/privacy/PrivacySettings.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'export',
-        name: 'DataExport',
-        component: () => import('@/pages/privacy/DataExport.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'delete',
-        name: 'DataDeletion',
-        component: () => import('@/pages/privacy/DataDeletion.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'policy',
-        name: 'PrivacyPolicy',
-        component: () => import('@/pages/privacy/PrivacyPolicy.vue')
-      },
-      {
-        path: 'terms',
-        name: 'TermsOfService',
-        component: () => import('@/pages/privacy/TermsOfService.vue')
-      },
-      {
-        path: 'guidelines',
-        name: 'CommunityGuidelines',
-        component: () => import('@/pages/privacy/CommunityGuidelines.vue')
-      }
-    ]
-  },
-
-  // Moderation Routes
-  {
-    path: '/moderation',
-    component: () => import('@/layouts/ModeratorLayout.vue'),
-    beforeEnter: [requireAuth, requireRole('moderator')],
-    children: [
-      {
-        path: '',
-        name: 'ModerationDashboard',
-        component: () => import('@/pages/moderation/Dashboard.vue')
-      },
-      {
-        path: 'queue',
-        name: 'ModerationQueue',
-        component: () => import('@/pages/moderation/Queue.vue')
-      },
-      {
-        path: 'reports',
-        name: 'ModerationReports',
-        component: () => import('@/pages/moderation/Reports.vue')
-      },
-      {
-        path: 'review/:reportId',
-        name: 'ReviewContent',
-        component: () => import('@/pages/moderation/ReviewContent.vue')
-      },
-      {
-        path: 'appeals',
-        name: 'Appeals',
-        component: () => import('@/pages/moderation/Appeals.vue')
-      },
-      {
-        path: 'statistics',
-        name: 'ModerationStatistics',
-        component: () => import('@/pages/moderation/Statistics.vue')
-      }
-    ]
-  },
-
-  // Parental Control Routes
-  {
-    path: '/parental',
-    component: () => import('@/layouts/MainLayout.vue'),
-    beforeEnter: [requireAuth, requireRole('parent')],
-    children: [
-      {
-        path: '',
-        name: 'ParentalDashboard',
-        component: () => import('@/pages/parental/Dashboard.vue')
-      },
-      {
-        path: 'activity',
-        name: 'ChildActivity',
-        component: () => import('@/pages/parental/ActivityLog.vue')
-      },
-      {
-        path: 'screen-time',
-        name: 'ScreenTime',
-        component: () => import('@/pages/parental/ScreenTime.vue')
-      },
-      {
-        path: 'restrictions',
-        name: 'ContentRestrictions',
-        component: () => import('@/pages/parental/Restrictions.vue')
-      }
-    ]
-  },
-
-  // Admin Feature Flag Routes
-  {
-    path: '/admin',
-    component: () => import('@/layouts/AdminLayout.vue'),
-    beforeEnter: [requireAuth, requireRole('admin')],
-    children: [
-      // ... existing admin routes
-      
-      {
-        path: 'features',
-        name: 'AdminFeatureFlags',
-        component: () => import('@/pages/admin/FeatureFlags.vue')
-      },
-      {
-        path: 'rollout',
-        name: 'AdminRollout',
-        component: () => import('@/pages/admin/RolloutControl.vue')
-      },
-      {
-        path: 'compliance',
-        name: 'AdminCompliance',
-        component: () => import('@/pages/admin/ComplianceDashboard.vue')
-      }
-    ]
-  }
 ]
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes
-})
-
-// Global Guards
-router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore()
-  
-  // Check authentication
-  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-    return
-  }
-  
-  // Age gate check
-  if (!userStore.ageVerified && to.name !== 'AgeVerification') {
-    next({ name: 'AgeVerification' })
-    return
-  }
-  
-  next()
-})
-
-export default router
 ```
 
 ---
 
-## 8. Zusammenfassung
+## 10. Zusammenfassung
 
-### ✅ LSX Frontend Features v2.0
+### ✅ Frontend Architecture v3.0
 
-| Feature | Status | Technologie |
-|---------|--------|-------------|
-| 🧩 **Modular** | ✅ | Component-based Architecture |
-| 👥 **Rollenbasiert** | ✅ | Router Guards + RBAC |
-| 🎨 **Komponentengetrieben** | ✅ | Vue 3 Composition API |
-| ⚡ **Vue 3 Composition API** | ✅ | Composables Pattern |
-| 🤖 **KI-Integration** | ✅ | AI Services Integration |
-| ♿ **Barrierefrei** | ✅ | WCAG 2.1 AA |
-| 🌍 **Multilingual** | ✅ | vue-i18n (20+ Languages) |
-| 🔄 **Erweiterbar** | ✅ | Plugin System |
-| 🔒 **Sicher** | ✅ | XSS Protection, CSP, DRM |
-| 🚀 **Performant** | ✅ | Lazy Loading, Code Splitting |
-| 🎚️ **Feature Flags** | ✅ | Progressive Rollout |
-| 🌟 **Social Network** | ✅ | Posts, Feed, Follow, Engagement |
-| ⚖️ **Compliance UI** | ✅ | Cookie Consent, Age Gates, Privacy |
-| 🛡️ **Moderation Dashboard** | ✅ | Content Review, Reports, Appeals |
-| 👶 **Child Safety** | ✅ | Parental Controls, Safe Mode |
-| 📊 **Analytics** | ✅ | Feature Usage, A/B Testing |
+| Aspekt | Implementation | Status |
+|--------|----------------|--------|
+| 🧩 **Komponenten** | Vue 3 + Composition API | ✅ |
+| 📦 **State Management** | Pinia (Type-Safe) | ✅ |
+| 🌐 **API Integration** | Axios + REST Contracts | ✅ |
+| 🔄 **WebSocket** | Real-time Events | ✅ |
+| 🎚️ **Feature Flags** | v-feature Directive + Guards | ✅ |
+| 🔐 **Auth** | JWT + Refresh Token | ✅ |
+| 🛡️ **Type Safety** | TypeScript + Interfaces | ✅ |
+| ⚠️ **Error Handling** | Standardized Error Codes | ✅ |
+| 🌍 **i18n** | vue-i18n (20+ Languages) | ✅ |
+| 📊 **Analytics** | Chart.js + Stats | ✅ |
 
-### 💡 Enterprise Architecture Highlights
+### 💡 Development Workflow
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  🎯 Enterprise-Grade Social Learning Frontend            │
-│  ─────────────────────────────────────────────────────── │
-│                                                           │
-│  ✅ Vue 3 Composition API + Vite                         │
-│  ✅ Feature Flag System (v-feature directive)            │
-│  ✅ Social Network Components (50+ components)           │
-│  ✅ Compliance UI (GDPR, Age Gates, Reporting)           │
-│  ✅ Moderation Dashboard (Review Queue, Stats)           │
-│  ✅ Child Safety (Parental Controls, Safe Mode)          │
-│  ✅ DRM UI Components (License, Watermarks)              │
-│  ✅ Real-time Notifications (WebSockets)                 │
-│  ✅ Internationalization (20+ Languages)                 │
-│  ✅ Progressive Web App (PWA)                            │
-│                                                           │
-└──────────────────────────────────────────────────────────┘
+1. Backend entwickelt neuen Endpoint
+   ↓
+2. Type Definition schreiben (auth.types.ts, social.types.ts, etc.)
+   ↓
+3. API Client Methode erstellen (social.api.ts)
+   ↓
+4. Store Action implementieren (social.store.ts)
+   ↓
+5. Component mit Store verbinden
+   ↓
+6. WebSocket Event definieren & integrieren
+   ↓
+7. Feature Flag Guard hinzufügen
 ```
-
-### 🎯 Component Overview
-
-| Kategorie | Anzahl | Beispiele |
-|-----------|--------|-----------|
-| 🧩 **Base Components** | 15+ | Button, Modal, Card |
-| 🌟 **Social Components** | 20+ | PostCard, CommentSection, FollowButton |
-| ⚖️ **Compliance Components** | 15+ | CookieConsent, AgeGate, ReportContent |
-| 🛡️ **Moderation Components** | 8+ | ModerationQueue, ContentReview, SLAMonitor |
-| 🔒 **Security Components** | 6+ | TwoFactorAuth, DRMLicense, Watermark |
-| 🏗️ **Layouts** | 7 | Main, Dashboard, Admin, Moderator |
-| 📄 **Pages** | 60+ | Feed, Explore, Profile, Moderation |
-| 🎨 **Widgets** | 13 | Progress, Token, KI (existing) |
-| 🎥 **LiveRoom** | 8 | Whiteboard, Chat, Recording (existing) |
 
 ---
 
 ## 📌 Dokument abgeschlossen
 
-**Version:** 2.0  
+**Version:** 3.0  
 **Status:** Final  
-**Letzte Aktualisierung:** 10.01.2026
+**Letzte Aktualisierung:** 13.01.2026
 
-**Änderungen v2.0:**
-- ✅ Complete Enterprise Frontend Architecture
-- ✅ Feature Flag System (v-feature directive, guards)
-- ✅ Social Network UI Layer (50+ components)
-- ✅ Full Compliance Components (GDPR, Age Gates, Privacy)
-- ✅ Moderation Dashboard (Review Queue, Reports, Appeals)
-- ✅ Child Safety UI (Parental Controls, Safe Mode)
-- ✅ DRM UI Components (License Display, Watermarks)
-- ✅ Extended Router (Feature Guards, Compliance Routes)
-- ✅ Updated Store Architecture (Social, Compliance, Moderation)
-- ✅ 60+ New Pages & Components
+**Neue Features v3.0:**
+- ✅ Komplette API Contract Dokumentation
+- ✅ Store ↔ API Mapping für alle Features
+- ✅ TypeScript Type Definitions
+- ✅ WebSocket Event Dokumentation
+- ✅ Feature Flag Integration Beispiele
+- ✅ Error Handling Strategien
+- ✅ Component-Store-API Flow Diagramme
+- ✅ Development Workflow Dokumentation
 
----
-
-> ⚠️ **WICHTIG:**
-> - **Feature Flags** steuern alle neuen Social Features
-> - **v-feature** Directive für Feature-basierte UI
-> - **Progressive Rollout**: Phase 0 → 1 → 2 → 3
-> - **Compliance-Ready** für internationale Expansion
-> - **Child Safety First** - Immer aktiviert
+> **Wichtig:** Frontend und Backend entwickeln gegen diesen Contract. Keine spontanen API-Änderungen ohne Dokumentation zu aktualisieren!

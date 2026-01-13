@@ -173,7 +173,7 @@ import {
   getLMSuggestions,
   type AuthoringAction,
   type LMSuggestion
-} from '@/api/authoring.api'
+} from '@/api/ai-authoring.api'
 
 const { t } = useI18n()
 

@@ -37,7 +37,48 @@
     "unknownError": "Unbekannter Fehler",
     "course": "Kurs",
     "note": "Hinweis",
-    "workInProgress": "Implementierung in Arbeit"
+    "workInProgress": "Implementierung in Arbeit",
+    "notSpecified": "Nicht angegeben",
+    "createdAt": "Erstellt am",
+    "reviewedAt": "Geprüft am",
+    "defaultConfig": "Standard-Konfiguration",
+    "agentSupport": "Agent-Unterstützung",
+    "confirmAction": "Aktion bestätigen",
+    "saving": "Speichert...",
+    "deleting": "Löscht...",
+    "genericError": "Ein Fehler ist aufgetreten"
+  },
+  "languages": {
+    "de": "Deutsch",
+    "en": "Englisch",
+    "pl": "Polnisch"
+  },
+  "actions": {
+    "save": "Speichern",
+    "saving": "Speichert...",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "deleting": "Löscht...",
+    "close": "Schließen",
+    "retry": "Erneut versuchen"
+  },
+  "placeholders": {
+    "search": "Suchen...",
+    "firstName": "Vorname",
+    "lastName": "Nachname"
+  },
+  "errors": {
+    "unknownError": "Unbekannter Fehler",
+    "genericError": "Ein Fehler ist aufgetreten"
+  },
+  "status": {
+    "active": "Aktiv"
+  },
+  "plans": {
+    "free": "Kostenlos"
+  },
+  "tiers": {
+    "premium": "Premium"
   },
   "auth": {
     "login": "Anmelden",

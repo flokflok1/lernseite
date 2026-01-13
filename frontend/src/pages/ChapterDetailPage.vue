@@ -132,7 +132,7 @@ import {
   ChapterTheoryPanel,
   LessonPlayerPanel,
   useChapterDetail
-} from '@/components/content/user/chapters/detail'
+} from '@/components/base/content/user/chapters/detail'
 
 // ============================================================================
 // Setup

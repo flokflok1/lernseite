@@ -1,8 +1,8 @@
 # 16 – Frontend-Struktur (Final) + API Contracts
 
-**Version:** 3.0  
-**Stand:** 13.01.2026  
-**Änderungen:** Complete Frontend Architecture mit API Contracts, Store Mappings, WebSocket Events, TypeScript Types
+**Version:** 3.1
+**Stand:** 13.01.2026
+**Änderungen:** Component Consolidation: 21 domains → 7 documented domains. /base now includes 11 subdirectories for consolidated components. /studio consolidates AI, Assessment, and System-Features. Full directory tree with all subdirectories documented.
 
 ---
 
@@ -120,21 +120,34 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   └── useApi.ts           # Generic API Hooks
 │   │
 │   ├── /components             # 🧩 UI COMPONENTS
-│   │   ├── /base
-│   │   │   ├── Button.vue
-│   │   │   ├── Input.vue
-│   │   │   ├── Textarea.vue
-│   │   │   ├── Modal.vue
-│   │   │   ├── Dropdown.vue
-│   │   │   ├── Tabs.vue
-│   │   │   ├── Loader.vue
-│   │   │   ├── Alert.vue
-│   │   │   ├── Card.vue
-│   │   │   ├── ProgressBar.vue
-│   │   │   ├── Tooltip.vue
-│   │   │   ├── Badge.vue
-│   │   │   ├── Avatar.vue
-│   │   │   └── Pagination.vue
+│   │   ├── /base                # 🏗️ FOUNDATIONAL (Consolidated 11 domains)
+│   │   │   ├── /ui              # Core UI components
+│   │   │   │   ├── Button.vue
+│   │   │   │   ├── Input.vue
+│   │   │   │   ├── Textarea.vue
+│   │   │   │   ├── Modal.vue
+│   │   │   │   ├── Dropdown.vue
+│   │   │   │   ├── Tabs.vue
+│   │   │   │   ├── Loader.vue
+│   │   │   │   ├── Alert.vue
+│   │   │   │   ├── Card.vue
+│   │   │   │   ├── ProgressBar.vue
+│   │   │   │   ├── Tooltip.vue
+│   │   │   │   ├── Badge.vue
+│   │   │   │   ├── Avatar.vue
+│   │   │   │   └── Pagination.vue
+│   │   │   │
+│   │   │   ├── /admin-ui        # Admin dashboard & management (Consolidated /admin)
+│   │   │   ├── /charts          # Analytics charts (Consolidated /analytics)
+│   │   │   ├── /content         # Course content UI (Consolidated /content)
+│   │   │   ├── /core            # Auth & i18n (Consolidated /core)
+│   │   │   ├── /dashboard       # Dashboard widgets (Consolidated /dashboard)
+│   │   │   ├── /gamification    # RPG UI elements (Consolidated /gamification)
+│   │   │   ├── /layout          # Layout components (Consolidated /layout)
+│   │   │   ├── /learning        # Learning method components (Consolidated /learning)
+│   │   │   ├── /system          # System admin components (Consolidated /system)
+│   │   │   ├── /users           # User profile components (Consolidated /users)
+│   │   │   └── /workspace       # Desktop workspace layer (Consolidated /workspace)
 │   │   │
 │   │   ├── /social             # 🌟 SOCIAL COMPONENTS
 │   │   │   ├── PostCard.vue              # [API] GET /api/v1/social/posts/:id
@@ -196,17 +209,33 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   │   ├── RolloutProgress.vue       # [API] GET /api/v1/admin/features/:id/rollout
 │   │   │   └── ABTestBanner.vue          # Display A/B Test info
 │   │   │
-│   │   └── /studio             # 🎨 AI STUDIO COMPONENTS (NEW)
-│   │       ├── StudioChat.vue            # [API] POST /api/v1/studio/chat, [WS] studio:*
-│   │       ├── StudioGenerator.vue       # [API] POST /api/v1/studio/generate
-│   │       ├── VariantComparison.vue     # Display Variants side-by-side
-│   │       ├── TemplateSelector.vue      # [API] GET /api/v1/studio/templates
-│   │       ├── ProjectList.vue           # [API] GET /api/v1/studio/projects
-│   │       ├── ProjectCard.vue           # Display Project Preview
-│   │       ├── SessionHistory.vue        # [API] GET /api/v1/studio/history
-│   │       ├── ContentPreview.vue        # Preview Generated Content
-│   │       ├── GenerationProgress.vue    # Loading State with Tokens
-│   │       └── StudioSettings.vue        # [API] PUT /api/v1/studio/settings
+│   │   └── /studio             # 🎨 AI STUDIO COMPONENTS (Consolidated 3 domains)
+│   │       ├── /ai                      # AI Studio & Authoring (Consolidated /ai)
+│   │       │   ├── /admin               # Admin AI features
+│   │       │   │   ├── /authoring       # Content authoring
+│   │       │   │   ├── /management      # AI job/model management
+│   │       │   │   ├── /settings        # AI settings
+│   │       │   │   └── /studio          # AI Studio UI
+│   │       │   └── /user                # User AI features
+│   │       │       ├── /chat            # AI chat interface
+│   │       │       ├── /quiz-generation # Quiz generation UI
+│   │       │       └── /tutor           # AI tutor companion
+│   │       │
+│   │       ├── /assessment              # Exam & Assessment (Consolidated /assessment)
+│   │       │   ├── /admin               # Admin exam management
+│   │       │   │   ├── /exams           # Exam CRUD
+│   │       │   │   ├── /settings        # Exam settings
+│   │       │   │   └── /views           # Admin views
+│   │       │   └── /user                # User exam taking
+│   │       │       ├── /simulation      # Exam simulation
+│   │       │       └── /results         # Results & feedback
+│   │       │
+│   │       └── /system-features         # 25 System Features (Consolidated /system-features)
+│   │           ├── /tutor               # NPC Tutor
+│   │           ├── ChapterCompletionSystem.vue
+│   │           ├── IHKExamSystem.vue
+│   │           ├── WhiteboardEngine.vue
+│   │           └── ... (15 more components)
 │   │
 │   ├── /layouts                # 🏗️ LAYOUTS
 │   │   ├── MainLayout.vue

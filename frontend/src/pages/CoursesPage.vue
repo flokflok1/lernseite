@@ -208,8 +208,8 @@ import {
 import { getCategoryTree, type Category, type CategoryTreeNode } from '@/api/categories.api'
 import { useAuthStore } from '@/store/modules/core'
 import Button from '@/components/base/Button.vue'
-import CourseCard from '@/components/content/user/courses/CourseCard.vue'
-import EnrolledCourseCard from '@/components/content/user/courses/EnrolledCourseCard.vue'
+import CourseCard from '@/components/base/content/user/courses/CourseCard.vue'
+import EnrolledCourseCard from '@/components/base/content/user/courses/EnrolledCourseCard.vue'
 
 // ============================================================================
 // State

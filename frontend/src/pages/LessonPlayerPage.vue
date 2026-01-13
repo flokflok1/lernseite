@@ -177,7 +177,7 @@ import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/store/modules/content'
 import { useTutorStore } from '@/store/modules/learning'
 import Button from '@/components/base/Button.vue'
-import { MethodExecutionPanel } from '@/components/learning/methods'
+import { MethodExecutionPanel } from '@/components/base/learning/methods'
 
 // ============================================================================
 // Props
@@ -205,12 +205,12 @@ const router = useRouter()
 // ============================================================================
 
 const lessonComponents = {
-  text: defineAsyncComponent(() => import('@/components/learning/methods/TextLesson.vue')),
-  video: defineAsyncComponent(() => import('@/components/learning/methods/VideoLesson.vue')),
-  quiz: defineAsyncComponent(() => import('@/components/learning/methods/quiz/QuizLesson.vue')),
-  ai: defineAsyncComponent(() => import('@/components/learning/methods/AiLesson.vue')),
-  interactive: defineAsyncComponent(() => import('@/components/learning/methods/AiLesson.vue')), // Interactive lessons
-  mixed: defineAsyncComponent(() => import('@/components/learning/methods/TextLesson.vue')) // Fallback
+  text: defineAsyncComponent(() => import('@/components/base/learning/methods/TextLesson.vue')),
+  video: defineAsyncComponent(() => import('@/components/base/learning/methods/VideoLesson.vue')),
+  quiz: defineAsyncComponent(() => import('@/components/base/learning/methods/quiz/QuizLesson.vue')),
+  ai: defineAsyncComponent(() => import('@/components/base/learning/methods/AiLesson.vue')),
+  interactive: defineAsyncComponent(() => import('@/components/base/learning/methods/AiLesson.vue')), // Interactive lessons
+  mixed: defineAsyncComponent(() => import('@/components/base/learning/methods/TextLesson.vue')) // Fallback
 }
 
 // ============================================================================

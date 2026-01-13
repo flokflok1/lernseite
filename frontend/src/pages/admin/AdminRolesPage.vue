@@ -208,7 +208,7 @@ import { useI18n } from 'vue-i18n'
 import { useRolesStore } from '@/store/modules/admin/roles.store'
 import { getSystemFeatures, getPermissions } from '@/api/admin/roles.api'
 import type { RoleWithStats, SystemFeature, Permission, CreateRoleRequest, CreateFromTemplateRequest } from '@/api/admin/roles.api'
-import { RoleList, RoleForm, PermissionMatrix, RoleTemplateSelector } from '@/components/admin/user-management/roles'
+import { RoleList, RoleForm, PermissionMatrix, RoleTemplateSelector } from '@/components/base/admin-ui/user-management/roles'
 
 const { t } = useI18n()
 const rolesStore = useRolesStore()

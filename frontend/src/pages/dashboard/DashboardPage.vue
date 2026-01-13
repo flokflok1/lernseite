@@ -199,10 +199,10 @@ import type { SubscriptionResponse } from '@/api/subscriptions.api'
 import type { EnrolledCourse } from '@/api/courses.api'
 
 // Components
-import RpgCharacterCard from '@/components/gamification/RpgCharacterCard.vue'
-import RpgQuestList from '@/components/gamification/RpgQuestList.vue'
-import RpgSkillTree from '@/components/gamification/RpgSkillTree.vue'
-import RpgInventorySummary from '@/components/gamification/RpgInventorySummary.vue'
+import RpgCharacterCard from '@/components/base/gamification/RpgCharacterCard.vue'
+import RpgQuestList from '@/components/base/gamification/RpgQuestList.vue'
+import RpgSkillTree from '@/components/base/gamification/RpgSkillTree.vue'
+import RpgInventorySummary from '@/components/base/gamification/RpgInventorySummary.vue'
 
 // ============================================================================
 // Stores & i18n

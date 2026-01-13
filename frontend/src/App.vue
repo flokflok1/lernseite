@@ -12,7 +12,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import BaseLayout from '@/layouts/BaseLayout.vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
-import { TutorCompanion } from '@/components/system-features/tutor/user'
+import { TutorCompanion } from '@/components/studio/system-features/tutor/user'
 import { useAuthStore } from '@/store/modules/core'
 import { useTutorStore } from '@/store/modules/learning'
 

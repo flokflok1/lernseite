@@ -171,7 +171,7 @@ const menuItems = computed(() => {
     return [
       { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
       { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
-      { path: '/admin/roles', label: t('admin.nav.roles'), icon: '🔐' },
+      { path: '/admin/role-studio', label: t('admin.nav.roles'), icon: '🔐' },
       { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
       { path: '/admin/kurs-editor', label: t('admin.nav.courseEditor'), icon: '📝' },
       { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },

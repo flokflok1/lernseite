@@ -195,10 +195,15 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/admin/AdminLMRoutingPage.vue'),
       },
       {
-        path: 'roles',
+        path: 'role-studio',
         name: 'AdminRoles',
         component: () => import('@/pages/admin/AdminRolesPage.vue'),
         meta: { requiresOwner: true }, // RBAC 2.0 - Only Owner can manage roles
+      },
+      // Legacy route (old name)
+      {
+        path: 'roles',
+        redirect: '/admin/role-studio',
       },
       {
         path: 'system-settings',

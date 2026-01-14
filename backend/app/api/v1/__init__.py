@@ -94,6 +94,9 @@ from app.api.v1.audio import audio_bp
 # Import both from barrel export for backward compatibility
 from app.api.v1.i18n import i18n_public_bp, i18n_admin_bp
 
+# Content translation endpoints (distinct from UI i18n)
+from app.api.v1.translation import bp as translation_bp
+
 # Feature-based authorization endpoints (public + authenticated)
 from app.api.v1.features import features_bp
 
@@ -154,6 +157,7 @@ api_v1.register_blueprint(gamification_bp)
 api_v1.register_blueprint(audio_bp)
 api_v1.register_blueprint(i18n_public_bp)
 api_v1.register_blueprint(i18n_admin_bp)
+api_v1.register_blueprint(translation_bp)
 api_v1.register_blueprint(features_bp)
 
 # Dashboard and Admin blueprints registered in their own __init__.py files
@@ -166,6 +170,7 @@ __all__ = [
     'chapter_theory_bp', 'lesson_explanations_bp', 'lesson_videos_bp', 'exam_simulations_bp',
     'subscriptions_bp', 'tokens_bp', 'organisations_bp', 'feedback_bp',
     'tutor_bp', 'agents_bp', 'tts_bp', 'math_toolkit_bp',
-    'analytics_bp', 'org_analytics_bp', 'gamification_bp', 'audio_bp', 'i18n_public_bp', 'i18n_admin_bp', 'features_bp',
+    'analytics_bp', 'org_analytics_bp', 'gamification_bp', 'audio_bp',
+    'i18n_public_bp', 'i18n_admin_bp', 'translation_bp', 'features_bp',
     'dashboard', 'admin', 'social', 'community', 'messaging'
 ]

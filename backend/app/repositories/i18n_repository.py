@@ -2,22 +2,24 @@
 i18n Repository - Unified Access to i18n Data Layer
 
 This module provides unified repository access for i18n operations by combining
-all three specialized repositories (languages, translations, community).
+all four specialized repositories (languages, translations, community, import).
 
 Split modules:
 - i18n_repository_languages.py - Language, namespace, and key management
 - i18n_repository_translations.py - Translation storage, retrieval, and bundling
 - i18n_repository_community.py - Community suggestions, AI reviews, and caching
+- i18n_import_repository.py - Bulk import operations and statistics
 
 Usage (for backward compatibility with existing code):
     from app.repositories.i18n_repository import I18nRepository
     repo = I18nRepository(connection)
-    # Use any method from languages, translations, or community repositories
+    # Use any method from languages, translations, community, or import repositories
 """
 
 from app.repositories.i18n_repository_languages import I18nLanguagesRepository
 from app.repositories.i18n_repository_translations import I18nTranslationsRepository
 from app.repositories.i18n_repository_community import I18nCommunityRepository
+from app.repositories.i18n_import_repository import I18nImportRepository
 import psycopg
 
 
@@ -43,6 +45,7 @@ class I18nRepository:
         self.languages = I18nLanguagesRepository(connection)
         self.translations = I18nTranslationsRepository(connection)
         self.community = I18nCommunityRepository(connection)
+        self.import_ops = I18nImportRepository
 
     # =============================================================================
     # LANGUAGES & NAMESPACES (delegated to I18nLanguagesRepository)
@@ -144,10 +147,103 @@ class I18nRepository:
         """Invalidate all caches."""
         return self.community.invalidate_all_caches()
 
+    # =============================================================================
+    # IMPORT OPERATIONS (delegated to I18nImportRepository)
+    # =============================================================================
+
+    def get_namespace_id(self, namespace_code: str):
+        """
+        Get namespace ID by code.
+
+        Args:
+            namespace_code: e.g. 'admin', 'common', 'windows'
+
+        Returns:
+            namespace_id (int) or None if not found
+        """
+        return self.import_ops.get_namespace_id(namespace_code)
+
+    def get_all_namespaces(self):
+        """
+        Get all namespaces as mapping code → id.
+
+        Returns:
+            {'admin': 1, 'common': 2, 'windows': 3, ...}
+        """
+        return self.import_ops.get_all_namespaces()
+
+    def create_key(self, namespace_id: int, key_path: str, context: str = None):
+        """
+        Create i18n_key entry (idempotent).
+
+        Args:
+            namespace_id: Namespace ID
+            key_path: e.g. 'admin.roles.loadFailed'
+            context: Optional context for translation
+
+        Returns:
+            key_id (UUID string) or None on failure
+        """
+        return self.import_ops.create_key(namespace_id, key_path, context)
+
+    def create_import_translation(
+        self,
+        key_id: str,
+        language_code: str,
+        value: str,
+        source: str = 'import',
+        status: str = 'active'
+    ):
+        """
+        Create i18n_translation entry (idempotent).
+
+        Args:
+            key_id: UUID of i18n_key
+            language_code: e.g. 'de', 'en', 'pl'
+            value: The translated text
+            source: 'manual' | 'deepl' | 'google' | 'community' | 'ai' | 'import'
+            status: 'draft' | 'active' | 'needs_review' | 'outdated'
+
+        Returns:
+            translation_id (UUID string) or None on failure
+        """
+        return self.import_ops.create_translation(key_id, language_code, value, source, status)
+
+    def get_import_statistics(self):
+        """
+        Get current i18n import statistics.
+
+        Returns:
+            Dictionary with keys: total_keys, total_translations, languages_count,
+            namespaces_count, keys_by_namespace, translations_by_language
+        """
+        return self.import_ops.get_import_statistics()
+
+    def validate_import_complete(self):
+        """
+        Validate that import is complete for all primary languages.
+
+        Returns:
+            {'is_complete': bool, 'issues': [...], 'summary': {...}}
+        """
+        return self.import_ops.validate_import_complete()
+
+    def delete_all_imports(self):
+        """
+        Delete all imported translations (for cleanup/reimport).
+
+        WARNING: This deletes all i18n_translations and i18n_keys!
+
+        Returns:
+            True if successful
+        """
+        return self.import_ops.delete_all_imports()
+
 
 __all__ = [
     'I18nRepository',
     'I18nLanguagesRepository',
     'I18nTranslationsRepository',
     'I18nCommunityRepository',
+    'I18nImportRepository',
 ]

@@ -16,6 +16,14 @@ const currentLanguage = ref<string>(localStorage.getItem('lsx-language') || 'de'
 const isLoading = ref(false)
 const loadError = ref<string | null>(null)
 
+// Constant language priority mapping (NOT dependent on array order)
+// This ensures consistent language ordering across all platforms/browsers
+const LANGUAGE_PRIORITY: Record<string, number> = {
+  de: 1,  // German (primary language)
+  pl: 2,  // Polish (secondary language)
+  en: 3   // English (tertiary fallback)
+}
+
 
 /**
  * Main translation composable
@@ -120,8 +128,9 @@ export function useTranslation() {
 
     if (!isInstalled) {
       // Build language list dynamically from available locales
+      // NOTE: Use constant LANGUAGE_PRIORITY to ensure consistent ordering across platforms
       const fallbackLanguages: LanguageProgress[] = availableLocales
-        .map((code, index) => {
+        .map((code) => {
           const meta = languageMetadata[code] || {
             name: code.toUpperCase(),
             nativeName: code.toUpperCase(),
@@ -133,7 +142,7 @@ export function useTranslation() {
             native_name: meta.nativeName,
             flag_emoji: meta.flag,
             is_primary: true,
-            priority: index + 1,
+            priority: LANGUAGE_PRIORITY[code] || 999,  // Use constant priority, not array index
             fallback_language: code === 'de' ? null : 'de',
             rtl: false,
             active: true,
@@ -144,6 +153,7 @@ export function useTranslation() {
             pending_suggestions: 0
           }
         })
+        .sort((a, b) => a.priority - b.priority)  // Sort by priority for consistency
 
       return fallbackLanguages
     }
@@ -153,11 +163,11 @@ export function useTranslation() {
       languagesCache.value = languages
       return languages
     } catch (error) {
-      // API not available - build from available locales
+      // API not available - build from available locales with consistent ordering
       console.warn('[i18n] Could not fetch languages from API, using available locales')
 
       const fallbackLanguages: LanguageProgress[] = availableLocales
-        .map((code, index) => {
+        .map((code) => {
           const meta = languageMetadata[code] || {
             name: code.toUpperCase(),
             nativeName: code.toUpperCase(),
@@ -169,7 +179,7 @@ export function useTranslation() {
             native_name: meta.nativeName,
             flag_emoji: meta.flag,
             is_primary: true,
-            priority: index + 1,
+            priority: LANGUAGE_PRIORITY[code] || 999,  // Use constant priority, not array index
             fallback_language: code === 'de' ? null : 'de',
             rtl: false,
             active: true,
@@ -180,6 +190,7 @@ export function useTranslation() {
             pending_suggestions: 0
           }
         })
+        .sort((a, b) => a.priority - b.priority)  // Sort by priority for consistency
 
       return fallbackLanguages
     }

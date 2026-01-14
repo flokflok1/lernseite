@@ -90,3 +90,56 @@ def get_languages() -> Tuple[Dict[str, Any], int]:
                 'message': 'Failed to fetch available languages'
             }
         }), 500
+
+
+@i18n_public_bp.route('/translation/<namespace>/<key_path>/<language_code>', methods=['GET'])
+def get_translation(namespace: str, key_path: str, language_code: str) -> Tuple[Dict[str, Any], int]:
+    """
+    Get single translation with fallback chain support.
+
+    Args:
+        namespace: Translation namespace (e.g., 'common', 'admin', 'errors')
+        key_path: Key path with dot notation (e.g., 'actions.cancel', 'messages.welcome')
+        language_code: ISO language code (de, en, pl, etc.)
+
+    Query Parameters:
+        fallback: Enable fallback chain (true/false, default: true)
+
+    Returns:
+        Single translation text with metadata
+    """
+    try:
+        fallback_enabled = request.args.get('fallback', 'true').lower() == 'true'
+
+        # Get translation using TranslationManager
+        text = TranslationManager.get_translation(namespace, key_path, language_code, fallback_enabled)
+
+        if not text:
+            return jsonify({
+                'success': False,
+                'error': {
+                    'code': 'TRANSLATION_NOT_FOUND',
+                    'message': f'Translation not found: {namespace}/{key_path}/{language_code}'
+                }
+            }), 404
+
+        return jsonify({
+            'success': True,
+            'data': {'text': text},
+            'meta': {
+                'namespace': namespace,
+                'key_path': key_path,
+                'language_code': language_code,
+                'fallback_enabled': fallback_enabled
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching translation {namespace}/{key_path}/{language_code}: {e}")
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'TRANSLATION_FETCH_FAILED',
+                'message': f'Failed to fetch translation for language: {language_code}'
+            }
+        }), 500

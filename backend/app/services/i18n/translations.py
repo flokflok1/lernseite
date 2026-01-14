@@ -54,6 +54,53 @@ class TranslationManager:
             return {}
 
     @staticmethod
+    def get_translation(
+        namespace: str,
+        key_path: str,
+        language_code: str,
+        fallback: bool = True
+    ) -> Optional[str]:
+        """
+        Get single translation with optional fallback chain support.
+
+        Args:
+            namespace: Translation namespace (e.g., 'common', 'admin')
+            key_path: Key path with dot notation (e.g., 'actions.delete')
+            language_code: ISO language code (de, en, pl)
+            fallback: Enable fallback chain to other languages
+
+        Returns:
+            Translation text or None if not found
+        """
+        try:
+            # Get bundle for requested language
+            bundle = TranslationManager.get_bundle(language_code, namespace)
+
+            if bundle and key_path in bundle:
+                return bundle[key_path]
+
+            # If fallback enabled and not found, try fallback chain
+            if fallback:
+                # Fallback chain: de -> pl -> en
+                fallback_chain = []
+                if language_code == 'de':
+                    fallback_chain = ['pl', 'en']
+                elif language_code == 'pl':
+                    fallback_chain = ['de', 'en']
+                elif language_code == 'en':
+                    fallback_chain = ['de', 'pl']
+
+                for fallback_lang in fallback_chain:
+                    fallback_bundle = TranslationManager.get_bundle(fallback_lang, namespace)
+                    if fallback_bundle and key_path in fallback_bundle:
+                        return fallback_bundle[key_path]
+
+            return None
+        except Exception as e:
+            logger.error(f"Error fetching translation {namespace}/{key_path}/{language_code}: {e}")
+            return None
+
+    @staticmethod
     def get_key_translations(key_id: str) -> List[Dict[str, Any]]:
         """
         Get all translations for a key across all languages.

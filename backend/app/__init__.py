@@ -381,6 +381,12 @@ def register_error_handlers(app):
         app (Flask): Flask application instance
     """
     from pydantic import ValidationError
+    from app.utils.exceptions import APIException
+
+    @app.errorhandler(APIException)
+    def handle_api_exception(error):
+        """Handle custom API exceptions"""
+        return jsonify(error.to_dict()), error.status_code
 
     @app.errorhandler(ValidationError)
     def handle_validation_error(error):

@@ -228,25 +228,62 @@ def require_permission(permission: str):
 
 def require_system_admin(fn):
     """
-    Decorator to require system admin role (admin, superadmin, or owner).
+    Decorator to require system admin privileges (RBAC 2.0 database-driven).
 
-    RBAC 2.0: Also accepts users with hierarchy_level >= 9.
+    Checks user for system admin access via:
+    1. Permission 'admin:system' (database-driven via PermissionRepository)
+    2. User hierarchy_level >= 9 (backward compatibility)
+
+    Access is granted if EITHER condition is met. Returns 403 Forbidden if both fail.
+    Implements fail-secure: on database error, denies access (returns 403).
+
+    Args:
+        fn: Flask view function to wrap
+
+    Returns:
+        Decorated function that:
+        - Calls the wrapped function if user has system admin access
+        - Returns 403 JSON response if access denied
+        - Returns 403 JSON response if permission check fails (fail-secure)
 
     Usage:
         @app.route('/admin/system')
         @require_system_admin
         def system_settings():
-            ...
+            '''Updates system configuration'''
+            return jsonify({'status': 'ok'}), 200
+
+    Example Response (403 Forbidden):
+        {
+            'success': False,
+            'error': 'Forbidden',
+            'message': 'System administrator access required'
+        }
+
+    Note:
+        - Decorated functions are only callable by:
+          - Users with 'admin:system' permission in database, OR
+          - Users with hierarchy_level >= 9
+        - System admins bypass other decorator restrictions
+        - All access is logged via database audit trail
     """
     @wraps(fn)
     @token_required
     def wrapper(*args, **kwargs):
         current_user = g.current_user
-        role = current_user.get('role')
+        user_id = current_user.get('user_id')
         hierarchy_level = current_user.get('hierarchy_level', 0)
 
-        # RBAC 2.0: Allow by hierarchy_level OR role
-        if role in ['admin', 'superadmin', 'owner'] or hierarchy_level >= 9:
+        # RBAC 2.0: Check by hierarchy_level (backward compat) OR permission (database-driven)
+        has_permission = (
+            hierarchy_level >= 9 or
+            PermissionRepository.user_has_permission(
+                user_id=user_id,
+                permission_key=Permissions.MANAGE_SYSTEM
+            )
+        )
+
+        if has_permission:
             return fn(*args, **kwargs)
 
         return jsonify({
@@ -260,28 +297,68 @@ def require_system_admin(fn):
 
 def require_org_admin(fn):
     """
-    Decorator to require organisation admin role (school_admin, company_admin, or higher).
+    Decorator to require organisation admin privileges (RBAC 2.0 database-driven).
 
-    RBAC 2.0: Also accepts users with hierarchy_level >= 5.
+    Checks user for organisation admin access via:
+    1. Permission 'manage:org:settings' OR 'admin:organisations' (database-driven)
+    2. User hierarchy_level >= 5 (backward compatibility)
+
+    Access is granted if ANY condition is met. Returns 403 Forbidden if all fail.
+    Implements fail-secure: on database error, denies access (returns 403).
+
+    Args:
+        fn: Flask view function to wrap
+
+    Returns:
+        Decorated function that:
+        - Calls the wrapped function if user has org admin access
+        - Returns 403 JSON response if access denied
+        - Returns 403 JSON response if permission check fails (fail-secure)
 
     Usage:
         @app.route('/organisations/<org_id>/settings')
         @require_org_admin
         def org_settings(org_id):
-            ...
+            '''Updates organisation settings'''
+            return jsonify({'status': 'ok'}), 200
+
+    Example Response (403 Forbidden):
+        {
+            'success': False,
+            'error': 'Forbidden',
+            'message': 'Organisation administrator access required'
+        }
+
+    Note:
+        - Decorated functions are only callable by:
+          - Users with 'manage:org:settings' permission in database, OR
+          - Users with 'admin:organisations' permission in database, OR
+          - Users with hierarchy_level >= 5
+        - Organisation admins can manage their assigned organisation
+        - System admins (hierarchy_level >= 9) bypass all org restrictions
+        - All access is logged via database audit trail (ISO 27001 compliance)
     """
     @wraps(fn)
     @token_required
     def wrapper(*args, **kwargs):
         current_user = g.current_user
-        role = current_user.get('role')
+        user_id = current_user.get('user_id')
         hierarchy_level = current_user.get('hierarchy_level', 0)
 
-        # Org admins + system admins
-        allowed_roles = ['school_admin', 'company_admin', 'admin', 'superadmin', 'owner']
+        # RBAC 2.0: Check by hierarchy_level (backward compat) OR permissions (database-driven)
+        has_permission = (
+            hierarchy_level >= 5 or
+            PermissionRepository.user_has_permission(
+                user_id=user_id,
+                permission_key=Permissions.MANAGE_ORG_SETTINGS
+            ) or
+            PermissionRepository.user_has_permission(
+                user_id=user_id,
+                permission_key=Permissions.MANAGE_ORGANISATIONS
+            )
+        )
 
-        # RBAC 2.0: Allow by hierarchy_level OR role
-        if role in allowed_roles or hierarchy_level >= 5:
+        if has_permission:
             return fn(*args, **kwargs)
 
         return jsonify({
@@ -295,24 +372,63 @@ def require_org_admin(fn):
 
 def require_org_member(fn):
     """
-    Decorator to check if user is member of an organisation.
+    Decorator to check if user is member of a specific organisation (resource-based access).
 
-    Checks if user has organization_id set and matches the org_id parameter.
+    This decorator verifies resource ownership, NOT capabilities:
+    - Checks if user's organization_id matches the org_id in URL parameters
+    - System admins (hierarchy_level >= 9) can access any organisation
+    - Regular users can only access organisations they belong to
+
+    Args:
+        fn: Flask view function to wrap
+
+    Returns:
+        Decorated function that:
+        - Calls the wrapped function if user belongs to the organisation
+        - Returns 400 Bad Request if org_id not in URL parameters
+        - Returns 403 Forbidden if user is not a member of the organisation
+        - Returns 403 Forbidden if permission check fails (fail-secure)
 
     Usage:
         @app.route('/organisations/<org_id>/courses')
         @require_org_member
         def org_courses(org_id):
-            ...
+            '''List courses for organisation'''
+            return jsonify({'courses': [...]}), 200
+
+    URL Parameters Expected:
+        - org_id OR organization_id in kwargs
+
+    Example Response (403 Forbidden - Not a Member):
+        {
+            'success': False,
+            'error': 'Forbidden',
+            'message': 'Access denied: Not a member of this organisation'
+        }
+
+    Example Response (400 Bad Request - Missing org_id):
+        {
+            'success': False,
+            'error': 'Bad Request',
+            'message': 'Organisation ID not provided'
+        }
+
+    Note:
+        - This is a RESOURCE-BASED access control, not permission-based
+        - Users can only access organisations they belong to
+        - System admins (hierarchy_level >= 9) bypass organisation checks
+        - Owner role has implicit system admin hierarchy_level >= 9
+        - All access attempts are logged for compliance (ISO 27001)
     """
     @wraps(fn)
     @token_required
     def wrapper(*args, **kwargs):
         current_user = g.current_user
         user_org_id = current_user.get('organization_id')
+        hierarchy_level = current_user.get('hierarchy_level', 0)
 
-        # System admins can access any org
-        if current_user.get('role') in ['admin', 'superadmin', 'owner']:
+        # System admins (hierarchy_level >= 9) can access any org
+        if hierarchy_level >= 9:
             return fn(*args, **kwargs)
 
         # Get org_id from URL parameters
@@ -334,4 +450,5 @@ def require_org_member(fn):
             }), 403
 
         return fn(*args, **kwargs)
+
     return wrapper

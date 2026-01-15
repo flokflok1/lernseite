@@ -102,7 +102,7 @@ class FeatureFlagManager:
 
     def _get_global_flag(self, feature_name: str) -> bool:
         """Get global feature flag from database"""
-        query = "SELECT is_enabled FROM core.feature_flags WHERE name = %s"
+        query = "SELECT is_enabled FROM feature_flags WHERE name = %s"
         flag = fetch_one(query, (feature_name,))
 
         return flag['is_enabled'] if flag else False
@@ -110,7 +110,7 @@ class FeatureFlagManager:
     def _get_user_override(self, feature_name: str, user_id: str) -> Optional[bool]:
         """Check if user has specific override"""
         query = """
-            SELECT is_enabled FROM core.feature_flag_user_overrides
+            SELECT is_enabled FROM feature_flag_user_overrides
             WHERE feature_name = %s AND user_id = %s
         """
         override = fetch_one(query, (feature_name, user_id))
@@ -120,7 +120,7 @@ class FeatureFlagManager:
     def _get_org_override(self, feature_name: str, org_id: str) -> Optional[bool]:
         """Check if organization has specific override"""
         query = """
-            SELECT is_enabled FROM core.feature_flag_org_overrides
+            SELECT is_enabled FROM feature_flag_org_overrides
             WHERE feature_name = %s AND organization_id = %s
         """
         override = fetch_one(query, (feature_name, org_id))
@@ -130,7 +130,7 @@ class FeatureFlagManager:
     def _check_user_segment(self, feature_name: str, segment: str) -> Optional[bool]:
         """Check if feature is enabled for user segment (beta, premium, etc.)"""
         query = """
-            SELECT is_enabled FROM core.feature_flag_segments
+            SELECT is_enabled FROM feature_flag_segments
             WHERE feature_name = %s AND segment = %s
         """
         segment_config = fetch_one(query, (feature_name, segment))
@@ -144,7 +144,7 @@ class FeatureFlagManager:
         Example: 25% rollout means first 25% of users based on hash
         """
         query = """
-            SELECT percentage FROM core.feature_flag_rollouts
+            SELECT percentage FROM feature_flag_rollouts
             WHERE feature_name = %s
         """
         rollout = fetch_one(query, (feature_name,))
@@ -181,21 +181,21 @@ class FeatureFlagManager:
         """
         if globally:
             query = """
-                INSERT INTO core.feature_flags (name, is_enabled)
+                INSERT INTO feature_flags (name, is_enabled)
                 VALUES (%s, TRUE)
                 ON CONFLICT (name) DO UPDATE SET is_enabled = TRUE
             """
             execute_query(query, (feature_name,))
         elif user_id:
             query = """
-                INSERT INTO core.feature_flag_user_overrides (feature_name, user_id, is_enabled)
+                INSERT INTO feature_flag_user_overrides (feature_name, user_id, is_enabled)
                 VALUES (%s, %s, TRUE)
                 ON CONFLICT (feature_name, user_id) DO UPDATE SET is_enabled = TRUE
             """
             execute_query(query, (feature_name, user_id))
         elif organization_id:
             query = """
-                INSERT INTO core.feature_flag_org_overrides (feature_name, organization_id, is_enabled)
+                INSERT INTO feature_flag_org_overrides (feature_name, organization_id, is_enabled)
                 VALUES (%s, %s, TRUE)
                 ON CONFLICT (feature_name, organization_id) DO UPDATE SET is_enabled = TRUE
             """
@@ -213,19 +213,19 @@ class FeatureFlagManager:
         """Disable a feature (Admin API)"""
         if globally:
             query = """
-                UPDATE core.feature_flags SET is_enabled = FALSE
+                UPDATE feature_flags SET is_enabled = FALSE
                 WHERE name = %s
             """
             execute_query(query, (feature_name,))
         elif user_id:
             query = """
-                UPDATE core.feature_flag_user_overrides SET is_enabled = FALSE
+                UPDATE feature_flag_user_overrides SET is_enabled = FALSE
                 WHERE feature_name = %s AND user_id = %s
             """
             execute_query(query, (feature_name, user_id))
         elif organization_id:
             query = """
-                UPDATE core.feature_flag_org_overrides SET is_enabled = FALSE
+                UPDATE feature_flag_org_overrides SET is_enabled = FALSE
                 WHERE feature_name = %s AND organization_id = %s
             """
             execute_query(query, (feature_name, organization_id))
@@ -244,7 +244,7 @@ class FeatureFlagManager:
             raise ValueError("Percentage must be between 0 and 100")
 
         query = """
-            INSERT INTO core.feature_flag_rollouts (feature_name, percentage)
+            INSERT INTO feature_flag_rollouts (feature_name, percentage)
             VALUES (%s, %s)
             ON CONFLICT (feature_name) DO UPDATE SET percentage = %s
         """
@@ -268,7 +268,7 @@ class FeatureFlagManager:
         """
         query = """
             SELECT name, is_enabled, created_at, updated_at
-            FROM core.feature_flags
+            FROM feature_flags
             ORDER BY name
         """
         results = fetch_all(query)

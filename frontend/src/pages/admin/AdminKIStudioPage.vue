@@ -145,8 +145,7 @@ function formatCost(cost: number): string {
 // Open KI-Studio Window
 function openKIStudio() {
   windowStore.openWindow({
-    type: 'admin-ai-studio',
-    title: 'KI-Studio Pro'
+    type: 'admin-ai-studio'
   })
 }
 

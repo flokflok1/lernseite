@@ -19,7 +19,7 @@ from app.middleware.auth import token_required, role_required
 
 logger = logging.getLogger(__name__)
 
-bp = Blueprint('i18n_admin', __name__, url_prefix='/api/v1/i18n')
+bp = Blueprint('i18n_admin', __name__, url_prefix='/i18n')
 
 
 # ============================================================================

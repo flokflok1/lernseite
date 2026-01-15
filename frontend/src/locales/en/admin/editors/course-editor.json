@@ -1,0 +1,20 @@
+{
+  "courseEditor": {
+    "title": "Course Editor",
+    "selectMode": "Select Course Editor",
+    "selectModeDesc": "Which editor would you like to use for course creation?",
+    "manualEditor": "Manual Editor",
+    "manualEditorDesc": "Create and edit course content manually",
+    "aiEditor": "AI Editor",
+    "aiEditorDesc": "AI-powered course creation with automatic content generation",
+    "modeHint": "You can change the editor mode at any time later.",
+    "modes": {
+      "manual": "Manual Editor",
+      "manualDesc": "Create and edit course content manually",
+      "ai": "AI Editor",
+      "aiDesc": "AI-powered course creation with automatic content generation"
+    },
+    "permissionDenied": "You do not have the required permissions for this action.",
+    "contactAdmin": "Please contact an administrator to gain access."
+  }
+}

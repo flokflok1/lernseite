@@ -98,24 +98,6 @@
       "createNewCourse": "Create New Course",
       "windowManager": "Window Manager"
     },
-    "courseEditor": {
-      "title": "Course Editor",
-      "selectMode": "Select Course Editor",
-      "selectModeDesc": "Which editor would you like to use for course creation?",
-      "manualEditor": "Manual Editor",
-      "manualEditorDesc": "Create and edit course content manually",
-      "aiEditor": "AI Editor",
-      "aiEditorDesc": "AI-powered course creation with automatic content generation",
-      "modeHint": "You can change the editor mode at any time later.",
-      "modes": {
-        "manual": "Manual Editor",
-        "manualDesc": "Create and edit course content manually",
-        "ai": "AI Editor",
-        "aiDesc": "AI-powered course creation with automatic content generation"
-      },
-      "permissionDenied": "You do not have the required permissions for this action.",
-      "contactAdmin": "Please contact an administrator to gain access."
-    },
     "dashboard": {
       "title": "System Dashboard",
       "subtitle": "Overview of the entire system",
@@ -431,52 +413,6 @@
         "reasoning": "Reasoning",
         "video": "Video",
         "vision": "Vision"
-      }
-    },
-    "aiEditor": {
-      "title": "AI Editor",
-      "description": "Your all-in-one tool for AI-powered course creation. Generate videos, manage prompts and configure models.",
-      "openStudio": "Open AI Studio",
-      "chat": "Chat",
-      "selectCourse": "Select course",
-      "selectCourseToView": "Select a course to view",
-      "selectCourseHint": "Choose a course to get started",
-      "newCourse": "New course",
-      "newChapter": "New chapter",
-      "lessons": "Lessons",
-      "searchCourse": "Search courses...",
-      "search": "Search...",
-      "allCourses": "All courses",
-      "allCategories": "All categories",
-      "noCategory": "No category",
-      "recentlyEdited": "Recently edited",
-      "noCoursesFound": "No courses found",
-      "noCoursesAvailable": "No courses available",
-      "searchResults": "Search results",
-      "tabs": {
-        "builder": "Course Builder",
-        "tutor": "AI Tutor",
-        "methods": "Learning Methods",
-        "exams": "Exams",
-        "features": "System Features",
-        "prompts": "Prompts",
-        "analytics": "Analytics",
-        "settings": "Settings",
-        "global": "Global"
-      },
-      "features": {
-        "videos": "Videos",
-        "videosDesc": "Sora 2 Video Generator",
-        "prompts": "Prompts",
-        "promptsDesc": "Manage system prompts",
-        "models": "Models",
-        "modelsDesc": "Configure AI models"
-      },
-      "stats": {
-        "videosGenerated": "Videos generated",
-        "prompts": "Prompts",
-        "tokensMonth": "Tokens (Month)",
-        "costMonth": "Cost (Month)"
       }
     },
     "analyticsPage": {

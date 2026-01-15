@@ -1,0 +1,48 @@
+{
+  "aiEditor": {
+    "title": "AI Editor",
+    "description": "Your all-in-one tool for AI-powered course creation. Generate videos, manage prompts and configure models.",
+    "openStudio": "Open AI Studio",
+    "chat": "Chat",
+    "selectCourse": "Select course",
+    "selectCourseToView": "Select a course to view",
+    "selectCourseHint": "Choose a course to get started",
+    "newCourse": "New course",
+    "newChapter": "New chapter",
+    "lessons": "Lessons",
+    "searchCourse": "Search courses...",
+    "search": "Search...",
+    "allCourses": "All courses",
+    "allCategories": "All categories",
+    "noCategory": "No category",
+    "recentlyEdited": "Recently edited",
+    "noCoursesFound": "No courses found",
+    "noCoursesAvailable": "No courses available",
+    "searchResults": "Search results",
+    "tabs": {
+      "builder": "Course Builder",
+      "tutor": "AI Tutor",
+      "methods": "Learning Methods",
+      "exams": "Exams",
+      "features": "System Features",
+      "prompts": "Prompts",
+      "analytics": "Analytics",
+      "settings": "Settings",
+      "global": "Global"
+    },
+    "features": {
+      "videos": "Videos",
+      "videosDesc": "Sora 2 Video Generator",
+      "prompts": "Prompts",
+      "promptsDesc": "Manage system prompts",
+      "models": "Models",
+      "modelsDesc": "Configure AI models"
+    },
+    "stats": {
+      "videosGenerated": "Videos generated",
+      "prompts": "Prompts",
+      "tokensMonth": "Tokens (Month)",
+      "costMonth": "Cost (Month)"
+    }
+  }
+}

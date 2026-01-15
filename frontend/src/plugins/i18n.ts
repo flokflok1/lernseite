@@ -25,7 +25,7 @@ import type { App } from 'vue'
 
 // German (de)
 import deCommon from '@/locales/de/common.json'
-import deAdmin from '@/locales/de/admin.json'
+import deAdmin from '@/locales/de/admin'
 import deWindowsAdmin from '@/locales/de/windows/admin.json'
 import deWindowsAiEditor from '@/locales/de/windows/aiEditor.json'
 import deWindowsAiPricing from '@/locales/de/windows/aiPricing.json'
@@ -39,7 +39,7 @@ import deLegal from '@/locales/de/legal.json'
 
 // English (en)
 import enCommon from '@/locales/en/common.json'
-import enAdmin from '@/locales/en/admin.json'
+import enAdmin from '@/locales/en/admin'
 import enWindowsAdmin from '@/locales/en/windows/admin.json'
 import enWindowsAiEditor from '@/locales/en/windows/aiEditor.json'
 import enWindowsAiPricing from '@/locales/en/windows/aiPricing.json'
@@ -53,7 +53,7 @@ import enLegal from '@/locales/en/legal.json'
 
 // Polish (pl)
 import plCommon from '@/locales/pl/common.json'
-import plAdmin from '@/locales/pl/admin.json'
+import plAdmin from '@/locales/pl/admin'
 import plWindowsAdmin from '@/locales/pl/windows/admin.json'
 import plWindowsAiEditor from '@/locales/pl/windows/aiEditor.json'
 import plWindowsAiPricing from '@/locales/pl/windows/aiPricing.json'

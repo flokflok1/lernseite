@@ -1,0 +1,48 @@
+{
+  "aiEditor": {
+    "title": "AI Editor",
+    "description": "Twoje kompleksowe narzędzie do tworzenia kursów wspomaganych AI. Generuj filmy, zarządzaj promptami i konfiguruj modele.",
+    "openStudio": "Otwórz AI Studio",
+    "chat": "Czat",
+    "selectCourse": "Wybierz kurs",
+    "selectCourseHint": "Wybierz kurs, aby zacząć",
+    "selectCourseToView": "Wybierz kurs do wyświetlenia",
+    "newCourse": "Nowy kurs",
+    "newChapter": "Nowy rozdział",
+    "lessons": "Lekcje",
+    "searchCourse": "Szukaj kursów...",
+    "search": "Szukaj...",
+    "allCourses": "Wszystkie kursy",
+    "allCategories": "Wszystkie kategorie",
+    "noCategory": "Bez kategorii",
+    "recentlyEdited": "Ostatnio edytowane",
+    "noCoursesFound": "Nie znaleziono kursów",
+    "noCoursesAvailable": "Brak dostępnych kursów",
+    "searchResults": "Wyniki wyszukiwania",
+    "tabs": {
+      "builder": "Kreator Kursu",
+      "tutor": "AI Tutor",
+      "methods": "Metody Nauki",
+      "exams": "Egzaminy",
+      "features": "Funkcje Systemowe",
+      "prompts": "Prompty",
+      "analytics": "Analityka",
+      "settings": "Ustawienia",
+      "global": "Globalne"
+    },
+    "features": {
+      "videos": "Filmy",
+      "videosDesc": "Generator wideo Sora 2",
+      "prompts": "Prompty",
+      "promptsDesc": "Zarządzaj promptami systemowymi",
+      "models": "Modele",
+      "modelsDesc": "Konfiguruj modele AI"
+    },
+    "stats": {
+      "videosGenerated": "Wygenerowanych filmów",
+      "prompts": "Prompty",
+      "tokensMonth": "Tokeny (Miesiąc)",
+      "costMonth": "Koszt (Miesiąc)"
+    }
+  }
+}

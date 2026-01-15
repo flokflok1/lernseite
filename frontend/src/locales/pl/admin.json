@@ -98,24 +98,6 @@
       "createNewCourse": "Utwórz nowy kurs",
       "windowManager": "Menedżer okien"
     },
-    "courseEditor": {
-      "title": "Edytor kursów",
-      "selectMode": "Wybierz edytor kursu",
-      "selectModeDesc": "Który edytor chciałbyś użyć do tworzenia kursów?",
-      "manualEditor": "Edytor ręczny",
-      "manualEditorDesc": "Twórz i edytuj zawartość kursu ręcznie",
-      "aiEditor": "Edytor AI",
-      "aiEditorDesc": "Tworzenie kursów wspierane przez AI z automatycznym generowaniem treści",
-      "modeHint": "Tryb edytora można zmienić w dowolnym momencie później.",
-      "modes": {
-        "manual": "Edytor ręczny",
-        "manualDesc": "Utwórz i edytuj zawartość kursu ręcznie",
-        "ai": "Edytor AI",
-        "aiDesc": "Tworzenie kursów wspierane przez AI z automatycznym generowaniem treści"
-      },
-      "permissionDenied": "Nie masz wymaganych uprawnień do tej akcji.",
-      "contactAdmin": "Skontaktuj się z administratorem, aby uzyskać dostęp."
-    },
     "dashboard": {
       "title": "Panel systemowy",
       "subtitle": "Przegląd całego systemu",
@@ -431,52 +413,6 @@
         "reasoning": "Reasoning",
         "video": "Video",
         "vision": "Vision"
-      }
-    },
-    "aiEditor": {
-      "title": "AI Editor",
-      "description": "Twoje kompleksowe narzędzie do tworzenia kursów wspomaganych AI. Generuj filmy, zarządzaj promptami i konfiguruj modele.",
-      "openStudio": "Otwórz AI Studio",
-      "chat": "Czat",
-      "selectCourse": "Wybierz kurs",
-      "selectCourseHint": "Wybierz kurs, aby zacząć",
-      "selectCourseToView": "Wybierz kurs do wyświetlenia",
-      "newCourse": "Nowy kurs",
-      "newChapter": "Nowy rozdział",
-      "lessons": "Lekcje",
-      "searchCourse": "Szukaj kursów...",
-      "search": "Szukaj...",
-      "allCourses": "Wszystkie kursy",
-      "allCategories": "Wszystkie kategorie",
-      "noCategory": "Bez kategorii",
-      "recentlyEdited": "Ostatnio edytowane",
-      "noCoursesFound": "Nie znaleziono kursów",
-      "noCoursesAvailable": "Brak dostępnych kursów",
-      "searchResults": "Wyniki wyszukiwania",
-      "tabs": {
-        "builder": "Kreator Kursu",
-        "tutor": "AI Tutor",
-        "methods": "Metody Nauki",
-        "exams": "Egzaminy",
-        "features": "Funkcje Systemowe",
-        "prompts": "Prompty",
-        "analytics": "Analityka",
-        "settings": "Ustawienia",
-        "global": "Globalne"
-      },
-      "features": {
-        "videos": "Filmy",
-        "videosDesc": "Generator wideo Sora 2",
-        "prompts": "Prompty",
-        "promptsDesc": "Zarządzaj promptami systemowymi",
-        "models": "Modele",
-        "modelsDesc": "Konfiguruj modele AI"
-      },
-      "stats": {
-        "videosGenerated": "Wygenerowanych filmów",
-        "prompts": "Prompty",
-        "tokensMonth": "Tokeny (Miesiąc)",
-        "costMonth": "Koszt (Miesiąc)"
       }
     },
     "analyticsPage": {

@@ -1,0 +1,20 @@
+{
+  "courseEditor": {
+    "title": "Kurs-Editor",
+    "selectMode": "Kurs-Editor wählen",
+    "selectModeDesc": "Welcher Editor soll für die Kurserstellung verwendet werden?",
+    "manualEditor": "Manueller Editor",
+    "manualEditorDesc": "Kursinhalte manuell erstellen und bearbeiten",
+    "aiEditor": "AI Editor",
+    "aiEditorDesc": "AI-gestützte Kurserstellung mit automatischer Inhaltsgeneration",
+    "modeHint": "Sie können den Editor-Modus später jederzeit ändern.",
+    "modes": {
+      "manual": "Manueller Editor",
+      "manualDesc": "Kursinhalte manuell erstellen und bearbeiten",
+      "ai": "AI Editor",
+      "aiDesc": "AI-gestützte Kurserstellung mit automatischer Inhaltsgeneration"
+    },
+    "permissionDenied": "Sie haben nicht die erforderlichen Berechtigungen für diese Aktion.",
+    "contactAdmin": "Bitte kontaktieren Sie einen Administrator, um Zugriff zu erhalten."
+  }
+}

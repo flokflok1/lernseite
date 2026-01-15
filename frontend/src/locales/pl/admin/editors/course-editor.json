@@ -1,0 +1,20 @@
+{
+  "courseEditor": {
+    "title": "Edytor kursów",
+    "selectMode": "Wybierz edytor kursu",
+    "selectModeDesc": "Który edytor chciałbyś użyć do tworzenia kursów?",
+    "manualEditor": "Edytor ręczny",
+    "manualEditorDesc": "Twórz i edytuj zawartość kursu ręcznie",
+    "aiEditor": "Edytor AI",
+    "aiEditorDesc": "Tworzenie kursów wspierane przez AI z automatycznym generowaniem treści",
+    "modeHint": "Tryb edytora można zmienić w dowolnym momencie później.",
+    "modes": {
+      "manual": "Edytor ręczny",
+      "manualDesc": "Utwórz i edytuj zawartość kursu ręcznie",
+      "ai": "Edytor AI",
+      "aiDesc": "Tworzenie kursów wspierane przez AI z automatycznym generowaniem treści"
+    },
+    "permissionDenied": "Nie masz wymaganych uprawnień do tej akcji.",
+    "contactAdmin": "Skontaktuj się z administratorem, aby uzyskać dostęp."
+  }
+}

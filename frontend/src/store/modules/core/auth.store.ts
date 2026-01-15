@@ -149,7 +149,7 @@ export const useAuthStore = defineStore('auth', () => {
           if (err.response?.status === 401 && refreshToken.value) {
             try {
               console.log('Access token expired, attempting refresh before logout...')
-              const refreshResponse = await authApi.refresh()
+              const refreshResponse = await authApi.refreshToken(refreshToken.value!)
               // Update tokens and retry logout
               accessToken.value = refreshResponse.access_token
               localStorage.setItem('access_token', refreshResponse.access_token)

@@ -37,17 +37,22 @@ class I18nLanguagesRepository(BaseRepository):
         Get all supported languages.
 
         Returns:
-            List of language configurations (code, name, priority, is_primary)
+            List of language configurations (code, name, priority, is_primary, flag_emoji, completion_percent)
         """
         with self.conn.cursor(row_factory=dict_row) as cursor:
             cursor.execute("""
                 SELECT
                     language_code,
                     language_name,
+                    native_name,
+                    flag_emoji,
                     priority,
                     is_primary,
                     fallback_language,
                     active,
+                    completion_percent,
+                    total_keys,
+                    translated_keys,
                     created_at
                 FROM translations.supported_languages
                 ORDER BY priority ASC, language_code ASC
@@ -69,10 +74,16 @@ class I18nLanguagesRepository(BaseRepository):
                 SELECT
                     language_code,
                     language_name,
+                    native_name,
+                    flag_emoji,
                     priority,
                     is_primary,
                     fallback_language,
-                    active
+                    active,
+                    completion_percent,
+                    total_keys,
+                    translated_keys,
+                    created_at
                 FROM translations.supported_languages
                 WHERE language_code = %s
             """, (language_code,))
@@ -90,7 +101,16 @@ class I18nLanguagesRepository(BaseRepository):
                 SELECT
                     language_code,
                     language_name,
-                    priority
+                    native_name,
+                    flag_emoji,
+                    priority,
+                    is_primary,
+                    fallback_language,
+                    active,
+                    completion_percent,
+                    total_keys,
+                    translated_keys,
+                    created_at
                 FROM translations.supported_languages
                 WHERE is_primary = TRUE AND active = TRUE
                 ORDER BY priority ASC
@@ -173,7 +193,7 @@ class I18nLanguagesRepository(BaseRepository):
                     name,
                     description,
                     sort_order,
-                    active,
+                    is_active,
                     created_at
                 FROM translations.i18n_namespaces
                 WHERE namespace_code = %s

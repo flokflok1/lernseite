@@ -112,7 +112,26 @@
     "MATH_FORMULA_CREATE_FAILED": "Failed to create formula",
 
     "FEEDBACK_CREATE_FAILED": "Failed to send feedback",
-    "FEEDBACK_INVALID_TYPE": "Invalid feedback type"
+    "FEEDBACK_INVALID_TYPE": "Invalid feedback type",
+
+    "PUBLISHING_INVALID_TRANSITION": "Invalid state transition",
+    "PUBLISHING_ALREADY_PUBLISHED": "Course is already published",
+    "PUBLISHING_NOT_DRAFT": "Course is not a draft",
+    "PUBLISHING_INVALID_STATUS": "Invalid publishing status",
+    "PUBLISHING_NOTES_REQUIRED": "Moderation notes required",
+    "PUBLISHING_SUBMISSION_FAILED": "Failed to submit",
+    "PUBLISHING_APPROVAL_FAILED": "Failed to approve",
+    "PUBLISHING_REJECTION_FAILED": "Failed to reject",
+    "PUBLISHING_PUBLISH_FAILED": "Failed to publish",
+    "PUBLISHING_VISIBILITY_UPDATE_FAILED": "Failed to update visibility",
+
+    "MODERATION_ANALYSIS_FAILED": "AI analysis failed",
+    "MODERATION_LOADING_QUEUE_FAILED": "Failed to load queue",
+    "MODERATION_NOT_FOUND": "Moderation entry not found",
+    "MODERATION_INVALID_SCORE": "Invalid AI score",
+    "MODERATION_REPORT_GENERATION_FAILED": "Failed to generate report",
+    "MODERATION_ACTION_FAILED": "Moderation action failed",
+    "MODERATION_EXPORT_FAILED": "Failed to export data"
   },
   "messages": {
     "SUCCESS": "Success",
@@ -178,6 +197,19 @@
     "ORG_CREATED": "Organization created",
     "ORG_UPDATED": "Organization updated",
     "ORG_MEMBER_ADDED": "Member added",
-    "ORG_MEMBER_REMOVED": "Member removed"
+    "ORG_MEMBER_REMOVED": "Member removed",
+
+    "PUBLISHING_SUBMITTED": "Course submitted for review",
+    "PUBLISHING_APPROVED": "Course approved",
+    "PUBLISHING_REJECTED": "Course rejected",
+    "PUBLISHING_PUBLISHED": "Course published",
+    "PUBLISHING_VISIBILITY_CHANGED": "Visibility changed",
+
+    "MODERATION_ANALYSIS_COMPLETED": "AI analysis completed",
+    "MODERATION_APPROVED": "Course approved",
+    "MODERATION_REJECTED": "Course rejected",
+    "MODERATION_CHANGES_REQUESTED": "Changes requested",
+    "MODERATION_REPORT_GENERATED": "Compliance report generated",
+    "MODERATION_DATA_EXPORTED": "Data successfully exported"
   }
 }

@@ -42,9 +42,11 @@ from app.models.user import (
     PasswordReset
 )
 from app.repositories.user import UserRepository
+from app.repositories.role_studio_mode import RoleStudioModeRepository
 from app.middleware.auth import token_required, get_current_user
 from app.security import BruteForceProtection
 from app.services.audit_service import AuditService
+from app.services.role_studio_service import RoleStudioService
 from app.setup.admin_setup import AdminSetup
 from app.database.connection import execute_query
 
@@ -210,6 +212,23 @@ def login():
             metadata={'2fa_used': user.get('two_factor_enabled', False)}
         )
 
+        # Fetch role studio configuration for immediate frontend use (Phase 1)
+        studio_config = None
+        try:
+            role_config = RoleStudioService.get_role_studio_mode(user.get('role', 'user'))
+            if role_config:
+                studio_config = {
+                    'role_code': role_config.get('role_code'),
+                    'studio_mode': role_config.get('studio_mode'),
+                    'display_name': role_config.get('display_name'),
+                    'permissions': role_config.get('permissions', {}),
+                    'requires_organization': role_config.get('requires_organization', False)
+                }
+        except Exception as e:
+            # Log but don't fail login if studio config is missing
+            logger.warning(f"Could not fetch studio config for role {user.get('role')}: {str(e)}")
+            studio_config = None
+
         # Create JWT tokens with additional claims (RBAC 2.0)
         additional_claims = {
             'role': user.get('role', 'user'),
@@ -237,12 +256,18 @@ def login():
             user=user_response
         )
 
-        return jsonify({
+        response_data = {
             'success': True,
             'message': 'Login successful',
             **token_response.model_dump(),
             'refresh_token': refresh_token
-        }), 200
+        }
+
+        # Add studio configuration to response if available
+        if studio_config:
+            response_data['studio_config'] = studio_config
+
+        return jsonify(response_data), 200
 
     except ValidationError as e:
         return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400

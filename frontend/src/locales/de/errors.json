@@ -112,7 +112,26 @@
     "MATH_FORMULA_CREATE_FAILED": "Formel konnte nicht erstellt werden",
 
     "FEEDBACK_CREATE_FAILED": "Feedback konnte nicht gesendet werden",
-    "FEEDBACK_INVALID_TYPE": "Ungültiger Feedback-Typ"
+    "FEEDBACK_INVALID_TYPE": "Ungültiger Feedback-Typ",
+
+    "PUBLISHING_INVALID_TRANSITION": "Ungültiger Zustandsübergang",
+    "PUBLISHING_ALREADY_PUBLISHED": "Kurs ist bereits veröffentlicht",
+    "PUBLISHING_NOT_DRAFT": "Kurs ist kein Entwurf",
+    "PUBLISHING_INVALID_STATUS": "Ungültiger Publishing-Status",
+    "PUBLISHING_NOTES_REQUIRED": "Moderationsnotizen erforderlich",
+    "PUBLISHING_SUBMISSION_FAILED": "Fehler beim Einreichen",
+    "PUBLISHING_APPROVAL_FAILED": "Fehler beim Genehmigen",
+    "PUBLISHING_REJECTION_FAILED": "Fehler beim Ablehnen",
+    "PUBLISHING_PUBLISH_FAILED": "Fehler beim Veröffentlichen",
+    "PUBLISHING_VISIBILITY_UPDATE_FAILED": "Fehler beim Aktualisieren der Sichtbarkeit",
+
+    "MODERATION_ANALYSIS_FAILED": "KI-Analyse fehlgeschlagen",
+    "MODERATION_LOADING_QUEUE_FAILED": "Fehler beim Laden der Warteschlange",
+    "MODERATION_NOT_FOUND": "Moderationseintrag nicht gefunden",
+    "MODERATION_INVALID_SCORE": "Ungültige KI-Bewertung",
+    "MODERATION_REPORT_GENERATION_FAILED": "Fehler beim Generieren des Berichts",
+    "MODERATION_ACTION_FAILED": "Moderationsaktion fehlgeschlagen",
+    "MODERATION_EXPORT_FAILED": "Fehler beim Exportieren der Daten"
   },
   "messages": {
     "SUCCESS": "Erfolgreich",
@@ -178,6 +197,19 @@
     "ORG_CREATED": "Organisation erstellt",
     "ORG_UPDATED": "Organisation aktualisiert",
     "ORG_MEMBER_ADDED": "Mitglied hinzugefügt",
-    "ORG_MEMBER_REMOVED": "Mitglied entfernt"
+    "ORG_MEMBER_REMOVED": "Mitglied entfernt",
+
+    "PUBLISHING_SUBMITTED": "Kurs zur Überprüfung eingereicht",
+    "PUBLISHING_APPROVED": "Kurs genehmigt",
+    "PUBLISHING_REJECTED": "Kurs abgelehnt",
+    "PUBLISHING_PUBLISHED": "Kurs veröffentlicht",
+    "PUBLISHING_VISIBILITY_CHANGED": "Sichtbarkeit geändert",
+
+    "MODERATION_ANALYSIS_COMPLETED": "KI-Analyse abgeschlossen",
+    "MODERATION_APPROVED": "Kurs genehmigt",
+    "MODERATION_REJECTED": "Kurs abgelehnt",
+    "MODERATION_CHANGES_REQUESTED": "Änderungen angefordert",
+    "MODERATION_REPORT_GENERATED": "Compliance-Bericht generiert",
+    "MODERATION_DATA_EXPORTED": "Daten erfolgreich exportiert"
   }
 }

@@ -863,7 +863,261 @@ FEATURE_FLAGS = {
 
 ---
 
-## 7. Zusammenfassung v3.0
+## 7. Authorization Decorators & RBAC 2.0 (Database-Driven)
+
+### 🔐 Overview: Von Hardcoded zu Database-Driven
+
+Das LSX Backend implementiert eine **RBAC 2.0 (Role-Based Access Control 2.0)** mit drei Decorators für Autorisierung:
+
+| Decorator | Typ | Zweck | Permission Keys |
+|-----------|-----|-------|-----------------|
+| `@require_system_admin()` | Capability-Based | System-Level Admin Access | `admin:system` |
+| `@require_org_admin()` | Capability-Based | Organization Admin Access | `manage:org:settings`, `admin:organisations` |
+| `@require_org_member()` | Resource-Based | Organization Membership Check | Keine (direkter Organisationszugriff) |
+
+**Wichtig:** RBAC 2.0 ist **database-driven** und ersetzt die deprecated hardcoded Role-Liste. Das ermöglicht dem **Role Studio Admin Panel**, Berechtigungen ohne Code-Änderungen zu aktualisieren!
+
+---
+
+### 📍 Decorator-Implementierung
+
+#### 1. @require_system_admin()
+
+**Zweck:** System-level administrative access control
+
+**Implementierung:**
+```python
+@require_system_admin()
+def admin_endpoint():
+    """Requires system administrator role."""
+    return jsonify({'data': 'admin-only'})
+```
+
+**Access-Kriterien (OR-Logik):**
+- `hierarchy_level >= 9` (Emergency Fallback)
+- User hat `admin:system` Permission in core.role_permissions
+
+**Betroffene Roles:**
+- `admin` (hierarchy_level: 9)
+- `owner` (hierarchy_level: 11)
+
+**Sicherheit:**
+- Fail-Secure: Returns 403 Forbidden on database errors (NOT 500)
+- SQL-Injection Prevention: Uses ParameterizedQueries
+- Audit-Trail: All permission checks logged
+
+---
+
+#### 2. @require_org_admin()
+
+**Zweck:** Organization-level administrative access (dual permission support)
+
+**Implementierung:**
+```python
+@require_org_admin()
+def org_admin_endpoint():
+    """Requires organization admin role."""
+    return jsonify({'data': 'org-admin-only'})
+```
+
+**Access-Kriterien (OR-Logik):**
+- `hierarchy_level >= 5` (Emergency Fallback)
+- User hat `manage:org:settings` Permission (organization management)
+- User hat `admin:organisations` Permission (organization administration)
+
+**Betroffene Roles:**
+- `school_admin` (hierarchy_level: 5)
+- `company_admin` (hierarchy_level: 6)
+- `admin` (hierarchy_level: 9)
+- `owner` (hierarchy_level: 11)
+
+**Unterschied zu @require_system_admin:**
+- Zwei Permission Keys (mehr Granularität)
+- Niedrigere Hierarchy Level Thresholds
+- Für Org-spezifische Admin-Tasks
+
+---
+
+#### 3. @require_org_member()
+
+**Zweck:** RESOURCE-BASED access control (Organization Membership)
+
+**Implementierung:**
+```python
+@require_org_member()
+def org_scoped_endpoint(org_id):
+    """Requires membership in specified organization."""
+    return jsonify({'data': f'org-{org_id}-data'})
+```
+
+**Access-Kriterien:**
+- System Admins (`hierarchy_level >= 9`) können auf beliebige Orgs zugreifen
+- Regular Users müssen `org_id` Parameter mit ihrer `user.organisation_id` matchen
+
+**Wichtig: Resource-Based vs. Capability-Based**
+- `@require_system_admin()` & `@require_org_admin()`: **Capability-Based** (Was kann User TUN?)
+- `@require_org_member()`: **Resource-Based** (Auf welche Organisationen kann User ZUGREIFEN?)
+
+Diese architektonische Unterscheidung ist kritisch für korrekte Access Control!
+
+---
+
+### 🗄️ Database Schema: RBAC 2.0
+
+**Drei kritische Tabellen:**
+
+#### 1. core.permissions
+```sql
+-- Alle verfügbaren Permissions im System
+CREATE TABLE core.permissions (
+    permission_id SERIAL PRIMARY KEY,
+    permission_key VARCHAR(100) UNIQUE NOT NULL,  -- e.g., 'admin:system'
+    display_name VARCHAR(255),                     -- User-friendly name
+    description TEXT,
+    category VARCHAR(50),                          -- 'system', 'organization', etc.
+    module VARCHAR(50),                            -- 'admin', 'organizations', etc.
+    is_system BOOLEAN DEFAULT true,               -- System-managed?
+    sort_order INTEGER,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- RBAC 2.0 Permissions:
+INSERT INTO core.permissions (permission_key, display_name, category, module) VALUES
+    ('admin:system', 'System Administrator', 'system', 'admin'),           -- ID: 213
+    ('manage:org:settings', 'Manage Organization Settings', 'organization', 'organizations'), -- ID: 214
+    ('admin:organisations', 'Administer Organizations', 'organization', 'organizations');     -- ID: 215
+```
+
+#### 2. core.role_permissions
+```sql
+-- Junction table: Role → Permission Mappings
+CREATE TABLE core.role_permissions (
+    role_id INTEGER NOT NULL REFERENCES core.roles(role_id),
+    permission_id INTEGER NOT NULL REFERENCES core.permissions(permission_id),
+    PRIMARY KEY (role_id, permission_id),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- RBAC 2.0 Mappings:
+-- admin:system (213) → owner (11), admin (9)
+INSERT INTO core.role_permissions (role_id, permission_id) VALUES
+    (11, 213),  -- owner gets admin:system
+    (9, 213);   -- admin gets admin:system
+
+-- manage:org:settings (214) → owner, admin, company_admin, school_admin
+INSERT INTO core.role_permissions (role_id, permission_id) VALUES
+    (11, 214),  -- owner
+    (9, 214),   -- admin
+    (6, 214),   -- company_admin
+    (5, 214);   -- school_admin
+
+-- admin:organisations (215) → owner, admin, company_admin, school_admin
+INSERT INTO core.role_permissions (role_id, permission_id) VALUES
+    (11, 215),  -- owner
+    (9, 215),   -- admin
+    (6, 215),   -- company_admin
+    (5, 215);   -- school_admin
+```
+
+#### 3. core.roles (Reference)
+```sql
+-- Roles with hierarchy levels
+CREATE TABLE core.roles (
+    role_id INTEGER PRIMARY KEY,
+    role_name VARCHAR(100) NOT NULL,
+    hierarchy_level INTEGER,  -- 0-11 (emergency fallback thresholds)
+    created_at TIMESTAMP
+);
+
+-- Key Roles for RBAC 2.0:
+-- (5, 'school_admin', 5)      -- hierarchy_level >= 5
+-- (6, 'company_admin', 6)     -- hierarchy_level >= 5
+-- (9, 'admin', 9)             -- hierarchy_level >= 9
+-- (11, 'owner', 11)           -- hierarchy_level >= 9
+```
+
+---
+
+### 🔄 Permission Check Flow
+
+```
+User Request to Protected Endpoint
+  ↓
+Decorator Interceptor (@require_system_admin)
+  ↓
+Has Permission in Database?
+  ├─ Query: core.role_permissions WHERE role_id = ? AND permission_id = ?
+  │  (Uses PermissionRepository.user_has_permission)
+  │  ↓
+  │  Permission Found? → ✅ ALLOW (HTTP 200+)
+  │  Permission Not Found? → Check Fallback
+  │
+  └─ Fallback: hierarchy_level >= 9?
+     ├─ YES → ✅ ALLOW (Backward Compatible)
+     └─ NO → ❌ DENY (HTTP 403 Forbidden)
+
+Database Error? → ❌ DENY (HTTP 403 Forbidden - Fail-Secure Design)
+```
+
+---
+
+### 💡 Backward Compatibility & Emergency Fallback
+
+**Design Decision:** Alle drei Decorators behalten `hierarchy_level` Checks:
+
+```python
+# @require_system_admin Flow:
+1. Check Database: PermissionRepository.user_has_permission('admin:system')
+2. If DB Check = TRUE: Grant Access ✅
+3. If DB Check = FALSE: Check Fallback hierarchy_level >= 9
+4. If Fallback = TRUE: Grant Access ✅ (Emergency Access)
+5. Otherwise: Deny Access ❌
+
+# Benefit:
+- Wenn PermissionRepository fehlschlägt: Keine Requests sind blockiert
+- Hierarchy Level bietet Safety Net für emergencies
+- Fail-Secure: Fehler = Deny (nicht Allow!)
+```
+
+---
+
+### 📊 Permission Status
+
+| Permission | Permission ID | Roles | Hierarchy Levels | Status |
+|-----------|--------------|-------|-----------------|--------|
+| `admin:system` | 213 | owner (11), admin (9) | 10, 9 | ✅ Active |
+| `manage:org:settings` | 214 | owner, admin, company_admin, school_admin | 10, 9, 6, 5 | ✅ Active |
+| `admin:organisations` | 215 | owner, admin, company_admin, school_admin | 10, 9, 6, 5 | ✅ Active |
+
+**Total Mappings:** 10 role-permission relationships in core.role_permissions
+
+---
+
+### 🔒 Security Guarantees
+
+| Aspect | Implementation |
+|--------|-----------------|
+| **SQL Injection Prevention** | Parameterized Queries in PermissionRepository |
+| **Access Control** | Database-Driven (not hardcoded) |
+| **Fail-Secure** | Returns 403 on database errors (not 500) |
+| **Audit Trail** | All permission checks logged via middleware |
+| **Backward Compat** | hierarchy_level fallback for emergency access |
+
+---
+
+### 📖 Detaillierte Dokumentation
+
+Für vollständige Details siehe:
+- **Sicherheit & Architektur:** [`01_Core/05_Sicherheit-Berechtigungen.md`](./05_Sicherheit-Berechtigungen.md) - Section 6.1 RBAC 2.0
+- **Implementierung:** `backend/app/security/permissions.py` (455 lines, Quality Gate G01-G10 passed)
+- **Tests:** `backend/tests/unit/test_permission_decorators.py` (15+ test cases)
+- **Migrations:**
+  - `backend/migrations/01_Core/080_add_rbac2_permissions.sql`
+  - `backend/migrations/01_Core/081_map_rbac2_permissions_to_roles.sql`
+
+---
+
+## 8. Zusammenfassung v3.0
 
 ### ✅ Neue Features
 

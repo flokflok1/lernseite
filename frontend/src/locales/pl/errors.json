@@ -112,7 +112,26 @@
     "MATH_FORMULA_CREATE_FAILED": "Nie udało się utworzyć formuły",
 
     "FEEDBACK_CREATE_FAILED": "Nie udało się wysłać opinii",
-    "FEEDBACK_INVALID_TYPE": "Nieprawidłowy typ opinii"
+    "FEEDBACK_INVALID_TYPE": "Nieprawidłowy typ opinii",
+
+    "PUBLISHING_INVALID_TRANSITION": "Nieprawidłowe przejście stanu",
+    "PUBLISHING_ALREADY_PUBLISHED": "Kurs jest już opublikowany",
+    "PUBLISHING_NOT_DRAFT": "Kurs nie jest szkicem",
+    "PUBLISHING_INVALID_STATUS": "Nieprawidłowy status publikacji",
+    "PUBLISHING_NOTES_REQUIRED": "Notatki moderacji wymagane",
+    "PUBLISHING_SUBMISSION_FAILED": "Nie udało się wysłać",
+    "PUBLISHING_APPROVAL_FAILED": "Nie udało się zatwierdzić",
+    "PUBLISHING_REJECTION_FAILED": "Nie udało się odrzucić",
+    "PUBLISHING_PUBLISH_FAILED": "Nie udało się opublikować",
+    "PUBLISHING_VISIBILITY_UPDATE_FAILED": "Nie udało się zaktualizować widoczności",
+
+    "MODERATION_ANALYSIS_FAILED": "Analiza AI nie powiodła się",
+    "MODERATION_LOADING_QUEUE_FAILED": "Nie udało się załadować kolejki",
+    "MODERATION_NOT_FOUND": "Wpis moderacji nie znaleziony",
+    "MODERATION_INVALID_SCORE": "Nieprawidłowa ocena AI",
+    "MODERATION_REPORT_GENERATION_FAILED": "Nie udało się wygenerować raportu",
+    "MODERATION_ACTION_FAILED": "Akcja moderacji nie powiodła się",
+    "MODERATION_EXPORT_FAILED": "Nie udało się wyeksportować danych"
   },
   "messages": {
     "SUCCESS": "Sukces",
@@ -178,6 +197,19 @@
     "ORG_CREATED": "Organizacja utworzona",
     "ORG_UPDATED": "Organizacja zaktualizowana",
     "ORG_MEMBER_ADDED": "Członek dodany",
-    "ORG_MEMBER_REMOVED": "Członek usunięty"
+    "ORG_MEMBER_REMOVED": "Członek usunięty",
+
+    "PUBLISHING_SUBMITTED": "Kurs wysłany do przeglądu",
+    "PUBLISHING_APPROVED": "Kurs zatwierdzony",
+    "PUBLISHING_REJECTED": "Kurs odrzucony",
+    "PUBLISHING_PUBLISHED": "Kurs opublikowany",
+    "PUBLISHING_VISIBILITY_CHANGED": "Widoczność zmieniona",
+
+    "MODERATION_ANALYSIS_COMPLETED": "Analiza AI zakończona",
+    "MODERATION_APPROVED": "Kurs zatwierdzony",
+    "MODERATION_REJECTED": "Kurs odrzucony",
+    "MODERATION_CHANGES_REQUESTED": "Zażądano zmian",
+    "MODERATION_REPORT_GENERATED": "Raport zgodności wygenerowany",
+    "MODERATION_DATA_EXPORTED": "Dane pomyślnie wyeksportowane"
   }
 }

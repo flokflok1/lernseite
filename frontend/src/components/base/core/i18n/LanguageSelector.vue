@@ -165,6 +165,13 @@ function handleKeydown(e: KeyboardEvent) {
 // Check if emoji rendering works properly
 function emojiSupported(): boolean {
   try {
+    // Windows detection - use SVG by default on Windows
+    const isWindows = /Win/.test(navigator.platform)
+    if (isWindows) {
+      console.log('[LanguageSelector] Windows detected - using SVG flags instead of emoji')
+      return false // Disable emoji on Windows, use SVG
+    }
+
     const canvas = document.createElement('canvas')
     canvas.width = 100
     canvas.height = 100

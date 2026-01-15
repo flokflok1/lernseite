@@ -13,8 +13,10 @@ Modules:
 - course_authoring.py: AI-powered authoring
 - course_ai_settings.py: AI settings per course
 - course_analytics.py: Course analytics
+- theory_sheets.py: Theory sheets for chapters and lessons
+- course_publishing.py: Publishing workflow and moderation queue
 
-All routes: /api/v1/admin/courses/*, /api/v1/admin/chapters/*, /api/v1/admin/lessons/*
+All routes: /api/v1/admin/courses/*, /api/v1/admin/chapters/*, /api/v1/admin/lessons/*, /api/v1/admin/theory-sheets/*, /api/v1/admin/publishing/*
 """
 
 # Import all route handlers (they register with api_v1 directly via decorators)
@@ -27,7 +29,9 @@ from app.api.v1.admin.courses import (
     course_prompts,
     course_authoring,
     course_ai_settings,
-    course_analytics
+    course_analytics,
+    theory_sheets,
+    course_publishing
 )
 
 __all__ = [
@@ -39,5 +43,7 @@ __all__ = [
     'course_prompts',
     'course_authoring',
     'course_ai_settings',
-    'course_analytics'
+    'course_analytics',
+    'theory_sheets',
+    'course_publishing'
 ]

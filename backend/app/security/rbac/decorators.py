@@ -45,14 +45,37 @@ def require_owner():
 
             # RBAC 2.0: Check 'owner.access' permission via PermissionService
             # This checks if hierarchy_level >= threshold for 'owner.access' (default: 10)
-            if not PermissionService.check_threshold(user, 'owner.access'):
+            try:
+                has_permission = PermissionService.check_threshold(user, 'owner.access')
+
+                if not has_permission:
+                    hierarchy_level = user.get('hierarchy_level', 0)
+                    user_id = user.get('user_id', user.get('id', 'unknown'))
+                    return jsonify({
+                        'success': False,
+                        'error': {
+                            'code': 'FORBIDDEN',
+                            'message': 'Owner-Admin access required',
+                            'details': {
+                                'user_hierarchy_level': hierarchy_level,
+                                'required_level': 10,
+                                'user_id': user_id
+                            }
+                        }
+                    }), 403
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error checking owner.access permission for user {user.get('user_id', 'unknown')}: {str(e)}", exc_info=True)
+
                 return jsonify({
                     'success': False,
                     'error': {
-                        'code': 'FORBIDDEN',
-                        'message': 'Owner-Admin access required'
+                        'code': 'PERMISSION_CHECK_ERROR',
+                        'message': 'Error checking permissions',
+                        'details': {'error': str(e)}
                     }
-                }), 403
+                }), 500
 
             return f(*args, **kwargs)
         return decorated_function

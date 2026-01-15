@@ -2,7 +2,7 @@
 
 **Version:** 3.1
 **Stand:** 13.01.2026
-**Änderungen:** Component Consolidation: 21 domains → 7 documented domains. /base now includes 11 subdirectories for consolidated components. /studio consolidates AI, Assessment, and System-Features. Full directory tree with all subdirectories documented.
+**Änderungen:** Component Consolidation: 21 domains → 7 documented domains. /base now includes 11 subdirectories for consolidated components. /studio consolidates AI Editor (with Kurs-Editor structure), Assessment, and System-Features. Full directory tree with all subdirectories documented.
 
 ---
 
@@ -77,7 +77,7 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   ├── moderation.types.ts # Moderation Models
 │   │   ├── compliance.types.ts # Compliance Models
 │   │   ├── course.types.ts     # Course Models
-│   │   ├── studio.types.ts     # 🎨 AI Studio Models (NEW)
+│   │   ├── editor.types.ts     # 🎨 AI Editor Models (NEW)
 │   │   ├── api.types.ts        # API Response Wrapper
 │   │   └── common.types.ts     # Common Models
 │   │
@@ -95,7 +95,7 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   ├── moderation.api.ts   # Moderation Endpoints
 │   │   ├── compliance.api.ts   # Compliance Endpoints
 │   │   ├── course.api.ts       # Course Endpoints
-│   │   ├── studio.api.ts       # 🎨 AI Studio Endpoints (NEW)
+│   │   ├── editor.api.ts       # 🎨 AI Editor Endpoints (NEW)
 │   │   ├── interceptors.ts     # Axios Interceptors (Auth, Errors)
 │   │   └── websocket.ts        # WebSocket Client
 │   │
@@ -107,7 +107,7 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   ├── feed.store.ts       # Feed Management
 │   │   ├── moderation.store.ts # Moderation State
 │   │   ├── compliance.store.ts # Compliance State
-│   │   ├── studio.store.ts     # 🎨 AI Studio State (NEW)
+│   │   ├── editor.store.ts     # 🎨 AI Editor State (NEW)
 │   │   ├── feature.store.ts    # Feature Flags State
 │   │   └── ui.store.ts         # UI State (modals, etc.)
 │   │
@@ -209,17 +209,23 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   │   ├── RolloutProgress.vue       # [API] GET /api/v1/admin/features/:id/rollout
 │   │   │   └── ABTestBanner.vue          # Display A/B Test info
 │   │   │
-│   │   └── /studio             # 🎨 AI STUDIO COMPONENTS (Consolidated 3 domains)
-│   │       ├── /ai                      # AI Studio & Authoring (Consolidated /ai)
-│   │       │   ├── /admin               # Admin AI features
-│   │       │   │   ├── /authoring       # Content authoring
-│   │       │   │   ├── /management      # AI job/model management
-│   │       │   │   ├── /settings        # AI settings
-│   │       │   │   └── /studio          # AI Studio UI
-│   │       │   └── /user                # User AI features
-│   │       │       ├── /chat            # AI chat interface
-│   │       │       ├── /quiz-generation # Quiz generation UI
-│   │       │       └── /tutor           # AI tutor companion
+│   │   └── /studio             # 🎨 AI EDITOR COMPONENTS (Consolidated 3 domains)
+│   │       ├── /kurs-editor             # Kurs-Editor with Manual & AI Editors (NEW STRUCTURE)
+│   │       │   ├── /manual-editor       # Manual Content Editor
+│   │       │   │   ├── ContentEditor.vue
+│   │       │   │   ├── StructurePanel.vue
+│   │       │   │   └── PreviewPanel.vue
+│   │       │   │
+│   │       │   └── /ai-editor           # AI Editor & AI Authoring
+│   │       │       ├── /admin           # Admin AI features
+│   │       │       │   ├── /authoring   # Content authoring
+│   │       │       │   ├── /management  # AI job/model management
+│   │       │       │   ├── /settings    # AI settings
+│   │       │       │   └── /editor      # AI Editor UI
+│   │       │       └── /user            # User AI features
+│   │       │           ├── /chat        # AI chat interface
+│   │       │           ├── /quiz-gen    # Quiz generation UI
+│   │       │           └── /tutor       # AI tutor companion
 │   │       │
 │   │       ├── /assessment              # Exam & Assessment (Consolidated /assessment)
 │   │       │   ├── /admin               # Admin exam management
@@ -317,16 +323,16 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │       ├── Recording.vue             # [API] POST /api/v1/liveroom/record
 │   │       └── Participants.vue          # [WS] participant events
 │   │
-│   │   └── /studio              # 🎨 AI STUDIO PAGES (NEW)
-│   │       ├── Dashboard.vue             # [API] GET /api/v1/studio/projects
-│   │       ├── Editor.vue                # [API] POST /api/v1/studio/chat + generate
-│   │       ├── Project.vue               # [API] GET /api/v1/studio/projects/:id
-│   │       ├── Chat.vue                  # [WS] studio:message_received
-│   │       ├── Generator.vue             # [API] POST /api/v1/studio/generate
-│   │       ├── Variants.vue              # [API] POST /api/v1/studio/variants
-│   │       ├── Templates.vue             # [API] GET /api/v1/studio/templates
-│   │       ├── History.vue               # [API] GET /api/v1/studio/history
-│   │       └── Settings.vue              # [API] PUT /api/v1/studio/settings
+│   │   └── /editor              # 🎨 AI EDITOR PAGES (NEW)
+│   │       ├── Dashboard.vue             # [API] GET /api/v1/editor/projects
+│   │       ├── Editor.vue                # [API] POST /api/v1/editor/chat + generate
+│   │       ├── Project.vue               # [API] GET /api/v1/editor/projects/:id
+│   │       ├── Chat.vue                  # [WS] editor:message_received
+│   │       ├── Generator.vue             # [API] POST /api/v1/editor/generate
+│   │       ├── Variants.vue              # [API] POST /api/v1/editor/variants
+│   │       ├── Templates.vue             # [API] GET /api/v1/editor/templates
+│   │       ├── History.vue               # [API] GET /api/v1/editor/history
+│   │       └── Settings.vue              # [API] PUT /api/v1/editor/settings
 │   │
 │   ├── /router
 │   │   ├── index.ts            # Router Config

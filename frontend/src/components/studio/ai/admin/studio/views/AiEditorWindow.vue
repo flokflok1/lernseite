@@ -78,6 +78,34 @@
       </button>
     </div>
 
+    <!-- Sub-Navigation (course selection for content tabs) -->
+    <div
+      v-if="activeTab !== 'global' && activeTab !== 'settings'"
+      class="course-navigation"
+    >
+      <!-- Editor Mode Toggle & Course Selector (horizontally aligned) -->
+      <div class="course-nav-header">
+        <div class="editor-mode-section">
+          <span class="editor-label">{{ $t('admin.aiEditor.title') }}</span>
+          <!-- Future: Add Manual/AI Editor toggle here -->
+        </div>
+
+        <div class="course-selector-section">
+          <CourseSelector
+            :courses="courses"
+            :selected-course-id="selectedCourseId"
+            @select="handleSelectCourse"
+            @create="showNewCourseModal = true"
+          />
+        </div>
+
+        <div class="course-stats-section">
+          <span class="stats-label">{{ $t('admin.aiEditor.lessons') }}:</span>
+          <span class="stats-value">{{ stats.totalLessons }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Sub-Navigation (only for Tutor tab) -->
     <TutorSubNavigation
       v-if="activeTab === 'tutor'"
@@ -193,6 +221,7 @@ import {
   AiStudioHeader,
   NewCourseModal,
   CourseStructureSidebar,
+  CourseSelector,
   TutorSubNavigation,
   useAiStudioState,
   useCourseManagement,
@@ -478,6 +507,65 @@ watch(() => props.window.payload?.courseId, (newCourseId) => {
 
 .chat-chevron.open {
   transform: rotate(180deg);
+}
+
+/* Course Navigation (Secondary Header) */
+.course-navigation {
+  display: flex;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.course-nav-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.editor-mode-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.editor-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: 0.375rem 0.75rem;
+  background: var(--color-surface);
+  border-radius: 0.375rem;
+  white-space: nowrap;
+}
+
+.course-selector-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.course-stats-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.375rem 0.75rem;
+  background: var(--color-surface);
+  border-radius: 0.375rem;
+}
+
+.course-stats-section .stats-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.course-stats-section .stats-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 /* Content Area */

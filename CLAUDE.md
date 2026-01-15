@@ -191,7 +191,7 @@ backend/app/api/admin/          # 40 endpoints, 7 modules
 ✅ CORRECT (role-based):
 components/
 ├── admin/      # Admin-specific features
-│   ├── ai-operations/       # AI Studio, authoring, generation
+│   ├── ai-operations/       # AI Editor, authoring, generation
 │   ├── content-management/  # Courses, chapters, lessons
 │   └── user-management/     # Users, roles, organizations
 ├── user/       # End-user features

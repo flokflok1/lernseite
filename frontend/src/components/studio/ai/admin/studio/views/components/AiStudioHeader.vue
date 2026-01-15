@@ -19,30 +19,17 @@
 
     <!-- Actions -->
     <div class="header-right">
-      <!-- Course Selector -->
-      <CourseSelector
-        :courses="courses"
-        :selected-course-id="selectedCourseId"
-        @select="$emit('select-course', $event)"
-        @create="$emit('create-course')"
-      />
-
-      <!-- Quick Stats -->
-      <div class="stats">
-        <span class="stats-label">{{ $t('admin.aiEditor.lessons') }}:</span>
-        <span class="stats-value">{{ stats.totalLessons }}</span>
-      </div>
+      <!-- Empty for now - Course selection moved to secondary navigation -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 /**
- * AiStudioHeader - Top header with branding and course selection
+ * AiStudioHeader - Top header with branding
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import CourseSelector from './CourseSelector.vue'
 import type { Course } from '../composables/useAiStudioState'
 
 const { t } = useI18n()

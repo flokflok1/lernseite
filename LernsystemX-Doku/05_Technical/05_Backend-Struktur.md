@@ -2,7 +2,7 @@
 
 **Version:** 3.0  
 **Stand:** 13.01.2026  
-**Änderungen:** Complete Enterprise Architecture + AI Studio APIs + Compliance GDPR APIs + Error/WebSocket Standardisierung
+**Änderungen:** Complete Enterprise Architecture + AI Editor APIs (renamed from AI Studio) + Compliance GDPR APIs + Error/WebSocket Standardisierung
 
 ---
 
@@ -10,11 +10,11 @@
 
 Dieses Dokument beschreibt die komplette **Enterprise-Grade Backend-Architektur** des LSX Lernsystems.
 
-Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig compliance-konform**, **feature-flag-gesteuert** und **mit AI Studio integriert**.
+Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig compliance-konform**, **feature-flag-gesteuert** und **mit AI Editor integriert**.
 
 ### 🎯 Neue Features in v3.0
 
-- ✅ **AI Studio System** - Chat, Content Generation, Variants, Sessions
+- ✅ **AI Editor System** - Chat, Content Generation, Variants, Sessions
 - ✅ **Compliance APIs** - GDPR Data Export/Deletion, Privacy Controls, Age Verification
 - ✅ **Feature Flag System** - Progressive Rollout (5% → 25% → 100%)
 - ✅ **Social Learning Network** - Posts, Feed, Follow, Likes, Comments
@@ -66,7 +66,7 @@ graph TB
         SOCKET[🔌 WebSocket Server<br/>Flask-SocketIO]
         MODERATION[🛡️ Content Moderation<br/>AI + Human]
         FEATURE_FLAGS[🎚️ Feature Flag System<br/>Progressive Rollout]
-        STUDIO[🎨 AI Studio<br/>Content Generation]
+        STUDIO[🎨 AI Editor<br/>Content Generation]
 
         subgraph "Data Layer"
             DB[(🐘 PostgreSQL<br/>psycopg3 Pool)]
@@ -227,10 +227,10 @@ graph TB
 │   │   │   │   │   ├── ai_tutor.py
 │   │   │   │   │   └── ai_authoring.py
 │   │   │   │   │
-│   │   │   │   ├── /studio      # ⭐ AI STUDIO ADMIN APIs (NEW)
+│   │   │   │   ├── /studio      # ⭐ AI EDITOR ADMIN APIs (NEW)
 │   │   │   │   │   ├── __init__.py
 │   │   │   │   │   ├── studio.py                 # GET /api/v1/admin/studio
-│   │   │   │   │   ├── studio_projects.py        # Studio Projects CRUD
+│   │   │   │   │   ├── studio_projects.py        # AI Editor Projects CRUD
 │   │   │   │   │   ├── studio_sessions.py        # Session Management
 │   │   │   │   │   ├── studio_templates.py       # Template Management
 │   │   │   │   │   └── studio_variants.py        # Variant Management
@@ -264,7 +264,7 @@ graph TB
 │   │   │       ├── __init__.py
 │   │   │       └── ai_course_generator.py
 │   │   │
-│   │   └── /studio              # ⭐ AI STUDIO API (NEW)
+│   │   └── /studio              # ⭐ AI EDITOR API (NEW)
 │   │       ├── __init__.py
 │   │       ├── chat.py               # POST /api/v1/studio/chat
 │   │       ├── generate.py           # POST /api/v1/studio/generate
@@ -339,7 +339,7 @@ graph TB
 │   │       ├── audience_insights.py
 │   │       └── performance_tracking.py
 │   │
-│   ├── /studio                  # 🎨 AI STUDIO SERVICE LAYER (NEW)
+│   ├── /studio                  # 🎨 AI EDITOR SERVICE LAYER (NEW)
 │   │   ├── __init__.py
 │   │   ├── studio_service.py         # Main Service
 │   │   ├── chat_engine.py            # Chat Processing
@@ -835,12 +835,12 @@ FEATURE_FLAGS = {
     'direct_messages',
     'group_chat',
     
-    # AI Studio
-    'ai_studio',
-    'studio_chat',
-    'studio_generation',
-    'studio_templates',
-    'studio_variants',
+    # AI Editor
+    'ai_editor',
+    'editor_chat',
+    'editor_generation',
+    'editor_templates',
+    'editor_variants',
     
     # Compliance
     'gdpr_controls',
@@ -1123,7 +1123,7 @@ Für vollständige Details siehe:
 
 | Feature | Status | APIs | WebSocket Events |
 |---------|--------|------|------------------|
-| **AI Studio** | ✅ | 8 Endpoints | 5 Events |
+| **AI Editor** | ✅ | 8 Endpoints | 5 Events |
 | **Compliance (GDPR)** | ✅ | 9 Endpoints | — |
 | **Age Verification** | ✅ | 2 Endpoints | — |
 | **SLA Monitor** | ✅ | 1 Endpoint | — |
@@ -1140,7 +1140,7 @@ Für vollständige Details siehe:
 │                                                               │
 │  ✅ Feature Flag System (Progressive Rollout)                │
 │  ✅ Social Network (Posts, Feed, Follow, Engagement)         │
-│  ✅ AI Studio (Chat, Generate, Variants, Templates)          │
+│  ✅ AI Editor (Chat, Generate, Variants, Templates)          │
 │  ✅ Full Compliance (DSA/NetzDG/GDPR/ISO 27001/Child)        │
 │  ✅ Content Moderation (AI + Human, 24h/7d SLA)              │
 │  ✅ GDPR APIs (Data Export, Deletion, Privacy)               │
@@ -1153,7 +1153,7 @@ Für vollständige Details siehe:
 │                                                               │
 │  🐍 Python 3.12+ | 🌶️ Flask 3.0 | 🐘 PostgreSQL            │
 │  🔴 Redis | 📦 Celery | 🔑 JWT | 📋 Pydantic              │
-│  🎨 AI Studio | 🛡️ Compliance | 📡 WebSockets             │
+│  🎨 AI Editor | 🛡️ Compliance | 📡 WebSockets             │
 │  🗄️ psycopg3 + Repository Pattern (KEIN ORM!)               │
 │                                                               │
 └──────────────────────────────────────────────────────────────┘
@@ -1168,7 +1168,7 @@ Für vollständige Details siehe:
 **Letzte Aktualisierung:** 13.01.2026
 
 **Neue Features v3.0:**
-- ✅ Complete AI Studio Integration (8 APIs + 5 WebSocket Events)
+- ✅ Complete AI Editor Integration (8 APIs + 5 WebSocket Events)
 - ✅ GDPR Compliance APIs (9 Endpoints)
 - ✅ Age Verification & Parental Controls
 - ✅ SLA Monitoring for Moderation
@@ -1177,12 +1177,12 @@ Für vollständige Details siehe:
 - ✅ Standardized WebSocket Events (25+ Events)
 - ✅ Standardized Feature Flag Names
 - ✅ Compliance Dashboard APIs
-- ✅ Complete Studio Service Layer
+- ✅ Complete AI Editor Service Layer
 
 > **WICHTIG:** 
 > - Backend und Frontend sind jetzt **100% abgestimmt**
 > - Feature Flags consistent benannt
 > - WebSocket Events standardisiert
 > - Error Format standardisiert
-> - AI Studio vollständig integriert
+> - AI Editor vollständig integriert
 > - GDPR compliant

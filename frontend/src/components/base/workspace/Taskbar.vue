@@ -59,8 +59,10 @@ function handleTaskbarItemClick(windowId: string): void {
 
 /**
  * Truncate long titles
+ * Handles undefined/null titles gracefully
  */
-function truncateTitle(title: string): string {
+function truncateTitle(title: string | undefined | null): string {
+  if (!title) return ''
   const maxLength = 20
   if (title.length <= maxLength) return title
   return title.substring(0, maxLength - 3) + '...'

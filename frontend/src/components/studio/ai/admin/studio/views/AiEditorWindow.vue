@@ -11,8 +11,9 @@
 
 <template>
   <div class="ai-editor">
-    <!-- Header -->
+    <!-- Header (only show for builder/content tabs) -->
     <AiStudioHeader
+      v-if="activeTab === 'builder'"
       :courses="courses"
       :selected-course-id="selectedCourseId"
       :stats="stats"
@@ -76,34 +77,6 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-    </div>
-
-    <!-- Sub-Navigation (course selection for content tabs) -->
-    <div
-      v-if="activeTab !== 'global' && activeTab !== 'settings'"
-      class="course-navigation"
-    >
-      <!-- Editor Mode Toggle & Course Selector (horizontally aligned) -->
-      <div class="course-nav-header">
-        <div class="editor-mode-section">
-          <span class="editor-label">{{ $t('admin.aiEditor.title') }}</span>
-          <!-- Future: Add Manual/AI Editor toggle here -->
-        </div>
-
-        <div class="course-selector-section">
-          <CourseSelector
-            :courses="courses"
-            :selected-course-id="selectedCourseId"
-            @select="handleSelectCourse"
-            @create="showNewCourseModal = true"
-          />
-        </div>
-
-        <div class="course-stats-section">
-          <span class="stats-label">{{ $t('admin.aiEditor.lessons') }}:</span>
-          <span class="stats-value">{{ stats.totalLessons }}</span>
-        </div>
-      </div>
     </div>
 
     <!-- Sub-Navigation (only for Tutor tab) -->

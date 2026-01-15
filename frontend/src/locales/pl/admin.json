@@ -1211,6 +1211,11 @@
       "duplicate": "Duplikuj"
     },
     "chapters": {
+      "chapter": "Rozdział",
+      "errors": {
+        "saveFirst": "Proszę najpierw zapisać rozdział",
+        "titleRequired": "Nazwa rozdziału jest wymagana"
+      },
       "tabs": {
         "info": "Informacje o rozdziale",
         "theory": "Arkusze teorii",
@@ -1263,6 +1268,23 @@
         "updateButton": "Zapisz",
         "createButton": "Utwórz"
       }
+    },
+    "lessons": {
+      "confirmDelete": "Naprawdę usunąć tę lekcję? Tej akcji nie można cofnąć.",
+      "createNew": "Utwórz nową lekcję",
+      "duration": "Czas trwania",
+      "edit": "Edytuj lekcję",
+      "exercises": "Ćwiczenia",
+      "learningMethods": "Metody nauki",
+      "lesson": "Lekcja",
+      "methodsAreCreatedInStudio": "Metody nauki są tworzone w studio",
+      "noMethods": "Nie utworzono metod nauki",
+      "noTheory": "Brak dostępnych arkuszy teorii",
+      "theory": "Teoria",
+      "theoryCanBeGenerated": "Arkusze teorii mogą być generowane za pomocą AI"
+    },
+    "methods": {
+      "title": "Metody nauki"
     },
     "courseChat": {
       "suggestStructure": "Zasugeruj strukturę",

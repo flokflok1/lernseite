@@ -7,8 +7,6 @@ import adminBase from '../admin.json'
 import editorsModule from './editors'
 
 export default {
-  admin: {
-    ...adminBase.admin,
-    ...editorsModule
-  }
+  ...adminBase.admin,
+  ...editorsModule
 }

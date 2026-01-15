@@ -1211,6 +1211,11 @@
       "duplicate": "Duplizieren"
     },
     "chapters": {
+      "chapter": "Kapitel",
+      "errors": {
+        "saveFirst": "Bitte speichern Sie das Kapitel zuerst",
+        "titleRequired": "Kapitelname ist erforderlich"
+      },
       "tabs": {
         "info": "Kapitel-Info",
         "theory": "Theorieblätter",
@@ -1263,6 +1268,23 @@
         "updateButton": "Speichern",
         "createButton": "Erstellen"
       }
+    },
+    "lessons": {
+      "confirmDelete": "Lektion wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "createNew": "Neue Lektion erstellen",
+      "duration": "Dauer",
+      "edit": "Lektion bearbeiten",
+      "exercises": "Übungen",
+      "learningMethods": "Lernmethoden",
+      "lesson": "Lektion",
+      "methodsAreCreatedInStudio": "Lernmethoden werden im Studio erstellt",
+      "noMethods": "Keine Lernmethoden erstellt",
+      "noTheory": "Keine Theorieblätter vorhanden",
+      "theory": "Theorie",
+      "theoryCanBeGenerated": "Theorieblätter können mit KI generiert werden"
+    },
+    "methods": {
+      "title": "Lernmethoden"
     },
     "courseChat": {
       "suggestStructure": "Struktur vorschlagen",

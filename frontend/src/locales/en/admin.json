@@ -1211,6 +1211,11 @@
       "duplicate": "Duplicate"
     },
     "chapters": {
+      "chapter": "Chapter",
+      "errors": {
+        "saveFirst": "Please save the chapter first",
+        "titleRequired": "Chapter name is required"
+      },
       "tabs": {
         "info": "Chapter Info",
         "theory": "Theory Sheets",
@@ -1263,6 +1268,23 @@
         "updateButton": "Save",
         "createButton": "Create"
       }
+    },
+    "lessons": {
+      "confirmDelete": "Really delete this lesson? This action cannot be undone.",
+      "createNew": "Create New Lesson",
+      "duration": "Duration",
+      "edit": "Edit Lesson",
+      "exercises": "Exercises",
+      "learningMethods": "Learning Methods",
+      "lesson": "Lesson",
+      "methodsAreCreatedInStudio": "Learning methods are created in the studio",
+      "noMethods": "No learning methods created",
+      "noTheory": "No theory sheets available",
+      "theory": "Theory",
+      "theoryCanBeGenerated": "Theory sheets can be generated with AI"
+    },
+    "methods": {
+      "title": "Learning Methods"
     },
     "courseChat": {
       "suggestStructure": "Suggest Structure",

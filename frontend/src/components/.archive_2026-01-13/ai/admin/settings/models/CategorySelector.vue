@@ -22,7 +22,7 @@
       @change="$emit('update:selectedModelId', ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)"
       class="w-full px-3 py-2 bg-[var(--color-surface-secondary)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] text-sm"
     >
-      <option :value="null">-- {{ $t('windows.aiStudioModels.notConfigured') }} --</option>
+      <option :value="null">-- {{ $t('windows.aiEditorModels.notConfigured') }} --</option>
       <option
         v-for="model in models"
         :key="model.model_id"
@@ -33,10 +33,10 @@
     </select>
     <div class="mt-2 flex items-center justify-between text-xs">
       <span class="text-[var(--color-text-tertiary)]">
-        {{ models.length }} {{ $t('windows.aiStudioModels.available') }}
+        {{ models.length }} {{ $t('windows.aiEditorModels.available') }}
       </span>
       <span v-if="selectedModelId" class="text-green-500">
-        ✓ {{ $t('windows.aiStudioModels.configured') }}
+        ✓ {{ $t('windows.aiEditorModels.configured') }}
       </span>
     </div>
   </div>

@@ -165,12 +165,14 @@ if __name__ == '__main__':
     app.logger.info(f'Debug mode: {debug}')
 
     # Run with SocketIO support
+    # Note: use_reloader=False because Flask-SocketIO has its own auto-reload mechanism
+    # and Werkzeug's reloader conflicts with SocketIO's process management
     socketio.run(
         app,
         host='0.0.0.0',
         port=port,
         debug=debug,
-        use_reloader=debug,
+        use_reloader=False,  # Disabled - SocketIO handles reloading internally
         log_output=debug,
         allow_unsafe_werkzeug=True  # Allow Werkzeug in development
     )

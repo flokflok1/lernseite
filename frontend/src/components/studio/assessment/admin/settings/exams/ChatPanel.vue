@@ -7,9 +7,9 @@
   <div class="chat-panel">
     <div class="panel-header">
       <span class="panel-icon">💬</span>
-      <span class="panel-title">{{ $t('windows.aiStudioExams.aiChat') }}</span>
+      <span class="panel-title">{{ $t('windows.aiEditorExams.aiChat') }}</span>
       <span v-if="selectedFilesCount > 0" class="files-indicator">
-        {{ $t('windows.aiStudioExams.filesAsContext', { count: selectedFilesCount }) }}
+        {{ $t('windows.aiEditorExams.filesAsContext', { count: selectedFilesCount }) }}
       </span>
     </div>
 
@@ -18,23 +18,23 @@
       <!-- Welcome Message -->
       <div v-if="messages.length === 0" class="welcome-message">
         <div class="welcome-icon">🤖</div>
-        <h4>{{ $t('windows.aiStudioExams.assistantTitle') }}</h4>
-        <p>{{ $t('windows.aiStudioExams.assistantIntro') }}</p>
+        <h4>{{ $t('windows.aiEditorExams.assistantTitle') }}</h4>
+        <p>{{ $t('windows.aiEditorExams.assistantIntro') }}</p>
 
         <div v-if="selectedFilesCount > 0" class="selected-files-info">
-          <strong>{{ $t('windows.aiStudioExams.filesSelected', { count: selectedFilesCount }) }}</strong>
+          <strong>{{ $t('windows.aiEditorExams.filesSelected', { count: selectedFilesCount }) }}</strong>
           <ul>
             <li v-for="name in selectedFileNames.slice(0, 3)" :key="name">{{ name }}</li>
-            <li v-if="selectedFilesCount > 3">{{ $t('windows.aiStudioExams.andMore', { count: selectedFilesCount - 3 }) }}</li>
+            <li v-if="selectedFilesCount > 3">{{ $t('windows.aiEditorExams.andMore', { count: selectedFilesCount - 3 }) }}</li>
           </ul>
         </div>
 
         <div class="welcome-hints">
-          <p>{{ $t('windows.aiStudioExams.examples') }}</p>
+          <p>{{ $t('windows.aiEditorExams.examples') }}</p>
           <ul>
-            <li>{{ $t('windows.aiStudioExams.example1') }}</li>
-            <li>{{ $t('windows.aiStudioExams.example2') }}</li>
-            <li>{{ $t('windows.aiStudioExams.example3') }}</li>
+            <li>{{ $t('windows.aiEditorExams.example1') }}</li>
+            <li>{{ $t('windows.aiEditorExams.example2') }}</li>
+            <li>{{ $t('windows.aiEditorExams.example3') }}</li>
           </ul>
         </div>
       </div>
@@ -61,7 +61,7 @@
         <textarea
           v-model="inputValue"
           @keydown.enter.exact.prevent="$emit('send', inputValue); inputValue = ''"
-          :placeholder="$t('windows.aiStudioExams.inputPlaceholder')"
+          :placeholder="$t('windows.aiEditorExams.inputPlaceholder')"
           rows="2"
           :disabled="isGenerating"
         ></textarea>
@@ -76,11 +76,11 @@
       <!-- Quick Actions -->
       <div class="quick-prompts">
         <button @click="$emit('quick-prompt', 'from_files')" class="quick-btn" :disabled="selectedFilesCount === 0">
-          📄 {{ $t('windows.aiStudioExams.fromFiles') }}
+          📄 {{ $t('windows.aiEditorExams.fromFiles') }}
         </button>
-        <button @click="$emit('quick-prompt', 'exam_mc')" class="quick-btn">✅ {{ $t('windows.aiStudioExams.mcQuestions') }}</button>
-        <button @click="$emit('quick-prompt', 'exam_ihk')" class="quick-btn">🎓 {{ $t('windows.aiStudioExams.ihkStyle') }}</button>
-        <button @click="$emit('quick-prompt', 'exam_mixed')" class="quick-btn">🎯 {{ $t('windows.aiStudioExams.mixed') }}</button>
+        <button @click="$emit('quick-prompt', 'exam_mc')" class="quick-btn">✅ {{ $t('windows.aiEditorExams.mcQuestions') }}</button>
+        <button @click="$emit('quick-prompt', 'exam_ihk')" class="quick-btn">🎓 {{ $t('windows.aiEditorExams.ihkStyle') }}</button>
+        <button @click="$emit('quick-prompt', 'exam_mixed')" class="quick-btn">🎯 {{ $t('windows.aiEditorExams.mixed') }}</button>
       </div>
     </div>
   </div>

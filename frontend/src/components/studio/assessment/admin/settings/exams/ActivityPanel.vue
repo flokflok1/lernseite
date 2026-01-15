@@ -8,7 +8,7 @@
   <div class="activity-panel">
     <div class="panel-header">
       <span class="panel-icon">📊</span>
-      <span class="panel-title">{{ $t('windows.aiStudioActivity.title') }}</span>
+      <span class="panel-title">{{ $t('windows.aiEditorActivity.title') }}</span>
     </div>
 
     <!-- Activity Log -->
@@ -34,47 +34,47 @@
       <!-- Empty State -->
       <div v-if="!currentActivity && activityLog.length === 0" class="activity-empty">
         <span class="empty-icon">⏳</span>
-        <p>{{ $t('windows.aiStudioActivity.noActivity') }}</p>
+        <p>{{ $t('windows.aiEditorActivity.noActivity') }}</p>
       </div>
     </div>
 
     <!-- Token Usage -->
     <div class="token-usage">
       <div class="usage-header">
-        <span>{{ $t('windows.aiStudioActivity.tokenUsage') }}</span>
+        <span>{{ $t('windows.aiEditorActivity.tokenUsage') }}</span>
         <span class="usage-value">{{ tokensUsed.toLocaleString() }}</span>
       </div>
       <div class="usage-bar">
         <div class="usage-fill" :style="{ width: `${Math.min(tokensUsed / 100, 100)}%` }"></div>
       </div>
       <div class="usage-cost">
-        {{ $t('windows.aiStudioActivity.estimatedCost', { cost: estimatedCost.toFixed(4) }) }}
+        {{ $t('windows.aiEditorActivity.estimatedCost', { cost: estimatedCost.toFixed(4) }) }}
       </div>
     </div>
 
     <!-- Generation Settings -->
     <div class="gen-settings">
-      <h4>{{ $t('windows.aiStudioActivity.settings') }}</h4>
+      <h4>{{ $t('windows.aiEditorActivity.settings') }}</h4>
       <div class="setting-row">
-        <label>{{ $t('windows.aiStudioActivity.questionCount') }}</label>
+        <label>{{ $t('windows.aiEditorActivity.questionCount') }}</label>
         <select :value="questionCount" @change="$emit('update:questionCount', Number(($event.target as HTMLSelectElement).value))">
-          <option :value="5">{{ $t('windows.aiStudioActivity.questions', { count: 5 }) }}</option>
-          <option :value="10">{{ $t('windows.aiStudioActivity.questions', { count: 10 }) }}</option>
-          <option :value="15">{{ $t('windows.aiStudioActivity.questions', { count: 15 }) }}</option>
-          <option :value="20">{{ $t('windows.aiStudioActivity.questions', { count: 20 }) }}</option>
+          <option :value="5">{{ $t('windows.aiEditorActivity.questions', { count: 5 }) }}</option>
+          <option :value="10">{{ $t('windows.aiEditorActivity.questions', { count: 10 }) }}</option>
+          <option :value="15">{{ $t('windows.aiEditorActivity.questions', { count: 15 }) }}</option>
+          <option :value="20">{{ $t('windows.aiEditorActivity.questions', { count: 20 }) }}</option>
         </select>
       </div>
       <div class="setting-row">
-        <label>{{ $t('windows.aiStudioActivity.difficulty') }}</label>
+        <label>{{ $t('windows.aiEditorActivity.difficulty') }}</label>
         <select :value="difficulty" @change="$emit('update:difficulty', ($event.target as HTMLSelectElement).value)">
-          <option value="easy">{{ $t('windows.aiStudioActivity.easy') }}</option>
-          <option value="medium">{{ $t('windows.aiStudioActivity.medium') }}</option>
-          <option value="hard">{{ $t('windows.aiStudioActivity.hard') }}</option>
-          <option value="mixed">{{ $t('windows.aiStudioActivity.mixed') }}</option>
+          <option value="easy">{{ $t('windows.aiEditorActivity.easy') }}</option>
+          <option value="medium">{{ $t('windows.aiEditorActivity.medium') }}</option>
+          <option value="hard">{{ $t('windows.aiEditorActivity.hard') }}</option>
+          <option value="mixed">{{ $t('windows.aiEditorActivity.mixed') }}</option>
         </select>
       </div>
       <div class="setting-row">
-        <label>{{ $t('windows.aiStudioActivity.duration') }}</label>
+        <label>{{ $t('windows.aiEditorActivity.duration') }}</label>
         <input
           type="number"
           :value="durationMinutes"

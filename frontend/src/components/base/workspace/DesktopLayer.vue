@@ -49,7 +49,7 @@ import Taskbar from './Taskbar.vue'
 
 // Import window content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations
-const AdminAiStudioWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/studio/views/AiStudioProWindow.vue'))
+const AdminAiStudioWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/studio/views/AiEditorWindow.vue'))
 const AdminAIKapitelGeneratorWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/authoring/views/KapitelGeneratorWindow.vue'))
 const AdminAIJobWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/jobs/views/AIJobWindow.vue'))
 const AdminModelSelectorWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/models/views/ModelSelectorWindow.vue'))
@@ -58,6 +58,7 @@ const AdminPromptBrowserWindow = defineAsyncComponent(() => import('@/components
 // Content Management - Courses
 const AdminCourseCreateWindow = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseCreateWindow.vue'))
 const AdminCourseEditorWindow = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseEditorWindow.vue'))
+const AdminCourseListEditorWindow = defineAsyncComponent(() => import('@/pages/admin/courses/CourseListEditorWindow.vue'))
 const AdminCourseFilesWindow = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseFilesWindow.vue'))
 
 // Content Management - Chapters
@@ -78,6 +79,7 @@ const AdminExamManagerWindow = defineAsyncComponent(() => import('@/components/s
 // System Operations
 const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/components/base/system/admin/views/FilePreviewWindow.vue'))
 const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/components/base/system/admin/views/WindowManagerWindow.vue'))
+const AdminUserGroupManagementWindow = defineAsyncComponent(() => import('@/pages/admin/AdminUserGroupManagementWindow.vue'))
 
 // Learning Method Forms (12 Content-LMs: 00-11) - Updated 2026-01-11
 // LM12-32 deleted (were System-Features, not Content-LMs)
@@ -117,6 +119,8 @@ function resolveWindowComponent(type: WindowType) {
   switch (type) {
     case 'admin-course-create':
       return AdminCourseCreateWindow
+    case 'admin-course-list-editor':
+      return AdminCourseListEditorWindow
     case 'admin-course-editor':
       return AdminCourseEditorWindow
     case 'admin-kapitel-editor':  // Refactored: modules → chapters (2025-11-27)
@@ -149,6 +153,8 @@ function resolveWindowComponent(type: WindowType) {
       return AdminLessonPreviewWindow
     case 'admin-chapter-preview':
       return AdminChapterPreviewWindow
+    case 'admin-user-group-management':
+      return AdminUserGroupManagementWindow
     default:
       // Fallback: simple placeholder
       return {

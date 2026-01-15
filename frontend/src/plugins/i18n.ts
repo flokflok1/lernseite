@@ -27,7 +27,7 @@ import type { App } from 'vue'
 import deCommon from '@/locales/de/common.json'
 import deAdmin from '@/locales/de/admin.json'
 import deWindowsAdmin from '@/locales/de/windows/admin.json'
-import deWindowsAiStudio from '@/locales/de/windows/aiStudio.json'
+import deWindowsAiEditor from '@/locales/de/windows/aiEditor.json'
 import deWindowsAiPricing from '@/locales/de/windows/aiPricing.json'
 import deWindowsCommon from '@/locales/de/windows/common.json'
 import deWindowsViewer from '@/locales/de/windows/viewer.json'
@@ -41,7 +41,7 @@ import deLegal from '@/locales/de/legal.json'
 import enCommon from '@/locales/en/common.json'
 import enAdmin from '@/locales/en/admin.json'
 import enWindowsAdmin from '@/locales/en/windows/admin.json'
-import enWindowsAiStudio from '@/locales/en/windows/aiStudio.json'
+import enWindowsAiEditor from '@/locales/en/windows/aiEditor.json'
 import enWindowsAiPricing from '@/locales/en/windows/aiPricing.json'
 import enWindowsCommon from '@/locales/en/windows/common.json'
 import enWindowsViewer from '@/locales/en/windows/viewer.json'
@@ -55,7 +55,7 @@ import enLegal from '@/locales/en/legal.json'
 import plCommon from '@/locales/pl/common.json'
 import plAdmin from '@/locales/pl/admin.json'
 import plWindowsAdmin from '@/locales/pl/windows/admin.json'
-import plWindowsAiStudio from '@/locales/pl/windows/aiStudio.json'
+import plWindowsAiEditor from '@/locales/pl/windows/aiEditor.json'
 import plWindowsAiPricing from '@/locales/pl/windows/aiPricing.json'
 import plWindowsCommon from '@/locales/pl/windows/common.json'
 import plWindowsViewer from '@/locales/pl/windows/viewer.json'
@@ -69,7 +69,7 @@ import plLegal from '@/locales/pl/legal.json'
 const deWindows = {
   windows: {
     ...deWindowsAdmin,
-    ...deWindowsAiStudio,
+    ...deWindowsAiEditor,
     ...deWindowsAiPricing,
     ...deWindowsCommon,
     ...deWindowsViewer,
@@ -80,7 +80,7 @@ const deWindows = {
 const enWindows = {
   windows: {
     ...enWindowsAdmin,
-    ...enWindowsAiStudio,
+    ...enWindowsAiEditor,
     ...enWindowsAiPricing,
     ...enWindowsCommon,
     ...enWindowsViewer,
@@ -91,7 +91,7 @@ const enWindows = {
 const plWindows = {
   windows: {
     ...plWindowsAdmin,
-    ...plWindowsAiStudio,
+    ...plWindowsAiEditor,
     ...plWindowsAiPricing,
     ...plWindowsCommon,
     ...plWindowsViewer,

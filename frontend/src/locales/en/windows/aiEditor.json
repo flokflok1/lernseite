@@ -1,5 +1,5 @@
 {
-  "aiStudioFeatures": {
+  "aiEditorFeatures": {
     "title": "System Features",
     "selectCourse": "Select Course",
     "selectCourseDesc": "Select a course to configure system features.",
@@ -93,7 +93,7 @@
       }
     }
   },
-  "aiStudioSettings": {
+  "aiEditorSettings": {
     "title": "Course AI Settings",
     "subtitle": "AI model configuration for this course",
     "noCourse": "No course selected",
@@ -106,7 +106,7 @@
     "resetSuccess": "Settings reset",
     "resetFailed": "Reset failed"
   },
-  "aiStudioModels": {
+  "aiEditorModels": {
     "loading": "Loading models...",
     "loadError": "Error loading",
     "retry": "Retry",
@@ -164,11 +164,11 @@
     "catTranscription": "Speech-to-Text",
     "catTranslation": "Translations"
   },
-  "aiStudioTutor": {
+  "aiEditorTutor": {
     "selectContent": "Select Chapter or Lesson",
     "selectContentHint": "Select a <strong>chapter</strong> on the left for the theory sheet or a <strong>lesson</strong> for the step-by-step explanation."
   },
-  "aiStudioAssets": {
+  "aiEditorAssets": {
     "title": "Asset Manager",
     "subtitle": "Images, formulas and graphics for your lessons",
     "upload": "Upload",
@@ -221,7 +221,7 @@
       "commonFormulas": "Common Formulas"
     }
   },
-  "aiStudioContent": {
+  "aiEditorContent": {
     "emptyTitle": "Content Editor",
     "emptyText": "Select a lesson on the left to edit content or generate with AI.",
     "lessonEditor": "Lesson Editor",
@@ -261,7 +261,7 @@
     "stepN": "Step {n}",
     "confirmReset": "Discard changes?"
   },
-  "aiStudioChat": {
+  "aiEditorChat": {
     "title": "AI Chat",
     "assistant": "AI Assistant",
     "online": "Online",
@@ -299,8 +299,8 @@
       "modelComparison": "Which model is better?"
     }
   },
-  "aiStudioPro": {
-    "title": "AI Studio Pro",
+  "aiEditorPro": {
+    "title": "AI Editor",
     "chat": "Chat",
     "selectCourse": "Select course",
     "selectCoursePlaceholder": "Select course...",
@@ -354,7 +354,7 @@
       "global": "Global"
     }
   },
-  "aiStudioPrompts": {
+  "aiEditorPrompts": {
     "title": "Prompt Editor",
     "subtitle": "Manage system prompts for AI generation",
     "import": "Import",
@@ -402,7 +402,7 @@
     "copy": "(Copy)",
     "variableNamePrompt": "Variable name:"
   },
-  "aiStudioGlobalSettings": {
+  "aiEditorGlobalSettings": {
     "title": "Global Settings",
     "models": "Models",
     "providers": "Providers",
@@ -462,7 +462,7 @@
     "providerOk": "{provider}: OK",
     "providerFailed": "{provider}: Failed"
   },
-  "aiStudioExams": {
+  "aiEditorExams": {
     "selectCourse": "Select Course",
     "selectCourseHint": "Select a course to create exams.",
     "title": "AI Exam Generator",
@@ -676,7 +676,7 @@
   "aiJob": {
     "placeholder": "AI Job Window - will be implemented in Phase 5"
   },
-  "aiStudioStats": {
+  "aiEditorStats": {
     "loading": "Loading statistics...",
     "errorTitle": "Error loading",
     "retry": "Retry",
@@ -709,7 +709,7 @@
     "tokens": "tokens",
     "loadError": "Error loading statistics"
   },
-  "aiStudioAnalytics": {
+  "aiEditorAnalytics": {
     "noCourse": "No course selected",
     "selectCourse": "Select a course to view analytics.",
     "title": "Analytics: {title}",
@@ -749,7 +749,7 @@
       "tutor_steps": "Tutor Steps"
     }
   },
-  "aiStudioWorkflow": {
+  "aiEditorWorkflow": {
     "chapter": "Chapter",
     "lesson": "Lesson",
     "closeContext": "Close context",
@@ -778,7 +778,7 @@
     "withAudio": "With audio",
     "steps": "steps"
   },
-  "aiStudioActivity": {
+  "aiEditorActivity": {
     "title": "AI Activity",
     "noActivity": "No activity yet",
     "tokenUsage": "Token Usage",
@@ -793,7 +793,7 @@
     "mixed": "Mixed",
     "duration": "Duration (min):"
   },
-  "aiStudioFiles": {
+  "aiEditorFiles": {
     "title": "Course Materials",
     "refresh": "Refresh",
     "loading": "Loading files...",
@@ -802,7 +802,7 @@
     "selectAll": "Select all",
     "clearSelection": "Clear selection"
   },
-  "aiStudioModelCard": {
+  "aiEditorModelCard": {
     "vision": "Vision",
     "functions": "Functions",
     "input": "Input",

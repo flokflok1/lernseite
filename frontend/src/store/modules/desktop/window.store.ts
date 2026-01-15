@@ -33,6 +33,9 @@ export type WindowType =
   | 'admin-file-preview'  // Phase D4: File Preview Window
   | 'admin-lesson-preview'  // Phase D4: Lesson Preview Window
   | 'admin-chapter-preview'  // Phase D4: Chapter Preview Window
+  | 'admin-system-settings'  // Phase D4: System Settings Window with Tabs
+  | 'admin-user-group-management'  // Phase D4: User & Group Management Window with Tabs
+  | 'admin-kurs-editor-select'  // Phase D4: Kurs-Editor Mode Selector Modal
   // Lernmethoden-Formulare (Legacy: 00-31, aktiv: 19 Content-LMs) - Phase D3.5
   | 'learning-method-0-form'
   | 'learning-method-1-form'

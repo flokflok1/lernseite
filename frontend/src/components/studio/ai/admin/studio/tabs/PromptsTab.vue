@@ -14,9 +14,9 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('windows.aiStudioPrompts.title') }}</h2>
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('windows.aiEditorPrompts.title') }}</h2>
         <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          {{ $t('windows.aiStudioPrompts.subtitle') }}
+          {{ $t('windows.aiEditorPrompts.subtitle') }}
         </p>
       </div>
       <div class="flex gap-2">
@@ -24,19 +24,19 @@
           @click="showImportModal = true"
           class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-surface-secondary)] transition-colors flex items-center gap-2"
         >
-          <span>📥</span> {{ $t('windows.aiStudioPrompts.import') }}
+          <span>📥</span> {{ $t('windows.aiEditorPrompts.import') }}
         </button>
         <button
           @click="exportPrompts"
           class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-surface-secondary)] transition-colors flex items-center gap-2"
         >
-          <span>📤</span> {{ $t('windows.aiStudioPrompts.export') }}
+          <span>📤</span> {{ $t('windows.aiEditorPrompts.export') }}
         </button>
         <button
           @click="createNewPrompt"
           class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors flex items-center gap-2"
         >
-          <span>+</span> {{ $t('windows.aiStudioPrompts.newPrompt') }}
+          <span>+</span> {{ $t('windows.aiEditorPrompts.newPrompt') }}
         </button>
       </div>
     </div>
@@ -45,7 +45,7 @@
       <!-- Left: Prompt Categories -->
       <div class="col-span-1 space-y-4">
         <h3 class="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wide">
-          {{ $t('windows.aiStudioPrompts.categories') }}
+          {{ $t('windows.aiEditorPrompts.categories') }}
         </h3>
 
         <!-- Category List -->
@@ -64,7 +64,7 @@
                 <span class="text-xl">{{ category.emoji }}</span>
                 <div>
                   <div class="text-sm font-medium text-[var(--color-text-primary)]">{{ category.name }}</div>
-                  <div class="text-xs text-[var(--color-text-tertiary)]">{{ $t('windows.aiStudioPrompts.promptsCount', { count: category.count }) }}</div>
+                  <div class="text-xs text-[var(--color-text-tertiary)]">{{ $t('windows.aiEditorPrompts.promptsCount', { count: category.count }) }}</div>
                 </div>
               </div>
               <span class="text-[var(--color-text-tertiary)]">›</span>
@@ -75,7 +75,7 @@
         <!-- Learning Methods Quick Access -->
         <div class="mt-6">
           <h3 class="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wide mb-3">
-            {{ $t('windows.aiStudioPrompts.learningMethods') }}
+            {{ $t('windows.aiEditorPrompts.learningMethods') }}
           </h3>
           <div class="space-y-1 max-h-64 overflow-y-auto">
             <button
@@ -98,12 +98,12 @@
       <div class="col-span-1 space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wide">
-            {{ $t('windows.aiStudioPrompts.prompts') }}
+            {{ $t('windows.aiEditorPrompts.prompts') }}
           </h3>
           <input
             v-model="promptSearch"
             type="text"
-            :placeholder="$t('windows.aiStudioPrompts.search')"
+            :placeholder="$t('windows.aiEditorPrompts.search')"
             class="px-3 py-1.5 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg"
           />
         </div>
@@ -127,16 +127,16 @@
                   ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                   : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'"
               >
-                {{ prompt.isActive ? $t('windows.aiStudioPrompts.active') : $t('windows.aiStudioPrompts.inactive') }}
+                {{ prompt.isActive ? $t('windows.aiEditorPrompts.active') : $t('windows.aiEditorPrompts.inactive') }}
               </span>
             </div>
             <p class="text-sm text-[var(--color-text-secondary)] line-clamp-2 mb-2">
               {{ prompt.description }}
             </p>
             <div class="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
-              <span>{{ prompt.variables.length }} {{ $t('windows.aiStudioPrompts.variables') }}</span>
+              <span>{{ prompt.variables.length }} {{ $t('windows.aiEditorPrompts.variables') }}</span>
               <span>•</span>
-              <span>{{ prompt.tokens }} {{ $t('windows.aiStudioPrompts.tokens') }}</span>
+              <span>{{ prompt.tokens }} {{ $t('windows.aiEditorPrompts.tokens') }}</span>
               <span>•</span>
               <span>{{ prompt.lastUpdated }}</span>
             </div>
@@ -145,7 +145,7 @@
           <!-- Empty State -->
           <div v-if="filteredPrompts.length === 0" class="text-center py-8">
             <span class="text-4xl mb-2 block">📝</span>
-            <p class="text-[var(--color-text-secondary)]">{{ $t('windows.aiStudioPrompts.noPromptsFound') }}</p>
+            <p class="text-[var(--color-text-secondary)]">{{ $t('windows.aiEditorPrompts.noPromptsFound') }}</p>
           </div>
         </div>
       </div>
@@ -215,12 +215,12 @@ const isTestRunning = ref(false)
 
 // Categories (computed for i18n)
 const promptCategories = computed(() => [
-  { id: 'content', name: t('windows.aiStudioPrompts.categories.content'), emoji: '📝', count: 8 },
-  { id: 'video', name: t('windows.aiStudioPrompts.categories.video'), emoji: '🎬', count: 4 },
-  { id: 'quiz', name: t('windows.aiStudioPrompts.categories.quiz'), emoji: '❓', count: 6 },
-  { id: 'feedback', name: t('windows.aiStudioPrompts.categories.feedback'), emoji: '💬', count: 3 },
-  { id: 'translation', name: t('windows.aiStudioPrompts.categories.translation'), emoji: '🌍', count: 2 },
-  { id: 'summary', name: t('windows.aiStudioPrompts.categories.summary'), emoji: '📋', count: 3 }
+  { id: 'content', name: t('windows.aiEditorPrompts.categories.content'), emoji: '📝', count: 8 },
+  { id: 'video', name: t('windows.aiEditorPrompts.categories.video'), emoji: '🎬', count: 4 },
+  { id: 'quiz', name: t('windows.aiEditorPrompts.categories.quiz'), emoji: '❓', count: 6 },
+  { id: 'feedback', name: t('windows.aiEditorPrompts.categories.feedback'), emoji: '💬', count: 3 },
+  { id: 'translation', name: t('windows.aiEditorPrompts.categories.translation'), emoji: '🌍', count: 2 },
+  { id: 'summary', name: t('windows.aiEditorPrompts.categories.summary'), emoji: '📋', count: 3 }
 ])
 
 // Learning Methods
@@ -340,7 +340,7 @@ function updatePromptField(field: keyof Prompt, value: unknown) {
 function createNewPrompt() {
   selectedPrompt.value = {
     id: Date.now().toString(),
-    name: t('windows.aiStudioPrompts.newPrompt'),
+    name: t('windows.aiEditorPrompts.newPrompt'),
     description: '',
     content: '',
     category: selectedCategory.value || 'content',
@@ -364,7 +364,7 @@ function savePrompt() {
 }
 
 function deletePrompt() {
-  if (!selectedPrompt.value || !confirm(t('windows.aiStudioPrompts.confirmDelete'))) return
+  if (!selectedPrompt.value || !confirm(t('windows.aiEditorPrompts.confirmDelete'))) return
 
   prompts.value = prompts.value.filter(p => p.id !== selectedPrompt.value!.id)
   selectedPrompt.value = null
@@ -376,14 +376,14 @@ function duplicatePrompt() {
   const newPrompt = {
     ...selectedPrompt.value,
     id: Date.now().toString(),
-    name: `${selectedPrompt.value.name} ${t('windows.aiStudioPrompts.copy')}`
+    name: `${selectedPrompt.value.name} ${t('windows.aiEditorPrompts.copy')}`
   }
   prompts.value.push(newPrompt)
   selectedPrompt.value = newPrompt
 }
 
 function addVariable() {
-  const name = prompt(t('windows.aiStudioPrompts.variableNamePrompt'))
+  const name = prompt(t('windows.aiEditorPrompts.variableNamePrompt'))
   if (name && selectedPrompt.value && !selectedPrompt.value.variables.includes(name)) {
     selectedPrompt.value.variables.push(name)
   }

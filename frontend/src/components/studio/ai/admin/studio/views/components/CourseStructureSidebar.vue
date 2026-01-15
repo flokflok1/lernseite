@@ -10,7 +10,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="$t('admin.aiStudio.search')"
+          :placeholder="$t('admin.aiEditor.search')"
           class="search-input"
         />
         <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@
     <div class="chapter-tree">
       <!-- No Course Selected -->
       <div v-if="!course" class="empty-state">
-        <p>{{ $t('admin.aiStudio.selectCourseToView') }}</p>
+        <p>{{ $t('admin.aiEditor.selectCourseToView') }}</p>
       </div>
 
       <!-- Loading -->
@@ -86,7 +86,7 @@
         <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        {{ $t('admin.aiStudio.newChapter') }}
+        {{ $t('admin.aiEditor.newChapter') }}
       </button>
     </div>
   </div>

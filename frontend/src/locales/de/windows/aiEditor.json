@@ -1,5 +1,5 @@
 {
-  "aiStudioFeatures": {
+  "aiEditorFeatures": {
     "title": "System-Features",
     "selectCourse": "Kurs auswählen",
     "selectCourseDesc": "Wähle einen Kurs aus, um System-Features zu konfigurieren.",
@@ -93,7 +93,7 @@
       }
     }
   },
-  "aiStudioSettings": {
+  "aiEditorSettings": {
     "title": "Kurs-KI-Einstellungen",
     "subtitle": "KI-Modell-Konfiguration für diesen Kurs",
     "noCourse": "Kein Kurs ausgewählt",
@@ -106,7 +106,7 @@
     "resetSuccess": "Einstellungen zurückgesetzt",
     "resetFailed": "Zurücksetzen fehlgeschlagen"
   },
-  "aiStudioModels": {
+  "aiEditorModels": {
     "loading": "Lade Modelle...",
     "loadError": "Fehler beim Laden",
     "retry": "Erneut versuchen",
@@ -164,11 +164,11 @@
     "catTranscription": "Speech-to-Text",
     "catTranslation": "Übersetzungen"
   },
-  "aiStudioTutor": {
+  "aiEditorTutor": {
     "selectContent": "Kapitel oder Lektion auswählen",
     "selectContentHint": "Wähle links ein <strong>Kapitel</strong> für das Theorieblatt oder eine <strong>Lektion</strong> für die Schritt-für-Schritt Erklärung."
   },
-  "aiStudioAssets": {
+  "aiEditorAssets": {
     "title": "Asset-Manager",
     "subtitle": "Bilder, Formeln und Grafiken für deine Lektionen",
     "upload": "Upload",
@@ -221,7 +221,7 @@
       "commonFormulas": "Häufige Formeln"
     }
   },
-  "aiStudioContent": {
+  "aiEditorContent": {
     "emptyTitle": "Content-Editor",
     "emptyText": "Wähle links eine Lektion aus, um den Inhalt zu bearbeiten oder mit KI zu generieren.",
     "lessonEditor": "Lektions-Editor",
@@ -261,7 +261,7 @@
     "stepN": "Schritt {n}",
     "confirmReset": "Änderungen verwerfen?"
   },
-  "aiStudioChat": {
+  "aiEditorChat": {
     "title": "KI-Chat",
     "assistant": "KI-Assistent",
     "online": "Online",
@@ -299,8 +299,8 @@
       "modelComparison": "Welches Modell ist besser?"
     }
   },
-  "aiStudioPro": {
-    "title": "AI Studio Pro",
+  "aiEditorPro": {
+    "title": "AI Editor",
     "chat": "Chat",
     "selectCourse": "Kurs auswählen",
     "selectCoursePlaceholder": "Kurs auswählen...",
@@ -354,7 +354,7 @@
       "global": "Global"
     }
   },
-  "aiStudioPrompts": {
+  "aiEditorPrompts": {
     "title": "Prompt-Editor",
     "subtitle": "System-Prompts für KI-Generierung verwalten",
     "import": "Import",
@@ -402,7 +402,7 @@
     "copy": "(Kopie)",
     "variableNamePrompt": "Variable Name:"
   },
-  "aiStudioGlobalSettings": {
+  "aiEditorGlobalSettings": {
     "title": "Globale Einstellungen",
     "models": "Modelle",
     "providers": "Provider",
@@ -462,7 +462,7 @@
     "providerOk": "{provider}: OK",
     "providerFailed": "{provider}: Fehlgeschlagen"
   },
-  "aiStudioExams": {
+  "aiEditorExams": {
     "selectCourse": "Kurs auswählen",
     "selectCourseHint": "Wähle einen Kurs aus, um Prüfungen zu erstellen.",
     "title": "KI-Prüfungsgenerator",
@@ -676,7 +676,7 @@
   "aiJob": {
     "placeholder": "AI Job Window - wird in Phase 5 implementiert"
   },
-  "aiStudioStats": {
+  "aiEditorStats": {
     "loading": "Lade Statistiken...",
     "errorTitle": "Fehler beim Laden",
     "retry": "Erneut versuchen",
@@ -709,7 +709,7 @@
     "tokens": "tokens",
     "loadError": "Fehler beim Laden der Statistiken"
   },
-  "aiStudioAnalytics": {
+  "aiEditorAnalytics": {
     "noCourse": "Kein Kurs ausgewählt",
     "selectCourse": "Wähle einen Kurs aus, um Analytics anzuzeigen.",
     "title": "Analytics: {title}",
@@ -749,7 +749,7 @@
       "tutor_steps": "Tutor-Schritte"
     }
   },
-  "aiStudioWorkflow": {
+  "aiEditorWorkflow": {
     "chapter": "Kapitel",
     "lesson": "Lektion",
     "closeContext": "Kontext schließen",
@@ -778,7 +778,7 @@
     "withAudio": "Mit Audio",
     "steps": "Schritte"
   },
-  "aiStudioActivity": {
+  "aiEditorActivity": {
     "title": "KI-Aktivität",
     "noActivity": "Noch keine Aktivität",
     "tokenUsage": "Token-Verbrauch",
@@ -793,7 +793,7 @@
     "mixed": "Gemischt",
     "duration": "Dauer (Min):"
   },
-  "aiStudioFiles": {
+  "aiEditorFiles": {
     "title": "Kursmaterialien",
     "refresh": "Aktualisieren",
     "loading": "Lade Dateien...",
@@ -802,7 +802,7 @@
     "selectAll": "Alle auswählen",
     "clearSelection": "Auswahl löschen"
   },
-  "aiStudioModelCard": {
+  "aiEditorModelCard": {
     "vision": "Vision",
     "functions": "Functions",
     "input": "Input",

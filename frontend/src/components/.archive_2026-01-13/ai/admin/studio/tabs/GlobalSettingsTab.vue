@@ -19,13 +19,13 @@
     <!-- Header mit Stats -->
     <div class="header-bar">
       <div class="header-left">
-        <h2 class="header-title">{{ $t('windows.aiStudioGlobalSettings.title') }}</h2>
+        <h2 class="header-title">{{ $t('windows.aiEditorGlobalSettings.title') }}</h2>
         <div class="header-stats">
-          <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('windows.aiStudioGlobalSettings.models') }}</span>
+          <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('windows.aiEditorGlobalSettings.models') }}</span>
           <span class="stat-divider">|</span>
-          <span class="stat-item">{{ stats.providers || 0 }} {{ $t('windows.aiStudioGlobalSettings.providers') }}</span>
+          <span class="stat-item">{{ stats.providers || 0 }} {{ $t('windows.aiEditorGlobalSettings.providers') }}</span>
           <span class="stat-divider">|</span>
-          <span class="stat-item">{{ categories.length }} {{ $t('windows.aiStudioGlobalSettings.categories') }}</span>
+          <span class="stat-item">{{ categories.length }} {{ $t('windows.aiEditorGlobalSettings.categories') }}</span>
         </div>
       </div>
       <div class="header-actions">
@@ -34,11 +34,11 @@
         </button>
         <button @click="syncAllModels" :disabled="isSyncing" class="btn-action">
           <span :class="{ 'animate-spin': isSyncing }">🔄</span>
-          {{ isSyncing ? $t('windows.aiStudioGlobalSettings.syncing') : $t('windows.aiStudioGlobalSettings.syncAll') }}
+          {{ isSyncing ? $t('windows.aiEditorGlobalSettings.syncing') : $t('windows.aiEditorGlobalSettings.syncAll') }}
         </button>
         <button @click="testAllConnections" :disabled="isTesting" class="btn-action secondary">
           <span :class="{ 'animate-spin': isTesting }">🔌</span>
-          {{ isTesting ? $t('windows.aiStudioGlobalSettings.testing') : $t('windows.aiStudioGlobalSettings.testAll') }}
+          {{ isTesting ? $t('windows.aiEditorGlobalSettings.testing') : $t('windows.aiEditorGlobalSettings.testAll') }}
         </button>
       </div>
     </div>
@@ -52,7 +52,7 @@
     <!-- Loading -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>{{ $t('windows.aiStudioGlobalSettings.loading') }}</p>
+      <p>{{ $t('windows.aiEditorGlobalSettings.loading') }}</p>
     </div>
 
     <div v-else class="main-content">
@@ -70,8 +70,8 @@
       <!-- Profile Sektion -->
       <div class="section profile-section">
         <div class="section-header">
-          <h3 class="section-title">{{ $t('windows.aiStudioGlobalSettings.aiProfiles') }}</h3>
-          <button @click="createNewProfile" class="btn-add">{{ $t('windows.aiStudioGlobalSettings.newProfile') }}</button>
+          <h3 class="section-title">{{ $t('windows.aiEditorGlobalSettings.aiProfiles') }}</h3>
+          <button @click="createNewProfile" class="btn-add">{{ $t('windows.aiEditorGlobalSettings.newProfile') }}</button>
         </div>
         <div class="profile-layout">
           <!-- Profile Liste -->
@@ -236,7 +236,7 @@ async function loadData() {
     await loadProfiles()
   } catch (error) {
     console.error('Failed to load data:', error)
-    showToast('error', t('windows.aiStudioGlobalSettings.loadError'))
+    showToast('error', t('windows.aiEditorGlobalSettings.loadError'))
   } finally {
     loading.value = false
   }
@@ -299,11 +299,11 @@ function cancelEdit() {
 
 async function saveProfile() {
   if (!formData.name.trim()) {
-    showToast('error', t('windows.aiStudioGlobalSettings.nameRequired'))
+    showToast('error', t('windows.aiEditorGlobalSettings.nameRequired'))
     return
   }
   if (isCreating.value && !formData.key.trim()) {
-    showToast('error', t('windows.aiStudioGlobalSettings.keyRequired'))
+    showToast('error', t('windows.aiEditorGlobalSettings.keyRequired'))
     return
   }
 
@@ -328,17 +328,17 @@ async function saveProfile() {
 
     if (response.data.success) {
       showToast('success', isCreating.value
-        ? t('windows.aiStudioGlobalSettings.profileCreated')
-        : t('windows.aiStudioGlobalSettings.profileSaved'))
+        ? t('windows.aiEditorGlobalSettings.profileCreated')
+        : t('windows.aiEditorGlobalSettings.profileSaved'))
       await loadProfiles()
       if (isCreating.value) selectedProfileKey.value = body.key
       isCreating.value = false
     } else {
-      showToast('error', response.data.error?.message || t('windows.aiStudioGlobalSettings.saveError'))
+      showToast('error', response.data.error?.message || t('windows.aiEditorGlobalSettings.saveError'))
     }
   } catch (error) {
     console.error('Failed to save profile:', error)
-    showToast('error', t('windows.aiStudioGlobalSettings.saveError'))
+    showToast('error', t('windows.aiEditorGlobalSettings.saveError'))
   } finally {
     saving.value = false
   }
@@ -346,20 +346,20 @@ async function saveProfile() {
 
 async function deleteProfile() {
   if (!selectedProfileKey.value) return
-  if (!confirm(t('windows.aiStudioGlobalSettings.confirmDeleteProfile'))) return
+  if (!confirm(t('windows.aiEditorGlobalSettings.confirmDeleteProfile'))) return
 
   try {
     const response = await http.delete(`/admin/ai-model-profiles/${selectedProfileKey.value}`)
     if (response.data.success) {
-      showToast('success', t('windows.aiStudioGlobalSettings.profileDeleted'))
+      showToast('success', t('windows.aiEditorGlobalSettings.profileDeleted'))
       selectedProfileKey.value = null
       resetForm()
       await loadProfiles()
     } else {
-      showToast('error', response.data.error?.message || t('windows.aiStudioGlobalSettings.deleteError'))
+      showToast('error', response.data.error?.message || t('windows.aiEditorGlobalSettings.deleteError'))
     }
   } catch (error: any) {
-    showToast('error', error.response?.data?.error?.message || t('windows.aiStudioGlobalSettings.deleteError'))
+    showToast('error', error.response?.data?.error?.message || t('windows.aiEditorGlobalSettings.deleteError'))
   }
 }
 
@@ -368,13 +368,13 @@ async function setAsDefault() {
   try {
     const response = await http.post(`/admin/ai-model-profiles/${selectedProfileKey.value}/default`)
     if (response.data.success) {
-      showToast('success', t('windows.aiStudioGlobalSettings.setDefaultSuccess'))
+      showToast('success', t('windows.aiEditorGlobalSettings.setDefaultSuccess'))
       await loadProfiles()
     } else {
-      showToast('error', t('windows.aiStudioGlobalSettings.setDefaultError'))
+      showToast('error', t('windows.aiEditorGlobalSettings.setDefaultError'))
     }
   } catch (error) {
-    showToast('error', t('windows.aiStudioGlobalSettings.setDefaultError'))
+    showToast('error', t('windows.aiEditorGlobalSettings.setDefaultError'))
   }
 }
 
@@ -394,15 +394,15 @@ async function saveApiKey() {
       api_key: apiKeyInput.value
     })
     if (response.data.success) {
-      apiKeyResult.value = { success: true, message: t('windows.aiStudioGlobalSettings.apiKeySaved') }
+      apiKeyResult.value = { success: true, message: t('windows.aiEditorGlobalSettings.apiKeySaved') }
       apiKeyInput.value = ''
       await loadData()
       setTimeout(() => { apiKeyModal.value = null }, 1000)
     } else {
-      apiKeyResult.value = { success: false, message: response.data.error?.message || t('windows.aiStudioGlobalSettings.saveError') }
+      apiKeyResult.value = { success: false, message: response.data.error?.message || t('windows.aiEditorGlobalSettings.saveError') }
     }
   } catch (error: any) {
-    apiKeyResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiStudioGlobalSettings.saveError') }
+    apiKeyResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiEditorGlobalSettings.saveError') }
   } finally {
     savingApiKey.value = false
   }
@@ -415,12 +415,12 @@ async function testApiKey() {
   try {
     const response = await http.get(`/admin/ai/providers/${apiKeyModal.value.provider_id}/test`)
     if (response.data.success) {
-      apiKeyResult.value = { success: true, message: t('windows.aiStudioGlobalSettings.connectionOkMs', { ms: response.data.data?.response_time_ms || 0 }) }
+      apiKeyResult.value = { success: true, message: t('windows.aiEditorGlobalSettings.connectionOkMs', { ms: response.data.data?.response_time_ms || 0 }) }
     } else {
-      apiKeyResult.value = { success: false, message: response.data.error?.message || t('windows.aiStudioGlobalSettings.testFailed') }
+      apiKeyResult.value = { success: false, message: response.data.error?.message || t('windows.aiEditorGlobalSettings.testFailed') }
     }
   } catch (error: any) {
-    apiKeyResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiStudioGlobalSettings.connectionFailed') }
+    apiKeyResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiEditorGlobalSettings.connectionFailed') }
   } finally {
     testingApiKey.value = false
   }
@@ -432,10 +432,10 @@ async function testProvider(provider: Provider) {
     const response = await http.get(`/admin/ai/providers/${provider.provider_id}/test`)
     showToast(response.data.success ? 'success' : 'error',
       response.data.success
-        ? t('windows.aiStudioGlobalSettings.providerOk', { provider: provider.display_name })
-        : t('windows.aiStudioGlobalSettings.providerFailed', { provider: provider.display_name }))
+        ? t('windows.aiEditorGlobalSettings.providerOk', { provider: provider.display_name })
+        : t('windows.aiEditorGlobalSettings.providerFailed', { provider: provider.display_name }))
   } catch (error) {
-    showToast('error', t('windows.aiStudioGlobalSettings.providerFailed', { provider: provider.display_name }))
+    showToast('error', t('windows.aiEditorGlobalSettings.providerFailed', { provider: provider.display_name }))
   } finally {
     testingProvider.value = null
   }
@@ -447,11 +447,11 @@ async function syncProvider(providerName: string) {
   try {
     const response = await http.post('/admin/ai/models/sync', { provider: providerName })
     actionResult.value = response.data.success
-      ? { success: true, message: t('windows.aiStudioGlobalSettings.syncSuccess', { count: response.data.data?.synced || 0 }) }
-      : { success: false, message: response.data.error?.message || t('windows.aiStudioGlobalSettings.syncFailed') }
+      ? { success: true, message: t('windows.aiEditorGlobalSettings.syncSuccess', { count: response.data.data?.synced || 0 }) }
+      : { success: false, message: response.data.error?.message || t('windows.aiEditorGlobalSettings.syncFailed') }
     if (response.data.success) await loadData()
   } catch (error: any) {
-    actionResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiStudioGlobalSettings.syncFailed') }
+    actionResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiEditorGlobalSettings.syncFailed') }
   } finally {
     isSyncing.value = false
   }
@@ -463,11 +463,11 @@ async function syncAllModels() {
   try {
     const response = await http.post('/admin/ai/models/sync')
     actionResult.value = response.data.success
-      ? { success: true, message: t('windows.aiStudioGlobalSettings.syncSuccess', { count: response.data.data?.synced || 0 }) }
-      : { success: false, message: response.data.error?.message || t('windows.aiStudioGlobalSettings.syncFailed') }
+      ? { success: true, message: t('windows.aiEditorGlobalSettings.syncSuccess', { count: response.data.data?.synced || 0 }) }
+      : { success: false, message: response.data.error?.message || t('windows.aiEditorGlobalSettings.syncFailed') }
     if (response.data.success) await loadData()
   } catch (error: any) {
-    actionResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiStudioGlobalSettings.syncFailed') }
+    actionResult.value = { success: false, message: error.response?.data?.error?.message || t('windows.aiEditorGlobalSettings.syncFailed') }
   } finally {
     isSyncing.value = false
   }
@@ -486,7 +486,7 @@ async function testAllConnections() {
 
   actionResult.value = {
     success: failCount === 0,
-    message: t('windows.aiStudioGlobalSettings.testComplete', { success: successCount, failed: failCount })
+    message: t('windows.aiEditorGlobalSettings.testComplete', { success: successCount, failed: failCount })
   }
   isTesting.value = false
 }

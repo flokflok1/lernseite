@@ -7,17 +7,17 @@
   <div class="features-header">
     <div class="header-icon">🎛️</div>
     <div class="header-info">
-      <h2>{{ $t('windows.aiStudioFeatures.title') }}</h2>
+      <h2>{{ $t('windows.aiEditorFeatures.title') }}</h2>
       <p>{{ courseTitle }} • {{ scopeLabel }}</p>
     </div>
     <div class="header-stats">
       <div class="stat">
         <span class="stat-value">{{ enabledCount }}</span>
-        <span class="stat-label">{{ $t('windows.aiStudioFeatures.activated') }}</span>
+        <span class="stat-label">{{ $t('windows.aiEditorFeatures.activated') }}</span>
       </div>
       <div class="stat">
         <span class="stat-value">{{ estimatedTokens.toLocaleString() }}</span>
-        <span class="stat-label">{{ $t('windows.aiStudioFeatures.tokensPerLesson') }}</span>
+        <span class="stat-label">{{ $t('windows.aiEditorFeatures.tokensPerLesson') }}</span>
       </div>
     </div>
   </div>

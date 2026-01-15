@@ -114,6 +114,11 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminDashboard',
         component: () => import('@/pages/admin/AdminDashboardPage.vue'),
       },
+      // Migrated to window-based interface (Wave 7)
+      {
+        path: 'user-group-management',
+        redirect: '/admin'
+      },
       {
         path: 'users',
         name: 'AdminUsers',
@@ -134,26 +139,27 @@ const routes: RouteRecordRaw[] = [
         path: 'kurse',
         redirect: '/admin/kurs-editor',
       },
-      {
-        path: 'ki-studio',
-        redirect: '/admin/ai-studio',
-      },
-      // New route names (Wave 6)
+      // New route names (Wave 6) - Course Editor with Mode Selection
+      // Kurs-Editor routes - now use window system (redirect to /admin)
       {
         path: 'kurs-editor',
-        name: 'AdminCourseEditor',
-        component: () => import('@/pages/admin/AdminCoursesPage.vue'),
+        redirect: '/admin'
       },
       {
-        path: 'kurs-editor/:id',
-        name: 'admin-course-detail',
-        component: () => import('@/pages/admin/AdminCourseDetailPage.vue'),
-        props: true,
+        path: 'kurs-editor/manual',
+        redirect: '/admin'
       },
       {
-        path: 'ai-studio',
-        name: 'AdminAIStudio',
-        component: () => import('@/pages/admin/AdminKIStudioPage.vue'),
+        path: 'kurs-editor/manual/:id',
+        redirect: '/admin'
+      },
+      {
+        path: 'kurs-editor/ai',
+        redirect: '/admin'
+      },
+      {
+        path: 'kurs-editor/ai/:id',
+        redirect: '/admin'
       },
       // Legacy route (old name)
       {

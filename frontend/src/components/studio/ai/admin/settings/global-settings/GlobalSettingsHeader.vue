@@ -6,13 +6,13 @@
 <template>
   <div class="header-bar">
     <div class="header-left">
-      <h2 class="header-title">{{ $t('windows.aiStudioGlobalSettings.title') }}</h2>
+      <h2 class="header-title">{{ $t('windows.aiEditorGlobalSettings.title') }}</h2>
       <div class="header-stats">
-        <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('windows.aiStudioGlobalSettings.models') }}</span>
+        <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('windows.aiEditorGlobalSettings.models') }}</span>
         <span class="stat-divider">|</span>
-        <span class="stat-item">{{ stats.providers || 0 }} {{ $t('windows.aiStudioGlobalSettings.providers') }}</span>
+        <span class="stat-item">{{ stats.providers || 0 }} {{ $t('windows.aiEditorGlobalSettings.providers') }}</span>
         <span class="stat-divider">|</span>
-        <span class="stat-item">{{ categoriesCount }} {{ $t('windows.aiStudioGlobalSettings.categories') }}</span>
+        <span class="stat-item">{{ categoriesCount }} {{ $t('windows.aiEditorGlobalSettings.categories') }}</span>
       </div>
     </div>
     <div class="header-actions">
@@ -21,11 +21,11 @@
       </button>
       <button @click="$emit('syncAll')" :disabled="isSyncing" class="btn-action">
         <span :class="{ 'animate-spin': isSyncing }">🔄</span>
-        {{ isSyncing ? $t('windows.aiStudioGlobalSettings.syncing') : $t('windows.aiStudioGlobalSettings.syncAll') }}
+        {{ isSyncing ? $t('windows.aiEditorGlobalSettings.syncing') : $t('windows.aiEditorGlobalSettings.syncAll') }}
       </button>
       <button @click="$emit('testAll')" :disabled="isTesting" class="btn-action secondary">
         <span :class="{ 'animate-spin': isTesting }">🔌</span>
-        {{ isTesting ? $t('windows.aiStudioGlobalSettings.testing') : $t('windows.aiStudioGlobalSettings.testAll') }}
+        {{ isTesting ? $t('windows.aiEditorGlobalSettings.testing') : $t('windows.aiEditorGlobalSettings.testAll') }}
       </button>
     </div>
   </div>

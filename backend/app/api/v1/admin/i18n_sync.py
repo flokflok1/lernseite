@@ -1,525 +1,472 @@
 """
-i18n Sync API Endpoints - Translation Synchronization Routes
+i18n Sync API - REST endpoints for translation synchronization.
 
-Provides REST API for:
-- Initiating sync scans (MANUAL or AUTO mode)
-- Viewing comparison panels (side-by-side diffs)
-- Applying sync changes with resolutions
-- Rolling back syncs to previous state
-- Viewing sync history and statistics
-- Managing snapshots
-
-All endpoints require admin authentication.
+Endpoints:
+- POST /api/admin/i18n-sync/scan - Initiate scan
+- GET /api/admin/i18n-sync/results/{sync_id} - Get scan results
+- POST /api/admin/i18n-sync/apply - Apply changes
+- POST /api/admin/i18n-sync/rollback - Rollback sync
+- GET /api/admin/i18n-sync/history - Get sync history
+- GET /api/admin/i18n-sync/stats - Get dashboard statistics
+- GET /api/admin/i18n-sync/{sync_id} - Get sync details
+- POST /api/admin/i18n-sync/{sync_id}/resolve - Resolve conflict
 """
 
 from flask import Blueprint, request, jsonify, g
-from typing import Optional
-from uuid import UUID
+from typing import Dict, Any
+import logging
 
-from app.models.i18n_sync import (
-    SyncHistoryCreateRequest, SyncHistoryApplyRequest,
-    SyncHistoryRollbackRequest, ScanResultsResponse
-)
-from app.services.i18n_sync_service import get_sync_service
-from app.utils.exceptions import ValidationError, NotFoundError, UnauthorizedError
-from app.middleware.auth import require_auth, require_role
+from app.database import get_connection
+from app.middleware.auth import token_required, admin_required
+from app.services.i18n_sync_service import I18nSyncService
+from app.services.i18n_sync_service_apply import I18nSyncServiceApply
+from app.services.i18n_sync_service_analytics import I18nSyncServiceAnalytics
+from app.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
 
-# Create blueprint
-bp = Blueprint('i18n_sync', __name__, url_prefix='/api/v1/admin/i18n-sync')
+logger = logging.getLogger(__name__)
+
+bp = Blueprint('i18n_sync', __name__, url_prefix='/api/admin/i18n-sync')
 
 
 # ============================================================================
-# SCAN INITIATION
+# Dashboard & Statistics
+# ============================================================================
+
+@bp.route('/stats', methods=['GET'])
+@token_required
+@admin_required
+def get_dashboard_stats():
+    """
+    GET /api/admin/i18n-sync/stats
+    
+    Get system-wide i18n sync statistics.
+    
+    Returns:
+        200: {
+            total_syncs: int,
+            syncs: {completed: int, failed: int, manual_mode: int, auto_mode: int},
+            performance: {avg_scan_duration_ms: int},
+            translations: {total_keys: int, by_language: {...}},
+            success_rate: str
+        }
+    """
+    with get_connection() as conn:
+        service = I18nSyncServiceAnalytics(conn)
+        stats = service.get_dashboard_stats()
+
+    return jsonify({
+        'success': True,
+        'data': stats,
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 200
+
+
+# ============================================================================
+# Scan Operations
 # ============================================================================
 
 @bp.route('/scan', methods=['POST'])
-@require_auth
-@require_role('admin')
-def initiate_sync_scan():
+@token_required
+@admin_required
+def initiate_scan():
     """
-    POST /api/v1/admin/i18n-sync/scan
-
-    Initiate a new translation synchronization scan.
-
-    Compares frontend JSON against database translations, detects:
-    - New keys (in JSON, not in DB)
-    - Changed keys (different values)
-    - Deleted keys (in DB, not in JSON)
-
+    POST /api/admin/i18n-sync/scan
+    
+    Initiate translation scan.
+    
     Request Body:
         {
-            "sync_mode": "MANUAL" | "AUTO",    # Required
-            "languages_affected": ["de", "en", "pl"]  # Required
+            "mode": "MANUAL" | "AUTO",
+            "languages": ["de", "en", "pl"],
+            "frontend_translations": {
+                "de": {"key": "value", ...},
+                "en": {"key": "value", ...},
+                ...
+            },
+            "metadata": {...}  # optional
         }
-
-    Response (201 Created):
-        {
-            "success": true,
-            "sync_id": "uuid",
-            "sync_status": "PENDING",
-            "sync_mode": "MANUAL",
-            "languages_affected": ["de", "en"],
-            "scan_results": {
-                "keys_added": 45,
-                "keys_updated": 23,
-                "keys_deleted": 8,
-                "keys_skipped": 0,
-                "keys_conflicted": 12,
-                "total_keys": 88
-            }
+    
+    Returns:
+        201: {
+            sync_id: str,
+            mode: str,
+            status: str,
+            languages_synced: str[],
+            ...statistics...
         }
-
-    Errors:
-        - 400: Invalid sync_mode or languages_affected
-        - 401: Unauthorized (not authenticated)
-        - 403: Forbidden (not admin)
-        - 500: Internal server error
+        
+    Raises:
+        400: Validation error
     """
-    try:
-        data = request.get_json() or {}
-
-        # Validate sync_mode
-        sync_mode = data.get('sync_mode', '').upper()
-        if sync_mode not in ['MANUAL', 'AUTO']:
-            raise ValidationError(
-                "Invalid sync_mode",
-                details={'expected': ['MANUAL', 'AUTO'], 'got': sync_mode}
-            )
-
-        # Validate languages
-        languages_affected = data.get('languages_affected', [])
-        if not isinstance(languages_affected, list) or not languages_affected:
-            raise ValidationError(
-                "languages_affected must be a non-empty array",
-                details={'expected': 'array', 'got': type(languages_affected).__name__}
-            )
-
-        # Initiate scan
-        sync_service = get_sync_service()
-        result = sync_service.start_sync_scan(
-            sync_mode=sync_mode,
-            languages_affected=languages_affected,
-            initiated_by=g.current_user.id
+    data = request.get_json()
+    
+    # Validate required fields
+    if 'mode' not in data or 'languages' not in data:
+        raise ValidationError("Missing required fields: mode, languages")
+    
+    if 'frontend_translations' not in data:
+        raise ValidationError("Missing required field: frontend_translations")
+    
+    mode = data['mode'].upper()
+    languages = data['languages']
+    frontend_translations = data['frontend_translations']
+    metadata = data.get('metadata', {})
+    
+    # Initiate sync
+    with get_connection() as conn:
+        service = I18nSyncService(conn)
+        
+        # Step 1: Create sync
+        sync = service.initiate_sync(
+            user_id=g.current_user.id,
+            mode=mode,
+            languages=languages,
+            metadata=metadata
         )
+        
+        # Step 2: Run scan
+        sync_completed, new_count, changed_count, deleted_count, conflict_count = service.scan_translations(
+            sync.sync_id,
+            frontend_translations
+        )
+    
+    logger.info(
+        f"Scan completed: {new_count} new, {changed_count} changed, "
+        f"{deleted_count} deleted, {conflict_count} conflicts",
+        extra={'sync_id': sync_completed.sync_id, 'user_id': g.current_user.id}
+    )
+    
+    return jsonify({
+        'success': True,
+        'data': sync_completed.to_dict(),
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 201
 
-        return jsonify({
-            'success': True,
-            'data': result,
-            'meta': {'timestamp': datetime.utcnow().isoformat()}
-        }), 201
 
-    except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'VALIDATION_ERROR', 'message': str(e), 'details': e.details}
-        }), 400
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
-        }), 500
-
-
-# ============================================================================
-# COMPARISON PANEL
-# ============================================================================
-
-@bp.route('/<sync_id>/compare', methods=['GET'])
-@require_auth
-@require_role('admin')
-def get_comparison_panel(sync_id: str):
+@bp.route('/results/<sync_id>', methods=['GET'])
+@token_required
+@admin_required
+def get_scan_results(sync_id: str):
     """
-    GET /api/v1/admin/i18n-sync/{sync_id}/compare
-
-    Get side-by-side comparison of frontend vs database translations.
-
-    Results grouped by category:
-    - NEW_KEYS: Only in frontend JSON
-    - CHANGED_KEYS: In both, different values
-    - DELETED_KEYS: Only in database
-    - CONFLICTS: Changed keys with conflicts
-
+    GET /api/admin/i18n-sync/results/{sync_id}
+    
+    Get detailed scan results for a sync operation.
+    
     Query Parameters:
-        - category: Filter by category (NEW_KEYS, CHANGED_KEYS, DELETED_KEYS, CONFLICTS)
-        - limit: Max items per page (default 50, max 100)
-        - offset: Pagination offset (default 0)
-
-    Response (200 OK):
-        {
-            "success": true,
-            "sync_id": "uuid",
-            "categories": [
-                {
-                    "category": "NEW_KEYS",
-                    "items": [
-                        {
-                            "namespace_code": "admin",
-                            "key_path": "users.title",
-                            "language": "de",
-                            "action": "ADD",
-                            "resolution_status": "PENDING",
-                            "frontend_value": "Benutzer",
-                            "database_value": null,
-                            "similarity": 1.0,
-                            "conflict_reason": null
-                        }
-                    ],
-                    "count": 1
-                }
-            ],
-            "total_items": 88,
-            "sync_mode": "MANUAL",
-            "pending_count": 12,
-            "conflicts_count": 5,
-            "can_apply": false
+        - limit: Max results (default 20, max 100)
+        - offset: Skip N results (default 0)
+        - type: Filter by change type (NEW, CHANGED, DELETED, CONFLICT)
+        - language: Filter by language code
+    
+    Returns:
+        200: {
+            changes: [...],
+            total: int,
+            limit: int,
+            offset: int
         }
-
-    Errors:
-        - 400: Invalid query parameters
-        - 401: Unauthorized
-        - 403: Forbidden
-        - 404: Sync not found
     """
-    try:
-        # Validate sync_id UUID
-        try:
-            sync_uuid = UUID(sync_id)
-        except ValueError:
-            raise ValidationError("Invalid sync_id format", details={'expected': 'UUID', 'got': sync_id})
-
-        # Get query parameters
-        category = request.args.get('category')
-        limit = min(int(request.args.get('limit', 50)), 100)
-        offset = int(request.args.get('offset', 0))
-
-        # Get comparison panel
-        sync_service = get_sync_service()
-        result = sync_service.get_comparison_panel(
-            sync_uuid,
-            category=category,
+    limit = min(int(request.args.get('limit', 20)), 100)
+    offset = int(request.args.get('offset', 0))
+    change_type = request.args.get('type')
+    language = request.args.get('language')
+    
+    with get_connection() as conn:
+        service = I18nSyncService(conn)
+        changes, total = service.get_scan_results(
+            sync_id,
             limit=limit,
-            offset=offset
+            offset=offset,
+            change_type=change_type,
+            language_code=language
         )
-
-        return jsonify({
-            'success': True,
-            'data': result,
-            'meta': {'timestamp': datetime.utcnow().isoformat()}
-        }), 200
-
-    except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'VALIDATION_ERROR', 'message': str(e)}
-        }), 400
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
-        }), 500
+    
+    return jsonify({
+        'success': True,
+        'data': [change.to_dict() for change in changes],
+        'total': total,
+        'limit': limit,
+        'offset': offset,
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 200
 
 
 # ============================================================================
-# APPLY SYNC
+# Conflict Resolution
+# ============================================================================
+
+@bp.route('/<sync_id>/resolve', methods=['POST'])
+@token_required
+@admin_required
+def resolve_conflict(sync_id: str):
+    """
+    POST /api/admin/i18n-sync/{sync_id}/resolve
+    
+    Resolve a conflicted translation.
+    
+    Request Body:
+        {
+            "change_id": int,
+            "action": "ADD" | "UPDATE" | "DELETE" | "SKIP",
+            "notes": "..."  # optional
+        }
+    
+    Returns:
+        200: {resolution_id: int, ...resolution_data...}
+        
+    Raises:
+        404: Sync or change not found
+        422: Change is not a conflict
+    """
+    data = request.get_json()
+    
+    if 'change_id' not in data or 'action' not in data:
+        raise ValidationError("Missing required fields: change_id, action")
+    
+    change_id = data['change_id']
+    action = data['action'].upper()
+    notes = data.get('notes')
+    
+    # Validate action
+    valid_actions = ['ADD', 'UPDATE', 'DELETE', 'SKIP']
+    if action not in valid_actions:
+        raise ValidationError(f"Invalid action: {action}. Must be one of {valid_actions}")
+    
+    with get_connection() as conn:
+        service = I18nSyncService(conn)
+        resolution = service.resolve_conflict(
+            sync_id,
+            change_id,
+            action,
+            g.current_user.id,
+            notes
+        )
+    
+    return jsonify({
+        'success': True,
+        'data': resolution.to_dict(),
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 200
+
+
+# ============================================================================
+# Apply & Rollback
 # ============================================================================
 
 @bp.route('/apply', methods=['POST'])
-@require_auth
-@require_role('admin')
+@token_required
+@admin_required
 def apply_sync():
     """
-    POST /api/v1/admin/i18n-sync/apply
-
+    POST /api/admin/i18n-sync/apply
+    
     Apply sync changes to database.
-
-    In MANUAL mode: Only applies keys with provided resolutions
-    In AUTO mode: Applies all keys with auto-generated actions
-
+    
     Request Body:
         {
-            "sync_id": "uuid",                      # Required
-            "resolutions": {                        # Optional (MANUAL mode)
-                "detail_id_1": {
-                    "action": "SKIP" | "UPDATE" | "DELETE" | "ADD",
-                    "manual_value": "Custom value"  # For MANUAL_OVERRIDE
-                }
-            },
-            "force": false                          # Override conflict check
+            "sync_id": str,
+            "auto_resolve": bool  # optional, default false
         }
-
-    Response (200 OK):
-        {
-            "success": true,
-            "status": "COMPLETED" | "FAILED",
-            "applied_count": 76,
-            "failed_count": 0,
-            "errors": []
+    
+    Returns:
+        200: {
+            sync: {...sync_data...},
+            stats: {applied: int, skipped: int, errors: int}
         }
-
-    Errors:
-        - 400: Validation error, unresolved conflicts
-        - 401: Unauthorized
-        - 403: Forbidden
-        - 404: Sync not found
-        - 409: Conflicts detected (use force=true to override)
+        
+    Raises:
+        400: Validation error
+        422: Sync has unresolved conflicts (MANUAL mode)
     """
-    try:
-        data = request.get_json() or {}
+    data = request.get_json()
+    
+    if 'sync_id' not in data:
+        raise ValidationError("Missing required field: sync_id")
+    
+    sync_id = data['sync_id']
+    auto_resolve = data.get('auto_resolve', False)
+    
+    with get_connection() as conn:
+        service = I18nSyncServiceApply(conn)
+        sync, stats = service.apply_sync(sync_id, auto_resolve=auto_resolve)
+    
+    logger.info(
+        f"Applied sync {sync_id}",
+        extra={'stats': stats, 'user_id': g.current_user.id}
+    )
+    
+    return jsonify({
+        'success': True,
+        'data': {
+            'sync': sync.to_dict(),
+            'stats': stats
+        },
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 200
 
-        # Validate sync_id
-        sync_id_str = data.get('sync_id')
-        if not sync_id_str:
-            raise ValidationError("sync_id is required")
 
-        try:
-            sync_uuid = UUID(sync_id_str)
-        except ValueError:
-            raise ValidationError("Invalid sync_id format")
+@bp.route('/rollback', methods=['POST'])
+@token_required
+@admin_required
+def rollback_sync():
+    """
+    POST /api/admin/i18n-sync/rollback
+    
+    Rollback a sync operation.
+    
+    Request Body:
+        {
+            "sync_id": str,
+            "reason": str
+        }
+    
+    Returns:
+        200: {sync_id: str, status: "ROLLED_BACK", ...}
+        
+    Raises:
+        404: Sync not found
+    """
+    data = request.get_json()
+    
+    if 'sync_id' not in data or 'reason' not in data:
+        raise ValidationError("Missing required fields: sync_id, reason")
+    
+    sync_id = data['sync_id']
+    reason = data['reason']
 
-        resolutions = data.get('resolutions')
-        force = data.get('force', False)
-
-        # Apply sync
-        sync_service = get_sync_service()
-        result = sync_service.apply_sync(
-            sync_uuid,
-            resolutions=resolutions,
-            force=force
-        )
-
-        status_code = 200 if result['success'] else 409
-        return jsonify({
-            'success': result['success'],
-            'data': result,
-            'meta': {'timestamp': datetime.utcnow().isoformat()}
-        }), status_code
-
-    except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'VALIDATION_ERROR', 'message': str(e)}
-        }), 400
-
-    except ValueError as e:
-        if "conflicts" in str(e).lower():
-            return jsonify({
-                'success': False,
-                'error': {'code': 'CONFLICT', 'message': str(e)}
-            }), 409
-        return jsonify({
-            'success': False,
-            'error': {'code': 'INVALID_REQUEST', 'message': str(e)}
-        }), 400
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
-        }), 500
+    with get_connection() as conn:
+        service = I18nSyncServiceApply(conn)
+        sync = service.rollback_sync(sync_id, g.current_user.id, reason)
+    
+    logger.warning(
+        f"Rolled back sync {sync_id}: {reason}",
+        extra={'user_id': g.current_user.id}
+    )
+    
+    return jsonify({
+        'success': True,
+        'data': sync.to_dict(),
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 200
 
 
 # ============================================================================
-# ROLLBACK
-# ============================================================================
-
-@bp.route('/<sync_id>/rollback', methods=['POST'])
-@require_auth
-@require_role('admin')
-def rollback_sync(sync_id: str):
-    """
-    POST /api/v1/admin/i18n-sync/{sync_id}/rollback
-
-    Rollback sync to PRE_SYNC snapshot state.
-
-    Restores all translations to state before this sync was applied.
-    Creates ROLLBACK type snapshot for audit trail.
-
-    Request Body (optional):
-        {
-            "reason": "User requested rollback due to..." # Optional reason
-        }
-
-    Response (200 OK):
-        {
-            "success": true,
-            "keys_restored": 156,
-            "rollback_duration_ms": 1234,
-            "message": "Successfully rolled back sync [sync_id]"
-        }
-
-    Errors:
-        - 400: Invalid sync_id
-        - 401: Unauthorized
-        - 403: Forbidden
-        - 404: Sync or snapshot not found
-        - 409: Sync not in rolled-back state
-    """
-    try:
-        # Validate sync_id
-        try:
-            sync_uuid = UUID(sync_id)
-        except ValueError:
-            raise ValidationError("Invalid sync_id format")
-
-        data = request.get_json() or {}
-        reason = data.get('reason', 'Admin requested rollback')
-
-        # Perform rollback
-        sync_service = get_sync_service()
-        result = sync_service.rollback_sync(sync_uuid, reason=reason)
-
-        return jsonify({
-            'success': True,
-            'data': {
-                **result,
-                'message': f"Successfully rolled back sync {sync_id}"
-            },
-            'meta': {'timestamp': datetime.utcnow().isoformat()}
-        }), 200
-
-    except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'VALIDATION_ERROR', 'message': str(e)}
-        }), 400
-
-    except ValueError as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'NOT_FOUND', 'message': str(e)}
-        }), 404
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
-        }), 500
-
-
-# ============================================================================
-# HISTORY & STATISTICS
+# History & Details
 # ============================================================================
 
 @bp.route('/history', methods=['GET'])
-@require_auth
-@require_role('admin')
+@token_required
+@admin_required
 def get_sync_history():
     """
-    GET /api/v1/admin/i18n-sync/history
-
-    Get paginated list of past sync operations with statistics.
-
+    GET /api/admin/i18n-sync/history
+    
+    Get sync operation history.
+    
     Query Parameters:
         - limit: Max results (default 20, max 100)
-        - offset: Pagination offset (default 0)
-        - status: Filter by status (SCANNING, PENDING, APPLYING, COMPLETED, FAILED, ROLLED_BACK)
+        - offset: Skip N results (default 0)
+        - status: Filter by status (PENDING, SCANNING, COMPLETED, FAILED, ROLLED_BACK)
         - mode: Filter by mode (MANUAL, AUTO)
-
-    Response (200 OK):
-        {
-            "success": true,
-            "data": [
-                {
-                    "sync_id": "uuid",
-                    "sync_mode": "MANUAL",
-                    "sync_status": "COMPLETED",
-                    "total_changes": 88,
-                    "conflicts": 5,
-                    "created_at": "2026-01-15T10:30:00Z",
-                    "initiated_by": "user_id"
-                }
-            ],
-            "total": 156,
-            "limit": 20,
-            "offset": 0
+        - user_id: Filter by initiating user
+    
+    Returns:
+        200: {
+            syncs: [...],
+            total: int,
+            limit: int,
+            offset: int
         }
     """
-    try:
-        limit = min(int(request.args.get('limit', 20)), 100)
-        offset = int(request.args.get('offset', 0))
-        status = request.args.get('status')
-        mode = request.args.get('mode')
-
-        sync_service = get_sync_service()
-        # TODO: Implement repository method for listing with filters
-        result = {
-            'data': [],
-            'total': 0,
-            'limit': limit,
-            'offset': offset
-        }
-
-        return jsonify({
-            'success': True,
-            'data': result['data'],
-            'meta': {
-                'total': result['total'],
-                'limit': result['limit'],
-                'offset': result['offset'],
-                'timestamp': datetime.utcnow().isoformat()
-            }
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
-        }), 500
+    limit = min(int(request.args.get('limit', 20)), 100)
+    offset = int(request.args.get('offset', 0))
+    status = request.args.get('status')
+    mode = request.args.get('mode')
+    user_id = request.args.get('user_id')
+    
+    with get_connection() as conn:
+        # Get all syncs (limited)
+        from app.repositories.i18n_sync import SyncRepository
+        repo = SyncRepository(conn)
+        syncs, total = repo.list_syncs(
+            limit=limit,
+            offset=offset,
+            status=status,
+            mode=mode,
+            user_id=user_id
+        )
+    
+    return jsonify({
+        'success': True,
+        'data': [sync.to_dict() for sync in syncs],
+        'total': total,
+        'limit': limit,
+        'offset': offset,
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 200
 
 
-@bp.route('/dashboard', methods=['GET'])
-@require_auth
-@require_role('admin')
-def get_dashboard_stats():
+@bp.route('/<sync_id>', methods=['GET'])
+@token_required
+@admin_required
+def get_sync_details(sync_id: str):
     """
-    GET /api/v1/admin/i18n-sync/dashboard
-
-    Get dashboard statistics for i18n sync overview.
-
-    Response (200 OK):
-        {
-            "success": true,
-            "data": {
-                "total_syncs": 42,
-                "syncs_today": 3,
-                "successful_syncs": 39,
-                "failed_syncs": 3,
-                "last_sync_timestamp": "2026-01-15T10:30:00Z",
-                "last_sync_mode": "MANUAL",
-                "avg_sync_duration_ms": 5432,
-                "pending_resolutions": 12,
-                "recent_syncs": [...]
-            }
+    GET /api/admin/i18n-sync/{sync_id}
+    
+    Get detailed sync operation information including all changes and resolutions.
+    
+    Returns:
+        200: {
+            sync: {...},
+            changes: {
+                by_type: {NEW: [...], CHANGED: [...], ...},
+                total: int
+            },
+            resolutions: [...],
+            stats: {...}
         }
     """
-    try:
-        sync_service = get_sync_service()
-        # TODO: Implement repository method for dashboard statistics
-        stats = {
-            'total_syncs': 0,
-            'syncs_today': 0,
-            'successful_syncs': 0,
-            'failed_syncs': 0,
-            'pending_resolutions': 0,
-            'recent_syncs': []
-        }
-
-        return jsonify({
-            'success': True,
-            'data': stats,
-            'meta': {'timestamp': datetime.utcnow().isoformat()}
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
-        }), 500
+    with get_connection() as conn:
+        service = I18nSyncServiceAnalytics(conn)
+        details = service.get_sync_details(sync_id)
+    
+    return jsonify({
+        'success': True,
+        'data': details,
+        'meta': {'timestamp': datetime.utcnow().isoformat()}
+    }), 200
 
 
-# Register blueprint
-def register_i18n_sync_routes(app):
-    """Register i18n sync blueprint with Flask app."""
-    app.register_blueprint(bp)
+# ============================================================================
+# Error Handler
+# ============================================================================
+
+@bp.errorhandler(ValidationError)
+def handle_validation_error(error):
+    """Handle validation errors."""
+    return jsonify({
+        'success': False,
+        'error': error.to_dict()
+    }), error.status_code
+
+
+@bp.errorhandler(NotFoundError)
+def handle_not_found(error):
+    """Handle not found errors."""
+    return jsonify({
+        'success': False,
+        'error': error.to_dict()
+    }), error.status_code
+
+
+@bp.errorhandler(BusinessLogicError)
+def handle_business_logic_error(error):
+    """Handle business logic errors."""
+    return jsonify({
+        'success': False,
+        'error': error.to_dict()
+    }), error.status_code
+
+
+# Import datetime for timestamp
+from datetime import datetime

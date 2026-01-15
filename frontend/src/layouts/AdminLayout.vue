@@ -25,19 +25,39 @@
         </router-link>
 
         <div class="space-y-1.5">
-          <router-link
-            v-for="item in menuItems"
-            :key="item.path"
-            :to="item.path"
-            class="flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-base font-medium transition-colors"
-            :class="{
-              'bg-primary-100 text-primary-900': isActive(item.path),
-              'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]': !isActive(item.path)
-            }"
-          >
-            <span class="text-xl">{{ item.icon }}</span>
-            <span>{{ item.label }}</span>
-          </router-link>
+          <template v-for="item in menuItems" :key="item.path">
+            <!-- Section Header -->
+            <div
+              v-if="item.section && menuItems.indexOf(item) > 0"
+              class="px-4 py-3 mt-2 text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider"
+            >
+              <span class="text-lg mr-2">{{ item.icon }}</span>{{ item.label }}
+            </div>
+
+            <!-- Menu Item - Router Link -->
+            <router-link
+              v-if="!item.section && !item.openWindow"
+              :to="item.path"
+              class="flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-base font-medium transition-colors"
+              :class="{
+                'bg-primary-100 text-primary-900': isActive(item.path),
+                'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]': !isActive(item.path)
+              }"
+            >
+              <span class="text-xl">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>
+            </router-link>
+
+            <!-- Menu Item - Window Opener -->
+            <button
+              v-if="!item.section && item.openWindow"
+              @click="item.onWindowOpen?.()"
+              class="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-base font-medium transition-colors text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] hover:text-[var(--color-text-primary)]"
+            >
+              <span class="text-xl">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>
+            </button>
+          </template>
         </div>
       </nav>
 
@@ -169,18 +189,43 @@ const menuItems = computed(() => {
     ]
   } else {
     return [
-      { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
-      { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
-      { path: '/admin/role-studio', label: t('admin.nav.roles'), icon: '🔐' },
+      // Dashboard
+      { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊', section: true },
+
+      // User Management
+      {
+        path: '/admin/user-group-management',
+        label: t('admin.userGroupManagement.title'),
+        icon: '👥',
+        openWindow: true,
+        onWindowOpen: openUserGroupManagementWindow
+      },
       { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
-      { path: '/admin/kurs-editor', label: t('admin.nav.courseEditor'), icon: '📝' },
+
+      // Content Management
+      {
+        path: '/admin/kurs-editor',
+        label: t('admin.nav.courseEditor'),
+        icon: '📚',
+        openWindow: true,
+        onWindowOpen: openCourseListEditorWindow
+      },
       { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
-      { path: '/admin/ai-studio', label: t('admin.nav.aiStudio'), icon: '🤖' },
       { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
-      { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },
+
+      // Business & Analytics
+      { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰', section: true },
       { path: '/admin/analytics', label: t('admin.nav.analytics'), icon: '📈' },
       { path: '/admin/audit-logs', label: t('admin.nav.audit_logs'), icon: '📋' },
-      { path: '/admin/system-settings', label: t('admin.nav.settings'), icon: '⚙️' }
+
+      // System
+      {
+        path: '/admin/system-settings',
+        label: t('admin.nav.settings'),
+        icon: '⚙️',
+        openWindow: true,
+        onWindowOpen: openSystemSettingsWindow
+      }
     ]
   }
 })
@@ -191,6 +236,45 @@ const menuItems = computed(() => {
 
 const isActive = (path: string): boolean => {
   return route.path === path || route.path.startsWith(path + '/')
+}
+
+/**
+ * Open System Settings window with tabs
+ */
+const openSystemSettingsWindow = () => {
+  windowStore.openWindow({
+    type: 'admin-system-settings',
+    title: t('admin.nav.settings'),
+    icon: '⚙️',
+    preferredPosition: { x: 100, y: 100 },
+    size: { width: 800, height: 600 }
+  })
+}
+
+/**
+ * Open User & Group Management window with tabs
+ */
+const openUserGroupManagementWindow = () => {
+  windowStore.openWindow({
+    type: 'admin-user-group-management',
+    title: t('admin.userGroupManagement.title'),
+    icon: '👥',
+    preferredPosition: { x: 120, y: 120 },
+    size: { width: 1000, height: 700 }
+  })
+}
+
+/**
+ * Open Course List Editor window with tabs (Manual & AI)
+ */
+const openCourseListEditorWindow = () => {
+  windowStore.openWindow({
+    type: 'admin-course-list-editor',
+    title: t('admin.nav.courseEditor'),
+    icon: '📚',
+    preferredPosition: { x: 140, y: 140 },
+    size: { width: 1100, height: 750 }
+  })
 }
 
 const handleLogout = async () => {

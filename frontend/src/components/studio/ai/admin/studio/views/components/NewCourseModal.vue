@@ -6,13 +6,13 @@
   <div class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content">
       <!-- Header -->
-      <h3 class="modal-title">{{ $t('admin.aiStudio.newCourse') }}</h3>
+      <h3 class="modal-title">{{ $t('admin.aiEditor.newCourse') }}</h3>
 
       <div class="modal-body">
         <!-- Step 1: File Upload -->
         <div class="upload-section">
           <label class="section-label">
-            📄 {{ $t('admin.aiStudio.step1UploadMaterial') }}
+            📄 {{ $t('admin.aiEditor.step1UploadMaterial') }}
           </label>
           <div
             class="upload-area"
@@ -35,8 +35,8 @@
               <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
-              <p class="upload-text">{{ $t('admin.aiStudio.uploadText') }}</p>
-              <p class="upload-hint">{{ $t('admin.aiStudio.uploadHint') }}</p>
+              <p class="upload-text">{{ $t('admin.aiEditor.uploadText') }}</p>
+              <p class="upload-hint">{{ $t('admin.aiEditor.uploadHint') }}</p>
             </div>
 
             <!-- Files List -->
@@ -49,7 +49,7 @@
                   ✕
                 </button>
               </div>
-              <p class="add-more">{{ $t('admin.aiStudio.addMoreFiles') }}</p>
+              <p class="add-more">{{ $t('admin.aiEditor.addMoreFiles') }}</p>
             </div>
           </div>
 
@@ -62,10 +62,10 @@
           >
             <span v-if="isAnalyzing" class="animate-spin">⏳</span>
             <span v-else>🤖</span>
-            {{ isAnalyzing ? $t('admin.aiStudio.analyzing') : $t('admin.aiStudio.analyzeWithAI') }}
+            {{ isAnalyzing ? $t('admin.aiEditor.analyzing') : $t('admin.aiEditor.analyzeWithAI') }}
           </button>
           <p v-if="files.length > 0 && !aiAnalyzed" class="analyze-hint">
-            {{ $t('admin.aiStudio.analyzeHint') }}
+            {{ $t('admin.aiEditor.analyzeHint') }}
           </p>
         </div>
 
@@ -73,28 +73,28 @@
         <div class="details-section" :class="{ faded: files.length > 0 && !aiAnalyzed && !courseData.title }">
           <div class="section-header">
             <span>📝</span>
-            <span>{{ $t('admin.aiStudio.step2CourseDetails') }}</span>
-            <span v-if="aiAnalyzed" class="ai-badge">✓ {{ $t('admin.aiStudio.aiSuggestion') }}</span>
+            <span>{{ $t('admin.aiEditor.step2CourseDetails') }}</span>
+            <span v-if="aiAnalyzed" class="ai-badge">✓ {{ $t('admin.aiEditor.aiSuggestion') }}</span>
           </div>
 
           <!-- Title -->
           <div class="form-field">
-            <label class="field-label">{{ $t('admin.aiStudio.courseTitle') }} *</label>
+            <label class="field-label">{{ $t('admin.aiEditor.courseTitle') }} *</label>
             <input
               v-model="courseData.title"
               type="text"
-              :placeholder="$t('admin.aiStudio.courseTitlePlaceholder')"
+              :placeholder="$t('admin.aiEditor.courseTitlePlaceholder')"
               class="field-input"
             />
           </div>
 
           <!-- Description -->
           <div class="form-field">
-            <label class="field-label">{{ $t('admin.aiStudio.courseDescription') }}</label>
+            <label class="field-label">{{ $t('admin.aiEditor.courseDescription') }}</label>
             <textarea
               v-model="courseData.description"
               rows="3"
-              :placeholder="$t('admin.aiStudio.courseDescriptionPlaceholder')"
+              :placeholder="$t('admin.aiEditor.courseDescriptionPlaceholder')"
               class="field-textarea"
             ></textarea>
           </div>
@@ -102,19 +102,19 @@
           <!-- Category & Profile -->
           <div class="form-row">
             <div class="form-field">
-              <label class="field-label">{{ $t('admin.aiStudio.category') }}</label>
+              <label class="field-label">{{ $t('admin.aiEditor.category') }}</label>
               <select v-model="courseData.categoryId" class="field-select">
-                <option :value="null">{{ $t('admin.aiStudio.noCategory') }}</option>
+                <option :value="null">{{ $t('admin.aiEditor.noCategory') }}</option>
                 <option v-for="cat in availableCategories" :key="cat.category_id" :value="cat.category_id">
                   {{ cat.name }}
                 </option>
               </select>
             </div>
             <div class="form-field">
-              <label class="field-label">🤖 {{ $t('admin.aiStudio.aiProfile') }}</label>
+              <label class="field-label">🤖 {{ $t('admin.aiEditor.aiProfile') }}</label>
               <select v-model="courseData.profileKey" class="field-select">
                 <option v-for="profile in availableProfiles" :key="profile.key" :value="profile.key">
-                  {{ profile.name }}{{ profile.is_default ? ` (${$t('admin.aiStudio.default')})` : '' }}
+                  {{ profile.name }}{{ profile.is_default ? ` (${$t('admin.aiEditor.default')})` : '' }}
                 </option>
               </select>
             </div>
@@ -123,20 +123,20 @@
           <!-- Language & Level -->
           <div class="form-row">
             <div class="form-field">
-              <label class="field-label">{{ $t('admin.aiStudio.language') }}</label>
+              <label class="field-label">{{ $t('admin.aiEditor.language') }}</label>
               <select v-model="courseData.language" class="field-select">
-                <option value="de">{{ $t('admin.aiStudio.languageDe') }}</option>
-                <option value="en">{{ $t('admin.aiStudio.languageEn') }}</option>
-                <option value="es">{{ $t('admin.aiStudio.languageEs') }}</option>
-                <option value="fr">{{ $t('admin.aiStudio.languageFr') }}</option>
+                <option value="de">{{ $t('admin.aiEditor.languageDe') }}</option>
+                <option value="en">{{ $t('admin.aiEditor.languageEn') }}</option>
+                <option value="es">{{ $t('admin.aiEditor.languageEs') }}</option>
+                <option value="fr">{{ $t('admin.aiEditor.languageFr') }}</option>
               </select>
             </div>
             <div class="form-field">
-              <label class="field-label">{{ $t('admin.aiStudio.level') }}</label>
+              <label class="field-label">{{ $t('admin.aiEditor.level') }}</label>
               <select v-model="courseData.level" class="field-select">
-                <option value="beginner">{{ $t('admin.aiStudio.levelBeginner') }}</option>
-                <option value="intermediate">{{ $t('admin.aiStudio.levelIntermediate') }}</option>
-                <option value="advanced">{{ $t('admin.aiStudio.levelAdvanced') }}</option>
+                <option value="beginner">{{ $t('admin.aiEditor.levelBeginner') }}</option>
+                <option value="intermediate">{{ $t('admin.aiEditor.levelIntermediate') }}</option>
+                <option value="advanced">{{ $t('admin.aiEditor.levelAdvanced') }}</option>
               </select>
             </div>
           </div>
@@ -146,7 +146,7 @@
       <!-- Footer -->
       <div class="modal-footer">
         <p class="footer-hint">
-          {{ $t('admin.aiStudio.afterCreationHint') }}
+          {{ $t('admin.aiEditor.afterCreationHint') }}
         </p>
         <div class="footer-actions">
           <button @click="$emit('close')" class="btn-cancel">
@@ -158,7 +158,7 @@
             class="btn-create"
           >
             <span v-if="isCreating" class="animate-spin">⏳</span>
-            {{ $t('admin.aiStudio.createCourse') }}
+            {{ $t('admin.aiEditor.createCourse') }}
           </button>
         </div>
       </div>

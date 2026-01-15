@@ -10,7 +10,7 @@
       class="scope-btn"
       :class="{ active: modelValue === 'course' }"
     >
-      {{ $t('windows.aiStudioFeatures.scopeCourse') }}
+      {{ $t('windows.aiEditorFeatures.scopeCourse') }}
     </button>
     <button
       v-if="chapter"
@@ -18,7 +18,7 @@
       class="scope-btn"
       :class="{ active: modelValue === 'chapter' }"
     >
-      {{ $t('windows.aiStudioFeatures.scopeChapter') }}: {{ chapter.title }}
+      {{ $t('windows.aiEditorFeatures.scopeChapter') }}: {{ chapter.title }}
     </button>
     <button
       v-if="lesson"
@@ -26,7 +26,7 @@
       class="scope-btn"
       :class="{ active: modelValue === 'lesson' }"
     >
-      {{ $t('windows.aiStudioFeatures.scopeLesson') }}: {{ lesson.title }}
+      {{ $t('windows.aiEditorFeatures.scopeLesson') }}: {{ lesson.title }}
     </button>
   </div>
 </template>

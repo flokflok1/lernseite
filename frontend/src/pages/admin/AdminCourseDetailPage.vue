@@ -46,11 +46,12 @@
         <div>
           <CourseQuickActions
             :status="course.status"
+            :hide-ai-features="isManualMode"
             @open-chapters="openChaptersWindow"
             @open-files="openFilesWindow"
             @open-exams="openExamsWindow"
-            @generate-exam="generateExam"
-            @open-ai-studio="openAiStudioWindow"
+            @generate-exam="isAIMode ? generateExam : null"
+            @open-ai-studio="isAIMode ? openAiStudioWindow : null"
             @publish="publishCourse"
             @unpublish="unpublishCourse"
             @archive="archiveCourse"
@@ -78,7 +79,7 @@
  * Orchestrator page for admin course detail view
  * Refactored from 1319 LOC to ~250 LOC
  */
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/store/modules/desktop'
 import {
@@ -94,11 +95,21 @@ import {
 
 interface Props {
   id: string | number
+  mode?: 'manual' | 'ai'
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  mode: 'manual'
+})
 const { t } = useI18n()
 const windowStore = useWindowStore()
+
+// ============================================================================
+// Mode Awareness
+// ============================================================================
+
+const isAIMode = computed(() => props.mode === 'ai')
+const isManualMode = computed(() => props.mode === 'manual')
 
 // ============================================================================
 // Course Detail Composable
@@ -210,7 +221,7 @@ function openAiStudioWindow(): void {
 
   windowStore.openWindow({
     type: 'admin-ai-studio',
-    title: t('admin.courseDetail.windows.aiStudio', { title: course.value.title }),
+    title: t('admin.courseDetail.windows.aiEditor', { title: course.value.title }),
     icon: '🤖',
     payload: {
       courseId: course.value.course_id,

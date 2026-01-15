@@ -1,663 +1,309 @@
 """
-i18n Sync Service - Translation Synchronization Engine
+i18n Sync Service - Core business logic for translation synchronization.
 
-Implements:
-- Frontend JSON ↔ Database synchronization
-- Scanning and change detection with similarity scoring
-- Conflict resolution (MANUAL vs AUTO modes)
-- Snapshot management and rollback
-- Per-key decision tracking and audit trail
+Orchestrates the sync workflow:
+1. Initiate sync (MANUAL or AUTO mode)
+2. Scan translations (detect changes)
+3. Resolve conflicts (manual or auto)
 
-Supports both MANUAL mode (admin chooses) and AUTO mode (system decides)
+No ORM - uses psycopg3 with repositories.
 """
 
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, Any, List, Tuple, Callable
 from datetime import datetime
-from uuid import UUID, uuid4
+import time
 import logging
-import json
-from difflib import SequenceMatcher
 
-from app.repositories.i18n_sync_repository import I18nSyncRepository
-from app.repositories.i18n_repository import I18nRepository
-from app.database import get_db_connection
-from app.models.i18n_sync import (
-    SyncMode, SyncStatus, ResolutionAction, ResolutionStatus,
-    ChangeMagnitude, ComparisonCategory, ComparisonItem
+from app.repositories.i18n_sync import (
+    SyncRepository, SyncMode, SyncStatus, ChangeType, Resolution,
+    SyncOperation, SyncChange, SyncResolution
 )
+from app.repositories.i18n_translation import TranslationRepository
+from app.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
+from app.database import get_connection
 
 logger = logging.getLogger(__name__)
 
 
 class I18nSyncService:
     """
-    i18n Synchronization Service.
+    Service for managing i18n translation synchronization.
 
-    Orchestrates scanning, comparison, resolution, and application of translation syncs.
-    Supports MANUAL (admin decides) and AUTO (system decides) modes.
+    Handles the complete workflow:
+    - MANUAL mode: Requires explicit user resolution of conflicts
+    - AUTO mode: Automatically resolves conflicts using similarity scoring
+
+    Coordinates SyncRepository and TranslationRepository.
     """
 
-    # Configuration
-    SIMILARITY_THRESHOLD_MINOR = 0.95      # <5% difference
-    SIMILARITY_THRESHOLD_MODERATE = 0.90   # 5-10% difference
-    # >10% difference = MAJOR
-
-    def __init__(self):
-        self.sync_repo: Optional[I18nSyncRepository] = None
-        self.i18n_repo: Optional[I18nRepository] = None
-        self.conn = None
-
-    def _init_repos(self):
-        """Initialize repositories with database connection."""
-        if self.conn is None:
-            self.conn = get_db_connection()
-        if self.sync_repo is None:
-            self.sync_repo = I18nSyncRepository(self.conn)
-        if self.i18n_repo is None:
-            self.i18n_repo = I18nRepository(self.conn)
-
-    def start_sync_scan(
-        self,
-        sync_mode: str,
-        languages_affected: List[str],
-        initiated_by: Optional[UUID] = None
-    ) -> Dict[str, Any]:
+    def __init__(self, conn=None):
         """
-        Initiate a new sync scan operation.
-
-        Creates sync history record, scans frontend JSON vs database,
-        detects changes (new/changed/deleted keys), calculates similarity scores,
-        and generates per-key decision records.
+        Initialize sync service.
 
         Args:
-            sync_mode: 'MANUAL' (admin selects actions) or 'AUTO' (system decides)
-            languages_affected: List of language codes (e.g., ['de', 'en', 'pl'])
-            initiated_by: UUID of user initiating sync (admin user ID)
+            conn: Database connection (optional, created if not provided)
+        """
+        self.conn = conn or get_connection()
+        self.sync_repo = SyncRepository(self.conn)
+        self.translation_repo = TranslationRepository(self.conn)
+
+    def initiate_sync(
+        self,
+        user_id: str,
+        mode: str,
+        languages: List[str],
+        frontend_translations_loader: Optional[Callable] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> SyncOperation:
+        """
+        Initiate new translation sync.
+
+        Args:
+            user_id: User initiating sync
+            mode: MANUAL or AUTO (from SyncMode enum)
+            languages: List of language codes to sync (e.g., ['de', 'en', 'pl'])
+            frontend_translations_loader: Callback to load frontend translations
+            metadata: Optional metadata dict
 
         Returns:
-            Dictionary with:
-            - sync_id: UUID of created sync
-            - sync_status: 'SCANNING' → 'PENDING'
-            - scan_results: Summary of changes detected
-            - total_keys: Total keys processed
-            - keys_added, keys_updated, keys_deleted, keys_skipped, keys_conflicted: counts
+            Created SyncOperation
+
+        Raises:
+            ValidationError: If mode or languages invalid
         """
-        self._init_repos()
-
-        try:
-            # Create sync history record (status: SCANNING)
-            sync_id = uuid4()
-            sync_history = self.sync_repo.create_sync_history(
-                sync_mode=sync_mode,
-                languages_affected=languages_affected,
-                initiated_by=initiated_by
-            )
-            sync_id = UUID(sync_history['sync_id'])
-
-            # Mark scan start time
-            self.sync_repo.update_sync_history(
-                sync_id,
-                {'scan_started_at': datetime.utcnow()}
+        # Validate mode
+        valid_modes = ['MANUAL', 'AUTO']
+        if mode not in valid_modes:
+            raise ValidationError(
+                f"Invalid sync mode: {mode}. Must be one of {valid_modes}"
             )
 
-            # Get frontend JSON and database translations
-            frontend_data = self._load_frontend_json(languages_affected)
-            database_data = self._load_database_translations(languages_affected)
+        # Validate languages
+        if not languages or not isinstance(languages, list):
+            raise ValidationError("Languages must be non-empty list")
 
-            # Scan and detect changes
-            comparison_data = self._scan_and_detect_changes(
-                sync_id,
-                frontend_data,
-                database_data,
-                sync_mode,
-                languages_affected
+        # Get supported languages
+        supported_langs = self.translation_repo.get_supported_languages()
+        unsupported = [lang for lang in languages if lang not in supported_langs]
+        if unsupported:
+            raise ValidationError(
+                f"Unsupported languages: {unsupported}. "
+                f"Supported: {supported_langs}"
             )
 
-            # Mark scan complete
-            self.sync_repo.complete_sync_scan(sync_id)
-
-            # Update statistics
-            self.sync_repo.update_sync_statistics(
-                sync_id,
-                added=comparison_data['keys_added'],
-                updated=comparison_data['keys_updated'],
-                deleted=comparison_data['keys_deleted'],
-                skipped=comparison_data['keys_skipped'],
-                conflicted=comparison_data['keys_conflicted']
-            )
-
-            # Create PRE_SYNC snapshot (backup before applying)
-            self._create_snapshot(
-                sync_id,
-                'PRE_SYNC',
-                database_data,
-                f"Backup before {sync_mode} sync operation"
-            )
-
-            logger.info(
-                f"Sync scan {sync_id} completed ({sync_mode} mode)",
-                extra={
-                    'sync_id': str(sync_id),
-                    'sync_mode': sync_mode,
-                    'languages': languages_affected,
-                    **comparison_data
-                }
-            )
-
-            return {
-                'sync_id': str(sync_id),
-                'sync_status': 'PENDING',
-                'sync_mode': sync_mode,
-                'languages_affected': languages_affected,
-                'scan_results': comparison_data
-            }
-
-        except Exception as e:
-            logger.error(f"Error during sync scan: {e}", exc_info=True)
-            raise
-
-    def get_comparison_panel(
-        self,
-        sync_id: UUID,
-        category: Optional[str] = None,
-        limit: int = 50,
-        offset: int = 0
-    ) -> Dict[str, Any]:
-        """
-        Get comparison panel data for admin UI.
-
-        Returns side-by-side comparison of frontend vs database values,
-        grouped by category (NEW_KEYS, CHANGED_KEYS, DELETED_KEYS, CONFLICTS).
-
-        Args:
-            sync_id: Sync operation ID
-            category: Optional filter by category
-            limit: Max items per page (max 100)
-            offset: Pagination offset
-
-        Returns:
-            Dictionary with:
-            - categories: List of ComparisonCategory objects
-            - total_items: Total items across all categories
-            - pending_count: Items awaiting resolution
-            - conflicts_count: Items with conflicts
-            - can_apply: Whether sync can be applied (all pending resolved in MANUAL mode)
-        """
-        self._init_repos()
-
-        try:
-            # Get all sync details with pagination
-            details, total = self.sync_repo.list_sync_details(
-                sync_id,
-                limit=min(limit, 100),
-                offset=offset
-            )
-
-            # Group by category
-            categories = {}
-            for detail in details:
-                action = detail['action']
-
-                if action == 'ADD':
-                    cat_name = 'NEW_KEYS'
-                elif action == 'UPDATE':
-                    cat_name = 'CHANGED_KEYS'
-                elif action == 'DELETE':
-                    cat_name = 'DELETED_KEYS'
-                elif action == 'CONFLICT':
-                    cat_name = 'CONFLICTS'
-                else:  # SKIP
-                    continue
-
-                if cat_name not in categories:
-                    categories[cat_name] = []
-
-                # Format as ComparisonItem
-                item = ComparisonItem(
-                    namespace_code=detail['namespace_code'],
-                    key_path=detail['key_path'],
-                    language=detail['language'],
-                    action=detail['action'],
-                    resolution_status=detail['resolution_status'],
-                    frontend_value=detail['frontend_value'],
-                    database_value=detail['database_value'],
-                    similarity=detail['similarity_score'],
-                    conflict_reason=detail['conflict_reason'],
-                    proposed_action=detail.get('proposed_action')
-                )
-                categories[cat_name].append(item)
-
-            # Build response categories
-            response_categories = [
-                ComparisonCategory(
-                    category=cat_name,
-                    items=items,
-                    count=len(items)
-                )
-                for cat_name, items in categories.items()
-            ]
-
-            # Get sync info
-            sync_info = self.sync_repo.get_sync_history(sync_id)
-
-            return {
-                'success': True,
-                'sync_id': str(sync_id),
-                'categories': response_categories,
-                'total_items': total,
-                'sync_mode': sync_info['sync_mode'],
-                'pending_count': self.sync_repo.count_pending_resolutions(sync_id),
-                'conflicts_count': self.sync_repo.count_conflicts(sync_id),
-                'can_apply': sync_info['sync_status'] == 'PENDING'
-            }
-
-        except Exception as e:
-            logger.error(f"Error getting comparison panel: {e}", exc_info=True)
-            raise
-
-    def apply_sync(
-        self,
-        sync_id: UUID,
-        resolutions: Optional[Dict[str, Any]] = None,
-        force: bool = False
-    ) -> Dict[str, Any]:
-        """
-        Apply sync changes to database.
-
-        In MANUAL mode: Applies only keys with resolutions provided
-        In AUTO mode: Applies all keys with auto-generated actions
-        Prevents applying with unresolved conflicts unless force=True
-
-        Args:
-            sync_id: Sync operation ID
-            resolutions: Dict of detail_id → {action, manual_value} (for MANUAL mode)
-            force: Force apply even with conflicts
-
-        Returns:
-            Dictionary with:
-            - success: True if applied
-            - applied_count: Number of keys applied
-            - failed_count: Number of failures
-            - errors: List of error messages
-        """
-        self._init_repos()
-
-        try:
-            # Get sync info
-            sync_info = self.sync_repo.get_sync_history(sync_id)
-            sync_mode = sync_info['sync_mode']
-
-            # Check if all conflicts are resolved (unless force=True)
-            conflicts = self.sync_repo.count_conflicts(sync_id)
-            if conflicts > 0 and not force:
-                raise ValueError(
-                    f"Cannot apply: {conflicts} unresolved conflicts. "
-                    "Use force=True to override."
-                )
-
-            # Mark as APPLYING
-            self.sync_repo.start_sync_apply(sync_id)
-
-            applied_count = 0
-            failed_count = 0
-            errors = []
-
-            # Get all pending sync details
-            details, _ = self.sync_repo.list_sync_details(
-                sync_id,
-                limit=10000,  # Get all
-                status='PENDING' if sync_mode == 'MANUAL' else None
-            )
-
-            for detail in details:
-                try:
-                    action = detail['action']
-
-                    # Apply based on action
-                    if action == 'ADD':
-                        # Insert new translation
-                        self.i18n_repo.create_translation(
-                            namespace_code=detail['namespace_code'],
-                            key_path=detail['key_path'],
-                            language_code=detail['language'],
-                            translation_text=detail['frontend_value'],
-                            translated_by=None  # Sync system
-                        )
-                        applied_count += 1
-
-                    elif action == 'UPDATE':
-                        # Update existing translation
-                        self.i18n_repo.update_translation(
-                            key_id=detail['key_path'],  # Assuming this structure
-                            language_code=detail['language'],
-                            translation_text=detail['frontend_value'],
-                            translated_by=None
-                        )
-                        applied_count += 1
-
-                    elif action == 'DELETE':
-                        # Delete translation
-                        self.i18n_repo.delete_translation(
-                            namespace_code=detail['namespace_code'],
-                            key_path=detail['key_path'],
-                            language_code=detail['language']
-                        )
-                        applied_count += 1
-
-                    elif action in ['SKIP', 'CONFLICT']:
-                        # Don't apply
-                        pass
-
-                    # Mark detail as RESOLVED
-                    self.sync_repo.resolve_sync_detail(
-                        detail_id=UUID(detail['detail_id']),
-                        action=action,
-                        resolved_by=None
-                    )
-
-                except Exception as e:
-                    error_msg = f"Failed to apply {detail['key_path']}: {str(e)}"
-                    logger.error(error_msg)
-                    errors.append(error_msg)
-                    failed_count += 1
-
-            # Create POST_SYNC snapshot
-            database_data_after = self._load_database_translations(
-                sync_info['languages_affected']
-            )
-            self._create_snapshot(
-                sync_id,
-                'POST_SYNC',
-                database_data_after,
-                f"Snapshot after applying {applied_count} changes"
-            )
-
-            # Mark as COMPLETED or FAILED
-            if failed_count == 0:
-                self.sync_repo.update_sync_history(
-                    sync_id,
-                    {
-                        'sync_status': 'COMPLETED',
-                        'apply_completed_at': datetime.utcnow()
-                    }
-                )
-                status = 'COMPLETED'
-            else:
-                self.sync_repo.mark_sync_failed(
-                    sync_id,
-                    f"{failed_count} keys failed to apply"
-                )
-                status = 'FAILED'
-
-            logger.info(
-                f"Sync {sync_id} applied ({status}): {applied_count} applied, {failed_count} failed",
-                extra={
-                    'sync_id': str(sync_id),
-                    'applied_count': applied_count,
-                    'failed_count': failed_count
-                }
-            )
-
-            return {
-                'success': failed_count == 0,
-                'status': status,
-                'applied_count': applied_count,
-                'failed_count': failed_count,
-                'errors': errors
-            }
-
-        except Exception as e:
-            logger.error(f"Error applying sync: {e}", exc_info=True)
-            self.sync_repo.mark_sync_failed(sync_id, str(e))
-            raise
-
-    def rollback_sync(
-        self,
-        sync_id: UUID,
-        reason: str = ""
-    ) -> Dict[str, Any]:
-        """
-        Rollback sync to PRE_SYNC snapshot state.
-
-        Restores all translations to state before the sync was applied.
-
-        Args:
-            sync_id: Sync operation ID
-            reason: Reason for rollback
-
-        Returns:
-            Dictionary with:
-            - success: True if rolled back
-            - keys_restored: Number of keys restored
-            - rollback_duration_ms: Time taken in milliseconds
-        """
-        self._init_repos()
-
-        try:
-            import time
-            start_time = time.time()
-
-            # Get PRE_SYNC snapshot
-            snapshot = self.sync_repo.get_snapshot_by_type(sync_id, 'PRE_SYNC')
-            if not snapshot:
-                raise ValueError(f"No PRE_SYNC snapshot found for sync {sync_id}")
-
-            # Restore from snapshot
-            db_state = json.loads(snapshot['db_state']) if isinstance(snapshot['db_state'], str) else snapshot['db_state']
-
-            keys_restored = 0
-            for namespace_code, languages in db_state.items():
-                for language_code, translations in languages.items():
-                    for key_path, value in translations.items():
-                        # Restore each translation
-                        self.i18n_repo.update_translation(
-                            key_id=key_path,
-                            language_code=language_code,
-                            translation_text=value
-                        )
-                        keys_restored += 1
-
-            # Create ROLLBACK snapshot
-            self._create_snapshot(
-                sync_id,
-                'ROLLBACK',
-                db_state,
-                f"Rollback snapshot: {reason}"
-            )
-
-            # Mark sync as ROLLED_BACK
-            duration_ms = int((time.time() - start_time) * 1000)
-            self.sync_repo.update_sync_history(
-                sync_id,
-                {
-                    'sync_status': 'ROLLED_BACK',
-                    'error_message': f"Rolled back: {reason}"
-                }
-            )
-
-            logger.info(
-                f"Sync {sync_id} rolled back: {keys_restored} keys restored in {duration_ms}ms",
-                extra={
-                    'sync_id': str(sync_id),
-                    'keys_restored': keys_restored,
-                    'duration_ms': duration_ms,
-                    'reason': reason
-                }
-            )
-
-            return {
-                'success': True,
-                'keys_restored': keys_restored,
-                'rollback_duration_ms': duration_ms
-            }
-
-        except Exception as e:
-            logger.error(f"Error rolling back sync: {e}", exc_info=True)
-            raise
-
-    # =========================================================================
-    # PRIVATE HELPER METHODS
-    # =========================================================================
-
-    def _load_frontend_json(self, languages: List[str]) -> Dict[str, Any]:
-        """
-        Load frontend JSON translations.
-
-        Returns structure:
-        {
-            'namespace': {
-                'de': {'key.path': 'German value', ...},
-                'en': {'key.path': 'English value', ...}
-            }
-        }
-        """
-        # TODO: Implement loading from frontend JSON files
-        # For now, return empty dict for implementation
-        return {}
-
-    def _load_database_translations(self, languages: List[str]) -> Dict[str, Any]:
-        """
-        Load all translations from database.
-
-        Returns same structure as _load_frontend_json for comparison.
-        """
-        # TODO: Implement database query to get all translations
-        # Builds nested dict structure from database
-        return {}
-
-    def _scan_and_detect_changes(
-        self,
-        sync_id: UUID,
-        frontend_data: Dict[str, Any],
-        database_data: Dict[str, Any],
-        sync_mode: str,
-        languages: List[str]
-    ) -> Dict[str, int]:
-        """
-        Scan frontend vs database and detect changes.
-
-        Creates i18n_sync_details records for each detected change.
-        Calculates similarity scores and change magnitude.
-
-        Returns: Statistics dict with counts
-        """
-        keys_added = 0
-        keys_updated = 0
-        keys_deleted = 0
-        keys_skipped = 0
-        keys_conflicted = 0
-
-        # TODO: Implement full scanning logic
-        # For each language:
-        #   1. Get all keys from frontend
-        #   2. Get all keys from database
-        #   3. Find intersections (changed), frontend-only (added), database-only (deleted)
-        #   4. Calculate similarity_score for each changed key
-        #   5. Determine change_magnitude based on similarity
-        #   6. Create i18n_sync_details record
-        #   7. Auto-generate proposed_action if AUTO mode
-
-        return {
-            'keys_added': keys_added,
-            'keys_updated': keys_updated,
-            'keys_deleted': keys_deleted,
-            'keys_skipped': keys_skipped,
-            'keys_conflicted': keys_conflicted,
-            'total_keys': keys_added + keys_updated + keys_deleted
-        }
-
-    def _calculate_similarity(self, str1: str, str2: str) -> float:
-        """
-        Calculate text similarity score (0.0 to 1.0).
-
-        Uses Python's SequenceMatcher for difflib-based comparison.
-        """
-        matcher = SequenceMatcher(None, str1, str2)
-        return matcher.ratio()
-
-    def _determine_magnitude(self, similarity_score: float) -> str:
-        """
-        Determine change magnitude based on similarity score.
-
-        - MINOR: similarity >= 0.95 (<5% difference)
-        - MODERATE: 0.90 <= similarity < 0.95 (5-10% difference)
-        - MAJOR: similarity < 0.90 (>10% difference)
-        """
-        if similarity_score >= self.SIMILARITY_THRESHOLD_MINOR:
-            return 'MINOR'
-        elif similarity_score >= self.SIMILARITY_THRESHOLD_MODERATE:
-            return 'MODERATE'
-        else:
-            return 'MAJOR'
-
-    def _auto_suggest_action(
-        self,
-        similarity_score: float,
-        change_magnitude: str
-    ) -> str:
-        """
-        Auto-generate suggested action for AUTO mode.
-
-        Rules:
-        - MINOR changes: SKIP (likely typo fix, don't overwrite)
-        - MODERATE changes: CONFLICT (needs review)
-        - MAJOR changes: UPDATE (significant change, apply frontend version)
-        """
-        if change_magnitude == 'MINOR':
-            return 'SKIP'
-        elif change_magnitude == 'MODERATE':
-            return 'CONFLICT'
-        else:  # MAJOR
-            return 'UPDATE'
-
-    def _create_snapshot(
-        self,
-        sync_id: UUID,
-        snapshot_type: str,
-        db_state: Dict[str, Any],
-        reason: str
-    ) -> None:
-        """
-        Create JSONB snapshot of database state.
-
-        Args:
-            sync_id: Sync operation ID
-            snapshot_type: 'PRE_SYNC', 'POST_SYNC', or 'ROLLBACK'
-            db_state: Nested dict of all translations
-            reason: Human-readable reason
-        """
-        self._init_repos()
-
-        # Convert dict to JSON for storage
-        db_state_json = json.dumps(db_state)
-
-        self.sync_repo.create_snapshot(
-            sync_id=sync_id,
-            snapshot_type=snapshot_type,
-            db_state=db_state_json,
-            total_keys=self._count_keys_in_state(db_state),
-            affected_keys=0,  # TODO: Calculate
-            languages_covered=list(db_state.keys()),
-            reason=reason,
-            created_by=None
+        # Create sync operation
+        sync = self.sync_repo.create_sync(
+            mode=mode,
+            user_id=user_id,
+            languages=languages,
+            metadata=metadata or {}
         )
 
-    def _count_keys_in_state(self, db_state: Dict[str, Any]) -> int:
-        """Count total keys in database state dict."""
-        count = 0
-        for namespace, languages in db_state.items():
-            for language, keys in languages.items():
-                count += len(keys)
-        return count
+        logger.info(
+            f"Initiated sync {sync.sync_id}",
+            extra={'user_id': user_id, 'mode': mode, 'languages': languages}
+        )
 
+        return sync
 
-# Singleton instance
-_sync_service: Optional[I18nSyncService] = None
+    def scan_translations(
+        self,
+        sync_id: str,
+        frontend_translations: Dict[str, Dict[str, str]],  # {lang: {key: value}}
+    ) -> Tuple[SyncOperation, int, int, int, int]:
+        """
+        Scan frontend translations against database.
 
+        Detects:
+        - NEW: Keys in frontend but not in database
+        - CHANGED: Keys with different values (only frontend changed)
+        - DELETED: Keys in database but not in frontend
+        - CONFLICT: Keys with different values (both changed)
 
-def get_sync_service() -> I18nSyncService:
-    """Get or create singleton i18n sync service."""
-    global _sync_service
-    if _sync_service is None:
-        _sync_service = I18nSyncService()
-    return _sync_service
+        Args:
+            sync_id: Sync operation ID
+            frontend_translations: Frontend translations by language
+                                  Format: {'de': {'key': 'value'}, ...}
+
+        Returns:
+            Tuple of (sync_operation, new_count, changed_count, deleted_count, conflict_count)
+
+        Raises:
+            NotFoundError: If sync not found
+            BusinessLogicError: If sync not in PENDING state
+        """
+        # Get sync operation
+        sync = self.sync_repo.get_sync(sync_id)
+        if not sync:
+            raise NotFoundError(f"Sync {sync_id} not found")
+
+        if sync.status != SyncStatus.PENDING:
+            raise BusinessLogicError(
+                f"Cannot scan sync in {sync.status} state. Must be PENDING."
+            )
+
+        # Mark as scanning
+        self.sync_repo.update_sync_status(sync_id, SyncStatus.SCANNING)
+
+        # Scan each language
+        start_time = time.time()
+        stats = {'new': 0, 'changed': 0, 'deleted': 0, 'conflicts': 0}
+
+        for language_code in sync.languages_synced:
+            # Get frontend translations for language
+            frontend_by_lang = frontend_translations.get(language_code, {})
+
+            # Get database translations for language
+            db_translations, _ = self.translation_repo.get_translations_for_language(
+                language_code,
+                limit=10000
+            )
+            database_by_lang = {t.translation_key: t.value for t in db_translations}
+
+            # Get previous values from metadata (for conflict detection)
+            previous_values = {}  # TODO: Load from sync history if available
+
+            # Detect changes
+            changes = self.translation_repo.detect_changes(
+                frontend_by_lang,
+                database_by_lang,
+                previous_values
+            )
+
+            # Record changes in database
+            for change_type, change_list in changes.items():
+                if not change_list:
+                    continue
+
+                for change_data in change_list:
+                    self.sync_repo.create_change(
+                        sync_id=sync_id,
+                        translation_key=change_data['key'],
+                        language_code=language_code,
+                        change_type=change_type.upper(),
+                        frontend_value=change_data.get('frontend_value'),
+                        database_value=change_data.get('database_value'),
+                        previous_value=change_data.get('previous_value'),
+                        similarity_score=change_data.get('similarity', 0.0)
+                    )
+
+                    stats[change_type] += 1
+
+        # Calculate scan duration
+        scan_duration_ms = int((time.time() - start_time) * 1000)
+
+        # Update sync with results
+        completed_sync = self.sync_repo.complete_sync(
+            sync_id,
+            scan_duration_ms,
+            {
+                'new_keys': stats['new'],
+                'changed_keys': stats['changed'],
+                'deleted_keys': stats['deleted'],
+                'conflicted_keys': stats['conflicts']
+            }
+        )
+
+        logger.info(
+            f"Completed scan for sync {sync_id}",
+            extra={
+                'duration_ms': scan_duration_ms,
+                'new': stats['new'],
+                'changed': stats['changed'],
+                'deleted': stats['deleted'],
+                'conflicts': stats['conflicts']
+            }
+        )
+
+        return completed_sync, stats['new'], stats['changed'], stats['deleted'], stats['conflicts']
+
+    def get_scan_results(
+        self,
+        sync_id: str,
+        limit: int = 20,
+        offset: int = 0,
+        change_type: Optional[str] = None,
+        language_code: Optional[str] = None
+    ) -> Tuple[List[SyncChange], int]:
+        """
+        Get detailed scan results for a sync.
+
+        Args:
+            sync_id: Sync operation ID
+            limit: Max results to return
+            offset: Number of results to skip
+            change_type: Optional filter by change type (NEW, CHANGED, DELETED, CONFLICT)
+            language_code: Optional filter by language
+
+        Returns:
+            Tuple of (changes_list, total_count)
+        """
+        changes, total = self.sync_repo.list_changes(
+            sync_id,
+            limit=limit,
+            offset=offset,
+            change_type=change_type,
+            language_code=language_code
+        )
+
+        return changes, total
+
+    def resolve_conflict(
+        self,
+        sync_id: str,
+        change_id: int,
+        chosen_action: str,
+        user_id: str,
+        notes: Optional[str] = None
+    ) -> SyncResolution:
+        """
+        Record user resolution for a conflict.
+
+        Args:
+            sync_id: Sync operation ID
+            change_id: Change ID (must be CONFLICT type)
+            chosen_action: Resolution action (ADD, UPDATE, DELETE, SKIP)
+            user_id: User making resolution
+            notes: Optional resolution notes
+
+        Returns:
+            Created SyncResolution
+
+        Raises:
+            NotFoundError: If change not found
+            BusinessLogicError: If change is not a CONFLICT
+        """
+        # Get change
+        change = self.sync_repo.get_change(change_id)
+        if not change:
+            raise NotFoundError(f"Change {change_id} not found")
+
+        if change.change_type != ChangeType.CONFLICT:
+            raise BusinessLogicError(
+                f"Cannot resolve non-CONFLICT change (type: {change.change_type})"
+            )
+
+        # Record resolution
+        resolution = self.sync_repo.create_resolution(
+            sync_id=sync_id,
+            change_id=change_id,
+            translation_key=change.translation_key,
+            language_code=change.language_code,
+            chosen_action=chosen_action,
+            user_id=user_id,
+            notes=notes
+        )
+
+        # Update change with resolution
+        self.sync_repo.update_change_resolution(
+            change_id,
+            chosen_action,
+            notes
+        )
+
+        logger.info(
+            f"Resolved conflict {change_id}: {chosen_action}",
+            extra={'sync_id': sync_id, 'user_id': user_id}
+        )
+
+        return resolution

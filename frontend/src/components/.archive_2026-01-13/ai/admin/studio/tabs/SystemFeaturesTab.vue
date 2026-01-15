@@ -15,8 +15,8 @@
     <!-- No Course Selected -->
     <div v-if="!course" class="empty-state">
       <div class="empty-icon">🎛️</div>
-      <h3>{{ $t('windows.aiStudioFeatures.selectCourse') }}</h3>
-      <p>{{ $t('windows.aiStudioFeatures.selectCourseDesc') }}</p>
+      <h3>{{ $t('windows.aiEditorFeatures.selectCourse') }}</h3>
+      <p>{{ $t('windows.aiEditorFeatures.selectCourseDesc') }}</p>
     </div>
 
     <!-- Main Content -->
@@ -41,8 +41,8 @@
         <!-- Tutor Agent -->
         <FeatureGroup
           icon="🤖"
-          :title="$t('windows.aiStudioFeatures.groups.tutor.title')"
-          :description="$t('windows.aiStudioFeatures.groups.tutor.description')"
+          :title="$t('windows.aiEditorFeatures.groups.tutor.title')"
+          :description="$t('windows.aiEditorFeatures.groups.tutor.description')"
           :expanded="expandedGroups.has('tutor')"
           :group-enabled="isGroupEnabled('tutor')"
           @toggle="toggleGroup('tutor')"
@@ -51,16 +51,16 @@
           <FeatureToggle
             v-model="features.tutor_socratic_dialog"
             code="SF01"
-            :label="$t('windows.aiStudioFeatures.features.socraticDialog.label')"
-            :description="$t('windows.aiStudioFeatures.features.socraticDialog.description')"
+            :label="$t('windows.aiEditorFeatures.features.socraticDialog.label')"
+            :description="$t('windows.aiEditorFeatures.features.socraticDialog.description')"
             :token-cost="800"
             :inherited="getInheritedValue('tutor_socratic_dialog')"
           />
           <FeatureToggle
             v-model="features.tutor_npc_lecture"
             code="SF02"
-            :label="$t('windows.aiStudioFeatures.features.npcLecture.label')"
-            :description="$t('windows.aiStudioFeatures.features.npcLecture.description')"
+            :label="$t('windows.aiEditorFeatures.features.npcLecture.label')"
+            :description="$t('windows.aiEditorFeatures.features.npcLecture.description')"
             :token-cost="1200"
             :inherited="getInheritedValue('tutor_npc_lecture')"
           />
@@ -69,43 +69,43 @@
         <!-- IT Sandbox -->
         <FeatureGroup
           icon="💻"
-          :title="$t('windows.aiStudioFeatures.groups.it.title')"
-          :description="$t('windows.aiStudioFeatures.groups.it.description')"
+          :title="$t('windows.aiEditorFeatures.groups.it.title')"
+          :description="$t('windows.aiEditorFeatures.groups.it.description')"
           :expanded="expandedGroups.has('it')"
           :group-enabled="isGroupEnabled('it')"
-          :requirement-notice="$t('windows.aiStudioFeatures.requiresDocker')"
+          :requirement-notice="$t('windows.aiEditorFeatures.requiresDocker')"
           @toggle="toggleGroup('it')"
           @toggle-all="toggleGroupEnabled('it')"
         >
           <FeatureToggle
             v-model="features.it_code_sandbox"
             code="SF03"
-            :label="$t('windows.aiStudioFeatures.features.codeSandbox.label')"
-            :description="$t('windows.aiStudioFeatures.features.codeSandbox.description')"
+            :label="$t('windows.aiEditorFeatures.features.codeSandbox.label')"
+            :description="$t('windows.aiEditorFeatures.features.codeSandbox.description')"
             :token-cost="500"
             :inherited="getInheritedValue('it_code_sandbox')"
           />
           <FeatureToggle
             v-model="features.it_network_sim"
             code="SF04"
-            :label="$t('windows.aiStudioFeatures.features.networkSim.label')"
-            :description="$t('windows.aiStudioFeatures.features.networkSim.description')"
+            :label="$t('windows.aiEditorFeatures.features.networkSim.label')"
+            :description="$t('windows.aiEditorFeatures.features.networkSim.description')"
             :token-cost="600"
             :inherited="getInheritedValue('it_network_sim')"
           />
           <FeatureToggle
             v-model="features.it_scenario"
             code="SF05"
-            :label="$t('windows.aiStudioFeatures.features.itScenario.label')"
-            :description="$t('windows.aiStudioFeatures.features.itScenario.description')"
+            :label="$t('windows.aiEditorFeatures.features.itScenario.label')"
+            :description="$t('windows.aiEditorFeatures.features.itScenario.description')"
             :token-cost="700"
             :inherited="getInheritedValue('it_scenario')"
           />
           <FeatureToggle
             v-model="features.it_error_analysis"
             code="SF06"
-            :label="$t('windows.aiStudioFeatures.features.errorAnalysis.label')"
-            :description="$t('windows.aiStudioFeatures.features.errorAnalysis.description')"
+            :label="$t('windows.aiEditorFeatures.features.errorAnalysis.label')"
+            :description="$t('windows.aiEditorFeatures.features.errorAnalysis.description')"
             :token-cost="400"
             :inherited="getInheritedValue('it_error_analysis')"
           />
@@ -114,8 +114,8 @@
         <!-- Kollaboration -->
         <FeatureGroup
           icon="👥"
-          :title="$t('windows.aiStudioFeatures.groups.collab.title')"
-          :description="$t('windows.aiStudioFeatures.groups.collab.description')"
+          :title="$t('windows.aiEditorFeatures.groups.collab.title')"
+          :description="$t('windows.aiEditorFeatures.groups.collab.description')"
           :expanded="expandedGroups.has('collab')"
           :group-enabled="isGroupEnabled('collab')"
           @toggle="toggleGroup('collab')"
@@ -124,56 +124,56 @@
           <FeatureToggle
             v-model="features.collab_peer_instruction"
             code="SF07"
-            :label="$t('windows.aiStudioFeatures.features.peerInstruction.label')"
-            :description="$t('windows.aiStudioFeatures.features.peerInstruction.description')"
+            :label="$t('windows.aiEditorFeatures.features.peerInstruction.label')"
+            :description="$t('windows.aiEditorFeatures.features.peerInstruction.description')"
             :token-cost="300"
             :inherited="getInheritedValue('collab_peer_instruction')"
           />
           <FeatureToggle
             v-model="features.collab_team_case"
             code="SF08"
-            :label="$t('windows.aiStudioFeatures.features.teamCase.label')"
-            :description="$t('windows.aiStudioFeatures.features.teamCase.description')"
+            :label="$t('windows.aiEditorFeatures.features.teamCase.label')"
+            :description="$t('windows.aiEditorFeatures.features.teamCase.description')"
             :token-cost="400"
             :inherited="getInheritedValue('collab_team_case')"
           />
           <FeatureToggle
             v-model="features.collab_peer_review"
             code="SF09"
-            :label="$t('windows.aiStudioFeatures.features.peerReview.label')"
-            :description="$t('windows.aiStudioFeatures.features.peerReview.description')"
+            :label="$t('windows.aiEditorFeatures.features.peerReview.label')"
+            :description="$t('windows.aiEditorFeatures.features.peerReview.description')"
             :token-cost="350"
             :inherited="getInheritedValue('collab_peer_review')"
           />
           <FeatureToggle
             v-model="features.collab_learning_diary"
             code="SF10"
-            :label="$t('windows.aiStudioFeatures.features.learningDiary.label')"
-            :description="$t('windows.aiStudioFeatures.features.learningDiary.description')"
+            :label="$t('windows.aiEditorFeatures.features.learningDiary.label')"
+            :description="$t('windows.aiEditorFeatures.features.learningDiary.description')"
             :token-cost="200"
             :inherited="getInheritedValue('collab_learning_diary')"
           />
           <FeatureToggle
             v-model="features.collab_portfolio"
             code="SF11"
-            :label="$t('windows.aiStudioFeatures.features.portfolio.label')"
-            :description="$t('windows.aiStudioFeatures.features.portfolio.description')"
+            :label="$t('windows.aiEditorFeatures.features.portfolio.label')"
+            :description="$t('windows.aiEditorFeatures.features.portfolio.description')"
             :token-cost="250"
             :inherited="getInheritedValue('collab_portfolio')"
           />
           <FeatureToggle
             v-model="features.collab_project_based"
             code="SF12"
-            :label="$t('windows.aiStudioFeatures.features.projectBased.label')"
-            :description="$t('windows.aiStudioFeatures.features.projectBased.description')"
+            :label="$t('windows.aiEditorFeatures.features.projectBased.label')"
+            :description="$t('windows.aiEditorFeatures.features.projectBased.description')"
             :token-cost="500"
             :inherited="getInheritedValue('collab_project_based')"
           />
           <FeatureToggle
             v-model="features.collab_inverted_classroom"
             code="SF13"
-            :label="$t('windows.aiStudioFeatures.features.invertedClassroom.label')"
-            :description="$t('windows.aiStudioFeatures.features.invertedClassroom.description')"
+            :label="$t('windows.aiEditorFeatures.features.invertedClassroom.label')"
+            :description="$t('windows.aiEditorFeatures.features.invertedClassroom.description')"
             :token-cost="300"
             :inherited="getInheritedValue('collab_inverted_classroom')"
           />
@@ -182,8 +182,8 @@
         <!-- Visualisierung -->
         <FeatureGroup
           icon="🎨"
-          :title="$t('windows.aiStudioFeatures.groups.viz.title')"
-          :description="$t('windows.aiStudioFeatures.groups.viz.description')"
+          :title="$t('windows.aiEditorFeatures.groups.viz.title')"
+          :description="$t('windows.aiEditorFeatures.groups.viz.description')"
           :expanded="expandedGroups.has('viz')"
           :group-enabled="isGroupEnabled('viz')"
           @toggle="toggleGroup('viz')"
@@ -192,8 +192,8 @@
           <FeatureToggle
             v-model="features.viz_mindmap"
             code="SF14"
-            :label="$t('windows.aiStudioFeatures.features.mindmap.label')"
-            :description="$t('windows.aiStudioFeatures.features.mindmap.description')"
+            :label="$t('windows.aiEditorFeatures.features.mindmap.label')"
+            :description="$t('windows.aiEditorFeatures.features.mindmap.description')"
             :token-cost="400"
             :inherited="getInheritedValue('viz_mindmap')"
           />
@@ -281,12 +281,12 @@ const inheritedFeatures = reactive<Record<string, boolean>>({})
 // Computed
 const scopeLabel = computed(() => {
   if (currentScope.value === 'lesson' && props.lesson) {
-    return `${t('windows.aiStudioFeatures.scopeLesson')}: ${props.lesson.title}`
+    return `${t('windows.aiEditorFeatures.scopeLesson')}: ${props.lesson.title}`
   }
   if (currentScope.value === 'chapter' && props.chapter) {
-    return `${t('windows.aiStudioFeatures.scopeChapter')}: ${props.chapter.title}`
+    return `${t('windows.aiEditorFeatures.scopeChapter')}: ${props.chapter.title}`
   }
-  return t('windows.aiStudioFeatures.scopeCourseGlobal')
+  return t('windows.aiEditorFeatures.scopeCourseGlobal')
 })
 
 const enabledCount = computed(() => {

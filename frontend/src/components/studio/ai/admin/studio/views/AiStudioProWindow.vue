@@ -67,7 +67,7 @@
         :class="{ active: chatExpanded }"
       >
         <span class="tab-icon">💬</span>
-        <span class="tab-label">{{ $t('admin.aiStudio.chat') }}</span>
+        <span class="tab-label">{{ $t('admin.aiEditor.chat') }}</span>
         <svg
           class="chat-chevron"
           :class="{ open: chatExpanded }"
@@ -78,11 +78,23 @@
       </button>
     </div>
 
+    <!-- Sub-Navigation (only for Tutor tab) -->
+    <TutorSubNavigation
+      v-if="activeTab === 'tutor'"
+      :chapters="chapters"
+      :selected-chapter-id="selectedChapterId"
+      :selected-lesson-id="selectedLessonId"
+      :is-loading="loading"
+      @select-chapter="handleSelectChapter"
+      @select-lesson="handleSelectLesson"
+      @create-chapter="handleCreateChapter"
+    />
+
     <!-- Main Content Area -->
     <div class="content-area">
-      <!-- Sidebar (all tabs except Global) -->
+      <!-- Sidebar (all tabs except Global and Tutor) -->
       <CourseStructureSidebar
-        v-if="activeTab !== 'global'"
+        v-if="activeTab !== 'global' && activeTab !== 'tutor'"
         :course="selectedCourse"
         :chapters="chapters"
         :selected-chapter-id="selectedChapterId"
@@ -181,6 +193,7 @@ import {
   AiStudioHeader,
   NewCourseModal,
   CourseStructureSidebar,
+  TutorSubNavigation,
   useAiStudioState,
   useCourseManagement,
   type NewCourseData,
@@ -254,15 +267,15 @@ const kursBuilderRef = ref<InstanceType<typeof KursBuilderTab> | null>(null)
 // =============================================================================
 
 const tabs = computed(() => [
-  { id: 'builder', icon: '📚', label: t('admin.aiStudio.tabs.builder') },
-  { id: 'tutor', icon: '🤖', label: t('admin.aiStudio.tabs.tutor') },
-  { id: 'methods', icon: '🧩', label: t('admin.aiStudio.tabs.methods') },
-  { id: 'exams', icon: '📝', label: t('admin.aiStudio.tabs.exams') },
-  { id: 'features', icon: '🎛️', label: t('admin.aiStudio.tabs.features') },
-  { id: 'prompts', icon: '📄', label: t('admin.aiStudio.tabs.prompts') },
-  { id: 'analytics', icon: '📊', label: t('admin.aiStudio.tabs.analytics') },
-  { id: 'settings', icon: '⚙️', label: t('admin.aiStudio.tabs.settings') },
-  { id: 'global', icon: '🌐', label: t('admin.aiStudio.tabs.global') }
+  { id: 'builder', icon: '📚', label: t('admin.aiEditor.tabs.builder') },
+  { id: 'tutor', icon: '🤖', label: t('admin.aiEditor.tabs.tutor') },
+  { id: 'methods', icon: '🧩', label: t('admin.aiEditor.tabs.methods') },
+  { id: 'exams', icon: '📝', label: t('admin.aiEditor.tabs.exams') },
+  { id: 'features', icon: '🎛️', label: t('admin.aiEditor.tabs.features') },
+  { id: 'prompts', icon: '📄', label: t('admin.aiEditor.tabs.prompts') },
+  { id: 'analytics', icon: '📊', label: t('admin.aiEditor.tabs.analytics') },
+  { id: 'settings', icon: '⚙️', label: t('admin.aiEditor.tabs.settings') },
+  { id: 'global', icon: '🌐', label: t('admin.aiEditor.tabs.global') }
 ])
 
 const stats = computed(() => ({

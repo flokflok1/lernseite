@@ -63,3 +63,10 @@ class ConflictError(APIException):
 
     status_code = 409
     error_code = "CONFLICT"
+
+
+class BusinessLogicError(APIException):
+    """Business logic error (422)."""
+
+    status_code = 422
+    error_code = "BUSINESS_LOGIC_ERROR"

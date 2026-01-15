@@ -12,8 +12,8 @@
         </svg>
       </div>
       <div class="title-area">
-        <h2 class="title">{{ $t('admin.aiStudio.title') }}</h2>
-        <p class="subtitle">{{ selectedCourseTitle || $t('admin.aiStudio.selectCourse') }}</p>
+        <h2 class="title">{{ $t('admin.aiEditor.title') }}</h2>
+        <p class="subtitle">{{ selectedCourseTitle || $t('admin.aiEditor.selectCourse') }}</p>
       </div>
     </div>
 
@@ -29,7 +29,7 @@
 
       <!-- Quick Stats -->
       <div class="stats">
-        <span class="stats-label">{{ $t('admin.aiStudio.lessons') }}:</span>
+        <span class="stats-label">{{ $t('admin.aiEditor.lessons') }}:</span>
         <span class="stats-value">{{ stats.totalLessons }}</span>
       </div>
     </div>

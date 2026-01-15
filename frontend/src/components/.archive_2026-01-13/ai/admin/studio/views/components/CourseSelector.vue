@@ -10,7 +10,7 @@
       class="selector-button"
     >
       <span class="selector-text">
-        {{ selectedCourseTitle || $t('admin.aiStudio.selectCourse') }}
+        {{ selectedCourseTitle || $t('admin.aiEditor.selectCourse') }}
       </span>
       <svg
         class="selector-chevron"
@@ -32,7 +32,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            :placeholder="$t('admin.aiStudio.searchCourse')"
+            :placeholder="$t('admin.aiEditor.searchCourse')"
             class="search-input"
             @click.stop
           />
@@ -68,7 +68,7 @@
             class="category-item"
             :class="{ active: selectedCategoryFilter === null }"
           >
-            <span>{{ $t('admin.aiStudio.allCategories') }}</span>
+            <span>{{ $t('admin.aiEditor.allCategories') }}</span>
             <span>{{ courses.length }}</span>
           </button>
 
@@ -90,7 +90,7 @@
             class="category-item uncategorized"
             :class="{ active: selectedCategoryFilter === '__uncategorized__' }"
           >
-            <span>{{ $t('admin.aiStudio.noCategory') }}</span>
+            <span>{{ $t('admin.aiEditor.noCategory') }}</span>
             <span>{{ getUncategorizedCount() }}</span>
           </button>
         </div>
@@ -104,13 +104,13 @@
         <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        {{ $t('admin.aiStudio.newCourse') }}
+        {{ $t('admin.aiEditor.newCourse') }}
       </button>
 
       <!-- Recently Edited -->
       <div v-if="!searchQuery && recentCourses.length > 0" class="recent-section">
         <div class="section-header">
-          {{ $t('admin.aiStudio.recentlyEdited') }}
+          {{ $t('admin.aiEditor.recentlyEdited') }}
         </div>
         <button
           v-for="course in recentCourses"
@@ -126,14 +126,14 @@
 
       <!-- Courses Header -->
       <div class="courses-header">
-        <span>{{ searchQuery ? $t('admin.aiStudio.searchResults') : $t('admin.aiStudio.allCourses') }}</span>
+        <span>{{ searchQuery ? $t('admin.aiEditor.searchResults') : $t('admin.aiEditor.allCourses') }}</span>
         <span>{{ filteredCourses.length }} / {{ courses.length }}</span>
       </div>
 
       <!-- Course List -->
       <div class="courses-list">
         <div v-if="filteredCourses.length === 0" class="empty-state">
-          {{ searchQuery ? $t('admin.aiStudio.noCoursesFound') : $t('admin.aiStudio.noCoursesAvailable') }}
+          {{ searchQuery ? $t('admin.aiEditor.noCoursesFound') : $t('admin.aiEditor.noCoursesAvailable') }}
         </div>
 
         <!-- Categorized Courses -->
@@ -162,7 +162,7 @@
         <template v-if="coursesByCategory.uncategorized.length > 0">
           <div v-if="coursesByCategory.sortedCategories.length > 0" class="category-header uncategorized">
             <span>📦</span>
-            <span>{{ $t('admin.aiStudio.noCategory') }}</span>
+            <span>{{ $t('admin.aiEditor.noCategory') }}</span>
             <span class="count">({{ coursesByCategory.uncategorized.length }})</span>
           </div>
           <button
@@ -297,10 +297,10 @@ const recentCourses = computed(() => {
 
 const categoryFilterLabel = computed(() => {
   if (!selectedCategoryFilter.value) {
-    return t('admin.aiStudio.allCategories')
+    return t('admin.aiEditor.allCategories')
   }
   if (selectedCategoryFilter.value === '__uncategorized__') {
-    return t('admin.aiStudio.noCategory')
+    return t('admin.aiEditor.noCategory')
   }
   return selectedCategoryFilter.value
 })

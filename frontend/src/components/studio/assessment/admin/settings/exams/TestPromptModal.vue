@@ -11,7 +11,7 @@
   >
     <div class="bg-[var(--color-surface)] rounded-xl p-6 w-[700px] max-h-[80vh] overflow-y-auto">
       <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
-        {{ $t('windows.aiStudioPrompts.testPromptTitle') }}
+        {{ $t('windows.aiEditorPrompts.testPromptTitle') }}
       </h3>
 
       <!-- Variable Inputs -->
@@ -23,7 +23,7 @@
             @input="updateVariable(variable, ($event.target as HTMLInputElement).value)"
             type="text"
             class="w-full px-3 py-2 bg-[var(--color-surface-secondary)] border border-[var(--color-border)] rounded-lg"
-            :placeholder="$t('windows.aiStudioPrompts.valuePlaceholder', { variable })"
+            :placeholder="$t('windows.aiEditorPrompts.valuePlaceholder', { variable })"
           />
         </div>
       </div>
@@ -31,7 +31,7 @@
       <!-- Rendered Prompt -->
       <div class="mb-4">
         <label class="text-sm text-[var(--color-text-secondary)] mb-1 block">
-          {{ $t('windows.aiStudioPrompts.renderedPrompt') }}
+          {{ $t('windows.aiEditorPrompts.renderedPrompt') }}
         </label>
         <div class="bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-sm max-h-48 overflow-y-auto">
           {{ renderedPrompt }}
@@ -41,7 +41,7 @@
       <!-- Test Result -->
       <div v-if="testResult">
         <label class="text-sm text-[var(--color-text-secondary)] mb-1 block">
-          {{ $t('windows.aiStudioPrompts.aiResponse') }}
+          {{ $t('windows.aiEditorPrompts.aiResponse') }}
         </label>
         <div class="bg-[var(--color-surface-secondary)] rounded-lg p-4 text-sm max-h-48 overflow-y-auto">
           {{ testResult }}
@@ -53,14 +53,14 @@
           @click="$emit('close')"
           class="px-4 py-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
         >
-          {{ $t('windows.aiStudioPrompts.close') }}
+          {{ $t('windows.aiEditorPrompts.close') }}
         </button>
         <button
           @click="$emit('run')"
           :disabled="isRunning"
           class="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50"
         >
-          {{ isRunning ? $t('windows.aiStudioPrompts.running') : $t('windows.aiStudioPrompts.runTest') }}
+          {{ isRunning ? $t('windows.aiEditorPrompts.running') : $t('windows.aiEditorPrompts.runTest') }}
         </button>
       </div>
     </div>

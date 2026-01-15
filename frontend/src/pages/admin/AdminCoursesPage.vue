@@ -3,8 +3,8 @@
     <!-- Page Header - Compact -->
     <div class="mb-3 flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold text-[var(--color-text-primary)]">{{ $t('admin.courses.title') }}</h1>
-        <p class="text-xs text-[var(--color-text-secondary)]">{{ $t('admin.courses.subtitle') }}</p>
+        <h1 class="text-lg font-bold text-[var(--color-text-primary)]">{{ pageTitle }}</h1>
+        <p class="text-xs text-[var(--color-text-secondary)]">{{ pageSubtitle }}</p>
       </div>
       <div class="flex gap-2">
         <button
@@ -297,10 +297,34 @@ import { useAdminStore } from '@/store/modules/admin'
 import { useWindowStore } from '@/store/modules/desktop'
 import type { Category } from '@/api/admin.api'
 
+interface Props {
+  mode?: 'manual' | 'ai'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  mode: 'manual'
+})
+
 const { t } = useI18n()
 const router = useRouter()
 const adminStore = useAdminStore()
 const windowStore = useWindowStore()
+
+// ============================================================================
+// Mode Awareness
+// ============================================================================
+
+const pageTitle = computed(() => {
+  return props.mode === 'ai'
+    ? t('admin.courseEditor.modes.ai')
+    : t('admin.courseEditor.modes.manual')
+})
+
+const pageSubtitle = computed(() => {
+  return props.mode === 'ai'
+    ? t('admin.courseEditor.modes.aiDesc')
+    : t('admin.courseEditor.modes.manualDesc')
+})
 
 // Filters
 const searchQuery = ref('')
@@ -396,7 +420,10 @@ const viewCourseDetail = (courseId: string) => {
     console.error('Invalid course ID:', courseId)
     return
   }
-  router.push({ name: 'admin-course-detail', params: { id: courseId } })
+
+  // Navigate with mode preserved in URL path
+  const routeName = props.mode === 'ai' ? 'admin-ai-course-detail' : 'admin-manual-course-detail'
+  router.push({ name: routeName, params: { id: courseId } })
 }
 
 /**

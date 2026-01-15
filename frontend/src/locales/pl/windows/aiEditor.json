@@ -1,5 +1,5 @@
 {
-  "aiStudioFeatures": {
+  "aiEditorFeatures": {
     "title": "Funkcje systemowe",
     "selectCourse": "Wybierz kurs",
     "selectCourseDesc": "Wybierz kurs, aby skonfigurować funkcje systemowe.",
@@ -93,7 +93,7 @@
       }
     }
   },
-  "aiStudioSettings": {
+  "aiEditorSettings": {
     "title": "Ustawienia AI kursu",
     "subtitle": "Konfiguracja modelu AI dla tego kursu",
     "noCourse": "Nie wybrano kursu",
@@ -106,7 +106,7 @@
     "resetSuccess": "Ustawienia zresetowane",
     "resetFailed": "Reset nieudany"
   },
-  "aiStudioModels": {
+  "aiEditorModels": {
     "loading": "Ładowanie modeli...",
     "loadError": "Błąd ładowania",
     "retry": "Ponów próbę",
@@ -164,11 +164,11 @@
     "catTranscription": "Mowa na tekst",
     "catTranslation": "Tłumaczenia"
   },
-  "aiStudioTutor": {
+  "aiEditorTutor": {
     "selectContent": "Wybierz rozdział lub lekcję",
     "selectContentHint": "Wybierz <strong>rozdział</strong> po lewej dla arkusza teorii lub <strong>lekcję</strong> dla wyjaśnienia krok po kroku."
   },
-  "aiStudioAssets": {
+  "aiEditorAssets": {
     "title": "Menedżer zasobów",
     "subtitle": "Obrazy, formuły i grafiki dla Twoich lekcji",
     "upload": "Prześlij",
@@ -221,7 +221,7 @@
       "commonFormulas": "Popularne formuły"
     }
   },
-  "aiStudioContent": {
+  "aiEditorContent": {
     "emptyTitle": "Edytor treści",
     "emptyText": "Wybierz lekcję po lewej, aby edytować treść lub wygenerować za pomocą AI.",
     "lessonEditor": "Edytor lekcji",
@@ -261,7 +261,7 @@
     "stepN": "Krok {n}",
     "confirmReset": "Odrzucić zmiany?"
   },
-  "aiStudioChat": {
+  "aiEditorChat": {
     "title": "Czat AI",
     "assistant": "Asystent AI",
     "online": "Online",
@@ -299,8 +299,8 @@
       "modelComparison": "Który model jest lepszy?"
     }
   },
-  "aiStudioPro": {
-    "title": "AI Studio Pro",
+  "aiEditorPro": {
+    "title": "AI Editor",
     "chat": "Czat",
     "selectCourse": "Wybierz kurs",
     "selectCoursePlaceholder": "Wybierz kurs...",
@@ -354,7 +354,7 @@
       "global": "Globalne"
     }
   },
-  "aiStudioPrompts": {
+  "aiEditorPrompts": {
     "title": "Edytor promptów",
     "subtitle": "Zarządzaj systemowymi promptami dla generacji AI",
     "import": "Import",
@@ -402,7 +402,7 @@
     "copy": "(Kopia)",
     "variableNamePrompt": "Nazwa zmiennej:"
   },
-  "aiStudioGlobalSettings": {
+  "aiEditorGlobalSettings": {
     "title": "Ustawienia globalne",
     "models": "Modele",
     "providers": "Dostawcy",
@@ -462,7 +462,7 @@
     "providerOk": "{provider}: OK",
     "providerFailed": "{provider}: Nieudany"
   },
-  "aiStudioExams": {
+  "aiEditorExams": {
     "selectCourse": "Wybierz kurs",
     "selectCourseHint": "Wybierz kurs, aby tworzyć egzaminy.",
     "title": "Generator egzaminów AI",
@@ -676,7 +676,7 @@
   "aiJob": {
     "placeholder": "Okno zadań AI - zostanie zaimplementowane w fazie 5"
   },
-  "aiStudioStats": {
+  "aiEditorStats": {
     "loading": "Ładowanie statystyk...",
     "errorTitle": "Błąd ładowania",
     "retry": "Spróbuj ponownie",
@@ -709,7 +709,7 @@
     "tokens": "tokenów",
     "loadError": "Błąd ładowania statystyk"
   },
-  "aiStudioAnalytics": {
+  "aiEditorAnalytics": {
     "noCourse": "Nie wybrano kursu",
     "selectCourse": "Wybierz kurs, aby wyświetlić analizy.",
     "title": "Analizy: {title}",
@@ -749,7 +749,7 @@
       "tutor_steps": "Kroki tutora"
     }
   },
-  "aiStudioWorkflow": {
+  "aiEditorWorkflow": {
     "chapter": "Rozdział",
     "lesson": "Lekcja",
     "closeContext": "Zamknij kontekst",
@@ -778,7 +778,7 @@
     "withAudio": "Z audio",
     "steps": "kroków"
   },
-  "aiStudioActivity": {
+  "aiEditorActivity": {
     "title": "Aktywność AI",
     "noActivity": "Brak aktywności",
     "tokenUsage": "Użycie tokenów",
@@ -793,7 +793,7 @@
     "mixed": "Mieszany",
     "duration": "Czas trwania (min):"
   },
-  "aiStudioFiles": {
+  "aiEditorFiles": {
     "title": "Materiały kursu",
     "refresh": "Odśwież",
     "loading": "Ładowanie plików...",
@@ -802,7 +802,7 @@
     "selectAll": "Zaznacz wszystkie",
     "clearSelection": "Wyczyść zaznaczenie"
   },
-  "aiStudioModelCard": {
+  "aiEditorModelCard": {
     "vision": "Wizja",
     "functions": "Funkcje",
     "input": "Wejście",

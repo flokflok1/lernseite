@@ -5,13 +5,14 @@
  */
 
 // Main View
-export { default as AiStudioProWindow } from './AiStudioProWindow.vue'
+export { default as AiEditorWindow } from './AiEditorWindow.vue'
 
 // Components
 export { default as AiStudioHeader } from './components/AiStudioHeader.vue'
 export { default as CourseSelector } from './components/CourseSelector.vue'
 export { default as NewCourseModal } from './components/NewCourseModal.vue'
 export { default as CourseStructureSidebar } from './components/CourseStructureSidebar.vue'
+export { default as TutorSubNavigation } from './components/TutorSubNavigation.vue'
 
 // Composables
 export { useAiStudioState } from './composables/useAiStudioState'

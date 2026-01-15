@@ -16,9 +16,9 @@
         <div>
           <h4 class="font-medium text-[var(--color-text-primary)]">{{ provider.display_name }}</h4>
           <p class="text-xs text-[var(--color-text-tertiary)]">
-            {{ modelCount }} {{ $t('windows.aiStudioModels.models') }}
+            {{ modelCount }} {{ $t('windows.aiEditorModels.models') }}
             <span v-if="provider.last_validated" class="ml-2">
-              | {{ $t('windows.aiStudioModels.validated') }}: {{ formatDate(provider.last_validated) }}
+              | {{ $t('windows.aiEditorModels.validated') }}: {{ formatDate(provider.last_validated) }}
             </span>
           </p>
         </div>
@@ -29,13 +29,13 @@
           :class="provider.has_api_key ? 'bg-green-500' : 'bg-red-500'"
         ></span>
         <span class="text-sm text-[var(--color-text-secondary)]">
-          {{ provider.has_api_key ? $t('windows.aiStudioModels.configured') : $t('windows.aiStudioModels.notConfigured') }}
+          {{ provider.has_api_key ? $t('windows.aiEditorModels.configured') : $t('windows.aiEditorModels.notConfigured') }}
         </span>
         <span
           v-if="provider.active"
           class="px-2 py-0.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded"
         >
-          {{ $t('windows.aiStudioModels.active') }}
+          {{ $t('windows.aiEditorModels.active') }}
         </span>
       </div>
     </div>
@@ -45,7 +45,7 @@
         @input="$emit('update:apiKeyInput', ($event.target as HTMLInputElement).value)"
         type="password"
         class="flex-1 px-3 py-2 bg-[var(--color-surface-secondary)] border border-[var(--color-border)] rounded-lg text-sm font-mono"
-        :placeholder="provider.has_api_key ? '••••••••••••••••' : $t('windows.aiStudioModels.apiKeyPlaceholder')"
+        :placeholder="provider.has_api_key ? '••••••••••••••••' : $t('windows.aiEditorModels.apiKeyPlaceholder')"
       />
       <button
         @click="$emit('toggleVisibility')"
@@ -58,7 +58,7 @@
         :disabled="!apiKeyInput"
         class="px-3 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors disabled:opacity-50"
       >
-        💾 {{ $t('windows.aiStudioModels.save') }}
+        💾 {{ $t('windows.aiEditorModels.save') }}
       </button>
       <button
         @click="$emit('test')"

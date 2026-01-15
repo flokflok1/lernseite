@@ -67,7 +67,7 @@
         :class="{ active: chatExpanded }"
       >
         <span class="tab-icon">💬</span>
-        <span class="tab-label">{{ $t('admin.aiStudio.chat') }}</span>
+        <span class="tab-label">{{ $t('admin.aiEditor.chat') }}</span>
         <svg
           class="chat-chevron"
           :class="{ open: chatExpanded }"
@@ -254,15 +254,15 @@ const kursBuilderRef = ref<InstanceType<typeof KursBuilderTab> | null>(null)
 // =============================================================================
 
 const tabs = computed(() => [
-  { id: 'builder', icon: '📚', label: t('admin.aiStudio.tabs.builder') },
-  { id: 'tutor', icon: '🤖', label: t('admin.aiStudio.tabs.tutor') },
-  { id: 'methods', icon: '🧩', label: t('admin.aiStudio.tabs.methods') },
-  { id: 'exams', icon: '📝', label: t('admin.aiStudio.tabs.exams') },
-  { id: 'features', icon: '🎛️', label: t('admin.aiStudio.tabs.features') },
-  { id: 'prompts', icon: '📄', label: t('admin.aiStudio.tabs.prompts') },
-  { id: 'analytics', icon: '📊', label: t('admin.aiStudio.tabs.analytics') },
-  { id: 'settings', icon: '⚙️', label: t('admin.aiStudio.tabs.settings') },
-  { id: 'global', icon: '🌐', label: t('admin.aiStudio.tabs.global') }
+  { id: 'builder', icon: '📚', label: t('admin.aiEditor.tabs.builder') },
+  { id: 'tutor', icon: '🤖', label: t('admin.aiEditor.tabs.tutor') },
+  { id: 'methods', icon: '🧩', label: t('admin.aiEditor.tabs.methods') },
+  { id: 'exams', icon: '📝', label: t('admin.aiEditor.tabs.exams') },
+  { id: 'features', icon: '🎛️', label: t('admin.aiEditor.tabs.features') },
+  { id: 'prompts', icon: '📄', label: t('admin.aiEditor.tabs.prompts') },
+  { id: 'analytics', icon: '📊', label: t('admin.aiEditor.tabs.analytics') },
+  { id: 'settings', icon: '⚙️', label: t('admin.aiEditor.tabs.settings') },
+  { id: 'global', icon: '🌐', label: t('admin.aiEditor.tabs.global') }
 ])
 
 const stats = computed(() => ({

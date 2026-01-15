@@ -74,7 +74,7 @@
         :class="{ active: chatExpanded }"
       >
         <span class="tab-icon">💬</span>
-        <span class="tab-label">{{ $t('windows.aiStudioPro.chat') }}</span>
+        <span class="tab-label">{{ $t('windows.aiEditorPro.chat') }}</span>
         <svg
           class="chat-chevron"
           :class="{ open: chatExpanded }"

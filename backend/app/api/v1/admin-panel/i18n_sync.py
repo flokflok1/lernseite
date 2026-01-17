@@ -15,6 +15,7 @@ Endpoints:
 from flask import Blueprint, request, jsonify, g
 from typing import Dict, Any
 import logging
+from datetime import datetime
 
 from app.database import get_connection
 from app.middleware.auth import token_required, admin_required
@@ -22,6 +23,7 @@ from app.services.i18n_sync_service import I18nSyncService
 from app.services.i18n_sync_service_apply import I18nSyncServiceApply
 from app.services.i18n_sync_service_analytics import I18nSyncServiceAnalytics
 from app.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
+from app.i18n.error_codes import ErrorCode, error_response
 
 logger = logging.getLogger(__name__)
 
@@ -444,28 +446,31 @@ def get_sync_details(sync_id: str):
 @bp.errorhandler(ValidationError)
 def handle_validation_error(error):
     """Handle validation errors."""
-    return jsonify({
-        'success': False,
-        'error': error.to_dict()
-    }), error.status_code
+    return error_response(
+        ErrorCode.VALIDATION_ERROR,
+        status=error.status_code,
+        details={'message': error.message}
+    )
 
 
 @bp.errorhandler(NotFoundError)
 def handle_not_found(error):
     """Handle not found errors."""
-    return jsonify({
-        'success': False,
-        'error': error.to_dict()
-    }), error.status_code
+    return error_response(
+        ErrorCode.NOT_FOUND,
+        status=error.status_code,
+        details={'message': error.message}
+    )
 
 
 @bp.errorhandler(BusinessLogicError)
 def handle_business_logic_error(error):
     """Handle business logic errors."""
-    return jsonify({
-        'success': False,
-        'error': error.to_dict()
-    }), error.status_code
+    return error_response(
+        ErrorCode.BUSINESS_LOGIC_ERROR,
+        status=error.status_code,
+        details={'message': error.message}
+    )
 
 
 # Import datetime for timestamp

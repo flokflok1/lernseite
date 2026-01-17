@@ -36,6 +36,7 @@ class ErrorCode(str, Enum):
     UNAUTHORIZED = "UNAUTHORIZED"
     FORBIDDEN = "FORBIDDEN"
     VALIDATION_ERROR = "VALIDATION_ERROR"
+    BUSINESS_LOGIC_ERROR = "BUSINESS_LOGIC_ERROR"
 
     # ========================================================================
     # AUTH ERRORS

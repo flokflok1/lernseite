@@ -25,6 +25,7 @@ from flask import Flask, jsonify, request, Response
 from werkzeug.exceptions import HTTPException
 
 from app.config import config
+from app.i18n.error_codes import ErrorCode, error_response
 
 # ============================================================================
 # SECTION 1: EXTENSIONS INITIALIZATION
@@ -298,119 +299,99 @@ def register_error_handlers(app: Flask) -> None:
     @app.errorhandler(ValidationError)
     def handle_validation_error(error):
         """Handle Pydantic validation errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Validation error',
-            'details': error.errors(),
-            'status_code': 400
-        }), 400
+        return error_response(
+            ErrorCode.VALIDATION_ERROR,
+            status=400,
+            details={'validation_errors': error.errors()}
+        )
 
     @app.errorhandler(ValueError)
     def handle_value_error(error):
         """Handle ValueError exceptions"""
-        return jsonify({
-            'success': False,
-            'error': 'Invalid value',
-            'message': str(error),
-            'status_code': 400
-        }), 400
+        return error_response(
+            ErrorCode.BAD_REQUEST,
+            status=400,
+            details={'value_error': str(error)}
+        )
 
     @app.errorhandler(HTTPException)
     def handle_http_exception(error):
         """Handle HTTP exceptions"""
-        response = {
-            'success': False,
-            'error': error.name,
-            'message': error.description,
-            'status_code': error.code
+        # Map HTTP error codes to ErrorCode enum values
+        error_code_map = {
+            400: ErrorCode.BAD_REQUEST,
+            401: ErrorCode.UNAUTHORIZED,
+            403: ErrorCode.FORBIDDEN,
+            404: ErrorCode.NOT_FOUND,
+            405: ErrorCode.FORBIDDEN,  # Method not allowed
+            429: ErrorCode.BAD_REQUEST,  # Rate limit
+            500: ErrorCode.INTERNAL_ERROR,
+            503: ErrorCode.INTERNAL_ERROR,
         }
-        return jsonify(response), error.code
+        error_code = error_code_map.get(error.code, ErrorCode.INTERNAL_ERROR)
+        return error_response(
+            error_code,
+            status=error.code,
+            details={'http_error': error.name}
+        )
 
     @app.errorhandler(Exception)
     def handle_exception(error):
         """Handle general exceptions"""
         app.logger.error(f'Unhandled exception: {str(error)}')
-        response = {
-            'success': False,
-            'error': 'Internal Server Error',
-            'message': 'An unexpected error occurred',
-            'status_code': 500
-        }
+        details = {}
         # Only include details in development
         if app.config.get('DEBUG'):
-            response['details'] = str(error)
-        return jsonify(response), 500
+            details['error_detail'] = str(error)
+        return error_response(
+            ErrorCode.INTERNAL_ERROR,
+            status=500,
+            details=details
+        )
 
     @app.errorhandler(404)
     def not_found(error):
         """Handle 404 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Not Found',
-            'message': 'The requested resource was not found',
-            'status_code': 404
-        }), 404
+        return error_response(ErrorCode.NOT_FOUND, status=404)
 
     @app.errorhandler(429)
     def ratelimit_handler(error):
         """Handle rate limit exceeded"""
-        return jsonify({
-            'success': False,
-            'error': 'Too Many Requests',
-            'message': 'Rate limit exceeded. Please try again later.',
-            'status_code': 429
-        }), 429
+        return error_response(
+            ErrorCode.BAD_REQUEST,
+            status=429,
+            details={'reason': 'rate_limit_exceeded'}
+        )
 
     @app.errorhandler(400)
     def bad_request(error):
         """Handle 400 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Bad Request',
-            'message': 'The request could not be understood by the server',
-            'status_code': 400
-        }), 400
+        return error_response(ErrorCode.BAD_REQUEST, status=400)
 
     @app.errorhandler(401)
     def unauthorized(error):
         """Handle 401 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Unauthorized',
-            'message': 'Authentication is required to access this resource',
-            'status_code': 401
-        }), 401
+        return error_response(ErrorCode.UNAUTHORIZED, status=401)
 
     @app.errorhandler(403)
     def forbidden(error):
         """Handle 403 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Forbidden',
-            'message': 'You do not have permission to access this resource',
-            'status_code': 403
-        }), 403
+        return error_response(ErrorCode.FORBIDDEN, status=403)
 
     @app.errorhandler(405)
     def method_not_allowed(error):
         """Handle 405 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Method Not Allowed',
-            'message': 'The method is not allowed for the requested URL',
-            'status_code': 405
-        }), 405
+        return error_response(
+            ErrorCode.FORBIDDEN,
+            status=405,
+            details={'reason': 'method_not_allowed'}
+        )
 
     @app.errorhandler(500)
     def internal_server_error(error):
         """Handle 500 errors"""
         app.logger.error(f'Internal server error: {str(error)}')
-        return jsonify({
-            'success': False,
-            'error': 'Internal Server Error',
-            'message': 'An internal server error occurred',
-            'status_code': 500
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, status=500)
 
 
 # ============================================================================

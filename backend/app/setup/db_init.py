@@ -149,7 +149,12 @@ class DatabaseInitializer:
 
             if not exists:
                 # Create database
-                cursor.execute(f'CREATE DATABASE {self.db_name}')
+                from psycopg import sql
+                cursor.execute(
+                    sql.SQL("CREATE DATABASE {}").format(
+                        sql.Identifier(self.db_name)
+                    )
+                )
                 cursor.close()
                 conn.close()
                 return True

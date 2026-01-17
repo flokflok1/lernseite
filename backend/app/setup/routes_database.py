@@ -293,7 +293,13 @@ def configure_database():
 
             # Create database if it doesn't exist
             if not db_exists:
-                cursor.execute(f"CREATE DATABASE {dbname} OWNER {user}")
+                from psycopg import sql
+                cursor.execute(
+                    sql.SQL("CREATE DATABASE {} OWNER {}").format(
+                        sql.Identifier(dbname),
+                        sql.Identifier(user)
+                    )
+                )
 
                 # Connect to new database and enable extensions
                 cursor.close()

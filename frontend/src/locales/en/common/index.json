@@ -82,24 +82,282 @@
     "workInProgress": "Implementation in progress",
     "yes": "Yes"
   },
-  "errors": {
-    "forbidden": "Access denied",
-    "generic": "An error occurred",
-    "invalid_email": "Invalid email address",
-    "max_length": "Maximum {max} characters allowed",
-    "min_length": "Minimum {min} characters required",
+  "error": {
+    "generic": {
+      "internalError": "An internal error occurred. Please try again later.",
+      "notFound": "Resource not found",
+      "badRequest": "Invalid request",
+      "businessLogicError": "Operation not allowed",
+      "forbidden": "Access denied"
+    },
+    "auth": {
+      "unauthorized": "Not authorized - please log in",
+      "login": {
+        "invalidCredentials": "Invalid email or password"
+      },
+      "token": {
+        "expired": "Your session has expired. Please log in again.",
+        "invalid": "Invalid authentication token",
+        "missing": "Authentication token is required"
+      },
+      "permissions": {
+        "insufficient": "You don't have permission to perform this action"
+      },
+      "account": {
+        "disabled": "Your account has been disabled"
+      },
+      "email": {
+        "notVerified": "Please verify your email address"
+      },
+      "session": {
+        "expired": "Your session has expired"
+      }
+    },
+    "validation": {
+      "validationError": "Validation error",
+      "requiredField": "This field is required",
+      "invalidFormat": "Invalid format",
+      "invalidValue": "Invalid value",
+      "requestBodyRequired": "Request body is required",
+      "invalid_email": "Invalid email address",
+      "max_length": "Maximum {max} characters allowed",
+      "min_length": "Minimum {min} characters required",
+      "password_min_length": "Password must be at least 8 characters",
+      "password_mismatch": "Passwords do not match",
+      "password_number": "Password must contain at least one number",
+      "password_uppercase": "Password must contain at least one uppercase letter"
+    },
+    "user": {
+      "notFound": "User not found",
+      "email": {
+        "alreadyExists": "Email address is already in use"
+      },
+      "username": {
+        "alreadyExists": "Username is already taken"
+      },
+      "create": {
+        "failed": "Failed to create user"
+      },
+      "update": {
+        "failed": "Failed to update user"
+      },
+      "delete": {
+        "failed": "Failed to delete user"
+      }
+    },
+    "course": {
+      "notFound": "Course not found",
+      "create": {
+        "failed": "Failed to create course"
+      },
+      "update": {
+        "failed": "Failed to update course"
+      },
+      "delete": {
+        "failed": "Failed to delete course"
+      },
+      "access": {
+        "denied": "You don't have access to this course"
+      },
+      "enrollment": {
+        "alreadyEnrolled": "You are already enrolled in this course",
+        "notEnrolled": "You are not enrolled in this course"
+      },
+      "validation": {
+        "titleRequired": "Course title is required"
+      }
+    },
+    "chapter": {
+      "notFound": "Chapter not found",
+      "create": {
+        "failed": "Failed to create chapter"
+      },
+      "update": {
+        "failed": "Failed to update chapter"
+      },
+      "delete": {
+        "failed": "Failed to delete chapter"
+      },
+      "validation": {
+        "titleRequired": "Chapter title is required"
+      }
+    },
+    "lesson": {
+      "notFound": "Lesson not found",
+      "create": {
+        "failed": "Failed to create lesson"
+      },
+      "update": {
+        "failed": "Failed to update lesson"
+      },
+      "delete": {
+        "failed": "Failed to delete lesson"
+      }
+    },
+    "learningMethod": {
+      "notFound": "Learning method not found",
+      "create": {
+        "failed": "Failed to create learning method"
+      },
+      "update": {
+        "failed": "Failed to update learning method"
+      },
+      "delete": {
+        "failed": "Failed to delete learning method"
+      },
+      "validation": {
+        "invalidType": "Invalid learning method type"
+      },
+      "generation": {
+        "failed": "Failed to generate learning method"
+      }
+    },
+    "ai": {
+      "generation": {
+        "failed": "Failed to generate AI content"
+      },
+      "provider": {
+        "failed": "AI provider error"
+      },
+      "quota": {
+        "exceeded": "You have exceeded your AI quota"
+      },
+      "model": {
+        "notFound": "AI model not found"
+      },
+      "job": {
+        "notFound": "AI job not found",
+        "failed": "AI job failed"
+      },
+      "session": {
+        "notFound": "AI session not found",
+        "create": {
+          "failed": "Failed to create AI session"
+        }
+      }
+    },
+    "theory": {
+      "notFound": "Theory content not found",
+      "alreadyExists": "Theory content already exists",
+      "generation": {
+        "failed": "Failed to generate theory content"
+      },
+      "update": {
+        "failed": "Failed to update theory content"
+      },
+      "delete": {
+        "failed": "Failed to delete theory content"
+      },
+      "validation": {
+        "titleRequired": "Theory title is required"
+      },
+      "audio": {
+        "notAvailable": "Audio is not available for this theory"
+      }
+    },
+    "exam": {
+      "notFound": "Exam not found",
+      "create": {
+        "failed": "Failed to create exam"
+      },
+      "generation": {
+        "failed": "Failed to generate exam"
+      },
+      "submit": {
+        "failed": "Failed to submit exam"
+      },
+      "submission": {
+        "alreadySubmitted": "You have already submitted this exam"
+      }
+    },
+    "file": {
+      "notFound": "File not found",
+      "upload": {
+        "failed": "Failed to upload file"
+      },
+      "validation": {
+        "tooLarge": "File is too large",
+        "invalidFormat": "Invalid file format",
+        "noFileProvided": "No file was provided",
+        "invalidBase64": "Invalid Base64 encoding"
+      }
+    },
+    "audio": {
+      "notFound": "Audio file not found",
+      "upload": {
+        "failed": "Failed to upload audio"
+      },
+      "validation": {
+        "noFileProvided": "No audio file was provided",
+        "invalidFormat": "Invalid audio format",
+        "tooLarge": "Audio file is too large"
+      },
+      "transcription": {
+        "failed": "Failed to transcribe audio"
+      }
+    },
+    "organization": {
+      "notFound": "Organization not found",
+      "create": {
+        "failed": "Failed to create organization"
+      },
+      "update": {
+        "failed": "Failed to update organization"
+      },
+      "member": {
+        "notFound": "Organization member not found"
+      },
+      "quota": {
+        "exceeded": "Organization quota exceeded"
+      }
+    },
+    "category": {
+      "notFound": "Category not found",
+      "create": {
+        "failed": "Failed to create category"
+      },
+      "delete": {
+        "failed": "Failed to delete category"
+      },
+      "constraint": {
+        "hasCourses": "Cannot delete category with courses"
+      }
+    },
+    "math": {
+      "pattern": {
+        "notFound": "Math pattern not found",
+        "create": {
+          "failed": "Failed to create math pattern"
+        }
+      },
+      "formula": {
+        "notFound": "Math formula not found",
+        "create": {
+          "failed": "Failed to create math formula"
+        }
+      },
+      "session": {
+        "notFound": "Math session not found",
+        "create": {
+          "failed": "Failed to create math session"
+        }
+      },
+      "validation": {
+        "expressionRequired": "Math expression is required"
+      }
+    },
+    "feedback": {
+      "create": {
+        "failed": "Failed to submit feedback"
+      },
+      "validation": {
+        "invalidType": "Invalid feedback type"
+      }
+    },
     "network": "Network error - please try again",
-    "not_found": "Not found",
-    "pageNotFound": "Page not found",
-    "pageNotFoundDesc": "The page you are looking for does not exist.",
-    "password_min_length": "Password must be at least 8 characters",
-    "password_mismatch": "Passwords do not match",
-    "password_number": "Password must contain at least one number",
-    "password_uppercase": "Password must contain at least one uppercase letter",
-    "required": "This field is required",
-    "required_field": "{field} is required",
     "server": "Server error - please try again later",
-    "unauthorized": "Not authorized - please log in"
+    "pageNotFound": "Page not found",
+    "pageNotFoundDesc": "The page you are looking for does not exist."
   },
   "i18n": {
     "completion": "{percent}% translated",

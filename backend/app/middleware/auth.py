@@ -20,6 +20,7 @@ from flask_jwt_extended import (
 )
 
 from app.repositories.user import UserRepository
+from app.i18n.error_codes import ErrorCode, error_response
 
 
 # Role hierarchy for RBAC (RBAC 2.0 - Owner at level 10)
@@ -112,28 +113,16 @@ def token_required(fn: Callable) -> Callable:
             # Get user ID from token
             user_id = get_jwt_identity()
             if not user_id:
-                return jsonify({
-                    'success': False,
-                    'error': 'Invalid token',
-                    'message': 'User ID not found in token'
-                }), 401
+                return error_response(ErrorCode.AUTH_TOKEN_INVALID, status=401)
 
             # Fetch user from database
             user = UserRepository.find_by_id(user_id)
             if not user:
-                return jsonify({
-                    'success': False,
-                    'error': 'User not found',
-                    'message': 'User associated with token does not exist'
-                }), 401
+                return error_response(ErrorCode.USER_NOT_FOUND, status=401)
 
             # Check if user is active
             if not user.get('is_active', True):
-                return jsonify({
-                    'success': False,
-                    'error': 'Account deactivated',
-                    'message': 'Your account has been deactivated'
-                }), 403
+                return error_response(ErrorCode.AUTH_ACCOUNT_DISABLED, status=403)
 
             # Store user in request context
             g.current_user = user
@@ -141,11 +130,7 @@ def token_required(fn: Callable) -> Callable:
             return fn(*args, **kwargs)
 
         except Exception as e:
-            return jsonify({
-                'success': False,
-                'error': 'Authentication failed',
-                'message': str(e)
-            }), 401
+            return error_response(ErrorCode.AUTH_TOKEN_INVALID, status=401)
 
     return wrapper
 
@@ -176,13 +161,14 @@ def role_required(*allowed_roles: str) -> Callable:
 
             # Check if user has one of the allowed roles
             if user_role not in allowed_roles:
-                return jsonify({
-                    'success': False,
-                    'error': 'Insufficient permissions',
-                    'message': f'This endpoint requires one of these roles: {", ".join(allowed_roles)}',
-                    'required_roles': list(allowed_roles),
-                    'user_role': user_role
-                }), 403
+                return error_response(
+                    ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
+                    status=403,
+                    details={
+                        'required_roles': list(allowed_roles),
+                        'user_role': user_role
+                    }
+                )
 
             return fn(*args, **kwargs)
 
@@ -213,12 +199,11 @@ def admin_required(fn: Callable) -> Callable:
         # Check if user is admin or above (RBAC 2.0: dynamic from DB)
         from app.services.permission_service import PermissionService
         if not PermissionService.check_threshold(user, 'view_any_resource'):
-            return jsonify({
-                'success': False,
-                'error': 'Admin access required',
-                'message': 'This endpoint requires admin privileges or higher',
-                'user_role': user_role
-            }), 403
+            return error_response(
+                ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
+                status=403,
+                details={'user_role': user_role}
+            )
 
         return fn(*args, **kwargs)
 
@@ -287,15 +272,14 @@ def permission_required(*permissions: str) -> Callable:
                     break
 
             if not has_any_permission:
-                return jsonify({
-                    'success': False,
-                    'error': {
-                        'code': 'FORBIDDEN',
-                        'message': 'Insufficient permissions',
+                return error_response(
+                    ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
+                    status=403,
+                    details={
                         'required_permissions': list(permissions),
                         'user_role': user_role
                     }
-                }), 403
+                )
 
             return fn(*args, **kwargs)
 
@@ -325,11 +309,11 @@ def organisation_member_required(fn: Callable) -> Callable:
         user = g.current_user
 
         if not user.get('organization_id'):
-            return jsonify({
-                'success': False,
-                'error': 'Organisation membership required',
-                'message': 'This endpoint requires you to be part of an organisation'
-            }), 403
+            return error_response(
+                ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
+                status=403,
+                details={'reason': 'organisation_membership_required'}
+            )
 
         return fn(*args, **kwargs)
 

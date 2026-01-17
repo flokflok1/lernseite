@@ -64,27 +64,6 @@ CREATE TRIGGER update_lessons_updated_at BEFORE UPDATE ON courses.lessons
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
--- TABLE: chapter_theory
--- Description: Theory sheets for chapters (e.g., chapter summary)
--- ============================================================================
-CREATE TABLE IF NOT EXISTS courses.chapter_theory (
-    theory_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    chapter_id UUID NOT NULL REFERENCES courses.chapters(chapter_id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    is_summary BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    CONSTRAINT unique_chapter_summary UNIQUE (chapter_id, is_summary) WHERE is_summary = TRUE
-);
-
-CREATE INDEX IF NOT EXISTS idx_chapter_theory_chapter ON courses.chapter_theory (chapter_id);
-CREATE INDEX IF NOT EXISTS idx_chapter_theory_is_summary ON courses.chapter_theory (chapter_id, is_summary);
-
-COMMENT ON TABLE courses.chapter_theory IS 'Theory sheets and summaries for chapters';
-COMMENT ON COLUMN courses.chapter_theory.is_summary IS 'TRUE for chapter summary (one per chapter), FALSE for additional theory sheets';
-
--- ============================================================================
 -- TABLE: lesson_theory
 -- Description: Theory sheets for lessons
 -- ============================================================================

@@ -6,26 +6,26 @@
 <template>
   <div class="header-bar">
     <div class="header-left">
-      <h2 class="header-title">{{ $t('windows.aiEditorGlobalSettings.title') }}</h2>
+      <h2 class="header-title">{{ $t('features.aiEditorGlobalSettings.title') }}</h2>
       <div class="header-stats">
-        <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('windows.aiEditorGlobalSettings.models') }}</span>
+        <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('features.aiEditorGlobalSettings.models') }}</span>
         <span class="stat-divider">|</span>
-        <span class="stat-item">{{ stats.providers || 0 }} {{ $t('windows.aiEditorGlobalSettings.providers') }}</span>
+        <span class="stat-item">{{ stats.providers || 0 }} {{ $t('features.aiEditorGlobalSettings.providers') }}</span>
         <span class="stat-divider">|</span>
-        <span class="stat-item">{{ categoriesCount }} {{ $t('windows.aiEditorGlobalSettings.categories') }}</span>
+        <span class="stat-item">{{ categoriesCount }} {{ $t('features.aiEditorGlobalSettings.categories') }}</span>
       </div>
     </div>
     <div class="header-actions">
       <button @click="$emit('openPricing')" class="btn-action pricing">
-        {{ $t('windows.aiPricing.title') }}
+        {{ $t('features.aiPricing.title') }}
       </button>
       <button @click="$emit('syncAll')" :disabled="isSyncing" class="btn-action">
         <span :class="{ 'animate-spin': isSyncing }">🔄</span>
-        {{ isSyncing ? $t('windows.aiEditorGlobalSettings.syncing') : $t('windows.aiEditorGlobalSettings.syncAll') }}
+        {{ isSyncing ? $t('features.aiEditorGlobalSettings.syncing') : $t('features.aiEditorGlobalSettings.syncAll') }}
       </button>
       <button @click="$emit('testAll')" :disabled="isTesting" class="btn-action secondary">
         <span :class="{ 'animate-spin': isTesting }">🔌</span>
-        {{ isTesting ? $t('windows.aiEditorGlobalSettings.testing') : $t('windows.aiEditorGlobalSettings.testAll') }}
+        {{ isTesting ? $t('features.aiEditorGlobalSettings.testing') : $t('features.aiEditorGlobalSettings.testAll') }}
       </button>
     </div>
   </div>

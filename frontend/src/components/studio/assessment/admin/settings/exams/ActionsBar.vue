@@ -6,17 +6,17 @@
 <template>
   <div class="actions-bar">
     <div class="token-summary">
-      <span class="summary-label">{{ $t('windows.aiEditorFeatures.estimatedTokens') }}:</span>
+      <span class="summary-label">{{ $t('features.aiEditorFeatures.estimatedTokens') }}:</span>
       <span class="summary-value">{{ estimatedTokens.toLocaleString() }}</span>
       <span class="summary-cost">(~{{ (estimatedTokens * 0.00002).toFixed(4) }}€)</span>
     </div>
     <div class="action-buttons">
       <button @click="$emit('reset')" class="btn-secondary">
-        {{ $t('windows.aiEditorFeatures.reset') }}
+        {{ $t('features.aiEditorFeatures.reset') }}
       </button>
       <button @click="$emit('save')" :disabled="isSaving" class="btn-primary">
         <span v-if="isSaving" class="spinner-small"></span>
-        {{ $t('windows.aiEditorFeatures.save') }}
+        {{ $t('features.aiEditorFeatures.save') }}
       </button>
     </div>
   </div>

@@ -6,16 +6,16 @@
   <div class="explanation-settings">
     <div class="panel-header">
       <span class="panel-icon">⚙️</span>
-      <span class="panel-title">{{ $t('windows.lessonExplanationView.settings') }}</span>
+      <span class="panel-title">{{ $t('features.lessonExplanationView.settings') }}</span>
     </div>
 
     <div class="settings-content">
       <!-- TTS Settings -->
       <div class="settings-section">
-        <h4>{{ $t('windows.lessonExplanationView.tts.title') }}</h4>
+        <h4>{{ $t('features.lessonExplanationView.tts.title') }}</h4>
 
         <div class="setting-row">
-          <label>{{ $t('windows.lessonExplanationView.tts.autoPlay') }}</label>
+          <label>{{ $t('features.lessonExplanationView.tts.autoPlay') }}</label>
           <button
             @click="$emit('update:autoPlay', !autoPlay)"
             class="toggle-btn"
@@ -23,36 +23,36 @@
           >
             {{
               autoPlay
-                ? $t('windows.lessonExplanationView.tts.on')
-                : $t('windows.lessonExplanationView.tts.off')
+                ? $t('features.lessonExplanationView.tts.on')
+                : $t('features.lessonExplanationView.tts.off')
             }}
           </button>
         </div>
 
         <div class="setting-row">
-          <label>{{ $t('windows.lessonExplanationView.tts.speed') }}</label>
+          <label>{{ $t('features.lessonExplanationView.tts.speed') }}</label>
           <select
             :value="playbackSpeed"
             @input="$emit('update:playbackSpeed', ($event.target as HTMLSelectElement).value)"
             class="setting-select"
           >
-            <option value="0.75">{{ $t('windows.lessonExplanationView.tts.speedSlow') }}</option>
-            <option value="1">{{ $t('windows.lessonExplanationView.tts.speedNormal') }}</option>
-            <option value="1.25">{{ $t('windows.lessonExplanationView.tts.speedFast') }}</option>
+            <option value="0.75">{{ $t('features.lessonExplanationView.tts.speedSlow') }}</option>
+            <option value="1">{{ $t('features.lessonExplanationView.tts.speedNormal') }}</option>
+            <option value="1.25">{{ $t('features.lessonExplanationView.tts.speedFast') }}</option>
           </select>
         </div>
       </div>
 
       <!-- Quick Actions -->
       <div class="settings-section">
-        <h4>{{ $t('windows.lessonExplanationView.quickActions.title') }}</h4>
+        <h4>{{ $t('features.lessonExplanationView.quickActions.title') }}</h4>
 
         <button
           v-if="hasExplanation"
           @click="$emit('regenerate')"
           class="quick-action-btn"
         >
-          {{ $t('windows.lessonExplanationView.quickActions.regenerate') }}
+          {{ $t('features.lessonExplanationView.quickActions.regenerate') }}
         </button>
 
         <button
@@ -60,7 +60,7 @@
           @click="$emit('download-pdf')"
           class="quick-action-btn"
         >
-          {{ $t('windows.lessonExplanationView.quickActions.pdf') }}
+          {{ $t('features.lessonExplanationView.quickActions.pdf') }}
         </button>
 
         <button
@@ -68,21 +68,21 @@
           @click="$emit('share')"
           class="quick-action-btn"
         >
-          {{ $t('windows.lessonExplanationView.quickActions.share') }}
+          {{ $t('features.lessonExplanationView.quickActions.share') }}
         </button>
       </div>
 
       <!-- Info -->
       <div v-if="explanation" class="settings-section">
-        <h4>{{ $t('windows.lessonExplanationView.info.title') }}</h4>
+        <h4>{{ $t('features.lessonExplanationView.info.title') }}</h4>
 
         <div class="info-item">
-          <span class="info-label">{{ $t('windows.lessonExplanationView.info.created') }}</span>
+          <span class="info-label">{{ $t('features.lessonExplanationView.info.created') }}</span>
           <span class="info-value">{{ formatDate(explanation.createdAt) }}</span>
         </div>
 
         <div class="info-item">
-          <span class="info-label">{{ $t('windows.lessonExplanationView.info.steps') }}</span>
+          <span class="info-label">{{ $t('features.lessonExplanationView.info.steps') }}</span>
           <span class="info-value">{{ stepsCount }}</span>
         </div>
       </div>

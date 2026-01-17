@@ -9,7 +9,7 @@
 
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -197,13 +197,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const METHOD_CODE = 6
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -241,7 +241,7 @@ const removeScenario = (index: number) => {
 
 // Lade existierende Daten im Edit-Mode
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value.topic = existingData.topic || ''
     methodData.value.industry_context = existingData.industry_context || ''

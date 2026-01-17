@@ -223,7 +223,7 @@ class AIAdapter:
             ValueError: If messages format is invalid
 
         Usage:
-            >>> from app.ki import get_prompt_template
+            >>> from app.ai.configuration import get_prompt_template
             >>> template = get_prompt_template("explain_concept")
             >>> messages = template.render({
             ...     "course_title": "Python Basics",

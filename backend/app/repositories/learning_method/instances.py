@@ -20,7 +20,7 @@ import psycopg
 from psycopg.rows import dict_row
 
 from app.extensions import db_pool
-from app.ki.learning_method_mapping import validate_lm_id, get_method_by_id
+from app.ai.configuration.learning_method_mapping import validate_lm_id, get_method_by_id
 
 
 class LearningMethodInstanceRepository:

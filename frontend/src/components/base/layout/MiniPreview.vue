@@ -1,7 +1,7 @@
 <!--
   LSX Mini Preview for Minimized Windows
 
-  Hover-based preview showing live data for minimized windows.
+  Hover-based preview showing live data for minimized features.
   Three layouts: AI-Job, Course-Editor, Kapitel/Lesson-Editor
 
   Phase: B24-06 - Admin Desktop OS (Phase 4)
@@ -143,12 +143,12 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 const { t } = useI18n()
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
   position: { x: number; y: number }
   visible: boolean
 }

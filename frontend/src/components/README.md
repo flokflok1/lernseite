@@ -38,7 +38,7 @@ KI-Funktionen - nach Funktion gruppiert
 
 | Gruppe | Ordner | Inhalt |
 |--------|--------|--------|
-| **studio/** | `studio/` | AiStudioMain (Hauptkomponente) |
+| **studio/** | `studio/` | AiEditorMain (Hauptkomponente) |
 | | `studio/tabs/` | KursBuilderTab, TutorTab, ExamsTab, ModelsTab, GlobalSettingsTab, etc. |
 | **authoring/** | `authoring/kurs-builder/` | ChatPanel, MaterialsPanel, StructurePanel, WorkflowPanel |
 | | `authoring/tutor/` | ChapterTheoryView, LessonExplanationView |
@@ -95,7 +95,7 @@ KI-Funktionen - nach Funktion gruppiert
 | `LsxDesktopWindow.vue` | Basis-Fenster |
 | `LsxTaskbar.vue` | Taskleiste |
 | `windows/` | Admin-Fenster (Admin*Window.vue) |
-| `containers/` | Container für AI-Studio, Pricing |
+| `containers/` | Container für AI-Editor, Pricing |
 
 ---
 

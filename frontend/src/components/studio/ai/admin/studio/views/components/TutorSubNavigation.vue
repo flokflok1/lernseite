@@ -73,7 +73,7 @@
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Chapter, Lesson } from '../composables/useAiStudioState'
+import type { Chapter, Lesson } from '../composables/useAiEditorState'
 
 const { t } = useI18n()
 

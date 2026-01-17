@@ -10,9 +10,17 @@ from typing import Dict, Tuple, Optional, Any
 from datetime import datetime
 import logging
 
-from app.repositories.i18n_sync import (
-    SyncRepository, SyncMode, SyncStatus, ChangeType, Resolution,
-    SyncOperation
+from app.repositories.i18n_sync_ops import (
+    SyncMode, SyncStatus, SyncOperation, SyncOpsRepository
+)
+from app.repositories.i18n_sync_changes import (
+    ChangeType, SyncChangesRepository
+)
+from app.repositories.i18n_sync_resolutions import (
+    Resolution, SyncResolutionsRepository
+)
+from app.repositories.i18n_sync_repository import (
+    I18nSyncRepository
 )
 from app.repositories.i18n_translation import TranslationRepository
 from app.utils.exceptions import NotFoundError, BusinessLogicError

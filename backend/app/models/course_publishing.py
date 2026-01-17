@@ -8,7 +8,7 @@ Pydantic models for course publishing workflow:
 
 Publishing Workflow: draft → submitted → approved/rejected → published → community visibility
 
-Phase: AI Studio Implementation - Publishing System
+Phase: AI Editor Implementation - Publishing System
 """
 
 from typing import Optional, Literal

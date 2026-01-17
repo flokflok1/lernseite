@@ -108,10 +108,10 @@
 </template>
 
 <script setup lang="ts">
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import { useI18n } from 'vue-i18n'
 
-const windowStore = useWindowStore()
+const windowStore = usePanelStore()
 const { t } = useI18n()
 
 /**
@@ -124,14 +124,14 @@ const { t } = useI18n()
 function selectMode(mode: 'manual' | 'ai'): void {
   if (mode === 'ai') {
     // Open AI Studio
-    windowStore.openWindow({
-      type: 'admin-ai-studio',
+    windowStore.openPanel({
+      type: 'admin-ai-editor',
       title: t('admin.nav.aiEditor'),
       icon: '🤖'
     })
   } else {
     // Open Course Editor (Manual)
-    windowStore.openWindow({
+    windowStore.openPanel({
       type: 'admin-course-editor',
       title: t('admin.courseEditor.manualEditor'),
       icon: '✏️'

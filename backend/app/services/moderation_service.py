@@ -21,9 +21,11 @@ from flask import current_app
 
 from app.repositories.moderation_audit import ModerationAuditRepository, ModerationAction
 from app.repositories.course_publishing import CoursePublishingRepository
-from app.repositories.courses import CourseRepository
 from app.services.audit_service import AuditService
 from app.utils.exceptions import NotFoundError, ValidationError, ConflictError
+
+# NOTE: CourseRepository imported lazily (inside methods) to avoid circular imports
+# Import chain: repositories.courses -> cache_service -> services -> moderation_service -> repositories.courses
 
 
 class ModerationService:
@@ -91,6 +93,9 @@ class ModerationService:
         Raises:
             NotFoundError: If course not found
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:
@@ -174,6 +179,9 @@ class ModerationService:
         Raises:
             NotFoundError: If course not found
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:
@@ -355,6 +363,9 @@ class ModerationService:
         Raises:
             NotFoundError: If course not found
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:

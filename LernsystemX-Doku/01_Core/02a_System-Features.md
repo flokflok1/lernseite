@@ -24,6 +24,8 @@ Dieses Dokument beschreibt **System-Features**, die **keine Content-Lernmethoden
 - Kurs-übergreifend konfigurierbar
 - Benötigen oft externe Services (Container, KI-APIs, WebRTC)
 
+**📌 Backend-Integration:** Siehe `05_Technical/05_Backend-Struktur.md` **Abschnitt 1.5** für die detaillierte Backend-Implementierung und Flask-Blueprint-Struktur aller System-Features.
+
 ---
 
 ## Überblick – 25 System-Features

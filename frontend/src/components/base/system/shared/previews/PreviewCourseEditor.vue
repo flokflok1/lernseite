@@ -1,5 +1,5 @@
 <!--
-  Mini-Preview for Course Editor Window
+  Mini-Preview for Course Editor Panel
   Shows course metadata
 -->
 
@@ -34,15 +34,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
 
-const course = computed(() => props.window.payload?.course || {})
+const course = computed(() => props.panel.payload?.course || {})
 
 const statusLabel = computed(() => {
   const labels: Record<string, string> = {

@@ -400,12 +400,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 
 const { t } = useI18n()
 
-// Window store for opening Model Selector
-const windowStore = useWindowStore()
+// Panel store for opening Model Selector
+const windowStore = usePanelStore()
 
 // ============================================================================
 // Types
@@ -610,11 +610,11 @@ const formatPrice = (price: number | string | null | undefined): string => {
 }
 
 /**
- * Open Model Selector Window (Phase C3.1)
+ * Open Model Selector Panel (Phase C3.1)
  * Opens a draggable window with all available AI models
  */
 const openModelSelector = () => {
-  windowStore.openWindow({
+  windowStore.openPanel({
     type: 'admin-model-selector',
     title: 'AI Model Selector',
     icon: '🤖',

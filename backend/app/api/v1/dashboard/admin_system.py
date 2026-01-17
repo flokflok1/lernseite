@@ -24,7 +24,7 @@ from app.repositories.dashboard.core import DashboardRepository as AdminDashboar
 admin_dashboard_bp = Blueprint(
     'admin_dashboard',
     __name__,
-    url_prefix='/dashboard/admin/system'
+    url_prefix='/dashboard/admin-panel/system'
 )
 
 

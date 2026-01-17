@@ -1,6 +1,6 @@
 /**
  * Desktop Stores
- * Re-exports all desktop workspace-related stores (window)
+ * Re-exports all desktop workspace-related stores (panel management)
  */
 
-export * from './window.store'
+export * from './panel.store'

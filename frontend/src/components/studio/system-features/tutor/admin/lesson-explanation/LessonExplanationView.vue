@@ -216,7 +216,7 @@ async function handleGenerate(options: { style: string; voice: string; generateW
 async function handleRegenerate(): Promise<void> {
   if (!currentExplanation.value || !props.lesson?.lesson_id) return
 
-  const confirmed = confirm(t('windows.lessonExplanationView.confirmRegenerate'))
+  const confirmed = confirm(t('features.lessonExplanationView.confirmRegenerate'))
   if (!confirmed) return
 
   try {

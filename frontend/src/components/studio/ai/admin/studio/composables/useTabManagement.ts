@@ -25,49 +25,49 @@ export function useTabManagement(kursBuilderRef?: Ref<any>) {
     {
       id: 'builder',
       icon: '📚',
-      label: t('windows.aiEditorPro.tabs.builder'),
+      label: t('features.aiEditorPro.tabs.builder'),
       badge: kursBuilderRef?.value?.hasSession ? '●' : undefined,
       badgeColor: 'bg-green-500 text-white'
     },
     {
       id: 'tutor',
       icon: '🤖',
-      label: t('windows.aiEditorPro.tabs.tutor')
+      label: t('features.aiEditorPro.tabs.tutor')
     },
     {
       id: 'methods',
       icon: '🧩',
-      label: t('windows.aiEditorPro.tabs.methods')
+      label: t('features.aiEditorPro.tabs.methods')
     },
     {
       id: 'exams',
       icon: '📝',
-      label: t('windows.aiEditorPro.tabs.exams')
+      label: t('features.aiEditorPro.tabs.exams')
     },
     {
       id: 'features',
       icon: '🎛️',
-      label: t('windows.aiEditorPro.tabs.features')
+      label: t('features.aiEditorPro.tabs.features')
     },
     {
       id: 'prompts',
       icon: '📄',
-      label: t('windows.aiEditorPro.tabs.prompts')
+      label: t('features.aiEditorPro.tabs.prompts')
     },
     {
       id: 'analytics',
       icon: '📊',
-      label: t('windows.aiEditorPro.tabs.analytics')
+      label: t('features.aiEditorPro.tabs.analytics')
     },
     {
       id: 'settings',
       icon: '⚙️',
-      label: t('windows.aiEditorPro.tabs.settings')
+      label: t('features.aiEditorPro.tabs.settings')
     },
     {
       id: 'global',
       icon: '🌐',
-      label: t('windows.aiEditorPro.tabs.global')
+      label: t('features.aiEditorPro.tabs.global')
     }
   ])
 

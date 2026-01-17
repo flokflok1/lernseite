@@ -10,7 +10,7 @@
 
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -18,12 +18,12 @@
       <!-- Prozess-Titel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm01.processTitleLabel') }}
+          {{ $t('features.learningMethods.lm01.processTitleLabel') }}
         </label>
         <input
           v-model="methodData.process_title"
           type="text"
-          :placeholder="$t('windows.learningMethods.lm01.processTitlePlaceholder')"
+          :placeholder="$t('features.learningMethods.lm01.processTitlePlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -32,12 +32,12 @@
       <!-- Einleitung -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm01.introductionLabel') }}
+          {{ $t('features.learningMethods.lm01.introductionLabel') }}
         </label>
         <textarea
           v-model="methodData.introduction"
           rows="2"
-          :placeholder="$t('windows.learningMethods.lm01.introductionPlaceholder')"
+          :placeholder="$t('features.learningMethods.lm01.introductionPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -46,25 +46,25 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            {{ $t('windows.learningMethods.lm01.stepsLabel') }}
+            {{ $t('features.learningMethods.lm01.stepsLabel') }}
           </label>
           <button
             @click="addStep"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            {{ $t('windows.learningMethods.lm01.addStep') }}
+            {{ $t('features.learningMethods.lm01.addStep') }}
           </button>
         </div>
 
         <div v-if="methodData.steps.length === 0" class="text-sm text-[var(--color-text-secondary)] italic mb-3">
-          {{ $t('windows.learningMethods.lm01.noSteps') }}
+          {{ $t('features.learningMethods.lm01.noSteps') }}
         </div>
 
         <div v-for="(step, index) in methodData.steps" :key="index" class="mb-4 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface-secondary)]">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-bold text-[var(--color-primary)]">
-              {{ $t('windows.learningMethods.lm01.stepNumber', { n: index + 1 }) }}
+              {{ $t('features.learningMethods.lm01.stepNumber', { n: index + 1 }) }}
             </span>
             <div class="flex gap-2">
               <button
@@ -73,7 +73,7 @@
                 type="button"
                 class="text-sm text-[var(--color-primary)] hover:underline disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                {{ $t('windows.learningMethods.lm01.moveUp') }}
+                {{ $t('features.learningMethods.lm01.moveUp') }}
               </button>
               <button
                 @click="moveStepDown(index)"
@@ -81,14 +81,14 @@
                 type="button"
                 class="text-sm text-[var(--color-primary)] hover:underline disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                {{ $t('windows.learningMethods.lm01.moveDown') }}
+                {{ $t('features.learningMethods.lm01.moveDown') }}
               </button>
               <button
                 @click="removeStep(index)"
                 type="button"
                 class="text-sm text-red-500 hover:underline"
               >
-                {{ $t('windows.learningMethods.lm01.removeStep') }}
+                {{ $t('features.learningMethods.lm01.removeStep') }}
               </button>
             </div>
           </div>
@@ -97,12 +97,12 @@
             <!-- Schritt-Titel -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm01.stepTitleLabel') }}
+                {{ $t('features.learningMethods.lm01.stepTitleLabel') }}
               </label>
               <input
                 v-model="step.title"
                 type="text"
-                :placeholder="$t('windows.learningMethods.lm01.stepTitlePlaceholder')"
+                :placeholder="$t('features.learningMethods.lm01.stepTitlePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -111,12 +111,12 @@
             <!-- Schritt-Beschreibung -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm01.stepDescriptionLabel') }}
+                {{ $t('features.learningMethods.lm01.stepDescriptionLabel') }}
               </label>
               <textarea
                 v-model="step.description"
                 rows="3"
-                :placeholder="$t('windows.learningMethods.lm01.stepDescriptionPlaceholder')"
+                :placeholder="$t('features.learningMethods.lm01.stepDescriptionPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -125,12 +125,12 @@
             <!-- Hinweis (optional) -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm01.stepHintLabel') }}
+                {{ $t('features.learningMethods.lm01.stepHintLabel') }}
               </label>
               <input
                 v-model="step.hint"
                 type="text"
-                :placeholder="$t('windows.learningMethods.lm01.stepHintPlaceholder')"
+                :placeholder="$t('features.learningMethods.lm01.stepHintPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -141,12 +141,12 @@
       <!-- Zusammenfassung -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm01.summaryLabel') }}
+          {{ $t('features.learningMethods.lm01.summaryLabel') }}
         </label>
         <textarea
           v-model="methodData.summary"
           rows="2"
-          :placeholder="$t('windows.learningMethods.lm01.summaryPlaceholder')"
+          :placeholder="$t('features.learningMethods.lm01.summaryPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -157,14 +157,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const { t } = useI18n()
 const METHOD_CODE = 1
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -213,7 +213,7 @@ const moveStepDown = (index: number) => {
 
 // Lade existierende Daten im Edit-Mode
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value.process_title = existingData.process_title || ''
     methodData.value.introduction = existingData.introduction || ''

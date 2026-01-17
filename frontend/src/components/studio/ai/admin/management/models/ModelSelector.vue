@@ -1,5 +1,5 @@
 <!--
-  Admin Model Selector Window
+  Admin Model Selector Panel
   Phase C3.1: AI Model Selector System
 
   Features:
@@ -13,12 +13,12 @@
 -->
 
 <template>
-  <div class="admin-model-selector-window flex flex-col" style="height: 100%; max-height: 100%; overflow: hidden;">
+  <div class="admin-model-selector-panel flex flex-col" style="height: 100%; max-height: 100%; overflow: hidden;">
     <!-- Header -->
     <div class="p-4 border-b border-[var(--color-border)]">
       <div class="flex items-center justify-between mb-3">
         <div>
-          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('windows.modelSelector.title') }}</h3>
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('features.modelSelector.title') }}</h3>
           <p class="text-sm text-[var(--color-text-secondary)]">
             {{ scopeLabel }}
           </p>
@@ -29,10 +29,10 @@
             :disabled="syncing"
             class="px-3 py-1.5 text-sm bg-[var(--color-surface)] text-[var(--color-text-secondary)] rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-background)] transition-colors disabled:opacity-50"
           >
-            {{ syncing ? $t('windows.modelSelector.syncing') : $t('windows.modelSelector.sync') }}
+            {{ syncing ? $t('features.modelSelector.syncing') : $t('features.modelSelector.sync') }}
           </button>
           <span class="px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-            {{ $t('windows.modelSelector.modelCount', { count: filteredModels.length }) }}
+            {{ $t('features.modelSelector.modelCount', { count: filteredModels.length }) }}
           </span>
         </div>
       </div>
@@ -42,7 +42,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="$t('windows.modelSelector.searchPlaceholder')"
+          :placeholder="$t('features.modelSelector.searchPlaceholder')"
           class="w-full px-3 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
         />
       </div>
@@ -85,7 +85,7 @@
             <span v-if="prov.value !== 'all' && modelCountByProvider[prov.value]" class="ml-1 text-xs opacity-70">
               ({{ modelCountByProvider[prov.value] }})
             </span>
-            <span v-if="!prov.hasKey && prov.value !== 'all'" class="ml-1 text-xs" :title="$t('windows.modelSelector.noApiKey')">
+            <span v-if="!prov.hasKey && prov.value !== 'all'" class="ml-1 text-xs" :title="$t('features.modelSelector.noApiKey')">
               🔒
             </span>
           </button>
@@ -98,7 +98,7 @@
             type="checkbox"
             class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]/50"
           />
-          <span>{{ $t('windows.modelSelector.onlyConfigured') }}</span>
+          <span>{{ $t('features.modelSelector.onlyConfigured') }}</span>
         </label>
       </div>
     </div>
@@ -108,13 +108,13 @@
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="text-center">
           <div class="animate-pulse text-4xl mb-3">🤖</div>
-          <p class="text-[var(--color-text-secondary)]">{{ $t('windows.modelSelector.loading') }}</p>
+          <p class="text-[var(--color-text-secondary)]">{{ $t('features.modelSelector.loading') }}</p>
         </div>
       </div>
 
       <div v-else-if="filteredModels.length === 0" class="text-center py-12">
         <div class="text-4xl mb-3 opacity-30">🔍</div>
-        <p class="text-[var(--color-text-secondary)]">{{ $t('windows.modelSelector.noModels') }}</p>
+        <p class="text-[var(--color-text-secondary)]">{{ $t('features.modelSelector.noModels') }}</p>
       </div>
 
       <div v-else class="space-y-3">
@@ -144,7 +144,7 @@
                 {{ model.provider }}
               </span>
               <span v-if="model.is_default" class="px-2 py-0.5 rounded text-xs bg-[var(--color-success-bg,#d1fae5)] text-[var(--color-success-text,#065f46)]">
-                {{ $t('windows.modelSelector.badges.default') }}
+                {{ $t('features.modelSelector.badges.default') }}
               </span>
             </div>
           </div>
@@ -166,19 +166,19 @@
               {{ getSpeedLabel(model.speed) }}
             </span>
 
-            <!-- Context Window -->
+            <!-- Context Panel -->
             <span v-if="model.context_window" class="px-2 py-0.5 rounded text-xs bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)]">
               {{ formatContextWindow(model.context_window) }} ctx
             </span>
 
             <!-- Vision Support -->
             <span v-if="model.supports_vision" class="px-2 py-0.5 rounded text-xs bg-[var(--color-info-bg,#eff6ff)] text-[var(--color-info-text,#1e40af)]">
-              {{ $t('windows.modelSelector.badges.vision') }}
+              {{ $t('features.modelSelector.badges.vision') }}
             </span>
 
             <!-- Function Calling -->
             <span v-if="model.supports_functions" class="px-2 py-0.5 rounded text-xs bg-[var(--color-info-bg,#eff6ff)] text-[var(--color-info-text,#1e40af)]">
-              {{ $t('windows.modelSelector.badges.functions') }}
+              {{ $t('features.modelSelector.badges.functions') }}
             </span>
           </div>
 
@@ -186,20 +186,20 @@
           <div class="flex items-center justify-between pt-2 border-t border-[var(--color-border)]">
             <div class="flex gap-4 text-xs">
               <div>
-                <span class="text-[var(--color-text-muted)]">{{ $t('windows.modelSelector.priceLabels.input') }}:</span>
+                <span class="text-[var(--color-text-muted)]">{{ $t('features.modelSelector.priceLabels.input') }}:</span>
                 <span class="ml-1 font-mono text-[var(--color-text-secondary)]">{{ formatPrice(model.input_price_per_1k) }}/1K</span>
               </div>
               <div>
-                <span class="text-[var(--color-text-muted)]">{{ $t('windows.modelSelector.priceLabels.output') }}:</span>
+                <span class="text-[var(--color-text-muted)]">{{ $t('features.modelSelector.priceLabels.output') }}:</span>
                 <span class="ml-1 font-mono text-[var(--color-text-secondary)]">{{ formatPrice(model.output_price_per_1k) }}/1K</span>
               </div>
             </div>
             <button
               @click="openPriceEditor(model, $event)"
               class="px-2 py-1 text-xs bg-[var(--color-surface)] text-[var(--color-text-secondary)] rounded border border-[var(--color-border)] hover:bg-[var(--color-background)] hover:text-[var(--color-text-primary)] transition-colors"
-              :title="$t('windows.modelSelector.editPricesTitle')"
+              :title="$t('features.modelSelector.editPricesTitle')"
             >
-              {{ $t('windows.modelSelector.pricesButton') }}
+              {{ $t('features.modelSelector.pricesButton') }}
             </button>
           </div>
         </div>
@@ -209,25 +209,25 @@
     <!-- Selected Model Preview -->
     <div v-if="selectedModel" class="border-t border-[var(--color-border)] p-4 bg-[var(--color-surface)]">
       <div class="flex items-center justify-between mb-2">
-        <h4 class="font-semibold text-[var(--color-text-primary)]">{{ $t('windows.modelSelector.selectedPrefix') }}: {{ selectedModel.display_name }}</h4>
+        <h4 class="font-semibold text-[var(--color-text-primary)]">{{ $t('features.modelSelector.selectedPrefix') }}: {{ selectedModel.display_name }}</h4>
         <span class="text-xs text-[var(--color-text-muted)] font-mono">{{ selectedModel.model_name }}</span>
       </div>
       <div class="grid grid-cols-2 gap-2 text-sm">
         <div>
-          <span class="text-[var(--color-text-muted)]">{{ $t('windows.modelSelector.previewLabels.category') }}:</span>
+          <span class="text-[var(--color-text-muted)]">{{ $t('features.modelSelector.previewLabels.category') }}:</span>
           <span class="ml-2 text-[var(--color-text-primary)]">{{ getCategoryLabel(selectedModel.category) }}</span>
         </div>
         <div>
-          <span class="text-[var(--color-text-muted)]">{{ $t('windows.modelSelector.previewLabels.cost') }}:</span>
+          <span class="text-[var(--color-text-muted)]">{{ $t('features.modelSelector.previewLabels.cost') }}:</span>
           <span class="ml-2 text-[var(--color-text-primary)]">{{ getCostLabel(selectedModel.cost_level) }}</span>
         </div>
         <div>
-          <span class="text-[var(--color-text-muted)]">{{ $t('windows.modelSelector.previewLabels.speed') }}:</span>
+          <span class="text-[var(--color-text-muted)]">{{ $t('features.modelSelector.previewLabels.speed') }}:</span>
           <span class="ml-2 text-[var(--color-text-primary)]">{{ getSpeedLabel(selectedModel.speed) }}</span>
         </div>
         <div v-if="selectedModel.context_window">
-          <span class="text-[var(--color-text-muted)]">{{ $t('windows.modelSelector.previewLabels.context') }}:</span>
-          <span class="ml-2 text-[var(--color-text-primary)]">{{ formatContextWindow(selectedModel.context_window) }} {{ $t('windows.modelSelector.previewLabels.tokens') }}</span>
+          <span class="text-[var(--color-text-muted)]">{{ $t('features.modelSelector.previewLabels.context') }}:</span>
+          <span class="ml-2 text-[var(--color-text-primary)]">{{ formatContextWindow(selectedModel.context_window) }} {{ $t('features.modelSelector.previewLabels.tokens') }}</span>
         </div>
       </div>
     </div>
@@ -250,7 +250,7 @@
           :disabled="selectedModel.is_default || settingDefault"
           class="px-4 py-2 bg-[var(--color-surface)] text-[var(--color-text-primary)] rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-background)] transition-colors disabled:opacity-50"
         >
-          {{ settingDefault ? $t('windows.modelSelector.settingDefault') : (selectedModel.is_default ? $t('windows.modelSelector.isDefault') : $t('windows.modelSelector.setAsDefault')) }}
+          {{ settingDefault ? $t('features.modelSelector.settingDefault') : (selectedModel.is_default ? $t('features.modelSelector.isDefault') : $t('features.modelSelector.setAsDefault')) }}
         </button>
 
         <!-- Select Button -->
@@ -273,7 +273,7 @@
       <div class="bg-[var(--color-background)] rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-[var(--color-border)]">
-          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('windows.modelSelector.modal.title') }}</h3>
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('features.modelSelector.modal.title') }}</h3>
           <p class="text-sm text-[var(--color-text-secondary)] mt-1">
             {{ editingModel.display_name }}
             <span class="font-mono text-xs text-[var(--color-text-muted)]">({{ editingModel.model_name }})</span>
@@ -283,14 +283,14 @@
         <!-- Modal Body -->
         <div class="p-6 space-y-4">
           <div class="bg-[var(--color-surface)] rounded-lg p-4 text-sm text-[var(--color-text-secondary)]">
-            <p>{{ $t('windows.modelSelector.modal.priceInfo') }}</p>
-            <p class="mt-1 text-xs text-[var(--color-text-muted)]">{{ $t('windows.modelSelector.modal.priceExample') }}</p>
+            <p>{{ $t('features.modelSelector.modal.priceInfo') }}</p>
+            <p class="mt-1 text-xs text-[var(--color-text-muted)]">{{ $t('features.modelSelector.modal.priceExample') }}</p>
           </div>
 
           <!-- Input Price -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.modelSelector.modal.inputPriceLabel') }}
+              {{ $t('features.modelSelector.modal.inputPriceLabel') }}
             </label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]">$</span>
@@ -308,7 +308,7 @@
           <!-- Output Price -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.modelSelector.modal.outputPriceLabel') }}
+              {{ $t('features.modelSelector.modal.outputPriceLabel') }}
             </label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]">$</span>
@@ -326,11 +326,11 @@
           <!-- Quick Info -->
           <div class="grid grid-cols-2 gap-4 pt-2 text-xs text-[var(--color-text-muted)]">
             <div>
-              <span class="block">{{ $t('windows.modelSelector.modal.provider') }}:</span>
+              <span class="block">{{ $t('features.modelSelector.modal.provider') }}:</span>
               <span class="text-[var(--color-text-secondary)]">{{ editingModel.provider || '-' }}</span>
             </div>
             <div>
-              <span class="block">{{ $t('windows.modelSelector.modal.category') }}:</span>
+              <span class="block">{{ $t('features.modelSelector.modal.category') }}:</span>
               <span class="text-[var(--color-text-secondary)]">{{ getCategoryLabel(editingModel.category) }}</span>
             </div>
           </div>
@@ -349,7 +349,7 @@
             :disabled="savingPrice"
             class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
           >
-            {{ savingPrice ? $t('windows.modelSelector.modal.saving') : $t('common.save') }}
+            {{ savingPrice ? $t('features.modelSelector.modal.saving') : $t('common.save') }}
           </button>
         </div>
       </div>
@@ -360,7 +360,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import * as adminApi from '@/api/admin.api'
 import type { AIModelRegistryItem, AIModelRegistryCategory, AIModelUpdateRequest, AIProviderInfo } from '@/api/admin.api'
 
@@ -368,7 +368,7 @@ const { t } = useI18n()
 
 // Props
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 // Emits
@@ -387,26 +387,26 @@ const editPriceOutput = ref<number | null>(null)
 const savingPrice = ref(false)
 
 // Extract payload data
-const scope = computed(() => (props.window.payload?.scope as 'global' | 'course' | 'module') || 'global')
-const courseId = computed(() => props.window.payload?.courseId as string | undefined)
-const moduleId = computed(() => props.window.payload?.moduleId as number | undefined)
-const onSelectCallback = computed(() => props.window.payload?.onSelectModel as ((modelName: string) => void) | undefined)
+const scope = computed(() => (props.panel.payload?.scope as 'global' | 'course' | 'module') || 'global')
+const courseId = computed(() => props.panel.payload?.courseId as string | undefined)
+const moduleId = computed(() => props.panel.payload?.moduleId as number | undefined)
+const onSelectCallback = computed(() => props.panel.payload?.onSelectModel as ((modelName: string) => void) | undefined)
 
 // Scope label for header
 const scopeLabel = computed(() => {
   if (scope.value === 'course' && courseId.value) {
-    return t('windows.modelSelector.scopeCourse')
+    return t('features.modelSelector.scopeCourse')
   } else if (scope.value === 'module' && moduleId.value) {
-    return t('windows.modelSelector.scopeModule')
+    return t('features.modelSelector.scopeModule')
   }
-  return t('windows.modelSelector.scopeGlobal')
+  return t('features.modelSelector.scopeGlobal')
 })
 
 // Select button label
 const selectButtonLabel = computed(() => {
-  if (scope.value === 'course') return t('windows.modelSelector.selectForCourse')
-  if (scope.value === 'module') return t('windows.modelSelector.selectForModule')
-  return t('windows.modelSelector.selectModel')
+  if (scope.value === 'course') return t('features.modelSelector.selectForCourse')
+  if (scope.value === 'module') return t('features.modelSelector.selectForModule')
+  return t('features.modelSelector.selectModel')
 })
 
 // State
@@ -425,18 +425,18 @@ const searchQuery = ref('')
 // Category tabs
 const categoryTabs = computed(() => {
   const tabs = [
-    { value: 'all', label: t('windows.modelSelector.all'), icon: '🤖' }
+    { value: 'all', label: t('features.modelSelector.all'), icon: '🤖' }
   ]
 
   const categoryConfig: Record<string, { label: string; icon: string }> = {
-    chat: { label: t('windows.modelSelector.categories.chat'), icon: '💬' },
-    reasoning: { label: t('windows.modelSelector.categories.reasoning'), icon: '🧠' },
-    realtime: { label: t('windows.modelSelector.categories.realtime'), icon: '⚡' },
-    audio: { label: t('windows.modelSelector.categories.audio'), icon: '🎵' },
-    image: { label: t('windows.modelSelector.categories.image'), icon: '🖼️' },
-    video: { label: t('windows.modelSelector.categories.video'), icon: '🎬' },
-    embedding: { label: t('windows.modelSelector.categories.embedding'), icon: '📊' },
-    moderation: { label: t('windows.modelSelector.categories.moderation'), icon: '🛡️' }
+    chat: { label: t('features.modelSelector.categories.chat'), icon: '💬' },
+    reasoning: { label: t('features.modelSelector.categories.reasoning'), icon: '🧠' },
+    realtime: { label: t('features.modelSelector.categories.realtime'), icon: '⚡' },
+    audio: { label: t('features.modelSelector.categories.audio'), icon: '🎵' },
+    image: { label: t('features.modelSelector.categories.image'), icon: '🖼️' },
+    video: { label: t('features.modelSelector.categories.video'), icon: '🎬' },
+    embedding: { label: t('features.modelSelector.categories.embedding'), icon: '📊' },
+    moderation: { label: t('features.modelSelector.categories.moderation'), icon: '🛡️' }
   }
 
   for (const cat of categories.value) {
@@ -455,7 +455,7 @@ const categoryTabs = computed(() => {
 // Provider tabs
 const providerTabs = computed(() => {
   const tabs = [
-    { value: 'all', label: t('windows.modelSelector.allProviders'), icon: '🌐', hasKey: true }
+    { value: 'all', label: t('features.modelSelector.allProviders'), icon: '🌐', hasKey: true }
   ]
 
   const providerIcons: Record<string, string> = {
@@ -547,14 +547,14 @@ const getCategoryIcon = (category: string): string => {
 
 const getCategoryLabel = (category: string): string => {
   const labels: Record<string, string> = {
-    chat: t('windows.modelSelector.categories.chat'),
-    reasoning: t('windows.modelSelector.categories.reasoning'),
-    realtime: t('windows.modelSelector.categories.realtime'),
-    audio: t('windows.modelSelector.categories.audio'),
-    image: t('windows.modelSelector.categories.image'),
-    video: t('windows.modelSelector.categories.video'),
-    embedding: t('windows.modelSelector.categories.embedding'),
-    moderation: t('windows.modelSelector.categories.moderation')
+    chat: t('features.modelSelector.categories.chat'),
+    reasoning: t('features.modelSelector.categories.reasoning'),
+    realtime: t('features.modelSelector.categories.realtime'),
+    audio: t('features.modelSelector.categories.audio'),
+    image: t('features.modelSelector.categories.image'),
+    video: t('features.modelSelector.categories.video'),
+    embedding: t('features.modelSelector.categories.embedding'),
+    moderation: t('features.modelSelector.categories.moderation')
   }
   return labels[category] || category
 }
@@ -573,11 +573,11 @@ const getProviderBadgeClass = (provider: string): string => {
 
 const getCostLabel = (level: string): string => {
   const labels: Record<string, string> = {
-    free: t('windows.modelSelector.costLevels.free'),
-    low: t('windows.modelSelector.costLevels.low'),
-    medium: t('windows.modelSelector.costLevels.medium'),
-    high: t('windows.modelSelector.costLevels.high'),
-    very_high: t('windows.modelSelector.costLevels.veryHigh')
+    free: t('features.modelSelector.costLevels.free'),
+    low: t('features.modelSelector.costLevels.low'),
+    medium: t('features.modelSelector.costLevels.medium'),
+    high: t('features.modelSelector.costLevels.high'),
+    very_high: t('features.modelSelector.costLevels.veryHigh')
   }
   return labels[level] || level
 }
@@ -595,10 +595,10 @@ const getCostBadgeClass = (level: string): string => {
 
 const getSpeedLabel = (speed: string): string => {
   const labels: Record<string, string> = {
-    very_fast: t('windows.modelSelector.speedLevels.veryFast'),
-    fast: t('windows.modelSelector.speedLevels.fast'),
-    medium: t('windows.modelSelector.speedLevels.medium'),
-    slow: t('windows.modelSelector.speedLevels.slow')
+    very_fast: t('features.modelSelector.speedLevels.veryFast'),
+    fast: t('features.modelSelector.speedLevels.fast'),
+    medium: t('features.modelSelector.speedLevels.medium'),
+    slow: t('features.modelSelector.speedLevels.slow')
   }
   return labels[speed] || speed
 }
@@ -630,7 +630,7 @@ const loadModels = async (): Promise<void> => {
   loading.value = true
 
   try {
-    // Use registry endpoint for Model Selector Window
+    // Use registry endpoint for Model Selector Panel
     // configured_only is handled client-side for instant filtering
     const response = await adminApi.adminGetAIModelsRegistry({
       active_only: true
@@ -700,8 +700,8 @@ const confirmSelection = (): void => {
     onSelectCallback.value(selectedModel.value.model_name)
   }
 
-  // Dispatch global event for cross-window communication
-  const callbackId = props.window.payload?.callbackId as string | undefined
+  // Dispatch global event for cross-panel communication
+  const callbackId = props.panel.payload?.callbackId as string | undefined
   if (callbackId) {
     window.dispatchEvent(new CustomEvent('model-selected', {
       detail: {
@@ -722,7 +722,7 @@ const formatPrice = (price: number | string | null | undefined): string => {
   if (price === null || price === undefined || price === '') return '-'
   const numPrice = typeof price === 'string' ? parseFloat(price) : price
   if (isNaN(numPrice)) return '-'
-  if (numPrice === 0) return t('windows.modelSelector.free')
+  if (numPrice === 0) return t('features.modelSelector.free')
   // Price is per 1K tokens, format as currency
   return `$${numPrice.toFixed(4)}`
 }
@@ -775,7 +775,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.admin-model-selector-window {
+.admin-model-selector-panel {
   display: flex;
   flex-direction: column;
   height: 100%;

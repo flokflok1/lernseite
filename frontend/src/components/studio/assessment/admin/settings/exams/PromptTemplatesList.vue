@@ -7,9 +7,9 @@
   <div class="settings-card lg:col-span-2">
     <div class="card-header">
       <span class="card-icon">📝</span>
-      <span class="card-title">{{ $t('windows.aiEditorSettings.promptTemplates') }}</span>
+      <span class="card-title">{{ $t('features.aiEditorSettings.promptTemplates') }}</span>
       <button @click="$emit('addNew')" class="add-btn">
-        + {{ $t('windows.aiEditorSettings.newTemplate') }}
+        + {{ $t('features.aiEditorSettings.newTemplate') }}
       </button>
     </div>
     <div class="prompt-list">
@@ -17,7 +17,7 @@
         <div class="spinner small"></div>
       </div>
       <div v-else-if="!prompts.length" class="text-center py-4 text-[var(--color-text-tertiary)]">
-        {{ $t('windows.aiEditorSettings.noTemplates') }}
+        {{ $t('features.aiEditorSettings.noTemplates') }}
       </div>
       <div
         v-else
@@ -31,7 +31,7 @@
         </div>
         <div class="prompt-category">{{ prompt.category }}</div>
         <button @click="$emit('edit', prompt)" class="edit-btn">
-          {{ $t('windows.aiEditorSettings.edit') }}
+          {{ $t('features.aiEditorSettings.edit') }}
         </button>
       </div>
     </div>

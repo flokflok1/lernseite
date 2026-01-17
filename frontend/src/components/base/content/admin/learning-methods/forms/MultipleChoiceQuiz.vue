@@ -1,6 +1,6 @@
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -8,32 +8,32 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.title') }}
+            {{ $t('features.lm08.title') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            {{ $t('windows.lm08.description') }}
+            {{ $t('features.lm08.description') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.textLabel') }}
+            {{ $t('features.lm08.textLabel') }}
           </label>
           <textarea
             v-model="methodData.text"
             rows="8"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            :placeholder="$t('windows.lm08.textPlaceholder')"
+            :placeholder="$t('features.lm08.textPlaceholder')"
             required
           ></textarea>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.lm08.textHint') }}
+            {{ $t('features.lm08.textHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.blanksLabel') }}
+            {{ $t('features.lm08.blanksLabel') }}
           </label>
           <div v-if="detectedBlanks.length > 0" class="space-y-2">
             <div
@@ -49,7 +49,7 @@
                   v-model="methodData.blanks[index].answer"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  :placeholder="$t('windows.lm08.answerPlaceholder')"
+                  :placeholder="$t('features.lm08.answerPlaceholder')"
                   required
                 />
               </div>
@@ -58,13 +58,13 @@
                   v-model="methodData.blanks[index].alternatives"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  :placeholder="$t('windows.lm08.alternativesPlaceholder')"
+                  :placeholder="$t('features.lm08.alternativesPlaceholder')"
                 />
               </div>
             </div>
           </div>
           <div v-else class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-center text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.lm08.noBlanks') }}
+            {{ $t('features.lm08.noBlanks') }}
           </div>
         </div>
 
@@ -76,7 +76,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              {{ $t('windows.lm08.caseSensitiveLabel') }}
+              {{ $t('features.lm08.caseSensitiveLabel') }}
             </span>
           </label>
         </div>
@@ -89,7 +89,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              {{ $t('windows.lm08.showHintsLabel') }}
+              {{ $t('features.lm08.showHintsLabel') }}
             </span>
           </label>
         </div>
@@ -102,7 +102,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              {{ $t('windows.lm08.showWordBankLabel') }}
+              {{ $t('features.lm08.showWordBankLabel') }}
             </span>
           </label>
         </div>
@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { ref, computed, watch, onMounted } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const { t } = useI18n()
@@ -126,7 +126,7 @@ interface Blank {
 }
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -165,7 +165,7 @@ watch(detectedBlanks, (newBlanks) => {
 })
 
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value = {
       text: existingData.text || '',

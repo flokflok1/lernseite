@@ -15,7 +15,7 @@ Visibility Levels:
 - community: Visible in community (requires published status)
 - public: Public listing (future feature)
 
-Phase: AI Studio Implementation - Publishing System
+Phase: AI Editor Implementation - Publishing System
 """
 
 from typing import Optional, List, Dict, Any, Literal

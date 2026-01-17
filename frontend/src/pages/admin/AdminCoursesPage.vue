@@ -8,16 +8,16 @@
       </div>
       <div class="flex gap-2">
         <button
-          @click="openCourseCreateWindow"
+          @click="openCourseCreatePanel"
           class="px-3 py-1.5 text-sm bg-[var(--color-primary)] text-white rounded hover:bg-[var(--color-primary-dark)] transition-colors font-medium"
         >
           + {{ $t('admin.courses.create') }}
         </button>
         <button
-          @click="openWindowManager"
+          @click="openPanelManager"
           class="px-3 py-1.5 text-sm bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] rounded hover:bg-[var(--color-background)] transition-colors"
         >
-          {{ $t('admin.courses.windows') }}
+          {{ $t('admin.courses.panels') }}
         </button>
       </div>
     </div>
@@ -294,7 +294,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/modules/admin'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import type { Category } from '@/api/admin.api'
 
 interface Props {
@@ -308,7 +308,7 @@ const props = withDefaults(defineProps<Props>(), {
 const { t } = useI18n()
 const router = useRouter()
 const adminStore = useAdminStore()
-const windowStore = useWindowStore()
+const windowStore = usePanelStore()
 
 // ============================================================================
 // Mode Awareness
@@ -567,8 +567,8 @@ const getLevelLabel = (level?: string): string => {
 /**
  * Open course create window
  */
-function openCourseCreateWindow(): void {
-  windowStore.openWindow({
+function openCourseCreatePanel(): void {
+  windowStore.openPanel({
     type: 'admin-course-create',
     title: t('admin.courses.createNewCourse'),
     icon: '📚'
@@ -578,9 +578,9 @@ function openCourseCreateWindow(): void {
 /**
  * Open window manager
  */
-function openWindowManager(): void {
-  windowStore.openWindow({
-    type: 'admin-window-manager',
+function openPanelManager(): void {
+  windowStore.openPanel({
+    type: 'admin-panel-manager',
     title: t('admin.courses.windowManager'),
     icon: '🗂',
     size: { width: 400, height: 500 }

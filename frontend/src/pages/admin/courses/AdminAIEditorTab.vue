@@ -2,23 +2,23 @@
   AI Editor Tab Content
 
   Wrapper component that renders the AI Editor interface within a tab.
-  Handles the window prop requirement by providing a minimal window object.
+  Handles the window prop requirement by providing a minimal panel object.
 -->
 
 <template>
   <div class="admin-ai-editor-tab h-full">
-    <AiEditorWindow :window="windowData" />
+    <AiEditorPanel :window="windowData" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AiEditorWindow from '@/components/studio/ai/admin/studio/views/AiEditorWindow.vue'
+import AiEditorPanel from '@/components/studio/ai/admin/studio/views/AiEditorPanel.vue'
 
-// Create a minimal window object that satisfies AiEditorWindow's requirements
+// Create a minimal panel object that satisfies AiEditorPanel's requirements
 const windowData = ref({
   id: 'admin-ai-editor-tab',
-  type: 'admin-ai-studio',
+  type: 'admin-ai-editor',
   title: 'AI Editor',
   icon: '🤖',
   minimized: false,

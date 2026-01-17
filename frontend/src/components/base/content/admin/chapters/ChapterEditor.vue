@@ -1,5 +1,5 @@
 <!--
-  Admin Kapitel Editor Window - Phase 5 Complete
+  Admin Kapitel Editor Panel - Phase 5 Complete
 
   Full-featured chapter editor with:
   - Auto-save (debounced 800ms)
@@ -10,12 +10,12 @@
 -->
 
 <template>
-  <div class="admin-kapitel-editor-window h-full flex flex-col bg-[var(--color-bg)]">
+  <div class="admin-kapitel-editor-panel h-full flex flex-col bg-[var(--color-bg)]">
     <!-- Header with Course Context & Save Status -->
     <div class="bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 py-3">
       <div class="flex items-center justify-between">
         <p class="text-sm text-[var(--color-text-secondary)]">
-          {{ $t('windows.chapterEditor.courseLabel') }} <span class="font-medium text-[var(--color-text-primary)]">{{ courseTitle }}</span>
+          {{ $t('features.chapterEditor.courseLabel') }} <span class="font-medium text-[var(--color-text-primary)]">{{ courseTitle }}</span>
         </p>
         <!-- Save Status Indicator -->
         <div class="flex items-center gap-2 text-xs">
@@ -24,16 +24,16 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ $t('windows.chapterEditor.saving') }}
+            {{ $t('features.chapterEditor.saving') }}
           </span>
           <span v-else-if="saveStatus === 'saved'" class="text-green-600 flex items-center gap-1">
             <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
             </svg>
-            {{ $t('windows.chapterEditor.saved') }}
+            {{ $t('features.chapterEditor.saved') }}
           </span>
           <span v-else-if="saveStatus === 'error'" class="text-red-600">
-            {{ $t('windows.chapterEditor.saveError') }}
+            {{ $t('features.chapterEditor.saveError') }}
           </span>
         </div>
       </div>
@@ -43,7 +43,7 @@
     <div v-if="loading" class="flex-1 flex items-center justify-center">
       <div class="text-center">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[var(--color-primary)] mx-auto mb-3"></div>
-        <p class="text-sm text-[var(--color-text-secondary)]">{{ isNewChapter ? $t('windows.chapterEditor.preparing') : $t('windows.chapterEditor.loadingChapter') }}</p>
+        <p class="text-sm text-[var(--color-text-secondary)]">{{ isNewChapter ? $t('features.chapterEditor.preparing') : $t('features.chapterEditor.loadingChapter') }}</p>
       </div>
     </div>
 
@@ -56,7 +56,7 @@
           @click="loadChapter"
           class="mt-3 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700"
         >
-          {{ $t('windows.chapterEditor.retry') }}
+          {{ $t('features.chapterEditor.retry') }}
         </button>
       </div>
     </div>
@@ -97,16 +97,16 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
               </svg>
-              <span>{{ isGenerating ? $t('windows.chapterEditor.aiGenerating') : $t('windows.chapterEditor.aiGenerate') }}</span>
+              <span>{{ isGenerating ? $t('features.chapterEditor.aiGenerating') : $t('features.chapterEditor.aiGenerate') }}</span>
             </button>
             <p class="text-xs text-[var(--color-text-secondary)] text-center -mt-4 mb-2">
-              {{ $t('windows.chapterEditor.aiContextHint') }}
+              {{ $t('features.chapterEditor.aiContextHint') }}
             </p>
 
             <!-- Title -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.chapterEditor.chapterTitle') }}
+                {{ $t('features.chapterEditor.chapterTitle') }}
               </label>
               <input
                 v-model="form.title"
@@ -114,21 +114,21 @@
                 type="text"
                 required
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('windows.chapterEditor.titlePlaceholder')"
+                :placeholder="$t('features.chapterEditor.titlePlaceholder')"
               />
             </div>
 
             <!-- Description -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.chapterEditor.description') }}
+                {{ $t('features.chapterEditor.description') }}
               </label>
               <textarea
                 v-model="form.description"
                 @input="debouncedSave"
                 rows="6"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('windows.chapterEditor.descriptionPlaceholder')"
+                :placeholder="$t('features.chapterEditor.descriptionPlaceholder')"
               ></textarea>
             </div>
 
@@ -136,7 +136,7 @@
             <div v-if="isNewChapter" class="pt-6 border-t border-[var(--color-border)]">
               <div class="flex items-center justify-between">
                 <p class="text-sm text-[var(--color-text-secondary)]">
-                  💡 {{ $t('windows.chapterEditor.saveHint') }}
+                  💡 {{ $t('features.chapterEditor.saveHint') }}
                 </p>
                 <button
                   @click="saveChapter"
@@ -148,7 +148,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>{{ saveStatus === 'saving' ? $t('windows.chapterEditor.creating') : $t('windows.chapterEditor.createChapter') }}</span>
+                  <span>{{ saveStatus === 'saving' ? $t('features.chapterEditor.creating') : $t('features.chapterEditor.createChapter') }}</span>
                 </button>
               </div>
             </div>
@@ -160,9 +160,9 @@
           <div class="max-w-4xl">
             <div class="flex items-center justify-between mb-6">
               <div>
-                <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('windows.chapterEditor.theory.title') }}</h3>
+                <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('features.chapterEditor.theory.title') }}</h3>
                 <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-                  {{ $t('windows.chapterEditor.theory.description') }}
+                  {{ $t('features.chapterEditor.theory.description') }}
                 </p>
               </div>
             </div>
@@ -170,16 +170,16 @@
             <!-- Rich Text Editor Placeholder -->
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6">
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-3">
-                {{ $t('windows.chapterEditor.theory.contentLabel') }}
+                {{ $t('features.chapterEditor.theory.contentLabel') }}
               </label>
               <textarea
                 v-model="theoryContent"
                 rows="15"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] font-mono text-sm"
-                :placeholder="$t('windows.chapterEditor.theory.placeholder')"
+                :placeholder="$t('features.chapterEditor.theory.placeholder')"
               ></textarea>
               <p class="text-xs text-[var(--color-text-secondary)] mt-2">
-                💡 {{ $t('windows.chapterEditor.theory.editorHint') }}
+                💡 {{ $t('features.chapterEditor.theory.editorHint') }}
               </p>
             </div>
           </div>
@@ -190,9 +190,9 @@
           <div class="max-w-4xl">
             <div class="flex items-center justify-between mb-6">
               <div>
-                <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('windows.chapterEditor.videos.title') }}</h3>
+                <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('features.chapterEditor.videos.title') }}</h3>
                 <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-                  {{ $t('windows.chapterEditor.videos.description') }}
+                  {{ $t('features.chapterEditor.videos.description') }}
                 </p>
               </div>
               <button
@@ -200,15 +200,15 @@
                 class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors flex items-center gap-2"
               >
                 <span>+</span>
-                <span>{{ $t('windows.chapterEditor.videos.addVideo') }}</span>
+                <span>{{ $t('features.chapterEditor.videos.addVideo') }}</span>
               </button>
             </div>
 
             <!-- Videos List -->
             <div v-if="videos.length === 0" class="text-center py-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg">
               <div class="text-4xl mb-3">🎥</div>
-              <p class="text-[var(--color-text-secondary)]">{{ $t('windows.chapterEditor.videos.noVideos') }}</p>
-              <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ $t('windows.chapterEditor.videos.noVideosHint') }}</p>
+              <p class="text-[var(--color-text-secondary)]">{{ $t('features.chapterEditor.videos.noVideos') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ $t('features.chapterEditor.videos.noVideosHint') }}</p>
             </div>
 
             <div v-else class="space-y-4">
@@ -222,13 +222,13 @@
                     <input
                       v-model="video.title"
                       type="text"
-                      :placeholder="$t('windows.chapterEditor.videos.videoTitle')"
+                      :placeholder="$t('features.chapterEditor.videos.videoTitle')"
                       class="w-full px-3 py-2 mb-2 border border-[var(--color-border)] rounded bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                     />
                     <input
                       v-model="video.url"
                       type="text"
-                      :placeholder="$t('windows.chapterEditor.videos.videoUrl')"
+                      :placeholder="$t('features.chapterEditor.videos.videoUrl')"
                       class="w-full px-3 py-2 border border-[var(--color-border)] rounded bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                     />
                   </div>
@@ -254,21 +254,21 @@
             <div class="flex items-center justify-between mb-6">
               <div>
                 <h3 class="text-lg font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
-                  📚 {{ $t('windows.chapterEditor.methods.title') }}
+                  📚 {{ $t('features.chapterEditor.methods.title') }}
                   <span
                     v-if="learningMethods.length > 0"
                     class="text-sm font-normal px-2 py-0.5 rounded-full"
                     style="background-color: var(--color-primary-bg, #eff6ff); color: var(--color-primary);"
                   >
-                    {{ learningMethods.length }} {{ $t('windows.chapterEditor.methods.active') }}
+                    {{ learningMethods.length }} {{ $t('features.chapterEditor.methods.active') }}
                   </span>
                 </h3>
                 <p class="text-sm text-[var(--color-text-secondary)] mt-1">
                   <span v-if="learningMethods.length > 0">
-                    {{ learningMethods.filter(m => m.published).length }} {{ $t('windows.chapterEditor.methods.published') }},
-                    {{ learningMethods.filter(m => !m.published).length }} {{ $t('windows.chapterEditor.methods.draft') }}
+                    {{ learningMethods.filter(m => m.published).length }} {{ $t('features.chapterEditor.methods.published') }},
+                    {{ learningMethods.filter(m => !m.published).length }} {{ $t('features.chapterEditor.methods.draft') }}
                   </span>
-                  <span v-else>{{ $t('windows.chapterEditor.methods.noMethods') }}</span>
+                  <span v-else>{{ $t('features.chapterEditor.methods.noMethods') }}</span>
                 </p>
               </div>
               <button
@@ -279,14 +279,14 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                <span>{{ $t('windows.chapterEditor.methods.add') }}</span>
+                <span>{{ $t('features.chapterEditor.methods.add') }}</span>
               </button>
             </div>
 
             <!-- New Chapter Notice -->
             <div v-if="isNewChapter" class="rounded-lg p-4 border flex items-center gap-3" style="background-color: var(--color-info-bg, #eff6ff); border-color: var(--color-info-border, #bfdbfe);">
               <span class="flex-1 text-sm" style="color: var(--color-info-text, #1e40af);">
-                ℹ️ {{ $t('windows.chapterEditor.methods.saveFirstHint') }}
+                ℹ️ {{ $t('features.chapterEditor.methods.saveFirstHint') }}
               </span>
               <button
                 @click="saveAndEnableTab"
@@ -304,7 +304,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="ml-2 text-[var(--color-text-secondary)]">{{ $t('windows.chapterEditor.methods.loadingMethods') }}</span>
+              <span class="ml-2 text-[var(--color-text-secondary)]">{{ $t('features.chapterEditor.methods.loadingMethods') }}</span>
             </div>
 
             <!-- Interactive Group Cards -->
@@ -349,20 +349,20 @@
                   <!-- Stats -->
                   <div class="flex items-center justify-between text-xs">
                     <span :style="{ color: getGroupInfo(group).colors.text }">
-                      {{ methodStats[group].total }} {{ $t('windows.chapterEditor.methods.types') }}
+                      {{ methodStats[group].total }} {{ $t('features.chapterEditor.methods.types') }}
                     </span>
                     <span
                       v-if="methodStats[group].active > 0"
                       class="font-bold px-1.5 py-0.5 rounded"
                       :style="{ backgroundColor: getGroupInfo(group).colors.text, color: 'white' }"
                     >
-                      {{ methodStats[group].active }} {{ $t('windows.chapterEditor.methods.active') }}
+                      {{ methodStats[group].active }} {{ $t('features.chapterEditor.methods.active') }}
                     </span>
                   </div>
 
                   <!-- Hover indicator -->
                   <div class="mt-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity" :style="{ color: getGroupInfo(group).colors.text }">
-                    {{ $t('windows.chapterEditor.methods.clickToOpen') }}
+                    {{ $t('features.chapterEditor.methods.clickToOpen') }}
                   </div>
                 </button>
               </div>
@@ -371,18 +371,18 @@
               <div class="flex items-center justify-between p-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
                 <div class="flex items-center gap-4 text-sm">
                   <span class="text-[var(--color-text-secondary)]">
-                    <strong class="text-[var(--color-text-primary)]">{{ methodTypes.length }}</strong> {{ $t('windows.chapterEditor.methods.typesAvailable') }}
+                    <strong class="text-[var(--color-text-primary)]">{{ methodTypes.length }}</strong> {{ $t('features.chapterEditor.methods.typesAvailable') }}
                   </span>
                   <span class="text-[var(--color-text-tertiary)]">|</span>
                   <span class="text-[var(--color-text-secondary)]">
-                    <strong class="text-[var(--color-text-primary)]">{{ learningMethods.length }}</strong> {{ $t('windows.chapterEditor.methods.inThisChapter') }}
+                    <strong class="text-[var(--color-text-primary)]">{{ learningMethods.length }}</strong> {{ $t('features.chapterEditor.methods.inThisChapter') }}
                   </span>
                 </div>
                 <button
                   @click="openLearningMethodsEditor()"
                   class="text-sm text-[var(--color-primary)] hover:underline flex items-center gap-1"
                 >
-                  {{ $t('windows.chapterEditor.methods.manageAll') }}
+                  {{ $t('features.chapterEditor.methods.manageAll') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
@@ -396,7 +396,7 @@
         <div v-else-if="activeTab === 'lessons'" class="p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">
-              {{ $t('windows.chapterEditor.lessons.title') }} {{ lessons.length > 0 ? `(${lessons.length})` : '' }}
+              {{ $t('features.chapterEditor.lessons.title') }} {{ lessons.length > 0 ? `(${lessons.length})` : '' }}
             </h3>
             <button
               @click="addLesson"
@@ -406,14 +406,14 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              {{ $t('windows.chapterEditor.lessons.newLesson') }}
+              {{ $t('features.chapterEditor.lessons.newLesson') }}
             </button>
           </div>
 
           <!-- New Module Notice with Create Button -->
           <div v-if="isNewChapter" class="rounded-lg p-4 border flex items-center gap-3" style="background-color: var(--color-info-bg, #eff6ff); border-color: var(--color-info-border, #bfdbfe);">
             <span class="flex-1 text-sm" style="color: var(--color-info-text, #1e40af);">
-              ℹ️ {{ $t('windows.chapterEditor.lessons.saveFirstHint') }}
+              ℹ️ {{ $t('features.chapterEditor.lessons.saveFirstHint') }}
             </span>
             <button
               @click="saveAndEnableTab"
@@ -433,8 +433,8 @@
           <!-- Empty State -->
           <div v-else-if="lessons.length === 0" class="text-center py-12">
             <div class="text-5xl mb-3">📚</div>
-            <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('windows.chapterEditor.lessons.noLessons') }}</p>
-            <p class="text-sm text-[var(--color-text-tertiary)]">{{ $t('windows.chapterEditor.lessons.noLessonsHint') }}</p>
+            <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('features.chapterEditor.lessons.noLessons') }}</p>
+            <p class="text-sm text-[var(--color-text-tertiary)]">{{ $t('features.chapterEditor.lessons.noLessonsHint') }}</p>
           </div>
 
           <!-- Lessons List with Drag & Drop -->
@@ -474,7 +474,7 @@
                       </span>
                     </div>
                     <div class="flex gap-4 text-xs text-[var(--color-text-secondary)]">
-                      <span v-if="lesson.duration_minutes">⏱️ {{ lesson.duration_minutes }} {{ $t('windows.chapterEditor.lessons.minutes') }}</span>
+                      <span v-if="lesson.duration_minutes">⏱️ {{ lesson.duration_minutes }} {{ $t('features.chapterEditor.lessons.minutes') }}</span>
                     </div>
                   </div>
                 </div>
@@ -484,7 +484,7 @@
                   <button
                     @click="editLesson(lesson)"
                     class="p-1.5 rounded hover:bg-blue-500/10 text-[var(--color-text-secondary)] hover:text-blue-600 transition-colors"
-                    :title="$t('windows.chapterEditor.lessons.edit')"
+                    :title="$t('features.chapterEditor.lessons.edit')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -493,7 +493,7 @@
                   <button
                     @click="deleteLesson(lesson.lesson_id)"
                     class="p-1.5 rounded hover:bg-red-500/10 text-[var(--color-text-secondary)] hover:text-red-600 transition-colors"
-                    :title="$t('windows.chapterEditor.lessons.delete')"
+                    :title="$t('features.chapterEditor.lessons.delete')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -512,8 +512,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
-import type { LsxWindow } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import {
   adminCreateChapter,
   adminUpdateChapter,
@@ -531,7 +531,7 @@ import {
 } from '@/api/admin.api'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 interface Emits {
@@ -540,7 +540,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 const { t } = useI18n()
 
 // State
@@ -590,17 +590,17 @@ let saveTimeout: number | null = null
 
 // Computed
 const tabs = computed(() => [
-  { id: 'info', label: t('windows.chapterEditor.tabs.info'), icon: '📝' },
-  { id: 'theory', label: t('windows.chapterEditor.tabs.theory'), icon: '📄' },
-  { id: 'videos', label: t('windows.chapterEditor.tabs.videos'), icon: '🎥' },
-  { id: 'methods', label: t('windows.chapterEditor.tabs.methods'), icon: '🎯' },
-  { id: 'lessons', label: t('windows.chapterEditor.tabs.lessons'), icon: '📚' }
+  { id: 'info', label: t('features.chapterEditor.tabs.info'), icon: '📝' },
+  { id: 'theory', label: t('features.chapterEditor.tabs.theory'), icon: '📄' },
+  { id: 'videos', label: t('features.chapterEditor.tabs.videos'), icon: '🎥' },
+  { id: 'methods', label: t('features.chapterEditor.tabs.methods'), icon: '🎯' },
+  { id: 'lessons', label: t('features.chapterEditor.tabs.lessons'), icon: '📚' }
 ])
 
-const isNewChapter = computed(() => !props.window.payload?.chapterId)
-const courseId = computed(() => props.window.payload?.courseId as string)  // UUID
-const courseTitle = computed(() => props.window.payload?.courseTitle as string || t('windows.chapterEditor.unknown'))
-const chapterId = computed(() => props.window.payload?.chapterId as string | undefined)
+const isNewChapter = computed(() => !props.panel.payload?.chapterId)
+const courseId = computed(() => props.panel.payload?.courseId as string)  // UUID
+const courseTitle = computed(() => props.panel.payload?.courseTitle as string || t('features.chapterEditor.unknown'))
+const chapterId = computed(() => props.panel.payload?.chapterId as string | undefined)
 
 const sortedLessons = computed(() => {
   return [...lessons.value].sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
@@ -614,7 +614,7 @@ const loadChapter = async () => {
   }
 
   if (!chapterId.value) {
-    error.value = t('windows.chapterEditor.errors.noChapterId')
+    error.value = t('features.chapterEditor.errors.noChapterId')
     loading.value = false
     return
   }
@@ -623,15 +623,15 @@ const loadChapter = async () => {
   error.value = null
 
   try {
-    if (props.window.payload?.chapter) {
-      chapter.value = props.window.payload.chapter as AdminChapter
+    if (props.panel.payload?.chapter) {
+      chapter.value = props.panel.payload.chapter as AdminChapter
       populateForm()
     } else {
-      error.value = t('windows.chapterEditor.errors.chapterDataUnavailable')
+      error.value = t('features.chapterEditor.errors.chapterDataUnavailable')
     }
   } catch (err: any) {
     console.error('Error loading chapter:', err)
-    error.value = err.response?.data?.message || t('windows.chapterEditor.errors.loadError')
+    error.value = err.response?.data?.message || t('features.chapterEditor.errors.loadError')
   } finally {
     loading.value = false
   }
@@ -689,8 +689,8 @@ const saveChapter = async () => {
       const newChapter = await adminCreateChapter(courseId.value, data as AdminChapterCreateRequest)
       chapter.value = newChapter
 
-      // Update window payload
-      windowStore.updateWindowPayload(props.window.id, {
+      // Update panel payload
+      panelStore.updatePanelPayload(props.panel.id, {
         chapterId: newChapter.chapter_id,
         chapter: newChapter
       })
@@ -703,8 +703,8 @@ const saveChapter = async () => {
       const updatedChapter = await adminUpdateChapter(chapterId.value, data as AdminChapterUpdateRequest)
       chapter.value = updatedChapter
 
-      // Update window payload
-      windowStore.updateWindowPayload(props.window.id, {
+      // Update panel payload
+      panelStore.updatePanelPayload(props.panel.id, {
         chapter: updatedChapter
       })
 
@@ -726,7 +726,7 @@ const saveChapter = async () => {
 // Save module and enable current tab (for use from info boxes)
 const saveAndEnableTab = async () => {
   if (!form.value.title.trim()) {
-    alert(t('windows.chapterEditor.errors.enterTitle'))
+    alert(t('features.chapterEditor.errors.enterTitle'))
     return
   }
 
@@ -740,13 +740,13 @@ const saveAndEnableTab = async () => {
 
 const addLesson = () => {
   if (isNewChapter.value || !chapterId.value) {
-    alert(t('windows.chapterEditor.lessons.saveFirstAlert'))
+    alert(t('features.chapterEditor.lessons.saveFirstAlert'))
     return
   }
 
-  windowStore.openWindow({
+  panelStore.openPanel({
     type: 'admin-lesson-editor',
-    title: t('windows.chapterEditor.lessons.windowNew'),
+    title: t('features.chapterEditor.lessons.panelNew'),
     icon: '📄',
     payload: {
       courseId: courseId.value,
@@ -758,9 +758,9 @@ const addLesson = () => {
 }
 
 const editLesson = (lesson: AdminLesson) => {
-  windowStore.openWindow({
+  panelStore.openPanel({
     type: 'admin-lesson-editor',
-    title: t('windows.chapterEditor.lessons.windowEdit', { title: lesson.title }),
+    title: t('features.chapterEditor.lessons.panelEdit', { title: lesson.title }),
     icon: '📄',
     payload: {
       courseId: courseId.value,
@@ -772,7 +772,7 @@ const editLesson = (lesson: AdminLesson) => {
 }
 
 const deleteLesson = async (lessonId: string) => {
-  if (!confirm(t('windows.chapterEditor.lessons.deleteConfirm'))) return
+  if (!confirm(t('features.chapterEditor.lessons.deleteConfirm'))) return
 
   try {
     await adminDeleteLesson(lessonId)
@@ -780,7 +780,7 @@ const deleteLesson = async (lessonId: string) => {
     await loadLessons()
   } catch (err: any) {
     console.error('Error deleting lesson:', err)
-    alert(t('windows.chapterEditor.lessons.deleteError') + ': ' + (err.response?.data?.message || err.message))
+    alert(t('features.chapterEditor.lessons.deleteError') + ': ' + (err.response?.data?.message || err.message))
   }
 }
 
@@ -840,7 +840,7 @@ const getLessonTypeLabel = (type: string): string => {
     exam: '📝'
   }
   const icon = icons[type] || ''
-  const label = t(`windows.chapterEditor.lessonTypes.${type}`) || type
+  const label = t(`features.chapterEditor.lessonTypes.${type}`) || type
   return icon ? `${icon} ${label}` : label
 }
 
@@ -904,10 +904,10 @@ const loadLearningMethodsStats = async () => {
 // Helper to get group info
 const getGroupInfo = (group: string) => {
   const groupNames: Record<string, string> = {
-    A: t('windows.chapterEditor.groups.A'),
-    B: t('windows.chapterEditor.groups.B'),
-    C: t('windows.chapterEditor.groups.C'),
-    D: t('windows.chapterEditor.groups.D')
+    A: t('features.chapterEditor.groups.A'),
+    B: t('features.chapterEditor.groups.B'),
+    C: t('features.chapterEditor.groups.C'),
+    D: t('features.chapterEditor.groups.D')
   }
   const groupColors: Record<string, { bg: string; text: string }> = {
     A: { bg: 'var(--color-info-bg, #dbeafe)', text: 'var(--color-info-text, #1e40af)' },
@@ -928,16 +928,16 @@ const getGroupInfo = (group: string) => {
   }
 }
 
-// D3.4: Open Learning Methods Editor Window (with optional group filter)
+// D3.4: Open Learning Methods Editor Panel (with optional group filter)
 const openLearningMethodsEditor = (preSelectedGroup?: string) => {
   if (isNewChapter.value || !chapterId.value) {
-    alert(t('windows.chapterEditor.methods.saveFirstAlert'))
+    alert(t('features.chapterEditor.methods.saveFirstAlert'))
     return
   }
 
-  windowStore.openWindow({
+  panelStore.openPanel({
     type: 'admin-learning-method-editor',
-    title: t('windows.chapterEditor.methods.windowTitle', { title: form.value.title || t('windows.chapterEditor.tabs.info') }),
+    title: t('features.chapterEditor.methods.panelTitle', { title: form.value.title || t('features.chapterEditor.tabs.info') }),
     icon: '🎯',
     payload: {
       courseId: courseId.value,
@@ -961,7 +961,7 @@ watch(activeTab, (newTab) => {
   }
 })
 
-// Listen for lesson updates from child windows
+// Listen for lesson updates from child panels
 const handleLessonUpdate = () => {
   if (activeTab.value === 'lessons' && !isNewChapter.value) {
     loadLessons()
@@ -970,9 +970,9 @@ const handleLessonUpdate = () => {
 
 // KI-Generator Functions
 const openAIKapitelGenerator = () => {
-  windowStore.openWindow({
+  panelStore.openPanel({
     type: 'admin-ai-kapitel-generator',
-    title: t('windows.chapterEditor.aiGenerator.windowTitle'),
+    title: t('features.chapterEditor.aiGenerator.panelTitle'),
     icon: '✨',
     payload: {
       courseId: courseId.value,

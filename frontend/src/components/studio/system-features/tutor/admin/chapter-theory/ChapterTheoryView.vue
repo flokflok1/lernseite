@@ -11,17 +11,17 @@
     <div class="view-header">
       <div class="header-icon">📚</div>
       <div class="header-info">
-        <h2>{{ $t('windows.chapterTheoryView.title') }}</h2>
+        <h2>{{ $t('features.chapterTheoryView.title') }}</h2>
         <p>{{ chapter?.title }} • {{ course?.title }}</p>
       </div>
       <div class="header-stats">
         <div class="stat">
           <span class="stat-value">{{ chapterTheories.length }}</span>
-          <span class="stat-label">{{ $t('windows.chapterTheoryView.available') }}</span>
+          <span class="stat-label">{{ $t('features.chapterTheoryView.available') }}</span>
         </div>
         <div class="stat">
           <span class="stat-value">{{ selectedTheoryId ? 1 : 0 }}</span>
-          <span class="stat-label">{{ $t('windows.chapterTheoryView.selected') }}</span>
+          <span class="stat-label">{{ $t('features.chapterTheoryView.selected') }}</span>
         </div>
       </div>
     </div>
@@ -32,21 +32,21 @@
       <div class="list-panel">
         <div class="panel-header">
           <span class="panel-icon">📚</span>
-          <span class="panel-title">{{ $t('windows.chapterTheoryView.theories') }}</span>
-          <button @click="loadTheories" class="refresh-btn" :title="$t('windows.chapterTheoryView.refresh')">🔄</button>
+          <span class="panel-title">{{ $t('features.chapterTheoryView.theories') }}</span>
+          <button @click="loadTheories" class="refresh-btn" :title="$t('features.chapterTheoryView.refresh')">🔄</button>
         </div>
 
         <!-- Loading -->
         <div v-if="isLoading" class="list-loading">
           <div class="spinner"></div>
-          <span>{{ $t('windows.chapterTheoryView.loading') }}</span>
+          <span>{{ $t('features.chapterTheoryView.loading') }}</span>
         </div>
 
         <!-- Theory List -->
         <div v-else class="content-list">
           <div v-if="chapterTheories.length === 0" class="list-empty">
             <span class="empty-icon-small">📝</span>
-            <p>{{ $t('windows.chapterTheoryView.noTheories') }}</p>
+            <p>{{ $t('features.chapterTheoryView.noTheories') }}</p>
           </div>
           <div
             v-for="theory in chapterTheories"
@@ -61,10 +61,10 @@
               <span class="item-meta">{{ formatDate(theory.createdAt) }}</span>
             </div>
             <div class="item-actions">
-              <button v-if="theory.audioUrl" @click.stop="playAudio(theory.audioUrl)" class="item-btn" :title="$t('windows.chapterTheoryView.playAudio')">
+              <button v-if="theory.audioUrl" @click.stop="playAudio(theory.audioUrl)" class="item-btn" :title="$t('features.chapterTheoryView.playAudio')">
                 🔊
               </button>
-              <button @click.stop="onDeleteTheory(theory.theoryId)" class="item-btn danger" :title="$t('windows.chapterTheoryView.delete')">🗑️</button>
+              <button @click.stop="onDeleteTheory(theory.theoryId)" class="item-btn danger" :title="$t('features.chapterTheoryView.delete')">🗑️</button>
             </div>
           </div>
         </div>
@@ -72,7 +72,7 @@
         <!-- Create New Button -->
         <div class="list-actions">
           <button @click="showCreateForm = true" class="create-btn">
-            {{ $t('windows.chapterTheoryView.createNew') }}
+            {{ $t('features.chapterTheoryView.createNew') }}
           </button>
         </div>
       </div>
@@ -81,31 +81,31 @@
       <div class="detail-panel">
         <div class="panel-header">
           <span class="panel-icon">{{ showCreateForm ? '✨' : '📄' }}</span>
-          <span class="panel-title">{{ showCreateForm ? $t('windows.chapterTheoryView.newTheory') : $t('windows.chapterTheoryView.preview') }}</span>
+          <span class="panel-title">{{ showCreateForm ? $t('features.chapterTheoryView.newTheory') : $t('features.chapterTheoryView.preview') }}</span>
         </div>
 
         <!-- Create Form -->
         <div v-if="showCreateForm" class="create-form">
           <div class="form-section">
-            <label>{{ $t('windows.chapterTheoryView.titleLabel') }}</label>
-            <input v-model="newTitle" type="text" class="form-input" :placeholder="$t('windows.chapterTheoryView.titlePlaceholder')" />
+            <label>{{ $t('features.chapterTheoryView.titleLabel') }}</label>
+            <input v-model="newTitle" type="text" class="form-input" :placeholder="$t('features.chapterTheoryView.titlePlaceholder')" />
           </div>
 
           <div class="form-section">
-            <label>{{ $t('windows.chapterTheoryView.styleLabel') }}</label>
+            <label>{{ $t('features.chapterTheoryView.styleLabel') }}</label>
             <select v-model="selectedStyle" class="form-select">
-              <option value="standard">{{ $t('windows.chapterTheoryView.styles.standard') }}</option>
-              <option value="compact">{{ $t('windows.chapterTheoryView.styles.compact') }}</option>
-              <option value="detailed">{{ $t('windows.chapterTheoryView.styles.detailed') }}</option>
-              <option value="visual">{{ $t('windows.chapterTheoryView.styles.visual') }}</option>
-              <option value="exam">{{ $t('windows.chapterTheoryView.styles.exam') }}</option>
+              <option value="standard">{{ $t('features.chapterTheoryView.styles.standard') }}</option>
+              <option value="compact">{{ $t('features.chapterTheoryView.styles.compact') }}</option>
+              <option value="detailed">{{ $t('features.chapterTheoryView.styles.detailed') }}</option>
+              <option value="visual">{{ $t('features.chapterTheoryView.styles.visual') }}</option>
+              <option value="exam">{{ $t('features.chapterTheoryView.styles.exam') }}</option>
             </select>
           </div>
 
           <div class="form-section">
             <label class="checkbox-label">
               <input type="checkbox" v-model="generateWithAudio" />
-              {{ $t('windows.chapterTheoryView.generateWithAudio') }}
+              {{ $t('features.chapterTheoryView.generateWithAudio') }}
             </label>
           </div>
 
@@ -114,12 +114,12 @@
             class="generate-btn"
             :disabled="isGenerating"
           >
-            <span v-if="isGenerating">{{ $t('windows.chapterTheoryView.generating') }}</span>
-            <span v-else>{{ $t('windows.chapterTheoryView.generate') }}</span>
+            <span v-if="isGenerating">{{ $t('features.chapterTheoryView.generating') }}</span>
+            <span v-else>{{ $t('features.chapterTheoryView.generate') }}</span>
           </button>
 
           <button @click="showCreateForm = false" class="cancel-btn">
-            {{ $t('windows.chapterTheoryView.cancel') }}
+            {{ $t('features.chapterTheoryView.cancel') }}
           </button>
         </div>
 
@@ -133,13 +133,13 @@
           <div class="theory-content">
             <!-- Overview -->
             <div v-if="selectedTheory.overview" class="theory-section">
-              <h4>{{ $t('windows.chapterTheoryView.sections.overview') }}</h4>
+              <h4>{{ $t('features.chapterTheoryView.sections.overview') }}</h4>
               <p>{{ selectedTheory.overview }}</p>
             </div>
 
             <!-- Learning Goals -->
             <div v-if="selectedTheory.learningGoals?.length" class="theory-section">
-              <h4>{{ $t('windows.chapterTheoryView.sections.learningGoals') }}</h4>
+              <h4>{{ $t('features.chapterTheoryView.sections.learningGoals') }}</h4>
               <ul>
                 <li v-for="(goal, i) in selectedTheory.learningGoals" :key="i">{{ goal }}</li>
               </ul>
@@ -147,7 +147,7 @@
 
             <!-- Concepts -->
             <div v-if="selectedTheory.concepts?.length" class="theory-section">
-              <h4>{{ $t('windows.chapterTheoryView.sections.concepts') }}</h4>
+              <h4>{{ $t('features.chapterTheoryView.sections.concepts') }}</h4>
               <div v-for="(concept, i) in selectedTheory.concepts" :key="i" class="concept-item">
                 <strong>{{ concept.name }}</strong>
                 <p>{{ concept.description }}</p>
@@ -156,7 +156,7 @@
 
             <!-- Terms -->
             <div v-if="selectedTheory.terms?.length" class="theory-section">
-              <h4>{{ $t('windows.chapterTheoryView.sections.terms') }}</h4>
+              <h4>{{ $t('features.chapterTheoryView.sections.terms') }}</h4>
               <dl class="terms-list">
                 <template v-for="(term, i) in selectedTheory.terms" :key="i">
                   <dt>{{ term.term }}</dt>
@@ -167,13 +167,13 @@
 
             <!-- Exam Relevance -->
             <div v-if="selectedTheory.examRelevance" class="theory-section exam-section">
-              <h4>{{ $t('windows.chapterTheoryView.sections.examRelevance') }}</h4>
+              <h4>{{ $t('features.chapterTheoryView.sections.examRelevance') }}</h4>
               <p>{{ selectedTheory.examRelevance }}</p>
             </div>
 
             <!-- Exam Tips -->
             <div v-if="selectedTheory.examTips?.length" class="theory-section">
-              <h4>{{ $t('windows.chapterTheoryView.sections.examTips') }}</h4>
+              <h4>{{ $t('features.chapterTheoryView.sections.examTips') }}</h4>
               <ul>
                 <li v-for="(tip, i) in selectedTheory.examTips" :key="i">{{ tip }}</li>
               </ul>
@@ -184,7 +184,7 @@
         <!-- No Selection -->
         <div v-else class="no-selection">
           <span class="empty-icon">📄</span>
-          <p>{{ $t('windows.chapterTheoryView.noSelection') }}</p>
+          <p>{{ $t('features.chapterTheoryView.noSelection') }}</p>
         </div>
       </div>
 
@@ -192,21 +192,21 @@
       <div class="settings-panel">
         <div class="panel-header">
           <span class="panel-icon">⚙️</span>
-          <span class="panel-title">{{ $t('windows.chapterTheoryView.settings') }}</span>
+          <span class="panel-title">{{ $t('features.chapterTheoryView.settings') }}</span>
         </div>
 
         <div class="settings-content">
           <!-- TTS Settings -->
           <div class="settings-section">
-            <h4>{{ $t('windows.chapterTheoryView.tts.title') }}</h4>
+            <h4>{{ $t('features.chapterTheoryView.tts.title') }}</h4>
             <div class="setting-row">
-              <label>{{ $t('windows.chapterTheoryView.tts.enabled') }}</label>
+              <label>{{ $t('features.chapterTheoryView.tts.enabled') }}</label>
               <button @click="tts.toggleTTS()" class="toggle-btn" :class="{ active: tts.ttsEnabled.value }">
-                {{ tts.ttsEnabled.value ? $t('windows.chapterTheoryView.tts.on') : $t('windows.chapterTheoryView.tts.off') }}
+                {{ tts.ttsEnabled.value ? $t('features.chapterTheoryView.tts.on') : $t('features.chapterTheoryView.tts.off') }}
               </button>
             </div>
             <div class="setting-row">
-              <label>{{ $t('windows.chapterTheoryView.tts.voice') }}</label>
+              <label>{{ $t('features.chapterTheoryView.tts.voice') }}</label>
               <select v-model="tts.selectedVoice.value" class="setting-select">
                 <option v-for="voice in tts.voices.value" :key="voice.id" :value="voice.id">
                   {{ voice.name }}
@@ -214,26 +214,26 @@
               </select>
             </div>
             <div class="setting-row">
-              <label>{{ $t('windows.chapterTheoryView.tts.model') }}</label>
+              <label>{{ $t('features.chapterTheoryView.tts.model') }}</label>
               <select v-model="tts.selectedModel.value" class="setting-select">
-                <option value="browser">{{ $t('windows.chapterTheoryView.tts.models.browser') }}</option>
-                <option value="tts-1">{{ $t('windows.chapterTheoryView.tts.models.tts1') }}</option>
-                <option value="tts-1-hd">{{ $t('windows.chapterTheoryView.tts.models.tts1hd') }}</option>
+                <option value="browser">{{ $t('features.chapterTheoryView.tts.models.browser') }}</option>
+                <option value="tts-1">{{ $t('features.chapterTheoryView.tts.models.tts1') }}</option>
+                <option value="tts-1-hd">{{ $t('features.chapterTheoryView.tts.models.tts1hd') }}</option>
               </select>
             </div>
           </div>
 
           <!-- Quick Actions -->
           <div class="settings-section">
-            <h4>{{ $t('windows.chapterTheoryView.quickActions.title') }}</h4>
+            <h4>{{ $t('features.chapterTheoryView.quickActions.title') }}</h4>
             <button v-if="selectedTheory" @click="regenerateTheory" class="quick-action-btn">
-              {{ $t('windows.chapterTheoryView.quickActions.regenerate') }}
+              {{ $t('features.chapterTheoryView.quickActions.regenerate') }}
             </button>
             <button v-if="selectedTheory" @click="copyToClipboard" class="quick-action-btn">
-              {{ $t('windows.chapterTheoryView.quickActions.copy') }}
+              {{ $t('features.chapterTheoryView.quickActions.copy') }}
             </button>
             <button v-if="selectedTheory" @click="printTheory" class="quick-action-btn">
-              {{ $t('windows.chapterTheoryView.quickActions.print') }}
+              {{ $t('features.chapterTheoryView.quickActions.print') }}
             </button>
           </div>
         </div>
@@ -327,7 +327,7 @@ async function onSelectTheory(theoryId: string) {
 }
 
 async function onDeleteTheory(theoryId: string) {
-  if (!confirm(t('windows.chapterTheoryView.confirmDelete'))) return
+  if (!confirm(t('features.chapterTheoryView.confirmDelete'))) return
 
   const success = await theoryMgmt.deleteTheory(theoryId)
   if (success) {
@@ -362,11 +362,11 @@ async function generateNewTheory() {
         emit('generated', newTheoryId)
       }
     } else {
-      throw new Error(response.data.error?.message || t('windows.chapterTheoryView.generationFailed'))
+      throw new Error(response.data.error?.message || t('features.chapterTheoryView.generationFailed'))
     }
   } catch (err: any) {
     console.error('Theory generation failed:', err)
-    localError.value = err.response?.data?.error?.message || err.message || t('windows.chapterTheoryView.generationError')
+    localError.value = err.response?.data?.error?.message || err.message || t('features.chapterTheoryView.generationError')
   } finally {
     isGenerating.value = false
   }
@@ -391,13 +391,13 @@ function copyToClipboard() {
     '',
     selectedTheory.value.overview,
     '',
-    t('windows.chapterTheoryView.clipboard.learningGoals'),
+    t('features.chapterTheoryView.clipboard.learningGoals'),
     ...(selectedTheory.value.learningGoals || []).map(g => `- ${g}`),
     '',
-    t('windows.chapterTheoryView.clipboard.concepts'),
+    t('features.chapterTheoryView.clipboard.concepts'),
     ...(selectedTheory.value.concepts || []).map(c => `### ${c.name}\n${c.description}`),
     '',
-    t('windows.chapterTheoryView.clipboard.terms'),
+    t('features.chapterTheoryView.clipboard.terms'),
     ...(selectedTheory.value.terms || []).map(t => `**${t.term}**: ${t.definition}`)
   ].join('\n')
 

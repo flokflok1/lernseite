@@ -2,4 +2,4 @@
  * AI Authoring Views
  */
 
-export { default as KapitelGeneratorWindow } from './KapitelGeneratorWindow.vue'
+export { default as KapitelGeneratorPanel } from './KapitelGeneratorPanel.vue'

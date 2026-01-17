@@ -2,6 +2,6 @@
  * Course Management Views
  */
 
-export { default as CourseCreateWindow } from './CourseCreateWindow.vue'
-export { default as CourseEditorWindow } from './CourseEditorWindow.vue'
-export { default as CourseFilesWindow } from './CourseFilesWindow.vue'
+export { default as CourseCreatePanel } from './CourseCreatePanel.vue'
+export { default as CourseEditorPanel } from './CourseEditorPanel.vue'
+export { default as CourseFilesPanel } from './CourseFilesPanel.vue'

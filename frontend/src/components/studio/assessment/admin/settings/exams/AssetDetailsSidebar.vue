@@ -10,7 +10,7 @@
   >
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-semibold text-[var(--color-text-primary)]">
-        {{ $t('windows.aiEditorAssets.details.title') }}
+        {{ $t('features.aiEditorAssets.details.title') }}
       </h3>
       <button
         @click="$emit('close')"
@@ -35,7 +35,7 @@
     <div class="space-y-3 text-sm">
       <div>
         <label class="text-[var(--color-text-tertiary)]">
-          {{ $t('windows.aiEditorAssets.details.name') }}
+          {{ $t('features.aiEditorAssets.details.name') }}
         </label>
         <input
           :value="asset.name"
@@ -46,28 +46,28 @@
       </div>
       <div>
         <label class="text-[var(--color-text-tertiary)]">
-          {{ $t('windows.aiEditorAssets.details.type') }}
+          {{ $t('features.aiEditorAssets.details.type') }}
         </label>
         <p class="text-[var(--color-text-primary)]">{{ asset.type }}</p>
       </div>
       <div>
         <label class="text-[var(--color-text-tertiary)]">
-          {{ $t('windows.aiEditorAssets.details.size') }}
+          {{ $t('features.aiEditorAssets.details.size') }}
         </label>
         <p class="text-[var(--color-text-primary)]">{{ asset.size }}</p>
       </div>
       <div>
         <label class="text-[var(--color-text-tertiary)]">
-          {{ $t('windows.aiEditorAssets.details.created') }}
+          {{ $t('features.aiEditorAssets.details.created') }}
         </label>
         <p class="text-[var(--color-text-primary)]">{{ asset.createdAt }}</p>
       </div>
       <div>
         <label class="text-[var(--color-text-tertiary)]">
-          {{ $t('windows.aiEditorAssets.details.usedIn') }}
+          {{ $t('features.aiEditorAssets.details.usedIn') }}
         </label>
         <p class="text-[var(--color-text-primary)]">
-          {{ $t('windows.aiEditorAssets.details.lessonsCount', { count: asset.usageCount }) }}
+          {{ $t('features.aiEditorAssets.details.lessonsCount', { count: asset.usageCount }) }}
         </p>
       </div>
     </div>
@@ -78,13 +78,13 @@
         @click="$emit('insert', asset)"
         class="w-full py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors"
       >
-        {{ $t('windows.aiEditorAssets.insertIntoLesson') }}
+        {{ $t('features.aiEditorAssets.insertIntoLesson') }}
       </button>
       <button
         @click="$emit('download', asset)"
         class="w-full py-2 bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-surface)] transition-colors"
       >
-        {{ $t('windows.aiEditorAssets.download') }}
+        {{ $t('features.aiEditorAssets.download') }}
       </button>
     </div>
   </div>

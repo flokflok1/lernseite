@@ -1,5 +1,5 @@
 <!--
-  Admin Course Editor Window Content
+  Admin Course Editor Panel Content
 
   Window content for editing course details, chapters, and settings.
   Features:
@@ -11,12 +11,12 @@
 -->
 
 <template>
-  <div class="admin-course-editor-window h-full flex flex-col bg-[var(--color-bg)]">
+  <div class="admin-course-editor-panel h-full flex flex-col bg-[var(--color-bg)]">
     <!-- Loading State -->
     <div v-if="loading" class="flex-1 flex items-center justify-center">
       <div class="text-center">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[var(--color-primary)] mx-auto mb-3"></div>
-        <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.courseEditor.loadingCourse') }}</p>
+        <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('features.courseEditor.loadingCourse') }}</p>
       </div>
     </div>
 
@@ -28,7 +28,7 @@
           @click="loadCourse"
           class="mt-3 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700"
         >
-          {{ $t('windows.courseEditor.retry') }}
+          {{ $t('features.courseEditor.retry') }}
         </button>
       </div>
     </div>
@@ -63,27 +63,27 @@
             <!-- Title -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.courseEditor.metadata.title') }}
+                {{ $t('features.courseEditor.metadata.title') }}
               </label>
               <input
                 v-model="form.title"
                 type="text"
                 required
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('windows.courseEditor.metadata.titlePlaceholder')"
+                :placeholder="$t('features.courseEditor.metadata.titlePlaceholder')"
               />
             </div>
 
             <!-- Description -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.courseEditor.metadata.description') }}
+                {{ $t('features.courseEditor.metadata.description') }}
               </label>
               <textarea
                 v-model="form.description"
                 rows="4"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('windows.courseEditor.metadata.descriptionPlaceholder')"
+                :placeholder="$t('features.courseEditor.metadata.descriptionPlaceholder')"
               ></textarea>
             </div>
 
@@ -91,13 +91,13 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('windows.courseEditor.metadata.category') }}
+                  {{ $t('features.courseEditor.metadata.category') }}
                 </label>
                 <select
                   v-model="form.category_id"
                   class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 >
-                  <option :value="null">{{ $t('windows.courseEditor.metadata.noCategory') }}</option>
+                  <option :value="null">{{ $t('features.courseEditor.metadata.noCategory') }}</option>
                   <option
                     v-for="cat in flatCategories"
                     :key="cat.category_id"
@@ -106,21 +106,21 @@
                     {{ cat.indent }}{{ cat.name }}
                   </option>
                 </select>
-                <p v-if="loadingCategories" class="mt-1 text-xs text-[var(--color-text-secondary)]">{{ $t('windows.courseEditor.metadata.loadingCategories') }}</p>
+                <p v-if="loadingCategories" class="mt-1 text-xs text-[var(--color-text-secondary)]">{{ $t('features.courseEditor.metadata.loadingCategories') }}</p>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('windows.courseEditor.metadata.level') }}
+                  {{ $t('features.courseEditor.metadata.level') }}
                 </label>
                 <select
                   v-model="form.level"
                   class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 >
-                  <option value="beginner">{{ $t('windows.courseEditor.metadata.levelBeginner') }}</option>
-                  <option value="intermediate">{{ $t('windows.courseEditor.metadata.levelIntermediate') }}</option>
-                  <option value="advanced">{{ $t('windows.courseEditor.metadata.levelAdvanced') }}</option>
-                  <option value="expert">{{ $t('windows.courseEditor.metadata.levelExpert') }}</option>
+                  <option value="beginner">{{ $t('features.courseEditor.metadata.levelBeginner') }}</option>
+                  <option value="intermediate">{{ $t('features.courseEditor.metadata.levelIntermediate') }}</option>
+                  <option value="advanced">{{ $t('features.courseEditor.metadata.levelAdvanced') }}</option>
+                  <option value="expert">{{ $t('features.courseEditor.metadata.levelExpert') }}</option>
                 </select>
               </div>
             </div>
@@ -129,7 +129,7 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('windows.courseEditor.metadata.language') }}
+                  {{ $t('features.courseEditor.metadata.language') }}
                 </label>
                 <select
                   v-model="form.language"
@@ -145,7 +145,7 @@
 
               <div>
                 <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('windows.courseEditor.metadata.price') }}
+                  {{ $t('features.courseEditor.metadata.price') }}
                 </label>
                 <input
                   v-model.number="form.price"
@@ -161,13 +161,13 @@
             <!-- Tags -->
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.courseEditor.metadata.tags') }}
+                {{ $t('features.courseEditor.metadata.tags') }}
               </label>
               <input
                 v-model="tagsInput"
                 type="text"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('windows.courseEditor.metadata.tagsPlaceholder')"
+                :placeholder="$t('features.courseEditor.metadata.tagsPlaceholder')"
               />
               <div v-if="form.tags && form.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
                 <span
@@ -189,7 +189,7 @@
                 class="w-4 h-4 text-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]"
               />
               <label for="is_public" class="text-sm font-medium text-[var(--color-text-primary)]">
-                {{ $t('windows.courseEditor.metadata.isPublic') }}
+                {{ $t('features.courseEditor.metadata.isPublic') }}
               </label>
             </div>
 
@@ -200,14 +200,14 @@
                 :disabled="saving"
                 class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {{ saving ? $t('windows.courseEditor.metadata.saving') : $t('windows.courseEditor.metadata.saveChanges') }}
+                {{ saving ? $t('features.courseEditor.metadata.saving') : $t('features.courseEditor.metadata.saveChanges') }}
               </button>
               <button
                 type="button"
                 @click="resetForm"
                 class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
               >
-                {{ $t('windows.courseEditor.metadata.reset') }}
+                {{ $t('features.courseEditor.metadata.reset') }}
               </button>
             </div>
           </form>
@@ -217,13 +217,13 @@
         <div v-else-if="activeTab === 'chapters'" class="p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">
-              {{ $t('windows.courseEditor.chapters.title', { count: chapters.length }) }}
+              {{ $t('features.courseEditor.chapters.title', { count: chapters.length }) }}
             </h3>
             <button
               @click="openChapterEditor(null)"
               class="px-3 py-1.5 bg-[var(--color-primary)] text-white text-sm rounded-lg hover:bg-[var(--color-primary-hover)]"
             >
-              {{ $t('windows.courseEditor.chapters.addNew') }}
+              {{ $t('features.courseEditor.chapters.addNew') }}
             </button>
           </div>
 
@@ -233,7 +233,7 @@
           </div>
 
           <div v-else-if="chapters.length === 0" class="text-center py-8">
-            <p class="text-[var(--color-text-secondary)]">{{ $t('windows.courseEditor.chapters.noChapters') }}</p>
+            <p class="text-[var(--color-text-secondary)]">{{ $t('features.courseEditor.chapters.noChapters') }}</p>
           </div>
 
           <div v-else class="space-y-3">
@@ -251,8 +251,8 @@
                     {{ chapter.description }}
                   </p>
                   <div class="flex gap-4 text-xs text-[var(--color-text-secondary)]">
-                    <span>📚 {{ $t('windows.courseEditor.chapters.lessons', { count: chapter.lesson_count || 0 }) }}</span>
-                    <span>⏱️ {{ $t('windows.courseEditor.chapters.duration', { minutes: chapter.duration_minutes }) }}</span>
+                    <span>📚 {{ $t('features.courseEditor.chapters.lessons', { count: chapter.lesson_count || 0 }) }}</span>
+                    <span>⏱️ {{ $t('features.courseEditor.chapters.duration', { minutes: chapter.duration_minutes }) }}</span>
                   </div>
                 </div>
                 <div class="flex gap-2">
@@ -260,13 +260,13 @@
                     @click="openChapterEditor(chapter)"
                     class="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    {{ $t('windows.courseEditor.chapters.edit') }}
+                    {{ $t('features.courseEditor.chapters.edit') }}
                   </button>
                   <button
                     @click="deleteChapter(chapter.chapter_id)"
                     class="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
                   >
-                    {{ $t('windows.courseEditor.chapters.delete') }}
+                    {{ $t('features.courseEditor.chapters.delete') }}
                   </button>
                 </div>
               </div>
@@ -279,44 +279,44 @@
           <div class="space-y-6">
             <!-- Status Actions -->
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
-              <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('windows.courseEditor.actions.title') }}</h3>
+              <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('features.courseEditor.actions.title') }}</h3>
               <div class="space-y-3">
                 <div v-if="course.status === 'draft'" class="flex items-center justify-between">
                   <div>
-                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('windows.courseEditor.actions.publishCourse') }}</p>
-                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.courseEditor.actions.publishHint') }}</p>
+                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('features.courseEditor.actions.publishCourse') }}</p>
+                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('features.courseEditor.actions.publishHint') }}</p>
                   </div>
                   <button
                     @click="publishCourse"
                     class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
-                    {{ $t('windows.courseEditor.actions.publishButton') }}
+                    {{ $t('features.courseEditor.actions.publishButton') }}
                   </button>
                 </div>
 
                 <div v-if="course.status === 'published'" class="flex items-center justify-between">
                   <div>
-                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('windows.courseEditor.actions.unpublishCourse') }}</p>
-                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.courseEditor.actions.unpublishHint') }}</p>
+                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('features.courseEditor.actions.unpublishCourse') }}</p>
+                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('features.courseEditor.actions.unpublishHint') }}</p>
                   </div>
                   <button
                     @click="unpublishCourse"
                     class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                   >
-                    {{ $t('windows.courseEditor.actions.unpublishButton') }}
+                    {{ $t('features.courseEditor.actions.unpublishButton') }}
                   </button>
                 </div>
 
                 <div class="flex items-center justify-between">
                   <div>
-                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('windows.courseEditor.actions.archiveCourse') }}</p>
-                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.courseEditor.actions.archiveHint') }}</p>
+                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('features.courseEditor.actions.archiveCourse') }}</p>
+                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('features.courseEditor.actions.archiveHint') }}</p>
                   </div>
                   <button
                     @click="archiveCourse"
                     class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                   >
-                    {{ $t('windows.courseEditor.actions.archiveButton') }}
+                    {{ $t('features.courseEditor.actions.archiveButton') }}
                   </button>
                 </div>
               </div>
@@ -324,17 +324,17 @@
 
             <!-- Danger Zone -->
             <div class="rounded-lg p-4 border" style="background-color: var(--color-error-bg, #fef2f2); border-color: var(--color-error-border, #fecaca);">
-              <h3 class="text-lg font-semibold mb-4" style="color: var(--color-error-text, #b91c1c);">{{ $t('windows.courseEditor.actions.dangerZone') }}</h3>
+              <h3 class="text-lg font-semibold mb-4" style="color: var(--color-error-text, #b91c1c);">{{ $t('features.courseEditor.actions.dangerZone') }}</h3>
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="font-medium" style="color: var(--color-error-text, #b91c1c);">{{ $t('windows.courseEditor.actions.deleteCourse') }}</p>
-                  <p class="text-sm" style="color: var(--color-error, #dc2626);">{{ $t('windows.courseEditor.actions.deleteHint') }}</p>
+                  <p class="font-medium" style="color: var(--color-error-text, #b91c1c);">{{ $t('features.courseEditor.actions.deleteCourse') }}</p>
+                  <p class="text-sm" style="color: var(--color-error, #dc2626);">{{ $t('features.courseEditor.actions.deleteHint') }}</p>
                 </div>
                 <button
                   @click="deleteCourse"
                   class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
-                  {{ $t('windows.courseEditor.actions.deleteButton') }}
+                  {{ $t('features.courseEditor.actions.deleteButton') }}
                 </button>
               </div>
             </div>
@@ -348,8 +348,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
-import type { LsxWindow } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import {
   adminGetCourseDetail,
   adminUpdateCourse,
@@ -365,7 +365,7 @@ import {
 import { getCategoryTree, type Category, type CategoryTreeNode } from '@/api/categories.api'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 interface Emits {
@@ -374,7 +374,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 const { t } = useI18n()
 
 // State
@@ -424,12 +424,12 @@ const flatCategories = computed(() => {
 
 // Computed
 const tabs = computed(() => [
-  { id: 'metadata', label: t('windows.courseEditor.tabs.metadata'), icon: '📝' },
-  { id: 'chapters', label: t('windows.courseEditor.tabs.chapters'), icon: '📚' },
-  { id: 'actions', label: t('windows.courseEditor.tabs.actions'), icon: '⚡' }
+  { id: 'metadata', label: t('features.courseEditor.tabs.metadata'), icon: '📝' },
+  { id: 'chapters', label: t('features.courseEditor.tabs.chapters'), icon: '📚' },
+  { id: 'actions', label: t('features.courseEditor.tabs.actions'), icon: '⚡' }
 ])
 
-const courseId = computed(() => props.window.payload?.courseId as string)
+const courseId = computed(() => props.panel.payload?.courseId as string)
 
 // Methods
 const loadCategories = async () => {
@@ -447,7 +447,7 @@ const loadCategories = async () => {
 
 const loadCourse = async () => {
   if (!courseId.value) {
-    error.value = t('windows.courseEditor.errors.noCourseId')
+    error.value = t('features.courseEditor.errors.noCourseId')
     loading.value = false
     return
   }
@@ -463,7 +463,7 @@ const loadCourse = async () => {
     populateForm()
   } catch (err: any) {
     console.error('Error loading course:', err)
-    error.value = err.response?.data?.message || t('windows.courseEditor.errors.loadError')
+    error.value = err.response?.data?.message || t('features.courseEditor.errors.loadError')
   } finally {
     loading.value = false
   }
@@ -529,79 +529,79 @@ const saveCourse = async () => {
     populateForm()
 
     // Update window title
-    windowStore.updateWindowPayload(props.window.id, {
+    panelStore.updatePanelPayload(props.panel.id, {
       course: course.value
     })
 
-    alert(t('windows.courseEditor.alerts.changesSaved'))
+    alert(t('features.courseEditor.alerts.changesSaved'))
   } catch (err: any) {
     console.error('Error saving course:', err)
-    alert(t('windows.courseEditor.errors.saveError') + ': ' + (err.response?.data?.message || err.message))
+    alert(t('features.courseEditor.errors.saveError') + ': ' + (err.response?.data?.message || err.message))
   } finally {
     saving.value = false
   }
 }
 
 const publishCourse = async () => {
-  if (!courseId.value || !confirm(t('windows.courseEditor.alerts.publishConfirm'))) return
+  if (!courseId.value || !confirm(t('features.courseEditor.alerts.publishConfirm'))) return
 
   try {
     await adminPublishCourse(courseId.value)
     await loadCourse()
-    alert(t('windows.courseEditor.alerts.coursePublished'))
+    alert(t('features.courseEditor.alerts.coursePublished'))
   } catch (err: any) {
     console.error('Error publishing course:', err)
-    alert(t('windows.courseEditor.errors.publishError') + ': ' + (err.response?.data?.message || err.message))
+    alert(t('features.courseEditor.errors.publishError') + ': ' + (err.response?.data?.message || err.message))
   }
 }
 
 const unpublishCourse = async () => {
-  if (!courseId.value || !confirm(t('windows.courseEditor.alerts.unpublishConfirm'))) return
+  if (!courseId.value || !confirm(t('features.courseEditor.alerts.unpublishConfirm'))) return
 
   try {
     await adminUnpublishCourse(courseId.value)
     await loadCourse()
-    alert(t('windows.courseEditor.alerts.courseUnpublished'))
+    alert(t('features.courseEditor.alerts.courseUnpublished'))
   } catch (err: any) {
     console.error('Error unpublishing course:', err)
-    alert(t('windows.courseEditor.errors.unpublishError') + ': ' + (err.response?.data?.message || err.message))
+    alert(t('features.courseEditor.errors.unpublishError') + ': ' + (err.response?.data?.message || err.message))
   }
 }
 
 const archiveCourse = async () => {
-  if (!courseId.value || !confirm(t('windows.courseEditor.alerts.archiveConfirm'))) return
+  if (!courseId.value || !confirm(t('features.courseEditor.alerts.archiveConfirm'))) return
 
   try {
     await adminArchiveCourse(courseId.value)
     await loadCourse()
-    alert(t('windows.courseEditor.alerts.courseArchived'))
+    alert(t('features.courseEditor.alerts.courseArchived'))
   } catch (err: any) {
     console.error('Error archiving course:', err)
-    alert(t('windows.courseEditor.errors.archiveError') + ': ' + (err.response?.data?.message || err.message))
+    alert(t('features.courseEditor.errors.archiveError') + ': ' + (err.response?.data?.message || err.message))
   }
 }
 
 const deleteCourse = async () => {
   if (!courseId.value) return
 
-  const confirmed = confirm(t('windows.courseEditor.alerts.deleteConfirm'))
+  const confirmed = confirm(t('features.courseEditor.alerts.deleteConfirm'))
 
   if (!confirmed) return
 
   try {
-    await adminDeleteCourse(courseId.value, t('windows.courseEditor.alerts.deleteReason'))
-    alert(t('windows.courseEditor.alerts.courseDeleted'))
+    await adminDeleteCourse(courseId.value, t('features.courseEditor.alerts.deleteReason'))
+    alert(t('features.courseEditor.alerts.courseDeleted'))
     emit('close')
   } catch (err: any) {
     console.error('Error deleting course:', err)
-    alert(t('windows.courseEditor.errors.deleteError') + ': ' + (err.response?.data?.message || err.message))
+    alert(t('features.courseEditor.errors.deleteError') + ': ' + (err.response?.data?.message || err.message))
   }
 }
 
 const openChapterEditor = (chapter: AdminChapter | null) => {
-  windowStore.openWindow({
+  panelStore.openPanel({
     type: 'admin-kapitel-editor',
-    title: chapter ? t('windows.courseEditor.chapters.editTitle', { title: chapter.title }) : t('windows.courseEditor.chapters.newTitle'),
+    title: chapter ? t('features.courseEditor.chapters.editTitle', { title: chapter.title }) : t('features.courseEditor.chapters.newTitle'),
     icon: '📚',
     payload: {
       courseId: courseId.value,
@@ -613,15 +613,15 @@ const openChapterEditor = (chapter: AdminChapter | null) => {
 }
 
 const deleteChapter = async (chapterId: string) => {
-  if (!confirm(t('windows.courseEditor.alerts.chapterDeleteConfirm'))) return
+  if (!confirm(t('features.courseEditor.alerts.chapterDeleteConfirm'))) return
 
   try {
-    await adminDeleteChapter(chapterId, t('windows.courseEditor.alerts.chapterDeleteReason'))
+    await adminDeleteChapter(chapterId, t('features.courseEditor.alerts.chapterDeleteReason'))
     await loadChapters()
-    alert(t('windows.courseEditor.alerts.chapterDeleted'))
+    alert(t('features.courseEditor.alerts.chapterDeleted'))
   } catch (err: any) {
     console.error('Error deleting chapter:', err)
-    alert(t('windows.courseEditor.errors.chapterDeleteError') + ': ' + (err.response?.data?.message || err.message))
+    alert(t('features.courseEditor.errors.chapterDeleteError') + ': ' + (err.response?.data?.message || err.message))
   }
 }
 

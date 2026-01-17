@@ -2,6 +2,6 @@
  * Chapter Management Views
  */
 
-export { default as ChapterPreviewWindow } from './ChapterPreviewWindow.vue'
-export { default as KapitelEditorWindow } from './KapitelEditorWindow.vue'
-export { default as KapitelManagerWindow } from './KapitelManagerWindow.vue'
+export { default as ChapterPreviewPanel } from './ChapterPreviewPanel.vue'
+export { default as KapitelEditorPanel } from './KapitelEditorPanel.vue'
+export { default as KapitelManagerPanel } from './KapitelManagerPanel.vue'

@@ -2,5 +2,5 @@
  * System Operations Views
  */
 
-export { default as FilePreviewWindow } from './FilePreviewWindow.vue'
-export { default as WindowManagerWindow } from './WindowManagerWindow.vue'
+export { default as FilePreviewPanel } from './FilePreviewPanel.vue'
+export { default as PanelManagerPanel } from './PanelManagerPanel.vue'

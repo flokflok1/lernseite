@@ -24,7 +24,7 @@ import type { CourseFile } from '../types'
  * ```typescript
  * const fileMgr = useFileManagement(
  *   computed(() => props.courseId),
- *   (file) => windowStore.openWindow({ type: 'file-preview', payload: { file } })
+ *   (file) => windowStore.openPanel({ type: 'file-preview', payload: { file } })
  * )
  *
  * // Load files

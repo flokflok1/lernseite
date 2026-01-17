@@ -15,7 +15,7 @@ from app.repositories.lm_model_routing import (
     LMModelRequirementsRepository
 )
 from app.repositories.ai_models import AIModelsRepository
-from app.ki.learning_method_mapping import get_method_by_id
+from app.ai.configuration.learning_method_mapping import get_method_by_id
 
 
 class ModelNotConfiguredError(Exception):

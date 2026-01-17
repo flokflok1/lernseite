@@ -1,0 +1,96 @@
+{
+  "aiEditorFeatures": {
+    "activated": "Aktiviert",
+    "estimatedTokens": "Geschätzte Tokens pro Lektion",
+    "features": {
+      "codeSandbox": {
+        "description": "Ausführbare Code-Umgebung für praktische Übungen",
+        "label": "Code/Config Sandbox"
+      },
+      "errorAnalysis": {
+        "description": "Systematische Fehlersuche und Debugging",
+        "label": "Fehleranalyse"
+      },
+      "invertedClassroom": {
+        "description": "Theorie zu Hause, Praxis in der Gruppe",
+        "label": "Inverted Classroom"
+      },
+      "itScenario": {
+        "description": "Komplexe IT-Problemstellungen interaktiv bearbeiten",
+        "label": "IT-Szenario lösen"
+      },
+      "learningDiary": {
+        "description": "Persönliche Reflexion des Lernfortschritts",
+        "label": "Lerntagebuch"
+      },
+      "mindmap": {
+        "description": "Automatische Erstellung von Mindmaps zu Themen",
+        "label": "Mindmap-Generator"
+      },
+      "networkSim": {
+        "description": "Virtuelle Netzwerk-Topologien erstellen und testen",
+        "label": "Netzwerk-Simulation"
+      },
+      "npcLecture": {
+        "description": "Animierter Tutor erklärt Inhalte mit TTS",
+        "label": "NPC-Tutor-Lecture"
+      },
+      "peerInstruction": {
+        "description": "Lernende erklären sich gegenseitig Konzepte",
+        "label": "Peer Instruction"
+      },
+      "peerReview": {
+        "description": "Gegenseitige Bewertung von Arbeiten",
+        "label": "Peer Review"
+      },
+      "portfolio": {
+        "description": "Sammlung von Projektarbeiten und Ergebnissen",
+        "label": "Projekt-Portfolio"
+      },
+      "projectBased": {
+        "description": "Lernen durch praktische Projektarbeit",
+        "label": "Projektbasiertes Lernen"
+      },
+      "socraticDialog": {
+        "description": "KI führt durch Fragen zum Verständnis",
+        "label": "Sokratischer Dialog"
+      },
+      "teamCase": {
+        "description": "Fallstudien gemeinsam im Team bearbeiten",
+        "label": "Team-Case / Gruppenfallarbeit"
+      }
+    },
+    "groups": {
+      "collab": {
+        "description": "Gemeinsames Lernen und Peer-Feedback",
+        "title": "Kollaboration"
+      },
+      "it": {
+        "description": "Interaktive Programmier- und Netzwerk-Umgebungen",
+        "title": "IT-Sandbox"
+      },
+      "tutor": {
+        "description": "KI-gestützte Lernbegleitung mit Dialogen und Erklärungen",
+        "title": "Tutor-Agent"
+      },
+      "viz": {
+        "description": "Grafische Darstellungen und Diagramme",
+        "title": "Visualisierung"
+      }
+    },
+    "inherited": "↓ Vererbt",
+    "overridden": "✎ Überschrieben",
+    "requiresDocker": "Benötigt: Docker-Backend aktiviert",
+    "reset": "🔄 Zurücksetzen",
+    "save": "💾 Speichern",
+    "scopeChapter": "📖 Kapitel",
+    "scopeCourse": "📚 Kurs-Ebene",
+    "scopeCourseGlobal": "Kurs-Ebene (Global)",
+    "scopeLesson": "📝 Lektion",
+    "selectCourse": "Kurs auswählen",
+    "selectCourseDesc": "Wähle einen Kurs aus, um System-Features zu konfigurieren.",
+    "title": "System-Features",
+    "tokens": "Tokens",
+    "tokensPerLesson": "Tokens/Lektion"
+  }
+}

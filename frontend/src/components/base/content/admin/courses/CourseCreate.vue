@@ -1,5 +1,5 @@
 <!--
-  Admin Course Create Window - Einfach
+  Admin Course Create Panel - Einfach
 
   Flow:
   1. Ohne Datei: Manuell alle Felder ausfüllen
@@ -10,13 +10,13 @@
 -->
 
 <template>
-  <div class="admin-course-create-window h-full flex flex-col bg-[var(--color-bg)]">
+  <div class="admin-course-create-panel h-full flex flex-col bg-[var(--color-bg)]">
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
       <div>
-        <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('windows.courseCreate.title') }}</h3>
+        <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('features.courseCreate.title') }}</h3>
         <p class="text-sm text-[var(--color-text-secondary)]">
-          {{ selectedFile ? $t('windows.courseCreate.subtitleWithFile') : $t('windows.courseCreate.subtitleManual') }}
+          {{ selectedFile ? $t('features.courseCreate.subtitleWithFile') : $t('features.courseCreate.subtitleManual') }}
         </p>
       </div>
     </div>
@@ -29,9 +29,9 @@
         <div class="p-4 bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)]">
           <div class="flex items-center justify-between mb-2">
             <label class="text-sm font-medium text-[var(--color-text-primary)]">
-              {{ $t('windows.courseCreate.file.title') }}
+              {{ $t('features.courseCreate.file.title') }}
             </label>
-            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('windows.courseCreate.file.optional') }}</span>
+            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('features.courseCreate.file.optional') }}</span>
           </div>
 
           <!-- Kein File -->
@@ -43,10 +43,10 @@
               class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:border-[var(--color-primary)] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <span>📄</span>
-              <span>{{ $t('windows.courseCreate.file.selectFile') }}</span>
+              <span>{{ $t('features.courseCreate.file.selectFile') }}</span>
             </button>
             <span class="text-xs text-[var(--color-text-secondary)]">
-              {{ $t('windows.courseCreate.file.hint') }}
+              {{ $t('features.courseCreate.file.hint') }}
             </span>
             <input
               ref="fileInput"
@@ -70,7 +70,7 @@
                 @click="clearFile"
                 :disabled="isProcessing"
                 class="p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-error,#dc2626)] rounded transition-colors"
-                :title="$t('windows.courseCreate.file.removeFile')"
+                :title="$t('features.courseCreate.file.removeFile')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -87,19 +87,19 @@
               class="mt-3 w-full px-4 py-2 text-sm bg-gradient-to-r from-[var(--color-magic-start,#8B5CF6)] to-[var(--color-magic-end,#EC4899)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
             >
               <span>✨</span>
-              <span>{{ $t('windows.courseCreate.file.fillWithAI') }}</span>
+              <span>{{ $t('features.courseCreate.file.fillWithAI') }}</span>
             </button>
 
             <!-- KI läuft -->
             <div v-else-if="aiStatus === 'processing'" class="mt-3 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
               <span class="animate-pulse">✨</span>
-              <span>{{ $t('windows.courseCreate.file.aiProcessing') }}</span>
+              <span>{{ $t('features.courseCreate.file.aiProcessing') }}</span>
             </div>
 
             <!-- KI fertig -->
             <div v-else-if="aiStatus === 'completed'" class="mt-3 flex items-center gap-2 text-sm text-[var(--color-success,#22c55e)]">
               <span>✅</span>
-              <span>{{ $t('windows.courseCreate.file.aiCompleted') }}</span>
+              <span>{{ $t('features.courseCreate.file.aiCompleted') }}</span>
             </div>
           </div>
 
@@ -109,7 +109,7 @@
         <!-- Kurstitel -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-            {{ $t('windows.courseCreate.form.courseTitle') }}
+            {{ $t('features.courseCreate.form.courseTitle') }}
           </label>
           <input
             v-model="form.title"
@@ -117,21 +117,21 @@
             required
             :disabled="isProcessing"
             class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent disabled:opacity-50"
-            :placeholder="$t('windows.courseCreate.form.courseTitlePlaceholder')"
+            :placeholder="$t('features.courseCreate.form.courseTitlePlaceholder')"
           />
         </div>
 
         <!-- Beschreibung -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-            {{ $t('windows.courseCreate.form.description') }}
+            {{ $t('features.courseCreate.form.description') }}
           </label>
           <textarea
             v-model="form.description"
             rows="3"
             :disabled="isProcessing"
             class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent disabled:opacity-50 resize-none"
-            :placeholder="$t('windows.courseCreate.form.descriptionPlaceholder')"
+            :placeholder="$t('features.courseCreate.form.descriptionPlaceholder')"
           ></textarea>
         </div>
 
@@ -139,14 +139,14 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-              {{ $t('windows.courseCreate.form.category') }}
+              {{ $t('features.courseCreate.form.category') }}
             </label>
             <select
               v-model="form.category_id"
               :disabled="isProcessing"
               class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent disabled:opacity-50"
             >
-              <option value="">{{ $t('windows.courseCreate.form.noCategory') }}</option>
+              <option value="">{{ $t('features.courseCreate.form.noCategory') }}</option>
               <option v-for="cat in categories" :key="cat.category_id" :value="cat.category_id">
                 {{ cat.name }}
               </option>
@@ -155,16 +155,16 @@
 
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-              {{ $t('windows.courseCreate.form.difficulty') }}
+              {{ $t('features.courseCreate.form.difficulty') }}
             </label>
             <select
               v-model="form.level"
               :disabled="isProcessing"
               class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent disabled:opacity-50"
             >
-              <option value="beginner">{{ $t('windows.courseCreate.form.levelBeginner') }}</option>
-              <option value="intermediate">{{ $t('windows.courseCreate.form.levelIntermediate') }}</option>
-              <option value="advanced">{{ $t('windows.courseCreate.form.levelAdvanced') }}</option>
+              <option value="beginner">{{ $t('features.courseCreate.form.levelBeginner') }}</option>
+              <option value="intermediate">{{ $t('features.courseCreate.form.levelIntermediate') }}</option>
+              <option value="advanced">{{ $t('features.courseCreate.form.levelAdvanced') }}</option>
             </select>
           </div>
         </div>
@@ -172,7 +172,7 @@
         <!-- Sprache -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-            {{ $t('windows.courseCreate.form.language') }}
+            {{ $t('features.courseCreate.form.language') }}
           </label>
           <select
             v-model="form.language"
@@ -190,9 +190,9 @@
         <div class="p-4 bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)]">
           <div class="flex items-center justify-between mb-2">
             <label class="text-sm font-medium text-[var(--color-text-primary)]">
-              {{ $t('windows.courseCreate.form.aiModel') }}
+              {{ $t('features.courseCreate.form.aiModel') }}
             </label>
-            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('windows.courseCreate.file.optional') }}</span>
+            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('features.courseCreate.file.optional') }}</span>
           </div>
           <div class="flex items-center gap-3">
             <button
@@ -202,7 +202,7 @@
               class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:border-[var(--color-primary)] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <span>🤖</span>
-              <span>{{ form.ai_model_override || $t('windows.courseCreate.form.selectModel') }}</span>
+              <span>{{ form.ai_model_override || $t('features.courseCreate.form.selectModel') }}</span>
             </button>
             <button
               v-if="form.ai_model_override"
@@ -210,7 +210,7 @@
               @click="form.ai_model_override = ''"
               :disabled="isProcessing"
               class="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-error,#dc2626)] transition-colors"
-              :title="$t('windows.courseCreate.form.removeModelOverride')"
+              :title="$t('features.courseCreate.form.removeModelOverride')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -218,7 +218,7 @@
             </button>
           </div>
           <p class="mt-2 text-xs text-[var(--color-text-secondary)]">
-            {{ form.ai_model_override ? $t('windows.courseCreate.form.courseUsesModel', { model: form.ai_model_override }) : $t('windows.courseCreate.form.usesDefaultModel') }}
+            {{ form.ai_model_override ? $t('features.courseCreate.form.courseUsesModel', { model: form.ai_model_override }) : $t('features.courseCreate.form.usesDefaultModel') }}
           </p>
         </div>
 
@@ -233,7 +233,7 @@
         :disabled="isProcessing"
         class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] transition-colors disabled:opacity-50"
       >
-        {{ $t('windows.courseCreate.actions.cancel') }}
+        {{ $t('features.courseCreate.actions.cancel') }}
       </button>
 
       <button
@@ -242,7 +242,7 @@
         :disabled="!canCreate"
         class="px-5 py-2 text-sm bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
       >
-        {{ isCreating ? $t('windows.courseCreate.actions.creating') : $t('windows.courseCreate.actions.createCourse') }}
+        {{ isCreating ? $t('features.courseCreate.actions.creating') : $t('features.courseCreate.actions.createCourse') }}
       </button>
     </div>
   </div>
@@ -254,11 +254,11 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/store/modules/admin'
 import { useAuthStore } from '@/store/modules/core'
-import { useWindowStore } from '@/store/modules/desktop'
-import type { LsxWindow } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 interface Emits {
@@ -272,7 +272,7 @@ const { t } = useI18n()
 const router = useRouter()
 const adminStore = useAdminStore()
 const authStore = useAuthStore()
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
 // ============================================================================
 // State
@@ -287,7 +287,7 @@ const form = ref({
   ai_model_override: ''
 })
 
-// Model selector callback ID for cross-window communication
+// Model selector callback ID for cross-panel communication
 const modelSelectorCallbackId = ref<string | null>(null)
 
 const categories = ref<Array<{ category_id: string; name: string }>>([])
@@ -331,12 +331,12 @@ const validateAndSetFile = (file: File): void => {
 
   const ext = file.name.split('.').pop()?.toLowerCase() || ''
   if (!ALLOWED_EXTENSIONS.includes(ext)) {
-    fileError.value = t('windows.courseCreate.file.onlyAllowed')
+    fileError.value = t('features.courseCreate.file.onlyAllowed')
     return
   }
 
   if (file.size > MAX_FILE_SIZE) {
-    fileError.value = t('windows.courseCreate.file.tooLarge')
+    fileError.value = t('features.courseCreate.file.tooLarge')
     return
   }
 
@@ -394,7 +394,7 @@ const fillFieldsWithAI = async (): Promise<void> => {
 
       if (pollCount > maxPolls) {
         aiStatus.value = 'failed'
-        fileError.value = t('windows.courseCreate.errors.timeout')
+        fileError.value = t('features.courseCreate.errors.timeout')
         return
       }
 
@@ -417,7 +417,7 @@ const fillFieldsWithAI = async (): Promise<void> => {
           aiStatus.value = 'completed'
         } else if (result.status === 'failed') {
           aiStatus.value = 'failed'
-          fileError.value = result.error_message || t('windows.courseCreate.errors.aiFailed')
+          fileError.value = result.error_message || t('features.courseCreate.errors.aiFailed')
         } else if (result.status === 'queued' || result.status === 'processing') {
           // Still processing, poll again with 3 second interval
           setTimeout(pollResult, 3000)
@@ -439,7 +439,7 @@ const fillFieldsWithAI = async (): Promise<void> => {
     setTimeout(pollResult, 3000)
   } catch (error: any) {
     aiStatus.value = 'failed'
-    fileError.value = error.message || t('windows.courseCreate.errors.aiError')
+    fileError.value = error.message || t('features.courseCreate.errors.aiError')
   }
 }
 
@@ -489,7 +489,7 @@ const createCourse = async (): Promise<void> => {
     }
   } catch (error: any) {
     console.error('Failed to create course:', error)
-    alert(t('windows.courseCreate.errors.createError') + ': ' + (error.message || t('common.unknownError')))
+    alert(t('features.courseCreate.errors.createError') + ': ' + (error.message || t('common.unknownError')))
   } finally {
     isCreating.value = false
   }
@@ -525,14 +525,14 @@ const loadCategories = async (): Promise<void> => {
   }
 }
 
-// Phase C3.3: Model Selector Window
+// Phase C3.3: Model Selector Panel
 const openModelSelector = (): void => {
   // Generate unique callback ID
   modelSelectorCallbackId.value = `model-select-${Date.now()}`
 
-  windowStore.openWindow({
+  panelStore.openPanel({
     type: 'admin-model-selector',
-    title: t('windows.courseCreate.modelSelector.title'),
+    title: t('features.courseCreate.modelSelector.title'),
     icon: '🤖',
     payload: {
       scope: 'course',
@@ -545,7 +545,7 @@ const openModelSelector = (): void => {
   })
 }
 
-// Handle model selection from cross-window event
+// Handle model selection from cross-panel event
 const handleModelSelected = (event: CustomEvent): void => {
   if (event.detail?.callbackId === modelSelectorCallbackId.value) {
     const model = event.detail.model
@@ -561,7 +561,7 @@ const handleModelSelected = (event: CustomEvent): void => {
 
 onMounted(() => {
   loadCategories()
-  // Listen for model selection events from Model Selector Window
+  // Listen for model selection events from Model Selector Panel
   window.addEventListener('model-selected', handleModelSelected as EventListener)
 })
 

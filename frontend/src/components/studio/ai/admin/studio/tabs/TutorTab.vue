@@ -11,8 +11,8 @@
     <!-- No Content Selected -->
     <div v-if="!chapter && !lesson" class="empty-state">
       <div class="empty-icon">👨‍🏫</div>
-      <h3>{{ $t('windows.aiEditorTutor.selectContent') }}</h3>
-      <p v-html="$t('windows.aiEditorTutor.selectContentHint')"></p>
+      <h3>{{ $t('features.aiEditorTutor.selectContent') }}</h3>
+      <p v-html="$t('features.aiEditorTutor.selectContentHint')"></p>
     </div>
 
     <!-- Chapter View: Theory Generation -->

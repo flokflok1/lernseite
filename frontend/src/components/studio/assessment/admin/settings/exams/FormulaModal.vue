@@ -11,27 +11,27 @@
   >
     <div class="bg-[var(--color-surface)] rounded-xl p-6 w-[600px] max-h-[80vh] overflow-y-auto">
       <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
-        {{ $t('windows.aiEditorAssets.formulaModal.title') }}
+        {{ $t('features.aiEditorAssets.formulaModal.title') }}
       </h3>
 
       <div class="space-y-4">
         <!-- LaTeX Input -->
         <div>
           <label class="text-sm text-[var(--color-text-secondary)] mb-1 block">
-            {{ $t('windows.aiEditorAssets.formulaModal.latexCode') }}
+            {{ $t('features.aiEditorAssets.formulaModal.latexCode') }}
           </label>
           <textarea
             :value="modelValue"
             @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
             class="w-full h-32 px-3 py-2 bg-[var(--color-surface-secondary)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] font-mono resize-none"
-            :placeholder="$t('windows.aiEditorAssets.formulaModal.latexPlaceholder')"
+            :placeholder="$t('features.aiEditorAssets.formulaModal.latexPlaceholder')"
           ></textarea>
         </div>
 
         <!-- Preview -->
         <div>
           <label class="text-sm text-[var(--color-text-secondary)] mb-1 block">
-            {{ $t('windows.aiEditorAssets.formulaModal.preview') }}
+            {{ $t('features.aiEditorAssets.formulaModal.preview') }}
           </label>
           <div class="h-24 bg-white dark:bg-gray-800 border border-[var(--color-border)] rounded-lg flex items-center justify-center">
             <span class="text-2xl">{{ preview }}</span>
@@ -41,7 +41,7 @@
         <!-- Common Formulas -->
         <div>
           <label class="text-sm text-[var(--color-text-secondary)] mb-2 block">
-            {{ $t('windows.aiEditorAssets.formulaModal.commonFormulas') }}
+            {{ $t('features.aiEditorAssets.formulaModal.commonFormulas') }}
           </label>
           <div class="grid grid-cols-4 gap-2">
             <button
@@ -62,13 +62,13 @@
           @click="$emit('close')"
           class="px-4 py-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
         >
-          {{ $t('windows.aiEditorAssets.cancel') }}
+          {{ $t('features.aiEditorAssets.cancel') }}
         </button>
         <button
           @click="$emit('save')"
           class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)]"
         >
-          {{ $t('windows.aiEditorAssets.save') }}
+          {{ $t('features.aiEditorAssets.save') }}
         </button>
       </div>
     </div>

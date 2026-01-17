@@ -9,7 +9,7 @@
 
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -17,12 +17,12 @@
       <!-- Zentrales Thema -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm05.centralTopicLabel') }}
+          {{ $t('features.lm05.centralTopicLabel') }}
         </label>
         <input
           v-model="methodData.central_topic"
           type="text"
-          :placeholder="$t('windows.lm05.centralTopicPlaceholder')"
+          :placeholder="$t('features.lm05.centralTopicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -31,12 +31,12 @@
       <!-- Beschreibung/Kontext -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm05.contextLabel') }}
+          {{ $t('features.lm05.contextLabel') }}
         </label>
         <textarea
           v-model="methodData.context"
           rows="2"
-          :placeholder="$t('windows.lm05.contextPlaceholder')"
+          :placeholder="$t('features.lm05.contextPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -44,15 +44,15 @@
       <!-- Tiefe der Mindmap -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm05.depthLevelLabel') }}
+          {{ $t('features.lm05.depthLevelLabel') }}
         </label>
         <select
           v-model="methodData.depth_level"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="shallow">{{ $t('windows.lm05.depthLevelShallow') }}</option>
-          <option value="medium">{{ $t('windows.lm05.depthLevelMedium') }}</option>
-          <option value="deep">{{ $t('windows.lm05.depthLevelDeep') }}</option>
+          <option value="shallow">{{ $t('features.lm05.depthLevelShallow') }}</option>
+          <option value="medium">{{ $t('features.lm05.depthLevelMedium') }}</option>
+          <option value="deep">{{ $t('features.lm05.depthLevelDeep') }}</option>
         </select>
       </div>
 
@@ -60,32 +60,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            {{ $t('windows.lm05.mainBranchesLabel') }}
+            {{ $t('features.lm05.mainBranchesLabel') }}
           </label>
           <button
             @click="addBranch"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            {{ $t('windows.lm05.addBranch') }}
+            {{ $t('features.lm05.addBranch') }}
           </button>
         </div>
 
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          {{ $t('windows.lm05.branchesHint') }}
+          {{ $t('features.lm05.branchesHint') }}
         </p>
 
         <div v-for="(branch, index) in methodData.main_branches" :key="index" class="mb-2 flex gap-2">
           <input
             v-model="branch.name"
             type="text"
-            :placeholder="$t('windows.lm05.branchNamePlaceholder')"
+            :placeholder="$t('features.lm05.branchNamePlaceholder')"
             class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <input
             v-model="branch.description"
             type="text"
-            :placeholder="$t('windows.lm05.branchDescriptionPlaceholder')"
+            :placeholder="$t('features.lm05.branchDescriptionPlaceholder')"
             class="flex-[2] px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <button
@@ -101,22 +101,22 @@
       <!-- Visualisierungsstil -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm05.visualizationStyleLabel') }}
+          {{ $t('features.lm05.visualizationStyleLabel') }}
         </label>
         <select
           v-model="methodData.visualization_style"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="radial">{{ $t('windows.lm05.visualizationStyleRadial') }}</option>
-          <option value="hierarchical">{{ $t('windows.lm05.visualizationStyleHierarchical') }}</option>
-          <option value="network">{{ $t('windows.lm05.visualizationStyleNetwork') }}</option>
+          <option value="radial">{{ $t('features.lm05.visualizationStyleRadial') }}</option>
+          <option value="hierarchical">{{ $t('features.lm05.visualizationStyleHierarchical') }}</option>
+          <option value="network">{{ $t('features.lm05.visualizationStyleNetwork') }}</option>
         </select>
       </div>
 
       <!-- Optionen -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm05.optionsLabel') }}
+          {{ $t('features.lm05.optionsLabel') }}
         </label>
         <div class="space-y-2">
           <label class="flex items-center gap-2 cursor-pointer">
@@ -125,7 +125,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.showDescriptionsLabel') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm05.showDescriptionsLabel') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -133,7 +133,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.showConnectionsLabel') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm05.showConnectionsLabel') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -141,7 +141,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.colorCodedLabel') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm05.colorCodedLabel') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -149,7 +149,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm05.interactiveLabel') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm05.interactiveLabel') }}</span>
           </label>
         </div>
       </div>
@@ -157,12 +157,12 @@
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm05.learningGoalLabel') }}
+          {{ $t('features.lm05.learningGoalLabel') }}
         </label>
         <input
           v-model="methodData.learning_goal"
           type="text"
-          :placeholder="$t('windows.lm05.learningGoalPlaceholder')"
+          :placeholder="$t('features.lm05.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -170,7 +170,7 @@
       <!-- KI-Hinweis -->
       <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <p class="text-sm text-blue-800 dark:text-blue-200">
-          <strong>{{ $t('windows.lm05.aiHintTitle') }}:</strong> {{ $t('windows.lm05.aiHintText') }}
+          <strong>{{ $t('features.lm05.aiHintTitle') }}:</strong> {{ $t('features.lm05.aiHintText') }}
         </p>
       </div>
     </template>
@@ -180,14 +180,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const { t } = useI18n()
 const METHOD_CODE = 5
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -224,7 +224,7 @@ const removeBranch = (index: number) => {
 
 // Lade existierende Daten im Edit-Mode
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value.central_topic = existingData.central_topic || ''
     methodData.value.context = existingData.context || ''

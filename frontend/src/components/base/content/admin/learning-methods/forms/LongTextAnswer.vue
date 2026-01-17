@@ -1,6 +1,6 @@
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -8,62 +8,62 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm11.scenarioTitle') }}
+            {{ $t('features.lm11.scenarioTitle') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            {{ $t('windows.lm11.scenarioDescription') }}
+            {{ $t('features.lm11.scenarioDescription') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm11.scenarioTitleLabel') }}
+            {{ $t('features.lm11.scenarioTitleLabel') }}
           </label>
           <input
             v-model="methodData.title"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            :placeholder="$t('windows.lm11.scenarioTitlePlaceholder')"
+            :placeholder="$t('features.lm11.scenarioTitlePlaceholder')"
             required
           />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm11.situationLabel') }}
+            {{ $t('features.lm11.situationLabel') }}
           </label>
           <textarea
             v-model="methodData.scenario"
             rows="5"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            :placeholder="$t('windows.lm11.situationPlaceholder')"
+            :placeholder="$t('features.lm11.situationPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm11.itAreaLabel') }}
+            {{ $t('features.lm11.itAreaLabel') }}
           </label>
           <select
             v-model="methodData.it_area"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">{{ $t('windows.lm11.itAreaDefault') }}</option>
-            <option value="network">{{ $t('windows.lm11.itAreaNetwork') }}</option>
-            <option value="security">{{ $t('windows.lm11.itAreaSecurity') }}</option>
-            <option value="server">{{ $t('windows.lm11.itAreaServer') }}</option>
-            <option value="database">{{ $t('windows.lm11.itAreaDatabase') }}</option>
-            <option value="cloud">{{ $t('windows.lm11.itAreaCloud') }}</option>
-            <option value="devops">{{ $t('windows.lm11.itAreaDevops') }}</option>
-            <option value="helpdesk">{{ $t('windows.lm11.itAreaHelpdesk') }}</option>
+            <option value="">{{ $t('features.lm11.itAreaDefault') }}</option>
+            <option value="network">{{ $t('features.lm11.itAreaNetwork') }}</option>
+            <option value="security">{{ $t('features.lm11.itAreaSecurity') }}</option>
+            <option value="server">{{ $t('features.lm11.itAreaServer') }}</option>
+            <option value="database">{{ $t('features.lm11.itAreaDatabase') }}</option>
+            <option value="cloud">{{ $t('features.lm11.itAreaCloud') }}</option>
+            <option value="devops">{{ $t('features.lm11.itAreaDevops') }}</option>
+            <option value="helpdesk">{{ $t('features.lm11.itAreaHelpdesk') }}</option>
           </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm11.stepsLabel') }}
+            {{ $t('features.lm11.stepsLabel') }}
           </label>
           <div class="space-y-3">
             <div
@@ -73,7 +73,7 @@
             >
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {{ $t('windows.lm11.stepLabel', { n: index + 1 }) }}
+                  {{ $t('features.lm11.stepLabel', { n: index + 1 }) }}
                 </span>
                 <button
                   type="button"
@@ -90,14 +90,14 @@
                 v-model="step.description"
                 rows="2"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white mb-2"
-                :placeholder="$t('windows.lm11.stepDescriptionPlaceholder')"
+                :placeholder="$t('features.lm11.stepDescriptionPlaceholder')"
                 required
               ></textarea>
               <textarea
                 v-model="step.expected_answer"
                 rows="2"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                :placeholder="$t('windows.lm11.stepAnswerPlaceholder')"
+                :placeholder="$t('features.lm11.stepAnswerPlaceholder')"
               ></textarea>
             </div>
           </div>
@@ -106,7 +106,7 @@
             @click="addStep"
             class="mt-2 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            {{ $t('windows.lm11.addStepButton') }}
+            {{ $t('features.lm11.addStepButton') }}
           </button>
         </div>
 
@@ -118,7 +118,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              {{ $t('windows.lm11.allowHintsLabel') }}
+              {{ $t('features.lm11.allowHintsLabel') }}
             </span>
           </label>
         </div>
@@ -130,7 +130,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const { t } = useI18n()
@@ -143,7 +143,7 @@ interface Step {
 }
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -173,7 +173,7 @@ const removeStep = (index: number) => {
 }
 
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value = {
       title: existingData.title || '',

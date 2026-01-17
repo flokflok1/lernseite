@@ -6,7 +6,7 @@
 <template>
   <div class="section provider-section">
     <div class="section-header">
-      <h3 class="section-title">{{ $t('windows.aiEditorGlobalSettings.providerApiKeys') }}</h3>
+      <h3 class="section-title">{{ $t('features.aiEditorGlobalSettings.providerApiKeys') }}</h3>
     </div>
     <div class="provider-grid">
       <div
@@ -20,7 +20,7 @@
         </div>
         <div class="provider-info">
           <span class="provider-name">{{ provider.display_name }}</span>
-          <span class="provider-meta">{{ getModelCount(provider.name) }} {{ $t('windows.aiEditorGlobalSettings.models') }}</span>
+          <span class="provider-meta">{{ getModelCount(provider.name) }} {{ $t('features.aiEditorGlobalSettings.models') }}</span>
         </div>
         <div class="provider-status">
           <span class="status-dot" :class="provider.has_api_key ? 'ok' : 'missing'"></span>

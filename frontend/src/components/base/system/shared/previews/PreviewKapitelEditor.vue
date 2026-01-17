@@ -1,5 +1,5 @@
 <!--
-  Mini-Preview for Kapitel Editor Window
+  Mini-Preview for Kapitel Editor Panel
   Shows chapter details
   Refactored: modules → chapters (2025-11-27)
 -->
@@ -40,15 +40,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
 
-const chapter = computed(() => props.window.payload?.chapter || {})
+const chapter = computed(() => props.panel.payload?.chapter || {})
 
 const hasFlags = computed(() =>
   chapter.value.has_video || chapter.value.has_quiz || chapter.value.has_exam

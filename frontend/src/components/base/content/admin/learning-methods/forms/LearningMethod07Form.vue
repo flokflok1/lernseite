@@ -9,7 +9,7 @@
 
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -17,12 +17,12 @@
       <!-- Vorlesungsthema -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.lectureTopicLabel') }}
+          {{ $t('features.lm07.lectureTopicLabel') }}
         </label>
         <input
           v-model="methodData.lecture_topic"
           type="text"
-          :placeholder="$t('windows.lm07.lectureTopicPlaceholder')"
+          :placeholder="$t('features.lm07.lectureTopicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -31,76 +31,76 @@
       <!-- Tutor-Persona -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.tutorPersonaLabel') }}
+          {{ $t('features.lm07.tutorPersonaLabel') }}
         </label>
         <select
           v-model="methodData.tutor_persona"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="professor">{{ $t('windows.lm07.tutorPersonaProfessor') }}</option>
-          <option value="mentor">{{ $t('windows.lm07.tutorPersonaMentor') }}</option>
-          <option value="expert">{{ $t('windows.lm07.tutorPersonaExpert') }}</option>
-          <option value="coach">{{ $t('windows.lm07.tutorPersonaCoach') }}</option>
-          <option value="colleague">{{ $t('windows.lm07.tutorPersonaColleague') }}</option>
+          <option value="professor">{{ $t('features.lm07.tutorPersonaProfessor') }}</option>
+          <option value="mentor">{{ $t('features.lm07.tutorPersonaMentor') }}</option>
+          <option value="expert">{{ $t('features.lm07.tutorPersonaExpert') }}</option>
+          <option value="coach">{{ $t('features.lm07.tutorPersonaCoach') }}</option>
+          <option value="colleague">{{ $t('features.lm07.tutorPersonaColleague') }}</option>
         </select>
       </div>
 
       <!-- Vorlesungsstil -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.lectureStyleLabel') }}
+          {{ $t('features.lm07.lectureStyleLabel') }}
         </label>
         <select
           v-model="methodData.lecture_style"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="structured">{{ $t('windows.lm07.lectureStyleStructured') }}</option>
-          <option value="narrative">{{ $t('windows.lm07.lectureStyleNarrative') }}</option>
-          <option value="interactive">{{ $t('windows.lm07.lectureStyleInteractive') }}</option>
-          <option value="socratic">{{ $t('windows.lm07.lectureStyleSocratic') }}</option>
-          <option value="practical">{{ $t('windows.lm07.lectureStylePractical') }}</option>
+          <option value="structured">{{ $t('features.lm07.lectureStyleStructured') }}</option>
+          <option value="narrative">{{ $t('features.lm07.lectureStyleNarrative') }}</option>
+          <option value="interactive">{{ $t('features.lm07.lectureStyleInteractive') }}</option>
+          <option value="socratic">{{ $t('features.lm07.lectureStyleSocratic') }}</option>
+          <option value="practical">{{ $t('features.lm07.lectureStylePractical') }}</option>
         </select>
       </div>
 
       <!-- Tiefe/Länge -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.lectureLengthLabel') }}
+          {{ $t('features.lm07.lectureLengthLabel') }}
         </label>
         <select
           v-model="methodData.lecture_length"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="short">{{ $t('windows.lm07.lectureLengthShort') }}</option>
-          <option value="medium">{{ $t('windows.lm07.lectureLengthMedium') }}</option>
-          <option value="long">{{ $t('windows.lm07.lectureLengthLong') }}</option>
+          <option value="short">{{ $t('features.lm07.lectureLengthShort') }}</option>
+          <option value="medium">{{ $t('features.lm07.lectureLengthMedium') }}</option>
+          <option value="long">{{ $t('features.lm07.lectureLengthLong') }}</option>
         </select>
       </div>
 
       <!-- Zielgruppen-Niveau -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.targetLevelLabel') }}
+          {{ $t('features.lm07.targetLevelLabel') }}
         </label>
         <select
           v-model="methodData.target_level"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="beginner">{{ $t('windows.lm07.targetLevelBeginner') }}</option>
-          <option value="intermediate">{{ $t('windows.lm07.targetLevelIntermediate') }}</option>
-          <option value="advanced">{{ $t('windows.lm07.targetLevelAdvanced') }}</option>
+          <option value="beginner">{{ $t('features.lm07.targetLevelBeginner') }}</option>
+          <option value="intermediate">{{ $t('features.lm07.targetLevelIntermediate') }}</option>
+          <option value="advanced">{{ $t('features.lm07.targetLevelAdvanced') }}</option>
         </select>
       </div>
 
       <!-- Fokus-Bereiche -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.focusAreasLabel') }}
+          {{ $t('features.lm07.focusAreasLabel') }}
         </label>
         <textarea
           v-model="methodData.focus_areas"
           rows="2"
-          :placeholder="$t('windows.lm07.focusAreasPlaceholder')"
+          :placeholder="$t('features.lm07.focusAreasPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -108,7 +108,7 @@
       <!-- Optionen -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.lectureOptionsLabel') }}
+          {{ $t('features.lm07.lectureOptionsLabel') }}
         </label>
         <div class="space-y-2">
           <label class="flex items-center gap-2 cursor-pointer">
@@ -117,7 +117,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm07.includeSummary') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm07.includeSummary') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -125,7 +125,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm07.includeExamples') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm07.includeExamples') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -133,7 +133,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm07.includeQuestions') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm07.includeQuestions') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -141,7 +141,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm07.includeAnalogies') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm07.includeAnalogies') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -149,7 +149,7 @@
               type="checkbox"
               class="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('windows.lm07.allowFollowup') }}</span>
+            <span class="text-sm text-[var(--color-text-primary)]">{{ $t('features.lm07.allowFollowup') }}</span>
           </label>
         </div>
       </div>
@@ -157,28 +157,28 @@
       <!-- Sprachstil -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.languageStyleLabel') }}
+          {{ $t('features.lm07.languageStyleLabel') }}
         </label>
         <select
           v-model="methodData.language_style"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
-          <option value="formal">{{ $t('windows.lm07.languageStyleFormal') }}</option>
-          <option value="casual">{{ $t('windows.lm07.languageStyleCasual') }}</option>
-          <option value="encouraging">{{ $t('windows.lm07.languageStyleEncouraging') }}</option>
-          <option value="technical">{{ $t('windows.lm07.languageStyleTechnical') }}</option>
+          <option value="formal">{{ $t('features.lm07.languageStyleFormal') }}</option>
+          <option value="casual">{{ $t('features.lm07.languageStyleCasual') }}</option>
+          <option value="encouraging">{{ $t('features.lm07.languageStyleEncouraging') }}</option>
+          <option value="technical">{{ $t('features.lm07.languageStyleTechnical') }}</option>
         </select>
       </div>
 
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.lm07.learningGoalLabel') }}
+          {{ $t('features.lm07.learningGoalLabel') }}
         </label>
         <input
           v-model="methodData.learning_goal"
           type="text"
-          :placeholder="$t('windows.lm07.learningGoalPlaceholder')"
+          :placeholder="$t('features.lm07.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -186,7 +186,7 @@
       <!-- KI-Hinweis -->
       <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
         <p class="text-sm text-purple-800 dark:text-purple-200">
-          <strong>{{ $t('windows.lm07.aiHint') }}</strong>
+          <strong>{{ $t('features.lm07.aiHint') }}</strong>
         </p>
       </div>
     </template>
@@ -195,13 +195,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const METHOD_CODE = 7
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -225,7 +225,7 @@ const methodData = ref({
 
 // Lade existierende Daten im Edit-Mode
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value.lecture_topic = existingData.lecture_topic || ''
     methodData.value.tutor_persona = existingData.tutor_persona || 'mentor'

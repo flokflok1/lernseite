@@ -8,7 +8,7 @@
       </div>
       <div class="flex gap-2">
         <button
-          @click="openCourseCreateWindow"
+          @click="openCourseCreatePanel"
           class="px-3 py-1.5 text-sm bg-[var(--color-primary)] text-white rounded hover:bg-[var(--color-primary-dark)] transition-colors font-medium"
         >
           + {{ $t('admin.courses.create') }}
@@ -269,13 +269,13 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/store/modules/admin'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import type { Category } from '@/api/admin.api'
 
 const { t } = useI18n()
 const router = useRouter()
 const adminStore = useAdminStore()
-const windowStore = useWindowStore()
+const windowStore = usePanelStore()
 
 // Filters
 const searchQuery = ref('')
@@ -348,7 +348,7 @@ const changePage = (page: number) => {
 
 const viewCourseDetail = (courseId: string) => {
   if (!courseId) return
-  windowStore.openWindow({
+  windowStore.openPanel({
     type: 'admin-course-editor',
     title: t('admin.courses.editCourse'),
     icon: '📝'
@@ -436,8 +436,8 @@ const getLevelLabel = (level?: string): string => {
   }
 }
 
-function openCourseCreateWindow(): void {
-  windowStore.openWindow({
+function openCourseCreatePanel(): void {
+  windowStore.openPanel({
     type: 'admin-course-create',
     title: t('admin.courses.createNewCourse'),
     icon: '📚'

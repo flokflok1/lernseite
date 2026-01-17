@@ -40,18 +40,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
 
-const courseDraft = computed(() => props.window.payload?.courseDraft || {})
-const moduleCount = computed(() => props.window.payload?.modules?.length || 0)
+const courseDraft = computed(() => props.panel.payload?.courseDraft || {})
+const moduleCount = computed(() => props.panel.payload?.modules?.length || 0)
 const lessonCount = computed(() => {
-  const modules = props.window.payload?.modules || []
+  const modules = props.panel.payload?.modules || []
   return modules.reduce((total: number, mod: any) => total + (mod.lessons?.length || 0), 0)
 })
 

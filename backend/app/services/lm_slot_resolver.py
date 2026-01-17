@@ -24,8 +24,8 @@ Date: 2025-12-04
 from typing import Optional, Dict, List, Any
 from dataclasses import dataclass
 
-from app.ki.capability_slots import CapabilitySlot, get_slot_definition
-from app.ki.slots.validation import (
+from app.ai.configuration.capability_slots import CapabilitySlot, get_slot_definition
+from app.ai.configuration.slots.validation import (
     get_lm_config,
     get_lm_required_slots,
     ALL_LM_CONFIGS

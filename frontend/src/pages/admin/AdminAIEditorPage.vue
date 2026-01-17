@@ -87,11 +87,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import http from '@/api/http'
 
 useI18n()
-const windowStore = useWindowStore()
+const windowStore = usePanelStore()
 
 // State
 const loading = ref(true)
@@ -142,10 +142,10 @@ function formatCost(cost: number): string {
   return '$' + cost.toFixed(2)
 }
 
-// Open AI Editor Window
+// Open AI Editor Panel
 function openAIEditor() {
-  windowStore.openWindow({
-    type: 'admin-ai-studio'
+  windowStore.openPanel({
+    type: 'admin-ai-editor'
   })
 }
 

@@ -7,7 +7,7 @@
 export { default as AnimatedTeacher } from './AnimatedTeacher.vue'
 export { default as Avatar3D } from './Avatar3D.vue'
 export { default as AvatarContainer } from './AvatarContainer.vue'
-export { default as FeedbackWindow } from './FeedbackWindow.vue'
+export { default as FeedbackPanel } from './FeedbackPanel.vue'
 export { default as InteractiveWhiteboard } from './InteractiveWhiteboard.vue'
 export { default as LessonTutorPlayer } from './LessonTutorPlayer.vue'
 export { default as OnScreenCalculator } from './OnScreenCalculator.vue'

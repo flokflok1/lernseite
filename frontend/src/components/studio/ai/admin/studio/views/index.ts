@@ -1,21 +1,21 @@
 /**
- * AI Studio Pro Views - Barrel Export
+ * AI Editor Views - Barrel Export
  * =====================================
- * Clean imports for AI Studio components
+ * Clean imports for AI Editor components
  */
 
 // Main View
-export { default as AiEditorWindow } from './AiEditorWindow.vue'
+export { default as AiEditorPanel } from './AiEditorPanel.vue'
 
 // Components
-export { default as AiStudioHeader } from './components/AiStudioHeader.vue'
+export { default as AiEditorHeader } from './components/AiEditorHeader.vue'
 export { default as CourseSelector } from './components/CourseSelector.vue'
 export { default as NewCourseModal } from './components/NewCourseModal.vue'
 export { default as CourseStructureSidebar } from './components/CourseStructureSidebar.vue'
 export { default as TutorSubNavigation } from './components/TutorSubNavigation.vue'
 
 // Composables
-export { useAiStudioState } from './composables/useAiStudioState'
+export { useAiEditorState } from './composables/useAiEditorState'
 export { useCourseManagement } from './composables/useCourseManagement'
 export { useChatManagement } from '../composables/useChatManagement'
 export { useTabManagement } from '../composables/useTabManagement'
@@ -25,7 +25,7 @@ export type {
   Course,
   Chapter,
   Lesson
-} from './composables/useAiStudioState'
+} from './composables/useAiEditorState'
 
 export type {
   Category,

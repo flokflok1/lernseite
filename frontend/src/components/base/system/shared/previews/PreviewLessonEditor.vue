@@ -1,5 +1,5 @@
 <!--
-  Mini-Preview for Lesson Editor Window
+  Mini-Preview for Lesson Editor Panel
   Shows lesson details
 -->
 
@@ -35,15 +35,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
 
-const lesson = computed(() => props.window.payload?.lesson || {})
+const lesson = computed(() => props.panel.payload?.lesson || {})
 
 const lessonTypeLabel = computed(() => {
   const types: Record<string, string> = {

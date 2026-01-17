@@ -14,9 +14,9 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('windows.aiEditorAssets.title') }}</h2>
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('features.aiEditorAssets.title') }}</h2>
         <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          {{ $t('windows.aiEditorAssets.subtitle') }}
+          {{ $t('features.aiEditorAssets.subtitle') }}
         </p>
       </div>
       <div class="flex gap-2">
@@ -24,13 +24,13 @@
           @click="showUploadModal = true"
           class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors flex items-center gap-2"
         >
-          <span>📤</span> {{ $t('windows.aiEditorAssets.upload') }}
+          <span>📤</span> {{ $t('features.aiEditorAssets.upload') }}
         </button>
         <button
           @click="showFormulaModal = true"
           class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-surface-secondary)] transition-colors flex items-center gap-2"
         >
-          <span>ƒx</span> {{ $t('windows.aiEditorAssets.formula') }}
+          <span>ƒx</span> {{ $t('features.aiEditorAssets.formula') }}
         </button>
       </div>
     </div>
@@ -56,7 +56,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="$t('windows.aiEditorAssets.searchPlaceholder')"
+          :placeholder="$t('features.aiEditorAssets.searchPlaceholder')"
           class="w-full pl-10 pr-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
         />
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]">🔍</span>
@@ -65,18 +65,18 @@
         v-model="selectedScope"
         class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)]"
       >
-        <option value="all">{{ $t('windows.aiEditorAssets.scope.all') }}</option>
-        <option value="course">{{ $t('windows.aiEditorAssets.scope.course') }}</option>
-        <option value="lesson">{{ $t('windows.aiEditorAssets.scope.lesson') }}</option>
+        <option value="all">{{ $t('features.aiEditorAssets.scope.all') }}</option>
+        <option value="course">{{ $t('features.aiEditorAssets.scope.course') }}</option>
+        <option value="lesson">{{ $t('features.aiEditorAssets.scope.lesson') }}</option>
       </select>
       <select
         v-model="sortBy"
         class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)]"
       >
-        <option value="date">{{ $t('windows.aiEditorAssets.sort.date') }}</option>
-        <option value="name">{{ $t('windows.aiEditorAssets.sort.name') }}</option>
-        <option value="size">{{ $t('windows.aiEditorAssets.sort.size') }}</option>
-        <option value="usage">{{ $t('windows.aiEditorAssets.sort.usage') }}</option>
+        <option value="date">{{ $t('features.aiEditorAssets.sort.date') }}</option>
+        <option value="name">{{ $t('features.aiEditorAssets.sort.name') }}</option>
+        <option value="size">{{ $t('features.aiEditorAssets.sort.size') }}</option>
+        <option value="usage">{{ $t('features.aiEditorAssets.sort.usage') }}</option>
       </select>
     </div>
 
@@ -94,8 +94,8 @@
         @click="triggerUpload"
       >
         <span class="text-3xl mb-2">📤</span>
-        <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.aiEditorAssets.dragDrop') }}</span>
-        <span class="text-xs text-[var(--color-text-tertiary)]">{{ $t('windows.aiEditorAssets.orClick') }}</span>
+        <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('features.aiEditorAssets.dragDrop') }}</span>
+        <span class="text-xs text-[var(--color-text-tertiary)]">{{ $t('features.aiEditorAssets.orClick') }}</span>
         <input
           ref="fileInput"
           type="file"
@@ -150,17 +150,17 @@
           <button
             @click.stop="copyAsset(asset)"
             class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-            :title="$t('windows.aiEditorAssets.copy')"
+            :title="$t('features.aiEditorAssets.copy')"
           >📋</button>
           <button
             @click.stop="editAsset(asset)"
             class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-            :title="$t('windows.aiEditorAssets.edit')"
+            :title="$t('features.aiEditorAssets.edit')"
           >✏️</button>
           <button
             @click.stop="deleteAsset(asset)"
             class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors text-red-500"
-            :title="$t('windows.aiEditorAssets.delete')"
+            :title="$t('features.aiEditorAssets.delete')"
           >🗑️</button>
         </div>
 
@@ -181,8 +181,8 @@
     <!-- Empty State -->
     <div v-if="filteredAssets.length === 0" class="text-center py-12">
       <span class="text-5xl mb-4 block">📭</span>
-      <h3 class="text-lg font-medium text-[var(--color-text-primary)] mb-2">{{ $t('windows.aiEditorAssets.noAssetsTitle') }}</h3>
-      <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.aiEditorAssets.noAssetsHint') }}</p>
+      <h3 class="text-lg font-medium text-[var(--color-text-primary)] mb-2">{{ $t('features.aiEditorAssets.noAssetsTitle') }}</h3>
+      <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('features.aiEditorAssets.noAssetsHint') }}</p>
     </div>
 
     <!-- Sub-Components -->
@@ -243,11 +243,11 @@ const fileInput = ref<HTMLInputElement | null>(null)
 
 // Asset Tabs
 const assetTabs = computed(() => [
-  { id: 'all', name: t('windows.aiEditorAssets.tabs.all'), emoji: '📁' },
-  { id: 'images', name: t('windows.aiEditorAssets.tabs.images'), emoji: '🖼️' },
-  { id: 'formulas', name: t('windows.aiEditorAssets.tabs.formulas'), emoji: 'ƒx' },
-  { id: 'diagrams', name: t('windows.aiEditorAssets.tabs.diagrams'), emoji: '📊' },
-  { id: 'icons', name: t('windows.aiEditorAssets.tabs.icons'), emoji: '⭐' }
+  { id: 'all', name: t('features.aiEditorAssets.tabs.all'), emoji: '📁' },
+  { id: 'images', name: t('features.aiEditorAssets.tabs.images'), emoji: '🖼️' },
+  { id: 'formulas', name: t('features.aiEditorAssets.tabs.formulas'), emoji: 'ƒx' },
+  { id: 'diagrams', name: t('features.aiEditorAssets.tabs.diagrams'), emoji: '📊' },
+  { id: 'icons', name: t('features.aiEditorAssets.tabs.icons'), emoji: '⭐' }
 ])
 
 // Sample Assets
@@ -291,7 +291,7 @@ function copyAsset(asset: Asset) { console.log('Copy asset:', asset) }
 function editAsset(asset: Asset) { selectedAsset.value = asset }
 
 function deleteAsset(asset: Asset) {
-  if (confirm(t('windows.aiEditorAssets.confirmDelete', { name: asset.name }))) {
+  if (confirm(t('features.aiEditorAssets.confirmDelete', { name: asset.name }))) {
     assets.value = assets.value.filter(a => a.id !== asset.id)
     if (selectedAsset.value?.id === asset.id) selectedAsset.value = null
   }

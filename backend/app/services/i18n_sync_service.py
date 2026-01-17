@@ -14,7 +14,21 @@ from datetime import datetime
 import time
 import logging
 
-from app.repositories.i18n_sync import (
+from app.repositories.i18n_sync_ops import (
+    SyncMode, SyncStatus, SyncOperation, SyncOpsRepository
+)
+from app.repositories.i18n_sync_changes import (
+    ChangeType, SyncChange, SyncChangesRepository
+)
+from app.repositories.i18n_sync_resolutions import (
+    Resolution, SyncResolution, SyncResolutionsRepository
+)
+from app.repositories.i18n_sync_repository import (
+    I18nSyncRepository
+)
+# OLD IMPORT BELOW (to be removed):
+if False:
+    from app.repositories.i18n_sync import (
     SyncRepository, SyncMode, SyncStatus, ChangeType, Resolution,
     SyncOperation, SyncChange, SyncResolution
 )

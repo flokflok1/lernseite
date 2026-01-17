@@ -1,5 +1,5 @@
 <!--
-  Admin Lesson Editor Window - Phase 6 Complete
+  Admin Lesson Editor Panel - Phase 6 Complete
 
   Full-featured lesson editor with:
   - Auto-save (debounced 800ms)
@@ -9,12 +9,12 @@
 -->
 
 <template>
-  <div class="admin-lesson-editor-window h-full flex flex-col bg-[var(--color-bg)]">
+  <div class="admin-lesson-editor-panel h-full flex flex-col bg-[var(--color-bg)]">
     <!-- Header with Context & Save Status -->
     <div class="bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 py-3">
       <div class="flex items-center justify-between">
         <p class="text-xs text-[var(--color-text-secondary)]">
-          {{ $t('windows.lessonEditor.moduleLabel') }} <span class="font-medium text-[var(--color-text-primary)]">{{ moduleId }}</span>
+          {{ $t('features.lessonEditor.moduleLabel') }} <span class="font-medium text-[var(--color-text-primary)]">{{ moduleId }}</span>
         </p>
         <!-- Save Status Indicator -->
         <div class="flex items-center gap-2 text-xs">
@@ -23,13 +23,13 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ $t('windows.lessonEditor.saving') }}
+            {{ $t('features.lessonEditor.saving') }}
           </span>
           <span v-else-if="saveStatus === 'saved'" class="text-green-600 flex items-center gap-1">
             <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
             </svg>
-            {{ $t('windows.lessonEditor.saved') }}
+            {{ $t('features.lessonEditor.saved') }}
           </span>
           <span v-else-if="saveStatus === 'error'" class="text-red-600">
             {{ errorMessage || $t('common.error') }}
@@ -44,7 +44,7 @@
         <!-- Title -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            {{ $t('windows.lessonEditor.lessonTitle') }}
+            {{ $t('features.lessonEditor.lessonTitle') }}
           </label>
           <input
             v-model="form.title"
@@ -52,28 +52,28 @@
             type="text"
             required
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            :placeholder="$t('windows.lessonEditor.titlePlaceholder')"
+            :placeholder="$t('features.lessonEditor.titlePlaceholder')"
           />
         </div>
 
         <!-- Description -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            {{ $t('windows.lessonEditor.description') }}
+            {{ $t('features.lessonEditor.description') }}
           </label>
           <textarea
             v-model="form.description"
             @input="debouncedSave"
             rows="3"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            :placeholder="$t('windows.lessonEditor.descriptionPlaceholder')"
+            :placeholder="$t('features.lessonEditor.descriptionPlaceholder')"
           ></textarea>
         </div>
 
         <!-- Lesson Type -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            {{ $t('windows.lessonEditor.lessonType') }}
+            {{ $t('features.lessonEditor.lessonType') }}
           </label>
           <select
             v-model="form.lesson_type"
@@ -81,14 +81,14 @@
             required
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           >
-            <option value="">{{ $t('windows.lessonEditor.selectType') }}</option>
-            <option value="text">📄 {{ $t('windows.lessonEditor.types.text') }}</option>
-            <option value="video">🎥 {{ $t('windows.lessonEditor.types.video') }}</option>
-            <option value="quiz">❓ {{ $t('windows.lessonEditor.types.quiz') }}</option>
-            <option value="interactive">🎮 {{ $t('windows.lessonEditor.types.interactive') }}</option>
-            <option value="exercise">💪 {{ $t('windows.lessonEditor.types.exercise') }}</option>
-            <option value="ai">🤖 {{ $t('windows.lessonEditor.types.ai') }}</option>
-            <option value="exam">📝 {{ $t('windows.lessonEditor.types.exam') }}</option>
+            <option value="">{{ $t('features.lessonEditor.selectType') }}</option>
+            <option value="text">📄 {{ $t('features.lessonEditor.types.text') }}</option>
+            <option value="video">🎥 {{ $t('features.lessonEditor.types.video') }}</option>
+            <option value="quiz">❓ {{ $t('features.lessonEditor.types.quiz') }}</option>
+            <option value="interactive">🎮 {{ $t('features.lessonEditor.types.interactive') }}</option>
+            <option value="exercise">💪 {{ $t('features.lessonEditor.types.exercise') }}</option>
+            <option value="ai">🤖 {{ $t('features.lessonEditor.types.ai') }}</option>
+            <option value="exam">📝 {{ $t('features.lessonEditor.types.exam') }}</option>
           </select>
         </div>
 
@@ -96,7 +96,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.lessonEditor.order') }}
+              {{ $t('features.lessonEditor.order') }}
             </label>
             <input
               v-model.number="form.order_index"
@@ -110,7 +110,7 @@
 
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.lessonEditor.duration') }}
+              {{ $t('features.lessonEditor.duration') }}
             </label>
             <input
               v-model.number="form.duration_minutes"
@@ -126,23 +126,23 @@
         <!-- Type-Specific Content -->
         <div v-if="form.lesson_type" class="border-t border-[var(--color-border)] pt-6">
           <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
-            {{ lessonTypeLabel }} - {{ $t('windows.lessonEditor.content') }}
+            {{ lessonTypeLabel }} - {{ $t('features.lessonEditor.content') }}
           </h3>
 
           <!-- TEXT Editor -->
           <div v-if="form.lesson_type === 'text'" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.lessonEditor.textContent') }}
+                {{ $t('features.lessonEditor.textContent') }}
               </label>
               <textarea
                 v-model="form.content.text"
                 @input="debouncedSave"
                 rows="12"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] font-mono text-sm"
-                :placeholder="$t('windows.lessonEditor.textPlaceholder')"
+                :placeholder="$t('features.lessonEditor.textPlaceholder')"
               ></textarea>
-              <p class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('windows.lessonEditor.markdownHint') }}</p>
+              <p class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('features.lessonEditor.markdownHint') }}</p>
             </div>
           </div>
 
@@ -150,7 +150,7 @@
           <div v-else-if="form.lesson_type === 'video'" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.lessonEditor.videoUrl') }}
+                {{ $t('features.lessonEditor.videoUrl') }}
               </label>
               <input
                 v-model="form.content.video_url"
@@ -158,21 +158,21 @@
                 type="url"
                 required
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('windows.lessonEditor.videoUrlPlaceholder')"
+                :placeholder="$t('features.lessonEditor.videoUrlPlaceholder')"
               />
-              <p class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('windows.lessonEditor.videoUrlHint') }}</p>
+              <p class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('features.lessonEditor.videoUrlHint') }}</p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.lessonEditor.videoDescription') }}
+                {{ $t('features.lessonEditor.videoDescription') }}
               </label>
               <textarea
                 v-model="form.content.video_description"
                 @input="debouncedSave"
                 rows="4"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('windows.lessonEditor.videoDescPlaceholder')"
+                :placeholder="$t('features.lessonEditor.videoDescPlaceholder')"
               ></textarea>
             </div>
           </div>
@@ -181,13 +181,13 @@
           <div v-else-if="form.lesson_type === 'quiz'" class="space-y-4">
             <div class="flex items-center justify-between mb-3">
               <h4 class="text-sm font-medium text-[var(--color-text-primary)]">
-                {{ $t('windows.lessonEditor.questions') }} ({{ form.content.questions.length }})
+                {{ $t('features.lessonEditor.questions') }} ({{ form.content.questions.length }})
               </h4>
               <button
                 @click="addQuestion"
                 class="px-3 py-1.5 bg-[var(--color-primary)] text-white text-sm rounded-lg hover:bg-[var(--color-primary-hover)]"
               >
-                {{ $t('windows.lessonEditor.addQuestion') }}
+                {{ $t('features.lessonEditor.addQuestion') }}
               </button>
             </div>
 
@@ -195,7 +195,7 @@
               <div class="flex items-start justify-between gap-2">
                 <div class="flex-1">
                   <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                    {{ $t('windows.lessonEditor.question') }} {{ qIdx + 1 }}
+                    {{ $t('features.lessonEditor.question') }} {{ qIdx + 1 }}
                   </label>
                   <input
                     v-model="question.text"
@@ -208,7 +208,7 @@
                 <button
                   @click="removeQuestion(qIdx)"
                   class="p-2 text-red-600 hover:bg-red-500/10 rounded"
-                  :title="$t('windows.lessonEditor.deleteQuestion')"
+                  :title="$t('features.lessonEditor.deleteQuestion')"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -218,7 +218,7 @@
 
               <div class="space-y-2">
                 <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-                  {{ $t('windows.lessonEditor.answerOptions') }}
+                  {{ $t('features.lessonEditor.answerOptions') }}
                 </label>
                 <div v-for="(option, oIdx) in question.options" :key="oIdx" class="flex items-center gap-2">
                   <input
@@ -251,13 +251,13 @@
                   @click="addOption(qIdx)"
                   class="text-sm text-[var(--color-primary)] hover:underline"
                 >
-                  {{ $t('windows.lessonEditor.addOption') }}
+                  {{ $t('features.lessonEditor.addOption') }}
                 </button>
               </div>
             </div>
 
             <div v-if="form.content.questions.length === 0" class="text-center py-8 text-[var(--color-text-tertiary)]">
-              {{ $t('windows.lessonEditor.noQuestions') }}
+              {{ $t('features.lessonEditor.noQuestions') }}
             </div>
           </div>
 
@@ -265,13 +265,13 @@
           <div v-else-if="form.lesson_type === 'exam'" class="space-y-4">
             <div class="flex items-center justify-between mb-3">
               <h4 class="text-sm font-medium text-[var(--color-text-primary)]">
-                {{ $t('windows.lessonEditor.examQuestions') }} ({{ form.content.exam_questions.length }})
+                {{ $t('features.lessonEditor.examQuestions') }} ({{ form.content.exam_questions.length }})
               </h4>
               <button
                 @click="addExamQuestion"
                 class="px-3 py-1.5 bg-[var(--color-primary)] text-white text-sm rounded-lg hover:bg-[var(--color-primary-hover)]"
               >
-                {{ $t('windows.lessonEditor.addExamQuestion') }}
+                {{ $t('features.lessonEditor.addExamQuestion') }}
               </button>
             </div>
 
@@ -279,7 +279,7 @@
               <div class="flex items-start justify-between gap-2">
                 <div class="flex-1">
                   <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                    {{ $t('windows.lessonEditor.question') }} {{ idx + 1 }}
+                    {{ $t('features.lessonEditor.question') }} {{ idx + 1 }}
                   </label>
                   <textarea
                     v-model="question.text"
@@ -292,7 +292,7 @@
                 <button
                   @click="removeExamQuestion(idx)"
                   class="p-2 text-red-600 hover:bg-red-500/10 rounded"
-                  :title="$t('windows.lessonEditor.deleteQuestion')"
+                  :title="$t('features.lessonEditor.deleteQuestion')"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -302,7 +302,7 @@
 
               <div>
                 <label class="block text-sm text-[var(--color-text-primary)] mb-1">
-                  {{ $t('windows.lessonEditor.points') }}
+                  {{ $t('features.lessonEditor.points') }}
                 </label>
                 <input
                   v-model.number="question.points"
@@ -316,21 +316,21 @@
             </div>
 
             <div v-if="form.content.exam_questions.length === 0" class="text-center py-8 text-[var(--color-text-tertiary)]">
-              {{ $t('windows.lessonEditor.noExamQuestions') }}
+              {{ $t('features.lessonEditor.noExamQuestions') }}
             </div>
           </div>
 
           <!-- OTHER Types Placeholder -->
           <div v-else class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p class="text-sm text-blue-700">
-              ℹ️ {{ $t('windows.lessonEditor.notImplemented', { type: lessonTypeLabel }) }}
+              ℹ️ {{ $t('features.lessonEditor.notImplemented', { type: lessonTypeLabel }) }}
             </p>
           </div>
         </div>
 
         <!-- Validation Messages -->
         <div v-if="validationErrors.length > 0" class="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p class="text-sm font-semibold text-red-800 mb-2">{{ $t('windows.lessonEditor.validation.title') }}</p>
+          <p class="text-sm font-semibold text-red-800 mb-2">{{ $t('features.lessonEditor.validation.title') }}</p>
           <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
             <li v-for="(error, idx) in validationErrors" :key="idx">{{ error }}</li>
           </ul>
@@ -343,10 +343,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 
 const { t } = useI18n()
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import {
   adminCreateLesson,
   adminUpdateLesson,
@@ -357,7 +357,7 @@ import {
 } from '@/api/admin.api'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 interface Emits {
@@ -366,7 +366,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
 // State
 const lesson = ref<AdminLesson | null>(null)
@@ -401,46 +401,46 @@ const form = ref({
 let saveTimeout: number | null = null
 
 // Computed
-const isNewLesson = computed(() => !props.window.payload?.lessonId)
-const courseId = computed(() => props.window.payload?.courseId as string)  // UUID
-const moduleId = computed(() => props.window.payload?.moduleId as number)
-const lessonId = computed(() => props.window.payload?.lessonId as string | undefined)  // UUID
+const isNewLesson = computed(() => !props.panel.payload?.lessonId)
+const courseId = computed(() => props.panel.payload?.courseId as string)  // UUID
+const moduleId = computed(() => props.panel.payload?.moduleId as number)
+const lessonId = computed(() => props.panel.payload?.lessonId as string | undefined)  // UUID
 
 const lessonTypeLabel = computed(() => {
   const typeKey = form.value.lesson_type
   if (!typeKey) return ''
-  return t(`windows.lessonEditor.typeLabels.${typeKey}`) || typeKey
+  return t(`features.lessonEditor.typeLabels.${typeKey}`) || typeKey
 })
 
 const validationErrors = computed(() => {
   const errors: string[] = []
 
   if (!form.value.title.trim()) {
-    errors.push(t('windows.lessonEditor.validation.titleRequired'))
+    errors.push(t('features.lessonEditor.validation.titleRequired'))
   }
 
   if (!form.value.lesson_type) {
-    errors.push(t('windows.lessonEditor.validation.typeRequired'))
+    errors.push(t('features.lessonEditor.validation.typeRequired'))
   }
 
   if (form.value.lesson_type === 'video' && !form.value.content.video_url) {
-    errors.push(t('windows.lessonEditor.validation.videoUrlRequired'))
+    errors.push(t('features.lessonEditor.validation.videoUrlRequired'))
   }
 
   if (form.value.lesson_type === 'quiz') {
     if (form.value.content.questions.length === 0) {
-      errors.push(t('windows.lessonEditor.validation.minOneQuestion'))
+      errors.push(t('features.lessonEditor.validation.minOneQuestion'))
     }
 
     form.value.content.questions.forEach((q, idx) => {
       if (!q.text.trim()) {
-        errors.push(t('windows.lessonEditor.validation.questionTextMissing', { num: idx + 1 }))
+        errors.push(t('features.lessonEditor.validation.questionTextMissing', { num: idx + 1 }))
       }
       if (q.options.length < 2) {
-        errors.push(t('windows.lessonEditor.validation.minTwoAnswers', { num: idx + 1 }))
+        errors.push(t('features.lessonEditor.validation.minTwoAnswers', { num: idx + 1 }))
       }
       if (q.correct_indices.length === 0) {
-        errors.push(t('windows.lessonEditor.validation.minOneCorrect', { num: idx + 1 }))
+        errors.push(t('features.lessonEditor.validation.minOneCorrect', { num: idx + 1 }))
       }
     })
   }
@@ -454,8 +454,8 @@ const loadLesson = () => {
     return
   }
 
-  if (props.window.payload?.lesson) {
-    lesson.value = props.window.payload.lesson
+  if (props.panel.payload?.lesson) {
+    lesson.value = props.panel.payload.lesson
     populateForm()
   }
 }
@@ -504,7 +504,7 @@ const debouncedSave = () => {
 const saveLesson = async () => {
   if (validationErrors.value.length > 0) {
     saveStatus.value = 'error'
-    errorMessage.value = t('windows.lessonEditor.validation.failed')
+    errorMessage.value = t('features.lessonEditor.validation.failed')
     setTimeout(() => {
       saveStatus.value = 'idle'
       errorMessage.value = null
@@ -521,7 +521,7 @@ const saveLesson = async () => {
     if (isNewLesson.value && !lesson.value) {
       // Create new lesson
       if (!moduleId.value) {
-        throw new Error(t('windows.lessonEditor.errors.moduleIdMissing'))
+        throw new Error(t('features.lessonEditor.errors.moduleIdMissing'))
       }
 
       isCreating.value = true
@@ -538,8 +538,8 @@ const saveLesson = async () => {
       const newLesson = await adminCreateLesson(moduleId.value, createData)
       lesson.value = newLesson
 
-      // Update window payload so subsequent saves are updates
-      windowStore.updateWindowPayload(props.window.id, {
+      // Update panel payload so subsequent saves are updates
+      panelStore.updatePanelPayload(props.panel.id, {
         lessonId: newLesson.lesson_id,
         lesson: newLesson
       })
@@ -560,8 +560,8 @@ const saveLesson = async () => {
       const updatedLesson = await adminUpdateLesson(lid, updateData)
       lesson.value = updatedLesson
 
-      // Update window payload
-      windowStore.updateWindowPayload(props.window.id, {
+      // Update panel payload
+      panelStore.updatePanelPayload(props.panel.id, {
         lesson: updatedLesson
       })
     }
@@ -569,7 +569,7 @@ const saveLesson = async () => {
     saveStatus.value = 'saved'
     setTimeout(() => { saveStatus.value = 'idle' }, 2000)
 
-    // Dispatch event to notify parent windows (e.g., ModuleEditor) about lesson updates
+    // Dispatch event to notify parent panels (e.g., ModuleEditor) about lesson updates
     window.dispatchEvent(new CustomEvent('lesson-updated', {
       detail: {
         moduleId: moduleId.value,

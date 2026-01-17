@@ -1,5 +1,5 @@
 <!--
-  Admin Lesson Preview Window
+  Admin Lesson Preview Panel
 
   Loads and displays REAL lesson data from the database.
   Shows theory content and actual learning method exercises.
@@ -8,25 +8,25 @@
 -->
 
 <template>
-  <div class="lesson-preview-window">
+  <div class="lesson-preview-panel">
     <!-- Header -->
     <div class="preview-header">
-      <div class="lesson-badge">{{ $t('windows.lessonPreview.lessonN', { n: lessonPosition }) }}</div>
-      <h1 class="lesson-title">{{ lessonData?.title || $t('windows.lessonPreview.loading') }}</h1>
+      <div class="lesson-badge">{{ $t('features.lessonPreview.lessonN', { n: lessonPosition }) }}</div>
+      <h1 class="lesson-title">{{ lessonData?.title || $t('features.lessonPreview.loading') }}</h1>
       <button class="close-btn" @click="$emit('close')">×</button>
     </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>{{ $t('windows.lessonPreview.loadingData') }}</p>
+      <p>{{ $t('features.lessonPreview.loadingData') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="error-state">
       <span class="error-icon">⚠️</span>
       <p>{{ error }}</p>
-      <button @click="loadLessonData" class="retry-btn">{{ $t('windows.lessonPreview.retry') }}</button>
+      <button @click="loadLessonData" class="retry-btn">{{ $t('features.lessonPreview.retry') }}</button>
     </div>
 
     <!-- Content -->
@@ -60,8 +60,8 @@
           </div>
           <div v-else class="empty-state">
             <span class="empty-icon">📝</span>
-            <p>{{ $t('windows.lessonPreview.noTheory') }}</p>
-            <p class="empty-hint">{{ $t('windows.lessonPreview.theoryHint') }}</p>
+            <p>{{ $t('features.lessonPreview.noTheory') }}</p>
+            <p class="empty-hint">{{ $t('features.lessonPreview.theoryHint') }}</p>
           </div>
         </div>
 
@@ -98,8 +98,8 @@
           </div>
           <div v-else class="empty-state">
             <span class="empty-icon">📭</span>
-            <p>{{ $t('windows.lessonPreview.noMethods') }}</p>
-            <p class="empty-hint">{{ $t('windows.lessonPreview.methodsCreatedInStudio') }}</p>
+            <p>{{ $t('features.lessonPreview.noMethods') }}</p>
+            <p class="empty-hint">{{ $t('features.lessonPreview.methodsCreatedInStudio') }}</p>
           </div>
         </div>
 
@@ -107,27 +107,27 @@
         <div v-if="activeTab === 'info'" class="tab-content">
           <div class="info-grid">
             <div class="info-card">
-              <span class="info-label">{{ $t('windows.lessonPreview.lesson') }}</span>
+              <span class="info-label">{{ $t('features.lessonPreview.lesson') }}</span>
               <span class="info-value">{{ lessonData?.title }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">{{ $t('windows.lessonPreview.type') }}</span>
+              <span class="info-label">{{ $t('features.lessonPreview.type') }}</span>
               <span class="info-value">{{ lessonData?.lesson_type || 'text' }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">{{ $t('windows.lessonPreview.duration') }}</span>
-              <span class="info-value">{{ lessonData?.duration_minutes || 0 }} {{ $t('windows.lessonPreview.min') }}</span>
+              <span class="info-label">{{ $t('features.lessonPreview.duration') }}</span>
+              <span class="info-value">{{ lessonData?.duration_minutes || 0 }} {{ $t('features.lessonPreview.min') }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">{{ $t('windows.lessonPreview.learningMethods') }}</span>
+              <span class="info-label">{{ $t('features.lessonPreview.learningMethods') }}</span>
               <span class="info-value">{{ methods.length }}</span>
             </div>
             <div v-if="lessonData?.chapter_id" class="info-card full-width">
-              <span class="info-label">{{ $t('windows.lessonPreview.chapter') }}</span>
+              <span class="info-label">{{ $t('features.lessonPreview.chapter') }}</span>
               <span class="info-value">{{ chapterTitle }}</span>
             </div>
             <div v-if="lessonData?.created_at" class="info-card">
-              <span class="info-label">{{ $t('windows.lessonPreview.created') }}</span>
+              <span class="info-label">{{ $t('features.lessonPreview.created') }}</span>
               <span class="info-value">{{ formatDate(lessonData.created_at) }}</span>
             </div>
           </div>
@@ -141,7 +141,7 @@
         <span v-if="chapterTitle">📖 {{ chapterTitle }}</span>
       </div>
       <div class="footer-actions">
-        <button class="action-btn secondary" @click="$emit('close')">{{ $t('windows.lessonPreview.close') }}</button>
+        <button class="action-btn secondary" @click="$emit('close')">{{ $t('features.lessonPreview.close') }}</button>
       </div>
     </div>
   </div>
@@ -150,13 +150,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, defineAsyncComponent, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import http from '@/api/http'
 
 const { t, locale } = useI18n()
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -172,18 +172,18 @@ const expandedMethod = ref<string | null>(null)
 
 // Get lesson ID from payload
 const lessonId = computed(() => {
-  const payload = props.window.payload
+  const payload = props.panel.payload
   return payload?.lesson?.lesson_id || payload?.lesson?.id || payload?.lessonId
 })
 
-const lessonPosition = computed(() => props.window.payload?.position || '1')
-const chapterTitle = computed(() => props.window.payload?.chapter?.title || lessonData.value?.chapter_title || '')
+const lessonPosition = computed(() => props.panel.payload?.position || '1')
+const chapterTitle = computed(() => props.panel.payload?.chapter?.title || lessonData.value?.chapter_title || '')
 
 // Tabs
 const tabs = computed(() => [
-  { id: 'exercises', label: t('windows.lessonPreview.exercises'), icon: '📝', count: methods.value.length },
-  { id: 'theory', label: t('windows.lessonPreview.theory'), icon: '📖' },
-  { id: 'info', label: t('windows.lessonPreview.info'), icon: 'ℹ️' }
+  { id: 'exercises', label: t('features.lessonPreview.exercises'), icon: '📝', count: methods.value.length },
+  { id: 'theory', label: t('features.lessonPreview.theory'), icon: '📖' },
+  { id: 'info', label: t('features.lessonPreview.info'), icon: 'ℹ️' }
 ])
 
 // Load data on mount
@@ -211,7 +211,7 @@ async function loadLessonData() {
       }
     } else {
       // Use data from payload (draft mode)
-      const payload = props.window.payload?.lesson
+      const payload = props.panel.payload?.lesson
       if (payload) {
         lessonData.value = {
           title: payload.title,
@@ -231,7 +231,7 @@ async function loadLessonData() {
     }
   } catch (err: any) {
     console.error('Failed to load lesson:', err)
-    error.value = err.response?.data?.error || t('windows.lessonPreview.loadError')
+    error.value = err.response?.data?.error || t('features.lessonPreview.loadError')
   } finally {
     loading.value = false
   }
@@ -250,7 +250,7 @@ const methodIcons: Record<number, string> = {
   26: '👥', 27: '🤝', 28: '📊', 29: '📓', 30: '📁', 31: '🎓', 32: '🔄'
 }
 
-// Method names are loaded from i18n: windows.lessonPreview.methodNames.lmN
+// Method names are loaded from i18n: features.lessonPreview.methodNames.lmN
 
 function getMethodIcon(type: number | string | undefined): string {
   if (type === undefined || type === null) return '📚'
@@ -259,17 +259,17 @@ function getMethodIcon(type: number | string | undefined): string {
 }
 
 function getMethodName(type: number | string | undefined): string {
-  if (type === undefined || type === null) return t('windows.lessonPreview.methodDefault')
+  if (type === undefined || type === null) return t('features.lessonPreview.methodDefault')
   const numType = typeof type === 'string' ? parseInt(type, 10) : type
-  if (isNaN(numType)) return t('windows.lessonPreview.methodDefault')
-  const key = `windows.lessonPreview.methodNames.lm${numType}`
+  if (isNaN(numType)) return t('features.lessonPreview.methodDefault')
+  const key = `features.lessonPreview.methodNames.lm${numType}`
   const name = t(key)
   // If key not found (returns the key itself), use fallback with ID
-  return name === key ? t('windows.lessonPreview.methodWithId', { id: numType }) : name
+  return name === key ? t('features.lessonPreview.methodWithId', { id: numType }) : name
 }
 
 function cleanMethodTitle(title: string | undefined, methodType: number | string | undefined): string {
-  if (!title) return t('windows.lessonPreview.task')
+  if (!title) return t('features.lessonPreview.task')
   // Remove "LM12:", "LM22:", etc. prefix from title
   const numType = typeof methodType === 'string' ? parseInt(methodType, 10) : methodType
   if (numType !== undefined && !isNaN(numType)) {
@@ -320,21 +320,21 @@ function getMethodRenderer(methodType: number | string) {
         const items = config.steps || config.exercises || []
         return () => h('div', { class: 'method-preview' }, [
           items.length > 0 ? [
-            h('h4', t('windows.lessonPreview.stepCount', { count: items.length })),
+            h('h4', t('features.lessonPreview.stepCount', { count: items.length })),
             h('div', { class: 'exercises-preview' },
               items.slice(0, 3).map((step: any, i: number) =>
                 h('div', { class: 'exercise-item' }, [
-                  h('span', { class: 'exercise-label' }, t('windows.lessonPreview.stepLabel', { n: step.id || i + 1 })),
+                  h('span', { class: 'exercise-label' }, t('features.lessonPreview.stepLabel', { n: step.id || i + 1 })),
                   h('span', { class: 'exercise-text' },
                     step.prompt?.substring(0, 150) + (step.prompt?.length > 150 ? '...' : '') ||
-                    step.question || step.text || t('windows.lessonPreview.task')
+                    step.question || step.text || t('features.lessonPreview.task')
                   )
                 ])
               )
             ),
             items.length > 3 ?
-              h('p', { class: 'more-hint' }, t('windows.lessonPreview.moreSteps', { count: items.length - 3 })) : null
-          ] : h('p', { class: 'no-content' }, t('windows.lessonPreview.noStepsConfigured'))
+              h('p', { class: 'more-hint' }, t('features.lessonPreview.moreSteps', { count: items.length - 3 })) : null
+          ] : h('p', { class: 'no-content' }, t('features.lessonPreview.noStepsConfigured'))
         ])
       }
 
@@ -343,11 +343,11 @@ function getMethodRenderer(methodType: number | string) {
         const questions = Array.isArray(config) ? config : (config.questions || [])
         return () => h('div', { class: 'method-preview' }, [
           questions.length > 0 ? [
-            h('h4', t('windows.lessonPreview.questionCount', { count: questions.length })),
+            h('h4', t('features.lessonPreview.questionCount', { count: questions.length })),
             h('div', { class: 'questions-preview' },
               questions.slice(0, 3).map((q: any, i: number) =>
                 h('div', { class: 'question-item' }, [
-                  h('span', { class: 'question-label' }, t('windows.lessonPreview.questionLabel', { n: i + 1 })),
+                  h('span', { class: 'question-label' }, t('features.lessonPreview.questionLabel', { n: i + 1 })),
                   h('span', { class: 'question-text' }, q.question || q.text),
                   q.options ? h('div', { class: 'answers' },
                     q.options.map((opt: string, idx: number) => h('div', {
@@ -362,8 +362,8 @@ function getMethodRenderer(methodType: number | string) {
               )
             ),
             questions.length > 3 ?
-              h('p', { class: 'more-hint' }, t('windows.lessonPreview.moreQuestions', { count: questions.length - 3 })) : null
-          ] : h('p', { class: 'no-content' }, t('windows.lessonPreview.noQuestionsConfigured'))
+              h('p', { class: 'more-hint' }, t('features.lessonPreview.moreQuestions', { count: questions.length - 3 })) : null
+          ] : h('p', { class: 'no-content' }, t('features.lessonPreview.noQuestionsConfigured'))
         ])
       }
 
@@ -372,18 +372,18 @@ function getMethodRenderer(methodType: number | string) {
         const cards = Array.isArray(config) ? config : (config.cards || [])
         return () => h('div', { class: 'method-preview' }, [
           cards.length > 0 ? [
-            h('h4', t('windows.lessonPreview.cardCount', { count: cards.length })),
+            h('h4', t('features.lessonPreview.cardCount', { count: cards.length })),
             h('div', { class: 'cards-preview' },
               cards.slice(0, 3).map((card: any, i: number) =>
                 h('div', { class: 'card-item' }, [
-                  h('div', { class: 'card-front' }, [t('windows.lessonPreview.cardFront') + ' ', (card.front || card.question || t('windows.lessonPreview.cardN', { n: i + 1 }))?.substring(0, 80)]),
-                  h('div', { class: 'card-back' }, [t('windows.lessonPreview.cardBack') + ' ', (card.back || card.answer || '')?.substring(0, 100) + '...'])
+                  h('div', { class: 'card-front' }, [t('features.lessonPreview.cardFront') + ' ', (card.front || card.question || t('features.lessonPreview.cardN', { n: i + 1 }))?.substring(0, 80)]),
+                  h('div', { class: 'card-back' }, [t('features.lessonPreview.cardBack') + ' ', (card.back || card.answer || '')?.substring(0, 100) + '...'])
                 ])
               )
             ),
             cards.length > 3 ?
-              h('p', { class: 'more-hint' }, t('windows.lessonPreview.moreCards', { count: cards.length - 3 })) : null
-          ] : h('p', { class: 'no-content' }, t('windows.lessonPreview.noCardsConfigured'))
+              h('p', { class: 'more-hint' }, t('features.lessonPreview.moreCards', { count: cards.length - 3 })) : null
+          ] : h('p', { class: 'no-content' }, t('features.lessonPreview.noCardsConfigured'))
         ])
       }
 
@@ -394,20 +394,20 @@ function getMethodRenderer(methodType: number | string) {
 
       return () => h('div', { class: 'method-preview' }, [
         itemCount > 0 ? [
-          h('h4', t('windows.lessonPreview.elementCount', { count: itemCount })),
-          h('p', { class: 'data-hint' }, t('windows.lessonPreview.dataFields', { fields: dataKeys.join(', ') })),
+          h('h4', t('features.lessonPreview.elementCount', { count: itemCount })),
+          h('p', { class: 'data-hint' }, t('features.lessonPreview.dataFields', { fields: dataKeys.join(', ') })),
           h('details', { class: 'config-details' }, [
-            h('summary', t('windows.lessonPreview.showJsonData')),
+            h('summary', t('features.lessonPreview.showJsonData')),
             h('pre', { class: 'config-json' }, JSON.stringify(config, null, 2).substring(0, 1000))
           ])
         ] : dataKeys.length > 0 && !Array.isArray(config) ? [
-          h('h4', t('windows.lessonPreview.configuration')),
-          h('p', { class: 'data-hint' }, t('windows.lessonPreview.fields', { fields: dataKeys.join(', ') })),
+          h('h4', t('features.lessonPreview.configuration')),
+          h('p', { class: 'data-hint' }, t('features.lessonPreview.fields', { fields: dataKeys.join(', ') })),
           h('details', { class: 'config-details' }, [
-            h('summary', t('windows.lessonPreview.showJsonData')),
+            h('summary', t('features.lessonPreview.showJsonData')),
             h('pre', { class: 'config-json' }, JSON.stringify(config, null, 2).substring(0, 1000))
           ])
-        ] : h('p', { class: 'no-content' }, t('windows.lessonPreview.noConfiguration'))
+        ] : h('p', { class: 'no-content' }, t('features.lessonPreview.noConfiguration'))
       ])
     }
   }
@@ -415,7 +415,7 @@ function getMethodRenderer(methodType: number | string) {
 </script>
 
 <style scoped>
-.lesson-preview-window {
+.lesson-preview-panel {
   height: 100%;
   display: flex;
   flex-direction: column;

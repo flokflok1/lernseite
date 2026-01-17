@@ -13,7 +13,7 @@ from datetime import datetime
 
 from app.services.ai_adapter import AIAdapter, AIProviderError
 from app.services.file_context_service import FileContextService
-from app.ki.prompts.authoring import get_authoring_prompt
+from app.ai.configuration.prompts.authoring import get_authoring_prompt
 
 from .exceptions import AuthoringServiceError
 from .session_manager import SessionManager

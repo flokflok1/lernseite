@@ -11,7 +11,7 @@
       <!-- Header -->
       <div class="modal-header">
         <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
-          {{ isEditing ? $t('windows.categoryModal.titleEdit') : $t('windows.categoryModal.titleCreate') }}
+          {{ isEditing ? $t('features.categoryModal.titleEdit') : $t('features.categoryModal.titleCreate') }}
         </h2>
         <button
           @click="$emit('close')"
@@ -26,15 +26,15 @@
         <!-- Name -->
         <div class="form-group">
           <label class="form-label">
-            {{ $t('windows.categoryModal.nameLabel') }}
-            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('windows.categoryModal.nameHint') }}</span>
+            {{ $t('features.categoryModal.nameLabel') }}
+            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('features.categoryModal.nameHint') }}</span>
           </label>
           <input
             v-model="formData.name"
             type="text"
             required
             class="form-input"
-            :placeholder="$t('windows.categoryModal.namePlaceholder')"
+            :placeholder="$t('features.categoryModal.namePlaceholder')"
             maxlength="100"
           />
         </div>
@@ -42,31 +42,31 @@
         <!-- Slug -->
         <div class="form-group">
           <label class="form-label">
-            {{ $t('windows.categoryModal.slugLabel') }}
-            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('windows.categoryModal.slugHint') }}</span>
+            {{ $t('features.categoryModal.slugLabel') }}
+            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('features.categoryModal.slugHint') }}</span>
           </label>
           <input
             v-model="formData.slug"
             type="text"
             required
             class="form-input font-mono text-sm"
-            :placeholder="$t('windows.categoryModal.slugPlaceholder')"
+            :placeholder="$t('features.categoryModal.slugPlaceholder')"
             pattern="[a-z0-9\-]+"
             maxlength="100"
           />
           <p class="text-xs text-[var(--color-text-secondary)] mt-1">
-            {{ $t('windows.categoryModal.slugPattern') }}
+            {{ $t('features.categoryModal.slugPattern') }}
           </p>
         </div>
 
         <!-- Description -->
         <div class="form-group">
-          <label class="form-label">{{ $t('windows.categoryModal.descriptionLabel') }}</label>
+          <label class="form-label">{{ $t('features.categoryModal.descriptionLabel') }}</label>
           <textarea
             v-model="formData.description"
             rows="3"
             class="form-input"
-            :placeholder="$t('windows.categoryModal.descriptionPlaceholder')"
+            :placeholder="$t('features.categoryModal.descriptionPlaceholder')"
             maxlength="500"
           ></textarea>
         </div>
@@ -74,11 +74,11 @@
         <!-- Parent Category -->
         <div class="form-group">
           <label class="form-label">
-            {{ $t('windows.categoryModal.parentLabel') }}
-            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('windows.categoryModal.parentHint') }}</span>
+            {{ $t('features.categoryModal.parentLabel') }}
+            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('features.categoryModal.parentHint') }}</span>
           </label>
           <select v-model="formData.parent_id" class="form-input">
-            <option :value="null">{{ $t('windows.categoryModal.parentNone') }}</option>
+            <option :value="null">{{ $t('features.categoryModal.parentNone') }}</option>
             <option
               v-for="cat in selectableParents"
               :key="cat.category_id"
@@ -87,11 +87,11 @@
             >
               {{ '→'.repeat(Math.min(cat.level, 10)) }} {{ cat.name }}
               <span v-if="cat.path" class="text-[var(--color-text-secondary)]"> ({{ cat.path }})</span>
-              <span v-if="cat.level >= 20">{{ $t('windows.categoryModal.parentMaxDepth') }}</span>
+              <span v-if="cat.level >= 20">{{ $t('features.categoryModal.parentMaxDepth') }}</span>
             </option>
           </select>
           <p class="text-xs text-[var(--color-text-secondary)] mt-1">
-            {{ $t('windows.categoryModal.currentLevel', { level: currentLevel }) }}
+            {{ $t('features.categoryModal.currentLevel', { level: currentLevel }) }}
           </p>
         </div>
 
@@ -100,8 +100,8 @@
           <!-- Icon -->
           <div class="form-group">
             <label class="form-label">
-              {{ $t('windows.categoryModal.iconLabel') }}
-              <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('windows.categoryModal.iconHint') }}</span>
+              {{ $t('features.categoryModal.iconLabel') }}
+              <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('features.categoryModal.iconHint') }}</span>
             </label>
             <input
               v-model="formData.icon"
@@ -114,7 +114,7 @@
 
           <!-- Color -->
           <div class="form-group">
-            <label class="form-label">{{ $t('windows.categoryModal.colorLabel') }}</label>
+            <label class="form-label">{{ $t('features.categoryModal.colorLabel') }}</label>
             <input
               v-model="formData.color"
               type="color"
@@ -126,8 +126,8 @@
         <!-- Order Index -->
         <div class="form-group">
           <label class="form-label">
-            {{ $t('windows.categoryModal.orderLabel') }}
-            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('windows.categoryModal.orderHint') }}</span>
+            {{ $t('features.categoryModal.orderLabel') }}
+            <span class="text-xs text-[var(--color-text-secondary)]">{{ $t('features.categoryModal.orderHint') }}</span>
           </label>
           <input
             v-model.number="formData.order_index"
@@ -147,10 +147,10 @@
               type="checkbox"
               class="w-4 h-4 text-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]"
             />
-            <span class="form-label mb-0">{{ $t('windows.categoryModal.isActive') }}</span>
+            <span class="form-label mb-0">{{ $t('features.categoryModal.isActive') }}</span>
           </label>
           <p class="text-xs text-[var(--color-text-secondary)] mt-1 ml-6">
-            {{ $t('windows.categoryModal.inactiveHint') }}
+            {{ $t('features.categoryModal.inactiveHint') }}
           </p>
         </div>
 
@@ -161,14 +161,14 @@
             @click="$emit('close')"
             class="btn-secondary"
           >
-            {{ $t('windows.categoryModal.cancel') }}
+            {{ $t('features.categoryModal.cancel') }}
           </button>
           <button
             type="submit"
             :disabled="!isValid"
             class="btn-primary"
           >
-            {{ isEditing ? $t('windows.categoryModal.save') : $t('windows.categoryModal.create') }}
+            {{ isEditing ? $t('features.categoryModal.save') : $t('features.categoryModal.create') }}
           </button>
         </div>
       </form>

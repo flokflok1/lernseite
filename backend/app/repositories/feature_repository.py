@@ -30,13 +30,13 @@ class FeatureRepository(BaseRepository):
         Find system feature by code.
 
         Args:
-            feature_code: Feature code (e.g., 'ai_studio', 'code_sandbox')
+            feature_code: Feature code (e.g., 'ai_editor', 'code_sandbox')
 
         Returns:
             Feature dict with metadata or None if not found
 
         Example:
-            >>> feature = FeatureRepository.find_by_code('ai_studio')
+            >>> feature = FeatureRepository.find_by_code('ai_editor')
             >>> feature['feature_name']
             'AI-Studio'
         """
@@ -78,7 +78,7 @@ class FeatureRepository(BaseRepository):
         Example:
             >>> features = FeatureRepository.get_role_features(role_id=2)
             >>> [f['feature_code'] for f in features]
-            ['ai_studio', 'code_sandbox', 'learning_journal', ...]
+            ['ai_editor', 'code_sandbox', 'learning_journal', ...]
         """
         try:
             results = fetch_all(
@@ -126,7 +126,7 @@ class FeatureRepository(BaseRepository):
         Example:
             >>> features = FeatureRepository.get_org_subscribed_features('org-123')
             >>> [f['feature_code'] for f in features]
-            ['ai_studio', 'whiteboard_engine', ...]
+            ['ai_editor', 'whiteboard_engine', ...]
         """
         try:
             where_clause = "fs.organisation_id = %s"
@@ -182,7 +182,7 @@ class FeatureRepository(BaseRepository):
             True if role can access feature, False otherwise
 
         Example:
-            >>> can_access = FeatureRepository.check_role_feature_access(2, 'ai_studio')
+            >>> can_access = FeatureRepository.check_role_feature_access(2, 'ai_editor')
             >>> can_access
             True
         """
@@ -223,7 +223,7 @@ class FeatureRepository(BaseRepository):
 
         Example:
             >>> has_sub = FeatureRepository.check_org_feature_subscription(
-            ...     'org-123', 'ai_studio', check_expiry=True
+            ...     'org-123', 'ai_editor', check_expiry=True
             ... )
             >>> has_sub
             True
@@ -268,14 +268,14 @@ class FeatureRepository(BaseRepository):
         Args:
             role_id: Role ID
             feature_code: Feature code
-            permission_key: Permission key (e.g., 'ai_studio.execute')
+            permission_key: Permission key (e.g., 'ai_editor.execute')
 
         Returns:
             True if allowed, False if denied, None if not defined
 
         Example:
             >>> allowed = FeatureRepository.get_feature_permission(
-            ...     2, 'ai_studio', 'ai_studio.execute'
+            ...     2, 'ai_editor', 'ai_editor.execute'
             ... )
             >>> allowed
             True
@@ -316,9 +316,9 @@ class FeatureRepository(BaseRepository):
             Dictionary of {permission_key: allowed}
 
         Example:
-            >>> perms = FeatureRepository.get_all_role_feature_permissions(2, 'ai_studio')
+            >>> perms = FeatureRepository.get_all_role_feature_permissions(2, 'ai_editor')
             >>> perms
-            {'ai_studio.execute': True, 'ai_studio.manage': False}
+            {'ai_editor.execute': True, 'ai_editor.manage': False}
         """
         try:
             results = fetch_all(

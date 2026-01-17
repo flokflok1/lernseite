@@ -17,10 +17,10 @@
         <span class="profile-name">{{ profile.name }}</span>
         <span class="profile-key">{{ profile.key }}</span>
       </div>
-      <span v-if="profile.is_default" class="default-badge">{{ $t('windows.aiEditorGlobalSettings.default') }}</span>
+      <span v-if="profile.is_default" class="default-badge">{{ $t('features.aiEditorGlobalSettings.default') }}</span>
     </div>
     <div v-if="!profiles.length" class="empty-list">
-      {{ $t('windows.aiEditorGlobalSettings.noProfiles') }}
+      {{ $t('features.aiEditorGlobalSettings.noProfiles') }}
     </div>
   </div>
 </template>

@@ -23,11 +23,11 @@
         <div class="price-grid">
           <!-- Cost Section (Einkaufspreis) -->
           <div class="price-section cost-section">
-            <h4>{{ $t('windows.aiPricing.costSection') }}</h4>
-            <p class="section-hint">{{ $t('windows.aiPricing.costHint') }}</p>
+            <h4>{{ $t('features.aiPricing.costSection') }}</h4>
+            <p class="section-hint">{{ $t('features.aiPricing.costHint') }}</p>
 
             <div class="form-group">
-              <label>{{ $t('windows.aiPricing.inputCost') }}</label>
+              <label>{{ $t('features.aiPricing.inputCost') }}</label>
               <div class="input-with-unit">
                 <input
                   v-model.number="form.cost_per_1k_input"
@@ -42,7 +42,7 @@
             </div>
 
             <div class="form-group">
-              <label>{{ $t('windows.aiPricing.outputCost') }}</label>
+              <label>{{ $t('features.aiPricing.outputCost') }}</label>
               <div class="input-with-unit">
                 <input
                   v-model.number="form.cost_per_1k_output"
@@ -59,11 +59,11 @@
 
           <!-- Price Section (Verkaufspreis) -->
           <div class="price-section price-section">
-            <h4>{{ $t('windows.aiPricing.priceSection') }}</h4>
-            <p class="section-hint">{{ $t('windows.aiPricing.priceHint') }}</p>
+            <h4>{{ $t('features.aiPricing.priceSection') }}</h4>
+            <p class="section-hint">{{ $t('features.aiPricing.priceHint') }}</p>
 
             <div class="form-group">
-              <label>{{ $t('windows.aiPricing.inputPrice') }}</label>
+              <label>{{ $t('features.aiPricing.inputPrice') }}</label>
               <div class="input-with-unit">
                 <input
                   v-model.number="form.input_price_per_1k"
@@ -78,7 +78,7 @@
             </div>
 
             <div class="form-group">
-              <label>{{ $t('windows.aiPricing.outputPrice') }}</label>
+              <label>{{ $t('features.aiPricing.outputPrice') }}</label>
               <div class="input-with-unit">
                 <input
                   v-model.number="form.output_price_per_1k"
@@ -96,7 +96,7 @@
 
         <!-- Margin Display -->
         <div class="margin-section">
-          <h4>{{ $t('windows.aiPricing.calculatedMargins') }}</h4>
+          <h4>{{ $t('features.aiPricing.calculatedMargins') }}</h4>
           <div class="margin-grid">
             <div class="margin-item">
               <span class="margin-label">Input</span>

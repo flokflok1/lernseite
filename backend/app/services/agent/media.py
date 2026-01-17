@@ -63,7 +63,7 @@ class MediaOperations:
             }
         """
         # Import here to avoid circular import
-        from app.services.media_cache_service import MediaCacheService
+        from app.services.media_cache import MediaCacheService
 
         # Guard: ask_func is required
         if not ask_func:
@@ -142,7 +142,7 @@ class MediaOperations:
                 'confidence': float
             }
         """
-        from app.services.media_cache_service import MediaCacheService
+        from app.services.media_cache import MediaCacheService
 
         try:
             transcript, from_cache = MediaCacheService.get_or_generate_transcript(

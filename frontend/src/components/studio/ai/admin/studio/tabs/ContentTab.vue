@@ -12,8 +12,8 @@
     <!-- No Lesson Selected -->
     <div v-if="!lesson" class="empty-state">
       <div class="empty-icon">📝</div>
-      <h3>{{ $t('windows.aiEditorContent.emptyTitle') }}</h3>
-      <p>{{ $t('windows.aiEditorContent.emptyText') }}</p>
+      <h3>{{ $t('features.aiEditorContent.emptyTitle') }}</h3>
+      <p>{{ $t('features.aiEditorContent.emptyText') }}</p>
     </div>
 
     <!-- Main Content -->
@@ -123,10 +123,10 @@ const lastSaved = ref<string | null>(null)
 
 // Content Types - computed to use i18n
 const contentTypes = computed(() => [
-  { id: 'theory', name: t('windows.aiEditorContent.theory'), emoji: '📚' },
-  { id: 'example', name: t('windows.aiEditorContent.example'), emoji: '💡' },
-  { id: 'exercise', name: t('windows.aiEditorContent.exercise'), emoji: '✏️' },
-  { id: 'summary', name: t('windows.aiEditorContent.summary'), emoji: '📋' }
+  { id: 'theory', name: t('features.aiEditorContent.theory'), emoji: '📚' },
+  { id: 'example', name: t('features.aiEditorContent.example'), emoji: '💡' },
+  { id: 'exercise', name: t('features.aiEditorContent.exercise'), emoji: '✏️' },
+  { id: 'summary', name: t('features.aiEditorContent.summary'), emoji: '📋' }
 ])
 
 // Computed
@@ -145,13 +145,13 @@ const hasContent = computed(() => {
 // Get content type name
 function getContentTypeName(typeId: string): string {
   const type = contentTypes.value.find(ct => ct.id === typeId)
-  return type ? type.name : t('windows.aiEditorContent.content')
+  return type ? type.name : t('features.aiEditorContent.content')
 }
 
 // Methods
 function addTeachingStep() {
   teachingSteps.value.push({
-    title: t('windows.aiEditorContent.stepN', { n: teachingSteps.value.length + 1 }),
+    title: t('features.aiEditorContent.stepN', { n: teachingSteps.value.length + 1 }),
     speech: '',
     animation: 'talking',
     duration: '0:30'
@@ -218,7 +218,7 @@ async function saveContent() {
 }
 
 function resetContent() {
-  if (confirm(t('windows.aiEditorContent.confirmReset'))) {
+  if (confirm(t('features.aiEditorContent.confirmReset'))) {
     contentText.value = ''
     teachingSteps.value = []
     lastSaved.value = null

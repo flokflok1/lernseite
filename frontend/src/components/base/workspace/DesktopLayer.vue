@@ -1,8 +1,8 @@
 <!--
   LSX Desktop Layer
 
-  Main desktop rendering layer that manages all floating windows.
-  Renders window components based on window type and manages taskbar.
+  Main desktop rendering layer that manages all floating features.
+  Renders panel components based on panel type and manages taskbar.
 
   Phase: B24-06 - Admin Desktop OS
 -->
@@ -14,12 +14,12 @@
       <slot />
     </div>
 
-    <!-- Floating Windows -->
-    <WindowComponent
-      v-for="window in visibleWindows"
-      :key="window.id"
-      :window="window"
-      :isActive="window.id === activeWindowId"
+    <!-- Floating Panels -->
+    <PanelComponent
+      v-for="panel in visiblePanels"
+      :key="panel.id"
+      :panel="panel"
+      :isActive="panel.id === activePanelId"
       @close="handleClose"
       @minimize="handleMinimize"
       @maximize="handleMaximize"
@@ -27,13 +27,13 @@
       @drag="handleDrag"
       @resize="handleResize"
     >
-      <!-- Dynamic Window Content based on type -->
+      <!-- Dynamic Panel Content based on type -->
       <component
-        :is="resolveWindowComponent(window.type)"
-        :window="window"
-        @close="handleClose(window.id)"
+        :is="resolvePanelComponent(panel.type)"
+        :panel="panel"
+        @close="handleClose(panel.id)"
       />
-    </WindowComponent>
+    </PanelComponent>
 
     <!-- Taskbar (fixed position) -->
     <Taskbar />
@@ -42,44 +42,44 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
-import { useWindowStore } from '@/store/modules/desktop'
-import type { WindowType } from '@/store/modules/desktop'
-import WindowComponent from './WindowComponent.vue'
+import { usePanelStore } from '@/store/modules/desktop'
+import type { PanelType } from '@/store/modules/desktop'
+import PanelComponent from './PanelComponent.vue'
 import Taskbar from './Taskbar.vue'
 
-// Import window content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
+// Import panel content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations
-const AdminAiStudioWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/studio/views/AiEditorWindow.vue'))
-const AdminAIKapitelGeneratorWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/authoring/views/KapitelGeneratorWindow.vue'))
-const AdminAIJobWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/jobs/views/AIJobWindow.vue'))
-const AdminModelSelectorWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/models/views/ModelSelectorWindow.vue'))
-const AdminPromptBrowserWindow = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/prompts/views/PromptBrowserWindow.vue'))
+const AdminAiEditorPanel = defineAsyncComponent(() => import('@/components/studio/ai/admin/studio/views/AiEditorPanel.vue'))
+const AdminAIKapitelGeneratorPanel = defineAsyncComponent(() => import('@/components/studio/ai/admin/authoring/views/KapitelGeneratorPanel.vue'))
+const AdminAIJobPanel = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/jobs/views/AIJobPanel.vue'))
+const AdminModelSelectorPanel = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/models/views/ModelSelectorPanel.vue'))
+const AdminPromptBrowserPanel = defineAsyncComponent(() => import('@/components/studio/ai/admin/management/prompts/views/PromptBrowserPanel.vue'))
 
 // Content Management - Courses
-const AdminCourseCreateWindow = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseCreateWindow.vue'))
-const AdminCourseEditorWindow = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseEditorWindow.vue'))
-const AdminCourseListEditorWindow = defineAsyncComponent(() => import('@/pages/admin/courses/CourseListEditorWindow.vue'))
-const AdminCourseFilesWindow = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseFilesWindow.vue'))
+const AdminCourseCreatePanel = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseCreatePanel.vue'))
+const AdminCourseEditorPanel = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseEditorPanel.vue'))
+const AdminCourseListEditorPanel = defineAsyncComponent(() => import('@/pages/admin/courses/CourseListEditorPanel.vue'))
+const AdminCourseFilesPanel = defineAsyncComponent(() => import('@/components/base/content/admin/courses/views/CourseFilesPanel.vue'))
 
 // Content Management - Chapters
-const AdminKapitelEditorWindow = defineAsyncComponent(() => import('@/components/base/content/admin/chapters/views/KapitelEditorWindow.vue'))
-const AdminKapitelManagerWindow = defineAsyncComponent(() => import('@/components/base/content/admin/chapters/views/KapitelManagerWindow.vue'))
-const AdminChapterPreviewWindow = defineAsyncComponent(() => import('@/components/base/content/admin/chapters/views/ChapterPreviewWindow.vue'))
+const AdminKapitelEditorPanel = defineAsyncComponent(() => import('@/components/base/content/admin/chapters/views/KapitelEditorPanel.vue'))
+const AdminKapitelManagerPanel = defineAsyncComponent(() => import('@/components/base/content/admin/chapters/views/KapitelManagerPanel.vue'))
+const AdminChapterPreviewPanel = defineAsyncComponent(() => import('@/components/base/content/admin/chapters/views/ChapterPreviewPanel.vue'))
 
 // Content Management - Lessons
-const AdminLessonEditorWindow = defineAsyncComponent(() => import('@/components/base/content/admin/lessons/views/LessonEditorWindow.vue'))
-const AdminLessonPreviewWindow = defineAsyncComponent(() => import('@/components/base/content/admin/lessons/views/LessonPreviewWindow.vue'))
+const AdminLessonEditorPanel = defineAsyncComponent(() => import('@/components/base/content/admin/lessons/views/LessonEditorPanel.vue'))
+const AdminLessonPreviewPanel = defineAsyncComponent(() => import('@/components/base/content/admin/lessons/views/LessonPreviewPanel.vue'))
 
 // Content Management - Learning Methods
-const AdminLearningMethodEditorWindow = defineAsyncComponent(() => import('@/components/base/content/admin/learning-methods/views/LearningMethodEditorWindow.vue'))
+const AdminLearningMethodEditorPanel = defineAsyncComponent(() => import('@/components/base/content/admin/learning-methods/views/LearningMethodEditorPanel.vue'))
 
 // Assessment
-const AdminExamManagerWindow = defineAsyncComponent(() => import('@/components/studio/assessment/admin/views/ExamManagerWindow.vue'))
+const AdminExamManagerPanel = defineAsyncComponent(() => import('@/components/studio/assessment/admin/views/ExamManagerPanel.vue'))
 
 // System Operations
-const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/components/base/system/admin/views/FilePreviewWindow.vue'))
-const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/components/base/system/admin/views/WindowManagerWindow.vue'))
-const AdminUserGroupManagementWindow = defineAsyncComponent(() => import('@/pages/admin/AdminUserGroupManagementWindow.vue'))
+const AdminFilePreviewPanel = defineAsyncComponent(() => import('@/components/base/system/admin/views/FilePreviewPanel.vue'))
+const AdminPanelManagerPanel = defineAsyncComponent(() => import('@/components/base/system/admin/views/PanelManagerPanel.vue'))
+const AdminUserGroupManagementPanel = defineAsyncComponent(() => import('@/pages/admin/AdminUserGroupManagementPanel.vue'))
 
 // Learning Method Forms (12 Content-LMs: 00-11) - Updated 2026-01-11
 // LM12-32 deleted (were System-Features, not Content-LMs)
@@ -98,15 +98,15 @@ const LearningMethodFormComponents: Record<number, ReturnType<typeof defineAsync
   11: defineAsyncComponent(() => import('@/components/base/content/admin/learning-methods/forms/LearningMethod11Form.vue'))
 }
 
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
-const visibleWindows = computed(() => windowStore.visibleWindows)
-const activeWindowId = computed(() => windowStore.activeWindowId)
+const visiblePanels = computed(() => panelStore.visiblePanels)
+const activePanelId = computed(() => panelStore.activePanelId)
 
 /**
- * Resolve window component based on type
+ * Resolve panel component based on type
  */
-function resolveWindowComponent(type: WindowType) {
+function resolvePanelComponent(type: PanelType) {
   // Handle learning method forms (12 Content-LMs: 0-11) via explicit mapping
   if (type.startsWith('learning-method-') && type.endsWith('-form')) {
     const codeStr = type.replace('learning-method-', '').replace('-form', '')
@@ -118,92 +118,92 @@ function resolveWindowComponent(type: WindowType) {
 
   switch (type) {
     case 'admin-course-create':
-      return AdminCourseCreateWindow
+      return AdminCourseCreatePanel
     case 'admin-course-list-editor':
-      return AdminCourseListEditorWindow
+      return AdminCourseListEditorPanel
     case 'admin-course-editor':
-      return AdminCourseEditorWindow
+      return AdminCourseEditorPanel
     case 'admin-kapitel-editor':  // Refactored: modules → chapters (2025-11-27)
-      return AdminKapitelEditorWindow
+      return AdminKapitelEditorPanel
     case 'admin-kapitel-manager':  // NEW: Kapitel Manager (2025-12-03)
-      return AdminKapitelManagerWindow
+      return AdminKapitelManagerPanel
     case 'admin-ai-kapitel-generator':  // NEW: AI Kapitel Generator (2025-11-27)
-      return AdminAIKapitelGeneratorWindow
-    case 'admin-ai-studio':  // Phase D4: KI-Authoring-Studio (2025-12-02)
-      return AdminAiStudioWindow
+      return AdminAIKapitelGeneratorPanel
+    case 'admin-ai-editor':  // Phase D4: KI-Authoring-Studio (2025-12-02)
+      return AdminAiEditorPanel
     case 'admin-lesson-editor':
-      return AdminLessonEditorWindow
+      return AdminLessonEditorPanel
     case 'admin-learning-method-editor':
-      return AdminLearningMethodEditorWindow
+      return AdminLearningMethodEditorPanel
     case 'admin-exam-manager':
-      return AdminExamManagerWindow
+      return AdminExamManagerPanel
     case 'admin-ai-job':
-      return AdminAIJobWindow
-    case 'admin-window-manager':
-      return AdminWindowManagerWindow
+      return AdminAIJobPanel
+    case 'admin-panel-manager':
+      return AdminPanelManagerPanel
     case 'admin-prompt-browser':
-      return AdminPromptBrowserWindow
+      return AdminPromptBrowserPanel
     case 'admin-model-selector':
-      return AdminModelSelectorWindow
+      return AdminModelSelectorPanel
     case 'admin-course-files':
-      return AdminCourseFilesWindow
+      return AdminCourseFilesPanel
     case 'admin-file-preview':
-      return AdminFilePreviewWindow
+      return AdminFilePreviewPanel
     case 'admin-lesson-preview':
-      return AdminLessonPreviewWindow
+      return AdminLessonPreviewPanel
     case 'admin-chapter-preview':
-      return AdminChapterPreviewWindow
+      return AdminChapterPreviewPanel
     case 'admin-user-group-management':
-      return AdminUserGroupManagementWindow
+      return AdminUserGroupManagementPanel
     default:
       // Fallback: simple placeholder
       return {
-        template: '<div class="p-4">Unknown window type: {{ type }}</div>',
-        props: ['window']
+        template: '<div class="p-4">Unknown panel type: {{ type }}</div>',
+        props: ['panel']
       }
   }
 }
 
 /**
- * Handle window close
+ * Handle panel close
  */
-function handleClose(windowId: string): void {
-  windowStore.closeWindow(windowId)
+function handleClose(panelId: string): void {
+  panelStore.closePanel(panelId)
 }
 
 /**
- * Handle window minimize
+ * Handle panel minimize
  */
-function handleMinimize(windowId: string): void {
-  windowStore.minimizeWindow(windowId)
+function handleMinimize(panelId: string): void {
+  panelStore.minimizePanel(panelId)
 }
 
 /**
- * Handle window maximize/restore
+ * Handle panel maximize/restore
  */
-function handleMaximize(windowId: string): void {
-  windowStore.toggleMaximize(windowId)
+function handleMaximize(panelId: string): void {
+  panelStore.toggleMaximize(panelId)
 }
 
 /**
- * Handle window focus
+ * Handle panel focus
  */
-function handleFocus(windowId: string): void {
-  windowStore.focusWindow(windowId)
+function handleFocus(panelId: string): void {
+  panelStore.focusPanel(panelId)
 }
 
 /**
- * Handle window drag
+ * Handle panel drag
  */
-function handleDrag(windowId: string, position: { x: number; y: number }): void {
-  windowStore.updateWindowPosition(windowId, position)
+function handleDrag(panelId: string, position: { x: number; y: number }): void {
+  panelStore.updatePanelPosition(panelId, position)
 }
 
 /**
- * Handle window resize
+ * Handle panel resize
  */
-function handleResize(windowId: string, size: { width: number; height: number }): void {
-  windowStore.updateWindowSize(windowId, size)
+function handleResize(panelId: string, size: { width: number; height: number }): void {
+  panelStore.updatePanelSize(panelId, size)
 }
 </script>
 

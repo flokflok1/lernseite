@@ -2,5 +2,5 @@
  * Lesson Management Views
  */
 
-export { default as LessonEditorWindow } from './LessonEditorWindow.vue'
-export { default as LessonPreviewWindow } from './LessonPreviewWindow.vue'
+export { default as LessonEditorPanel } from './LessonEditorPanel.vue'
+export { default as LessonPreviewPanel } from './LessonPreviewPanel.vue'

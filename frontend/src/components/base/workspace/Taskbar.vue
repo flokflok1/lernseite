@@ -1,8 +1,8 @@
 <!--
   LSX Desktop Taskbar
 
-  Displays all open windows as taskbar items.
-  Allows restoring minimized windows and switching between windows.
+  Displays all open panels as taskbar items.
+  Allows restoring minimized panels and switching between features.
 
   Phase: B24-06 - Admin Desktop OS
 -->
@@ -11,18 +11,18 @@
   <div class="lsx-taskbar">
     <div class="lsx-taskbar-items">
       <button
-        v-for="window in windows"
-        :key="window.id"
+        v-for="panel in panels"
+        :key="panel.id"
         class="lsx-taskbar-item"
         :class="{
-          'lsx-taskbar-item--active': window.id === activeWindowId,
-          'lsx-taskbar-item--minimized': window.minimized
+          'lsx-taskbar-item--active': panel.id === activePanelId,
+          'lsx-taskbar-item--minimized': panel.minimized
         }"
-        @click="handleTaskbarItemClick(window.id)"
-        :title="window.title"
+        @click="handleTaskbarItemClick(panel.id)"
+        :title="panel.title"
       >
-        <span v-if="window.icon" class="lsx-taskbar-item-icon">{{ window.icon }}</span>
-        <span class="lsx-taskbar-item-title">{{ truncateTitle(window.title) }}</span>
+        <span v-if="panel.icon" class="lsx-taskbar-item-icon">{{ panel.icon }}</span>
+        <span class="lsx-taskbar-item-title">{{ truncateTitle(panel.title) }}</span>
       </button>
     </div>
   </div>
@@ -30,30 +30,30 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useWindowStore } from '@/store/modules/desktop'
-import type { LsxWindow as _LsxWindow } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
+import type { LsxPanel as _LsxPanel } from '@/store/modules/desktop'
 
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
-const windows = computed(() => windowStore.windows)
-const activeWindowId = computed(() => windowStore.activeWindowId)
+const panels = computed(() => panelStore.panels)
+const activePanelId = computed(() => panelStore.activePanelId)
 
 /**
  * Handle taskbar item click
  */
-function handleTaskbarItemClick(windowId: string): void {
-  const window = windowStore.getWindowById(windowId)
-  if (!window) return
+function handleTaskbarItemClick(panelId: string): void {
+  const panel = panelStore.getPanelById(panelId)
+  if (!panel) return
 
-  if (window.minimized) {
-    // Restore minimized window
-    windowStore.restoreWindow(windowId)
-  } else if (windowStore.activeWindowId === windowId) {
-    // Minimize if clicking active window
-    windowStore.minimizeWindow(windowId)
+  if (panel.minimized) {
+    // Restore minimized panel
+    panelStore.restorePanel(panelId)
+  } else if (panelStore.activePanelId === panelId) {
+    // Minimize if clicking active panel
+    panelStore.minimizePanel(panelId)
   } else {
-    // Focus window
-    windowStore.focusWindow(windowId)
+    // Focus panel
+    panelStore.focusPanel(panelId)
   }
 }
 

@@ -16,7 +16,7 @@ try:
 except ImportError:
     PYPDF2_AVAILABLE = False
 
-from app.repositories.ai.studio import PDFCacheRepository
+from app.repositories.ai.editor import PDFCacheRepository
 from .exceptions import PDFExtractionError
 from .extraction import PDFExtractor
 from .analysis import PDFAnalyzer

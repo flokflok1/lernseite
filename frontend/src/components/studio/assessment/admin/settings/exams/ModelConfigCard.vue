@@ -7,8 +7,8 @@
   <div class="settings-card">
     <div class="card-header">
       <span class="card-icon">🤖</span>
-      <span class="card-title">{{ $t('windows.aiEditorSettings.modelConfig') }}</span>
-      <span v-if="isCustom" class="custom-badge">{{ $t('windows.aiEditorSettings.custom') }}</span>
+      <span class="card-title">{{ $t('features.aiEditorSettings.modelConfig') }}</span>
+      <span v-if="isCustom" class="custom-badge">{{ $t('features.aiEditorSettings.custom') }}</span>
     </div>
     <div class="model-list">
       <div v-for="cat in modelCategories" :key="cat.key" class="model-item">
@@ -21,7 +21,7 @@
           @change="updateModel(cat.key, ($event.target as HTMLSelectElement).value)"
           class="model-select"
         >
-          <option value="">{{ $t('windows.aiEditorSettings.profileDefault') }}</option>
+          <option value="">{{ $t('features.aiEditorSettings.profileDefault') }}</option>
           <option
             v-for="model in modelsByCategory[cat.key]"
             :key="model.model_id"
@@ -34,7 +34,7 @@
     </div>
     <div class="card-footer">
       <button @click="$emit('reset')" class="reset-btn" :disabled="!isCustom">
-        {{ $t('windows.aiEditorSettings.resetToDefaults') }}
+        {{ $t('features.aiEditorSettings.resetToDefaults') }}
       </button>
     </div>
   </div>
@@ -82,12 +82,12 @@ const emit = defineEmits<{
 }>()
 
 const modelCategories = computed(() => [
-  { key: 'chat_model_id', icon: '💬', label: t('windows.aiEditorSettings.catChat') },
-  { key: 'reasoning_model_id', icon: '🧠', label: t('windows.aiEditorSettings.catReasoning') },
-  { key: 'image_model_id', icon: '🖼️', label: t('windows.aiEditorSettings.catImage') },
-  { key: 'audio_model_id', icon: '🔊', label: t('windows.aiEditorSettings.catAudio') },
-  { key: 'realtime_model_id', icon: '⚡', label: t('windows.aiEditorSettings.catRealtime') },
-  { key: 'embedding_model_id', icon: '🔗', label: t('windows.aiEditorSettings.catEmbedding') }
+  { key: 'chat_model_id', icon: '💬', label: t('features.aiEditorSettings.catChat') },
+  { key: 'reasoning_model_id', icon: '🧠', label: t('features.aiEditorSettings.catReasoning') },
+  { key: 'image_model_id', icon: '🖼️', label: t('features.aiEditorSettings.catImage') },
+  { key: 'audio_model_id', icon: '🔊', label: t('features.aiEditorSettings.catAudio') },
+  { key: 'realtime_model_id', icon: '⚡', label: t('features.aiEditorSettings.catRealtime') },
+  { key: 'embedding_model_id', icon: '🔗', label: t('features.aiEditorSettings.catEmbedding') }
 ])
 
 function updateModel(key: string, value: string) {

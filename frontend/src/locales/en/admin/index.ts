@@ -1,14 +1,18 @@
-/**
- * Admin translations index
- * Merges main admin.json with editor sub-modules
- */
-
-import adminBase from '../admin.json'
-import editorsModule from './editors'
+// Auto-generated barrel export
+import ai_settings from './ai-settings.json'
+import analytics from './analytics.json'
+import course_management from './course-management.json'
+import organisations from './organisations.json'
+import shared from './shared.json'
+import system from './system.json'
+import users from './users.json'
 
 export default {
-  admin: {
-    ...adminBase.admin,
-    ...editorsModule
-  }
+  ...ai_settings,
+  ...analytics,
+  ...course_management,
+  ...organisations,
+  ...shared,
+  ...system,
+  ...users
 }

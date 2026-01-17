@@ -190,7 +190,7 @@
  */
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Course } from '../composables/useAiStudioState'
+import type { Course } from '../composables/useAiEditorState'
 
 const { t } = useI18n()
 

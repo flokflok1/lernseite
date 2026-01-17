@@ -11,7 +11,7 @@ Lesson theories:
 - Multiple theory sheets per lesson
 - Ordered by order_index
 
-Phase: AI Studio Implementation - Theory Sheets
+Phase: AI Editor Implementation - Theory Sheets
 """
 
 from typing import Optional, List, Dict, Any, Literal

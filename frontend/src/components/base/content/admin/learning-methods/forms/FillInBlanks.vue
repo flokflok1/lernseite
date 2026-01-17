@@ -1,6 +1,6 @@
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -8,37 +8,37 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm09.codeSandboxTitle') }}
+            {{ $t('features.lm09.codeSandboxTitle') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            {{ $t('windows.lm09.codeSandboxDesc') }}
+            {{ $t('features.lm09.codeSandboxDesc') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm09.instructionLabel') }}
+            {{ $t('features.lm09.instructionLabel') }}
           </label>
           <textarea
             v-model="methodData.instruction"
             rows="3"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            :placeholder="$t('windows.lm09.instructionPlaceholder')"
+            :placeholder="$t('features.lm09.instructionPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm09.languageLabel') }}
+            {{ $t('features.lm09.languageLabel') }}
           </label>
           <select
             v-model="methodData.language"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">{{ $t('windows.lm09.selectTypeOption') }}</option>
-            <optgroup :label="$t('windows.lm09.languagesOptGroup')">
+            <option value="">{{ $t('features.lm09.selectTypeOption') }}</option>
+            <optgroup :label="$t('features.lm09.languagesOptGroup')">
               <option value="python">Python</option>
               <option value="javascript">JavaScript</option>
               <option value="typescript">TypeScript</option>
@@ -50,7 +50,7 @@
               <option value="go">Go</option>
               <option value="rust">Rust</option>
             </optgroup>
-            <optgroup :label="$t('windows.lm09.configurationOptGroup')">
+            <optgroup :label="$t('features.lm09.configurationOptGroup')">
               <option value="sql">SQL</option>
               <option value="bash">Bash/Shell</option>
               <option value="powershell">PowerShell</option>
@@ -61,7 +61,7 @@
               <option value="apache">Apache Config</option>
               <option value="docker">Dockerfile</option>
             </optgroup>
-            <optgroup :label="$t('windows.lm09.webOptGroup')">
+            <optgroup :label="$t('features.lm09.webOptGroup')">
               <option value="html">HTML</option>
               <option value="css">CSS</option>
             </optgroup>
@@ -70,50 +70,50 @@
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm09.codeTemplateLabel') }}
+            {{ $t('features.lm09.codeTemplateLabel') }}
           </label>
           <textarea
             v-model="methodData.code_template"
             rows="8"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            :placeholder="$t('windows.lm09.codeTemplatePlaceholder')"
+            :placeholder="$t('features.lm09.codeTemplatePlaceholder')"
           ></textarea>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.lm09.codeTemplateHint') }}
+            {{ $t('features.lm09.codeTemplateHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm09.solutionLabel') }}
+            {{ $t('features.lm09.solutionLabel') }}
           </label>
           <textarea
             v-model="methodData.solution"
             rows="10"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            :placeholder="$t('windows.lm09.solutionPlaceholder')"
+            :placeholder="$t('features.lm09.solutionPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm09.testCasesLabel') }}
+            {{ $t('features.lm09.testCasesLabel') }}
           </label>
           <textarea
             v-model="methodData.tests"
             rows="5"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
-            :placeholder="$t('windows.lm09.testCasesPlaceholder')"
+            :placeholder="$t('features.lm09.testCasesPlaceholder')"
           ></textarea>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.lm09.testCasesHint') }}
+            {{ $t('features.lm09.testCasesHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm09.optionsLabel') }}
+            {{ $t('features.lm09.optionsLabel') }}
           </label>
           <div class="space-y-2">
             <label class="flex items-center space-x-2">
@@ -123,7 +123,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ $t('windows.lm09.allowRunCheckbox') }}
+                {{ $t('features.lm09.allowRunCheckbox') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -133,7 +133,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ $t('windows.lm09.showHintsCheckbox') }}
+                {{ $t('features.lm09.showHintsCheckbox') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -143,7 +143,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ $t('windows.lm09.showSolutionCheckbox') }}
+                {{ $t('features.lm09.showSolutionCheckbox') }}
               </span>
             </label>
           </div>
@@ -155,13 +155,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const METHOD_CODE = 9
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -187,7 +187,7 @@ const methodData = ref<{
 })
 
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value = {
       instruction: existingData.instruction || '',

@@ -1,8 +1,8 @@
 # 16 – Frontend-Struktur (Final) + API Contracts
 
-**Version:** 3.1
-**Stand:** 13.01.2026
-**Änderungen:** Component Consolidation: 21 domains → 7 documented domains. /base now includes 11 subdirectories for consolidated components. /studio consolidates AI Editor (with Kurs-Editor structure), Assessment, and System-Features. Full directory tree with all subdirectories documented.
+**Version:** 3.2
+**Stand:** 16.01.2026
+**Änderungen:** API Endpoints: /admin/ → /admin-panel/ (Semantic Clarity) + Component Consolidation (21 domains → 7 documented). Full directory tree with all subdirectories documented.
 
 ---
 
@@ -12,8 +12,9 @@ Dieses Dokument definiert die **Enterprise-Grade Frontend-Architektur** des LSX 
 
 Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **performant**, **compliance-konform**, **typesicher** und für **ADHD/ADHS optimiert**.
 
-### 🎯 Features v3.0
+### 🎯 Features v3.2
 
+- ✅ **Semantic API Endpoints** - `/admin/` → `/admin-panel/` (Clarity: Interface vs. Role)
 - ✅ **Social Network UI** - Posts, Feed, Follow, Engagement Components
 - ✅ **Compliance Components** - Cookie Consent, Age Gates, Privacy Controls
 - ✅ **Moderation Dashboard** - Content Review, Reports, Statistics
@@ -206,7 +207,7 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   ├── /feature-flags      # 🎚️ FEATURE FLAG COMPONENTS
 │   │   │   ├── FeatureGate.vue           # Conditionally render content
 │   │   │   ├── FeatureFlagBadge.vue      # Display "Beta" badge
-│   │   │   ├── RolloutProgress.vue       # [API] GET /api/v1/admin/features/:id/rollout
+│   │   │   ├── RolloutProgress.vue       # [API] GET /api/v1/admin-panel/features/:id/rollout
 │   │   │   └── ABTestBanner.vue          # Display A/B Test info
 │   │   │
 │   │   └── /studio             # 🎨 AI EDITOR COMPONENTS (Consolidated 3 domains)
@@ -308,13 +309,13 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │   │   │   └── Reports.vue               # [API] GET /api/v1/parental/reports
 │   │   │
 │   │   ├── /admin
-│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/admin/dashboard
-│   │   │   ├── Users.vue                 # [API] GET /api/v1/admin/users
-│   │   │   ├── Organizations.vue         # [API] GET /api/v1/admin/organizations
-│   │   │   ├── Courses.vue               # [API] GET /api/v1/admin/courses
-│   │   │   ├── FeatureFlags.vue          # [API] GET /api/v1/admin/features
-│   │   │   ├── RolloutControl.vue        # [API] PUT /api/v1/admin/features/:id/rollout
-│   │   │   └── ComplianceDashboard.vue   # [API] GET /api/v1/admin/compliance
+│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/admin-panel/dashboard
+│   │   │   ├── Users.vue                 # [API] GET /api/v1/admin-panel/users
+│   │   │   ├── Organizations.vue         # [API] GET /api/v1/admin-panel/organizations
+│   │   │   ├── Courses.vue               # [API] GET /api/v1/admin-panel/courses
+│   │   │   ├── FeatureFlags.vue          # [API] GET /api/v1/admin-panel/features
+│   │   │   ├── RolloutControl.vue        # [API] PUT /api/v1/admin-panel/features/:id/rollout
+│   │   │   └── ComplianceDashboard.vue   # [API] GET /api/v1/admin-panel/compliance
 │   │   │
 │   │   └── /liveroom
 │   │       ├── Room.vue                  # [WS] video, chat
@@ -1150,13 +1151,94 @@ const routes = [
 
 ---
 
+## 🔄 API Endpoint Changes v3.2 (16.01.2026)
+
+### Semantic URL Paths: `/admin/` → `/admin-panel/`
+
+**WICHTIG:** Alle Admin-Panel API-Endpunkte wurden umbenannt für semantische Klarheit.
+
+#### Betroffene API Calls:
+
+**Vor v3.2 (alt):**
+```javascript
+// ❌ Alt - mehrdeutig
+GET /api/v1/admin/dashboard
+GET /api/v1/admin/settings/ai/models
+GET /api/v1/admin/courses
+```
+
+**Ab v3.2 (neu):**
+```javascript
+// ✅ Neu - eindeutig
+GET /api/v1/admin-panel/dashboard
+GET /api/v1/admin-panel/settings/ai/models
+GET /api/v1/admin-panel/courses
+```
+
+#### Migration für Frontend:
+
+**API Service Files aktualisieren:**
+```javascript
+// services/api/admin.service.js
+
+// Alt (v3.1):
+const API_BASE = '/api/v1/admin'
+
+// Neu (v3.2):
+const API_BASE = '/api/v1/admin-panel'
+```
+
+**Pinia Store Actions aktualisieren:**
+```javascript
+// store/modules/admin.js
+
+// Alt:
+const response = await api.get('/api/v1/admin/dashboard')
+
+// Neu:
+const response = await api.get('/api/v1/admin-panel/dashboard')
+```
+
+#### Vollständige Liste geänderter Endpoints:
+
+| Kategorie | Alt (v3.1) | Neu (v3.2) |
+|-----------|-----------|-----------|
+| **Settings - AI** | `/api/v1/admin/settings/ai/*` | `/api/v1/admin-panel/settings/ai/*` |
+| **Settings - System** | `/api/v1/admin/settings/system/*` | `/api/v1/admin-panel/settings/system/*` |
+| **Settings - Permissions** | `/api/v1/admin/settings/permissions/*` | `/api/v1/admin-panel/settings/permissions/*` |
+| **Settings - Features** | `/api/v1/admin/features/*` | `/api/v1/admin-panel/features/*` |
+| **Courses** | `/api/v1/admin/courses/*` | `/api/v1/admin-panel/courses/*` |
+| **Moderation** | `/api/v1/admin/moderation/*` | `/api/v1/admin-panel/moderation/*` |
+| **Analytics** | `/api/v1/admin/analytics` | `/api/v1/admin-panel/analytics` |
+| **Dashboard** | `/api/v1/admin/dashboard` | `/api/v1/admin-panel/dashboard` |
+| **Users** | `/api/v1/admin/users` | `/api/v1/admin-panel/users` |
+
+#### Keine Änderungen nötig für:
+- ✅ `/api/v1/auth/*` (User Authentication)
+- ✅ `/api/v1/users/*` (User Profile)
+- ✅ `/api/v1/courses/*` (Public Courses)
+- ✅ `/api/v1/social/*` (Social Features)
+- ✅ Alle anderen nicht-admin Endpoints
+
+#### Testing:
+```bash
+# Test all admin-panel endpoints
+npm run test:api -- --grep "admin-panel"
+
+# Update mocks
+npm run update-mocks
+```
+
+---
+
 ## 📌 Dokument abgeschlossen
 
-**Version:** 3.0  
-**Status:** Final  
-**Letzte Aktualisierung:** 13.01.2026
+**Version:** 3.2
+**Status:** Final
+**Letzte Aktualisierung:** 16.01.2026
 
-**Neue Features v3.0:**
+**Neue Features v3.2:**
+- ✅ Semantic API Endpoints (`/admin/` → `/admin-panel/`)
 - ✅ Komplette API Contract Dokumentation
 - ✅ Store ↔ API Mapping für alle Features
 - ✅ TypeScript Type Definitions
@@ -1166,4 +1248,4 @@ const routes = [
 - ✅ Component-Store-API Flow Diagramme
 - ✅ Development Workflow Dokumentation
 
-> **Wichtig:** Frontend und Backend entwickeln gegen diesen Contract. Keine spontanen API-Änderungen ohne Dokumentation zu aktualisieren!
+> **Wichtig:** Frontend und Backend entwickeln gegen diesen Contract. API-Änderungen MÜSSEN in beiden Dokumentationen synchron aktualisiert werden!

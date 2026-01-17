@@ -1,2 +1,2 @@
-export { default as AiStudioMain } from './AiStudioMain.vue'
+export { default as AiEditorMain } from './AiEditorMain.vue'
 export * from './tabs'

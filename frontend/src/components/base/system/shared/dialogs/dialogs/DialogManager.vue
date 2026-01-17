@@ -1,82 +1,82 @@
 <!--
-  Admin Window Manager Window - Phase 4 Enhanced
+  Admin Panel Manager - Phase 4 Enhanced
 
-  Shows all minimized windows with:
-  - Icons based on window type
+  Shows all minimized panels with:
+  - Icons based on panel type
   - Status badges
   - Mini-preview on hover
   - Restore & Close actions
 -->
 
 <template>
-  <div class="admin-window-manager-window p-6">
+  <div class="admin-panel-manager-panel p-6">
     <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
-      {{ $t('windows.windowManager.title') }}
+      {{ $t('features.panelManager.title') }}
     </h3>
 
     <!-- Empty State -->
-    <div v-if="minimizedWindows.length === 0" class="text-center py-12">
+    <div v-if="minimizedPanels.length === 0" class="text-center py-12">
       <div class="text-5xl mb-3">🪟</div>
-      <p class="text-[var(--color-text-secondary)] mb-1">{{ $t('windows.windowManager.noMinimized') }}</p>
+      <p class="text-[var(--color-text-secondary)] mb-1">{{ $t('features.panelManager.noMinimized') }}</p>
       <p class="text-xs text-[var(--color-text-tertiary)]">
-        {{ $t('windows.windowManager.noMinimizedHint') }}
+        {{ $t('features.panelManager.noMinimizedHint') }}
       </p>
     </div>
 
-    <!-- Window List -->
+    <!-- Panel List -->
     <div v-else class="space-y-2">
       <div
-        v-for="win in minimizedWindows"
+        v-for="win in minimizedPanels"
         :key="win.id"
         @mouseenter="handleMouseEnter($event, win)"
         @mousemove="handleMouseMove"
         @mouseleave="handleMouseLeave"
-        class="window-item group relative"
+        class="panel-item group relative"
       >
-        <!-- Window Entry Card -->
+        <!-- Panel Entry Card -->
         <div
           class="flex items-center gap-3 p-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all"
         >
           <!-- Icon -->
           <div class="text-2xl flex-shrink-0">
-            {{ getWindowIcon(win.type) }}
+            {{ getPanelIcon(win.type) }}
           </div>
 
           <!-- Content -->
-          <div class="flex-1 min-w-0" @click="restoreWindow(win.id)">
+          <div class="flex-1 min-w-0" @click="restorePanel(win.id)">
             <div class="flex items-center gap-2 mb-1">
               <p class="font-medium text-[var(--color-text-primary)] truncate">
-                {{ getWindowTitle(win) }}
+                {{ getPanelTitle(win) }}
               </p>
               <!-- Status Badge -->
               <span
-                v-if="getWindowStatus(win)"
+                v-if="getPanelStatus(win)"
                 :class="getStatusBadgeClass(win)"
                 class="px-2 py-0.5 text-xs rounded-full flex-shrink-0"
               >
-                {{ getWindowStatus(win) }}
+                {{ getPanelStatus(win) }}
               </span>
             </div>
             <p class="text-xs text-[var(--color-text-secondary)] truncate">
-              {{ getWindowTypeLabel(win.type) }}
+              {{ getPanelTypeLabel(win.type) }}
             </p>
           </div>
 
           <!-- Actions -->
           <div class="flex gap-2 flex-shrink-0">
             <button
-              @click.stop="restoreWindow(win.id)"
+              @click.stop="restorePanel(win.id)"
               class="p-1.5 rounded hover:bg-[var(--color-primary)]/10 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
-              :title="$t('windows.windowManager.restore')"
+              :title="$t('features.panelManager.restore')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
               </svg>
             </button>
             <button
-              @click.stop="closeWindow(win.id)"
+              @click.stop="closePanel(win.id)"
               class="p-1.5 rounded hover:bg-red-500/10 text-[var(--color-text-secondary)] hover:text-red-500 transition-colors"
-              :title="$t('windows.windowManager.close')"
+              :title="$t('features.panelManager.close')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -90,7 +90,7 @@
     <!-- Mini Preview Popup (Phase 4) -->
     <Teleport to="body">
       <div
-        v-if="previewState.visible && previewState.window"
+        v-if="previewState.visible && previewState.panel"
         :style="{
           position: 'fixed',
           left: `${previewState.position.x}px`,
@@ -102,42 +102,42 @@
         <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-xl p-4 w-64">
           <!-- Preview Header -->
           <div class="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--color-border)]">
-            <span class="text-xl">{{ getWindowIcon(previewState.window.type) }}</span>
+            <span class="text-xl">{{ getPanelIcon(previewState.panel.type) }}</span>
             <span class="text-sm font-semibold text-[var(--color-text-primary)] truncate">
-              {{ getWindowTitle(previewState.window) }}
+              {{ getPanelTitle(previewState.panel) }}
             </span>
           </div>
 
           <!-- Preview Content -->
           <div class="text-xs space-y-2">
             <!-- Course Create Preview -->
-            <template v-if="previewState.window.type === 'admin-course-create'">
-              <PreviewCourseCreate :window="previewState.window" />
+            <template v-if="previewState.panel.type === 'admin-course-create'">
+              <PreviewCourseCreate :panel="previewState.panel" />
             </template>
 
             <!-- Course Editor Preview -->
-            <template v-else-if="previewState.window.type === 'admin-course-editor'">
-              <PreviewCourseEditor :window="previewState.window" />
+            <template v-else-if="previewState.panel.type === 'admin-course-editor'">
+              <PreviewCourseEditor :panel="previewState.panel" />
             </template>
 
             <!-- Kapitel Editor Preview (refactored: module → kapitel) -->
-            <template v-else-if="previewState.window.type === 'admin-kapitel-editor'">
-              <PreviewKapitelEditor :window="previewState.window" />
+            <template v-else-if="previewState.panel.type === 'admin-kapitel-editor'">
+              <PreviewKapitelEditor :panel="previewState.panel" />
             </template>
 
             <!-- Lesson Editor Preview -->
-            <template v-else-if="previewState.window.type === 'admin-lesson-editor'">
-              <PreviewLessonEditor :window="previewState.window" />
+            <template v-else-if="previewState.panel.type === 'admin-lesson-editor'">
+              <PreviewLessonEditor :panel="previewState.panel" />
             </template>
 
             <!-- AI Job Preview -->
-            <template v-else-if="previewState.window.type === 'admin-ai-job'">
-              <PreviewAIJob :window="previewState.window" />
+            <template v-else-if="previewState.panel.type === 'admin-ai-job'">
+              <PreviewAIJob :panel="previewState.panel" />
             </template>
 
             <!-- Fallback -->
             <template v-else>
-              <p class="text-[var(--color-text-secondary)]">{{ $t('windows.windowManager.noPreview') }}</p>
+              <p class="text-[var(--color-text-secondary)]">{{ $t('features.panelManager.noPreview') }}</p>
             </template>
           </div>
         </div>
@@ -149,8 +149,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
-import type { LsxWindow, WindowType } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
+import type { LsxPanel, PanelType } from '@/store/modules/desktop'
 
 const { t } = useI18n()
 import PreviewCourseCreate from '../previews/PreviewCourseCreate.vue'
@@ -160,7 +160,7 @@ import PreviewLessonEditor from '../previews/PreviewLessonEditor.vue'
 import PreviewAIJob from '../previews/PreviewAIJob.vue'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 interface Emits {
@@ -170,30 +170,30 @@ interface Emits {
 defineProps<Props>()
 defineEmits<Emits>()
 
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
-const minimizedWindows = computed(() => windowStore.minimizedWindows)
+const minimizedPanels = computed(() => panelStore.minimizedPanels)
 
 // Preview state
 const previewState = ref<{
-  window: LsxWindow | null
+  panel: LsxPanel | null
   position: { x: number; y: number }
   visible: boolean
   hoverTimeout: number | null
 }>({
-  window: null,
+  panel: null,
   position: { x: 0, y: 0 },
   visible: false,
   hoverTimeout: null
 })
 
-function handleMouseEnter(event: MouseEvent, win: LsxWindow): void {
+function handleMouseEnter(event: MouseEvent, win: LsxPanel): void {
   if (previewState.value.hoverTimeout) {
     clearTimeout(previewState.value.hoverTimeout)
   }
 
   previewState.value.hoverTimeout = window.setTimeout(() => {
-    previewState.value.window = win
+    previewState.value.panel = win
     previewState.value.position = {
       x: event.clientX + 20,
       y: event.clientY - 100 // Offset upwards to avoid cursor overlap
@@ -218,93 +218,93 @@ function handleMouseLeave(): void {
   }
 
   previewState.value.visible = false
-  previewState.value.window = null
+  previewState.value.panel = null
 }
 
-function restoreWindow(windowId: string): void {
-  windowStore.restoreWindow(windowId)
+function restorePanel(panelId: string): void {
+  panelStore.restorePanel(panelId)
 }
 
-function closeWindow(windowId: string): void {
-  windowStore.closeWindow(windowId)
+function closePanel(panelId: string): void {
+  panelStore.closePanel(panelId)
 }
 
-function getWindowIcon(type: WindowType): string {
-  const icons: Record<WindowType, string> = {
+function getPanelIcon(type: PanelType): string {
+  const icons: Record<PanelType, string> = {
     'admin-course-create': '📚',
     'admin-course-editor': '✏️',
     'admin-module-editor': '📖',
     'admin-lesson-editor': '📄',
     'admin-ai-job': '🤖',
-    'admin-window-manager': '🪟'
+    'admin-panel-manager': '🪟'
   }
   return icons[type] || '📋'
 }
 
-function getWindowTypeLabel(type: WindowType): string {
-  const keyMap: Record<WindowType, string> = {
+function getPanelTypeLabel(type: PanelType): string {
+  const keyMap: Record<PanelType, string> = {
     'admin-course-create': 'adminCourseCreate',
     'admin-course-editor': 'adminCourseEditor',
     'admin-module-editor': 'adminModuleEditor',
     'admin-lesson-editor': 'adminLessonEditor',
     'admin-ai-job': 'adminAiJob',
-    'admin-window-manager': 'adminWindowManager'
+    'admin-panel-manager': 'adminPanelManager'
   }
   const key = keyMap[type]
-  return key ? t(`windows.windowManager.types.${key}`) : type
+  return key ? t(`features.panelManager.types.${key}`) : type
 }
 
-function getWindowTitle(win: LsxWindow): string {
+function getPanelTitle(win: LsxPanel): string {
   const payload = win.payload || {}
 
   switch (win.type) {
     case 'admin-course-create':
-      return payload.courseDraft?.title || t('windows.windowManager.defaults.newCourse')
+      return payload.courseDraft?.title || t('features.panelManager.defaults.newCourse')
 
     case 'admin-course-editor':
-      return payload.course?.title || t('windows.windowManager.defaults.editCourse')
+      return payload.course?.title || t('features.panelManager.defaults.editCourse')
 
     case 'admin-module-editor':
-      return payload.module?.title || t('windows.windowManager.defaults.newModule')
+      return payload.module?.title || t('features.panelManager.defaults.newModule')
 
     case 'admin-lesson-editor':
-      return payload.lesson?.title || t('windows.windowManager.defaults.newLesson')
+      return payload.lesson?.title || t('features.panelManager.defaults.newLesson')
 
     case 'admin-ai-job':
       const jobData = payload.job || {}
-      return jobData.output_data?.course?.title || payload.fileName || t('windows.windowManager.defaults.aiCourse')
+      return jobData.output_data?.course?.title || payload.fileName || t('features.panelManager.defaults.aiCourse')
 
     default:
       return win.title
   }
 }
 
-function getWindowStatus(win: LsxWindow): string | null {
+function getPanelStatus(win: LsxPanel): string | null {
   const payload = win.payload || {}
 
   switch (win.type) {
     case 'admin-course-create':
-      return t('windows.windowManager.status.draft')
+      return t('features.panelManager.status.draft')
 
     case 'admin-course-editor':
       const courseStatus = payload.course?.status
-      if (courseStatus === 'published') return t('windows.windowManager.status.published')
-      if (courseStatus === 'archived') return t('windows.windowManager.status.archived')
-      return t('windows.windowManager.status.draft')
+      if (courseStatus === 'published') return t('features.panelManager.status.published')
+      if (courseStatus === 'archived') return t('features.panelManager.status.archived')
+      return t('features.panelManager.status.draft')
 
     case 'admin-ai-job':
       const jobStatus = payload.job?.status
-      if (jobStatus === 'processing') return t('windows.windowManager.status.aiActive')
-      if (jobStatus === 'completed') return t('windows.windowManager.status.done')
-      if (jobStatus === 'failed') return t('windows.windowManager.status.error')
-      return t('windows.windowManager.status.waiting')
+      if (jobStatus === 'processing') return t('features.panelManager.status.aiActive')
+      if (jobStatus === 'completed') return t('features.panelManager.status.done')
+      if (jobStatus === 'failed') return t('features.panelManager.status.error')
+      return t('features.panelManager.status.waiting')
 
     default:
       return null
   }
 }
 
-function getStatusBadgeClass(win: LsxWindow): string {
+function getStatusBadgeClass(win: LsxPanel): string {
   const payload = win.payload || {}
 
   if (win.type === 'admin-course-editor') {
@@ -325,13 +325,13 @@ function getStatusBadgeClass(win: LsxWindow): string {
 </script>
 
 <style scoped>
-.admin-window-manager-window {
+.admin-panel-manager-panel {
   min-height: 200px;
   max-height: 500px;
   overflow-y: auto;
 }
 
-.window-item {
+.panel-item {
   cursor: pointer;
 }
 

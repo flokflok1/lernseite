@@ -1,5 +1,5 @@
 <!--
-  AdminFilePreviewWindow.vue
+  AdminFilePreviewPanel.vue
 
   Vorschau-Fenster für:
   - Kursdateien (PDF, Text, Bilder)
@@ -10,7 +10,7 @@
 -->
 
 <template>
-  <div class="preview-window">
+  <div class="preview-panel">
     <!-- Header -->
     <div class="preview-header">
       <div class="header-info">
@@ -25,7 +25,7 @@
           v-if="previewType === 'file' && fileUrl"
           @click="downloadFile"
           class="action-btn"
-          :title="$t('windows.filePreview.download')"
+          :title="$t('features.filePreview.download')"
         >
           ⬇️
         </button>
@@ -33,7 +33,7 @@
           v-if="previewType !== 'file'"
           @click="openEditor"
           class="action-btn"
-          :title="$t('windows.filePreview.edit')"
+          :title="$t('features.filePreview.edit')"
         >
           ✏️
         </button>
@@ -45,7 +45,7 @@
       <!-- Loading -->
       <div v-if="loading" class="state-loading">
         <div class="spinner"></div>
-        <p>{{ $t('windows.filePreview.loading') }}</p>
+        <p>{{ $t('features.filePreview.loading') }}</p>
       </div>
 
       <!-- Error -->
@@ -79,8 +79,8 @@
         <!-- Unsupported -->
         <div v-else class="state-unsupported">
           <span>📄</span>
-          <p>{{ $t('windows.filePreview.noPreview') }}</p>
-          <button @click="downloadFile" class="download-btn">{{ $t('windows.filePreview.download') }}</button>
+          <p>{{ $t('features.filePreview.noPreview') }}</p>
+          <button @click="downloadFile" class="download-btn">{{ $t('features.filePreview.download') }}</button>
         </div>
       </template>
 
@@ -91,12 +91,12 @@
             <h2>{{ chapter?.title }}</h2>
             <p v-if="chapter?.description">{{ chapter.description }}</p>
             <div class="chapter-stats">
-              <span>📄 {{ $t('windows.filePreview.lessonsCount', { count: chapterLessons.length }) }}</span>
+              <span>📄 {{ $t('features.filePreview.lessonsCount', { count: chapterLessons.length }) }}</span>
             </div>
           </div>
 
           <div class="lessons-list">
-            <h4>{{ $t('windows.filePreview.lessons') }}</h4>
+            <h4>{{ $t('features.filePreview.lessons') }}</h4>
             <div
               v-for="(lesson, idx) in chapterLessons"
               :key="lesson.lesson_id"
@@ -111,7 +111,7 @@
               <span class="lesson-arrow">→</span>
             </div>
             <div v-if="!chapterLessons.length" class="no-lessons">
-              {{ $t('windows.filePreview.noLessons') }}
+              {{ $t('features.filePreview.noLessons') }}
             </div>
           </div>
         </div>
@@ -124,19 +124,19 @@
             <h2>{{ lesson?.title }}</h2>
             <p v-if="lesson?.description">{{ lesson.description }}</p>
             <div class="lesson-meta-info">
-              <span v-if="lesson?.duration_minutes">⏱️ {{ lesson.duration_minutes }} {{ $t('windows.filePreview.min') }}</span>
+              <span v-if="lesson?.duration_minutes">⏱️ {{ lesson.duration_minutes }} {{ $t('features.filePreview.min') }}</span>
               <span v-if="lesson?.content?.lm_primary">🧩 LM{{ lesson.content.lm_primary }}</span>
             </div>
           </div>
 
           <div v-if="lesson?.content" class="lesson-content">
-            <h4>{{ $t('windows.filePreview.content') }}</h4>
+            <h4>{{ $t('features.filePreview.content') }}</h4>
             <div v-if="lesson.content.theory" class="content-section">
-              <h5>{{ $t('windows.filePreview.theory') }}</h5>
+              <h5>{{ $t('features.filePreview.theory') }}</h5>
               <div class="theory-text">{{ lesson.content.theory }}</div>
             </div>
             <div v-if="lesson.content.steps?.length" class="content-section">
-              <h5>{{ $t('windows.filePreview.steps') }}</h5>
+              <h5>{{ $t('features.filePreview.steps') }}</h5>
               <ol class="steps-list">
                 <li v-for="(step, idx) in lesson.content.steps" :key="idx">
                   {{ step.title || step.text || step }}
@@ -153,8 +153,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
-import { useWindowStore } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import http from '@/api/http'
 
 const { t } = useI18n()
@@ -181,30 +181,30 @@ interface LessonPayload {
 }
 
 const props = defineProps<{
-  window: LsxWindow
+  panel: LsxPanel
 }>()
 
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
 // Determine preview type from payload
 const previewType = computed(() => {
-  if (props.window.payload?.file) return 'file'
-  if (props.window.payload?.chapter) return 'chapter'
-  if (props.window.payload?.lesson) return 'lesson'
+  if (props.panel.payload?.file) return 'file'
+  if (props.panel.payload?.chapter) return 'chapter'
+  if (props.panel.payload?.lesson) return 'lesson'
   return 'unknown'
 })
 
 // File data
-const file = computed<FilePayload | null>(() => props.window.payload?.file || null)
+const file = computed<FilePayload | null>(() => props.panel.payload?.file || null)
 const fileUrl = ref<string | null>(null)
 const textContent = ref<string | null>(null)
 
 // Chapter data
-const chapter = computed<ChapterPayload | null>(() => props.window.payload?.chapter || null)
+const chapter = computed<ChapterPayload | null>(() => props.panel.payload?.chapter || null)
 const chapterLessons = ref<LessonPayload[]>([])
 
 // Lesson data
-const lesson = computed<LessonPayload | null>(() => props.window.payload?.lesson || null)
+const lesson = computed<LessonPayload | null>(() => props.panel.payload?.lesson || null)
 
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -226,10 +226,10 @@ const headerIcon = computed(() => {
 })
 
 const headerTitle = computed(() => {
-  if (previewType.value === 'file') return file.value?.name || t('windows.filePreview.file')
-  if (previewType.value === 'chapter') return chapter.value?.title || t('windows.filePreview.chapter')
-  if (previewType.value === 'lesson') return lesson.value?.title || t('windows.lessonPreview.lesson')
-  return t('windows.filePreview.preview')
+  if (previewType.value === 'file') return file.value?.name || t('features.filePreview.file')
+  if (previewType.value === 'chapter') return chapter.value?.title || t('features.filePreview.chapter')
+  if (previewType.value === 'lesson') return lesson.value?.title || t('features.lessonPreview.lesson')
+  return t('features.filePreview.preview')
 })
 
 const headerMeta = computed(() => {
@@ -237,10 +237,10 @@ const headerMeta = computed(() => {
     return `${formatFileSize(file.value?.size)} · ${file.value?.type?.toUpperCase()}`
   }
   if (previewType.value === 'chapter') {
-    return t('windows.filePreview.lessonsCount', { count: chapterLessons.value.length })
+    return t('features.filePreview.lessonsCount', { count: chapterLessons.value.length })
   }
   if (previewType.value === 'lesson') {
-    return lesson.value?.duration_minutes ? `${lesson.value.duration_minutes} ${t('windows.filePreview.min')}` : t('windows.lessonPreview.lesson')
+    return lesson.value?.duration_minutes ? `${lesson.value.duration_minutes} ${t('features.filePreview.min')}` : t('features.lessonPreview.lesson')
   }
   return ''
 })
@@ -268,18 +268,18 @@ async function loadContent() {
       // Lesson data already in payload
       loading.value = false
     } else {
-      error.value = t('windows.filePreview.unknownType')
+      error.value = t('features.filePreview.unknownType')
       loading.value = false
     }
   } catch (err: any) {
-    error.value = err.message || t('windows.filePreview.loadError')
+    error.value = err.message || t('features.filePreview.loadError')
     loading.value = false
   }
 }
 
 async function loadFile() {
   if (!file.value?.id) {
-    error.value = t('windows.filePreview.noFileId')
+    error.value = t('features.filePreview.noFileId')
     loading.value = false
     return
   }
@@ -306,7 +306,7 @@ async function loadFile() {
     }
   } catch (err: any) {
     console.error('File load error:', err)
-    error.value = err.response?.data?.error || t('windows.filePreview.fileLoadError')
+    error.value = err.response?.data?.error || t('features.filePreview.fileLoadError')
   } finally {
     loading.value = false
   }
@@ -314,7 +314,7 @@ async function loadFile() {
 
 async function loadChapterLessons() {
   if (!chapter.value?.chapter_id) {
-    error.value = t('windows.filePreview.noChapterId')
+    error.value = t('features.filePreview.noChapterId')
     loading.value = false
     return
   }
@@ -325,7 +325,7 @@ async function loadChapterLessons() {
       chapterLessons.value = res.data.data?.lessons || res.data.lessons || []
     }
   } catch (err: any) {
-    error.value = t('windows.filePreview.lessonsLoadError')
+    error.value = t('features.filePreview.lessonsLoadError')
   } finally {
     loading.value = false
   }
@@ -341,14 +341,14 @@ function downloadFile() {
 }
 
 function openEditor() {
-  // TODO: Open editor window for chapter/lesson
+  // TODO: Open editor panel for chapter/lesson
   console.log('Open editor for', previewType.value)
 }
 
 function openLessonPreview(lesson: LessonPayload) {
-  windowStore.openWindow({
+  panelStore.openPanel({
     type: 'admin-file-preview',
-    title: `${t('windows.lessonPreview.lesson')}: ${lesson.title}`,
+    title: `${t('features.lessonPreview.lesson')}: ${lesson.title}`,
     icon: '📄',
     payload: { lesson },
     size: { width: 700, height: 500 }
@@ -368,7 +368,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.preview-window {
+.preview-panel {
   display: flex;
   flex-direction: column;
   height: 100%;

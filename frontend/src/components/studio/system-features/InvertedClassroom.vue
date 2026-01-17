@@ -9,7 +9,7 @@
 
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -207,7 +207,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import { BaseLearningMethodForm } from '@/components/base/content/admin/learning-methods/forms'
 
 const METHOD_CODE = 32
@@ -215,7 +215,7 @@ const METHOD_CODE = 32
 const { t } = useI18n()
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -252,7 +252,7 @@ const methodData = ref({
 })
 
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value.topic = existingData.topic || ''
     methodData.value.learning_objectives = existingData.learning_objectives || ''

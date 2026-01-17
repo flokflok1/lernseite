@@ -8,7 +8,7 @@ Pydantic models for moderation audit trail:
 
 Tracks all moderation actions for compliance, transparency, and accountability.
 
-Phase: AI Studio Implementation - KI Moderation
+Phase: AI Editor Implementation - KI Moderation
 """
 
 from typing import Optional, Literal, Dict, Any

@@ -20,7 +20,7 @@
         {{ formatKiUsage(method.ki_usage) }}
       </span>
       <span class="method-count">
-        {{ $t('windows.lernmethodenTab.instancesCount', { count: instanceCount }) }}
+        {{ $t('features.lernmethodenTab.instancesCount', { count: instanceCount }) }}
       </span>
     </div>
     <button
@@ -28,7 +28,7 @@
       class="generate-btn"
       :disabled="!canGenerate"
     >
-      {{ $t('windows.lernmethodenTab.generate') }}
+      {{ $t('features.lernmethodenTab.generate') }}
     </button>
   </div>
 </template>
@@ -57,7 +57,7 @@ defineEmits<{
 }>()
 
 function formatKiUsage(usage: string): string {
-  const key = `windows.lernmethodenTab.kiUsage.${usage}`
+  const key = `features.lernmethodenTab.kiUsage.${usage}`
   const translated = t(key)
   return translated !== key ? translated : usage
 }

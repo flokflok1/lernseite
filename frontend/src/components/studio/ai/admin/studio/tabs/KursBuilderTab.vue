@@ -16,11 +16,11 @@
       <div class="header-left">
         <span class="header-icon">🏗️</span>
         <div class="header-info">
-          <h3 class="header-title">{{ $t('windows.kursBuilder.title') }}</h3>
+          <h3 class="header-title">{{ $t('features.kursBuilder.title') }}</h3>
           <div class="header-meta">
             <span v-if="course" class="course-badge">{{ course.title }}</span>
             <span v-if="draftStats.chapters > 0" class="stats-badge">
-              {{ $t('windows.kursBuilder.statsChapters', { chapters: draftStats.chapters, lessons: draftStats.lessons }) }}
+              {{ $t('features.kursBuilder.statsChapters', { chapters: draftStats.chapters, lessons: draftStats.lessons }) }}
             </span>
           </div>
         </div>
@@ -29,20 +29,20 @@
       <div class="header-right">
         <div v-if="session" class="session-info">
           <span class="session-dot active"></span>
-          <span class="session-text">{{ $t('windows.kursBuilder.sessionActive') }}</span>
+          <span class="session-text">{{ $t('features.kursBuilder.sessionActive') }}</span>
           <span class="session-id">{{ session.session_id.slice(0, 8) }}</span>
         </div>
         <div v-else class="session-info">
           <span class="session-dot inactive"></span>
-          <span class="session-text">{{ $t('windows.kursBuilder.noSession') }}</span>
+          <span class="session-text">{{ $t('features.kursBuilder.noSession') }}</span>
         </div>
 
         <button v-if="!session && course" @click="createSession" :disabled="creatingSession" class="btn-primary">
-          {{ creatingSession ? $t('windows.kursBuilder.creating') : $t('windows.kursBuilder.newSession') }}
+          {{ creatingSession ? $t('features.kursBuilder.creating') : $t('features.kursBuilder.newSession') }}
         </button>
 
         <button v-if="session?.status === 'active'" @click="finalizeSession" :disabled="finalizing || !hasChanges" class="btn-success">
-          {{ finalizing ? $t('windows.kursBuilder.finalizing') : $t('windows.kursBuilder.finalize') }}
+          {{ finalizing ? $t('features.kursBuilder.finalizing') : $t('features.kursBuilder.finalize') }}
         </button>
       </div>
     </div>
@@ -50,8 +50,8 @@
     <!-- No Course Selected -->
     <div v-if="!course" class="empty-state">
       <span class="empty-icon">📚</span>
-      <p class="empty-title">{{ $t('windows.kursBuilder.noCourseSelected') }}</p>
-      <p class="empty-hint">{{ $t('windows.kursBuilder.selectCourseHint') }}</p>
+      <p class="empty-title">{{ $t('features.kursBuilder.noCourseSelected') }}</p>
+      <p class="empty-hint">{{ $t('features.kursBuilder.selectCourseHint') }}</p>
     </div>
 
     <!-- Main Content (2 Spalten) -->
@@ -157,7 +157,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import { useTheoryManagement } from '@/composables/useTheoryManagement'
 import http from '@/api/http'
 import {
@@ -193,7 +193,7 @@ interface PendingAction { type: 'create' | 'update' | 'delete'; entity: 'chapter
 const props = defineProps<{ course: Course | null }>()
 
 // Stores & Composables
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 const theoryMgmt = useTheoryManagement()
 
 // State
@@ -268,10 +268,10 @@ async function loadQuickActions() {
 
 function getFallbackActions(): QuickAction[] {
   return [
-    { action_id: 'fb-1', action_key: 'structure_suggest', label: t('windows.kursBuilder.fallbackActions.structureSuggest'), icon: '📋', prompt_template: 'Analysiere das Kursmaterial und schlage eine passende Kapitelstruktur vor.', mode: 'structure' },
-    { action_id: 'fb-2', action_key: 'chapters_create_3', label: t('windows.kursBuilder.fallbackActions.createChapters'), icon: '📚', prompt_template: 'Erstelle 3 Kapitel mit je 3-5 Lektionen basierend auf dem Kursmaterial.', mode: 'structure' },
-    { action_id: 'fb-3', action_key: 'exam_generate', label: t('windows.kursBuilder.fallbackActions.generateExam'), icon: '🎓', prompt_template: 'Generiere IHK-Stil Prüfungsfragen basierend auf den vorhandenen Kapiteln.', mode: 'exam' },
-    { action_id: 'fb-4', action_key: 'material_analyze', label: t('windows.kursBuilder.fallbackActions.analyzeMaterial'), icon: '🔍', prompt_template: 'Analysiere das hochgeladene Material und extrahiere die wichtigsten Konzepte.', mode: 'analyze' }
+    { action_id: 'fb-1', action_key: 'structure_suggest', label: t('features.kursBuilder.fallbackActions.structureSuggest'), icon: '📋', prompt_template: 'Analysiere das Kursmaterial und schlage eine passende Kapitelstruktur vor.', mode: 'structure' },
+    { action_id: 'fb-2', action_key: 'chapters_create_3', label: t('features.kursBuilder.fallbackActions.createChapters'), icon: '📚', prompt_template: 'Erstelle 3 Kapitel mit je 3-5 Lektionen basierend auf dem Kursmaterial.', mode: 'structure' },
+    { action_id: 'fb-3', action_key: 'exam_generate', label: t('features.kursBuilder.fallbackActions.generateExam'), icon: '🎓', prompt_template: 'Generiere IHK-Stil Prüfungsfragen basierend auf den vorhandenen Kapiteln.', mode: 'exam' },
+    { action_id: 'fb-4', action_key: 'material_analyze', label: t('features.kursBuilder.fallbackActions.analyzeMaterial'), icon: '🔍', prompt_template: 'Analysiere das hochgeladene Material und extrahiere die wichtigsten Konzepte.', mode: 'analyze' }
   ]
 }
 
@@ -436,10 +436,10 @@ async function analyzeLessonWithFiles(chapter: Chapter, lesson: Lesson) {
     const response = await http.post('/admin/ai-studio/analyze-lesson', { course_id: props.course.course_id, chapter_id: chapter.id, chapter_title: chapter.title, lesson_id: lesson.id, lesson_title: lesson.title, file_ids: selectedFileIds.value, request_type: 'lm_recommendation' })
     if (response.data.success) {
       const analysis = response.data.data
-      addSystemMessage(`**${t('windows.kursBuilder.messages.analysisFor', { name: lesson.title })}**\n\n${analysis.summary || ''}\n\n**${t('windows.kursBuilder.messages.recommendedMethods')}**\n${(analysis.recommended_lms || []).map((lm: any) => `- ${lm.name}: ${lm.reason}`).join('\n')}`)
+      addSystemMessage(`**${t('features.kursBuilder.messages.analysisFor', { name: lesson.title })}**\n\n${analysis.summary || ''}\n\n**${t('features.kursBuilder.messages.recommendedMethods')}**\n${(analysis.recommended_lms || []).map((lm: any) => `- ${lm.name}: ${lm.reason}`).join('\n')}`)
       if (analysis.recommended_lms?.length) lmSuggestions.value = analysis.recommended_lms.map((lm: any) => ({ lm_id: lm.lm_id, name: lm.name, reason: lm.reason, confidence: lm.confidence || 0.8 }))
     }
-  } catch { addSystemMessage(t('windows.kursBuilder.messages.analysisError', { name: lesson.title })) }
+  } catch { addSystemMessage(t('features.kursBuilder.messages.analysisError', { name: lesson.title })) }
   finally { analyzingLessonId.value = null }
 }
 
@@ -451,11 +451,11 @@ async function analyzeSelectedContext() {
     const response = await http.post('/admin/ai-studio/analyze-lesson', { course_id: props.course.course_id, chapter_id: isChapter ? selectedContext.value.id : selectedContext.value.parentChapter?.id, chapter_title: isChapter ? selectedContext.value.title : selectedContext.value.parentChapter?.title, lesson_id: isChapter ? null : selectedContext.value.id, lesson_title: isChapter ? null : selectedContext.value.title, file_ids: selectedFileIds.value, request_type: 'lm_recommendation' })
     if (response.data.success) {
       const analysis = response.data.data
-      const contextName = isChapter ? `${t('windows.kursBuilder.chapter')} "${selectedContext.value.title}"` : `${t('windows.kursBuilder.lesson')} "${selectedContext.value.title}"`
-      addSystemMessage(`**${t('windows.kursBuilder.messages.analysisFor', { name: contextName })}**\n\n${analysis.summary || ''}\n\n${selectedFileIds.value.length ? `📁 ${t('windows.kursBuilder.messages.filesAnalyzed', { count: selectedFileIds.value.length })}` : ''}`)
+      const contextName = isChapter ? `${t('features.kursBuilder.chapter')} "${selectedContext.value.title}"` : `${t('features.kursBuilder.lesson')} "${selectedContext.value.title}"`
+      addSystemMessage(`**${t('features.kursBuilder.messages.analysisFor', { name: contextName })}**\n\n${analysis.summary || ''}\n\n${selectedFileIds.value.length ? `📁 ${t('features.kursBuilder.messages.filesAnalyzed', { count: selectedFileIds.value.length })}` : ''}`)
       if (!isChapter && analysis.recommended_lms?.length) lmSuggestions.value = analysis.recommended_lms.map((lm: any) => ({ lm_id: lm.lm_id, name: lm.name, reason: lm.reason, confidence: lm.confidence || 0.8, icon: lm.icon || '📝', group: lm.group || 'B' }))
     }
-  } catch { addSystemMessage(t('windows.kursBuilder.messages.analysisErrorGeneric')) }
+  } catch { addSystemMessage(t('features.kursBuilder.messages.analysisErrorGeneric')) }
   finally { isAnalyzing.value = false }
 }
 
@@ -467,8 +467,8 @@ async function generateTheory() {
     const prompt = isChapter ? `Erstelle eine Zusammenfassung für das Kapitel "${selectedContext.value.title}".` : `Erstelle ein detailliertes Theorieblatt für die Lektion "${selectedContext.value.title}".`
     selectedMode.value = isChapter ? 'chapter_summary' : 'lesson_theory'
     await sendMessage(prompt, selectedMode.value)
-    addSystemMessage(t('windows.kursBuilder.messages.generatingTheory', { title: selectedContext.value.title }))
-  } catch { addSystemMessage(t('windows.kursBuilder.messages.generatingTheoryError')) }
+    addSystemMessage(t('features.kursBuilder.messages.generatingTheory', { title: selectedContext.value.title }))
+  } catch { addSystemMessage(t('features.kursBuilder.messages.generatingTheoryError')) }
   finally { isGeneratingTheory.value = false }
 }
 
@@ -526,8 +526,8 @@ function modifyPendingAction() { inputMessage.value = 'Bitte ändere das Ergebni
 // ============================================================================
 // Structure Actions
 // ============================================================================
-function openChapterPreview(chapter: Chapter) { windowStore.openWindow({ type: 'admin-chapter-preview', title: `Kapitel: ${chapter.title}`, icon: '📖', payload: { chapter: { chapter_id: chapter.id, title: chapter.title, description: chapter.description, lessons: chapter.lessons, created_at: new Date().toISOString() } }, size: { width: 650, height: 700 } }) }
-function openLessonPreview(chapter: Chapter, lesson: Lesson) { const lessonIndex = chapter.lessons?.findIndex(l => l.id === lesson.id) ?? 0; windowStore.openWindow({ type: 'admin-lesson-preview', title: `Vorschau: ${lesson.title}`, icon: '📄', payload: { lesson: { lesson_id: lesson.id, title: lesson.title, description: lesson.description, content: lesson.content, duration_minutes: lesson.duration_minutes, methods: lesson.methods }, chapter: { chapter_id: chapter.id, title: chapter.title }, position: `${lessonIndex + 1}/${chapter.lessons?.length ?? 1}` }, size: { width: 600, height: 700 } }) }
+function openChapterPreview(chapter: Chapter) { panelStore.openPanel({ type: 'admin-chapter-preview', title: `Kapitel: ${chapter.title}`, icon: '📖', payload: { chapter: { chapter_id: chapter.id, title: chapter.title, description: chapter.description, lessons: chapter.lessons, created_at: new Date().toISOString() } }, size: { width: 650, height: 700 } }) }
+function openLessonPreview(chapter: Chapter, lesson: Lesson) { const lessonIndex = chapter.lessons?.findIndex(l => l.id === lesson.id) ?? 0; panelStore.openPanel({ type: 'admin-lesson-preview', title: `Vorschau: ${lesson.title}`, icon: '📄', payload: { lesson: { lesson_id: lesson.id, title: lesson.title, description: lesson.description, content: lesson.content, duration_minutes: lesson.duration_minutes, methods: lesson.methods }, chapter: { chapter_id: chapter.id, title: chapter.title }, position: `${lessonIndex + 1}/${chapter.lessons?.length ?? 1}` }, size: { width: 600, height: 700 } }) }
 function editChapter(chapter: Chapter) { console.log('Edit chapter:', chapter.id) }
 function editLesson(chapter: Chapter, lesson: Lesson) { console.log('Edit lesson:', lesson.id, 'in chapter:', chapter.id) }
 function deleteChapter(chapterId: string, chapterIndex: number) { if (!confirm('Kapitel wirklich löschen?') || !draftStructure.value?.chapters) return; draftStructure.value.chapters.splice(chapterIndex, 1) }
@@ -537,7 +537,7 @@ function deleteLesson(chapterId: string, chapterIndex: number, lessonId: string,
 // File Management
 // ============================================================================
 function clearFileSelection() { selectedFileIds.value = [] }
-function openFilePreview(file: CourseFile) { windowStore.openWindow({ type: 'admin-file-preview', title: `Vorschau: ${file.name}`, icon: '📄', payload: { file }, size: { width: 800, height: 600 } }) }
+function openFilePreview(file: CourseFile) { panelStore.openPanel({ type: 'admin-file-preview', title: `Vorschau: ${file.name}`, icon: '📄', payload: { file }, size: { width: 800, height: 600 } }) }
 function triggerFileUpload() { materialFileInput.value?.click() }
 async function handleMaterialUpload(event: Event) {
   const input = event.target as HTMLInputElement
@@ -556,8 +556,8 @@ async function handleMaterialUpload(event: Event) {
 // ============================================================================
 // Tutor Integration
 // ============================================================================
-function openTheoryInTutor(theory: { theoryId: string }) { windowStore.openWindow({ type: 'admin-ai-studio', title: 'KI-Studio: Tutor', icon: '🤖', payload: { tab: 'tutor', chapter: selectedContext.value?.data, theoryId: theory.theoryId }, size: { width: 1200, height: 800 } }) }
-function openExplanationInTutor(expl: { explanationId: string }) { windowStore.openWindow({ type: 'admin-ai-studio', title: 'KI-Studio: Tutor', icon: '🤖', payload: { tab: 'tutor', lesson: selectedContext.value?.data, chapter: selectedContext.value?.parentChapter, explanationId: expl.explanationId }, size: { width: 1200, height: 800 } }) }
+function openTheoryInTutor(theory: { theoryId: string }) { panelStore.openPanel({ type: 'admin-ai-editor', title: 'KI-Studio: Tutor', icon: '🤖', payload: { tab: 'tutor', chapter: selectedContext.value?.data, theoryId: theory.theoryId }, size: { width: 1200, height: 800 } }) }
+function openExplanationInTutor(expl: { explanationId: string }) { panelStore.openPanel({ type: 'admin-ai-editor', title: 'KI-Studio: Tutor', icon: '🤖', payload: { tab: 'tutor', lesson: selectedContext.value?.data, chapter: selectedContext.value?.parentChapter, explanationId: expl.explanationId }, size: { width: 1200, height: 800 } }) }
 
 function resetState() { session.value = null; chatMessages.value = []; draftStructure.value = null; selectedFileIds.value = [] }
 

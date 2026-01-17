@@ -11,18 +11,18 @@
 -->
 
 <template>
-  <div class="ai-pricing-window">
+  <div class="ai-pricing-panel">
     <!-- Header -->
     <div class="window-header">
       <div class="header-left">
-        <h2>{{ $t('windows.aiPricing.title') }}</h2>
+        <h2>{{ $t('features.aiPricing.title') }}</h2>
         <div class="header-stats">
           <span class="stat-item">
-            {{ models.length }} {{ $t('windows.aiPricing.models') }}
+            {{ models.length }} {{ $t('features.aiPricing.models') }}
           </span>
           <span v-if="selectedIds.length > 0" class="stat-divider">|</span>
           <span v-if="selectedIds.length > 0" class="stat-item stat-selected">
-            {{ selectedIds.length }} {{ $t('windows.aiPricing.selected') }}
+            {{ selectedIds.length }} {{ $t('features.aiPricing.selected') }}
           </span>
         </div>
       </div>
@@ -32,7 +32,7 @@
           @click="showMarginModal = true"
           class="action-btn primary"
         >
-          {{ $t('windows.aiPricing.applyMargin') }} ({{ selectedIds.length }})
+          {{ $t('features.aiPricing.applyMargin') }} ({{ selectedIds.length }})
         </button>
         <button @click="loadPricing" class="action-btn" :disabled="loading">
           🔄 {{ $t('common.refresh') }}
@@ -44,23 +44,23 @@
     <div class="filters-bar">
       <div class="filter-group">
         <select v-model="providerFilter" class="filter-select" @change="applyFilters">
-          <option value="">{{ $t('windows.aiPricing.allProviders') }}</option>
+          <option value="">{{ $t('features.aiPricing.allProviders') }}</option>
           <option v-for="p in providers" :key="p" :value="p">{{ p }}</option>
         </select>
         <select v-model="categoryFilter" class="filter-select" @change="applyFilters">
-          <option value="">{{ $t('windows.aiPricing.allCategories') }}</option>
+          <option value="">{{ $t('features.aiPricing.allCategories') }}</option>
           <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
         </select>
         <label class="filter-checkbox">
           <input type="checkbox" v-model="includeInactive" @change="loadPricing" />
-          {{ $t('windows.aiPricing.includeInactive') }}
+          {{ $t('features.aiPricing.includeInactive') }}
         </label>
       </div>
       <div class="filter-group">
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="$t('windows.aiPricing.search')"
+          :placeholder="$t('features.aiPricing.search')"
           class="filter-input"
         />
       </div>
@@ -69,7 +69,7 @@
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>{{ $t('windows.aiPricing.loading') }}</p>
+      <p>{{ $t('features.aiPricing.loading') }}</p>
     </div>
 
     <!-- Table -->
@@ -95,16 +95,16 @@
     <div v-if="showMarginModal" class="modal-overlay" @click.self="showMarginModal = false">
       <div class="modal-content margin-modal">
         <div class="modal-header">
-          <h3>{{ $t('windows.aiPricing.applyMarginTitle') }}</h3>
+          <h3>{{ $t('features.aiPricing.applyMarginTitle') }}</h3>
           <button @click="showMarginModal = false" class="close-btn">&times;</button>
         </div>
         <div class="modal-body">
           <p class="modal-description">
-            {{ $t('windows.aiPricing.marginDescription', { count: selectedIds.length }) }}
+            {{ $t('features.aiPricing.marginDescription', { count: selectedIds.length }) }}
           </p>
 
           <div class="form-group">
-            <label>{{ $t('windows.aiPricing.marginPercent') }}</label>
+            <label>{{ $t('features.aiPricing.marginPercent') }}</label>
             <div class="margin-input-row">
               <input
                 v-model.number="marginPercent"
@@ -117,32 +117,32 @@
               <span class="unit">%</span>
             </div>
             <p class="form-hint">
-              {{ $t('windows.aiPricing.marginFormula') }}: price = cost × (1 + {{ marginPercent }}%)
+              {{ $t('features.aiPricing.marginFormula') }}: price = cost × (1 + {{ marginPercent }}%)
             </p>
           </div>
 
           <div class="form-group">
-            <label>{{ $t('windows.aiPricing.applyTo') }}</label>
+            <label>{{ $t('features.aiPricing.applyTo') }}</label>
             <div class="radio-group">
               <label class="radio-option">
                 <input type="radio" v-model="marginApplyTo" value="both" />
-                {{ $t('windows.aiPricing.both') }}
+                {{ $t('features.aiPricing.both') }}
               </label>
               <label class="radio-option">
                 <input type="radio" v-model="marginApplyTo" value="input" />
-                {{ $t('windows.aiPricing.inputOnly') }}
+                {{ $t('features.aiPricing.inputOnly') }}
               </label>
               <label class="radio-option">
                 <input type="radio" v-model="marginApplyTo" value="output" />
-                {{ $t('windows.aiPricing.outputOnly') }}
+                {{ $t('features.aiPricing.outputOnly') }}
               </label>
             </div>
           </div>
 
           <div class="preview-box">
-            <h4>{{ $t('windows.aiPricing.preview') }}</h4>
+            <h4>{{ $t('features.aiPricing.preview') }}</h4>
             <p>
-              {{ $t('windows.aiPricing.example') }}: $0.01 × 1.{{ marginPercent.toString().padStart(2, '0') }}
+              {{ $t('features.aiPricing.example') }}: $0.01 × 1.{{ marginPercent.toString().padStart(2, '0') }}
               = ${{ (0.01 * (1 + marginPercent / 100)).toFixed(4) }}
             </p>
           </div>
@@ -152,7 +152,7 @@
             {{ $t('common.cancel') }}
           </button>
           <button @click="handleApplyMargin" :disabled="applyingMargin" class="btn-primary">
-            {{ applyingMargin ? $t('windows.aiPricing.applying') : $t('windows.aiPricing.apply') }}
+            {{ applyingMargin ? $t('features.aiPricing.applying') : $t('features.aiPricing.apply') }}
           </button>
         </div>
       </div>
@@ -237,7 +237,7 @@ async function loadPricing() {
     providers.value = response.data.providers
     categories.value = response.data.categories
   } catch (error) {
-    showToast(t('windows.aiPricing.errorLoad'), 'error')
+    showToast(t('features.aiPricing.errorLoad'), 'error')
     console.error('Failed to load pricing:', error)
   } finally {
     loading.value = false
@@ -290,10 +290,10 @@ async function handleSavePricing(data: AIModelPricingUpdateRequest) {
       }
     }
 
-    showToast(t('windows.aiPricing.successUpdate'), 'success')
+    showToast(t('features.aiPricing.successUpdate'), 'success')
     editingModel.value = null
   } catch (error) {
-    showToast(t('windows.aiPricing.errorUpdate'), 'error')
+    showToast(t('features.aiPricing.errorUpdate'), 'error')
     console.error('Failed to update pricing:', error)
   }
 }
@@ -307,14 +307,14 @@ async function handleApplyMargin() {
       apply_to: marginApplyTo.value
     })
 
-    showToast(t('windows.aiPricing.successMargin', { count: result.data.updated_count }), 'success')
+    showToast(t('features.aiPricing.successMargin', { count: result.data.updated_count }), 'success')
     showMarginModal.value = false
     selectedIds.value = []
 
     // Reload to get updated prices
     await loadPricing()
   } catch (error) {
-    showToast(t('windows.aiPricing.errorMargin'), 'error')
+    showToast(t('features.aiPricing.errorMargin'), 'error')
     console.error('Failed to apply margin:', error)
   } finally {
     applyingMargin.value = false
@@ -335,7 +335,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.ai-pricing-window {
+.ai-pricing-panel {
   display: flex;
   flex-direction: column;
   height: 100%;

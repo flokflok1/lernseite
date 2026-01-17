@@ -2,4 +2,4 @@
  * Assessment Management Views
  */
 
-export { default as ExamManagerWindow } from './ExamManagerWindow.vue'
+export { default as ExamManagerPanel } from './ExamManagerPanel.vue'

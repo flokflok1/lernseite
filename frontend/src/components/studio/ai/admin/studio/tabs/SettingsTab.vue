@@ -10,8 +10,8 @@
     <!-- Kein Kurs gewählt -->
     <div v-if="!course" class="empty-state">
       <div class="icon">⚙️</div>
-      <h3>{{ $t('windows.aiEditorSettings.noCourse') }}</h3>
-      <p>{{ $t('windows.aiEditorSettings.selectCourse') }}</p>
+      <h3>{{ $t('features.aiEditorSettings.noCourse') }}</h3>
+      <p>{{ $t('features.aiEditorSettings.selectCourse') }}</p>
     </div>
 
     <!-- Settings Content -->
@@ -19,17 +19,17 @@
       <!-- Header -->
       <div class="mb-6">
         <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
-          ⚙️ {{ $t('windows.aiEditorSettings.title') }}: {{ course.title }}
+          ⚙️ {{ $t('features.aiEditorSettings.title') }}: {{ course.title }}
         </h2>
         <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          {{ $t('windows.aiEditorSettings.subtitle') }}
+          {{ $t('features.aiEditorSettings.subtitle') }}
         </p>
       </div>
 
       <!-- Loading -->
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
-        <p>{{ $t('windows.aiEditorSettings.loading') }}</p>
+        <p>{{ $t('features.aiEditorSettings.loading') }}</p>
       </div>
 
       <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -223,10 +223,10 @@ async function saveSettings() {
       embedding_model_id: formData.embedding_model_id || null
     })
     settings.value = response.data.data || {}
-    showSaveStatus('success', t('windows.aiEditorSettings.saved'))
+    showSaveStatus('success', t('features.aiEditorSettings.saved'))
   } catch (error) {
     console.error('Failed to save settings:', error)
-    showSaveStatus('error', t('windows.aiEditorSettings.saveFailed'))
+    showSaveStatus('error', t('features.aiEditorSettings.saveFailed'))
   }
 }
 
@@ -245,10 +245,10 @@ async function applyProfile(profileKey: string) {
     formData.audio_model_id = String(s.audio_model_id || '')
     formData.realtime_model_id = String(s.realtime_model_id || '')
     formData.embedding_model_id = String(s.embedding_model_id || '')
-    showSaveStatus('success', t('windows.aiEditorSettings.profileApplied', { profile: data.data?.profile_applied }))
+    showSaveStatus('success', t('features.aiEditorSettings.profileApplied', { profile: data.data?.profile_applied }))
   } catch (error) {
     console.error('Failed to apply profile:', error)
-    showSaveStatus('error', t('windows.aiEditorSettings.profileFailed'))
+    showSaveStatus('error', t('features.aiEditorSettings.profileFailed'))
   }
 }
 
@@ -256,7 +256,7 @@ async function resetToDefaults() {
   if (!props.course?.course_id) return
   try {
     await http.delete(`/admin/course-ai-settings/${props.course.course_id}`)
-    showSaveStatus('success', t('windows.aiEditorSettings.resetSuccess'))
+    showSaveStatus('success', t('features.aiEditorSettings.resetSuccess'))
     formData.chat_model_id = ''
     formData.reasoning_model_id = ''
     formData.image_model_id = ''
@@ -266,7 +266,7 @@ async function resetToDefaults() {
     loadSettings()
   } catch (error) {
     console.error('Failed to reset settings:', error)
-    showSaveStatus('error', t('windows.aiEditorSettings.resetFailed'))
+    showSaveStatus('error', t('features.aiEditorSettings.resetFailed'))
   }
 }
 

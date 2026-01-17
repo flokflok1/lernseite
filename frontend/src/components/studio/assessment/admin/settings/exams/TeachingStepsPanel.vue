@@ -7,7 +7,7 @@
   <div class="steps-panel">
     <div class="panel-header">
       <span class="panel-icon">🎯</span>
-      <span class="panel-title">{{ $t('windows.aiEditorContent.teachingSteps') }}</span>
+      <span class="panel-title">{{ $t('features.aiEditorContent.teachingSteps') }}</span>
       <button @click="$emit('add')" class="add-btn">+</button>
     </div>
 
@@ -15,9 +15,9 @@
     <div class="steps-list">
       <div v-if="steps.length === 0" class="steps-empty">
         <span class="empty-icon-small">📝</span>
-        <p>{{ $t('windows.aiEditorContent.noSteps') }}</p>
+        <p>{{ $t('features.aiEditorContent.noSteps') }}</p>
         <button @click="$emit('generate')" class="generate-link">
-          ✨ {{ $t('windows.aiEditorContent.generateWithAi') }}
+          ✨ {{ $t('features.aiEditorContent.generateWithAi') }}
         </button>
       </div>
 
@@ -33,14 +33,14 @@
             @input="updateStep(index, 'title', ($event.target as HTMLInputElement).value)"
             type="text"
             class="step-title-input"
-            :placeholder="$t('windows.aiEditorContent.titlePlaceholder')"
+            :placeholder="$t('features.aiEditorContent.titlePlaceholder')"
           />
           <textarea
             :value="step.speech"
             @input="updateStep(index, 'speech', ($event.target as HTMLTextAreaElement).value)"
             class="step-speech-input"
             rows="2"
-            :placeholder="$t('windows.aiEditorContent.speechPlaceholder')"
+            :placeholder="$t('features.aiEditorContent.speechPlaceholder')"
           ></textarea>
         </div>
         <button @click="$emit('remove', index)" class="step-delete">🗑️</button>
@@ -50,7 +50,7 @@
     <!-- Generate Button -->
     <div class="steps-footer">
       <button @click="$emit('generate')" class="generate-steps-btn" :disabled="isGenerating">
-        ✨ {{ $t('windows.aiEditorContent.generateSteps') }}
+        ✨ {{ $t('features.aiEditorContent.generateSteps') }}
       </button>
     </div>
   </div>

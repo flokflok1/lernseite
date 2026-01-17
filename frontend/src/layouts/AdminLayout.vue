@@ -36,7 +36,7 @@
 
             <!-- Menu Item - Router Link -->
             <router-link
-              v-if="!item.section && !item.openWindow"
+              v-if="!item.section && !item.openPanel"
               :to="item.path"
               class="flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-base font-medium transition-colors"
               :class="{
@@ -48,10 +48,10 @@
               <span>{{ item.label }}</span>
             </router-link>
 
-            <!-- Menu Item - Window Opener -->
+            <!-- Menu Item - Panel Opener -->
             <button
-              v-if="!item.section && item.openWindow"
-              @click="item.onWindowOpen?.()"
+              v-if="!item.section && item.openPanel"
+              @click="item.onPanelOpen?.()"
               class="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-base font-medium transition-colors text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] hover:text-[var(--color-text-primary)]"
             >
               <span class="text-xl">{{ item.icon }}</span>
@@ -123,7 +123,7 @@ import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/modules/core'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import { DesktopLayer } from '@/components/base/workspace'
 import { LanguageSelector } from '@/components/base/core/i18n'
 
@@ -151,12 +151,12 @@ const router = useRouter()
 const route = useRoute()
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
-// Load window sizes from server when admin layout mounts
+// Load panel sizes from server when admin layout mounts
 onMounted(async () => {
   if (authStore.isLoggedIn) {
-    await windowStore.loadWindowSizesFromServer()
+    await panelStore.loadPanelSizesFromServer()
   }
 })
 
@@ -197,8 +197,8 @@ const menuItems = computed(() => {
         path: '/admin/user-group-management',
         label: t('admin.userGroupManagement.title'),
         icon: '👥',
-        openWindow: true,
-        onWindowOpen: openUserGroupManagementWindow
+        openPanel: true,
+        onPanelOpen: openUserGroupManagementPanel
       },
       { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
 
@@ -207,8 +207,8 @@ const menuItems = computed(() => {
         path: '/admin/kurs-editor',
         label: t('admin.nav.courseEditor'),
         icon: '📚',
-        openWindow: true,
-        onWindowOpen: openCourseListEditorWindow
+        openPanel: true,
+        onPanelOpen: openCourseListEditorPanel
       },
       { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
       { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
@@ -223,8 +223,8 @@ const menuItems = computed(() => {
         path: '/admin/system-settings',
         label: t('admin.nav.settings'),
         icon: '⚙️',
-        openWindow: true,
-        onWindowOpen: openSystemSettingsWindow
+        openPanel: true,
+        onPanelOpen: openSystemSettingsPanel
       }
     ]
   }
@@ -239,10 +239,10 @@ const isActive = (path: string): boolean => {
 }
 
 /**
- * Open System Settings window with tabs
+ * Open System Settings panel with tabs
  */
-const openSystemSettingsWindow = () => {
-  windowStore.openWindow({
+const openSystemSettingsPanel = () => {
+  panelStore.openPanel({
     type: 'admin-system-settings',
     title: t('admin.nav.settings'),
     icon: '⚙️',
@@ -252,10 +252,10 @@ const openSystemSettingsWindow = () => {
 }
 
 /**
- * Open User & Group Management window with tabs
+ * Open User & Group Management panel with tabs
  */
-const openUserGroupManagementWindow = () => {
-  windowStore.openWindow({
+const openUserGroupManagementPanel = () => {
+  panelStore.openPanel({
     type: 'admin-user-group-management',
     title: t('admin.userGroupManagement.title'),
     icon: '👥',
@@ -265,10 +265,10 @@ const openUserGroupManagementWindow = () => {
 }
 
 /**
- * Open Course List Editor window with tabs (Manual & AI)
+ * Open Course List Editor panel with tabs (Manual & AI)
  */
-const openCourseListEditorWindow = () => {
-  windowStore.openWindow({
+const openCourseListEditorPanel = () => {
+  panelStore.openPanel({
     type: 'admin-course-list-editor',
     title: t('admin.nav.courseEditor'),
     icon: '📚',

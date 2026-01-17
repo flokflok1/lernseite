@@ -1,8 +1,8 @@
-# 17 – Backend-Struktur (Final) v3.0
+# 17 – Backend-Struktur (Final) v3.2
 
-**Version:** 3.0  
-**Stand:** 13.01.2026  
-**Änderungen:** Complete Enterprise Architecture + AI Editor APIs (renamed from AI Studio) + Compliance GDPR APIs + Error/WebSocket Standardisierung
+**Version:** 3.2
+**Stand:** 16.01.2026
+**Änderungen:** URL Paths: /admin/ → /admin-panel/ (Semantic Clarity) + Admin Panel Reorganization (Settings-based Structure) + Complete Enterprise Architecture + AI Editor APIs + Compliance GDPR APIs + Error/WebSocket Standardisierung
 
 ---
 
@@ -12,8 +12,10 @@ Dieses Dokument beschreibt die komplette **Enterprise-Grade Backend-Architektur*
 
 Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig compliance-konform**, **feature-flag-gesteuert** und **mit AI Editor integriert**.
 
-### 🎯 Neue Features in v3.0
+### 🎯 Neue Features in v3.2
 
+- ✅ **Semantic URL Paths** - `/admin/` → `/admin-panel/` (Clarity: Interface vs. Role)
+- ✅ **Admin Panel Reorganization** - Settings-based Structure (Sidebar-aligned)
 - ✅ **AI Editor System** - Chat, Content Generation, Variants, Sessions
 - ✅ **Compliance APIs** - GDPR Data Export/Deletion, Privacy Controls, Age Verification
 - ✅ **Feature Flag System** - Progressive Rollout (5% → 25% → 100%)
@@ -112,6 +114,153 @@ graph TB
 
 ---
 
+## 1.5 System-Features vs. Content-Lernmethoden (LMS Architecture)
+
+### Wichtige Unterscheidung
+
+Das LernSystemX unterscheidet zwischen zwei Typen von Lernfunktionalität:
+
+#### **Content-Lernmethoden (12 LMs)**
+- **Was:** Aufgabenformate für Lerninhalt (Flashcards, Quiz, Lückentext, etc.)
+- **Wo:** `learning_methods.py` Blueprint
+- **Dokumentation:** `01_Core/02_Lernmethoden.md`
+- **Struktur:** JSONB-Content pro Kapitel/Lektion
+- **Beispiele:** LM00-LM04 (Erklärend), LM05-LM08 (Praxis), LM09-LM11 (Prüfung)
+
+#### **System-Features (25 Features)**
+- **Was:** Tools & Services mit eigener Infrastruktur
+- **Wo:** Separate Module wie `exam_simulations/`, `math_toolkit/`, `tts/`, etc.
+- **Dokumentation:** `01_Core/02a_System-Features.md`
+- **Struktur:** Vollständige Blueprint-Module mit Repositories, Services, Models
+- **Beispiele:** Whiteboard, IHK Exam System, NPC Tutor, Code Sandbox, Gamification
+
+### System-Features im Backend (/api/v1/)
+
+**LMS-bezogene System-Features:**
+
+| Feature | Module | Beschreibung |
+|---------|--------|-------------|
+| **Exam Simulations** | `/exam_simulations/` | IHK-Exam System, praktische Prüfungen, Kompetenzchecks |
+| **Math Toolkit** | `/math_toolkit/` | Mathematische Tools, Übungen, Referenz |
+| **Course Editor** | `/course_editor/` | Manueller Content-Editor, AI-gestützter Editor |
+| **TTS (Text-to-Speech)** | `/tts/` | Sprachausgabe, Audio-Generierung, Aussprache |
+| **Feature Flags** | `/features/` | Progressive Rollout, A/B Testing, Feature Control |
+| **Gamification** | `/gamification/` | XP, Badges, Quests, Achievements |
+
+**Infrastruktur-Features:**
+
+| Feature | Modul | Beschreibung |
+|---------|-------|-------------|
+| **Compliance** | `/compliance/` | GDPR, Datenschutz, Consent Management |
+| **Moderation** | `/moderation/` | Content Moderation, Reports, Actions |
+| **Analytics** | `/analytics/` | User Analytics, Learning Analytics, Insights |
+| **Social** | `/social/` | Posts, Feed, Follow, Likes, Comments, Sharing |
+| **AI/Tutor** | `/tutor/`, `/ai/` | AI Tutor, Smart Agents, Content Generation |
+| **Admin Panel** | `/admin-panel/` | Settings, Course Management, User Management |
+
+### Integration im System (Zwei-Schicht-Architektur)
+
+#### **Schicht 1: Python-Registry (Source of Truth)**
+
+Zentrale Definition aller 25 System-Features mit vollständiger Konfiguration:
+
+```python
+# app/ki/system_features_mapping.py
+SYSTEM_FEATURES: Dict[str, SystemFeatureDefinition] = {
+    "whiteboard_engine": SystemFeatureDefinition(
+        feature_code="whiteboard_engine",
+        feature_name="Whiteboard-Engine",
+        category="interactive_tools",
+        requires_infrastructure=True,
+        requires_external_service=True,
+        default_config={...}
+    ),
+    "ihk_exam_system": SystemFeatureDefinition(...),
+    # ... insgesamt 25 Features
+}
+
+# Hilfs-Funktionen
+get_system_feature(feature_code: str) -> SystemFeatureDefinition
+get_feature_default_config(feature_code: str) -> dict
+is_valid_feature_code(feature_code: str) -> bool
+```
+
+**→ Definiert: Infra-Anforderungen, Konfigurationen, Icons, Kategorien**
+
+---
+
+#### **Schicht 2: Datenbank-Integration (Runtime)**
+
+System-Features werden beim Setup aus der Python-Registry in die Datenbank gepflanzt:
+
+```python
+# app/setup/seeds_config.py
+SeedDataConfig.seed_system_features()  # Seeds 25 Features in die DB
+```
+
+Abfrage zur Laufzeit:
+
+```sql
+-- Alle System-Features registriert
+SELECT feature_code, feature_name, category FROM support_systems.system_features;
+
+-- Beispiel Ergebnisse:
+-- whiteboard_engine | Whiteboard-Engine | interactive_tools
+-- ihk_exam_system | IHK-Prüfungssystem | exam_systems
+-- speech_to_text | Speech-to-Text Engine | audio
+-- xp_quest_system | XP & Quest System | gamification
+```
+
+---
+
+#### **Integration in Kursen: Feature-Level Kontrolle**
+
+```python
+# Kurse können Features auf Kapitel-Ebene aktivieren/deaktivieren
+course.enable_feature("whiteboard_engine", chapter_id="ch001")
+course.disable_feature("ihk_exam_system")
+
+# Abfrage: Welche Features sind in diesem Kurs aktiv?
+SELECT * FROM support_systems.system_features sf
+JOIN course_features cf ON sf.feature_code = cf.feature_code
+WHERE cf.course_id = 'course123'
+```
+
+### Deployment-Struktur
+
+**WICHTIG:** Es gibt **KEINEN zentralen `/system-features/` Ordner**. System-Features sind **über /api/v1/ verteilt** als einzelne Ordner/Module:
+
+```yaml
+# AKTUELLE STRUKTUR: System-Features sind verteilt über /api/v1/
+
+/app/api/v1/
+├── /exam_simulations/     ← 🔧 System-Feature (Exam System)
+├── /math_toolkit/         ← 🔧 System-Feature (Math Tools)
+├── /tts/                  ← 🔧 System-Feature (Text-to-Speech)
+├── /tutor/                ← 🔧 System-Feature (AI Tutor)
+├── /features/             ← 🔧 System-Feature (Feature Flags)
+├── /gamification/         ← 🔧 System-Feature (XP, Badges, Quests)
+├── /course_editor/        ← 🔧 System-Feature (Content Editing)
+├── /ai/                   ← Teils System-Feature (AI Services)
+├── /social/               ← 🔧 System-Feature (Posts, Feed, Follow)
+├── /community/            ← 🔧 System-Feature (Groups, Forums)
+├── /messaging/            ← 🔧 System-Feature (Direct Messages)
+├── /learning_methods/     ← NICHT System-Feature (12 Content-LMs)
+├── /admin-panel/          ← Admin Operations
+├── /profile/              ← User Profile
+└── ... weitere Core APIs
+```
+
+**Registrierung:** Alle System-Features werden in der Datenbank registriert:
+```sql
+SELECT feature_code, feature_name FROM support_systems.system_features
+ORDER BY category;
+
+-- Ergebnis: 25 Features in 10 Kategorien (database-backed, nicht im Dateisystem organisiert)
+```
+
+---
+
 ## 2. Projektstruktur (Backend-Verzeichnis) - UPDATED
 
 ```
@@ -164,21 +313,21 @@ graph TB
 │   │   │   ├── chapter_theory.py
 │   │   │   ├── lesson_explanations.py
 │   │   │   ├── lesson_videos.py
-│   │   │   ├── exam_simulations.py
+│   │   │   ├── exam_simulations.py               # 🔧 System-Feature: Exam System
 │   │   │   │
 │   │   │   ├── # KI/Tutor API
-│   │   │   ├── tutor.py
+│   │   │   ├── tutor.py                          # 🔧 System-Feature: AI Tutor
 │   │   │   ├── agents.py
 │   │   │   ├── audio.py
-│   │   │   ├── tts.py
-│   │   │   ├── math_toolkit.py
+│   │   │   ├── tts.py                            # 🔧 System-Feature: Text-to-Speech
+│   │   │   ├── math_toolkit.py                   # 🔧 System-Feature: Math Tools
 │   │   │   │
 │   │   │   ├── # Analytics API
 │   │   │   ├── analytics.py
 │   │   │   ├── org_analytics.py
 │   │   │   ├── feedback.py
 │   │   │   │
-│   │   │   ├── /social          # 🌟 SOCIAL API (Feature-Flagged)
+│   │   │   ├── /social          # 🌟 SOCIAL API (Feature-Flagged) | 🔧 System-Feature
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── posts.py             # 🚩 FLAG: 'user_posts'
 │   │   │   │   ├── feed.py              # 🚩 FLAG: 'feed_system'
@@ -190,7 +339,7 @@ graph TB
 │   │   │   │   ├── hashtags.py          # 🚩 FLAG: 'hashtags'
 │   │   │   │   └── mentions.py          # 🚩 FLAG: 'mentions'
 │   │   │   │
-│   │   │   ├── /compliance      # ⭐ GDPR COMPLIANCE APIs (NEW)
+│   │   │   ├── /compliance      # ⭐ GDPR COMPLIANCE APIs (NEW) | 🔧 System-Feature
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── privacy.py           # GET/PUT /api/v1/compliance/privacy
 │   │   │   │   ├── cookies.py           # GET/PUT /api/v1/compliance/cookies
@@ -200,7 +349,7 @@ graph TB
 │   │   │   │   ├── consent_history.py   # GET /api/v1/compliance/consent-history
 │   │   │   │   └── parental_consent.py  # POST /api/v1/compliance/parental-consent
 │   │   │   │
-│   │   │   ├── /moderation      # 🛡️ MODERATION APIs
+│   │   │   ├── /moderation      # 🛡️ MODERATION APIs | 🔧 System-Feature
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── reports.py           # POST /api/v1/moderation/reports
 │   │   │   │   ├── queue.py             # GET /api/v1/moderation/queue
@@ -209,10 +358,50 @@ graph TB
 │   │   │   │   ├── sla_monitor.py       # GET /api/v1/moderation/sla-monitor (NEW)
 │   │   │   │   └── appeals.py           # GET /api/v1/moderation/appeals
 │   │   │   │
-│   │   │   ├── /admin           # 👑 ADMIN API
+│   │   │   ├── /admin           # 👑 ADMIN API (Sidebar-aligned Structure) ⭐ v3.1
 │   │   │   │   ├── __init__.py
 │   │   │   │   │
-│   │   │   │   ├── /courses
+│   │   │   │   ├── /settings    # ⚙️ SETTINGS (All Admin Settings)
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │
+│   │   │   │   │   ├── /ai      # 🤖 AI Configuration
+│   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   ├── jobs_creation.py        # POST /api/v1/admin-panel/settings/ai/jobs
+│   │   │   │   │   │   ├── jobs_finalization.py    # PUT /api/v1/admin-panel/settings/ai/jobs/:id/finalize
+│   │   │   │   │   │   ├── jobs_management.py      # GET /api/v1/admin-panel/settings/ai/jobs
+│   │   │   │   │   │   ├── models_crud.py          # CRUD /api/v1/admin-panel/settings/ai/models
+│   │   │   │   │   │   ├── models_defaults.py      # GET /api/v1/admin-panel/settings/ai/models/defaults
+│   │   │   │   │   │   ├── models_sync.py          # POST /api/v1/admin-panel/settings/ai/models/sync
+│   │   │   │   │   │   ├── models_usage.py         # GET /api/v1/admin-panel/settings/ai/models/usage
+│   │   │   │   │   │   ├── ai_pricing.py           # GET /api/v1/admin-panel/settings/ai/pricing
+│   │   │   │   │   │   ├── ai_model_profiles.py    # CRUD /api/v1/admin-panel/settings/ai/profiles
+│   │   │   │   │   │   ├── providers_api_keys.py   # PUT /api/v1/admin-panel/settings/ai/providers/:id/api-key
+│   │   │   │   │   │   ├── providers_crud.py       # CRUD /api/v1/admin-panel/settings/ai/providers
+│   │   │   │   │   │   ├── providers_health.py     # GET /api/v1/admin-panel/settings/ai/providers/:id/health
+│   │   │   │   │   │   └── providers_testing.py    # POST /api/v1/admin-panel/settings/ai/providers/:id/test
+│   │   │   │   │   │
+│   │   │   │   │   ├── /system  # 🛠️ System Settings
+│   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   ├── settings.py             # GET/PUT /api/v1/admin-panel/settings/system
+│   │   │   │   │   │   ├── system_info.py          # GET /api/v1/admin-panel/settings/system/info
+│   │   │   │   │   │   └── system_stats.py         # GET /api/v1/admin-panel/settings/system/stats
+│   │   │   │   │   │
+│   │   │   │   │   ├── /permissions  # 🔐 Permissions & Roles
+│   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   ├── roles.py                # CRUD /api/v1/admin-panel/settings/permissions/roles
+│   │   │   │   │   │   └── permission_thresholds.py # GET/PUT /api/v1/admin-panel/settings/permissions
+│   │   │   │   │   │
+│   │   │   │   │   └── /feature_flags  # 🎚️ Feature Flags
+│   │   │   │   │       ├── __init__.py
+│   │   │   │   │       ├── flags.py                # CRUD /api/v1/admin-panel/settings/feature-flags/flags
+│   │   │   │   │       ├── rollout.py              # PUT /api/v1/admin-panel/settings/feature-flags/rollout
+│   │   │   │   │       └── analytics.py            # GET /api/v1/admin-panel/settings/feature-flags/analytics
+│   │   │   │   │
+│   │   │   │   ├── /audit_logs  # 📋 Audit Logs (Top-Level)
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── audit_logs.py               # GET /api/v1/admin-panel/audit-logs
+│   │   │   │   │
+│   │   │   │   ├── /courses    # 📚 Course Management (Top-Level)
 │   │   │   │   │   ├── courses.py
 │   │   │   │   │   ├── chapters.py
 │   │   │   │   │   ├── lessons.py
@@ -220,22 +409,7 @@ graph TB
 │   │   │   │   │   ├── course_prompts.py
 │   │   │   │   │   └── course_files.py
 │   │   │   │   │
-│   │   │   │   ├── /ai
-│   │   │   │   │   ├── ai_jobs.py
-│   │   │   │   │   ├── ai_models.py
-│   │   │   │   │   ├── ai_model_profiles.py
-│   │   │   │   │   ├── ai_tutor.py
-│   │   │   │   │   └── ai_authoring.py
-│   │   │   │   │
-│   │   │   │   ├── /studio      # ⭐ AI EDITOR ADMIN APIs (NEW)
-│   │   │   │   │   ├── __init__.py
-│   │   │   │   │   ├── studio.py                 # GET /api/v1/admin/studio
-│   │   │   │   │   ├── studio_projects.py        # AI Editor Projects CRUD
-│   │   │   │   │   ├── studio_sessions.py        # Session Management
-│   │   │   │   │   ├── studio_templates.py       # Template Management
-│   │   │   │   │   └── studio_variants.py        # Variant Management
-│   │   │   │   │
-│   │   │   │   ├── /moderation
+│   │   │   │   ├── /moderation  # 🛡️ Moderation Panel (Top-Level)
 │   │   │   │   │   ├── __init__.py
 │   │   │   │   │   ├── queue.py
 │   │   │   │   │   ├── actions.py
@@ -243,16 +417,9 @@ graph TB
 │   │   │   │   │   ├── statistics.py
 │   │   │   │   │   └── transparency.py
 │   │   │   │   │
-│   │   │   │   ├── /feature_flags
-│   │   │   │   │   ├── __init__.py
-│   │   │   │   │   ├── flags.py
-│   │   │   │   │   ├── rollout.py
-│   │   │   │   │   └── analytics.py
-│   │   │   │   │
-│   │   │   │   ├── dashboard.py         # GET /api/v1/admin/dashboard (NEW)
+│   │   │   │   ├── dashboard.py         # GET /api/v1/admin-panel/dashboard
 │   │   │   │   ├── users.py
 │   │   │   │   ├── analytics.py
-│   │   │   │   ├── system.py
 │   │   │   │   ├── prompts.py
 │   │   │   │   ├── learning_methods.py
 │   │   │   │   ├── lm_routing.py
@@ -538,24 +705,24 @@ GET    /api/v1/studio/history           # Studio History
        Request:  { page, limit, filter }
        Response: { items, total, has_more }
 
-# /api/v1/admin/studio - Admin Studio APIs
-GET    /api/v1/admin/studio/dashboard   # Studio Statistics
+# /api/v1/admin-panel/studio - Admin Studio APIs
+GET    /api/v1/admin-panel/studio/dashboard   # Studio Statistics
        Response: { active_users, total_generations, avg_tokens }
 
-GET    /api/v1/admin/studio/projects    # Manage Projects
+GET    /api/v1/admin-panel/studio/projects    # Manage Projects
        Response: { projects[], total }
 
-PUT    /api/v1/admin/studio/projects/:id # Update Project
+PUT    /api/v1/admin-panel/studio/projects/:id # Update Project
        Request:  { status, featured, settings }
        Response: { success }
 
-DELETE /api/v1/admin/studio/projects/:id # Delete Project
+DELETE /api/v1/admin-panel/studio/projects/:id # Delete Project
        Response: { success }
 
-GET    /api/v1/admin/studio/templates   # Manage Templates
+GET    /api/v1/admin-panel/studio/templates   # Manage Templates
        Response: { templates[], total }
 
-POST   /api/v1/admin/studio/templates   # Create Template
+POST   /api/v1/admin-panel/studio/templates   # Create Template
        Request:  { name, content, category }
        Response: { id, name }
 ```
@@ -639,7 +806,7 @@ GET    /api/v1/auth/age-verification-status # Check Status
 ### ⭐ ADMIN Dashboard (NEW)
 
 ```python
-GET    /api/v1/admin/dashboard          # Admin Overview Dashboard
+GET    /api/v1/admin-panel/dashboard          # Admin Overview Dashboard
        Response: {
            active_users: 5000,
            total_posts: 45000,
@@ -652,7 +819,7 @@ GET    /api/v1/admin/dashboard          # Admin Overview Dashboard
            }
        }
 
-GET    /api/v1/admin/compliance         # Compliance Dashboard
+GET    /api/v1/admin-panel/compliance         # Compliance Dashboard
        Response: {
            gdpr_requests_pending: 10,
            deletion_requests: 3,
@@ -1161,11 +1328,149 @@ Für vollständige Details siehe:
 
 ---
 
+## 9. Admin Panel Reorganization v3.1 (16.01.2026)
+
+### 🔄 Architektur-Änderung: Settings-Based Structure
+
+**Ziel:** Backend-Struktur an Frontend Sidebar ausrichten für bessere Wartbarkeit.
+
+### Vorher (v3.0):
+
+```
+/admin/
+├── /ai/                 # 14 AI-related endpoints
+├── /courses/            # Course management
+├── /studio/             # AI Editor admin
+├── /moderation/         # Moderation panel
+├── /feature_flags/      # Feature flags
+└── system.py            # System settings (scattered)
+```
+
+**Problem:**
+- Struktur nicht aligned mit Frontend Sidebar
+- Settings verstreut (AI, System, Permissions getrennt)
+- Schwer zu navigieren
+
+### Nachher (v3.1):
+
+```
+/admin/
+├── /settings/           # ⚙️ ALLE Settings konsolidiert
+│   ├── /ai/             # 14 AI configuration endpoints
+│   ├── /system/         # System settings & monitoring
+│   ├── /permissions/    # Roles & permission thresholds
+│   └── /feature_flags/  # Feature flag management
+│
+├── /audit_logs/         # 📋 Top-Level (eigenes Sidebar-Item)
+├── /courses/            # 📚 Top-Level (eigenes Sidebar-Item)
+├── /moderation/         # 🛡️ Top-Level (eigenes Sidebar-Item)
+└── [other top-level items...]
+```
+
+**Vorteile:**
+✅ Frontend Sidebar spiegelt Backend-Struktur 1:1
+✅ Alle Settings unter einem Dach (`/settings/`)
+✅ Bessere Organisation & Wartbarkeit
+✅ Einfachere Navigation für Entwickler
+
+### Route-Änderungen:
+
+| Alt (v3.0) | Neu (v3.1) | Status |
+|-----------|-----------|--------|
+| `/api/v1/admin-panel/ai/*` | `/api/v1/admin-panel/settings/ai/*` | ✅ Migrated (14 endpoints) |
+| `/api/v1/admin-panel/system/*` | `/api/v1/admin-panel/settings/system/*` | ✅ Migrated (3 endpoints) |
+| `/api/v1/admin-panel/roles` | `/api/v1/admin-panel/settings/permissions/roles` | ✅ Migrated |
+| `/api/v1/admin-panel/permissions` | `/api/v1/admin-panel/settings/permissions` | ✅ Migrated |
+
+**Keine Breaking Changes:**
+- Alle Blueprint `url_prefix` aktualisiert
+- Alle Imports aktualisiert
+- Backend startet fehlerfrei
+- Alle 50+ Routes funktionieren
+
+**Dateien betroffen:** 20 Files moved/updated (AI settings, system settings, permissions)
+
+**Migrations:** Keine DB-Änderungen nötig (nur Route-Pfade)
+
+---
+
+## 10. Semantic URL Paths v3.2 (16.01.2026)
+
+### 🎯 URL-Umbenennung: `/admin/` → `/admin-panel/`
+
+**Ziel:** Semantische Klarheit in API-Endpunkten - Unterscheidung zwischen "Admin Role" und "Admin Panel Interface".
+
+### Rationale:
+
+**Problem mit `/admin/`:**
+- ❓ Mehrdeutig: Bezieht sich auf Admin-Rolle oder Admin-Panel-Interface?
+- ❓ Könnte auch Admin-User-Management bedeuten
+- ❓ Nicht selbsterklärend für neue Entwickler
+
+**Lösung mit `/admin-panel/`:**
+- ✅ **EINDEUTIG**: Bezieht sich explizit auf Admin Panel Interface
+- ✅ **SELBSTERKLÄREND**: Jeder weiß sofort was gemeint ist
+- ✅ **SEMANTIC**: URL beschreibt WAS, nicht WER
+
+### Route-Änderungen v3.2:
+
+| Alt (v3.1) | Neu (v3.2) | Typ |
+|-----------|-----------|-----|
+| `/api/v1/admin/settings/ai/*` | `/api/v1/admin-panel/settings/ai/*` | Admin Panel Settings |
+| `/api/v1/admin/courses/*` | `/api/v1/admin-panel/courses/*` | Admin Panel Course Mgmt |
+| `/api/v1/admin/moderation/*` | `/api/v1/admin-panel/moderation/*` | Admin Panel Moderation |
+| `/api/v1/admin/analytics` | `/api/v1/admin-panel/analytics` | Admin Panel Analytics |
+| `/api/v1/admin/tutor` | `/api/v1/admin-panel/tutor` | Admin Panel Tutor Config |
+| `/api/admin/i18n-sync` | `/api/admin-panel/i18n-sync` | Admin Panel i18n |
+| `/dashboard/admin/system` | `/dashboard/admin-panel/system` | Admin Panel Dashboard |
+
+### Implementation:
+
+**Betroffene Dateien:** 24 Blueprint-Dateien
+
+**Änderungen:**
+- ✅ Alle `url_prefix='/admin/...'` → `url_prefix='/admin-panel/...'`
+- ✅ Settings: 14 AI endpoints
+- ✅ Settings: 3 System endpoints
+- ✅ Settings: 2 Permission endpoints
+- ✅ Courses: 6 endpoints
+- ✅ Moderation: 5 endpoints
+- ✅ Other: Analytics, Tutor, i18n, Dashboard
+
+**Keine Breaking Changes:**
+- ✅ System noch in Entwicklung (nicht produktiv)
+- ✅ Frontend kann parallel angepasst werden
+- ✅ Keine DB-Änderungen nötig
+- ✅ Alle Blueprint-Registrierungen funktionieren
+
+**Vorteile:**
+- 🎯 **Semantische Klarheit**: "admin-panel" = Interface, "admin" = Rolle
+- 📖 **Bessere Dokumentation**: Self-documenting URLs
+- 🚀 **Zukunftssicher**: Klare Trennung für spätere Features
+- 🔍 **Leichter zu debuggen**: Logs zeigen explizit "admin-panel"
+
+### Code-Struktur:
+
+**WICHTIG:** Der Ordnername im Code bleibt `/admin/`!
+
+```
+backend/app/api/v1/
+└── admin/              # ← Ordnername bleibt!
+    ├── settings/
+    │   └── ai/
+    │       └── jobs.py
+    │           url_prefix='/admin-panel/settings/ai/jobs'  # ← URL geändert!
+```
+
+**Grund:** Ordnername = Technische Organisation, URL = Semantische API-Interface
+
+---
+
 ## 📌 Dokument abgeschlossen
 
-**Version:** 3.0  
-**Status:** Final  
-**Letzte Aktualisierung:** 13.01.2026
+**Version:** 3.2
+**Status:** Final
+**Letzte Aktualisierung:** 16.01.2026
 
 **Neue Features v3.0:**
 - ✅ Complete AI Editor Integration (8 APIs + 5 WebSocket Events)

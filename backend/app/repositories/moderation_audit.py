@@ -16,7 +16,7 @@ Actions Tracked:
 - revision_requested: Requested changes
 - ai_analyzed: KI analysis completed
 
-Phase: AI Studio Implementation - KI Moderation
+Phase: AI Editor Implementation - KI Moderation
 """
 
 from typing import Optional, List, Dict, Any, Literal

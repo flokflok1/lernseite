@@ -2,4 +2,4 @@
  * Learning Method Management Views
  */
 
-export { default as LearningMethodEditorWindow } from './LearningMethodEditorWindow.vue'
+export { default as LearningMethodEditorPanel } from './LearningMethodEditorPanel.vue'

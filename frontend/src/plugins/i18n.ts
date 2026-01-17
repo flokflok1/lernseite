@@ -3,7 +3,7 @@
  * ==============================
  *
  * HYBRID TRANSLATION SYSTEM:
- * 1. JSON files (src/locales/*.json) = Fallback/Default
+ * 1. JSON files (src/locales/) = Fallback/Default
  * 2. Database (via API) = Primary source after setup
  *
  * SYNC FLOW:
@@ -20,89 +20,87 @@ import { createI18n } from 'vue-i18n'
 import type { App } from 'vue'
 
 // =============================================================================
-// Import split locale files (organized by feature domain)
+// Import locale modules (all in subdirectories)
 // =============================================================================
 
 // German (de)
-import deCommon from '@/locales/de/common.json'
-import deAdmin from '@/locales/de/admin'
-import deWindowsAdmin from '@/locales/de/windows/admin.json'
-import deWindowsAiEditor from '@/locales/de/windows/aiEditor.json'
-import deWindowsAiPricing from '@/locales/de/windows/aiPricing.json'
-import deWindowsCommon from '@/locales/de/windows/common.json'
-import deWindowsViewer from '@/locales/de/windows/viewer.json'
-import deWindowsLearningMethods from '@/locales/de/windows/learningMethods.json'
-import deCourses from '@/locales/de/courses.json'
-import deDashboard from '@/locales/de/dashboard.json'
-import deSetup from '@/locales/de/setup.json'
-import deLegal from '@/locales/de/legal.json'
+import deCommon from '@/locales/de/common/index'
+import deErrors from '@/locales/de/errors/index'
+import deDashboard from '@/locales/de/dashboard/index'
+import deSetup from '@/locales/de/setup/index'
+import deTutor from '@/locales/de/tutor/index'
+import deLegal from '@/locales/de/legal/index'
+
+import deAdmin from '@/locales/de/admin/index'
+import deAiEditor from '@/locales/de/aiEditor/index'
+import deCourses from '@/locales/de/courses/index'
+import deFeatures from '@/locales/de/features/index'
 
 // English (en)
-import enCommon from '@/locales/en/common.json'
-import enAdmin from '@/locales/en/admin'
-import enWindowsAdmin from '@/locales/en/windows/admin.json'
-import enWindowsAiEditor from '@/locales/en/windows/aiEditor.json'
-import enWindowsAiPricing from '@/locales/en/windows/aiPricing.json'
-import enWindowsCommon from '@/locales/en/windows/common.json'
-import enWindowsViewer from '@/locales/en/windows/viewer.json'
-import enWindowsLearningMethods from '@/locales/en/windows/learningMethods.json'
-import enCourses from '@/locales/en/courses.json'
-import enDashboard from '@/locales/en/dashboard.json'
-import enSetup from '@/locales/en/setup.json'
-import enLegal from '@/locales/en/legal.json'
+import enCommon from '@/locales/en/common/index'
+import enErrors from '@/locales/en/errors/index'
+import enDashboard from '@/locales/en/dashboard/index'
+import enSetup from '@/locales/en/setup/index'
+import enTutor from '@/locales/en/tutor/index'
+import enLegal from '@/locales/en/legal/index'
+
+import enAdmin from '@/locales/en/admin/index'
+import enAiEditor from '@/locales/en/aiEditor/index'
+import enCourses from '@/locales/en/courses/index'
+import enFeatures from '@/locales/en/features/index'
 
 // Polish (pl)
-import plCommon from '@/locales/pl/common.json'
-import plAdmin from '@/locales/pl/admin'
-import plWindowsAdmin from '@/locales/pl/windows/admin.json'
-import plWindowsAiEditor from '@/locales/pl/windows/aiEditor.json'
-import plWindowsAiPricing from '@/locales/pl/windows/aiPricing.json'
-import plWindowsCommon from '@/locales/pl/windows/common.json'
-import plWindowsViewer from '@/locales/pl/windows/viewer.json'
-import plWindowsLearningMethods from '@/locales/pl/windows/learningMethods.json'
-import plCourses from '@/locales/pl/courses.json'
-import plDashboard from '@/locales/pl/dashboard.json'
-import plSetup from '@/locales/pl/setup.json'
-import plLegal from '@/locales/pl/legal.json'
+import plCommon from '@/locales/pl/common/index'
+import plErrors from '@/locales/pl/errors/index'
+import plDashboard from '@/locales/pl/dashboard/index'
+import plSetup from '@/locales/pl/setup/index'
+import plTutor from '@/locales/pl/tutor/index'
+import plLegal from '@/locales/pl/legal/index'
 
-// Merge window modules
-const deWindows = {
-  windows: {
-    ...deWindowsAdmin,
-    ...deWindowsAiEditor,
-    ...deWindowsAiPricing,
-    ...deWindowsCommon,
-    ...deWindowsViewer,
-    learningMethods: deWindowsLearningMethods
-  }
-}
-
-const enWindows = {
-  windows: {
-    ...enWindowsAdmin,
-    ...enWindowsAiEditor,
-    ...enWindowsAiPricing,
-    ...enWindowsCommon,
-    ...enWindowsViewer,
-    learningMethods: enWindowsLearningMethods
-  }
-}
-
-const plWindows = {
-  windows: {
-    ...plWindowsAdmin,
-    ...plWindowsAiEditor,
-    ...plWindowsAiPricing,
-    ...plWindowsCommon,
-    ...plWindowsViewer,
-    learningMethods: plWindowsLearningMethods
-  }
-}
+import plAdmin from '@/locales/pl/admin/index'
+import plAiEditor from '@/locales/pl/aiEditor/index'
+import plCourses from '@/locales/pl/courses/index'
+import plFeatures from '@/locales/pl/features/index'
 
 // Merge all modules into single language objects
-const de = { ...deCommon, ...deAdmin, ...deWindows, ...deCourses, ...deDashboard, ...deSetup, ...deLegal }
-const en = { ...enCommon, ...enAdmin, ...enWindows, ...enCourses, ...enDashboard, ...enSetup, ...enLegal }
-const pl = { ...plCommon, ...plAdmin, ...plWindows, ...plCourses, ...plDashboard, ...plSetup, ...plLegal }
+const de = {
+  ...deCommon,
+  ...deErrors,
+  ...deDashboard,
+  ...deSetup,
+  ...deTutor,
+  ...deLegal,
+  ...deAdmin,
+  ...deAiEditor,
+  ...deCourses,
+  ...deFeatures
+}
+
+const en = {
+  ...enCommon,
+  ...enErrors,
+  ...enDashboard,
+  ...enSetup,
+  ...enTutor,
+  ...enLegal,
+  ...enAdmin,
+  ...enAiEditor,
+  ...enCourses,
+  ...enFeatures
+}
+
+const pl = {
+  ...plCommon,
+  ...plErrors,
+  ...plDashboard,
+  ...plSetup,
+  ...plTutor,
+  ...plLegal,
+  ...plAdmin,
+  ...plAiEditor,
+  ...plCourses,
+  ...plFeatures
+}
 
 // Type for nested message objects
 type MessageValue = string | { [key: string]: MessageValue }

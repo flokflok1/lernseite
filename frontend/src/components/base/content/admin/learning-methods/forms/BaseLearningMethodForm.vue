@@ -108,8 +108,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
-import type { LsxWindow } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import { getLearningMethodByCode, getTierFromCode } from '@/config/learningMethods'
 import {
   adminCreateLearningMethod,
@@ -117,7 +117,7 @@ import {
 } from '@/api/admin.api'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
   methodCode: number
   additionalData?: Record<string, any>
 }
@@ -127,12 +127,12 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const windowStore = useWindowStore()
+const panelStore = usePanelStore()
 
 const method = computed(() => getLearningMethodByCode(props.methodCode))
-const chapterId = computed(() => props.window.payload?.chapterId as string)
-const instanceId = computed(() => props.window.payload?.instanceId as string | undefined)
-const instanceData = computed(() => props.window.payload?.instanceData as any)
+const chapterId = computed(() => props.panel.payload?.chapterId as string)
+const instanceId = computed(() => props.panel.payload?.instanceId as string | undefined)
+const instanceData = computed(() => props.panel.payload?.instanceData as any)
 const isEditMode = computed(() => !!instanceId.value)
 const isSaving = ref(false)
 
@@ -210,6 +210,6 @@ const save = async () => {
 }
 
 const close = () => {
-  windowStore.closeWindow(props.window.id)
+  panelStore.closePanel(props.panel.id)
 }
 </script>

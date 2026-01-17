@@ -7,17 +7,17 @@
   <div class="content-header">
     <div class="header-icon">📝</div>
     <div class="header-info">
-      <h2>{{ $t('windows.aiEditorContent.lessonEditor') }}</h2>
+      <h2>{{ $t('features.aiEditorContent.lessonEditor') }}</h2>
       <p>{{ lessonTitle }} • {{ chapterTitle }}</p>
     </div>
     <div class="header-stats">
       <div class="stat">
         <span class="stat-value">{{ wordCount }}</span>
-        <span class="stat-label">{{ $t('windows.aiEditorContent.words') }}</span>
+        <span class="stat-label">{{ $t('features.aiEditorContent.words') }}</span>
       </div>
       <div class="stat">
         <span class="stat-value">{{ stepsCount }}</span>
-        <span class="stat-label">{{ $t('windows.aiEditorContent.steps') }}</span>
+        <span class="stat-label">{{ $t('features.aiEditorContent.steps') }}</span>
       </div>
     </div>
   </div>

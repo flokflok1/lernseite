@@ -66,7 +66,7 @@
 
       <!-- AI Studio Button -->
       <button
-        @click="$emit('open-ai-studio')"
+        @click="$emit('open-ai-editor')"
         class="action-btn group py-2.5 px-2 rounded-lg bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-600 shadow-sm hover:shadow-md transition-all text-center"
       >
         <div class="w-8 h-8 mx-auto mb-1 bg-white/20 rounded-md flex items-center justify-center group-hover:scale-110 group-hover:bg-white/30 transition-all">
@@ -153,7 +153,7 @@ defineEmits<{
   'open-files': []
   'open-exams': []
   'generate-exam': []
-  'open-ai-studio': []
+  'open-ai-editor': []
   'publish': []
   'unpublish': []
   'archive': []

@@ -119,20 +119,20 @@ export const updateThemePreference = async (data: UpdateThemePreferenceRequest):
 }
 
 // ============================================================================
-// User Preferences API Functions (Phase Admin Desktop - Window Sizes)
+// User Preferences API Functions (Phase Admin Desktop - Panel Sizes)
 // ============================================================================
 
-export interface WindowSize {
+export interface PanelSize {
   width: number
   height: number
 }
 
-export interface WindowSizesMap {
-  [windowType: string]: WindowSize
+export interface PanelSizesMap {
+  [panelType: string]: PanelSize
 }
 
 export interface UserPreferences {
-  window_sizes: WindowSizesMap
+  panel_sizes: PanelSizesMap
   ui_settings: Record<string, unknown>
   general_settings: Record<string, unknown>
 }
@@ -142,9 +142,9 @@ export interface PreferencesResponse {
   preferences: UserPreferences
 }
 
-export interface WindowSizesResponse {
+export interface PanelSizesResponse {
   success: boolean
-  window_sizes: WindowSizesMap
+  panel_sizes: PanelSizesMap
 }
 
 /**
@@ -156,34 +156,37 @@ export const getUserPreferences = async (): Promise<UserPreferences> => {
 }
 
 /**
- * Get window sizes for all window types
+ * Get panel sizes for all panel types
  */
-export const getWindowSizes = async (): Promise<WindowSizesMap> => {
-  const response = await http.get<WindowSizesResponse>('/profile/preferences/window-sizes')
+export const getPanelSizes = async (): Promise<PanelSizesMap> => {
+  // Note: API endpoint still uses 'window-sizes' for backward compatibility
+  const response = await http.get<{ success: boolean; window_sizes: PanelSizesMap }>('/profile/preferences/window-sizes')
   return response.data.window_sizes
 }
 
 /**
- * Update window size for a specific window type
+ * Update panel size for a specific panel type
  */
-export const updateWindowSize = async (
-  windowType: string,
+export const updatePanelSize = async (
+  panelType: string,
   width: number,
   height: number
-): Promise<WindowSizesMap> => {
-  const response = await http.put<{ success: boolean; window_sizes: WindowSizesMap }>(
+): Promise<PanelSizesMap> => {
+  // Note: API endpoint still uses 'window-sizes' for backward compatibility
+  const response = await http.put<{ success: boolean; window_sizes: PanelSizesMap }>(
     '/profile/preferences/window-sizes',
-    { window_type: windowType, width, height }
+    { window_type: panelType, width, height }
   )
   return response.data.window_sizes
 }
 
 /**
- * Delete a specific window size preference
+ * Delete a specific panel size preference
  */
-export const deleteWindowSize = async (windowType: string): Promise<WindowSizesMap> => {
-  const response = await http.delete<{ success: boolean; window_sizes: WindowSizesMap }>(
-    `/profile/preferences/window-sizes/${windowType}`
+export const deletePanelSize = async (panelType: string): Promise<PanelSizesMap> => {
+  // Note: API endpoint still uses 'window-sizes' for backward compatibility
+  const response = await http.delete<{ success: boolean; window_sizes: PanelSizesMap }>(
+    `/profile/preferences/window-sizes/${panelType}`
   )
   return response.data.window_sizes
 }

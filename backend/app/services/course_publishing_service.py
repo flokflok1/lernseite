@@ -25,9 +25,11 @@ from flask import current_app
 
 from app.repositories.course_publishing import CoursePublishingRepository
 from app.repositories.moderation_audit import ModerationAuditRepository
-from app.repositories.courses import CourseRepository
 from app.services.audit_service import AuditService
 from app.utils.exceptions import ValidationError, NotFoundError, ConflictError
+
+# NOTE: CourseRepository imported lazily (inside methods) to avoid circular imports
+# Import chain: repositories.courses -> cache_service -> services -> course_publishing_service -> repositories.courses
 
 PublishingStatus = Literal["draft", "submitted", "approved", "published", "rejected"]
 PublishingVisibility = Literal["private", "community", "public"]
@@ -72,6 +74,9 @@ class CoursePublishingService:
             NotFoundError: If course or publishing record not found
             ValidationError: If invalid state transition
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:
@@ -153,6 +158,9 @@ class CoursePublishingService:
             NotFoundError: If course or publishing record not found
             ValidationError: If invalid state transition or AI score
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:
@@ -242,6 +250,9 @@ class CoursePublishingService:
             NotFoundError: If course or publishing record not found
             ValidationError: If invalid state transition or missing notes
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:
@@ -329,6 +340,9 @@ class CoursePublishingService:
             NotFoundError: If course or publishing record not found
             ValidationError: If invalid state transition or visibility
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:
@@ -410,6 +424,9 @@ class CoursePublishingService:
             NotFoundError: If course or publishing record not found
             ValidationError: If invalid visibility value
         """
+        # Lazy import to avoid circular dependency
+        from app.repositories.courses import CourseRepository
+
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
         if not course:

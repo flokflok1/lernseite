@@ -33,7 +33,7 @@ class FeatureService:
 
     Example:
         >>> features = FeatureService.get_available_features(user_id='user-123')
-        >>> FeatureService.can_access_feature('user-123', 'ai_studio')
+        >>> FeatureService.can_access_feature('user-123', 'ai_editor')
         True
     """
 
@@ -60,7 +60,7 @@ class FeatureService:
         Example:
             >>> features = FeatureService.get_available_features('user-123')
             >>> [f['feature_code'] for f in features]
-            ['ai_studio', 'code_sandbox', 'learning_journal', ...]
+            ['ai_editor', 'code_sandbox', 'learning_journal', ...]
         """
         # Check cache first
         cache_key = f"{cls.CACHE_PREFIX_FEATURES}:{user_id}:available"
@@ -139,10 +139,10 @@ class FeatureService:
             True if user can access feature, False otherwise
 
         Example:
-            >>> FeatureService.can_access_feature('user-123', 'ai_studio')
+            >>> FeatureService.can_access_feature('user-123', 'ai_editor')
             True
-            >>> FeatureService.can_access_feature('user-456', 'ai_studio')
-            False  # User role doesn't have ai_studio
+            >>> FeatureService.can_access_feature('user-456', 'ai_editor')
+            False  # User role doesn't have ai_editor
         """
         # Check cache
         cache_key = f"{cls.CACHE_PREFIX_FEATURES}:{user_id}:{feature_code}"
@@ -186,7 +186,7 @@ class FeatureService:
             Feature metadata dictionary or None if not found
 
         Example:
-            >>> metadata = FeatureService.get_feature_metadata('ai_studio')
+            >>> metadata = FeatureService.get_feature_metadata('ai_editor')
             >>> metadata['feature_name']
             'AI-Studio'
             >>> metadata['category']
@@ -288,21 +288,21 @@ class FeatureService:
         Get specific permission within a feature for user.
 
         Permissions are specific capabilities within features:
-        - 'ai_studio.execute': Can use AI features
-        - 'ai_studio.manage': Can create AI content
+        - 'ai_editor.execute': Can use AI features
+        - 'ai_editor.manage': Can create AI content
         - 'analytics.export': Can export analytics data
 
         Args:
             user_id: User UUID
             feature_code: Feature code
-            permission_key: Permission key (e.g., 'ai_studio.execute')
+            permission_key: Permission key (e.g., 'ai_editor.execute')
 
         Returns:
             True if allowed, False if denied, None if not defined
 
         Example:
             >>> allowed = FeatureService.get_feature_permission(
-            ...     'user-123', 'ai_studio', 'ai_studio.execute'
+            ...     'user-123', 'ai_editor', 'ai_editor.execute'
             ... )
             >>> allowed
             True

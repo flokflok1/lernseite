@@ -6,31 +6,31 @@
 <template>
   <div class="profile-editor">
     <div v-if="!profile && !isCreating" class="editor-empty">
-      <p>{{ $t('windows.aiEditorGlobalSettings.selectProfileHint') }}</p>
+      <p>{{ $t('features.aiEditorGlobalSettings.selectProfileHint') }}</p>
     </div>
 
     <template v-else>
       <div class="editor-header">
-        <h4>{{ isCreating ? $t('windows.aiEditorGlobalSettings.newProfileTitle') : $t('windows.aiEditorGlobalSettings.editProfileTitle') }}</h4>
+        <h4>{{ isCreating ? $t('features.aiEditorGlobalSettings.newProfileTitle') : $t('features.aiEditorGlobalSettings.editProfileTitle') }}</h4>
       </div>
 
       <div class="editor-form">
         <div class="form-row">
-          <label>{{ $t('windows.aiEditorGlobalSettings.key') }}</label>
-          <input v-if="isCreating" :value="formData.key" @input="updateField('key', $event)" type="text" :placeholder="$t('windows.aiEditorGlobalSettings.keyPlaceholder')" class="form-input" />
+          <label>{{ $t('features.aiEditorGlobalSettings.key') }}</label>
+          <input v-if="isCreating" :value="formData.key" @input="updateField('key', $event)" type="text" :placeholder="$t('features.aiEditorGlobalSettings.keyPlaceholder')" class="form-input" />
           <span v-else class="form-value mono">{{ formData.key }}</span>
         </div>
         <div class="form-row">
-          <label>{{ $t('windows.aiEditorGlobalSettings.name') }}</label>
-          <input :value="formData.name" @input="updateField('name', $event)" type="text" :placeholder="$t('windows.aiEditorGlobalSettings.namePlaceholder')" class="form-input" />
+          <label>{{ $t('features.aiEditorGlobalSettings.name') }}</label>
+          <input :value="formData.name" @input="updateField('name', $event)" type="text" :placeholder="$t('features.aiEditorGlobalSettings.namePlaceholder')" class="form-input" />
         </div>
         <div class="form-row">
-          <label>{{ $t('windows.aiEditorGlobalSettings.description') }}</label>
-          <input :value="formData.description" @input="updateField('description', $event)" type="text" :placeholder="$t('windows.aiEditorGlobalSettings.descriptionPlaceholder')" class="form-input" />
+          <label>{{ $t('features.aiEditorGlobalSettings.description') }}</label>
+          <input :value="formData.description" @input="updateField('description', $event)" type="text" :placeholder="$t('features.aiEditorGlobalSettings.descriptionPlaceholder')" class="form-input" />
         </div>
 
         <div class="categories-section">
-          <h5>{{ $t('windows.aiEditorGlobalSettings.modelsPerCategory') }}</h5>
+          <h5>{{ $t('features.aiEditorGlobalSettings.modelsPerCategory') }}</h5>
           <div class="category-grid">
             <div v-for="category in categories" :key="category" class="category-item">
               <label class="category-label">
@@ -38,7 +38,7 @@
                 <span class="category-name">{{ category }}</span>
               </label>
               <select :value="formData.models[category]" @change="updateModel(category, $event)" class="category-select">
-                <option value="">{{ $t('windows.aiEditorGlobalSettings.notSet') }}</option>
+                <option value="">{{ $t('features.aiEditorGlobalSettings.notSet') }}</option>
                 <option v-for="model in getModelsForCategory(category)" :key="model.model_id" :value="model.model_id || model.model_name">
                   {{ model.display_name || model.model_name }}
                 </option>
@@ -48,11 +48,11 @@
         </div>
 
         <div class="editor-actions">
-          <button v-if="!isCreating && !profile?.is_default" @click="$emit('delete')" class="btn-danger">{{ $t('windows.aiEditorGlobalSettings.delete') }}</button>
+          <button v-if="!isCreating && !profile?.is_default" @click="$emit('delete')" class="btn-danger">{{ $t('features.aiEditorGlobalSettings.delete') }}</button>
           <div class="action-spacer"></div>
-          <button v-if="!isCreating && !profile?.is_default" @click="$emit('setDefault')" class="btn-secondary">{{ $t('windows.aiEditorGlobalSettings.setAsDefault') }}</button>
-          <button @click="$emit('cancel')" class="btn-secondary">{{ $t('windows.aiEditorGlobalSettings.cancel') }}</button>
-          <button @click="$emit('save')" :disabled="saving" class="btn-primary">{{ saving ? $t('windows.aiEditorGlobalSettings.saving') : $t('windows.aiEditorGlobalSettings.save') }}</button>
+          <button v-if="!isCreating && !profile?.is_default" @click="$emit('setDefault')" class="btn-secondary">{{ $t('features.aiEditorGlobalSettings.setAsDefault') }}</button>
+          <button @click="$emit('cancel')" class="btn-secondary">{{ $t('features.aiEditorGlobalSettings.cancel') }}</button>
+          <button @click="$emit('save')" :disabled="saving" class="btn-primary">{{ saving ? $t('features.aiEditorGlobalSettings.saving') : $t('features.aiEditorGlobalSettings.save') }}</button>
         </div>
       </div>
     </template>

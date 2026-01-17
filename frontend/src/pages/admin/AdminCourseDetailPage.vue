@@ -36,8 +36,8 @@
         :revenue-display="revenueDisplay"
         :rating-display="ratingDisplay"
         :completion-rate-display="completionRateDisplay"
-        @open-chapters="openChaptersWindow"
-        @open-files="openFilesWindow"
+        @open-chapters="openChaptersPanel"
+        @open-files="openFilesPanel"
       />
 
       <!-- Content Grid -->
@@ -47,15 +47,15 @@
           <CourseQuickActions
             :status="course.status"
             :hide-ai-features="isManualMode"
-            @open-chapters="openChaptersWindow"
-            @open-files="openFilesWindow"
-            @open-exams="openExamsWindow"
+            @open-chapters="openChaptersPanel"
+            @open-files="openFilesPanel"
+            @open-exams="openExamsPanel"
             @generate-exam="isAIMode ? generateExam : null"
-            @open-ai-studio="isAIMode ? openAiStudioWindow : null"
+            @open-ai-editor="isAIMode ? openAiEditorPanel : null"
             @publish="publishCourse"
             @unpublish="unpublishCourse"
             @archive="archiveCourse"
-            @edit="openEditorWindow"
+            @edit="openEditorPanel"
           />
         </div>
 
@@ -81,7 +81,7 @@
  */
 import { onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/store/modules/desktop'
+import { usePanelStore } from '@/store/modules/desktop'
 import {
   CourseDetailHeader,
   CourseQuickActions,
@@ -102,7 +102,7 @@ const props = withDefaults(defineProps<Props>(), {
   mode: 'manual'
 })
 const { t } = useI18n()
-const windowStore = useWindowStore()
+const windowStore = usePanelStore()
 
 // ============================================================================
 // Mode Awareness
@@ -143,15 +143,15 @@ const {
 } = useCourseDetail(String(props.id))
 
 // ============================================================================
-// Window Management
+// Panel Management
 // ============================================================================
 
-function openEditorWindow(): void {
+function openEditorPanel(): void {
   if (!course.value) return
 
-  windowStore.openWindow({
+  windowStore.openPanel({
     type: 'admin-course-editor',
-    title: t('admin.courseDetail.windows.editCourse', { title: course.value.title }),
+    title: t('admin.courseDetail.dialogs.editCourse', { title: course.value.title }),
     icon: '✏️',
     payload: {
       courseId: course.value.course_id,
@@ -160,12 +160,12 @@ function openEditorWindow(): void {
   })
 }
 
-function openChaptersWindow(): void {
+function openChaptersPanel(): void {
   if (!course.value) return
 
-  windowStore.openWindow({
+  windowStore.openPanel({
     type: 'admin-kapitel-manager',
-    title: t('admin.courseDetail.windows.chapters', { title: course.value.title }),
+    title: t('admin.courseDetail.dialogs.chapters', { title: course.value.title }),
     icon: '📚',
     payload: {
       courseId: course.value.course_id,
@@ -174,12 +174,12 @@ function openChaptersWindow(): void {
   })
 }
 
-function openFilesWindow(): void {
+function openFilesPanel(): void {
   if (!course.value) return
 
-  windowStore.openWindow({
+  windowStore.openPanel({
     type: 'admin-course-files',
-    title: t('admin.courseDetail.windows.files', { title: course.value.title }),
+    title: t('admin.courseDetail.dialogs.files', { title: course.value.title }),
     icon: '📁',
     payload: {
       courseId: course.value.course_id,
@@ -188,12 +188,12 @@ function openFilesWindow(): void {
   })
 }
 
-function openExamsWindow(): void {
+function openExamsPanel(): void {
   if (!course.value) return
 
-  windowStore.openWindow({
+  windowStore.openPanel({
     type: 'admin-exam-manager',
-    title: t('admin.courseDetail.windows.exams', { title: course.value.title }),
+    title: t('admin.courseDetail.dialogs.exams', { title: course.value.title }),
     icon: '📝',
     payload: {
       courseId: course.value.course_id,
@@ -205,9 +205,9 @@ function openExamsWindow(): void {
 function generateExam(): void {
   if (!course.value) return
 
-  windowStore.openWindow({
+  windowStore.openPanel({
     type: 'admin-ai-exam-generator',
-    title: t('admin.courseDetail.windows.generateExam', { title: course.value.title }),
+    title: t('admin.courseDetail.dialogs.generateExam', { title: course.value.title }),
     icon: '🤖',
     payload: {
       courseId: course.value.course_id,
@@ -216,12 +216,12 @@ function generateExam(): void {
   })
 }
 
-function openAiStudioWindow(): void {
+function openAiEditorPanel(): void {
   if (!course.value) return
 
-  windowStore.openWindow({
-    type: 'admin-ai-studio',
-    title: t('admin.courseDetail.windows.aiEditor', { title: course.value.title }),
+  windowStore.openPanel({
+    type: 'admin-ai-editor',
+    title: t('admin.courseDetail.dialogs.aiEditor', { title: course.value.title }),
     icon: '🤖',
     payload: {
       courseId: course.value.course_id,

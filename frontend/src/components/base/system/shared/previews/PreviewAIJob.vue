@@ -54,15 +54,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
 
-const job = computed(() => props.window.payload?.job || {})
+const job = computed(() => props.panel.payload?.job || {})
 const outputData = computed(() => job.value.output_data || null)
 
 const progress = computed(() => {
@@ -90,7 +90,7 @@ const statusClass = computed(() => {
 })
 
 const courseName = computed(() => {
-  return outputData.value?.course?.title || props.window.payload?.fileName || null
+  return outputData.value?.course?.title || props.panel.payload?.fileName || null
 })
 
 const totalLessons = computed(() => {

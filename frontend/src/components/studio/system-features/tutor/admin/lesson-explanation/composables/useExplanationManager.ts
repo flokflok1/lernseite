@@ -92,7 +92,7 @@ export function useExplanationManager() {
         const data = response.data.data
         currentExplanation.value = {
           explanationId: data.explanation_id || explanationId,
-          title: data.title || t('windows.lessonExplanationView.defaultTitle'),
+          title: data.title || t('features.lessonExplanationView.defaultTitle'),
           steps: data.steps || [],
           createdAt: data.created_at
         }
@@ -100,7 +100,7 @@ export function useExplanationManager() {
       }
     } catch (err: any) {
       console.error('Failed to load explanation:', err)
-      error.value = err.message || t('windows.lessonExplanationView.loadError')
+      error.value = err.message || t('features.lessonExplanationView.loadError')
       throw err
     }
   }
@@ -135,7 +135,7 @@ export function useExplanationManager() {
       } else {
         throw new Error(
           response.data.error?.message ||
-          t('windows.lessonExplanationView.generationFailed')
+          t('features.lessonExplanationView.generationFailed')
         )
       }
     } catch (err: any) {
@@ -143,7 +143,7 @@ export function useExplanationManager() {
       error.value =
         err.response?.data?.error?.message ||
         err.message ||
-        t('windows.lessonExplanationView.generationError')
+        t('features.lessonExplanationView.generationError')
       throw err
     } finally {
       isGenerating.value = false

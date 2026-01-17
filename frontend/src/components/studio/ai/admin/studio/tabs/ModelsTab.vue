@@ -14,16 +14,16 @@
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center py-20">
       <div class="animate-spin text-4xl">⏳</div>
-      <span class="ml-3 text-[var(--color-text-secondary)]">{{ $t('windows.aiEditorModels.loading') }}</span>
+      <span class="ml-3 text-[var(--color-text-secondary)]">{{ $t('features.aiEditorModels.loading') }}</span>
     </div>
 
     <!-- Error State -->
     <div v-else-if="loadError" class="p-6 bg-red-50 dark:bg-red-900/20 rounded-xl text-center">
       <div class="text-4xl mb-3">❌</div>
-      <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">{{ $t('windows.aiEditorModels.loadError') }}</h3>
+      <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">{{ $t('features.aiEditorModels.loadError') }}</h3>
       <p class="text-red-500 dark:text-red-300 mb-4">{{ loadError }}</p>
       <button @click="loadData" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-        {{ $t('windows.aiEditorModels.retry') }}
+        {{ $t('features.aiEditorModels.retry') }}
       </button>
     </div>
 
@@ -49,7 +49,7 @@
       <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wide">
-            {{ $t('windows.aiEditorModels.apiKeys') }}
+            {{ $t('features.aiEditorModels.apiKeys') }}
           </h3>
         </div>
         <div class="space-y-3">
@@ -77,7 +77,7 @@
       <!-- Category-based Default Model Selection -->
       <div class="mb-8">
         <h3 class="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wide mb-4">
-          {{ $t('windows.aiEditorModels.defaultPerCategory') }}
+          {{ $t('features.aiEditorModels.defaultPerCategory') }}
         </h3>
         <div class="grid grid-cols-3 gap-4">
           <CategorySelector
@@ -119,7 +119,7 @@
         <!-- Empty State -->
         <div v-if="filteredModels.length === 0" class="text-center py-10 text-[var(--color-text-tertiary)]">
           <div class="text-4xl mb-3">🔍</div>
-          <p>{{ $t('windows.aiEditorModels.noModelsFound') }}</p>
+          <p>{{ $t('features.aiEditorModels.noModelsFound') }}</p>
         </div>
       </div>
     </template>
@@ -243,7 +243,7 @@ function getCategoryStyle(category: string) {
     return {
       emoji: base.emoji,
       bgColor: base.bgColor,
-      description: t(`windows.aiEditorModels.${base.key}`)
+      description: t(`features.aiEditorModels.${base.key}`)
     }
   }
   return { emoji: '⚙️', bgColor: 'bg-gray-500', description: category }
@@ -318,7 +318,7 @@ async function loadData() {
 
   } catch (error: any) {
     console.error('Failed to load AI data:', error)
-    loadError.value = error.response?.data?.error?.message || error.message || t('windows.aiEditorModels.loadFailed')
+    loadError.value = error.response?.data?.error?.message || error.message || t('features.aiEditorModels.loadFailed')
   } finally {
     isLoading.value = false
   }
@@ -337,7 +337,7 @@ async function syncModels(provider: string | null) {
     if (response.data.success) {
       syncResult.value = {
         success: true,
-        message: response.data.message || t('windows.aiEditorModels.syncSuccess'),
+        message: response.data.message || t('features.aiEditorModels.syncSuccess'),
         details: response.data.data
       }
       // Reload data
@@ -345,14 +345,14 @@ async function syncModels(provider: string | null) {
     } else {
       syncResult.value = {
         success: false,
-        message: response.data.error?.message || t('windows.aiEditorModels.syncFailed')
+        message: response.data.error?.message || t('features.aiEditorModels.syncFailed')
       }
     }
   } catch (error: any) {
     console.error('Sync failed:', error)
     syncResult.value = {
       success: false,
-      message: error.response?.data?.error?.message || error.message || t('windows.aiEditorModels.syncFailed')
+      message: error.response?.data?.error?.message || error.message || t('features.aiEditorModels.syncFailed')
     }
   } finally {
     isSyncing.value = false
@@ -361,7 +361,7 @@ async function syncModels(provider: string | null) {
 
 async function testApiKey(provider: AIProvider) {
   testingProvider.value = provider.name
-  testResults.value[provider.name] = { success: false, message: t('windows.aiEditorModels.testing') }
+  testResults.value[provider.name] = { success: false, message: t('features.aiEditorModels.testing') }
 
   try {
     const response = await http.get(`/admin/ai/providers/${provider.provider_id}/test`)
@@ -369,18 +369,18 @@ async function testApiKey(provider: AIProvider) {
     if (response.data.success) {
       testResults.value[provider.name] = {
         success: true,
-        message: `✅ ${t('windows.aiEditorModels.connectionOk')} (${response.data.data?.response_time_ms || 0}ms)`
+        message: `✅ ${t('features.aiEditorModels.connectionOk')} (${response.data.data?.response_time_ms || 0}ms)`
       }
     } else {
       testResults.value[provider.name] = {
         success: false,
-        message: `❌ ${response.data.error?.message || t('windows.aiEditorModels.testFailed')}`
+        message: `❌ ${response.data.error?.message || t('features.aiEditorModels.testFailed')}`
       }
     }
   } catch (error: any) {
     testResults.value[provider.name] = {
       success: false,
-      message: `❌ ${error.response?.data?.error?.message || error.message || t('windows.aiEditorModels.connectionFailed')}`
+      message: `❌ ${error.response?.data?.error?.message || error.message || t('features.aiEditorModels.connectionFailed')}`
     }
   } finally {
     testingProvider.value = null
@@ -409,7 +409,7 @@ async function saveApiKey(provider: AIProvider) {
     if (response.data.success) {
       testResults.value[provider.name] = {
         success: true,
-        message: `✅ ${t('windows.aiEditorModels.apiKeySaved')}`
+        message: `✅ ${t('features.aiEditorModels.apiKeySaved')}`
       }
       apiKeyInputs.value[provider.name] = ''
       // Reload providers
@@ -417,13 +417,13 @@ async function saveApiKey(provider: AIProvider) {
     } else {
       testResults.value[provider.name] = {
         success: false,
-        message: `❌ ${response.data.error?.message || t('windows.aiEditorModels.saveFailed')}`
+        message: `❌ ${response.data.error?.message || t('features.aiEditorModels.saveFailed')}`
       }
     }
   } catch (error: any) {
     testResults.value[provider.name] = {
       success: false,
-      message: `❌ ${error.response?.data?.error?.message || error.message || t('windows.aiEditorModels.saveFailed')}`
+      message: `❌ ${error.response?.data?.error?.message || error.message || t('features.aiEditorModels.saveFailed')}`
     }
   }
 }

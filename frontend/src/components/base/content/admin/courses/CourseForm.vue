@@ -3,7 +3,7 @@
     <!-- Title -->
     <div>
       <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-        {{ $t('windows.courseForm.titleLabel') }}
+        {{ $t('features.courseForm.titleLabel') }}
       </label>
       <input
         :value="modelValue.title"
@@ -11,33 +11,33 @@
         type="text"
         required
         class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-        :placeholder="$t('windows.courseForm.titlePlaceholder')"
+        :placeholder="$t('features.courseForm.titlePlaceholder')"
       />
     </div>
 
     <!-- Description -->
     <div>
       <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-        {{ $t('windows.courseForm.descriptionLabel') }}
+        {{ $t('features.courseForm.descriptionLabel') }}
       </label>
       <textarea
         v-model="localData.description"
         rows="4"
         class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-        :placeholder="$t('windows.courseForm.descriptionPlaceholder')"
+        :placeholder="$t('features.courseForm.descriptionPlaceholder')"
       ></textarea>
     </div>
 
     <!-- Category Picker -->
     <div>
       <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-        {{ $t('windows.courseForm.categoryLabel') }}
+        {{ $t('features.courseForm.categoryLabel') }}
       </label>
       <select
         v-model="localData.category_id"
         class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
       >
-        <option :value="null">{{ $t('windows.courseForm.categoryNone') }}</option>
+        <option :value="null">{{ $t('features.courseForm.categoryNone') }}</option>
         <option
           v-for="category in flatCategories"
           :key="category.category_id"
@@ -47,45 +47,45 @@
         </option>
       </select>
       <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-        {{ $t('windows.courseForm.categoryHint') }}
+        {{ $t('features.courseForm.categoryHint') }}
       </p>
     </div>
 
     <!-- Level -->
     <div>
       <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-        {{ $t('windows.courseForm.levelLabel') }}
+        {{ $t('features.courseForm.levelLabel') }}
       </label>
       <select
         v-model="localData.level"
         class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
       >
-        <option value="beginner">{{ $t('windows.courseForm.levelBeginner') }}</option>
-        <option value="intermediate">{{ $t('windows.courseForm.levelIntermediate') }}</option>
-        <option value="advanced">{{ $t('windows.courseForm.levelAdvanced') }}</option>
+        <option value="beginner">{{ $t('features.courseForm.levelBeginner') }}</option>
+        <option value="intermediate">{{ $t('features.courseForm.levelIntermediate') }}</option>
+        <option value="advanced">{{ $t('features.courseForm.levelAdvanced') }}</option>
       </select>
     </div>
 
     <!-- Language -->
     <div>
       <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-        {{ $t('windows.courseForm.languageLabel') }}
+        {{ $t('features.courseForm.languageLabel') }}
       </label>
       <select
         v-model="localData.language"
         class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
       >
-        <option value="de">{{ $t('windows.courseForm.langDe') }}</option>
-        <option value="en">{{ $t('windows.courseForm.langEn') }}</option>
-        <option value="fr">{{ $t('windows.courseForm.langFr') }}</option>
-        <option value="es">{{ $t('windows.courseForm.langEs') }}</option>
+        <option value="de">{{ $t('features.courseForm.langDe') }}</option>
+        <option value="en">{{ $t('features.courseForm.langEn') }}</option>
+        <option value="fr">{{ $t('features.courseForm.langFr') }}</option>
+        <option value="es">{{ $t('features.courseForm.langEs') }}</option>
       </select>
     </div>
 
     <!-- Price -->
     <div>
       <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-        {{ $t('windows.courseForm.priceLabel') }}
+        {{ $t('features.courseForm.priceLabel') }}
       </label>
       <input
         v-model.number="localData.price"
@@ -93,7 +93,7 @@
         min="0"
         step="0.01"
         class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-        :placeholder="$t('windows.courseForm.pricePlaceholder')"
+        :placeholder="$t('features.courseForm.pricePlaceholder')"
       />
     </div>
 
@@ -106,7 +106,7 @@
           class="w-4 h-4 text-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]"
         />
         <span class="text-sm text-[var(--color-text-secondary)]">
-          {{ $t('windows.courseForm.isPublic') }}
+          {{ $t('features.courseForm.isPublic') }}
         </span>
       </label>
     </div>

@@ -6,9 +6,9 @@
 -->
 
 <template>
-  <div class="admin-ai-job-window">
+  <div class="admin-ai-job-panel">
     <p class="text-[var(--color-text-secondary)] p-8 text-center">
-      {{ $t('windows.aiJob.placeholder') }}
+      {{ $t('features.aiJob.placeholder') }}
       <br />
       Job ID: {{ window.payload?.jobId }}
     </p>
@@ -17,12 +17,12 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 
 const { t } = useI18n()
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 interface Emits {

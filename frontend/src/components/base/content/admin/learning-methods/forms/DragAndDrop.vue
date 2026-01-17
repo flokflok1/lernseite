@@ -1,6 +1,6 @@
 <template>
   <BaseLearningMethodForm
-    :window="window"
+    :panel="panel"
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
@@ -8,64 +8,64 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.whiteboardTitle') }}
+            {{ $t('features.lm08.whiteboardTitle') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            {{ $t('windows.lm08.whiteboardDescription') }}
+            {{ $t('features.lm08.whiteboardDescription') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.instructionLabel') }}
+            {{ $t('features.lm08.instructionLabel') }}
           </label>
           <textarea
             v-model="methodData.instruction"
             rows="3"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            :placeholder="$t('windows.lm08.instructionPlaceholder')"
+            :placeholder="$t('features.lm08.instructionPlaceholder')"
             required
           ></textarea>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.taskTypeLabel') }}
+            {{ $t('features.lm08.taskTypeLabel') }}
           </label>
           <select
             v-model="methodData.task_type"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">{{ $t('windows.lm08.taskTypeDefault') }}</option>
-            <option value="diagram">{{ $t('windows.lm08.taskTypeDiagram') }}</option>
-            <option value="flowchart">{{ $t('windows.lm08.taskTypeFlowchart') }}</option>
-            <option value="network">{{ $t('windows.lm08.taskTypeNetwork') }}</option>
-            <option value="uml">{{ $t('windows.lm08.taskTypeUml') }}</option>
-            <option value="mindmap">{{ $t('windows.lm08.taskTypeMindmap') }}</option>
-            <option value="architecture">{{ $t('windows.lm08.taskTypeArchitecture') }}</option>
-            <option value="freeform">{{ $t('windows.lm08.taskTypeFreeform') }}</option>
+            <option value="">{{ $t('features.lm08.taskTypeDefault') }}</option>
+            <option value="diagram">{{ $t('features.lm08.taskTypeDiagram') }}</option>
+            <option value="flowchart">{{ $t('features.lm08.taskTypeFlowchart') }}</option>
+            <option value="network">{{ $t('features.lm08.taskTypeNetwork') }}</option>
+            <option value="uml">{{ $t('features.lm08.taskTypeUml') }}</option>
+            <option value="mindmap">{{ $t('features.lm08.taskTypeMindmap') }}</option>
+            <option value="architecture">{{ $t('features.lm08.taskTypeArchitecture') }}</option>
+            <option value="freeform">{{ $t('features.lm08.taskTypeFreeform') }}</option>
           </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.expectedElementsLabel') }}
+            {{ $t('features.lm08.expectedElementsLabel') }}
           </label>
           <textarea
             v-model="methodData.expected_elements"
             rows="5"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            :placeholder="$t('windows.lm08.expectedElementsPlaceholder')"
+            :placeholder="$t('features.lm08.expectedElementsPlaceholder')"
           ></textarea>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.lm08.expectedElementsHint') }}
+            {{ $t('features.lm08.expectedElementsHint') }}
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.evaluationCriteriaLabel') }}
+            {{ $t('features.lm08.evaluationCriteriaLabel') }}
           </label>
           <div class="space-y-2">
             <label class="flex items-center space-x-2">
@@ -75,7 +75,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ $t('windows.lm08.checkCompletenessLabel') }}
+                {{ $t('features.lm08.checkCompletenessLabel') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -85,7 +85,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ $t('windows.lm08.checkConnectionsLabel') }}
+                {{ $t('features.lm08.checkConnectionsLabel') }}
               </span>
             </label>
             <label class="flex items-center space-x-2">
@@ -95,7 +95,7 @@
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ $t('windows.lm08.checkLabelsLabel') }}
+                {{ $t('features.lm08.checkLabelsLabel') }}
               </span>
             </label>
           </div>
@@ -103,16 +103,16 @@
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.lm08.referenceImageLabel') }}
+            {{ $t('features.lm08.referenceImageLabel') }}
           </label>
           <input
             v-model="methodData.reference_image"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            :placeholder="$t('windows.lm08.referenceImagePlaceholder')"
+            :placeholder="$t('features.lm08.referenceImagePlaceholder')"
           />
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.lm08.referenceImageHint') }}
+            {{ $t('features.lm08.referenceImageHint') }}
           </p>
         </div>
 
@@ -124,7 +124,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              {{ $t('windows.lm08.aiFeatureLabel') }}
+              {{ $t('features.lm08.aiFeatureLabel') }}
             </span>
           </label>
         </div>
@@ -136,14 +136,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
-import type { LsxWindow } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/store/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const { t } = useI18n()
 const METHOD_CODE = 8
 
 interface Props {
-  window: LsxWindow
+  panel: LsxPanel
 }
 
 const props = defineProps<Props>()
@@ -169,7 +169,7 @@ const methodData = ref<{
 })
 
 onMounted(() => {
-  const existingData = props.window.payload?.instanceData?.data
+  const existingData = props.panel.payload?.instanceData?.data
   if (existingData) {
     methodData.value = {
       instruction: existingData.instruction || '',

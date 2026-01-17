@@ -7,7 +7,7 @@ Pydantic models for chapter and lesson theory sheet management:
 - TheorySheetUpdate: Request model for updating theory sheets
 - Support both chapter-level and lesson-level theories
 
-Phase: AI Studio Implementation - Theory Sheets
+Phase: AI Editor Implementation - Theory Sheets
 """
 
 from typing import Optional, Literal

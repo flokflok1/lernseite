@@ -15,7 +15,7 @@ Based on Dok 32 (API-Gateway) - Phase 21
 
 from functools import wraps
 from flask import request, current_app
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.gateway.router import get_route_group
 
 

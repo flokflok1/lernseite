@@ -13,7 +13,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 from app import create_app, socketio
-from app.extensions import db_pool, celery
+from app.core.bootstrap.extensions import db_pool, celery
 
 
 # Create Flask application instance

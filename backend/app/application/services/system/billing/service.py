@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from psycopg.rows import dict_row
 
-from app.extensions import db_pool
+from app.core.bootstrap.extensions import db_pool
 from app.infrastructure.persistence.repositories.token import TokenRepository
 from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
 from app.infrastructure.persistence.repositories.user import UserRepository

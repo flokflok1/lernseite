@@ -24,14 +24,14 @@ import os
 from flask import Flask, jsonify, request, Response
 from werkzeug.exceptions import HTTPException
 
-from app.config import config
+from app.core.bootstrap.config import config
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
 # ============================================================================
 # SECTION 1: EXTENSIONS INITIALIZATION
 # ============================================================================
 
-from app.extensions import (
+from app.core.bootstrap.extensions import (
     db_pool,
     init_db_pool,
     jwt,

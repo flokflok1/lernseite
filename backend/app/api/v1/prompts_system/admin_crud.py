@@ -9,7 +9,7 @@ from flask import request, jsonify, g
 from typing import Dict, Any, Tuple
 import logging
 
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.security.permissions import require_permission, Permissions
 from app.infrastructure.persistence.repositories.prompts.templates import PromptTemplateRepository

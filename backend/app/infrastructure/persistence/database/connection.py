@@ -11,7 +11,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from contextlib import contextmanager
 from psycopg.rows import dict_row
 
-import app.extensions  # Import module, not the variable directly
+import app.core.bootstrap.extensions  # Import module, not the variable directly
 
 
 class DatabaseConnection:

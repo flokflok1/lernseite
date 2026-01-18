@@ -57,7 +57,7 @@ class SystemDiagnostics:
             DiagnosticCheckResult with connection status
         """
         try:
-            from app.extensions import db_pool
+            from app.core.bootstrap.extensions import db_pool
 
             if db_pool is None:
                 return DiagnosticCheckResult(
@@ -112,7 +112,7 @@ class SystemDiagnostics:
             DiagnosticCheckResult with Redis status
         """
         try:
-            from app.extensions import redis_client
+            from app.core.bootstrap.extensions import redis_client
 
             if redis_client is None:
                 return DiagnosticCheckResult(
@@ -457,7 +457,7 @@ class SystemDiagnostics:
 
         # Try to ping Celery broker (Redis)
         try:
-            from app.extensions import redis_client
+            from app.core.bootstrap.extensions import redis_client
 
             # Check if Redis client is available
             if redis_client is None:

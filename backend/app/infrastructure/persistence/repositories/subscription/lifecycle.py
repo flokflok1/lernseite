@@ -13,7 +13,7 @@ Uses pure psycopg for PostgreSQL access with connection pooling.
 from typing import Dict, Any, Optional
 from psycopg.rows import dict_row
 
-from app.extensions import db_pool
+from app.core.bootstrap.extensions import db_pool
 from app.infrastructure.persistence.repositories.subscription.crud import PlanRepository
 
 

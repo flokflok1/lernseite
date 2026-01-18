@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Tuple
 import logging
 
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security.permissions import require_permission, Permissions
 from app.domain.models.analytics import (

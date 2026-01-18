@@ -10,7 +10,7 @@ import logging
 from typing import Dict, Any
 from datetime import datetime
 
-from app.extensions import celery
+from app.core.bootstrap.extensions import celery
 from app.infrastructure.persistence.database.connection import fetch_one, execute_query
 from app.application.services.ai_adapter import AIAdapter, AIProviderError
 

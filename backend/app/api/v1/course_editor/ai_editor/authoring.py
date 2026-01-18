@@ -22,7 +22,7 @@ import logging
 
 from app.api.v1.course_editor.ai_editor import ai_editor_bp
 from app.api.v1.course_editor.shared.permissions import check_course_permission
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response

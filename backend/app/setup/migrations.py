@@ -251,7 +251,7 @@ class MigrationManager:
         Returns:
             Dictionary mapping migration_id to migration info
         """
-        from app.extensions import db_pool
+        from app.core.bootstrap.extensions import db_pool
 
         applied = {}
 
@@ -338,7 +338,7 @@ class MigrationManager:
         Returns:
             Dictionary with execution result
         """
-        from app.extensions import db_pool
+        from app.core.bootstrap.extensions import db_pool
         import time
 
         # Find migration

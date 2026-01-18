@@ -24,7 +24,7 @@ import json
 import logging
 from typing import Optional, Dict, Any, List
 
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.persistence.repositories.chapter_theory import ChapterTheoryRepository
 

@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from psycopg.rows import dict_row
 
-from app.extensions import db_pool
+from app.core.bootstrap.extensions import db_pool
 
 
 class LearningMethodStatisticsRepository:

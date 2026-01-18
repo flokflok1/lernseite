@@ -296,7 +296,7 @@ class SystemModeService:
             True if database is reachable
         """
         try:
-            from app.extensions import db_pool
+            from app.core.bootstrap.extensions import db_pool
             with db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute('SELECT 1')
@@ -313,7 +313,7 @@ class SystemModeService:
             True if Redis is reachable
         """
         try:
-            from app.extensions import redis_client
+            from app.core.bootstrap.extensions import redis_client
             redis_client.ping()
             return True
         except Exception:

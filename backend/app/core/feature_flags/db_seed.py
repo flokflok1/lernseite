@@ -12,7 +12,7 @@ Tables Required:
 - feature_flag_rollouts
 """
 
-from app.extensions import db_pool
+from app.core.bootstrap.extensions import db_pool
 from app.core.feature_flags.flag_config import FEATURE_FLAGS, FEATURE_GROUPS
 from datetime import datetime
 

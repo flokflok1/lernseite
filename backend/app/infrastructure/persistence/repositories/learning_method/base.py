@@ -17,7 +17,7 @@ from typing import Dict, Any, Optional, List
 import psycopg
 from psycopg.rows import dict_row
 
-from app.extensions import db_pool
+from app.core.bootstrap.extensions import db_pool
 from app.infrastructure.cache.service import CacheService
 from flask import current_app
 

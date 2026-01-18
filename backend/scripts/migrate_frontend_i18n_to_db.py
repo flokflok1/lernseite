@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from app import create_app
 from app.database import get_connection
 from app.repositories.i18n_repository import I18nRepository
-from app.extensions import init_db_pool
+from app.core.bootstrap.extensions import init_db_pool
 
 # Setup logging
 logging.basicConfig(

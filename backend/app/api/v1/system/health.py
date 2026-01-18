@@ -15,7 +15,7 @@ from datetime import datetime
 from flask import jsonify
 import psycopg
 
-from app.extensions import redis_client, db_pool
+from app.core.bootstrap.extensions import redis_client, db_pool
 
 # Track application start time
 _app_start_time = time.time()

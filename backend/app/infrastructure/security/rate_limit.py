@@ -16,7 +16,7 @@ from functools import wraps
 from flask import request, jsonify, current_app
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
-from app.extensions import limiter, redis_client
+from app.core.bootstrap.extensions import limiter, redis_client
 
 
 # ==========================================

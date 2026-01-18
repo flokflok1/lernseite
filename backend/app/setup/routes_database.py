@@ -21,7 +21,7 @@ import logging
 from app.setup import setup_bp
 from app.setup.install_check import InstallationChecker
 from app.setup.db_init import DatabaseInitializer
-from app.extensions import refresh_db_pool
+from app.core.bootstrap.extensions import refresh_db_pool
 
 
 logger = logging.getLogger(__name__)

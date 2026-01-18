@@ -13,7 +13,7 @@ from flask import Blueprint, request, jsonify, Response, g
 from typing import Dict, Any, Tuple
 import logging
 
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.application.services.ai_adapter import AIAdapter
 from app.api.v1.tutor.tutor_core import (

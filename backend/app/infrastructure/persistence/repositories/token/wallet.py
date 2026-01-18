@@ -12,7 +12,7 @@ Uses psycopg connection pooling for efficient database access.
 from typing import Dict, Any, Optional
 from psycopg.rows import dict_row
 
-from app.extensions import db_pool
+from app.core.bootstrap.extensions import db_pool
 
 
 class TokenWalletRepository:

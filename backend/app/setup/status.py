@@ -79,7 +79,7 @@ class SystemStatus:
             Dictionary with DB schema version info
         """
         try:
-            from app.extensions import db_pool
+            from app.core.bootstrap.extensions import db_pool
 
             with db_pool.connection() as conn:
                 with conn.cursor() as cur:

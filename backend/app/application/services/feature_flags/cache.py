@@ -22,7 +22,7 @@ import logging
 import redis
 from functools import wraps
 
-from app.config import Config
+from app.core.bootstrap.config import Config
 from app.infrastructure.persistence.database.connection import get_db_connection
 from app.infrastructure.persistence.repositories.feature_configuration_part2 import FeatureCacheStatusRepository
 

@@ -19,7 +19,7 @@ import uuid
 import psycopg
 from psycopg.rows import dict_row
 
-from app.extensions import db_pool
+from app.core.bootstrap.extensions import db_pool
 from app.infrastructure.validation.learning_method_mapping import validate_lm_id, get_method_by_id
 
 

@@ -22,7 +22,7 @@ import json
 import logging
 from typing import Optional, Dict, Any
 
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 

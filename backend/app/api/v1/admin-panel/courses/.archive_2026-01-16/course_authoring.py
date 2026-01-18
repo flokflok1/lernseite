@@ -16,7 +16,7 @@ from flask import request, jsonify, g
 import logging
 
 from app.api.v1 import api_v1
-from app.extensions import limiter
+from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.security.permissions import require_permission, Permissions
 

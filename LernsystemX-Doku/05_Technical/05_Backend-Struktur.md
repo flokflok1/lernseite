@@ -94,7 +94,350 @@ Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig complian
 
 ---
 
-## 1. System-Architektur (C4 Model - Context)
+## 1. Projektstruktur (Backend-Verzeichnis) - UPDATED v4.0
+
+### 🏗️ Verzeichnisbaum - Komplette Übersicht
+
+```
+/backend
+├── /app                                    # 🏭 APPLICATION ROOT
+│   ├── __init__.py                         # Factory Pattern (create_app)
+│   ├── config.py                           # Configuration Classes
+│   ├── extensions.py                       # Flask Extensions (db_pool, redis, etc.)
+│   │
+│   ├── /core                               # 🎯 CORE SYSTEM - Feature Flags & Config
+│   │   ├── /feature_flags                  # ⭐ Feature Flag System
+│   │   │   ├── flag_manager.py             # Flag Evaluation & Caching
+│   │   │   ├── flag_decorators.py          # @require_feature_flag Decorator
+│   │   │   ├── flag_middleware.py          # Flag Middleware
+│   │   │   └── flag_admin.py               # Admin API for Flags
+│   │   │
+│   │   └── /rollout                        # Progressive Rollout
+│   │       ├── percentage_rollout.py       # % based rollout (5% → 25% → 100%)
+│   │       ├── user_segments.py            # User Segment Targeting
+│   │       ├── org_rollout.py              # Organization-based Rollout
+│   │       └── ab_testing.py               # A/B Testing Framework
+│   │
+│   ├── /api                                # 🌐 REST API LAYER
+│   │   └── /v1                             # API Version 1
+│   │       ├── __init__.py                 # Blueprint Registration
+│   │       │
+│   │       ├── # PUBLIC CORE ENDPOINTS
+│   │       ├── auth.py                     # /api/v1/auth (Login, Register, Token Refresh)
+│   │       ├── users.py                    # /api/v1/users (User CRUD)
+│   │       ├── profile.py                  # /api/v1/profile (Current User Profile)
+│   │       ├── courses.py                  # /api/v1/courses (Course Catalog)
+│   │       ├── categories.py               # /api/v1/categories
+│   │       ├── learning_methods.py         # /api/v1/learning-methods
+│   │       ├── subscriptions.py            # /api/v1/subscriptions (Premium Management)
+│   │       ├── tokens.py                   # /api/v1/tokens (Token Wallet Management)
+│   │       ├── organisations.py            # /api/v1/organisations
+│   │       ├── health.py                   # /health (Health Check Endpoint)
+│   │       │
+│   │       ├── # CONTENT ENDPOINTS
+│   │       ├── chapter_theory.py           # /api/v1/chapters/:id/theory
+│   │       ├── lesson_explanations.py      # /api/v1/lessons/:id/explanation
+│   │       ├── lesson_videos.py            # /api/v1/lessons/:id/video
+│   │       ├── exam_simulations.py         # /api/v1/exams - System-Feature: Exam System 🔧
+│   │       │
+│   │       ├── # AI/TUTOR ENDPOINTS
+│   │       ├── tutor.py                    # /api/v1/tutor - System-Feature: AI Tutor 🔧
+│   │       ├── agents.py                   # /api/v1/agents
+│   │       ├── audio.py                    # /api/v1/audio
+│   │       ├── tts.py                      # /api/v1/tts - System-Feature: TTS 🔧
+│   │       ├── math_toolkit.py             # /api/v1/math - System-Feature: Math Tools 🔧
+│   │       │
+│   │       ├── # ANALYTICS
+│   │       ├── analytics.py                # /api/v1/analytics
+│   │       ├── org_analytics.py            # /api/v1/organisations/:id/analytics
+│   │       ├── feedback.py                 # /api/v1/feedback
+│   │       │
+│   │       ├── # SOCIAL FEATURES (Feature-Flagged)
+│   │       ├── /social                     # 🌟 SOCIAL API - System-Feature 🔧
+│   │       │   ├── posts.py                # /api/v1/social/posts - FLAG: 'user_posts'
+│   │       │   ├── feed.py                 # /api/v1/social/feed - FLAG: 'feed_system'
+│   │       │   ├── follow.py               # /api/v1/social/follow - FLAG: 'follow_system'
+│   │       │   ├── likes.py                # /api/v1/social/likes - FLAG: 'likes_reactions'
+│   │       │   ├── comments.py             # /api/v1/social/comments - FLAG: 'comments'
+│   │       │   ├── shares.py               # /api/v1/social/shares - FLAG: 'content_sharing'
+│   │       │   ├── trending.py             # /api/v1/social/trending - FLAG: 'trending_discovery'
+│   │       │   ├── hashtags.py             # /api/v1/social/hashtags - FLAG: 'hashtags'
+│   │       │   └── mentions.py             # /api/v1/social/mentions - FLAG: 'mentions'
+│   │       │
+│   │       ├── # COMPLIANCE ENDPOINTS
+│   │       ├── /compliance                 # ⭐ GDPR COMPLIANCE APIs - System-Feature 🔧
+│   │       │   ├── privacy.py              # /api/v1/compliance/privacy
+│   │       │   ├── cookies.py              # /api/v1/compliance/cookies
+│   │       │   ├── consent.py              # /api/v1/compliance/consent
+│   │       │   ├── data_export.py          # /api/v1/compliance/data-export
+│   │       │   ├── data_deletion.py        # /api/v1/compliance/data-deletion
+│   │       │   ├── consent_history.py      # /api/v1/compliance/consent-history
+│   │       │   └── parental_consent.py     # /api/v1/compliance/parental-consent
+│   │       │
+│   │       ├── # MODERATION ENDPOINTS
+│   │       ├── /moderation                 # 🛡️ MODERATION APIs - System-Feature 🔧
+│   │       │   ├── reports.py              # POST /api/v1/moderation/reports
+│   │       │   ├── queue.py                # GET /api/v1/moderation/queue
+│   │       │   ├── actions.py              # POST /api/v1/moderation/actions
+│   │       │   ├── statistics.py           # GET /api/v1/moderation/statistics
+│   │       │   ├── sla_monitor.py          # GET /api/v1/moderation/sla-monitor
+│   │       │   └── appeals.py              # GET /api/v1/moderation/appeals
+│   │       │
+│   │       ├── # ADMIN PANEL (Settings-based Structure) ⭐ v3.1
+│   │       └── /admin-panel                # 👑 ADMIN PANEL
+│   │           ├── /settings               # ⚙️ ALL SETTINGS CONSOLIDATED
+│   │           │   ├── /ai                 # 🤖 AI Configuration (14 endpoints)
+│   │           │   │   ├── jobs_creation.py
+│   │           │   │   ├── jobs_finalization.py
+│   │           │   │   ├── jobs_management.py
+│   │           │   │   ├── models_crud.py
+│   │           │   │   ├── models_defaults.py
+│   │           │   │   ├── models_sync.py
+│   │           │   │   ├── models_usage.py
+│   │           │   │   ├── ai_pricing.py
+│   │           │   │   ├── ai_model_profiles.py
+│   │           │   │   ├── providers_api_keys.py
+│   │           │   │   ├── providers_crud.py
+│   │           │   │   ├── providers_health.py
+│   │           │   │   └── providers_testing.py
+│   │           │   │
+│   │           │   ├── /system             # 🛠️ System Settings (3 endpoints)
+│   │           │   │   ├── settings.py
+│   │           │   │   ├── system_info.py
+│   │           │   │   └── system_stats.py
+│   │           │   │
+│   │           │   ├── /permissions        # 🔐 Permissions & Roles
+│   │           │   │   ├── roles.py
+│   │           │   │   └── permission_thresholds.py
+│   │           │   │
+│   │           │   └── /feature_flags      # 🎚️ Feature Flags
+│   │           │       ├── flags.py
+│   │           │       ├── rollout.py
+│   │           │       └── analytics.py
+│   │           │
+│   │           ├── /audit_logs             # 📋 Audit Logs (Top-Level)
+│   │           │   └── audit_logs.py
+│   │           │
+│   │           ├── /courses                # 📚 Course Management (Top-Level)
+│   │           │   ├── courses.py
+│   │           │   ├── chapters.py
+│   │           │   ├── lessons.py
+│   │           │   ├── exams.py
+│   │           │   ├── course_prompts.py
+│   │           │   └── course_files.py
+│   │           │
+│   │           ├── /moderation             # 🛡️ Moderation Panel (Top-Level)
+│   │           │   ├── queue.py
+│   │           │   ├── actions.py
+│   │           │   ├── reports.py
+│   │           │   ├── statistics.py
+│   │           │   └── transparency.py
+│   │           │
+│   │           ├── dashboard.py
+│   │           ├── users.py
+│   │           ├── analytics.py
+│   │           ├── prompts.py
+│   │           ├── learning_methods.py
+│   │           ├── lm_routing.py
+│   │           ├── course_analytics.py
+│   │           ├── course_ai_settings.py
+│   │           ├── course_authoring.py
+│   │           ├── role_studio.py
+│   │           └── ai_editor_authoring.py
+│   │
+│   ├── /application                        # 🟡 APPLICATION LAYER (Services)
+│   │   └── /services                       # Business Logic & Orchestration (moved in Phase 5)
+│   │       ├── /system                     # System Services
+│   │       ├── /audit                      # Audit Services
+│   │       ├── /notifications              # Notification Services
+│   │       ├── /ai_adapter                 # AI Integration
+│   │       ├── /social                     # Social Logic
+│   │       ├── /course_creation            # Course Creation Services
+│   │       ├── /learning_methods           # Learning Method Services
+│   │       ├── /moderation                 # Moderation Services
+│   │       ├── /user_management            # User Management Services
+│   │       ├── /export_import              # Import/Export Services
+│   │       ├── /feature_flags              # Feature Flag Services
+│   │       ├── /token_management           # Token Management
+│   │       └── /_legacy_bridges            # Backward Compatibility
+│   │
+│   ├── /domain                             # 🟢 DOMAIN LAYER (Business Logic & Models)
+│   │   ├── /models                         # Domain Models (moved from /app/models)
+│   │   │   ├── user.py
+│   │   │   ├── course.py
+│   │   │   ├── post.py
+│   │   │   ├── comment.py
+│   │   │   ├── report.py
+│   │   │   ├── studio.py
+│   │   │   └── ...
+│   │   │
+│   │   ├── /ai                             # AI Domain Logic (moved from /app/ai)
+│   │   │   ├── ai_course_generator.py
+│   │   │   ├── /configuration
+│   │   │   ├── /adapters
+│   │   │   ├── /managers
+│   │   │   └── ...
+│   │   │
+│   │   └── /social                         # Social Domain Logic (moved from /app/social)
+│   │       ├── posts.py
+│   │       ├── comments.py
+│   │       ├── likes.py
+│   │       ├── feed_algorithm.py
+│   │       ├── /profiles
+│   │       ├── /discovery
+│   │       └── ...
+│   │
+│   ├── /infrastructure                     # 🔵 INFRASTRUCTURE LAYER (Technical Services)
+│   │   ├── /persistence                    # Database Access Layer
+│   │   │   ├── database.py                 # Connection Pool Manager
+│   │   │   └── /repositories               # Repository Pattern (moved from /app/repositories)
+│   │   │       ├── base_repository.py
+│   │   │       ├── user.py
+│   │   │       ├── post.py
+│   │   │       ├── comment.py
+│   │   │       ├── like.py
+│   │   │       ├── follow.py
+│   │   │       ├── report.py
+│   │   │       └── ...
+│   │   │
+│   │   ├── /cache                          # Redis Caching (moved from services in Phase 1)
+│   │   │   ├── cache_service.py
+│   │   │   ├── cache_keys.py
+│   │   │   └── cache_invalidation.py
+│   │   │
+│   │   ├── /validation                     # Validators (extracted in Phase 1)
+│   │   │   ├── learning_method_mapping.py
+│   │   │   ├── input_validators.py
+│   │   │   └── schema_validators.py
+│   │   │
+│   │   ├── /i18n                           # Internationalization (moved from /app/i18n)
+│   │   │   ├── error_codes.py
+│   │   │   ├── error_code_i18n_mapping.py
+│   │   │   ├── translations.py
+│   │   │   └── ...
+│   │   │
+│   │   ├── /security                       # Security & Auth (moved from /app/security)
+│   │   │   ├── auth.py
+│   │   │   ├── permissions.py
+│   │   │   ├── jwt_handler.py
+│   │   │   ├── rate_limiter.py
+│   │   │   └── password_utils.py
+│   │   │
+│   │   ├── /monitoring                     # Metrics & Logging (moved from /app/monitoring)
+│   │   │   ├── metrics.py
+│   │   │   ├── logger.py
+│   │   │   └── health_check.py
+│   │   │
+│   │   ├── /realtime                       # Real-time Services
+│   │   │   └── /sockets                    # WebSocket/SocketIO (moved from /app/sockets)
+│   │   │       ├── events.py
+│   │   │       ├── social_socket.py
+│   │   │       ├── notification_socket.py
+│   │   │       └── live_room_socket.py
+│   │   │
+│   │   ├── /tasks                          # Background Tasks (moved from /app/tasks)
+│   │   │   ├── ai_tasks.py
+│   │   │   ├── moderation_tasks.py
+│   │   │   ├── notification_tasks.py
+│   │   │   └── export_tasks.py
+│   │   │
+│   │   └── /utils                          # Utilities (moved from /app/utils)
+│   │       ├── exceptions.py
+│   │       ├── helpers.py
+│   │       ├── constants.py
+│   │       └── decorators.py
+│   │
+│   ├── /setup                              # Setup Wizard (KEEP at root)
+│   │   ├── __init__.py
+│   │   ├── setup_routes.py
+│   │   └── setup_wizard.py
+│   │
+│   └── # Config Files (at root)
+│       ├── __init__.py                     # Factory (27KB)
+│       ├── config.py                       # Configuration (19KB)
+│       └── extensions.py                   # Extensions (9.8KB)
+│
+├── /tests
+│   ├── unit/
+│   ├── integration/
+│   └── conftest.py
+│
+├── requirements.txt
+├── requirements-dev.txt
+├── Dockerfile
+├── docker-compose.yml
+├── wsgi.py
+└── run.py
+```
+
+### 📊 Layer Dependencies (Clean DDD Architecture)
+
+```
+┌─────────────────────────────────────────┐
+│  🔴 API LAYER                           │
+│  (/api/v1/*.py, /api/v1/**/*.py)        │
+│  → HTTP routes, request/response        │
+└──────────────────┬──────────────────────┘
+                   │ calls
+┌──────────────────▼──────────────────────┐
+│  🟡 APPLICATION LAYER                   │
+│  (/application/services/*.py)           │
+│  → Business workflows, orchestration    │
+└──────────────────┬──────────────────────┘
+                   │ uses
+┌──────────────────▼──────────────────────┐
+│  🟢 DOMAIN LAYER                        │
+│  (/domain/models, /domain/ai,           │
+│   /domain/social)                       │
+│  → Business logic, pure Python          │
+└──────────────────┬──────────────────────┘
+                   │ uses
+┌──────────────────▼──────────────────────┐
+│  🔵 INFRASTRUCTURE LAYER                │
+│  (/infrastructure/*)                    │
+│  → DB, Cache, Security, i18n, Tasks    │
+└─────────────────────────────────────────┘
+
+✅ Rule: Layers only depend DOWNWARD
+❌ Never: Domain → Application, Application → API
+```
+
+### 🎯 Feature Flags Integration Points
+
+Alle neuen Features sind über Feature Flags aktivierbar (Progressive Rollout):
+
+```
+/core/feature_flags/
+├── FLAG: 'user_posts'              → /api/v1/social/posts
+├── FLAG: 'feed_system'             → /api/v1/social/feed
+├── FLAG: 'follow_system'           → /api/v1/social/follow
+├── FLAG: 'likes_reactions'         → /api/v1/social/likes
+├── FLAG: 'comments'                → /api/v1/social/comments
+├── FLAG: 'content_sharing'         → /api/v1/social/shares
+├── FLAG: 'trending_discovery'      → /api/v1/social/trending
+├── FLAG: 'hashtags'                → /api/v1/social/hashtags
+├── FLAG: 'mentions'                → /api/v1/social/mentions
+├── FLAG: 'ai_editor'               → /api/v1/studio/* (NEW)
+├── FLAG: 'gdpr_compliance'         → /api/v1/compliance/* (NEW)
+├── FLAG: 'content_moderation'      → /api/v1/moderation/* (NEW)
+└── FLAG: 'admin_panel_new'         → /api/v1/admin-panel/* (NEW)
+```
+
+### 📈 File Count Summary
+
+| Layer | Component | Files | Lines | Status |
+|-------|-----------|-------|-------|--------|
+| **API** | v1 endpoints | 45+ | ~8,000 | ✅ Active |
+| **Application** | Services | 30+ | ~6,000 | ✅ Moved Phase 5 |
+| **Domain** | Models, AI, Social | 35+ | ~5,500 | ✅ Moved Phases 2-3 |
+| **Infrastructure** | Persistence, Cache, Security, etc. | 40+ | ~7,000 | ✅ Moved Phase 4 |
+| **Core** | Feature Flags | 8+ | ~1,200 | ✅ Active |
+| **Tests** | Unit + Integration | 25+ | ~4,000 | ✅ Updated |
+| **TOTAL** | **All Layers** | **183+** | **31,700+** | **✅ COMPLETE** |
+
+---
+
+## 2. System-Architektur (C4 Model - Context)
 
 ```mermaid
 graph TB

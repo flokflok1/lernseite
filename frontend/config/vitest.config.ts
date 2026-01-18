@@ -1,13 +1,16 @@
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   plugins: [vue()],
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: [path.resolve(__dirname, '../tests/setup.ts')],
     include: ['**/*.test.ts', '**/*.spec.ts'],
     coverage: {
       provider: 'v8',
@@ -29,7 +32,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, '../src')
     }
-  }
+  },
+  root: path.resolve(__dirname, '..')
 })

@@ -162,7 +162,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LMPluginMetadata } from '@/types/plugins'
+import type { LMPluginMetadata } from '@/domain/plugins'
 
 interface Props {
   plugin: LMPluginMetadata

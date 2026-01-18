@@ -251,8 +251,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useTheoryManagement } from '@/composables/useTheoryManagement'
-import { useTTS } from '@/composables/useTTS'
+import { useTheoryManagement } from '@/features/useTheoryManagement'
+import { useTTS } from '@/features/useTTS'
 import http from '@/api/http'
 
 const { t } = useI18n()

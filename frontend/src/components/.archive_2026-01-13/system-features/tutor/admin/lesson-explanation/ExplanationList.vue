@@ -70,7 +70,7 @@
  * ExplanationList - Displays list of lesson explanations
  */
 import { useI18n } from 'vue-i18n'
-import type { LessonExplanation } from '@/composables/useTheoryManagement'
+import type { LessonExplanation } from '@/features/useTheoryManagement'
 
 const { t } = useI18n()
 

@@ -158,7 +158,7 @@ import {
   type WhiteboardAction,
   type TeacherAnimation,
   type CalculatorChallenge
-} from '@/composables/useTeachingTimeline'
+} from '@/features/useTeachingTimeline'
 
 const { t } = useI18n()
 

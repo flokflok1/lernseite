@@ -44,7 +44,7 @@
 import { defineAsyncComponent } from 'vue'
 import { useDashboardStore } from '@/store/modules/learning'
 import { getWidgetDefinition } from '@/config/widgetRegistry'
-import type { WidgetDataContext, WidgetDefinition } from '@/types/widgets'
+import type { WidgetDataContext, WidgetDefinition } from '@/domain/widgets'
 
 // ============================================================================
 // Props

@@ -193,7 +193,7 @@
  * ExplanationViewer - Main view for explanation steps
  */
 import { ref, watch } from 'vue'
-import type { LessonExplanation, TeachingStep } from '@/composables/useTheoryManagement'
+import type { LessonExplanation, TeachingStep } from '@/features/useTheoryManagement'
 
 // Props
 interface Voice {

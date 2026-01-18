@@ -5,7 +5,7 @@
  */
 import { ref, computed, readonly } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useTheoryManagement, type LessonExplanation, type TeachingStep } from '@/composables/useTheoryManagement'
+import { useTheoryManagement, type LessonExplanation, type TeachingStep } from '@/features/useTheoryManagement'
 import http from '@/api/http'
 
 // ============================================================================

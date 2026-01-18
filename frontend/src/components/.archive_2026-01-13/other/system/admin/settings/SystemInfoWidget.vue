@@ -210,7 +210,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSystemMode } from '@/composables/useSystemMode'
+import { useSystemMode } from '@/features/useSystemMode'
 
 const { t } = useI18n()
 

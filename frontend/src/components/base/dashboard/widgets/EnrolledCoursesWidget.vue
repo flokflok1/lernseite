@@ -76,7 +76,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Card from '@/components/base/Card.vue'
 import Button from '@/components/base/Button.vue'
-import type { BaseWidgetProps } from '@/types/widgets'
+import type { BaseWidgetProps } from '@/domain/widgets'
 
 // ============================================================================
 // Props

@@ -88,9 +88,9 @@
  */
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useTTS } from '@/composables/useTTS'
-import type { Course, Lesson } from '@/types'
-import type { LessonExplanation } from '@/composables/useTheoryManagement'
+import { useTTS } from '@/features/useTTS'
+import type { Course, Lesson } from '@/domain'
+import type { LessonExplanation } from '@/features/useTheoryManagement'
 import InteractiveWhiteboard from '../../user/InteractiveWhiteboard.vue'
 import {
   ExplanationList,

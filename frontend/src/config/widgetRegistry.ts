@@ -5,7 +5,7 @@
  * Defines which widgets exist and their properties
  */
 
-import type { WidgetDefinition } from '@/types/widgets'
+import type { WidgetDefinition } from '@/domain/widgets'
 
 // ============================================================================
 // Widget Definitions

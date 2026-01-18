@@ -6,7 +6,7 @@
  */
 
 // import http from './http'  // TODO: Enable when backend is ready
-import type { DashboardLayout } from '@/types/widgets'
+import type { DashboardLayout } from '@/domain/widgets'
 
 // ============================================================================
 // Types & Interfaces

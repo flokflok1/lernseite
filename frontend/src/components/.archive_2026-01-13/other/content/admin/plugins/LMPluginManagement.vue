@@ -101,9 +101,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useLMPlugins } from '@/composables/useLMPlugins'
+import { useLMPlugins } from '@/features/useLMPlugins'
 import { useI18n } from 'vue-i18n'
-import type { LMPluginMetadata } from '@/types/plugins'
+import type { LMPluginMetadata } from '@/domain/plugins'
 import LMPluginDetailModal from './LMPluginDetailModal.vue'
 
 const { t } = useI18n()

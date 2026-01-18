@@ -158,7 +158,7 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePanelStore } from '@/store/modules/desktop'
-import { useTheoryManagement } from '@/composables/useTheoryManagement'
+import { useTheoryManagement } from '@/features/useTheoryManagement'
 import http from '@/api/http'
 import {
   ChatPanel,

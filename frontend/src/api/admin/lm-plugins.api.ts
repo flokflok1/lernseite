@@ -8,7 +8,7 @@ import type {
   LMPluginMetadata,
   ScanPluginsResponse,
   APIResponse
-} from '@/types/plugins'
+} from '@/domain/plugins'
 
 /**
  * Admin LM Plugins API

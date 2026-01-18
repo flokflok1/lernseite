@@ -94,7 +94,7 @@
 /**
  * ExplanationSettings - Settings panel for explanations
  */
-import type { LessonExplanation } from '@/composables/useTheoryManagement'
+import type { LessonExplanation } from '@/features/useTheoryManagement'
 
 // Props
 interface Props {

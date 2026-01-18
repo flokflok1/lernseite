@@ -68,7 +68,7 @@
  * Grid of learning method cards with generate buttons
  */
 import { useI18n } from 'vue-i18n'
-import type { LearningMethod } from '@/types/learning-methods'
+import type { LearningMethod } from '@/domain/learning-methods'
 
 interface Props {
   methods: LearningMethod[]

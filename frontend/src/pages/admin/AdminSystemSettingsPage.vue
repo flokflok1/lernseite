@@ -127,7 +127,7 @@
  */
 import { ref, h, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSystemMode } from '@/composables/useSystemMode'
+import { useSystemMode } from '@/features/useSystemMode'
 
 // Sub-components
 import { SystemInfoWidget, SystemModeManager, MaintenanceModeToggle } from '@/components/base/system/admin/settings'

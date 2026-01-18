@@ -1,16 +1,62 @@
-# 17 – Backend-Struktur (Final) v3.2
+# 17 – Backend-Struktur (Final) v4.0 - DDD ARCHITECTURE
 
-**Version:** 3.2
-**Stand:** 16.01.2026
-**Änderungen:** URL Paths: /admin/ → /admin-panel/ (Semantic Clarity) + Admin Panel Reorganization (Settings-based Structure) + Complete Enterprise Architecture + AI Editor APIs + Compliance GDPR APIs + Error/WebSocket Standardisierung
+**Version:** 4.0 (DDD - Domain-Driven Design Architecture)
+**Stand:** 18.01.2026
+**Änderungen v4.0:** Complete DDD Architecture Reorganization (Phase 5 Complete) - 275+ files updated, app root cleaned, 7 clear layers: API → Application → Domain → Infrastructure
+
+---
+
+## ⚠️ WICHTIG - DDD ARCHITEKTUR UPDATE (18.01.2026)
+
+### Was hat sich geändert?
+
+Das Backend wurde vollständig nach **Domain-Driven Design (DDD)** Prinzipien reorganisiert:
+
+**ALTE Struktur (Pre-Phase 5):**
+```
+app/
+├── repositories/           ❌ Scattered at root
+├── services/              ❌ Too complex (2000+ LOC)
+├── models/
+├── ai/
+├── database.py
+└── ... 23 subdirectories total (messy)
+```
+
+**NEUE Struktur (Post-Phase 5 - SAUBER):**
+```
+app/
+├── api/                    🔴 HTTP Layer (routes, blueprints)
+├── application/            🟡 Application Services (NEW LOCATION)
+├── domain/                 🟢 Business Logic (ai/, social/, models/)
+├── infrastructure/         🔵 Technical Services (db, cache, i18n, security, etc.)
+├── core/                   Feature Flags
+└── setup/                  Setup Wizard
+```
+
+### Wichtige Import-Pfad Änderungen
+
+| Alt (Pre-Phase 5) | Neu (Post-Phase 5) | Layer |
+|---|---|---|
+| `from app.repositories...` | `from app.infrastructure.persistence.repositories...` | Infrastructure |
+| `from app.services...` | `from app.application.services...` | Application |
+| `from app.models...` | `from app.domain.models...` | Domain |
+| `from app.database...` | `from app.infrastructure.persistence.database...` | Infrastructure |
+| `from app.security...` | `from app.infrastructure.security...` | Infrastructure |
+| `from app.i18n...` | `from app.infrastructure.i18n...` | Infrastructure |
+| `from app.ai...` | `from app.domain.ai...` | Domain |
+| `from app.social...` | `from app.domain.social...` | Domain |
+| `from app.middleware...` | `from app.api.middleware...` | API |
+
+**Vollständige Migration Guide:** `.claude/BACKEND_MIGRATION_GUIDE_DDD_2026-01-18.md`
 
 ---
 
 ## Überblick
 
-Dieses Dokument beschreibt die komplette **Enterprise-Grade Backend-Architektur** des LSX Lernsystems.
+Dieses Dokument beschreibt die komplette **Enterprise-Grade Backend-Architektur** des LSX Lernsystems nach DDD Reorganisation.
 
-Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig compliance-konform**, **feature-flag-gesteuert** und **mit AI Editor integriert**.
+Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig compliance-konform**, **feature-flag-gesteuert**, **mit AI Editor integriert** und folgt **klarer DDD-Schichtarchitektur**.
 
 ### 🎯 Neue Features in v3.2
 
@@ -1276,7 +1322,7 @@ Database Error? → ❌ DENY (HTTP 403 Forbidden - Fail-Secure Design)
 
 Für vollständige Details siehe:
 - **Sicherheit & Architektur:** [`01_Core/05_Sicherheit-Berechtigungen.md`](./05_Sicherheit-Berechtigungen.md) - Section 6.1 RBAC 2.0
-- **Implementierung:** `backend/app/security/permissions.py` (455 lines, Quality Gate G01-G10 passed)
+- **Implementierung:** `backend/app/infrastructure/security/permissions.py` (455 lines, Quality Gate G01-G10 passed)
 - **Tests:** `backend/tests/unit/test_permission_decorators.py` (15+ test cases)
 - **Migrations:**
   - `backend/migrations/01_Core/080_add_rbac2_permissions.sql`

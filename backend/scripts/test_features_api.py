@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Test script for Feature-Based Authorization API endpoints.
 
@@ -10,6 +10,12 @@ Tests:
 """
 
 import sys
+import os
+from pathlib import Path
+
+# Add parent directory to path so we can import app
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import json
 from app import create_app
 

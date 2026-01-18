@@ -30,7 +30,8 @@ MIGRATION_DIRS = [
 
 def get_migration_files():
     """Get all migration files in correct order"""
-    base_path = Path(__file__).parent / 'migrations'
+    # Scripts directory is in backend/ root now
+    base_path = Path(__file__).parent.parent / 'migrations'
     files = []
 
     # Get all .sql files from ordered directories

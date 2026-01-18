@@ -17,6 +17,8 @@ import logging
 
 from app.repositories.courses import CourseRepository
 from app.middleware.auth import token_required, get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -47,10 +49,7 @@ def publish_course(course_id: str):
         course = CourseRepository.find_by_id(course_id)
 
         if not course:
-            return jsonify({
-                'success': False,
-                'error': 'Course not found'
-            }), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
         from app.services.permission_service import PermissionService
@@ -58,19 +57,13 @@ def publish_course(course_id: str):
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 
         if not (is_creator or is_admin):
-            return jsonify({
-                'success': False,
-                'error': 'Access denied'
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403)
 
         # Publish course
         published_course = CourseRepository.publish(course_id)
 
         if not published_course:
-            return jsonify({
-                'success': False,
-                'error': 'Course already published or cannot be published'
-            }), 400
+            return error_response(ErrorCode.COURSE_PUBLISH_FAILED, 400, details={'message': 'Course already published or cannot be published'})
 
         return jsonify({
             'success': True,
@@ -80,11 +73,7 @@ def publish_course(course_id: str):
 
     except Exception as e:
         logger.error(f"Error publishing course: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Course publishing failed',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.COURSE_PUBLISH_FAILED, 500, details={'details': str(e)})
 
 
 @publishing_bp.route('/<course_id>/unpublish', methods=['POST'])
@@ -104,10 +93,7 @@ def unpublish_course(course_id: str):
         course = CourseRepository.find_by_id(course_id)
 
         if not course:
-            return jsonify({
-                'success': False,
-                'error': 'Course not found'
-            }), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
         from app.services.permission_service import PermissionService
@@ -115,10 +101,7 @@ def unpublish_course(course_id: str):
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 
         if not (is_creator or is_admin):
-            return jsonify({
-                'success': False,
-                'error': 'Access denied'
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403)
 
         # Unpublish course
         unpublished_course = CourseRepository.unpublish(course_id)
@@ -131,11 +114,7 @@ def unpublish_course(course_id: str):
 
     except Exception as e:
         logger.error(f"Error unpublishing course: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Course unpublishing failed',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @publishing_bp.route('/<course_id>/stats', methods=['GET'])
@@ -155,10 +134,7 @@ def get_course_stats(course_id: str):
         course = CourseRepository.find_by_id(course_id)
 
         if not course:
-            return jsonify({
-                'success': False,
-                'error': 'Course not found'
-            }), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
         from app.services.permission_service import PermissionService
@@ -166,11 +142,7 @@ def get_course_stats(course_id: str):
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 
         if not (is_creator or is_admin):
-            return jsonify({
-                'success': False,
-                'error': 'Access denied',
-                'message': 'You can only view stats for your own courses'
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403, details={'message': 'You can only view stats for your own courses'})
 
         # Get statistics
         stats = CourseRepository.get_statistics(course_id)
@@ -182,8 +154,4 @@ def get_course_stats(course_id: str):
 
     except Exception as e:
         logger.error(f"Error getting course stats: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Failed to get course statistics',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})

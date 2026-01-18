@@ -4,7 +4,7 @@ Pydantic Models for Social Features
 Models for API request/response validation
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 from typing import Optional, List
 from datetime import datetime
 
@@ -18,9 +18,13 @@ class PostCreate(BaseModel):
     mentions: Optional[List[str]] = None
     hashtags: Optional[List[str]] = None
 
-    @validator('content', 'media_urls')
-    def content_or_media_required(cls, v, values):
-        if not v and not values.get('media_urls'):
+    @field_validator('content', 'media_urls', mode='after')
+    @classmethod
+    def content_or_media_required(cls, v, info: ValidationInfo):
+        """Validate that post has either content or media"""
+        # Access all field data via info.data
+        data = info.data
+        if not v and not data.get('media_urls'):
             raise ValueError('Post must have either content or media')
         return v
 

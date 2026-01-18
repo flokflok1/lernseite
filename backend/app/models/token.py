@@ -43,9 +43,9 @@ class TokenWalletBase(BaseModel):
         # Check if this is the second field being validated
         if info.field_name == 'organization_id':
             if user_id is not None and org_id is not None:
-                raise ValueError('Cannot set both user_id and organization_id')
+                raise ValueError('Cannot specify both user_id and organization_id')
             if user_id is None and org_id is None:
-                raise ValueError('Must set either user_id or organization_id')
+                raise ValueError('Must specify either user_id or organization_id')
 
         return v
 

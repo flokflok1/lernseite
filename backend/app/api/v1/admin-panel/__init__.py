@@ -2,6 +2,7 @@
 Admin API Package
 
 Organized by sidebar navigation structure:
+- Feature Configuration (Feature flags, rollouts, A/B tests, audit logs)
 - Settings (AI, System, Permissions, Feature Flags)
 - Audit Logs
 - Dashboard
@@ -13,10 +14,15 @@ Organized by sidebar navigation structure:
 All admin routes: /api/v1/admin/*
 
 Note: Blueprints are auto-registered by importing the settings modules.
+Feature Configuration uses explicit register_blueprints() function.
 """
 
+# Import feature configuration module with blueprint registration function
+# Use importlib since subpackage name contains hyphen (feature-configuration)
+import importlib
+feature_configuration = importlib.import_module('.feature-configuration', package=__name__)
+
 # Import settings modules (blueprints auto-register on import)
-# Use relative imports since package name contains hyphen (admin-panel)
 from .settings import ai, permissions
 
-__all__ = ['ai', 'permissions']
+__all__ = ['feature_configuration', 'ai', 'permissions']

@@ -36,6 +36,8 @@ from app.models.learning_method import (
 from app.repositories.learning_method import LearningMethodRepository
 from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # Blueprint
 learning_methods_bp = Blueprint(
@@ -100,11 +102,7 @@ def list_learning_methods():
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to list learning methods',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/<string:method_id>', methods=['GET'])
@@ -123,10 +121,7 @@ def get_learning_method(method_id: str):
         method = LearningMethodRepository.find_by_id(method_id)
 
         if not method:
-            return jsonify({
-                'success': False,
-                'error': 'Learning method not found'
-            }), 404
+            return error_response(ErrorCode.LM_NOT_FOUND, 404)
 
         # Get feedback stats
         feedback_stats = LearningMethodRepository.get_feedback_stats(method_id)
@@ -142,11 +137,7 @@ def get_learning_method(method_id: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to get learning method',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/<string:method_id>/examples', methods=['GET'])
@@ -164,10 +155,7 @@ def get_method_examples(method_id: str):
         method = LearningMethodRepository.find_by_id(method_id)
 
         if not method:
-            return jsonify({
-                'success': False,
-                'error': 'Learning method not found'
-            }), 404
+            return error_response(ErrorCode.LM_NOT_FOUND, 404)
 
         # Example prompts by method type
         examples = {
@@ -227,11 +215,7 @@ def get_method_examples(method_id: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to get examples',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/<string:method_id>/feedback', methods=['GET'])
@@ -262,11 +246,7 @@ def get_method_feedback(method_id: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to get feedback',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 # =============================================================================
@@ -309,11 +289,7 @@ def create_learning_method():
         # Check if method with same name exists
         existing = LearningMethodRepository.find_by_name(method_data.name)
         if existing:
-            return jsonify({
-                'success': False,
-                'error': 'Learning method already exists',
-                'message': f'A method named "{method_data.name}" already exists'
-            }), 400
+            return error_response(ErrorCode.LM_ALREADY_EXISTS, 409, details={'message': f'A method named "{method_data.name}" already exists'})
 
         # Create method
         method = LearningMethodRepository.create(method_data.model_dump())
@@ -325,18 +301,10 @@ def create_learning_method():
         }), 201
 
     except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Validation error',
-            'details': e.errors()
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to create learning method',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.LM_CREATE_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/<string:method_id>', methods=['PUT'])
@@ -363,10 +331,7 @@ def update_learning_method(method_id: str):
         method = LearningMethodRepository.find_by_id(method_id)
 
         if not method:
-            return jsonify({
-                'success': False,
-                'error': 'Learning method not found'
-            }), 404
+            return error_response(ErrorCode.LM_NOT_FOUND, 404)
 
         data = request.get_json()
 
@@ -386,18 +351,10 @@ def update_learning_method(method_id: str):
         }), 200
 
     except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Validation error',
-            'details': e.errors()
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to update learning method',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.LM_UPDATE_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/<string:method_id>', methods=['DELETE'])
@@ -418,10 +375,7 @@ def delete_learning_method(method_id: str):
         method = LearningMethodRepository.find_by_id(method_id)
 
         if not method:
-            return jsonify({
-                'success': False,
-                'error': 'Learning method not found'
-            }), 404
+            return error_response(ErrorCode.LM_NOT_FOUND, 404)
 
         # Delete method
         LearningMethodRepository.delete(method_id)
@@ -432,11 +386,7 @@ def delete_learning_method(method_id: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to delete learning method',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.LM_DELETE_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/stats', methods=['GET'])
@@ -471,11 +421,7 @@ def get_learning_method_stats():
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to get statistics',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/<string:method_id>/activate', methods=['POST'])
@@ -496,10 +442,7 @@ def activate_learning_method(method_id: str):
         method = LearningMethodRepository.find_by_id(method_id)
 
         if not method:
-            return jsonify({
-                'success': False,
-                'error': 'Learning method not found'
-            }), 404
+            return error_response(ErrorCode.LM_NOT_FOUND, 404)
 
         updated_method = LearningMethodRepository.activate(method_id)
 
@@ -510,11 +453,7 @@ def activate_learning_method(method_id: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to activate learning method',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @learning_methods_bp.route('/<string:method_id>/deactivate', methods=['POST'])
@@ -535,10 +474,7 @@ def deactivate_learning_method(method_id: str):
         method = LearningMethodRepository.find_by_id(method_id)
 
         if not method:
-            return jsonify({
-                'success': False,
-                'error': 'Learning method not found'
-            }), 404
+            return error_response(ErrorCode.LM_NOT_FOUND, 404)
 
         updated_method = LearningMethodRepository.deactivate(method_id)
 
@@ -549,8 +485,4 @@ def deactivate_learning_method(method_id: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to deactivate learning method',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})

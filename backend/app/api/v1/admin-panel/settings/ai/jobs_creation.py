@@ -27,6 +27,8 @@ from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.jobs import AIJobsRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 
@@ -71,35 +73,19 @@ def create_ai_job() -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400)
 
         # Validate required fields
         required_fields = ['job_type', 'title', 'configuration']
         missing_fields = [f for f in required_fields if f not in data]
         if missing_fields:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_FIELDS',
-                    'message': f'Missing required fields: {", ".join(missing_fields)}'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'missing_fields': missing_fields})
 
         # Validate job type
         if data['job_type'] not in VALID_JOB_TYPES:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_JOB_TYPE',
-                    'message': f'Invalid job type. Must be one of: {", ".join(VALID_JOB_TYPES)}'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'field': 'job_type', 'valid_values': list(VALID_JOB_TYPES)})
 
         # DDD: Create job data (factory logic inlined)
         job_data = {
@@ -139,13 +125,7 @@ def create_ai_job() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error creating AI job: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CREATE_JOB_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @jobs_creation_bp.route('/<job_id>/submit', methods=['POST'])
@@ -172,34 +152,18 @@ def submit_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
         # Get job
         job = AIJobsRepository.get_by_id(job_id)
         if not job:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'JOB_NOT_FOUND',
-                    'message': f'Job {job_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_JOB_NOT_FOUND, 404, details={'job_id': job_id})
 
         # Business Rule: Job must be in pending status
         if job.get('status') != 'pending':
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_JOB_STATUS',
-                    'message': f'Job status is {job.get("status")}, expected pending'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400,
+                details={'message': f'Job status is {job.get("status")}, expected pending'})
 
         # Business Rule: User must own the job or be admin
         current_user_id = str(g.current_user.get('user_id'))
         if job.get('creator_id') != current_user_id and not g.current_user.get('is_admin'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PERMISSION_DENIED',
-                    'message': 'You do not have permission to submit this job'
-                }
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403,
+                details={'message': 'You do not have permission to submit this job'})
 
         # Validate job configuration
         validation_result = _validate_job_configuration(
@@ -208,13 +172,8 @@ def submit_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
         )
 
         if not validation_result['is_valid']:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_CONFIGURATION',
-                    'message': validation_result['error']
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'message': validation_result['error']})
 
         # Update job status to processing
         updated_job = AIJobsRepository.update(
@@ -249,13 +208,7 @@ def submit_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error submitting AI job {job_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'SUBMIT_JOB_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 def _validate_job_configuration(job_type: str, configuration: dict) -> Dict[str, Any]:

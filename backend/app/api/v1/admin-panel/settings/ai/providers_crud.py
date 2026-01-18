@@ -21,6 +21,8 @@ from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.providers import AIProviderRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.factory import AIProviderFactory
@@ -66,13 +68,7 @@ def list_providers() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error listing providers: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'LIST_PROVIDERS_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.LIST_PLANS_ERROR, 500, details={'error': str(e)})
 
 
 @providers_crud_bp.route('/<int:provider_id>', methods=['GET'])
@@ -92,13 +88,7 @@ def get_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
         provider = AIProviderRepository.get_by_id(provider_id)
 
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404, details={'provider_id': provider_id})
 
         # Don't expose encrypted API key
         provider.pop('api_key_encrypted', None)
@@ -110,13 +100,7 @@ def get_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_PROVIDER_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 500, details={'error': str(e)})
 
 
 @providers_crud_bp.route('', methods=['POST'])
@@ -140,36 +124,18 @@ def create_provider() -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400)
 
         # Validate required fields
         required_fields = ['name', 'display_name']
         missing_fields = [f for f in required_fields if f not in data]
         if missing_fields:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_FIELDS',
-                    'message': f'Missing required fields: {", ".join(missing_fields)}'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'missing_fields': missing_fields})
 
         # Check if provider with this name already exists
         existing = AIProviderRepository.get_by_name(data['name'])
         if existing:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_EXISTS',
-                    'message': f'Provider with name {data["name"]} already exists'
-                }
-            }), 409
+            return error_response(ErrorCode.CONFLICT, 409, details={'name': data['name']})
 
         # DDD: Use Factory to create provider with business rules
         provider_data = AIProviderFactory.create_provider(
@@ -205,13 +171,7 @@ def create_provider() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error creating provider: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CREATE_PROVIDER_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @providers_crud_bp.route('/<int:provider_id>', methods=['PUT'])
@@ -236,24 +196,12 @@ def update_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400)
 
         # Check if provider exists
         existing = AIProviderRepository.get_by_id(provider_id)
         if not existing:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404, details={'provider_id': provider_id})
 
         # Update provider
         updated_provider = AIProviderRepository.update(provider_id, data)
@@ -278,13 +226,7 @@ def update_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error updating provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'UPDATE_PROVIDER_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @providers_crud_bp.route('/<int:provider_id>', methods=['DELETE'])
@@ -307,26 +249,14 @@ def delete_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
         provider = AIProviderRepository.get_by_id(provider_id)
 
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404, details={'provider_id': provider_id})
 
         # Business Rule: Check if provider has active models
         from app.repositories.ai_models import AIModelsRepository
         active_models = AIModelsRepository.get_by_provider(provider_id, active_only=True)
 
         if active_models:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_HAS_ACTIVE_MODELS',
-                    'message': f'Provider has {len(active_models)} active models. Deactivate them first or set provider as inactive.'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400, details={'message': f'Provider has {len(active_models)} active models. Deactivate them first or set provider as inactive.', 'active_model_count': len(active_models)})
 
         # Delete provider
         AIProviderRepository.delete(provider_id)
@@ -347,10 +277,4 @@ def delete_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error deleting provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'DELETE_PROVIDER_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})

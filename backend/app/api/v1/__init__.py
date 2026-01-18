@@ -88,9 +88,9 @@ from app.api.v1.analytics import analytics_bp, org_analytics_bp
 # Gamification endpoint
 from app.api.v1.gamification import gamification_bp
 
-# i18n endpoints (public + admin)
-# Import both from barrel export for backward compatibility
-from app.api.v1.i18n import public_bp as i18n_public_bp, admin_bp as i18n_admin_bp, translation_bp
+# i18n endpoints are registered via app.i18n package
+# DO NOT import from app.api.v1.i18n - that creates duplicate blueprint names
+# The app.i18n package handles all i18n blueprint registration
 
 # Feature-based authorization endpoints (public + authenticated)
 from app.api.v1.features import features_bp
@@ -109,6 +109,16 @@ from app.api.v1 import dashboard
 # Note: importlib used because folder name contains hyphen
 import importlib
 admin_panel = importlib.import_module('app.api.v1.admin-panel')
+
+# Feature Configuration Admin API (Phase 3 - Enterprise Feature Management)
+# Note: Also uses importlib due to parent folder's hyphenated name
+feature_configuration = importlib.import_module('app.api.v1.admin-panel.feature-configuration')
+feature_config_core_bp = feature_configuration.core_bp
+feature_config_core_part2_bp = feature_configuration.core_part2_bp
+feature_config_rollout_bp = feature_configuration.rollout_bp
+feature_config_ab_tests_bp = feature_configuration.ab_tests_bp
+feature_config_audit_bp = feature_configuration.audit_bp
+
 
 # Feature-flagged packages
 try:
@@ -165,13 +175,16 @@ api_v1.register_blueprint(analytics_bp)
 api_v1.register_blueprint(org_analytics_bp)
 api_v1.register_blueprint(gamification_bp)
 api_v1.register_blueprint(audio_bp)
-api_v1.register_blueprint(i18n_public_bp)
-api_v1.register_blueprint(i18n_admin_bp)
-api_v1.register_blueprint(translation_bp)
+# i18n blueprints registered via app.i18n package (avoid duplicate names)
 api_v1.register_blueprint(features_bp)
 api_v1.register_blueprint(course_editor_bp)
 
-# Dashboard and Admin blueprints registered in their own __init__.py files
+# Register admin-panel feature-configuration blueprints (Phase 3 - Enterprise Feature Management)
+api_v1.register_blueprint(feature_config_core_bp)
+api_v1.register_blueprint(feature_config_core_part2_bp)
+api_v1.register_blueprint(feature_config_rollout_bp)
+api_v1.register_blueprint(feature_config_ab_tests_bp)
+api_v1.register_blueprint(feature_config_audit_bp)
 
 # Export all
 __all__ = [
@@ -183,6 +196,7 @@ __all__ = [
     'tutor_bp', 'tutor_admin_bp', 'agents_bp', 'tts_bp', 'tts_pronunciations_bp',
     'math_toolkit_practice_bp', 'math_toolkit_reference_bp', 'math_toolkit_tasks_bp', 'math_toolkit_admin_bp',
     'analytics_bp', 'org_analytics_bp', 'gamification_bp', 'audio_bp',
-    'i18n_public_bp', 'i18n_admin_bp', 'translation_bp', 'features_bp', 'course_editor_bp',
+    'features_bp', 'course_editor_bp',
+    'feature_config_core_bp', 'feature_config_core_part2_bp', 'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
     'dashboard', 'admin_panel', 'social', 'community', 'messaging'
 ]

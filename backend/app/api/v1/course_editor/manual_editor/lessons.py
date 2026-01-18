@@ -24,6 +24,8 @@ from app.repositories.courses.chapters import ChapterRepository
 from app.repositories.courses.lessons import LessonRepository
 from app.services.audit_service import AuditService
 from app.middleware.auth import get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 
 @manual_editor_bp.route('/chapters/<chapter_id>/lessons', methods=['GET'])
@@ -33,7 +35,7 @@ def list_lessons(chapter_id: str):
     try:
         chapter = ChapterRepository.find_by_id(chapter_id)
         if not chapter:
-            return jsonify({'success': False, 'error': 'Module not found'}), 404
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
 
         lessons = LessonRepository.find_by_chapter(chapter_id)
 
@@ -52,7 +54,7 @@ def list_lessons(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_list_lessons: {e}")
-        return jsonify({'success': False, 'error': 'Failed to load lessons', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/chapters/<chapter_id>/lessons', methods=['POST'])
@@ -65,18 +67,15 @@ def create_lesson(chapter_id: str):
 
         chapter = ChapterRepository.find_by_id(chapter_id)
         if not chapter:
-            return jsonify({'success': False, 'error': 'Module not found'}), 404
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
 
         if not data.get('title'):
-            return jsonify({'success': False, 'error': 'Title is required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, field='title')
 
         valid_types = ['text', 'video', 'quiz', 'interactive', 'assignment', 'discussion']
         lesson_type = data.get('lesson_type', 'text')
         if lesson_type not in valid_types:
-            return jsonify({
-                'success': False,
-                'error': f'Invalid lesson_type. Must be one of: {", ".join(valid_types)}'
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'field': 'lesson_type', 'message': f'Must be one of: {", ".join(valid_types)}'})
 
         lesson_data = {
             'chapter_id': chapter_id,
@@ -108,7 +107,7 @@ def create_lesson(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_create_lesson: {e}")
-        return jsonify({'success': False, 'error': 'Failed to create lesson', 'details': str(e)}), 500
+        return error_response(ErrorCode.LESSON_CREATE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/lessons/<lesson_id>', methods=['PATCH'])
@@ -121,15 +120,12 @@ def update_lesson(lesson_id: str):
 
         existing_lesson = LessonRepository.find_by_id(lesson_id)
         if not existing_lesson:
-            return jsonify({'success': False, 'error': 'Lesson not found'}), 404
+            return error_response(ErrorCode.LESSON_NOT_FOUND, 404)
 
         if 'lesson_type' in data:
             valid_types = ['text', 'video', 'quiz', 'interactive', 'assignment', 'discussion']
             if data['lesson_type'] not in valid_types:
-                return jsonify({
-                    'success': False,
-                    'error': f'Invalid lesson_type. Must be one of: {", ".join(valid_types)}'
-                }), 400
+                return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'field': 'lesson_type', 'message': f'Must be one of: {", ".join(valid_types)}'})
 
         updated_lesson = LessonRepository.update(lesson_id, data)
 
@@ -150,7 +146,7 @@ def update_lesson(lesson_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_update_lesson: {e}")
-        return jsonify({'success': False, 'error': 'Failed to update lesson', 'details': str(e)}), 500
+        return error_response(ErrorCode.LESSON_UPDATE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/lessons/<lesson_id>', methods=['DELETE'])
@@ -164,7 +160,7 @@ def delete_lesson(lesson_id: str):
 
         existing_lesson = LessonRepository.find_by_id(lesson_id)
         if not existing_lesson:
-            return jsonify({'success': False, 'error': 'Lesson not found'}), 404
+            return error_response(ErrorCode.LESSON_NOT_FOUND, 404)
 
         LessonRepository.delete(lesson_id)
 
@@ -185,7 +181,7 @@ def delete_lesson(lesson_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_delete_lesson: {e}")
-        return jsonify({'success': False, 'error': 'Failed to delete lesson', 'details': str(e)}), 500
+        return error_response(ErrorCode.LESSON_DELETE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/chapters/<chapter_id>/lessons/reorder', methods=['POST'])
@@ -198,11 +194,11 @@ def reorder_lessons(chapter_id: str):
 
         chapter = ChapterRepository.find_by_id(chapter_id)
         if not chapter:
-            return jsonify({'success': False, 'error': 'Module not found'}), 404
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
 
         lesson_ids = data.get('lesson_ids', [])
         if not lesson_ids or not isinstance(lesson_ids, list):
-            return jsonify({'success': False, 'error': 'lesson_ids must be a non-empty array'}), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'field': 'lesson_ids', 'message': 'must be a non-empty array'})
 
         lesson_orders = []
         for index, lesson_id in enumerate(lesson_ids, start=1):
@@ -229,4 +225,4 @@ def reorder_lessons(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_reorder_lessons: {e}")
-        return jsonify({'success': False, 'error': 'Failed to reorder lessons', 'details': str(e)}), 500
+        return error_response(ErrorCode.LESSON_REORDER_FAILED, 500, details={'details': str(e)})

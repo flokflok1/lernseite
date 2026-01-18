@@ -30,7 +30,7 @@ from typing import Dict
 # Maps ErrorCode string → i18n key path for frontend translation
 ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     # =================================================================
-    # GENERIC ERRORS (7 codes)
+    # GENERIC ERRORS (9 codes)
     # =================================================================
     "INTERNAL_ERROR": "error.generic.internalError",
     "NOT_FOUND": "error.generic.notFound",
@@ -39,9 +39,11 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "FORBIDDEN": "error.generic.forbidden",
     "VALIDATION_ERROR": "error.validation.validationError",
     "BUSINESS_LOGIC_ERROR": "error.generic.businessLogicError",
+    "OPERATION_FAILED": "error.generic.operationFailed",
+    "CONFLICT": "error.generic.conflict",
 
     # =================================================================
-    # AUTH ERRORS (9 codes)
+    # AUTH ERRORS (10 codes)
     # =================================================================
     "AUTH_INVALID_CREDENTIALS": "error.auth.login.invalidCredentials",
     "AUTH_TOKEN_EXPIRED": "error.auth.token.expired",
@@ -51,6 +53,7 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "AUTH_ACCOUNT_DISABLED": "error.auth.account.disabled",
     "AUTH_EMAIL_NOT_VERIFIED": "error.auth.email.notVerified",
     "AUTH_SESSION_EXPIRED": "error.auth.session.expired",
+    "AUTH_2FA_INVALID": "error.auth.twoFactor.invalid",
 
     # =================================================================
     # USER ERRORS (6 codes)
@@ -63,7 +66,7 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "USER_DELETE_FAILED": "error.user.delete.failed",
 
     # =================================================================
-    # COURSE ERRORS (9 codes)
+    # COURSE ERRORS (12 codes)
     # =================================================================
     "COURSE_NOT_FOUND": "error.course.notFound",
     "COURSE_CREATE_FAILED": "error.course.create.failed",
@@ -73,28 +76,34 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "COURSE_ALREADY_ENROLLED": "error.course.enrollment.alreadyEnrolled",
     "COURSE_NOT_ENROLLED": "error.course.enrollment.notEnrolled",
     "COURSE_TITLE_REQUIRED": "error.course.validation.titleRequired",
+    "COURSE_ARCHIVE_FAILED": "error.course.archive.failed",
+    "COURSE_PUBLISH_FAILED": "error.course.publish.failed",
+    "COURSE_REORDER_FAILED": "error.course.reorder.failed",
 
     # =================================================================
-    # CHAPTER ERRORS (5 codes)
+    # CHAPTER ERRORS (6 codes)
     # =================================================================
     "CHAPTER_NOT_FOUND": "error.chapter.notFound",
     "CHAPTER_CREATE_FAILED": "error.chapter.create.failed",
     "CHAPTER_UPDATE_FAILED": "error.chapter.update.failed",
     "CHAPTER_DELETE_FAILED": "error.chapter.delete.failed",
     "CHAPTER_TITLE_REQUIRED": "error.chapter.validation.titleRequired",
+    "CHAPTER_REORDER_FAILED": "error.chapter.reorder.failed",
 
     # =================================================================
-    # LESSON ERRORS (4 codes)
+    # LESSON ERRORS (5 codes)
     # =================================================================
     "LESSON_NOT_FOUND": "error.lesson.notFound",
     "LESSON_CREATE_FAILED": "error.lesson.create.failed",
     "LESSON_UPDATE_FAILED": "error.lesson.update.failed",
     "LESSON_DELETE_FAILED": "error.lesson.delete.failed",
+    "LESSON_REORDER_FAILED": "error.lesson.reorder.failed",
 
     # =================================================================
-    # LEARNING METHOD ERRORS (6 codes)
+    # LEARNING METHOD ERRORS (7 codes)
     # =================================================================
     "LM_NOT_FOUND": "error.learningMethod.notFound",
+    "LM_ALREADY_EXISTS": "error.learningMethod.alreadyExists",
     "LM_CREATE_FAILED": "error.learningMethod.create.failed",
     "LM_UPDATE_FAILED": "error.learningMethod.update.failed",
     "LM_DELETE_FAILED": "error.learningMethod.delete.failed",
@@ -125,13 +134,16 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "THEORY_NO_AUDIO": "error.theory.audio.notAvailable",
 
     # =================================================================
-    # EXAM ERRORS (5 codes)
+    # EXAM ERRORS (8 codes)
     # =================================================================
     "EXAM_NOT_FOUND": "error.exam.notFound",
     "EXAM_CREATE_FAILED": "error.exam.create.failed",
     "EXAM_GENERATION_FAILED": "error.exam.generation.failed",
     "EXAM_SUBMIT_FAILED": "error.exam.submit.failed",
     "EXAM_ALREADY_SUBMITTED": "error.exam.submission.alreadySubmitted",
+    "EXAM_SIMULATION_NOT_FOUND": "error.exam.simulation.notFound",
+    "EXAM_REORDER_FAILED": "error.exam.reorder.failed",
+    "EXAM_SUBMISSION_FAILED": "error.exam.submission.failed",
 
     # =================================================================
     # FILE/UPLOAD ERRORS (5 codes)
@@ -143,7 +155,7 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "FILE_NO_FILE_PROVIDED": "error.file.validation.noFileProvided",
 
     # =================================================================
-    # AUDIO ERRORS (6 codes)
+    # AUDIO ERRORS (8 codes)
     # =================================================================
     "AUDIO_NOT_FOUND": "error.audio.notFound",
     "AUDIO_UPLOAD_FAILED": "error.audio.upload.failed",
@@ -151,6 +163,8 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "AUDIO_INVALID_FORMAT": "error.audio.validation.invalidFormat",
     "AUDIO_TOO_LARGE": "error.audio.validation.tooLarge",
     "AUDIO_TRANSCRIPTION_FAILED": "error.audio.transcription.failed",
+    "AUDIO_TTS_SERVICE_UNAVAILABLE": "error.audio.tts.serviceUnavailable",
+    "AUDIO_TTS_FAILED": "error.audio.tts.failed",
 
     # =================================================================
     # ORGANIZATION ERRORS (5 codes)
@@ -168,6 +182,25 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "CATEGORY_CREATE_FAILED": "error.category.create.failed",
     "CATEGORY_DELETE_FAILED": "error.category.delete.failed",
     "CATEGORY_HAS_COURSES": "error.category.constraint.hasCourses",
+
+    # =================================================================
+    # SOCIAL ERRORS (5 codes)
+    # =================================================================
+    "SOCIAL_POST_NOT_FOUND": "error.social.post.notFound",
+    "SOCIAL_POST_ACCESS_DENIED": "error.social.post.accessDenied",
+    "SOCIAL_COMMENT_EMPTY": "error.social.comment.empty",
+    "SOCIAL_FOLLOW_FAILED": "error.social.follow.failed",
+    "SOCIAL_LIKE_FAILED": "error.social.like.failed",
+
+    # =================================================================
+    # THRESHOLD ERRORS (1 code)
+    # =================================================================
+    "THRESHOLD_NOT_FOUND": "error.threshold.notFound",
+
+    # =================================================================
+    # ANALYTICS ERRORS (1 code)
+    # =================================================================
+    "STATS_RETRIEVAL_FAILED": "error.analytics.stats.retrievalFailed",
 
     # =================================================================
     # VALIDATION ERRORS (5 codes)
@@ -195,9 +228,61 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     "FEEDBACK_INVALID_TYPE": "error.feedback.validation.invalidType",
 
     # =================================================================
+    # ROLE MANAGEMENT ERRORS (14 codes)
+    # =================================================================
+    "ROLE_EXISTS": "error.role.alreadyExists",
+    "ROLE_NOT_FOUND": "error.role.notFound",
+    "CANNOT_UPDATE_SYSTEM_ROLE": "error.role.cannotUpdateSystemRole",
+    "CANNOT_DELETE_SYSTEM_ROLE": "error.role.cannotDeleteSystemRole",
+    "INVALID_TEMPLATE": "error.role.template.invalid",
+    "REASSIGNMENT_REQUIRED": "error.role.reassignmentRequired",
+    "LIST_ROLES_ERROR": "error.role.list.failed",
+    "GET_ROLE_ERROR": "error.role.get.failed",
+    "CREATE_ROLE_ERROR": "error.role.create.failed",
+    "CREATE_FROM_TEMPLATE_ERROR": "error.role.createFromTemplate.failed",
+    "UPDATE_FAILED": "error.role.update.failed",
+    "UPDATE_ROLE_ERROR": "error.role.update.error",
+    "DELETE_FAILED": "error.role.delete.failed",
+    "DELETE_ROLE_ERROR": "error.role.delete.error",
+
+    # =================================================================
+    # AI PRICING ERRORS (13 codes)
+    # =================================================================
+    "MISSING_FIELDS": "error.pricing.validation.missingFields",
+    "INVALID_TOKEN_COUNT": "error.pricing.validation.invalidTokenCount",
+    "CALCULATE_PRICING_ERROR": "error.pricing.calculate.failed",
+    "MISSING_OPERATION_TYPE": "error.pricing.validation.missingOperationType",
+    "NO_DEFAULT_MODEL": "error.pricing.model.noDefault",
+    "ESTIMATE_COST_ERROR": "error.pricing.estimate.failed",
+    "LIST_PLANS_ERROR": "error.pricing.list.failed",
+    "PLAN_NOT_FOUND": "error.pricing.plan.notFound",
+    "GET_PLAN_ERROR": "error.pricing.plan.get.failed",
+    "PLAN_HAS_ACTIVE_SUBSCRIPTIONS": "error.pricing.plan.hasActiveSubscriptions",
+    "UPDATE_PLAN_ERROR": "error.pricing.plan.update.failed",
+    "CALCULATE_PLAN_COSTS_ERROR": "error.pricing.plan.calculateCosts.failed",
+
+    # =================================================================
     # FILE VALIDATION ERRORS (additional)
     # =================================================================
     "FILE_INVALID_BASE64": "error.file.validation.invalidBase64",
+
+    # =================================================================
+    # VALIDATION ERRORS (Standardized from Phase 2, Step 4)
+    # =================================================================
+    # Empty/Content: "{field} cannot be empty"
+    "VALIDATION_FIELD_EMPTY": "error.validation.fieldEmpty",
+
+    # Required: "{field} is required"
+    "VALIDATION_REQUIRED_FIELD": "error.validation.requiredField",
+
+    # XOR Conflict: "Cannot specify both {field1} and {field2}"
+    "VALIDATION_XOR_CONFLICT": "error.validation.xorConflict",
+
+    # XOR Required: "Must specify either {field1} or {field2}"
+    "VALIDATION_XOR_REQUIRED": "error.validation.xorRequired",
+
+    # Conditional: "{field} must be {condition}"
+    "VALIDATION_CONDITIONAL_FIELD": "error.validation.conditionalField",
 }
 
 # Reverse mapping for debugging: i18n_key → ErrorCode

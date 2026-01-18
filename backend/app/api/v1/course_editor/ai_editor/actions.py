@@ -1,13 +1,13 @@
 """
-AI Editor Actions Endpoints
+AI Editor Quick Actions Endpoints
 
-Endpoints for retrieving AI Editor authoring actions:
-- GET /api/v1/admin/ai-editor/actions - List all actions
-- GET /api/v1/admin/ai-editor/actions/{category} - Get actions for category
-- GET /api/v1/admin/ai-editor/actions/entity/{entity_type} - Get actions for entity type
+Endpoints for AI-powered quick actions in Course Editor:
+- GET /api/v1/course-editor/ai/actions - List all actions
+- GET /api/v1/course-editor/ai/actions/{category} - Get actions for category
+- GET /api/v1/course-editor/ai/actions/entity/{entity_type} - Get actions for entity type
 
-Action categories: course_builder, content_generator, assessment_creator, etc.
-Entity types: course, chapter, lesson, quiz, etc.
+Action categories: course_builder, chat, chapter, lesson, method, content
+Entity types: course, chapter, lesson, method
 """
 
 from flask import Blueprint, request
@@ -19,14 +19,14 @@ from app.security.permissions import require_permission, Permissions
 
 logger = logging.getLogger(__name__)
 
-ai_editor_actions_bp = Blueprint(
-    'ai_editor_actions',
+actions_bp = Blueprint(
+    'actions',
     __name__,
-    url_prefix='/admin-panel/ai-editor/actions'
+    url_prefix='/actions'
 )
 
 
-@ai_editor_actions_bp.route('', methods=['GET'])
+@actions_bp.route('', methods=['GET'])
 @token_required
 @require_permission(Permissions.ADMIN_SYSTEM_READ)
 def list_all_actions() -> Tuple[Dict[str, Any], int]:
@@ -63,7 +63,7 @@ def list_all_actions() -> Tuple[Dict[str, Any], int]:
         }, 500
 
 
-@ai_editor_actions_bp.route('/<category>', methods=['GET'])
+@actions_bp.route('/<category>', methods=['GET'])
 @token_required
 @require_permission(Permissions.ADMIN_SYSTEM_READ)
 def get_actions_by_category(category: str) -> Tuple[Dict[str, Any], int]:
@@ -116,7 +116,7 @@ def get_actions_by_category(category: str) -> Tuple[Dict[str, Any], int]:
         }, 500
 
 
-@ai_editor_actions_bp.route('/entity/<entity_type>', methods=['GET'])
+@actions_bp.route('/entity/<entity_type>', methods=['GET'])
 @token_required
 @require_permission(Permissions.ADMIN_SYSTEM_READ)
 def get_actions_for_entity(entity_type: str) -> Tuple[Dict[str, Any], int]:

@@ -34,6 +34,8 @@ from app.services.audit_service import AuditService
 from app.services.ai_job_service import AIJobService
 from app.services.prompt_resolver import PromptResolver
 from app.middleware.auth import get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 
 @manual_editor_bp.route('/courses/<course_id>/exams', methods=['GET'])
@@ -43,7 +45,7 @@ def list_exams(course_id: str):
     try:
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         exams = ExamRepository.find_by_course(course_id, include_unpublished=True)
 
@@ -59,7 +61,7 @@ def list_exams(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_list_exams: {e}")
-        return jsonify({'success': False, 'error': 'Failed to load exams', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/exams', methods=['POST'])
@@ -72,7 +74,7 @@ def create_exam(course_id: str):
 
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         exam_request = ExamCreateRequest(**data)
 
@@ -107,10 +109,10 @@ def create_exam(course_id: str):
         return jsonify({'success': True, 'exam': exam}), 201
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
     except Exception as e:
         logger.error(f"ERROR in admin_create_exam: {e}")
-        return jsonify({'success': False, 'error': 'Failed to create exam', 'details': str(e)}), 500
+        return error_response(ErrorCode.EXAM_CREATE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/exams/generate', methods=['POST'])
@@ -123,7 +125,7 @@ def generate_exam(course_id: str):
 
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         generate_request = ExamGenerateRequest(**data)
 
@@ -221,10 +223,10 @@ def generate_exam(course_id: str):
         }), 201
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
     except Exception as e:
         logger.error(f"ERROR in admin_generate_exam: {e}")
-        return jsonify({'success': False, 'error': 'Failed to generate exam', 'details': str(e)}), 500
+        return error_response(ErrorCode.EXAM_GENERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/exams/<exam_id>', methods=['GET'])
@@ -235,7 +237,7 @@ def get_exam(exam_id: str):
         exam = ExamRepository.find_by_id(exam_id)
 
         if not exam:
-            return jsonify({'success': False, 'error': 'Exam not found'}), 404
+            return error_response(ErrorCode.EXAM_NOT_FOUND, 404)
 
         questions = ExamQuestionRepository.find_by_exam(exam_id)
         exam['questions'] = questions
@@ -244,7 +246,7 @@ def get_exam(exam_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_get_exam: {e}")
-        return jsonify({'success': False, 'error': 'Failed to get exam', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/exams/<exam_id>', methods=['PATCH'])
@@ -257,7 +259,7 @@ def update_exam(exam_id: str):
 
         existing_exam = ExamRepository.find_by_id(exam_id)
         if not existing_exam:
-            return jsonify({'success': False, 'error': 'Exam not found'}), 404
+            return error_response(ErrorCode.EXAM_NOT_FOUND, 404)
 
         update_request = ExamUpdateRequest(**data)
 
@@ -281,10 +283,10 @@ def update_exam(exam_id: str):
         return jsonify({'success': True, 'exam': updated_exam}), 200
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
     except Exception as e:
         logger.error(f"ERROR in admin_update_exam: {e}")
-        return jsonify({'success': False, 'error': 'Failed to update exam', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/exams/<exam_id>', methods=['DELETE'])
@@ -298,7 +300,7 @@ def delete_exam(exam_id: str):
 
         existing_exam = ExamRepository.find_by_id(exam_id)
         if not existing_exam:
-            return jsonify({'success': False, 'error': 'Exam not found'}), 404
+            return error_response(ErrorCode.EXAM_NOT_FOUND, 404)
 
         ExamRepository.delete_exam(exam_id)
 
@@ -319,4 +321,4 @@ def delete_exam(exam_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_delete_exam: {e}")
-        return jsonify({'success': False, 'error': 'Failed to delete exam', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})

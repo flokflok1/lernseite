@@ -24,6 +24,8 @@ from app.api.v1.course_editor.ai_editor import ai_editor_bp
 from app.api.v1.course_editor.shared.permissions import check_course_permission
 from app.extensions import limiter
 from app.middleware.auth import token_required
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -59,11 +61,11 @@ def create_course_authoring_session():
 
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'error': 'Request body required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'body', 'message': 'Request body required'})
 
         course_id = data.get('course_id')
         if not course_id:
-            return jsonify({'success': False, 'error': 'course_id is required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'course_id'})
 
         model_profile = data.get('model_profile', 'anthropic-claude-sonnet')
         user_id = g.current_user['user_id']
@@ -82,10 +84,10 @@ def create_course_authoring_session():
 
     except CourseAuthoringError as e:
         logger.error(f"Course authoring error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 400
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 400, details={'error': str(e)})
     except Exception as e:
         logger.error(f"Error creating session: {str(e)}")
-        return jsonify({'success': False, 'error': 'Failed to create session'}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @ai_editor_bp.route('/sessions/<session_id>', methods=['GET'])
@@ -124,10 +126,10 @@ def get_course_authoring_session(session_id):
 
     except CourseAuthoringError as e:
         logger.error(f"Course authoring error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 404
+        return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404, details={'error': str(e)})
     except Exception as e:
         logger.error(f"Error getting session: {str(e)}")
-        return jsonify({'success': False, 'error': 'Failed to get session'}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @ai_editor_bp.route('/sessions/<session_id>/chat', methods=['POST'])
@@ -165,11 +167,11 @@ def course_authoring_chat(session_id):
 
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'error': 'Request body required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'body', 'message': 'Request body required'})
 
         message = data.get('message')
         if not message:
-            return jsonify({'success': False, 'error': 'message is required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'message'})
 
         mode = data.get('mode')
         file_ids = data.get('file_ids', [])
@@ -191,10 +193,10 @@ def course_authoring_chat(session_id):
 
     except CourseAuthoringError as e:
         logger.error(f"Course authoring error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 400
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 400, details={'error': str(e)})
     except Exception as e:
         logger.error(f"Error processing chat: {str(e)}")
-        return jsonify({'success': False, 'error': 'Failed to process message'}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @ai_editor_bp.route('/sessions/<session_id>/finalize', methods=['POST'])
@@ -241,10 +243,10 @@ def finalize_course_authoring_session(session_id):
 
     except CourseAuthoringError as e:
         logger.error(f"Course authoring error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 400
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 400, details={'error': str(e)})
     except Exception as e:
         logger.error(f"Error finalizing session: {str(e)}")
-        return jsonify({'success': False, 'error': 'Failed to finalize session'}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @ai_editor_bp.route('/sessions/<session_id>', methods=['DELETE'])
@@ -286,7 +288,7 @@ def archive_course_authoring_session(session_id):
 
     except Exception as e:
         logger.error(f"Error archiving session: {str(e)}")
-        return jsonify({'success': False, 'error': 'Failed to archive session'}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @ai_editor_bp.route('/courses/<course_id>/sessions', methods=['GET'])
@@ -355,7 +357,7 @@ def list_course_authoring_sessions(course_id):
 
     except Exception as e:
         logger.error(f"Error listing sessions: {str(e)}")
-        return jsonify({'success': False, 'error': 'Failed to list sessions'}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @ai_editor_bp.route('/method-types', methods=['GET'])

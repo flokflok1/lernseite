@@ -62,7 +62,7 @@ class CoursePromptBase(BaseModel):
     def validate_prompt_not_empty(cls, v: Optional[str]) -> Optional[str]:
         """Ensure prompts are not empty strings (NULL is okay)."""
         if v is not None and v.strip() == '':
-            raise ValueError("Prompt cannot be an empty string (use NULL instead)")
+            raise ValueError("Prompt cannot be empty")
         return v
 
     @field_validator('language')
@@ -118,7 +118,7 @@ class CoursePromptUpdateRequest(BaseModel):
     def validate_prompt_not_empty(cls, v: Optional[str]) -> Optional[str]:
         """Ensure prompts are not empty strings."""
         if v is not None and v.strip() == '':
-            raise ValueError("Prompt cannot be an empty string")
+            raise ValueError("Prompt cannot be empty")
         return v
 
 

@@ -6,7 +6,7 @@ Pydantic models for RBAC 2.0 (Custom Roles & Feature Assignments).
 Phase 5.3 - Owner-Admin & Dynamic Roles System
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -70,7 +70,8 @@ class CreateRoleRequest(BaseModel):
         description="List of permission IDs to assign to this role"
     )
 
-    @validator('role_name')
+    @field_validator('role_name')
+    @classmethod
     def validate_role_name(cls, v):
         """Ensure role name doesn't conflict with system roles"""
         system_roles = [
@@ -84,7 +85,8 @@ class CreateRoleRequest(BaseModel):
             )
         return v
 
-    @validator('hierarchy_level')
+    @field_validator('hierarchy_level')
+    @classmethod
     def validate_hierarchy(cls, v):
         """Ensure hierarchy level is not 9 (reserved for admin)"""
         if v >= 9:
@@ -124,7 +126,8 @@ class UpdateRoleRequest(BaseModel):
         description="Icon/emoji for role"
     )
 
-    @validator('hierarchy_level')
+    @field_validator('hierarchy_level')
+    @classmethod
     def validate_hierarchy(cls, v):
         """Ensure hierarchy level is not 9 (reserved for admin)"""
         if v is not None and v >= 9:
@@ -180,7 +183,8 @@ class CreateFromTemplateRequest(BaseModel):
         description="Override feature IDs (uses template defaults if not provided)"
     )
 
-    @validator('role_name')
+    @field_validator('role_name')
+    @classmethod
     def validate_role_name(cls, v):
         """Ensure role name doesn't conflict with system roles"""
         system_roles = [

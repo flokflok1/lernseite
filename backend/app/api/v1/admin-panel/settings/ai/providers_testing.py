@@ -20,6 +20,8 @@ from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.providers import AIProviderRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.services import AIHealthMonitoringService
@@ -68,22 +70,12 @@ def test_provider_connection(provider_id: int) -> Tuple[Dict[str, Any], int]:
         # Get provider
         provider = AIProviderRepository.get_by_id(provider_id)
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         if not provider.get('has_api_key'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NO_API_KEY',
-                    'message': 'Provider has no API key configured'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400,
+                details={'message': 'Provider has no API key configured'})
 
         # Get previous health status
         previous_health = provider.get('health_status', 'unknown')
@@ -168,10 +160,5 @@ def test_provider_connection(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error testing provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'TEST_CONNECTION_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})

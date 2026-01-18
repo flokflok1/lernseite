@@ -27,6 +27,8 @@ from app.security.permissions import require_permission, Permissions
 from app.repositories.ai_models import AIModelsRepository
 from app.repositories.ai.providers import AIProviderRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.factory import AIModelFactory
@@ -75,22 +77,12 @@ def sync_models_from_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
         # Check if provider exists
         provider = AIProviderRepository.get_by_id(provider_id)
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         if not provider.get('has_api_key'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NO_API_KEY',
-                    'message': 'Provider has no API key configured'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400,
+                details={'message': 'Provider has no API key configured'})
 
         # Get models from provider API
         # TODO: Implement actual provider API calls
@@ -194,13 +186,8 @@ def sync_models_from_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error syncing models from provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'SYNC_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 def _fetch_models_from_provider(provider: Dict[str, Any]) -> list:

@@ -22,6 +22,8 @@ from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.jobs import AIJobsRepository
 from app.repositories.courses import CourseRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.events import (
@@ -70,45 +72,24 @@ def complete_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400)
 
         # Get job
         job = AIJobsRepository.get_by_id(job_id)
         if not job:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'JOB_NOT_FOUND',
-                    'message': f'Job {job_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_JOB_NOT_FOUND, 404,
+                details={'job_id': job_id})
 
         # Business Rule: Job must be processing
         if job.get('status') != 'processing':
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_JOB_STATUS',
-                    'message': f'Job status is {job.get("status")}, expected processing'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400,
+                details={'message': f'Job status is {job.get("status")}, expected processing'})
 
         # Get final status
         final_status = data.get('status', 'completed')
         if final_status not in ['completed', 'failed']:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_STATUS',
-                    'message': 'Status must be either completed or failed'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'message': 'Status must be either completed or failed'})
 
         # Update job
         update_data = {
@@ -164,13 +145,7 @@ def complete_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error completing AI job {job_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'COMPLETE_JOB_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @jobs_finalization_bp.route('/<job_id>/create-course', methods=['POST'])
@@ -202,55 +177,30 @@ def create_course_from_job(job_id: str) -> Tuple[Dict[str, Any], int]:
         # Get job
         job = AIJobsRepository.get_by_id(job_id)
         if not job:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'JOB_NOT_FOUND',
-                    'message': f'Job {job_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_JOB_NOT_FOUND, 404,
+                details={'job_id': job_id})
 
         # Business Rule: Job must be completed
         if job.get('status') != 'completed':
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'JOB_NOT_COMPLETED',
-                    'message': f'Job status is {job.get("status")}, expected completed'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400,
+                details={'message': f'Job status is {job.get("status")}, expected completed'})
 
         # Business Rule: Job type must be course_generation
         if job.get('job_type') != 'course_generation':
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_JOB_TYPE',
-                    'message': f'Job type is {job.get("job_type")}, expected course_generation'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'message': f'Job type is {job.get("job_type")}, expected course_generation'})
 
         # Business Rule: Check ownership
         current_user_id = str(g.current_user.get('user_id'))
         if job.get('creator_id') != current_user_id and not g.current_user.get('is_admin'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PERMISSION_DENIED',
-                    'message': 'You do not have permission to create course from this job'
-                }
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403,
+                details={'message': 'You do not have permission to create course from this job'})
 
         # Validate job result
         result = job.get('result')
         if not result or not isinstance(result, dict):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_JOB_RESULT',
-                    'message': 'Job result is missing or invalid'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'message': 'Job result is missing or invalid'})
 
         # Extract course data from result
         course_title = result.get('title') or job.get('title')
@@ -259,13 +209,8 @@ def create_course_from_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
         # Validate required fields
         if not data.get('category_id'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_CATEGORY',
-                    'message': 'category_id is required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'field': 'category_id'})
 
         # Create course
         course_id = str(uuid.uuid4())
@@ -324,10 +269,4 @@ def create_course_from_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error creating course from job {job_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CREATE_COURSE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})

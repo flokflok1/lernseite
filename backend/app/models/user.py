@@ -16,6 +16,13 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 import re
 
+# Import shared validators to eliminate duplication
+from app.models.validators import (
+    validate_password_strength,
+    validate_role,
+    validate_totp_code
+)
+
 
 class UserBase(BaseModel):
     """
@@ -59,34 +66,13 @@ class UserCreate(UserBase):
 
     @field_validator('password')
     @classmethod
-    def validate_password_strength(cls, v: str) -> str:
+    def validate_password_strength_validator(cls, v: str) -> str:
         """
-        Validate password strength
+        Validate password strength.
 
-        Requirements:
-        - At least 12 characters
-        - At least one uppercase letter
-        - At least one lowercase letter
-        - At least one digit
-        - At least one special character
+        Delegates to shared validate_password_strength() validator.
         """
-        if len(v) < 12:
-            raise ValueError('Password must be at least 12 characters long')
-
-        if not any(c.isupper() for c in v):
-            raise ValueError('Password must contain at least one uppercase letter')
-
-        if not any(c.islower() for c in v):
-            raise ValueError('Password must contain at least one lowercase letter')
-
-        if not any(c.isdigit() for c in v):
-            raise ValueError('Password must contain at least one digit')
-
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in v):
-            raise ValueError('Password must contain at least one special character')
-
-        return v
+        return validate_password_strength(v)
 
     @field_validator('role')
     @classmethod
@@ -221,25 +207,13 @@ class PasswordChange(BaseModel):
 
     @field_validator('new_password')
     @classmethod
-    def validate_password_strength(cls, v: str) -> str:
-        """Validate new password strength (same as UserCreate)"""
-        if len(v) < 12:
-            raise ValueError('Password must be at least 12 characters long')
+    def validate_password_strength_validator(cls, v: str) -> str:
+        """
+        Validate new password strength.
 
-        if not any(c.isupper() for c in v):
-            raise ValueError('Password must contain at least one uppercase letter')
-
-        if not any(c.islower() for c in v):
-            raise ValueError('Password must contain at least one lowercase letter')
-
-        if not any(c.isdigit() for c in v):
-            raise ValueError('Password must contain at least one digit')
-
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in v):
-            raise ValueError('Password must contain at least one special character')
-
-        return v
+        Delegates to shared validate_password_strength() validator.
+        """
+        return validate_password_strength(v)
 
     @field_validator('confirm_password')
     @classmethod
@@ -269,25 +243,13 @@ class PasswordReset(BaseModel):
 
     @field_validator('new_password')
     @classmethod
-    def validate_password_strength(cls, v: str) -> str:
-        """Validate password strength"""
-        if len(v) < 12:
-            raise ValueError('Password must be at least 12 characters long')
+    def validate_password_strength_validator(cls, v: str) -> str:
+        """
+        Validate password strength.
 
-        if not any(c.isupper() for c in v):
-            raise ValueError('Password must contain at least one uppercase letter')
-
-        if not any(c.islower() for c in v):
-            raise ValueError('Password must contain at least one lowercase letter')
-
-        if not any(c.isdigit() for c in v):
-            raise ValueError('Password must contain at least one digit')
-
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in v):
-            raise ValueError('Password must contain at least one special character')
-
-        return v
+        Delegates to shared validate_password_strength() validator.
+        """
+        return validate_password_strength(v)
 
     @field_validator('confirm_password')
     @classmethod
@@ -330,13 +292,13 @@ class TwoFactorSetup(BaseModel):
 
     @field_validator('totp_code')
     @classmethod
-    def validate_totp_code(cls, v: str) -> str:
-        """Validate TOTP code format"""
-        if not v.isdigit():
-            raise ValueError('TOTP code must contain only digits')
-        if len(v) != 6:
-            raise ValueError('TOTP code must be exactly 6 digits')
-        return v
+    def validate_totp_code_validator(cls, v: str) -> str:
+        """
+        Validate TOTP code format.
+
+        Delegates to shared validate_totp_code() validator.
+        """
+        return validate_totp_code(v)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -356,13 +318,13 @@ class TwoFactorDisable(BaseModel):
 
     @field_validator('totp_code')
     @classmethod
-    def validate_totp_code(cls, v: str) -> str:
-        """Validate TOTP code format"""
-        if not v.isdigit():
-            raise ValueError('TOTP code must contain only digits')
-        if len(v) != 6:
-            raise ValueError('TOTP code must be exactly 6 digits')
-        return v
+    def validate_totp_code_validator(cls, v: str) -> str:
+        """
+        Validate TOTP code format.
+
+        Delegates to shared validate_totp_code() validator.
+        """
+        return validate_totp_code(v)
 
     model_config = ConfigDict(from_attributes=True)
 

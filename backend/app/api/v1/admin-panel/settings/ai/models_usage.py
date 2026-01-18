@@ -18,6 +18,8 @@ import logging
 from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai_models import AIModelsRepository
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.services import AIUsageService
@@ -58,13 +60,8 @@ def get_model_usage(model_id: int) -> Tuple[Dict[str, Any], int]:
         # Get model
         model = AIModelsRepository.get_by_id(model_id)
         if not model:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MODEL_NOT_FOUND',
-                    'message': f'Model {model_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404,
+                details={'model_id': model_id})
 
         # Get time range
         days = min(int(request.args.get('days', 30)), 365)
@@ -130,13 +127,8 @@ def get_model_usage(model_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting usage for model {model_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_USAGE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 @models_usage_bp.route('/usage', methods=['GET'])
@@ -232,10 +224,5 @@ def get_all_models_usage() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting all models usage: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_ALL_USAGE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})

@@ -29,6 +29,8 @@ from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.profiles import AiModelProfilesRepository as AIProfileRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode, error_response
+from app.utils.exceptions import NotFoundError, ValidationError
 
 # DDD Core Domain
 from .core.factory import AIProfileFactory
@@ -81,13 +83,7 @@ def list_profiles() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error listing AI profiles: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'LIST_PROFILES_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @profiles_crud_bp.route('/<profile_id>', methods=['GET'])
@@ -107,13 +103,7 @@ def get_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
         profile = AIProfileRepository.find_by_id(profile_id)
 
         if not profile:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROFILE_NOT_FOUND',
-                    'message': f'Profile {profile_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROFILE_NOT_FOUND, 404, details={'profile_id': profile_id})
 
         return jsonify({
             'success': True,
@@ -122,13 +112,7 @@ def get_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting profile {profile_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_PROFILE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @profiles_crud_bp.route('', methods=['POST'])
@@ -155,55 +139,29 @@ def create_profile() -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400, details={})
 
         # Validate required fields
         required_fields = ['name', 'profile_type', 'model_preferences']
         missing_fields = [f for f in required_fields if f not in data]
         if missing_fields:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_FIELDS',
-                    'message': f'Missing required fields: {", ".join(missing_fields)}'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'missing_fields': missing_fields})
 
         # Validate profile type
         if data['profile_type'] not in VALID_PROFILE_TYPES:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_PROFILE_TYPE',
-                    'message': f'Invalid profile type. Must be one of: {", ".join(VALID_PROFILE_TYPES)}'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'field': 'profile_type', 'valid_values': list(VALID_PROFILE_TYPES)})
 
         # Business Rule: organisation profiles need organisation_id
         if data['profile_type'] == 'organisation' and not data.get('organisation_id'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_ORGANISATION_ID',
-                    'message': 'organisation_id required for organisation profiles'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'field': 'organisation_id', 'reason': 'required for organisation profiles'})
 
         # Business Rule: user profiles need user_id
         if data['profile_type'] == 'user' and not data.get('user_id'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_USER_ID',
-                    'message': 'user_id required for user profiles'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'field': 'user_id', 'reason': 'required for user profiles'})
 
         # DDD: Use Factory to create profile with business rules
         try:
@@ -218,13 +176,8 @@ def create_profile() -> Tuple[Dict[str, Any], int]:
             )
         except ValueError as ve:
             # Business rule violation
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'BUSINESS_RULE_VIOLATION',
-                    'message': str(ve)
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400,
+                details={'message': str(ve)})
 
         # Persist to repository
         created_profile = AIProfileRepository.create(profile_data)
@@ -249,13 +202,7 @@ def create_profile() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error creating AI profile: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CREATE_PROFILE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @profiles_crud_bp.route('/<profile_id>', methods=['PUT'])
@@ -283,24 +230,13 @@ def update_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400, details={})
 
         # Get existing profile
         existing_profile = AIProfileRepository.find_by_id(profile_id)
         if not existing_profile:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROFILE_NOT_FOUND',
-                    'message': f'Profile {profile_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROFILE_NOT_FOUND, 404,
+                details={'profile_id': profile_id})
 
         # Update profile
         updated_profile = AIProfileRepository.update(profile_id, data)
@@ -335,13 +271,7 @@ def update_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error updating AI profile {profile_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'UPDATE_PROFILE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @profiles_crud_bp.route('/<profile_id>', methods=['DELETE'])
@@ -363,23 +293,13 @@ def delete_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
         # Get profile
         profile = AIProfileRepository.find_by_id(profile_id)
         if not profile:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROFILE_NOT_FOUND',
-                    'message': f'Profile {profile_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROFILE_NOT_FOUND, 404,
+                details={'profile_id': profile_id})
 
         # Business Rule: Cannot delete global profiles
         if profile.get('profile_type') == 'global':
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'CANNOT_DELETE_GLOBAL',
-                    'message': 'Global profiles cannot be deleted. Set active=false instead.'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400,
+                details={'message': 'Global profiles cannot be deleted. Set active=false instead.'})
 
         # Delete profile
         AIProfileRepository.delete(profile_id)
@@ -403,10 +323,4 @@ def delete_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error deleting AI profile {profile_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'DELETE_PROFILE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})

@@ -346,6 +346,287 @@ INSERT INTO feature_flag_groups (group_name, feature_name, display_order) VALUES
     ('drm', 'license_management', 3)
 ON CONFLICT (group_name, feature_name) DO NOTHING;
 
+-- =====================================================
+-- ENHANCEMENTS: ENTERPRISE FEATURE CONFIGURATION
+-- (Added in Phase 1 of Feature Configuration System)
+-- =====================================================
+
+-- =====================================================
+-- 11. FEATURE ROLE MAPPINGS (Role-based fine-grained control)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS feature_flag_role_mappings (
+    id SERIAL PRIMARY KEY,
+    feature_name VARCHAR(100) NOT NULL REFERENCES feature_flags(name) ON DELETE CASCADE,
+    role_code VARCHAR(50) NOT NULL,
+    is_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    max_usage_per_day INTEGER,
+    max_creation_per_month INTEGER,
+    priority_level INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT uq_feature_role UNIQUE(feature_name, role_code),
+    CONSTRAINT chk_role_code CHECK (role_code IN (
+        'admin', 'creator', 'teacher', 'student', 'parent',
+        'moderator', 'support', 'company', 'school'
+    ))
+);
+
+CREATE INDEX idx_feature_role_feature ON feature_flag_role_mappings(feature_name);
+CREATE INDEX idx_feature_role_role ON feature_flag_role_mappings(role_code);
+CREATE INDEX idx_feature_role_enabled ON feature_flag_role_mappings(is_enabled);
+CREATE INDEX idx_feature_role_priority ON feature_flag_role_mappings(priority_level);
+
+COMMENT ON TABLE feature_flag_role_mappings IS 'Role-based access control with per-role quotas';
+COMMENT ON COLUMN feature_flag_role_mappings.max_usage_per_day IS 'Daily limit (NULL = unlimited)';
+COMMENT ON COLUMN feature_flag_role_mappings.priority_level IS '0=normal, 10=premium, 20=enterprise';
+
+-- =====================================================
+-- 12. FEATURE TIER LIMITS (Subscription tier-based quotas)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS feature_flag_tier_limits (
+    id SERIAL PRIMARY KEY,
+    feature_name VARCHAR(100) NOT NULL REFERENCES feature_flags(name) ON DELETE CASCADE,
+    tier_code VARCHAR(50) NOT NULL,
+    is_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    max_concurrent_usage INTEGER,
+    max_monthly_quota INTEGER,
+    max_per_day INTEGER,
+    max_storage_gb DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT uq_feature_tier UNIQUE(feature_name, tier_code),
+    CONSTRAINT chk_tier_code CHECK (tier_code IN ('free', 'premium', 'enterprise'))
+);
+
+CREATE INDEX idx_feature_tier_feature ON feature_flag_tier_limits(feature_name);
+CREATE INDEX idx_feature_tier_tier ON feature_flag_tier_limits(tier_code);
+CREATE INDEX idx_feature_tier_enabled ON feature_flag_tier_limits(is_enabled);
+
+COMMENT ON TABLE feature_flag_tier_limits IS 'Tier-based feature limits (free, premium, enterprise)';
+
+-- =====================================================
+-- 13. FEATURE ROLLOUT PLANS (4-Phase progressive rollout)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS feature_flag_rollout_plans (
+    id SERIAL PRIMARY KEY,
+    feature_name VARCHAR(100) NOT NULL REFERENCES feature_flags(name) ON DELETE CASCADE,
+    plan_name VARCHAR(255) NOT NULL,
+    phase_1_percentage INTEGER DEFAULT 5,
+    phase_1_duration_hours INTEGER DEFAULT 12,
+    phase_1_start_at TIMESTAMP,
+    phase_2_percentage INTEGER DEFAULT 25,
+    phase_2_duration_hours INTEGER DEFAULT 24,
+    phase_2_start_at TIMESTAMP,
+    phase_3_percentage INTEGER DEFAULT 50,
+    phase_3_duration_hours INTEGER DEFAULT 48,
+    phase_3_start_at TIMESTAMP,
+    phase_4_start_at TIMESTAMP,
+    current_phase INTEGER DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'planned',
+    target_roles TEXT[],
+    target_tiers TEXT[],
+    reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(36),
+
+    CONSTRAINT uq_feature_rollout UNIQUE(feature_name),
+    CONSTRAINT chk_rollout_status CHECK (status IN ('planned', 'active', 'paused', 'completed', 'rolled_back')),
+    CONSTRAINT chk_current_phase CHECK (current_phase >= 0 AND current_phase <= 5)
+);
+
+CREATE INDEX idx_rollout_feature ON feature_flag_rollout_plans(feature_name);
+CREATE INDEX idx_rollout_status ON feature_flag_rollout_plans(status);
+CREATE INDEX idx_rollout_active ON feature_flag_rollout_plans(status) WHERE status = 'active';
+
+COMMENT ON TABLE feature_flag_rollout_plans IS '4-phase progressive rollout (canary → early → wider → full)';
+
+-- =====================================================
+-- 14. FEATURE A/B TESTS (Variant testing)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS feature_flag_ab_tests (
+    id SERIAL PRIMARY KEY,
+    feature_name VARCHAR(100) NOT NULL REFERENCES feature_flags(name) ON DELETE CASCADE,
+    test_name VARCHAR(255) NOT NULL,
+    variant_a_name VARCHAR(100) NOT NULL,
+    variant_a_percentage INTEGER NOT NULL DEFAULT 50,
+    variant_a_config JSONB,
+    variant_b_name VARCHAR(100) NOT NULL,
+    variant_b_percentage INTEGER NOT NULL DEFAULT 50,
+    variant_b_config JSONB,
+    target_roles TEXT[],
+    target_tiers TEXT[],
+    metrics_to_track TEXT[],
+    started_at TIMESTAMP,
+    planned_duration_days INTEGER DEFAULT 14,
+    ended_at TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'planned',
+    winner VARCHAR(1),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(36),
+
+    CONSTRAINT chk_ab_percentages CHECK (variant_a_percentage + variant_b_percentage = 100),
+    CONSTRAINT chk_ab_status CHECK (status IN ('planned', 'active', 'paused', 'completed')),
+    CONSTRAINT chk_ab_winner CHECK (winner IS NULL OR winner IN ('A', 'B'))
+);
+
+CREATE INDEX idx_ab_feature ON feature_flag_ab_tests(feature_name);
+CREATE INDEX idx_ab_status ON feature_flag_ab_tests(status);
+CREATE INDEX idx_ab_active ON feature_flag_ab_tests(status) WHERE status = 'active';
+
+COMMENT ON TABLE feature_flag_ab_tests IS 'A/B test configuration for feature variants';
+
+-- =====================================================
+-- 15. FEATURE CONFIGURATION CACHE TRACKING
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS feature_flag_cache_status (
+    feature_name VARCHAR(100) PRIMARY KEY REFERENCES feature_flags(name) ON DELETE CASCADE,
+    last_config_change TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    cache_invalidated_at TIMESTAMP,
+    cache_ttl_seconds INTEGER DEFAULT 300,
+    requires_redis_pubsub BOOLEAN DEFAULT TRUE
+);
+
+CREATE INDEX idx_cache_status_invalidated ON feature_flag_cache_status(cache_invalidated_at);
+CREATE INDEX idx_cache_status_requires_pubsub ON feature_flag_cache_status(requires_redis_pubsub) WHERE requires_redis_pubsub = TRUE;
+
+COMMENT ON TABLE feature_flag_cache_status IS 'Track cache invalidation for Redis Pub/Sub events';
+
+-- =====================================================
+-- 16. ENHANCED AUDIT LOG WITH IMPACT TRACKING
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS feature_flag_audit_log_enhanced (
+    id SERIAL PRIMARY KEY,
+    feature_name VARCHAR(100) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    changed_field VARCHAR(100),
+    old_value TEXT,
+    new_value TEXT,
+    change_details JSONB,
+    user_id VARCHAR(36),
+    user_email VARCHAR(255),
+    organization_id VARCHAR(36),
+    ip_address INET,
+    user_agent TEXT,
+    estimated_affected_users INTEGER,
+    estimated_affected_organizations INTEGER,
+    rollback_possible BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT chk_action CHECK (action IN (
+        'feature_created', 'feature_enabled', 'feature_disabled',
+        'role_permission_added', 'role_permission_removed', 'role_quota_updated',
+        'tier_limit_added', 'tier_limit_removed', 'tier_limit_updated',
+        'org_override_added', 'org_override_removed', 'org_override_updated',
+        'rollout_started', 'rollout_paused', 'rollout_completed', 'rollout_rolled_back',
+        'rollout_phase_advanced', 'rollout_percentage_adjusted',
+        'ab_test_started', 'ab_test_ended', 'ab_test_winner_announced',
+        'segment_enabled', 'segment_disabled', 'segment_updated',
+        'user_override_added', 'user_override_removed'
+    ))
+);
+
+CREATE INDEX idx_audit_enhanced_feature ON feature_flag_audit_log_enhanced(feature_name);
+CREATE INDEX idx_audit_enhanced_action ON feature_flag_audit_log_enhanced(action);
+CREATE INDEX idx_audit_enhanced_user ON feature_flag_audit_log_enhanced(user_id);
+CREATE INDEX idx_audit_enhanced_created ON feature_flag_audit_log_enhanced(created_at DESC);
+CREATE INDEX idx_audit_enhanced_org ON feature_flag_audit_log_enhanced(organization_id);
+
+COMMENT ON TABLE feature_flag_audit_log_enhanced IS 'Enhanced audit log with impact tracking for compliance';
+
+-- =====================================================
+-- 17. FEATURE CONFIGURATION SNAPSHOTS (For rollback)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS feature_flag_config_snapshots (
+    id SERIAL PRIMARY KEY,
+    feature_name VARCHAR(100) NOT NULL REFERENCES feature_flags(name) ON DELETE CASCADE,
+    snapshot_type VARCHAR(20) NOT NULL,
+    feature_config JSONB NOT NULL,
+    role_mappings JSONB,
+    tier_limits JSONB,
+    org_overrides JSONB,
+    rollout_plan JSONB,
+    ab_tests JSONB,
+    created_by VARCHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reason TEXT,
+
+    CONSTRAINT chk_snapshot_type CHECK (snapshot_type IN ('pre_change', 'post_change', 'rollback'))
+);
+
+CREATE INDEX idx_snapshot_feature ON feature_flag_config_snapshots(feature_name);
+CREATE INDEX idx_snapshot_created ON feature_flag_config_snapshots(created_at DESC);
+CREATE INDEX idx_snapshot_type ON feature_flag_config_snapshots(snapshot_type);
+
+COMMENT ON TABLE feature_flag_config_snapshots IS 'Configuration snapshots for rollback capability';
+
+-- =====================================================
+-- 18. TRIGGERS FOR UPDATED_AT AND CACHE INVALIDATION
+-- =====================================================
+
+CREATE OR REPLACE FUNCTION update_feature_config_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_feature_role_mappings_updated_at
+    BEFORE UPDATE ON feature_flag_role_mappings
+    FOR EACH ROW EXECUTE FUNCTION update_feature_config_timestamp();
+
+CREATE TRIGGER trg_feature_tier_limits_updated_at
+    BEFORE UPDATE ON feature_flag_tier_limits
+    FOR EACH ROW EXECUTE FUNCTION update_feature_config_timestamp();
+
+CREATE TRIGGER trg_feature_rollout_plans_updated_at
+    BEFORE UPDATE ON feature_flag_rollout_plans
+    FOR EACH ROW EXECUTE FUNCTION update_feature_config_timestamp();
+
+CREATE TRIGGER trg_feature_ab_tests_updated_at
+    BEFORE UPDATE ON feature_flag_ab_tests
+    FOR EACH ROW EXECUTE FUNCTION update_feature_config_timestamp();
+
+-- Cache invalidation trigger
+CREATE OR REPLACE FUNCTION invalidate_feature_cache()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO feature_flag_cache_status (feature_name, last_config_change, cache_invalidated_at)
+    VALUES (NEW.feature_name, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    ON CONFLICT (feature_name) DO UPDATE SET
+        last_config_change = CURRENT_TIMESTAMP,
+        cache_invalidated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_invalidate_cache_on_role_mapping
+    AFTER INSERT OR UPDATE OR DELETE ON feature_flag_role_mappings
+    FOR EACH ROW EXECUTE FUNCTION invalidate_feature_cache();
+
+CREATE TRIGGER trg_invalidate_cache_on_tier_limits
+    AFTER INSERT OR UPDATE OR DELETE ON feature_flag_tier_limits
+    FOR EACH ROW EXECUTE FUNCTION invalidate_feature_cache();
+
+CREATE TRIGGER trg_invalidate_cache_on_rollout
+    AFTER INSERT OR UPDATE OR DELETE ON feature_flag_rollout_plans
+    FOR EACH ROW EXECUTE FUNCTION invalidate_feature_cache();
+
+CREATE TRIGGER trg_invalidate_cache_on_ab_test
+    AFTER INSERT OR UPDATE OR DELETE ON feature_flag_ab_tests
+    FOR EACH ROW EXECUTE FUNCTION invalidate_feature_cache();
+
 COMMIT;
 
 -- =====================================================

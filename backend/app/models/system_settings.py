@@ -4,7 +4,7 @@ LernsystemX Pydantic Models - System Settings
 Validation models for system settings API.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal, Dict, Any
 
 
@@ -15,7 +15,8 @@ class SwitchModeRequest(BaseModel):
         description="Target environment mode"
     )
 
-    @validator('mode')
+    @field_validator('mode')
+    @classmethod
     def validate_mode(cls, v):
         """Validate mode value"""
         if v not in ['development', 'production']:

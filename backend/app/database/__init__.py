@@ -9,6 +9,7 @@ ISO 9001:2015 compliant - Database access management
 
 from app.database.connection import (
     get_connection,
+    get_db_connection,  # Backward compatibility alias
     get_cursor,
     execute_query,
     execute_many,
@@ -19,6 +20,7 @@ from app.database.connection import (
 
 __all__ = [
     'get_connection',
+    'get_db_connection',  # Backward compatibility alias
     'get_cursor',
     'execute_query',
     'execute_many',

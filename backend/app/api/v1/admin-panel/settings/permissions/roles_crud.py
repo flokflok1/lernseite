@@ -17,6 +17,8 @@ from app.models.admin_roles import (
     UpdateRoleRequest,
     CreateFromTemplateRequest,
 )
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 from pydantic import ValidationError
 
 from .roles_core import (
@@ -81,13 +83,7 @@ def list_roles():
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'LIST_ROLES_ERROR',
-                'message': f'Failed to list roles: {str(e)}'
-            }
-        }), 500
+        return error_response(ErrorCode.LIST_ROLES_ERROR, 500, details={'details': str(e)})
 
 
 @roles_bp.route('/<int:role_id>', methods=['GET'])
@@ -107,13 +103,7 @@ def get_role(role_id: int):
         role = RolesRepository.find_by_id_with_details(role_id)
 
         if not role:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'ROLE_NOT_FOUND',
-                    'message': f'Role with ID {role_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.ROLE_NOT_FOUND, 404, details={'role_id': role_id})
 
         # Get features and permissions
         features = RolesRepository.get_role_features(role_id)
@@ -135,13 +125,7 @@ def get_role(role_id: int):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_ROLE_ERROR',
-                'message': f'Failed to get role: {str(e)}'
-            }
-        }), 500
+        return error_response(ErrorCode.GET_ROLE_ERROR, 500, details={'details': str(e)})
 
 
 # ============================================================================
@@ -168,27 +152,14 @@ def create_role():
         try:
             req_data = CreateRoleRequest(**request.json)
         except ValidationError as e:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'VALIDATION_ERROR',
-                    'message': 'Invalid request data',
-                    'details': e.errors()
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
         user = get_current_user()
 
         # Check if role name already exists
         existing = RolesRepository.find_by_name(req_data.role_name)
         if existing:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'ROLE_EXISTS',
-                    'message': f'Role with name "{req_data.role_name}" already exists'
-                }
-            }), 409
+            return error_response(ErrorCode.ROLE_EXISTS, 409, details={'message': f'Role with name "{req_data.role_name}" already exists'})
 
         # Create role
         role = RolesRepository.create_role(
@@ -239,13 +210,7 @@ def create_role():
         }), 201
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CREATE_ROLE_ERROR',
-                'message': f'Failed to create role: {str(e)}'
-            }
-        }), 500
+        return error_response(ErrorCode.CREATE_ROLE_ERROR, 500, details={'details': str(e)})
 
 
 @roles_bp.route('/from-template', methods=['POST'])
@@ -268,38 +233,19 @@ def create_from_template():
         try:
             req_data = CreateFromTemplateRequest(**request.json)
         except ValidationError as e:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'VALIDATION_ERROR',
-                    'message': 'Invalid request data',
-                    'details': e.errors()
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
         user = get_current_user()
 
         # Get template
         template = ROLE_TEMPLATES.get(req_data.template)
         if not template:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_TEMPLATE',
-                    'message': f'Template "{req_data.template}" not found'
-                }
-            }), 400
+            return error_response(ErrorCode.INVALID_TEMPLATE, 400, details={'message': f'Template "{req_data.template}" not found'})
 
         # Check if role name already exists
         existing = RolesRepository.find_by_name(req_data.role_name)
         if existing:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'ROLE_EXISTS',
-                    'message': f'Role with name "{req_data.role_name}" already exists'
-                }
-            }), 409
+            return error_response(ErrorCode.ROLE_EXISTS, 409, details={'message': f'Role with name "{req_data.role_name}" already exists'})
 
         # Create role from template
         display_name = req_data.display_name or template['display_name']
@@ -336,13 +282,7 @@ def create_from_template():
         }), 201
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CREATE_FROM_TEMPLATE_ERROR',
-                'message': f'Failed to create role from template: {str(e)}'
-            }
-        }), 500
+        return error_response(ErrorCode.CREATE_FROM_TEMPLATE_ERROR, 500, details={'details': str(e)})
 
 
 # ============================================================================
@@ -368,36 +308,17 @@ def update_role(role_id: int):
         # Check if role exists
         role = RolesRepository.find_by_id(role_id)
         if not role:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'ROLE_NOT_FOUND',
-                    'message': f'Role with ID {role_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.ROLE_NOT_FOUND, 404, details={'message': f'Role with ID {role_id} not found'})
 
         # Check if role is builtin (system role) - cannot update system roles
         if role.get('is_builtin'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'CANNOT_UPDATE_SYSTEM_ROLE',
-                    'message': 'System roles cannot be updated'
-                }
-            }), 403
+            return error_response(ErrorCode.CANNOT_UPDATE_SYSTEM_ROLE, 403, details={'message': 'System roles cannot be updated'})
 
         # Validate request
         try:
             req_data = UpdateRoleRequest(**request.json)
         except ValidationError as e:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'VALIDATION_ERROR',
-                    'message': 'Invalid request data',
-                    'details': e.errors()
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
         # Update role
         updated = RolesRepository.update_role(
@@ -410,13 +331,7 @@ def update_role(role_id: int):
         )
 
         if not updated:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'UPDATE_FAILED',
-                    'message': 'Failed to update role'
-                }
-            }), 500
+            return error_response(ErrorCode.UPDATE_FAILED, 500, details={'message': 'Failed to update role'})
 
         return jsonify({
             'success': True,
@@ -429,13 +344,7 @@ def update_role(role_id: int):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'UPDATE_ROLE_ERROR',
-                'message': f'Failed to update role: {str(e)}'
-            }
-        }), 500
+        return error_response(ErrorCode.UPDATE_ROLE_ERROR, 500, details={'details': str(e)})
 
 
 # ============================================================================
@@ -461,23 +370,11 @@ def delete_role(role_id: int):
         # Check if role exists
         role = RolesRepository.find_by_id(role_id)
         if not role:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'ROLE_NOT_FOUND',
-                    'message': f'Role with ID {role_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.ROLE_NOT_FOUND, 404, details={'message': f'Role with ID {role_id} not found'})
 
         # Check if role is builtin (system role) - cannot delete system roles
         if role.get('is_builtin'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'CANNOT_DELETE_SYSTEM_ROLE',
-                    'message': 'System roles cannot be deleted'
-                }
-            }), 403
+            return error_response(ErrorCode.CANNOT_DELETE_SYSTEM_ROLE, 403, details={'message': 'System roles cannot be deleted'})
 
         # Get user count
         user_count = RolesRepository.get_user_count_by_role(role_id)
@@ -493,25 +390,13 @@ def delete_role(role_id: int):
             if reassign_to_id:
                 RolesRepository.reassign_users(role_id, reassign_to_id)
             else:
-                return jsonify({
-                    'success': False,
-                    'error': {
-                        'code': 'REASSIGNMENT_REQUIRED',
-                        'message': f'Role has {user_count} users. Provide reassign_to parameter.'
-                    }
-                }), 400
+                return error_response(ErrorCode.REASSIGNMENT_REQUIRED, 400, details={'message': f'Role has {user_count} users. Provide reassign_to parameter.'})
 
         # Delete role
         deleted = RolesRepository.delete_role(role_id)
 
         if not deleted:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'DELETE_FAILED',
-                    'message': 'Failed to delete role'
-                }
-            }), 500
+            return error_response(ErrorCode.DELETE_FAILED, 500, details={'message': 'Failed to delete role'})
 
         # Get reassign role name
         reassign_role_name = None
@@ -531,13 +416,7 @@ def delete_role(role_id: int):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'DELETE_ROLE_ERROR',
-                'message': f'Failed to delete role: {str(e)}'
-            }
-        }), 500
+        return error_response(ErrorCode.DELETE_ROLE_ERROR, 500, details={'details': str(e)})
 
 
 __all__ = ['roles_bp']

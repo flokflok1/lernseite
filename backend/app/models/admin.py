@@ -6,7 +6,7 @@ Pydantic models for admin operations validation and serialization.
 Phase B24 - Admin System
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -50,13 +50,15 @@ class BanUserRequest(BaseModel):
     permanent: bool = Field(default=False, description="Permanent ban")
     notify_user: bool = Field(default=True, description="Send email notification to user")
 
-    @validator('duration_days')
-    def validate_duration(cls, v, values):
+    @field_validator('duration_days', mode='after')
+    @classmethod
+    def validate_duration(cls, v, info: ValidationInfo):
         """Ensure duration_days is None if permanent is True"""
-        if values.get('permanent') and v is not None:
-            raise ValueError('Cannot set duration_days for permanent bans')
-        if not values.get('permanent') and v is None:
-            raise ValueError('duration_days required for non-permanent bans')
+        permanent = info.data.get('permanent', False)
+        if permanent and v is not None:
+            raise ValueError('duration_days must be null for permanent bans')
+        if not permanent and v is None:
+            raise ValueError('duration_days is required for non-permanent bans')
         return v
 
 
@@ -72,7 +74,8 @@ class ModerateContentRequest(BaseModel):
     reason: str = Field(..., min_length=10, max_length=1000, description="Reason for moderation action")
     notify_creator: bool = Field(default=True, description="Notify content creator")
 
-    @validator('action')
+    @field_validator('action')
+    @classmethod
     def validate_action(cls, v):
         """Validate moderation action"""
         valid_actions = ['approve', 'reject', 'ban', 'feature', 'unfeature']

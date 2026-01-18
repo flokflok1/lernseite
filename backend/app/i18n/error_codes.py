@@ -37,6 +37,8 @@ class ErrorCode(str, Enum):
     FORBIDDEN = "FORBIDDEN"
     VALIDATION_ERROR = "VALIDATION_ERROR"
     BUSINESS_LOGIC_ERROR = "BUSINESS_LOGIC_ERROR"
+    OPERATION_FAILED = "OPERATION_FAILED"
+    CONFLICT = "CONFLICT"
 
     # ========================================================================
     # AUTH ERRORS
@@ -49,6 +51,7 @@ class ErrorCode(str, Enum):
     AUTH_ACCOUNT_DISABLED = "AUTH_ACCOUNT_DISABLED"
     AUTH_EMAIL_NOT_VERIFIED = "AUTH_EMAIL_NOT_VERIFIED"
     AUTH_SESSION_EXPIRED = "AUTH_SESSION_EXPIRED"
+    AUTH_2FA_INVALID = "AUTH_2FA_INVALID"
 
     # ========================================================================
     # USER ERRORS
@@ -71,6 +74,9 @@ class ErrorCode(str, Enum):
     COURSE_ALREADY_ENROLLED = "COURSE_ALREADY_ENROLLED"
     COURSE_NOT_ENROLLED = "COURSE_NOT_ENROLLED"
     COURSE_TITLE_REQUIRED = "COURSE_TITLE_REQUIRED"
+    COURSE_ARCHIVE_FAILED = "COURSE_ARCHIVE_FAILED"
+    COURSE_PUBLISH_FAILED = "COURSE_PUBLISH_FAILED"
+    COURSE_REORDER_FAILED = "COURSE_REORDER_FAILED"
 
     # ========================================================================
     # CHAPTER ERRORS
@@ -80,6 +86,7 @@ class ErrorCode(str, Enum):
     CHAPTER_UPDATE_FAILED = "CHAPTER_UPDATE_FAILED"
     CHAPTER_DELETE_FAILED = "CHAPTER_DELETE_FAILED"
     CHAPTER_TITLE_REQUIRED = "CHAPTER_TITLE_REQUIRED"
+    CHAPTER_REORDER_FAILED = "CHAPTER_REORDER_FAILED"
 
     # ========================================================================
     # LESSON ERRORS
@@ -88,11 +95,13 @@ class ErrorCode(str, Enum):
     LESSON_CREATE_FAILED = "LESSON_CREATE_FAILED"
     LESSON_UPDATE_FAILED = "LESSON_UPDATE_FAILED"
     LESSON_DELETE_FAILED = "LESSON_DELETE_FAILED"
+    LESSON_REORDER_FAILED = "LESSON_REORDER_FAILED"
 
     # ========================================================================
     # LEARNING METHOD ERRORS
     # ========================================================================
     LM_NOT_FOUND = "LM_NOT_FOUND"
+    LM_ALREADY_EXISTS = "LM_ALREADY_EXISTS"
     LM_CREATE_FAILED = "LM_CREATE_FAILED"
     LM_UPDATE_FAILED = "LM_UPDATE_FAILED"
     LM_DELETE_FAILED = "LM_DELETE_FAILED"
@@ -130,6 +139,9 @@ class ErrorCode(str, Enum):
     EXAM_GENERATION_FAILED = "EXAM_GENERATION_FAILED"
     EXAM_SUBMIT_FAILED = "EXAM_SUBMIT_FAILED"
     EXAM_ALREADY_SUBMITTED = "EXAM_ALREADY_SUBMITTED"
+    EXAM_SIMULATION_NOT_FOUND = "EXAM_SIMULATION_NOT_FOUND"
+    EXAM_REORDER_FAILED = "EXAM_REORDER_FAILED"
+    EXAM_SUBMISSION_FAILED = "EXAM_SUBMISSION_FAILED"
 
     # ========================================================================
     # FILE/UPLOAD ERRORS
@@ -150,6 +162,8 @@ class ErrorCode(str, Enum):
     AUDIO_INVALID_FORMAT = "AUDIO_INVALID_FORMAT"
     AUDIO_TOO_LARGE = "AUDIO_TOO_LARGE"
     AUDIO_TRANSCRIPTION_FAILED = "AUDIO_TRANSCRIPTION_FAILED"
+    AUDIO_TTS_SERVICE_UNAVAILABLE = "AUDIO_TTS_SERVICE_UNAVAILABLE"
+    AUDIO_TTS_FAILED = "AUDIO_TTS_FAILED"
 
     # ========================================================================
     # ORGANIZATION ERRORS
@@ -167,6 +181,25 @@ class ErrorCode(str, Enum):
     CATEGORY_CREATE_FAILED = "CATEGORY_CREATE_FAILED"
     CATEGORY_DELETE_FAILED = "CATEGORY_DELETE_FAILED"
     CATEGORY_HAS_COURSES = "CATEGORY_HAS_COURSES"
+
+    # ========================================================================
+    # SOCIAL ERRORS
+    # ========================================================================
+    SOCIAL_POST_NOT_FOUND = "SOCIAL_POST_NOT_FOUND"
+    SOCIAL_POST_ACCESS_DENIED = "SOCIAL_POST_ACCESS_DENIED"
+    SOCIAL_COMMENT_EMPTY = "SOCIAL_COMMENT_EMPTY"
+    SOCIAL_FOLLOW_FAILED = "SOCIAL_FOLLOW_FAILED"
+    SOCIAL_LIKE_FAILED = "SOCIAL_LIKE_FAILED"
+
+    # ========================================================================
+    # THRESHOLD ERRORS
+    # ========================================================================
+    THRESHOLD_NOT_FOUND = "THRESHOLD_NOT_FOUND"
+
+    # ========================================================================
+    # ANALYTICS ERRORS
+    # ========================================================================
+    STATS_RETRIEVAL_FAILED = "STATS_RETRIEVAL_FAILED"
 
     # ========================================================================
     # VALIDATION ERRORS
@@ -192,6 +225,40 @@ class ErrorCode(str, Enum):
     # ========================================================================
     FEEDBACK_CREATE_FAILED = "FEEDBACK_CREATE_FAILED"
     FEEDBACK_INVALID_TYPE = "FEEDBACK_INVALID_TYPE"
+
+    # ========================================================================
+    # ROLE MANAGEMENT ERRORS (13 codes)
+    # ========================================================================
+    ROLE_EXISTS = "ROLE_EXISTS"
+    ROLE_NOT_FOUND = "ROLE_NOT_FOUND"
+    CANNOT_UPDATE_SYSTEM_ROLE = "CANNOT_UPDATE_SYSTEM_ROLE"
+    CANNOT_DELETE_SYSTEM_ROLE = "CANNOT_DELETE_SYSTEM_ROLE"
+    INVALID_TEMPLATE = "INVALID_TEMPLATE"
+    REASSIGNMENT_REQUIRED = "REASSIGNMENT_REQUIRED"
+    LIST_ROLES_ERROR = "LIST_ROLES_ERROR"
+    GET_ROLE_ERROR = "GET_ROLE_ERROR"
+    CREATE_ROLE_ERROR = "CREATE_ROLE_ERROR"
+    CREATE_FROM_TEMPLATE_ERROR = "CREATE_FROM_TEMPLATE_ERROR"
+    UPDATE_FAILED = "UPDATE_FAILED"
+    UPDATE_ROLE_ERROR = "UPDATE_ROLE_ERROR"
+    DELETE_FAILED = "DELETE_FAILED"
+    DELETE_ROLE_ERROR = "DELETE_ROLE_ERROR"
+
+    # ========================================================================
+    # AI PRICING ERRORS (13 codes)
+    # ========================================================================
+    MISSING_FIELDS = "MISSING_FIELDS"
+    INVALID_TOKEN_COUNT = "INVALID_TOKEN_COUNT"
+    CALCULATE_PRICING_ERROR = "CALCULATE_PRICING_ERROR"
+    MISSING_OPERATION_TYPE = "MISSING_OPERATION_TYPE"
+    NO_DEFAULT_MODEL = "NO_DEFAULT_MODEL"
+    ESTIMATE_COST_ERROR = "ESTIMATE_COST_ERROR"
+    LIST_PLANS_ERROR = "LIST_PLANS_ERROR"
+    PLAN_NOT_FOUND = "PLAN_NOT_FOUND"
+    GET_PLAN_ERROR = "GET_PLAN_ERROR"
+    PLAN_HAS_ACTIVE_SUBSCRIPTIONS = "PLAN_HAS_ACTIVE_SUBSCRIPTIONS"
+    UPDATE_PLAN_ERROR = "UPDATE_PLAN_ERROR"
+    CALCULATE_PLAN_COSTS_ERROR = "CALCULATE_PLAN_COSTS_ERROR"
 
 
 def error_response(

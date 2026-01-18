@@ -23,6 +23,8 @@ from app.security.permissions import require_permission, Permissions
 from app.repositories.ai_models import AIModelsRepository
 from app.repositories.ai.providers import AIProviderRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.factory import AIModelFactory
@@ -93,13 +95,7 @@ def list_ai_models() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error listing AI models: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'LIST_MODELS_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.LIST_PLANS_ERROR, 500, details={'error': str(e)})
 
 
 @models_crud_bp.route('/<int:model_id>', methods=['GET'])
@@ -119,13 +115,7 @@ def get_ai_model(model_id: int) -> Tuple[Dict[str, Any], int]:
         model = AIModelsRepository.get_by_id(model_id)
 
         if not model:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MODEL_NOT_FOUND',
-                    'message': f'Model {model_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404, details={'model_id': model_id})
 
         return jsonify({
             'success': True,
@@ -134,13 +124,7 @@ def get_ai_model(model_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting AI model {model_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_MODEL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 500, details={'error': str(e)})
 
 
 @models_crud_bp.route('', methods=['POST'])
@@ -168,13 +152,7 @@ def create_custom_model() -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400)
 
         # Validate required fields
         required_fields = [
@@ -183,13 +161,7 @@ def create_custom_model() -> Tuple[Dict[str, Any], int]:
         ]
         missing_fields = [f for f in required_fields if f not in data]
         if missing_fields:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_FIELDS',
-                    'message': f'Missing required fields: {", ".join(missing_fields)}'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'missing_fields': missing_fields})
 
         # DDD: Use Factory to create model with business rules
         try:
@@ -205,13 +177,7 @@ def create_custom_model() -> Tuple[Dict[str, Any], int]:
             )
         except ValueError as ve:
             # Business rule violation (invalid category, margin out of range, etc.)
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'BUSINESS_RULE_VIOLATION',
-                    'message': str(ve)
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400, details={'message': str(ve)})
 
         # Persist to repository
         created_model = AIModelsRepository.create(model_data)
@@ -237,13 +203,7 @@ def create_custom_model() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error creating custom AI model: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CREATE_MODEL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @models_crud_bp.route('/<int:model_id>', methods=['PUT'])
@@ -269,24 +229,12 @@ def update_ai_model(model_id: int) -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUEST_BODY_REQUIRED, 400)
 
         # Check if model exists
         existing = AIModelsRepository.get_by_id(model_id)
         if not existing:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MODEL_NOT_FOUND',
-                    'message': f'Model {model_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404, details={'model_id': model_id})
 
         # Update model
         model = AIModelsRepository.update(model_id, data)
@@ -308,13 +256,7 @@ def update_ai_model(model_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error updating AI model {model_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'UPDATE_MODEL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @models_crud_bp.route('/<int:model_id>', methods=['DELETE'])
@@ -337,13 +279,7 @@ def delete_ai_model(model_id: int) -> Tuple[Dict[str, Any], int]:
         model = AIModelsRepository.get_by_id(model_id)
 
         if not model:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MODEL_NOT_FOUND',
-                    'message': f'Model {model_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404, details={'model_id': model_id})
 
         # Business Rule: Only delete custom models, deactivate synced ones
         if model.get('synced_from_provider'):
@@ -371,10 +307,4 @@ def delete_ai_model(model_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error deleting AI model {model_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'DELETE_MODEL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})

@@ -354,3 +354,7 @@ def table_exists(table_name: str) -> bool:
     """, (table_name,))
 
     return result['exists'] if result else False
+
+
+# Backward compatibility alias (for legacy code using get_db_connection)
+get_db_connection = get_connection

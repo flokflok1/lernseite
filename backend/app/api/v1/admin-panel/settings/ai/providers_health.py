@@ -19,6 +19,8 @@ import logging
 from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.providers import AIProviderRepository
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.services import AIHealthMonitoringService
@@ -50,13 +52,8 @@ def get_provider_health(provider_id: int) -> Tuple[Dict[str, Any], int]:
     try:
         provider = AIProviderRepository.get_by_id(provider_id)
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         # Get current health status
         health_status = provider.get('health_status', 'unknown')
@@ -97,13 +94,8 @@ def get_provider_health(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting health for provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_HEALTH_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 @providers_health_bp.route('/<int:provider_id>/health/history', methods=['GET'])
@@ -125,13 +117,8 @@ def get_provider_health_history(provider_id: int) -> Tuple[Dict[str, Any], int]:
     try:
         provider = AIProviderRepository.get_by_id(provider_id)
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         # Get time range
         days = min(int(request.args.get('days', 7)), 90)
@@ -182,13 +169,8 @@ def get_provider_health_history(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting health history for provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_HEALTH_HISTORY_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 @providers_health_bp.route('/health', methods=['GET'])
@@ -283,13 +265,8 @@ def get_all_providers_health() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting all providers health: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_ALL_HEALTH_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 def _get_health_recommendations(

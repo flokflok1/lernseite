@@ -26,6 +26,8 @@ from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.providers import AIProviderRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -130,46 +132,26 @@ def update_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data or 'api_key' not in data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'api_key field required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'field': 'api_key'})
 
         api_key = data['api_key'].strip()
         if not api_key:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_API_KEY',
-                    'message': 'API key cannot be empty'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'field': 'api_key', 'message': 'API key cannot be empty'})
 
         # Get provider
         provider = AIProviderRepository.get_by_id(provider_id)
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         # Validate API key format
         try:
             _validate_api_key_format(provider.get('name'), api_key)
         except ValueError as ve:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_API_KEY_FORMAT',
-                    'message': str(ve)
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'field': 'api_key', 'message': str(ve)})
 
         # Encrypt API key
         encrypted_key = _encrypt_api_key(api_key)
@@ -206,13 +188,8 @@ def update_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error updating API key for provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'UPDATE_API_KEY_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 @providers_api_keys_bp.route('/<int:provider_id>/api-key', methods=['DELETE'])
@@ -234,13 +211,8 @@ def remove_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
         # Get provider
         provider = AIProviderRepository.get_by_id(provider_id)
         if not provider:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PROVIDER_NOT_FOUND',
-                    'message': f'Provider {provider_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         # Remove API key
         updated_provider = AIProviderRepository.update(
@@ -274,10 +246,5 @@ def remove_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error removing API key for provider {provider_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'REMOVE_API_KEY_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})

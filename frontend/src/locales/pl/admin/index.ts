@@ -8,11 +8,13 @@ import system from './system.json'
 import users from './users.json'
 
 export default {
-  ...ai_settings,
-  ...analytics,
-  ...course_management,
-  ...organisations,
-  ...shared,
-  ...system,
-  ...users
+  admin: {
+    ...ai_settings,
+    ...analytics,
+    ...course_management,
+    ...organisations,
+    ...shared,
+    ...system,
+    ...users
+  }
 }

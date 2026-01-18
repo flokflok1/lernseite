@@ -19,6 +19,8 @@ import logging
 from app.models.course import CourseCreate, CourseUpdate
 from app.repositories.courses import CourseRepository
 from app.middleware.auth import token_required, role_required, get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -80,19 +82,11 @@ def create_course():
         }), 201
 
     except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Validation error',
-            'details': e.errors()
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
     except Exception as e:
         logger.error(f"Error creating course: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Course creation failed',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.COURSE_CREATE_FAILED, 500, details={'details': str(e)})
 
 
 @crud_bp.route('/<course_id>', methods=['PUT'])
@@ -114,10 +108,7 @@ def update_course(course_id: str):
         course = CourseRepository.find_by_id(course_id)
 
         if not course:
-            return jsonify({
-                'success': False,
-                'error': 'Course not found'
-            }), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions: creator, org admin, or admin+ (RBAC 2.0: dynamic from DB)
         from app.services.permission_service import PermissionService
@@ -130,11 +121,7 @@ def update_course(course_id: str):
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 
         if not (is_creator or is_org_admin or is_admin):
-            return jsonify({
-                'success': False,
-                'error': 'Access denied',
-                'message': 'You can only update your own courses'
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403, details={'message': 'You can only update your own courses'})
 
         data = request.get_json()
 
@@ -151,19 +138,11 @@ def update_course(course_id: str):
         }), 200
 
     except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Validation error',
-            'details': e.errors()
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
     except Exception as e:
         logger.error(f"Error updating course: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Course update failed',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.COURSE_UPDATE_FAILED, 500, details={'details': str(e)})
 
 
 @crud_bp.route('/<course_id>', methods=['DELETE'])
@@ -183,10 +162,7 @@ def archive_course(course_id: str):
         course = CourseRepository.find_by_id(course_id)
 
         if not course:
-            return jsonify({
-                'success': False,
-                'error': 'Course not found'
-            }), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
         from app.services.permission_service import PermissionService
@@ -194,11 +170,7 @@ def archive_course(course_id: str):
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 
         if not (is_creator or is_admin):
-            return jsonify({
-                'success': False,
-                'error': 'Access denied',
-                'message': 'You can only archive your own courses'
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403, details={'message': 'You can only archive your own courses'})
 
         # Archive course
         CourseRepository.archive(course_id)
@@ -210,8 +182,4 @@ def archive_course(course_id: str):
 
     except Exception as e:
         logger.error(f"Error archiving course: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Course archiving failed',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.COURSE_ARCHIVE_FAILED, 500, details={'details': str(e)})

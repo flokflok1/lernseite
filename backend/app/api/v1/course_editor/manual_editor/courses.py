@@ -31,6 +31,8 @@ from app.models.admin_course import (
 from app.repositories.courses import CourseRepository
 from app.services.audit_service import AuditService
 from app.middleware.auth import get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 
 @manual_editor_bp.route('/courses', methods=['GET'])
@@ -93,10 +95,10 @@ def list_courses():
         }), 200
 
     except ValueError as e:
-        return jsonify({'success': False, 'error': 'Invalid parameter', 'message': str(e)}), 400
+        return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'message': str(e)})
     except Exception as e:
         logger.error(f"ERROR in admin_list_courses: {e}")
-        return jsonify({'success': False, 'error': 'Failed to list courses', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>', methods=['GET'])
@@ -107,7 +109,7 @@ def get_course_details(course_id: str):
         course_details = CourseRepository.admin_get_course_by_id(course_id)
 
         if not course_details:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         AuditService.log_action(
             user_id=g.current_user['user_id'],
@@ -120,7 +122,7 @@ def get_course_details(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_get_course_details: {e}")
-        return jsonify({'success': False, 'error': 'Failed to get course details', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses', methods=['POST'])
@@ -139,7 +141,7 @@ def create_course():
         )
 
         if not new_course:
-            return jsonify({'success': False, 'error': 'Failed to create course'}), 500
+            return error_response(ErrorCode.COURSE_CREATE_FAILED, 500)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
@@ -157,10 +159,10 @@ def create_course():
         }), 201
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
     except Exception as e:
         logger.error(f"ERROR in admin_create_course: {e}")
-        return jsonify({'success': False, 'error': 'Failed to create course', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_CREATE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>', methods=['PATCH'])
@@ -175,7 +177,7 @@ def update_course(course_id: str):
 
         existing_course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not existing_course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         updated_course = CourseRepository.admin_update_course(
             course_id=course_id,
@@ -184,7 +186,7 @@ def update_course(course_id: str):
         )
 
         if not updated_course:
-            return jsonify({'success': False, 'error': 'Failed to update course'}), 500
+            return error_response(ErrorCode.COURSE_UPDATE_FAILED, 500)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
@@ -202,10 +204,10 @@ def update_course(course_id: str):
         }), 200
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
     except Exception as e:
         logger.error(f"ERROR in admin_update_course: {e}")
-        return jsonify({'success': False, 'error': 'Failed to update course', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_UPDATE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/status', methods=['POST'])
@@ -225,15 +227,11 @@ def update_course_status(course_id: str):
         # Admin-only check for publish/unpublish
         is_admin = current_user.get('role') == 'admin'
         if status_request.action in ['publish', 'unpublish'] and not is_admin:
-            return jsonify({
-                'success': False,
-                'error': 'Forbidden',
-                'message': 'Only admins can publish or unpublish courses'
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403)
 
         existing_course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not existing_course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         result = None
         new_status = None
@@ -251,14 +249,10 @@ def update_course_status(course_id: str):
             result = CourseRepository.unarchive(course_id)
             new_status = 'draft'
         else:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid action',
-                'message': 'Action must be: publish, unpublish, archive, unarchive'
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'message': 'Action must be: publish, unpublish, archive, unarchive'})
 
         if not result:
-            return jsonify({'success': False, 'error': 'Failed to change course status'}), 400
+            return error_response(ErrorCode.COURSE_PUBLISH_FAILED, 400)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
@@ -276,10 +270,10 @@ def update_course_status(course_id: str):
         }), 200
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
     except Exception as e:
         logger.error(f"ERROR in admin_update_course_status: {e}")
-        return jsonify({'success': False, 'error': 'Failed to change status', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_PUBLISH_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>', methods=['DELETE'])
@@ -293,12 +287,12 @@ def delete_course(course_id: str):
 
         existing_course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not existing_course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         result = CourseRepository.archive(course_id)
 
         if not result:
-            return jsonify({'success': False, 'error': 'Failed to archive course'}), 500
+            return error_response(ErrorCode.COURSE_ARCHIVE_FAILED, 500)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
@@ -313,7 +307,7 @@ def delete_course(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_delete_course: {e}")
-        return jsonify({'success': False, 'error': 'Failed to archive course', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_ARCHIVE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/permanent', methods=['DELETE'])
@@ -331,30 +325,22 @@ def permanent_delete_course(course_id: str):
         # Admin-only check for permanent delete
         is_admin = current_user.get('role') == 'admin'
         if not is_admin:
-            return jsonify({
-                'success': False,
-                'error': 'Forbidden',
-                'message': 'Only admins can permanently delete courses'
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403)
 
         if not data.get('confirm', False):
-            return jsonify({
-                'success': False,
-                'error': 'Confirmation required',
-                'message': 'Set "confirm": true to permanently delete'
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'confirm', 'message': 'Set "confirm": true to permanently delete'})
 
         reason = data.get('reason', 'Permanently deleted by admin')
 
         existing_course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not existing_course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         course_title = existing_course['title']
         result = CourseRepository.delete(course_id)
 
         if not result:
-            return jsonify({'success': False, 'error': 'Failed to permanently delete'}), 500
+            return error_response(ErrorCode.OPERATION_FAILED, 500)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
@@ -369,4 +355,4 @@ def permanent_delete_course(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_permanent_delete_course: {e}")
-        return jsonify({'success': False, 'error': 'Failed to delete', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})

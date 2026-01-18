@@ -28,6 +28,8 @@ from app.repositories.courses import CourseRepository
 from app.repositories.courses.files import CourseFileRepository
 from app.services.audit_service import AuditService
 from app.middleware.auth import get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 
 @manual_editor_bp.route('/courses/<course_id>/files', methods=['GET'])
@@ -37,7 +39,7 @@ def list_course_files(course_id: str):
     try:
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         category = request.args.get('category', None)
         limit = min(int(request.args.get('limit', 100)), 500)
@@ -62,7 +64,7 @@ def list_course_files(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in list_course_files: {e}")
-        return jsonify({'success': False, 'error': 'Failed to list course files', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/course-files/<file_id>/serve', methods=['GET'])
@@ -72,11 +74,11 @@ def serve_course_file(file_id: str):
     try:
         file_record = CourseFileRepository.find_by_id(file_id)
         if not file_record:
-            return jsonify({'success': False, 'error': 'File not found'}), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         storage_path = file_record.get('storage_path')
         if not storage_path or not os.path.exists(storage_path):
-            return jsonify({'success': False, 'error': 'File not found on disk'}), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404, details={'message': 'File not found on disk'})
 
         mime_type = file_record.get('mime_type', 'application/octet-stream')
         filename = file_record.get('display_name') or file_record.get('file_name') or 'file'
@@ -90,7 +92,7 @@ def serve_course_file(file_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in serve_course_file: {e}")
-        return jsonify({'success': False, 'error': 'Failed to serve file', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/files', methods=['POST'])
@@ -102,22 +104,19 @@ def upload_course_file(course_id: str):
 
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         if 'file' not in request.files:
-            return jsonify({'success': False, 'error': 'No file provided'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'file'})
 
         file = request.files['file']
         if file.filename == '':
-            return jsonify({'success': False, 'error': 'No file selected'}), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'field': 'file', 'message': 'No file selected'})
 
         allowed_extensions = {'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mp3', 'zip'}
         file_ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
         if file_ext not in allowed_extensions:
-            return jsonify({
-                'success': False,
-                'error': f'File type not allowed. Allowed: {", ".join(allowed_extensions)}'
-            }), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'field': 'file', 'message': f'File type not allowed. Allowed: {", ".join(allowed_extensions)}'})
 
         ext_to_type = {
             'pdf': 'pdf',
@@ -199,7 +198,7 @@ def upload_course_file(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in upload_course_file: {e}")
-        return jsonify({'success': False, 'error': 'Failed to upload file', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/files/<file_id>', methods=['GET'])
@@ -210,16 +209,16 @@ def get_course_file(course_id: str, file_id: str):
         course_file = CourseFileRepository.find_by_id(file_id)
 
         if not course_file:
-            return jsonify({'success': False, 'error': 'File not found'}), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         if str(course_file['course_id']) != str(course_id):
-            return jsonify({'success': False, 'error': 'File does not belong to this course'}), 404
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 404, details={'message': 'File does not belong to this course'})
 
         return jsonify({'success': True, 'file': course_file}), 200
 
     except Exception as e:
         logger.error(f"ERROR in get_course_file: {e}")
-        return jsonify({'success': False, 'error': 'Failed to get file', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/files/<file_id>', methods=['PATCH'])
@@ -232,10 +231,10 @@ def update_course_file(course_id: str, file_id: str):
 
         existing_file = CourseFileRepository.find_by_id(file_id)
         if not existing_file:
-            return jsonify({'success': False, 'error': 'File not found'}), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         if str(existing_file['course_id']) != str(course_id):
-            return jsonify({'success': False, 'error': 'File does not belong to this course'}), 404
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 404, details={'message': 'File does not belong to this course'})
 
         update_data = {}
         if 'display_name' in data:
@@ -251,7 +250,7 @@ def update_course_file(course_id: str, file_id: str):
             update_data['requires_enrollment'] = not bool(data['is_public'])
 
         if not update_data:
-            return jsonify({'success': False, 'error': 'No valid update fields provided'}), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'message': 'No valid update fields provided'})
 
         updated_file = CourseFileRepository.update(file_id, update_data)
 
@@ -271,7 +270,7 @@ def update_course_file(course_id: str, file_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in update_course_file: {e}")
-        return jsonify({'success': False, 'error': 'Failed to update file', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/files/<file_id>', methods=['DELETE'])
@@ -283,10 +282,10 @@ def delete_course_file(course_id: str, file_id: str):
 
         existing_file = CourseFileRepository.find_by_id(file_id)
         if not existing_file:
-            return jsonify({'success': False, 'error': 'File not found'}), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         if str(existing_file['course_id']) != str(course_id):
-            return jsonify({'success': False, 'error': 'File does not belong to this course'}), 404
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 404, details={'message': 'File does not belong to this course'})
 
         if existing_file.get('storage_path'):
             try:
@@ -313,7 +312,7 @@ def delete_course_file(course_id: str, file_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in delete_course_file: {e}")
-        return jsonify({'success': False, 'error': 'Failed to delete file', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/files/reorder', methods=['POST'])
@@ -326,11 +325,11 @@ def reorder_course_files(course_id: str):
 
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         file_ids = data.get('file_ids', [])
         if not file_ids or not isinstance(file_ids, list):
-            return jsonify({'success': False, 'error': 'file_ids must be a non-empty array'}), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'field': 'file_ids', 'message': 'file_ids must be a non-empty array'})
 
         CourseFileRepository.update_order(course_id, file_ids)
 
@@ -347,4 +346,4 @@ def reorder_course_files(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in reorder_course_files: {e}")
-        return jsonify({'success': False, 'error': 'Failed to reorder files', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})

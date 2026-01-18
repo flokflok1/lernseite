@@ -29,6 +29,8 @@ from app.security.permissions import require_permission, Permissions
 from app.repositories.ai_models import AIModelsRepository
 from app.repositories.subscription import PlanRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.services import AIUsageService
@@ -67,49 +69,25 @@ def calculate_pricing() -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.BAD_REQUEST, 400, details={'message': 'Request body required'})
 
         # Validate required fields
         required_fields = ['model_id', 'input_tokens', 'output_tokens']
         missing_fields = [f for f in required_fields if f not in data]
         if missing_fields:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_FIELDS',
-                    'message': f'Missing required fields: {", ".join(missing_fields)}'
-                }
-            }), 400
+            return error_response(ErrorCode.MISSING_FIELDS, 400, details={'missing_fields': missing_fields})
 
         # Get model
         model = AIModelsRepository.get_by_id(data['model_id'])
         if not model:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MODEL_NOT_FOUND',
-                    'message': f'Model {data["model_id"]} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404, details={'model_id': data['model_id']})
 
         # Validate token counts
         input_tokens = int(data['input_tokens'])
         output_tokens = int(data['output_tokens'])
 
         if input_tokens < 0 or output_tokens < 0:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_TOKEN_COUNT',
-                    'message': 'Token counts must be non-negative'
-                }
-            }), 400
+            return error_response(ErrorCode.INVALID_TOKEN_COUNT, 400, details={'message': 'Token counts must be non-negative'})
 
         # DDD: Use AIUsageService for calculation
         result = AIUsageService.calculate_operation_cost(
@@ -148,22 +126,10 @@ def calculate_pricing() -> Tuple[Dict[str, Any], int]:
 
     except ValueError as ve:
         logger.error(f"Validation error in calculate_pricing: {ve}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'VALIDATION_ERROR',
-                'message': str(ve)
-            }
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'message': str(ve)})
     except Exception as e:
         logger.error(f"Error calculating pricing: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CALCULATE_PRICING_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.CALCULATE_PRICING_ERROR, 500, details={'message': str(e)})
 
 
 @pricing_calculator_bp.route('/estimate', methods=['POST'])
@@ -188,47 +154,23 @@ def estimate_operation_cost() -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.BAD_REQUEST, 400, details={'message': 'Request body required'})
 
         operation_type = data.get('operation_type')
         if not operation_type:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_OPERATION_TYPE',
-                    'message': 'operation_type is required'
-                }
-            }), 400
+            return error_response(ErrorCode.MISSING_OPERATION_TYPE, 400, details={'message': 'operation_type is required'})
 
         # Get model (use default if not specified)
         model_id = data.get('model_id')
         if model_id:
             model = AIModelsRepository.get_by_id(model_id)
             if not model:
-                return jsonify({
-                    'success': False,
-                    'error': {
-                        'code': 'MODEL_NOT_FOUND',
-                        'message': f'Model {model_id} not found'
-                    }
-                }), 404
+                return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404, details={'model_id': model_id})
         else:
             # Use default chat model
             model = AIModelsRepository.get_default_model('chat')
             if not model:
-                return jsonify({
-                    'success': False,
-                    'error': {
-                        'code': 'NO_DEFAULT_MODEL',
-                        'message': 'No default model configured for chat category'
-                    }
-                }), 400
+                return error_response(ErrorCode.NO_DEFAULT_MODEL, 400, details={'message': 'No default model configured for chat category'})
 
         # Get token estimates based on operation type
         complexity = data.get('complexity', 'medium')
@@ -273,13 +215,7 @@ def estimate_operation_cost() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error estimating operation cost: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'ESTIMATE_COST_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.ESTIMATE_COST_ERROR, 500, details={'message': str(e)})
 
 
 # ============================================================================
@@ -327,13 +263,7 @@ def list_pricing_plans() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error listing pricing plans: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'LIST_PLANS_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.LIST_PLANS_ERROR, 500, details={'message': str(e)})
 
 
 @pricing_plans_bp.route('/<plan_id>', methods=['GET'])
@@ -357,13 +287,7 @@ def get_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
         plan = PlanRepository.get_by_id(plan_id)
 
         if not plan:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PLAN_NOT_FOUND',
-                    'message': f'Plan {plan_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.PLAN_NOT_FOUND, 404, details={'plan_id': plan_id})
 
         return jsonify({
             'success': True,
@@ -372,13 +296,7 @@ def get_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting pricing plan {plan_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_PLAN_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.GET_PLAN_ERROR, 500, details={'message': str(e)})
 
 
 @pricing_plans_bp.route('/<plan_id>', methods=['PUT'])
@@ -410,37 +328,19 @@ def update_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'Request body required'
-                }
-            }), 400
+            return error_response(ErrorCode.BAD_REQUEST, 400, details={'message': 'Request body required'})
 
         # Get plan
         plan = PlanRepository.get_by_id(plan_id)
         if not plan:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PLAN_NOT_FOUND',
-                    'message': f'Plan {plan_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.PLAN_NOT_FOUND, 404, details={'plan_id': plan_id})
 
         # Business Rule: Check if plan can be deactivated
         if data.get('active') is False and plan.get('active'):
             # Check for active subscriptions
             active_subscriptions = PlanRepository.get_active_subscription_count(plan_id)
             if active_subscriptions > 0:
-                return jsonify({
-                    'success': False,
-                    'error': {
-                        'code': 'PLAN_HAS_ACTIVE_SUBSCRIPTIONS',
-                        'message': f'Plan has {active_subscriptions} active subscriptions. Cannot deactivate.'
-                    }
-                }), 400
+                return error_response(ErrorCode.PLAN_HAS_ACTIVE_SUBSCRIPTIONS, 400, details={'active_subscriptions': active_subscriptions})
 
         # Update plan
         updated_plan = PlanRepository.update(plan_id, data)
@@ -462,13 +362,7 @@ def update_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error updating pricing plan {plan_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'UPDATE_PLAN_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.UPDATE_PLAN_ERROR, 500, details={'message': str(e)})
 
 
 @pricing_plans_bp.route('/<plan_id>/calculate', methods=['POST'])
@@ -496,13 +390,7 @@ def calculate_plan_costs(plan_id: str) -> Tuple[Dict[str, Any], int]:
         # Get plan
         plan = PlanRepository.get_by_id(plan_id)
         if not plan:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PLAN_NOT_FOUND',
-                    'message': f'Plan {plan_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.PLAN_NOT_FOUND, 404, details={'plan_id': plan_id})
 
         # Get parameters
         usage_percentage = min(float(data.get('usage_percentage', 80)), 100)
@@ -576,13 +464,7 @@ def calculate_plan_costs(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error calculating plan costs for {plan_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CALCULATE_PLAN_COSTS_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.CALCULATE_PLAN_COSTS_ERROR, 500, details={'message': str(e)})
 
 
 # ============================================================================

@@ -36,6 +36,8 @@ from app.repositories.courses.chapters import ChapterRepository
 from app.repositories.courses.lessons import LessonRepository
 from app.repositories.theory_sheet import TheorySheetRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -71,13 +73,7 @@ def list_chapter_theories(chapter_id: str):
         # Verify chapter exists
         chapter = ChapterRepository.find_by_id(chapter_id)
         if not chapter:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'CHAPTER_NOT_FOUND',
-                    'message': 'error.chapter_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_CHAPTER_NOT_FOUND, 404)
 
         # Get theory sheets
         theories = TheorySheetRepository.list_by_chapter(chapter_id)
@@ -91,13 +87,7 @@ def list_chapter_theories(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in list_chapter_theories: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': 'error.failed_to_load_chapter_theories'
-            }
-        }), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/chapters/<chapter_id>/theory', methods=['POST'])
@@ -128,13 +118,7 @@ def create_chapter_theory(chapter_id: str):
         # Verify chapter exists
         chapter = ChapterRepository.find_by_id(chapter_id)
         if not chapter:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'CHAPTER_NOT_FOUND',
-                    'message': 'error.chapter_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_CHAPTER_NOT_FOUND, 404)
 
         # Validate request
         try:
@@ -144,13 +128,7 @@ def create_chapter_theory(chapter_id: str):
                 **data
             )
         except ValidationError as e:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'VALIDATION_ERROR',
-                    'message': 'error.theory_sheet_validation_failed'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
 
         # Create theory sheet
         theory = TheorySheetRepository.create_chapter_theory(
@@ -179,13 +157,7 @@ def create_chapter_theory(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in create_chapter_theory: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': 'error.failed_to_create_chapter_theory'
-            }
-        }), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 # ============================================================================
@@ -219,13 +191,7 @@ def list_lesson_theories(lesson_id: str):
         # Verify lesson exists
         lesson = LessonRepository.find_by_id(lesson_id)
         if not lesson:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'LESSON_NOT_FOUND',
-                    'message': 'error.lesson_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_LESSON_NOT_FOUND, 404)
 
         # Get theory sheets
         theories = TheorySheetRepository.list_by_lesson(lesson_id)
@@ -239,13 +205,7 @@ def list_lesson_theories(lesson_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in list_lesson_theories: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': 'error.failed_to_load_lesson_theories'
-            }
-        }), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/lessons/<lesson_id>/theory', methods=['POST'])
@@ -276,13 +236,7 @@ def create_lesson_theory(lesson_id: str):
         # Verify lesson exists
         lesson = LessonRepository.find_by_id(lesson_id)
         if not lesson:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'LESSON_NOT_FOUND',
-                    'message': 'error.lesson_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_LESSON_NOT_FOUND, 404)
 
         # Validate request
         try:
@@ -292,13 +246,7 @@ def create_lesson_theory(lesson_id: str):
                 **data
             )
         except ValidationError as e:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'VALIDATION_ERROR',
-                    'message': 'error.theory_sheet_validation_failed'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
 
         # Create theory sheet
         theory = TheorySheetRepository.create_lesson_theory(
@@ -327,13 +275,7 @@ def create_lesson_theory(lesson_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in create_lesson_theory: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': 'error.failed_to_create_lesson_theory'
-            }
-        }), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 # ============================================================================
@@ -368,25 +310,13 @@ def get_theory_sheet(theory_id: str):
     try:
         theory = TheorySheetRepository.get_by_id(theory_id)
         if not theory:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'THEORY_SHEET_NOT_FOUND',
-                    'message': 'error.theory_sheet_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         return jsonify({'success': True, 'data': theory}), 200
 
     except Exception as e:
         logger.error(f"ERROR in get_theory_sheet: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': 'error.failed_to_load_theory_sheet'
-            }
-        }), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/theory-sheets/<theory_id>', methods=['PATCH'])
@@ -420,13 +350,7 @@ def update_theory_sheet(theory_id: str):
         # Get theory sheet to determine parent type
         theory = TheorySheetRepository.get_by_id(theory_id)
         if not theory:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'THEORY_SHEET_NOT_FOUND',
-                    'message': 'error.theory_sheet_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         parent_type = theory['parent_type']
 
@@ -434,13 +358,7 @@ def update_theory_sheet(theory_id: str):
         try:
             update_data = TheorySheetUpdate(**data)
         except ValidationError as e:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'VALIDATION_ERROR',
-                    'message': 'error.theory_sheet_validation_failed'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
 
         # Update theory sheet
         updated_theory = TheorySheetRepository.update_theory(
@@ -452,13 +370,7 @@ def update_theory_sheet(theory_id: str):
         )
 
         if not updated_theory:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'THEORY_SHEET_NOT_FOUND',
-                    'message': 'error.theory_sheet_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         # Audit log
         AuditService.log_action(
@@ -478,13 +390,7 @@ def update_theory_sheet(theory_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in update_theory_sheet: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': 'error.failed_to_update_theory_sheet'
-            }
-        }), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/theory-sheets/<theory_id>', methods=['DELETE'])
@@ -510,26 +416,14 @@ def delete_theory_sheet(theory_id: str):
         # Get theory sheet to determine parent type and details
         theory = TheorySheetRepository.get_by_id(theory_id)
         if not theory:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'THEORY_SHEET_NOT_FOUND',
-                    'message': 'error.theory_sheet_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         parent_type = theory['parent_type']
 
         # Delete theory sheet
         deleted = TheorySheetRepository.delete_by_id(theory_id, parent_type)
         if not deleted:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'THEORY_SHEET_NOT_FOUND',
-                    'message': 'error.theory_sheet_not_found'
-                }
-            }), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
 
         # Audit log
         AuditService.log_action(
@@ -549,10 +443,4 @@ def delete_theory_sheet(theory_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in delete_theory_sheet: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': 'error.failed_to_delete_theory_sheet'
-            }
-        }), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})

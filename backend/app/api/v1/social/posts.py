@@ -16,6 +16,8 @@ Endpoints:
 from flask import Blueprint, request, jsonify, g
 from app.core.feature_flags import require_feature
 from app.middleware.auth import token_required
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 from typing import Optional
 
 posts_bp = Blueprint('social_posts', __name__, url_prefix='/social/posts')
@@ -51,13 +53,7 @@ def create_post():
 
     # Validate required fields
     if not data.get('content') and not data.get('media_urls'):
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INVALID_INPUT',
-                'message': 'Post must have either content or media'
-            }
-        }), 400
+        return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'message': 'Post must have either content or media'})
 
     # Create post
     post = PostManager.create_post(
@@ -97,13 +93,7 @@ def get_post(post_id: str):
     post = PostManager.get_post(post_id, viewer_user_id=user_id)
 
     if not post:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'NOT_FOUND',
-                'message': 'Post not found'
-            }
-        }), 404
+        return error_response(ErrorCode.SOCIAL_POST_NOT_FOUND, 404)
 
     return jsonify({
         'success': True,
@@ -143,13 +133,7 @@ def update_post(post_id: str):
     )
 
     if not post:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'NOT_FOUND',
-                'message': 'Post not found or no permission'
-            }
-        }), 404
+        return error_response(ErrorCode.SOCIAL_POST_NOT_FOUND, 404, details={'message': 'Post not found or no permission'})
 
     return jsonify({
         'success': True,
@@ -178,13 +162,7 @@ def delete_post(post_id: str):
     success = PostManager.delete_post(post_id, user_id)
 
     if not success:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'NOT_FOUND',
-                'message': 'Post not found or no permission'
-            }
-        }), 404
+        return error_response(ErrorCode.SOCIAL_POST_NOT_FOUND, 404, details={'message': 'Post not found or no permission'})
 
     return jsonify({
         'success': True,
@@ -253,13 +231,7 @@ def pin_post(post_id: str):
     success = PostManager.pin_post(post_id, user_id)
 
     if not success:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'PIN_FAILED',
-                'message': 'Could not pin post. Either not found, not owner, or already have pinned post.'
-            }
-        }), 400
+        return error_response(ErrorCode.SOCIAL_POST_PIN_FAILED, 400, details={'message': 'Could not pin post. Either not found, not owner, or already have pinned post.'})
 
     return jsonify({
         'success': True,

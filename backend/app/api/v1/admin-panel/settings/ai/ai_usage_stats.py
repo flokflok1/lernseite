@@ -22,6 +22,8 @@ from app.api.v1 import api_v1
 from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.usage import AIUsageRepository
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -61,14 +63,8 @@ def get_ai_usage_stats() -> Tuple[Dict[str, Any], int]:
         # Validate period
         valid_periods = ['day', 'week', 'month', 'year']
         if period not in valid_periods:
-            return {
-                'success': False,
-                'error': {
-                    'code': 'INVALID_PERIOD',
-                    'message': f"Period must be one of: {', '.join(valid_periods)}",
-                    'field': 'period'
-                }
-            }, 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
+                details={'field': 'period', 'valid_values': valid_periods})
 
         # Get usage statistics from repository
         stats = AIUsageRepository.get_usage_stats(period=period)
@@ -104,10 +100,5 @@ def get_ai_usage_stats() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error fetching AI usage stats: {str(e)}")
-        return {
-            'success': False,
-            'error': {
-                'code': 'AI_STATS_ERROR',
-                'message': 'Failed to fetch AI usage statistics'
-            }
-        }, 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})

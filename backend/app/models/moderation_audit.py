@@ -156,7 +156,7 @@ class ModerationAuditCreate(BaseModel):
     def notes_not_blank(cls, v: Optional[str]) -> Optional[str]:
         """Ensure notes is not just whitespace if provided."""
         if v is not None and not v.strip():
-            raise ValueError('notes cannot be empty string')
+            raise ValueError('notes cannot be empty')
         return v.strip() if v else None
 
 

@@ -21,6 +21,8 @@ from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai_models import AIModelsRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.events import (
@@ -60,13 +62,8 @@ def set_default_model(model_id: int) -> Tuple[Dict[str, Any], int]:
         # Get previous default for this category
         model = AIModelsRepository.get_by_id(model_id)
         if not model:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MODEL_NOT_FOUND',
-                    'message': f'Model {model_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404,
+                details={'model_id': model_id})
 
         category = model.get('category')
         previous_default = AIModelsRepository.get_default_model(category)
@@ -108,13 +105,8 @@ def set_default_model(model_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error setting default model {model_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'SET_DEFAULT_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 @models_defaults_bp.route('/<int:model_id>/active', methods=['PUT'])
@@ -136,24 +128,14 @@ def toggle_model_active(model_id: int) -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         if data is None or 'active' not in data:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'INVALID_REQUEST',
-                    'message': 'active field required'
-                }
-            }), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'field': 'active'})
 
         model = AIModelsRepository.set_active(model_id, data['active'])
 
         if not model:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'MODEL_NOT_FOUND',
-                    'message': f'Model {model_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404,
+                details={'model_id': model_id})
 
         # Audit log
         AuditService.log_action(
@@ -172,13 +154,8 @@ def toggle_model_active(model_id: int) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error toggling model active status {model_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'TOGGLE_ACTIVE_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
 
 
 @models_defaults_bp.route('/default/<category>', methods=['GET'])
@@ -198,13 +175,8 @@ def get_default_model_for_category(category: str) -> Tuple[Dict[str, Any], int]:
         model = AIModelsRepository.get_default_model(category)
 
         if not model:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NO_DEFAULT_MODEL',
-                    'message': f'No default model configured for category: {category}'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404,
+                details={'category': category, 'message': 'No default model configured'})
 
         return jsonify({
             'success': True,
@@ -213,10 +185,5 @@ def get_default_model_for_category(category: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting default model for category {category}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_DEFAULT_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})

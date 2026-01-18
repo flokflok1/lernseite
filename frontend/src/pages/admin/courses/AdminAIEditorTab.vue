@@ -7,7 +7,7 @@
 
 <template>
   <div class="admin-ai-editor-tab h-full">
-    <AiEditorPanel :window="windowData" />
+    <AiEditorPanel :panel="windowData" />
   </div>
 </template>
 

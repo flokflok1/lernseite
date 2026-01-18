@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 from app.api.v1.course_editor.manual_editor import manual_editor_bp
 from app.api.v1.course_editor.shared.permissions import check_course_permission
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 from app.models.course_prompt import (
     CoursePromptResponse,
     CoursePromptUpdateRequest,
@@ -43,7 +45,7 @@ def list_course_prompts(course_id: str):
     try:
         course = CourseRepository.find_by_id(course_id)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         include_inactive = request.args.get('include_inactive', 'false').lower() == 'true'
 
@@ -61,7 +63,7 @@ def list_course_prompts(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in list_course_prompts: {e}")
-        return jsonify({'success': False, 'error': 'Failed to list course prompts', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/prompts/<scope>', methods=['GET'])
@@ -71,7 +73,7 @@ def get_course_prompt(course_id: str, scope: str):
     try:
         course = CourseRepository.find_by_id(course_id)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         language = request.args.get('language', None)
 
@@ -103,7 +105,7 @@ def get_course_prompt(course_id: str, scope: str):
 
     except Exception as e:
         logger.error(f"ERROR in get_course_prompt: {e}")
-        return jsonify({'success': False, 'error': 'Failed to get course prompt', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/prompts/<scope>', methods=['PUT'])
@@ -115,16 +117,16 @@ def upsert_course_prompt(course_id: str, scope: str):
 
         course = CourseRepository.find_by_id(course_id)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'error': 'Request body required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'body', 'message': 'Request body required'})
 
         try:
             update_request = CoursePromptUpdateRequest(**data)
         except ValidationError as ve:
-            return jsonify({'success': False, 'error': 'Validation failed', 'details': ve.errors()}), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': ve.errors()})
 
         existing_prompt = CoursePromptRepository.find_by_course_and_scope(
             course_id=course_id,
@@ -144,7 +146,7 @@ def upsert_course_prompt(course_id: str, scope: str):
         )
 
         if not prompt:
-            return jsonify({'success': False, 'error': 'Failed to create/update prompt'}), 500
+            return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
@@ -170,7 +172,7 @@ def upsert_course_prompt(course_id: str, scope: str):
 
     except Exception as e:
         logger.error(f"ERROR in upsert_course_prompt: {e}")
-        return jsonify({'success': False, 'error': 'Failed to upsert course prompt', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/prompts/<scope>', methods=['DELETE'])
@@ -189,10 +191,7 @@ def delete_course_prompt(course_id: str, scope: str):
         )
 
         if not existing_prompt:
-            return jsonify({
-                'success': False,
-                'error': 'Course prompt not found (already using global default)'
-            }), 404
+            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404, details={'message': 'Course prompt not found (already using global default)'})
 
         deleted = CoursePromptRepository.delete_by_course_and_scope(
             course_id=course_id,
@@ -201,7 +200,7 @@ def delete_course_prompt(course_id: str, scope: str):
         )
 
         if not deleted:
-            return jsonify({'success': False, 'error': 'Failed to delete prompt'}), 500
+            return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
@@ -220,7 +219,7 @@ def delete_course_prompt(course_id: str, scope: str):
 
     except Exception as e:
         logger.error(f"ERROR in delete_course_prompt: {e}")
-        return jsonify({'success': False, 'error': 'Failed to delete course prompt', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/prompts/reset', methods=['POST'])
@@ -232,14 +231,14 @@ def bulk_reset_course_prompts(course_id: str):
 
         course = CourseRepository.find_by_id(course_id)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         data = request.get_json() or {}
 
         try:
             reset_request = BulkResetRequest(**data)
         except ValidationError as ve:
-            return jsonify({'success': False, 'error': 'Validation failed', 'details': ve.errors()}), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': ve.errors()})
 
         deleted_count = CoursePromptRepository.bulk_reset_by_course(
             course_id=course_id,
@@ -265,7 +264,7 @@ def bulk_reset_course_prompts(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in bulk_reset_course_prompts: {e}")
-        return jsonify({'success': False, 'error': 'Failed to reset course prompts', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/prompts/resolve', methods=['POST'])
@@ -275,11 +274,11 @@ def resolve_course_prompt(course_id: str):
     try:
         course = CourseRepository.find_by_id(course_id)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'error': 'Request body required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'body', 'message': 'Request body required'})
 
         try:
             resolve_request = CoursePromptResolveRequest(
@@ -287,7 +286,7 @@ def resolve_course_prompt(course_id: str):
                 **data
             )
         except ValidationError as ve:
-            return jsonify({'success': False, 'error': 'Validation failed', 'details': ve.errors()}), 400
+            return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': ve.errors()})
 
         resolved = PromptResolver.resolve(
             course_id=course_id,
@@ -300,7 +299,7 @@ def resolve_course_prompt(course_id: str):
         return jsonify({'success': True, 'resolved': resolve_response}), 200
 
     except ValueError as ve:
-        return jsonify({'success': False, 'error': str(ve)}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'error': str(ve)})
     except Exception as e:
         logger.error(f"ERROR in resolve_course_prompt: {e}")
-        return jsonify({'success': False, 'error': 'Failed to resolve course prompt', 'details': str(e)}), 500
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})

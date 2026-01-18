@@ -221,7 +221,7 @@ export async function getActions(category?: ActionCategory): Promise<{
   categories: ActionCategory[]
 }> {
   const params = category ? `?category=${category}` : ''
-  const response = await http.get(`/admin/ai-editor/actions${params}`)
+  const response = await http.get(`/course-editor/ai/actions${params}`)
   return response.data.data
 }
 
@@ -229,7 +229,7 @@ export async function getActions(category?: ActionCategory): Promise<{
  * Get actions for a specific category
  */
 export async function getActionsByCategory(category: ActionCategory): Promise<AuthoringAction[]> {
-  const response = await http.get(`/admin/ai-editor/actions/${category}`)
+  const response = await http.get(`/course-editor/ai/actions/${category}`)
   return response.data.data.actions
 }
 
@@ -237,7 +237,7 @@ export async function getActionsByCategory(category: ActionCategory): Promise<Au
  * Get actions that apply to a specific entity type
  */
 export async function getActionsForEntity(entityType: EntityType): Promise<AuthoringAction[]> {
-  const response = await http.get(`/admin/ai-editor/actions/entity/${entityType}`)
+  const response = await http.get(`/course-editor/ai/actions/entity/${entityType}`)
   return response.data.data.actions
 }
 
@@ -245,7 +245,7 @@ export async function getActionsForEntity(entityType: EntityType): Promise<Autho
  * Get a single action by ID
  */
 export async function getAction(actionId: string): Promise<AuthoringAction> {
-  const response = await http.get(`/admin/ai-editor/actions/${actionId}`)
+  const response = await http.get(`/course-editor/ai/actions/${actionId}`)
   return response.data.data
 }
 
@@ -253,7 +253,7 @@ export async function getAction(actionId: string): Promise<AuthoringAction> {
  * Execute an authoring action
  */
 export async function executeAction(request: ExecuteActionRequest): Promise<ExecuteActionResponse> {
-  const response = await http.post('/admin/ai-editor/actions/execute', request)
+  const response = await http.post('/course-editor/ai/actions/execute', request)
   return response.data.data
 }
 
@@ -261,7 +261,7 @@ export async function executeAction(request: ExecuteActionRequest): Promise<Exec
  * Create a new authoring action (admin only)
  */
 export async function createAction(data: CreateActionRequest): Promise<AuthoringAction> {
-  const response = await http.post('/admin/ai-editor/actions', data)
+  const response = await http.post('/course-editor/ai/actions', data)
   return response.data.data
 }
 
@@ -269,7 +269,7 @@ export async function createAction(data: CreateActionRequest): Promise<Authoring
  * Update an existing action (admin only)
  */
 export async function updateAction(actionId: string, data: UpdateActionRequest): Promise<AuthoringAction> {
-  const response = await http.put(`/admin/ai-editor/actions/${actionId}`, data)
+  const response = await http.put(`/course-editor/ai/actions/${actionId}`, data)
   return response.data.data
 }
 
@@ -277,7 +277,7 @@ export async function updateAction(actionId: string, data: UpdateActionRequest):
  * Delete an action (admin only, soft delete)
  */
 export async function deleteAction(actionId: string): Promise<void> {
-  await http.delete(`/admin/ai-editor/actions/${actionId}`)
+  await http.delete(`/course-editor/ai/actions/${actionId}`)
 }
 
 /**
@@ -288,7 +288,7 @@ export async function getActionStats(actionId?: string, days: number = 30): Prom
   if (actionId) params.append('action_id', actionId)
   if (days) params.append('days', days.toString())
 
-  const response = await http.get(`/admin/ai-editor/actions/stats?${params.toString()}`)
+  const response = await http.get(`/course-editor/ai/actions/stats?${params.toString()}`)
   return response.data.data
 }
 
@@ -303,7 +303,7 @@ export async function getActionStats(actionId?: string, days: number = 30): Prom
  * learning methods from the 31 available types.
  */
 export async function getLMSuggestions(request: LMSuggestionsRequest): Promise<LMSuggestionsResponse> {
-  const response = await http.post('/admin/ai-editor/lm-suggestions', request)
+  const response = await http.post('/course-editor/ai/lm-suggestions', request)
   return response.data.data
 }
 
@@ -312,7 +312,7 @@ export async function getLMSuggestions(request: LMSuggestionsRequest): Promise<L
  * Uses the AI to analyze context - may take longer but provides intelligent suggestions.
  */
 export async function getLMSuggestionsAI(request: LMSuggestionsRequest): Promise<LMSuggestionsResponse> {
-  const response = await http.post('/admin/ai-editor/lm-suggestions/async', request)
+  const response = await http.post('/course-editor/ai/lm-suggestions/async', request)
   return response.data.data
 }
 
@@ -321,7 +321,7 @@ export async function getLMSuggestionsAI(request: LMSuggestionsRequest): Promise
  * For manual selection when user wants to choose themselves.
  */
 export async function getAllLearningMethods(): Promise<LMGroupsResponse> {
-  const response = await http.get('/admin/ai-editor/learning-methods')
+  const response = await http.get('/course-editor/ai/learning-methods')
   return response.data.data
 }
 

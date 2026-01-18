@@ -22,6 +22,8 @@ from app.middleware.auth import token_required
 from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.jobs import AIJobsRepository
 from app.services.audit_service import AuditService
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.events import (
@@ -94,13 +96,7 @@ def list_ai_jobs() -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error listing AI jobs: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'LIST_JOBS_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.LIST_PLANS_ERROR, 500, details={'error': str(e)})
 
 
 @jobs_management_bp.route('/<job_id>', methods=['GET'])
@@ -124,13 +120,7 @@ def get_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
         job = AIJobsRepository.get_by_id(job_id)
 
         if not job:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'JOB_NOT_FOUND',
-                    'message': f'Job {job_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_JOB_NOT_FOUND, 404, details={'job_id': job_id})
 
         # Calculate duration if job is completed
         duration = None
@@ -151,13 +141,7 @@ def get_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error getting AI job {job_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'GET_JOB_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_JOB_NOT_FOUND, 500, details={'error': str(e)})
 
 
 @jobs_management_bp.route('/<job_id>/cancel', methods=['PUT'])
@@ -183,34 +167,16 @@ def cancel_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
         # Get job
         job = AIJobsRepository.get_by_id(job_id)
         if not job:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'JOB_NOT_FOUND',
-                    'message': f'Job {job_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_JOB_NOT_FOUND, 404, details={'job_id': job_id})
 
         # Business Rule: Check status
         if job.get('status') not in ['pending', 'processing']:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'CANNOT_CANCEL',
-                    'message': f'Job with status {job.get("status")} cannot be cancelled'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400, details={'message': f'Job with status {job.get("status")} cannot be cancelled'})
 
         # Business Rule: Check ownership
         current_user_id = str(g.current_user.get('user_id'))
         if job.get('creator_id') != current_user_id and not g.current_user.get('is_admin'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PERMISSION_DENIED',
-                    'message': 'You do not have permission to cancel this job'
-                }
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403, details={'message': 'You do not have permission to cancel this job'})
 
         # Cancel job
         updated_job = AIJobsRepository.update(
@@ -260,13 +226,7 @@ def cancel_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error cancelling AI job {job_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CANCEL_JOB_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})
 
 
 @jobs_management_bp.route('/<job_id>', methods=['DELETE'])
@@ -291,34 +251,16 @@ def delete_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
         # Get job
         job = AIJobsRepository.get_by_id(job_id)
         if not job:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'JOB_NOT_FOUND',
-                    'message': f'Job {job_id} not found'
-                }
-            }), 404
+            return error_response(ErrorCode.AI_JOB_NOT_FOUND, 404, details={'job_id': job_id})
 
         # Business Rule: Check status
         if job.get('status') not in ['failed', 'cancelled']:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'CANNOT_DELETE',
-                    'message': f'Job with status {job.get("status")} cannot be deleted. Only failed or cancelled jobs can be deleted.'
-                }
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400, details={'message': f'Job with status {job.get("status")} cannot be deleted. Only failed or cancelled jobs can be deleted.'})
 
         # Business Rule: Check ownership
         current_user_id = str(g.current_user.get('user_id'))
         if job.get('creator_id') != current_user_id and not g.current_user.get('is_admin'):
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'PERMISSION_DENIED',
-                    'message': 'You do not have permission to delete this job'
-                }
-            }), 403
+            return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403, details={'message': 'You do not have permission to delete this job'})
 
         # Delete job
         AIJobsRepository.delete(job_id)
@@ -343,10 +285,4 @@ def delete_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
     except Exception as e:
         logger.error(f"Error deleting AI job {job_id}: {e}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'DELETE_JOB_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500, details={'error': str(e)})

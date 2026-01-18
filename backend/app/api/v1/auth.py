@@ -30,6 +30,11 @@ from flask_jwt_extended import (
 )
 from pydantic import ValidationError
 from datetime import timedelta
+import logging
+
+from app.i18n.error_codes import ErrorCode, error_response
+
+logger = logging.getLogger(__name__)
 
 from app.models.user import (
     UserCreate,
@@ -102,11 +107,12 @@ def register():
         }), 201
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
     except ValueError as e:
-        return jsonify({'success': False, 'error': str(e)}), 400
+        return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'error': str(e)})
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Registration failed', 'details': str(e)}), 500
+        logger.error(f"Registration error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 @auth_bp.route('/verify-email', methods=['POST'])
@@ -133,9 +139,10 @@ def verify_email():
         }), 501
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Email verification failed', 'details': str(e)}), 500
+        logger.error(f"Email verification error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 # =============================================================================
@@ -167,7 +174,7 @@ def login():
         # Check brute-force protection
         is_blocked, error_message = BruteForceProtection.check_login_lockout(login_data.email, client_ip)
         if is_blocked:
-            return jsonify({'success': False, 'error': 'Account locked', 'message': error_message}), 403
+            return error_response(ErrorCode.USER_ACCOUNT_LOCKED, 403, details={'message': error_message})
 
         # Authenticate user
         user = UserRepository.authenticate(email=login_data.email, password=login_data.password)
@@ -175,33 +182,18 @@ def login():
             BruteForceProtection.record_failed_attempt(login_data.email, client_ip)
             AuditService.log_login_failed(email=login_data.email, reason='Invalid credentials', metadata={'ip': client_ip})
             remaining = BruteForceProtection.get_remaining_attempts(login_data.email)
-            return jsonify({
-                'success': False,
-                'error': 'Invalid credentials',
-                'message': 'Email or password is incorrect',
-                'remaining_attempts': remaining
-            }), 401
+            return error_response(ErrorCode.AUTH_INVALID_CREDENTIALS, 401, details={'remaining_attempts': remaining})
 
         # Check 2FA
         if user.get('two_factor_enabled', False):
             if not login_data.totp_code:
-                return jsonify({
-                    'success': False,
-                    'error': '2FA code required',
-                    'message': 'Please provide your 6-digit 2FA code',
-                    'two_factor_required': True
-                }), 401
+                return error_response(ErrorCode.AUTH_2FA_REQUIRED, 401, details={'two_factor_required': True})
 
             is_valid = AdminSetup.verify_2fa_code(user.get('two_factor_secret'), login_data.totp_code)
             if not is_valid:
                 BruteForceProtection.record_failed_attempt(login_data.email, client_ip)
                 remaining = BruteForceProtection.get_remaining_attempts(login_data.email)
-                return jsonify({
-                    'success': False,
-                    'error': 'Invalid 2FA code',
-                    'message': 'The 2FA code you entered is incorrect',
-                    'remaining_attempts': remaining
-                }), 401
+                return error_response(ErrorCode.AUTH_2FA_INVALID, 401, details={'remaining_attempts': remaining})
 
         # Successful login
         BruteForceProtection.record_successful_login(login_data.email, client_ip)
@@ -270,9 +262,10 @@ def login():
         return jsonify(response_data), 200
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Login failed', 'details': str(e)}), 500
+        logger.error(f"Login error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 @auth_bp.route('/refresh', methods=['POST'])
@@ -293,7 +286,7 @@ def refresh():
         user = UserRepository.find_by_id(user_id)
 
         if not user or not user.get('is_active', True):
-            return jsonify({'success': False, 'error': 'User not found or inactive'}), 401
+            return error_response(ErrorCode.USER_NOT_FOUND, 401)
 
         # Create new access token with additional claims (RBAC 2.0)
         additional_claims = {
@@ -314,7 +307,8 @@ def refresh():
         }), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Token refresh failed', 'details': str(e)}), 401
+        logger.error(f"Token refresh error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 401, details={'error': str(e)})
 
 
 @auth_bp.route('/logout', methods=['POST'])
@@ -337,7 +331,8 @@ def logout():
         return jsonify({'success': True, 'message': 'Logout successful'}), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Logout failed', 'details': str(e)}), 500
+        logger.error(f"Logout error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 @auth_bp.route('/me', methods=['GET'])
@@ -359,7 +354,8 @@ def get_current_user_info():
         return jsonify({'success': True, 'user': user_response.model_dump()}), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Failed to get user info', 'details': str(e)}), 500
+        logger.error(f"Get user info error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 # =============================================================================
@@ -382,7 +378,7 @@ def forgot_password():
         email = data.get('email')
 
         if not email:
-            return jsonify({'success': False, 'error': 'Email is required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'email'})
 
         user = UserRepository.find_by_email(email)
         if user:
@@ -396,7 +392,8 @@ def forgot_password():
         }), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Password reset request failed', 'details': str(e)}), 500
+        logger.error(f"Forgot password error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 @auth_bp.route('/reset-password', methods=['POST'])
@@ -427,9 +424,10 @@ def reset_password():
         }), 501
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Password reset failed', 'details': str(e)}), 500
+        logger.error(f"Reset password error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 # =============================================================================
@@ -452,11 +450,7 @@ def setup_2fa():
         user = get_current_user()
 
         if user.get('two_factor_enabled', False):
-            return jsonify({
-                'success': False,
-                'error': '2FA already enabled',
-                'message': 'Two-factor authentication is already enabled for your account'
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400, details={'message': 'Two-factor authentication is already enabled for your account'})
 
         totp_secret = AdminSetup._generate_totp_secret()
         qr_code = AdminSetup.generate_qr_code(user['email'], totp_secret)
@@ -475,7 +469,8 @@ def setup_2fa():
         }), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'error': '2FA setup failed', 'details': str(e)}), 500
+        logger.error(f"2FA setup error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 @auth_bp.route('/2fa/verify', methods=['POST'])
@@ -501,19 +496,11 @@ def verify_2fa():
 
         totp_secret = user.get('two_factor_secret')
         if not totp_secret:
-            return jsonify({
-                'success': False,
-                'error': '2FA not set up',
-                'message': 'Please set up 2FA first at /api/v1/auth/2fa/setup'
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400, details={'message': 'Please set up 2FA first at /api/v1/auth/2fa/setup'})
 
         is_valid = AdminSetup.verify_2fa_code(totp_secret, verify_data.totp_code)
         if not is_valid:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid 2FA code',
-                'message': 'The code you entered is incorrect. Please try again.'
-            }), 400
+            return error_response(ErrorCode.AUTH_2FA_INVALID, 400)
 
         execute_query("UPDATE users SET two_factor_enabled = true WHERE user_id = %s", (user['user_id'],))
         AuditService.log_2fa_enabled(user_id=user['user_id'], user_email=user['email'])
@@ -525,9 +512,10 @@ def verify_2fa():
         }), 200
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
     except Exception as e:
-        return jsonify({'success': False, 'error': '2FA verification failed', 'details': str(e)}), 500
+        logger.error(f"2FA verification error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 @auth_bp.route('/2fa/disable', methods=['POST'])
@@ -555,28 +543,16 @@ def disable_2fa():
         disable_data = TwoFactorDisable(**data)
 
         if not user.get('two_factor_enabled', False):
-            return jsonify({
-                'success': False,
-                'error': '2FA not enabled',
-                'message': 'Two-factor authentication is not enabled for your account'
-            }), 400
+            return error_response(ErrorCode.BUSINESS_LOGIC_ERROR, 400, details={'message': 'Two-factor authentication is not enabled for your account'})
 
         authenticated = UserRepository.authenticate(user['email'], disable_data.password)
         if not authenticated:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid password',
-                'message': 'The password you entered is incorrect'
-            }), 401
+            return error_response(ErrorCode.AUTH_INVALID_CREDENTIALS, 401, details={'message': 'The password you entered is incorrect'})
 
         totp_secret = user.get('two_factor_secret')
         is_valid = AdminSetup.verify_2fa_code(totp_secret, disable_data.totp_code)
         if not is_valid:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid 2FA code',
-                'message': 'The 2FA code you entered is incorrect'
-            }), 400
+            return error_response(ErrorCode.AUTH_2FA_INVALID, 400)
 
         execute_query("UPDATE users SET two_factor_enabled = false, two_factor_secret = NULL WHERE user_id = %s", (user['user_id'],))
         AuditService.log_2fa_disabled(user_id=user['user_id'], user_email=user['email'])
@@ -588,9 +564,10 @@ def disable_2fa():
         }), 200
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'fields': e.errors()})
     except Exception as e:
-        return jsonify({'success': False, 'error': '2FA disable failed', 'details': str(e)}), 500
+        logger.error(f"2FA disable error: {e}")
+        return error_response(ErrorCode.AUTH_FAILED, 500, details={'error': str(e)})
 
 
 # Export blueprint

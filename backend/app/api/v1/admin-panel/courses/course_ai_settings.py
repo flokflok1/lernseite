@@ -32,6 +32,8 @@ from typing import Optional, Dict, Any
 from app.api.v1 import api_v1
 from app.services.course_ai_settings_service import CourseAiSettingsService
 from app.middleware.auth import admin_required
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 
 # ============================================================================
@@ -91,10 +93,7 @@ def get_available_profiles():
             "data": {"profiles": profiles}
         }), 200
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": {"code": "PROFILE_LIST_ERROR", "message": str(e)}
-        }), 500
+        return error_response(ErrorCode.AI_CONFIGURATION_ERROR, 500, details={'error': str(e)})
 
 
 @api_v1.route('/admin/course-ai-settings', methods=['GET'])
@@ -141,10 +140,7 @@ def list_all_course_ai_settings():
             "data": result
         }), 200
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": {"code": "LIST_ERROR", "message": str(e)}
-        }), 500
+        return error_response(ErrorCode.AI_CONFIGURATION_ERROR, 500, details={'error': str(e)})
 
 
 @api_v1.route('/admin/course-ai-settings/<course_id>', methods=['GET'])
@@ -199,15 +195,9 @@ def get_course_ai_settings(course_id: str):
             }
         }), 200
     except ValueError as e:
-        return jsonify({
-            "success": False,
-            "error": {"code": "NOT_FOUND", "message": str(e)}
-        }), 404
+        return error_response(ErrorCode.COURSE_NOT_FOUND, 404, details={'error': str(e)})
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": {"code": "GET_ERROR", "message": str(e)}
-        }), 500
+        return error_response(ErrorCode.AI_CONFIGURATION_ERROR, 500, details={'error': str(e)})
 
 
 @api_v1.route('/admin/course-ai-settings/<course_id>', methods=['PUT'])

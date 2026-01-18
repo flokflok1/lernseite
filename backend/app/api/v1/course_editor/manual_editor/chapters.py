@@ -24,6 +24,8 @@ from app.repositories.courses import CourseRepository
 from app.repositories.courses.chapters import ChapterRepository
 from app.services.audit_service import AuditService
 from app.middleware.auth import get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 
 @manual_editor_bp.route('/courses/<course_id>/chapters', methods=['GET'])
@@ -33,7 +35,7 @@ def list_course_chapters(course_id: str):
     try:
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         chapters = ChapterRepository.find_by_course(course_id)
 
@@ -41,7 +43,7 @@ def list_course_chapters(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_list_course_chapters: {e}")
-        return jsonify({'success': False, 'error': 'Failed to load chapters', 'details': str(e)}), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/chapters', methods=['POST'])
@@ -54,10 +56,10 @@ def create_chapter(course_id: str):
 
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         if not data.get('title'):
-            return jsonify({'success': False, 'error': 'Title is required'}), 400
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, field='title')
 
         chapter_data = {
             'course_id': course_id,
@@ -88,7 +90,7 @@ def create_chapter(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_create_chapter: {e}")
-        return jsonify({'success': False, 'error': 'Failed to create chapter', 'details': str(e)}), 500
+        return error_response(ErrorCode.CHAPTER_CREATE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/chapters/<chapter_id>', methods=['PATCH'])
@@ -101,7 +103,7 @@ def update_chapter(chapter_id: str):
 
         existing_chapter = ChapterRepository.find_by_id(chapter_id)
         if not existing_chapter:
-            return jsonify({'success': False, 'error': 'Module not found'}), 404
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
 
         updated_chapter = ChapterRepository.update(chapter_id, data)
 
@@ -122,7 +124,7 @@ def update_chapter(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_update_chapter: {e}")
-        return jsonify({'success': False, 'error': 'Failed to update chapter', 'details': str(e)}), 500
+        return error_response(ErrorCode.CHAPTER_UPDATE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/chapters/<chapter_id>', methods=['DELETE'])
@@ -136,7 +138,7 @@ def delete_chapter(chapter_id: str):
 
         existing_chapter = ChapterRepository.find_by_id(chapter_id)
         if not existing_chapter:
-            return jsonify({'success': False, 'error': 'Module not found'}), 404
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
 
         ChapterRepository.delete(chapter_id)
 
@@ -157,7 +159,7 @@ def delete_chapter(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_delete_chapter: {e}")
-        return jsonify({'success': False, 'error': 'Failed to delete chapter', 'details': str(e)}), 500
+        return error_response(ErrorCode.CHAPTER_DELETE_FAILED, 500, details={'details': str(e)})
 
 
 @manual_editor_bp.route('/courses/<course_id>/chapters/reorder', methods=['POST'])
@@ -170,11 +172,11 @@ def reorder_chapters(course_id: str):
 
         course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not course:
-            return jsonify({'success': False, 'error': 'Course not found'}), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         chapter_ids = data.get('chapter_ids', [])
         if not chapter_ids or not isinstance(chapter_ids, list):
-            return jsonify({'success': False, 'error': 'chapter_ids must be a non-empty array'}), 400
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'field': 'chapter_ids', 'message': 'must be a non-empty array'})
 
         chapter_orders = []
         for index, chapter_id in enumerate(chapter_ids, start=1):
@@ -201,4 +203,4 @@ def reorder_chapters(course_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in admin_reorder_chapters: {e}")
-        return jsonify({'success': False, 'error': 'Failed to reorder chapters', 'details': str(e)}), 500
+        return error_response(ErrorCode.CHAPTER_REORDER_FAILED, 500, details={'details': str(e)})

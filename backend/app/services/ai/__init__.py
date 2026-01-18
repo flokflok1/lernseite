@@ -87,4 +87,9 @@ __all__ = [
     'GoogleProvider',
     'CohereProvider',
     'HuggingFaceProvider'
+
+    # NOTE: AIJobService, PromptResolver, ExamContextDetector are available via:
+    # - Direct imports: from app.services.ai.job_service import AIJobService
+    # - Or bridge files: from app.services.ai_job_service import AIJobService
+    # They are not re-exported here to avoid circular import issues
 ]

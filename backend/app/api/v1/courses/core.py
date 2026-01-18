@@ -17,6 +17,8 @@ import logging
 from app.repositories.courses import CourseRepository
 from app.repositories.enrollments.core import EnrollmentRepository
 from app.middleware.auth import get_current_user
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -112,11 +114,7 @@ def list_courses():
 
     except Exception as e:
         logger.error(f"Error listing courses: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Failed to list courses',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
 
 
 @core_bp.route('/<course_id>', methods=['GET'])
@@ -137,11 +135,7 @@ def get_course(course_id: str):
         course = CourseRepository.find_by_id(course_id)
 
         if not course:
-            return jsonify({
-                'success': False,
-                'error': 'Course not found',
-                'message': 'The requested course does not exist'
-            }), 404
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404, details={'message': 'The requested course does not exist'})
 
         # Check access permissions
         user = get_current_user()
@@ -155,11 +149,7 @@ def get_course(course_id: str):
 
         # For non-public courses, check permissions
         if not user:
-            return jsonify({
-                'success': False,
-                'error': 'Authentication required',
-                'message': 'This course requires authentication to view'
-            }), 401
+            return error_response(ErrorCode.AUTH_TOKEN_MISSING, 401, details={'message': 'This course requires authentication to view'})
 
         # Course creator can always view
         if user['user_id'] == course['creator_id']:
@@ -190,16 +180,8 @@ def get_course(course_id: str):
                 'course': course
             }), 200
 
-        return jsonify({
-            'success': False,
-            'error': 'Access denied',
-            'message': 'You do not have permission to view this course'
-        }), 403
+        return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403, details={'message': 'You do not have permission to view this course'})
 
     except Exception as e:
         logger.error(f"Error getting course: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Failed to get course',
-            'details': str(e)
-        }), 500
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})

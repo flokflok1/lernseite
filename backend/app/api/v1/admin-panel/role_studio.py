@@ -28,6 +28,8 @@ from app.models.role_studio import (
     SuccessResponse,
     ErrorResponse
 )
+from app.i18n.error_codes import ErrorCode
+from app.i18n.error_codes import error_response
 from pydantic import ValidationError
 import json
 
@@ -91,13 +93,7 @@ def get_all_modes():
         return jsonify(response_data), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 @role_studio_bp.route('/modes/<role_code>', methods=['GET'])
@@ -118,13 +114,7 @@ def get_mode(role_code: str):
         mode = RoleStudioService.get_role_studio_mode(role_code)
 
         if not mode:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NOT_FOUND',
-                    'message': f'Role studio mode not found: {role_code}'
-                }
-            }), 404
+            return error_response(ErrorCode.NOT_FOUND, 404, details={'message': f'Role studio mode not found: {role_code}'})
 
         # Calculate permission count
         permissions = mode.get('permissions', {})
@@ -139,13 +129,7 @@ def get_mode(role_code: str):
         return jsonify(mode), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 @role_studio_bp.route('/studio-modes', methods=['GET'])
@@ -181,13 +165,7 @@ def get_modes_by_studio(studio_mode: Optional[str] = None):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 @role_studio_bp.route('/organization-roles', methods=['GET'])
@@ -207,13 +185,7 @@ def get_organization_roles():
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 # ============================================================================
@@ -237,13 +209,7 @@ def get_permissions(role_code: str):
         permissions = RoleStudioService.get_role_permissions(role_code)
 
         if not permissions:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NOT_FOUND',
-                    'message': f'Role not found: {role_code}'
-                }
-            }), 404
+            return error_response(ErrorCode.NOT_FOUND, 404, details={'message': f'Role not found: {role_code}'})
 
         return jsonify({
             'role_code': role_code,
@@ -252,13 +218,7 @@ def get_permissions(role_code: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 @role_studio_bp.route('/modes/<role_code>/permissions', methods=['PUT'])
@@ -295,13 +255,7 @@ def update_permissions(role_code: str):
         )
 
         if not updated_role:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NOT_FOUND',
-                    'message': f'Role not found: {role_code}'
-                }
-            }), 404
+            return error_response(ErrorCode.NOT_FOUND, 404, details={'message': f'Role not found: {role_code}'})
 
         return jsonify({
             'success': True,
@@ -309,23 +263,10 @@ def update_permissions(role_code: str):
         }), 200
 
     except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'VALIDATION_ERROR',
-                'message': 'Invalid request data',
-                'details': e.errors()
-            }
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 # ============================================================================
@@ -372,32 +313,13 @@ def create_mode():
         }), 201
 
     except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'VALIDATION_ERROR',
-                'message': 'Invalid request data',
-                'details': e.errors()
-            }
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
     except ValueError as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'CONFLICT',
-                'message': str(e)
-            }
-        }), 409
+        return error_response(ErrorCode.CONFLICT, 409, details={'message': str(e)})
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 @role_studio_bp.route('/modes/<role_code>', methods=['PUT'])
@@ -448,13 +370,7 @@ def update_mode(role_code: str):
         )
 
         if not updated:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NOT_FOUND',
-                    'message': f'Role not found: {role_code}'
-                }
-            }), 404
+            return error_response(ErrorCode.NOT_FOUND, 404, details={'message': f'Role not found: {role_code}'})
 
         return jsonify({
             'success': True,
@@ -462,23 +378,10 @@ def update_mode(role_code: str):
         }), 200
 
     except ValidationError as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'VALIDATION_ERROR',
-                'message': 'Invalid request data',
-                'details': e.errors()
-            }
-        }), 400
+        return error_response(ErrorCode.VALIDATION_ERROR, 400, details={'errors': e.errors()})
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 @role_studio_bp.route('/modes/<role_code>', methods=['DELETE'])
@@ -511,13 +414,7 @@ def delete_mode(role_code: str):
         )
 
         if not deactivated:
-            return jsonify({
-                'success': False,
-                'error': {
-                    'code': 'NOT_FOUND',
-                    'message': f'Role not found: {role_code}'
-                }
-            }), 404
+            return error_response(ErrorCode.NOT_FOUND, 404, details={'message': f'Role not found: {role_code}'})
 
         return jsonify({
             'success': True,
@@ -526,13 +423,7 @@ def delete_mode(role_code: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})
 
 
 # ============================================================================
@@ -573,10 +464,4 @@ def get_change_history(role_code: str):
         }), 200
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_ERROR',
-                'message': str(e)
-            }
-        }), 500
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'details': str(e)})

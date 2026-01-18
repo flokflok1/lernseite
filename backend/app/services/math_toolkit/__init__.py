@@ -32,4 +32,8 @@ __all__ = [
     'TaskManager',
     'CalculatorHistory',
     'StepRecorder',
+    # NOTE: MathToolkitService is available via:
+    # - Direct import: from app.services.lm.math_toolkit import MathToolkitService
+    # - Or bridge file: from app.services.math_toolkit_service import MathToolkitService
+    # It is not re-exported here to avoid circular import issues
 ]

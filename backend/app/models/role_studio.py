@@ -5,7 +5,7 @@ Validation models for role-studio-mode API requests and responses.
 Handles serialization/deserialization and data validation.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 from typing import Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -80,7 +80,8 @@ class CreateRoleStudioRequest(BaseModel):
             }
         }
 
-    @validator("role_code")
+    @field_validator("role_code")
+    @classmethod
     def validate_role_code(cls, v):
         """Validate role code format"""
         if not v.replace("_", "").isalnum():
@@ -281,10 +282,11 @@ class RoleStudioDetailResponse(BaseModel):
     class Config:
         from_attributes = True
 
-    @validator("permission_count", pre=True, always=True)
-    def calculate_permission_count(cls, v, values):
+    @field_validator("permission_count", mode='before')
+    @classmethod
+    def calculate_permission_count(cls, v, info: ValidationInfo):
         """Calculate permission count from permissions dict"""
-        permissions = values.get("permissions", {})
+        permissions = info.data.get("permissions", {})
         return len(permissions) if permissions else 0
 
 
@@ -369,10 +371,11 @@ class PermissionsResponse(BaseModel):
             }
         }
 
-    @validator("permission_count", pre=True, always=True)
-    def calculate_count(cls, v, values):
+    @field_validator("permission_count", mode='before')
+    @classmethod
+    def calculate_count(cls, v, info: ValidationInfo):
         """Calculate permission count"""
-        permissions = values.get("permissions", {})
+        permissions = info.data.get("permissions", {})
         return len(permissions) if permissions else 0
 
 

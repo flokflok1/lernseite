@@ -5,7 +5,7 @@ Progress Loader - Lernfortschritt für den Tutor
 from typing import Dict, Any, Optional
 import logging
 
-from app.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 
 logger = logging.getLogger(__name__)
 

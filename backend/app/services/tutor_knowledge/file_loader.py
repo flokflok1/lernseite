@@ -5,7 +5,7 @@ File Loader - Kurs-Dateien (Skripte, Materialien) für den Tutor
 from typing import Dict, Any, Optional, List
 import logging
 
-from app.database.connection import fetch_all
+from app.infrastructure.persistence.database.connection import fetch_all
 
 logger = logging.getLogger(__name__)
 

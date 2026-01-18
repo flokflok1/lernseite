@@ -33,11 +33,11 @@ from app.domain.models.learning_method import (
     LearningMethodCreate,
     LearningMethodUpdate
 )
-from app.repositories.learning_method import LearningMethodRepository
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.infrastructure.persistence.repositories.learning_method import LearningMethodRepository
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 # Blueprint
 learning_methods_bp = Blueprint(

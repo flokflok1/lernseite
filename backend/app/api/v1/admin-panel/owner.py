@@ -6,8 +6,8 @@ These are system-critical settings that should not be accessible to regular admi
 """
 
 from flask import Blueprint, jsonify, request
-from app.security.rbac import require_owner
-from app.middleware.auth import token_required
+from app.infrastructure.security.rbac import require_owner
+from app.api.middleware.auth import token_required
 
 # Create blueprint
 owner_bp = Blueprint('owner', __name__, url_prefix='/api/v1/admin-panel/owner')
@@ -27,7 +27,7 @@ def owner_status():
         200: Owner status information
         403: Not owner-admin
     """
-    from app.middleware.auth import get_current_user
+    from app.api.middleware.auth import get_current_user
 
     user = get_current_user()
 

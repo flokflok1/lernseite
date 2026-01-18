@@ -23,10 +23,10 @@ from app.domain.models.admin_course import (
     AdminCourseUpdateRequest,
     AdminCourseStatusUpdateRequest
 )
-from app.repositories.courses import CourseRepository
+from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.services.audit_service import AuditService
-from app.middleware.auth import get_current_user
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import get_current_user
+from app.infrastructure.security.permissions import require_permission, Permissions
 
 
 @api_v1.route('/admin/courses', methods=['GET'])

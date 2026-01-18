@@ -9,7 +9,7 @@ class PortfolioService:
     @staticmethod
     def get_portfolio(user_id: str) -> Dict[str, Any]:
         """Get user's learning portfolio"""
-        from app.repositories.base_repository import BaseRepository
+        from app.infrastructure.persistence.repositories.base_repository import BaseRepository
         query = """
             SELECT 
                 COUNT(DISTINCT e.course_id) as courses_count,

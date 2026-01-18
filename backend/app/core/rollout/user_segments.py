@@ -5,7 +5,7 @@ Enable features for specific user segments (beta users, premium, etc.)
 """
 
 from typing import List, Optional, Dict, Any
-from app.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.base_repository import BaseRepository
 
 
 class UserSegmentsRepository(BaseRepository):

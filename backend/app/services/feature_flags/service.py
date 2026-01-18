@@ -23,12 +23,12 @@ from datetime import datetime
 import json
 import logging
 
-from app.database.connection import get_db_connection
-from app.repositories.feature_configuration import (
+from app.infrastructure.persistence.database.connection import get_db_connection
+from app.infrastructure.persistence.repositories.feature_configuration import (
     FeatureConfigurationRepository,
     FeatureRoleMappingRepository
 )
-from app.repositories.feature_configuration_part2 import (
+from app.infrastructure.persistence.repositories.feature_configuration_part2 import (
     FeatureTierLimitRepository,
     FeatureCacheStatusRepository
 )

@@ -30,7 +30,7 @@ from app.domain.ai.configuration.slots.validation import (
     get_lm_required_slots,
     ALL_LM_CONFIGS
 )
-from app.repositories.lm_slot import (
+from app.infrastructure.persistence.repositories.lm_slot import (
     LMSlotAssignmentRepository,
     LMSlotResolverRepository,
     CapabilitySlotRepository

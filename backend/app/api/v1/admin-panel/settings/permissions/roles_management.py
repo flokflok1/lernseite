@@ -8,14 +8,14 @@ Phase 5.3 - Owner-Admin & Dynamic Roles System
 
 from flask import Blueprint, jsonify, request
 
-from app.middleware.auth import token_required
-from app.security.rbac import require_owner
-from app.repositories.admin.roles import RolesRepository
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.rbac import require_owner
+from app.infrastructure.persistence.repositories.admin.roles import RolesRepository
 from app.domain.models.admin_roles import (
     AssignFeaturesRequest,
     AssignPermissionsRequest,
 )
-from app.middleware.auth import get_current_user
+from app.api.middleware.auth import get_current_user
 from pydantic import ValidationError
 
 from .roles_core import (

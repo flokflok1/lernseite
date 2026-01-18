@@ -5,7 +5,7 @@ Translation key and namespace management.
 """
 
 from typing import Optional, Dict, Any, List
-from app.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 import json
 import logging
 

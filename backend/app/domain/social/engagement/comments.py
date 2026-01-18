@@ -7,8 +7,8 @@ Max thread depth: 2 (comment → reply → reply to reply).
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from app.repositories.social_comments import SocialCommentsRepository
-from app.repositories.social_posts import SocialPostsRepository
+from app.infrastructure.persistence.repositories.social_comments import SocialCommentsRepository
+from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
 
 class CommentsService:

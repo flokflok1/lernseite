@@ -13,9 +13,9 @@ Endpoints:
 from flask import Blueprint, jsonify, request, g
 from typing import Dict, Any
 
-from app.middleware.auth import admin_required
+from app.api.middleware.auth import admin_required
 from app.services.permission_service import PermissionService
-from app.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 # Create blueprint
 permission_thresholds_bp = Blueprint('permission_thresholds', __name__, url_prefix='/admin-panel/settings/permissions')

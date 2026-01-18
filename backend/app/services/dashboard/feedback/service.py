@@ -12,7 +12,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from datetime import datetime, timedelta
 import logging
 
-from app.repositories.feedback.core import FeedbackRepository
+from app.infrastructure.persistence.repositories.feedback.core import FeedbackRepository
 
 logger = logging.getLogger(__name__)
 

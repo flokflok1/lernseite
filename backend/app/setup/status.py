@@ -51,7 +51,7 @@ class SystemStatus:
         Returns:
             Dictionary with version details
         """
-        from app.gateway.versioning import get_version_info
+        from app.api.gateway.versioning import get_version_info
 
         try:
             version_info = get_version_info()

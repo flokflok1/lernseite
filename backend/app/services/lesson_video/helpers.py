@@ -26,7 +26,7 @@ def get_api_key() -> str:
     api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
         try:
-            from app.repositories.ai.providers import AIProviderRepository
+            from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
             api_key = AIProviderRepository.get_decrypted_api_key('openai')
         except Exception:
             pass

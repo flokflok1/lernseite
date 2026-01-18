@@ -29,8 +29,8 @@ from app.domain.models.user import (
     UserResponse,
     UserListResponse
 )
-from app.repositories.user import UserRepository
-from app.middleware.auth import (
+from app.infrastructure.persistence.repositories.user import UserRepository
+from app.api.middleware.auth import (
     admin_required,
     role_required,
     token_required,

@@ -19,8 +19,8 @@ from datetime import datetime
 from decimal import Decimal
 from flask import current_app
 
-from app.repositories.moderation_audit import ModerationAuditRepository, ModerationAction
-from app.repositories.course_publishing import CoursePublishingRepository
+from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository, ModerationAction
+from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
 from app.services.audit_service import AuditService
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError, ConflictError
 
@@ -94,7 +94,7 @@ class ModerationService:
             NotFoundError: If course not found
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
@@ -180,7 +180,7 @@ class ModerationService:
             NotFoundError: If course not found
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
@@ -364,7 +364,7 @@ class ModerationService:
             NotFoundError: If course not found
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)

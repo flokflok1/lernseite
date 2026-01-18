@@ -18,9 +18,9 @@ DDD compliant - Domain-Driven Design
 from typing import Dict, List, Optional
 from datetime import datetime
 
-from app.repositories.dashboard.core import DashboardRepository
-from app.repositories.widgets.widget_repository import WidgetRepository
-from app.repositories.dashboard.core import DashboardRepository as RecommendationRepository  # TODO: Fix this
+from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository
+from app.infrastructure.persistence.repositories.widgets.widget_repository import WidgetRepository
+from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository as RecommendationRepository  # TODO: Fix this
 from app.domain.models.dashboard import (
     DashboardLayout,
     DashboardWidgetInstance,
@@ -588,7 +588,7 @@ class DashboardRecommendationService:
 
         if rec_type == 'course':
             # Enroll user in course
-            from app.repositories.enrollments.core import EnrollmentRepository
+            from app.infrastructure.persistence.repositories.enrollments.core import EnrollmentRepository
             enrollment = EnrollmentRepository.create_enrollment(
                 user_id=user['user_id'],
                 course_id=target_id,

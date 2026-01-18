@@ -25,9 +25,9 @@ from app.domain.models.agent import (
     AgentStatusResponse
 )
 from app.services.agent import AgentService
-from app.repositories.agent import AgentRepository
-from app.repositories.courses.crud import CourseRepositoryCRUD as CourseRepository
-from app.middleware.auth import token_required, role_required, get_current_user
+from app.infrastructure.persistence.repositories.agent import AgentRepository
+from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD as CourseRepository
+from app.api.middleware.auth import token_required, role_required, get_current_user
 
 agents_bp = Blueprint('agents', __name__, url_prefix='/agents')
 

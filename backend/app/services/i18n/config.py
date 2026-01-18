@@ -5,7 +5,7 @@ AI moderation configuration and moderation dashboard.
 """
 
 from typing import Dict, Any, Optional, List
-from app.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 import logging
 
 logger = logging.getLogger(__name__)

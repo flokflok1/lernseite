@@ -55,7 +55,7 @@ class ContentSaver:
     @staticmethod
     def _save_chapter(data: Dict, user_id: str) -> Dict[str, Any]:
         """Save new chapter."""
-        from app.repositories.courses.chapters import ChapterRepository
+        from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 
         chapter_data = {
             'course_id': data.get('course_id'),
@@ -77,7 +77,7 @@ class ContentSaver:
     @staticmethod
     def _save_chapter_theory(data: Dict, user_id: str) -> Dict[str, Any]:
         """Save chapter theory."""
-        from app.database.connection import fetch_one
+        from app.infrastructure.persistence.database.connection import fetch_one
 
         query = """
             INSERT INTO chapter_theory (
@@ -109,7 +109,7 @@ class ContentSaver:
     @staticmethod
     def _save_lesson(data: Dict, user_id: str) -> Dict[str, Any]:
         """Save new lesson."""
-        from app.repositories.courses.lessons import LessonRepository
+        from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 
         lesson_data = {
             'chapter_id': data.get('chapter_id'),
@@ -132,7 +132,7 @@ class ContentSaver:
     @staticmethod
     def _save_lesson_explanation(data: Dict, user_id: str) -> Dict[str, Any]:
         """Save lesson explanation."""
-        from app.database.connection import fetch_one
+        from app.infrastructure.persistence.database.connection import fetch_one
 
         query = """
             INSERT INTO lesson_explanations (
@@ -173,7 +173,7 @@ class ContentSaver:
     @staticmethod
     def _save_learning_method(data: Dict, user_id: str) -> Dict[str, Any]:
         """Save learning method instance."""
-        from app.repositories.learning_method.instances import (
+        from app.infrastructure.persistence.repositories.learning_method.instances import (
             LearningMethodInstanceRepository
         )
 

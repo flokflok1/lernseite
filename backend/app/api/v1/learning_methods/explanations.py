@@ -23,8 +23,8 @@ import logging
 from typing import Optional, Dict, Any
 
 from app.extensions import limiter
-from app.middleware.auth import token_required
-from app.database.connection import fetch_one, fetch_all
+from app.api.middleware.auth import token_required
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 
 # Blueprint
 lesson_explanations_bp = Blueprint('lesson_explanations', __name__, url_prefix='')

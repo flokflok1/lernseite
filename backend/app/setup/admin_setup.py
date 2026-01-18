@@ -14,8 +14,8 @@ import re
 import secrets
 from typing import Dict, Tuple, List, Optional
 
-from app.repositories.user import UserRepository
-from app.database.connection import execute_query, fetch_one
+from app.infrastructure.persistence.repositories.user import UserRepository
+from app.infrastructure.persistence.database.connection import execute_query, fetch_one
 
 
 class AdminSetup:

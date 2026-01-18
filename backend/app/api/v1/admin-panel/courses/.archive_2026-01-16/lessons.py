@@ -15,11 +15,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 from app.api.v1 import api_v1
-from app.repositories.courses.chapters import ChapterRepository
-from app.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.services.audit_service import AuditService
-from app.middleware.auth import get_current_user
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import get_current_user
+from app.infrastructure.security.permissions import require_permission, Permissions
 
 
 @api_v1.route('/admin/chapters/<chapter_id>/lessons', methods=['GET'])

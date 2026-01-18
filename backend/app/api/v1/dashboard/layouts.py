@@ -19,7 +19,7 @@ from app.domain.models.dashboard import (
     DashboardLayoutResetResponse
 )
 from app.api.v1.dashboard.services import DashboardLayoutService
-from app.middleware.auth import token_required, get_current_user
+from app.api.middleware.auth import token_required, get_current_user
 
 
 layouts_bp = Blueprint('layouts', __name__, url_prefix='/dashboard/layout')

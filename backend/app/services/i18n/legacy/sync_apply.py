@@ -10,21 +10,21 @@ from typing import Dict, Tuple, Optional, Any
 from datetime import datetime
 import logging
 
-from app.repositories.i18n_sync_ops import (
+from app.infrastructure.persistence.repositories.i18n_sync_ops import (
     SyncMode, SyncStatus, SyncOperation, SyncOpsRepository
 )
-from app.repositories.i18n_sync_changes import (
+from app.infrastructure.persistence.repositories.i18n_sync_changes import (
     ChangeType, SyncChangesRepository
 )
-from app.repositories.i18n_sync_resolutions import (
+from app.infrastructure.persistence.repositories.i18n_sync_resolutions import (
     Resolution, SyncResolutionsRepository
 )
-from app.repositories.i18n_sync_repository import (
+from app.infrastructure.persistence.repositories.i18n_sync_repository import (
     I18nSyncRepository
 )
-from app.repositories.i18n_translation import TranslationRepository
+from app.infrastructure.persistence.repositories.i18n_translation import TranslationRepository
 from app.infrastructure.utils.exceptions import NotFoundError, BusinessLogicError
-from app.database import get_connection
+from app.infrastructure.persistence.database import get_connection
 
 logger = logging.getLogger(__name__)
 

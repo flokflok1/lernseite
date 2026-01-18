@@ -1,7 +1,7 @@
 """Full-Text Search"""
 
 from typing import List, Dict, Any
-from app.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.base_repository import BaseRepository
 
 
 class SearchService:

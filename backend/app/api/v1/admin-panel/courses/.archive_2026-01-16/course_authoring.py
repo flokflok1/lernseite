@@ -17,8 +17,8 @@ import logging
 
 from app.api.v1 import api_v1
 from app.extensions import limiter
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +263,7 @@ def archive_course_authoring_session(session_id):
         }
     """
     try:
-        from app.database.connection import execute_query
+        from app.infrastructure.persistence.database.connection import execute_query
 
         user_id = g.current_user['user_id']
 
@@ -318,7 +318,7 @@ def list_course_authoring_sessions(course_id):
         }
     """
     try:
-        from app.database.connection import fetch_all
+        from app.infrastructure.persistence.database.connection import fetch_all
 
         status_filter = request.args.get('status')
 

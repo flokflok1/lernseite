@@ -15,8 +15,8 @@ Uses tables: widgets, user_widgets
 from typing import List, Dict, Optional
 from datetime import datetime
 
-from app.repositories.widgets.widget_repository import WidgetRepository
-from app.repositories.widgets.widget_instance_repository import WidgetInstanceRepository
+from app.infrastructure.persistence.repositories.widgets.widget_repository import WidgetRepository
+from app.infrastructure.persistence.repositories.widgets.widget_instance_repository import WidgetInstanceRepository
 
 
 class WidgetService:

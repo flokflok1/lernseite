@@ -14,7 +14,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.extensions import limiter
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 from app.services.ai_adapter import AIAdapter
 from app.api.v1.tutor.tutor_core import (
     TutorContext,

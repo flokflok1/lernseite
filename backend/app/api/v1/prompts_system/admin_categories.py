@@ -10,8 +10,8 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.extensions import limiter
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
 
 from app.api.v1.prompts_system.value_objects import PromptCategory, PromptStyle
 

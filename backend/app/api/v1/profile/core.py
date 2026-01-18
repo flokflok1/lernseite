@@ -16,10 +16,10 @@ from pydantic import ValidationError
 from app.domain.models.user import (
     UserUpdate, UserProfile, PasswordChange
 )
-from app.repositories.user import UserRepository
-from app.repositories.token import TokenRepository
+from app.infrastructure.persistence.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.token import TokenRepository
 from app.services.system.billing.service import BillingService
-from app.middleware.auth import token_required, get_current_user
+from app.api.middleware.auth import token_required, get_current_user
 
 core_bp = Blueprint('profile_core', __name__, url_prefix='/profile')
 

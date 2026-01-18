@@ -16,11 +16,11 @@ from typing import Dict, Any, Tuple
 from datetime import datetime, timedelta
 import logging
 
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
-from app.repositories.ai.providers import AIProviderRepository
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
+from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.services import AIHealthMonitoringService

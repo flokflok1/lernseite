@@ -19,7 +19,7 @@ Priority Order:
 import hashlib
 from typing import Optional, Dict
 from app.extensions import redis_client
-from app.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 
 class FeatureFlagManager:

@@ -28,9 +28,9 @@ from app.domain.models.organisation import (
     OrganisationAssignUserRequest,
     OrganisationUserResponse
 )
-from app.repositories.organisations.core import OrganisationRepository
-from app.database.connection import fetch_one
-from app.middleware.auth import (
+from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
+from app.infrastructure.persistence.database.connection import fetch_one
+from app.api.middleware.auth import (
     token_required,
     admin_required,
     get_current_user

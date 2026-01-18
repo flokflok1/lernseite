@@ -15,10 +15,10 @@ ISO 9001:2015 compliant - Course Management Layer
 from flask import Blueprint, request, jsonify
 import logging
 
-from app.repositories.courses import CourseRepository
-from app.middleware.auth import token_required, get_current_user
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.infrastructure.persistence.repositories.courses import CourseRepository
+from app.api.middleware.auth import token_required, get_current_user
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 

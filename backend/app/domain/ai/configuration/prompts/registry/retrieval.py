@@ -37,7 +37,7 @@ def get_prompt_template(code: str, check_db: bool = True) -> PromptTemplate:
     # Try database first (if enabled)
     if DB_OVERRIDE_ENABLED and check_db:
         try:
-            from app.repositories.prompts.templates import PromptTemplateRepository
+            from app.infrastructure.persistence.repositories.prompts.templates import PromptTemplateRepository
             db_template = PromptTemplateRepository.find_by_code(code)
 
             if db_template:
@@ -81,7 +81,7 @@ def get_prompt_with_style(category: str, style: str = 'standard') -> Optional[Pr
     # Try database first
     if DB_OVERRIDE_ENABLED:
         try:
-            from app.repositories.prompts.templates import PromptTemplateRepository
+            from app.infrastructure.persistence.repositories.prompts.templates import PromptTemplateRepository
             db_template = PromptTemplateRepository.find_by_category_and_style(category, style)
 
             if db_template:

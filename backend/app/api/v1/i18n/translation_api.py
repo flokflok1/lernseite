@@ -16,7 +16,7 @@ import logging
 from typing import Dict, Any
 
 from app.services.content_translation_service import ContentTranslationService
-from app.middleware.auth import token_required, role_required
+from app.api.middleware.auth import token_required, role_required
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError, UnauthorizedError
 
 logger = logging.getLogger(__name__)

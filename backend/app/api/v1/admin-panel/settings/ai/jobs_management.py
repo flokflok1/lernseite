@@ -18,12 +18,12 @@ from datetime import datetime
 import logging
 import uuid
 
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
-from app.repositories.ai.jobs import AIJobsRepository
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
+from app.infrastructure.persistence.repositories.ai.jobs import AIJobsRepository
 from app.services.audit_service import AuditService
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.events import (
@@ -202,7 +202,7 @@ def cancel_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
         EventPublisher.publish(event)
 
         # TODO: Cancel Celery task if running
-        # from app.tasks.ai_jobs import cancel_ai_job_task
+        # from app.infrastructure.tasks.ai_jobs import cancel_ai_job_task
         # cancel_ai_job_task.delay(job_id)
 
         # Audit log

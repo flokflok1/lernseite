@@ -6,8 +6,8 @@ Manages follow/unfollow operations, suggestions, blocks, and mutes.
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from app.repositories.social_follows import SocialFollowsRepository
-from app.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.social_follows import SocialFollowsRepository
+from app.infrastructure.persistence.repositories.user import UserRepository
 
 
 class FollowManager:

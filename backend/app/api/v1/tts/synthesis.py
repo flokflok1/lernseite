@@ -27,7 +27,7 @@ from typing import Tuple
 from flask import Blueprint, request, jsonify, Response, send_file
 from flask_jwt_extended import get_jwt_identity
 
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 from app.api.v1.tts.core import (
     AVAILABLE_VOICES,
     DEFAULT_TUTOR_VOICE,
@@ -389,7 +389,7 @@ def get_available_voices():
     # Load audio models from database
     audio_models = []
     try:
-        from app.repositories.ai_models import AIModelsRepository
+        from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
         db_models = AIModelsRepository.get_models_by_category('audio')
         for model in db_models:
             audio_models.append({

@@ -5,7 +5,7 @@ AI-powered translation generation using Anthropic Claude.
 """
 
 from typing import Optional, Dict, Any
-from app.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 import logging
 
 logger = logging.getLogger(__name__)

@@ -26,18 +26,18 @@ from flask import jsonify, request
 
 from app.api.v1.course_editor.manual_editor import manual_editor_bp
 from app.api.v1.course_editor.shared.permissions import check_course_permission
-from app.middleware.auth import get_current_user
+from app.api.middleware.auth import get_current_user
 from app.domain.models.theory_sheet import (
     TheorySheetCreate,
     TheorySheetResponse,
     TheorySheetUpdate,
 )
-from app.repositories.courses.chapters import ChapterRepository
-from app.repositories.courses.lessons import LessonRepository
-from app.repositories.theory_sheet import TheorySheetRepository
+from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.theory_sheet import TheorySheetRepository
 from app.services.audit_service import AuditService
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 

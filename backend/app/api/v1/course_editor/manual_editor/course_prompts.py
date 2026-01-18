@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 from app.api.v1.course_editor.manual_editor import manual_editor_bp
 from app.api.v1.course_editor.shared.permissions import check_course_permission
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 from app.domain.models.course_prompt import (
     CoursePromptResponse,
     CoursePromptUpdateRequest,
@@ -31,11 +31,11 @@ from app.domain.models.course_prompt import (
     CoursePromptResolveResponse,
     BulkResetRequest
 )
-from app.repositories.courses import CourseRepository
-from app.repositories.course_prompt import CoursePromptRepository
+from app.infrastructure.persistence.repositories.courses import CourseRepository
+from app.infrastructure.persistence.repositories.course_prompt import CoursePromptRepository
 from app.services.audit_service import AuditService
 from app.services.prompt_resolver import PromptResolver
-from app.middleware.auth import get_current_user
+from app.api.middleware.auth import get_current_user
 
 
 @manual_editor_bp.route('/courses/<course_id>/prompts', methods=['GET'])

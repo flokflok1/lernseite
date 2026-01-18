@@ -14,7 +14,7 @@ ISO 9001:2015 compliant - Service layer
 from typing import Dict, Optional, List
 from datetime import datetime
 
-from app.repositories.analytics import AnalyticsRepository
+from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
 from app.domain.models.analytics import (
     AnalyticsEventBase,
     AnalyticsEventResponse,

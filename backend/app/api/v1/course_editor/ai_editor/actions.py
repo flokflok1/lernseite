@@ -14,8 +14,8 @@ from flask import Blueprint, request
 from typing import Dict, Any, Tuple
 import logging
 
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
 
 logger = logging.getLogger(__name__)
 

@@ -10,7 +10,7 @@ Admin panel can adjust thresholds in real-time without code changes.
 from typing import Optional
 import logging
 
-from app.database.connection import fetch_one
+from app.infrastructure.persistence.database.connection import fetch_one
 from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)
@@ -174,7 +174,7 @@ class PermissionService:
             - description
             - is_active
         """
-        from app.database.connection import fetch_all
+        from app.infrastructure.persistence.database.connection import fetch_all
 
         results = fetch_all(
             """
@@ -212,7 +212,7 @@ class PermissionService:
         if not (1 <= new_level <= 10):
             raise ValueError(f"Hierarchy level must be between 1 and 10, got {new_level}")
 
-        from app.database.connection import execute_query
+        from app.infrastructure.persistence.database.connection import execute_query
 
         try:
             # Update threshold

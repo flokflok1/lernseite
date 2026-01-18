@@ -12,8 +12,8 @@ import logging
 from typing import Dict, Any, Optional
 
 from app.infrastructure.cache.service import CacheService
-from app.repositories.agent import AgentRepository
-from app.repositories.knowledge import KnowledgeRepository
+from app.infrastructure.persistence.repositories.agent import AgentRepository
+from app.infrastructure.persistence.repositories.knowledge import KnowledgeRepository
 
 logger = logging.getLogger(__name__)
 

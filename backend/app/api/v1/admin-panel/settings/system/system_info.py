@@ -14,8 +14,8 @@ from flask import jsonify, current_app
 from datetime import datetime
 
 from .system_operations import api_v1
-from app.security.permissions import require_permission, Permissions
-from app.gateway.versioning import get_version_info
+from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.gateway.versioning import get_version_info
 from app.api.v1.deprecation import list_deprecated_endpoints
 
 

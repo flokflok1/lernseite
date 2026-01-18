@@ -7,7 +7,7 @@ Handles toolkit sessions: creation, lifecycle, and statistics tracking.
 from typing import Dict, Optional, List
 import logging
 
-from app.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.base_repository import BaseRepository
 
 logger = logging.getLogger(__name__)
 

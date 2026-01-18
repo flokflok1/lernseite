@@ -19,11 +19,11 @@ import logging
 from typing import Dict, Any, Tuple
 
 from app.api.v1 import api_v1
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
-from app.repositories.ai.usage import AIUsageRepository
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
+from app.infrastructure.persistence.repositories.ai.usage import AIUsageRepository
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 

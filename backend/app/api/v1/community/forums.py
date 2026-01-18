@@ -1,7 +1,7 @@
 """Discussion Forums API"""
 
 from flask import Blueprint, request, jsonify, g
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 
 forums_bp = Blueprint('forums', __name__, url_prefix='/community/forums')
 

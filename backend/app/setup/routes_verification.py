@@ -132,7 +132,7 @@ def complete_setup():
 
         # Initialize system settings in database
         try:
-            from app.repositories.settings.system import SystemSettingsRepository
+            from app.infrastructure.persistence.repositories.settings.system import SystemSettingsRepository
             import os
 
             # Get environment from .env (created during setup)

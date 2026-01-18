@@ -12,9 +12,9 @@ from typing import Optional, Dict, Any, List
 import logging
 from datetime import datetime
 
-from app.repositories.i18n_repository import I18nRepository
+from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
 from app.infrastructure.cache.service import CacheService
-from app.database import get_connection
+from app.infrastructure.persistence.database import get_connection
 
 logger = logging.getLogger(__name__)
 

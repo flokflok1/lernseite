@@ -1,7 +1,7 @@
 """Study Groups API"""
 
 from flask import Blueprint, request, jsonify, g
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 
 groups_bp = Blueprint('study_groups', __name__, url_prefix='/community/groups')
 

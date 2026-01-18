@@ -14,10 +14,10 @@ from typing import Dict, Any, Tuple, Optional
 import logging
 from datetime import datetime, timedelta
 
-from app.database import get_db_connection
-from app.repositories.audit_log import AuditLogRepository
+from app.infrastructure.persistence.database import get_db_connection
+from app.infrastructure.persistence.repositories.audit_log import AuditLogRepository
 from app.infrastructure.utils.exceptions import ValidationError, NotFoundError
-from app.middleware.auth import token_required, admin_required
+from app.api.middleware.auth import token_required, admin_required
 
 logger = logging.getLogger(__name__)
 

@@ -10,7 +10,7 @@ ISO 27001:2013 compliant
 """
 
 from flask import Blueprint, jsonify
-from app.middleware.auth import token_required, get_current_user
+from app.api.middleware.auth import token_required, get_current_user
 
 gamification_bp = Blueprint('gamification', __name__, url_prefix='/gamification')
 

@@ -5,7 +5,7 @@ Method Loader - Lernmethoden-Daten für den Tutor
 from typing import Dict, Any, Optional
 import logging
 
-from app.database.connection import fetch_one
+from app.infrastructure.persistence.database.connection import fetch_one
 
 logger = logging.getLogger(__name__)
 

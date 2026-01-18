@@ -35,9 +35,9 @@ class ContextHelper:
         Returns:
             Dict with course, chapter, and lesson info
         """
-        from app.repositories.courses import CourseRepository
-        from app.repositories.courses.chapters import ChapterRepository
-        from app.repositories.courses.lessons import LessonRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+        from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 
         info = {'course': {}, 'chapter': {}, 'lesson': {}}
 

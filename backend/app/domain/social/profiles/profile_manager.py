@@ -1,7 +1,7 @@
 """User Profile Management"""
 
 from typing import Dict, Any, Optional
-from app.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.user import UserRepository
 
 
 class ProfileManager:

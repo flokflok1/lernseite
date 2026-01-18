@@ -19,12 +19,12 @@ import logging
 from flask import jsonify, request
 
 from app.api.v1 import api_v1
-from app.database import get_connection
-from app.middleware.auth import get_current_user
-from app.repositories.course_publishing import CoursePublishingRepository
-from app.repositories.courses import CourseRepository
-from app.repositories.moderation_audit import ModerationAuditRepository
-from app.security.permissions import Permissions, require_permission
+from app.infrastructure.persistence.database import get_connection
+from app.api.middleware.auth import get_current_user
+from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
+from app.infrastructure.persistence.repositories.courses import CourseRepository
+from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository
+from app.infrastructure.security.permissions import Permissions, require_permission
 from app.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)

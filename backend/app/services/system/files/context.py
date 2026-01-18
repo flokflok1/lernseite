@@ -23,7 +23,7 @@ except ImportError:
     DOCX_AVAILABLE = False
 
 from app.services.pdf import PDFService, PDFExtractionError
-from app.repositories.courses.files import CourseFileRepository
+from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
 
 logger = logging.getLogger(__name__)
 

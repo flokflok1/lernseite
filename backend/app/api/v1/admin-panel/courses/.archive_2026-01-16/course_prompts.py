@@ -24,12 +24,12 @@ from app.domain.models.course_prompt import (
     CoursePromptResolveResponse,
     BulkResetRequest
 )
-from app.repositories.courses import CourseRepository
-from app.repositories.course_prompt import CoursePromptRepository
+from app.infrastructure.persistence.repositories.courses import CourseRepository
+from app.infrastructure.persistence.repositories.course_prompt import CoursePromptRepository
 from app.services.audit_service import AuditService
 from app.services.prompt_resolver import PromptResolver
-from app.middleware.auth import get_current_user
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import get_current_user
+from app.infrastructure.security.permissions import require_permission, Permissions
 
 
 @api_v1.route('/admin/courses/<course_id>/prompts', methods=['GET'])

@@ -6,8 +6,8 @@ Manages likes, reactions, shares, and bookmarks.
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from app.repositories.social_likes import SocialLikesRepository
-from app.repositories.social_posts import SocialPostsRepository
+from app.infrastructure.persistence.repositories.social_likes import SocialLikesRepository
+from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
 
 class LikesService:

@@ -15,7 +15,7 @@ ISO 27001:2013 compliant
 from flask import Blueprint, request, jsonify
 
 from app.domain.models.category import CategoryResponse
-from app.repositories.category import CategoryRepository
+from app.infrastructure.persistence.repositories.category import CategoryRepository
 
 public_bp = Blueprint('categories_public', __name__, url_prefix='/categories')
 

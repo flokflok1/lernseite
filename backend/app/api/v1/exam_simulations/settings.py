@@ -13,8 +13,8 @@ Split from: exam_simulations.py (Part 3/3 - User Exam Profile)
 
 from flask import Blueprint, request, jsonify
 
-from app.middleware.auth import token_required, get_current_user
-from app.database.connection import fetch_one, execute_query
+from app.api.middleware.auth import token_required, get_current_user
+from app.infrastructure.persistence.database.connection import fetch_one, execute_query
 
 settings_bp = Blueprint('exam_user_profile', __name__, url_prefix='/user-profile')
 

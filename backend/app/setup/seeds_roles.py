@@ -23,7 +23,7 @@ For learning methods, see:
 from typing import Dict, List, Optional
 from datetime import datetime
 
-from app.database.connection import fetch_one, execute_query, insert_returning
+from app.infrastructure.persistence.database.connection import fetch_one, execute_query, insert_returning
 
 
 class SeedDataRoles:

@@ -38,7 +38,7 @@ class PostManager:
         Returns:
             Dict with post data
         """
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
         from app.domain.social.posts.media_handler import MediaHandler
         from app.domain.ai.content_moderation.text_classifier import TextClassifier
 
@@ -84,7 +84,7 @@ class PostManager:
         Returns:
             Post data or None if not found/no access
         """
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
         post = SocialPostsRepository.get_by_id(post_id)
 
@@ -96,7 +96,7 @@ class PostManager:
             return None
 
         if post['visibility'] == 'followers':
-            from app.repositories.social_follows import SocialFollowsRepository
+            from app.infrastructure.persistence.repositories.social_follows import SocialFollowsRepository
             if not SocialFollowsRepository.is_following(viewer_user_id, post['user_id']):
                 return None
 
@@ -121,7 +121,7 @@ class PostManager:
         Returns:
             Updated post or None if not found/no permission
         """
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
         post = SocialPostsRepository.get_by_id(post_id)
 
@@ -154,7 +154,7 @@ class PostManager:
         Returns:
             True if deleted, False if not found/no permission
         """
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
         post = SocialPostsRepository.get_by_id(post_id)
 
@@ -182,7 +182,7 @@ class PostManager:
         Returns:
             Dict with posts list and pagination info
         """
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
         posts = SocialPostsRepository.get_user_posts(
             user_id=target_user_id,
@@ -205,7 +205,7 @@ class PostManager:
         Returns:
             True if pinned, False if failed
         """
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
         post = SocialPostsRepository.get_by_id(post_id)
 
@@ -221,7 +221,7 @@ class PostManager:
     @staticmethod
     def _handle_mentions(post_id: str, user_ids: List[str]):
         """Handle @mentions in post"""
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
         for mentioned_user_id in user_ids:
             SocialPostsRepository.add_mention(post_id, mentioned_user_id)
@@ -229,7 +229,7 @@ class PostManager:
     @staticmethod
     def _handle_hashtags(post_id: str, hashtags: List[str]):
         """Handle hashtags in post"""
-        from app.repositories.social_posts import SocialPostsRepository
+        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
 
         for hashtag in hashtags:
             # Normalize hashtag (lowercase, remove #)

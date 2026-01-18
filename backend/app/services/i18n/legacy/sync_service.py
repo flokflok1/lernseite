@@ -14,27 +14,27 @@ from datetime import datetime
 import time
 import logging
 
-from app.repositories.i18n_sync_ops import (
+from app.infrastructure.persistence.repositories.i18n_sync_ops import (
     SyncMode, SyncStatus, SyncOperation, SyncOpsRepository
 )
-from app.repositories.i18n_sync_changes import (
+from app.infrastructure.persistence.repositories.i18n_sync_changes import (
     ChangeType, SyncChange, SyncChangesRepository
 )
-from app.repositories.i18n_sync_resolutions import (
+from app.infrastructure.persistence.repositories.i18n_sync_resolutions import (
     Resolution, SyncResolution, SyncResolutionsRepository
 )
-from app.repositories.i18n_sync_repository import (
+from app.infrastructure.persistence.repositories.i18n_sync_repository import (
     I18nSyncRepository
 )
 # OLD IMPORT BELOW (to be removed):
 if False:
-    from app.repositories.i18n_sync import (
+    from app.infrastructure.persistence.repositories.i18n_sync import (
     SyncRepository, SyncMode, SyncStatus, ChangeType, Resolution,
     SyncOperation, SyncChange, SyncResolution
 )
-from app.repositories.i18n_translation import TranslationRepository
+from app.infrastructure.persistence.repositories.i18n_translation import TranslationRepository
 from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
-from app.database import get_connection
+from app.infrastructure.persistence.database import get_connection
 
 logger = logging.getLogger(__name__)
 

@@ -15,7 +15,7 @@ from datetime import datetime
 import os
 import time
 
-from app.repositories.settings.system import SystemSettingsRepository
+from app.infrastructure.persistence.repositories.settings.system import SystemSettingsRepository
 from flask import current_app
 
 

@@ -7,7 +7,7 @@ import importlib.util
 import json
 from typing import List, Dict, Optional
 from pathlib import Path
-from app.repositories.plugins.lm_plugins import LMPluginRepository
+from app.infrastructure.persistence.repositories.plugins.lm_plugins import LMPluginRepository
 
 
 PLUGIN_DIR = Path(__file__).parent.parent.parent.parent / 'plugins' / 'learning_methods'

@@ -23,9 +23,9 @@ import logging
 from app.api.v1.course_editor.ai_editor import ai_editor_bp
 from app.api.v1.course_editor.shared.permissions import check_course_permission
 from app.extensions import limiter
-from app.middleware.auth import token_required
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.api.middleware.auth import token_required
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 logger = logging.getLogger(__name__)
 
@@ -265,7 +265,7 @@ def archive_course_authoring_session(session_id):
         }
     """
     try:
-        from app.database.connection import execute_query
+        from app.infrastructure.persistence.database.connection import execute_query
 
         user_id = g.current_user['user_id']
 
@@ -319,7 +319,7 @@ def list_course_authoring_sessions(course_id):
         }
     """
     try:
-        from app.database.connection import fetch_all
+        from app.infrastructure.persistence.database.connection import fetch_all
 
         status_filter = request.args.get('status')
 

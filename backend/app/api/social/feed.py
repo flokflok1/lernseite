@@ -12,7 +12,7 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify, g
 from app.core.feature_flags import require_feature
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 
 feed_bp = Blueprint('social_feed', __name__, url_prefix='/social/feed')
 

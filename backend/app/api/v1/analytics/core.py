@@ -23,8 +23,8 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.extensions import limiter
-from app.middleware.auth import token_required, get_current_user
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, get_current_user
+from app.infrastructure.security.permissions import require_permission, Permissions
 from app.domain.models.analytics import (
     AnalyticsEventCreateRequest,
     AnalyticsEventResponse,
@@ -35,7 +35,7 @@ from app.domain.models.analytics import (
     TimeSeriesDataPoint
 )
 from app.services.analytics.service import AnalyticsService
-from app.repositories.analytics import AnalyticsRepository
+from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
 
 # Blueprints
 analytics_bp = Blueprint('analytics', __name__, url_prefix='/analytics')

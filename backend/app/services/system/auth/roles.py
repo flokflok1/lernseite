@@ -6,7 +6,7 @@ Supports custom roles and user-specific permission overrides.
 """
 
 from typing import Optional, List, Dict, Any
-from app.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 import logging
 
 logger = logging.getLogger(__name__)

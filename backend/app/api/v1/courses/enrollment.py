@@ -17,11 +17,11 @@ from flask import Blueprint, request, jsonify
 from decimal import Decimal
 import logging
 
-from app.repositories.courses import CourseRepository
-from app.repositories.courses.chapters import ChapterRepository
-from app.repositories.courses.lessons import LessonRepository
-from app.repositories.enrollments.core import EnrollmentRepository
-from app.middleware.auth import token_required, get_current_user
+from app.infrastructure.persistence.repositories.courses import CourseRepository
+from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.enrollments.core import EnrollmentRepository
+from app.api.middleware.auth import token_required, get_current_user
 
 logger = logging.getLogger(__name__)
 

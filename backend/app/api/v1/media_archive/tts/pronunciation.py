@@ -9,7 +9,7 @@ import logging
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
 
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 from .helpers import TTS_SERVICE_AVAILABLE
 
 logger = logging.getLogger(__name__)

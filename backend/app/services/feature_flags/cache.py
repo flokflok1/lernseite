@@ -23,8 +23,8 @@ import redis
 from functools import wraps
 
 from app.config import Config
-from app.database.connection import get_db_connection
-from app.repositories.feature_configuration_part2 import FeatureCacheStatusRepository
+from app.infrastructure.persistence.database.connection import get_db_connection
+from app.infrastructure.persistence.repositories.feature_configuration_part2 import FeatureCacheStatusRepository
 
 logger = logging.getLogger(__name__)
 

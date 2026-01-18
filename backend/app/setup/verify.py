@@ -21,7 +21,7 @@ from datetime import datetime
 import os
 import sys
 
-from app.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 from app.setup.verify_checks import VerificationChecks
 
 

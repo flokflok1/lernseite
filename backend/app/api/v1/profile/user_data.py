@@ -14,11 +14,11 @@ Split from: profile.py (Part 4/4 - User Data)
 
 from flask import Blueprint, request, jsonify
 
-from app.repositories.user import UserRepository
-from app.repositories.token import TokenRepository
-from app.repositories.subscription import SubscriptionRepository
+from app.infrastructure.persistence.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.token import TokenRepository
+from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
 from app.services.system.billing.service import BillingService
-from app.middleware.auth import token_required, get_current_user
+from app.api.middleware.auth import token_required, get_current_user
 
 user_data_bp = Blueprint('profile_user_data', __name__, url_prefix='/profile')
 

@@ -36,7 +36,7 @@ def _get_api_key_from_db(provider: str) -> Optional[str]:
         Decrypted API key or None
     """
     try:
-        from app.repositories.ai.providers import AIProviderRepository
+        from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
         return AIProviderRepository.get_decrypted_api_key(provider)
     except Exception:
         # If database is not available, return None to use env fallback

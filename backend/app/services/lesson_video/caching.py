@@ -8,7 +8,7 @@ import uuid
 import hashlib
 from typing import Dict, Any, Optional
 
-from app.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.base_repository import BaseRepository
 from app.services.lesson_video.exceptions import VideoGenerationError
 from app.services.lesson_video.models import DEFAULT_MODEL
 

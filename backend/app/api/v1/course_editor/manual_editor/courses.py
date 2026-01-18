@@ -28,11 +28,11 @@ from app.domain.models.admin_course import (
     AdminCourseUpdateRequest,
     AdminCourseStatusUpdateRequest
 )
-from app.repositories.courses import CourseRepository
+from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.services.audit_service import AuditService
-from app.middleware.auth import get_current_user
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.api.middleware.auth import get_current_user
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 
 @manual_editor_bp.route('/courses', methods=['GET'])

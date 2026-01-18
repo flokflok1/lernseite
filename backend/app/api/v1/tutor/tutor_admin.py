@@ -15,11 +15,11 @@ import logging
 import time
 
 from app.extensions import limiter
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
 from app.services.ai_adapter import AIAdapter
-from app.repositories.courses.chapters import ChapterRepository
-from app.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.api.v1.tutor.tutor_core import (
     GenerationStyle,
     build_context_for_generation,

@@ -15,9 +15,9 @@ from datetime import datetime
 from psycopg.rows import dict_row
 
 from app.extensions import db_pool
-from app.repositories.token import TokenRepository
-from app.repositories.subscription import SubscriptionRepository
-from app.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.token import TokenRepository
+from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
+from app.infrastructure.persistence.repositories.user import UserRepository
 from app.domain.models.learning_method import get_required_tier, check_tier_access
 
 

@@ -9,13 +9,13 @@ import json
 import logging
 from typing import Dict, Any, Optional
 
-from app.repositories.ai.editor import (
+from app.infrastructure.persistence.repositories.ai.editor import (
     AIEditorRepository,
     AIEditorAnalyticsRepository
 )
-from app.repositories.courses.chapters import ChapterRepository
-from app.repositories.courses.lessons import LessonRepository
-from app.repositories.learning_method.instances import LearningMethodInstanceRepository
+from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.learning_method.instances import LearningMethodInstanceRepository
 from app.services.ai_editor.utils import AiEditorServiceError
 
 logger = logging.getLogger(__name__)

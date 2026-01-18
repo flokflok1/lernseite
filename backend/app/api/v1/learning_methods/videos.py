@@ -26,8 +26,8 @@ from pathlib import Path
 import logging
 import asyncio
 
-from app.middleware.auth import token_required
-from app.database.connection import fetch_one
+from app.api.middleware.auth import token_required
+from app.infrastructure.persistence.database.connection import fetch_one
 
 # Blueprint
 lesson_videos_bp = Blueprint('lesson_videos', __name__, url_prefix='')

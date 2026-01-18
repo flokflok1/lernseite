@@ -17,10 +17,10 @@ from pydantic import ValidationError
 from app.domain.models.user import (
     ThemePreferenceResponse, ThemePreferenceUpdateRequest
 )
-from app.repositories.user import UserRepository
-from app.repositories.settings.user_preferences import UserPreferencesRepository
+from app.infrastructure.persistence.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.settings.user_preferences import UserPreferencesRepository
 from app.services.audit_service import AuditService, Severity
-from app.middleware.auth import token_required, get_current_user
+from app.api.middleware.auth import token_required, get_current_user
 
 preferences_bp = Blueprint('profile_preferences', __name__, url_prefix='/profile')
 

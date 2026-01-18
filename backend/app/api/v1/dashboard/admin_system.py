@@ -17,8 +17,8 @@ ISO 27001:2013 compliant - Admin analytics
 from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
 
-from app.middleware.auth import token_required, role_required
-from app.repositories.dashboard.core import DashboardRepository as AdminDashboardRepository
+from app.api.middleware.auth import token_required, role_required
+from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository as AdminDashboardRepository
 
 
 admin_dashboard_bp = Blueprint(

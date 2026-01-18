@@ -17,12 +17,12 @@ from datetime import datetime
 import logging
 import uuid
 
-from app.middleware.auth import token_required
-from app.security.permissions import require_permission, Permissions
-from app.repositories.ai_models import AIModelsRepository
+from app.api.middleware.auth import token_required
+from app.infrastructure.security.permissions import require_permission, Permissions
+from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 from app.services.audit_service import AuditService
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
 from .core.events import (

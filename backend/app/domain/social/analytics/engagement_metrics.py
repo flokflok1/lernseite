@@ -9,7 +9,7 @@ class EngagementMetrics:
     @staticmethod
     def get_post_metrics(post_id: str) -> Dict[str, Any]:
         """Get engagement metrics for post"""
-        from app.repositories.base_repository import BaseRepository
+        from app.infrastructure.persistence.repositories.base_repository import BaseRepository
         query = """
             SELECT 
                 likes_count,

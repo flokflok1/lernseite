@@ -23,8 +23,8 @@ from datetime import datetime
 from decimal import Decimal
 from flask import current_app
 
-from app.repositories.course_publishing import CoursePublishingRepository
-from app.repositories.moderation_audit import ModerationAuditRepository
+from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
+from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository
 from app.services.audit_service import AuditService
 from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, ConflictError
 
@@ -75,7 +75,7 @@ class CoursePublishingService:
             ValidationError: If invalid state transition
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
@@ -159,7 +159,7 @@ class CoursePublishingService:
             ValidationError: If invalid state transition or AI score
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
@@ -251,7 +251,7 @@ class CoursePublishingService:
             ValidationError: If invalid state transition or missing notes
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
@@ -341,7 +341,7 @@ class CoursePublishingService:
             ValidationError: If invalid state transition or visibility
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)
@@ -425,7 +425,7 @@ class CoursePublishingService:
             ValidationError: If invalid visibility value
         """
         # Lazy import to avoid circular dependency
-        from app.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
 
         # Verify course exists
         course = CourseRepository.find_by_id(course_id)

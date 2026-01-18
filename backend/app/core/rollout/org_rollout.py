@@ -5,7 +5,7 @@ Enable features for specific organizations (schools, companies)
 """
 
 from typing import List, Optional
-from app.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.base_repository import BaseRepository
 
 
 class OrganizationRolloutRepository(BaseRepository):

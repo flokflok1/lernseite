@@ -12,7 +12,7 @@ from datetime import datetime
 import json
 import logging
 
-from app.repositories.role_studio_mode import RoleStudioModeRepository
+from app.infrastructure.persistence.repositories.role_studio_mode import RoleStudioModeRepository
 
 logger = logging.getLogger(__name__)
 

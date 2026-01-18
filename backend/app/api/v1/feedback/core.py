@@ -23,8 +23,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_req
 from datetime import datetime
 
 from app.services.dashboard.feedback.service import FeedbackService
-from app.middleware.auth import role_required
-from app.repositories.feedback.core import FeedbackRepository
+from app.api.middleware.auth import role_required
+from app.infrastructure.persistence.repositories.feedback.core import FeedbackRepository
 
 feedback_bp = Blueprint('feedback', __name__, url_prefix='/feedback')
 

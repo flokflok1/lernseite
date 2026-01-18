@@ -13,7 +13,7 @@ ISO 9001:2015 compliant - Organisation management
 from typing import Dict, Optional
 from datetime import datetime
 
-from app.database.connection import (
+from app.infrastructure.persistence.database.connection import (
     fetch_one,
     fetch_all,
     execute_query,

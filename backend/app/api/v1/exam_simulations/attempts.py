@@ -14,8 +14,8 @@ Split from: exam_simulations.py (Part 2/3 - Exam Attempts)
 
 from flask import Blueprint, request, jsonify
 
-from app.middleware.auth import token_required, get_current_user
-from app.database.connection import fetch_one, fetch_all
+from app.api.middleware.auth import token_required, get_current_user
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 from app.api.v1.exam_simulations.core import ExamService
 
 attempts_bp = Blueprint('exam_simulations_attempts', __name__, url_prefix='')

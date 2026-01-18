@@ -12,7 +12,7 @@ from pathlib import Path
 from flask import Blueprint, request, jsonify, Response, send_file
 from flask_jwt_extended import get_jwt_identity
 
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 from .config import (
     AVAILABLE_VOICES, DEFAULT_TUTOR_VOICE, DEFAULT_PROVIDER,
     DEFAULT_MODEL, VALID_TTS_MODELS, MAX_TEXT_LENGTH, MIN_SPEED, MAX_SPEED

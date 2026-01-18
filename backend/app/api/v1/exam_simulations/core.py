@@ -20,9 +20,9 @@ from typing import Optional, Dict, List, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from app.middleware.auth import token_required, get_current_user
+from app.api.middleware.auth import token_required, get_current_user
 from app.services.ai import get_exam_context_sync
-from app.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 core_bp = Blueprint('exam_simulations_core', __name__, url_prefix='')
 course_bp = Blueprint('exam_simulations_course', __name__, url_prefix='/courses')

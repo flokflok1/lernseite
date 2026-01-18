@@ -17,9 +17,9 @@ import logging
 from flask import jsonify, request
 
 from app.api.v1 import api_v1
-from app.database import get_connection
-from app.repositories.course_publishing import CoursePublishingRepository
-from app.security.permissions import Permissions, require_permission
+from app.infrastructure.persistence.database import get_connection
+from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
+from app.infrastructure.security.permissions import Permissions, require_permission
 
 logger = logging.getLogger(__name__)
 

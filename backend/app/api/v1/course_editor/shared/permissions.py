@@ -8,8 +8,8 @@ Admins have full access, users only access their own courses.
 from functools import wraps
 from flask import g, jsonify
 from typing import Optional, Callable
-from app.repositories.courses import CourseRepository
-from app.database import get_connection
+from app.infrastructure.persistence.repositories.courses import CourseRepository
+from app.infrastructure.persistence.database import get_connection
 
 
 def check_course_permission(action: str = 'read'):

@@ -8,7 +8,7 @@ import uuid
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from app.database.connection import fetch_one, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, execute_query
 from app.services.ai_adapter import AIAdapter, AIProviderError
 from app.services.course_authoring.exceptions import CourseAuthoringError
 from app.services.course_authoring.database import DatabaseOperations

@@ -11,8 +11,8 @@ from flask import Blueprint, jsonify, request
 from typing import Optional
 from datetime import datetime
 
-from app.middleware.auth import token_required, get_current_user
-from app.security.rbac import require_owner
+from app.api.middleware.auth import token_required, get_current_user
+from app.infrastructure.security.rbac import require_owner
 from app.services.role_studio_service import RoleStudioService
 from app.domain.models.role_studio import (
     CreateRoleStudioRequest,
@@ -28,8 +28,8 @@ from app.domain.models.role_studio import (
     SuccessResponse,
     ErrorResponse
 )
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 from pydantic import ValidationError
 import json
 

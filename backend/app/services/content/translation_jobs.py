@@ -10,7 +10,7 @@ Separate from Part 1 to maintain max 500 lines per file constraint.
 
 from typing import Optional, Dict, Any, List
 from psycopg.rows import dict_row
-from app.database import get_connection
+from app.infrastructure.persistence.database import get_connection
 import logging
 
 logger = logging.getLogger(__name__)

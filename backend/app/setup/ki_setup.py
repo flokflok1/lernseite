@@ -21,7 +21,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-from app.database.connection import fetch_one, execute_query, insert_returning
+from app.infrastructure.persistence.database.connection import fetch_one, execute_query, insert_returning
 
 
 class KISetup:
@@ -458,7 +458,7 @@ class KISetup:
             >>> for p in providers:
             ...     print(f"{p['provider']}: {p['active']}")
         """
-        from app.database.connection import fetch_all
+        from app.infrastructure.persistence.database.connection import fetch_all
 
         providers = fetch_all(
             """

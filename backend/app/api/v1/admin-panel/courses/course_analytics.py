@@ -18,8 +18,8 @@ from flask_jwt_extended import jwt_required
 from datetime import datetime, timedelta
 
 from app.api.v1 import api_v1
-from app.middleware.auth import admin_required
-from app.database.connection import fetch_one, fetch_all
+from app.api.middleware.auth import admin_required
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 
 
 # ============================================================================

@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import logging
 
-from app.repositories.ai.jobs import AIJobRepository
+from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
 
 # Setup logger
 logger = logging.getLogger(__name__)

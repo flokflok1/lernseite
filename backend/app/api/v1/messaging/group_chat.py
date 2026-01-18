@@ -1,7 +1,7 @@
 """Group Chat API (Feature-Flagged)"""
 
 from flask import Blueprint, request, jsonify, g
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 from app.core.feature_flags.flag_decorators import require_feature
 
 group_chat_bp = Blueprint('group_chat', __name__, url_prefix='/messaging/groups')

@@ -22,8 +22,8 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 from typing import Tuple, Optional, List
 
-from app.middleware.auth import token_required, get_current_user
-from app.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, get_current_user
+from app.infrastructure.security.permissions import require_permission, Permissions
 from app.domain.models.analytics import (
     TimeSeriesResponse,
     TimeSeriesDataPoint,
@@ -33,9 +33,9 @@ from app.domain.models.analytics import (
     OrgTopModuleAnalytics
 )
 from app.domain.models.organisation import OrganisationStatsResponse
-from app.repositories.analytics import AnalyticsRepository
-from app.repositories.organisations.core import OrganisationRepository
-from app.repositories.subscription import SubscriptionRepository
+from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
+from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
+from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
 # Blueprint
 org_analytics_bp = Blueprint('org_analytics', __name__, url_prefix='/organisations')
 
@@ -81,7 +81,7 @@ def check_org_membership(user: dict, org_id: int, required_roles: Optional[List[
         return True
 
     # Check org role
-    from app.database.connection import fetch_one
+    from app.infrastructure.persistence.database.connection import fetch_one
     org_user_query = """
         SELECT org_role FROM organisation_users
         WHERE org_id = %s AND user_id = %s AND status = 'active'

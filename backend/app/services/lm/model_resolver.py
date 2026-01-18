@@ -10,11 +10,11 @@ Phase KI-Architektur - Model Routing System
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
 
-from app.repositories.lm_model_routing import (
+from app.infrastructure.persistence.repositories.lm_model_routing import (
     LMModelAssignmentRepository,
     LMModelRequirementsRepository
 )
-from app.repositories.ai_models import AIModelsRepository
+from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 from app.infrastructure.validation.learning_method_mapping import get_method_by_id
 
 

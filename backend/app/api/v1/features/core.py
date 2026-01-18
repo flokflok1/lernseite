@@ -14,7 +14,7 @@ from typing import Dict, Any, Tuple
 import logging
 from pydantic import ValidationError
 
-from app.middleware.auth import token_required, get_current_user
+from app.api.middleware.auth import token_required, get_current_user
 from app.services.system.features.service import FeatureService
 
 logger = logging.getLogger(__name__)

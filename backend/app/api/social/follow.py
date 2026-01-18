@@ -14,7 +14,7 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify, g
 from app.core.feature_flags import require_feature
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 
 follow_bp = Blueprint('social_follow', __name__, url_prefix='/social/follow')
 

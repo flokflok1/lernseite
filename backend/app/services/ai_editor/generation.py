@@ -12,7 +12,7 @@ from datetime import datetime
 
 from app.domain.ai.configuration.prompt_registry import get_prompt_template, PromptRegistryError
 from app.services.ai_adapter import AIAdapter, AIProviderError
-from app.repositories.ai.editor import (
+from app.infrastructure.persistence.repositories.ai.editor import (
     AIEditorRepository,
     AIEditorAnalyticsRepository
 )

@@ -31,9 +31,9 @@ from typing import Optional, Dict, Any
 
 from app.api.v1 import api_v1
 from app.services.course_ai_settings_service import CourseAiSettingsService
-from app.middleware.auth import admin_required
-from app.i18n.error_codes import ErrorCode
-from app.i18n.error_codes import error_response
+from app.api.middleware.auth import admin_required
+from app.infrastructure.i18n.error_codes import ErrorCode
+from app.infrastructure.i18n.error_codes import error_response
 
 
 # ============================================================================

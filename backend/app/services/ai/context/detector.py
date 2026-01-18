@@ -15,7 +15,7 @@ from typing import Optional, Dict, List, Any
 from uuid import UUID
 from datetime import datetime
 
-from app.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 
 logger = logging.getLogger(__name__)
 

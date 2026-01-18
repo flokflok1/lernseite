@@ -49,7 +49,7 @@ def get_available_voices():
     # Load audio models from database
     audio_models = []
     try:
-        from app.repositories.ai_models import AIModelsRepository
+        from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
         db_models = AIModelsRepository.get_models_by_category('audio')
         for model in db_models:
             audio_models.append({

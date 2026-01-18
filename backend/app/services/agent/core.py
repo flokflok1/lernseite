@@ -16,9 +16,9 @@ from typing import Dict, Any, Optional
 
 from app.infrastructure.cache.service import CacheService
 from app.services.system.billing.service import BillingService
-from app.repositories.agent import AgentRepository
-from app.repositories.knowledge import KnowledgeRepository
-from app.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.agent import AgentRepository
+from app.infrastructure.persistence.repositories.knowledge import KnowledgeRepository
+from app.infrastructure.persistence.repositories.user import UserRepository
 
 from .routing import AgentRouter
 from .prompts import PromptBuilder

@@ -15,7 +15,7 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify, g
 from app.core.feature_flags import require_feature
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 from typing import Optional
 
 posts_bp = Blueprint('social_posts', __name__, url_prefix='/social/posts')

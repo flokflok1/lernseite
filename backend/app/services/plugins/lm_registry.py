@@ -5,7 +5,7 @@ Loads and caches active plugins with hot-reload capability.
 from typing import Dict, Optional
 from datetime import datetime, timedelta
 from app.infrastructure.validation.learning_method_mapping import LEARNING_METHODS, LearningMethodDefinition
-from app.repositories.plugins.lm_plugins import LMPluginRepository
+from app.infrastructure.persistence.repositories.plugins.lm_plugins import LMPluginRepository
 import logging
 
 logger = logging.getLogger(__name__)

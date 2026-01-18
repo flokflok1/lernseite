@@ -13,7 +13,7 @@ ISO 9001:2015 compliant - Service layer
 from typing import List, Dict, Optional
 from datetime import datetime
 
-from app.repositories.widgets.recommendation_repository import RecommendationRepository
+from app.infrastructure.persistence.repositories.widgets.recommendation_repository import RecommendationRepository
 
 
 class RecommendationService:

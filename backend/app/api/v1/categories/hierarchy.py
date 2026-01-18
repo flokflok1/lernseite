@@ -18,7 +18,7 @@ from app.domain.models.category import (
     CategoryTreeNode,
     CategoryTreeResponse,
 )
-from app.repositories.category import CategoryRepository
+from app.infrastructure.persistence.repositories.category import CategoryRepository
 
 hierarchy_bp = Blueprint('categories_hierarchy', __name__, url_prefix='/categories')
 

@@ -32,7 +32,7 @@ from pydantic import ValidationError
 from datetime import timedelta
 import logging
 
-from app.i18n.error_codes import ErrorCode, error_response
+from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
 logger = logging.getLogger(__name__)
 
@@ -46,14 +46,14 @@ from app.domain.models.user import (
     TwoFactorDisable,
     PasswordReset
 )
-from app.repositories.user import UserRepository
-from app.repositories.role_studio_mode import RoleStudioModeRepository
-from app.middleware.auth import token_required, get_current_user
-from app.security import BruteForceProtection
+from app.infrastructure.persistence.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.role_studio_mode import RoleStudioModeRepository
+from app.api.middleware.auth import token_required, get_current_user
+from app.infrastructure.security import BruteForceProtection
 from app.services.audit_service import AuditService
 from app.services.role_studio_service import RoleStudioService
 from app.setup.admin_setup import AdminSetup
-from app.database.connection import execute_query
+from app.infrastructure.persistence.database.connection import execute_query
 
 
 # Create auth blueprint

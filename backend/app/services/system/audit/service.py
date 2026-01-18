@@ -19,7 +19,7 @@ from typing import Optional, Dict, Any, List
 from flask import request, g, current_app
 import json
 
-from app.database.connection import execute_query, fetch_all, fetch_one
+from app.infrastructure.persistence.database.connection import execute_query, fetch_all, fetch_one
 
 
 # ==========================================

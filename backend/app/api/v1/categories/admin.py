@@ -23,8 +23,8 @@ from app.domain.models.category import (
     CategoryUpdate,
     CategoryReorderRequest,
 )
-from app.repositories.category import CategoryRepository
-from app.middleware.auth import admin_required
+from app.infrastructure.persistence.repositories.category import CategoryRepository
+from app.api.middleware.auth import admin_required
 
 admin_bp = Blueprint('categories_admin', __name__, url_prefix='/categories')
 

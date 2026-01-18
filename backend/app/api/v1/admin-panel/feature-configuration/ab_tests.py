@@ -15,8 +15,8 @@ from typing import Dict, Any, Tuple, Optional, Literal
 import logging
 from datetime import datetime
 
-from app.database import get_db_connection
-from app.repositories.feature_configuration_part2 import FeatureAbTestRepository
+from app.infrastructure.persistence.database import get_db_connection
+from app.infrastructure.persistence.repositories.feature_configuration_part2 import FeatureAbTestRepository
 from app.services.feature_configuration_ab_test import FeatureConfigurationAbTestService
 from app.services.feature_flags.cache import FeatureConfigurationCacheService
 from app.infrastructure.utils.exceptions import (
@@ -24,7 +24,7 @@ from app.infrastructure.utils.exceptions import (
     NotFoundError,
     ForbiddenError
 )
-from app.middleware.auth import token_required, admin_required
+from app.api.middleware.auth import token_required, admin_required
 
 logger = logging.getLogger(__name__)
 

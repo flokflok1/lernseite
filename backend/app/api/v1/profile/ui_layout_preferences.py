@@ -12,8 +12,8 @@ Split from: profile.py (Part 3/4 - UI Layout)
 
 from flask import Blueprint, request, jsonify
 
-from app.repositories.settings.user_preferences import UserPreferencesRepository
-from app.middleware.auth import token_required, get_current_user
+from app.infrastructure.persistence.repositories.settings.user_preferences import UserPreferencesRepository
+from app.api.middleware.auth import token_required, get_current_user
 
 ui_layout_preferences_bp = Blueprint('profile_ui_layout', __name__, url_prefix='/profile')
 

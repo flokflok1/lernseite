@@ -6,7 +6,7 @@ Run controlled experiments to compare feature variants
 
 import hashlib
 from typing import Optional, Dict, Any, List
-from app.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.base_repository import BaseRepository
 
 
 class ABTestingRepository(BaseRepository):

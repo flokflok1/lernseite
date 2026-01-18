@@ -25,7 +25,7 @@ from flask import Flask, jsonify, request, Response
 from werkzeug.exceptions import HTTPException
 
 from app.config import config
-from app.i18n.error_codes import ErrorCode, error_response
+from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
 # ============================================================================
 # SECTION 1: EXTENSIONS INITIALIZATION
@@ -84,18 +84,18 @@ def register_shell_context(app: Flask) -> None:
     @app.shell_context_processor
     def make_shell_context():
         """Add database pool and utilities to shell context"""
-        from app.repositories.user import UserRepository
-        from app.repositories.courses import CourseRepository
-        from app.repositories.courses.chapters import ChapterRepository
-        from app.repositories.courses.lessons import LessonRepository
-        from app.repositories.enrollments.core import EnrollmentRepository
-        from app.repositories.category import CategoryRepository
-        from app.repositories.learning_method import LearningMethodRepository
-        from app.repositories.token import TokenRepository
-        from app.repositories.subscription import SubscriptionRepository
-        from app.repositories.organisations.core import OrganisationRepository
-        from app.repositories.dashboard.core import DashboardRepository
-        from app.repositories.analytics import AnalyticsRepository
+        from app.infrastructure.persistence.repositories.user import UserRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+        from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+        from app.infrastructure.persistence.repositories.enrollments.core import EnrollmentRepository
+        from app.infrastructure.persistence.repositories.category import CategoryRepository
+        from app.infrastructure.persistence.repositories.learning_method import LearningMethodRepository
+        from app.infrastructure.persistence.repositories.token import TokenRepository
+        from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
+        from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
+        from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository
+        from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
         from app.services.ai_adapter import AIAdapter
         from app.services.system.billing.service import BillingService
 
@@ -249,7 +249,7 @@ def setup_rate_limiting(app: Flask) -> None:
     Args:
         app (Flask): Flask application instance
     """
-    from app.security import init_rate_limiter, handle_rate_limit_exceeded
+    from app.infrastructure.security import init_rate_limiter, handle_rate_limit_exceeded
 
     # Initialize rate limiter
     init_rate_limiter(app)
@@ -271,7 +271,7 @@ def setup_security_headers(app: Flask) -> None:
     Args:
         app (Flask): Flask application instance
     """
-    from app.middleware.security_headers import setup_security_headers as init_security_headers
+    from app.api.middleware.security_headers import setup_security_headers as init_security_headers
 
     # Initialize security headers
     init_security_headers(app)
@@ -417,7 +417,7 @@ def setup_monitoring(app: Flask) -> None:
     app.logger.info('Setting up monitoring and metrics...')
 
     # Setup monitoring middleware
-    from app.middleware import setup_monitoring_middleware
+    from app.api.middleware import setup_monitoring_middleware
     setup_monitoring_middleware(app)
 
     # Initialize application info metric
@@ -463,9 +463,9 @@ def setup_gateway(app: Flask) -> None:
     Args:
         app (Flask): Flask application instance
     """
-    from app.gateway import setup_gateway_middleware, setup_gateway_versioning
-    from app.gateway.analytics import setup_gateway_analytics
-    from app.gateway.rate_limiting import setup_gateway_rate_limiting
+    from app.api.gateway import setup_gateway_middleware, setup_gateway_versioning
+    from app.api.gateway.analytics import setup_gateway_analytics
+    from app.api.gateway.rate_limiting import setup_gateway_rate_limiting
 
     # Setup gateway middleware (request validation)
     setup_gateway_middleware(app)
@@ -526,7 +526,7 @@ def register_socket_events(app: Flask) -> None:
         app (Flask): Flask application instance
     """
     try:
-        from app.sockets import register_socket_events as register_events
+        from app.infrastructure.realtime.sockets import register_socket_events as register_events
         register_events(socketio)
         app.logger.info('WebSocket events registered successfully')
     except Exception as e:
@@ -566,7 +566,7 @@ def register_blueprints(app):
         app.logger.info('System installed - loading application routes via API Gateway')
 
         # Register all routes through the API Gateway
-        from app.gateway import register_gateway_routes
+        from app.api.gateway import register_gateway_routes
         register_gateway_routes(app)
 
         # Future API Blueprints:

@@ -17,7 +17,7 @@ import base64
 import tempfile
 from werkzeug.utils import secure_filename
 
-from app.middleware.auth import token_required
+from app.api.middleware.auth import token_required
 from app.services.ai_adapter import AIAdapter
 
 logger = logging.getLogger(__name__)

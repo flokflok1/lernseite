@@ -5,7 +5,7 @@ Language metadata, progress tracking, and primary language management.
 """
 
 from typing import Optional, Dict, Any, List
-from app.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 from app.infrastructure.cache.service import CacheService
 import logging
 

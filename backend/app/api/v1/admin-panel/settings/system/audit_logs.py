@@ -11,9 +11,9 @@ from flask import request, jsonify, current_app, g
 from datetime import datetime
 
 from .system_operations import api_v1
-from app.security.permissions import require_permission, Permissions
+from app.infrastructure.security.permissions import require_permission, Permissions
 from app.services.audit_service import AuditService
-from app.database.connection import fetch_all, fetch_one
+from app.infrastructure.persistence.database.connection import fetch_all, fetch_one
 
 
 @api_v1.route('/admin/audit-logs', methods=['GET'])

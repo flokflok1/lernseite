@@ -701,7 +701,7 @@ def register_blueprints(app):
             }), 200
 
     # Health check endpoints (always available)
-    from app.api.v1.health import health_check, health_check_detailed, readiness_check, liveness_check
+    from app.api.v1.system.health import health_check, health_check_detailed, readiness_check, liveness_check
 
     @app.route('/health')
     def health():

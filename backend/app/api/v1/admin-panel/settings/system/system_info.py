@@ -16,7 +16,7 @@ from datetime import datetime
 from .system_operations import api_v1
 from app.infrastructure.security.permissions import require_permission, Permissions
 from app.api.gateway.versioning import get_version_info
-from app.api.v1.deprecation import list_deprecated_endpoints
+from app.api.v1.system.deprecation import list_deprecated_endpoints
 
 
 @api_v1.route('/admin/settings/system/version', methods=['GET'])
@@ -247,7 +247,7 @@ def get_detailed_health():
         version_info = get_version_info()
 
         # Get health status from existing health check
-        from app.api.v1.health import health_check_detailed
+        from app.api.v1.system.health import health_check_detailed
         health_response = health_check_detailed()
 
         # Combine with version info

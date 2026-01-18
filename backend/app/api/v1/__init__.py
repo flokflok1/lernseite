@@ -68,7 +68,7 @@ from app.api.v1.exam_simulations import exams_bp as exam_simulations_bp
 
 # Billing endpoints
 from app.api.v1.subscriptions import subscriptions_bp
-from app.api.v1.tokens import tokens_bp
+from app.api.v1.billing.tokens import tokens_bp, admin_tokens_bp
 
 # Organisation endpoints
 from app.api.v1.organisations import organisations_bp
@@ -160,6 +160,7 @@ api_v1.register_blueprint(lesson_videos_bp)
 api_v1.register_blueprint(exam_simulations_bp)
 api_v1.register_blueprint(subscriptions_bp)
 api_v1.register_blueprint(tokens_bp)
+api_v1.register_blueprint(admin_tokens_bp)
 api_v1.register_blueprint(organisations_bp)
 api_v1.register_blueprint(feedback_bp)
 api_v1.register_blueprint(tutor_bp)
@@ -192,7 +193,7 @@ __all__ = [
     'auth_bp', 'users_bp', 'users_part2_bp', 'profile_bp', 'health_bp',
     'courses_core_bp', 'courses_crud_bp', 'courses_publishing_bp', 'courses_enrollment_bp', 'categories_admin_bp', 'categories_hierarchy_bp', 'categories_public_bp', 'learning_methods_bp',
     'chapter_theory_bp', 'lesson_explanations_bp', 'lesson_videos_bp', 'exam_simulations_bp',
-    'subscriptions_bp', 'tokens_bp', 'organisations_bp', 'feedback_bp',
+    'subscriptions_bp', 'tokens_bp', 'admin_tokens_bp', 'organisations_bp', 'feedback_bp',
     'tutor_bp', 'tutor_admin_bp', 'agents_bp', 'tts_bp', 'tts_pronunciations_bp',
     'math_toolkit_practice_bp', 'math_toolkit_reference_bp', 'math_toolkit_tasks_bp', 'math_toolkit_admin_bp',
     'analytics_bp', 'org_analytics_bp', 'gamification_bp', 'audio_bp',

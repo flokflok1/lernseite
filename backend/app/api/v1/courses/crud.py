@@ -16,7 +16,7 @@ from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 import logging
 
-from app.models.course import CourseCreate, CourseUpdate
+from app.domain.models.course import CourseCreate, CourseUpdate
 from app.repositories.courses import CourseRepository
 from app.middleware.auth import token_required, role_required, get_current_user
 from app.i18n.error_codes import ErrorCode

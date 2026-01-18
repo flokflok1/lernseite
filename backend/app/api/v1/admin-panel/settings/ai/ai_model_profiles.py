@@ -30,7 +30,7 @@ from app.security.permissions import require_permission, Permissions
 from app.repositories.ai.profiles import AiModelProfilesRepository as AIProfileRepository
 from app.services.audit_service import AuditService
 from app.i18n.error_codes import ErrorCode, error_response
-from app.utils.exceptions import NotFoundError, ValidationError
+from app.infrastructure.utils.exceptions import NotFoundError, ValidationError
 
 # DDD Core Domain
 from .core.factory import AIProfileFactory

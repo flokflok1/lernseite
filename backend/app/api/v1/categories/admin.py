@@ -18,7 +18,7 @@ from flask import Blueprint, request, jsonify, current_app
 from pydantic import ValidationError
 import traceback
 
-from app.models.category import (
+from app.domain.models.category import (
     CategoryCreate,
     CategoryUpdate,
     CategoryReorderRequest,

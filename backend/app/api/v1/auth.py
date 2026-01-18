@@ -36,7 +36,7 @@ from app.i18n.error_codes import ErrorCode, error_response
 
 logger = logging.getLogger(__name__)
 
-from app.models.user import (
+from app.domain.models.user import (
     UserCreate,
     UserLogin,
     UserResponse,

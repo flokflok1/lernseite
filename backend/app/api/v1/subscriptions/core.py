@@ -25,7 +25,7 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.models.subscription import (
+from app.domain.models.subscription import (
     SubscriptionResponse,
     SubscriptionChangeRequest,
     SubscriptionCancelRequest,
@@ -33,7 +33,7 @@ from app.models.subscription import (
     SubscriptionStats
 )
 from app.repositories.subscription import SubscriptionRepository
-from app.services.billing_service import BillingService
+from app.services.system.billing.service import BillingService
 from app.middleware.auth import token_required, get_current_user, admin_required
 
 subscriptions_bp = Blueprint('subscriptions', __name__, url_prefix='/subscriptions')

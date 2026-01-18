@@ -4,7 +4,7 @@ Loads and caches active plugins with hot-reload capability.
 """
 from typing import Dict, Optional
 from datetime import datetime, timedelta
-from app.ai.configuration.learning_method_mapping import LEARNING_METHODS, LearningMethodDefinition
+from app.infrastructure.validation.learning_method_mapping import LEARNING_METHODS, LearningMethodDefinition
 from app.repositories.plugins.lm_plugins import LMPluginRepository
 import logging
 
@@ -162,7 +162,7 @@ class LMPluginRegistry:
         # Parse agent_support if present
         agent_support = None
         if plugin.get('agent_support'):
-            from app.ai.configuration.learning_method_mapping import AgentSupport
+            from app.infrastructure.validation.learning_method_mapping import AgentSupport
             agent_data = plugin['agent_support']
             agent_support = AgentSupport(
                 agent_can_handle=agent_data.get('can_generate', False),

@@ -19,7 +19,7 @@ Refactored: 2026-01-12 - Consolidated from users/ folder into flat file
 
 from flask import Blueprint, request, jsonify, g
 
-from app.models.user import UserResponse
+from app.domain.models.user import UserResponse
 from app.repositories.user import UserRepository
 from app.middleware.auth import admin_required, role_required, can_manage_user
 

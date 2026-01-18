@@ -160,7 +160,7 @@ class GatewayAnalytics:
             duration: Request duration in seconds
         """
         try:
-            from app.monitoring import (
+            from app.infrastructure.monitoring import (
                 http_requests_total,
                 http_request_duration_seconds,
             )

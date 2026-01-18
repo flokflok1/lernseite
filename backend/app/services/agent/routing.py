@@ -10,12 +10,12 @@ Handles:
 import logging
 from typing import Dict, Any, Optional
 
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 from app.services.ai_adapter import AIAdapter, AIProviderError
 from app.repositories.agent import AgentRepository
 from app.repositories.knowledge import KnowledgeRepository
 from app.repositories.user import UserRepository
-from app.services.billing_service import BillingService
+from app.services.system.billing.service import BillingService
 
 from .knowledge import KnowledgeManager
 from .prompts import PromptBuilder

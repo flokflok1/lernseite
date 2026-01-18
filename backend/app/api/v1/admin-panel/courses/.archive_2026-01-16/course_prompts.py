@@ -17,7 +17,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from app.api.v1 import api_v1
-from app.models.course_prompt import (
+from app.domain.models.course_prompt import (
     CoursePromptResponse,
     CoursePromptUpdateRequest,
     CoursePromptResolveRequest,

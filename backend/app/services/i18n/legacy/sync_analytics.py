@@ -14,7 +14,7 @@ from app.repositories.i18n_sync import (
     SyncRepository, SyncOperation, SyncChange
 )
 from app.repositories.i18n_translation import TranslationRepository
-from app.utils.exceptions import NotFoundError
+from app.infrastructure.utils.exceptions import NotFoundError
 from app.database import get_connection
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ class TranslationComparisonService:
         return ('CHANGED', 0.0)
 
 
-class I18nSyncServiceAnalytics:
+class I18nSyncAnalyticsService:
     """
     Service for analytics and statistics of i18n translation syncs.
 

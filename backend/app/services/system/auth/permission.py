@@ -11,7 +11,7 @@ from typing import Optional
 import logging
 
 from app.database.connection import fetch_one
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)
 

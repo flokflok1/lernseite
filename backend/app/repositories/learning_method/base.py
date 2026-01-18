@@ -18,7 +18,7 @@ import psycopg
 from psycopg.rows import dict_row
 
 from app.extensions import db_pool
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 from flask import current_app
 
 

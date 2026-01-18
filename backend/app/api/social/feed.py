@@ -36,7 +36,7 @@ def get_personalized_feed():
         200: Feed with posts
         403: Feature not available
     """
-    from app.social.feed.feed_generator import FeedGenerator
+    from app.domain.social.feed.feed_generator import FeedGenerator
 
     user_id = g.user_id
     page = int(request.args.get('page', 1))
@@ -79,7 +79,7 @@ def get_following_feed():
     Returns:
         200: Chronological feed
     """
-    from app.social.feed.chronological_feed import ChronologicalFeed
+    from app.domain.social.feed.chronological_feed import ChronologicalFeed
 
     user_id = g.user_id
     page = int(request.args.get('page', 1))
@@ -119,7 +119,7 @@ def get_trending_feed():
     Returns:
         200: Trending posts
     """
-    from app.social.discovery.trending import TrendingDiscovery
+    from app.domain.social.discovery.trending import TrendingDiscovery
 
     user_id = g.user_id
     timeframe = request.args.get('timeframe', '24h')

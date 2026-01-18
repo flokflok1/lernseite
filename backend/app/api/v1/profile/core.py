@@ -13,12 +13,12 @@ Split from: profile.py (Part 1/4 - Core)
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.models.user import (
+from app.domain.models.user import (
     UserUpdate, UserProfile, PasswordChange
 )
 from app.repositories.user import UserRepository
 from app.repositories.token import TokenRepository
-from app.services.billing_service import BillingService
+from app.services.system.billing.service import BillingService
 from app.middleware.auth import token_required, get_current_user
 
 core_bp = Blueprint('profile_core', __name__, url_prefix='/profile')

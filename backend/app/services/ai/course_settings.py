@@ -24,7 +24,7 @@ from flask import current_app
 from app.repositories.courses.ai_settings import CourseAiSettingsRepository
 from app.repositories.ai.profiles import AiModelProfilesRepository
 from app.repositories.courses import CourseRepository
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 
 
 class CourseAiSettingsService:

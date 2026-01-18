@@ -18,7 +18,7 @@ ISO 9001:2015 compliant - Agent Core Layer
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.models.agent import (
+from app.domain.models.agent import (
     AgentAskRequest,
     AgentAskResponse,
     AgentConfigUpdate,

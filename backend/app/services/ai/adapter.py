@@ -32,7 +32,7 @@ from .providers.huggingface import HuggingFaceProvider
 
 # Import monitoring (if available)
 try:
-    from app.monitoring import record_ai_call
+    from app.infrastructure.monitoring import record_ai_call
     MONITORING_AVAILABLE = True
 except ImportError:
     MONITORING_AVAILABLE = False
@@ -223,7 +223,7 @@ class AIAdapter:
             ValueError: If messages format is invalid
 
         Usage:
-            >>> from app.ai.configuration import get_prompt_template
+            >>> from app.domain.ai.configuration import get_prompt_template
             >>> template = get_prompt_template("explain_concept")
             >>> messages = template.render({
             ...     "course_title": "Python Basics",

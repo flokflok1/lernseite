@@ -14,7 +14,7 @@ from typing import Dict, Any
 from app.services.i18n_service import I18nService
 from app.database import get_connection
 from app.repositories.i18n_repository import I18nRepository
-from app.utils.exceptions import NotFoundError, ValidationError
+from app.infrastructure.utils.exceptions import NotFoundError, ValidationError
 from app.middleware.auth import token_required, role_required
 
 logger = logging.getLogger(__name__)

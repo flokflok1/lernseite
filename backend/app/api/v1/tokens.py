@@ -22,7 +22,7 @@ ISO/IEC/IEEE 26515:2018 compliant - RESTful API design
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.models.token import (
+from app.domain.models.token import (
     TokenWalletResponse,
     TokenBalanceResponse,
     TokenTransactionResponse,
@@ -31,7 +31,7 @@ from app.models.token import (
 )
 from app.repositories.token import TokenRepository
 from app.repositories.user import UserRepository
-from app.services.billing_service import BillingService
+from app.services.system.billing.service import BillingService
 from app.middleware.auth import token_required, admin_required, get_current_user
 
 tokens_bp = Blueprint('tokens', __name__, url_prefix='/tokens')

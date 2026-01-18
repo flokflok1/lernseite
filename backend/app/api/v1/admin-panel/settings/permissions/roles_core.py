@@ -6,7 +6,7 @@ Shared templates, models, and utilities for role management.
 Phase 5.3 - Owner-Admin & Dynamic Roles System
 """
 
-from app.models.admin_roles import RoleTemplate
+from app.domain.models.admin_roles import RoleTemplate
 
 # ============================================================================
 # Role Templates Configuration

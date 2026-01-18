@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 from app.database import get_db_connection
 from app.repositories.audit_log import AuditLogRepository
-from app.utils.exceptions import ValidationError, NotFoundError
+from app.infrastructure.utils.exceptions import ValidationError, NotFoundError
 from app.middleware.auth import token_required, admin_required
 
 logger = logging.getLogger(__name__)

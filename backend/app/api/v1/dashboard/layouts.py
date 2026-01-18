@@ -12,7 +12,7 @@ ISO 27001:2013 compliant - Dashboard layout management
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.models.dashboard import (
+from app.domain.models.dashboard import (
     DashboardLayout,
     DashboardLayoutSaveRequest,
     DashboardLayoutResponse,

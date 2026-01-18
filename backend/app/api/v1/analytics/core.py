@@ -25,7 +25,7 @@ import logging
 from app.extensions import limiter
 from app.middleware.auth import token_required, get_current_user
 from app.security.permissions import require_permission, Permissions
-from app.models.analytics import (
+from app.domain.models.analytics import (
     AnalyticsEventCreateRequest,
     AnalyticsEventResponse,
     AnalyticsUserStats,
@@ -34,7 +34,7 @@ from app.models.analytics import (
     TimeSeriesResponse,
     TimeSeriesDataPoint
 )
-from app.services.analytics_service import AnalyticsService
+from app.services.analytics.service import AnalyticsService
 from app.repositories.analytics import AnalyticsRepository
 
 # Blueprints

@@ -13,7 +13,7 @@ This module orchestrates the various sub-components of the authoring system.
 import logging
 from typing import Dict, Any, Optional, List
 
-from app.ai.configuration.prompts.authoring import QUICK_PROMPTS
+from app.domain.ai.configuration.prompts.authoring import QUICK_PROMPTS
 
 from .exceptions import AuthoringServiceError
 from .session_manager import SessionManager

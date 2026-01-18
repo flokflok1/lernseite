@@ -24,7 +24,7 @@ from typing import Tuple, Optional, List
 
 from app.middleware.auth import token_required, get_current_user
 from app.security.permissions import require_permission, Permissions
-from app.models.analytics import (
+from app.domain.models.analytics import (
     TimeSeriesResponse,
     TimeSeriesDataPoint,
     OrgTopCoursesResponse,
@@ -32,7 +32,7 @@ from app.models.analytics import (
     OrgTopModulesResponse,
     OrgTopModuleAnalytics
 )
-from app.models.organisation import OrganisationStatsResponse
+from app.domain.models.organisation import OrganisationStatsResponse
 from app.repositories.analytics import AnalyticsRepository
 from app.repositories.organisations.core import OrganisationRepository
 from app.repositories.subscription import SubscriptionRepository

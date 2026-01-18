@@ -15,7 +15,7 @@ from flask_jwt_extended import (
 from pydantic import ValidationError
 from datetime import timedelta
 
-from app.models.user import (
+from app.domain.models.user import (
     UserCreate,
     UserLogin,
     UserResponse,

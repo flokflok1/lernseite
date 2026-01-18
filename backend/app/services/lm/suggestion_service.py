@@ -24,7 +24,7 @@ from typing import List, Dict, Optional
 import json
 import logging
 
-from app.ai.configuration.learning_method_mapping import (
+from app.infrastructure.validation.learning_method_mapping import (
     LEARNING_METHODS,
     LearningMethodDefinition,
     get_all_methods_as_dict

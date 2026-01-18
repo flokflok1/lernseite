@@ -14,7 +14,7 @@ from typing import Optional, Dict, Any
 
 from app.database.connection import fetch_one
 from app.repositories.base_repository import BaseRepository
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 
 
 class CourseRepositoryLifecycle(BaseRepository):

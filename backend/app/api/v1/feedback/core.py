@@ -22,7 +22,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from datetime import datetime
 
-from app.services.feedback_service import FeedbackService
+from app.services.dashboard.feedback.service import FeedbackService
 from app.middleware.auth import role_required
 from app.repositories.feedback.core import FeedbackRepository
 

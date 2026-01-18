@@ -23,14 +23,50 @@ BACKWARD COMPATIBILITY NOTES:
 """
 
 # ============================================
+# LEGACY BRIDGE REGISTRATION (MUST BE FIRST!)
+# ============================================
+# Register legacy bridge modules IMMEDIATELY so old import paths work
+# This must happen before any other imports in this package
+
+import sys
+import importlib.util
+from pathlib import Path
+
+def _register_legacy_bridges():
+    """Register legacy bridge modules in sys.modules for backward compatibility."""
+    bridges_dir = Path(__file__).parent / '_legacy_bridges'
+    if not bridges_dir.exists():
+        return
+
+    legacy_bridges = [
+        'ai_adapter', 'ai_job_service', 'audit_service', 'content_translation_service',
+        'course_ai_settings_service', 'course_authoring_service', 'feature_configuration_ab_test',
+        'feature_configuration_rollout', 'feature_configuration_service', 'file_context_service',
+        'i18n_service', 'math_toolkit_service', 'permission_service', 'prompt_resolver',
+        'role_studio_service', 'tts_service',
+    ]
+
+    for bridge_name in legacy_bridges:
+        bridge_file = bridges_dir / f'{bridge_name}.py'
+        if bridge_file.exists():
+            module_path = f'app.services.{bridge_name}'
+            spec = importlib.util.spec_from_file_location(module_path, bridge_file)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                sys.modules[module_path] = module
+
+_register_legacy_bridges()
+
+# ============================================
 # ROOT-LEVEL UTILITY SERVICES (Cross-cutting concerns)
 # ============================================
-from app.services.ai_adapter import AIAdapter
-from app.services.analytics_service import AnalyticsService
-from app.services.billing_service import BillingService
-from app.services.cache_service import CacheService
-from app.services.feedback_service import FeedbackService
-from app.services.feature_service import FeatureService
+from app.services.ai.adapter import AIAdapter
+from app.services.analytics.service import AnalyticsService
+from app.services.system.billing.service import BillingService
+from app.infrastructure.cache.service import CacheService
+from app.services.dashboard.feedback.service import FeedbackService
+from app.services.system.features.service import FeatureService
 
 # ============================================
 # ORGANIZED DOMAIN SERVICES
@@ -92,11 +128,12 @@ from app.services.ai.prompts import PromptResolver
 from app.services.ai.context import ExamContextDetector
 
 # ============================================
-# CIRCULAR DEPENDENCY HANDLING
+# PUBLISHING SERVICE (Handled separately)
 # ============================================
-# NOTE: CoursePublishingService intentionally NOT imported here to avoid circular dependency:
+# NOTE: CoursePublishingService moved to content/publishing/service.py
+# Import directly: from app.services.content.publishing.service import CoursePublishingService
+# NOT imported here to avoid circular dependency:
 # repositories.courses -> cache_service -> services.__init__ -> course_publishing_service -> repositories.courses
-# Import CoursePublishingService directly where needed instead
 
 # ============================================
 # EXPORTS FOR BACKWARD COMPATIBILITY

@@ -16,7 +16,7 @@ from app.repositories.ai.profiles import AiModelProfilesRepository
 from app.repositories.ai_models import AIModelsRepository
 
 
-class AiModelProfilesService:
+class AIModelProfilesService:
     """
     Service layer for AI model profiles.
 
@@ -37,7 +37,7 @@ class AiModelProfilesService:
             List of profile dicts with all fields
 
         Example:
-            >>> profiles = AiModelProfilesService.get_all_profiles()
+            >>> profiles = AIModelProfilesService.get_all_profiles()
         """
         return AiModelProfilesRepository.find_all_active()
 
@@ -53,7 +53,7 @@ class AiModelProfilesService:
             Profile dict or None
 
         Example:
-            >>> profile = AiModelProfilesService.get_profile('standard')
+            >>> profile = AIModelProfilesService.get_profile('standard')
         """
         return AiModelProfilesRepository.find_by_key(key)
 
@@ -66,7 +66,7 @@ class AiModelProfilesService:
             Default profile dict or None
 
         Example:
-            >>> default = AiModelProfilesService.get_default_profile()
+            >>> default = AIModelProfilesService.get_default_profile()
         """
         return AiModelProfilesRepository.find_default()
 
@@ -79,7 +79,7 @@ class AiModelProfilesService:
             List of {key, name, description, is_default} dicts
 
         Example:
-            >>> summaries = AiModelProfilesService.get_profile_summary()
+            >>> summaries = AIModelProfilesService.get_profile_summary()
         """
         return AiModelProfilesRepository.get_profile_summary()
 
@@ -114,7 +114,7 @@ class AiModelProfilesService:
             ValueError: If key already exists or models invalid
 
         Example:
-            >>> profile = AiModelProfilesService.create_profile(
+            >>> profile = AIModelProfilesService.create_profile(
             ...     key='custom',
             ...     name='Custom Profile',
             ...     chat_model_id='gpt-4o'
@@ -185,7 +185,7 @@ class AiModelProfilesService:
             ValueError: If profile not found
 
         Example:
-            >>> profile = AiModelProfilesService.update_profile(
+            >>> profile = AIModelProfilesService.update_profile(
             ...     key='standard',
             ...     chat_model_id='gpt-4o'
             ... )
@@ -233,7 +233,7 @@ class AiModelProfilesService:
             ValueError: If profile not found or is default
 
         Example:
-            >>> AiModelProfilesService.delete_profile('custom')
+            >>> AIModelProfilesService.delete_profile('custom')
         """
         existing = AiModelProfilesRepository.find_by_key(key)
         if not existing:
@@ -259,7 +259,7 @@ class AiModelProfilesService:
             ValueError: If profile not found
 
         Example:
-            >>> AiModelProfilesService.set_default_profile('quality')
+            >>> AIModelProfilesService.set_default_profile('quality')
         """
         existing = AiModelProfilesRepository.find_by_key(key)
         if not existing:
@@ -283,7 +283,7 @@ class AiModelProfilesService:
             Profile dict with model info added
 
         Example:
-            >>> profile = AiModelProfilesService.get_profile_with_model_info('standard')
+            >>> profile = AIModelProfilesService.get_profile_with_model_info('standard')
             >>> print(profile['chat_model_info']['display_name'])  # 'GPT-4o Mini'
         """
         profile = AiModelProfilesRepository.find_by_key(key)
@@ -354,7 +354,7 @@ class AiModelProfilesService:
             Dict with category keys and list of model dicts
 
         Example:
-            >>> models = AiModelProfilesService.get_available_models_by_category()
+            >>> models = AIModelProfilesService.get_available_models_by_category()
             >>> print(models['chat'])  # [{'model_id': 'gpt-4o', ...}, ...]
         """
         result = {}

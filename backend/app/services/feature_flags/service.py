@@ -32,7 +32,7 @@ from app.repositories.feature_configuration_part2 import (
     FeatureTierLimitRepository,
     FeatureCacheStatusRepository
 )
-from app.utils.exceptions import ValidationError, NotFoundError
+from app.infrastructure.utils.exceptions import ValidationError, NotFoundError
 
 logger = logging.getLogger(__name__)
 

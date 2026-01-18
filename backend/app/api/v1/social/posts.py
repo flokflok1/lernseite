@@ -46,7 +46,7 @@ def create_post():
         400: Invalid input
         403: Feature not available
     """
-    from app.social.posts.post_manager import PostManager
+    from app.domain.social.posts.post_manager import PostManager
 
     data = request.get_json()
     user_id = g.user_id
@@ -87,7 +87,7 @@ def get_post(post_id: str):
         404: Post not found
         403: No access to private post
     """
-    from app.social.posts.post_manager import PostManager
+    from app.domain.social.posts.post_manager import PostManager
 
     user_id = g.user_id
     post = PostManager.get_post(post_id, viewer_user_id=user_id)
@@ -120,7 +120,7 @@ def update_post(post_id: str):
         403: Not post owner
         404: Post not found
     """
-    from app.social.posts.post_manager import PostManager
+    from app.domain.social.posts.post_manager import PostManager
 
     data = request.get_json()
     user_id = g.user_id
@@ -156,7 +156,7 @@ def delete_post(post_id: str):
         403: Not post owner
         404: Post not found
     """
-    from app.social.posts.post_manager import PostManager
+    from app.domain.social.posts.post_manager import PostManager
 
     user_id = g.user_id
     success = PostManager.delete_post(post_id, user_id)
@@ -187,7 +187,7 @@ def get_user_posts(target_user_id: str):
     Returns:
         200: List of posts with pagination
     """
-    from app.social.posts.post_manager import PostManager
+    from app.domain.social.posts.post_manager import PostManager
 
     viewer_user_id = g.user_id
     page = int(request.args.get('page', 1))
@@ -225,7 +225,7 @@ def pin_post(post_id: str):
         403: Not post owner or already have pinned post
         404: Post not found
     """
-    from app.social.posts.post_manager import PostManager
+    from app.domain.social.posts.post_manager import PostManager
 
     user_id = g.user_id
     success = PostManager.pin_post(post_id, user_id)

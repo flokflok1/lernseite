@@ -13,7 +13,7 @@ import logging
 from datetime import datetime
 
 from app.repositories.i18n_repository import I18nRepository
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 from app.database import get_connection
 
 logger = logging.getLogger(__name__)

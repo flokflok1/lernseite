@@ -13,8 +13,8 @@ Tests:
 
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from app.services.feature_service import FeatureService
-from app.services.cache_service import CacheService
+from app.services.system.features.service import FeatureService
+from app.services.system.cache.service import CacheService
 
 
 class TestFeatureServiceMetadata:
@@ -272,7 +272,7 @@ class TestFeatureServiceCanAccessFeature:
         mock_cache.cache_get.return_value = True
 
         # Execute
-        from app.services.feature_service import FeatureService
+        from app.services.system.features.service import FeatureService
         result = FeatureService.can_access_feature('user-789', 'ai_studio')
 
         # Assert

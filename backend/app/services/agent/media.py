@@ -11,7 +11,7 @@ Handles:
 import logging
 from typing import Dict, Any, Optional
 
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)
 

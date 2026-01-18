@@ -11,7 +11,7 @@ from flask import Blueprint, jsonify, request
 from app.middleware.auth import token_required
 from app.security.rbac import require_owner
 from app.repositories.admin.roles import RolesRepository
-from app.models.admin_roles import (
+from app.domain.models.admin_roles import (
     AssignFeaturesRequest,
     AssignPermissionsRequest,
 )

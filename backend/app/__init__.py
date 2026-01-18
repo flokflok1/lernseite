@@ -97,7 +97,7 @@ def register_shell_context(app: Flask) -> None:
         from app.repositories.dashboard.core import DashboardRepository
         from app.repositories.analytics import AnalyticsRepository
         from app.services.ai_adapter import AIAdapter
-        from app.services.billing_service import BillingService
+        from app.services.system.billing.service import BillingService
 
         return {
             'db_pool': db_pool,
@@ -289,7 +289,7 @@ def register_error_handlers(app: Flask) -> None:
         app (Flask): Flask application instance
     """
     from pydantic import ValidationError
-    from app.utils.exceptions import APIException
+    from app.infrastructure.utils.exceptions import APIException
 
     @app.errorhandler(APIException)
     def handle_api_exception(error):
@@ -421,7 +421,7 @@ def setup_monitoring(app: Flask) -> None:
     setup_monitoring_middleware(app)
 
     # Initialize application info metric
-    from app.monitoring import initialize_app_info
+    from app.infrastructure.monitoring import initialize_app_info
     import sys
 
     initialize_app_info(
@@ -501,11 +501,11 @@ def setup_prompt_system(app: Flask) -> None:
     """
     with app.app_context():
         try:
-            from app.ai.configuration.prompt_registry import init_default_prompts
+            from app.domain.ai.configuration.prompt_registry import init_default_prompts
             init_default_prompts()
 
             # Initialize AI Editor prompts (Phase D4)
-            from app.ai.configuration.ai_editor_prompts import init_ai_editor_prompts
+            from app.domain.ai.configuration.ai_editor_prompts import init_ai_editor_prompts
             init_ai_editor_prompts()
 
             app.logger.info('KI Prompt System initialized successfully')

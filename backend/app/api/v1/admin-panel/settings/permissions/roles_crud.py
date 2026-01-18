@@ -12,7 +12,7 @@ from typing import Dict, Any
 from app.middleware.auth import token_required, get_current_user
 from app.security.rbac import require_owner
 from app.repositories.admin.roles import RolesRepository
-from app.models.admin_roles import (
+from app.domain.models.admin_roles import (
     CreateRoleRequest,
     UpdateRoleRequest,
     CreateFromTemplateRequest,

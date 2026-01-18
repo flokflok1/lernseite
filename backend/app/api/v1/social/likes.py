@@ -32,7 +32,7 @@ def toggle_post_like(post_id: str):
         200: Like toggled
         404: Post not found
     """
-    from app.social.engagement.likes import LikesService
+    from app.domain.social.engagement.likes import LikesService
 
     user_id = g.user_id
 
@@ -72,7 +72,7 @@ def react_to_post(post_id: str):
         400: Invalid reaction type
         404: Post not found
     """
-    from app.social.engagement.reactions import ReactionsService
+    from app.domain.social.engagement.reactions import ReactionsService
 
     user_id = g.user_id
     data = request.get_json()
@@ -124,7 +124,7 @@ def get_post_likes(post_id: str):
     Returns:
         200: List of users who liked the post
     """
-    from app.social.engagement.likes import LikesService
+    from app.domain.social.engagement.likes import LikesService
 
     page = int(request.args.get('page', 1))
     per_page = min(int(request.args.get('per_page', 50)), 100)
@@ -159,7 +159,7 @@ def toggle_comment_like(comment_id: str):
         200: Like toggled
         404: Comment not found
     """
-    from app.social.engagement.likes import LikesService
+    from app.domain.social.engagement.likes import LikesService
 
     user_id = g.user_id
 
@@ -195,7 +195,7 @@ def remove_reaction(post_id: str):
         200: Reaction removed
         404: No reaction found
     """
-    from app.social.engagement.reactions import ReactionsService
+    from app.domain.social.engagement.reactions import ReactionsService
 
     user_id = g.user_id
 

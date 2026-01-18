@@ -37,7 +37,7 @@ def add_comment(post_id: str):
         400: Invalid input
         404: Post not found
     """
-    from app.social.engagement.comments import CommentsService
+    from app.domain.social.engagement.comments import CommentsService
 
     user_id = g.user_id
     data = request.get_json()
@@ -89,7 +89,7 @@ def get_post_comments(post_id: str):
     Returns:
         200: List of comments with threading
     """
-    from app.social.engagement.comments import CommentsService
+    from app.domain.social.engagement.comments import CommentsService
 
     page = int(request.args.get('page', 1))
     per_page = min(int(request.args.get('per_page', 20)), 100)
@@ -131,7 +131,7 @@ def update_comment(comment_id: str):
         403: Not comment owner
         404: Comment not found
     """
-    from app.social.engagement.comments import CommentsService
+    from app.domain.social.engagement.comments import CommentsService
 
     user_id = g.user_id
     data = request.get_json()
@@ -180,7 +180,7 @@ def delete_comment(comment_id: str):
         403: Not comment owner
         404: Comment not found
     """
-    from app.social.engagement.comments import CommentsService
+    from app.domain.social.engagement.comments import CommentsService
 
     user_id = g.user_id
 
@@ -222,7 +222,7 @@ def reply_to_comment(parent_comment_id: str):
         400: Max thread depth reached or invalid input
         404: Parent comment not found
     """
-    from app.social.engagement.comments import CommentsService
+    from app.domain.social.engagement.comments import CommentsService
 
     user_id = g.user_id
     data = request.get_json()

@@ -17,7 +17,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from app.api.v1 import api_v1
-from app.models.admin_exam import (
+from app.domain.models.admin_exam import (
     ExamCreateRequest,
     ExamUpdateRequest,
     ExamGenerateRequest

@@ -34,7 +34,7 @@ def follow_user(target_user_id: str):
         400: Cannot follow yourself or already following
         404: User not found
     """
-    from app.social.follow.follow_manager import FollowManager
+    from app.domain.social.follow.follow_manager import FollowManager
 
     follower_user_id = g.user_id
 
@@ -79,7 +79,7 @@ def unfollow_user(target_user_id: str):
         200: Unfollowed successfully
         404: Not following this user
     """
-    from app.social.follow.follow_manager import FollowManager
+    from app.domain.social.follow.follow_manager import FollowManager
 
     follower_user_id = g.user_id
 
@@ -120,7 +120,7 @@ def get_followers(target_user_id: str):
     Returns:
         200: List of followers
     """
-    from app.social.follow.followers_service import FollowersService
+    from app.domain.social.follow.followers_service import FollowersService
 
     viewer_user_id = g.user_id
     page = int(request.args.get('page', 1))
@@ -160,7 +160,7 @@ def get_following(target_user_id: str):
     Returns:
         200: List of following
     """
-    from app.social.follow.following_service import FollowingService
+    from app.domain.social.follow.following_service import FollowingService
 
     viewer_user_id = g.user_id
     page = int(request.args.get('page', 1))
@@ -199,7 +199,7 @@ def get_follow_suggestions():
     Returns:
         200: List of suggested users with reasons
     """
-    from app.social.follow.suggestions import FollowSuggestions
+    from app.domain.social.follow.suggestions import FollowSuggestions
 
     user_id = g.user_id
     limit = min(int(request.args.get('limit', 10)), 50)

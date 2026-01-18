@@ -23,13 +23,13 @@ from app.repositories.i18n_sync_repository import (
     I18nSyncRepository
 )
 from app.repositories.i18n_translation import TranslationRepository
-from app.utils.exceptions import NotFoundError, BusinessLogicError
+from app.infrastructure.utils.exceptions import NotFoundError, BusinessLogicError
 from app.database import get_connection
 
 logger = logging.getLogger(__name__)
 
 
-class I18nSyncServiceApply:
+class I18nSyncApplyService:
     """
     Service for applying and rolling back i18n translation syncs.
 

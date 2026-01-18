@@ -33,7 +33,7 @@ if False:
     SyncOperation, SyncChange, SyncResolution
 )
 from app.repositories.i18n_translation import TranslationRepository
-from app.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
+from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.database import get_connection
 
 logger = logging.getLogger(__name__)

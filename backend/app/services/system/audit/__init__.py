@@ -7,8 +7,9 @@ System-wide audit logging:
 - Event tracking and analysis
 """
 
-from .service import AuditService
+from .service import AuditService, Severity
 
 __all__ = [
     'AuditService',
+    'Severity',
 ]

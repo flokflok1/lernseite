@@ -53,6 +53,11 @@ from .static import (
     transcribe_audio
 )
 
+# Context detection
+from .context.detector import (
+    get_exam_context_sync
+)
+
 # Provider implementations (for advanced usage)
 from .providers import (
     OpenAIProvider,
@@ -81,12 +86,15 @@ __all__ = [
     'text_to_speech',
     'transcribe_audio',
 
+    # Context detection
+    'get_exam_context_sync',
+
     # Providers
     'OpenAIProvider',
     'AnthropicProvider',
     'GoogleProvider',
     'CohereProvider',
-    'HuggingFaceProvider'
+    'HuggingFaceProvider',
 
     # NOTE: AIJobService, PromptResolver, ExamContextDetector are available via:
     # - Direct imports: from app.services.ai.job_service import AIJobService

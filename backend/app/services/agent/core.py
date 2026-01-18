@@ -14,8 +14,8 @@ import logging
 import hashlib
 from typing import Dict, Any, Optional
 
-from app.services.cache_service import CacheService
-from app.services.billing_service import BillingService
+from app.infrastructure.cache.service import CacheService
+from app.services.system.billing.service import BillingService
 from app.repositories.agent import AgentRepository
 from app.repositories.knowledge import KnowledgeRepository
 from app.repositories.user import UserRepository

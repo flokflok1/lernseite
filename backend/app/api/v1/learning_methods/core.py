@@ -28,7 +28,7 @@ from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from typing import Dict, Any
 
-from app.models.learning_method import (
+from app.domain.models.learning_method import (
     LearningMethodResponse,
     LearningMethodCreate,
     LearningMethodUpdate

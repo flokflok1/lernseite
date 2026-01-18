@@ -24,7 +24,7 @@ from app.api.v1.course_editor.manual_editor import manual_editor_bp
 from app.api.v1.course_editor.shared.permissions import check_course_permission
 from app.i18n.error_codes import ErrorCode
 from app.i18n.error_codes import error_response
-from app.models.course_prompt import (
+from app.domain.models.course_prompt import (
     CoursePromptResponse,
     CoursePromptUpdateRequest,
     CoursePromptResolveRequest,

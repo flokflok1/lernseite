@@ -13,7 +13,7 @@ from flask import request, g
 from functools import wraps
 from typing import Callable, Any
 
-from app.monitoring import record_http_request
+from app.infrastructure.monitoring import record_http_request
 
 logger = logging.getLogger(__name__)
 

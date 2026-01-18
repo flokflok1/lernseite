@@ -6,7 +6,7 @@ Core translation CRUD operations, bundle retrieval, and caching.
 
 from typing import Optional, Dict, Any, List
 from app.database.connection import fetch_one, fetch_all, execute_query
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 import logging
 
 logger = logging.getLogger(__name__)

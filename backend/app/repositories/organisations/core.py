@@ -17,7 +17,7 @@ import json
 
 from app.repositories.base_repository import BaseRepository
 from app.database.connection import fetch_one, fetch_all, execute_query, insert_returning, update_returning
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 from flask import current_app
 
 

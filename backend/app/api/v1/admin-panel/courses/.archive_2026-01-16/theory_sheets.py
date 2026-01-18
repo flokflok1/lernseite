@@ -24,7 +24,7 @@ from flask import jsonify, request
 
 from app.api.v1 import api_v1
 from app.middleware.auth import get_current_user
-from app.models.theory_sheet import (
+from app.domain.models.theory_sheet import (
     TheorySheetCreate,
     TheorySheetResponse,
     TheorySheetUpdate,

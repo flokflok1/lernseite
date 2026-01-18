@@ -16,7 +16,7 @@ from datetime import datetime
 
 from app.database.connection import fetch_one, fetch_all, insert_returning
 from app.repositories.base_repository import BaseRepository
-from app.services.cache_service import CacheService
+from app.infrastructure.cache.service import CacheService
 from flask import current_app
 
 

@@ -24,7 +24,7 @@ import hashlib
 from app.database.connection import get_db_connection
 from app.repositories.feature_configuration_part2 import FeatureRolloutPlanRepository
 from app.services.feature_flags.cache import FeatureConfigurationCacheService
-from app.utils.exceptions import ValidationError, NotFoundError
+from app.infrastructure.utils.exceptions import ValidationError, NotFoundError
 
 logger = logging.getLogger(__name__)
 

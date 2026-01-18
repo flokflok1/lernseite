@@ -19,7 +19,7 @@ from app.database import get_db_connection
 from app.repositories.feature_configuration_part2 import FeatureRolloutPlanRepository
 from app.services.feature_configuration_rollout import FeatureConfigurationRolloutService
 from app.services.feature_flags.cache import FeatureConfigurationCacheService
-from app.utils.exceptions import (
+from app.infrastructure.utils.exceptions import (
     ValidationError,
     NotFoundError,
     ForbiddenError

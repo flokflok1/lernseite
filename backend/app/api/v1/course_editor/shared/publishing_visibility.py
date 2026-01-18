@@ -22,7 +22,7 @@ from app.api.middleware.auth import get_current_user
 from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.security.permissions import Permissions, require_permission
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
 

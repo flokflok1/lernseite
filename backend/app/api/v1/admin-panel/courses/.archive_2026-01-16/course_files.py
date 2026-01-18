@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 from app.api.v1 import api_v1
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 from app.api.middleware.auth import get_current_user
 from app.infrastructure.security.permissions import require_permission, Permissions
 

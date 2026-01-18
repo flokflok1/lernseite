@@ -18,8 +18,8 @@ import logging
 import json
 from typing import Dict, Any, Optional
 
-from app.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError
-from app.services.ai_job_service import AIJobService
+from app.application.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError
+from app.application.services.ai_job_service import AIJobService
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository

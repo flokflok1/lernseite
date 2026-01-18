@@ -26,8 +26,8 @@ from app.domain.models.course_prompt import (
 )
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.course_prompt import CoursePromptRepository
-from app.services.audit_service import AuditService
-from app.services.prompt_resolver import PromptResolver
+from app.application.services.audit_service import AuditService
+from app.application.services.prompt_resolver import PromptResolver
 from app.api.middleware.auth import get_current_user
 from app.infrastructure.security.permissions import require_permission, Permissions
 

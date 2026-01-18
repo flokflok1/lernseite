@@ -29,7 +29,7 @@ from app.domain.models.admin_course import (
     AdminCourseStatusUpdateRequest
 )
 from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 from app.api.middleware.auth import get_current_user
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response

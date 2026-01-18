@@ -12,7 +12,7 @@ from datetime import datetime
 
 from app.extensions import celery
 from app.infrastructure.persistence.database.connection import fetch_one, execute_query
-from app.services.ai_adapter import AIAdapter, AIProviderError
+from app.application.services.ai_adapter import AIAdapter, AIProviderError
 
 logger = logging.getLogger(__name__)
 

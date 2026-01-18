@@ -15,7 +15,7 @@ import logging
 
 from app.extensions import limiter
 from app.api.middleware.auth import token_required
-from app.services.ai_adapter import AIAdapter
+from app.application.services.ai_adapter import AIAdapter
 from app.api.v1.tutor.tutor_core import (
     TutorContext,
     AVAILABLE_VOICES,
@@ -24,7 +24,7 @@ from app.api.v1.tutor.tutor_core import (
     create_tts_request,
     build_context_for_chat
 )
-from app.services.tutor_knowledge import TutorKnowledgeService as BaseTutorKnowledgeService
+from app.application.services.tutor_knowledge import TutorKnowledgeService as BaseTutorKnowledgeService
 
 logger = logging.getLogger(__name__)
 

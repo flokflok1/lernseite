@@ -24,7 +24,7 @@ from app.api.v1 import api_v1
 from app.infrastructure.security.permissions import require_permission, Permissions
 from app.infrastructure.persistence.repositories.user.admin import UserAdminRepository
 from app.infrastructure.persistence.repositories.user.auth import UserAuthRepository
-from app.services.audit_service import AuditService, Severity
+from app.application.services.audit_service import AuditService, Severity
 from app.api.middleware.auth import get_current_user
 
 

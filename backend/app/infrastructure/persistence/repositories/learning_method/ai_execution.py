@@ -17,7 +17,7 @@ import psycopg
 from psycopg.rows import dict_row
 
 from app.extensions import db_pool
-from app.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError, AIQuotaExceededError
+from app.application.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError, AIQuotaExceededError
 from flask import current_app
 from .base import LearningMethodBaseRepository
 

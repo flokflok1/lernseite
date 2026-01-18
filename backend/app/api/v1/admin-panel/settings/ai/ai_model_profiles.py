@@ -28,7 +28,7 @@ import uuid
 from app.api.middleware.auth import token_required
 from app.infrastructure.security.permissions import require_permission, Permissions
 from app.infrastructure.persistence.repositories.ai.profiles import AiModelProfilesRepository as AIProfileRepository
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError
 

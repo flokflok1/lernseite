@@ -52,7 +52,7 @@ def publish_course(course_id: str):
             return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         is_creator = user['user_id'] == course['creator_id']
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 
@@ -96,7 +96,7 @@ def unpublish_course(course_id: str):
             return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         is_creator = user['user_id'] == course['creator_id']
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 
@@ -137,7 +137,7 @@ def get_course_stats(course_id: str):
             return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         is_creator = user['user_id'] == course['creator_id']
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 

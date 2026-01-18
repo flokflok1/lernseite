@@ -24,7 +24,7 @@ from app.domain.models.agent import (
     AgentConfigUpdate,
     AgentStatusResponse
 )
-from app.services.agent import AgentService
+from app.application.services.agent import AgentService
 from app.infrastructure.persistence.repositories.agent import AgentRepository
 from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD as CourseRepository
 from app.api.middleware.auth import token_required, role_required, get_current_user
@@ -69,7 +69,7 @@ def check_course_authorization(course: dict, user: dict):
     """
     # User must be course creator or admin/org_admin (RBAC 2.0: dynamic from DB)
     if course.get('creator_id') != user.get('user_id'):
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         # Check if user can manage any course OR is org admin for same org
         can_manage_any = PermissionService.check_threshold(user, 'courses.edit_any')
         is_org_admin = (

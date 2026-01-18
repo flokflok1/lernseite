@@ -31,7 +31,7 @@ from app.domain.models.token import (
 )
 from app.infrastructure.persistence.repositories.token import TokenRepository
 from app.infrastructure.persistence.repositories.user import UserRepository
-from app.services.system.billing.service import BillingService
+from app.application.services.system.billing.service import BillingService
 from app.api.middleware.auth import token_required, admin_required, get_current_user
 
 tokens_bp = Blueprint('tokens', __name__, url_prefix='/tokens')

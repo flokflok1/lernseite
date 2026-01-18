@@ -33,7 +33,7 @@ from app.domain.models.subscription import (
     SubscriptionStats
 )
 from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
-from app.services.system.billing.service import BillingService
+from app.application.services.system.billing.service import BillingService
 from app.api.middleware.auth import token_required, get_current_user, admin_required
 
 subscriptions_bp = Blueprint('subscriptions', __name__, url_prefix='/subscriptions')

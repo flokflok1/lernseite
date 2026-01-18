@@ -158,7 +158,7 @@ def generate_tts():
             # Generate with OpenAI TTS
             try:
                 logger.info(f"Generating with OpenAI TTS (voice={voice})")
-                from app.services.ai_adapter import AIAdapter
+                from app.application.services.ai_adapter import AIAdapter
 
                 openai_voice = voice if voice in AVAILABLE_VOICES['openai'] else 'nova'
 
@@ -315,7 +315,7 @@ def generate_tts_stream():
         Streamed audio/mpeg
     """
     try:
-        from app.services.ai_adapter import AIAdapter
+        from app.application.services.ai_adapter import AIAdapter
 
         data = request.get_json()
 
@@ -543,7 +543,7 @@ def generate_tutor_script():
             else:
                 # Generate with OpenAI TTS
                 try:
-                    from app.services.ai_adapter import AIAdapter
+                    from app.application.services.ai_adapter import AIAdapter
                     openai_voice = voice if voice in AVAILABLE_VOICES['openai'] else 'nova'
                     audio_bytes = AIAdapter.text_to_speech(
                         text=text,

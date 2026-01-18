@@ -11,7 +11,7 @@ from flask import Blueprint, jsonify, request, g
 import logging
 from typing import Dict, Any
 
-from app.services.i18n_service import I18nService
+from app.application.services.i18n_service import I18nService
 from app.infrastructure.persistence.database import get_connection
 from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError, UnauthorizedError

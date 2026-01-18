@@ -21,7 +21,7 @@ from uuid import UUID, uuid4
 from datetime import datetime
 
 from app.api.middleware.auth import token_required, get_current_user
-from app.services.ai import get_exam_context_sync
+from app.application.services.ai import get_exam_context_sync
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 core_bp = Blueprint('exam_simulations_core', __name__, url_prefix='')
@@ -517,7 +517,7 @@ def get_exam_simulation(simulation_id: str):
             }), 404
 
         # Check access (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         if str(result['user_id']) != user_id and not PermissionService.check_threshold(user, 'simulations.view_any'):
             return jsonify({
                 'success': False,
@@ -588,7 +588,7 @@ def delete_exam_simulation(simulation_id: str):
             }), 404
 
         # Check access (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         if str(result['user_id']) != user_id and not PermissionService.check_threshold(user, 'simulations.view_any'):
             return jsonify({
                 'success': False,

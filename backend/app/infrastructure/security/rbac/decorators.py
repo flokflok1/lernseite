@@ -9,7 +9,7 @@ RBAC 2.0: Uses PermissionService for dynamic permission threshold checks.
 from functools import wraps
 from flask import jsonify
 from app.api.middleware.auth import get_current_user
-from app.services.permission_service import PermissionService
+from app.application.services.permission_service import PermissionService
 
 
 def require_owner():

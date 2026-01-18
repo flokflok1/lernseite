@@ -15,7 +15,7 @@ from flask import Blueprint, jsonify, request, g
 import logging
 from typing import Dict, Any
 
-from app.services.content_translation_service import ContentTranslationService
+from app.application.services.content_translation_service import ContentTranslationService
 from app.api.middleware.auth import token_required, role_required
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError, UnauthorizedError
 

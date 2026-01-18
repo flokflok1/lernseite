@@ -68,7 +68,7 @@ def check_org_membership(user: dict, org_id: int, required_roles: Optional[List[
         True if user is member (and has required role if specified)
     """
     # Admins always have access (RBAC 2.0: dynamic from DB)
-    from app.services.permission_service import PermissionService
+    from app.application.services.permission_service import PermissionService
     if PermissionService.check_threshold(user, 'analytics.view_all'):
         return True
 
@@ -106,7 +106,7 @@ def check_org_access(user: dict, org_id: int) -> None:
         PermissionError: If user doesn't have access
     """
     # System admin+ can access all orgs (RBAC 2.0: dynamic from DB)
-    from app.services.permission_service import PermissionService
+    from app.application.services.permission_service import PermissionService
     if PermissionService.check_threshold(user, 'analytics.view_all'):
         return
 

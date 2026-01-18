@@ -50,8 +50,8 @@ from app.infrastructure.persistence.repositories.user import UserRepository
 from app.infrastructure.persistence.repositories.role_studio_mode import RoleStudioModeRepository
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security import BruteForceProtection
-from app.services.audit_service import AuditService
-from app.services.role_studio_service import RoleStudioService
+from app.application.services.audit_service import AuditService
+from app.application.services.role_studio_service import RoleStudioService
 from app.setup.admin_setup import AdminSetup
 from app.infrastructure.persistence.database.connection import execute_query
 

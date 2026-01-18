@@ -34,7 +34,7 @@ from app.domain.models.analytics import (
     TimeSeriesResponse,
     TimeSeriesDataPoint
 )
-from app.services.analytics.service import AnalyticsService
+from app.application.services.analytics.service import AnalyticsService
 from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
 
 # Blueprints

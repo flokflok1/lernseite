@@ -197,7 +197,7 @@ def admin_required(fn: Callable) -> Callable:
         user_role = user.get('role', 'user')
 
         # Check if user is admin or above (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         if not PermissionService.check_threshold(user, 'view_any_resource'):
             return error_response(
                 ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
@@ -248,7 +248,7 @@ def permission_required(*permissions: str) -> Callable:
             user_role = user.get('role', 'user')
 
             # Admin and above has all permissions (RBAC 2.0: dynamic from DB)
-            from app.services.permission_service import PermissionService
+            from app.application.services.permission_service import PermissionService
             if PermissionService.check_threshold(user, 'view_any_resource'):
                 return fn(*args, **kwargs)
 

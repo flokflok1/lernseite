@@ -13,7 +13,7 @@ from datetime import datetime
 
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security.rbac import require_owner
-from app.services.role_studio_service import RoleStudioService
+from app.application.services.role_studio_service import RoleStudioService
 from app.domain.models.role_studio import (
     CreateRoleStudioRequest,
     UpdateRoleStudioRequest,

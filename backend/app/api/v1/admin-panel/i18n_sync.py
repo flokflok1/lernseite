@@ -19,9 +19,9 @@ from datetime import datetime
 
 from app.infrastructure.persistence.database import get_connection
 from app.api.middleware.auth import token_required, admin_required
-from app.services.i18n_sync_service import I18nSyncService
-from app.services.i18n_sync_service_apply import I18nSyncServiceApply
-from app.services.i18n_sync_service_analytics import I18nSyncServiceAnalytics
+from app.application.services.i18n_sync_service import I18nSyncService
+from app.application.services.i18n_sync_service_apply import I18nSyncServiceApply
+from app.application.services.i18n_sync_service_analytics import I18nSyncServiceAnalytics
 from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 

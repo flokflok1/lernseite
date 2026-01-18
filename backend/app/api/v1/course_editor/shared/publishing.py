@@ -25,7 +25,7 @@ from app.infrastructure.persistence.repositories.course_publishing import Course
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository
 from app.infrastructure.security.permissions import Permissions, require_permission
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
 

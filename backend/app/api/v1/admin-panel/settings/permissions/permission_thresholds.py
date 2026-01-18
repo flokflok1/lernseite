@@ -14,7 +14,7 @@ from flask import Blueprint, jsonify, request, g
 from typing import Dict, Any
 
 from app.api.middleware.auth import admin_required
-from app.services.permission_service import PermissionService
+from app.application.services.permission_service import PermissionService
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 # Create blueprint

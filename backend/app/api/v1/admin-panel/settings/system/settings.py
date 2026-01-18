@@ -15,7 +15,7 @@ from pydantic import ValidationError
 
 from .system_operations import api_v1
 from app.api.middleware.auth import token_required, admin_required, get_current_user
-from app.services.system.system_mode_service import SystemModeService
+from app.application.services.system.system_mode_service import SystemModeService
 from app.infrastructure.persistence.repositories.settings.system import SystemSettingsRepository
 from app.domain.models.system_settings import (
     SwitchModeRequest,

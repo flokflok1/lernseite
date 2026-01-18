@@ -108,7 +108,7 @@ def generate_tutor_script():
             else:
                 # Generate with OpenAI TTS
                 try:
-                    from app.services.ai_adapter import AIAdapter
+                    from app.application.services.ai_adapter import AIAdapter
                     openai_voice = voice if voice in AVAILABLE_VOICES['openai'] else 'nova'
                     audio_bytes = AIAdapter.text_to_speech(
                         text=text,

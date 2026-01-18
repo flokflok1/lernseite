@@ -12,7 +12,7 @@ from datetime import datetime
 
 from .system_operations import api_v1
 from app.infrastructure.security.permissions import require_permission, Permissions
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 from app.infrastructure.persistence.database.connection import fetch_all, fetch_one
 
 

@@ -30,7 +30,7 @@ def maintenance_mode_check():
     - /static/* (static files)
     """
     # Import here to avoid circular dependency
-    from app.services.system.system_mode_service import SystemModeService
+    from app.application.services.system.system_mode_service import SystemModeService
 
     # Excluded paths that should work even in maintenance mode
     excluded_paths = [
@@ -53,7 +53,7 @@ def maintenance_mode_check():
     # Check if user is authenticated and is admin (RBAC 2.0: dynamic from DB)
     user = g.get('current_user')
     if user:
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         if PermissionService.check_threshold(user, 'maintenance.access'):
             # Admin+ can access - add header to indicate maintenance mode
             g.maintenance_mode_active = True
@@ -101,7 +101,7 @@ def get_maintenance_status() -> dict:
     Returns:
         Dict with maintenance mode info
     """
-    from app.services.system.system_mode_service import SystemModeService
+    from app.application.services.system.system_mode_service import SystemModeService
 
     is_maintenance = SystemModeService.is_maintenance_mode()
 

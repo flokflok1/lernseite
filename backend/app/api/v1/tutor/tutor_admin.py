@@ -17,7 +17,7 @@ import time
 from app.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.security.permissions import require_permission, Permissions
-from app.services.ai_adapter import AIAdapter
+from app.application.services.ai_adapter import AIAdapter
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.api.v1.tutor.tutor_core import (

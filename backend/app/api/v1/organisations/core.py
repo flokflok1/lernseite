@@ -57,7 +57,7 @@ def can_manage_organisation(user: dict, org_id: int) -> bool:
         True if user can manage this organisation
     """
     # Admins can manage all organisations (RBAC 2.0: dynamic from DB)
-    from app.services.permission_service import PermissionService
+    from app.application.services.permission_service import PermissionService
     if PermissionService.check_threshold(user, 'organisations.manage_any'):
         return True
 
@@ -89,7 +89,7 @@ def check_org_membership(user: dict, org_id: int, required_roles: Optional[list]
         True if user is member (and has required role if specified)
     """
     # Admins always have access (RBAC 2.0: dynamic from DB)
-    from app.services.permission_service import PermissionService
+    from app.application.services.permission_service import PermissionService
     if PermissionService.check_threshold(user, 'organisations.view_any'):
         return True
 
@@ -277,7 +277,7 @@ def get_organisation(org_id: int):
         current_user = get_current_user()
 
         # Check permissions (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         if not PermissionService.check_threshold(current_user, 'organisations.view_any'):
             # Check if user is member of this organisation
             if current_user.get('organization_id') != org_id:

@@ -33,7 +33,7 @@ from app.infrastructure.persistence.repositories.courses.chapters import Chapter
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.infrastructure.persistence.repositories.theory_sheet import TheorySheetRepository
 from app.infrastructure.security.permissions import Permissions, require_permission
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
 

@@ -61,7 +61,7 @@ MAX_SPEED = 2.0
 
 # Try to import TTS Service for pronunciation
 try:
-    from app.services.tts_service import TTSService
+    from app.application.services.tts_service import TTSService
     TTS_SERVICE_AVAILABLE = True
 except ImportError:
     TTS_SERVICE_AVAILABLE = False

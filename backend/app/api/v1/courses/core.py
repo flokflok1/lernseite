@@ -75,7 +75,7 @@ def list_courses():
         if include_drafts_param:
             try:
                 user = get_current_user()
-                from app.services.permission_service import PermissionService
+                from app.application.services.permission_service import PermissionService
                 if user and PermissionService.check_threshold(user, 'courses.view_drafts'):
                     include_drafts = True
             except:
@@ -166,7 +166,7 @@ def get_course(course_id: str):
             }), 200
 
         # Admins can view any course (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         if PermissionService.check_threshold(user, 'courses.view_any'):
             return jsonify({
                 'success': True,

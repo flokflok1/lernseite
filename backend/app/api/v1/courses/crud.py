@@ -111,7 +111,7 @@ def update_course(course_id: str):
             return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions: creator, org admin, or admin+ (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         is_creator = user['user_id'] == course['creator_id']
         # hierarchy_level 5 = school_admin, company_admin
         is_org_admin = (
@@ -165,7 +165,7 @@ def archive_course(course_id: str):
             return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
         # Check permissions (RBAC 2.0: dynamic from DB)
-        from app.services.permission_service import PermissionService
+        from app.application.services.permission_service import PermissionService
         is_creator = user['user_id'] == course['creator_id']
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 

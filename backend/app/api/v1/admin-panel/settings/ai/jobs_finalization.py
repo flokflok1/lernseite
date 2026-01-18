@@ -21,7 +21,7 @@ from app.api.middleware.auth import token_required
 from app.infrastructure.security.permissions import require_permission, Permissions
 from app.infrastructure.persistence.repositories.ai.jobs import AIJobsRepository
 from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
@@ -232,7 +232,7 @@ def create_course_from_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
         # TODO: Create chapters and lessons from job result
         # This would be implemented in a separate service
-        # from app.services.course_builder import CourseBuilderService
+        # from app.application.services.course_builder import CourseBuilderService
         # CourseBuilderService.create_chapters_from_result(course_id, chapters)
 
         # Update job with course reference

@@ -16,7 +16,7 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
-from app.services.i18n_service import I18nService
+from app.application.services.i18n_service import I18nService
 from app.api.middleware.auth import permission_required
 import logging
 

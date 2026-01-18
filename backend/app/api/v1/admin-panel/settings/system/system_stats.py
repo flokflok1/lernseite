@@ -16,7 +16,7 @@ from .system_operations import api_v1
 from app.infrastructure.security.permissions import require_permission, Permissions
 from app.infrastructure.persistence.repositories.admin.core import AdminRepository
 from app.domain.models.admin import UserStatsResponse, CourseStatsResponse, SystemStatsResponse
-from app.services.audit_service import AuditService
+from app.application.services.audit_service import AuditService
 
 
 @api_v1.route('/admin/stats/users', methods=['GET'])

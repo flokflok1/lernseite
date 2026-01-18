@@ -49,7 +49,7 @@ def create_course_authoring_session():
         }
     """
     try:
-        from app.services.course_authoring_service import (
+        from app.application.services.course_authoring_service import (
             get_course_authoring_service, CourseAuthoringError
         )
 
@@ -109,7 +109,7 @@ def get_course_authoring_session(session_id):
         }
     """
     try:
-        from app.services.course_authoring_service import (
+        from app.application.services.course_authoring_service import (
             get_course_authoring_service, CourseAuthoringError
         )
 
@@ -157,7 +157,7 @@ def course_authoring_chat(session_id):
         }
     """
     try:
-        from app.services.course_authoring_service import (
+        from app.application.services.course_authoring_service import (
             get_course_authoring_service, CourseAuthoringError
         )
 
@@ -223,7 +223,7 @@ def finalize_course_authoring_session(session_id):
         }
     """
     try:
-        from app.services.course_authoring_service import (
+        from app.application.services.course_authoring_service import (
             get_course_authoring_service, CourseAuthoringError
         )
 

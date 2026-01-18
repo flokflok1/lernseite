@@ -372,6 +372,52 @@ Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig complian
 
 ### 📊 Layer Dependencies (Clean DDD Architecture)
 
+**PlantUML Diagram (Visual Representation):**
+
+```plantuml
+@startuml DDD_Layer_Dependencies
+title DDD Dependency Flow - Strict Downward
+
+skinparam backgroundColor #ffffff
+skinparam rectangle {
+    BackgroundColor #f0f0f0
+    BorderColor #333333
+    FontColor #000000
+}
+
+rectangle "🌐 API LAYER" #e3f2fd {
+    rectangle "HTTP Routes\n/api/v1/*" as API
+}
+
+rectangle "🟡 APPLICATION LAYER" #fff9c4 {
+    rectangle "Service\nOrchestration" as APP
+}
+
+rectangle "🟢 DOMAIN LAYER" #c8e6c9 {
+    rectangle "Business Logic\nAI, Social, Models" as DOMAIN
+}
+
+rectangle "🔵 INFRASTRUCTURE LAYER" #bbdefb {
+    rectangle "Database, Cache, Security\ni18n, Monitoring, Tasks" as INFRA
+}
+
+API --> APP : ✅ calls services
+APP --> DOMAIN : ✅ uses logic
+DOMAIN --> INFRA : ✅ accesses tech
+
+APP -.-> API : ❌ FORBIDDEN
+DOMAIN -.-> APP : ❌ FORBIDDEN
+INFRA -.-> DOMAIN : ❌ FORBIDDEN
+
+note bottom of INFRA
+Rule: Layers only depend DOWNWARD
+Each layer can be tested independently
+end note
+@enduml
+```
+
+**ASCII Reference (for accessibility):**
+
 ```
 ┌─────────────────────────────────────────┐
 │  🔴 API LAYER                           │
@@ -405,6 +451,53 @@ Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig complian
 ### 🎯 Feature Flags Integration Points
 
 Alle neuen Features sind über Feature Flags aktivierbar (Progressive Rollout):
+
+**PlantUML Diagram (Feature Flag System):**
+
+```plantuml
+@startuml Feature_Flags_Overview
+title Feature Flags - Progressive Rollout Integration
+
+skinparam backgroundColor #ffffff
+skinparam component {
+    BackgroundColor #fff3e0
+    BorderColor #E65100
+}
+
+component [Feature Flag\nManager] as FF_MGR
+component [Percentage\nRollout] as ROLLOUT_PCT
+component [Segment\nRollout] as ROLLOUT_SEG
+
+FF_MGR --> ROLLOUT_PCT : 0-100%
+FF_MGR --> ROLLOUT_SEG : by role/org/tier
+
+component [Social: Posts\n(user_posts)] as F1
+component [Social: Feed\n(feed_system)] as F2
+component [Social: Follow\n(follow_system)] as F3
+component [Social: Likes\n(likes_reactions)] as F4
+component [Social: Comments\n(comments)] as F5
+
+component [AI Editor\n(ai_editor)] as F6
+component [Compliance\n(gdpr_compliance)] as F7
+component [Moderation\n(content_moderation)] as F8
+
+ROLLOUT_PCT --> F1 : 🟢 enabled/disabled
+ROLLOUT_PCT --> F2
+ROLLOUT_PCT --> F3
+ROLLOUT_PCT --> F4
+ROLLOUT_PCT --> F5
+ROLLOUT_SEG --> F6
+ROLLOUT_SEG --> F7
+ROLLOUT_SEG --> F8
+
+note bottom of FF_MGR
+Result cached in Redis (15 min TTL)
+Strategies: Percentage, Segment, Org, A/B Testing
+end note
+@enduml
+```
+
+**Feature Flag Reference:**
 
 ```
 /core/feature_flags/

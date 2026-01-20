@@ -1,26 +1,37 @@
 /**
- * Store Module Barrel Exports
- * ===========================
- * Central re-export of all Pinia stores organized by domain
+ * Store Module Barrel Exports (DEPRECATED)
+ * ========================================
+ * @deprecated Import directly from @/application/stores/modules/{domain}/
+ *
+ * This file provides backward compatibility for imports during the DDD migration.
+ * Will be removed on 2027-01-20 (12 months from 2026-01-20).
+ *
+ * Migration timeline:
+ * - Until 2026-07-20: ESLint warnings on old imports
+ * - Until 2027-01-20: ESLint errors on old imports (still functional)
+ * - After 2027-01-20: This barrel will be removed (breaking change)
  */
 
 // Core stores (auth, app)
-export * from './modules/core'
+export * from '@/application/stores/modules/core'
 
 // Admin stores
-export * from './modules/admin'
+export * from '@/application/stores/modules/admin'
 
 // UI stores (theme, avatar)
-export * from './modules/ui'
+export * from '@/application/stores/modules/ui'
 
 // Content stores (courseEditor, player)
-export * from './modules/content'
+export * from '@/application/stores/modules/content'
 
 // Learning stores (dashboard, tutor)
-export * from './modules/learning'
+export * from '@/application/stores/modules/learning'
+
+// Feature flags stores
+export * from '@/application/stores/modules/feature-flags'
 
 // System stores (gamification)
-export * from './modules/system'
+export * from '@/application/stores/modules/system'
 
 // Desktop stores (window workspace system)
-export * from './modules/desktop'
+export * from '@/application/stores/modules/desktop'

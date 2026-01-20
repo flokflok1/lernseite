@@ -4,9 +4,12 @@
 
 BEGIN TRANSACTION;
 
-CREATE TABLE IF NOT EXISTS interactive_scenarios (
+-- Ensure ai_pipeline schema exists
+CREATE SCHEMA IF NOT EXISTS ai_pipeline;
+
+CREATE TABLE IF NOT EXISTS ai_pipeline.interactive_scenarios (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    lesson_id UUID NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    lesson_id UUID NOT NULL REFERENCES courses.lessons(lesson_id) ON DELETE CASCADE,
 
     -- Type
     scenario_type VARCHAR(50) NOT NULL CHECK (scenario_type IN ('SIMULATION', 'CASE_STUDY', 'BRANCHING_NARRATIVE', 'DECISION_TREE')),
@@ -24,19 +27,19 @@ CREATE TABLE IF NOT EXISTS interactive_scenarios (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     -- Constraints
-    CONSTRAINT fk_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
+    CONSTRAINT fk_lesson FOREIGN KEY (lesson_id) REFERENCES courses.lessons(lesson_id) ON DELETE CASCADE
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_interactive_scenarios_lesson_id ON interactive_scenarios(lesson_id);
-CREATE INDEX IF NOT EXISTS idx_interactive_scenarios_type ON interactive_scenarios(scenario_type);
-CREATE INDEX IF NOT EXISTS idx_interactive_scenarios_created_at ON interactive_scenarios(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_interactive_scenarios_lesson_id ON ai_pipeline.interactive_scenarios(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_interactive_scenarios_type ON ai_pipeline.interactive_scenarios(scenario_type);
+CREATE INDEX IF NOT EXISTS idx_interactive_scenarios_created_at ON ai_pipeline.interactive_scenarios(created_at DESC);
 
 -- User interactions with scenarios
-CREATE TABLE IF NOT EXISTS scenario_interactions (
+CREATE TABLE IF NOT EXISTS ai_pipeline.scenario_interactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    scenario_id UUID NOT NULL REFERENCES interactive_scenarios(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    scenario_id UUID NOT NULL REFERENCES ai_pipeline.interactive_scenarios(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
 
     -- Interaction data
     current_path TEXT[] DEFAULT ARRAY[]::TEXT[],
@@ -47,13 +50,13 @@ CREATE TABLE IF NOT EXISTS scenario_interactions (
     completed_at TIMESTAMP,
 
     -- Constraints
-    CONSTRAINT fk_scenario FOREIGN KEY (scenario_id) REFERENCES interactive_scenarios(id) ON DELETE CASCADE,
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_scenario FOREIGN KEY (scenario_id) REFERENCES ai_pipeline.interactive_scenarios(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES core.users(user_id) ON DELETE CASCADE
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_scenario_interactions_scenario_user ON scenario_interactions(scenario_id, user_id);
-CREATE INDEX IF NOT EXISTS idx_scenario_interactions_user_id ON scenario_interactions(user_id);
-CREATE INDEX IF NOT EXISTS idx_scenario_interactions_completion_percentage ON scenario_interactions(completion_percentage);
+CREATE INDEX IF NOT EXISTS idx_scenario_interactions_scenario_user ON ai_pipeline.scenario_interactions(scenario_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_scenario_interactions_user_id ON ai_pipeline.scenario_interactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_scenario_interactions_completion_percentage ON ai_pipeline.scenario_interactions(completion_percentage);
 
 COMMIT;

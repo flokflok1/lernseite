@@ -26,7 +26,7 @@ class APIGateway:
     def __init__(self, app: Flask = None):
         """Initialize API Gateway"""
         self.app = app
-        self.routes_registered = False
+        self.registered_apps = set()  # Track which app instances have had routes registered
 
         if app is not None:
             self.init_app(app)
@@ -59,8 +59,9 @@ class APIGateway:
         Args:
             app: Flask application instance
         """
-        if self.routes_registered:
-            app.logger.warning('Gateway routes already registered, skipping...')
+        app_id = id(app)
+        if app_id in self.registered_apps:
+            app.logger.warning('Gateway routes already registered for this app, skipping...')
             return
 
         app.logger.info('=' * 60)
@@ -79,7 +80,7 @@ class APIGateway:
         # Log route groups for gateway analytics
         self._log_route_groups(app)
 
-        self.routes_registered = True
+        self.registered_apps.add(app_id)
         app.logger.info('=' * 60)
         app.logger.info('API Gateway - Route Registration Complete')
         app.logger.info('=' * 60)

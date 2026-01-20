@@ -1,29 +1,32 @@
-# 16 – Frontend-Struktur (Final) + API Contracts
+# 16 – Frontend-Struktur (DDD Architecture)
 
-**Version:** 3.2
-**Stand:** 16.01.2026
-**Änderungen:** API Endpoints: /admin/ → /admin-panel/ (Semantic Clarity) + Component Consolidation (21 domains → 7 documented). Full directory tree with all subdirectories documented.
+**Version:** 4.0.2 (DDD Migration - Course Editor Fix)
+**Stand:** 20.01.2026
+**Änderungen:** Course Editor direkt als Domain (kein Studio parent) - Aligned mit Backend
 
 ---
 
 ## Überblick
 
-Dieses Dokument definiert die **Enterprise-Grade Frontend-Architektur** des LSX Lernsystems **mit kompletten API Contracts**.
+Dieses Dokument definiert die **Domain-Driven Design (DDD) Frontend-Architektur** des LSX Lernsystems mit **4 sauberen Layern**.
 
-Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **performant**, **compliance-konform**, **typesicher** und für **ADHD/ADHS optimiert**.
+Das Frontend folgt **Clean Architecture Prinzipien** mit klarer Trennung von:
+- **Presentation Layer** - UI Components, Views, Layouts
+- **Application Layer** - Business Logic, Services, Stores
+- **Domain Layer** - Models, Value Objects, Factories, Business Rules
+- **Infrastructure Layer** - API Clients, External Services, WebSocket
 
-### 🎯 Features v3.2
+### 🎯 DDD Features v4.0.2
 
-- ✅ **Semantic API Endpoints** - `/admin/` → `/admin-panel/` (Clarity: Interface vs. Role)
-- ✅ **Social Network UI** - Posts, Feed, Follow, Engagement Components
-- ✅ **Compliance Components** - Cookie Consent, Age Gates, Privacy Controls
-- ✅ **Moderation Dashboard** - Content Review, Reports, Statistics
-- ✅ **Feature Flag UI** - Admin Controls, A/B Testing, Rollout Management
-- ✅ **API Contract Integration** - Jede Component hat klaren API-Endpoint
-- ✅ **Pinia Store Mappings** - Store ↔ Backend Service
-- ✅ **WebSocket Events** - Real-time Datenflüsse dokumentiert
-- ✅ **TypeScript Types** - Alle Models definiert
-- ✅ **Error Handling** - Standardisierte Error Codes
+- ✅ **4-Layer Architecture** - Presentation → Application → Domain → Infrastructure
+- ✅ **Domain Models** - Immutable, Type-Safe, Business Logic Encapsulation
+- ✅ **Factory Pattern** - Centralized Object Creation & Validation
+- ✅ **Repository Pattern** - Data Access Abstraction
+- ✅ **Value Objects** - Email, UserId, PostId (Type Safety)
+- ✅ **Aggregate Roots** - User, Post, Course (Domain Boundaries)
+- ✅ **Domain Events** - post:created, user:followed (Event-Driven)
+- ✅ **Backward Compatible** - Re-export barrels at old locations (6-12 months)
+- ✅ **Course Editor** - Manual + AI Editor (direkt als Domain, aligned mit Backend)
 
 ### 🛠️ Tech-Stack
 
@@ -31,25 +34,22 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 |------------|-----------|
 | ⚡ **Vue.js 3** | Composition API + TypeScript |
 | 🚀 **Vite** | Build Tool |
-| 📦 **Pinia** | State Management (Type-Safe) |
-| 🛣️ **Vue Router** | Routing mit Feature Flag Guards |
+| 📦 **Pinia** | State Management (Application Layer) |
+| 🛣️ **Vue Router** | Routing (Presentation Layer) |
 | 🎨 **TailwindCSS** | Styling |
-| 🌍 **vue-i18n** | Internationalisierung (20+ Sprachen) |
-| 🎥 **WebRTC** | Video/Audio (LiveRoom) |
-| 🔌 **WebSockets** | Real-time (Notifications, Feed) |
-| 📡 **Axios** | API Requests mit Interceptors & Type Safety |
-| 🎚️ **Feature Flags** | Progressive Feature Rollout |
+| 🌍 **vue-i18n** | Internationalisierung |
+| 🎥 **WebRTC** | Video/Audio (Infrastructure) |
+| 🔌 **WebSockets** | Real-time (Infrastructure) |
+| 📡 **Axios** | HTTP Client (Infrastructure) |
+| 🎚️ **Feature Flags** | Progressive Rollout |
 | 🛡️ **DOMPurify** | XSS Protection |
-| 🍪 **js-cookie** | Cookie Management (GDPR) |
-| 📊 **Chart.js** | Analytics & Statistics |
-| 🔒 **CryptoJS** | Client-side Encryption (DRM) |
 | **TypeScript** | Full Type Coverage |
 
 ---
 
-## 1. Projektstruktur (Frontend-Verzeichnis)
+## 1. DDD 4-Layer Projektstruktur
 
-### 📁 Komplette Verzeichnisstruktur v3.0
+### 📁 Komplette DDD Verzeichnisstruktur
 
 ```
 /frontend
@@ -61,1191 +61,807 @@ Das Frontend ist **modular**, **komponentenbasiert**, **mehrsprachig**, **perfor
 │       └── /legal
 │           ├── privacy-policy.pdf
 │           ├── terms-of-service.pdf
-│           ├── community-guidelines.pdf
-│           └── cookie-policy.pdf
+│           └── community-guidelines.pdf
 │
 ├── /src
-│   ├── /assets
-│   │   ├── /images
-│   │   ├── /icons
-│   │   └── styles.css
 │   │
-│   ├── /types                  # ⭐ SHARED TYPE DEFINITIONS
-│   │   ├── index.ts            # Main export
-│   │   ├── auth.types.ts       # Auth Models
-│   │   ├── user.types.ts       # User Models
-│   │   ├── social.types.ts     # Social Models (Post, Comment, etc.)
-│   │   ├── moderation.types.ts # Moderation Models
-│   │   ├── compliance.types.ts # Compliance Models
-│   │   ├── course.types.ts     # Course Models
-│   │   ├── editor.types.ts     # 🎨 AI Editor Models (NEW)
-│   │   ├── api.types.ts        # API Response Wrapper
-│   │   └── common.types.ts     # Common Models
-│   │
-│   ├── /constants              # ⭐ SHARED CONSTANTS
-│   │   ├── api.constants.ts    # Endpoints, Status Codes
-│   │   ├── events.constants.ts # WebSocket Events
-│   │   ├── feature-flags.ts    # Feature Flag Names
-│   │   └── errors.ts           # Error Codes
-│   │
-│   ├── /api                    # 🌐 API CLIENT LAYER
-│   │   ├── index.ts            # Main API Client
-│   │   ├── auth.api.ts         # Auth Endpoints
-│   │   ├── user.api.ts         # User Endpoints
-│   │   ├── social.api.ts       # Social Endpoints
-│   │   ├── moderation.api.ts   # Moderation Endpoints
-│   │   ├── compliance.api.ts   # Compliance Endpoints
-│   │   ├── course.api.ts       # Course Endpoints
-│   │   ├── editor.api.ts       # 🎨 AI Editor Endpoints (NEW)
-│   │   ├── interceptors.ts     # Axios Interceptors (Auth, Errors)
-│   │   └── websocket.ts        # WebSocket Client
-│   │
-│   ├── /stores                 # 📦 PINIA STORES
-│   │   ├── index.ts
-│   │   ├── auth.store.ts       # Auth State & Actions
-│   │   ├── user.store.ts       # User State & Actions
-│   │   ├── social.store.ts     # Social State (Posts, Feed, Likes)
-│   │   ├── feed.store.ts       # Feed Management
-│   │   ├── moderation.store.ts # Moderation State
-│   │   ├── compliance.store.ts # Compliance State
-│   │   ├── editor.store.ts     # 🎨 AI Editor State (NEW)
-│   │   ├── feature.store.ts    # Feature Flags State
-│   │   └── ui.store.ts         # UI State (modals, etc.)
-│   │
-│   ├── /composables            # 🪝 COMPOSITION API HOOKS
-│   │   ├── useAuth.ts          # Auth Hooks
-│   │   ├── useSocial.ts        # Social Hooks
-│   │   ├── useWebSocket.ts     # WebSocket Hooks
-│   │   ├── useFeatureFlags.ts  # Feature Flag Hooks
-│   │   ├── usePagination.ts    # Pagination Hooks
-│   │   └── useApi.ts           # Generic API Hooks
-│   │
-│   ├── /components             # 🧩 UI COMPONENTS
-│   │   ├── /base                # 🏗️ FOUNDATIONAL (Consolidated 11 domains)
-│   │   │   ├── /ui              # Core UI components
-│   │   │   │   ├── Button.vue
-│   │   │   │   ├── Input.vue
-│   │   │   │   ├── Textarea.vue
-│   │   │   │   ├── Modal.vue
-│   │   │   │   ├── Dropdown.vue
-│   │   │   │   ├── Tabs.vue
-│   │   │   │   ├── Loader.vue
-│   │   │   │   ├── Alert.vue
-│   │   │   │   ├── Card.vue
-│   │   │   │   ├── ProgressBar.vue
-│   │   │   │   ├── Tooltip.vue
-│   │   │   │   ├── Badge.vue
-│   │   │   │   ├── Avatar.vue
-│   │   │   │   └── Pagination.vue
+│   ├── /presentation                      # 🎨 PRESENTATION LAYER
+│   │   ├── /components                    # UI Components
+│   │   │   ├── /shared                    # Shared UI Components
+│   │   │   │   ├── /ui                    # Base UI (Button, Input, Modal)
+│   │   │   │   ├── /layout                # Layout Components
+│   │   │   │   └── /forms                 # Form Components
 │   │   │   │
-│   │   │   ├── /admin-ui        # Admin dashboard & management (Consolidated /admin)
-│   │   │   ├── /charts          # Analytics charts (Consolidated /analytics)
-│   │   │   ├── /content         # Course content UI (Consolidated /content)
-│   │   │   ├── /core            # Auth & i18n (Consolidated /core)
-│   │   │   ├── /dashboard       # Dashboard widgets (Consolidated /dashboard)
-│   │   │   ├── /gamification    # RPG UI elements (Consolidated /gamification)
-│   │   │   ├── /layout          # Layout components (Consolidated /layout)
-│   │   │   ├── /learning        # Learning method components (Consolidated /learning)
-│   │   │   ├── /system          # System admin components (Consolidated /system)
-│   │   │   ├── /users           # User profile components (Consolidated /users)
-│   │   │   └── /workspace       # Desktop workspace layer (Consolidated /workspace)
+│   │   │   ├── /content                   # Content Domain Components
+│   │   │   │   ├── CourseCard.vue
+│   │   │   │   ├── ChapterList.vue
+│   │   │   │   ├── LessonPlayer.vue
+│   │   │   │   └── ContentViewer.vue
+│   │   │   │
+│   │   │   ├── /learning                  # Learning Domain Components
+│   │   │   │   ├── FlashcardPlayer.vue
+│   │   │   │   ├── QuizEngine.vue
+│   │   │   │   └── ProgressTracker.vue
+│   │   │   │
+│   │   │   ├── /social                    # Social Domain Components
+│   │   │   │   ├── PostCard.vue
+│   │   │   │   ├── PostComposer.vue
+│   │   │   │   ├── CommentSection.vue
+│   │   │   │   ├── LikeButton.vue
+│   │   │   │   └── FollowButton.vue
+│   │   │   │
+│   │   │   ├── /user                      # User Domain Components
+│   │   │   │   ├── ProfileCard.vue
+│   │   │   │   ├── AvatarUpload.vue
+│   │   │   │   └── SettingsPanel.vue
+│   │   │   │
+│   │   │   ├── /admin                     # Admin Domain Components
+│   │   │   │   ├── UserManagement.vue
+│   │   │   │   ├── CourseApproval.vue
+│   │   │   │   └── FeatureFlagControl.vue
+│   │   │   │
+│   │   │   ├── /compliance                # Compliance Domain Components
+│   │   │   │   ├── CookieConsent.vue
+│   │   │   │   ├── AgeGate.vue
+│   │   │   │   ├── PrivacyDashboard.vue
+│   │   │   │   └── DataExport.vue
+│   │   │   │
+│   │   │   ├── /moderation                # Moderation Domain Components
+│   │   │   │   ├── ModerationQueue.vue
+│   │   │   │   ├── ContentReview.vue
+│   │   │   │   └── ReportDetails.vue
+│   │   │   │
+│   │   │   ├── /security                  # Security Domain Components
+│   │   │   │   ├── TwoFactorAuth.vue
+│   │   │   │   ├── SessionManager.vue
+│   │   │   │   └── DRMLicenseDisplay.vue
+│   │   │   │
+│   │   │   └── /course-editor             # 📝 COURSE EDITOR DOMAIN (KEIN STUDIO!)
+│   │   │       │
+│   │   │       ├── CourseEditorMain.vue            # Main Editor Container
+│   │   │       ├── EditorSwitcher.vue              # Switch Manual ↔ AI
+│   │   │       │
+│   │   │       ├── /manual-editor                  # 📝 MANUAL EDITOR
+│   │   │       │   ├── ManualEditorContainer.vue  # Manual Editor Main
+│   │   │       │   ├── ContentEditor.vue          # Rich Text Editor
+│   │   │       │   ├── StructurePanel.vue         # Course Structure Tree
+│   │   │       │   ├── ChapterEditor.vue          # Chapter Management
+│   │   │       │   ├── LessonEditor.vue           # Lesson Management
+│   │   │       │   ├── MediaUpload.vue            # Image/Video Upload
+│   │   │       │   ├── PreviewPanel.vue           # Live Preview
+│   │   │       │   └── ToolbarActions.vue         # Save/Publish/Draft
+│   │   │       │
+│   │   │       └── /ai-editor                      # 🤖 AI EDITOR
+│   │   │           ├── AIEditorContainer.vue      # AI Editor Main
+│   │   │           ├── ChatInterface.vue          # Chat with AI
+│   │   │           ├── PromptBuilder.vue          # Structured Prompts
+│   │   │           ├── ContentGenerator.vue       # Generate Content
+│   │   │           ├── VariantSelector.vue        # Choose from variants
+│   │   │           ├── TemplateLibrary.vue        # Pre-built templates
+│   │   │           ├── GenerationHistory.vue      # Previous generations
+│   │   │           ├── AISettings.vue             # Model selection, tone
+│   │   │           └── AIPreview.vue              # Generated content preview
 │   │   │
-│   │   ├── /social             # 🌟 SOCIAL COMPONENTS
-│   │   │   ├── PostCard.vue              # [API] GET /api/v1/social/posts/:id
-│   │   │   ├── PostComposer.vue          # [API] POST /api/v1/social/posts
-│   │   │   ├── PostList.vue              # [API] GET /api/v1/social/posts
-│   │   │   ├── CommentSection.vue        # [API] GET /api/v1/social/posts/:id/comments
-│   │   │   ├── CommentInput.vue          # [API] POST /api/v1/social/posts/:id/comments
-│   │   │   ├── LikeButton.vue            # [API] POST /api/v1/social/posts/:id/likes
-│   │   │   ├── ShareButton.vue           # [API] POST /api/v1/social/posts/:id/share
-│   │   │   ├── FollowButton.vue          # [API] POST /api/v1/users/:id/follow
-│   │   │   ├── FollowersList.vue         # [API] GET /api/v1/users/:id/followers
-│   │   │   ├── FollowingList.vue         # [API] GET /api/v1/users/:id/following
-│   │   │   ├── UserCard.vue              # [API] GET /api/v1/profile/:id
-│   │   │   ├── UserBadge.vue             # Display Achievement Badge
-│   │   │   ├── HashtagChip.vue           # Display Hashtag
-│   │   │   ├── MentionInput.vue          # @mention Autocomplete
-│   │   │   ├── TrendingCard.vue          # [API] GET /api/v1/social/trending
-│   │   │   ├── SuggestedUsers.vue        # [API] GET /api/v1/users/suggestions
-│   │   │   └── ActivityFeed.vue          # [WS] notification events
+│   │   ├── /views                         # 📄 PAGES/VIEWS
+│   │   │   ├── /auth
+│   │   │   │   ├── LoginView.vue
+│   │   │   │   ├── RegisterView.vue
+│   │   │   │   └── ForgotPasswordView.vue
+│   │   │   │
+│   │   │   ├── /dashboard
+│   │   │   │   ├── DashboardView.vue
+│   │   │   │   └── SettingsView.vue
+│   │   │   │
+│   │   │   ├── /social
+│   │   │   │   ├── FeedView.vue
+│   │   │   │   ├── ProfileView.vue
+│   │   │   │   └── ExploreView.vue
+│   │   │   │
+│   │   │   ├── /content
+│   │   │   │   ├── CourseListView.vue
+│   │   │   │   ├── CourseDetailView.vue
+│   │   │   │   └── LessonView.vue
+│   │   │   │
+│   │   │   ├── /course-editor             # 📝 COURSE EDITOR VIEWS
+│   │   │   │   ├── EditorView.vue                 # Main editor view
+│   │   │   │   ├── ProjectsView.vue               # My projects
+│   │   │   │   ├── TemplatesView.vue              # Template library
+│   │   │   │   └── HistoryView.vue                # Generation history
+│   │   │   │
+│   │   │   └── /admin
+│   │   │       ├── AdminDashboardView.vue
+│   │   │       ├── UsersView.vue
+│   │   │       └── FeatureFlagsView.vue
 │   │   │
-│   │   ├── /compliance         # ⚖️ COMPLIANCE COMPONENTS
-│   │   │   ├── CookieConsent.vue         # [Local] js-cookie
-│   │   │   ├── CookieSettings.vue        # [Local] js-cookie + [API] PUT /api/v1/compliance/cookies
-│   │   │   ├── AgeGate.vue               # [API] POST /api/v1/auth/verify-age
-│   │   │   ├── ParentalConsent.vue       # [API] POST /api/v1/compliance/parental-consent
-│   │   │   ├── PrivacyDashboard.vue      # [API] GET /api/v1/compliance/privacy
-│   │   │   ├── DataExport.vue            # [API] POST /api/v1/compliance/data-export
-│   │   │   ├── DataDeletion.vue          # [API] POST /api/v1/compliance/data-deletion
-│   │   │   ├── ConsentManager.vue        # [API] GET /api/v1/compliance/consent
-│   │   │   ├── ReportContent.vue         # [API] POST /api/v1/moderation/reports
-│   │   │   ├── ReportStatus.vue          # [API] GET /api/v1/moderation/reports/:id
-│   │   │   ├── ContentWarning.vue        # Display Warning
-│   │   │   ├── SafeMode.vue              # [API] PUT /api/v1/user/safe-mode
-│   │   │   ├── ParentalControls.vue      # [API] GET /api/v1/parental/dashboard
-│   │   │   ├── ScreenTimeWidget.vue      # [API] GET /api/v1/parental/screen-time
-│   │   │   └── TransparencyReport.vue    # [API] GET /api/v1/transparency/reports
+│   │   ├── /layouts                       # Layouts
+│   │   │   ├── MainLayout.vue
+│   │   │   ├── AuthLayout.vue
+│   │   │   ├── DashboardLayout.vue
+│   │   │   ├── AdminLayout.vue
+│   │   │   └── EditorLayout.vue           # Course Editor Layout
 │   │   │
-│   │   ├── /moderation         # 🛡️ MODERATION COMPONENTS
-│   │   │   ├── ModerationQueue.vue       # [API] GET /api/v1/moderation/queue
-│   │   │   ├── ContentReview.vue         # [API] GET /api/v1/moderation/queue/:id
-│   │   │   ├── ReportDetails.vue         # [API] GET /api/v1/moderation/reports/:id
-│   │   │   ├── ModerationActions.vue     # [API] POST /api/v1/moderation/actions
-│   │   │   ├── UserHistory.vue           # [API] GET /api/v1/moderation/users/:id/history
-│   │   │   ├── ModerationStats.vue       # [API] GET /api/v1/moderation/statistics
-│   │   │   ├── SLAMonitor.vue            # [API] GET /api/v1/moderation/sla-monitor
-│   │   │   └── AppealReview.vue          # [API] GET /api/v1/moderation/appeals/:id
-│   │   │
-│   │   ├── /security           # 🔒 SECURITY COMPONENTS
-│   │   │   ├── TwoFactorAuth.vue         # [API] POST /api/v1/auth/2fa-setup
-│   │   │   ├── SessionManager.vue        # [API] GET /api/v1/auth/sessions
-│   │   │   ├── SecurityLog.vue           # [API] GET /api/v1/security/logs
-│   │   │   ├── DRMLicenseDisplay.vue     # [API] GET /api/v1/drm/license
-│   │   │   ├── Watermark.vue             # Display Watermark
-│   │   │   └── AccessGate.vue            # [API] POST /api/v1/drm/verify-access
-│   │   │
-│   │   ├── /feature-flags      # 🎚️ FEATURE FLAG COMPONENTS
-│   │   │   ├── FeatureGate.vue           # Conditionally render content
-│   │   │   ├── FeatureFlagBadge.vue      # Display "Beta" badge
-│   │   │   ├── RolloutProgress.vue       # [API] GET /api/v1/admin-panel/features/:id/rollout
-│   │   │   └── ABTestBanner.vue          # Display A/B Test info
-│   │   │
-│   │   └── /studio             # 🎨 AI EDITOR COMPONENTS (Consolidated 3 domains)
-│   │       ├── /kurs-editor             # Kurs-Editor with Manual & AI Editors (NEW STRUCTURE)
-│   │       │   ├── /manual-editor       # Manual Content Editor
-│   │       │   │   ├── ContentEditor.vue
-│   │       │   │   ├── StructurePanel.vue
-│   │       │   │   └── PreviewPanel.vue
-│   │       │   │
-│   │       │   └── /ai-editor           # AI Editor & AI Authoring
-│   │       │       ├── /admin           # Admin AI features
-│   │       │       │   ├── /authoring   # Content authoring
-│   │       │       │   ├── /management  # AI job/model management
-│   │       │       │   ├── /settings    # AI settings
-│   │       │       │   └── /editor      # AI Editor UI
-│   │       │       └── /user            # User AI features
-│   │       │           ├── /chat        # AI chat interface
-│   │       │           ├── /quiz-gen    # Quiz generation UI
-│   │       │           └── /tutor       # AI tutor companion
-│   │       │
-│   │       ├── /assessment              # Exam & Assessment (Consolidated /assessment)
-│   │       │   ├── /admin               # Admin exam management
-│   │       │   │   ├── /exams           # Exam CRUD
-│   │       │   │   ├── /settings        # Exam settings
-│   │       │   │   └── /views           # Admin views
-│   │       │   └── /user                # User exam taking
-│   │       │       ├── /simulation      # Exam simulation
-│   │       │       └── /results         # Results & feedback
-│   │       │
-│   │       └── /system-features         # 25 System Features (Consolidated /system-features)
-│   │           ├── /tutor               # NPC Tutor
-│   │           ├── ChapterCompletionSystem.vue
-│   │           ├── IHKExamSystem.vue
-│   │           ├── WhiteboardEngine.vue
-│   │           └── ... (15 more components)
+│   │   └── /router                        # Router Configuration
+│   │       ├── index.ts
+│   │       ├── routes.ts
+│   │       ├── guards.ts
+│   │       └── middleware.ts
 │   │
-│   ├── /layouts                # 🏗️ LAYOUTS
-│   │   ├── MainLayout.vue
-│   │   ├── AuthLayout.vue
-│   │   ├── DashboardLayout.vue
-│   │   ├── AdminLayout.vue
-│   │   ├── ModeratorLayout.vue
-│   │   ├── OrganizationLayout.vue
-│   │   └── MinimalLayout.vue
+│   ├── /application                       # 🏗️ APPLICATION LAYER
+│   │   ├── /services                      # Business Logic Services
+│   │   │   ├── /content
+│   │   │   │   ├── CourseService.ts       # Course business logic
+│   │   │   │   └── LessonService.ts       # Lesson business logic
+│   │   │   │
+│   │   │   ├── /social
+│   │   │   │   ├── PostService.ts         # Post business logic
+│   │   │   │   ├── CommentService.ts      # Comment business logic
+│   │   │   │   └── FeedService.ts         # Feed aggregation logic
+│   │   │   │
+│   │   │   ├── /user
+│   │   │   │   ├── AuthService.ts         # Authentication logic
+│   │   │   │   └── ProfileService.ts      # Profile management
+│   │   │   │
+│   │   │   ├── /course-editor             # 📝 COURSE EDITOR SERVICES
+│   │   │   │   ├── EditorService.ts       # Editor orchestration
+│   │   │   │   ├── AIService.ts           # AI generation logic
+│   │   │   │   ├── ChatService.ts         # Chat processing
+│   │   │   │   ├── VariantService.ts      # Variant management
+│   │   │   │   └── TemplateService.ts     # Template handling
+│   │   │   │
+│   │   │   ├── /admin
+│   │   │   │   ├── UserAdminService.ts    # User administration
+│   │   │   │   └── FeatureFlagService.ts  # Feature flag management
+│   │   │   │
+│   │   │   ├── /compliance
+│   │   │   │   ├── ConsentService.ts      # Consent management
+│   │   │   │   └── PrivacyService.ts      # Privacy operations
+│   │   │   │
+│   │   │   └── /moderation
+│   │   │       ├── ReportService.ts       # Report handling
+│   │   │       └── ModerationService.ts   # Moderation workflow
+│   │   │
+│   │   ├── /stores                        # Pinia Stores (State Management)
+│   │   │   ├── /modules
+│   │   │   │   ├── /content
+│   │   │   │   │   ├── courseViewer.store.ts    # Course viewing (player)
+│   │   │   │   │   └── courseLibrary.store.ts   # Course catalog
+│   │   │   │   │
+│   │   │   │   ├── /course-editor         # 📝 COURSE EDITOR STORES
+│   │   │   │   │   ├── editor.store.ts           # Main editor state
+│   │   │   │   │   ├── aiEditor.store.ts         # AI editor state
+│   │   │   │   │   ├── manualEditor.store.ts     # Manual editor state
+│   │   │   │   │   ├── chat.store.ts             # Chat history
+│   │   │   │   │   ├── projects.store.ts         # User projects
+│   │   │   │   │   └── templates.store.ts        # Templates
+│   │   │   │   │
+│   │   │   │   ├── /social
+│   │   │   │   │   ├── feed.store.ts
+│   │   │   │   │   └── social.store.ts
+│   │   │   │   │
+│   │   │   │   ├── /user
+│   │   │   │   │   ├── auth.store.ts
+│   │   │   │   │   └── profile.store.ts
+│   │   │   │   │
+│   │   │   │   └── /core
+│   │   │   │       ├── ui.store.ts
+│   │   │   │       └── workspace.store.ts
+│   │   │   │
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── /composables                   # Vue Composables
+│   │   │   ├── useAuth.ts
+│   │   │   ├── useSocial.ts
+│   │   │   ├── useContent.ts
+│   │   │   ├── useCourseEditor.ts         # Course editor composable
+│   │   │   ├── useAIEditor.ts             # AI editor composable
+│   │   │   ├── useFeatureFlags.ts
+│   │   │   └── usePagination.ts
+│   │   │
+│   │   └── /use-cases                     # Application Use Cases
+│   │       ├── CreatePostUseCase.ts       # Create post workflow
+│   │       ├── EnrollCourseUseCase.ts     # Enroll in course workflow
+│   │       ├── GenerateContentUseCase.ts  # AI content generation
+│   │       └── SubmitReportUseCase.ts     # Submit moderation report
 │   │
-│   ├── /pages                  # 📄 PAGES/VIEWS
-│   │   ├── /auth
-│   │   │   ├── Login.vue                 # [API] POST /api/v1/auth/login
-│   │   │   ├── Register.vue              # [API] POST /api/v1/auth/register
-│   │   │   ├── RegisterWithConsent.vue   # [API] POST /api/v1/auth/register
-│   │   │   ├── ForgotPassword.vue        # [API] POST /api/v1/auth/forgot-password
-│   │   │   └── AgeVerification.vue       # [API] POST /api/v1/auth/verify-age
+│   ├── /domain                            # 🎯 DOMAIN LAYER
+│   │   ├── /models                        # Domain Models (Aggregate Roots)
+│   │   │   ├── /content
+│   │   │   │   ├── /course
+│   │   │   │   │   ├── Course.model.ts    # Course Aggregate Root
+│   │   │   │   │   ├── Chapter.model.ts   # Chapter Entity
+│   │   │   │   │   └── Lesson.model.ts    # Lesson Entity
+│   │   │   │   │
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── /course-editor             # 📝 COURSE EDITOR DOMAIN MODELS
+│   │   │   │   ├── Project.model.ts       # Project Aggregate Root
+│   │   │   │   ├── ChatSession.model.ts   # Chat Session Entity
+│   │   │   │   ├── GeneratedContent.model.ts # Generated content
+│   │   │   │   ├── Variant.model.ts       # Content variant
+│   │   │   │   └── Template.model.ts      # Template Entity
+│   │   │   │
+│   │   │   ├── /social
+│   │   │   │   ├── Post.model.ts          # Post Aggregate Root
+│   │   │   │   ├── Comment.model.ts       # Comment Entity
+│   │   │   │   └── Like.model.ts          # Like Value Object
+│   │   │   │
+│   │   │   ├── /user
+│   │   │   │   ├── User.model.ts          # User Aggregate Root
+│   │   │   │   ├── Profile.model.ts       # Profile Entity
+│   │   │   │   └── Session.model.ts       # Session Value Object
+│   │   │   │
+│   │   │   ├── /compliance
+│   │   │   │   ├── Consent.model.ts       # Consent Aggregate Root
+│   │   │   │   └── Report.model.ts        # Report Entity
+│   │   │   │
+│   │   │   └── /moderation
+│   │   │       ├── ContentReport.model.ts # Report Aggregate Root
+│   │   │       └── ModerationAction.model.ts
 │   │   │
-│   │   ├── /dashboard
-│   │   │   ├── Index.vue                 # [API] GET /api/v1/dashboard
-│   │   │   ├── Settings.vue              # [API] PUT /api/v1/user/settings
-│   │   │   ├── Notifications.vue         # [API] GET /api/v1/notifications
-│   │   │   └── LayoutManager.vue         # [API] PUT /api/v1/user/dashboard-layout
+│   │   ├── /value-objects                 # Value Objects (Immutable)
+│   │   │   ├── Email.vo.ts                # Email validation
+│   │   │   ├── UserId.vo.ts               # Type-safe User ID
+│   │   │   ├── PostId.vo.ts               # Type-safe Post ID
+│   │   │   ├── CourseId.vo.ts             # Type-safe Course ID
+│   │   │   ├── ProjectId.vo.ts            # Type-safe Project ID
+│   │   │   └── Timestamp.vo.ts            # Timestamp handling
 │   │   │
-│   │   ├── /social
-│   │   │   ├── Feed.vue                  # [API] GET /api/v1/social/posts
-│   │   │   ├── Explore.vue               # [API] GET /api/v1/social/explore
-│   │   │   ├── Trending.vue              # [API] GET /api/v1/social/trending
-│   │   │   ├── Profile.vue               # [API] GET /api/v1/profile/:user_id
-│   │   │   ├── EditProfile.vue           # [API] PUT /api/v1/profile
-│   │   │   ├── Followers.vue             # [API] GET /api/v1/users/:id/followers
-│   │   │   ├── Following.vue             # [API] GET /api/v1/users/:id/following
-│   │   │   ├── Post.vue                  # [API] GET /api/v1/social/posts/:id
-│   │   │   ├── Bookmarks.vue             # [API] GET /api/v1/social/bookmarks
-│   │   │   ├── Messages.vue              # [WS] message events
-│   │   │   └── Notifications.vue         # [API] GET /api/v1/notifications
+│   │   ├── /factories                     # Factory Pattern
+│   │   │   ├── /content
+│   │   │   │   └── Course.factory.ts      # Course creation & validation
+│   │   │   │
+│   │   │   ├── /course-editor             # 📝 COURSE EDITOR FACTORIES
+│   │   │   │   ├── Project.factory.ts     # Project creation
+│   │   │   │   ├── ChatSession.factory.ts # Chat session creation
+│   │   │   │   └── Template.factory.ts    # Template creation
+│   │   │   │
+│   │   │   ├── /social
+│   │   │   │   ├── Post.factory.ts        # Post creation & validation
+│   │   │   │   └── Comment.factory.ts     # Comment creation
+│   │   │   │
+│   │   │   └── /user
+│   │   │       └── User.factory.ts        # User creation & validation
 │   │   │
-│   │   ├── /privacy
-│   │   │   ├── PrivacySettings.vue       # [API] GET/PUT /api/v1/compliance/privacy
-│   │   │   ├── DataExport.vue            # [API] POST /api/v1/compliance/data-export
-│   │   │   ├── DataDeletion.vue          # [API] POST /api/v1/compliance/data-deletion
-│   │   │   ├── ConsentHistory.vue        # [API] GET /api/v1/compliance/consent-history
-│   │   │   ├── CookiePreferences.vue     # [Local] js-cookie
-│   │   │   ├── PrivacyPolicy.vue         # [Static]
-│   │   │   ├── TermsOfService.vue        # [Static]
-│   │   │   └── CommunityGuidelines.vue   # [Static]
+│   │   ├── /events                        # Domain Events
+│   │   │   ├── PostCreatedEvent.ts
+│   │   │   ├── UserFollowedEvent.ts
+│   │   │   ├── CourseEnrolledEvent.ts
+│   │   │   ├── ContentGeneratedEvent.ts   # Course Editor event
+│   │   │   └── ReportSubmittedEvent.ts
 │   │   │
-│   │   ├── /moderation
-│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/moderation/dashboard
-│   │   │   ├── Queue.vue                 # [API] GET /api/v1/moderation/queue
-│   │   │   ├── Reports.vue               # [API] GET /api/v1/moderation/reports
-│   │   │   ├── ReviewContent.vue         # [API] GET /api/v1/moderation/queue/:id
-│   │   │   ├── Appeals.vue               # [API] GET /api/v1/moderation/appeals
-│   │   │   ├── Statistics.vue            # [API] GET /api/v1/moderation/statistics
-│   │   │   ├── TransparencyReports.vue   # [API] GET /api/v1/transparency/reports
-│   │   │   └── UserProfile.vue           # [API] GET /api/v1/moderation/users/:id
-│   │   │
-│   │   ├── /parental
-│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/parental/dashboard
-│   │   │   ├── ActivityLog.vue           # [API] GET /api/v1/parental/activity
-│   │   │   ├── ScreenTime.vue            # [API] GET /api/v1/parental/screen-time
-│   │   │   ├── ContentApproval.vue       # [API] GET /api/v1/parental/approvals
-│   │   │   ├── Restrictions.vue          # [API] PUT /api/v1/parental/restrictions
-│   │   │   └── Reports.vue               # [API] GET /api/v1/parental/reports
-│   │   │
-│   │   ├── /admin
-│   │   │   ├── Dashboard.vue             # [API] GET /api/v1/admin-panel/dashboard
-│   │   │   ├── Users.vue                 # [API] GET /api/v1/admin-panel/users
-│   │   │   ├── Organizations.vue         # [API] GET /api/v1/admin-panel/organizations
-│   │   │   ├── Courses.vue               # [API] GET /api/v1/admin-panel/courses
-│   │   │   ├── FeatureFlags.vue          # [API] GET /api/v1/admin-panel/features
-│   │   │   ├── RolloutControl.vue        # [API] PUT /api/v1/admin-panel/features/:id/rollout
-│   │   │   └── ComplianceDashboard.vue   # [API] GET /api/v1/admin-panel/compliance
-│   │   │
-│   │   └── /liveroom
-│   │       ├── Room.vue                  # [WS] video, chat
-│   │       ├── Whiteboard.vue            # [WS] whiteboard events
-│   │       ├── Chat.vue                  # [WS] chat messages
-│   │       ├── Recording.vue             # [API] POST /api/v1/liveroom/record
-│   │       └── Participants.vue          # [WS] participant events
+│   │   └── /repositories                  # Repository Interfaces (Domain contracts)
+│   │       ├── IUserRepository.ts
+│   │       ├── IPostRepository.ts
+│   │       ├── ICourseRepository.ts
+│   │       └── IProjectRepository.ts      # Course Editor repository
 │   │
-│   │   └── /editor              # 🎨 AI EDITOR PAGES (NEW)
-│   │       ├── Dashboard.vue             # [API] GET /api/v1/editor/projects
-│   │       ├── Editor.vue                # [API] POST /api/v1/editor/chat + generate
-│   │       ├── Project.vue               # [API] GET /api/v1/editor/projects/:id
-│   │       ├── Chat.vue                  # [WS] editor:message_received
-│   │       ├── Generator.vue             # [API] POST /api/v1/editor/generate
-│   │       ├── Variants.vue              # [API] POST /api/v1/editor/variants
-│   │       ├── Templates.vue             # [API] GET /api/v1/editor/templates
-│   │       ├── History.vue               # [API] GET /api/v1/editor/history
-│   │       └── Settings.vue              # [API] PUT /api/v1/editor/settings
+│   ├── /infrastructure                    # 🔧 INFRASTRUCTURE LAYER
+│   │   ├── /api                           # API Clients
+│   │   │   ├── /clients
+│   │   │   │   ├── content.client.ts      # Content API (courses, lessons)
+│   │   │   │   ├── social.client.ts       # Social API (posts, likes)
+│   │   │   │   ├── user.client.ts         # User API (auth, profile)
+│   │   │   │   ├── courseEditor.client.ts # 📝 Course Editor API (chat, generate)
+│   │   │   │   ├── admin.client.ts        # Admin API
+│   │   │   │   ├── compliance.client.ts   # Compliance API
+│   │   │   │   └── moderation.client.ts   # Moderation API
+│   │   │   │
+│   │   │   ├── http.ts                    # Base HTTP Client (Axios)
+│   │   │   ├── interceptors.ts            # Auth Interceptors
+│   │   │   └── api-error.ts               # API Error Handling
+│   │   │
+│   │   ├── /repositories                  # Repository Implementations
+│   │   │   ├── UserRepository.ts          # User data access
+│   │   │   ├── PostRepository.ts          # Post data access
+│   │   │   ├── CourseRepository.ts        # Course data access
+│   │   │   └── ProjectRepository.ts       # Course Editor project data access
+│   │   │
+│   │   ├── /websocket                     # WebSocket Integration
+│   │   │   ├── websocket.client.ts        # WebSocket client
+│   │   │   ├── events.ts                  # Event definitions
+│   │   │   └── handlers.ts                # Event handlers
+│   │   │
+│   │   ├── /cache                         # Caching Layer
+│   │   │   ├── cache.service.ts           # Cache abstraction
+│   │   │   └── strategies.ts              # Cache strategies
+│   │   │
+│   │   ├── /i18n                          # Internationalization
+│   │   │   ├── index.ts                   # i18n setup
+│   │   │   └── /locales
+│   │   │       ├── de.json
+│   │   │       ├── en.json
+│   │   │       └── pl.json
+│   │   │
+│   │   └── /persistence                   # Local Storage
+│   │       ├── storage.service.ts         # Local storage abstraction
+│   │       └── indexeddb.service.ts       # IndexedDB for offline
 │   │
-│   ├── /router
-│   │   ├── index.ts            # Router Config
-│   │   ├── routes.ts           # Route Definitions
-│   │   ├── guards.ts           # Route Guards (Auth, Feature Flags)
-│   │   └── middleware.ts       # Route Middleware
+│   ├── /shared                            # 🔄 SHARED (Cross-Cutting)
+│   │   ├── /types                         # Shared Type Definitions
+│   │   │   ├── api.types.ts               # API Response types
+│   │   │   ├── common.types.ts            # Common types
+│   │   │   ├── courseEditor.types.ts      # Course Editor types
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── /constants                     # Shared Constants
+│   │   │   ├── api.constants.ts           # API endpoints
+│   │   │   ├── events.constants.ts        # Event names
+│   │   │   ├── feature-flags.ts           # Feature flag names
+│   │   │   └── errors.ts                  # Error codes
+│   │   │
+│   │   ├── /utils                         # Utility Functions
+│   │   │   ├── date.utils.ts              # Date helpers
+│   │   │   ├── format.utils.ts            # Formatting
+│   │   │   ├── validation.utils.ts        # Validators
+│   │   │   └── crypto.utils.ts            # Encryption
+│   │   │
+│   │   └── /guards                        # Type Guards
+│   │       ├── user.guards.ts
+│   │       └── post.guards.ts
 │   │
-│   ├── /utils
-│   │   ├── api-helpers.ts      # API Helper Functions
-│   │   ├── date.ts             # Date Utilities
-│   │   ├── format.ts           # Format Utilities
-│   │   ├── validation.ts       # Validators
-│   │   └── storage.ts          # Local Storage Helpers
+│   ├── App.vue                            # Root Component
+│   └── main.ts                            # Application Entry Point
+│
+├── /scripts                               # 🛠️ MIGRATION SCRIPTS
+│   ├── /transforms
+│   │   ├── update-imports.js              # jscodeshift: Update imports
+│   │   └── add-deprecation-notices.js     # jscodeshift: Add deprecations
 │   │
-│   ├── App.vue                 # Root Component
-│   └── main.ts                 # Application Entry Point
+│   ├── migrate-domain.sh                  # Domain migration script
+│   ├── generate-barrels.js                # Barrel generation
+│   ├── validate-imports.js                # Import validation
+│   └── compare-bundle-size.js             # Bundle size tracking
 │
 ├── vite.config.ts
-├── tsconfig.json               # TypeScript Config
+├── tsconfig.json
 ├── tailwind.config.js
 └── package.json
 ```
 
 ---
 
-## 2. TypeScript Type Definitions
+## 2. Course Editor - Detailed Structure (Backend Aligned)
 
-### 📋 auth.types.ts
+### 📝 Course Editor Architecture
 
-```typescript
-// src/types/auth.types.ts
+```
+/src/presentation/components/course-editor/
 
-export interface User {
-  id: string
-  email: string
-  username: string
-  role: 'user' | 'moderator' | 'admin' | 'parent'
-  avatar?: string
-  age_verified: boolean
-  is_online: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface LoginRequest {
-  email: string
-  password: string
-}
-
-export interface LoginResponse {
-  access_token: string
-  refresh_token: string
-  user: User
-  expires_in: number
-}
-
-export interface RegisterRequest {
-  email: string
-  password: string
-  username: string
-  age_verified: boolean
-  consent: {
-    terms: boolean
-    privacy: boolean
-    marketing?: boolean
-  }
-}
-
-export interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  accessToken: string | null
-  refreshToken: string | null
-  loading: boolean
-  error: string | null
-}
+├── CourseEditorMain.vue              # Main container (router-view)
+├── EditorSwitcher.vue                # Toggle: Manual ↔ AI Editor
+│
+├── /manual-editor/                   # 📝 MANUAL EDITOR (Traditional)
+│   ├── ManualEditorContainer.vue     # Container für manual editing
+│   ├── ContentEditor.vue             # Rich text editor (TipTap/Quill)
+│   ├── StructurePanel.vue            # Course tree (chapters/lessons)
+│   ├── ChapterEditor.vue             # Chapter CRUD
+│   ├── LessonEditor.vue              # Lesson CRUD
+│   ├── MediaUpload.vue               # Upload images/videos
+│   ├── PreviewPanel.vue              # Live preview
+│   └── ToolbarActions.vue            # Save/Publish/Draft buttons
+│
+└── /ai-editor/                       # 🤖 AI EDITOR (AI-assisted)
+    ├── AIEditorContainer.vue         # Container für AI editing
+    ├── ChatInterface.vue             # Chat with AI (like ChatGPT)
+    ├── PromptBuilder.vue             # Structured prompt builder
+    ├── ContentGenerator.vue          # Generate lessons/chapters
+    ├── VariantSelector.vue           # Choose from multiple variants
+    ├── TemplateLibrary.vue           # Pre-built templates
+    ├── GenerationHistory.vue         # Previous generations
+    ├── AISettings.vue                # Model selection, tone, style
+    └── AIPreview.vue                 # Preview generated content
 ```
 
-### 📋 social.types.ts
+### 🔄 Backend-Frontend Alignment
 
-```typescript
-// src/types/social.types.ts
-
-export interface Post {
-  id: string
-  author_id: string
-  author: User
-  title: string
-  content: string
-  media: Media[]
-  likes_count: number
-  comments_count: number
-  shares_count: number
-  is_liked_by_user: boolean
-  is_bookmarked_by_user: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface CreatePostRequest {
-  title: string
-  content: string
-  media?: File[]
-  tags?: string[]
-}
-
-export interface Comment {
-  id: string
-  post_id: string
-  author_id: string
-  author: User
-  content: string
-  likes_count: number
-  is_liked_by_user: boolean
-  created_at: string
-}
-
-export interface CreateCommentRequest {
-  content: string
-  parent_comment_id?: string
-}
-
-export interface Like {
-  id: string
-  user_id: string
-  post_id?: string
-  comment_id?: string
-  created_at: string
-}
-
-export interface Media {
-  id: string
-  url: string
-  type: 'image' | 'video'
-  width?: number
-  height?: number
-}
-
-export interface Feed {
-  posts: Post[]
-  total: number
-  page: number
-  limit: number
-  has_more: boolean
-}
 ```
+BACKEND:
+app/
+├── api/
+│   └── v1/
+│       └── ai/                       # AI Editor APIs
+│           ├── chat.py               → POST /api/v1/ai/chat
+│           ├── generate.py           → POST /api/v1/ai/generate
+│           ├── variants.py           → POST /api/v1/ai/variants
+│           └── templates.py          → GET /api/v1/ai/templates
+│
+└── domain/
+    └── ai/                           # AI Domain Logic
+        ├── aicoursegenerator.py
+        ├── chatengine.py
+        └── variantmanager.py
 
-### 📋 moderation.types.ts
+FRONTEND:
+/src/
+├── presentation/
+│   └── components/
+│       └── course-editor/            # Course Editor Components
+│           ├── /manual-editor/       # Manual editing
+│           └── /ai-editor/           # AI editing
+│               ├── ChatInterface.vue        → POST /api/v1/ai/chat
+│               ├── ContentGenerator.vue     → POST /api/v1/ai/generate
+│               ├── VariantSelector.vue      → POST /api/v1/ai/variants
+│               └── TemplateLibrary.vue      → GET /api/v1/ai/templates
+│
+├── application/
+│   └── services/
+│       └── course-editor/            # Course Editor Services
+│           ├── AIService.ts
+│           └── ChatService.ts
+│
+└── domain/
+    └── models/
+        └── course-editor/            # Course Editor Domain
+            ├── Project.model.ts
+            └── ChatSession.model.ts
 
-```typescript
-// src/types/moderation.types.ts
-
-export interface ContentReport {
-  id: string
-  reporter_id: string
-  content_type: 'post' | 'comment' | 'user' | 'message'
-  content_id: string
-  reason: string
-  description?: string
-  status: 'new' | 'assigned' | 'under_review' | 'resolved' | 'rejected'
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  assignee_id?: string
-  created_at: string
-  updated_at: string
-  resolved_at?: string
-  sla_deadline: string
-}
-
-export interface CreateReportRequest {
-  content_type: string
-  content_id: string
-  reason: string
-  description?: string
-  evidence?: string[]
-}
-
-export interface ModerationAction {
-  report_id: string
-  action: 'approve' | 'remove' | 'warn_user' | 'suspend_user' | 'ban_user'
-  reason: string
-  duration?: number // in days, null = permanent
-}
-
-export interface ModerationQueue {
-  reports: ContentReport[]
-  total: number
-  page: number
-  limit: number
-  has_more: boolean
-}
-
-export interface ModerationStats {
-  total_reports: number
-  pending: number
-  under_review: number
-  resolved: number
-  avg_response_time: number
-  sla_compliance: number
-}
+= PERFECT MATCH! ✅
 ```
 
 ---
 
-## 3. API Endpoints & Store Mappings
+## 3. Course Editor API Endpoints
 
-### 🌐 AUTH Endpoints
+### 🌐 Course Editor / AI Endpoints
 
-| Endpoint | Method | Store Action | Component | Request | Response | WebSocket Event |
-|----------|--------|--------------|-----------|---------|----------|-----------------|
-| `/api/v1/auth/register` | POST | `authStore.register()` | RegisterWithConsent.vue | `RegisterRequest` | `LoginResponse` | — |
-| `/api/v1/auth/login` | POST | `authStore.login()` | Login.vue | `LoginRequest` | `LoginResponse` | `auth:login` |
-| `/api/v1/auth/logout` | POST | `authStore.logout()` | (Global) | — | `{ success }` | `auth:logout` |
-| `/api/v1/auth/refresh` | POST | `authStore.refreshToken()` | (Interceptor) | `{ refresh_token }` | `{ access_token }` | — |
-| `/api/v1/auth/verify-age` | POST | `authStore.verifyAge()` | AgeVerification.vue | `{ age_verified }` | `{ success }` | — |
+| Endpoint | Method | Service | Store | Component | Description |
+|----------|--------|---------|-------|-----------|-------------|
+| `/api/v1/ai/chat` | POST | `ChatService` | `chat.store` | `ChatInterface.vue` | Chat with AI |
+| `/api/v1/ai/generate` | POST | `AIService` | `aiEditor.store` | `ContentGenerator.vue` | Generate content |
+| `/api/v1/ai/variants` | POST | `VariantService` | `aiEditor.store` | `VariantSelector.vue` | Create variants |
+| `/api/v1/ai/templates` | GET | `TemplateService` | `templates.store` | `TemplateLibrary.vue` | List templates |
+| `/api/v1/ai/projects` | GET | `EditorService` | `projects.store` | `ProjectsView.vue` | List projects |
+| `/api/v1/ai/projects/:id` | GET | `EditorService` | `projects.store` | `CourseEditorMain.vue` | Get project |
+| `/api/v1/ai/history` | GET | `EditorService` | `aiEditor.store` | `GenerationHistory.vue` | Generation history |
+| `/api/v1/ai/sessions/:id` | GET | `ChatService` | `chat.store` | `ChatInterface.vue` | Get chat session |
 
-**Store Implementation:**
-```typescript
-// src/stores/auth.store.ts
-import { defineStore } from 'pinia'
-import { authApi } from '@/api/auth.api'
-import type { User, LoginRequest, LoginResponse } from '@/types'
-
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    user: null as User | null,
-    accessToken: null as string | null,
-    refreshToken: null as string | null,
-    isAuthenticated: false,
-    loading: false,
-    error: null as string | null,
-  }),
-
-  actions: {
-    async login(credentials: LoginRequest) {
-      this.loading = true
-      try {
-        const response = await authApi.login(credentials)
-        this.user = response.user
-        this.accessToken = response.access_token
-        this.refreshToken = response.refresh_token
-        this.isAuthenticated = true
-        localStorage.setItem('accessToken', response.access_token)
-        localStorage.setItem('refreshToken', response.refresh_token)
-        return response
-      } catch (err) {
-        this.error = err.message
-        throw err
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async logout() {
-      try {
-        await authApi.logout()
-        this.user = null
-        this.accessToken = null
-        this.refreshToken = null
-        this.isAuthenticated = false
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-      } catch (err) {
-        console.error('Logout error:', err)
-      }
-    },
-  },
-})
-```
-
-### 🌟 SOCIAL Endpoints
-
-| Endpoint | Method | Store Action | Component | Request | Response | WebSocket Event |
-|----------|--------|--------------|-----------|---------|----------|-----------------|
-| `/api/v1/social/posts` | GET | `socialStore.loadFeed()` | Feed.vue | `{ page, limit, sort }` | `Feed` | `feed:updated` |
-| `/api/v1/social/posts/:post_id` | GET | `socialStore.loadPost()` | Post.vue | — | `Post` | — |
-| `/api/v1/social/posts` | POST | `socialStore.createPost()` | PostComposer.vue | `CreatePostRequest` | `Post` | `post:created` |
-| `/api/v1/social/posts/:post_id/likes` | POST | `socialStore.likePost()` | LikeButton.vue | — | `{ likes_count }` | `post:liked` |
-| `/api/v1/social/posts/:post_id/likes` | DELETE | `socialStore.unlikePost()` | LikeButton.vue | — | `{ likes_count }` | `post:unliked` |
-| `/api/v1/social/posts/:post_id/comments` | GET | `socialStore.loadComments()` | CommentSection.vue | `{ page, limit }` | `Comment[]` | — |
-| `/api/v1/social/posts/:post_id/comments` | POST | `socialStore.createComment()` | CommentInput.vue | `CreateCommentRequest` | `Comment` | `comment:created` |
-| `/api/v1/users/:user_id/follow` | POST | `userStore.followUser()` | FollowButton.vue | — | `{ following: true }` | `user:followed` |
-| `/api/v1/users/:user_id/unfollow` | DELETE | `userStore.unfollowUser()` | FollowButton.vue | — | `{ following: false }` | `user:unfollowed` |
-| `/api/v1/social/trending` | GET | `socialStore.loadTrending()` | Trending.vue | — | `Post[]` | — |
-| `/api/v1/social/explore` | GET | `socialStore.loadExplore()` | Explore.vue | `{ page, category }` | `Feed` | — |
-| `/api/v1/social/bookmarks` | GET | `socialStore.loadBookmarks()` | Bookmarks.vue | `{ page, limit }` | `Post[]` | — |
-| `/api/v1/social/posts/:post_id/bookmark` | POST | `socialStore.bookmarkPost()` | PostCard.vue | — | `{ bookmarked: true }` | — |
-
-**Store Implementation:**
-```typescript
-// src/stores/social.store.ts
-import { defineStore } from 'pinia'
-import { socialApi } from '@/api/social.api'
-import type { Post, Feed, CreatePostRequest } from '@/types'
-
-export const useSocialStore = defineStore('social', {
-  state: () => ({
-    feed: {
-      posts: [] as Post[],
-      total: 0,
-      page: 1,
-      limit: 20,
-      has_more: false,
-    } as Feed,
-    currentPost: null as Post | null,
-    loading: false,
-    error: null as string | null,
-  }),
-
-  actions: {
-    async loadFeed(page = 1, limit = 20) {
-      this.loading = true
-      try {
-        const response = await socialApi.getFeed({ page, limit, sort: 'recent' })
-        if (page === 1) {
-          this.feed = response
-        } else {
-          this.feed.posts = [...this.feed.posts, ...response.posts]
-          this.feed.page = page
-          this.feed.has_more = response.has_more
-        }
-      } catch (err) {
-        this.error = err.message
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async createPost(data: CreatePostRequest) {
-      try {
-        const newPost = await socialApi.createPost(data)
-        this.feed.posts.unshift(newPost)
-        this.feed.total += 1
-        return newPost
-      } catch (err) {
-        this.error = err.message
-        throw err
-      }
-    },
-
-    async likePost(postId: string) {
-      try {
-        const response = await socialApi.likePost(postId)
-        const post = this.feed.posts.find(p => p.id === postId)
-        if (post) {
-          post.likes_count = response.likes_count
-          post.is_liked_by_user = true
-        }
-      } catch (err) {
-        this.error = err.message
-      }
-    },
-  },
-})
-```
-
-### 🛡️ MODERATION Endpoints
-
-| Endpoint | Method | Store Action | Component | Request | Response | WebSocket Event |
-|----------|--------|--------------|-----------|---------|----------|-----------------|
-| `/api/v1/moderation/queue` | GET | `moderationStore.loadQueue()` | ModerationQueue.vue | `{ page, limit, status }` | `ModerationQueue` | — |
-| `/api/v1/moderation/queue/:report_id` | GET | `moderationStore.loadReport()` | ContentReview.vue | — | `ContentReport` | — |
-| `/api/v1/moderation/actions` | POST | `moderationStore.takeAction()` | ModerationActions.vue | `ModerationAction` | `{ success }` | `moderation:action` |
-| `/api/v1/moderation/reports` | GET | `moderationStore.loadReports()` | Reports.vue | `{ page, status }` | `ContentReport[]` | — |
-| `/api/v1/moderation/statistics` | GET | `moderationStore.loadStats()` | ModerationStats.vue | — | `ModerationStats` | — |
-| `/api/v1/moderation/sla-monitor` | GET | `moderationStore.loadSLA()` | SLAMonitor.vue | — | `{ reports, compliance }` | — |
-
----
-
-## 4. WebSocket Events
-
-### 📡 Real-time Event Streams
+### 📡 WebSocket Events (Course Editor)
 
 ```typescript
-// src/constants/events.constants.ts
+// src/shared/constants/events.constants.ts
 
 export const WEBSOCKET_EVENTS = {
-  // Auth
-  AUTH_LOGIN: 'auth:login',
-  AUTH_LOGOUT: 'auth:logout',
-  
-  // Social
-  POST_CREATED: 'post:created',
-  POST_DELETED: 'post:deleted',
-  POST_LIKED: 'post:liked',
-  POST_UNLIKED: 'post:unliked',
-  COMMENT_CREATED: 'comment:created',
-  COMMENT_DELETED: 'comment:deleted',
-  FEED_UPDATED: 'feed:updated',
-  
-  // User
-  USER_FOLLOWED: 'user:followed',
-  USER_UNFOLLOWED: 'user:unfollowed',
-  USER_ONLINE: 'user:online',
-  USER_OFFLINE: 'user:offline',
-  
-  // Notifications
-  NOTIFICATION_NEW: 'notification:new',
-  NOTIFICATION_READ: 'notification:read',
-  
-  // Moderation
-  MODERATION_ACTION: 'moderation:action',
-  REPORT_STATUS_CHANGED: 'report:status_changed',
-  
-  // Messages
-  MESSAGE_NEW: 'message:new',
-  MESSAGE_READ: 'message:read',
-  
-  // LiveRoom
-  PARTICIPANT_JOINED: 'participant:joined',
-  PARTICIPANT_LEFT: 'participant:left',
-  WHITEBOARD_UPDATED: 'whiteboard:updated',
+  // Course Editor / AI Events
+  AI_MESSAGE_RECEIVED: 'ai:message_received',
+  AI_GENERATION_STARTED: 'ai:generation_started',
+  AI_GENERATION_COMPLETE: 'ai:generation_complete',
+  AI_VARIANT_CREATED: 'ai:variant_created',
+  AI_SESSION_UPDATED: 'ai:session_updated',
 }
 ```
 
-**Beispiel Event Handler:**
+---
+
+## 4. Course Editor Stores
+
+### 📦 AI Editor Store
+
 ```typescript
-// In Feed.vue
-import { useWebSocket } from '@/composables/useWebSocket'
-import { WEBSOCKET_EVENTS } from '@/constants/events.constants'
+// src/application/stores/modules/course-editor/aiEditor.store.ts
 
-export default defineComponent({
-  setup() {
-    const socialStore = useSocialStore()
-    const { on, emit } = useWebSocket()
+import { defineStore } from 'pinia'
+import { AIService } from '@/application/services/course-editor/AIService'
+import type { GeneratedContent, Variant } from '@/domain/models/course-editor'
 
-    onMounted(() => {
-      // Subscribe to post creation
-      on(WEBSOCKET_EVENTS.POST_CREATED, (post) => {
-        socialStore.feed.posts.unshift(post)
-      })
+export const useAIEditorStore = defineStore('aiEditor', {
+  state: () => ({
+    currentProject: null as Project | null,
+    generatedContent: [] as GeneratedContent[],
+    selectedVariant: null as Variant | null,
+    isGenerating: false,
+    error: null as string | null
+  }),
 
-      // Subscribe to likes
-      on(WEBSOCKET_EVENTS.POST_LIKED, ({ post_id, likes_count }) => {
-        const post = socialStore.feed.posts.find(p => p.id === post_id)
-        if (post) post.likes_count = likes_count
-      })
-    })
+  actions: {
+    async generateContent(prompt: string, options: GenerateOptions) {
+      this.isGenerating = true
+      try {
+        const service = new AIService()
+        const content = await service.generateContent(prompt, options)
+        this.generatedContent.push(content)
+        return content
+      } catch (err) {
+        this.error = err.message
+        throw err
+      } finally {
+        this.isGenerating = false
+      }
+    },
 
-    return { socialStore }
-  },
+    async createVariants(contentId: string, count: number) {
+      const service = new AIService()
+      const variants = await service.createVariants(contentId, count)
+      return variants
+    }
+  }
+})
+```
+
+### 📦 Manual Editor Store
+
+```typescript
+// src/application/stores/modules/course-editor/manualEditor.store.ts
+
+import { defineStore } from 'pinia'
+import type { Course, Chapter, Lesson } from '@/domain/models/content'
+
+export const useManualEditorStore = defineStore('manualEditor', {
+  state: () => ({
+    currentCourse: null as Course | null,
+    activeChapter: null as Chapter | null,
+    activeLesson: null as Lesson | null,
+    isDirty: false,
+    autoSaveEnabled: true,
+    lastSaved: null as Date | null
+  }),
+
+  actions: {
+    async saveContent() {
+      const service = new CourseService()
+      await service.updateCourse(this.currentCourse.id, this.currentCourse)
+      this.isDirty = false
+      this.lastSaved = new Date()
+    }
+  }
 })
 ```
 
 ---
 
-## 5. Feature Flags Integration
+## 5. Course Editor Domain Models
 
-### 🎚️ Feature Flag Management
+### 🎯 Project Model
 
 ```typescript
-// src/composables/useFeatureFlags.ts
-import { computed } from 'vue'
-import { useFeatureStore } from '@/stores/feature.store'
+// src/domain/models/course-editor/Project.model.ts
 
-export function useFeatureFlags() {
-  const featureStore = useFeatureStore()
+import { ProjectId } from '@/domain/value-objects/ProjectId.vo'
 
-  return {
-    // Check if feature is enabled
-    isFeatureEnabled: (featureName: string) => 
-      computed(() => featureStore.isFeatureEnabled(featureName)),
-    
-    // Check if feature is in beta
-    isFeatureBeta: (featureName: string) => 
-      computed(() => featureStore.isFeatureBeta(featureName)),
-    
-    // Get rollout percentage
-    getRolloutPercentage: (featureName: string) => 
-      computed(() => featureStore.getRolloutPercentage(featureName)),
+export class Project {
+  private constructor(
+    public readonly id: ProjectId,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly type: 'course' | 'lesson' | 'chapter',
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date
+  ) {
+    Object.freeze(this)
+  }
+
+  static create(data: ProjectDTO): Project {
+    return new Project(
+      ProjectId.create(data.id),
+      data.name,
+      data.description,
+      data.type,
+      new Date(data.created_at),
+      new Date(data.updated_at)
+    )
   }
 }
 ```
 
-**In Komponenten verwenden:**
+---
+
+## 6. Component Examples
+
+### 🎨 ChatInterface.vue
+
 ```vue
+<!-- src/presentation/components/course-editor/ai-editor/ChatInterface.vue -->
+
 <template>
-  <!-- Option 1: v-feature Directive -->
-  <div v-feature="'social-network'">
-    <Feed />
-  </div>
+  <div class="chat-interface">
+    <div class="messages">
+      <div 
+        v-for="message in messages" 
+        :key="message.id"
+        :class="['message', message.role]"
+      >
+        <div class="avatar">
+          {{ message.role === 'user' ? '👤' : '🤖' }}
+        </div>
+        <div class="content">
+          {{ message.content }}
+        </div>
+      </div>
+    </div>
 
-  <!-- Option 2: v-if -->
-  <div v-if="isFeatureEnabled('social-network')">
-    <Feed />
+    <div class="input-area">
+      <textarea
+        v-model="userInput"
+        @keydown.enter.ctrl="sendMessage"
+        placeholder="Beschreibe was du erstellen möchtest..."
+      ></textarea>
+      <button @click="sendMessage" :disabled="isGenerating">
+        {{ isGenerating ? 'Generiert...' : 'Senden' }}
+      </button>
+    </div>
   </div>
-
-  <!-- Option 3: Component-level -->
-  <FeatureGate feature-name="social-network">
-    <Feed />
-  </FeatureGate>
 </template>
 
 <script setup lang="ts">
-import { useFeatureFlags } from '@/composables/useFeatureFlags'
+import { ref, computed } from 'vue'
+import { useChatStore } from '@/application/stores/modules/course-editor/chat.store'
+import { useAIEditorStore } from '@/application/stores/modules/course-editor/aiEditor.store'
 
-const { isFeatureEnabled } = useFeatureFlags()
-</script>
-```
+const chatStore = useChatStore()
+const aiEditorStore = useAIEditorStore()
 
----
+const userInput = ref('')
+const isGenerating = computed(() => aiEditorStore.isGenerating)
+const messages = computed(() => chatStore.currentSession?.messages || [])
 
-## 6. Error Handling
-
-### 🛑 Standardisierte Error Codes
-
-```typescript
-// src/constants/errors.ts
-
-export const ERROR_CODES = {
-  // Auth Errors
-  INVALID_CREDENTIALS: 'AUTH_001',
-  USER_NOT_FOUND: 'AUTH_002',
-  EMAIL_ALREADY_EXISTS: 'AUTH_003',
-  TOKEN_EXPIRED: 'AUTH_004',
-  INVALID_TOKEN: 'AUTH_005',
-  
-  // Validation Errors
-  INVALID_INPUT: 'VALIDATION_001',
-  REQUIRED_FIELD: 'VALIDATION_002',
-  
-  // Permission Errors
-  UNAUTHORIZED: 'PERMISSION_001',
-  FORBIDDEN: 'PERMISSION_002',
-  
-  // Resource Errors
-  NOT_FOUND: 'RESOURCE_001',
-  CONFLICT: 'RESOURCE_002',
-  
-  // Server Errors
-  INTERNAL_SERVER_ERROR: 'SERVER_001',
-  SERVICE_UNAVAILABLE: 'SERVER_002',
-}
-
-export const ERROR_MESSAGES: Record<string, string> = {
-  [ERROR_CODES.INVALID_CREDENTIALS]: 'Invalid email or password',
-  [ERROR_CODES.USER_NOT_FOUND]: 'User not found',
-  [ERROR_CODES.EMAIL_ALREADY_EXISTS]: 'Email already exists',
-  [ERROR_CODES.TOKEN_EXPIRED]: 'Session expired. Please login again',
-  [ERROR_CODES.UNAUTHORIZED]: 'You are not authorized to access this resource',
-}
-```
-
-**Error Handler in API:**
-```typescript
-// src/api/interceptors.ts
-export function setupInterceptors(apiClient) {
-  apiClient.interceptors.response.use(
-    response => response,
-    error => {
-      const errorCode = error.response?.data?.code
-      const message = ERROR_MESSAGES[errorCode] || error.message
-      
-      // Handle token expiration
-      if (errorCode === ERROR_CODES.TOKEN_EXPIRED) {
-        const authStore = useAuthStore()
-        authStore.logout()
-        window.location.href = '/login'
-      }
-      
-      return Promise.reject({ code: errorCode, message })
-    }
-  )
-}
-```
-
----
-
-## 7. API Client Setup
-
-### 📡 Axios Configuration
-
-```typescript
-// src/api/index.ts
-import axios, { AxiosInstance } from 'axios'
-import { setupInterceptors } from './interceptors'
-
-const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-setupInterceptors(apiClient)
-
-export default apiClient
-```
-
-### 🔐 JWT Token Management
-
-```typescript
-// src/api/interceptors.ts
-import { useAuthStore } from '@/stores/auth.store'
-
-export function setupInterceptors(apiClient) {
-  // Request Interceptor - Add JWT Token
-  apiClient.interceptors.request.use(config => {
-    const authStore = useAuthStore()
-    const token = authStore.accessToken
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    
-    return config
+async function sendMessage() {
+  if (!userInput.value.trim()) return
+  await chatStore.sendMessage({
+    role: 'user',
+    content: userInput.value
   })
-
-  // Response Interceptor - Handle Errors & Token Refresh
-  apiClient.interceptors.response.use(
-    response => response,
-    async error => {
-      const authStore = useAuthStore()
-      const originalRequest = error.config
-      
-      // Token expired - try refresh
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true
-        
-        try {
-          const newToken = await authStore.refreshToken()
-          originalRequest.headers.Authorization = `Bearer ${newToken}`
-          return apiClient(originalRequest)
-        } catch (err) {
-          authStore.logout()
-          window.location.href = '/login'
-        }
-      }
-      
-      return Promise.reject(error)
-    }
-  )
-}
-```
-
----
-
-## 8. Component-Store-API Flow Beispiele
-
-### 📝 Post erstellen - Complete Flow
-
-**1. Component (PostComposer.vue)**
-```vue
-<template>
-  <form @submit.prevent="submitPost">
-    <textarea v-model="formData.content" placeholder="Was möchtest du teilen?"></textarea>
-    <input type="file" multiple @change="handleMediaUpload" />
-    <button type="submit" :disabled="isSubmitting">Posten</button>
-  </form>
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useSocialStore } from '@/stores/social.store'
-import type { CreatePostRequest } from '@/types'
-
-const socialStore = useSocialStore()
-const formData = ref<CreatePostRequest>({ title: '', content: '', media: [] })
-const isSubmitting = ref(false)
-
-async function submitPost() {
-  isSubmitting.value = true
-  try {
-    // Action ruft API Endpoint auf (siehe Store)
-    await socialStore.createPost(formData.value)
-    formData.value = { title: '', content: '', media: [] }
-  } catch (err) {
-    console.error('Error creating post:', err)
-  } finally {
-    isSubmitting.value = false
-  }
+  userInput.value = ''
 }
 </script>
 ```
 
-**2. Store Action (social.store.ts)**
-```typescript
-async createPost(data: CreatePostRequest) {
-  try {
-    // Ruft API Endpoint auf
-    const newPost = await socialApi.createPost(data)
-    
-    // Aktualisiert lokalen State
-    this.feed.posts.unshift(newPost)
-    this.feed.total += 1
-    
-    return newPost
-  } catch (err) {
-    this.error = err.message
-    throw err
-  }
-}
-```
-
-**3. API Client (social.api.ts)**
-```typescript
-export const socialApi = {
-  async createPost(data: CreatePostRequest): Promise<Post> {
-    // Ruft Backend Endpoint auf: POST /api/v1/social/posts
-    const response = await apiClient.post('/api/v1/social/posts', data)
-    return response.data
-  },
-}
-```
-
-**4. WebSocket Event**
-```
-Backend emittet nach erfolgreicher Erstellung:
-  → WebSocket Event: post:created { id, author, title, content, ... }
-  
-Frontend empfängt in Feed.vue:
-  → Aktualisiert feed Store automatisch
-  → UI re-rendert sofort
-```
-
 ---
 
-## 9. Router Guards & Feature Flags
+## 7. Course Editor Routes
 
 ```typescript
-// src/router/guards.ts
-import { useAuthStore } from '@/stores/auth.store'
-import { useFeatureStore } from '@/stores/feature.store'
+// src/presentation/router/routes.ts
 
-export function requireAuth(to, from, next) {
-  const authStore = useAuthStore()
-  
-  if (!authStore.isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-  } else {
-    next()
-  }
-}
-
-export function requireRole(role: string) {
-  return (to, from, next) => {
-    const authStore = useAuthStore()
-    
-    if (authStore.user?.role === role || authStore.user?.role === 'admin') {
-      next()
-    } else {
-      next({ name: 'Unauthorized' })
-    }
-  }
-}
-
-export function requireFeature(featureName: string) {
-  return (to, from, next) => {
-    const featureStore = useFeatureStore()
-    
-    if (featureStore.isFeatureEnabled(featureName)) {
-      next()
-    } else {
-      next({ name: 'FeatureNotAvailable' })
-    }
-  }
-}
-```
-
-**Route Definition:**
-```typescript
-// src/router/routes.ts
 const routes = [
   {
-    path: '/social',
-    component: () => import('@/layouts/MainLayout.vue'),
-    beforeEnter: [requireAuth, requireFeature('social-network')],
+    path: '/editor',
+    component: () => import('@/presentation/layouts/EditorLayout.vue'),
+    beforeEnter: [requireAuth, requireFeature('course-editor')],
     children: [
       {
-        path: 'feed',
-        name: 'Feed',
-        component: () => import('@/pages/social/Feed.vue'),
+        path: '',
+        name: 'EditorDashboard',
+        component: () => import('@/presentation/views/course-editor/ProjectsView.vue'),
       },
-    ],
-  },
+      {
+        path: 'course/:projectId?',
+        name: 'CourseEditor',
+        component: () => import('@/presentation/views/course-editor/EditorView.vue'),
+        // Loads: CourseEditorMain.vue → EditorSwitcher.vue → Manual/AI Editor
+      },
+      {
+        path: 'templates',
+        name: 'Templates',
+        component: () => import('@/presentation/views/course-editor/TemplatesView.vue'),
+      },
+      {
+        path: 'history',
+        name: 'History',
+        component: () => import('@/presentation/views/course-editor/HistoryView.vue'),
+      }
+    ]
+  }
 ]
+```
+
+---
+
+## 8. Backward-Compatible Migration
+
+### 📦 Re-Export Barrels
+
+```typescript
+// ❌ OLD LOCATION (deprecated): src/components/studio/
+/**
+ * @deprecated Import from @/presentation/components/course-editor instead
+ * This re-export will be REMOVED on 2027-01-20 (12 months)
+ */
+export * from '@/presentation/components/course-editor'
+```
+
+```typescript
+// ✅ NEW LOCATION: src/presentation/components/course-editor/
+export { default as CourseEditorMain } from './CourseEditorMain.vue'
+export { default as ManualEditorContainer } from './manual-editor/ManualEditorContainer.vue'
+export { default as AIEditorContainer } from './ai-editor/AIEditorContainer.vue'
+```
+
+---
+
+## 9. Migration Checklist
+
+### ✅ Course Editor Domain Migration
+
+```
+Phase 1: Components (Week 1-2)
+- [ ] Create /course-editor/ structure (root level!)
+- [ ] Create /manual-editor/ components (8 components)
+- [ ] Create /ai-editor/ components (9 components)
+- [ ] Generate backward-compatible barrels
+- [ ] Remove old /studio/ references
+
+Phase 2: Application Layer (Week 2-3)
+- [ ] Create editor.store.ts
+- [ ] Create aiEditor.store.ts
+- [ ] Create manualEditor.store.ts
+- [ ] Create chat.store.ts
+- [ ] Create projects.store.ts
+- [ ] Create EditorService.ts
+- [ ] Create AIService.ts
+
+Phase 3: Domain Layer (Week 3)
+- [ ] Create Project.model.ts
+- [ ] Create ChatSession.model.ts
+- [ ] Create GeneratedContent.model.ts
+- [ ] Create Project.factory.ts
+
+Phase 4: Infrastructure (Week 3-4)
+- [ ] Create courseEditor.client.ts (API calls to /api/v1/ai/*)
+- [ ] Create ProjectRepository.ts
+- [ ] Add WebSocket events (5 events)
+- [ ] Update routes (/editor/*)
+
+Phase 5: Testing (Week 4)
+- [ ] Unit tests (Domain models)
+- [ ] Integration tests (Services)
+- [ ] Component tests (Vue)
+- [ ] E2E tests (Editor workflows)
 ```
 
 ---
 
 ## 10. Zusammenfassung
 
-### ✅ Frontend Architecture v3.0
+### ✅ Course Editor Structure (v4.0.2 - FINAL)
 
-| Aspekt | Implementation | Status |
-|--------|----------------|--------|
-| 🧩 **Komponenten** | Vue 3 + Composition API | ✅ |
-| 📦 **State Management** | Pinia (Type-Safe) | ✅ |
-| 🌐 **API Integration** | Axios + REST Contracts | ✅ |
-| 🔄 **WebSocket** | Real-time Events | ✅ |
-| 🎚️ **Feature Flags** | v-feature Directive + Guards | ✅ |
-| 🔐 **Auth** | JWT + Refresh Token | ✅ |
-| 🛡️ **Type Safety** | TypeScript + Interfaces | ✅ |
-| ⚠️ **Error Handling** | Standardized Error Codes | ✅ |
-| 🌍 **i18n** | vue-i18n (20+ Languages) | ✅ |
-| 📊 **Analytics** | Chart.js + Stats | ✅ |
+| Aspekt | Beschreibung |
+|--------|-------------|
+| **Structure** | `/course-editor/` direkt als Domain (KEIN /studio/ parent!) |
+| **Backend Aligned** | ✅ Matched Backend: app/api/v1/ai/ + app/domain/ai/ |
+| **Components** | 18 Components (8 manual + 9 AI + main/switcher) |
+| **Stores** | 6 Stores (editor, aiEditor, manualEditor, chat, projects, templates) |
+| **Services** | 5 Services (EditorService, AIService, ChatService, etc.) |
+| **API Endpoints** | 8 Endpoints (/api/v1/ai/chat, /generate, /variants, etc.) |
+| **WebSocket Events** | 5 Events (ai:message_received, ai:generation_complete, etc.) |
+| **Domain Models** | 5 Models (Project, ChatSession, GeneratedContent, Variant, Template) |
 
-### 💡 Development Workflow
+### 💪 Key Differences vs Previous Versions
 
 ```
-1. Backend entwickelt neuen Endpoint
-   ↓
-2. Type Definition schreiben (auth.types.ts, social.types.ts, etc.)
-   ↓
-3. API Client Methode erstellen (social.api.ts)
-   ↓
-4. Store Action implementieren (social.store.ts)
-   ↓
-5. Component mit Store verbinden
-   ↓
-6. WebSocket Event definieren & integrieren
-   ↓
-7. Feature Flag Guard hinzufügen
+v4.0 (WRONG):
+/presentation/components/studio/
+└── /editor/              ❌ Generic "studio" parent
+
+v4.0.1 (WRONG):
+/presentation/components/studio/
+└── /course-editor/       ❌ Still has "studio" parent
+
+v4.0.2 (CORRECT):
+/presentation/components/course-editor/   ✅ Direct as domain!
+├── /manual-editor/
+└── /ai-editor/
+
+= NO "studio" parent folder! Course Editor ist eigenständige Domain!
 ```
 
----
+### 🎯 Backend Alignment Proof
 
-## 🔄 API Endpoint Changes v3.2 (16.01.2026)
-
-### Semantic URL Paths: `/admin/` → `/admin-panel/`
-
-**WICHTIG:** Alle Admin-Panel API-Endpunkte wurden umbenannt für semantische Klarheit.
-
-#### Betroffene API Calls:
-
-**Vor v3.2 (alt):**
-```javascript
-// ❌ Alt - mehrdeutig
-GET /api/v1/admin/dashboard
-GET /api/v1/admin/settings/ai/models
-GET /api/v1/admin/courses
 ```
+BACKEND:
+app/domain/ai/              → AI Domain Logic
+app/api/v1/ai/              → AI API Endpoints
 
-**Ab v3.2 (neu):**
-```javascript
-// ✅ Neu - eindeutig
-GET /api/v1/admin-panel/dashboard
-GET /api/v1/admin-panel/settings/ai/models
-GET /api/v1/admin-panel/courses
-```
+FRONTEND:
+domain/models/course-editor/       → Course Editor Domain Models
+application/services/course-editor/ → Course Editor Services
+infrastructure/api/clients/courseEditor.client.ts → API Client
+presentation/components/course-editor/ → UI Components
 
-#### Migration für Frontend:
-
-**API Service Files aktualisieren:**
-```javascript
-// services/api/admin.service.js
-
-// Alt (v3.1):
-const API_BASE = '/api/v1/admin'
-
-// Neu (v3.2):
-const API_BASE = '/api/v1/admin-panel'
-```
-
-**Pinia Store Actions aktualisieren:**
-```javascript
-// store/modules/admin.js
-
-// Alt:
-const response = await api.get('/api/v1/admin/dashboard')
-
-// Neu:
-const response = await api.get('/api/v1/admin-panel/dashboard')
-```
-
-#### Vollständige Liste geänderter Endpoints:
-
-| Kategorie | Alt (v3.1) | Neu (v3.2) |
-|-----------|-----------|-----------|
-| **Settings - AI** | `/api/v1/admin/settings/ai/*` | `/api/v1/admin-panel/settings/ai/*` |
-| **Settings - System** | `/api/v1/admin/settings/system/*` | `/api/v1/admin-panel/settings/system/*` |
-| **Settings - Permissions** | `/api/v1/admin/settings/permissions/*` | `/api/v1/admin-panel/settings/permissions/*` |
-| **Settings - Features** | `/api/v1/admin/features/*` | `/api/v1/admin-panel/features/*` |
-| **Courses** | `/api/v1/admin/courses/*` | `/api/v1/admin-panel/courses/*` |
-| **Moderation** | `/api/v1/admin/moderation/*` | `/api/v1/admin-panel/moderation/*` |
-| **Analytics** | `/api/v1/admin/analytics` | `/api/v1/admin-panel/analytics` |
-| **Dashboard** | `/api/v1/admin/dashboard` | `/api/v1/admin-panel/dashboard` |
-| **Users** | `/api/v1/admin/users` | `/api/v1/admin-panel/users` |
-
-#### Keine Änderungen nötig für:
-- ✅ `/api/v1/auth/*` (User Authentication)
-- ✅ `/api/v1/users/*` (User Profile)
-- ✅ `/api/v1/courses/*` (Public Courses)
-- ✅ `/api/v1/social/*` (Social Features)
-- ✅ Alle anderen nicht-admin Endpoints
-
-#### Testing:
-```bash
-# Test all admin-panel endpoints
-npm run test:api -- --grep "admin-panel"
-
-# Update mocks
-npm run update-mocks
+= SAME STRUCTURE! ✅
 ```
 
 ---
 
-## 📌 Dokument abgeschlossen
+**END OF DOCUMENT**
 
-**Version:** 3.2
-**Status:** Final
-**Letzte Aktualisierung:** 16.01.2026
-
-**Neue Features v3.2:**
-- ✅ Semantic API Endpoints (`/admin/` → `/admin-panel/`)
-- ✅ Komplette API Contract Dokumentation
-- ✅ Store ↔ API Mapping für alle Features
-- ✅ TypeScript Type Definitions
-- ✅ WebSocket Event Dokumentation
-- ✅ Feature Flag Integration Beispiele
-- ✅ Error Handling Strategien
-- ✅ Component-Store-API Flow Diagramme
-- ✅ Development Workflow Dokumentation
-
-> **Wichtig:** Frontend und Backend entwickeln gegen diesen Contract. API-Änderungen MÜSSEN in beiden Dokumentationen synchron aktualisiert werden!
+Version 4.0.2 - DDD Architecture (Course Editor FINAL)
+Stand: 20.01.2026

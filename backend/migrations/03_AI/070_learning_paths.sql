@@ -4,9 +4,12 @@
 
 BEGIN TRANSACTION;
 
-CREATE TABLE IF NOT EXISTS learning_paths (
+-- Ensure ai_pipeline schema exists
+CREATE SCHEMA IF NOT EXISTS ai_pipeline;
+
+CREATE TABLE IF NOT EXISTS ai_pipeline.learning_paths (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    course_id UUID NOT NULL REFERENCES courses.courses(course_id) ON DELETE CASCADE,
 
     -- Path metadata
     path_name VARCHAR(255) NOT NULL,
@@ -23,31 +26,31 @@ CREATE TABLE IF NOT EXISTS learning_paths (
     is_published BOOLEAN DEFAULT FALSE,
 
     -- Tracking
-    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     -- Constraints
-    CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+    CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses.courses(course_id) ON DELETE CASCADE
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_learning_paths_course_id ON learning_paths(course_id);
-CREATE INDEX IF NOT EXISTS idx_learning_paths_default ON learning_paths(is_default);
-CREATE INDEX IF NOT EXISTS idx_learning_paths_published ON learning_paths(is_published);
-CREATE INDEX IF NOT EXISTS idx_learning_paths_difficulty ON learning_paths(difficulty_level);
+CREATE INDEX IF NOT EXISTS idx_learning_paths_course_id ON ai_pipeline.learning_paths(course_id);
+CREATE INDEX IF NOT EXISTS idx_learning_paths_default ON ai_pipeline.learning_paths(is_default);
+CREATE INDEX IF NOT EXISTS idx_learning_paths_published ON ai_pipeline.learning_paths(is_published);
+CREATE INDEX IF NOT EXISTS idx_learning_paths_difficulty ON ai_pipeline.learning_paths(difficulty_level);
 
 -- Learning path steps (ordered sequence)
-CREATE TABLE IF NOT EXISTS learning_path_steps (
+CREATE TABLE IF NOT EXISTS ai_pipeline.learning_path_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
+    path_id UUID NOT NULL REFERENCES ai_pipeline.learning_paths(id) ON DELETE CASCADE,
 
     -- Sequence
     step_number INT NOT NULL CHECK (step_number >= 1),
 
     -- Content
-    lesson_id UUID REFERENCES lessons(id) ON DELETE SET NULL,
-    recommended_method_id INT REFERENCES learning_method_types(method_type) ON DELETE SET NULL,
+    lesson_id UUID REFERENCES courses.lessons(lesson_id) ON DELETE SET NULL,
+    recommended_method_id INT REFERENCES learning_methods.learning_method_types(method_type) ON DELETE SET NULL,
 
     -- Attributes
     estimated_duration_minutes INT CHECK (estimated_duration_minutes >= 0),
@@ -61,14 +64,14 @@ CREATE TABLE IF NOT EXISTS learning_path_steps (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     -- Constraints
-    CONSTRAINT fk_path FOREIGN KEY (path_id) REFERENCES learning_paths(id) ON DELETE CASCADE,
-    CONSTRAINT fk_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE SET NULL,
+    CONSTRAINT fk_path FOREIGN KEY (path_id) REFERENCES ai_pipeline.learning_paths(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lesson FOREIGN KEY (lesson_id) REFERENCES courses.lessons(lesson_id) ON DELETE SET NULL,
     CONSTRAINT unique_path_step UNIQUE(path_id, step_number)
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_learning_path_steps_path_id ON learning_path_steps(path_id);
-CREATE INDEX IF NOT EXISTS idx_learning_path_steps_lesson_id ON learning_path_steps(lesson_id);
-CREATE INDEX IF NOT EXISTS idx_learning_path_steps_complexity ON learning_path_steps(complexity_level);
+CREATE INDEX IF NOT EXISTS idx_learning_path_steps_path_id ON ai_pipeline.learning_path_steps(path_id);
+CREATE INDEX IF NOT EXISTS idx_learning_path_steps_lesson_id ON ai_pipeline.learning_path_steps(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_learning_path_steps_complexity ON ai_pipeline.learning_path_steps(complexity_level);
 
 COMMIT;

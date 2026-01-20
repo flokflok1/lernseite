@@ -1,0 +1,40 @@
+{
+  "aiEditorChat": {
+    "assistant": "AI Assistant",
+    "clearChat": "Clear chat",
+    "collapse": "Collapse",
+    "confirmClear": "Really clear chat?",
+    "context": "Context",
+    "defaultSuggestions": {
+      "modelComparison": "Which model is better?",
+      "teachingSteps": "What are Teaching Steps?",
+      "videoGeneration": "How do I generate a video?"
+    },
+    "enterToSend": "Enter = Send",
+    "fallbackActions": {
+      "explain": {
+        "label": "Explain",
+        "prompt": "Explain the current topic to me simply."
+      },
+      "improve": {
+        "label": "Improve",
+        "prompt": "How can I improve the content?"
+      },
+      "quiz": {
+        "label": "Quiz",
+        "prompt": "Create a quiz on this topic."
+      },
+      "summarize": {
+        "label": "Summary",
+        "prompt": "Summarize the content."
+      }
+    },
+    "loadingActions": "Loading actions...",
+    "online": "Online",
+    "placeholder": "Enter message...",
+    "suggestions": "Suggestions:",
+    "title": "AI Chat",
+    "welcomeText": "I'm your AI assistant. Ask me questions about current content or generation.",
+    "welcomeTitle": "Hello!"
+  }
+}

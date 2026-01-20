@@ -52,6 +52,8 @@ class ErrorCode(str, Enum):
     AUTH_EMAIL_NOT_VERIFIED = "AUTH_EMAIL_NOT_VERIFIED"
     AUTH_SESSION_EXPIRED = "AUTH_SESSION_EXPIRED"
     AUTH_2FA_INVALID = "AUTH_2FA_INVALID"
+    AUTH_2FA_REQUIRED = "AUTH_2FA_REQUIRED"
+    AUTH_FAILED = "AUTH_FAILED"
 
     # ========================================================================
     # USER ERRORS

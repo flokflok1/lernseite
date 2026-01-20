@@ -11,6 +11,6 @@ All blueprints are auto-registered on import.
 """
 
 # Import subpackages to trigger blueprint registration
-from . import ai, permissions
+from . import ai, permissions, feature_flags
 
-__all__ = ['ai', 'permissions']
+__all__ = ['ai', 'permissions', 'feature_flags']

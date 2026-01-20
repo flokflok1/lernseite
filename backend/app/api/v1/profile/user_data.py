@@ -20,7 +20,7 @@ from app.infrastructure.persistence.repositories.subscription import Subscriptio
 from app.application.services.system.billing.service import BillingService
 from app.api.middleware.auth import token_required, get_current_user
 
-user_data_bp = Blueprint('profile_user_data', __name__, url_prefix='/profile')
+user_data_bp = Blueprint('profile_user_data', __name__, url_prefix='')
 
 
 @user_data_bp.route('/courses', methods=['GET'])

@@ -45,6 +45,7 @@ Refactored: 2026-01-12 - All folders consolidated into flat files
 """
 
 from flask import Blueprint
+import sys
 
 # Create main API v1 blueprint
 # This is THE ONLY api_v1 blueprint - parent package imports this!
@@ -106,13 +107,26 @@ from app.api.v1.course_editor import course_editor_bp
 from app.api.v1 import dashboard
 
 # Admin Panel (complex - stays as folder)
-# Note: importlib used because folder name contains hyphen
+# Note: importlib used because directory name contains hyphen (admin-panel)
+# Use relative import with package parameter to handle hyphenated directory name
 import importlib
-admin_panel = importlib.import_module('app.api.v1.admin-panel')
+admin_panel = importlib.import_module('.admin-panel', package='app.api.v1')
+
+# Admin Settings - Extract feature_flags blueprints from settings module
+# First, ensure settings module is loaded by accessing it from admin_panel
+try:
+    settings = importlib.import_module('.settings', package='app.api.v1.admin-panel')
+    feature_flags = importlib.import_module('.feature_flags', package='app.api.v1.admin-panel.settings')
+    feature_flags_bp = feature_flags.feature_flags_bp
+    rollout_plans_crud_bp = feature_flags.rollout_plans_crud_bp
+    rollout_plans_actions_bp = feature_flags.rollout_plans_actions_bp
+except (ImportError, AttributeError) as e:
+    print(f"ERROR: Failed to extract feature_flags blueprints: {e}")
+    raise
 
 # Feature Configuration Admin API (Phase 3 - Enterprise Feature Management)
-# Note: Also uses importlib due to parent folder's hyphenated name
-feature_configuration = importlib.import_module('app.api.v1.admin-panel.feature-configuration')
+# Note: Uses relative import to handle hyphenated directory names in path
+feature_configuration = importlib.import_module('.feature-configuration', package='app.api.v1.admin-panel')
 feature_config_core_bp = feature_configuration.core_bp
 feature_config_core_part2_bp = feature_configuration.core_part2_bp
 feature_config_rollout_bp = feature_configuration.rollout_bp
@@ -180,6 +194,11 @@ api_v1.register_blueprint(audio_bp)
 api_v1.register_blueprint(features_bp)
 api_v1.register_blueprint(course_editor_bp)
 
+# Register admin-panel settings blueprints (feature_flags)
+api_v1.register_blueprint(feature_flags_bp)
+api_v1.register_blueprint(rollout_plans_crud_bp)
+api_v1.register_blueprint(rollout_plans_actions_bp)
+
 # Register admin-panel feature-configuration blueprints (Phase 3 - Enterprise Feature Management)
 api_v1.register_blueprint(feature_config_core_bp)
 api_v1.register_blueprint(feature_config_core_part2_bp)
@@ -198,6 +217,7 @@ __all__ = [
     'math_toolkit_practice_bp', 'math_toolkit_reference_bp', 'math_toolkit_tasks_bp', 'math_toolkit_admin_bp',
     'analytics_bp', 'org_analytics_bp', 'gamification_bp', 'audio_bp',
     'features_bp', 'course_editor_bp',
+    'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp', 'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
     'dashboard', 'admin_panel', 'social', 'community', 'messaging'
 ]

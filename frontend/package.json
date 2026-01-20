@@ -13,7 +13,20 @@
     "test": "vitest --config config/vitest.config.ts",
     "test:watch": "vitest --config config/vitest.config.ts --watch",
     "test:coverage": "vitest --config config/vitest.config.ts --coverage",
-    "test:ui": "vitest --config config/vitest.config.ts --ui"
+    "test:ui": "vitest --config config/vitest.config.ts --ui",
+    "migrate:baseline": "node scripts/compare-bundle-size.js --baseline",
+    "migrate:check": "node scripts/compare-bundle-size.js --check",
+    "migrate:report": "node scripts/compare-bundle-size.js --report",
+    "validate:imports": "node scripts/validate-imports.js",
+    "validate:imports:fix": "node scripts/validate-imports.js --fix",
+    "generate:barrels": "node scripts/generate-barrels.js",
+    "codemod:imports": "npx jscodeshift -t scripts/transforms/update-imports.js src/ --dry",
+    "codemod:imports:apply": "npx jscodeshift -t scripts/transforms/update-imports.js src/",
+    "codemod:deprecations": "npx jscodeshift -t scripts/transforms/add-deprecation-notices.js src/ --dry",
+    "codemod:deprecations:apply": "npx jscodeshift -t scripts/transforms/add-deprecation-notices.js src/",
+    "percy:baseline": "npm run build && percy exec -- npm run preview",
+    "percy:test": "percy exec -- npm run preview",
+    "percy:approval": "echo '🎨 Review visual diffs at: https://percy.io/[project-slug]'"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^3.4.4",
@@ -30,6 +43,8 @@
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
+    "@percy/cli": "^1.1.42",
+    "@percy/cli-exec": "^1.1.42",
     "@testing-library/vue": "^8.0.0",
     "@types/dompurify": "^3.0.5",
     "@types/node": "^24.10.0",
@@ -39,6 +54,7 @@
     "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
     "autoprefixer": "^10.4.22",
+    "jscodeshift": "^0.14.0",
     "jsdom": "^23.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18",

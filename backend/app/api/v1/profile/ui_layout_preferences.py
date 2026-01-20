@@ -15,7 +15,7 @@ from flask import Blueprint, request, jsonify
 from app.infrastructure.persistence.repositories.settings.user_preferences import UserPreferencesRepository
 from app.api.middleware.auth import token_required, get_current_user
 
-ui_layout_preferences_bp = Blueprint('profile_ui_layout', __name__, url_prefix='/profile')
+ui_layout_preferences_bp = Blueprint('profile_ui_layout', __name__, url_prefix='')
 
 
 @ui_layout_preferences_bp.route('/preferences/window-sizes', methods=['GET'])

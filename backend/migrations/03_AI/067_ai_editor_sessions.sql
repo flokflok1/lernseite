@@ -4,12 +4,15 @@
 
 BEGIN TRANSACTION;
 
+-- Ensure ai_pipeline schema exists
+CREATE SCHEMA IF NOT EXISTS ai_pipeline;
+
 -- Main AI Editor sessions table
-CREATE TABLE IF NOT EXISTS ai_editor_sessions (
+CREATE TABLE IF NOT EXISTS ai_pipeline.ai_editor_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    organisation_id UUID NOT NULL REFERENCES organisations(id) ON DELETE CASCADE,
+    course_id UUID NOT NULL REFERENCES courses.courses(course_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
+    organisation_id UUID NOT NULL REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE,
 
     -- Session state
     status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'PAUSED', 'COMPLETED', 'ARCHIVED')),
@@ -27,24 +30,24 @@ CREATE TABLE IF NOT EXISTS ai_editor_sessions (
     last_activity_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     -- Constraints
-    CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_organisation FOREIGN KEY (organisation_id) REFERENCES organisations(id) ON DELETE CASCADE
+    CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses.courses(course_id) ON DELETE CASCADE,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES core.users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_organisation FOREIGN KEY (organisation_id) REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_user_course ON ai_editor_sessions(user_id, course_id);
-CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_status ON ai_editor_sessions(status);
-CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_created_at ON ai_editor_sessions(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_organisation ON ai_editor_sessions(organisation_id);
+CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_user_course ON ai_pipeline.ai_editor_sessions(user_id, course_id);
+CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_status ON ai_pipeline.ai_editor_sessions(status);
+CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_created_at ON ai_pipeline.ai_editor_sessions(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_editor_sessions_organisation ON ai_pipeline.ai_editor_sessions(organisation_id);
 
 -- Audit table for session changes
-CREATE TABLE IF NOT EXISTS ai_editor_session_history (
+CREATE TABLE IF NOT EXISTS ai_pipeline.ai_editor_session_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    session_id UUID NOT NULL REFERENCES ai_editor_sessions(id) ON DELETE CASCADE,
+    session_id UUID NOT NULL REFERENCES ai_pipeline.ai_editor_sessions(id) ON DELETE CASCADE,
     action VARCHAR(50) NOT NULL,
     details JSONB,
-    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     -- Constraints
@@ -52,12 +55,12 @@ CREATE TABLE IF NOT EXISTS ai_editor_session_history (
 );
 
 -- Create indexes for session history
-CREATE INDEX IF NOT EXISTS idx_ai_editor_session_history_session_id ON ai_editor_session_history(session_id);
-CREATE INDEX IF NOT EXISTS idx_ai_editor_session_history_action ON ai_editor_session_history(action);
-CREATE INDEX IF NOT EXISTS idx_ai_editor_session_history_created_at ON ai_editor_session_history(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_editor_session_history_session_id ON ai_pipeline.ai_editor_session_history(session_id);
+CREATE INDEX IF NOT EXISTS idx_ai_editor_session_history_action ON ai_pipeline.ai_editor_session_history(action);
+CREATE INDEX IF NOT EXISTS idx_ai_editor_session_history_created_at ON ai_pipeline.ai_editor_session_history(created_at DESC);
 
 -- Add trigger to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_ai_editor_sessions_timestamp()
+CREATE OR REPLACE FUNCTION ai_pipeline.update_ai_editor_sessions_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = NOW();
@@ -66,9 +69,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER ai_editor_sessions_update_timestamp
-BEFORE UPDATE ON ai_editor_sessions
+BEFORE UPDATE ON ai_pipeline.ai_editor_sessions
 FOR EACH ROW
-EXECUTE FUNCTION update_ai_editor_sessions_timestamp();
+EXECUTE FUNCTION ai_pipeline.update_ai_editor_sessions_timestamp();
 
 COMMIT;
 

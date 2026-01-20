@@ -11,7 +11,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from contextlib import contextmanager
 from psycopg.rows import dict_row
 
-import app.core.bootstrap.extensions  # Import module, not the variable directly
+from app.core.bootstrap import extensions
 
 
 class DatabaseConnection:
@@ -27,9 +27,9 @@ class DatabaseConnection:
 
     def __enter__(self):
         """Get connection from pool"""
-        if app.extensions.db_pool is None:
+        if extensions.db_pool is None:
             raise RuntimeError("Database pool not initialized")
-        self.conn = app.extensions.db_pool.getconn()
+        self.conn = extensions.db_pool.getconn()
         return self.conn
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -41,7 +41,7 @@ class DatabaseConnection:
             # Commit on success
             self.conn.commit()
 
-        app.extensions.db_pool.putconn(self.conn)
+        extensions.db_pool.putconn(self.conn)
 
 
 @contextmanager
@@ -57,10 +57,10 @@ def get_connection():
         ...     with conn.cursor() as cur:
         ...         cur.execute("SELECT 1")
     """
-    if app.extensions.db_pool is None:
+    if extensions.db_pool is None:
         raise RuntimeError("Database pool not initialized")
 
-    conn = app.extensions.db_pool.getconn()
+    conn = extensions.db_pool.getconn()
     try:
         yield conn
         conn.commit()
@@ -68,7 +68,7 @@ def get_connection():
         conn.rollback()
         raise
     finally:
-        app.extensions.db_pool.putconn(conn)
+        extensions.db_pool.putconn(conn)
 
 
 @contextmanager

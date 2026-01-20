@@ -21,7 +21,7 @@ from app.infrastructure.persistence.repositories.token import TokenRepository
 from app.application.services.system.billing.service import BillingService
 from app.api.middleware.auth import token_required, get_current_user
 
-core_bp = Blueprint('profile_core', __name__, url_prefix='/profile')
+core_bp = Blueprint('profile_core', __name__, url_prefix='')
 
 
 @core_bp.route('', methods=['GET'])

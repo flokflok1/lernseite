@@ -28,6 +28,7 @@ export * from './types'
 // Re-export all API functions
 export * from './users.api'
 export * from './organisations.api'
+export * from './organisations/index' // New: Organisations subdomain
 export * from './courses.api'
 export * from './analytics.api'
 export * from './chapters.api'

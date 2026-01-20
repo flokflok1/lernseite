@@ -22,7 +22,7 @@ from app.infrastructure.persistence.repositories.settings.user_preferences impor
 from app.application.services.audit_service import AuditService, Severity
 from app.api.middleware.auth import token_required, get_current_user
 
-preferences_bp = Blueprint('profile_preferences', __name__, url_prefix='/profile')
+preferences_bp = Blueprint('profile_preferences', __name__, url_prefix='')
 
 
 @preferences_bp.route('/theme', methods=['GET'])

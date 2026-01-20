@@ -1,39 +1,13 @@
 /**
- * Application Stores (DDD Application Layer)
- * ==========================================
- * Central barrel export of all Pinia stores organized by domain
+ * Desktop Stores (Deprecated Re-export Barrel)
  *
- * Structure follows DDD principles:
- * - /core - App-wide state (auth, app)
- * - /admin - Admin panel state
- * - /content - Content management state (courseEditor, player)
- * - /learning - Learning system state (dashboard, tutor)
- * - /ui - UI state (theme, avatar)
- * - /system - System state (gamification)
- * - /feature-flags - Feature flag state
- * - /desktop - Workspace/panel state
+ * @deprecated Import from '@/application/stores/modules/desktop' instead
+ * This re-export barrel will be REMOVED on 2027-01-20 (12 months)
+ * ESLint will error after 2026-07-20 (6 months)
+ *
+ * Migration Guide:
+ * - Old: import { useDesktopStore } from '@/application/stores/modules/desktop'
+ * - New: import { useDesktopStore } from '@/application/stores/modules/desktop'
  */
 
-// Core stores (auth, app)
-export * from './modules/core'
-
-// Admin stores
-export * from './modules/admin'
-
-// UI stores (theme, avatar)
-export * from './modules/ui'
-
-// Content stores (courseEditor, player)
-export * from './modules/content'
-
-// Learning stores (dashboard, tutor)
-export * from './modules/learning'
-
-// Feature flags stores
-export * from './modules/feature-flags'
-
-// System stores (gamification)
-export * from './modules/system'
-
-// Desktop stores (window workspace system)
-export * from './modules/desktop'
+export * from '@/application/stores/modules/desktop'

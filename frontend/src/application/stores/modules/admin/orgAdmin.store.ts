@@ -10,7 +10,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as orgAdminApi from '@/api/orgAdmin.api'
+import * as orgAdminApi from '@/infrastructure/api/clients/admin'
 import type {
   OrgDetail,
   OrgMember,
@@ -22,7 +22,7 @@ import type {
   TimeSeriesPoint,
   OrgAnalyticsCourse,
   OrgAnalyticsModule
-} from '@/api/orgAdmin.api'
+} from '@/infrastructure/api/clients/admin'
 
 export const useOrgAdminStore = defineStore('orgAdmin', () => {
   // ============================================================================

@@ -88,11 +88,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxPanel } from '@/store/modules/desktop'
-import SystemInfoWidget from '@/components/base/system/admin/settings/SystemInfoWidget.vue'
-import SystemModeManager from '@/components/base/system/admin/settings/SystemModeManager.vue'
-import MaintenanceModeToggle from '@/components/base/system/admin/settings/MaintenanceModeToggle.vue'
-import GlobalSettingsTab from '@/components/studio/ai/admin/studio/tabs/GlobalSettingsTab.vue'
+import type { LsxPanel } from '@/application/stores/modules/desktop'
+import SystemInfoWidget from '@/presentation/components/base/system/admin/settings/SystemInfoWidget.vue'
+import SystemModeManager from '@/presentation/components/base/system/admin/settings/SystemModeManager.vue'
+import MaintenanceModeToggle from '@/presentation/components/base/system/admin/settings/MaintenanceModeToggle.vue'
+import GlobalSettingsTab from '@/presentation/components/studio/ai/admin/studio/tabs/GlobalSettingsTab.vue'
 
 interface Props {
   panel: LsxPanel

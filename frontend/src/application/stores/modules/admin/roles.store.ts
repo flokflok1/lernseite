@@ -15,7 +15,7 @@ import type {
   AssignFeaturesRequest,
   AssignPermissionsRequest,
   CreateFromTemplateRequest
-} from '@/api/admin/roles.api'
+} from '@/infrastructure/api/clients/admin'
 import {
   getRolesV2,
   getRoleV2,
@@ -27,7 +27,7 @@ import {
   getRoleTemplates,
   createRoleFromTemplate,
   getSystemFeatures
-} from '@/api/admin/roles.api'
+} from '@/infrastructure/api/clients/admin'
 
 export const useRolesStore = defineStore('roles', () => {
   // =============================================================================

@@ -5,8 +5,8 @@
  */
 
 import { computed, onMounted } from 'vue'
-import { useFeatureFlagsStore } from '@/store/modules/admin/feature-flags.store'
-import type { FeatureFlag } from '@/api/admin'
+import { useFeatureFlagsStore } from '@/application/stores/modules/admin/feature-flags.store'
+import type { FeatureFlag } from '@/infrastructure/api/clients/admin'
 
 export interface UseFeatureFlagsOptions {
   /**

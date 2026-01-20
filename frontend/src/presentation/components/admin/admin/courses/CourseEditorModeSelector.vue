@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/store/modules/core'
+import { useAuthStore } from '@/application/stores/modules/core'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()

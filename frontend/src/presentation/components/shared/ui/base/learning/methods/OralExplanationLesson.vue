@@ -14,9 +14,9 @@
 
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { AudioRecorder } from '@/components/base/learning/audio'
-import { analyzeOralExplanation, transcribeAudio } from '@/api/audio.api'
-import { tutorChat, tutorTTS } from '@/api/tutor.api'
+import { AudioRecorder } from '@/presentation/components/base/learning/audio'
+import { analyzeOralExplanation, transcribeAudio } from '@/infrastructure/api/clients/system'
+import { tutorChat, tutorTTS } from '@/infrastructure/api/clients/system'
 
 const { t } = useI18n()
 

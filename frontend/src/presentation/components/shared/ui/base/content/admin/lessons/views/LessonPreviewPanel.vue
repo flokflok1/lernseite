@@ -150,8 +150,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, defineAsyncComponent, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxPanel } from '@/store/modules/desktop'
-import http from '@/api/http'
+import type { LsxPanel } from '@/application/stores/modules/desktop'
+import http from '@/infrastructure/api/http'
 
 const { t } = useI18n()
 

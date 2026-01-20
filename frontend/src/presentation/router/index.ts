@@ -12,15 +12,15 @@
  */
 
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { useAuthStore } from '@/store/modules/core'
-import { useAppStore } from '@/store/modules/core'
+import { useAuthStore } from '@/application/stores/auth.store'
+import { useAppStore } from '@/application/stores/app.store'
 
 const routes: RouteRecordRaw[] = [
   // Setup Wizard Routes
   {
     path: '/setup',
     name: 'Setup',
-    component: () => import('@/pages/setup/SetupWizardPage.vue'),
+    component: () => import('@/presentation/pages/setup/SetupWizardPage.vue'),
     meta: { ignoreSetupCheck: true }, // Don't redirect to setup from setup
   },
 
@@ -37,13 +37,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/pages/auth/LoginPage.vue'),
+    component: () => import('@/presentation/pages/auth/LoginPage.vue'),
     meta: { requiresGuest: true }, // Only accessible when NOT logged in
   },
   {
     path: '/register',
     name: 'Register',
-    component: () => import('@/pages/auth/RegisterPage.vue'),
+    component: () => import('@/presentation/pages/auth/RegisterPage.vue'),
     meta: { requiresGuest: true },
   },
 
@@ -51,19 +51,19 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/pages/dashboard/DashboardPage.vue'),
+    component: () => import('@/presentation/pages/dashboard/DashboardPage.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/profile',
     name: 'Profile',
-    component: () => import('@/pages/ProfilePage.vue'),
+    component: () => import('@/presentation/pages/ProfilePage.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/settings',
     name: 'Settings',
-    component: () => import('@/pages/SettingsPage.vue'),
+    component: () => import('@/presentation/pages/SettingsPage.vue'),
     meta: { requiresAuth: true },
   },
 
@@ -71,34 +71,34 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/courses',
     name: 'Courses',
-    component: () => import('@/pages/CoursesPage.vue'),
+    component: () => import('@/presentation/pages/CoursesPage.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/course/:courseId',
     name: 'CourseOverview',
-    component: () => import('@/pages/CourseOverviewPage.vue'),
+    component: () => import('@/presentation/pages/CourseOverviewPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
   {
     path: '/course/:courseId/chapter/:chapterId',
     name: 'ChapterDetail',
-    component: () => import('@/pages/ChapterDetailPage.vue'),
+    component: () => import('@/presentation/pages/ChapterDetailPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
   {
     path: '/course/:courseId/chapter/:chapterId/lesson/:lessonId',
     name: 'LessonPlayer',
-    component: () => import('@/pages/LessonPlayerPage.vue'),
+    component: () => import('@/presentation/pages/LessonPlayerPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
   {
     path: '/course/:courseId/exam-simulation',
     name: 'ExamSimulation',
-    component: () => import('@/pages/ExamSimulationPage.vue'),
+    component: () => import('@/presentation/pages/ExamSimulationPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
@@ -106,60 +106,54 @@ const routes: RouteRecordRaw[] = [
   // Admin Routes (System Admins only)
   {
     path: '/admin',
-    component: () => import('@/layouts/AdminLayout.vue'),
+    component: () => import('@/presentation/layouts/AdminLayout.vue'),
     meta: { requiresAuth: true, requiresSystemAdmin: true },
     children: [
       {
         path: '',
         name: 'AdminDashboard',
-        component: () => import('@/pages/admin/AdminDashboardPage.vue'),
-      },
-      // Migrated to window-based interface (Wave 7)
-      {
-        path: 'user-group-management',
-        redirect: '/admin'
+        component: () => import('@/presentation/pages/admin/AdminDashboardPage.vue'),
       },
       {
         path: 'users',
         name: 'AdminUsers',
-        component: () => import('@/pages/admin/AdminUsersPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminUsersPage.vue'),
       },
       {
         path: 'users/:userId',
         name: 'AdminUserDetail',
-        component: () => import('@/pages/admin/AdminUserDetailPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminUserDetailPage.vue'),
       },
       {
         path: 'organisations',
         name: 'AdminOrganisations',
-        component: () => import('@/pages/admin/AdminOrganisationsPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminOrganisationsPage.vue'),
       },
       // Redirects for renamed routes (Wave 6)
       {
         path: 'kurse',
         redirect: '/admin/kurs-editor',
       },
-      // New route names (Wave 6) - Course Editor with Mode Selection
-      // Kurs-Editor routes - now use window system (redirect to /admin)
+      {
+        path: 'ki-studio',
+        redirect: '/admin/ai-studio',
+      },
+      // New route names (Wave 6)
       {
         path: 'kurs-editor',
-        redirect: '/admin'
+        name: 'AdminCourseEditor',
+        component: () => import('@/presentation/pages/admin/AdminCoursesPage.vue'),
       },
       {
-        path: 'kurs-editor/manual',
-        redirect: '/admin'
+        path: 'kurs-editor/:id',
+        name: 'admin-course-detail',
+        component: () => import('@/presentation/pages/admin/AdminCourseDetailPage.vue'),
+        props: true,
       },
       {
-        path: 'kurs-editor/manual/:id',
-        redirect: '/admin'
-      },
-      {
-        path: 'kurs-editor/ai',
-        redirect: '/admin'
-      },
-      {
-        path: 'kurs-editor/ai/:id',
-        redirect: '/admin'
+        path: 'ai-studio',
+        name: 'AdminAIStudio',
+        component: () => import('@/presentation/pages/admin/AdminKIStudioPage.vue'),
       },
       // Legacy route (old name)
       {
@@ -173,48 +167,42 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'categories',
         name: 'AdminCategories',
-        component: () => import('@/pages/admin/AdminCategoriesPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminCategoriesPage.vue'),
       },
       {
         path: 'billing',
         name: 'AdminBilling',
-        component: () => import('@/pages/admin/AdminBillingPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminBillingPage.vue'),
       },
       {
         path: 'analytics',
         name: 'AdminAnalytics',
-        component: () => import('@/pages/admin/AdminAnalyticsPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminAnalyticsPage.vue'),
       },
       {
         path: 'audit-logs',
         name: 'AdminAuditLogs',
-        component: () => import('@/pages/admin/AdminAuditLogsPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminAuditLogsPage.vue'),
       },
       {
         path: 'translations',
         name: 'AdminTranslations',
-        component: () => import('@/pages/admin/AdminTranslationsPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminTranslationsPage.vue'),
       },
       {
         path: 'lm-routing',
         name: 'AdminLMRouting',
-        component: () => import('@/pages/admin/AdminLMRoutingPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminLMRoutingPage.vue'),
       },
-      {
-        path: 'role-studio',
-        name: 'AdminRoles',
-        component: () => import('@/pages/admin/AdminRolesPage.vue'),
-        meta: { requiresOwner: true }, // RBAC 2.0 - Only Owner can manage roles
-      },
-      // Legacy route (old name)
       {
         path: 'roles',
-        redirect: '/admin/role-studio',
+        name: 'AdminRoles',
+        component: () => import('@/presentation/pages/admin/AdminRolesPage.vue'),
       },
       {
         path: 'system-settings',
         name: 'AdminSystemSettings',
-        component: () => import('@/pages/admin/AdminSystemSettingsPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminSystemSettingsPage.vue'),
       },
     ],
   },
@@ -222,33 +210,33 @@ const routes: RouteRecordRaw[] = [
   // Organisation Admin Routes (Org Admins only)
   {
     path: '/org',
-    component: () => import('@/layouts/AdminLayout.vue'),
+    component: () => import('@/presentation/layouts/AdminLayout.vue'),
     meta: { requiresAuth: true, requiresOrgAdmin: true },
     children: [
       {
         path: '',
         name: 'OrgDashboard',
-        component: () => import('@/pages/org/OrgDashboardPage.vue'),
+        component: () => import('@/presentation/pages/org/OrgDashboardPage.vue'),
       },
       {
         path: 'users',
         name: 'OrgUsers',
-        component: () => import('@/pages/org/OrgUsersPage.vue'),
+        component: () => import('@/presentation/pages/org/OrgUsersPage.vue'),
       },
       {
         path: 'courses',
         name: 'OrgCourses',
-        component: () => import('@/pages/org/OrgCoursesPage.vue'),
+        component: () => import('@/presentation/pages/org/OrgCoursesPage.vue'),
       },
       {
         path: 'analytics',
         name: 'OrgAnalytics',
-        component: () => import('@/pages/org/OrgAnalyticsPage.vue'),
+        component: () => import('@/presentation/pages/org/OrgAnalyticsPage.vue'),
       },
       {
         path: 'settings',
         name: 'OrgSettings',
-        component: () => import('@/pages/org/OrgSettingsPage.vue'),
+        component: () => import('@/presentation/pages/org/OrgSettingsPage.vue'),
       },
     ],
   },
@@ -261,18 +249,18 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'courses',
         name: 'CreatorCourses',
-        component: () => import('@/pages/creator/CreatorCoursesPage.vue'),
+        component: () => import('@/presentation/pages/creator/CreatorCoursesPage.vue'),
       },
       {
         path: 'courses/new',
         name: 'CreateCourse',
-        component: () => import('@/pages/creator/CourseEditorPage.vue'),
+        component: () => import('@/presentation/pages/creator/CourseEditorPage.vue'),
         props: { mode: 'create' },
       },
       {
         path: 'courses/:courseId/edit',
         name: 'EditCourse',
-        component: () => import('@/pages/creator/CourseEditorPage.vue'),
+        component: () => import('@/presentation/pages/creator/CourseEditorPage.vue'),
         props: (route) => ({ courseId: Number(route.params.courseId), mode: 'edit' }),
       },
     ],
@@ -282,31 +270,31 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/legal/imprint',
     name: 'Imprint',
-    component: () => import('@/pages/legal/ImprintPage.vue'),
+    component: () => import('@/presentation/pages/legal/ImprintPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/privacy',
     name: 'Privacy',
-    component: () => import('@/pages/legal/PrivacyPage.vue'),
+    component: () => import('@/presentation/pages/legal/PrivacyPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/terms',
     name: 'Terms',
-    component: () => import('@/pages/legal/TermsPage.vue'),
+    component: () => import('@/presentation/pages/legal/TermsPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/cookies',
     name: 'Cookies',
-    component: () => import('@/pages/legal/CookiesPage.vue'),
+    component: () => import('@/presentation/pages/legal/CookiesPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/content-usage',
     name: 'ContentUsage',
-    component: () => import('@/pages/legal/ContentUsagePage.vue'),
+    component: () => import('@/presentation/pages/legal/ContentUsagePage.vue'),
     meta: { isPublic: true },
   },
   {
@@ -319,7 +307,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/pages/NotFoundPage.vue'),
+    component: () => import('@/presentation/pages/NotFoundPage.vue'),
   },
 ]
 
@@ -368,13 +356,6 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   // Role-based access control
-  // Check Owner access (RBAC 2.0)
-  if (to.meta.requiresOwner && !authStore.isOwner) {
-    console.warn('Access denied: Owner role required')
-    next({ name: 'Dashboard' })
-    return
-  }
-
   // Check System Admin access
   if (to.meta.requiresSystemAdmin && !authStore.isSystemAdmin) {
     console.warn('Access denied: System Admin required')

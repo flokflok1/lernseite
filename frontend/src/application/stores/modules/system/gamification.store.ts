@@ -209,7 +209,7 @@ export const useGamificationStore = defineStore('gamification', () => {
   }) => {
     try {
       // Load from API instead of localStorage
-      const { getMyGamificationData } = await import('@/api/gamification.api')
+      const { getMyGamificationData } = await import('@/infrastructure/api/clients/system/gamification.api')
       const apiData = await getMyGamificationData()
 
       // Update stats from API

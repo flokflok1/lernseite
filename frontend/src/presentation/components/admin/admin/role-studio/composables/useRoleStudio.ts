@@ -13,7 +13,7 @@ import type {
   CreateRoleStudioRequest,
   RoleChangeHistory
 } from '../types'
-import * as roleStudioApi from '@/api/admin/role-studio.api'
+import * as roleStudioApi from '@/infrastructure/api/clients/admin'
 
 export function useRoleStudio() {
   const { t } = useI18n()

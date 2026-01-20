@@ -149,8 +149,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { usePanelStore } from '@/store/modules/desktop'
-import type { LsxPanel, PanelType } from '@/store/modules/desktop'
+import { usePanelStore } from '@/application/stores/modules/desktop'
+import type { LsxPanel, PanelType } from '@/application/stores/modules/desktop'
 
 const { t } = useI18n()
 import PreviewCourseCreate from '../previews/PreviewCourseCreate.vue'

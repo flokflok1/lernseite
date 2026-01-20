@@ -221,47 +221,47 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/api/http'
+import http from '@/infrastructure/api/clients/system/http'
 
 // i18n
 const { t } = useI18n()
 
 // Import locale files for sync (all in subdirectories)
-import deCommon from '@/locales/de/common/index'
-import deErrors from '@/locales/de/errors/index'
-import deDashboard from '@/locales/de/dashboard/index'
-import deSetup from '@/locales/de/setup/index'
-import deTutor from '@/locales/de/tutor/index'
-import deLegal from '@/locales/de/legal/index'
+import deCommon from '@/infrastructure/i18n/de/common/index'
+import deErrors from '@/infrastructure/i18n/de/errors/index'
+import deDashboard from '@/infrastructure/i18n/de/dashboard/index'
+import deSetup from '@/infrastructure/i18n/de/setup/index'
+import deTutor from '@/infrastructure/i18n/de/tutor/index'
+import deLegal from '@/infrastructure/i18n/de/legal/index'
 
-import deAdmin from '@/locales/de/admin/index'
-import deAiEditor from '@/locales/de/aiEditor/index'
-import deCourses from '@/locales/de/courses/index'
-import deFeatures from '@/locales/de/features/index'
+import deAdmin from '@/infrastructure/i18n/de/admin/index'
+import deAiEditor from '@/infrastructure/i18n/de/aiEditor/index'
+import deCourses from '@/infrastructure/i18n/de/courses/index'
+import deFeatures from '@/infrastructure/i18n/de/features/index'
 
-import enCommon from '@/locales/en/common/index'
-import enErrors from '@/locales/en/errors/index'
-import enDashboard from '@/locales/en/dashboard/index'
-import enSetup from '@/locales/en/setup/index'
-import enTutor from '@/locales/en/tutor/index'
-import enLegal from '@/locales/en/legal/index'
+import enCommon from '@/infrastructure/i18n/en/common/index'
+import enErrors from '@/infrastructure/i18n/en/errors/index'
+import enDashboard from '@/infrastructure/i18n/en/dashboard/index'
+import enSetup from '@/infrastructure/i18n/en/setup/index'
+import enTutor from '@/infrastructure/i18n/en/tutor/index'
+import enLegal from '@/infrastructure/i18n/en/legal/index'
 
-import enAdmin from '@/locales/en/admin/index'
-import enAiEditor from '@/locales/en/aiEditor/index'
-import enCourses from '@/locales/en/courses/index'
-import enFeatures from '@/locales/en/features/index'
+import enAdmin from '@/infrastructure/i18n/en/admin/index'
+import enAiEditor from '@/infrastructure/i18n/en/aiEditor/index'
+import enCourses from '@/infrastructure/i18n/en/courses/index'
+import enFeatures from '@/infrastructure/i18n/en/features/index'
 
-import plCommon from '@/locales/pl/common/index'
-import plErrors from '@/locales/pl/errors/index'
-import plDashboard from '@/locales/pl/dashboard/index'
-import plSetup from '@/locales/pl/setup/index'
-import plTutor from '@/locales/pl/tutor/index'
-import plLegal from '@/locales/pl/legal/index'
+import plCommon from '@/infrastructure/i18n/pl/common/index'
+import plErrors from '@/infrastructure/i18n/pl/errors/index'
+import plDashboard from '@/infrastructure/i18n/pl/dashboard/index'
+import plSetup from '@/infrastructure/i18n/pl/setup/index'
+import plTutor from '@/infrastructure/i18n/pl/tutor/index'
+import plLegal from '@/infrastructure/i18n/pl/legal/index'
 
-import plAdmin from '@/locales/pl/admin/index'
-import plAiEditor from '@/locales/pl/aiEditor/index'
-import plCourses from '@/locales/pl/courses/index'
-import plFeatures from '@/locales/pl/features/index'
+import plAdmin from '@/infrastructure/i18n/pl/admin/index'
+import plAiEditor from '@/infrastructure/i18n/pl/aiEditor/index'
+import plCourses from '@/infrastructure/i18n/pl/courses/index'
+import plFeatures from '@/infrastructure/i18n/pl/features/index'
 
 // Merge all modules (features already merged via barrel export)
 const deMessages = {

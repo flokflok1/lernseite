@@ -116,7 +116,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FeatureFlag } from '@/api/admin'
+import type { FeatureFlag } from '@/infrastructure/api/clients/admin'
 
 const { t } = useI18n()
 

@@ -6,11 +6,11 @@
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import router from './router'
-import App from './App.vue'
-import './style.css'
-import { useThemeStore } from '@/store/modules/ui'
-import { setupI18n, initializeI18n } from './plugins/i18n'
+import router from './presentation/router'
+import App from './presentation/App.vue'
+import './presentation/style.css'
+import { useThemeStore } from '@/application/stores/modules/ui'
+import { setupI18n, initializeI18n } from './infrastructure/plugins/i18n'
 
 // ============================================================================
 // Async App Initialization

@@ -195,7 +195,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { LsxPanel } from '@/store/modules/desktop'
+import type { LsxPanel } from '@/application/stores/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 
 const METHOD_CODE = 7

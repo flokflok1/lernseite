@@ -67,8 +67,8 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { usePanelStore } from '@/store/modules/desktop'
-import type { LsxPanel } from '@/store/modules/desktop'
+import { usePanelStore } from '@/application/stores/modules/desktop'
+import type { LsxPanel } from '@/application/stores/modules/desktop'
 
 interface Props {
   panel: LsxPanel

@@ -10,7 +10,8 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { getPanelSizes, updatePanelSize as apiUpdatePanelSize } from '@/api/profile.api'
+// import { getPanelSizes, updatePanelSize as apiUpdatePanelSize } from '@/infrastructure/api/clients/user'
+// TODO: Implement getPanelSizes and updatePanelSize APIs in @/infrastructure/api/clients/user domain
 
 /**
  * Available panel types
@@ -391,7 +392,9 @@ export const usePanelStore = defineStore('panel', () => {
     }
     saveDebounceTimer = setTimeout(async () => {
       try {
-        await apiUpdatePanelSize(panel.type, constrainedSize.width, constrainedSize.height)
+        // TODO: Implement updatePanelSize API call in @/infrastructure/api/clients/user domain
+        // await apiUpdatePanelSize(panel.type, constrainedSize.width, constrainedSize.height)
+        // For now, localStorage fallback is already saved above
       } catch (error) {
         // Silently fail - localStorage fallback is already in place
         console.warn('[PanelStore] Failed to save panel size to server:', error)
@@ -404,13 +407,15 @@ export const usePanelStore = defineStore('panel', () => {
    */
   async function loadPanelSizesFromServer(): Promise<void> {
     try {
-      const serverSizes = await getPanelSizes()
-      if (serverSizes && Object.keys(serverSizes).length > 0) {
-        // Merge server sizes with local (server takes priority)
-        persistedSizes.value = { ...persistedSizes.value, ...serverSizes }
-        // Also update localStorage for offline access
-        savePersistedSizesToStorage(persistedSizes.value)
-      }
+      // TODO: Implement getPanelSizes API call in @/infrastructure/api/clients/user domain
+      // Stub response for now - using localStorage fallback
+      // const serverSizes = await getPanelSizes()
+      // if (serverSizes && Object.keys(serverSizes).length > 0) {
+      //   // Merge server sizes with local (server takes priority)
+      //   persistedSizes.value = { ...persistedSizes.value, ...serverSizes }
+      //   // Also update localStorage for offline access
+      //   savePersistedSizesToStorage(persistedSizes.value)
+      // }
       sizesLoadedFromServer.value = true
     } catch (error) {
       // If API fails (not logged in, etc.), keep using localStorage

@@ -485,7 +485,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { http } from '@/api/http'
+import { http } from '@/infrastructure/api/clients/system/http'
 
 const { t } = useI18n()
 

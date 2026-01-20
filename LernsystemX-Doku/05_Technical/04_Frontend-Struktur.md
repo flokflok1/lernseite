@@ -47,6 +47,57 @@ Das Frontend folgt **Clean Architecture Prinzipien** mit klarer Trennung von:
 
 ---
 
+## 📚 CONTENT-LERNMETHODEN & SYSTEM-FEATURES
+
+### 🎓 Content-Lernmethoden (LM00-LM11)
+
+Das Frontend muss alle **12 Lernmethoden** in 3 Gruppen unterstützen:
+
+| Gruppe | IDs | Anzahl | Fokus | System Features |
+|--------|-----|--------|-------|-----------------|
+| **A** Erklärend | LM00-LM04 | 5 | Verständnis aufbauen | Whiteboard, Tutor, Video |
+| **B** Praxis | LM05-LM08 | 4 | Anwenden & Üben | CodeSandbox, Calculator, SimEnv |
+| **C** Prüfung | LM09-LM11 | 3 | Kompetenz nachweisen | Timer, ExamEngine |
+
+**Konkrete Beispiele:**
+- **LM00 - Text Erklärung** → Uses: Tutor, Highlights
+- **LM01 - Video Erklärung** → Uses: Video Player, Subtitles
+- **LM02 - Interaktive Erklärung** → Uses: Whiteboard, 3D Visualization
+- **LM05 - Coding Practice** → Uses: CodeSandbox, Debugger
+- **LM06 - Math Tasks** → Uses: Calculator, FormulaEditor, GraphPlotter
+- **LM09 - Exam** → Uses: Timer, ExamEngine, Proctoring
+
+### 🛠️ System-Features (25 Features)
+
+System Features sind **NICHT** Lernmethoden, sondern **Tools/Technologien**, die Lernmethoden unterstützen.
+
+**10 Kategorien & Zuordnung zu Lernmethoden:**
+
+| Kategorie | Features | Für Lernmethoden | Beispiel |
+|-----------|----------|------------------|----------|
+| **audio** | Speech-to-Text, TTS | LM00-LM04 (Erklär) | Text in Audio konvertieren |
+| **collaboration** | LiveRoom, Chat, Whiteboard | LM00-LM11 (Alle) | Gemeinsames Lernen |
+| **exam_systems** | ExamEngine, IHK-System | LM09-LM11 (Prüfung) | Offizielles Testformat |
+| **gamification** | XP, Badges, Quests | LM00-LM11 (Alle) | Motivation & Engagement |
+| **interactive_tools** | Calculator, FormulaEditor | LM06 (Mathe), LM05 (Code) | Spezifische Werkzeuge |
+| **it_environments** | CodeSandbox, VirtualLab | LM05 (Code), LM07 (IT) | Praktische Umgebung |
+| **learning_paths** | Curriculum, Roadmap | LM00-LM11 (Alle) | Strukturiertes Lernen |
+| **meta_features** | Timer, Bookmarks, Notes | LM00-LM11 (Alle) | Lern-Unterstützung |
+| **tutor** | NPC-Tutor, AI-Tutor | LM00-LM04 (Erklär) | KI-gestützte Hilfe |
+| **visualization** | 3D-Graphs, Diagrams, Maps | LM00-LM08 (Nicht Prüfung) | Visuelle Erklärungen |
+
+**Beispiel-Verkopplung:**
+```
+Lernmethode LM06 "Math Tasks" braucht:
+├─ Calculator          (interactive_tools)
+├─ FormulaEditor       (interactive_tools)
+├─ GraphPlotter        (visualization)
+├─ Timer               (meta_features)
+└─ AI-Tutor            (tutor) - optional für Hilfe
+```
+
+---
+
 ## 1. DDD 4-Layer Projektstruktur
 
 ### 📁 Komplette DDD Verzeichnisstruktur
@@ -78,10 +129,99 @@ Das Frontend folgt **Clean Architecture Prinzipien** mit klarer Trennung von:
 │   │   │   │   ├── LessonPlayer.vue
 │   │   │   │   └── ContentViewer.vue
 │   │   │   │
-│   │   │   ├── /learning                  # Learning Domain Components
-│   │   │   │   ├── FlashcardPlayer.vue
-│   │   │   │   ├── QuizEngine.vue
-│   │   │   │   └── ProgressTracker.vue
+│   │   │   ├── /learning-methods          # 🎓 LERNMETHODEN (LM00-LM11) + SYSTEM-FEATURES
+│   │   │   │   │
+│   │   │   │   ├── /group-a-explanation/  # Gruppe A: Erklärend (LM00-LM04)
+│   │   │   │   │   ├── TextExplanation.vue       # LM00
+│   │   │   │   │   ├── VideoExplanation.vue      # LM01
+│   │   │   │   │   ├── InteractiveExplanation.vue # LM02
+│   │   │   │   │   ├── DiagramVisualization.vue  # LM03
+│   │   │   │   │   ├── AnimationLesson.vue       # LM04
+│   │   │   │   │   └── /system-features/         # System Features für diese Gruppe
+│   │   │   │   │       ├── Whiteboard.vue         # Gemeinsames Zeichnen
+│   │   │   │   │       ├── AITutor.vue            # KI-Tutor für Hilfe
+│   │   │   │   │       ├── TextHighlight.vue      # Hervorhebungen
+│   │   │   │   │       └── VideoPlayer.vue        # Video-Wiedergabe
+│   │   │   │   │
+│   │   │   │   ├── /group-b-practice/    # Gruppe B: Praxis (LM05-LM08)
+│   │   │   │   │   ├── CodingPractice.vue        # LM05
+│   │   │   │   │   ├── MathTasks.vue             # LM06
+│   │   │   │   │   ├── InteractiveSim.vue        # LM07
+│   │   │   │   │   ├── Flashcards.vue            # LM08
+│   │   │   │   │   └── /system-features/         # System Features für diese Gruppe
+│   │   │   │   │       ├── CodeSandbox.vue        # Coding-Umgebung
+│   │   │   │   │       ├── Calculator.vue         # Rechner (Mathe)
+│   │   │   │   │       ├── FormulaEditor.vue      # Formeln-Editor
+│   │   │   │   │       ├── GraphPlotter.vue       # Graphen zeichnen
+│   │   │   │   │       ├── Debugger.vue           # Code-Debugger
+│   │   │   │   │       ├── Timer.vue              # Zeitmessung
+│   │   │   │   │       └── VirtualLab.vue         # Virtuelle Labore
+│   │   │   │   │
+│   │   │   │   └── /group-c-assessment/  # Gruppe C: Prüfung (LM09-LM11)
+│   │   │   │       ├── ExamSimulation.vue        # LM09
+│   │   │   │       ├── IHKExam.vue               # LM10
+│   │   │   │       ├── AdaptiveTest.vue          # LM11
+│   │   │   │       └── /system-features/         # System Features für diese Gruppe
+│   │   │   │           ├── ExamEngine.vue         # Prüfungs-Engine
+│   │   │   │           ├── Timer.vue              # Zeitmessung
+│   │   │   │           ├── Proctoring.vue         # Überwachung
+│   │   │   │           └── ResultAnalytics.vue    # Ergebnis-Analyse
+│   │   │   │
+│   │   │   ├── /system-features           # 🛠️ SYSTEM-FEATURES (Alle 25 Features)
+│   │   │   │   ├── /audio/                # Audio-Features
+│   │   │   │   │   ├── SpeechToText.vue
+│   │   │   │   │   ├── TextToSpeech.vue
+│   │   │   │   │   └── AudioRecorder.vue
+│   │   │   │   │
+│   │   │   │   ├── /collaboration/        # Zusammenarbeit
+│   │   │   │   │   ├── LiveRoom.vue       # Echtzeit-Klassenzimmer
+│   │   │   │   │   ├── Whiteboard.vue     # Gemeinsames Whiteboard
+│   │   │   │   │   ├── Chat.vue           # Live-Chat
+│   │   │   │   │   └── Polling.vue        # Live-Abstimmung
+│   │   │   │   │
+│   │   │   │   ├── /exam-systems/         # Prüfungs-Systeme
+│   │   │   │   │   ├── ExamEngine.vue     # Universelle Prüfungs-Engine
+│   │   │   │   │   └── IHKFormat.vue      # IHK-spezifisches Format
+│   │   │   │   │
+│   │   │   │   ├── /gamification/         # Spielifizierung
+│   │   │   │   │   ├── XPDisplay.vue
+│   │   │   │   │   ├── BadgesPanel.vue
+│   │   │   │   │   ├── QuestList.vue
+│   │   │   │   │   └── LeaderboardView.vue
+│   │   │   │   │
+│   │   │   │   ├── /interactive-tools/    # Interaktive Werkzeuge
+│   │   │   │   │   ├── Calculator.vue
+│   │   │   │   │   ├── FormulaEditor.vue
+│   │   │   │   │   ├── GraphPlotter.vue
+│   │   │   │   │   └── Geometry.vue
+│   │   │   │   │
+│   │   │   │   ├── /it-environments/      # IT-Umgebungen
+│   │   │   │   │   ├── CodeSandbox.vue
+│   │   │   │   │   ├── VirtualLab.vue
+│   │   │   │   │   ├── Debugger.vue
+│   │   │   │   │   └── TerminalEmulator.vue
+│   │   │   │   │
+│   │   │   │   ├── /meta-features/        # Meta-Features
+│   │   │   │   │   ├── Timer.vue
+│   │   │   │   │   ├── Bookmarks.vue
+│   │   │   │   │   ├── Notes.vue
+│   │   │   │   │   └── SearchHighlight.vue
+│   │   │   │   │
+│   │   │   │   ├── /tutor/                # KI-Tutor Features
+│   │   │   │   │   ├── NPCTutor.vue       # NPC-Tutor Avatar
+│   │   │   │   │   ├── AITutorChat.vue    # AI-Tutor Chat
+│   │   │   │   │   └── FeedbackSystem.vue # Intelligentes Feedback
+│   │   │   │   │
+│   │   │   │   ├── /visualization/        # Visualisierungen
+│   │   │   │   │   ├── 3DGraphs.vue
+│   │   │   │   │   ├── Diagrams.vue
+│   │   │   │   │   ├── MindMaps.vue
+│   │   │   │   │   └── AnimationVisualizer.vue
+│   │   │   │   │
+│   │   │   │   └── /learning-paths/       # Lernpfade
+│   │   │   │       ├── Curriculum.vue
+│   │   │   │       ├── Roadmap.vue
+│   │   │   │       └── ProgressTree.vue
 │   │   │   │
 │   │   │   ├── /social                    # Social Domain Components
 │   │   │   │   ├── PostCard.vue
@@ -416,6 +556,121 @@ Das Frontend folgt **Clean Architecture Prinzipien** mit klarer Trennung von:
 ├── tsconfig.json
 ├── tailwind.config.js
 └── package.json
+```
+
+---
+
+## 2. Lernmethoden & System Features - Services & Stores
+
+### 📦 Learning Methods Services
+
+Services für jede Lernmethoden-Gruppe:
+
+```typescript
+// src/application/services/learning-methods/
+
+├── GroupAExplanationService.ts    # LM00-LM04 Services
+│   ├── getTextExplanation()
+│   ├── getVideoExplanation()
+│   ├── getInteractiveExplanation()
+│   └── getSystemFeaturesFor(lm: 'LM00'|'LM01'|...)
+│       → ['whiteboard', 'ai-tutor', 'video-player', 'highlights']
+│
+├── GroupBPracticeService.ts        # LM05-LM08 Services
+│   ├── getCodingPractice()
+│   ├── getMathTasks()
+│   ├── getInteractiveSim()
+│   ├── getFlashcards()
+│   └── getSystemFeaturesFor(lm: 'LM05'|'LM06'|...)
+│       → ['code-sandbox', 'calculator', 'formula-editor', 'debugger', 'timer']
+│
+└── GroupCAssessmentService.ts     # LM09-LM11 Services
+    ├── getExamSimulation()
+    ├── getIHKExam()
+    ├── getAdaptiveTest()
+    └── getSystemFeaturesFor(lm: 'LM09'|'LM10'|...)
+        → ['exam-engine', 'timer', 'proctoring']
+```
+
+### 🛠️ System Features Services
+
+Services für jede Feature-Kategorie:
+
+```typescript
+// src/application/services/system-features/
+
+├── AudioService.ts                 # Speech-to-Text, TTS
+├── CollaborationService.ts         # LiveRoom, Whiteboard, Chat
+├── ExamSystemService.ts            # ExamEngine, IHK-Format
+├── GamificationService.ts          # XP, Badges, Quests
+├── InteractiveToolsService.ts      # Calculator, FormulaEditor, GraphPlotter
+├── ITEnvironmentService.ts         # CodeSandbox, VirtualLab, Debugger
+├── MetaFeaturesService.ts          # Timer, Bookmarks, Notes
+├── TutorService.ts                 # NPC-Tutor, AI-Tutor
+├── VisualizationService.ts         # 3D-Graphs, Diagrams
+└── LearningPathsService.ts         # Curriculum, Roadmap
+```
+
+### 🎯 Verkopplung im Service
+
+**Beispiel: MathTasks (LM06)**
+
+```typescript
+// src/application/services/learning-methods/GroupBPracticeService.ts
+
+export class GroupBPracticeService {
+  async getMathTasks(courseId: string) {
+    const lesson = await this.lessonRepo.findById(courseId)
+
+    // Definiere welche System Features für Mathe nötig sind
+    const requiredFeatures = this.getSystemFeaturesFor('LM06')
+    // → ['calculator', 'formula-editor', 'graph-plotter', 'timer']
+
+    // Lade die System Features
+    const features = await Promise.all(
+      requiredFeatures.map(f => this.systemFeaturesService.load(f))
+    )
+
+    return {
+      lesson,
+      systemFeatures: features,
+      renderer: MathTasksRenderer
+    }
+  }
+
+  private getSystemFeaturesFor(lm: string): string[] {
+    const FEATURE_MAP = {
+      'LM05': ['code-sandbox', 'debugger', 'timer'],
+      'LM06': ['calculator', 'formula-editor', 'graph-plotter', 'timer'],
+      'LM07': ['virtual-lab', 'simulation-engine'],
+      'LM08': ['timer', 'flashcard-engine']
+    }
+    return FEATURE_MAP[lm] || []
+  }
+}
+```
+
+### 📦 Pinia Stores für Lernmethoden
+
+```typescript
+// src/application/stores/modules/learning-methods/
+
+├── groupAExplanation.store.ts      # State für LM00-LM04
+│   ├── currentLesson
+│   ├── systemFeatures
+│   └── activeToolkit
+│
+├── groupBPractice.store.ts         # State für LM05-LM08
+│   ├── currentExercise
+│   ├── userProgress
+│   ├── systemFeatures
+│   └── timer
+│
+└── groupCAssessment.store.ts       # State für LM09-LM11
+    ├── currentExam
+    ├── timeRemaining
+    ├── systemFeatures
+    └── results
 ```
 
 ---

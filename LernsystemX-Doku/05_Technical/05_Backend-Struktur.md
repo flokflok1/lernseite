@@ -253,7 +253,42 @@ Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig complian
 │   │       ├── /ai_adapter                 # AI Integration
 │   │       ├── /social                     # Social Logic
 │   │       ├── /course_creation            # Course Creation Services
-│   │       ├── /learning_methods           # Learning Method Services
+│   │       ├── /learning_methods           # 📚 Learning Method Services (12 LM00-LM11)
+│   │       │   ├── __init__.py
+│   │       │   ├── group_a_explanation_service.py    # LM00-LM04 Services
+│   │       │   │   ├── get_whiteboard_lesson()      # LM00
+│   │       │   │   ├── get_tutor_explanation()      # LM01
+│   │       │   │   ├── get_theory_lesson()          # LM02
+│   │       │   │   ├── get_video_lesson()           # LM03
+│   │       │   │   └── get_story_based_lesson()     # LM04
+│   │       │   │
+│   │       │   ├── group_b_practice_service.py       # LM05-LM08 Services
+│   │       │   │   ├── get_quiz_exercise()          # LM05
+│   │       │   │   ├── get_drag_and_drop()          # LM06
+│   │       │   │   ├── get_math_practice()          # LM07
+│   │       │   │   └── get_coding_exercise()        # LM08
+│   │       │   │
+│   │       │   ├── group_c_assessment_service.py     # LM09-LM11 Services
+│   │       │   │   ├── get_quiz_assessment()        # LM09
+│   │       │   │   ├── get_exam_simulation()        # LM10
+│   │       │   │   └── get_comprehension_check()    # LM11
+│   │       │   │
+│   │       │   ├── learning_method_mapping.py        # Feature Mapping Registry
+│   │       │   │   ├── LEARNING_METHOD_TYPES        # LM00-LM11 Configuration
+│   │       │   │   ├── FEATURE_MAPPING              # System Features per LM
+│   │       │   │   ├── get_required_features()      # Feature Lookup
+│   │       │   │   └── validate_lm_execution()      # Validation
+│   │       │   │
+│   │       │   ├── learning_method_factory.py        # Factory Pattern
+│   │       │   │   ├── create_lesson_instance()     # Create LM Instance
+│   │       │   │   ├── load_features_for_lm()       # Load System Features
+│   │       │   │   └── initialize_execution_context() # Setup Context
+│   │       │   │
+│   │       │   └── learning_method_utils.py          # Utilities
+│   │       │       ├── validate_lm_id()
+│   │       │       ├── get_feature_requirements()
+│   │       │       └── validate_feature_availability()
+│   │       │
 │   │       ├── /moderation                 # Moderation Services
 │   │       ├── /user_management            # User Management Services
 │   │       ├── /export_import              # Import/Export Services
@@ -740,6 +775,452 @@ ORDER BY category;
 
 -- Ergebnis: 25 Features in 10 Kategorien (database-backed, nicht im Dateisystem organisiert)
 ```
+
+---
+
+## 1.6 Content-Lernmethoden Services (Application Layer)
+
+### 12 Content-Lernmethoden im Backend
+
+Die **12 Content-Lernmethoden (LM00-LM11)** sind im Application Services Layer nach **3 Gruppen** strukturiert:
+
+| Gruppe | IDs | Services | Fokus |
+|--------|-----|----------|-------|
+| **A** Erklärend | LM00-LM04 | `group_a_explanation_service.py` | Verständnis aufbauen (Whiteboard, Tutor, Video) |
+| **B** Praxis | LM05-LM08 | `group_b_practice_service.py` | Anwenden & Üben (Calculator, CodeSandbox, SimEnv) |
+| **C** Prüfung | LM09-LM11 | `group_c_assessment_service.py` | Kompetenz nachweisen (Timer, ExamEngine) |
+
+### Service-Layer-Struktur
+
+```python
+# app/services/learning_methods/
+
+├── __init__.py
+
+# Group A: Explanatory Methods (LM00-LM04)
+├── group_a_explanation_service.py
+│   ├── get_whiteboard_lesson(lesson_id: str) -> LessonWithWhiteboard
+│   ├── get_tutor_explanation(lesson_id: str) -> LessonWithTutorFeatures
+│   ├── get_video_lesson(lesson_id: str) -> LessonWithVideo
+│   ├── get_interactive_theory(lesson_id: str) -> LessonWithInteraction
+│   ├── get_deep_explanation(lesson_id: str) -> DetailedExplanation
+│   │
+│   └── _load_system_features_for_group_a(lesson: Lesson) -> dict
+│       # Lädt folgende System Features:
+│       # - whiteboard_engine (LM00-LM02)
+│       # - ai_tutor (LM01, LM03)
+│       # - video_streaming (LM02)
+│       # - visualization_tools (LM04)
+
+# Group B: Practice Methods (LM05-LM08)
+├── group_b_practice_service.py
+│   ├── get_drag_and_drop_exercise(lesson_id: str) -> DragDropExercise
+│   ├── get_math_practice(lesson_id: str) -> MathExercise
+│   ├── get_code_challenge(lesson_id: str) -> CodeChallenge
+│   ├── get_simulation_exercise(lesson_id: str) -> SimulationExercise
+│   │
+│   └── _load_system_features_for_group_b(lesson: Lesson) -> dict
+│       # Lädt folgende System Features:
+│       # - math_toolkit (LM06)
+│       # - code_sandbox (LM07)
+│       # - simulation_environment (LM08)
+│       # - interactive_tools (LM05)
+
+# Group C: Assessment Methods (LM09-LM11)
+├── group_c_assessment_service.py
+│   ├── get_quiz(lesson_id: str) -> Quiz
+│   ├── get_exam_simulation(lesson_id: str) -> ExamSimulation
+│   ├── get_comprehension_check(lesson_id: str) -> ComprehensionCheck
+│   │
+│   └── _load_system_features_for_group_c(lesson: Lesson) -> dict
+│       # Lädt folgende System Features:
+│       # - timer_system (LM09, LM10, LM11)
+│       # - ihk_exam_system (LM10)
+│       # - exam_simulation (LM10)
+
+# Learning Method Registry
+├── learning_method_mapping.py
+│   ├── LEARNING_METHOD_TYPES: Dict[int, LearningMethodConfig]
+│   ├── get_learning_method(lm_id: int) -> LearningMethodConfig
+│   ├── get_system_features_for_lm(lm_id: int) -> List[SystemFeature]
+│   └── create_lm_with_features(lm_id: int) -> LearningMethodInstance
+
+# Shared utilities
+└── learning_method_utils.py
+    ├── validate_lm_config(lm_id: int, config: dict) -> bool
+    ├── merge_lm_with_features(lm: LM, features: List[SF]) -> LearningExperience
+    └── get_lm_group(lm_id: int) -> str  # 'A' | 'B' | 'C'
+```
+
+### System-Features Kopplung pro Gruppe
+
+#### **Gruppe A: Erklärend (Verständnis aufbauen)**
+
+```python
+# group_a_explanation_service.py
+
+class GroupAExplanationService:
+    """LM00-LM04: Explanatory/Theory-based learning methods."""
+
+    # Mapping: Welche System Features werden für welche LM benötigt
+    FEATURE_MAPPING = {
+        'LM00_Whiteboard': ['whiteboard_engine', 'visualization_tools'],
+        'LM01_Tutor': ['ai_tutor', 'speech_to_text', 'text_to_speech'],
+        'LM02_Video': ['video_streaming', 'visualization_tools'],
+        'LM03_InteractiveTheory': ['interactive_tools', 'visualization_tools'],
+        'LM04_DeepExplanation': ['visualization_tools', 'ai_tutor']
+    }
+
+    def get_lesson_with_features(self, lesson_id: str, lm_type: str) -> dict:
+        """
+        Get lesson with all required system features for Group A.
+
+        Args:
+            lesson_id: ID of the lesson
+            lm_type: Learning method type (LM00, LM01, etc.)
+
+        Returns:
+            Lesson with loaded system features
+        """
+        lesson = self.lesson_repo.find_by_id(lesson_id)
+        required_features = self.FEATURE_MAPPING.get(lm_type, [])
+
+        # Load system features
+        features = {}
+        for feature_code in required_features:
+            features[feature_code] = self._load_feature(feature_code, lesson)
+
+        return {
+            'lesson': lesson,
+            'lm_type': lm_type,
+            'system_features': features,
+            'group': 'A_Explanatory'
+        }
+
+    def _load_feature(self, feature_code: str, lesson: Lesson) -> dict:
+        """Load a specific system feature for the lesson."""
+        feature_service = self.feature_services.get(feature_code)
+        if not feature_service:
+            return {}
+
+        return feature_service.prepare_for_lesson(lesson)
+```
+
+#### **Gruppe B: Praxis (Anwenden & Üben)**
+
+```python
+# group_b_practice_service.py
+
+class GroupBPracticeService:
+    """LM05-LM08: Practice/Exercise-based learning methods."""
+
+    FEATURE_MAPPING = {
+        'LM05_DragAndDrop': ['interactive_tools', 'gamification'],
+        'LM06_MathTasks': ['math_toolkit', 'calculator', 'formula_editor', 'timer_system'],
+        'LM07_CodeChallenge': ['code_sandbox', 'syntax_highlighter', 'debugger'],
+        'LM08_Simulation': ['simulation_environment', 'visualization_tools']
+    }
+
+    def get_practice_exercise(self, lesson_id: str, lm_type: str) -> dict:
+        """Get practice exercise with all required tools."""
+        lesson = self.lesson_repo.find_by_id(lesson_id)
+        required_features = self.FEATURE_MAPPING.get(lm_type, [])
+
+        # Example: Math Tasks (LM06) requires multiple system features
+        if lm_type == 'LM06_MathTasks':
+            features = {
+                'calculator': self.calculator_service.create_instance(),
+                'formula_editor': self.formula_editor_service.create_instance(),
+                'graph_plotter': self.graph_plotter_service.create_instance(),
+                'timer': self.timer_service.create_instance(duration=lesson.max_time)
+            }
+        else:
+            features = {}
+            for feature_code in required_features:
+                features[feature_code] = self._load_feature(feature_code)
+
+        return {
+            'lesson': lesson,
+            'lm_type': lm_type,
+            'system_features': features,
+            'group': 'B_Practice'
+        }
+```
+
+#### **Gruppe C: Prüfung (Kompetenz nachweisen)**
+
+```python
+# group_c_assessment_service.py
+
+class GroupCAssessmentService:
+    """LM09-LM11: Assessment/Exam-based learning methods."""
+
+    FEATURE_MAPPING = {
+        'LM09_Quiz': ['timer_system', 'gamification'],
+        'LM10_IHKExam': ['ihk_exam_system', 'timer_system', 'exam_engine'],
+        'LM11_ComprehensionCheck': ['timer_system', 'ai_tutor']
+    }
+
+    def get_assessment(self, lesson_id: str, lm_type: str) -> dict:
+        """Get assessment with all required exam/quiz features."""
+        lesson = self.lesson_repo.find_by_id(lesson_id)
+        required_features = self.FEATURE_MAPPING.get(lm_type, [])
+
+        features = {}
+        for feature_code in required_features:
+            features[feature_code] = self._load_feature(feature_code)
+
+        return {
+            'lesson': lesson,
+            'lm_type': lm_type,
+            'system_features': features,
+            'group': 'C_Assessment'
+        }
+```
+
+### API Endpoints für Lernmethoden
+
+```python
+# /api/v1/learning-methods
+
+# Get available learning methods for a lesson
+GET    /api/v1/learning-methods/lesson/:id/available
+       Response: { available_methods: [...], recommended: LM00 }
+
+# Get specific learning method with features
+GET    /api/v1/learning-methods/:lm_id/lesson/:id
+       Response: { method, system_features, group }
+
+# Execute learning method
+POST   /api/v1/learning-methods/:lm_id/execute
+       Request: { lesson_id, user_id, parameters }
+       Response: { instance_id, started_at, features_loaded }
+
+# Get learning method result
+GET    /api/v1/learning-methods/:instance_id/result
+       Response: { score, completion_time, feedback }
+
+# Admin: Get all learning methods
+GET    /api/v1/admin-panel/learning-methods
+       Response: { methods: [...], total: 12, groups: { A: 5, B: 4, C: 3 } }
+
+# Admin: Update learning method config
+PUT    /api/v1/admin-panel/learning-methods/:lm_id
+       Request: { name, config, system_features: [...] }
+       Response: { success, updated_at }
+```
+
+---
+
+## 1.7 Content-Lernmethoden ↔ System Features Integration Pattern
+
+### 📋 Übersicht - WICHTIG!
+
+**Architektur-Constraint (UNVERÄNDERLICH):**
+- **12 Content-Lernmethoden (LM00-LM11)** in 3 Gruppen (A: 5, B: 4, C: 3) = echte Lernmethoden
+- **25 System Features** (gesamt, siehe [02a_System-Features.md](../01_Core/02a_System-Features.md)) = unterstützende Technologien
+- **Davon: 22 Features sind Tier-basiert implementiert** (11 Free + 6 Premium + 4 Pro) = Ausführungsformen
+- **3 Features sind unabhängig** (timer_wrapper, mindmap_generator, learning_path_generator) oder haben andere Modelle
+
+**Das Pattern:** Content-Lernmethoden (12) sind gekoppelt mit System Features (25) über einen **Feature Registry** in der Application Layer. Die namensbasierte Kopplung ermöglicht flexible Umsetzung.
+
+### 🎯 Integration Pattern (Namensbasiert - FLEXIBEL)
+
+```python
+# app/application/services/learning_methods/learning_method_mapping.py
+
+# FEATURE_MAPPING zeigt welche System Features für jede Lernmethode erforderlich sind
+FEATURE_MAPPING = {
+    'flashcards': {
+        'features': ['card_system', 'spaced_repetition_engine'],
+        'required': True,
+        'tier': 'free',  # Verfügbar im kostenlosen Tier
+        'config': {
+            'max_cards_per_set': 500,
+            'supports_images': True,
+            'supports_audio': True
+        }
+    },
+
+    'whiteboard_ai': {
+        'features': ['whiteboard_engine', 'formula_recognition', 'visualization_tools', 'ai_annotation'],
+        'required': True,
+        'tier': 'pro',  # Nur in Pro-Tier verfügbar
+        'config': {
+            'max_users': 50,
+            'recording_enabled': True,
+            'ai_annotation': True
+        }
+    },
+
+    'math': {
+        'features': ['calculator', 'formula_editor', 'graph_plotter', 'timer'],
+        'required': True,
+        'tier': 'free',
+        'config': {
+            'calculator_mode': 'scientific',
+            'timeout_minutes': 60,
+            'allow_calculator': True
+        }
+    },
+
+    'ai_exam_simulation': {
+        'features': ['exam_system', 'timer', 'plagiarism_checker', 'anti_cheating_proctoring', 'ai_grading'],
+        'required': True,
+        'tier': 'pro',
+        'config': {
+            'proctoring': 'ai',
+            'allow_external_resources': False,
+            'auto_submit_timeout': True
+        }
+    }
+}
+
+# Service-Level Coupling
+class LearningMethodService:
+    """Service für alle namensbasierten Lernmethoden"""
+
+    def get_lesson(self, lesson_id: str, method_name: str):
+        """Erstelle Lesson mit gekoppelten System Features"""
+
+        # 1. Lade Lernmethoden-Konfiguration nach NAME (nicht ID!)
+        method_config = self.feature_registry.get_config(method_name)
+
+        # 2. Prüfe Tier-Zugang (User muss korrektes Abo haben)
+        if not self.user_has_tier(method_config['tier']):
+            raise ForbiddenError(f"Method {method_name} requires {method_config['tier']} tier")
+
+        # 3. Lade erforderliche System Features
+        features = self.feature_loader.load_features(
+            feature_codes=method_config['features'],
+            required=method_config['required']  # Wirft Error wenn Features fehlen
+        )
+
+        # 4. Konfiguriere Features
+        for feature in features:
+            feature.apply_config(method_config['config'])
+
+        # 5. Erstelle Lesson-Instanz mit Features
+        lesson = {
+            'id': lesson_id,
+            'method': method_name,  # Name, nicht ID!
+            'tier': method_config['tier'],
+            'features': {
+                feature_name: features[feature_name]
+                for feature_name in method_config['features']
+            },
+            'config': method_config['config'],
+            'available': all(f.is_available() for f in features.values())
+        }
+
+        return lesson
+```
+
+### 📊 System Features Implementations - Tier-basiert (22 von 25 Features)
+
+Diese 22 Features sind **Tier-basierte Implementierungen** von 22 der 25 System-Features. Sie werden über die namensbasierten Lernmethoden bereitgestellt. Sie sind **NICHT** die Content-LMs selbst, sondern Ausführungsformen/Konfigurationen der System-Features.
+
+**Hinweis:** Die restlichen 3 System-Features (timer_wrapper, mindmap_generator, learning_path_generator) sind nicht Tier-basiert oder haben andere Bereitstellungsmodelle. Alle 25 Features siehe [02a_System-Features.md](../01_Core/02a_System-Features.md).
+
+#### **FREE Tier** (11 System Features - Alle Users)
+| Feature Name | Unterstützte Content-LM | Kategorie | Use Case |
+|---|---|---|---|
+| **flashcards** | LM00-LM04 (Erklärend) | interactive_tools | Memorization |
+| **mcq** | LM05-LM08 (Praxis) | interactive_tools | Multiple Choice |
+| **fill_blanks** | LM05 (Praxis) | interactive_tools | Gap Filling |
+| **matching** | LM05 (Praxis) | interactive_tools | Pair Matching |
+| **drag_drop** | LM05 (Praxis) | interactive_tools | Interaction |
+| **math** | LM07 (Praxis) | interactive_tools | Math Practice |
+| **true_false** | LM05 (Praxis) | interactive_tools | True/False |
+| **sorting** | LM05 (Praxis) | interactive_tools | Ordering |
+| **image_quiz** | LM05 (Praxis) | visualization | Visual Quiz |
+| **audio_quiz** | LM05 (Praxis) | audio | Audio Quiz |
+| **video_quiz** | LM05 (Praxis) | visualization | Video Quiz |
+
+#### **PREMIUM Tier** (6 System Features - Zahlende Users)
+| Feature Name | Unterstützte Content-LM | Kategorie | Use Case |
+|---|---|---|---|
+| **spaced_repetition** | LM00-LM04 (Erklärend) | meta_features | Advanced Memorization |
+| **mind_maps** | LM02-LM04 (Erklärend) | visualization | Visual Organization |
+| **timeline** | LM02-LM03 (Erklärend) | visualization | Historical/Sequential |
+| **storytelling** | LM01-LM03 (Erklärend) | meta_features | Narrative Learning |
+| **mnemonics** | LM00-LM02 (Erklärend) | meta_features | Memory Techniques |
+| **peer_learning** | LM05-LM08 (Praxis) | collaboration | Collaborative Practice |
+
+#### **PRO Tier** (4 System Features - Advanced Users)
+| Feature Name | Unterstützte Content-LM | Kategorie | Use Case |
+|---|---|---|---|
+| **case_studies** | LM05-LM08 (Praxis) | learning_paths | Real-world Cases |
+| **role_play** | LM06-LM08 (Praxis) | interactive_tools | Simulation |
+| **ai_exam_simulation** | LM09-LM11 (Prüfung) | exam_systems | Practice Exams |
+| **whiteboard_ai** | LM00-LM01 (Erklärend) | tutor | Interactive Teaching |
+
+### 🔄 API Flow: Feature Loading Pattern
+
+```
+Request: GET /api/v1/learning-methods/lesson/abc123?method=math
+
+1. Route Handler (API Layer)
+   ↓ Validates user has access
+
+2. LearningMethodService (Application Layer)
+   ↓ get_lesson('abc123', 'math')
+
+3. Feature Registry Lookup (Application Service)
+   ↓ Retrieve config for 'math' method
+
+4. Tier Validation
+   ↓ Check if user_tier >= required_tier
+
+5. Feature Loader
+   ↓ load_features(['calculator', 'formula_editor', 'graph_plotter', 'timer'])
+
+6. Database/Cache (Infrastructure)
+   ↓ Load feature configurations
+
+7. Apply Configuration
+   ↓ Apply method-specific config to features
+
+8. Validation
+   ↓ Verify all required features available
+
+9. Response (API Layer)
+   ↓ Return lesson with features
+
+Response: {
+  id: "abc123",
+  method: "math",
+  tier: "free",
+  features: {
+    calculator: {...},
+    formula_editor: {...},
+    graph_plotter: {...},
+    timer: {...}
+  },
+  available: true
+}
+```
+
+### ✅ Vorteile des namensbasierten Ansatzes
+
+✅ **Flexibilität**: Neue Methoden können jederzeit hinzugefügt werden (kein LM00-LM11 Limit)
+✅ **Wartbarkeit**: Namen sind selbstdokumentierend (kein `LM06` rätsel)
+✅ **Skalierbar**: Nicht an 12 Methoden gebunden
+✅ **Lesbar**: `method_name='math'` statt `method_id=6`
+✅ **Tier-basiert**: Integration mit Free/Premium/Pro-Abos
+
+### 📝 Implementation Checklist
+
+- [ ] Feature Registry vollständig definiert (alle namensbasierten Methoden)
+- [ ] Tier-Validation implementiert (Free/Premium/Pro)
+- [ ] LearningMethodService implementiert
+- [ ] Feature Loading Pattern getestet
+- [ ] Tier-gating in API Endpoints
+- [ ] API Endpoints: GET /api/v1/learning-methods/lesson/:id?method=:name
+- [ ] Feature Availability Check
+- [ ] Cache Strategy für Method Configs
+- [ ] Error Handling bei Tier-Mismatch
+- [ ] Dokumentation aktualisiert
 
 ---
 

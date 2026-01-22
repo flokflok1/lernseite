@@ -17,7 +17,7 @@ import type {
   SyncStatistics,
   ResolutionUpdate,
   ComparisonItem
-} from '@/presentation/components/admin-panel/i18n-sync/types/sync.types'
+} from '@/presentation/components/admin/translations/types/sync.types'
 
 /**
  * Main composable for managing i18n sync state and operations

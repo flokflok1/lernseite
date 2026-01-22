@@ -15,8 +15,8 @@ import type {
   RoleStudioMode,
   CreateRoleStudioRequest,
   RoleChangeHistory,
-  StudioConfigResponse
-} from '@/presentation/components/admin-panel/role-studio/types'
+  StudioConfig as StudioConfigResponse
+} from '@/presentation/components/role-studio.types'
 
 const BASE_URL = '/admin/role-studio'
 

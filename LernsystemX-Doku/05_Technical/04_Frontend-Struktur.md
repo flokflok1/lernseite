@@ -1222,12 +1222,14 @@ Die folgende Arbeit wurde durchgeführt, um das Admin Panel zu formalisieren und
 │       │   ├── RoleAssignment.vue        # Assign roles to users
 │       │   └── UserSearch.vue            # Advanced search
 │       │
-│       ├── /roles                        # 🔐 Role Management
-│       │   ├── RoleList.vue              # List all roles
-│       │   ├── RoleDetail.vue            # View/edit role
-│       │   ├── PermissionMatrix.vue      # Permission assignment
-│       │   ├── RoleForm.vue              # Create/edit role
-│       │   └── RoleTemplate.vue          # Pre-defined role templates
+│       ├── /groups                       # 👥 Group Management (GBA)
+│       │   ├── GroupsManagement.vue      # Main groups interface
+│       │   ├── GroupList.vue             # List all groups
+│       │   ├── GroupDetail.vue           # View/edit group
+│       │   ├── GroupMembers.vue          # Manage group members
+│       │   ├── GroupPermissions.vue      # Permission assignment
+│       │   ├── GroupForm.vue             # Create/edit group
+│       │   └── GroupTemplate.vue         # Pre-defined group templates
 │       │
 │       ├── /organisations                # 🏢 Organisation Management
 │       │   ├── OrgList.vue               # List organisations
@@ -1316,7 +1318,7 @@ Die folgende Arbeit wurde durchgeführt, um das Admin Panel zu formalisieren und
     └── /admin
         ├── AdminDashboardPage.vue        # Dashboard page
         ├── AdminUsersPage.vue            # Users management page
-        ├── AdminRolesPage.vue            # Roles management page
+        ├── AdminGroupsPage.vue           # Groups management page (GBA)
         ├── AdminOrganisationsPage.vue    # Organisations page
         ├── AdminCoursesPage.vue          # Course management page
         ├── AdminCategoriesPage.vue       # Categories page

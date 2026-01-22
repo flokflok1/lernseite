@@ -40,18 +40,50 @@ export type {
 // Authentication API Export
 // ============================================================================
 
-// NOTE: Authentication API functions are not yet fully migrated
-// TODO: Implement auth functions (login, register, logout, refreshToken, getUserProfile) in auth.api.ts
+export {
+  login,
+  register,
+  logout,
+  refreshToken,
+  getUserProfile,
+  type LoginRequest,
+  type LoginResponse,
+  type RegisterRequest,
+  type RegisterResponse,
+  type User,
+  type UserProfileResponse
+} from './auth.api'
 
 // ============================================================================
 // Profile API Export
 // ============================================================================
 
-// NOTE: Profile API functions are not yet fully migrated
-// TODO: Implement profile functions in profile.api.ts:
-// - changePassword, deleteAccount, deletePanelSize, getProfile, getProfileStats
-// - getPanelSizes, getThemePreference, getUserPreferences, resetUserPreferences
-// - updatePanelSize, updateProfile, updateThemePreference
+export {
+  getProfile,
+  updateProfile,
+  changePassword,
+  getProfileStats,
+  deleteAccount,
+  getThemePreference,
+  updateThemePreference,
+  getUserPreferences,
+  getWindowSizes,
+  updateWindowSize,
+  deleteWindowSize,
+  resetUserPreferences,
+  type ProfileResponse,
+  type ProfileStatsResponse,
+  type UpdateProfileRequest,
+  type ChangePasswordRequest,
+  type ThemePreferenceResponse,
+  type UpdateThemePreferenceRequest,
+  type UserPreferences,
+  type PanelSize,
+  type PanelSizesMap,
+  type PanelSizesResponse,
+  type PreferencesResponse,
+  type UpdateThemePreferenceRequest
+} from './profile.api'
 
 // ============================================================================
 // Dashboard APIs

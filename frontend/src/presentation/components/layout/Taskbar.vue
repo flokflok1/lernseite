@@ -35,25 +35,25 @@ import type { LsxWindow as _LsxWindow } from '@/application/stores/window.store'
 
 const windowStore = useWindowStore()
 
-const windows = computed(() => windowStore.windows)
+const windows = computed(() => windowStore.panels)
 const activeWindowId = computed(() => windowStore.activeWindowId)
 
 /**
  * Handle taskbar item click
  */
 function handleTaskbarItemClick(windowId: string): void {
-  const window = windowStore.getWindowById(windowId)
+  const window = windowStore.getPanelById(windowId)
   if (!window) return
 
   if (window.minimized) {
     // Restore minimized window
-    windowStore.restoreWindow(windowId)
+    windowStore.restorePanel(windowId)
   } else if (windowStore.activeWindowId === windowId) {
     // Minimize if clicking active window
-    windowStore.minimizeWindow(windowId)
+    windowStore.minimizePanel(windowId)
   } else {
     // Focus window
-    windowStore.focusWindow(windowId)
+    windowStore.focusPanel(windowId)
   }
 }
 

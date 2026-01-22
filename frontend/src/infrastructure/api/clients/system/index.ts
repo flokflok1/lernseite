@@ -51,29 +51,75 @@ export type {
 // ============================================================================
 // Setup API Export
 // ============================================================================
-
-// NOTE: Setup APIs are not yet fully migrated to infrastructure layer
-// TODO: Implement setup functions in setup.api.ts:
-// - getSetupStatus, runSystemCheck, initializeDatabase
-// - createAdmin, createOrganisation, configureAI
-// - seedData, getSeedStatus, verifySetup, completeInstallation
-// - getEnvironmentInfo, updateEnvironmentConfig
+export {
+  getSetupStatus,
+  getEnvironmentInfo,
+  configureEnvironment,
+  runSystemCheck,
+  initDatabase,
+  createAdmin,
+  createOrganisation,
+  configureAI,
+  seedData,
+  getSeedStatus,
+  verifyInstallation,
+  completeInstallation,
+  getSystemInfo,
+  type SetupStatusResponse,
+  type InstallInfo,
+  type SystemCheckResult,
+  type SystemCheckResponse,
+  type DatabaseInitResponse,
+  type AdminCreateRequest,
+  type AdminCreateResponse,
+  type OrganisationCreateRequest,
+  type OrganisationCreateResponse,
+  type AIConfigRequest,
+  type AIConfigResponse,
+  type SeedDataRequest,
+  type SeedDataResponse,
+  type SeedStatusResponse,
+  type VerificationResponse,
+  type CompleteInstallationResponse,
+  type EnvironmentInfoResponse,
+  type EnvironmentConfigRequest,
+  type EnvironmentConfigResponse
+} from './setup.api'
 
 // ============================================================================
 // i18n API Export
 // ============================================================================
 export {
   getBundle,
+  getLanguages,
   getLanguageProgress,
-  getTranslations,
-  suggestTranslation,
+  submitSuggestion,
+  getSuggestions,
+  voteSuggestion,
+  requestTranslation,
+  getModerationDashboard,
   getModerationQueue,
-  approveSuggestion,
-  rejectSuggestion,
+  reviewQueueItem,
+  triggerAiReview,
+  getAiConfig,
+  updateAiConfig,
+  invalidateCache,
   getNamespaces,
-  getNamespaceKeys,
-  updateTranslation,
-  syncTranslations
+  getKeys,
+  getKeyTranslations,
+  createKey,
+  setTranslation,
+  aiTranslate,
+  aiTranslateBulk,
+  seedKeys,
+  createLanguage,
+  updateLanguage,
+  deleteLanguage,
+  type LanguageProgress,
+  type TranslationSuggestion,
+  type ModerationQueueItem,
+  type I18nNamespace,
+  type I18nKey
 } from './i18n.api'
 
 // ============================================================================

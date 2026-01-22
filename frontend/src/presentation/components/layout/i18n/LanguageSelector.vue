@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useTranslation } from '@/composables/useTranslation'
+import { useTranslation } from '@/application/composables/useTranslation'
 import type { LanguageProgress } from '@/infrastructure/api/i18n.api'
 
 // Props

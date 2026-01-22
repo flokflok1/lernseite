@@ -8,11 +8,11 @@ Permission and role management:
 """
 
 from .permission import PermissionService
-from .roles import RolesService
 from .studio import RoleStudioService
+
+# PHASE B: RolesService removed (replaced with Groups system)
 
 __all__ = [
     'PermissionService',
-    'RolesService',
     'RoleStudioService',
 ]

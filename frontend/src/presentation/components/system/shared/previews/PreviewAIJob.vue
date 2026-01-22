@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LsxWindow } from '@/store/window.store'
+import type { LsxWindow } from '@/application/stores/window.store'
 
 interface Props {
   window: LsxWindow

@@ -10,7 +10,7 @@
  * Phase: DB-Zentriertes KI-Authoring (2025-12)
  */
 
-import http from './http'
+import http from '../http'
 
 // ============================================================================
 // Types & Interfaces

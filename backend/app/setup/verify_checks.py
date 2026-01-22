@@ -30,7 +30,7 @@ class VerificationChecks:
     # Tables with schema prefixes (schema.table format)
     REQUIRED_TABLES = [
         ('core', 'users'),
-        ('core', 'roles'),
+        ('core', 'groups'),
         ('core', 'permissions'),
         ('organisations', 'organisations'),
         ('courses', 'courses'),
@@ -206,42 +206,45 @@ class VerificationChecks:
             }
 
     @staticmethod
-    def check_roles() -> Dict:
-        """Check user roles are seeded"""
+    def check_groups() -> Dict:
+        """Check system groups are configured (PHASE B: Groups replace Roles)"""
         try:
-            count = fetch_one("SELECT COUNT(*) FROM core.roles")
-            role_count = count['count'] if count else 0
+            count = fetch_one("SELECT COUNT(*) FROM core.groups")
+            group_count = count['count'] if count else 0
 
-            if role_count == 0:
+            if group_count == 0:
                 return {
                     'passed': False,
-                    'message': 'No roles found in database'
+                    'message': 'No groups found in database'
                 }
 
-            # Check critical roles exist
-            critical_roles = ['free', 'premium', 'admin']
-            existing_roles = fetch_all("SELECT role_name FROM core.roles WHERE role_name = ANY(%s)", (critical_roles,))
-            existing_role_names = {row['role_name'] for row in existing_roles}
+            # Check critical system groups exist
+            critical_groups = ['system-admin', 'system-users', 'premium-members']
+            existing_groups = fetch_all(
+                "SELECT slug FROM core.groups WHERE slug = ANY(%s)",
+                (critical_groups,)
+            )
+            existing_group_slugs = {row['slug'] for row in existing_groups}
 
-            missing_critical = set(critical_roles) - existing_role_names
+            missing_critical = set(critical_groups) - existing_group_slugs
 
             if missing_critical:
                 return {
                     'passed': False,
-                    'message': f'Missing critical roles: {", ".join(missing_critical)}',
+                    'message': f'Missing critical groups: {", ".join(missing_critical)}',
                     'details': {'missing': list(missing_critical)}
                 }
 
             return {
                 'passed': True,
-                'message': f'{role_count} roles configured',
-                'details': {'role_count': role_count}
+                'message': f'{group_count} groups configured',
+                'details': {'group_count': group_count}
             }
 
         except Exception as e:
             return {
                 'passed': False,
-                'message': f'Roles check failed: {str(e)}'
+                'message': f'Groups check failed: {str(e)}'
             }
 
     @staticmethod
@@ -273,31 +276,56 @@ class VerificationChecks:
 
     @staticmethod
     def check_admin_account() -> Dict:
-        """Check admin account exists"""
+        """Check admin account exists (PHASE B: Uses is_owner flag + system-admin group)"""
         try:
             admin = fetch_one(
                 """
-                SELECT u.user_id, u.email, u.firstname, u.lastname
+                SELECT u.user_id, u.email, u.firstname, u.lastname, u.is_owner
                 FROM core.users u
-                JOIN core.roles r ON u.role_id = r.role_id
-                WHERE r.role_name = %s
-                """,
-                ('admin',)
+                WHERE u.is_owner = true
+                LIMIT 1
+                """
             )
 
             if not admin:
                 return {
                     'passed': False,
-                    'message': 'No admin account found'
+                    'message': 'No admin account found (no user with is_owner=true)'
+                }
+
+            # Verify admin is also in system-admin group
+            group_membership = fetch_one(
+                """
+                SELECT ug.user_id
+                FROM core.users_groups ug
+                JOIN core.groups g ON ug.group_id = g.group_id
+                WHERE ug.user_id = %s AND g.slug = %s
+                """,
+                (admin['user_id'], 'system-admin')
+            )
+
+            if not group_membership:
+                return {
+                    'passed': True,
+                    'message': f'Admin account exists but not in system-admin group: {admin["email"]}',
+                    'warnings': ['Admin user should be added to system-admin group'],
+                    'details': {
+                        'user_id': admin['user_id'],
+                        'email': admin['email'],
+                        'name': f"{admin['firstname']} {admin['lastname']}",
+                        'is_owner': admin['is_owner']
+                    }
                 }
 
             return {
                 'passed': True,
-                'message': f'Admin account exists: {admin["email"]}',
+                'message': f'Admin account exists and configured: {admin["email"]}',
                 'details': {
                     'user_id': admin['user_id'],
                     'email': admin['email'],
-                    'name': f"{admin['firstname']} {admin['lastname']}"
+                    'name': f"{admin['firstname']} {admin['lastname']}",
+                    'is_owner': admin['is_owner'],
+                    'group': 'system-admin'
                 }
             }
 

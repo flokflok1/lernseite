@@ -257,9 +257,16 @@ export class User {
       throw new Error('Invalid user data: expected object')
     }
 
+    // Debug: Log incoming data structure
+    console.log('[User.fromAPI] Incoming API data:', {
+      keys: Object.keys(data),
+      data: data
+    })
+
     // Extract fields with fallbacks for both naming conventions
+    const id = data.id || data.user_id
     const email = data.email || data.email_address
-    const username = data.username || data.user_name
+    const username = data.username || data.user_name || email  // Use email as fallback
     const firstName = data.firstName || data.first_name
     const lastName = data.lastName || data.last_name
     const role = data.role || data.role_type
@@ -268,8 +275,18 @@ export class User {
     const updatedAt = data.updatedAt || data.updated_at
     const lastLogin = data.lastLogin || data.last_login
 
+    // Debug: Log extracted fields
+    console.log('[User.fromAPI] Extracted fields:', {
+      id: { type: typeof id, value: id },
+      email: { type: typeof email, value: email },
+      username: { type: typeof username, value: username },
+      firstName: { type: typeof firstName, value: firstName },
+      lastName: { type: typeof lastName, value: lastName },
+      role: { type: typeof role, value: role }
+    })
+
     // Validate required fields
-    if (!data.id) throw new Error('User data missing required field: id')
+    if (!id) throw new Error('User data missing required field: id')
     if (!email) throw new Error('User data missing required field: email')
     if (!username) throw new Error('User data missing required field: username')
     if (!firstName) throw new Error('User data missing required field: firstName')
@@ -277,7 +294,7 @@ export class User {
     if (!role) throw new Error('User data missing required field: role')
 
     return new User(
-      data.id,
+      id,
       Email.create(email),
       username,
       firstName,

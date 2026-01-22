@@ -1,11 +1,12 @@
 """
 Permission Repository - Database-driven Permission Checking
 
-RBAC 2.0: Uses PostgreSQL functions instead of hardcoded role matrices.
-Queries core.role_permissions and core.user_permissions tables.
+Uses PostgreSQL functions for permission checking.
+All permission checks use database-stored permission relationships via PostgreSQL functions.
 
-This replaces the old hardcoded ROLE_PERMISSIONS dictionary in permissions.py.
-All permission checks now use database-stored role-permission relationships.
+PHASE B: Removed role-based methods (get_role_permissions, assign_permission_to_role,
+revoke_permission_from_role) that queried deleted core.role_permissions table.
+Now uses group-based authorization model.
 """
 
 from typing import Optional, Set
@@ -93,101 +94,7 @@ class PermissionRepository(BaseRepository):
             logging.error(f"Error fetching permissions for user {user_id}: {e}")
             return set()
 
-    @classmethod
-    def get_role_permissions(cls, role_id: int) -> Set[str]:
-        """
-        Get all permissions assigned to a specific role.
-
-        Args:
-            role_id: ID of the role
-
-        Returns:
-            Set of permission keys assigned to this role
-
-        Example:
-            >>> perms = PermissionRepository.get_role_permissions(role_id=9)  # admin
-            >>> 'admin:users' in perms
-            True
-        """
-        try:
-            results = fetch_all(
-                """
-                SELECT DISTINCT p.permission_key
-                FROM core.role_permissions rp
-                JOIN core.permissions p ON rp.permission_id = p.permission_id
-                WHERE rp.role_id = %s
-                ORDER BY p.permission_key
-                """,
-                (role_id,)
-            )
-            return {row.get('permission_key') for row in results if row}
-        except Exception as e:
-            import logging
-            logging.error(f"Error fetching permissions for role {role_id}: {e}")
-            return set()
-
-    @classmethod
-    def assign_permission_to_role(cls, role_id: int, permission_key: str) -> bool:
-        """
-        Assign a permission to a role.
-
-        Args:
-            role_id: ID of the role
-            permission_key: Key of the permission to assign
-
-        Returns:
-            True if assigned successfully, False otherwise
-        """
-        try:
-            from app.infrastructure.persistence.database.connection import execute_query
-
-            result = execute_query(
-                """
-                INSERT INTO core.role_permissions (role_id, permission_id)
-                SELECT %s, permission_id FROM core.permissions
-                WHERE permission_key = %s
-                ON CONFLICT DO NOTHING
-                """,
-                (role_id, permission_key)
-            )
-            return True
-        except Exception as e:
-            import logging
-            logging.error(
-                f"Error assigning permission {permission_key} to role {role_id}: {e}"
-            )
-            return False
-
-    @classmethod
-    def revoke_permission_from_role(cls, role_id: int, permission_key: str) -> bool:
-        """
-        Revoke a permission from a role.
-
-        Args:
-            role_id: ID of the role
-            permission_key: Key of the permission to revoke
-
-        Returns:
-            True if revoked successfully, False otherwise
-        """
-        try:
-            from app.infrastructure.persistence.database.connection import execute_query
-
-            execute_query(
-                """
-                DELETE FROM core.role_permissions
-                WHERE role_id = %s AND permission_id = (
-                    SELECT permission_id FROM core.permissions
-                    WHERE permission_key = %s
-                )
-                """,
-                (role_id, permission_key)
-            )
-            return True
-        except Exception as e:
-            import logging
-            logging.error(
-                f"Error revoking permission {permission_key} from role {role_id}: {e}"
-            )
-            return False
+    # PHASE B: Removed role-based methods (get_role_permissions, assign_permission_to_role,
+    # revoke_permission_from_role) that queried deleted core.role_permissions table.
+    # These are no longer needed in group-based authorization model.
 

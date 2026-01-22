@@ -10,6 +10,7 @@ import type {
   AdminLearningMethodCreateRequest,
   AdminLearningMethodUpdateRequest
 } from './types'
+import type { UISchema } from '@/infrastructure/utils/i18nResolver'
 
 export const adminGetLearningMethodTypes = async (): Promise<LearningMethodTypesResponse> => {
   const response = await http.get<LearningMethodTypesResponse>(
@@ -98,4 +99,14 @@ export const adminUnpublishLearningMethod = async (
     message: string
   }>(`/admin/learning-methods/${methodId}/unpublish`)
   return response.data.learning_method
+}
+
+export const adminGetLearningMethodUISchema = async (
+  code: number
+): Promise<UISchema> => {
+  const response = await http.get<{
+    success: boolean
+    schema: UISchema
+  }>(`/admin/learning-method-types/${code}/schema`)
+  return response.data.schema
 }

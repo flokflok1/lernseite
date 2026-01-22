@@ -41,9 +41,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import { useWindowStore } from '@/application/stores/modules/desktop'
 import type { WindowType } from '@/application/stores/modules/desktop'
+import { SchemaFormComponent } from '@/presentation/components/base'
+import { adminGetLearningMethodUISchema } from '@/infrastructure/api/admin/learning-methods.api'
+import type { UISchema } from '@/infrastructure/utils/i18nResolver'
 import WindowComponent from './WindowComponent.vue'
 import Taskbar from './Taskbar.vue'
 
@@ -79,22 +82,23 @@ const AdminExamManagerWindow = defineAsyncComponent(() => import('@/presentation
 const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/presentation/components/base/system/admin/views/FilePreviewWindow.vue'))
 const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentation/components/base/system/admin/views/WindowManagerWindow.vue'))
 
-// Learning Method Forms (12 Content-LMs: 00-11) - Updated 2026-01-11
-// LM12-32 deleted (were System-Features, not Content-LMs)
-const LearningMethodFormComponents: Record<number, ReturnType<typeof defineAsyncComponent>> = {
-  0: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod00Form.vue')),
-  1: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod01Form.vue')),
-  2: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod02Form.vue')),
-  3: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod03Form.vue')),
-  4: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod04Form.vue')),
-  5: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod05Form.vue')),
-  6: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod06Form.vue')),
-  7: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod07Form.vue')),
-  8: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod08Form.vue')),
-  9: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod09Form.vue')),
-  10: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod10Form.vue')),
-  11: defineAsyncComponent(() => import('@/presentation/components/base/content/admin/learning-methods/forms/LearningMethod11Form.vue'))
-}
+/**
+ * Schema cache for learning method forms
+ * Maps learning method code (0-11) to fetched UISchema
+ */
+const schemaCache = ref<Record<number, UISchema>>({})
+
+/**
+ * Track which schemas are currently being fetched
+ * Prevents duplicate API calls
+ */
+const loadingSchemas = ref<Set<number>>(new Set())
+
+/**
+ * Store errors from schema fetch operations
+ * Maps learning method code to error message
+ */
+const schemaErrors = ref<Record<number, string>>({})
 
 const windowStore = useWindowStore()
 
@@ -102,15 +106,157 @@ const visibleWindows = computed(() => windowStore.visibleWindows)
 const activeWindowId = computed(() => windowStore.activeWindowId)
 
 /**
+ * Fetch and cache learning method UISchema
+ *
+ * Implements intelligent caching:
+ * - Returns cached schema if available
+ * - Prevents duplicate API calls via loadingSchemas tracking
+ * - Stores errors for later retrieval
+ *
+ * @param code - Learning method code (0-11)
+ * @returns Promise<UISchema | null> - Schema or null if error
+ */
+async function fetchLearningMethodSchema(code: number): Promise<UISchema | null> {
+  // Return cached schema if available
+  if (schemaCache.value[code]) {
+    return schemaCache.value[code]
+  }
+
+  // Prevent duplicate API calls if already loading
+  if (loadingSchemas.value.has(code)) {
+    // Wait for existing fetch to complete
+    let attempts = 0
+    while (loadingSchemas.value.has(code) && attempts < 100) {
+      await new Promise(resolve => setTimeout(resolve, 50))
+      attempts++
+      // Check if now cached
+      if (schemaCache.value[code]) {
+        return schemaCache.value[code]
+      }
+    }
+    // If error was stored, return null
+    if (schemaErrors.value[code]) {
+      return null
+    }
+    return schemaCache.value[code] || null
+  }
+
+  // Mark as loading
+  loadingSchemas.value.add(code)
+
+  try {
+    // Fetch schema from API
+    const schema = await adminGetLearningMethodUISchema(code)
+
+    // Cache the schema
+    schemaCache.value[code] = schema
+
+    // Clear any previous error
+    delete schemaErrors.value[code]
+
+    return schema
+  } catch (error) {
+    // Store error message
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error fetching schema'
+    schemaErrors.value[code] = errorMsg
+
+    console.error(`Failed to fetch schema for learning method ${code}:`, error)
+
+    return null
+  } finally {
+    // Mark as no longer loading
+    loadingSchemas.value.delete(code)
+  }
+}
+
+/**
  * Resolve window component based on type
  */
 function resolveWindowComponent(type: WindowType) {
-  // Handle learning method forms (12 Content-LMs: 0-11) via explicit mapping
+  // Handle learning method forms (12 Content-LMs: 0-11) with dynamic schema fetching
   if (type.startsWith('learning-method-') && type.endsWith('-form')) {
     const codeStr = type.replace('learning-method-', '').replace('-form', '')
     const code = parseInt(codeStr, 10)
-    if (!isNaN(code) && code >= 0 && code <= 11 && LearningMethodFormComponents[code]) {
-      return LearningMethodFormComponents[code]
+
+    // Validate learning method code is numeric (no strict range check anymore)
+    if (!isNaN(code) && code >= 0) {
+      // Return wrapper component that handles schema fetching and rendering
+      return defineAsyncComponent({
+        loader: async () => {
+          const schema = await fetchLearningMethodSchema(code)
+
+          if (!schema) {
+            // Return error component if schema fetch failed
+            return {
+              template: `
+                <div class="p-4 bg-red-50 border border-red-200 rounded">
+                  <p class="text-red-900 font-semibold">{{ $t('errors.formLoadFailed') }}</p>
+                  <p class="text-red-700 text-sm mt-2">{{ error }}</p>
+                </div>
+              `,
+              data() {
+                return {
+                  error: schemaErrors.value[code] || 'Unknown error'
+                }
+              }
+            }
+          }
+
+          // Return SchemaFormComponent configured for this schema
+          return {
+            components: { SchemaFormComponent },
+            template: `
+              <SchemaFormComponent
+                :schema="schema"
+                :modelValue="formData"
+                :showCancelButton="true"
+                submitLabel="common.save"
+                @update:modelValue="updateFormData"
+                @submit="handleSubmit"
+                @cancel="handleCancel"
+              />
+            `,
+            props: ['window'],
+            emits: ['close'],
+            data() {
+              return {
+                schema: schema,
+                formData: {}
+              }
+            },
+            methods: {
+              updateFormData(data: Record<string, any>) {
+                this.formData = data
+              },
+              handleSubmit(data: Record<string, any>) {
+                console.log('Learning method form submitted:', {
+                  code,
+                  data
+                })
+                // TODO: Task #10 - Submit to backend API
+                this.$emit('close')
+              },
+              handleCancel() {
+                this.$emit('close')
+              }
+            }
+          }
+        },
+
+        loadingComponent: {
+          template: `
+            <div class="flex items-center justify-center p-12 min-h-[300px]">
+              <div class="flex flex-col items-center gap-3">
+                <div class="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                <p class="text-gray-600 text-sm">{{ $t('common.loading') }}</p>
+              </div>
+            </div>
+          `
+        },
+
+        delay: 200,          // Show loading indicator after 200ms of waiting
+        timeout: 10000       // Timeout if schema takes >10 seconds to load
+      })
     }
   }
 

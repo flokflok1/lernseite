@@ -16,51 +16,52 @@
  * Fallback: Always German (de)
  */
 
-import { createI18n } from 'vue-i18n'
+import { createI18n, useI18n } from 'vue-i18n'
 import type { App } from 'vue'
+import { initializeSchemaI18n } from '@/application/composables/useSchemaI18n'
 
 // =============================================================================
 // Import locale modules (organized by language/domain in infrastructure layer)
 // =============================================================================
 
 // German (de)
-import deCommon from '@/infrastructure/i18n/de/common'
-import deErrors from '@/infrastructure/i18n/de/errors'
-import deDashboard from '@/infrastructure/i18n/de/dashboard'
-import deSetup from '@/infrastructure/i18n/de/setup'
-import deTutor from '@/infrastructure/i18n/de/tutor'
-import deLegal from '@/infrastructure/i18n/de/legal'
+import deCommon from '@/infrastructure/i18n/locales/de/common'
+import deErrors from '@/infrastructure/i18n/locales/de/errors'
+import deDashboard from '@/infrastructure/i18n/locales/de/dashboard'
+import deSetup from '@/infrastructure/i18n/locales/de/setup'
+import deTutor from '@/infrastructure/i18n/locales/de/tutor'
+import deLegal from '@/infrastructure/i18n/locales/de/legal'
 
-import deAdmin from '@/infrastructure/i18n/de/admin'
-import deAiEditor from '@/infrastructure/i18n/de/aiEditor'
-import deCourses from '@/infrastructure/i18n/de/courses'
-import deFeatures from '@/infrastructure/i18n/de/features'
+import deAdmin from '@/infrastructure/i18n/locales/de/admin'
+import deAiEditor from '@/infrastructure/i18n/locales/de/aiEditor'
+import deCourses from '@/infrastructure/i18n/locales/de/courses'
+import deFeatures from '@/infrastructure/i18n/locales/de/features'
 
 // English (en)
-import enCommon from '@/infrastructure/i18n/en/common'
-import enErrors from '@/infrastructure/i18n/en/errors'
-import enDashboard from '@/infrastructure/i18n/en/dashboard'
-import enSetup from '@/infrastructure/i18n/en/setup'
-import enTutor from '@/infrastructure/i18n/en/tutor'
-import enLegal from '@/infrastructure/i18n/en/legal'
+import enCommon from '@/infrastructure/i18n/locales/en/common'
+import enErrors from '@/infrastructure/i18n/locales/en/errors'
+import enDashboard from '@/infrastructure/i18n/locales/en/dashboard'
+import enSetup from '@/infrastructure/i18n/locales/en/setup'
+import enTutor from '@/infrastructure/i18n/locales/en/tutor'
+import enLegal from '@/infrastructure/i18n/locales/en/legal'
 
-import enAdmin from '@/infrastructure/i18n/en/admin'
-import enAiEditor from '@/infrastructure/i18n/en/aiEditor'
-import enCourses from '@/infrastructure/i18n/en/courses'
-import enFeatures from '@/infrastructure/i18n/en/features'
+import enAdmin from '@/infrastructure/i18n/locales/en/admin'
+import enAiEditor from '@/infrastructure/i18n/locales/en/aiEditor'
+import enCourses from '@/infrastructure/i18n/locales/en/courses'
+import enFeatures from '@/infrastructure/i18n/locales/en/features'
 
 // Polish (pl)
-import plCommon from '@/infrastructure/i18n/pl/common'
-import plErrors from '@/infrastructure/i18n/pl/errors'
-import plDashboard from '@/infrastructure/i18n/pl/dashboard'
-import plSetup from '@/infrastructure/i18n/pl/setup'
-import plTutor from '@/infrastructure/i18n/pl/tutor'
-import plLegal from '@/infrastructure/i18n/pl/legal'
+import plCommon from '@/infrastructure/i18n/locales/pl/common'
+import plErrors from '@/infrastructure/i18n/locales/pl/errors'
+import plDashboard from '@/infrastructure/i18n/locales/pl/dashboard'
+import plSetup from '@/infrastructure/i18n/locales/pl/setup'
+import plTutor from '@/infrastructure/i18n/locales/pl/tutor'
+import plLegal from '@/infrastructure/i18n/locales/pl/legal'
 
-import plAdmin from '@/infrastructure/i18n/pl/admin'
-import plAiEditor from '@/infrastructure/i18n/pl/aiEditor'
-import plCourses from '@/infrastructure/i18n/pl/courses'
-import plFeatures from '@/infrastructure/i18n/pl/features'
+import plAdmin from '@/infrastructure/i18n/locales/pl/admin'
+import plAiEditor from '@/infrastructure/i18n/locales/pl/aiEditor'
+import plCourses from '@/infrastructure/i18n/locales/pl/courses'
+import plFeatures from '@/infrastructure/i18n/locales/pl/features'
 
 // Merge all modules into single language objects
 const de = {
@@ -211,6 +212,16 @@ export async function initializeI18n(): Promise<void> {
     document.documentElement.lang = savedLang
 
     console.log('[i18n] Initialized with locale:', savedLang)
+
+    // Initialize schema i18n resolver (for SchemaFormComponent)
+    try {
+      // Pass the I18n instance (not .global property)
+      initializeSchemaI18n(i18n)
+      console.log('[i18n] Schema resolver initialized')
+    } catch (error) {
+      console.error('[i18n] Schema resolver initialization failed:', error)
+      // Continue anyway - component will use fallbacks
+    }
   } catch (error) {
     console.error('[i18n] Initialization failed:', error)
     // Keep using file-based translations

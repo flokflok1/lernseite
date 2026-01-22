@@ -12,7 +12,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useAuthStore } from '../core'
 import type { DashboardLayout, DashboardWidgetInstance } from '@/domain/widgets'
-import { WIDGET_DEFINITIONS, getWidgetsForRole } from '@/config/widgetRegistry'
+import { WIDGET_DEFINITIONS, getWidgetsForRole } from '@/infrastructure/config/widgetRegistry'
 
 const STORAGE_KEY = 'lsx_dashboard_layout'
 const LAYOUT_VERSION = 1

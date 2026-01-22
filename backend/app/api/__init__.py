@@ -66,12 +66,8 @@ if hasattr(v1, 'admin') and hasattr(v1.admin, 'owner'):
     except Exception:
         pass  # Owner not available
 
-# Register Roles Management blueprint (Owner-Admin only)
-if hasattr(v1, 'admin') and hasattr(v1.admin, 'roles'):
-    try:
-        api_v1.register_blueprint(v1.admin.roles.roles_bp)
-    except Exception:
-        pass  # Roles management not available
+# PHASE B: Roles Management removed (replaced with Groups system)
+# No longer registering roles_bp - core.roles table was deleted
 
 # Register Permission Thresholds blueprint (Admin+, RBAC 2.0)
 if hasattr(v1, 'admin') and hasattr(v1.admin, 'permission_thresholds'):

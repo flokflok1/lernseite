@@ -1,0 +1,110 @@
+@startuml Storage Enforcement Architecture
+!theme default
+left to right direction
+
+title Storage Enforcement System - Architecture Overview\n(Dynamic Configuration-Driven)
+
+package "API Layer" {
+  component "File Upload\nEndpoint" as FileUpload
+  component "Storage Status\nEndpoint" as StorageStatus
+  component "Download\nEndpoint" as Download
+}
+
+package "Service Layer" {
+  component "StorageEnforcementService" as Service {
+    frame "Core Methods" {
+      interface "get_enforcement_config()" as GetConfig
+      interface "can_upload()" as CanUpload
+      interface "can_download()" as CanDownload
+      interface "get_status_display()" as GetStatus
+      interface "should_send_warning()" as ShouldWarn
+      interface "get_cleanup_urgency()" as GetUrgency
+    }
+  }
+}
+
+package "Data Access Layer" {
+  component "StorageEnforcementConfigRepository" as Repo {
+    frame "Repository Methods" {
+      interface "find_by_organisation()" as FindOrg
+      interface "find_system_default()" as FindDefault
+      interface "get_config_for_organisation_or_default()" as GetOrgOrDefault
+      interface "create/update/delete()" as CRUD
+    }
+  }
+
+  component "StorageEnforcementConfigSeed" as Seed {
+    frame "Initialization" {
+      interface "seed_default_configs()" as SeedDefault
+      interface "seed_organisation_config()" as SeedOrg
+      interface "get_b2c_hard_enforcement()" as B2CHard
+      interface "get_b2b_soft_enforcement()" as B2BSoft
+    }
+  }
+}
+
+package "Database" {
+  database "storage_enforcement_configs" as DB {
+    frame "Columns" {
+      card "id, organisation_id" as DBKey
+      card "enforcement_type (hard|soft|none)" as DBType
+      card "warning_threshold_percent" as DBThreshold
+      card "grace_period_days" as DBGrace
+      card "warning_frequency (daily|weekly|once)" as DBFreq
+      card "actions_json" as DBActions
+    }
+  }
+}
+
+FileUpload --> Service : calls
+StorageStatus --> Service : calls
+Download --> Service : calls
+
+Service --> GetConfig : uses
+Service --> CanUpload : uses
+Service --> CanDownload : uses
+Service --> GetStatus : uses
+Service --> ShouldWarn : uses
+Service --> GetUrgency : uses
+
+Service --> Repo : queries
+
+GetOrgOrDefault --> FindOrg : 1. Lookup\nby org_id
+GetOrgOrDefault --> FindDefault : 2. Fallback\nto system default
+
+Repo --> DB : reads/writes
+
+Seed --> Repo : populates
+Seed --> B2CHard : uses template
+Seed --> B2BSoft : uses template
+
+B2CHard --> DBActions : creates JSON
+B2BSoft --> DBActions : creates JSON
+
+note right of GetOrgOrDefault
+  **Configuration Resolution:**
+  1. Try organisation_id lookup
+  2. Fall back to system default
+  3. Never fail (internal defaults)
+end note
+
+note right of DBActions
+  **JSON Flexibility:**
+  {
+    "0_to_50": { status, upload, download, notifications },
+    "50_to_80": { ... },
+    "80_to_100": { ... },
+    "100_plus": { grace_period_days, ... },
+    "grace_period_expired": { ... }
+  }
+end note
+
+legend
+|<#90EE90> **Dynamic Configuration** |
+|  ✅ All enforcement rules in database |
+|  ✅ Per-organisation overrides |
+|  ✅ No hardcoded thresholds |
+|  ✅ JSON actions for flexibility |
+end legend
+
+@enduml

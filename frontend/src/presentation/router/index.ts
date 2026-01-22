@@ -184,11 +184,12 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminAuditLogs',
         component: () => import('@/presentation/pages/admin/AdminAuditLogsPage.vue'),
       },
-      {
-        path: 'translations',
-        name: 'AdminTranslations',
-        component: () => import('@/presentation/pages/admin/AdminTranslationsPage.vue'),
-      },
+      // TODO: Fix i18n translations system (locales dir issue)
+      // {
+      //   path: 'translations',
+      //   name: 'AdminTranslations',
+      //   component: () => import('@/presentation/pages/admin/AdminTranslationsPage.vue'),
+      // },
       {
         path: 'lm-routing',
         name: 'AdminLMRouting',
@@ -207,39 +208,6 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-  // Organisation Admin Routes (Org Admins only)
-  {
-    path: '/org',
-    component: () => import('@/presentation/layouts/AdminLayout.vue'),
-    meta: { requiresAuth: true, requiresOrgAdmin: true },
-    children: [
-      {
-        path: '',
-        name: 'OrgDashboard',
-        component: () => import('@/presentation/pages/org/OrgDashboardPage.vue'),
-      },
-      {
-        path: 'users',
-        name: 'OrgUsers',
-        component: () => import('@/presentation/pages/org/OrgUsersPage.vue'),
-      },
-      {
-        path: 'courses',
-        name: 'OrgCourses',
-        component: () => import('@/presentation/pages/org/OrgCoursesPage.vue'),
-      },
-      {
-        path: 'analytics',
-        name: 'OrgAnalytics',
-        component: () => import('@/presentation/pages/org/OrgAnalyticsPage.vue'),
-      },
-      {
-        path: 'settings',
-        name: 'OrgSettings',
-        component: () => import('@/presentation/pages/org/OrgSettingsPage.vue'),
-      },
-    ],
-  },
 
   // Creator/Teacher Routes (Course Editor)
   {
@@ -363,9 +331,16 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
 
-  // Check Organisation Admin access
-  if (to.meta.requiresOrgAdmin && !authStore.isOrgAdmin) {
-    console.warn('Access denied: Organisation Admin required')
+  // Check Organisation Admin access (includes OWNER role who has org-level permissions)
+  if (to.meta.requiresOrgAdmin && !authStore.isOrgAdmin && !authStore.isOwner) {
+    console.warn('Access denied: Organisation Admin or Owner role required')
+    next({ name: 'Dashboard' })
+    return
+  }
+
+  // Check Owner-only access (for owner-specific admin features)
+  if (to.meta.requiresOwner && !authStore.isOwner) {
+    console.warn('Access denied: Owner role required')
     next({ name: 'Dashboard' })
     return
   }

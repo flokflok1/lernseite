@@ -64,6 +64,7 @@
           >
             ⚙️ {{ t('nav.settings') }}
           </router-link>
+          <!-- Admin Panel (System Admin) -->
           <router-link
             v-if="authStore.isSystemAdmin"
             to="/admin"
@@ -72,6 +73,7 @@
           >
             🔧 {{ t('nav.admin') }}
           </router-link>
+
         </nav>
       </aside>
 

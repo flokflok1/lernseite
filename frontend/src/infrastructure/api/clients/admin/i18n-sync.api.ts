@@ -17,7 +17,7 @@ import type {
   HistoryListResponse,
   DashboardResponse,
   ErrorResponse
-} from '@/presentation/components/admin/i18n-sync/types/sync.types'
+} from '@/presentation/components/admin-panel/i18n-sync/types/sync.types'
 
 const BASE_URL = '/api/v1/admin/i18n-sync'
 

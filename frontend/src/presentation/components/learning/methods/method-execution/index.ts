@@ -5,5 +5,3 @@ export { default as TokenBalanceDisplay } from './TokenBalanceDisplay.vue'
 
 // Method Execution Composables
 export { useMethodExecution, type GeneratedTask, type MethodMetadata } from './composables'
-
-// Note: TaskManagerModal is exported from @/components/base/dialogs (already migrated)

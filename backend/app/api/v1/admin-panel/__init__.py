@@ -25,4 +25,7 @@ feature_configuration = importlib.import_module('.feature-configuration', packag
 # Import settings modules (blueprints auto-register on import)
 from .settings import ai, permissions, feature_flags
 
-__all__ = ['feature_configuration', 'ai', 'permissions', 'feature_flags']
+# Import admin endpoints
+from . import learning_methods
+
+__all__ = ['feature_configuration', 'ai', 'permissions', 'feature_flags', 'learning_methods']

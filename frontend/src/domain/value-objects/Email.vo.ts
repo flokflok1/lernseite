@@ -13,18 +13,40 @@ export class Email {
   private constructor(private readonly value: string) {}
 
   /**
-   * Create Email value object from string
+   * Create Email value object from string or existing Email instance
    *
-   * @param email - Email address to validate
+   * @param email - Email address to validate or existing Email instance
    * @returns Email instance
    * @throws Error if email format is invalid
    *
    * @example
    * const email = Email.create('user@example.com')
+   * const sameEmail = Email.create(email) // Returns same instance
    * // Throws: Error('Invalid email format: invalid')
    * Email.create('invalid')
    */
-  static create(email: string): Email {
+  static create(email: string | Email): Email {
+    // Defensive: If already an Email instance, return it (idempotent)
+    // This handles edge cases where Email objects are passed due to:
+    // - localStorage round-trip (JSON.stringify/parse of objects with value objects)
+    // - Double-transformation in composed domain models
+    if (email instanceof Email) {
+      return email
+    }
+
+    // Type guard: ensure email is a string
+    if (typeof email !== 'string') {
+      console.error('[Email.create] Invalid email type. Received:', {
+        type: typeof email,
+        value: email,
+        isObject: email !== null && typeof email === 'object',
+        keys: email !== null && typeof email === 'object' ? Object.keys(email) : null
+      })
+      throw new Error(
+        `Invalid email type: expected string, got ${typeof email}. Value: ${JSON.stringify(email)}`
+      )
+    }
+
     const trimmed = email.trim().toLowerCase()
 
     if (!this.isValid(trimmed)) {

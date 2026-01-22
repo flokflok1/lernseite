@@ -70,7 +70,7 @@ class SetupVerification:
             ('Database Tables', VerificationChecks.check_database_tables),
             ('Database Indexes', VerificationChecks.check_database_indexes),
             ('Seed Data - Learning Methods', VerificationChecks.check_learning_methods),
-            ('Seed Data - Roles', VerificationChecks.check_roles),
+            ('Seed Data - Groups', VerificationChecks.check_groups),
             ('Seed Data - Categories', VerificationChecks.check_categories),
             ('Admin Account', VerificationChecks.check_admin_account),
             ('Organisation Setup', VerificationChecks.check_organisation),
@@ -78,6 +78,7 @@ class SetupVerification:
             ('Python Dependencies', VerificationChecks.check_dependencies),
             ('Environment Variables', VerificationChecks.check_environment)
             # Note: Installation Marker check removed - marker should only exist AFTER setup completes
+            # Note: Roles check replaced with Groups check (PHASE B: Groups replace Roles)
         ]
 
         for check_name, check_func in checks:

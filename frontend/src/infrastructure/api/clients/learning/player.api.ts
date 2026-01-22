@@ -1,12 +1,27 @@
 /**
  * LernsystemX - Player API
  *
+ * Pattern: Transform backend DTOs to domain models at API layer
+ * All snake_case backend fields transformed to camelCase at API layer
+ *
  * API endpoints for Course Player, Lessons, Progress & Learning Methods
  *
  * Refactored: modules → chapters (2025-11-27)
  */
 
-import http from './http'
+import http from '../http'
+import {
+  transformCourseFromAPI,
+  transformChapterFromAPI,
+  transformLessonFromAPI,
+  transformPaginationFromAPI,
+  transformCourseProgressFromAPI,
+  transformChapterProgressFromAPI,
+  transformLessonProgressFromAPI,
+  transformSavedTaskExecutionFromAPI,
+  transformQuizDataFromAPI,
+  transformQuizResultFromAPI
+} from '@/infrastructure/api/utils/transformers'
 
 // ============================================================================
 // Types & Interfaces
@@ -221,7 +236,7 @@ export const getCourse = async (courseId: string): Promise<Course> => {
     course: Course
   }>(`/courses/${courseId}`)
 
-  return response.data.course
+  return transformCourseFromAPI(response.data.course)
 }
 
 /**
@@ -234,7 +249,7 @@ export const getCourseChapters = async (courseId: string): Promise<Chapter[]> =>
     chapters: Chapter[]
   }>(`/courses/${courseId}/chapters`)
 
-  return response.data.chapters
+  return response.data.chapters.map(transformChapterFromAPI)
 }
 
 /**
@@ -247,7 +262,7 @@ export const getChapter = async (courseId: string, chapterId: string): Promise<C
     chapter: Chapter
   }>(`/courses/${courseId}/chapters/${chapterId}`)
 
-  return response.data.chapter
+  return transformChapterFromAPI(response.data.chapter)
 }
 
 /**
@@ -264,7 +279,7 @@ export const getLesson = async (
     lesson: Lesson
   }>(`/lessons/${lessonId}`)
 
-  return response.data.lesson
+  return transformLessonFromAPI(response.data.lesson)
 }
 
 // ============================================================================
@@ -280,7 +295,7 @@ export const getCourseProgress = async (courseId: string): Promise<CourseProgres
     progress: CourseProgress
   }>(`/courses/${courseId}/progress`)
 
-  return response.data.progress
+  return transformCourseProgressFromAPI(response.data.progress)
 }
 
 /**
@@ -296,7 +311,7 @@ export const getChapterProgress = async (
     progress: ChapterProgress
   }>(`/courses/${courseId}/chapters/${chapterId}/progress`)
 
-  return response.data.progress
+  return transformChapterProgressFromAPI(response.data.progress)
 }
 
 /**
@@ -313,7 +328,7 @@ export const getLessonProgress = async (
     progress: LessonProgress
   }>(`/lessons/${lessonId}/progress`)
 
-  return response.data.progress
+  return transformLessonProgressFromAPI(response.data.progress)
 }
 
 /**
@@ -427,7 +442,7 @@ export const getLessonQuiz = async (lessonId: string): Promise<QuizData> => {  /
     quiz: QuizData
   }>(`/courses/lessons/${lessonId}/quiz`)
 
-  return response.data.quiz
+  return transformQuizDataFromAPI(response.data.quiz)
 }
 
 /**
@@ -443,7 +458,7 @@ export const submitQuizAnswers = async (request: QuizSubmitRequest): Promise<Qui
     time_spent_seconds: request.time_spent_seconds
   })
 
-  return response.data.result
+  return transformQuizResultFromAPI(response.data.result)
 }
 
 /**
@@ -464,7 +479,7 @@ export const getQuizAttempts = async (lessonId: number): Promise<QuizResult[]> =
     attempts: QuizResult[]
   }>(`/courses/lessons/${lessonId}/quiz/attempts`)
 
-  return response.data.attempts
+  return response.data.attempts.map(transformQuizResultFromAPI)
 }
 
 // ============================================================================
@@ -524,7 +539,7 @@ export const getLessonExecutions = async (
     total: number
   }>(url)
 
-  return response.data.executions
+  return response.data.executions.map(transformSavedTaskExecutionFromAPI)
 }
 
 /**

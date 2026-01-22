@@ -152,8 +152,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import type { LsxWindow } from '@/store/window.store'
-import { useWindowStore } from '@/store/window.store'
+import type { LsxWindow } from '@/application/stores/window.store'
+import { useWindowStore } from '@/application/stores/window.store'
 import http from '@/infrastructure/api/http'
 
 interface FilePayload {

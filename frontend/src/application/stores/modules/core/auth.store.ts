@@ -18,6 +18,7 @@ import type { ProfileResponse } from '@/infrastructure/api/clients/user'
 import * as authApi from '@/infrastructure/api/clients/user'
 import * as profileApi from '@/infrastructure/api/clients/user'
 import { User as UserModel } from '@/domain/models/user/User.model'
+import { UserRoleEnum } from '@/domain/models/user/UserRole.vo'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -91,8 +92,8 @@ export const useAuthStore = defineStore('auth', () => {
       accessToken.value = response.access_token
       refreshToken.value = response.refresh_token
 
-      // Store user data
-      user.value = UserModel.fromAPI(response.user)
+      // Store user data (as raw DTO - domainUser computed will transform to domain model)
+      user.value = response.user
 
       // Save to localStorage for persistence
       localStorage.setItem('access_token', response.access_token)
@@ -186,8 +187,8 @@ export const useAuthStore = defineStore('auth', () => {
       const profileData = await profileApi.getProfile()
       profile.value = profileData
 
-      // Also update user object with basic info
-      user.value = UserModel.fromAPI(profileData)
+      // Also update user object with basic info (store as raw DTO - domainUser computed will transform)
+      user.value = profileData
 
       // Update localStorage
       localStorage.setItem('user', JSON.stringify(user.value))

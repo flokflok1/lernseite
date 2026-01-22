@@ -4,7 +4,7 @@ User Admin Operations
 Handles admin-only operations: user listing, details, role changes, bans, deletion, creator verification.
 """
 
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from datetime import datetime
 import logging
 
@@ -25,7 +25,7 @@ class UserAdminRepository(BaseRepository):
         cls,
         page: int = 1,
         per_page: int = 50,
-        role: Optional[str] = None,
+        group_slug: Optional[str] = None,
         search: Optional[str] = None,
         status: str = 'active',
         sort: str = 'created_at',
@@ -37,7 +37,7 @@ class UserAdminRepository(BaseRepository):
         Args:
             page: Page number (1-indexed)
             per_page: Items per page (max 100)
-            role: Filter by role name
+            group_slug: Filter by group slug (e.g., 'system-admin', 'premium-members')
             search: Search by email or name
             status: Filter by status (active, suspended, banned)
             sort: Sort field (created_at, last_login, email)
@@ -46,9 +46,13 @@ class UserAdminRepository(BaseRepository):
         Returns:
             Dict with 'users' list and 'pagination' metadata
 
+        Note:
+            PHASE B: Replaced role parameter with group_slug.
+            Users are now filtered by group membership, not single role.
+
         Example:
             >>> result = UserAdminRepository.admin_list_users(
-            ...     page=1, per_page=50, role='premium', search='john'
+            ...     page=1, per_page=50, group_slug='premium-members', search='john'
             ... )
             >>> print(result['pagination']['total'])
         """
@@ -60,10 +64,6 @@ class UserAdminRepository(BaseRepository):
             where_conditions.append("u.status = %s")
             params.append(status)
 
-        if role:
-            where_conditions.append("r.role_name = %s")
-            params.append(role)
-
         if search:
             where_conditions.append(
                 "(u.email ILIKE %s OR u.firstname ILIKE %s OR u.lastname ILIKE %s)"
@@ -73,11 +73,23 @@ class UserAdminRepository(BaseRepository):
 
         where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
 
+        # Build table joins based on filters
+        if group_slug:
+            from_clause = """
+                core.users u
+                JOIN core.users_groups ug ON u.user_id = ug.user_id
+                JOIN core.groups g ON ug.group_id = g.group_id
+            """
+            group_filter = " AND g.slug = %s"
+            params.insert(0 if not where_conditions else len(params) - len([p for p in params if isinstance(p, str) and '%' in p]), group_slug)
+            where_clause = where_clause + group_filter
+        else:
+            from_clause = "core.users u"
+
         # Count total
         count_query = f"""
-            SELECT COUNT(*) as total
-            FROM core.users u
-            JOIN core.roles r ON u.role_id = r.role_id
+            SELECT COUNT(DISTINCT u.user_id) as total
+            FROM {from_clause}
             WHERE {where_clause}
         """
         total_result = fetch_one(count_query, tuple(params))
@@ -97,18 +109,17 @@ class UserAdminRepository(BaseRepository):
         sort_order = 'ASC' if order.lower() == 'asc' else 'DESC'
 
         users_query = f"""
-            SELECT
+            SELECT DISTINCT
                 u.user_id,
                 u.email,
                 u.firstname,
                 u.lastname,
-                r.role_name as role,
+                u.is_owner,
                 u.status,
                 u.created_at,
                 u.last_login,
                 u.email_verified
-            FROM core.users u
-            JOIN core.roles r ON u.role_id = r.role_id
+            FROM {from_clause}
             WHERE {where_clause}
             ORDER BY {sort_field} {sort_order}
             LIMIT %s OFFSET %s
@@ -143,11 +154,16 @@ class UserAdminRepository(BaseRepository):
             user_id: User ID (UUID)
 
         Returns:
-            Detailed user data including subscription, tokens, courses, login history
+            Detailed user data including subscription, tokens, courses, login history,
+            and group memberships
+
+        Note:
+            PHASE B: Removed role field. User authorization now determined by group membership.
 
         Example:
             >>> details = UserAdminRepository.admin_get_user_details('uuid')
             >>> print(details['subscription']['plan'])
+            >>> print(details['groups'])  # List of group memberships
         """
         # Get base user info
         user = fetch_one(
@@ -157,7 +173,7 @@ class UserAdminRepository(BaseRepository):
                 u.email,
                 u.firstname,
                 u.lastname,
-                r.role_name as role,
+                u.is_owner,
                 u.status,
                 u.created_at,
                 u.updated_at,
@@ -166,7 +182,6 @@ class UserAdminRepository(BaseRepository):
                 u.email_verified,
                 u.two_factor_enabled
             FROM core.users u
-            JOIN core.roles r ON u.role_id = r.role_id
             WHERE u.user_id = %s
             """,
             (user_id,)
@@ -261,45 +276,79 @@ class UserAdminRepository(BaseRepository):
         return user
 
     @classmethod
-    def admin_change_role(
+    def admin_update_groups(
         cls,
         user_id: str,
-        new_role: str,
-        changed_by: str
+        group_slugs: List[str],
+        changed_by: str,
+        replace: bool = False
     ) -> bool:
         """
-        Change user role (Admin only)
+        Update user's group memberships (Admin only)
 
         Args:
             user_id: User ID to modify
-            new_role: New role name
+            group_slugs: List of group slugs (e.g., ['system-admin', 'premium-members'])
             changed_by: Admin user ID performing the change
+            replace: If True, replace all groups; if False, add to existing groups
 
         Returns:
-            bool: True if role changed successfully
+            bool: True if groups updated successfully
+
+        Note:
+            PHASE B: Replaces admin_change_role() which used deleted core.roles table.
+            Users can now be members of multiple groups for fine-grained access control.
 
         Example:
-            >>> UserAdminRepository.admin_change_role(
-            ...     'user-uuid', 'premium', 'admin-uuid'
+            >>> UserAdminRepository.admin_update_groups(
+            ...     'user-uuid',
+            ...     ['system-admin', 'content-creators'],
+            ...     'admin-uuid',
+            ...     replace=True
             ... )
         """
-        # Get role_id
-        role_data = fetch_one("SELECT role_id FROM core.roles WHERE role_name = %s", (new_role,))
-        if not role_data:
+        if not group_slugs:
             return False
 
-        # Update user role
-        result = execute_query(
+        # Get group IDs for slugs
+        group_data = fetch_all(
             """
-            UPDATE core.users
-            SET role_id = %s, updated_at = NOW()
-            WHERE user_id = %s
+            SELECT group_id, slug FROM core.groups
+            WHERE slug = ANY(%s)
             """,
-            (role_data['role_id'], user_id),
-            fetch_one=True
+            (group_slugs,)
         )
 
-        return result is not None
+        if not group_data:
+            return False
+
+        group_ids = [g['group_id'] for g in group_data]
+
+        # Replace existing groups if requested
+        if replace:
+            execute_query(
+                "DELETE FROM core.users_groups WHERE user_id = %s",
+                (user_id,)
+            )
+
+        # Add user to groups
+        for group_id in group_ids:
+            execute_query(
+                """
+                INSERT INTO core.users_groups (user_id, group_id)
+                VALUES (%s, %s)
+                ON CONFLICT (user_id, group_id) DO NOTHING
+                """,
+                (user_id, group_id)
+            )
+
+        # Update user's updated_at timestamp
+        execute_query(
+            "UPDATE core.users SET updated_at = NOW() WHERE user_id = %s",
+            (user_id,)
+        )
+
+        return True
 
     @classmethod
     def admin_ban_user(

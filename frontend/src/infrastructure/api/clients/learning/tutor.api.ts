@@ -4,7 +4,7 @@
  * Supports context-aware tutoring with course/chapter/lesson knowledge.
  */
 
-import http from './http'
+import http from '../http'
 
 // Types
 export interface TutorChatRequest {

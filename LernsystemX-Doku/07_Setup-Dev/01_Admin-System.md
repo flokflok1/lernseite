@@ -40,7 +40,7 @@ Person(finance, "Finance Manager", "Billing & Payouts")
 
 System(admin_system, "Admin-System", "Zentrale Verwaltungskonsole für alle LSX-Funktionen")
 
-System_Ext(user_system, "User-System", "User-Daten, Rollen")
+System_Ext(user_system, "User-System", "User-Daten, Gruppen")
 System_Ext(course_system, "Kurs-System", "Kurse, Module")
 System_Ext(org_system, "Org-System", "Schulen, Unternehmen")
 System_Ext(ki_pipeline, "KI-Pipeline", "KI-Jobs, Tokens")
@@ -239,15 +239,15 @@ start
 
 partition "User-Profil" {
   :Basisdaten anzeigen;
-  :Rolle & Berechtigungen;
+  :Gruppen & Berechtigungen;
   :Abo & Token-Status;
   :Zahlungsverlauf;
   :Logs & Aktivität;
   :Meldungen gegen User;
 }
 
-if (Aktion wählen?) then (Rolle ändern)
-  :Neue Rolle zuweisen;
+if (Aktion wählen?) then (Gruppen verwalten)
+  :Neue Gruppe zuweisen;
   :In DB speichern;
   :User-Session invalidieren;
 else (Sperren)
@@ -278,7 +278,7 @@ stop
 | Bereich | Informationen | Aktionen |
 |---------|--------------|----------|
 | **Basisdaten** | Name, Email, Erstelldatum | Editieren, Löschen |
-| **Rolle & Rechte** | Aktuelle Rolle, Berechtigungen | Rolle ändern |
+| **Gruppen & Rechte** | Aktuelle Gruppen, Berechtigungen | Gruppen verwalten |
 | **Abo-Status** | Premium, Tokens, Ablaufdatum | Abo verlängern, Tokens vergeben |
 | **Zahlungsverlauf** | Transaktionen, Rechnungen | Rechnungen ansehen |
 | **Aktivitätslogs** | Logins, API-Calls, IP-Adressen | Verdächtige Aktivität prüfen |
@@ -453,7 +453,7 @@ partition "Org-Details" {
 
 if (Aktion?) then (Nutzer hinzufügen)
   :CSV-Import oder manuell;
-  :Rollen zuweisen;
+  :Gruppen zuweisen;
 else (Tokens zuweisen)
   :Tokenpool erhöhen;
   :Kostenlos oder kostenpflichtig;

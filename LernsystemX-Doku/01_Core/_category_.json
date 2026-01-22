@@ -1,8 +1,8 @@
 {
   "label": "Core",
-  "position": 1,
+  "position": 2,
   "link": {
     "type": "generated-index",
-    "description": "Kernsystem: Übersicht, Rollen, Lernmethoden, Zugriff, Sicherheit"
+    "description": "Kernsystem: Übersicht, Rollen, Lernmethoden, Zugriff, Sicherheit, Business-Modelle"
   }
 }

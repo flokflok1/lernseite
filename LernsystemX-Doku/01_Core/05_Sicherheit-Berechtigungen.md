@@ -295,9 +295,9 @@ end note
 
 ---
 
-## 5. Berechtigungsmodell (RBAC)
+## 5. Berechtigungsmodell (Group-Based)
 
-### 👥 Role-Based Access Control
+### 👥 Group-Based Access Control (NEW)
 
 ```plantuml
 @startuml
@@ -307,74 +307,68 @@ end note
 entity users {
   primary_key(user_id) : UUID
   --
-  foreign_key(role_id) : INTEGER
+  email : VARCHAR(255)
   ...
 }
 
-entity roles {
-  primary_key(role_id) : SERIAL
+entity groups {
+  primary_key(group_id) : UUID
   --
-  role_name : VARCHAR(50)
-  description : TEXT
+  foreign_key(organisation_id) : UUID
+  column(name) : VARCHAR(255)
+  column(is_predefined) : BOOLEAN
+  created_at : TIMESTAMP
+}
+
+entity group_members {
+  primary_key(id) : UUID
+  --
+  foreign_key(user_id) : UUID
+  foreign_key(group_id) : UUID
+  column(assigned_at) : TIMESTAMP
+  UNIQUE(user_id, group_id)
 }
 
 entity permissions {
   primary_key(permission_id) : SERIAL
   --
-  permission_key : VARCHAR(100)
-  description : TEXT
+  column(permission_code) : VARCHAR(100)
+  column(description) : TEXT
 }
 
-entity role_permissions {
-  foreign_key(role_id) : INTEGER
-  foreign_key(permission_id) : INTEGER
+entity group_permissions {
+  primary_key(id) : UUID
   --
-  PRIMARY KEY (role_id, permission_id)
+  foreign_key(group_id) : UUID
+  foreign_key(permission_id) : SERIAL
+  column(granted_at) : TIMESTAMP
+  UNIQUE(group_id, permission_id)
 }
 
-entity role_feature_assignments {
-  primary_key(assignment_id) : SERIAL
-  --
-  foreign_key(role_id) : INTEGER
-  foreign_key(feature_id) : INTEGER
-  column(enabled) : BOOLEAN
-  column(created_by) : UUID
-}
+users ||--o{ group_members : "n:n"
+groups ||--o{ group_members : "n:n"
+groups ||--o{ group_permissions : "1:n"
+permissions ||--o{ group_permissions : "1:n"
 
-entity system_features {
-  primary_key(feature_id) : SERIAL
-  --
-  column(feature_code) : VARCHAR(50) UNIQUE
-  column(feature_name) : VARCHAR(100)
-  column(category) : VARCHAR(50)
-}
+note right of groups
+  Vordefinierte Gruppen:
+  - Admin (all permissions)
+  - Teacher (teaching permissions)
+  - Creator (content creation)
+  - Student (learning permissions)
+  - Support (user support)
+  - Moderator (moderation)
 
-users }o--|| roles : "n:1"
-roles ||--o{ role_permissions : "1:n"
-permissions ||--o{ role_permissions : "1:n"
-roles ||--o{ role_feature_assignments : "1:n"
-system_features ||--o{ role_feature_assignments : "1:n"
-
-note right of roles
-  Standard-Rollen:
-  - free (1)
-  - premium (2)
-  - creator (3)
-  - teacher (4)
-  - school_admin (5)
-  - company_admin (6)
-  - admin (7)
-
-  Custom-Rollen:
-  - is_custom = TRUE
-  - Erstellt via Admin-Panel
+  Custom Groups:
+  - Klasse A
+  - Team Finance
+  - etc. (User-definiert)
 end note
 
-note right of role_feature_assignments
-  RBAC 2.0:
-  Dynamische Feature-Zuweisung
-  für Custom-Rollen
-  (25 System-Features)
+note right of group_members
+  Ein User kann in
+  MEHREREN Gruppen sein!
+  → Permissions aggregieren sich
 end note
 
 note right of permissions
@@ -390,7 +384,7 @@ end note
 
 ---
 
-### 🎯 Permission Check Flow
+### 🎯 Group-Based Permission Check Flow
 
 ```plantuml
 @startuml
@@ -407,12 +401,24 @@ if (Token Valid?) then (no)
 endif
 
 :Get User from Token;
-:Get User Role;
 
 |Authorization|
+:Load User's Groups;
+note right
+  SELECT groups FROM group_members
+  WHERE user_id = ?
+end note
+
+:Aggregate Permissions;
+note right
+  Sammle permissions
+  von ALL user groups
+  (Set Union)
+end note
+
 :Check Endpoint Permission;
 
-if (Has Role Permission?) then (no)
+if (Has Any Group Permission?) then (no)
   :403 Forbidden;
   stop
 endif
@@ -431,28 +437,46 @@ endif
 stop
 
 note right
-  RBAC Layers:
+  Group-Based Layers:
   1. Token Validation
-  2. Role Check
-  3. Permission Check
-  4. Ownership Check
+  2. Group Membership Check
+  3. Permission Aggregation
+  4. Permission Check
+  5. Ownership Check
 end note
 @enduml
 ```
 
 ---
 
-### 📋 Rollen-Matrix
+### 📋 Standard-Gruppen & Ihre Berechtigungen
 
-| Rolle | Kurse Erstellen | KI Nutzen | Global Publish | Admin Panel |
-|-------|-----------------|-----------|----------------|-------------|
-| 🆓 **Free** | ❌ | ❌ | ❌ | ❌ |
-| 💎 **Premium** | ✅ (privat) | ✅ (limit) | ❌ | ❌ |
-| ✨ **Creator** | ✅ | ✅ (extended) | ✅ | ❌ |
-| 👨‍🏫 **Teacher** | ✅ (Schule) | ✅ (pool) | ❌ | ❌ |
-| 🏫 **School Admin** | ✅ | ✅ (pool) | ❌ | ⚠️ (Org) |
-| 🏢 **Company Admin** | ✅ | ✅ (pool) | ❌ | ⚠️ (Org) |
-| 👑 **Admin** | ✅ | ✅ (unlimited) | ✅ | ✅ |
+| Gruppe | Kurse Erstellen | KI Nutzen | Global Publish | Admin Panel | Weitere Perms |
+|--------|-----------------|-----------|----------------|-------------|---------------|
+| 👤 **Student** | ❌ | ❌ | ❌ | ❌ | Learn content |
+| ✨ **Creator** | ✅ | ✅ (extended) | ✅ | ❌ | Publish, Analytics |
+| 👨‍🏫 **Teacher** | ✅ | ✅ (pool) | ❌ | ⚠️ (Org) | Classroom mgmt |
+| 🏢 **Support** | ❌ | ❌ | ❌ | ⚠️ (Users) | User support, Tickets |
+| 🔍 **Moderator** | ❌ | ❌ | ❌ | ⚠️ (Moderation) | Content review, Bans |
+| 👑 **Admin** | ✅ | ✅ (unlimited) | ✅ | ✅ | Full system access |
+
+---
+
+### 🔄 Multiple Group Membership (KEY FEATURE!)
+
+Ein Benutzer kann in **MEHREREN Gruppen** sein. Permissions aggregieren sich:
+
+**Beispiel:** User "Alice" ist in Gruppen:
+- ✅ "Student" → Permission: `courses.view`
+- ✅ "Creator" → Permissions: `courses.create`, `courses.edit.own`, `courses.publish`
+- ✅ "Moderator" → Permissions: `content.review`, `users.warn`
+
+**Resultat:** Alice hat diese aggregierten Permissions:
+```
+courses.view + courses.create + courses.edit.own + courses.publish + content.review + users.warn
+```
+
+Dies ist **viel flexibler** als das alte 1:1 Rollen-System!
 
 ---
 
@@ -659,134 +683,154 @@ end note
 
 ---
 
-## 6.1 RBAC 2.0: Database-Driven Permission Decorators
+## 6.1 Group-Based Permission Decorators
 
-**Status:** ✅ **IMPLEMENTIERT** (Migration 080, 081 + Phase 1 Code Changes)
-**Datum:** 14.01.2026
-**Dokumentation:** `app/security/permissions.py` (455 Zeilen)
+**Status:** ✅ **DESIGNIERT** (Migration Phase 2)
+**Datum:** 21.01.2026
+**Dokumentation:** `app/security/permissions.py` (Neu: 500+ Zeilen)
 
-### 🎯 Übersicht: Von Hardcoded zu Database-Driven
+### 🎯 Übersicht: Von Rollen zu Gruppen
 
-**RBAC 2.0** ersetzt das deprecated Modell mit hardcodierten Rollen-Listen durch ein **database-driven Permission-System**. Das Admin-Panel (Role Studio) kann jetzt Berechtigungen ändern, ohne Code-Änderungen oder Redeployment erforderlich zu machen.
+**Group-Based Permission System** ersetzt das rollenbasierte Modell durch ein **flexibles Group-basiertes System**. Ein User kann jetzt zu **mehreren Gruppen** gehören (Student + Creator + Moderator gleichzeitig). Permissions werden aus **allen Gruppen aggregiert** (Set Union).
 
 **Evolution:**
 
 ```
-BEFORE (Deprecated):
-Request → @require_system_admin → Check hardcoded ['admin', 'superadmin', 'owner'] → Grant/Deny
+BEFORE (Role-Based):
+Request → @require_system_admin → Check user.role == 'admin' → Grant/Deny
 
-AFTER (RBAC 2.0):
-Request → @require_system_admin → Query core.role_permissions via PermissionRepository
-                                   → Prüfe 'admin:system' permission in Datenbank
-                                   → Fallback: hierarchy_level >= 9
+AFTER (Group-Based):
+Request → @require_system_admin → Load all user groups via GroupMemberRepository
+                                   → Aggregate permissions from ALL groups (Set Union)
+                                   → Prüfe 'admin:system' permission in aggregated set
                                    → Grant/Deny (Fail-Secure)
 ```
+
+**Vorteil:** User in Groups {Student, Creator, Moderator} erhält Permissions = Student ∪ Creator ∪ Moderator
 
 ---
 
 ### 📋 Die Drei Permission-Decorators
 
-#### 1️⃣ @require_system_admin() - Capability-Based
+#### 1️⃣ @require_system_admin() - Group-Based Capability
 
 **Zweck:** System-weite Admin-Rechte für kritische Operationen
 **Dateiort:** `backend/app/security/permissions.py` (Zeilen 229-295)
 
 **Berechtigungsprüfung:**
 ```python
+# Load user's groups
+user_groups = GroupMemberRepository.find_user_groups(user_id)
+
+# Aggregate permissions from all groups
+user_permissions = set()
+for group in user_groups:
+    group_perms = GroupPermissionRepository.find_by_group(group.id)
+    user_permissions.update(group_perms)
+
+# Check if user has 'admin:system' permission in ANY group
 has_permission = (
-    hierarchy_level >= 9 or  # Backward compatibility fallback
-    PermissionRepository.user_has_permission(
-        user_id=user_id,
-        permission_key=Permissions.MANAGE_SYSTEM  # 'admin:system'
-    )
+    'admin:system' in user_permissions or
+    group in [g for g in user_groups if g.is_predefined and g.name == 'Admin']
 )
 ```
 
 **Datenbank-Mapping:**
-| Permission Key | Display Name | Category | Rolle | Hierarchy |
-|---------------|--------------|----------|-------|-----------|
-| `admin:system` | System Administrator | system | owner | 10+ |
-| | | | admin | 9+ |
+| Permission Key | Display Name | Gruppen | Typ |
+|---------------|--------------|---------|-----|
+| `admin:system` | System Administrator | Admin, (custom wenn gewährt) | System |
 
 **Verwendung:**
 ```python
 @app.route('/admin/system/settings', methods=['PUT'])
 @require_system_admin
 def update_system_settings():
-    """Nur System-Admins können System-Einstellungen ändern."""
+    """Nur Admin-Gruppenmitglieder können System-Einstellungen ändern."""
     return jsonify({'status': 'updated'}), 200
 ```
 
 **Sicherheitsmerkmale:**
 - ✅ Fail-Secure: Rückgabe 403 bei Datenbankfehler (nicht 500)
-- ✅ Backward-kompatibel: hierarchy_level >= 9 als Fallback
-- ✅ Umfassende Dokumentation: 1272 Zeichen Docstring mit Args, Returns, Usage, Example, Note
+- ✅ Multiple Groups: Aggregiert Permissions aus ALL Gruppen des Users
+- ✅ Flexible: Admins können 'admin:system' permission auch custom-Gruppen zuweisen
+- ✅ Umfassende Dokumentation: 1272 Zeichen Docstring mit Args, Returns, Usage
 - ✅ Type Hints: Vollständig typisiert
 
 ---
 
-#### 2️⃣ @require_org_admin() - Capability-Based (Dual Permissions)
+#### 2️⃣ @require_org_admin() - Group-Based Org Admin
 
 **Zweck:** Organisations-Admin-Rechte (Settings & Verwaltung)
 **Dateiort:** `backend/app/security/permissions.py` (Zeilen 298-370)
 
 **Berechtigungsprüfung:**
 ```python
+# Load user's groups (filtered by organisation_id if available)
+user_groups = GroupMemberRepository.find_user_groups(user_id, org_id)
+
+# Aggregate permissions from all groups
+user_permissions = set()
+for group in user_groups:
+    group_perms = GroupPermissionRepository.find_by_group(group.id)
+    user_permissions.update(group_perms)
+
+# Check if user has EITHER permission (OR-Logik)
 has_permission = (
-    hierarchy_level >= 5 or  # Backward compatibility fallback
-    PermissionRepository.user_has_permission(
-        user_id=user_id,
-        permission_key=Permissions.MANAGE_ORG_SETTINGS  # 'manage:org:settings'
-    ) or
-    PermissionRepository.user_has_permission(
-        user_id=user_id,
-        permission_key=Permissions.MANAGE_ORGANISATIONS  # 'admin:organisations'
-    )
+    'manage:org:settings' in user_permissions or
+    'admin:organisations' in user_permissions or
+    'admin:org' in user_permissions or  # Admin group fallback
+    group in [g for g in user_groups if g.name in ['Admin', 'Support']]
 )
 ```
 
 **Datenbank-Mapping (OR-Logik):**
-| Permission Key | Display Name | Rollen |
-|---------------|--------------|--------|
-| `manage:org:settings` | Manage Organization Settings | owner, admin, company_admin, school_admin |
-| `admin:organisations` | Administer Organizations | owner, admin, company_admin, school_admin |
+| Permission Key | Display Name | Gruppen |
+|---------------|--------------|---------|
+| `manage:org:settings` | Manage Organization Settings | Admin, Support, (custom) |
+| `admin:organisations` | Administer Organizations | Admin, Support, (custom) |
 
 **Verwendung:**
 ```python
 @app.route('/organisations/<org_id>/settings', methods=['PUT'])
 @require_org_admin
 def update_org_settings(org_id):
-    """Nur Org-Admins können Org-Einstellungen ändern."""
+    """Nur Mitglieder von Admin/Support-Gruppen können Org-Einstellungen ändern."""
     return jsonify({'status': 'updated'}), 200
 ```
 
 **Sicherheitsmerkmale:**
-- ✅ Dual-Permission-Support: OR-Logik für Flexibilität
+- ✅ Multiple Groups: Prüft Permissions aus ALL user's Gruppen
+- ✅ OR-Logik: User braucht NUR EINE von zwei Permissions
 - ✅ Fail-Secure: Rückgabe 403 bei Fehler
-- ✅ Backward-kompatibel: hierarchy_level >= 5 Fallback
+- ✅ Flexible Gruppenzuweisung: Admins können Permissions zu custom-Gruppen hinzufügen
 - ✅ Umfassende Dokumentation: 1488 Zeichen Docstring
 
 ---
 
-#### 3️⃣ @require_org_member() - Resource-Based (NICHT Capability-Based!)
+#### 3️⃣ @require_org_member() - Group-Based Resource Access
 
-**Zweck:** Organisations-Zugehörigkeit prüfen (Resource-Zugriff, nicht Capabilities)
+**Zweck:** Organisations-Zugehörigkeit prüfen (über Group-Membership)
 **Dateiort:** `backend/app/security/permissions.py` (Zeilen 373-454)
 
-**⚠️ WICHTIG:** Dies ist **NICHT** capability-based wie die anderen Decorators. Hier wird geprüft, **WELCHE** Organisationen der User aktuell hat Zugriff, nicht **WAS** er TUN kann.
+**⚠️ WICHTIG:** Dies ist **NICHT** capability-based wie die anderen Decorators. Hier wird geprüft, ob User zu einer **Organization gehört** (via Group Membership), nicht **WAS** er TUN kann.
 
 **Zugriffsprüfung:**
 ```python
-if hierarchy_level >= 9:
-    # System-Admins können auf JEDE Org zugreifen
-    return fn(*args, **kwargs)
-
-# Normale User: Prüfe Org-Zugehörigkeit
+# Hole org_id aus Route-Parametern
 org_id = kwargs.get('org_id') or kwargs.get('organization_id')
 
-if str(user_org_id) != str(org_id):
-    # User gehört nicht zu dieser Org
+# Load user's groups
+user_groups = GroupMemberRepository.find_user_groups(user_id)
+
+# Prüfe: Gehört User zu Org-ABC?
+# (via: Gehört User zu Group X die zu Org-ABC gehört?)
+org_ids = {group.organisation_id for group in user_groups}
+
+if str(org_id) not in [str(oid) for oid in org_ids]:
+    # User gehört nicht zu dieser Org über keine seiner Gruppen
     return jsonify({...}), 403
+
+return fn(*args, **kwargs)
 ```
 
 **Unterschied zu anderen Decorators:**
@@ -795,21 +839,21 @@ if str(user_org_id) != str(org_id):
 |-----------|-----|-------|
 | `@require_system_admin` | **Capability-Based** | "Darf User X tun?" (Permission prüfen) |
 | `@require_org_admin` | **Capability-Based** | "Darf User Y Org-Admin sein?" (Permission prüfen) |
-| `@require_org_member` | **Resource-Based** | "Gehört User Z zu Org-ABC?" (Besitz prüfen) |
+| `@require_org_member` | **Resource-Based** | "Gehört User Z zu Org-ABC?" (Gruppe-Zugehörigkeit) |
 
 **Verwendung:**
 ```python
 @app.route('/organisations/<org_id>/courses', methods=['GET'])
 @require_org_member
 def get_org_courses(org_id):
-    """Nur Mitglieder dieser Org können ihre Kurse sehen."""
-    # org_id ist garantiert erreichbar (Decorator prüfte bereits)
+    """Nur Mitglieder dieser Org (über Gruppen) können ihre Kurse sehen."""
+    # org_id ist garantiert erreichbar (Decorator prüfte bereits Org-Zugehörigkeit)
     return jsonify({'courses': [...]}), 200
 ```
 
 **Sicherheitsmerkmale:**
-- ✅ Ressourcen-Schutz: Datenquelle, nicht Fähigkeit
-- ✅ System-Admin-Bypass: hierarchy_level >= 9 darf alles zugreifen
+- ✅ Ressourcen-Schutz: Prüft Org-Zugehörigkeit via Group-Membership
+- ✅ Multiple Groups: User kann zu Organization via MEHRERE Gruppen gehören
 - ✅ Klare Fehlermeldungen: 400 (Bad Request) vs 403 (Forbidden)
 - ✅ Umfassende Dokumentation: 1669 Zeichen mit Architektur-Erklärung
 
@@ -832,28 +876,32 @@ endif
 
 :Load Current User;
 
+|Group Membership|
+:Load User's Groups;
+:Aggregate Permissions (Union);
+
 |Authorization|
 :Check required Decorator;
 
 if (Decorator == @require_system_admin?) then (yes)
-  :Check Capability: admin:system;
-  if (hierarchy_level >= 9 OR has_permission('admin:system')) then (yes)
+  :Check: 'admin:system' in Permissions?;
+  if (YES OR Admin Group?) then (yes)
     :✅ Grant Access;
   else (no)
     :403 Forbidden;
     stop
   endif
 elseif (Decorator == @require_org_admin?) then (yes)
-  :Check Capability: manage:org:settings OR admin:organisations;
-  if (hierarchy_level >= 5 OR has_permission(...)) then (yes)
+  :Check: 'manage:org:settings' OR 'admin:organisations'?;
+  if (YES OR Admin/Support Group?) then (yes)
     :✅ Grant Access;
   else (no)
     :403 Forbidden;
     stop
   endif
 elseif (Decorator == @require_org_member?) then (yes)
-  :Check Resource Ownership;
-  if (hierarchy_level >= 9 OR user_org_id == requested_org_id?) then (yes)
+  :Check: User in Group with org_id?;
+  if (YES OR Multiple Groups?) then (yes)
     :✅ Grant Access;
   else (no)
     :403 Forbidden;
@@ -870,6 +918,7 @@ note right
   Fail-Secure Design:
   - Datenbankfehler → 403
   - Unklare Berechtigung → 403
+  - Permissions aggregiert aus ALL Groups
   - Nur explizit erlaubt
 end note
 @enduml
@@ -877,77 +926,167 @@ end note
 
 ---
 
-### 🗄️ Datenbank-Schema (RBAC 2.0)
+### 🗄️ Datenbank-Schema (Group-Based System)
 
-**Neue Tabelle/Spalten (Migrations 080, 081):**
+**Neue Tabellen (Migrations 080, 081, 082):**
 
 ```sql
--- Migration 080: Add RBAC 2.0 Permissions
-INSERT INTO core.permissions (
-    permission_key,
-    display_name,
-    description,
-    category,
-    module,
-    is_system,
-    sort_order
-) VALUES (
-    'admin:system',
-    'System Administrator',
-    'Full system administrator access - all permissions granted',
-    'system',
-    'admin',
-    true,
-    1
-),
-(
-    'manage:org:settings',
-    'Manage Organization Settings',
-    'Permission to manage organization settings and configuration',
-    'organization',
-    'organizations',
-    true,
-    20
-),
-(
-    'admin:organisations',
-    'Administer Organizations',
-    'Permission to administer all organizations and their members',
-    'organization',
-    'organizations',
-    true,
-    21
+-- Migration 080: Create Groups Table
+CREATE TABLE IF NOT EXISTS core.groups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    organisation_id UUID NOT NULL REFERENCES core.organisations(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    is_predefined BOOLEAN DEFAULT FALSE,  -- True für Admin, Teacher, Student, etc.
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_org_group_name UNIQUE (organisation_id, name)
 );
 
--- Migration 081: Map Permissions to Roles
-INSERT INTO core.role_permissions (role_id, permission_id) VALUES
-    -- admin:system (213) → owner (11), admin (9)
-    (11, 213),  -- owner
-    (9, 213),   -- admin
+CREATE INDEX idx_groups_organisation_id ON core.groups(organisation_id);
+CREATE INDEX idx_groups_is_predefined ON core.groups(is_predefined);
 
-    -- manage:org:settings (214) → owner, admin, company_admin, school_admin
-    (11, 214),  -- owner
-    (9, 214),   -- admin
-    (6, 214),   -- company_admin
-    (5, 214),   -- school_admin
+-- Migration 081: Create Group Members Table (Many-to-Many)
+CREATE TABLE IF NOT EXISTS core.group_members (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES core.users(id) ON DELETE CASCADE,
+    group_id UUID NOT NULL REFERENCES core.groups(id) ON DELETE CASCADE,
+    assigned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_group UNIQUE (user_id, group_id)
+);
 
-    -- admin:organisations (215) → owner, admin, company_admin, school_admin
-    (11, 215),  -- owner
-    (9, 215),   -- admin
-    (6, 215),   -- company_admin
-    (5, 215);   -- school_admin
+CREATE INDEX idx_group_members_user_id ON core.group_members(user_id);
+CREATE INDEX idx_group_members_group_id ON core.group_members(group_id);
+
+-- Migration 082: Create Group Permissions Table
+CREATE TABLE IF NOT EXISTS core.group_permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id UUID NOT NULL REFERENCES core.groups(id) ON DELETE CASCADE,
+    permission_code VARCHAR(100) NOT NULL,  -- 'admin:system', 'manage:org:settings', etc.
+    granted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_group_permission UNIQUE (group_id, permission_code)
+);
+
+CREATE INDEX idx_group_permissions_group_id ON core.group_permissions(group_id);
+CREATE INDEX idx_group_permissions_permission_code ON core.group_permissions(permission_code);
+```
+
+**Standard-Gruppen initialisieren (für jede Organisation):**
+
+```sql
+-- Für jede Organisation: 6 Standard-Gruppen erstellen
+INSERT INTO core.groups (organisation_id, name, description, is_predefined)
+SELECT
+    id,
+    'Admin',
+    'System Administrator - Full access to organization management',
+    true
+FROM core.organisations
+
+UNION ALL
+
+SELECT
+    id,
+    'Teacher',
+    'Lehrperson - Kann Kurse erstellen, Studieren managen',
+    true
+FROM core.organisations
+
+UNION ALL
+
+SELECT
+    id,
+    'Creator',
+    'Inhaltsersteller - Kann Kurse und Lerninhalte erstellen',
+    true
+FROM core.organisations
+
+UNION ALL
+
+SELECT
+    id,
+    'Student',
+    'Lernender - Kann Kurse absolvieren und an Diskussionen teilnehmen',
+    true
+FROM core.organisations
+
+UNION ALL
+
+SELECT
+    id,
+    'Support',
+    'Support-Team - Kann Nutzerprobleme unterstützen',
+    true
+FROM core.organisations
+
+UNION ALL
+
+SELECT
+    id,
+    'Moderator',
+    'Inhaltsmoderiert - Kann Inhalte überprüfen und Verstöße bearbeiten',
+    true
+FROM core.organisations
+
+ON CONFLICT (organisation_id, name) DO NOTHING;
+```
+
+**Permissions für Standard-Gruppen definieren:**
+
+```sql
+-- Admin Group: Alle Permissions
+INSERT INTO core.group_permissions (group_id, permission_code)
+SELECT g.id, 'admin:system'
+FROM core.groups g
+WHERE g.name = 'Admin' AND g.is_predefined = true
+ON CONFLICT (group_id, permission_code) DO NOTHING;
+
+INSERT INTO core.group_permissions (group_id, permission_code)
+SELECT g.id, 'manage:org:settings'
+FROM core.groups g
+WHERE g.name IN ('Admin', 'Support') AND g.is_predefined = true
+ON CONFLICT (group_id, permission_code) DO NOTHING;
+
+INSERT INTO core.group_permissions (group_id, permission_code)
+SELECT g.id, 'admin:organisations'
+FROM core.groups g
+WHERE g.name IN ('Admin', 'Support') AND g.is_predefined = true
+ON CONFLICT (group_id, permission_code) DO NOTHING;
+
+-- Teacher Group: Kann Kurse und Studieren verwalten
+INSERT INTO core.group_permissions (group_id, permission_code)
+SELECT g.id, 'courses:manage'
+FROM core.groups g
+WHERE g.name = 'Teacher' AND g.is_predefined = true
+ON CONFLICT (group_id, permission_code) DO NOTHING;
+
+-- Creator Group: Kann Inhalte erstellen
+INSERT INTO core.group_permissions (group_id, permission_code)
+SELECT g.id, 'courses:create'
+FROM core.groups g
+WHERE g.name IN ('Creator', 'Teacher') AND g.is_predefined = true
+ON CONFLICT (group_id, permission_code) DO NOTHING;
+
+-- Moderator Group: Kann Inhalte moderieren
+INSERT INTO core.group_permissions (group_id, permission_code)
+SELECT g.id, 'content:moderate'
+FROM core.groups g
+WHERE g.name = 'Moderator' AND g.is_predefined = true
+ON CONFLICT (group_id, permission_code) DO NOTHING;
 ```
 
 **Ergebnis:**
-- ✅ 3 neue Permissions in `core.permissions` (IDs: 213, 214, 215)
-- ✅ 10 neue Role-Permission-Mappings in `core.role_permissions`
-- ✅ Alle Mappings mit ON CONFLICT DO NOTHING (Idempotenz)
+- ✅ 3 neue Tabellen in `core`: `groups`, `group_members`, `group_permissions`
+- ✅ 6 Standard-Gruppen pro Organisation (is_predefined = true)
+- ✅ Group-Permission-Mappings für alle Standard-Gruppen
+- ✅ Alle Inserts mit ON CONFLICT DO NOTHING (Idempotenz)
+- ✅ Flexible Struktur für custom groups (vom Admin erstellt)
 
 ---
 
-### ⚡ PermissionRepository - Datenbankabstraktions-Schicht
+### ⚡ PermissionRepository - Datenbankabstraktions-Schicht (Group-Based)
 
-**Zweck:** Zentrale Stelle für Permissions-Checks über RepositoryPattern
+**Zweck:** Zentrale Stelle für Permissions-Checks über RepositoryPattern + Group-Aggregation
 **Dateiort:** `backend/app/repositories/permission_repository.py`
 
 **Wichtige Methoden:**
@@ -955,87 +1094,243 @@ INSERT INTO core.role_permissions (role_id, permission_id) VALUES
 ```python
 class PermissionRepository:
     @staticmethod
-    def user_has_permission(user_id: str, permission_key: str) -> bool:
+    def user_has_permission(user_id: str, permission_code: str) -> bool:
         """
-        Prüfe, ob User Permission hat.
+        Prüfe, ob User Permission hat (aus ANY seiner Gruppen).
 
-        Strategie:
-        1. Prüfe user_permissions (User-spezifische Overrides)
-        2. Prüfe role_permissions (Role-basiert)
-        3. Rückgabe False bei Fehler (Fail-Secure!)
+        **Strategie (Group-Aggregation):**
+        1. Lade ALLE Gruppen, zu denen User gehört (via group_members)
+        2. Aggregiere ALLE Permissions aus diesen Gruppen (Set Union)
+        3. Prüfe, ob permission_code in aggregiertem Set vorhanden ist
+        4. Rückgabe False bei Fehler (Fail-Secure!)
 
-        Returns True wenn Permission vorhanden, False sonst.
+        **SQL:**
+        SELECT DISTINCT permission_code
+        FROM core.group_permissions gp
+        JOIN core.group_members gm ON gp.group_id = gm.group_id
+        WHERE gm.user_id = %s
+
+        Returns True wenn Permission in ANY Gruppe vorhanden, False sonst.
         """
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                try:
+                    cursor.execute('''
+                        SELECT COUNT(*) > 0
+                        FROM core.group_permissions gp
+                        JOIN core.group_members gm ON gp.group_id = gm.group_id
+                        WHERE gm.user_id = %s AND gp.permission_code = %s
+                    ''', (user_id, permission_code))
+
+                    return cursor.fetchone()[0]
+                except Exception as e:
+                    logger.error(f"Permission check failed: {e}", extra={'user_id': user_id})
+                    return False  # Fail-Secure!
 
     @staticmethod
     def get_user_permissions(user_id: str) -> Set[str]:
         """
-        Hole alle Permissions für User (Role + Overrides).
+        Hole ALLE Permissions für User (Aggregiert aus ALL seinen Gruppen).
 
-        Returns Set von permission_keys
+        **Strategie:**
+        1. Lade ALLE Gruppen des Users
+        2. Aggregiere ALLE Permissions aus allen Gruppen
+        3. Returns Set von permission_codes (Duplikate automatisch eliminiert)
+
+        **SQL:**
+        SELECT DISTINCT permission_code
+        FROM core.group_permissions gp
+        JOIN core.group_members gm ON gp.group_id = gm.group_id
+        WHERE gm.user_id = %s
+
+        **Beispiel:**
+        User "Alice" Gruppen: [Admin, Teacher, Moderator]
+        User "Alice" Permissions: {admin:system, manage:org:settings, courses:manage, courses:create, content:moderate}
         """
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                try:
+                    cursor.execute('''
+                        SELECT DISTINCT permission_code
+                        FROM core.group_permissions gp
+                        JOIN core.group_members gm ON gp.group_id = gm.group_id
+                        WHERE gm.user_id = %s
+                    ''', (user_id,))
+
+                    rows = cursor.fetchall()
+                    return {row[0] for row in rows}  # Set-Komprehension
+
+                except Exception as e:
+                    logger.error(f"Failed to load permissions: {e}", extra={'user_id': user_id})
+                    return set()  # Fail-Secure: Leer Set (keine Permissions!)
+
+    @staticmethod
+    def get_user_groups(user_id: str) -> List[dict]:
+        """
+        Hole ALLE Gruppen, zu denen User gehört.
+
+        Returns Liste von Gruppen mit id, name, is_predefined
+        """
+        with get_db_connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                try:
+                    cursor.execute('''
+                        SELECT g.id, g.name, g.is_predefined, g.organisation_id
+                        FROM core.groups g
+                        JOIN core.group_members gm ON g.id = gm.group_id
+                        WHERE gm.user_id = %s
+                        ORDER BY g.is_predefined DESC, g.name
+                    ''', (user_id,))
+
+                    return cursor.fetchall()
+                except Exception as e:
+                    logger.error(f"Failed to load groups: {e}", extra={'user_id': user_id})
+                    return []  # Fail-Secure: Leere Liste
+
+    @staticmethod
+    def add_user_to_group(user_id: str, group_id: str) -> bool:
+        """
+        Füge User zu Gruppe hinzu (Many-to-Many Beziehung).
+        """
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                try:
+                    cursor.execute('''
+                        INSERT INTO core.group_members (user_id, group_id)
+                        VALUES (%s, %s)
+                        ON CONFLICT (user_id, group_id) DO NOTHING
+                    ''', (user_id, group_id))
+
+                    conn.commit()
+                    return cursor.rowcount > 0
+                except Exception as e:
+                    logger.error(f"Failed to add user to group: {e}")
+                    conn.rollback()
+                    return False
 ```
 
 ---
 
-### 🛡️ Sicherheitsgarantien
+### 🛡️ Sicherheitsgarantien (Group-Based)
 
 #### Fail-Secure Design
 - ❌ Datenbankfehler? → 403 Forbidden (nicht 500 Internal Server Error)
 - ❌ Permission unklar? → 403 Forbidden (nicht 200 OK)
+- ❌ Group-Laden fehlgeschlagen? → Leere Permission-Liste → 403 Forbidden
 - ✅ Nur explizit genehmigte Requests werden gestattet
+- ✅ Fehlerfall: Always deny, never allow
 
 #### SQL-Injection Prevention
-- ✅ PermissionRepository nutzt Parameterized Queries
+- ✅ PermissionRepository nutzt **Parameterized Queries** (psycopg3)
 - ✅ Keine String-Interpolation bei Datenbank-Abfragen
+- ✅ GROUP BY / DISTINCT auch mit Parameterized Queries
 
-#### Backward-Kompatibilität
-- ✅ Alle Decorators prüfen FIRST: `hierarchy_level >= N`
-- ✅ Falls Permission-Check fehlschlägt, aber hierarchy_level OK → Access granted
-- ✅ Ermöglicht Cluster-Betrieb während Migration
+#### Multiple Group Membership (KEY SECURITY FEATURE)
+- ✅ User kann zu MEHREREN Gruppen gehören (Many-to-Many)
+- ✅ Permissions werden **aggregiert** (Set Union) aus ALLEN Gruppen
+- ✅ **Kein Überschreiben möglich**: User hat ALLE Permissions aus ALLEN seinen Gruppen
+- ✅ Beispiel: User "Alice" in Groups [Teacher, Moderator, Creator]
+  - Alice erhält: permissions(Teacher) ∪ permissions(Moderator) ∪ permissions(Creator)
+- ✅ **Reduziert Komplexität**: Keine Rollen-Hierarchie nötig
 
-#### Audit Trail
-- ✅ Alle Permission-Checks über DB-Layer geloggt
-- ✅ `role_permissions` Tabelle ist historisierbar
-- ✅ ISO 27001 konform (Zugriffsprotokolle)
+#### Audit Trail & Historisierung
+- ✅ Alle Permission-Checks über DB-Layer geloggt (mit user_id)
+- ✅ `group_members` Tabelle zeigt wer wann zu welcher Gruppe hinzugefügt wurde (assigned_at)
+- ✅ `group_permissions` Tabelle zeigt wann Permissions gewährt wurden (granted_at)
+- ✅ ISO 27001 konform (Zugriffsprotokolle mit Timestamp)
+
+#### Group Management Controls
+- ✅ Nur @require_system_admin oder @require_org_admin dürfen Groups verwalten
+- ✅ Predefined Groups (is_predefined = true) sind schreibgeschützt
+- ✅ Custom Groups können vom Admin erstellt/gelöscht werden
+- ✅ User können nicht selbst aus Gruppen austreten (nur Admin kann entfernen)
 
 ---
 
 ### 📊 Vergleich: Vorher vs. Nachher
 
-| Aspekt | Vorher (Deprecated) | Nachher (RBAC 2.0) |
-|--------|------------------|------------------|
-| **Permission-Quelle** | Python Code (hardcoded) | PostgreSQL Database |
-| **Admin-Panel-Effekt** | ❌ Keine (erfordert Redeployment) | ✅ Sofort wirksam |
-| **Neue Rollen hinzufügen** | Code ändern + Deploy | Nur DB-Insert in `core.roles` |
-| **Neue Permissions** | Code + Schema-Migration | Nur `core.permissions` Insert |
-| **Testing** | Muss Code-Level testen | DB-Level Fixtures |
-| **Rollback** | Git revert | DB-Rollback + Keep Code |
+| Aspekt | Vorher (RBAC 2.0) | Nachher (Group-Based) |
+|--------|------------------|----------------------|
+| **Permission-Quelle** | PostgreSQL (role_permissions) | PostgreSQL (group_permissions) |
+| **User-Rollen-Mapping** | ❌ 1:1 (ein User = eine Rolle) | ✅ Many-to-Many (ein User = mehrere Gruppen) |
+| **Permission-Aggregation** | Hardcoded im Python Code | Set Union aus ALLEN User-Gruppen |
+| **Admin-Panel-Effekt** | ✅ Sofort wirksam (DB-basiert) | ✅ Sofort wirksam (kein Code-Deploy nötig) |
+| **Neue Gruppen hinzufügen** | Nur DB-Insert in `core.groups` | Nur DB-Insert in `core.groups` |
+| **User zu Gruppe hinzufügen** | Nur UPDATE `core.users.role` | INSERT in `core.group_members` |
+| **Permissions verwalten** | UPDATE `core.role_permissions` | INSERT/DELETE in `core.group_permissions` |
+| **Fehlerbehandlung** | Permission-Check fehlgeschlagen → 500 Error | Permission-Check fehlgeschlagen → 403 Forbidden (Fail-Secure!) |
+| **Testing** | DB-Level Fixtures mit festen Rollen | DB-Level Fixtures mit flexiblen Gruppen |
+| **Rollback** | DB-Rollback (role → permissions zurücksetzen) | DB-Rollback (group_members + group_permissions) |
+| **Audit Trail** | Nur per Application-Logging | Mit Timestamps in group_members + group_permissions Tabellen |
+| **Skalierbarkeit** | Limitiert (max. 10-20 vordefinierte Rollen) | Unbegrenzt (beliebig viele custom Groups möglich) |
+| **Admin-Komplexität** | Mittel (Rollen-Hierarchie verstehen) | Niedrig (einfach User zu Gruppen hinzufügen) |
 
 ---
 
 ### ✅ Implementierungs-Status
 
+**Dokumentation & Design (COMPLETED):**
+
 | Komponente | Status | Details |
 |-----------|--------|---------|
-| **Code: @require_system_admin** | ✅ Complete | 455 LOC, Docstring, Type Hints |
-| **Code: @require_org_admin** | ✅ Complete | Dual-Permission OR-Logik |
-| **Code: @require_org_member** | ✅ Complete | Resource-Based (nicht Capability) |
-| **DB: Permissions** | ✅ Complete | Migration 080, 3 permissions |
-| **DB: Role-Mappings** | ✅ Complete | Migration 081, 10 mappings |
-| **PermissionRepository** | ✅ Complete | Zentrale Abstraktions-Schicht |
-| **Backend Health** | ✅ Verified | Läuft ohne Fehler mit neuen Perms |
-| **Integration Tests** | 🟡 Pending | Echte API-Endpoints testen |
+| **Arch: Permission-Decorators** | ✅ Complete | @require_system_admin, @require_org_admin, @require_org_member |
+| **DB Schema: Groups Table** | ✅ Documented | Migration 080, mit is_predefined Flag |
+| **DB Schema: Group-Members** | ✅ Documented | Migration 081, Many-to-Many relationship |
+| **DB Schema: Group-Permissions** | ✅ Documented | Migration 082, Permission aggregation |
+| **Standard Groups Init** | ✅ Documented | 6 Groups: Admin, Teacher, Creator, Student, Support, Moderator |
+| **PermissionRepository** | ✅ Documented | 4 Methods: user_has_permission, get_user_permissions, get_user_groups, add_user_to_group |
+| **SQL-Injection Prevention** | ✅ Documented | Parameterized queries in alle Repository-Methoden |
+| **Fail-Secure Design** | ✅ Documented | 403 Forbidden bei Permission-Fehler, nicht 500 Error |
+| **Audit Trail** | ✅ Documented | Timestamps in group_members.assigned_at, group_permissions.granted_at |
+
+**Implementation & Testing (PENDING - Phase 2):**
+
+| Komponente | Status | Phase | Details |
+|-----------|--------|-------|---------|
+| **Code: Python Decorators** | 🟡 Pending | Phase 3 | Implement @require_system_admin, @require_org_admin, @require_org_member |
+| **Code: PermissionRepository** | 🟡 Pending | Phase 3 | Implement all 4 methods with group aggregation logic |
+| **DB: Migrations** | 🟡 Pending | Phase 3 | Run Migrations 080, 081, 082 in production |
+| **DB: Standard Groups** | 🟡 Pending | Phase 3 | Initialize 6 standard groups per organization |
+| **DB: Permission Mappings** | 🟡 Pending | Phase 3 | Assign permissions to standard groups |
+| **Backend Integration** | 🟡 Pending | Phase 3 | Update all permission-checking code paths |
+| **Frontend Components** | 🟡 Pending | Phase 4 | Create group-management UI (rename from role-studio) |
+| **Data Migration** | 🟡 Pending | Phase 5 | Migrate users from old role-based to new group-based |
+| **Unit Tests** | 🟡 Pending | Phase 5 | Test PermissionRepository with multiple groups |
+| **Integration Tests** | 🟡 Pending | Phase 5 | Test API endpoints with group-based permissions |
+| **E2E Tests** | 🟡 Pending | Phase 5 | Test full user workflows with multiple groups |
 
 ---
 
-### 🎯 Nächste Schritte
+### 🎯 Nächste Schritte (Group-Based System)
 
-**Optional (können später erfolgen):**
-1. Integration Tests für echte API-Endpoints
-2. Dokumentation aktualisieren (dieses Dokument)
-3. Deprecation-Cleanup (Cleanup Phase 3)
-4. UI in Role Studio Admin-Panel
+**Phase 1: Dokumentation** ✅ **COMPLETED** (aktuell)
+- ✅ Dieses Dokument (Section 6.1) aktualisiert zu Group-Based System
+- ⏳ Weitere Dateien aktualisieren (siehe `.claude/GROUP_PERMISSION_SYSTEM_REFACTOR.md`):
+  - `01_Core/01_Rollenmodell.md` - Roles als "vordefinierte Gruppen" erklären
+  - `05_Technical/05_Backend-Struktur.md` - role_studio.py → group_management.py
+  - `05_Technical/04_Frontend-Struktur.md` - Role Studio Panel → Group Management Panel
+
+**Phase 2: Datenmodell-Definition** 🟡 **PENDING**
+- Exakte SQL-Migrations für groups, group_members, group_permissions
+- Vordefinierte Gruppen und ihre Permission-Mappings definieren
+- Migration-Strategie von alter zu neuer Schema
+
+**Phase 3: Backend-Umbauen** 🟡 **PENDING**
+- Implementiere alle 4 PermissionRepository-Methoden
+- Implementiere @require_* Decorators mit Group-Aggregation
+- Starte alle Migrations (080, 081, 082)
+- Testen: Unit-Tests für PermissionRepository mit mehreren Gruppen
+
+**Phase 4: Frontend-Umbauen** 🟡 **PENDING**
+- Rename + Restructure Admin-Panel von "role-studio" zu "group-management"
+- Erstelle Group-Management UI Components
+- Teste Group-Assignment Workflows
+
+**Phase 5: Migration & Finale Tests** 🟡 **PENDING**
+- Data-Migration Script von old role-based zu new group-based
+- Rollback-Verfahren testen
+- E2E-Tests für komplette User-Workflows mit mehreren Gruppen
+- Production Deployment
 
 ---
 

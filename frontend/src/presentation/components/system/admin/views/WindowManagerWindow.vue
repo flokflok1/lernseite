@@ -148,8 +148,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useWindowStore } from '@/store/window.store'
-import type { LsxWindow, WindowType } from '@/store/window.store'
+import { useWindowStore } from '@/application/stores/window.store'
+import type { LsxWindow, WindowType } from '@/application/stores/window.store'
 import PreviewCourseCreate from '@/presentation/components/system/shared/previews/PreviewCourseCreate.vue'
 import PreviewCourseEditor from '@/presentation/components/system/shared/previews/PreviewCourseEditor.vue'
 import PreviewKapitelEditor from '@/presentation/components/system/shared/previews/PreviewKapitelEditor.vue'

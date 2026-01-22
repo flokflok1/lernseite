@@ -10,7 +10,7 @@
  * Phase D4 - KI-Authoring-Studio
  */
 
-import http from './http'
+import http from '../http'
 
 // ============================================================================
 // Types & Interfaces

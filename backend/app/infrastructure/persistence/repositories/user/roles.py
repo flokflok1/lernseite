@@ -20,35 +20,44 @@ class UserRoleRepository(BaseRepository):
     pk_column = 'user_id'
 
     @classmethod
-    def find_by_role(cls, role: str, active_only: bool = True) -> List[Dict]:
+    def find_by_group(cls, group_slug: str, active_only: bool = True) -> List[Dict]:
         """
-        Find all users with specific role
+        Find all users in a specific group
 
         Args:
-            role: User role name
+            group_slug: Group slug (e.g., 'system-admin', 'premium-members')
             active_only: Only return active users (default: True)
 
         Returns:
             List of users
 
-        Example:
-            >>> admins = UserRoleRepository.find_by_role('admin')
-            >>> premium_users = UserRoleRepository.find_by_role('premium', active_only=False)
-        """
-        # Get role_id from role name
-        role_data = fetch_one("SELECT role_id FROM core.roles WHERE role_name = %s", (role,))
-        if not role_data:
-            return []
+        Note:
+            PHASE B: Replaces find_by_role() which used deleted core.roles table.
+            Users are now organized through core.users_groups junction table.
 
+        Example:
+            >>> admins = UserRoleRepository.find_by_group('system-admin')
+            >>> premium_users = UserRoleRepository.find_by_group('premium-members', active_only=False)
+        """
         if active_only:
             users = fetch_all(
-                "SELECT * FROM core.users WHERE role_id = %s AND status = %s",
-                (role_data['role_id'], 'active')
+                """
+                SELECT DISTINCT u.* FROM core.users u
+                JOIN core.users_groups ug ON u.user_id = ug.user_id
+                JOIN core.groups g ON ug.group_id = g.group_id
+                WHERE g.slug = %s AND u.status = %s
+                """,
+                (group_slug, 'active')
             )
         else:
             users = fetch_all(
-                "SELECT * FROM core.users WHERE role_id = %s",
-                (role_data['role_id'],)
+                """
+                SELECT DISTINCT u.* FROM core.users u
+                JOIN core.users_groups ug ON u.user_id = ug.user_id
+                JOIN core.groups g ON ug.group_id = g.group_id
+                WHERE g.slug = %s
+                """,
+                (group_slug,)
             )
 
         # Remove password_hash from all users

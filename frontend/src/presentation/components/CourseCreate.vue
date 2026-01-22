@@ -400,7 +400,7 @@ const fillFieldsWithAI = async (): Promise<void> => {
 
       try {
         // Use direct API call to avoid store's automatic polling
-        const { adminGetAIJob } = await import('@/api/admin.api')
+        const { adminGetAIJob } = await import('@/infrastructure/api/admin.api')
         const result = await adminGetAIJob(job.id)
 
         if (result.status === 'completed' && result.output_data) {
@@ -471,7 +471,7 @@ const createCourse = async (): Promise<void> => {
     // If file was selected, upload it as course file
     if (selectedFile.value && courseId) {
       try {
-        const { adminUploadCourseFile } = await import('@/api/admin.api')
+        const { adminUploadCourseFile } = await import('@/infrastructure/api/admin.api')
         await adminUploadCourseFile(courseId, selectedFile.value, {
           file_category: 'script',
           display_name: selectedFile.value.name

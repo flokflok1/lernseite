@@ -1,4 +1,5 @@
-import http from './http'
+import http from '../http'
+import { transformCategoryFromAPI } from '../../utils/transformers'
 
 // ============================================================================
 // Types & Interfaces
@@ -69,8 +70,13 @@ export const getCategories = async (params: {
   })
 
   return {
-    categories: response.data.categories,
-    pagination: response.data.pagination
+    categories: response.data.categories.map(transformCategoryFromAPI),
+    pagination: {
+      page: response.data.pagination.page,
+      per_page: response.data.pagination.per_page,
+      total: response.data.pagination.total,
+      total_pages: response.data.pagination.total_pages
+    }
   }
 }
 
@@ -85,7 +91,22 @@ export const getCategoryTree = async (activeOnly = false): Promise<CategoryTreeR
     params: { active_only: activeOnly }
   })
 
-  return response.data.tree
+  // Transform tree nodes recursively and response fields
+  const transformTreeNode = (node: any): any => {
+    const transformed = transformCategoryFromAPI(node)
+    if (node.children && Array.isArray(node.children)) {
+      transformed.children = node.children.map(transformTreeNode)
+    }
+    return transformed
+  }
+
+  const tree = response.data.tree
+  return {
+    categories: tree.categories.map(transformTreeNode),
+    totalCategories: tree.total_categories,
+    maxLevel: tree.max_level,
+    activeCategories: tree.active_categories
+  }
 }
 
 /**
@@ -100,7 +121,7 @@ export const getRootCategories = async (activeOnly = true): Promise<Category[]> 
     params: { active_only: activeOnly }
   })
 
-  return response.data.categories
+  return response.data.categories.map(transformCategoryFromAPI)
 }
 
 /**
@@ -112,7 +133,7 @@ export const getCategory = async (categoryId: number): Promise<Category> => {
     category: Category
   }>(`/categories/${categoryId}`)
 
-  return response.data.category
+  return transformCategoryFromAPI(response.data.category)
 }
 
 /**
@@ -124,7 +145,7 @@ export const getCategoryBreadcrumb = async (categoryId: number): Promise<Categor
     breadcrumb: Category[]
   }>(`/categories/${categoryId}/breadcrumb`)
 
-  return response.data.breadcrumb
+  return response.data.breadcrumb.map(transformCategoryFromAPI)
 }
 
 /**
@@ -140,21 +161,21 @@ export const searchCategories = async (query: string, activeOnly = false): Promi
     params: { q: query, active_only: activeOnly }
   })
 
-  return response.data.categories
+  return response.data.categories.map(transformCategoryFromAPI)
 }
 
 /**
  * Get category statistics
  */
 export const getCategoryStats = async (): Promise<{
-  total_categories: number
-  active_categories: number
-  level_1_count: number
-  level_2_count: number
-  level_3_count: number
-  level_4_count: number
-  level_5_count: number
-  max_level: number
+  totalCategories: number
+  activeCategories: number
+  level1Count: number
+  level2Count: number
+  level3Count: number
+  level4Count: number
+  level5Count: number
+  maxLevel: number
 }> => {
   const response = await http.get<{
     success: boolean
@@ -170,7 +191,17 @@ export const getCategoryStats = async (): Promise<{
     }
   }>('/categories/stats')
 
-  return response.data.stats
+  const stats = response.data.stats
+  return {
+    totalCategories: stats.total_categories,
+    activeCategories: stats.active_categories,
+    level1Count: stats.level_1_count,
+    level2Count: stats.level_2_count,
+    level3Count: stats.level_3_count,
+    level4Count: stats.level_4_count,
+    level5Count: stats.level_5_count,
+    maxLevel: stats.max_level
+  }
 }
 
 /**
@@ -192,5 +223,5 @@ export const getCategoryDescendants = async (
     params: { include_self: includeSelf, active_only: activeOnly }
   })
 
-  return response.data.descendants
+  return response.data.descendants.map(transformCategoryFromAPI)
 }

@@ -5,7 +5,7 @@
  * Phase D4 - KI-Kurs-Builder
  */
 
-import http from './http'
+import http from '../http'
 
 // Types
 export interface CourseAuthoringSession {

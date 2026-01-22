@@ -242,7 +242,7 @@ Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig complian
 │   │           ├── course_analytics.py
 │   │           ├── course_ai_settings.py
 │   │           ├── course_authoring.py
-│   │           ├── role_studio.py
+│   │           ├── group_management.py
 │   │           └── ai_editor_authoring.py
 │   │
 │   ├── /application                        # 🟡 APPLICATION LAYER (Services)
@@ -2005,7 +2005,7 @@ Das LSX Backend implementiert eine **RBAC 2.0 (Role-Based Access Control 2.0)** 
 | `@require_org_admin()` | Capability-Based | Organization Admin Access | `manage:org:settings`, `admin:organisations` |
 | `@require_org_member()` | Resource-Based | Organization Membership Check | Keine (direkter Organisationszugriff) |
 
-**Wichtig:** RBAC 2.0 ist **database-driven** und ersetzt die deprecated hardcoded Role-Liste. Das ermöglicht dem **Role Studio Admin Panel**, Berechtigungen ohne Code-Änderungen zu aktualisieren!
+**Wichtig:** Das Group-Based Permission System ist **database-driven** und ermöglicht dem **Group Management Admin Panel**, flexible Gruppen-Zuordnungen und Permissions ohne Code-Änderungen zu aktualisieren!
 
 ---
 

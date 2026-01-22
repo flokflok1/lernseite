@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
 import { useDashboardStore } from '@/application/stores/modules/learning'
-import { getWidgetDefinition } from '@/config/widgetRegistry'
+import { getWidgetDefinition } from '@/infrastructure/config/widgetRegistry'
 import type { WidgetDataContext, WidgetDefinition } from '@/domain/widgets'
 
 // ============================================================================

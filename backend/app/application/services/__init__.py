@@ -75,9 +75,10 @@ from app.application.services.system.features.service import FeatureService
 # Authentication & Authorization (system/auth)
 from app.application.services.system.auth import (
     PermissionService,
-    RolesService,
     RoleStudioService,
 )
+
+# PHASE B: RolesService removed (replaced with Groups system)
 
 # Audit & Compliance (system/audit)
 from app.application.services.system.audit import AuditService
@@ -149,8 +150,8 @@ __all__ = [
 
     # Auth & Authorization
     'PermissionService',
-    'RolesService',
     'RoleStudioService',
+    # 'RolesService',  # PHASE B: Removed (replaced with Groups system)
 
     # Audit
     'AuditService',

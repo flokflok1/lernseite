@@ -1,8 +1,8 @@
 # 16 – Frontend-Struktur (DDD Architecture)
 
-**Version:** 4.0.2 (DDD Migration - Course Editor Fix)
-**Stand:** 20.01.2026
-**Änderungen:** Course Editor direkt als Domain (kein Studio parent) - Aligned mit Backend
+**Version:** 4.0.4 (Admin Panel Unification + Cleanup)
+**Stand:** 21.01.2026
+**Änderungen:** Admin Panel formalisiert und konsolidiert - 12 orphaned org-admin files gelöscht, einheitliche Struktur unter `/admin` etabliert
 
 ---
 
@@ -963,40 +963,68 @@ async function sendMessage() {
 
 ## 7. Course Editor Routes
 
+**PRIMARY Course Editor Domain Route (for all roles with access):**
+
 ```typescript
 // src/presentation/router/routes.ts
 
 const routes = [
   {
-    path: '/editor',
+    path: '/editor',                          // ✅ PRIMARY Course Editor Route
     component: () => import('@/presentation/layouts/EditorLayout.vue'),
     beforeEnter: [requireAuth, requireFeature('course-editor')],
+    meta: {
+      requiresAuth: true,
+      requiresFeature: 'course-editor'
+    },
     children: [
       {
         path: '',
         name: 'EditorDashboard',
         component: () => import('@/presentation/views/course-editor/ProjectsView.vue'),
+        // Projects overview - access to Course Editor Domain
       },
       {
         path: 'course/:projectId?',
         name: 'CourseEditor',
         component: () => import('@/presentation/views/course-editor/EditorView.vue'),
-        // Loads: CourseEditorMain.vue → EditorSwitcher.vue → Manual/AI Editor
+        // Main Editor View - loads CourseEditorMain.vue
+        // → EditorSwitcher.vue (Manual ↔ AI toggle)
+        // → ManualEditorContainer OR AIEditorContainer
       },
       {
         path: 'templates',
         name: 'Templates',
         component: () => import('@/presentation/views/course-editor/TemplatesView.vue'),
+        // Template Library - pre-built templates
       },
       {
         path: 'history',
         name: 'History',
         component: () => import('@/presentation/views/course-editor/HistoryView.vue'),
+        // Generation History - track AI generations
       }
     ]
   }
 ]
 ```
+
+---
+
+**Secondary Admin Route (Admin Panel access to Course Editor Domain):**
+
+At `/admin/kurs-editor`, the Admin Panel provides System Admins with access to:
+- Course approval workflows
+- Course publication queue management
+- Course analytics
+- AI generation monitoring
+
+**Both `/editor` and `/admin/kurs-editor` use the SAME Course Editor Domain Services:**
+- EditorService (orchestration)
+- AIService (AI generation)
+- ChatService (AI chat)
+- VariantService (content variants)
+- TemplateService (template management)
 
 ---
 
@@ -1116,7 +1144,601 @@ presentation/components/course-editor/ → UI Components
 
 ---
 
+## 11. Admin Panel Architecture
+
+### 📊 Admin Panel Overview
+
+Das **Admin Panel** ist eine **UNIFIED System Administration Interface** unter `/admin` für System Admins. Es ist NICHT teilbar in separate Org Admin oder User Admin Panels.
+
+**Key Points:**
+- ✅ **Single Entry Point**: `/admin` für ALL Admin Features
+- ✅ **Role-Based Access**: `requiresSystemAdmin` meta guard on all routes
+- ✅ **12 Main Sections**: Users, Roles, Organisations, Courses, Categories, AI Studio, Translations, Billing, Analytics, Audit Logs, LM Routing, System Settings
+- ✅ **Backend Aligned**: Mirrors Backend API structure (`/api/v1/admin-panel/*`)
+- ❌ **NO Separate `/org` Panel**: Organisation features go through `/admin/organisations`
+
+---
+
+⚠️ **IMPORTANT: Course Editor is a SHARED Domain Component**
+
+**The Course Editor is NOT an Admin-only feature!**
+
+- 📝 **Defined in Section 2** as a separate SHARED Domain component (`/presentation/components/course-editor/`)
+- 🎯 **Primary Route**: `/editor` - for creators/users with `course-editor` feature flag
+- 🔐 **Admin Route**: `/admin/kurs-editor` - System Admin access point to the same domain
+- 🔄 **Same Domain Services**: Both routes access the same Course Editor Services (EditorService, AIService, ChatService, etc.)
+
+**In other words:** The Admin Panel **CONSUMES** the Course Editor Domain but does NOT **DEFINE** it. The Course Editor is documented as a reusable, multi-role domain component.
+
+#### 🎯 Phase 6 Admin Panel Unification (21.01.2026)
+
+**Cleanup & Formalization Completed:**
+
+Die folgende Arbeit wurde durchgeführt, um das Admin Panel zu formalisieren und zu konsolidieren:
+
+**Gelöschte Dateien (12 total):**
+- **5 Orphaned Org Admin Pages**: OrgDashboardPage, OrgAnalyticsPage, OrgSettingsPage, OrgCoursesPage, OrgUsersPage (keine Router-Pfade, keine Imports)
+- **2 Orphaned Org Admin Stores**: orgAdmin.store.ts (barrel), orgAdmin.store.ts (implementation)
+- **2 Orphaned Org Admin APIs**: legacy orgAdmin.api.ts files (beide Strukturen)
+- **3 Duplicate OrgOverviewWidget Copies**: Aus verschiedenen Ordnern (nur 1 Kopie in Phase 6 Struktur behalten)
+
+**Aktualisierte Dateien:**
+- **AdminLayout.vue**: Entfernt `isOrgAdmin` prop und `/org` Pfad-Referenzen
+- **admin/index.ts**: Barrel-Export für orgAdmin.store entfernt
+
+**Verifizierter Status:**
+- ✅ Keine verbleibenden `/org/` Pfade in aktivem Code
+- ✅ Alle 17 Admin Pages unter `/admin` aktiv und funktionsfähig
+- ✅ Organisations API (`/organisations`) korrekt unter `/admin` integriert
+- ✅ OrgOverviewWidget konsolidiert in Phase 6 Struktur
+- ✅ Backup-Risiko eliminiert
+- ✅ Einheitliche Admin Panel Struktur etabliert
+
+### 🗂️ Admin Panel Folder Structure (100+ Components)
+
+```
+/src/presentation/
+├── /layouts
+│   └── AdminLayout.vue                   # 🎨 Admin Panel Master Layout (Sidebar + Top Bar)
+│       ├── Sidebar (12 menu items)
+│       ├── Top bar (page title + actions)
+│       └── Main content area (router-view)
+│
+├── /components
+│   └── /admin/                           # Admin Domain Components (100+ components)
+│       │
+│       ├── /dashboard                    # 📊 Dashboard Section
+│       │   ├── AdminDashboard.vue        # Main admin dashboard
+│       │   ├── StatsCard.vue             # Statistics display
+│       │   ├── ActivityLog.vue           # Recent activities
+│       │   ├── SystemHealth.vue          # System status
+│       │   └── QuickActions.vue          # Quick action buttons
+│       │
+│       ├── /users                        # 👥 User Management
+│       │   ├── UserList.vue              # List all users
+│       │   ├── UserDetail.vue            # View/edit single user
+│       │   ├── UserForm.vue              # User creation/editing form
+│       │   ├── BulkActions.vue           # Bulk operations
+│       │   ├── RoleAssignment.vue        # Assign roles to users
+│       │   └── UserSearch.vue            # Advanced search
+│       │
+│       ├── /roles                        # 🔐 Role Management
+│       │   ├── RoleList.vue              # List all roles
+│       │   ├── RoleDetail.vue            # View/edit role
+│       │   ├── PermissionMatrix.vue      # Permission assignment
+│       │   ├── RoleForm.vue              # Create/edit role
+│       │   └── RoleTemplate.vue          # Pre-defined role templates
+│       │
+│       ├── /organisations                # 🏢 Organisation Management
+│       │   ├── OrgList.vue               # List organisations
+│       │   ├── OrgDetail.vue             # Organisation details
+│       │   ├── OrgSettings.vue           # Organisation settings
+│       │   ├── OrgUsers.vue              # Users in organisation
+│       │   ├── OrgAnalytics.vue          # Organisation analytics
+│       │   ├── OrgForm.vue               # Create/edit organisation
+│       │   └── OrgSubscription.vue       # Subscription management
+│       │
+│       ├── /courses                      # 📚 Course Management (kurs-editor)
+│       │   │                              # ⚠️ Admin access to Course Editor Domain
+│       │   │                              # (See Section 2: Shared Domain)
+│       │   ├── CourseList.vue            # List all courses
+│       │   ├── CourseDetail.vue          # Course details
+│       │   ├── CourseApproval.vue        # Approve/reject courses
+│       │   ├── PublicationQueue.vue      # Publishing workflow
+│       │   ├── CourseSearch.vue          # Advanced search
+│       │   └── BulkCourseActions.vue     # Bulk operations
+│       │
+│       ├── /categories                   # 📁 Category Management
+│       │   ├── CategoryTree.vue          # Hierarchical view
+│       │   ├── CategoryForm.vue          # Create/edit category
+│       │   ├── CategoryReorder.vue       # Drag-to-reorder
+│       │   └── CategoryMapping.vue       # Map courses to categories
+│       │
+│       ├── /ai-studio                    # 🤖 AI Management
+│       │   ├── AIStudioMain.vue          # Main AI studio interface
+│       │   ├── ModelManagement.vue       # AI model selection
+│       │   ├── ProviderSettings.vue      # LLM provider configuration
+│       │   ├── APIKeyManager.vue         # API key management
+│       │   ├── PricingManager.vue        # Token pricing
+│       │   ├── JobMonitor.vue            # Monitor AI jobs
+│       │   ├── PromptLibrary.vue         # Manage prompts
+│       │   └── CostAnalytics.vue         # AI cost tracking
+│       │
+│       ├── /translations                 # 🌐 i18n Management
+│       │   ├── TranslationDashboard.vue  # Translation status
+│       │   ├── LanguageManager.vue       # Manage languages
+│       │   ├── StringEditor.vue          # Edit translation strings
+│       │   ├── ExportImport.vue          # Import/export translations
+│       │   ├── SyncStatus.vue            # Sync with backend
+│       │   └── MissingTranslations.vue   # Find gaps
+│       │
+│       ├── /billing                      # 💰 Billing Management
+│       │   ├── SubscriptionList.vue      # Active subscriptions
+│       │   ├── TransactionLog.vue        # Payment history
+│       │   ├── InvoiceManager.vue        # Invoice management
+│       │   ├── PaymentMethods.vue        # Payment configuration
+│       │   ├── TokenPricing.vue          # Token cost settings
+│       │   └── RevenueAnalytics.vue      # Revenue tracking
+│       │
+│       ├── /analytics                    # 📈 Analytics & Reporting
+│       │   ├── AnalyticsDashboard.vue    # Main analytics view
+│       │   ├── UserMetrics.vue           # User statistics
+│       │   ├── CourseMetrics.vue         # Course statistics
+│       │   ├── EngagementChart.vue       # Engagement tracking
+│       │   ├── RevenueChart.vue          # Revenue tracking
+│       │   ├── CustomReports.vue         # Create custom reports
+│       │   └── ExportData.vue            # Export analytics
+│       │
+│       ├── /audit-logs                   # 📋 Audit & Compliance
+│       │   ├── AuditLogList.vue          # View audit logs
+│       │   ├── AuditLogFilter.vue        # Advanced filtering
+│       │   ├── LogDetails.vue            # Log entry details
+│       │   ├── ExportAuditLog.vue        # Export for compliance
+│       │   └── AuditDashboard.vue        # Summary statistics
+│       │
+│       ├── /lm-routing                   # 🎓 Learning Method Routing
+│       │   ├── RoutingDashboard.vue      # Routing overview
+│       │   ├── MethodRouting.vue         # Configure LM routing
+│       │   ├── GroupRouting.vue          # Route by LM group (A/B/C)
+│       │   └── RoutingRules.vue          # Conditional routing
+│       │
+│       └── /system-settings              # ⚙️ System Configuration
+│           ├── SettingsDashboard.vue     # Settings overview
+│           ├── GeneralSettings.vue       # App name, logo, etc.
+│           ├── SecuritySettings.vue      # HTTPS, CORS, headers
+│           ├── PerformanceSettings.vue   # Cache, rate limits
+│           ├── FeatureFlags.vue          # Feature toggle
+│           ├── MaintenanceMode.vue       # Maintenance controls
+│           ├── BackupSettings.vue        # Backup configuration
+│           └── ApiSettings.vue           # API configuration
+│
+└── /views
+    └── /admin
+        ├── AdminDashboardPage.vue        # Dashboard page
+        ├── AdminUsersPage.vue            # Users management page
+        ├── AdminRolesPage.vue            # Roles management page
+        ├── AdminOrganisationsPage.vue    # Organisations page
+        ├── AdminCoursesPage.vue          # Course management page
+        ├── AdminCategoriesPage.vue       # Categories page
+        ├── AdminKIStudioPage.vue         # AI Studio page
+        ├── AdminTranslationsPage.vue     # Translations page
+        ├── AdminBillingPage.vue          # Billing page
+        ├── AdminAnalyticsPage.vue        # Analytics page
+        ├── AdminAuditLogsPage.vue        # Audit logs page
+        ├── AdminLMRoutingPage.vue        # LM Routing page
+        └── AdminSystemSettingsPage.vue   # System settings page
+```
+
+### 👥 Group-Based Access Control
+
+**Admin Panel Routes with Guards:**
+
+```typescript
+// src/presentation/router/index.ts
+
+{
+  path: '/admin',
+  component: () => import('@/presentation/layouts/AdminLayout.vue'),
+  meta: {
+    requiresAuth: true,
+    requiresSystemAdmin: true  // ⚡ CRITICAL: Only System Admins!
+  },
+  children: [
+    {
+      path: '',
+      name: 'AdminDashboard',
+      component: () => import('@/presentation/pages/admin/AdminDashboardPage.vue'),
+    },
+    {
+      path: 'users',
+      name: 'AdminUsers',
+      component: () => import('@/presentation/pages/admin/AdminUsersPage.vue'),
+    },
+    {
+      path: 'users/:userId',
+      name: 'AdminUserDetail',
+      component: () => import('@/presentation/pages/admin/AdminUserDetailPage.vue'),
+    },
+    {
+      path: 'roles',
+      name: 'AdminRoles',
+      component: () => import('@/presentation/pages/admin/AdminRolesPage.vue'),
+    },
+    {
+      path: 'organisations',
+      name: 'AdminOrganisations',
+      component: () => import('@/presentation/pages/admin/AdminOrganisationsPage.vue'),
+    },
+    {
+      path: 'kurs-editor',
+      name: 'AdminCourseEditor',
+      component: () => import('@/presentation/pages/admin/AdminCoursesPage.vue'),
+    },
+    {
+      path: 'categories',
+      name: 'AdminCategories',
+      component: () => import('@/presentation/pages/admin/AdminCategoriesPage.vue'),
+    },
+    {
+      path: 'ai-studio',
+      name: 'AdminAIStudio',
+      component: () => import('@/presentation/pages/admin/AdminKIStudioPage.vue'),
+    },
+    {
+      path: 'translations',
+      name: 'AdminTranslations',
+      component: () => import('@/presentation/pages/admin/AdminTranslationsPage.vue'),
+    },
+    {
+      path: 'billing',
+      name: 'AdminBilling',
+      component: () => import('@/presentation/pages/admin/AdminBillingPage.vue'),
+    },
+    {
+      path: 'analytics',
+      name: 'AdminAnalytics',
+      component: () => import('@/presentation/pages/admin/AdminAnalyticsPage.vue'),
+    },
+    {
+      path: 'audit-logs',
+      name: 'AdminAuditLogs',
+      component: () => import('@/presentation/pages/admin/AdminAuditLogsPage.vue'),
+    },
+    {
+      path: 'lm-routing',
+      name: 'AdminLMRouting',
+      component: () => import('@/presentation/pages/admin/AdminLMRoutingPage.vue'),
+    },
+    {
+      path: 'system-settings',
+      name: 'AdminSystemSettings',
+      component: () => import('@/presentation/pages/admin/AdminSystemSettingsPage.vue'),
+    },
+  ],
+}
+```
+
+**Navigation Guard (beforeEach):**
+
+```typescript
+// Check System Admin access
+if (to.meta.requiresSystemAdmin && !authStore.isSystemAdmin) {
+  console.warn('Access denied: System Admin required')
+  next({ name: 'Dashboard' })
+  return
+}
+```
+
+### 🏗️ Admin Panel Services & Stores (12 Each)
+
+**Admin Panel Services (12 x Domain-Specific):**
+
+```typescript
+// src/application/services/admin/
+
+├── UserAdminService.ts         # User CRUD + role assignment
+├── RoleAdminService.ts         # Role CRUD + permissions
+├── OrganisationService.ts       # Organisation management
+├── CourseAdminService.ts        # Course approval workflow
+├── CategoryService.ts           # Category hierarchy
+├── AIStudioService.ts           # AI model/provider management
+├── TranslationService.ts        # i18n management
+├── BillingService.ts            # Billing & subscriptions
+├── AnalyticsService.ts          # Reporting & metrics
+├── AuditLogService.ts           # Compliance logging
+├── LMRoutingService.ts          # Learning method routing
+└── SystemSettingsService.ts     # System configuration
+```
+
+**Admin Panel State Stores (12 x Pinia):**
+
+```typescript
+// src/application/stores/modules/admin/ (12 stores für Admin Panel)
+
+├── adminDashboard.store.ts      # Dashboard state
+├── users.store.ts               # Users management state
+├── roles.store.ts               # Roles management state
+├── organisations.store.ts        # Organisations state
+├── courses.store.ts             # Course management state
+├── categories.store.ts          # Categories state
+├── aiStudio.store.ts            # AI Studio state
+├── translations.store.ts         # i18n state
+├── billing.store.ts             # Billing state
+├── analytics.store.ts           # Analytics state
+├── auditLogs.store.ts           # Audit logs state
+├── lmRouting.store.ts           # LM Routing state
+└── systemSettings.store.ts       # System settings state
+```
+
+### 📡 Admin API Endpoints
+
+**Backend Admin Panel Endpoints** (via `/api/v1/admin-panel/*`):
+
+| Section | Endpoints | Method | Purpose |
+|---------|-----------|--------|---------|
+| **Users** | `/admin-panel/users` | GET/POST | List/create users |
+| | `/admin-panel/users/:id` | GET/PUT/DELETE | User details |
+| **Groups** | `/admin-panel/groups` | GET/POST | List/create groups |
+| | `/admin-panel/groups/:id/permissions` | PUT | Update group permissions |
+| **Organisations** | `/admin-panel/organisations` | GET/POST | Org management |
+| | `/admin-panel/organisations/:id` | GET/PUT/DELETE | Org details |
+| **Courses** | `/admin-panel/courses` | GET | List all courses |
+| | `/admin-panel/courses/:id/approve` | POST | Approve course |
+| **Categories** | `/admin-panel/categories` | GET/POST | Category hierarchy |
+| **AI** | `/admin-panel/ai/models` | GET | List AI models |
+| | `/admin-panel/ai/providers` | PUT | Update providers |
+| | `/admin-panel/ai/pricing` | PUT | Set pricing |
+| **Analytics** | `/admin-panel/analytics/users` | GET | User metrics |
+| | `/admin-panel/analytics/courses` | GET | Course metrics |
+| **Audit Logs** | `/admin-panel/audit-logs` | GET | View logs |
+
+### 🔌 Admin Layout Component
+
+**AdminLayout.vue** - Manages sidebar, navigation, and layout:
+
+```vue
+<!-- src/presentation/layouts/AdminLayout.vue -->
+
+<template>
+  <div class="admin-layout flex h-screen overflow-hidden bg-[var(--color-bg)]">
+    <!-- Sidebar with 12 menu items -->
+    <aside class="w-72 bg-[var(--color-surface)] border-r border-[var(--color-border)] flex flex-col">
+      <div class="p-5 border-b border-[var(--color-border)]">
+        <router-link to="/dashboard" class="flex items-center gap-3">
+          <span class="text-3xl">🎓</span>
+          <div>
+            <h1 class="text-lg font-bold">LSX</h1>
+            <p class="text-sm">{{ sidebarTitle }}</p>
+          </div>
+        </router-link>
+      </div>
+
+      <!-- Navigation with 12 menu items -->
+      <nav class="flex-1 overflow-y-auto p-5">
+        <router-link
+          v-for="item in menuItems"
+          :key="item.path"
+          :to="item.path"
+          :class="{ 'active': isActive(item.path) }"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-base font-medium transition-colors"
+        >
+          <span class="text-xl">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </router-link>
+      </nav>
+
+      <!-- User section -->
+      <div class="p-5 border-t border-[var(--color-border)]">
+        <div class="flex items-center gap-3.5 mb-4">
+          <div class="w-11 h-11 bg-primary-100 rounded-full flex items-center justify-center">
+            <span class="text-primary-700 font-semibold">{{ userInitials }}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-base font-medium truncate">{{ authStore.fullName }}</p>
+            <p class="text-sm text-secondary">{{ authStore.userRole }}</p>
+          </div>
+        </div>
+
+        <button @click="handleLogout" class="w-full px-4 py-2.5 text-red-700 hover:bg-red-50 rounded-lg">
+          {{ t('auth.logout') }}
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden min-h-0">
+      <!-- Top Bar with page title -->
+      <header class="flex-shrink-0 bg-[var(--color-surface)] border-b border-[var(--color-border)] px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold">{{ pageTitle }}</h2>
+            <p v-if="pageSubtitle" class="text-sm text-secondary">{{ pageSubtitle }}</p>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <LanguageSelector :show-label="false" />
+            <slot name="header-actions"></slot>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content with DesktopLayer -->
+      <div class="flex-1 relative">
+        <div class="absolute inset-0 overflow-hidden">
+          <DesktopLayer>
+            <div class="p-2">
+              <router-view></router-view>
+            </div>
+          </DesktopLayer>
+        </div>
+      </div>
+    </main>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/application/stores/auth.store'
+import { DesktopLayer } from '@/presentation/components/layout'
+import { LanguageSelector } from '@/presentation/components/layout/i18n'
+
+const router = useRouter()
+const route = useRoute()
+const { t, locale } = useI18n()
+const authStore = useAuthStore()
+
+// 12 Admin menu items
+const menuItems = computed(() => [
+  { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
+  { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
+  { path: '/admin/groups', label: t('admin.nav.groups'), icon: '👫' },
+  { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
+  { path: '/admin/kurs-editor', label: t('admin.nav.courseEditor'), icon: '📝' },
+  { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
+  { path: '/admin/ai-studio', label: t('admin.nav.aiStudio'), icon: '🤖' },
+  { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
+  { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },
+  { path: '/admin/analytics', label: t('admin.nav.analytics'), icon: '📈' },
+  { path: '/admin/audit-logs', label: t('admin.nav.audit_logs'), icon: '📋' },
+  { path: '/admin/system-settings', label: t('admin.nav.settings'), icon: '⚙️' }
+])
+
+const sidebarTitle = computed(() => {
+  void locale.value // Trigger reactivity on language change
+  return t('admin.system_admin')
+})
+
+const userInitials = computed(() => {
+  const firstName = authStore.user?.first_name || ''
+  const lastName = authStore.user?.last_name || ''
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+})
+
+const isActive = (path: string): boolean => {
+  return route.path === path || route.path.startsWith(path + '/')
+}
+
+const handleLogout = async () => {
+  await authStore.logout()
+  router.push('/login')
+}
+</script>
+```
+
+### 💡 Example: User Management Page
+
+```vue
+<!-- src/presentation/pages/admin/AdminUsersPage.vue -->
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useAdminStore } from '@/application/stores/modules/admin/users.store'
+import { UserAdminService } from '@/application/services/admin/UserAdminService'
+
+const adminStore = useAdminStore()
+const service = new UserAdminService()
+
+const users = computed(() => adminStore.users)
+const isLoading = computed(() => adminStore.isLoading)
+const selectedUser = ref(null)
+
+onMounted(async () => {
+  await adminStore.fetchUsers()
+})
+
+const handleAddUser = async (userData) => {
+  await adminStore.createUser(userData)
+}
+
+const handleUpdateUser = async (userId, updates) => {
+  await adminStore.updateUser(userId, updates)
+}
+
+const handleDeleteUser = async (userId) => {
+  await adminStore.deleteUser(userId)
+}
+</script>
+
+<template>
+  <div class="admin-users-page">
+    <div class="flex justify-between items-center mb-6">
+      <h1>{{ $t('admin.users.title') }}</h1>
+      <button @click="selectedUser = {}" class="btn btn-primary">
+        {{ $t('admin.users.add_user') }}
+      </button>
+    </div>
+
+    <div v-if="isLoading" class="loader">{{ $t('common.loading') }}</div>
+
+    <table v-else class="users-table">
+      <thead>
+        <tr>
+          <th>{{ $t('admin.users.name') }}</th>
+          <th>{{ $t('admin.users.email') }}</th>
+          <th>{{ $t('admin.users.role') }}</th>
+          <th>{{ $t('admin.users.status') }}</th>
+          <th>{{ $t('common.actions') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="user in users" :key="user.id">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td :class="`status-${user.status}`">{{ user.status }}</td>
+          <td>
+            <button @click="selectedUser = user" class="btn btn-sm">Edit</button>
+            <button @click="handleDeleteUser(user.id)" class="btn btn-sm btn-danger">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+```
+
+### ✅ Admin Panel Structure Summary
+
+| Aspect | Details |
+|--------|---------|
+| **Location** | `/admin` (single unified entry point) |
+| **Layout** | AdminLayout.vue with sidebar + top bar |
+| **Menu Items** | 12 sections (Users, Roles, Organisations, etc.) |
+| **Access Control** | `requiresSystemAdmin` meta guard on all routes |
+| **Components** | 100+ admin components organized by section |
+| **Services** | 12 admin services (one per section) |
+| **Stores** | 12 Pinia stores for state management |
+| **API Client** | admin.client.ts (calls `/api/v1/admin-panel/*`) |
+| **Pages** | 13 admin pages (one per route) |
+| **Backend Alignment** | ✅ Matches Backend Admin Panel structure |
+
+### ⚠️ Important: NO Separate Org Admin Panel
+
+**Previous Design (WRONG - NOW REMOVED):**
+```
+/admin/         ← System Admin
+/org/           ← Org Admin (DUPLICATE - REMOVED!)
+```
+
+**Current Design (CORRECT):**
+```
+/admin/
+├── /organisations      ← All org management here
+├── /users             ← All user management here
+└── ... (all features centralized)
+```
+
+**Why removed:**
+- Avoids duplicate code and confusion
+- Org features are managed through `/admin/organisations`
+- Simpler mental model for developers
+- Cleaner backup and database structure
+
+---
+
 **END OF DOCUMENT**
 
-Version 4.0.2 - DDD Architecture (Course Editor FINAL)
-Stand: 20.01.2026
+Version 4.0.4 - Admin Panel Unified Architecture (COMPLETE)
+Stand: 21.01.2026

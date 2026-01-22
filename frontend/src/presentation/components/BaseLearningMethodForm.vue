@@ -110,7 +110,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/modules/desktop'
 import type { LsxWindow } from '@/application/stores/modules/desktop'
-import { getLearningMethodByCode, getTierFromCode } from '@/config/learningMethods'
+import { getLearningMethodByCode, getTierFromCode } from '@/infrastructure/config/learningMethods'
 import {
   adminCreateLearningMethod,
   adminUpdateLearningMethod

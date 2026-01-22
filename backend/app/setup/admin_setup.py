@@ -140,19 +140,13 @@ class AdminSetup:
         if not valid_password:
             raise ValueError(password_msg)
 
-        # Check if admin already exists
-        # Get admin role_id from roles table
-        admin_role = fetch_one(
-            "SELECT role_id FROM roles WHERE role_name = %s",
-            ('admin',)
+        # Check if admin already exists (has is_owner flag set)
+        # In new system, admin users are determined by is_owner flag
+        existing_owner = fetch_one(
+            "SELECT user_id FROM users WHERE is_owner = true LIMIT 1"
         )
-        if admin_role:
-            existing_admin = fetch_one(
-                "SELECT user_id FROM users WHERE role_id = %s LIMIT 1",
-                (admin_role['role_id'],)
-            )
-            if existing_admin:
-                raise ValueError("Admin account already exists")
+        if existing_owner:
+            raise ValueError("Admin account already exists")
 
         # Generate recovery codes
         recovery_codes = cls._generate_recovery_codes(count=10)
@@ -172,30 +166,41 @@ class AdminSetup:
             organisation_id = org['organization_id'] if org else None
 
         # Create admin user
+        # Note: role parameter is deprecated (Phase B migration to Groups)
+        # Admin status is now determined by is_owner flag
         admin = UserRepository.create_user(
             email=email,
             password=password,
             first_name=first_name,
             last_name=last_name,
-            role='admin',
             organization_id=organisation_id
         )
 
         # Set as Owner-Admin (first admin becomes owner)
-        # Check if this is the first admin (no owner exists yet)
-        existing_owner = fetch_one(
-            "SELECT user_id FROM users WHERE is_owner = true LIMIT 1"
+        # Mark user as owner (becomes system admin)
+        execute_query(
+            """
+            UPDATE users
+            SET is_owner = true
+            WHERE user_id = %s
+            """,
+            (admin['user_id'],)
         )
 
-        if not existing_owner:
-            # This is the first admin - make them the Owner-Admin
+        # Add admin user to 'system-admin' group
+        # Get system-admin group
+        system_admin_group = fetch_one(
+            "SELECT group_id FROM core.groups WHERE slug = %s LIMIT 1",
+            ('system-admin',)
+        )
+        if system_admin_group:
             execute_query(
                 """
-                UPDATE users
-                SET is_owner = true
-                WHERE user_id = %s
+                INSERT INTO core.users_groups (user_id, group_id, member_role, created_at)
+                VALUES (%s, %s, %s, NOW())
+                ON CONFLICT (user_id, group_id) DO NOTHING
                 """,
-                (admin['user_id'],)
+                (admin['user_id'], system_admin_group['group_id'], 'owner')
             )
 
         # Update 2FA settings if enabled

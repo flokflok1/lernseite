@@ -59,7 +59,7 @@ const layout = computed(() => {
   }
 
   // Admin routes use their own AdminLayout - no BaseLayout wrapper!
-  if (route.path.startsWith('/admin') || route.path.startsWith('/org')) {
+  if (route.path.startsWith('/admin')) {
     return 'div'
   }
 

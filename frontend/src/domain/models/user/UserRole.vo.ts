@@ -48,18 +48,27 @@ export class UserRole {
   private constructor(private readonly role: UserRoleEnum) {}
 
   /**
-   * Create UserRole value object from string
+   * Create UserRole value object from string or existing UserRole instance
    *
-   * @param role - Role name to validate
+   * @param role - Role name to validate or existing UserRole instance
    * @returns UserRole instance
    * @throws Error if role is invalid
    *
    * @example
    * const role = UserRole.create('Premium')
+   * const sameRole = UserRole.create(role) // Returns same instance
    * // Throws: Error('Invalid user role: invalid')
    * UserRole.create('invalid')
    */
-  static create(role: string): UserRole {
+  static create(role: string | UserRole): UserRole {
+    // Defensive: If already a UserRole instance, return it (idempotent)
+    // This handles edge cases where UserRole objects are passed due to:
+    // - localStorage round-trip (JSON.stringify/parse of objects with value objects)
+    // - Double-transformation in composed domain models
+    if (role instanceof UserRole) {
+      return role
+    }
+
     const roleUpper = role as UserRoleEnum
 
     if (!Object.values(UserRoleEnum).includes(roleUpper)) {
@@ -95,16 +104,22 @@ export class UserRole {
   /**
    * Check if this role is system admin
    *
-   * Only ADMIN role has system administration privileges.
+   * System admin includes:
+   * - ADMIN: System administrator
+   * - OWNER: Organization owner with full system access
    *
    * Business Rule:
-   * - ADMIN can: create/delete users, manage courses, access all data
+   * - ADMIN: Can create/delete users, manage courses, access all data
+   * - OWNER: Can perform all administrative actions at system level
    * - Other roles cannot (including MODERATOR)
    *
-   * @returns true if role is ADMIN
+   * @returns true if role is ADMIN or OWNER
    */
   isSystemAdmin(): boolean {
-    return this.role === UserRoleEnum.ADMIN
+    return [
+      UserRoleEnum.ADMIN,
+      UserRoleEnum.OWNER
+    ].includes(this.role)
   }
 
   /**

@@ -9,14 +9,14 @@ Core system infrastructure services:
 
 from app.application.services.system.auth import (
     PermissionService,
-    RolesService,
     RoleStudioService,
 )
 from app.application.services.system.audit import AuditService
 
+# PHASE B: RolesService removed (replaced with Groups system)
+
 __all__ = [
     'PermissionService',
-    'RolesService',
     'RoleStudioService',
     'AuditService',
 ]

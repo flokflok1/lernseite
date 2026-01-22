@@ -29,7 +29,6 @@ class UserAuthRepository(BaseRepository):
         password: str,
         first_name: str,
         last_name: str,
-        role: str = 'free',
         organization_id: Optional[int] = None
     ) -> Optional[Dict]:
         """
@@ -40,22 +39,25 @@ class UserAuthRepository(BaseRepository):
             password: Plain text password (will be hashed)
             first_name: User first name
             last_name: User last name
-            role: User role name (default: 'free')
             organization_id: Organization ID (optional)
 
         Returns:
             Created user as dictionary (without password_hash)
 
         Raises:
-            ValueError: If email already exists or role not found
+            ValueError: If email already exists
+
+        Note:
+            PHASE B: Users no longer have a single role. Instead, they are assigned to groups
+            via the users_groups junction table. Admin status is determined by the is_owner flag
+            and membership in the system-admin group.
 
         Example:
             >>> user = UserAuthRepository.create_user(
             ...     email='user@example.com',
             ...     password='SecurePass123!',
             ...     first_name='John',
-            ...     last_name='Doe',
-            ...     role='premium'
+            ...     last_name='Doe'
             ... )
         """
         # Check if email already exists
@@ -63,23 +65,17 @@ class UserAuthRepository(BaseRepository):
         if existing_user:
             raise ValueError(f"User with email {email} already exists")
 
-        # Get role_id from role name
-        role_data = fetch_one("SELECT role_id FROM core.roles WHERE role_name = %s", (role,))
-        if not role_data:
-            raise ValueError(f"Role '{role}' not found")
-        role_id = role_data['role_id']
-
         # Hash password
         password_hash = cls._hash_password(password)
 
-        # Create user with correct column names
+        # Create user (PHASE B: no role column - users belong to groups instead)
         user = execute_query(
             """
-            INSERT INTO users (email, password_hash, firstname, lastname, role_id, status, email_verified)
+            INSERT INTO core.users (email, password_hash, firstname, lastname, status, email_verified, is_owner)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING *
             """,
-            (email, password_hash, first_name, last_name, role_id, 'active', False),
+            (email, password_hash, first_name, last_name, 'active', False, False),
             fetch_one=True
         )
 
@@ -102,6 +98,11 @@ class UserAuthRepository(BaseRepository):
             User data (without password_hash) if authentication successful,
             None otherwise
 
+        Note:
+            PHASE B: User roles/permissions are now managed through the groups system
+            (users_groups junction table). This method returns basic user data; group
+            memberships should be queried separately.
+
         Example:
             >>> user = UserAuthRepository.authenticate(
             ...     'user@example.com',
@@ -114,9 +115,8 @@ class UserAuthRepository(BaseRepository):
         """
         user = fetch_one(
             """
-            SELECT u.*, r.role_name as role, r.hierarchy_level
+            SELECT u.*
             FROM core.users u
-            JOIN core.roles r ON u.role_id = r.role_id
             WHERE u.email = %s
             """,
             (email,)

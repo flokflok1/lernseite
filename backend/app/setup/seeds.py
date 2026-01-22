@@ -44,8 +44,9 @@ class SeedData:
         """
         results = {
             'learning_methods': 0,
+            'learning_methods_with_ui_schemas': 0,
             'system_features': 0,
-            'roles': 0,
+            'system_features_with_ui_schemas': 0,
             'categories': 0,
             'errors': []
         }
@@ -58,23 +59,38 @@ class SeedData:
             from app.setup.seeds_config import SeedDataConfig
             SeedDataConfig.seed_system_features(skip_existing)
 
-            # Attempt to seed roles (from seeds_roles)
-            from app.setup.seeds_roles import SeedDataRoles
-            SeedDataRoles.seed_roles(skip_existing)
+            # Note: Roles have been replaced by Groups (PHASE B migration)
+            # Groups are seeded in migrations: 020_groups_table.sql onwards
 
             # Attempt to seed categories (from seeds_config)
             SeedDataConfig.seed_categories(skip_existing)
+
+            # Seed UI schemas for learning methods and system features (NEW - Phase 5)
+            from app.setup.seeds_ui_schemas import SeedDataUISchemas
+            SeedDataUISchemas.seed_learning_methods_ui_schemas(skip_existing)
+            SeedDataUISchemas.seed_system_features_ui_schemas(skip_existing)
 
             # Return ACTUAL database counts (not insertion counts)
             # This ensures the user sees the correct numbers even if data already exists
             methods_result = fetch_one("SELECT COUNT(*) as count FROM learning_method_types")
             results['learning_methods'] = methods_result['count'] if methods_result else 0
 
+            methods_with_schemas = fetch_one(
+                "SELECT COUNT(*) as count FROM learning_method_types WHERE ui_schema IS NOT NULL"
+            )
+            results['learning_methods_with_ui_schemas'] = methods_with_schemas['count'] if methods_with_schemas else 0
+
             features_result = fetch_one("SELECT COUNT(*) as count FROM support_systems.system_features")
             results['system_features'] = features_result['count'] if features_result else 0
 
-            roles_result = fetch_one("SELECT COUNT(*) as count FROM roles")
-            results['roles'] = roles_result['count'] if roles_result else 0
+            features_with_schemas = fetch_one(
+                "SELECT COUNT(*) as count FROM support_systems.system_features WHERE ui_schema IS NOT NULL"
+            )
+            results['system_features_with_ui_schemas'] = features_with_schemas['count'] if features_with_schemas else 0
+
+            # Note: Roles replaced by Groups - count groups instead
+            groups_result = fetch_one("SELECT COUNT(*) as count FROM core.groups")
+            results['groups'] = groups_result['count'] if groups_result else 0
 
             categories_result = fetch_one("SELECT COUNT(*) as count FROM course_categories")
             results['categories'] = categories_result['count'] if categories_result else 0
@@ -343,18 +359,18 @@ class SeedData:
         try:
             methods_count = fetch_one("SELECT COUNT(*) FROM learning_method_types")
             features_count = fetch_one("SELECT COUNT(*) FROM support_systems.system_features")
-            roles_count = fetch_one("SELECT COUNT(*) FROM roles")
+            groups_count = fetch_one("SELECT COUNT(*) FROM core.groups")
             categories_count = fetch_one("SELECT COUNT(*) FROM course_categories")
 
             return {
                 'learning_methods': methods_count['count'] if methods_count else 0,
                 'system_features': features_count['count'] if features_count else 0,
-                'roles': roles_count['count'] if roles_count else 0,
+                'groups': groups_count['count'] if groups_count else 0,
                 'categories': categories_count['count'] if categories_count else 0,
                 'expected': {
                     'learning_methods': 12,
                     'system_features': 25,
-                    'roles': 9,
+                    'groups': 9,
                     'categories': 8
                 }
             }
@@ -362,12 +378,12 @@ class SeedData:
             return {
                 'learning_methods': 0,
                 'system_features': 0,
-                'roles': 0,
+                'groups': 0,
                 'categories': 0,
                 'expected': {
                     'learning_methods': 12,
                     'system_features': 25,
-                    'roles': 9,
+                    'groups': 9,
                     'categories': 8
                 }
             }

@@ -7,7 +7,7 @@
  * - Start and submit exam attempts
  */
 
-import http from './http'
+import http from '../http'
 
 // ============================================================================
 // Types & Interfaces

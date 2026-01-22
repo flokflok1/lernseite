@@ -64,7 +64,7 @@ from app.api.v1.profile import profile_bp
 # Content endpoints
 from app.api.v1.courses import core_bp as courses_core_bp, crud_bp as courses_crud_bp, publishing_bp as courses_publishing_bp, enrollment_bp as courses_enrollment_bp
 from app.api.v1.categories import admin_bp as categories_admin_bp, hierarchy_bp as categories_hierarchy_bp, public_bp as categories_public_bp
-from app.api.v1.learning_methods import learning_methods_bp, chapter_theory_bp, lesson_explanations_bp, lesson_videos_bp
+from app.api.v1.learning_methods import learning_methods_bp, learning_methods_catalog_bp, chapter_theory_bp, lesson_explanations_bp, lesson_videos_bp
 from app.api.v1.exam_simulations import exams_bp as exam_simulations_bp
 
 # Billing endpoints
@@ -94,7 +94,7 @@ from app.api.v1.gamification import gamification_bp
 # The app.i18n package handles all i18n blueprint registration
 
 # Feature-based authorization endpoints (public + authenticated)
-from app.api.v1.features import features_bp
+from app.api.v1.features import features_bp, features_catalog_bp
 
 # Course Editor (feature-based - manual + AI editor)
 from app.api.v1.course_editor import course_editor_bp
@@ -111,6 +111,15 @@ from app.api.v1 import dashboard
 # Use relative import with package parameter to handle hyphenated directory name
 import importlib
 admin_panel = importlib.import_module('.admin-panel', package='app.api.v1')
+
+# Admin Learning Methods - Extract blueprint from learning_methods module
+# Learning methods schema endpoint for dynamic form rendering
+try:
+    learning_methods_admin = importlib.import_module('.learning_methods', package='app.api.v1.admin-panel')
+    learning_methods_admin_bp = learning_methods_admin.bp
+except (ImportError, AttributeError) as e:
+    print(f"ERROR: Failed to extract learning_methods blueprint: {e}")
+    raise
 
 # Admin Settings - Extract feature_flags blueprints from settings module
 # First, ensure settings module is loaded by accessing it from admin_panel
@@ -168,6 +177,7 @@ api_v1.register_blueprint(categories_admin_bp)
 api_v1.register_blueprint(categories_hierarchy_bp)
 api_v1.register_blueprint(categories_public_bp)
 api_v1.register_blueprint(learning_methods_bp)
+api_v1.register_blueprint(learning_methods_catalog_bp)
 api_v1.register_blueprint(chapter_theory_bp)
 api_v1.register_blueprint(lesson_explanations_bp)
 api_v1.register_blueprint(lesson_videos_bp)
@@ -192,7 +202,11 @@ api_v1.register_blueprint(gamification_bp)
 api_v1.register_blueprint(audio_bp)
 # i18n blueprints registered via app.i18n package (avoid duplicate names)
 api_v1.register_blueprint(features_bp)
+api_v1.register_blueprint(features_catalog_bp)
 api_v1.register_blueprint(course_editor_bp)
+
+# Register admin-panel learning-methods blueprint
+api_v1.register_blueprint(learning_methods_admin_bp)
 
 # Register admin-panel settings blueprints (feature_flags)
 api_v1.register_blueprint(feature_flags_bp)
@@ -217,6 +231,7 @@ __all__ = [
     'math_toolkit_practice_bp', 'math_toolkit_reference_bp', 'math_toolkit_tasks_bp', 'math_toolkit_admin_bp',
     'analytics_bp', 'org_analytics_bp', 'gamification_bp', 'audio_bp',
     'features_bp', 'course_editor_bp',
+    'learning_methods_admin_bp',
     'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp', 'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
     'dashboard', 'admin_panel', 'social', 'community', 'messaging'

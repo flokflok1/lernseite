@@ -114,13 +114,11 @@ import { LanguageSelector } from '@/presentation/components/layout/i18n'
 interface Props {
   pageTitle?: string
   pageSubtitle?: string
-  isOrgAdmin?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   pageTitle: '',
-  pageSubtitle: '',
-  isOrgAdmin: false
+  pageSubtitle: ''
 })
 
 // ============================================================================
@@ -147,7 +145,7 @@ onMounted(async () => {
 const sidebarTitle = computed(() => {
   // locale.value triggers reactivity on language change
   void locale.value
-  return props.isOrgAdmin ? t('admin.org_admin') : t('admin.system_admin')
+  return t('admin.system_admin')
 })
 
 const userInitials = computed(() => {
@@ -159,30 +157,21 @@ const userInitials = computed(() => {
 const menuItems = computed(() => {
   // locale.value triggers reactivity on language change
   void locale.value
-  if (props.isOrgAdmin) {
-    return [
-      { path: '/org', label: t('org.nav.dashboard'), icon: '📊' },
-      { path: '/org/users', label: t('org.nav.members'), icon: '👥' },
-      { path: '/org/courses', label: t('org.nav.courses'), icon: '📚' },
-      { path: '/org/analytics', label: t('org.nav.analytics'), icon: '📈' },
-      { path: '/org/settings', label: t('org.nav.settings'), icon: '⚙️' }
-    ]
-  } else {
-    return [
-      { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
-      { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
-      { path: '/admin/roles', label: t('admin.nav.roles'), icon: '🔐' },
-      { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
-      { path: '/admin/kurs-editor', label: t('admin.nav.courseEditor'), icon: '📝' },
-      { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
-      { path: '/admin/ai-studio', label: t('admin.nav.aiStudio'), icon: '🤖' },
-      { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
-      { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },
-      { path: '/admin/analytics', label: t('admin.nav.analytics'), icon: '📈' },
-      { path: '/admin/audit-logs', label: t('admin.nav.audit_logs'), icon: '📋' },
-      { path: '/admin/system-settings', label: t('admin.nav.settings'), icon: '⚙️' }
-    ]
-  }
+  return [
+    { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
+    { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
+    { path: '/admin/roles', label: t('admin.nav.roles'), icon: '🔐' },
+    { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
+    { path: '/admin/kurs-editor', label: t('admin.nav.courseEditor'), icon: '📝' },
+    { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
+    { path: '/admin/ai-studio', label: t('admin.nav.aiStudio'), icon: '🤖' },
+    // TODO: Fix i18n translations system (locales dir issue)
+    // { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
+    { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },
+    { path: '/admin/analytics', label: t('admin.nav.analytics'), icon: '📈' },
+    { path: '/admin/audit-logs', label: t('admin.nav.audit_logs'), icon: '📋' },
+    { path: '/admin/system-settings', label: t('admin.nav.settings'), icon: '⚙️' }
+  ]
 })
 
 // ============================================================================

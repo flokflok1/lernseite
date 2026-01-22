@@ -102,9 +102,31 @@ class InstallationChecker:
             if extra_info:
                 install_info.update(extra_info)
 
-            # Write marker file
+            # Write marker file (backend)
             with open(InstallationChecker.INSTALL_MARKER_FILE, 'w') as f:
                 json.dump(install_info, f, indent=2)
+
+            # ALSO write marker to frontend/public/ for offline detection
+            # This allows frontend to detect installation even when backend is down
+            frontend_marker_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                'frontend', 'public', '.lsx-installed'
+            )
+
+            try:
+                os.makedirs(os.path.dirname(frontend_marker_path), exist_ok=True)
+                with open(frontend_marker_path, 'w') as f:
+                    # Write minimal info to frontend marker (no sensitive data)
+                    frontend_info = {
+                        'installed': True,
+                        'version': version,
+                        'installed_at': install_info['installed_at']
+                    }
+                    json.dump(frontend_info, f, indent=2)
+                print(f"[Install Check] Frontend marker created at {frontend_marker_path}")
+            except Exception as fe:
+                print(f"[Install Check] Warning: Could not create frontend marker: {fe}")
+                # Don't fail if frontend marker fails - backend marker is source of truth
 
             return True
 
@@ -125,10 +147,25 @@ class InstallationChecker:
             Use with caution - may cause data loss!
         """
         try:
+            removed = False
+
+            # Remove backend marker
             if os.path.exists(InstallationChecker.INSTALL_MARKER_FILE):
                 os.remove(InstallationChecker.INSTALL_MARKER_FILE)
-                return True
-            return False
+                removed = True
+
+            # Remove frontend marker
+            frontend_marker_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                'frontend', 'public', '.lsx-installed'
+            )
+            if os.path.exists(frontend_marker_path):
+                os.remove(frontend_marker_path)
+                print(f"[Install Check] Frontend marker removed")
+                removed = True
+
+            return removed
+
         except Exception as e:
             print(f"Error removing install marker: {e}")
             return False

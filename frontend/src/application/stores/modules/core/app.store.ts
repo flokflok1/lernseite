@@ -20,10 +20,46 @@ export const useAppStore = defineStore('app', () => {
   // Actions
 
   /**
+   * Check static installation marker file
+   *
+   * This checks if the static .lsx-installed file exists in public/
+   * Works even when backend is down!
+   * Allows new users and private mode users to detect installation status.
+   */
+  const checkStaticMarker = async (): Promise<boolean> => {
+    try {
+      // Fetch static marker file from public/ directory
+      // This works even when backend API is completely down
+      const response = await fetch('/.lsx-installed')
+
+      if (response.ok) {
+        const data = await response.json()
+
+        if (data.installed === true) {
+          // Setup was completed! Set localStorage for future checks
+          localStorage.setItem('lsx-setup-completed', 'true')
+          console.log('[App Store] Static marker found - setup was previously completed')
+          return true
+        }
+      }
+    } catch (error) {
+      // Static file doesn't exist or fetch failed - this is OK
+      // It just means setup was never completed
+      console.log('[App Store] No static marker found (setup not completed yet)')
+    }
+
+    return false
+  }
+
+  /**
    * Check installation status
    */
   const checkInstallationStatus = async (): Promise<void> => {
     isCheckingStatus.value = true
+
+    // FIRST: Check static marker file (works even when backend is down)
+    // This allows new users and private mode to detect installation status
+    await checkStaticMarker()
 
     try {
       const response = await setupApi.getSetupStatus()
@@ -39,10 +75,25 @@ export const useAppStore = defineStore('app', () => {
 
     } catch (error) {
       console.error('Failed to check installation status:', error)
-      // Assume not installed if check fails
-      installed.value = false
-      setupRequired.value = true
-      localStorage.removeItem('lsx-setup-completed')
+
+      // Check localStorage to determine if setup was previously completed
+      // Note: localStorage may have been set by checkStaticMarker() above!
+      const setupCompleted = localStorage.getItem('lsx-setup-completed') === 'true'
+
+      if (setupCompleted) {
+        // Setup was completed before - backend is just down temporarily
+        // Keep installed=true, but mark setupRequired=true to show maintenance message
+        installed.value = true
+        setupRequired.value = true
+        console.warn('[App Store] Backend unreachable, but setup was previously completed')
+      } else {
+        // Setup was never completed - assume not installed
+        installed.value = false
+        setupRequired.value = true
+      }
+
+      // NEVER remove localStorage - it's our persistent source of truth!
+      // Only remove it when explicitly resetting the system, not on API failures
     } finally {
       isCheckingStatus.value = false
     }

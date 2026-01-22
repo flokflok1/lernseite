@@ -108,11 +108,26 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { usePanelStore } from '@/application/stores/modules/desktop'
+import { useAuthStore } from '@/application/stores/modules/core'
 import { useI18n } from 'vue-i18n'
 
 const windowStore = usePanelStore()
+const authStore = useAuthStore()
 const { t } = useI18n()
+
+// Permission checks: Allow Owner, Admin, Teacher, Creator, OrgAdmin to access course editor
+// All these roles have permissions to create/edit courses and use AI features
+const canAccessEditor = computed(() => {
+  return (
+    authStore.isOwner ||           // Platform Owner
+    authStore.isSystemAdmin ||     // System Admin
+    authStore.isTeacher ||         // Teacher (has course:create, ai:content-generation)
+    authStore.isCreator ||         // Creator (has content:create, ai:content-generation)
+    authStore.isOrgAdmin           // Organization Admin (can manage org content)
+  )
+})
 
 /**
  * Handle editor mode selection

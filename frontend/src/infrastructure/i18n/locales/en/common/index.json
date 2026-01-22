@@ -379,6 +379,12 @@
     "en": "English",
     "pl": "Polish"
   },
+  "maintenance": {
+    "title": "Server Under Maintenance",
+    "description": "The backend server is currently unreachable. Please try again in a few minutes.",
+    "retry": "Retry Connection",
+    "checking": "Checking connection..."
+  },
   "nav": {
     "admin": "Administration",
     "back_to_dashboard": "Back to Dashboard",

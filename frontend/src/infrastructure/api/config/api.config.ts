@@ -16,7 +16,7 @@ export interface ApiConfig {
  * Get API configuration based on environment
  */
 export function getApiConfig(): ApiConfig {
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+  const baseURL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
   const timeout = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10)
 
   return {

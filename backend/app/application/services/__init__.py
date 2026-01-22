@@ -78,6 +78,9 @@ from app.application.services.system.auth import (
     RoleStudioService,
 )
 
+# Group Management (system/group_management) - RBAC 3.0 group-based authorization
+from app.application.services.system.group_management import GroupManagementService
+
 # PHASE B: RolesService removed (replaced with Groups system)
 
 # Audit & Compliance (system/audit)
@@ -151,6 +154,7 @@ __all__ = [
     # Auth & Authorization
     'PermissionService',
     'RoleStudioService',
+    'GroupManagementService',  # RBAC 3.0 group-based authorization
     # 'RolesService',  # PHASE B: Removed (replaced with Groups system)
 
     # Audit

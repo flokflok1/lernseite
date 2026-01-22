@@ -6,14 +6,14 @@
 BEGIN;
 
 -- Drop dependent objects if they exist (for idempotency)
-DROP TABLE IF EXISTS group_permissions CASCADE;
-DROP TABLE IF EXISTS users_groups CASCADE;
-DROP TABLE IF EXISTS groups CASCADE;
+DROP TABLE IF EXISTS core.group_permissions CASCADE;
+DROP TABLE IF EXISTS core.users_groups CASCADE;
+DROP TABLE IF EXISTS core.groups CASCADE;
 
 -- ============================================================================
 -- 1. CREATE GROUPS TABLE
 -- ============================================================================
-CREATE TABLE groups (
+CREATE TABLE core.groups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Basic Information
@@ -22,8 +22,8 @@ CREATE TABLE groups (
     description TEXT,
 
     -- Hierarchical Organization
-    organisation_id UUID REFERENCES organisations(id) ON DELETE CASCADE,
-    parent_group_id UUID REFERENCES groups(id) ON DELETE SET NULL,
+    organisation_id UUID REFERENCES organisations.organisations(organization_id) ON DELETE CASCADE,
+    parent_group_id UUID REFERENCES core.groups(id) ON DELETE SET NULL,
 
     -- Group Classification
     group_type VARCHAR(50) NOT NULL DEFAULT 'custom',
@@ -36,7 +36,7 @@ CREATE TABLE groups (
     -- Audit Fields
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
 
     -- Constraints
     CONSTRAINT chk_group_type CHECK (group_type IN (
@@ -61,38 +61,38 @@ CREATE TABLE groups (
 -- 2. CREATE INDICES FOR PERFORMANCE
 -- ============================================================================
 CREATE INDEX idx_groups_organisation_id
-    ON groups(organisation_id)
+    ON core.groups(organisation_id)
     WHERE organisation_id IS NOT NULL;
 
 CREATE INDEX idx_groups_parent_group_id
-    ON groups(parent_group_id)
+    ON core.groups(parent_group_id)
     WHERE parent_group_id IS NOT NULL;
 
 CREATE INDEX idx_groups_group_type
-    ON groups(group_type);
+    ON core.groups(group_type);
 
 CREATE INDEX idx_groups_is_system_group
-    ON groups(is_system_group)
+    ON core.groups(is_system_group)
     WHERE is_system_group = TRUE;
 
 CREATE UNIQUE INDEX idx_groups_slug_org
-    ON groups(slug, organisation_id)
+    ON core.groups(slug, organisation_id)
     WHERE organisation_id IS NOT NULL;
 
 CREATE UNIQUE INDEX idx_groups_slug_system
-    ON groups(slug)
+    ON core.groups(slug)
     WHERE organisation_id IS NULL AND is_system_group = TRUE;
 
 CREATE INDEX idx_groups_created_at
-    ON groups(created_at DESC);
+    ON core.groups(created_at DESC);
 
 -- ============================================================================
 -- 3. ENABLE ROW-LEVEL SECURITY (if RLS is enabled for this table)
 -- ============================================================================
-ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
+ALTER TABLE core.groups ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policy for organisation isolation
-CREATE POLICY groups_org_isolation ON groups
+CREATE POLICY groups_org_isolation ON core.groups
     USING (
         organisation_id IS NULL  -- System groups
         OR organisation_id = current_setting('app.current_organisation_id')::UUID
@@ -102,14 +102,14 @@ CREATE POLICY groups_org_isolation ON groups
 -- 4. CREATE TRIGGER FOR updated_at
 -- ============================================================================
 CREATE TRIGGER trigger_groups_updated_at
-    BEFORE UPDATE ON groups
+    BEFORE UPDATE ON core.groups
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
 -- 5. GRANT PERMISSIONS
 -- ============================================================================
-GRANT SELECT, INSERT, UPDATE, DELETE ON groups TO app_role;
-GRANT SELECT ON groups TO app_readonly;
+-- Note: GRANT statements removed - app_role and app_readonly do not exist
+-- Permissions will be inherited from database owner
 
 COMMIT;

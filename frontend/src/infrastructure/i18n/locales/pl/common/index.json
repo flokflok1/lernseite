@@ -379,6 +379,12 @@
     "en": "Angielski",
     "pl": "Polski"
   },
+  "maintenance": {
+    "title": "Serwer w konserwacji",
+    "description": "Serwer zaplecza jest obecnie nieosiągalny. Spróbuj ponownie za kilka minut.",
+    "retry": "Spróbuj połączyć ponownie",
+    "checking": "Sprawdzanie połączenia..."
+  },
   "nav": {
     "admin": "Administracja",
     "back_to_dashboard": "Do panelu użytkownika",

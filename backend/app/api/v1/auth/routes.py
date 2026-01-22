@@ -195,36 +195,72 @@ def login():
                 remaining = BruteForceProtection.get_remaining_attempts(login_data.email)
                 return error_response(ErrorCode.AUTH_2FA_INVALID, 401, details={'remaining_attempts': remaining})
 
+        # Query user's active groups (Group-Based RBAC 3.0)
+        # Include frontend_role for backward compatibility with frontend UserRoleEnum
+        user_groups_result = execute_query(
+            """
+            SELECT
+                g.id,
+                g.name,
+                g.slug,
+                g.group_type,
+                g.frontend_role,
+                ug.member_role,
+                ug.joined_at
+            FROM core.users_groups ug
+            JOIN core.groups g ON ug.group_id = g.id
+            WHERE ug.user_id = %s
+                AND ug.is_active = TRUE
+                AND ug.left_at IS NULL
+            ORDER BY ug.joined_at ASC
+            """,
+            (user['user_id'],),
+            fetch=True  # IMPORTANT: Fetch all results
+        )
+        user_groups = user_groups_result if user_groups_result else []
+
+        # Query user's effective permissions using SQL function
+        user_permissions_result = execute_query(
+            "SELECT * FROM get_user_effective_permissions(%s)",
+            (user['user_id'],),
+            fetch=True  # IMPORTANT: Fetch all results
+        )
+        permission_codes = [p['permission_code'] for p in user_permissions_result] if user_permissions_result else []
+
         # Successful login
         BruteForceProtection.record_successful_login(login_data.email, client_ip)
+
+        # Get frontend role from primary group (first joined group)
+        # Frontend role is now stored in database (core.groups.frontend_role)
+        # Frontend expects: Free, Premium, Creator, Teacher, School, Company,
+        #                   Support, Moderator, Admin, school_admin, company_admin, owner
+        primary_group_name = user_groups[0]['name'] if user_groups else 'No Group'
+        frontend_role = user_groups[0].get('frontend_role', 'Free') if user_groups else 'Free'
+
         AuditService.log_login_success(
             user_id=user['user_id'],
             user_email=user['email'],
-            user_role=user['role'],
-            metadata={'2fa_used': user.get('two_factor_enabled', False)}
+            user_role=primary_group_name,  # Log full group name for audit
+            metadata={
+                '2fa_used': user.get('two_factor_enabled', False),
+                'groups': [g['name'] for g in user_groups],
+                'permission_count': len(permission_codes),
+                'frontend_role': frontend_role  # Log mapped role
+            }
         )
 
-        # Fetch role studio configuration for immediate frontend use (Phase 1)
-        studio_config = None
-        try:
-            role_config = RoleStudioService.get_role_studio_mode(user.get('role', 'user'))
-            if role_config:
-                studio_config = {
-                    'role_code': role_config.get('role_code'),
-                    'studio_mode': role_config.get('studio_mode'),
-                    'display_name': role_config.get('display_name'),
-                    'permissions': role_config.get('permissions', {}),
-                    'requires_organization': role_config.get('requires_organization', False)
-                }
-        except Exception as e:
-            # Log but don't fail login if studio config is missing
-            logger.warning(f"Could not fetch studio config for role {user.get('role')}: {str(e)}")
-            studio_config = None
-
-        # Create JWT tokens with additional claims (RBAC 2.0)
+        # Create JWT tokens with group-based claims (RBAC 3.0)
         additional_claims = {
-            'role': user.get('role', 'user'),
-            'hierarchy_level': user.get('hierarchy_level', 1)
+            'groups': [
+                {
+                    'id': str(g['id']),
+                    'name': g['name'],
+                    'slug': g['slug'],
+                    'type': g['group_type'],
+                    'member_role': g['member_role']
+                } for g in user_groups
+            ],
+            'permissions': permission_codes
         }
         access_token = create_access_token(
             identity=user['user_id'],
@@ -240,6 +276,11 @@ def login():
         if 'user_id' in user and user['user_id'] is not None:
             user['user_id'] = str(user['user_id'])
 
+        # Add role field for backwards compatibility with UserResponse model
+        # Map group to frontend-compatible role value (e.g., "system-admin" -> "Admin")
+        user['role'] = frontend_role
+        user['hierarchy_level'] = 1  # Default hierarchy level (can be enhanced later)
+
         user_response = UserResponse(**user)
         token_response = TokenResponse(
             access_token=access_token,
@@ -252,12 +293,18 @@ def login():
             'success': True,
             'message': 'Login successful',
             **token_response.model_dump(),
-            'refresh_token': refresh_token
+            'refresh_token': refresh_token,
+            'groups': [
+                {
+                    'id': str(g['id']),
+                    'name': g['name'],
+                    'slug': g['slug'],
+                    'type': g['group_type'],
+                    'member_role': g['member_role']
+                } for g in user_groups
+            ],
+            'permissions': permission_codes
         }
-
-        # Add studio configuration to response if available
-        if studio_config:
-            response_data['studio_config'] = studio_config
 
         return jsonify(response_data), 200
 

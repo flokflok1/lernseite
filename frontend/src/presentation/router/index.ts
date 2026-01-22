@@ -289,14 +289,43 @@ router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
   const appStore = useAppStore()
 
-  // Check installation status if not yet checked
+  // =====================================================
+  // CHECK INSTALLATION STATUS FIRST
+  // =====================================================
+  // IMPORTANT: Must check installation status BEFORE reading localStorage
+  // because checkInstallationStatus() fetches static marker and sets localStorage
+  // This is critical for Private Mode / new users!
   if (appStore.installed === null && !to.meta.ignoreSetupCheck) {
     await appStore.checkInstallationStatus()
   }
 
+  // =====================================================
+  // SETUP LOCKOUT: Check localStorage AFTER installation check
+  // =====================================================
+  // Now read localStorage (may have been set by checkInstallationStatus above)
+  const isSetupCompleted = localStorage.getItem('lsx-setup-completed') === 'true'
+
+  if (isSetupCompleted && to.path === '/setup') {
+    console.log('[Router Guard] Setup already completed - redirecting to login')
+    next({ name: 'Login' })
+    return
+  }
+
+  // =====================================================
+  // BACKEND DOWN HANDLING
+  // =====================================================
+  // If backend is unreachable but localStorage says setup is done,
+  // show maintenance message instead of redirecting to setup
+  if (isSetupCompleted && appStore.setupRequired && !to.meta.ignoreSetupCheck && !to.meta.isPublic) {
+    // Backend is down but setup was completed
+    // Show maintenance page instead of setup
+    console.warn('[Router Guard] Backend unreachable - setup completed but backend down')
+    // Allow navigation to show maintenance message in App.vue
+    // (App.vue will handle showing maintenance message)
+  }
   // If system is not installed and route is not setup, redirect to setup
   // Allow public pages (legal, etc.) even during setup
-  if (appStore.setupRequired && !to.meta.ignoreSetupCheck && !to.meta.isPublic) {
+  else if (appStore.setupRequired && !to.meta.ignoreSetupCheck && !to.meta.isPublic && !isSetupCompleted) {
     if (to.path !== '/setup') {
       next({ name: 'Setup' })
       return

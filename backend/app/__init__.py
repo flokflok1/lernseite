@@ -70,8 +70,12 @@ def register_extensions(app: Flask) -> None:
     # Rate Limiting
     limiter.init_app(app)
 
-    # Email
+    # Email (Legacy Flask-Mail)
     mail.init_app(app)
+
+    # Email Service (New Template-based Email Utility)
+    from app.utils.email import init_email_service
+    init_email_service(app)
 
 
 def register_shell_context(app: Flask) -> None:

@@ -11,7 +11,7 @@ import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestCo
 import { useAuthStore } from '@/application/stores/auth.store'
 import router from '@/presentation/router'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
 // Create Axios instance
 const http: AxiosInstance = axios.create({
@@ -50,14 +50,23 @@ http.interceptors.response.use(
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (error.response?.status === 401) {
-      // Logout user and redirect to login
-      await authStore.logout()
-      router.push('/login')
+      // Check if this is a login/register request (don't auto-logout for these)
+      const isAuthEndpoint = error.config?.url?.includes('/auth/login') ||
+                            error.config?.url?.includes('/auth/register')
 
-      return Promise.reject({
-        message: 'Session expired. Please login again.',
-        status: 401,
-      })
+      if (!isAuthEndpoint) {
+        // Logout user and redirect to login (only for authenticated routes)
+        await authStore.logout()
+        router.push('/login')
+
+        return Promise.reject({
+          message: 'Session expired. Please login again.',
+          status: 401,
+        })
+      }
+
+      // For login/register failures, pass the error through unchanged
+      return Promise.reject(error)
     }
 
     // Handle 403 Forbidden - Insufficient permissions

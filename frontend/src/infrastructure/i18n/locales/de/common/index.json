@@ -379,6 +379,12 @@
     "en": "Englisch",
     "pl": "Polnisch"
   },
+  "maintenance": {
+    "title": "Server ist in Wartungsarbeiten",
+    "description": "Der Backend-Server ist momentan nicht erreichbar. Bitte versuche es in ein paar Minuten erneut.",
+    "retry": "Verbindung erneut versuchen",
+    "checking": "Prüfe Verbindung..."
+  },
   "nav": {
     "admin": "Administration",
     "back_to_dashboard": "Zum User-Dashboard",

@@ -57,6 +57,9 @@ api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
 
 # Core endpoints
 from app.api.v1.auth import auth_bp
+# TODO: B2B signup temporarily disabled until AuthService is created
+# from app.api.v1.auth.b2b_signup import bp as b2b_signup_bp  # ← NEW: B2B signup endpoint
+from app.api.v1.business import bp as business_contact_bp  # ← NEW: B2B contact form endpoint
 from app.api.v1.users import users_bp, users_part2_bp
 from app.api.v1.profile import profile_bp
 # Health is registered separately in app/__init__.py (not a blueprint)
@@ -165,6 +168,9 @@ except ImportError:
 
 # Register all flat file blueprints
 api_v1.register_blueprint(auth_bp)
+# TODO: B2B signup temporarily disabled until AuthService is created
+# api_v1.register_blueprint(b2b_signup_bp)  # ← NEW: Register B2B signup endpoint
+api_v1.register_blueprint(business_contact_bp)  # ← NEW: Register B2B contact form endpoint
 api_v1.register_blueprint(users_bp)
 api_v1.register_blueprint(users_part2_bp)
 api_v1.register_blueprint(profile_bp)
@@ -223,7 +229,7 @@ api_v1.register_blueprint(feature_config_audit_bp)
 # Export all
 __all__ = [
     'api_v1',
-    'auth_bp', 'users_bp', 'users_part2_bp', 'profile_bp', 'health_bp',
+    'auth_bp', 'business_contact_bp', 'users_bp', 'users_part2_bp', 'profile_bp', 'health_bp',  # ← NEW: Added business_contact_bp export (b2b_signup_bp temporarily disabled)
     'courses_core_bp', 'courses_crud_bp', 'courses_publishing_bp', 'courses_enrollment_bp', 'categories_admin_bp', 'categories_hierarchy_bp', 'categories_public_bp', 'learning_methods_bp',
     'chapter_theory_bp', 'lesson_explanations_bp', 'lesson_videos_bp', 'exam_simulations_bp',
     'subscriptions_bp', 'tokens_bp', 'admin_tokens_bp', 'organisations_bp', 'feedback_bp',

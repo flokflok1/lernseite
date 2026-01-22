@@ -164,10 +164,7 @@ $$ LANGUAGE SQL STABLE;
 -- ============================================================================
 -- 7. GRANT PERMISSIONS
 -- ============================================================================
-GRANT SELECT ON permissions TO app_role;
-GRANT SELECT ON permissions TO app_readonly;
-GRANT INSERT, UPDATE ON permissions TO app_role;
-GRANT EXECUTE ON FUNCTION get_permission_by_code TO app_role;
-GRANT EXECUTE ON FUNCTION get_permissions_by_category TO app_role;
+-- Note: GRANT statements removed - app_role and app_readonly do not exist
+-- Permissions will be inherited from database owner
 
 COMMIT;

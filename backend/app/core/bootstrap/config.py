@@ -118,6 +118,17 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', 'noreply@lernsystemx.com')
 
+    # Email Service Configuration (New Email Utility)
+    SMTP_SERVER = os.getenv('SMTP_SERVER', MAIL_SERVER)
+    SMTP_PORT = int(os.getenv('SMTP_PORT', MAIL_PORT))
+    SMTP_USERNAME = os.getenv('SMTP_USERNAME', MAIL_USERNAME)
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', MAIL_PASSWORD)
+    SMTP_USE_TLS = os.getenv('SMTP_USE_TLS', str(MAIL_USE_TLS)).lower() == 'true'
+    SENDER_EMAIL = os.getenv('SENDER_EMAIL', MAIL_DEFAULT_SENDER)
+    SENDER_NAME = os.getenv('SENDER_NAME', 'LernSystemX')
+    EMAIL_PROVIDER = os.getenv('EMAIL_PROVIDER', 'smtp')  # smtp, sendgrid, ses
+    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@lernsystemx.com')  # B2B contact notifications
+
     # CORS Configuration (Development: Allow all origins for easier testing)
     cors_env = os.getenv('CORS_ORIGINS', '*')
     CORS_ORIGINS = cors_env if cors_env == '*' else cors_env.split(',')

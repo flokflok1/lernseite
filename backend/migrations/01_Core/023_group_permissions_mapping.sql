@@ -8,17 +8,17 @@ BEGIN;
 -- ============================================================================
 -- 1. CREATE GROUP_PERMISSIONS JUNCTION TABLE
 -- ============================================================================
-CREATE TABLE group_permissions (
+CREATE TABLE core.group_permissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Foreign Keys
-    group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
-    permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    group_id UUID NOT NULL REFERENCES core.groups(id) ON DELETE CASCADE,
+    permission_id UUID NOT NULL REFERENCES core.permissions(id) ON DELETE CASCADE,
 
     -- Audit Fields
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     granted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    granted_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    granted_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
 
     -- Unique constraint: Each group can only have a permission once
     CONSTRAINT unique_group_permission UNIQUE(group_id, permission_id)
@@ -28,38 +28,52 @@ CREATE TABLE group_permissions (
 -- 2. CREATE INDICES FOR PERFORMANCE
 -- ============================================================================
 CREATE INDEX idx_group_permissions_group_id
-    ON group_permissions(group_id);
+    ON core.group_permissions(group_id);
 
 CREATE INDEX idx_group_permissions_permission_id
-    ON group_permissions(permission_id);
+    ON core.group_permissions(permission_id);
 
 -- Composite index for common query: "Get all permissions for a group"
 CREATE INDEX idx_group_permissions_group_perms
-    ON group_permissions(group_id, permission_id);
+    ON core.group_permissions(group_id, permission_id);
 
 -- Index for: "Get all groups with a permission"
 CREATE INDEX idx_group_permissions_perm_groups
-    ON group_permissions(permission_id, group_id);
+    ON core.group_permissions(permission_id, group_id);
 
 CREATE INDEX idx_group_permissions_granted_at
-    ON group_permissions(granted_at DESC);
+    ON core.group_permissions(granted_at DESC);
 
 -- ============================================================================
--- 3. SEED PERMISSIONS FOR SYSTEM GROUPS
+-- 3. CREATE SYSTEM GROUPS (if they don't exist)
+-- ============================================================================
+INSERT INTO core.groups (name, slug, description, group_type, is_system_group, is_protected)
+VALUES
+    ('System Administrators', 'system-admin', 'Full system access', 'system_admin', TRUE, TRUE),
+    ('System Users', 'system-users', 'Regular users', 'custom', TRUE, FALSE),
+    ('Content Creators', 'content-creators', 'Can create educational content', 'custom', TRUE, FALSE),
+    ('Teachers', 'teachers', 'Can manage courses and students', 'custom', TRUE, FALSE),
+    ('Content Moderators', 'content-moderators', 'Can moderate content', 'moderators', TRUE, FALSE),
+    ('Support Team', 'support-team', 'Support staff with limited admin access', 'support', TRUE, FALSE),
+    ('Premium Members', 'premium-members', 'Premium subscription members', 'custom', TRUE, FALSE)
+ON CONFLICT (slug) DO NOTHING;
+
+-- ============================================================================
+-- 4. SEED PERMISSIONS FOR SYSTEM GROUPS
 -- ============================================================================
 
 -- Get system group IDs for mapping
 WITH system_groups AS (
-    SELECT id, slug FROM groups WHERE is_system_group = TRUE
+    SELECT id, slug FROM core.groups WHERE is_system_group = TRUE
 )
 
 -- System Admin Group - All permissions
-INSERT INTO group_permissions (group_id, permission_id, granted_by)
+INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
 SELECT
     (SELECT id FROM system_groups WHERE slug = 'system-admin'),
     p.id,
     NULL
-FROM permissions p
+FROM core.permissions p
 WHERE p.is_system_permission = TRUE
 ON CONFLICT (group_id, permission_id) DO NOTHING;
 
@@ -68,12 +82,12 @@ ON CONFLICT (group_id, permission_id) DO NOTHING;
 -- ============================================================================
 
 -- Content Creators Group - Can create and edit courses
-INSERT INTO group_permissions (group_id, permission_id, granted_by)
+INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
 SELECT
-    (SELECT id FROM groups WHERE slug = 'content-creators' LIMIT 1),
+    (SELECT id FROM core.groups WHERE slug = 'content-creators' LIMIT 1),
     p.id,
     NULL
-FROM permissions p
+FROM core.permissions p
 WHERE p.code IN (
     'courses.create',
     'courses.edit',
@@ -92,12 +106,12 @@ WHERE p.code IN (
 ON CONFLICT (group_id, permission_id) DO NOTHING;
 
 -- Teachers Group - Can manage courses and students
-INSERT INTO group_permissions (group_id, permission_id, granted_by)
+INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
 SELECT
-    (SELECT id FROM groups WHERE slug = 'teachers' LIMIT 1),
+    (SELECT id FROM core.groups WHERE slug = 'teachers' LIMIT 1),
     p.id,
     NULL
-FROM permissions p
+FROM core.permissions p
 WHERE p.code IN (
     'courses.create',
     'courses.edit',
@@ -117,12 +131,12 @@ WHERE p.code IN (
 ON CONFLICT (group_id, permission_id) DO NOTHING;
 
 -- Moderators Group - Can moderate content
-INSERT INTO group_permissions (group_id, permission_id, granted_by)
+INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
 SELECT
-    (SELECT id FROM groups WHERE slug = 'content-moderators' LIMIT 1),
+    (SELECT id FROM core.groups WHERE slug = 'content-moderators' LIMIT 1),
     p.id,
     NULL
-FROM permissions p
+FROM core.permissions p
 WHERE p.code IN (
     'content.moderate',
     'users.ban',
@@ -133,12 +147,12 @@ WHERE p.code IN (
 ON CONFLICT (group_id, permission_id) DO NOTHING;
 
 -- Support Team Group - Limited admin access
-INSERT INTO group_permissions (group_id, permission_id, granted_by)
+INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
 SELECT
-    (SELECT id FROM groups WHERE slug = 'support-team' LIMIT 1),
+    (SELECT id FROM core.groups WHERE slug = 'support-team' LIMIT 1),
     p.id,
     NULL
-FROM permissions p
+FROM core.permissions p
 WHERE p.code IN (
     'users.manage',
     'analytics.view',
@@ -148,12 +162,12 @@ WHERE p.code IN (
 ON CONFLICT (group_id, permission_id) DO NOTHING;
 
 -- Premium Members Group - Advanced features
-INSERT INTO group_permissions (group_id, permission_id, granted_by)
+INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
 SELECT
-    (SELECT id FROM groups WHERE slug = 'premium-members' LIMIT 1),
+    (SELECT id FROM core.groups WHERE slug = 'premium-members' LIMIT 1),
     p.id,
     NULL
-FROM permissions p
+FROM core.permissions p
 WHERE p.code IN (
     'ai.generate',
     'ai.advanced',
@@ -165,12 +179,12 @@ WHERE p.code IN (
 ON CONFLICT (group_id, permission_id) DO NOTHING;
 
 -- Regular Users Group - Basic permissions
-INSERT INTO group_permissions (group_id, permission_id, granted_by)
+INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
 SELECT
-    (SELECT id FROM groups WHERE slug = 'system-users' LIMIT 1),
+    (SELECT id FROM core.groups WHERE slug = 'system-users' LIMIT 1),
     p.id,
     NULL
-FROM permissions p
+FROM core.permissions p
 WHERE p.code IN (
     'courses.view',
     'profile.edit',
@@ -194,8 +208,8 @@ AS $$
         p.code,
         p.display_name,
         p.category
-    FROM group_permissions gp
-    JOIN permissions p ON gp.permission_id = p.id
+    FROM core.group_permissions gp
+    JOIN core.permissions p ON gp.permission_id = p.id
     WHERE gp.group_id = p_group_id
     ORDER BY p.code;
 $$ LANGUAGE SQL STABLE;
@@ -210,9 +224,9 @@ AS $$
         g.id,
         g.name,
         g.group_type
-    FROM group_permissions gp
-    JOIN permissions p ON gp.permission_id = p.id
-    JOIN groups g ON gp.group_id = g.id
+    FROM core.group_permissions gp
+    JOIN core.permissions p ON gp.permission_id = p.id
+    JOIN core.groups g ON gp.group_id = g.id
     WHERE p.code = p_permission_code
     ORDER BY g.name;
 $$ LANGUAGE SQL STABLE;
@@ -226,8 +240,8 @@ DECLARE
     v_count INT;
 BEGIN
     SELECT COUNT(*) INTO v_count
-    FROM group_permissions gp
-    JOIN permissions p ON gp.permission_id = p.id
+    FROM core.group_permissions gp
+    JOIN core.permissions p ON gp.permission_id = p.id
     WHERE gp.group_id = p_group_id AND p.code = p_permission_code;
 
     RETURN v_count > 0;
@@ -237,10 +251,7 @@ $$ LANGUAGE plpgsql STABLE;
 -- ============================================================================
 -- 8. GRANT PERMISSIONS
 -- ============================================================================
-GRANT SELECT, INSERT, DELETE ON group_permissions TO app_role;
-GRANT SELECT ON group_permissions TO app_readonly;
-GRANT EXECUTE ON FUNCTION get_group_permissions TO app_role;
-GRANT EXECUTE ON FUNCTION get_groups_with_permission TO app_role;
-GRANT EXECUTE ON FUNCTION group_has_permission TO app_role;
+-- Note: GRANT statements removed - app_role and app_readonly do not exist
+-- Permissions will be inherited from database owner
 
 COMMIT;

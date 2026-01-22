@@ -58,7 +58,7 @@ const AdminPromptBrowserPanel = defineAsyncComponent(() => import('@/presentatio
 // Content Management - Courses
 const AdminCourseCreatePanel = defineAsyncComponent(() => import('@/presentation/components/base/content/admin/courses/views/CourseCreatePanel.vue'))
 const AdminCourseEditorPanel = defineAsyncComponent(() => import('@/presentation/components/base/content/admin/courses/views/CourseEditorPanel.vue'))
-const AdminCourseListEditorPanel = defineAsyncComponent(() => import('@/pages/admin/courses/CourseListEditorPanel.vue'))
+const AdminCourseListEditorPanel = defineAsyncComponent(() => import('@/presentation/views/admin/courses/CourseListEditorPanel.vue'))
 const AdminCourseFilesPanel = defineAsyncComponent(() => import('@/presentation/components/base/content/admin/courses/views/CourseFilesPanel.vue'))
 
 // Content Management - Chapters
@@ -79,7 +79,7 @@ const AdminExamManagerPanel = defineAsyncComponent(() => import('@/presentation/
 // System Operations
 const AdminFilePreviewPanel = defineAsyncComponent(() => import('@/presentation/components/base/system/admin/views/FilePreviewPanel.vue'))
 const AdminPanelManagerPanel = defineAsyncComponent(() => import('@/presentation/components/base/system/admin/views/PanelManagerPanel.vue'))
-const AdminUserGroupManagementPanel = defineAsyncComponent(() => import('@/pages/admin/AdminUserGroupManagementPanel.vue'))
+const AdminUserGroupManagementPanel = defineAsyncComponent(() => import('@/presentation/views/admin/AdminUserGroupManagementPanel.vue'))
 
 // Learning Method Forms (12 Content-LMs: 00-11) - Updated 2026-01-11
 // LM12-32 deleted (were System-Features, not Content-LMs)

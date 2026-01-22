@@ -110,15 +110,13 @@ from app.api.v1.course_editor import course_editor_bp
 from app.api.v1 import dashboard
 
 # Admin Panel (complex - stays as folder)
-# Note: importlib used because directory name contains hyphen (admin-panel)
-# Use relative import with package parameter to handle hyphenated directory name
 import importlib
-admin_panel = importlib.import_module('.admin-panel', package='app.api.v1')
+admin_panel = importlib.import_module('.admin', package='app.api.v1')
 
 # Admin Learning Methods - Extract blueprint from learning_methods module
 # Learning methods schema endpoint for dynamic form rendering
 try:
-    learning_methods_admin = importlib.import_module('.learning_methods', package='app.api.v1.admin-panel')
+    learning_methods_admin = importlib.import_module('.learning_methods', package='app.api.v1.admin')
     learning_methods_admin_bp = learning_methods_admin.bp
 except (ImportError, AttributeError) as e:
     print(f"ERROR: Failed to extract learning_methods blueprint: {e}")
@@ -127,8 +125,8 @@ except (ImportError, AttributeError) as e:
 # Admin Settings - Extract feature_flags blueprints from settings module
 # First, ensure settings module is loaded by accessing it from admin_panel
 try:
-    settings = importlib.import_module('.settings', package='app.api.v1.admin-panel')
-    feature_flags = importlib.import_module('.feature_flags', package='app.api.v1.admin-panel.settings')
+    settings = importlib.import_module('.settings', package='app.api.v1.admin')
+    feature_flags = importlib.import_module('.feature_flags', package='app.api.v1.admin.settings')
     feature_flags_bp = feature_flags.feature_flags_bp
     rollout_plans_crud_bp = feature_flags.rollout_plans_crud_bp
     rollout_plans_actions_bp = feature_flags.rollout_plans_actions_bp
@@ -137,8 +135,7 @@ except (ImportError, AttributeError) as e:
     raise
 
 # Feature Configuration Admin API (Phase 3 - Enterprise Feature Management)
-# Note: Uses relative import to handle hyphenated directory names in path
-feature_configuration = importlib.import_module('.feature-configuration', package='app.api.v1.admin-panel')
+feature_configuration = importlib.import_module('.feature-configuration', package='app.api.v1.admin')
 feature_config_core_bp = feature_configuration.core_bp
 feature_config_core_part2_bp = feature_configuration.core_part2_bp
 feature_config_rollout_bp = feature_configuration.rollout_bp

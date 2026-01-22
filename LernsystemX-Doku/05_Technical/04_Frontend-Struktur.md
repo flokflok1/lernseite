@@ -238,7 +238,14 @@ Lernmethode LM06 "Math Tasks" braucht:
 │   │   │   ├── /admin                     # Admin Domain Components
 │   │   │   │   ├── UserManagement.vue
 │   │   │   │   ├── CourseApproval.vue
-│   │   │   │   └── FeatureFlagControl.vue
+│   │   │   │   ├── FeatureFlagControl.vue
+│   │   │   │   │
+│   │   │   │   └── /groups                # 🔐 GBA: Group-Based Access Control
+│   │   │   │       ├── GroupsManagement.vue    # Main groups management
+│   │   │   │       ├── /composables
+│   │   │   │       │   └── useGroupManagement.ts
+│   │   │   │       └── /types
+│   │   │   │           └── group.types.ts
 │   │   │   │
 │   │   │   ├── /compliance                # Compliance Domain Components
 │   │   │   │   ├── CookieConsent.vue
@@ -349,8 +356,9 @@ Lernmethode LM06 "Math Tasks" braucht:
 │   │   │   │   └── TemplateService.ts     # Template handling
 │   │   │   │
 │   │   │   ├── /admin
-│   │   │   │   ├── UserAdminService.ts    # User administration
-│   │   │   │   └── FeatureFlagService.ts  # Feature flag management
+│   │   │   │   ├── UserAdminService.ts       # User administration
+│   │   │   │   ├── FeatureFlagService.ts     # Feature flag management
+│   │   │   │   └── GroupManagementService.ts # GBA: Group management
 │   │   │   │
 │   │   │   ├── /compliance
 │   │   │   │   ├── ConsentService.ts      # Consent management
@@ -395,6 +403,7 @@ Lernmethode LM06 "Math Tasks" braucht:
 │   │   │   ├── useCourseEditor.ts         # Course editor composable
 │   │   │   ├── useAIEditor.ts             # AI editor composable
 │   │   │   ├── useFeatureFlags.ts
+│   │   │   ├── useGroupManagement.ts      # GBA: Group management
 │   │   │   └── usePagination.ts
 │   │   │
 │   │   └── /use-cases                     # Application Use Cases
@@ -482,7 +491,12 @@ Lernmethode LM06 "Math Tasks" braucht:
 │   │   │   │   ├── social.client.ts       # Social API (posts, likes)
 │   │   │   │   ├── user.client.ts         # User API (auth, profile)
 │   │   │   │   ├── courseEditor.client.ts # 📝 Course Editor API (chat, generate)
-│   │   │   │   ├── admin.client.ts        # Admin API
+│   │   │   │   ├── /admin                 # Admin API Clients
+│   │   │   │   │   ├── groups.api.ts      # 🔐 GBA: Group management API
+│   │   │   │   │   ├── users.api.ts       # User administration API
+│   │   │   │   │   ├── feature-flags.api.ts # Feature flag management API
+│   │   │   │   │   ├── analytics.api.ts   # System analytics API
+│   │   │   │   │   └── index.ts           # Admin API re-exports
 │   │   │   │   ├── compliance.client.ts   # Compliance API
 │   │   │   │   └── moderation.client.ts   # Moderation API
 │   │   │   │

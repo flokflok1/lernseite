@@ -45,8 +45,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminUsersContent from '@/pages/admin/users/AdminUsersContent.vue'
-import AdminRolesContent from '@/pages/admin/roles/AdminRolesContent.vue'
+import AdminUsersContent from '@/presentation/views/admin/users/AdminUsersContent.vue'
+import AdminRolesContent from '@/presentation/views/admin/roles/AdminRolesContent.vue'
 
 /**
  * Admin User & Group Management Window

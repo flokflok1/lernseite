@@ -153,9 +153,9 @@ except ImportError:
     social = None
 
 try:
-    from app.api.v1 import community
+    from app.api.v1.community import groups_bp
 except ImportError:
-    community = None
+    groups_bp = None
 
 try:
     from app.api.v1 import messaging
@@ -226,6 +226,10 @@ api_v1.register_blueprint(feature_config_rollout_bp)
 api_v1.register_blueprint(feature_config_ab_tests_bp)
 api_v1.register_blueprint(feature_config_audit_bp)
 
+# Register community blueprints (GBA - Group-Based Access Control)
+if groups_bp:
+    api_v1.register_blueprint(groups_bp)
+
 # Export all
 __all__ = [
     'api_v1',
@@ -240,5 +244,6 @@ __all__ = [
     'learning_methods_admin_bp',
     'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp', 'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
+    'groups_bp',
     'dashboard', 'admin_panel', 'social', 'community', 'messaging'
 ]

@@ -14,7 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-groups_bp = Blueprint('admin_groups', __name__, url_prefix='/admin-panel/groups')
+groups_bp = Blueprint('admin_groups', __name__, url_prefix='/admin/groups')
 
 
 # =====================================================
@@ -80,14 +80,10 @@ def list_groups():
                 group['organisation_id'] = str(group['organisation_id'])
 
         return jsonify({
-            'success': True,
-            'groups': groups,
-            'pagination': {
-                'total': total,
-                'page': page,
-                'per_page': per_page,
-                'total_pages': (total + per_page - 1) // per_page
-            }
+            'data': groups,
+            'total': total,
+            'limit': per_page,
+            'offset': offset
         }), 200
 
     except ValueError as e:
@@ -132,7 +128,7 @@ def get_group(group_id: str):
         # Get permissions
         group['permissions'] = GroupManagementService.get_group_permissions(group_id)
 
-        return jsonify({'success': True, 'group': group}), 200
+        return jsonify({'data': group}), 200
 
     except Exception as e:
         logger.error(f"Error getting group: {e}")
@@ -185,7 +181,7 @@ def create_group():
         if 'organisation_id' in group and group['organisation_id']:
             group['organisation_id'] = str(group['organisation_id'])
 
-        return jsonify({'success': True, 'group': group}), 201
+        return jsonify({'data': group}), 201
 
     except ValueError as e:
         status = 409 if 'already exists' in str(e) else 400
@@ -236,7 +232,7 @@ def update_group(group_id: str):
         if 'organisation_id' in group and group['organisation_id']:
             group['organisation_id'] = str(group['organisation_id'])
 
-        return jsonify({'success': True, 'group': group}), 200
+        return jsonify({'data': group}), 200
 
     except ValueError as e:
         return jsonify({'error': str(e)}), 400 if 'not found' not in str(e) else 404
@@ -315,14 +311,10 @@ def get_group_members(group_id: str):
         result = GroupManagementService.get_group_members(group_id, per_page, offset)
 
         return jsonify({
-            'success': True,
-            'members': result['members'],
-            'pagination': {
-                'total': result['total'],
-                'page': page,
-                'per_page': per_page,
-                'total_pages': (result['total'] + per_page - 1) // per_page
-            }
+            'data': result['members'],
+            'total': result['total'],
+            'limit': per_page,
+            'offset': offset
         }), 200
 
     except Exception as e:
@@ -366,9 +358,7 @@ def add_group_members(group_id: str):
             )
 
             return jsonify({
-                'success': True,
-                'message': f"Added {result['added']} users, {result['already_members']} already members",
-                'result': result
+                'data': result
             }), 200
 
         # Handle single add
@@ -380,8 +370,7 @@ def add_group_members(group_id: str):
             )
 
             return jsonify({
-                'success': result,
-                'message': 'User added to group' if result else 'Failed to add user'
+                'data': {'success': result}
             }), 200 if result else 400
 
         else:
@@ -452,8 +441,7 @@ def get_group_permissions(group_id: str):
         permissions = GroupManagementService.get_group_permissions(group_id)
 
         return jsonify({
-            'success': True,
-            'permissions': permissions
+            'data': permissions
         }), 200
 
     except Exception as e:
@@ -498,9 +486,7 @@ def assign_group_permissions(group_id: str):
             )
 
             return jsonify({
-                'success': True,
-                'message': f"Assigned {result['assigned']} permissions",
-                'result': result
+                'data': result
             }), 200
 
         # Handle single assign
@@ -512,8 +498,7 @@ def assign_group_permissions(group_id: str):
             )
 
             return jsonify({
-                'success': result,
-                'message': 'Permission assigned' if result else 'Failed to assign permission'
+                'data': {'success': result}
             }), 200 if result else 400
 
         else:

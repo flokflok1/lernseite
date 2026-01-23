@@ -19,7 +19,7 @@ import psycopg
 from datetime import datetime, timedelta
 
 from app.core.bootstrap.extensions import db_pool
-from app.api.middleware.auth import token_required, admin_required
+from app.api.middleware.auth import token_required
 from app.infrastructure.utils.exceptions import APIException
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,6 @@ bp = Blueprint(
 
 @bp.route('/stats/system', methods=['GET'])
 @token_required
-@admin_required
 def get_system_stats() -> Tuple[Dict[str, Any], int]:
     """
     Get system-wide statistics for dashboard.
@@ -106,7 +105,6 @@ def get_system_stats() -> Tuple[Dict[str, Any], int]:
 
 @bp.route('/stats/users', methods=['GET'])
 @token_required
-@admin_required
 def get_user_stats() -> Tuple[Dict[str, Any], int]:
     """
     Get user statistics for dashboard.
@@ -188,7 +186,6 @@ def get_user_stats() -> Tuple[Dict[str, Any], int]:
 
 @bp.route('/stats/courses', methods=['GET'])
 @token_required
-@admin_required
 def get_course_stats() -> Tuple[Dict[str, Any], int]:
     """
     Get course statistics for dashboard.

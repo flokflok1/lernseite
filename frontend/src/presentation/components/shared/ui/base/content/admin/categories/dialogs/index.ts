@@ -1,1 +1,1 @@
-export { default as CategoryModal } from './CategoryModal.vue'
+export { default as CategoryModal } from '../../../../../../../base/content/admin/categories/dialogs/CategoryModal.vue'

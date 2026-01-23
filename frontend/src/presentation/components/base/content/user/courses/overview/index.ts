@@ -5,4 +5,4 @@ export { default as ChapterGridList } from './ChapterGridList.vue'
 export { default as CourseDetailsSections } from './CourseDetailsSections.vue'
 
 // Composables
-export { useCourseOverview } from './composables/useCourseOverview'
+export { useCourseOverview } from './composables/useCourseOverview.ts'

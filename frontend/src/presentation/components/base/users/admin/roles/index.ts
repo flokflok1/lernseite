@@ -5,4 +5,4 @@ export { default as RoleEditModal } from './RoleEditModal.vue'
 export { default as PermissionsOverview } from './PermissionsOverview.vue'
 
 // Composables
-export { useRolesManagement } from './composables/useRolesManagement'
+export { useRolesManagement } from './composables/useRolesManagement.ts'

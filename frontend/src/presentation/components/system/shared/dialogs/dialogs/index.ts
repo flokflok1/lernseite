@@ -1,2 +1,3 @@
-export { default as DeleteConfirmModal } from './DeleteConfirmModal.vue'
-export { default as DialogManager } from './DialogManager.vue'
+// dialogs (Barrel Export)
+// Re-exports from base/ (DDD migration)
+

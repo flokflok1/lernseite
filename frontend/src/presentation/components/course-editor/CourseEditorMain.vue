@@ -23,6 +23,7 @@ const { t } = useI18n()
 // State
 const editorMode = ref<EditorMode>('manual')
 const projectId = computed(() => route.params.projectId as string || '')
+const courseId = computed(() => route.params.courseId as string || null)
 const isLoading = ref(false)
 
 // Methods
@@ -57,11 +58,13 @@ const handleSave = async () => {
       <ManualEditorContainer
         v-if="editorMode === 'manual'"
         :project-id="projectId"
+        :course-id="courseId"
         @save="handleSave"
       />
       <AIEditorContainer
         v-else-if="editorMode === 'ai'"
         :project-id="projectId"
+        :course-id="courseId"
         @save="handleSave"
       />
     </div>

@@ -4,7 +4,7 @@ export { default as TutorGenerationForm } from './TutorGenerationForm.vue'
 export { default as TutorStepPlayer } from './TutorStepPlayer.vue'
 
 // Composables
-export { useTutorPlayer } from './composables/useTutorPlayer'
+export { useTutorPlayer } from './composables/useTutorPlayer.ts'
 
 // Types
 export type {
@@ -12,4 +12,4 @@ export type {
   WhiteboardAction,
   TutorialStep,
   ExplanationListItem
-} from './composables/useTutorPlayer'
+} from './composables/useTutorPlayer.ts'

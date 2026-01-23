@@ -46,6 +46,7 @@ import { useWindowStore } from '@/application/stores/window.store'
 import type { WindowType } from '@/application/stores/window.store'
 import WindowComponent from './WindowComponent.vue'
 import Taskbar from './Taskbar.vue'
+import { LEARNING_METHOD_REGISTRY, getLearningMethodForm } from '@/presentation/components/content/admin/learning-methods/learning-methods.registry'
 
 // Import window content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations
@@ -53,7 +54,7 @@ const AdminAiStudioWindow = defineAsyncComponent(() => import('@/presentation/co
 const AdminAIKapitelGeneratorWindow = defineAsyncComponent(() => import('@/presentation/components/ai/admin/authoring/views/KapitelGeneratorWindow.vue'))
 const AdminAIJobWindow = defineAsyncComponent(() => import('@/presentation/components/ai/admin/management/jobs/views/AIJobWindow.vue'))
 const AdminModelSelectorWindow = defineAsyncComponent(() => import('@/presentation/components/ai/admin/management/models/views/ModelSelectorWindow.vue'))
-const AdminPromptBrowserWindow = defineAsyncComponent(() => import('@/presentation/components/ai/admin/management/prompts/views/PromptBrowserWindow.vue'))
+const AdminPromptBrowserWindow = defineAsyncComponent(() => import('@/presentation/components/ai/admin/management/prompts/PromptBrowser.vue'))
 
 // Content Management - Courses
 const AdminCourseCreateWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/courses/views/CourseCreateWindow.vue'))
@@ -61,7 +62,7 @@ const AdminCourseEditorWindow = defineAsyncComponent(() => import('@/presentatio
 const AdminCourseFilesWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/courses/views/CourseFilesWindow.vue'))
 
 // Content Management - Chapters
-const AdminKapitelEditorWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/chapters/views/KapitelEditorWindow.vue'))
+// MIGRATED: KapitelEditorWindow deleted (Windows forbidden) - use KapitelEditorPanel (Panel-based)
 const AdminKapitelManagerWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/chapters/views/KapitelManagerWindow.vue'))
 const AdminChapterPreviewWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/chapters/views/ChapterPreviewWindow.vue'))
 
@@ -69,32 +70,12 @@ const AdminChapterPreviewWindow = defineAsyncComponent(() => import('@/presentat
 const AdminLessonEditorWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/lessons/views/LessonEditorWindow.vue'))
 const AdminLessonPreviewWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/lessons/views/LessonPreviewWindow.vue'))
 
-// Content Management - Learning Methods
-const AdminLearningMethodEditorWindow = defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/views/LearningMethodEditorWindow.vue'))
-
 // Assessment
 const AdminExamManagerWindow = defineAsyncComponent(() => import('@/presentation/components/assessment/admin/views/ExamManagerWindow.vue'))
 
 // System Operations
 const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/presentation/components/system/admin/views/FilePreviewWindow.vue'))
 const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentation/components/system/admin/views/WindowManagerWindow.vue'))
-
-// Learning Method Forms (12 Content-LMs: 00-11) - Updated 2026-01-11
-// LM12-32 deleted (were System-Features, not Content-LMs)
-const LearningMethodFormComponents: Record<number, ReturnType<typeof defineAsyncComponent>> = {
-  0: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod00Form.vue')),
-  1: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod01Form.vue')),
-  2: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod02Form.vue')),
-  3: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod03Form.vue')),
-  4: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod04Form.vue')),
-  5: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod05Form.vue')),
-  6: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod06Form.vue')),
-  7: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod07Form.vue')),
-  8: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod08Form.vue')),
-  9: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod09Form.vue')),
-  10: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod10Form.vue')),
-  11: defineAsyncComponent(() => import('@/presentation/components/content/admin/learning-methods/forms/LearningMethod11Form.vue'))
-}
 
 const windowStore = useWindowStore()
 
@@ -105,12 +86,26 @@ const activeWindowId = computed(() => windowStore.activeWindowId)
  * Resolve window component based on type
  */
 function resolveWindowComponent(type: WindowType) {
-  // Handle learning method forms (12 Content-LMs: 0-11) via explicit mapping
+  // Handle learning method forms (12 Content-LMs: 0-11) via registry
   if (type.startsWith('learning-method-') && type.endsWith('-form')) {
     const codeStr = type.replace('learning-method-', '').replace('-form', '')
     const code = parseInt(codeStr, 10)
-    if (!isNaN(code) && code >= 0 && code <= 11 && LearningMethodFormComponents[code]) {
-      return LearningMethodFormComponents[code]
+
+    if (!isNaN(code) && code >= 0 && code <= 11) {
+      const form = getLearningMethodForm(code)
+
+      if (form !== null) {
+        return form
+      }
+
+      // For unimplemented learning methods (e.g., LM07, LM09)
+      return {
+        template: '<div class="p-4 text-center text-gray-500">{{ $t("system.notImplemented") }} - LM{{ lmCode }}</div>',
+        props: ['window'],
+        setup() {
+          return { lmCode: code }
+        }
+      }
     }
   }
 
@@ -119,8 +114,12 @@ function resolveWindowComponent(type: WindowType) {
       return AdminCourseCreateWindow
     case 'admin-course-editor':
       return AdminCourseEditorWindow
-    case 'admin-kapitel-editor':  // Refactored: modules → chapters (2025-11-27)
-      return AdminKapitelEditorWindow
+    case 'admin-kapitel-editor':  // MIGRATED: Use course-editor instead (all chapter editing handled there)
+      // Window-based editor migrated to course-editor system with manual/AI modes
+      return {
+        template: '<div class="p-4">{{ $t("system.migrated.kapitelEditor") }}</div>',
+        props: ['window']
+      }
     case 'admin-kapitel-manager':  // NEW: Kapitel Manager (2025-12-03)
       return AdminKapitelManagerWindow
     case 'admin-ai-kapitel-generator':  // NEW: AI Kapitel Generator (2025-11-27)
@@ -130,7 +129,11 @@ function resolveWindowComponent(type: WindowType) {
     case 'admin-lesson-editor':
       return AdminLessonEditorWindow
     case 'admin-learning-method-editor':
-      return AdminLearningMethodEditorWindow
+      // MIGRATED: Learning methods now use Panel-based system
+      return {
+        template: '<div class="p-4">Learning Method Editor migrated to Panel system</div>',
+        props: ['window']
+      }
     case 'admin-exam-manager':
       return AdminExamManagerWindow
     case 'admin-ai-job':

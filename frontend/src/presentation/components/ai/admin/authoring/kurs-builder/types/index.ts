@@ -22,7 +22,7 @@ export type {
   Session,
   ChatMessage,
   SessionStats
-} from './session.types'
+} from './session.types.ts'
 
 // Course Structure
 export type {
@@ -32,14 +32,14 @@ export type {
   LearningMethodInstance,
   DraftStructure,
   DraftStats
-} from './course.types'
+} from './course.types.ts'
 
 // File Management
 export type {
   CourseFile,
   FileUploadProgress,
   FileSelectionState
-} from './file.types'
+} from './file.types.ts'
 
 // Actions & Workflows
 export type {
@@ -48,7 +48,7 @@ export type {
   PendingAction,
   SelectedContext,
   WorkflowState
-} from './action.types'
+} from './action.types.ts'
 
 // Theory & Explanations
 export type {
@@ -57,7 +57,7 @@ export type {
   ExplanationStep,
   TheoryGenerationRequest,
   ExplanationGenerationRequest
-} from './theory.types'
+} from './theory.types.ts'
 
 // Learning Methods
 export type {
@@ -66,4 +66,4 @@ export type {
   LMConfiguration,
   LMSuggestionRequest,
   LMCreationRequest
-} from './lm.types'
+} from './lm.types.ts'

@@ -14,25 +14,25 @@ export { default as NewCourseModal } from './components/NewCourseModal.vue'
 export { default as CourseStructureSidebar } from './components/CourseStructureSidebar.vue'
 
 // Composables
-export { useAiStudioState } from './composables/useAiStudioState'
-export { useCourseManagement } from './composables/useCourseManagement'
-export { useChatManagement } from '../composables/useChatManagement'
-export { useTabManagement } from '../composables/useTabManagement'
+export { useAiStudioState } from './composables/useAiStudioState.ts'
+export { useCourseManagement } from './composables/useCourseManagement.ts'
+export { useChatManagement } from '../composables/useChatManagement.ts'
+export { useTabManagement } from '../composables/useTabManagement.ts'
 
 // Types
 export type {
   Course,
   Chapter,
   Lesson
-} from './composables/useAiStudioState'
+} from './composables/useAiStudioState.ts'
 
 export type {
   Category,
   Profile,
   NewCourseData,
   AIAnalysisResult
-} from './composables/useCourseManagement'
+} from './composables/useCourseManagement.ts'
 
 export type {
   TabConfig
-} from '../composables/useTabManagement'
+} from '../composables/useTabManagement.ts'

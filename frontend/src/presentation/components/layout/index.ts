@@ -4,9 +4,9 @@ export { default as MiniPreview } from './MiniPreview.vue'
 export { default as WindowComponent } from './WindowComponent.vue'
 export { default as DesktopLayer } from './DesktopLayer.vue'
 
-// Layout Components (former base/layout/)
-export { default as Footer } from './Footer.vue'
-export { default as ProtectedContent } from './ProtectedContent.vue'
+// Layout Components (in base/layout/)
+export { default as Footer } from '../base/layout/Footer.vue'
+export { default as ProtectedContent } from '../base/layout/ProtectedContent.vue'
 
 // Ads Components (base/ads/)
 export * from './ads'

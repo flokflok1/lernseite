@@ -1,3 +1,5 @@
-// Re-export from canonical location (refactored component directory)
-export { default as LearningMethodEditor } from '../../../../../content/admin/learning-methods'
-export * from '../../../../../content/admin/learning-methods/forms'
+// Learning Method Admin Components (Barrel Export)
+// Re-exports from base/content/admin/learning-methods/ (DDD migration)
+
+export * from '../../../../../base/content/admin/learning-methods'
+export * from '../../../../../base/content/admin/learning-methods/forms'

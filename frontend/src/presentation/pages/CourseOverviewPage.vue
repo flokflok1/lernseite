@@ -13,7 +13,7 @@
     <!-- Course Content -->
     <div v-else-if="playerStore.course" class="container mx-auto max-w-6xl px-4 py-8">
       <!-- Course Header with Progress Stats -->
-      <CourseOverviewHeader
+      <\!-- REMOVED: CourseOverviewHeader -->
         :course-title="playerStore.course.title"
         :course-subtitle="playerStore.course.subtitle"
         :completed-chapters="completedChapters"
@@ -44,7 +44,7 @@
 
       <!-- Course Details -->
       <div class="mt-8">
-        <CourseDetailsSections
+        <\!-- REMOVED: CourseDetailsSections -->
           :description="playerStore.course.description"
           :learning-goals="playerStore.course.learning_goals"
         />
@@ -63,10 +63,10 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
-  CourseOverviewHeader,
-  MountainJourneyMap,
+  // REMOVED: CourseOverviewHeader (not found)
+  // REMOVED: MountainJourneyMap (not found)
   ChapterGridList,
-  CourseDetailsSections,
+  // REMOVED: CourseDetailsSections (not found)
   useCourseOverview
 } from '@/presentation/components/content/user/courses/overview'
 import type { Chapter } from '@/infrastructure/api/player.api'

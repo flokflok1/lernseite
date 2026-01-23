@@ -1,2 +1,2 @@
-export { default as LessonEditor } from './LessonEditor.vue'
-export { default as LessonPreview } from './LessonPreview.vue'
+export { default as LessonEditor } from '../../../../../../base/content/admin/lessons/LessonEditor.vue'
+export { default as LessonPreview } from '../../../../../../base/content/admin/lessons/LessonPreview.vue'

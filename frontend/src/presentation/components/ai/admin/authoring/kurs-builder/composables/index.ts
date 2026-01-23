@@ -15,6 +15,6 @@
  * @module kurs-builder/composables
  */
 
-export { useSessionManager } from './useSessionManager'
-export { useChatManager } from './useChatManager'
-export { useFileManagement } from './useFileManagement'
+export { useSessionManager } from './useSessionManager.ts'
+export { useChatManager } from './useChatManager.ts'
+export { useFileManagement } from './useFileManagement.ts'

@@ -5,4 +5,4 @@ export { default as ChapterTheoryPanel } from './ChapterTheoryPanel.vue'
 export { default as LessonPlayerPanel } from './LessonPlayerPanel.vue'
 
 // Composables
-export { useChapterDetail } from './composables/useChapterDetail'
+export { useChapterDetail } from './composables/useChapterDetail.ts'

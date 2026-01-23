@@ -29,6 +29,7 @@
     "percy:approval": "echo '🎨 Review visual diffs at: https://percy.io/[project-slug]'"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.23",
     "@pixiv/three-vrm": "^3.4.4",
     "@types/three": "^0.181.0",
     "axios": "^1.13.2",
@@ -49,10 +50,10 @@
     "@types/dompurify": "^3.0.5",
     "@types/node": "^24.10.0",
     "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/test-utils": "^2.4.1",
-    "@vue/tsconfig": "^0.8.1",
     "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
+    "@vue/test-utils": "^2.4.1",
+    "@vue/tsconfig": "^0.8.1",
     "autoprefixer": "^10.4.22",
     "jscodeshift": "^0.14.0",
     "jsdom": "^23.0.0",

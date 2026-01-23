@@ -1,1 +1,1 @@
-export { useLearningMethods } from './useLearningMethods'
+export { useLearningMethods } from './useLearningMethods.ts'

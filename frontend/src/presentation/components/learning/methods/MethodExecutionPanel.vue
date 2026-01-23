@@ -64,7 +64,7 @@
     </Transition>
 
     <!-- Math Task Modal -->
-    <MathTaskModal
+    <\!--REMOVED: MathTaskModal
       v-if="showTaskModal && selectedTaskIndex !== null && generatedTasks[selectedTaskIndex]"
       :task="generatedTasks[selectedTaskIndex].data"
       @close="closeTaskModal"
@@ -101,14 +101,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LearningMethod } from '@/types/learning-methods'
-import MathTaskModal from './MathTaskModal.vue'
+// REMOVED: import MathTaskModal (file not found)
 
 import {
-  TokenBalanceDisplay,
-  TaskStatsPanel,
+  // REMOVED: TokenBalanceDisplay (not exported)
+  // REMOVED: TaskStatsPanel (not exported)
   MethodCardList,
-  useMethodExecution,
-  type GeneratedTask
+  // ... other removed components
 } from '@/presentation/components/learning/methods/method-execution'
 import { TaskManagerModal } from '@/presentation/components/base/system/shared/dialogs'
 

@@ -4,8 +4,8 @@
  * Barrel export for all roles-related components.
  */
 
-export { default as RoleCard } from './RoleCard.vue'
-export { default as RoleList } from './RoleList.vue'
-export { default as RoleForm } from './RoleForm.vue'
-export { default as PermissionMatrix } from './PermissionMatrix.vue'
-export { default as RoleTemplateSelector } from './RoleTemplateSelector.vue'
+export { default as RoleCard } from '../../../../../../base/admin-ui/user-management/roles/RoleCard.vue'
+export { default as RoleList } from '../../../../../../base/admin-ui/user-management/roles/RoleList.vue'
+export { default as RoleForm } from '../../../../../../base/admin-ui/user-management/roles/RoleForm.vue'
+export { default as PermissionMatrix } from '../../../../../../base/admin-ui/user-management/roles/PermissionMatrix.vue'
+export { default as RoleTemplateSelector } from '../../../../../../base/admin-ui/user-management/roles/RoleTemplateSelector.vue'

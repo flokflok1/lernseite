@@ -13,5 +13,5 @@ export { default as ExplanationViewer } from './ExplanationViewer.vue'
 export { default as ExplanationSettings } from './ExplanationSettings.vue'
 
 // Composables
-export { useExplanationManager } from './composables/useExplanationManager'
-export type { GenerateOptions } from './composables/useExplanationManager'
+export { useExplanationManager } from './composables/useExplanationManager.ts'
+export type { GenerateOptions } from './composables/useExplanationManager.ts'

@@ -2,7 +2,7 @@
   <div class="text-lesson">
     <!-- Detailed Steps (if available) -->
     <div v-if="hasDetailedSteps" class="detailed-section">
-      <DetailedSteps
+      <\!--DetailedSteps
         :steps="detailedContent.steps"
         @completed="$emit('completed')"
       />
@@ -72,7 +72,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Lesson } from '@/infrastructure/api/player.api'
 import DOMPurify from 'dompurify'
-import DetailedSteps from './DetailedSteps.vue'
+// REMOVED: import DetailedSteps from './DetailedSteps.vue' (file not found)
 
 const { t } = useI18n()
 

@@ -1,1 +1,1 @@
-export { default as FilePreview } from './FilePreview.vue'
+export { default as FilePreview } from '../../../../../base/content/shared/FilePreview.vue'

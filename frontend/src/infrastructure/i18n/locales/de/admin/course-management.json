@@ -154,7 +154,37 @@
     "permissionDenied": "Sie haben nicht die erforderlichen Berechtigungen für diese Aktion.",
     "selectMode": "Kurs-Editor wählen",
     "selectModeDesc": "Welcher Editor soll für die Kurserstellung verwendet werden?",
-    "title": "Kurs-Editor"
+    "title": "Kurs-Editor",
+    "pageTitle": "Kurs-Editor",
+    "pageSubtitle": "Wählen Sie einen Kurs zum Bearbeiten mit KI oder manuell",
+    "openCourseEditor": "Kurs-Editor öffnen",
+    "chooseEditorType": "Wählen Sie zwischen KI und manuellem Editing",
+    "selectCourse": "Kurs auswählen",
+    "searchPlaceholder": "Kurse durchsuchen...",
+    "createNewCourse": "Neuen Kurs erstellen",
+    "enterCourseName": "Geben Sie den Kursnamen ein:",
+    "existingCourses": "Bestehende Kurse",
+    "noCourses": "Keine Kurse gefunden",
+    "noCoursesDescription": "Erstellen Sie Ihren ersten Kurs, um loszulegen!",
+    "openWithAI": "Mit KI-Editor öffnen",
+    "openWithManual": "Mit manuellem Editor öffnen",
+    "features": "Funktionen",
+    "aiEditorFeature": "KI-gestützter Editor",
+    "feature1": "Dokumente hochladen (PDF, DOCX, PPTX, etc.)",
+    "feature2": "Automatische Kursstruktur generieren",
+    "feature3": "KI-gestützte Inhaltsgenerierung",
+    "feature4": "Intelligente Lernmethodenempfehlungen",
+    "manualEditorFeature": "Manueller Editor",
+    "feature5": "Vollständige Kontrolle über Struktur",
+    "feature6": "Detaillierte Kapitelverwaltung",
+    "feature7": "Granulare Lektionensbearbeitung",
+    "feature8": "Direkte Eingabe von Inhalten",
+    "recentCourses": "Zuletzt bearbeitete Kurse",
+    "tips": "Tipps",
+    "tip1": "Verwenden Sie den KI-Editor, um Kurse schnell aus Dokumenten zu strukturieren",
+    "tip2": "Verwenden Sie den manuellen Editor für feinkörnige Kontrolle",
+    "tip3": "Sie können mehrere Editoren gleichzeitig öffnen",
+    "tip4": "Alle Änderungen werden automatisch in Ihrem Arbeitsbereich gespeichert"
   },
   "courses": {
     "placeholders": {
@@ -187,5 +217,34 @@
     "noTheory": "Keine Theorieblätter vorhanden",
     "theory": "Theorie",
     "theoryCanBeGenerated": "Theorieblätter können mit KI generiert werden"
+  },
+  "learningMethods": {
+    "editor": {
+      "header": {
+        "course": "Kurs",
+        "chapter": "Kapitel"
+      },
+      "status": {
+        "saving": "Speichern...",
+        "saved": "Gespeichert",
+        "error": "Fehler beim Speichern",
+        "loading": "Lade Lernmethoden..."
+      },
+      "tabs": {
+        "instances": "Instanzen",
+        "catalog": "Katalog",
+        "stats": "Statistiken"
+      },
+      "modal": {
+        "selectMethod": "Lernmethode auswählen",
+        "editMethod": "Lernmethode bearbeiten"
+      },
+      "buttons": {
+        "cancel": "Abbrechen",
+        "save": "Speichern",
+        "retry": "Erneut versuchen",
+        "addMethod": "Lernmethode hinzufügen"
+      }
+    }
   }
 }

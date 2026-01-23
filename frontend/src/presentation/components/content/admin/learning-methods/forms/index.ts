@@ -1,13 +1,4 @@
-export { default as BaseLearningMethodForm } from './BaseLearningMethodForm.vue'
-export { default as DeepExplanation } from './DeepExplanation.vue'
-export { default as DiagramVisualization } from './DiagramVisualization.vue'
-export { default as DragAndDrop } from './DragAndDrop.vue'
-export { default as ExampleScenario } from './ExampleScenario.vue'
-export { default as FillInBlanks } from './FillInBlanks.vue'
-export { default as Flashcards } from './Flashcards.vue'
-export { default as InteractiveTheory } from './InteractiveTheory.vue'
-export { default as LongTextAnswer } from './LongTextAnswer.vue'
-export { default as MathInteractive } from './MathInteractive.vue'
-export { default as MultipleChoiceQuiz } from './MultipleChoiceQuiz.vue'
-export { default as StepByStep } from './StepByStep.vue'
-export { default as TrueFalse } from './TrueFalse.vue'
+// Learning Method Forms (Barrel Export)
+// Re-exports from base/content/admin/learning-methods/forms/ (DDD migration)
+
+export * from '../../../../base/content/admin/learning-methods/forms'

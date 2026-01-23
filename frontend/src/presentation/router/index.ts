@@ -142,7 +142,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'kurs-editor',
         name: 'AdminCourseEditor',
-        component: () => import('@/presentation/pages/admin/AdminCoursesPage.vue'),
+        component: () => import('@/presentation/pages/admin/AdminCourseEditorPage.vue'),
       },
       {
         path: 'kurs-editor/:id',

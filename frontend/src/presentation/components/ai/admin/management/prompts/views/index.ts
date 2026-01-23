@@ -2,4 +2,4 @@
  * AI Prompts Management Views
  */
 
-export { default as PromptBrowserWindow } from './PromptBrowserWindow.vue'
+export { default as PromptBrowser } from '../PromptBrowser.vue'

@@ -2,4 +2,4 @@
  * Group Management Composables
  */
 
-export { useGroupManagement } from './useGroupManagement'
+export { useGroupManagement } from './useGroupManagement.ts'

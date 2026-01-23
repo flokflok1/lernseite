@@ -4,4 +4,4 @@ export { default as CourseQuickActions } from './CourseQuickActions.vue'
 export { default as CourseCreatorInfo } from './CourseCreatorInfo.vue'
 
 // Composables
-export { useCourseDetail } from './composables/useCourseDetail'
+export { useCourseDetail } from './composables/useCourseDetail.ts'

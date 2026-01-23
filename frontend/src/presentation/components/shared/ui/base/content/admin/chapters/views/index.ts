@@ -2,6 +2,5 @@
  * Chapter Management Views
  */
 
-export { default as ChapterPreviewPanel } from './ChapterPreviewPanel.vue'
-export { default as KapitelEditorPanel } from './KapitelEditorPanel.vue'
-export { default as KapitelManagerPanel } from './KapitelManagerPanel.vue'
+// KapitelEditorPanel REMOVED - use course-editor instead
+export { default as KapitelManagerPanel } from '../../../../../../../base/content/admin/chapters/views/KapitelManagerPanel.vue'

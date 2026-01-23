@@ -154,7 +154,37 @@
     "permissionDenied": "You do not have the required permissions for this action.",
     "selectMode": "Select Course Editor",
     "selectModeDesc": "Which editor would you like to use for course creation?",
-    "title": "Course Editor"
+    "title": "Course Editor",
+    "pageTitle": "Course Editor",
+    "pageSubtitle": "Select a course to edit with AI or manually",
+    "openCourseEditor": "Open Course Editor",
+    "chooseEditorType": "Choose between AI and manual editing",
+    "selectCourse": "Select Course",
+    "searchPlaceholder": "Search courses...",
+    "createNewCourse": "Create New Course",
+    "enterCourseName": "Enter course name:",
+    "existingCourses": "Existing Courses",
+    "noCourses": "No courses found",
+    "noCoursesDescription": "Create your first course to get started!",
+    "openWithAI": "Open with AI Editor",
+    "openWithManual": "Open with Manual Editor",
+    "features": "Features",
+    "aiEditorFeature": "AI-Powered Editor",
+    "feature1": "Upload documents (PDF, DOCX, PPTX, etc.)",
+    "feature2": "Auto-generate course structure",
+    "feature3": "AI-powered content generation",
+    "feature4": "Smart learning method suggestions",
+    "manualEditorFeature": "Manual Editor",
+    "feature5": "Full control over structure",
+    "feature6": "Detailed chapter management",
+    "feature7": "Granular lesson editing",
+    "feature8": "Direct content input",
+    "recentCourses": "Recent Courses",
+    "tips": "Tips",
+    "tip1": "Use the AI Editor to quickly structure courses from documents",
+    "tip2": "Use the Manual Editor for fine-grained control",
+    "tip3": "You can open multiple editors at the same time",
+    "tip4": "All changes are auto-saved to your workspace"
   },
   "courses": {
     "placeholders": {
@@ -187,5 +217,34 @@
     "noTheory": "No theory sheets available",
     "theory": "Theory",
     "theoryCanBeGenerated": "Theory sheets can be generated with AI"
+  },
+  "learningMethods": {
+    "editor": {
+      "header": {
+        "course": "Course",
+        "chapter": "Chapter"
+      },
+      "status": {
+        "saving": "Saving...",
+        "saved": "Saved",
+        "error": "Error saving",
+        "loading": "Loading learning methods..."
+      },
+      "tabs": {
+        "instances": "Instances",
+        "catalog": "Catalog",
+        "stats": "Statistics"
+      },
+      "modal": {
+        "selectMethod": "Select Learning Method",
+        "editMethod": "Edit Learning Method"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "retry": "Retry",
+        "addMethod": "Add Learning Method"
+      }
+    }
   }
 }

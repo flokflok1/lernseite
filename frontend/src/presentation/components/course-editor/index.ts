@@ -10,13 +10,8 @@ export { default as EditorSwitcher } from './EditorSwitcher.vue'
 
 // Manual Editor Components
 export { default as ManualEditorContainer } from './manual-editor/ManualEditorContainer.vue'
-export { default as ContentEditor } from './manual-editor/ContentEditor.vue'
-export { default as StructurePanel } from './manual-editor/StructurePanel.vue'
 export { default as ChapterEditor } from './manual-editor/ChapterEditor.vue'
 export { default as LessonEditor } from './manual-editor/LessonEditor.vue'
-export { default as MediaUpload } from './manual-editor/MediaUpload.vue'
-export { default as PreviewPanel } from './manual-editor/PreviewPanel.vue'
-export { default as ToolbarActions } from './manual-editor/ToolbarActions.vue'
 
 // AI Editor Components
 export { default as AIEditorContainer } from './ai-editor/AIEditorContainer.vue'

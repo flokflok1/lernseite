@@ -154,7 +154,37 @@
     "permissionDenied": "Nie masz wymaganych uprawnień do tej akcji.",
     "selectMode": "Wybierz edytor kursu",
     "selectModeDesc": "Który edytor chciałbyś użyć do tworzenia kursów?",
-    "title": "Edytor kursów"
+    "title": "Edytor kursów",
+    "pageTitle": "Edytor kursów",
+    "pageSubtitle": "Wybierz kurs do edycji za pomocą sztucznej inteligencji lub ręcznie",
+    "openCourseEditor": "Otwórz edytor kursów",
+    "chooseEditorType": "Wybierz między edytorem AI a edytorem ręcznym",
+    "selectCourse": "Wybierz kurs",
+    "searchPlaceholder": "Szukaj kursów...",
+    "createNewCourse": "Utwórz nowy kurs",
+    "enterCourseName": "Wpisz nazwę kursu:",
+    "existingCourses": "Istniejące kursy",
+    "noCourses": "Nie znaleziono kursów",
+    "noCoursesDescription": "Utwórz swój pierwszy kurs, aby zacząć!",
+    "openWithAI": "Otwórz za pomocą edytora AI",
+    "openWithManual": "Otwórz za pomocą edytora ręcznego",
+    "features": "Funkcje",
+    "aiEditorFeature": "Edytor wspierany przez AI",
+    "feature1": "Przesyłaj dokumenty (PDF, DOCX, PPTX, itp.)",
+    "feature2": "Automatycznie generuj strukturę kursu",
+    "feature3": "Generowanie treści wspierane przez AI",
+    "feature4": "Inteligentne sugestie metod nauki",
+    "manualEditorFeature": "Edytor ręczny",
+    "feature5": "Pełna kontrola nad strukturą",
+    "feature6": "Szczegółowe zarządzanie rozdziałami",
+    "feature7": "Szczegółowa edycja lekcji",
+    "feature8": "Bezpośrednio wprowadzaj treść",
+    "recentCourses": "Ostatnio edytowane kursy",
+    "tips": "Wskazówki",
+    "tip1": "Użyj edytora AI, aby szybko strukturyzować kursy z dokumentów",
+    "tip2": "Użyj edytora ręcznego do uzyskania dokładnej kontroli",
+    "tip3": "Możesz otwierać wiele edytorów jednocześnie",
+    "tip4": "Wszystkie zmiany są automatycznie zapisywane w twoim obszarze roboczym"
   },
   "courses": {
     "placeholders": {
@@ -187,5 +217,34 @@
     "noTheory": "Brak dostępnych arkuszy teorii",
     "theory": "Teoria",
     "theoryCanBeGenerated": "Arkusze teorii mogą być generowane za pomocą AI"
+  },
+  "learningMethods": {
+    "editor": {
+      "header": {
+        "course": "Kurs",
+        "chapter": "Rozdział"
+      },
+      "status": {
+        "saving": "Zapisywanie...",
+        "saved": "Zapisano",
+        "error": "Błąd podczas zapisywania",
+        "loading": "Ładowanie metod nauki..."
+      },
+      "tabs": {
+        "instances": "Instancje",
+        "catalog": "Katalog",
+        "stats": "Statystyki"
+      },
+      "modal": {
+        "selectMethod": "Wybierz metodę nauki",
+        "editMethod": "Edytuj metodę nauki"
+      },
+      "buttons": {
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "retry": "Spróbuj ponownie",
+        "addMethod": "Dodaj metodę nauki"
+      }
+    }
   }
 }

@@ -1,8 +1,8 @@
 // Chapter Detail Components
-export { default as ChapterHeader } from './ChapterHeader.vue'
-export { default as ChapterNavigation } from './ChapterNavigation.vue'
-export { default as ChapterTheoryPanel } from './ChapterTheoryPanel.vue'
-export { default as LessonPlayerPanel } from './LessonPlayerPanel.vue'
+export { default as ChapterHeader } from '../../../../../../../base/content/user/chapters/detail/ChapterHeader.vue'
+export { default as ChapterNavigation } from '../../../../../../../base/content/user/chapters/detail/ChapterNavigation.vue'
+export { default as ChapterTheoryPanel } from '../../../../../../../base/content/user/chapters/detail/ChapterTheoryPanel.vue'
+export { default as LessonPlayerPanel } from '../../../../../../../base/content/user/chapters/detail/LessonPlayerPanel.vue'
 
 // Composables
-export { useChapterDetail } from './composables/useChapterDetail'
+export { useChapterDetail } from './composables/useChapterDetail.ts'

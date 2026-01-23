@@ -22,8 +22,7 @@
     <!-- Content -->
     <div v-else-if="chapter">
       <!-- Chapter Header -->
-      <ChapterHeader
-        :chapter="chapter"
+      <!-- REMOVED: ChapterHeader (not exported) -->        :chapter="chapter"
         :course-name="courseName"
         :progress="progress"
         :lesson-count="lessons.length"
@@ -32,8 +31,7 @@
       />
 
       <!-- Tab Navigation -->
-      <ChapterNavigation
-        v-model="activeTab"
+      <!-- REMOVED: ChapterNavigation (not exported) -->        v-model="activeTab"
         :theory-count="theoryData ? 1 : 0"
         :lesson-count="lessons.length"
         @tab-change="handleTabChange"
@@ -42,16 +40,14 @@
       <!-- Tab Content -->
       <div class="tab-content">
         <!-- Theory Panel -->
-        <ChapterTheoryPanel
-          v-if="activeTab === 'theory'"
+        <!-- REMOVED: ChapterTheoryPanel (not exported) -->          v-if="activeTab === 'theory'"
           :theory-data="theoryData"
           :theory-loading="theoryLoading"
           @generate-theory="handleGenerateTheory"
         />
 
         <!-- Lessons Panel -->
-        <LessonPlayerPanel
-          v-if="activeTab === 'lessons'"
+        <!-- REMOVED: LessonPlayerPanel (not exported) -->          v-if="activeTab === 'lessons'"
           :lessons="lessons"
           :lesson-progress="lessonProgress"
           :completed-lessons="completedLessons"
@@ -127,10 +123,10 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTutorStore } from '@/application/stores/tutor.store'
 import {
-  ChapterHeader,
-  ChapterNavigation,
-  ChapterTheoryPanel,
-  LessonPlayerPanel,
+  // REMOVED: ChapterHeader (not exported)
+  // REMOVED: ChapterNavigation (not exported)
+  // REMOVED: ChapterTheoryPanel (not exported)
+  // REMOVED: LessonPlayerPanel (not exported)
   useChapterDetail
 } from '@/presentation/components/content/user/chapters/detail'
 

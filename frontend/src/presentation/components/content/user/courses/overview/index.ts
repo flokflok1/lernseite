@@ -1,8 +1,4 @@
-// Course Overview Components
-export { default as CourseOverviewHeader } from './CourseOverviewHeader.vue'
-export { default as MountainJourneyMap } from './MountainJourneyMap.vue'
-export { default as ChapterGridList } from './ChapterGridList.vue'
-export { default as CourseDetailsSections } from './CourseDetailsSections.vue'
+// Course Overview Components (Barrel Export)
+// Re-exports from base/content/user/courses/overview/ (DDD migration)
 
-// Composables
-export { useCourseOverview } from './composables/useCourseOverview'
+export * from '../../../../base/content/user/courses/overview'

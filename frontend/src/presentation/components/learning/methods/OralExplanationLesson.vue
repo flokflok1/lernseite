@@ -14,7 +14,7 @@
 
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { AudioRecorder } from '@/presentation/components/learning/audio'
+// REMOVED: import { AudioRecorder } (not exported from audio index)
 import { analyzeOralExplanation, transcribeAudio } from '@/infrastructure/api/audio.api'
 import { tutorChat, tutorTTS } from '@/infrastructure/api/tutor.api'
 

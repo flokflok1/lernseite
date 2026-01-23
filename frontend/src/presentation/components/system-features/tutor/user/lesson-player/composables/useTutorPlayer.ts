@@ -12,7 +12,7 @@
 import { ref, computed, watch, onUnmounted, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/infrastructure/api/http'
-import type InteractiveWhiteboard from '../InteractiveWhiteboard.vue'
+import type InteractiveWhiteboard from '../../InteractiveWhiteboard.vue'
 
 // ============================================================================
 // Types

@@ -166,7 +166,7 @@
  * Features: Sort, Filter, Selection, Bulk Delete
  */
 import { computed } from 'vue'
-import type { GeneratedTask } from './composables/useMethodExecution'
+import type { GeneratedTask } from '../../../learning/methods/method-execution/composables/useMethodExecution.ts'
 
 interface Props {
   show: boolean

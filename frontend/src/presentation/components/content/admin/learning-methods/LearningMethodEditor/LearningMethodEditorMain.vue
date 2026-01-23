@@ -240,8 +240,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useLearningMethods } from '../composables'
-import { InstancesTab, CatalogTab, StatsTab } from '../tabs'
+import { useLearningMethods } from './composables/useLearningMethods.ts'
+import { InstancesTab, CatalogTab, StatsTab } from './tabs/index.ts'
 import LearningMethodEditModal from './LearningMethodEditModal.vue'
 import type { AdminLearningMethod, LearningMethodType } from '@/infrastructure/api/admin.api'
 

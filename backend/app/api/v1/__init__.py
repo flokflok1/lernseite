@@ -113,6 +113,15 @@ from app.api.v1 import dashboard
 import importlib
 admin_panel = importlib.import_module('.admin', package='app.api.v1')
 
+# Admin Dashboard - Extract blueprint from dashboard module
+# Dashboard statistics endpoints
+try:
+    admin_dashboard = importlib.import_module('.dashboard', package='app.api.v1.admin')
+    admin_dashboard_bp = admin_dashboard.bp
+except (ImportError, AttributeError) as e:
+    print(f"ERROR: Failed to extract admin_dashboard blueprint: {e}")
+    raise
+
 # Admin Learning Methods - Extract blueprint from learning_methods module
 # Learning methods schema endpoint for dynamic form rendering
 try:
@@ -207,6 +216,9 @@ api_v1.register_blueprint(audio_bp)
 api_v1.register_blueprint(features_bp)
 api_v1.register_blueprint(features_catalog_bp)
 api_v1.register_blueprint(course_editor_bp)
+
+# Register admin-panel dashboard blueprint
+api_v1.register_blueprint(admin_dashboard_bp)
 
 # Register admin-panel learning-methods blueprint
 api_v1.register_blueprint(learning_methods_admin_bp)

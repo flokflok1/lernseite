@@ -24,8 +24,7 @@ from typing import Dict, Any, Tuple
 from decimal import Decimal
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 from app.infrastructure.persistence.repositories.subscription import PlanRepository
 from app.application.services.audit_service import AuditService
@@ -50,8 +49,7 @@ pricing_calculator_bp = Blueprint(
 
 
 @pricing_calculator_bp.route('/calculate', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def calculate_pricing() -> Tuple[Dict[str, Any], int]:
     """
     Calculate cost and price for an AI operation.
@@ -133,8 +131,7 @@ def calculate_pricing() -> Tuple[Dict[str, Any], int]:
 
 
 @pricing_calculator_bp.route('/estimate', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def estimate_operation_cost() -> Tuple[Dict[str, Any], int]:
     """
     Estimate cost for a planned AI operation.
@@ -230,8 +227,7 @@ pricing_plans_bp = Blueprint(
 
 
 @pricing_plans_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def list_pricing_plans() -> Tuple[Dict[str, Any], int]:
     """
     List all pricing plans.
@@ -267,8 +263,7 @@ def list_pricing_plans() -> Tuple[Dict[str, Any], int]:
 
 
 @pricing_plans_bp.route('/<plan_id>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Get pricing plan details.
@@ -300,8 +295,7 @@ def get_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @pricing_plans_bp.route('/<plan_id>', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def update_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Update pricing plan.
@@ -366,8 +360,7 @@ def update_pricing_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @pricing_plans_bp.route('/<plan_id>/calculate', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def calculate_plan_costs(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Calculate estimated costs for a pricing plan.

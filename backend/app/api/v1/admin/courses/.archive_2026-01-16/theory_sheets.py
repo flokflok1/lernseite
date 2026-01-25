@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 @api_v1.route('/admin/chapters/<chapter_id>/theory', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_list_chapter_theories(chapter_id: str):
     """
     List all theory sheets for a chapter.
@@ -99,7 +99,7 @@ def admin_list_chapter_theories(chapter_id: str):
 
 
 @api_v1.route('/admin/chapters/<chapter_id>/theory', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_create_chapter_theory(chapter_id: str):
     """
     Create new theory sheet for chapter.
@@ -191,7 +191,7 @@ def admin_create_chapter_theory(chapter_id: str):
 # ============================================================================
 
 @api_v1.route('/admin/lessons/<lesson_id>/theory', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_list_lesson_theories(lesson_id: str):
     """
     List all theory sheets for a lesson.
@@ -247,7 +247,7 @@ def admin_list_lesson_theories(lesson_id: str):
 
 
 @api_v1.route('/admin/lessons/<lesson_id>/theory', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_create_lesson_theory(lesson_id: str):
     """
     Create new theory sheet for lesson.
@@ -339,7 +339,7 @@ def admin_create_lesson_theory(lesson_id: str):
 # ============================================================================
 
 @api_v1.route('/admin/theory-sheets/<theory_id>', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_get_theory_sheet(theory_id: str):
     """
     Get theory sheet by ID.
@@ -388,7 +388,7 @@ def admin_get_theory_sheet(theory_id: str):
 
 
 @api_v1.route('/admin/theory-sheets/<theory_id>', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_update_theory_sheet(theory_id: str):
     """
     Update theory sheet.
@@ -486,7 +486,7 @@ def admin_update_theory_sheet(theory_id: str):
 
 
 @api_v1.route('/admin/theory-sheets/<theory_id>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_delete_theory_sheet(theory_id: str):
     """
     Delete theory sheet.

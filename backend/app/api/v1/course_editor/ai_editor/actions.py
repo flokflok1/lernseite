@@ -14,8 +14,7 @@ from flask import Blueprint, request
 from typing import Dict, Any, Tuple
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +26,7 @@ actions_bp = Blueprint(
 
 
 @actions_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def list_all_actions() -> Tuple[Dict[str, Any], int]:
     """
     List all available AI Editor actions.
@@ -64,8 +62,7 @@ def list_all_actions() -> Tuple[Dict[str, Any], int]:
 
 
 @actions_bp.route('/<category>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_actions_by_category(category: str) -> Tuple[Dict[str, Any], int]:
     """
     Get AI Editor actions for a specific category.
@@ -117,8 +114,7 @@ def get_actions_by_category(category: str) -> Tuple[Dict[str, Any], int]:
 
 
 @actions_bp.route('/entity/<entity_type>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_actions_for_entity(entity_type: str) -> Tuple[Dict[str, Any], int]:
     """
     Get AI Editor actions applicable to a specific entity type.

@@ -18,8 +18,7 @@ from datetime import datetime
 import logging
 import uuid
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.persistence.repositories.ai.jobs import AIJobsRepository
 from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
@@ -42,8 +41,7 @@ jobs_management_bp = Blueprint(
 
 
 @jobs_management_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_AI_JOBS_READ)
+@permission_required('admin.ai-jobs:read')
 def list_ai_jobs() -> Tuple[Dict[str, Any], int]:
     """
     List all AI jobs with filtering.
@@ -100,8 +98,7 @@ def list_ai_jobs() -> Tuple[Dict[str, Any], int]:
 
 
 @jobs_management_bp.route('/<job_id>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_AI_JOBS_READ)
+@permission_required('admin.ai-jobs:read')
 def get_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Get AI job details.
@@ -145,8 +142,7 @@ def get_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @jobs_management_bp.route('/<job_id>/cancel', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
+@permission_required('admin.ai-jobs:write')
 def cancel_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Cancel AI job.
@@ -230,8 +226,7 @@ def cancel_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @jobs_management_bp.route('/<job_id>', methods=['DELETE'])
-@token_required
-@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
+@permission_required('admin.ai-jobs:write')
 def delete_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Delete AI job.

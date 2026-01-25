@@ -26,11 +26,11 @@ from app.domain.models.admin_course import (
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.application.services.audit_service import AuditService
 from app.api.middleware.auth import get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 
 
 @api_v1.route('/admin/courses', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_list_courses():
     """List all courses with advanced filtering and pagination."""
     try:
@@ -83,7 +83,7 @@ def admin_list_courses():
 
 
 @api_v1.route('/admin/courses/<course_id>', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_get_course_details(course_id: str):
     """Get detailed information about a specific course."""
     try:
@@ -107,7 +107,7 @@ def admin_get_course_details(course_id: str):
 
 
 @api_v1.route('/admin/courses', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_create_course():
     """Create a new course as admin."""
     try:
@@ -147,7 +147,7 @@ def admin_create_course():
 
 
 @api_v1.route('/admin/courses/<course_id>', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_update_course(course_id: str):
     """Update course metadata."""
     try:
@@ -192,7 +192,7 @@ def admin_update_course(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/status', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_update_course_status(course_id: str):
     """Change course status (publish, unpublish, archive, unarchive)."""
     try:
@@ -253,7 +253,7 @@ def admin_update_course_status(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_COURSE_DELETE)
+@permission_required('content.courses:delete')
 def admin_delete_course(course_id: str):
     """Archive a course (soft delete)."""
     try:
@@ -287,7 +287,7 @@ def admin_delete_course(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/permanent', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_COURSE_DELETE)
+@permission_required('content.courses:delete')
 def admin_permanent_delete_course(course_id: str):
     """Permanently delete a course (hard delete). WARNING: Cannot be undone!"""
     try:

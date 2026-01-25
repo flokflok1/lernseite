@@ -29,11 +29,11 @@ from app.infrastructure.persistence.repositories.course_prompt import CourseProm
 from app.application.services.audit_service import AuditService
 from app.application.services.prompt_resolver import PromptResolver
 from app.api.middleware.auth import get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 
 
 @api_v1.route('/admin/courses/<course_id>/prompts', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_list_course_prompts(course_id: str):
     """List all custom prompts for a specific course."""
     try:
@@ -61,7 +61,7 @@ def admin_list_course_prompts(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/prompts/<scope>', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_get_course_prompt(course_id: str, scope: str):
     """Get a specific prompt for a course and scope."""
     try:
@@ -103,7 +103,7 @@ def admin_get_course_prompt(course_id: str, scope: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/prompts/<scope>', methods=['PUT'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_upsert_course_prompt(course_id: str, scope: str):
     """Create or update a course-specific prompt (UPSERT)."""
     try:
@@ -170,7 +170,7 @@ def admin_upsert_course_prompt(course_id: str, scope: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/prompts/<scope>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_delete_course_prompt(course_id: str, scope: str):
     """Delete a course-specific prompt (reset to global default)."""
     try:
@@ -220,7 +220,7 @@ def admin_delete_course_prompt(course_id: str, scope: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/prompts/reset', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_bulk_reset_course_prompts(course_id: str):
     """Bulk reset course prompts to global defaults."""
     try:
@@ -265,7 +265,7 @@ def admin_bulk_reset_course_prompts(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/prompts/resolve', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_resolve_course_prompt(course_id: str):
     """Resolve a prompt for a specific course and scope (for testing/preview)."""
     try:

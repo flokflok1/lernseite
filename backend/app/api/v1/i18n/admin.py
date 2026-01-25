@@ -15,7 +15,7 @@ from app.application.services.i18n_service import I18nService
 from app.infrastructure.persistence.database import get_connection
 from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError
-from app.api.middleware.auth import token_required, role_required
+from app.api.middleware.auth import token_required, permission_required
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ admin_bp = Blueprint('i18n_admin', __name__, url_prefix='/i18n')
 # ============================================================================
 
 @admin_bp.route('/admin/translations/approve/<translation_id>', methods=['POST'])
-@role_required('admin', 'moderator')
+@permission_required('admin.system:write')
 def approve_translation(translation_id: str):
     """
     POST /api/v1/i18n/admin/translations/approve/{translation_id}
@@ -60,7 +60,7 @@ def approve_translation(translation_id: str):
 
 
 @admin_bp.route('/admin/statistics/language/<language_code>', methods=['GET'])
-@role_required('admin')
+@permission_required('admin.system:read')
 def get_language_stats(language_code: str):
     """
     GET /api/v1/i18n/admin/statistics/language/{language_code}
@@ -101,7 +101,7 @@ def get_language_stats(language_code: str):
 
 
 @admin_bp.route('/admin/quality/low-quality', methods=['GET'])
-@role_required('admin')
+@permission_required('admin.system:read')
 def get_low_quality_translations():
     """
     GET /api/v1/i18n/admin/quality/low-quality
@@ -152,7 +152,7 @@ def get_low_quality_translations():
 
 
 @admin_bp.route('/admin/cache/invalidate', methods=['POST'])
-@role_required('admin')
+@permission_required('admin.system:write')
 def invalidate_cache():
     """
     POST /api/v1/i18n/admin/cache/invalidate

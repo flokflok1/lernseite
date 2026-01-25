@@ -23,8 +23,7 @@ from datetime import datetime
 import logging
 import uuid
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.persistence.repositories.ai.jobs import AIJobsRepository
 from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
@@ -52,8 +51,7 @@ VALID_JOB_TYPES = {
 
 
 @jobs_creation_bp.route('', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
+@permission_required('admin.ai-jobs:write')
 def create_ai_job() -> Tuple[Dict[str, Any], int]:
     """
     Create a new AI job.
@@ -129,8 +127,7 @@ def create_ai_job() -> Tuple[Dict[str, Any], int]:
 
 
 @jobs_creation_bp.route('/<job_id>/submit', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
+@permission_required('admin.ai-jobs:write')
 def submit_ai_job(job_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Submit AI job for processing.

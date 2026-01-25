@@ -17,15 +17,14 @@ import logging
 
 from app.api.v1 import api_v1
 from app.core.bootstrap.extensions import limiter
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, permission_required
 
 logger = logging.getLogger(__name__)
 
 
 @api_v1.route('/admin/course-authoring/sessions', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("10 per minute")
 def create_course_authoring_session():
     """
@@ -86,7 +85,7 @@ def create_course_authoring_session():
 
 @api_v1.route('/admin/course-authoring/sessions/<session_id>', methods=['GET'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def get_course_authoring_session(session_id):
     """
     Lädt eine bestehende Course Authoring Session.
@@ -129,7 +128,7 @@ def get_course_authoring_session(session_id):
 
 @api_v1.route('/admin/course-authoring/sessions/<session_id>/chat', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("30 per minute")
 def course_authoring_chat(session_id):
     """
@@ -197,7 +196,7 @@ def course_authoring_chat(session_id):
 
 @api_v1.route('/admin/course-authoring/sessions/<session_id>/finalize', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("5 per minute")
 def finalize_course_authoring_session(session_id):
     """
@@ -248,7 +247,7 @@ def finalize_course_authoring_session(session_id):
 
 @api_v1.route('/admin/course-authoring/sessions/<session_id>', methods=['DELETE'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def archive_course_authoring_session(session_id):
     """
     Archiviert eine Session (soft delete).
@@ -291,7 +290,7 @@ def archive_course_authoring_session(session_id):
 
 @api_v1.route('/admin/course-authoring/courses/<course_id>/sessions', methods=['GET'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def list_course_authoring_sessions(course_id):
     """
     Listet alle Sessions eines Kurses.
@@ -361,7 +360,7 @@ def list_course_authoring_sessions(course_id):
 
 @api_v1.route('/admin/course-authoring/method-types', methods=['GET'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def get_method_types():
     """
     Gibt verfügbare Lernmethoden-Typen zurück.

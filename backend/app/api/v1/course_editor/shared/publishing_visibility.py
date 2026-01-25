@@ -18,10 +18,9 @@ from flask import jsonify, request
 
 from app.api.v1 import api_v1
 from app.infrastructure.persistence.database import get_connection
-from app.api.middleware.auth import get_current_user
+from app.api.middleware.auth import get_current_user, permission_required
 from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
 from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.infrastructure.security.permissions import Permissions, require_permission
 from app.application.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ VALID_VISIBILITIES = ['private', 'community', 'public']
 
 
 @api_v1.route('/admin/courses/<course_id>/publishing/visibility', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_update_visibility(course_id: str):
     """
     Update course visibility level.

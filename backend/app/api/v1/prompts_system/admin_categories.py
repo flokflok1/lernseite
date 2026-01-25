@@ -10,8 +10,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.core.bootstrap.extensions import limiter
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 
 from app.api.v1.prompts_system.value_objects import PromptCategory, PromptStyle
 
@@ -21,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 @prompts_categories_bp.route('/categories', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("60 per minute")
 def list_prompt_categories() -> Tuple[Dict[str, Any], int]:
     """
@@ -73,8 +71,7 @@ def list_prompt_categories() -> Tuple[Dict[str, Any], int]:
 
 
 @prompts_categories_bp.route('/styles', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("60 per minute")
 def list_prompt_styles() -> Tuple[Dict[str, Any], int]:
     """

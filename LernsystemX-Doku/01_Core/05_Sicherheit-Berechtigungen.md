@@ -1,7 +1,10 @@
 # 19 – Sicherheit & Berechtigungen (Final)
 
-**Version:** 1.0  
-**Stand:** Final
+⚠️ **DEPRECATION NOTICE:** Dieses Dokument beschreibt teilweise noch RBAC 2.0 Konzepte.
+Siehe **`05_Technical/01_DB-Struktur.md`** für die aktuelle **GBA (Group-Based Architecture)** Implementierung.
+
+**Version:** 1.1 (GBA Transition)
+**Stand:** Final - Partially Updated to GBA
 
 ---
 
@@ -32,7 +35,7 @@ Person(attacker, "Attacker", "Böswilliger Akteur")
 
 System_Boundary(security, "Security System") {
     Container(auth, "Authentication", "JWT", "Token Management")
-    Container(authz, "Authorization", "RBAC", "Permission Check")
+    Container(authz, "Authorization", "GBA", "Group-Based Permission Check")
     Container(rate_limit, "Rate Limiter", "Redis", "Request Throttling")
     Container(input_val, "Input Validator", "Sanitizer", "XSS/Injection Protection")
     Container(audit, "Audit Logger", "PostgreSQL", "Activity Tracking")
@@ -80,8 +83,8 @@ end note
 | 🔐 **Benutzerdaten** | Verschlüsselt, Isoliert |
 | 🤖 **KI-Schutz** | Rate Limits, Logging |
 | 🚫 **Missbrauch** | Detection & Prevention |
-| 🔒 **Unauth. Zugriff** | Zero-Trust, RBAC |
-| 👥 **Granulare Kontrolle** | Rollenbasiertes System |
+| 🔒 **Unauth. Zugriff** | Zero-Trust, GBA (Group-Based) |
+| 👥 **Granulare Kontrolle** | Gruppenbasiertes System mit Permission Codes |
 | 📜 **DSGVO** | Compliant |
 | 🛡️ **Injection/XSS** | Sanitization |
 | 📝 **Auditierbarkeit** | Vollständiges Logging |
@@ -480,13 +483,13 @@ Dies ist **viel flexibler** als das alte 1:1 Rollen-System!
 
 ---
 
-### 👑 Owner-Admin & Custom Roles (RBAC 2.0)
+### 👑 System-Admin & Custom Groups (GBA - Group-Based Architecture)
 
 **Status:** ✅ **IMPLEMENTIERT** (Migration 067, 068)
 
-#### Owner-Admin System
+#### System-Admin & Group Management (GBA)
 
-Der **Owner-Admin** ist eine spezielle Admin-Rolle mit erweiterten Berechtigungen:
+Der **System-Admin** hat erweiterte Berechtigungen zur Verwaltung von Gruppen und Berechtigungen im GBA-System:
 
 ```sql
 -- users table
@@ -573,29 +576,30 @@ const parentRole = {
 
 #### Admin-Panel: Role Management
 
-**Endpoints (TODO):**
+**Endpoints (GBA - Group Management):**
 ```
-GET    /api/v1/admin/roles              # List all roles
-POST   /api/v1/admin/roles              # Create custom role (Owner-Admin only)
-PUT    /api/v1/admin/roles/{role_id}    # Update role (Owner-Admin only)
-DELETE /api/v1/admin/roles/{role_id}    # Delete custom role (Owner-Admin only)
+GET    /api/v1/admin/groups                       # List all groups
+POST   /api/v1/admin/groups                       # Create custom group
+PUT    /api/v1/admin/groups/{group_id}            # Update group
+DELETE /api/v1/admin/groups/{group_id}            # Delete custom group
 
-GET    /api/v1/admin/roles/{role_id}/permissions    # Get role permissions
-POST   /api/v1/admin/roles/{role_id}/permissions    # Assign permissions
+GET    /api/v1/admin/groups/{group_id}/permissions    # Get group permissions
+POST   /api/v1/admin/groups/{group_id}/permissions    # Assign permissions
+DELETE /api/v1/admin/groups/{group_id}/permissions    # Revoke permissions
 
-GET    /api/v1/admin/roles/templates    # Get role templates
-POST   /api/v1/admin/roles/from-template # Create role from template
+GET    /api/v1/admin/groups/templates             # Get group templates
+POST   /api/v1/admin/groups/from-template         # Create group from template
 ```
 
-**Frontend-Komponenten (TODO):**
+**Frontend-Komponenten (GBA - Group Management):**
 ```
-frontend/src/pages/admin/RoleManagement.vue
-frontend/src/components/admin/roles/
-├── RoleList.vue
-├── RoleForm.vue
-├── RolePermissionsMatrix.vue
-├── RoleTemplateSelector.vue
-└── RoleDeleteConfirm.vue
+frontend/src/pages/admin/GroupManagement.vue
+frontend/src/components/admin/groups/
+├── GroupsList.vue (replaces RoleList.vue)
+├── GroupForm.vue (replaces RoleForm.vue)
+├── PermissionMatrix.vue (replaces RolePermissionsMatrix.vue)
+├── GroupTemplateSelector.vue (replaces RoleTemplateSelector.vue)
+└── GroupDeleteConfirm.vue (replaces RoleDeleteConfirm.vue)
 ```
 
 #### Permission-Middleware (Erweiterung)

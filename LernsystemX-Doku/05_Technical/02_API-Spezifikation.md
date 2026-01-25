@@ -1,29 +1,30 @@
-# 15 – API-Spezifikation (Final)
+# 02 – API-Spezifikation (GBA Edition)
 
-**Version:** 1.0  
-**Stand:** Final
+**Version:** 2.0 (Group-Based Architecture)
+**Stand:** 2026-01-25
+**Status:** Production Ready
 
 ---
 
 ## Überblick
 
-Dieses Dokument definiert die API-Spezifikation des LSX Lernsystems.
+Dieses Dokument definiert die REST-API des LSX Lernsystems mit **Group-Based Architecture (GBA)** für flexible Zugriffskontrolle.
 
 Die API ist **REST-basiert** (JSON), folgt klaren Namenskonventionen und unterstützt:
 
-- 👥 **Benutzerverwaltung**
-- 🔐 **Rollen & Berechtigungen**
+- 👥 **Benutzerverwaltung & Authentifizierung**
+- 🔐 **Gruppen-basierte Zugriffskontrolle (GBA)**
 - 📚 **Kurssystem**
-- 📖 **Lernmodule & Methoden**
+- 📖 **Lernmodule & Lernmethoden (12 LMs)**
 - 📝 **Prüfungssystem**
 - 🤖 **KI-Pipeline**
 - 🌍 **Übersetzungssystem**
 - 📊 **Dashboard & Widgets**
-- 🎥 **LiveRoom**
+- 🎥 **LiveRoom (WebRTC)**
 - 💰 **Token & Billing**
-- 👥 **Community & Gruppen**
+- 👥 **Community & Social Network**
 
-> Alle Endpunkte sind **versioniert** (v1).
+> Alle Endpunkte sind **versioniert** (v1) und folgen **GBA Berechtigungsmodell**.
 
 ---
 
@@ -43,7 +44,7 @@ Die API ist **REST-basiert** (JSON), folgt klaren Namenskonventionen und unterst
 
 ---
 
-### 1.2 🔐 Authentifizierung
+### 1.2 🔐 Authentifizierung & JWT-Token
 
 **JWT-basierte Authentifizierung mit Access & Refresh Token**
 
@@ -54,7 +55,34 @@ Authorization: Bearer <access_token>
 Content-Type: application/json
 ```
 
-#### 🔑 Token-Typen
+#### 🔑 Token-Struktur (JWT Payload)
+
+```json
+{
+  "user_id": "uuid",
+  "email": "user@example.com",
+  "groups": [
+    {
+      "id": 1,
+      "name": "system-admin",
+      "slug": "system_admin",
+      "type": "system",
+      "permissions": ["admin:system", "admin:organisations", "manage:users", "manage:groups"]
+    },
+    {
+      "id": 5,
+      "name": "teacher",
+      "slug": "teacher",
+      "type": "system",
+      "permissions": ["manage:courses", "manage:lessons", "view:analytics"]
+    }
+  ],
+  "exp": 1234567890,
+  "iat": 1234567800
+}
+```
+
+#### 🎫 Token-Typen
 
 | Token | Lebensdauer | Verwendung |
 |-------|-------------|-----------|
@@ -67,11 +95,14 @@ Content-Type: application/json
 
 ```json
 {
-  "error": true,
-  "message": "Unauthorized",
-  "code": 401,
-  "details": {
-    "reason": "Invalid token"
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "User does not have required permission",
+    "details": {
+      "required_permission": "admin:system",
+      "user_permissions": ["manage:courses", "view:analytics"]
+    }
   }
 }
 ```
@@ -84,7 +115,7 @@ Content-Type: application/json
 | 201 | ✅ Created | Ressource erstellt |
 | 400 | ❌ Bad Request | Ungültige Anfrage |
 | 401 | 🔒 Unauthorized | Nicht authentifiziert |
-| 403 | 🚫 Forbidden | Keine Berechtigung |
+| 403 | 🚫 Forbidden | Keine Berechtigung (GBA-Check fehlgeschlagen) |
 | 404 | 🔍 Not Found | Ressource nicht gefunden |
 | 429 | ⏱️ Too Many Requests | Rate Limit überschritten |
 | 500 | 💥 Internal Server Error | Server-Fehler |
@@ -98,7 +129,8 @@ Content-Type: application/json
   "success": true,
   "data": {
     "id": "uuid",
-    "name": "Example"
+    "name": "Example",
+    "created_at": "2024-11-14T10:30:00Z"
   },
   "meta": {
     "timestamp": "2024-11-14T10:30:00Z"
@@ -109,27 +141,6 @@ Content-Type: application/json
 ---
 
 ## 2. Auth & Benutzer
-
-### 🔐 Authentifizierung & User-Management
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant API
-    participant DB
-    
-    Client->>API: POST /auth/register
-    API->>DB: Create User
-    DB-->>API: User Created
-    API-->>Client: 201 Created
-    
-    Client->>API: POST /auth/login
-    API->>DB: Verify Credentials
-    DB-->>API: Valid
-    API-->>Client: Access + Refresh Token
-```
-
----
 
 ### 2.1 ➕ POST `/api/v1/auth/register`
 
@@ -155,7 +166,14 @@ sequenceDiagram
   "data": {
     "user_id": "uuid",
     "email": "test@example.com",
-    "role": "free"
+    "groups": [
+      {
+        "id": 3,
+        "name": "student",
+        "slug": "student",
+        "permissions": ["view:courses", "enroll:courses"]
+      }
+    ]
   }
 }
 ```
@@ -164,7 +182,7 @@ sequenceDiagram
 
 ### 2.2 🔑 POST `/api/v1/auth/login`
 
-**Authentifiziert einen Benutzer**
+**Authentifiziert einen Benutzer und gibt GBA-Token zurück**
 
 #### Request Body
 
@@ -186,9 +204,17 @@ sequenceDiagram
     "user": {
       "user_id": "uuid",
       "email": "test@example.com",
-      "role": "premium",
       "firstname": "John",
-      "lastname": "Doe"
+      "lastname": "Doe",
+      "groups": [
+        {
+          "id": 3,
+          "name": "student",
+          "slug": "student",
+          "type": "system",
+          "permissions": ["view:courses", "enroll:courses"]
+        }
+      ]
     }
   }
 }
@@ -198,7 +224,7 @@ sequenceDiagram
 
 ### 2.3 👤 GET `/api/v1/users/me`
 
-**Gibt das eigene Profil zurück**
+**Gibt das eigene Profil mit aktuellen Gruppen und Berechtigungen zurück**
 
 #### Response (200 OK)
 
@@ -210,8 +236,15 @@ sequenceDiagram
     "email": "test@example.com",
     "firstname": "John",
     "lastname": "Doe",
-    "role": "premium",
     "language": "de",
+    "groups": [
+      {
+        "id": 3,
+        "name": "student",
+        "slug": "student",
+        "permissions": ["view:courses", "enroll:courses"]
+      }
+    ],
     "created_at": "2024-01-15T10:00:00Z"
   }
 }
@@ -252,143 +285,51 @@ sequenceDiagram
 
 ### 2.6 🎨 User Profile – Theme Preference
 
-**Theme-Einstellungen für Benutzer (Phase B24)**
-
-Jeder eingeloggte Benutzer kann seine UI-Theme-Präferenz festlegen. Die Einstellung wird in `users.theme_preference` gespeichert und wirkt sich auf Dashboard, Kurse, Admin Panel und alle Ansichten aus.
-
-#### Valide Theme-Werte
-- `system` – Verwendet Betriebssystem-Einstellung
-- `light` – Heller Modus (Daylight)
-- `dark` – Dunkler Modus (Midnight, Standard)
-
----
-
 #### 👁️ GET `/api/v1/profile/theme`
 
-**Gibt die aktuelle Theme-Einstellung des eingeloggten Benutzers zurück**
-
-**Auth:** Erforderlich (JWT Token)
-
-**Response (200 OK):**
-
-```json
-{
-  "theme": "dark"
-}
-```
-
-**Fehlercodes:**
-- `401 Unauthorized` – Kein gültiger Token
-- `500 Internal Server Error` – Server-Fehler
-
-**Beispiel:**
-```bash
-curl -X GET https://api.lernsystemx.com/api/v1/profile/theme \
-  -H "Authorization: Bearer <access_token>"
-```
-
----
+**Gibt die aktuelle Theme-Einstellung zurück**
 
 #### 🎨 PATCH `/api/v1/profile/theme`
 
-**Aktualisiert die Theme-Einstellung des eingeloggten Benutzers**
-
-**Auth:** Erforderlich (JWT Token)
-
-**Request Body:**
-
-```json
-{
-  "theme": "light"
-}
-```
-
-**Response (200 OK):**
-
-```json
-{
-  "theme": "light"
-}
-```
-
-**Fehlercodes:**
-- `400 Bad Request` – Ungültiger Theme-Wert (muss `system`, `light` oder `dark` sein)
-- `401 Unauthorized` – Kein gültiger Token
-- `500 Internal Server Error` – Server-Fehler
-
-**Beispiel:**
-```bash
-curl -X PATCH https://api.lernsystemx.com/api/v1/profile/theme \
-  -H "Authorization: Bearer <access_token>" \
-  -H "Content-Type: application/json" \
-  -d '{"theme": "light"}'
-```
-
-**Hinweise:**
-- ✅ **Audit-Logging:** Theme-Änderungen werden im Audit-Log mit Kategorie `preferences` und Aktion `change_theme` protokolliert
-- ✅ **Sicherheit:** Benutzer können nur ihr eigenes Theme ändern (kein Admin-Zugriff auf andere Profile erforderlich)
-- ✅ **Validierung:** Ungültige Theme-Werte werden mit HTTP 400 abgelehnt
-- ✅ **DB-Constraint:** PostgreSQL CHECK Constraint verhindert ungültige Werte auf DB-Ebene
+**Aktualisiert die Theme-Einstellung**
 
 ---
 
-## 3. Rollen & Permissions
+## 3. Gruppen-Management (GBA)
 
-### 🎭 Rollen-Management (User-Facing)
+### 🔑 Group-Based Architecture (GBA) – Berechtigungsmodell
 
-| Endpunkt | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/api/v1/roles` | GET | Liste aller Rollen |
-| `/api/v1/roles/{role_id}` | GET | Details einer Rolle |
-
----
-
-### 👑 Owner-Admin RBAC 2.0 (Custom Roles)
-
-**Status:** ✅ **IMPLEMENTIERT** (Migration 068, Backend API komplett)
-**Zugriff:** Nur Owner-Admin (höchste Hierarchie)
-
-Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über das Admin-Panel zu erstellen und System-Features zuzuweisen.
-
-#### 📋 RBAC Admin Endpoints (13 Endpoints)
+**Endpunkte für Group-Management (Admin-Panel)**
 
 | Endpunkt | Methode | Beschreibung | Auth |
 |----------|---------|-------------|------|
-| `/api/v1/admin/roles` | GET | Liste aller Rollen mit Statistiken | Owner |
-| `/api/v1/admin/roles/{id}` | GET | Details einer Rolle inkl. Features/Permissions | Owner |
-| `/api/v1/admin/roles` | POST | Custom Rolle erstellen | Owner |
-| `/api/v1/admin/roles/{id}` | PUT | Rolle aktualisieren | Owner |
-| `/api/v1/admin/roles/{id}` | DELETE | Rolle löschen (mit User-Reassignment) | Owner |
-| `/api/v1/admin/roles/{id}/features` | POST | Features zu Rolle zuweisen | Owner |
-| `/api/v1/admin/roles/{id}/permissions` | POST | Permissions zu Rolle zuweisen | Owner |
-| `/api/v1/admin/roles/templates` | GET | Liste aller Role Templates | Owner |
-| `/api/v1/admin/roles/from-template` | POST | Rolle aus Template erstellen | Owner |
-
-**Role Templates:**
-- 👪 **Parent** - Parental control account (Kinderkontrolle)
-- 🏢 **Enterprise Admin** - Bulk management (Massen-Management)
-- 🔍 **Auditor** - Read-only compliance reports
-- 📚 **Librarian** - Content curator (Inhalts-Kurator)
-- 🎓 **Course Manager** - Course-focused management
+| `/api/v1/admin/groups` | GET | Liste aller Gruppen mit Statistiken | `admin:system` |
+| `/api/v1/admin/groups/{id}` | GET | Details einer Gruppe + Permissions | `admin:system` |
+| `/api/v1/admin/groups` | POST | Neue Gruppe erstellen | `admin:system` |
+| `/api/v1/admin/groups/{id}` | PUT | Gruppe aktualisieren | `admin:system` |
+| `/api/v1/admin/groups/{id}` | DELETE | Gruppe löschen | `admin:system` |
+| `/api/v1/admin/groups/{id}/members` | GET | Mitglieder einer Gruppe | `admin:system` |
+| `/api/v1/admin/groups/{id}/members` | POST | Benutzer zur Gruppe hinzufügen | `admin:system` |
+| `/api/v1/admin/groups/{id}/members/{user_id}` | DELETE | Benutzer aus Gruppe entfernen | `admin:system` |
+| `/api/v1/admin/groups/{id}/permissions` | GET | Berechtigungen der Gruppe | `admin:system` |
+| `/api/v1/admin/groups/{id}/permissions` | POST | Permissions zuweisen | `admin:system` |
 
 ---
 
-### 3.1 📋 GET `/api/v1/admin/roles`
+### 3.1 📋 GET `/api/v1/admin/groups`
 
-**Liste aller Rollen mit Filterung und Statistiken**
+**Liste aller Gruppen mit Filterung und Statistiken**
 
-**Auth:** Owner-Admin only (`@require_owner()`)
+**Auth:** `@require_permission('admin:system')`
 
 #### Query Parameter
 
 | Parameter | Typ | Beschreibung |
 |-----------|-----|-------------|
-| `is_custom` | boolean | Filter: Custom Roles (true) oder System Roles (false) |
-| `hierarchy_min` | integer | Minimale Hierarchie (1-9) |
-| `hierarchy_max` | integer | Maximale Hierarchie (1-9) |
-| `search` | string | Suche in role_name oder display_name |
-| `include_features` | boolean | Feature-Assignments mit ausgeben (default: false) |
-| `include_permissions` | boolean | Permission-Assignments mit ausgeben (default: false) |
+| `type` | string | Filter: system, organization, custom |
+| `search` | string | Suche in group_name oder description |
+| `include_members` | boolean | Mitgliederzahlen mit ausgeben |
+| `include_permissions` | boolean | Permission-Assignments mit ausgeben |
 
 #### Response (200 OK)
 
@@ -396,53 +337,56 @@ Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über
 {
   "success": true,
   "data": {
-    "roles": [
+    "groups": [
       {
-        "role_id": 1,
-        "role_name": "admin",
-        "display_name": "Administrator",
-        "description": "Full system access",
-        "hierarchy_level": 9,
-        "color": "#dc2626",
-        "icon": "👑",
-        "is_system": true,
-        "is_custom": false,
+        "id": 1,
+        "name": "system-admin",
+        "slug": "system_admin",
+        "description": "System administrator with full access",
+        "group_type": "system",
+        "frontend_role": "Admin",
+        "is_active": true,
         "created_at": "2025-01-10T10:00:00Z",
-        "updated_at": "2025-01-10T10:00:00Z",
-        "feature_count": 25,
-        "permission_count": 50,
-        "user_count": 1
+        "member_count": 2,
+        "permission_count": 50
       },
       {
-        "role_id": 10,
-        "role_name": "content_curator",
-        "display_name": "Content Curator",
-        "description": "Manages and approves content",
-        "hierarchy_level": 5,
-        "color": "#10b981",
-        "icon": "📚",
-        "is_system": false,
-        "is_custom": true,
-        "created_at": "2025-01-12T14:30:00Z",
-        "updated_at": "2025-01-12T14:30:00Z",
-        "created_by": "owner-uuid",
-        "feature_count": 8,
-        "permission_count": 12,
-        "user_count": 3
+        "id": 2,
+        "name": "teacher",
+        "slug": "teacher",
+        "description": "Teachers can manage courses and view analytics",
+        "group_type": "system",
+        "frontend_role": "Teacher",
+        "is_active": true,
+        "created_at": "2025-01-10T10:00:00Z",
+        "member_count": 25,
+        "permission_count": 15
+      },
+      {
+        "id": 3,
+        "name": "student",
+        "slug": "student",
+        "description": "Students can view and enroll in courses",
+        "group_type": "system",
+        "frontend_role": "Student",
+        "is_active": true,
+        "created_at": "2025-01-10T10:00:00Z",
+        "member_count": 5000,
+        "permission_count": 5
       }
     ],
-    "total": 2
+    "total": 3
   }
 }
 ```
 
 ---
 
-### 3.2 📋 GET `/api/v1/admin/roles/{role_id}`
+### 3.2 👁️ GET `/api/v1/admin/groups/{group_id}`
 
-**Details einer Rolle mit allen Features und Permissions**
+**Details einer Gruppe mit allen Permissions und Mitgliedern**
 
-**Auth:** Owner-Admin only
+**Auth:** `@require_permission('admin:system')`
 
 #### Response (200 OK)
 
@@ -450,80 +394,63 @@ Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über
 {
   "success": true,
   "data": {
-    "role_id": 10,
-    "role_name": "content_curator",
-    "display_name": "Content Curator",
-    "description": "Manages and approves content",
-    "hierarchy_level": 5,
-    "color": "#10b981",
-    "icon": "📚",
-    "is_system": false,
-    "is_custom": true,
-    "created_at": "2025-01-12T14:30:00Z",
-    "updated_at": "2025-01-12T14:30:00Z",
-    "created_by": "owner-uuid",
-    "features": [
-      {
-        "feature_id": 1,
-        "feature_code": "content_approval",
-        "feature_name": "Content Approval",
-        "category": "meta_features",
-        "active": true,
-        "enabled_for_role": true
-      },
-      {
-        "feature_id": 5,
-        "feature_code": "ai_tutor",
-        "feature_name": "AI Tutor",
-        "category": "tutor",
-        "active": true,
-        "enabled_for_role": true
-      }
-    ],
+    "id": 2,
+    "name": "teacher",
+    "slug": "teacher",
+    "description": "Teachers can manage courses and view analytics",
+    "group_type": "system",
+    "frontend_role": "Teacher",
+    "is_active": true,
+    "created_at": "2025-01-10T10:00:00Z",
     "permissions": [
       {
-        "permission_id": 10,
-        "permission_key": "manage_courses",
-        "display_name": "Manage Courses",
+        "id": 10,
+        "permission_code": "manage:courses",
         "description": "Create, edit, and delete courses",
-        "module": "content",
-        "category": "management"
+        "resource": "courses",
+        "action": "manage"
+      },
+      {
+        "id": 11,
+        "permission_code": "manage:lessons",
+        "description": "Create, edit, and delete lessons",
+        "resource": "lessons",
+        "action": "manage"
+      },
+      {
+        "id": 20,
+        "permission_code": "view:analytics",
+        "description": "View course and user analytics",
+        "resource": "analytics",
+        "action": "read"
       }
     ],
-    "user_count": 3
+    "member_count": 25,
+    "created_by": "system"
   }
 }
 ```
 
 ---
 
-### 3.3 ✏️ POST `/api/v1/admin/roles`
+### 3.3 ➕ POST `/api/v1/admin/groups`
 
-**Custom Rolle erstellen**
+**Neue Gruppe erstellen**
 
-**Auth:** Owner-Admin only
+**Auth:** `@require_permission('admin:system')`
 
 #### Request Body
 
 ```json
 {
-  "role_name": "content_reviewer",
-  "display_name": "Content Reviewer",
-  "description": "Reviews and moderates user-generated content",
-  "hierarchy_level": 4,
-  "color": "#3b82f6",
-  "icon": "🔍",
-  "feature_ids": [1, 5, 8],
-  "permission_ids": [10, 15, 20]
+  "name": "content-curator",
+  "slug": "content_curator",
+  "description": "Curates and approves user-generated content",
+  "group_type": "custom",
+  "frontend_role": "ContentCurator",
+  "is_active": true
 }
 ```
-
-**Validation:**
-- `role_name`: 3-50 chars, lowercase, pattern: `^[a-z][a-z0-9_]*$`, nicht reserviert (free, premium, admin, etc.)
-- `display_name`: 3-100 chars
-- `hierarchy_level`: 1-8 (9 reserviert für admin)
-- `color`: Hex-Format `#RRGGBB`
-- `icon`: Max 10 chars (emoji/unicode)
 
 #### Response (201 Created)
 
@@ -531,210 +458,38 @@ Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über
 {
   "success": true,
   "data": {
-    "role_id": 11,
-    "role_name": "content_reviewer",
-    "display_name": "Content Reviewer",
-    "hierarchy_level": 4,
-    "color": "#3b82f6",
-    "icon": "🔍",
-    "is_custom": true,
-    "created_at": "2025-01-12T15:00:00Z",
-    "feature_count": 3,
-    "permission_count": 3
-  }
-}
-```
-
-#### Error Responses
-
-**409 Conflict** - Role name already exists
-```json
-{
-  "success": false,
-  "error": {
-    "code": "ROLE_EXISTS",
-    "message": "Role with name 'content_reviewer' already exists"
-  }
-}
-```
-
-**400 Bad Request** - Validation error
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_INPUT",
-    "message": "Role name 'admin' is reserved for system roles",
-    "field": "role_name"
+    "id": 10,
+    "name": "content-curator",
+    "slug": "content_curator",
+    "description": "Curates and approves user-generated content",
+    "group_type": "custom",
+    "frontend_role": "ContentCurator",
+    "is_active": true,
+    "created_at": "2025-01-12T15:00:00Z"
   }
 }
 ```
 
 ---
 
-### 3.4 ✏️ PUT `/api/v1/admin/roles/{role_id}`
+### 3.4 🔐 POST `/api/v1/admin/groups/{group_id}/permissions`
 
-**Rolle aktualisieren (nur custom roles)**
+**Permissions zu Gruppe zuweisen**
 
-**Auth:** Owner-Admin only
+**Auth:** `@require_permission('admin:system')`
 
 #### Request Body
 
 ```json
 {
-  "display_name": "Senior Content Reviewer",
-  "description": "Experienced content reviewer with expanded permissions",
-  "hierarchy_level": 5,
-  "color": "#6366f1",
-  "icon": "👁️"
-}
-```
-
-**Note:** `role_name` kann nicht geändert werden. Alle Felder sind optional.
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "role_id": 11,
-    "role_name": "content_reviewer",
-    "display_name": "Senior Content Reviewer",
-    "hierarchy_level": 5,
-    "color": "#6366f1",
-    "icon": "👁️",
-    "updated_at": "2025-01-12T16:00:00Z"
-  }
-}
-```
-
-#### Error Responses
-
-**403 Forbidden** - System role cannot be modified
-```json
-{
-  "success": false,
-  "error": {
-    "code": "SYSTEM_ROLE_IMMUTABLE",
-    "message": "System roles cannot be modified"
-  }
-}
-```
-
----
-
-### 3.5 🗑️ DELETE `/api/v1/admin/roles/{role_id}`
-
-**Custom Rolle löschen mit User-Reassignment**
-
-**Auth:** Owner-Admin only
-
-#### Query Parameter
-
-| Parameter | Typ | Beschreibung | Required |
-|-----------|-----|-------------|----------|
-| `reassign_to` | integer | Role ID für User-Reassignment | Ja (wenn Users vorhanden) |
-
-**Beispiel:** `DELETE /api/v1/admin/roles/11?reassign_to=2`
-
-**Ablauf:**
-1. Prüfung: Ist es eine custom role?
-2. Prüfung: Haben User diese Rolle?
-3. Reassignment: Alle User werden zu `reassign_to` Role verschoben
-4. Löschung: Role wird gelöscht (CASCADE löscht auch Feature/Permission-Assignments)
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "success": true,
-    "message": "Role 'content_reviewer' deleted successfully",
-    "affected_users": 5,
-    "reassigned_to_role": "premium"
-  }
-}
-```
-
-#### Error Responses
-
-**403 Forbidden** - System role cannot be deleted
-```json
-{
-  "success": false,
-  "error": {
-    "code": "SYSTEM_ROLE_IMMUTABLE",
-    "message": "System roles cannot be deleted"
-  }
-}
-```
-
-**400 Bad Request** - Missing reassignment for users
-```json
-{
-  "success": false,
-  "error": {
-    "code": "REASSIGNMENT_REQUIRED",
-    "message": "Role has 5 users, reassign_to parameter required"
-  }
-}
-```
-
----
-
-### 3.6 🎯 POST `/api/v1/admin/roles/{role_id}/features`
-
-**Features zu Rolle zuweisen**
-
-**Auth:** Owner-Admin only
-
-#### Request Body
-
-```json
-{
-  "feature_ids": [1, 5, 8, 12, 15],
-  "replace": false
-}
-```
-
-**Parameter:**
-- `feature_ids`: Liste von Feature-IDs aus `support_systems.system_features`
-- `replace`: `true` = Alle bisherigen Features ersetzen, `false` = Hinzufügen (default)
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "features_assigned": 5,
-    "total_features": 8
-  }
-}
-```
-
----
-
-### 3.7 🔐 POST `/api/v1/admin/roles/{role_id}/permissions`
-
-**Permissions zu Rolle zuweisen**
-
-**Auth:** Owner-Admin only
-
-#### Request Body
-
-```json
-{
-  "permission_ids": [10, 15, 20, 25],
+  "permission_ids": [10, 11, 20],
   "replace": false
 }
 ```
 
 **Parameter:**
 - `permission_ids`: Liste von Permission-IDs aus `core.permissions`
-- `replace`: `true` = Alle bisherigen Permissions ersetzen, `false` = Hinzufügen (default)
+- `replace`: `true` = Alle bisherigen Permissions ersetzen, `false` = Hinzufügen
 
 #### Response (200 OK)
 
@@ -742,19 +497,33 @@ Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über
 {
   "success": true,
   "data": {
-    "permissions_assigned": 4,
-    "total_permissions": 15
+    "permissions_assigned": 3,
+    "total_permissions": 8,
+    "group_id": 10
   }
 }
 ```
 
 ---
 
-### 3.8 📋 GET `/api/v1/admin/roles/templates`
+### 3.5 👥 POST `/api/v1/admin/groups/{group_id}/members`
 
-**Liste aller Role Templates**
+**Benutzer zur Gruppe hinzufügen**
 
-**Auth:** Owner-Admin only
+**Auth:** `@require_permission('admin:system')`
+
+#### Request Body
+
+```json
+{
+  "user_ids": ["uuid-1", "uuid-2"],
+  "member_role": "member"
+}
+```
+
+**Parameter:**
+- `user_ids`: Liste von Benutzer-IDs
+- `member_role`: owner, moderator, oder member
 
 #### Response (200 OK)
 
@@ -762,51 +531,69 @@ Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über
 {
   "success": true,
   "data": {
-    "templates": [
+    "added_count": 2,
+    "group_id": 10,
+    "total_members": 25
+  }
+}
+```
+
+---
+
+### 3.6 🗑️ DELETE `/api/v1/admin/groups/{group_id}/members/{user_id}`
+
+**Benutzer aus Gruppe entfernen**
+
+**Auth:** `@require_permission('admin:system')`
+
+---
+
+## 4. Permissions (GBA Berechtigungen)
+
+### 🔐 Permission-Codes
+
+**Verfügbare Permission-Codes** (Beispiele):
+
+| Permission Code | Beschreibung | Ressource |
+|-----------------|-------------|-----------|
+| `admin:system` | Full system admin access | system |
+| `admin:organisations` | Manage all organizations | organisations |
+| `manage:users` | Create/update/delete users | users |
+| `manage:groups` | Create/update/delete groups | groups |
+| `manage:courses` | Create/edit/delete courses | courses |
+| `manage:lessons` | Create/edit/delete lessons | lessons |
+| `view:analytics` | View analytics dashboards | analytics |
+| `manage:billing` | Manage billing and tokens | billing |
+| `moderate:content` | Moderate user-generated content | content |
+
+---
+
+### 4.1 📋 GET `/api/v1/admin/permissions`
+
+**Liste aller verfügbaren Permissions**
+
+**Auth:** `@require_permission('admin:system')`
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "permissions": [
       {
-        "template": "parent",
-        "display_name": "Parent",
-        "description": "Parental control account for monitoring child activity",
-        "recommended_hierarchy": 2,
-        "default_features": ["content_approval", "activity_reports", "screen_time"],
-        "default_color": "#10b981",
-        "default_icon": "👪"
+        "id": 1,
+        "permission_code": "admin:system",
+        "description": "Full system access",
+        "resource": "system",
+        "action": "admin"
       },
       {
-        "template": "enterprise_admin",
-        "display_name": "Enterprise Admin",
-        "description": "Enterprise-level admin with bulk management capabilities",
-        "recommended_hierarchy": 7,
-        "default_features": ["bulk_user_management", "sso_integration", "custom_branding"],
-        "default_color": "#6366f1",
-        "default_icon": "🏢"
-      },
-      {
-        "template": "auditor",
-        "display_name": "Auditor",
-        "description": "Read-only access for compliance auditing",
-        "recommended_hierarchy": 6,
-        "default_features": ["audit_logs", "compliance_reports", "user_analytics"],
-        "default_color": "#f59e0b",
-        "default_icon": "🔍"
-      },
-      {
-        "template": "librarian",
-        "display_name": "Librarian",
-        "description": "Content curator and learning path organizer",
-        "recommended_hierarchy": 5,
-        "default_features": ["content_approval", "learning_paths", "media_library"],
-        "default_color": "#8b5cf6",
-        "default_icon": "📚"
-      },
-      {
-        "template": "course_manager",
-        "display_name": "Course Manager",
-        "description": "Focused on course creation and management",
-        "recommended_hierarchy": 4,
-        "default_features": ["course_authoring", "ai_content_generation", "student_analytics"],
-        "default_color": "#3b82f6",
-        "default_icon": "🎓"
+        "id": 10,
+        "permission_code": "manage:courses",
+        "description": "Create, edit, and delete courses",
+        "resource": "courses",
+        "action": "manage"
       }
     ]
   }
@@ -815,100 +602,57 @@ Das dynamische Rollen-System ermöglicht es dem Owner-Admin, custom Rollen über
 
 ---
 
-### 3.9 ✏️ POST `/api/v1/admin/roles/from-template`
+## 5. Berechtigungsprüfung (API-Implementierung)
 
-**Rolle aus Template erstellen**
+### 🔒 Permission-Decorators
 
-**Auth:** Owner-Admin only
+**Backend-API nutzt Permission-Decorators zur Autorisierung:**
 
-#### Request Body
+```python
+# Beispiele:
+@bp.route('/admin/users', methods=['GET'])
+@require_permission('admin:system')
+def get_users():
+    """Only users with 'admin:system' permission"""
+    pass
 
-```json
-{
-  "template": "parent",
-  "role_name": "school_parent",
-  "display_name": "School Parent",
-  "customize_features": [1, 5, 8]
-}
+@bp.route('/courses', methods=['POST'])
+@require_permission('manage:courses')
+def create_course():
+    """Only users with 'manage:courses' permission"""
+    pass
+
+@bp.route('/analytics', methods=['GET'])
+@require_permission('view:analytics')
+def view_analytics():
+    """Only users with 'view:analytics' permission"""
+    pass
 ```
 
-**Parameter:**
-- `template`: Enum (parent, enterprise_admin, auditor, librarian, course_manager)
-- `role_name`: Unique role name (required)
-- `display_name`: Optional, überschreibt Template-Default
-- `customize_features`: Optional, überschreibt Template-Features
-
-#### Response (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "role_id": 12,
-    "role_name": "school_parent",
-    "display_name": "School Parent",
-    "hierarchy_level": 2,
-    "color": "#10b981",
-    "icon": "👪",
-    "is_custom": true,
-    "created_from_template": "parent",
-    "feature_count": 3
-  }
-}
-```
+**Berechtigungsprüfung erfolgt:**
+1. Benutzer sendet JWT Token mit `groups` Claim
+2. Decorator extrahiert erforderliche Permission aus Decorator-Parameter
+3. Decorator prüft: Hat die Gruppe diese Permission? → `core.role_permissions`
+4. Falls JA: Request wird verarbeitet (200/201/204)
+5. Falls NEIN: 403 Forbidden wird zurückgegeben
 
 ---
 
-### 3.10 📋 GET `/api/v1/roles` (User-Facing)
-
-**Liste aller verfügbaren Rollen (für User-Ansicht)**
-
-**Auth:** Optional (public endpoint)
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "role_id": 1,
-      "role_name": "free",
-      "display_name": "Free",
-      "description": "Kostenloser Basis-Zugang"
-    },
-    {
-      "role_id": 2,
-      "role_name": "premium",
-      "display_name": "Premium",
-      "description": "Premium-Mitgliedschaft mit erweiterten Features"
-    }
-  ]
-}
-```
-
----
-
-## 4. Kurs-System
+## 6. Kurs-System
 
 ### 📚 Kurs-Management
 
-```mermaid
-graph LR
-    A[GET /courses] --> B[Liste]
-    C[POST /courses] --> D[Erstellen]
-    E[PATCH /courses/id] --> F[Aktualisieren]
-    G[POST /courses/id/publish] --> H[Veröffentlichen]
-    
-    style A fill:#e1f5ff
-    style C fill:#ffe1e1
-    style E fill:#fff4e1
-    style G fill:#e1ffe1
-```
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/courses` | GET | Liste aller Kurse | optional |
+| `/api/v1/courses/{course_id}` | GET | Kurs-Details | optional |
+| `/api/v1/courses` | POST | Kurs erstellen | `manage:courses` |
+| `/api/v1/courses/{course_id}` | PATCH | Kurs aktualisieren | `manage:courses` |
+| `/api/v1/courses/{course_id}/publish` | POST | Kurs veröffentlichen | `manage:courses` |
 
 ---
 
-### 4.1 📋 GET `/api/v1/courses`
+### 6.1 📋 GET `/api/v1/courses`
 
 **Liste aller Kurse mit Filterung**
 
@@ -916,7 +660,6 @@ graph LR
 
 | Parameter | Typ | Beschreibung |
 |-----------|-----|-------------|
-| `type` | string | academy, creator, community |
 | `category` | integer | Kategorie-ID |
 | `language` | string | de, en, pl, ... |
 | `level` | string | beginner, intermediate, advanced |
@@ -933,16 +676,9 @@ graph LR
       "course_id": "uuid",
       "title": "Network+ Komplettkurs",
       "description": "Vollständiger Kurs für CompTIA Network+",
-      "course_type": "creator",
       "level": "intermediate",
       "price": 39.99,
-      "thumbnail_url": "https://...",
-      "creator": {
-        "user_id": "uuid",
-        "name": "Max Mustermann"
-      },
-      "rating": 4.8,
-      "students": 1250
+      "published": true
     }
   ],
   "meta": {
@@ -955,45 +691,11 @@ graph LR
 
 ---
 
-### 4.2 👁️ GET `/api/v1/courses/{course_id}`
+### 6.2 ➕ POST `/api/v1/courses`
 
-**Details eines Kurses**
+**Neuen Kurs erstellen**
 
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "course_id": "uuid",
-    "title": "Network+ Komplettkurs",
-    "description": "...",
-    "course_type": "creator",
-    "category_id": 12,
-    "level": "intermediate",
-    "language_default": "de",
-    "published": true,
-    "price": 39.99,
-    "modules": [
-      {
-        "module_id": "uuid",
-        "title": "OSI-Modell",
-        "order_index": 1
-      }
-    ],
-    "creator": {
-      "user_id": "uuid",
-      "name": "Max Mustermann"
-    }
-  }
-}
-```
-
----
-
-### 4.3 ➕ POST `/api/v1/courses`
-
-**Erstellen eines Kurses** (Creator / Academy / Schule / Unternehmen)
+**Auth:** `@require_permission('manage:courses')`
 
 #### Request Body
 
@@ -1004,7 +706,6 @@ graph LR
   "category_id": 12,
   "level": "intermediate",
   "price": 39.99,
-  "course_type": "creator",
   "language_default": "de"
 }
 ```
@@ -1025,696 +726,135 @@ graph LR
 
 ---
 
-### 4.4 🔧 PATCH `/api/v1/courses/{course_id}`
-
-**Kurs aktualisieren**
-
-#### Request Body
-
-```json
-{
-  "title": "Network+ Komplettkurs 2024",
-  "price": 44.99
-}
-```
-
----
-
-### 4.5 🚀 POST `/api/v1/courses/{course_id}/publish`
-
-**Kurs veröffentlichen**
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "course_id": "uuid",
-    "published": true,
-    "published_at": "2024-11-14T10:30:00Z"
-  }
-}
-```
-
----
-
-## 5. Lernmodule
+## 7. Lernmodule
 
 ### 📖 Modul-Management
 
-| Endpunkt | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/api/v1/modules/{course_id}` | GET | Module eines Kurses |
-| `/api/v1/modules` | POST | Modul erstellen |
-| `/api/v1/module/{module_id}` | GET | Modul-Details |
-| `/api/v1/module/{module_id}` | PATCH | Modul aktualisieren |
-| `/api/v1/module/{module_id}` | DELETE | Modul löschen |
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/modules/{course_id}` | GET | Module eines Kurses | optional |
+| `/api/v1/modules` | POST | Modul erstellen | `manage:courses` |
+| `/api/v1/modules/{module_id}` | PATCH | Modul aktualisieren | `manage:courses` |
+| `/api/v1/modules/{module_id}` | DELETE | Modul löschen | `manage:courses` |
 
 ---
 
-### 5.1 📋 GET `/api/v1/modules/{course_id}`
-
-**Alle Module eines Kurses**
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "module_id": "uuid",
-      "title": "OSI-Modell",
-      "description": "Die 7 Schichten des OSI-Modells",
-      "order_index": 1,
-      "theory_available": true,
-      "methods_count": 5
-    }
-  ]
-}
-```
-
----
-
-### 5.2 ➕ POST `/api/v1/modules`
-
-**Neues Modul erstellen**
-
-#### Request Body
-
-```json
-{
-  "course_id": "uuid",
-  "title": "Subnetting Grundlagen",
-  "description": "IPv4 Subnetting verstehen",
-  "order_index": 2
-}
-```
-
-#### Response (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "module_id": "uuid",
-    "title": "Subnetting Grundlagen",
-    "course_id": "uuid",
-    "order_index": 2
-  }
-}
-```
-
----
-
-## 6. Lernmethoden
+## 8. Lernmethoden (LM00-LM11)
 
 ### 🎯 Methoden-Management
 
-| Endpunkt | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/api/v1/methods/{module_id}` | GET | Methoden eines Moduls |
-| `/api/v1/methods` | POST | Methode erstellen |
-| `/api/v1/methods/{method_id}` | GET | Methoden-Details |
-| `/api/v1/methods/{method_id}` | PATCH | Methode aktualisieren |
+**12 Content-Lernmethoden** in 3 Gruppen:
+
+| Gruppe | IDs | Lernmethoden |
+|--------|-----|--------------|
+| **A** | LM00-LM04 | Erklärend: Text, Video, Interaktiv, KI, Oral |
+| **B** | LM05-LM08 | Praxis: Übungen, Code, Whiteboard, Quiz |
+| **C** | LM09-LM11 | Prüfung: Exam, Case Study, Peer Review |
+
+#### 6.1 📋 GET `/api/v1/methods/{module_id}`
+
+**Alle Lernmethoden eines Moduls**
 
 ---
 
-### 6.1 📋 GET `/api/v1/methods/{module_id}`
+#### 6.2 ➕ POST `/api/v1/methods`
 
-**Alle Methoden eines Moduls**
+**Neue Lernmethode erstellen** (LM00-LM11)
 
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "method_id": "uuid",
-      "method_type": 1,
-      "title": "Flashcards: OSI Layer",
-      "instructions": "Lerne die 7 Schichten auswendig"
-    }
-  ]
-}
-```
-
----
-
-### 6.2 ➕ POST `/api/v1/methods`
-
-**Neue Lernmethode erstellen**
+**Auth:** `@require_permission('manage:courses')`
 
 #### Request Body
 
 ```json
 {
   "module_id": "uuid",
-  "method_type": 1,
-  "title": "Flashcards: OSI Layer",
-  "instructions": "Lerne die 7 Schichten",
-  "data": {
-    "cards": [
-      {
-        "front": "Layer 7",
-        "back": "Application Layer"
-      },
-      {
-        "front": "Layer 1",
-        "back": "Physical Layer"
-      }
-    ]
-  },
-  "solution": {
-    "hints": ["Von oben nach unten lernen"]
-  }
+  "method_type": 0,
+  "title": "Einführung in Netzwerke",
+  "description": "Text-basierte Erklärung der Netzwerk-Grundlagen"
 }
 ```
 
-#### Response (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "method_id": "uuid",
-    "method_type": 1,
-    "title": "Flashcards: OSI Layer"
-  }
-}
-```
+**Constraint:**
+- `method_type`: 0-11 (NICHT 12-32!)
+- `group_code`: A, B, oder C
 
 ---
 
-## 7. Prüfungen
+## 9. Prüfungen
 
 ### 📝 Prüfungs-Management
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant API
-    participant KI
-    
-    User->>API: POST /exams (create)
-    API->>KI: Generate Questions
-    KI-->>API: Questions
-    API-->>User: Exam Created
-    
-    User->>API: POST /exam/id/submit
-    API->>API: Calculate Score
-    API-->>User: Results
-```
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/exams/{course_id}` | GET | Prüfungen eines Kurses | optional |
+| `/api/v1/exams` | POST | Neue Prüfung erstellen | `manage:courses` |
+| `/api/v1/exam/{exam_id}` | GET | Prüfungsdetails | authenticated |
+| `/api/v1/exam/{exam_id}/submit` | POST | Prüfung abgeben | authenticated |
 
 ---
 
-### 7.1 📋 GET `/api/v1/exams/{course_id}`
-
-**Alle Prüfungen eines Kurses**
-
----
-
-### 7.2 ➕ POST `/api/v1/exams`
-
-**Neue Prüfung erstellen**
-
-#### Request Body
-
-```json
-{
-  "course_id": "uuid",
-  "module_id": "uuid",
-  "type": "simulation",
-  "title": "Network+ Practice Exam 1",
-  "settings": {
-    "time_limit": 90,
-    "passing_score": 70,
-    "question_count": 50
-  }
-}
-```
-
----
-
-### 7.3 👁️ GET `/api/v1/exam/{exam_id}`
-
-**Prüfungsdetails abrufen**
-
----
-
-### 7.4 ✅ POST `/api/v1/exam/{exam_id}/submit`
-
-**Prüfung abgeben**
-
-#### Request Body
-
-```json
-{
-  "answers": [
-    {
-      "question_id": "uuid",
-      "answer": [0, 2]
-    },
-    {
-      "question_id": "uuid",
-      "answer": "Text answer"
-    }
-  ]
-}
-```
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "result_id": "uuid",
-    "score": 85.5,
-    "passed": true,
-    "correct_answers": 43,
-    "total_questions": 50,
-    "details": {
-      "by_topic": {
-        "OSI Model": 90,
-        "Subnetting": 80
-      }
-    }
-  }
-}
-```
-
----
-
-## 8. KI-Pipeline
+## 10. KI-Pipeline
 
 ### 🤖 KI-Funktionen
 
-```mermaid
-graph TD
-    A[Upload File] --> B[POST /ki/import]
-    B --> C[Parse Content]
-    C --> D[POST /ki/generate/modules]
-    D --> E[Modules Created]
-    
-    C --> F[POST /ki/generate/methods]
-    F --> G[Methods Created]
-    
-    style B fill:#fff4e1
-    style D fill:#e1f5ff
-    style F fill:#ffe1e1
-```
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/ki/import` | POST | Datei hochladen | `manage:courses` |
+| `/api/v1/ki/generate/modules` | POST | Module generieren | `manage:courses` |
+| `/api/v1/ki/generate/methods` | POST | Lernmethoden generieren | `manage:courses` |
+| `/api/v1/ki/translate` | POST | Inhalte übersetzen | authenticated |
 
 ---
 
-### 8.1 📤 POST `/api/v1/ki/import`
-
-**Datei hochladen für KI-Verarbeitung**
-
-#### Request (Multipart Form)
-
-```
-POST /api/v1/ki/import
-Content-Type: multipart/form-data
-
-file: [PDF/DOCX/IMG]
-course_id: uuid (optional)
-module_id: uuid (optional)
-purpose: "module_gen" | "method_gen" | "exam_gen"
-```
-
-#### Response (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "input_id": "uuid",
-    "file_path": "/uploads/...",
-    "status": "processing"
-  }
-}
-```
-
----
-
-### 8.2 🏗️ POST `/api/v1/ki/generate/modules`
-
-**Module aus Inhalt generieren**
-
-#### Request Body
-
-```json
-{
-  "course_id": "uuid",
-  "input_id": "uuid",
-  "settings": {
-    "module_count": 5,
-    "difficulty": "intermediate"
-  }
-}
-```
-
----
-
-### 8.3 🎯 POST `/api/v1/ki/generate/methods`
-
-**Lernmethoden generieren**
-
-#### Request Body
-
-```json
-{
-  "module_id": "uuid",
-  "method_types": [1, 2, 5],
-  "count_per_type": 3
-}
-```
-
----
-
-### 8.4 📝 POST `/api/v1/ki/generate/exam`
-
-**Prüfung generieren**
-
----
-
-### 8.5 🌍 POST `/api/v1/ki/translate`
-
-**Inhalte übersetzen**
-
-#### Request Body
-
-```json
-{
-  "content_type": "theory",
-  "content_id": "uuid",
-  "target_language": "en",
-  "source_language": "de"
-}
-```
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "translation_id": "uuid",
-    "status": "completed",
-    "target_language": "en"
-  }
-}
-```
-
----
-
-## 9. Übersetzungen
-
-### 🌍 Translation-API
-
-### 9.1 📥 GET `/api/v1/translation/{content_type}/{content_id}/{language}`
-
-**Übersetzung abrufen**
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "translation_id": "uuid",
-    "content_type": "theory",
-    "content_id": "uuid",
-    "language": "en",
-    "translated_json": {
-      "title": "Subnetting Basics",
-      "content": "..."
-    }
-  }
-}
-```
-
----
-
-## 10. Dashboard & Widgets
+## 11. Dashboard & Widgets
 
 ### 📊 Dashboard-Management
 
-| Endpunkt | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/api/v1/dashboard` | GET | Dashboard laden |
-| `/api/v1/dashboard/save` | POST | Layout speichern |
-| `/api/v1/widgets` | GET | Verfügbare Widgets |
-| `/api/v1/widgets/settings` | POST | Widget-Einstellungen |
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/dashboard` | GET | Dashboard laden | authenticated |
+| `/api/v1/dashboard/save` | POST | Layout speichern | authenticated |
+| `/api/v1/widgets` | GET | Verfügbare Widgets | authenticated |
 
 ---
 
-### 10.1 📊 GET `/api/v1/dashboard`
-
-**Dashboard-Layout laden**
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "dashboard_id": "uuid",
-    "layout_id": "main",
-    "widgets": [
-      {
-        "widget_id": 1,
-        "type": "progress",
-        "position_x": 0,
-        "position_y": 0,
-        "size": "medium",
-        "settings": {},
-        "data": {
-          "progress": 65,
-          "courses_active": 3
-        }
-      }
-    ]
-  }
-}
-```
-
----
-
-### 10.2 💾 POST `/api/v1/dashboard/save`
-
-**Dashboard-Layout speichern**
-
-#### Request Body
-
-```json
-{
-  "layout_id": "focus",
-  "widgets": [
-    {
-      "widget_id": 1,
-      "position_x": 0,
-      "position_y": 0,
-      "size": "large",
-      "settings": {}
-    }
-  ]
-}
-```
-
----
-
-## 11. LiveRoom
+## 12. LiveRoom
 
 ### 🎥 LiveRoom-API
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant API
-    participant WebRTC
-    
-    User->>API: POST /liveroom/create
-    API-->>User: room_id
-    
-    User->>API: POST /liveroom/id/join
-    API->>WebRTC: Init Connection
-    WebRTC-->>User: Stream
-```
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/liveroom/create` | POST | LiveRoom erstellen | authenticated |
+| `/api/v1/liveroom/{room_id}` | GET | LiveRoom-Details | authenticated |
+| `/api/v1/liveroom/{room_id}/join` | POST | LiveRoom beitreten | authenticated |
+| `/api/v1/liveroom/{room_id}/leave` | POST | LiveRoom verlassen | authenticated |
 
 ---
 
-### 11.1 ➕ POST `/api/v1/liveroom/create`
-
-**LiveRoom erstellen**
-
-#### Request Body
-
-```json
-{
-  "room_type": "pro",
-  "settings": {
-    "max_participants": 50,
-    "recording_enabled": true,
-    "breakout_rooms": true
-  }
-}
-```
-
-#### Response (201 Created)
-
-```json
-{
-  "success": true,
-  "data": {
-    "room_id": "uuid",
-    "room_type": "pro",
-    "owner_user_id": "uuid",
-    "created_at": "2024-11-14T10:30:00Z"
-  }
-}
-```
-
----
-
-### 11.2 👁️ GET `/api/v1/liveroom/{room_id}`
-
-**LiveRoom-Details**
-
----
-
-### 11.3 🚪 POST `/api/v1/liveroom/{room_id}/join`
-
-**LiveRoom beitreten**
-
----
-
-### 11.4 🚶 POST `/api/v1/liveroom/{room_id}/leave`
-
-**LiveRoom verlassen**
-
----
-
-### 11.5 📹 POST `/api/v1/liveroom/{room_id}/record/start`
-
-**Aufzeichnung starten**
-
----
-
-### 11.6 ⏹️ POST `/api/v1/liveroom/{room_id}/record/stop`
-
-**Aufzeichnung stoppen**
-
----
-
-## 12. Token-System
+## 13. Token-System
 
 ### 💰 Token-Management
 
-| Endpunkt | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/api/v1/tokens` | GET | Token-Status |
-| `/api/v1/tokens/buy` | POST | Token kaufen |
-| `/api/v1/tokens/history` | GET | Verbrauchs-Historie |
-
----
-
-### 12.1 💎 GET `/api/v1/tokens`
-
-**Token-Status abrufen**
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "balance": 15000,
-    "used_this_month": 5000,
-    "estimated_monthly_usage": 8000
-  }
-}
-```
-
----
-
-### 12.2 💳 POST `/api/v1/tokens/buy`
-
-**Token kaufen**
-
-#### Request Body
-
-```json
-{
-  "amount": 10000,
-  "payment_method": "stripe"
-}
-```
-
----
-
-## 13. Billing (Schulen/Unternehmen)
-
-### 💳 Rechnungs-Management
-
-### 13.1 📋 GET `/api/v1/billing/invoices`
-
-**Alle Rechnungen**
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "invoice_id": "uuid",
-      "period_start": "2024-11-01",
-      "period_end": "2024-11-30",
-      "total_amount": 299.00,
-      "status": "paid"
-    }
-  ]
-}
-```
-
----
-
-### 13.2 👁️ GET `/api/v1/billing/invoices/{invoice_id}`
-
-**Rechnungsdetails**
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/tokens` | GET | Token-Status | authenticated |
+| `/api/v1/tokens/buy` | POST | Token kaufen | authenticated |
+| `/api/v1/tokens/history` | GET | Verbrauchs-Historie | authenticated |
 
 ---
 
 ## 14. Community & Gruppen
 
-### 👥 Gruppen-Management
+### 👥 Gruppen-Management (Social Network)
 
-| Endpunkt | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/api/v1/groups/create` | POST | Gruppe erstellen |
-| `/api/v1/groups/{group_id}` | GET | Gruppen-Details |
-| `/api/v1/groups/{group_id}/join` | POST | Gruppe beitreten |
-| `/api/v1/groups/{group_id}/resources/add` | POST | Ressource hinzufügen |
+**Unterschied:** `core.groups` (GBA/Zugriffskontrolle) vs `community.groups` (Social Network)
 
----
-
-### 14.1 ➕ POST `/api/v1/groups/create`
-
-**Neue Gruppe erstellen**
-
-#### Request Body
-
-```json
-{
-  "name": "Network+ Lerngruppe",
-  "is_private": false,
-  "description": "Gemeinsam für Network+ lernen"
-}
-```
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/groups/create` | POST | Gruppe erstellen | authenticated |
+| `/api/v1/groups/{group_id}` | GET | Gruppen-Details | authenticated |
+| `/api/v1/groups/{group_id}/join` | POST | Gruppe beitreten | authenticated |
+| `/api/v1/groups/{group_id}/posts` | GET | Posts in Gruppe | authenticated |
 
 ---
 
@@ -1722,42 +862,9 @@ sequenceDiagram
 
 ### 🔍 Such-API
 
-### 15.1 🔎 GET `/api/v1/search`
-
-**Globale Suche**
-
-#### Query Parameter
-
-| Parameter | Typ | Beschreibung |
-|-----------|-----|-------------|
-| `q` | string | Suchbegriff |
-| `filter` | string | course, module, method |
-| `language` | string | de, en, pl |
-| `page` | integer | Seite |
-| `limit` | integer | Ergebnisse |
-
-#### Response (200 OK)
-
-```json
-{
-  "success": true,
-  "data": {
-    "courses": [
-      {
-        "course_id": "uuid",
-        "title": "Network+ Kurs",
-        "match_score": 0.95
-      }
-    ],
-    "modules": [],
-    "methods": []
-  },
-  "meta": {
-    "total_results": 15,
-    "query": "network"
-  }
-}
-```
+| Endpunkt | Methode | Beschreibung | Auth |
+|----------|---------|-------------|------|
+| `/api/v1/search` | GET | Globale Suche | optional |
 
 ---
 
@@ -1765,28 +872,26 @@ sequenceDiagram
 
 ### 🔒 Sicherheitsmaßnahmen
 
-```mermaid
-graph TD
-    A[API Request] --> B{Rate Limit Check}
-    B -->|OK| C{Authentication}
-    B -->|Exceeded| D[429 Too Many Requests]
-    
-    C -->|Valid| E{Role Check}
-    C -->|Invalid| F[401 Unauthorized]
-    
-    E -->|Authorized| G{Input Validation}
-    E -->|Forbidden| H[403 Forbidden]
-    
-    G -->|Valid| I[Process Request]
-    G -->|Invalid| J[400 Bad Request]
-    
-    I --> K[Return Response]
-    
-    style D fill:#ffe1e1
-    style F fill:#ffe1e1
-    style H fill:#ffe1e1
-    style J fill:#ffe1e1
-    style K fill:#e1ffe1
+```
+API Request
+    ↓
+1. Rate Limit Check
+    ↓
+2. Authentication (JWT Token)
+    ├─ Valid Token? → Extract user_id + groups
+    └─ Invalid? → 401 Unauthorized
+    ↓
+3. Authorization (GBA Permission Check)
+    ├─ User's groups have required permission?
+    ├─ YES → Continue to step 4
+    └─ NO → 403 Forbidden
+    ↓
+4. Input Validation (Pydantic)
+    ├─ Valid input?
+    ├─ YES → Process Request
+    └─ NO → 400 Bad Request
+    ↓
+5. Return Response
 ```
 
 ---
@@ -1795,12 +900,12 @@ graph TD
 
 | Feature | Beschreibung |
 |---------|-------------|
+| 🔐 **GBA Authorization** | Group-based permission checks at every endpoint |
 | ⏱️ **Rate Limiting** | 100 Requests/Minute pro User |
-| 🔐 **Rollenprüfung** | Bei jedem Endpunkt |
 | 📝 **IP-Logging** | Für Admin-Zugriffe |
 | 🚨 **Abuse-Detection** | KI-Endpunkte überwacht |
-| 🔑 **JWT-Validation** | Token-Integrität |
-| 🛡️ **Upload-Scan** | Virenscan bei Datei-Uploads |
+| 🔑 **JWT-Validation** | Token-Integrität und Ablauf |
+| 🛡️ **Input Validation** | Pydantic Models |
 | 🔒 **HTTPS Only** | TLS 1.3 |
 | 🎫 **CSRF Protection** | Token-basiert |
 
@@ -1817,62 +922,47 @@ graph TD
 
 ---
 
-## 17. Zusammenfassung
+## 17. GBA Berechtigungsmodell – Zusammenfassung
 
-### ✅ Die LSX-API
+### 🔑 Core Concepts
+
+**Gruppen (Groups)** sind zentrale Organisationseinheit:
+- Benutzer gehören zu einer oder mehreren **Gruppen** (core.users_groups)
+- Jede Gruppe hat **Berechtigungen** (core.permissions via core.role_permissions)
+- Berechtigungen steuern **API-Zugriff** via @require_permission() Decorators
+
+### 📋 Berechtigungsprüfung im Detail
+
+```
+1. Client sendet API-Request mit JWT Token
+2. JWT Token enthält: user_id + groups[]
+3. Backend Decorator (@require_permission('manage:courses'))
+4. SQL Query: SELECT * FROM core.permissions
+   WHERE permission_code = 'manage:courses'
+   AND group_id IN (user.groups)
+5. Falls Permission gefunden: 200 OK
+   Falls nicht: 403 Forbidden
+```
+
+---
+
+## 18. Zusammenfassung
+
+### ✅ Die LSX-API (GBA Edition)
 
 | Feature | Status |
 |---------|--------|
 | 📚 **Alle Funktionen abgedeckt** | ✅ |
-| 🧩 **Modular aufgebaut** | ✅ |
+| 🧩 **GBA-basierte Autorisierung** | ✅ |
 | 📦 **Versioniert (v1)** | ✅ |
 | 🔒 **Sicher** | ✅ |
 | 🔄 **Erweiterbar** | ✅ |
 | 🤖 **KI-optimiert** | ✅ |
-| 👥 **Rollenbasiert** | ✅ |
+| 👥 **Gruppen-basiert (GBA)** | ✅ |
 | 📊 **RESTful** | ✅ |
 
-### 💡 API-Highlights
-
-```
-┌─────────────────────────────────────┐
-│  🌐 REST JSON (UTF-8)                │
-│  🔐 JWT Authentication               │
-│  📦 Versioniert (v1)                 │
-│  🎯 snake_case Naming                │
-│  ⚡ Rate Limited                     │
-│  🛡️ Rollenbasierte Autorisierung     │
-└─────────────────────────────────────┘
-```
-
-### 🎯 Endpoint-Kategorien
-
-| Kategorie | Endpunkte | Beschreibung |
-|-----------|-----------|-------------|
-| 🔐 **Auth** | 5 | Authentifizierung & User |
-| 📚 **Courses** | 10+ | Kurs-Management |
-| 📖 **Modules** | 5 | Modul-Verwaltung |
-| 🎯 **Methods** | 5 | Lernmethoden |
-| 📝 **Exams** | 6 | Prüfungssystem |
-| 🤖 **KI** | 8+ | KI-Pipeline |
-| 🌍 **Translation** | 3 | Übersetzungen |
-| 📊 **Dashboard** | 4 | Dashboard & Widgets |
-| 🎥 **LiveRoom** | 8 | LiveRoom-System |
-| 💰 **Tokens** | 3 | Token-Management |
-| 💳 **Billing** | 4 | Rechnungen |
-| 👥 **Groups** | 5 | Community & Gruppen |
-| 🔍 **Search** | 1 | Globale Suche |
-
-> **Sie ist die Grundlage für das gesamte LSX Backend.**
-
 ---
 
-## 📌 Dokument abgeschlossen
-
-**Version:** 1.0  
-**Status:** Final  
-**Letzte Aktualisierung:** November 2024
-
----
-
-> 💡 **Hinweis:** Dieses Dokument ist Teil der LSX-Systemdokumentation und beschreibt die vollständige REST-API mit allen Endpunkten, Authentifizierung und Sicherheitsmaßnahmen.
+**Version:** 2.0 (GBA Edition)
+**Status:** Production
+**Letztes Update:** 2026-01-25

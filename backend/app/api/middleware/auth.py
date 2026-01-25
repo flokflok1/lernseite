@@ -1,13 +1,17 @@
 """
 LernsystemX Authentication Middleware
 
-JWT-based authentication and role-based access control (RBAC):
+JWT-based authentication and group-based access control (GBA):
 - Token verification
 - User authentication
-- Role-based authorization
+- Group-based authorization
 - Permission checking
 
 ISO 27001:2013 compliant - Access control and authentication
+
+RBAC 3.0 - Group-Based Architecture (GBA):
+Users belong to Groups, Groups have Permissions.
+No more hierarchy_level or role-based checks.
 """
 
 from functools import wraps
@@ -21,22 +25,7 @@ from flask_jwt_extended import (
 
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
-
-
-# Role hierarchy for RBAC (RBAC 2.0 - Owner at level 10)
-ROLE_HIERARCHY = {
-    'user': 1,
-    'premium': 2,
-    'creator': 3,
-    'teacher': 4,
-    'school_admin': 5,
-    'company_admin': 5,
-    'moderator': 6,
-    'support': 7,
-    'admin': 8,
-    'superadmin': 9,
-    'owner': 10  # RBAC 2.0: Owner-Administrator (highest level)
-}
+from app.infrastructure.persistence.database.connection import execute_query
 
 
 def get_current_user_id() -> Optional[int]:
@@ -178,7 +167,7 @@ def role_required(*allowed_roles: str) -> Callable:
 
 def admin_required(fn: Callable) -> Callable:
     """
-    Decorator to require admin or superadmin role
+    Decorator to require admin or superadmin group membership
 
     Usage:
         @app.route('/admin/users')
@@ -188,21 +177,27 @@ def admin_required(fn: Callable) -> Callable:
 
     Returns:
         401 if not authenticated
-        403 if user is not admin/superadmin
+        403 if user is not in admin group
     """
     @wraps(fn)
     @token_required
     def wrapper(*args, **kwargs):
         user = g.current_user
-        user_role = user.get('role', 'user')
+        user_id = user.get('user_id')
 
-        # Check if user is admin or above (RBAC 2.0: dynamic from DB)
-        from app.application.services.permission_service import PermissionService
-        if not PermissionService.check_threshold(user, 'view_any_resource'):
+        # Check if user has admin permission via group membership (GBA)
+        # Admin groups: system-admin, superadmin
+        from app.application.services.system.auth.permission import PermissionService
+
+        # Check if user can view any resource (admin permission)
+        if not PermissionService.check_permission(user, 'view_any_resource'):
+            user_groups = user.get('groups', [])
+            group_names = [g.get('name', 'unknown') for g in user_groups] if isinstance(user_groups, list) else []
+
             return error_response(
                 ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
                 status=403,
-                details={'user_role': user_role}
+                details={'user_groups': group_names}
             )
 
         return fn(*args, **kwargs)
@@ -212,7 +207,7 @@ def admin_required(fn: Callable) -> Callable:
 
 def permission_required(*permissions: str) -> Callable:
     """
-    Decorator to require specific permissions (checks against database)
+    Decorator to require specific permissions via group membership (GBA)
 
     Args:
         *permissions: One or more required permissions (ANY match = access granted)
@@ -230,10 +225,10 @@ def permission_required(*permissions: str) -> Callable:
             return jsonify({'message': 'Moderating...'})
 
     Note:
-        Permissions are checked against:
-        1. User-specific overrides (user_permissions table)
-        2. Role-based permissions (role_permissions table)
-        3. Admin role has all permissions
+        Permissions are checked via group membership (GBA):
+        1. User's groups from JWT token
+        2. Group permissions from core.group_permissions table
+        3. Admin groups have all permissions
 
     Returns:
         401 if not authenticated
@@ -245,39 +240,31 @@ def permission_required(*permissions: str) -> Callable:
         def wrapper(*args, **kwargs):
             user = g.current_user
             user_id = user.get('user_id')
-            user_role = user.get('role', 'user')
 
-            # Admin and above has all permissions (RBAC 2.0: dynamic from DB)
-            from app.application.services.permission_service import PermissionService
-            if PermissionService.check_threshold(user, 'view_any_resource'):
+            # Admin group has all permissions (GBA)
+            from app.application.services.system.auth.permission import PermissionService
+
+            # Check if user has view_any_resource permission (admin permission)
+            if PermissionService.check_permission(user, 'view_any_resource'):
                 return fn(*args, **kwargs)
 
-            # Check permissions against database
-            from app.infrastructure.persistence.repositories.base_repository import BaseRepository
-
+            # Check if user has ANY of the required permissions (GBA)
             has_any_permission = False
             for perm in permissions:
-                try:
-                    result = BaseRepository.fetch_one(
-                        "SELECT user_has_permission(%s, %s) as has_perm",
-                        (user_id, perm)
-                    )
-                    if result and result.get('has_perm'):
-                        has_any_permission = True
-                        break
-                except Exception:
-                    # If DB function doesn't exist, fall back to role hierarchy
-                    role_level = ROLE_HIERARCHY.get(user_role, 0)
-                    has_any_permission = role_level >= 5
+                if PermissionService.check_permission(user, perm):
+                    has_any_permission = True
                     break
 
             if not has_any_permission:
+                user_groups = user.get('groups', [])
+                group_names = [g.get('name', 'unknown') for g in user_groups] if isinstance(user_groups, list) else []
+
                 return error_response(
                     ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
                     status=403,
                     details={
                         'required_permissions': list(permissions),
-                        'user_role': user_role
+                        'user_groups': group_names
                     }
                 )
 
@@ -352,115 +339,131 @@ def rate_limit_check(max_requests: int = 100, window_seconds: int = 60) -> Calla
     return decorator
 
 
-def check_role_hierarchy(user_role: str, target_role: str) -> bool:
-    """
-    Check if user role is higher or equal to target role
-
-    Args:
-        user_role: Current user's role
-        target_role: Target role to check against
-
-    Returns:
-        True if user_role >= target_role in hierarchy
-
-    Example:
-        >>> is_allowed = check_role_hierarchy('admin', 'teacher')
-        >>> print(is_allowed)  # True
-
-        >>> is_allowed = check_role_hierarchy('teacher', 'admin')
-        >>> print(is_allowed)  # False
-    """
-    user_level = ROLE_HIERARCHY.get(user_role, 0)
-    target_level = ROLE_HIERARCHY.get(target_role, 0)
-    return user_level >= target_level
 
 
 def can_manage_user(current_user: dict, target_user: dict) -> bool:
     """
-    Check if current user can manage target user
+    Check if current user can manage target user (GBA)
 
-    Rules:
-    - Superadmin can manage anyone
-    - Admin can manage non-admins
-    - Organisation admins can manage users in their org
+    Rules (Group-Based Architecture):
+    - System admins can manage anyone
+    - Organisation admins can manage users in their org (non-admin)
     - Teachers can manage students in their org
-    - Users cannot manage others
+    - Regular users cannot manage others
 
     Args:
-        current_user: Current user dict
-        target_user: Target user dict
+        current_user: Current user dict (with groups array from JWT)
+        target_user: Target user dict (with groups array from JWT)
 
     Returns:
         True if current user can manage target user
 
     Example:
-        >>> can_manage = can_manage_user(admin_user, student_user)
+        >>> admin_groups = [{'slug': 'system-admin', ...}]
+        >>> current_user = {'user_id': '1', 'groups': admin_groups, ...}
+        >>> target_user = {'user_id': '2', 'groups': [{'slug': 'user', ...}], ...}
+        >>> can_manage = can_manage_user(current_user, target_user)
         >>> print(can_manage)  # True
     """
-    # Use hierarchy_level for dynamic permission checking (RBAC 2.0)
-    current_hierarchy = current_user.get('hierarchy_level', 1)
-    target_hierarchy = target_user.get('hierarchy_level', 1)
-    current_role = current_user.get('role', 'user')
-    target_role = target_user.get('role', 'user')
+    from app.application.services.system.auth.permission import PermissionService
 
-    # Users can only manage users with LOWER hierarchy
-    # (Admin hierarchy 8 can manage up to 7, Owner hierarchy 10 can manage all)
-    if current_hierarchy > target_hierarchy:
+    # Check if current user is system admin (has view_any_resource permission)
+    if PermissionService.check_permission(current_user, 'view_any_resource'):
+        # System admins can manage anyone except other system admins
+        if PermissionService.check_permission(target_user, 'view_any_resource'):
+            return False  # Admin can't manage other admins
         return True
 
-    # Organisation admins can manage users in their organisation (RBAC 2.0)
-    # hierarchy_level 5 = school_admin, company_admin
-    if current_hierarchy == 5:
+    # Check if current user is organisation admin
+    # (can manage users in their org with manage_users permission)
+    if PermissionService.check_permission(current_user, 'users.manage'):
         same_org = (
             current_user.get('organization_id') ==
             target_user.get('organization_id')
         )
-        # Can manage users with hierarchy <= 4 (user, premium, creator, teacher)
-        can_manage_hierarchy = target_hierarchy <= 4
-        return same_org and can_manage_hierarchy
+        # Can manage users who don't have system admin permission
+        can_manage_target = not PermissionService.check_permission(
+            target_user,
+            'view_any_resource'
+        )
+        return same_org and can_manage_target
 
-    # Teachers can manage students in their organisation (RBAC 2.0)
-    # hierarchy_level 4 = teacher
-    if current_hierarchy == 4:
+    # Check if current user is teacher
+    # (can manage students in their org with students.manage permission)
+    if PermissionService.check_permission(current_user, 'students.manage'):
         same_org = (
             current_user.get('organization_id') ==
             target_user.get('organization_id')
         )
-        # Can manage users with hierarchy <= 2 (user, premium)
-        can_manage_hierarchy = target_hierarchy <= 2
-        return same_org and can_manage_hierarchy
+        # Can manage users who don't have admin permissions
+        is_admin = PermissionService.check_permission(
+            target_user,
+            'users.manage'
+        ) or PermissionService.check_permission(target_user, 'view_any_resource')
+        return same_org and not is_admin
 
     # Regular users cannot manage others
     return False
 
 
-def get_accessible_roles(user_role: str) -> List[str]:
+def get_accessible_groups(current_user: dict) -> List[dict]:
     """
-    Get list of roles that a user can assign to others
+    Get list of groups that a user can assign to others (GBA)
+
+    Groups are fetched from database based on user's permissions.
+    Hierarchy:
+    - System admins can assign any group
+    - Organisation admins can assign non-admin groups in their org
+    - Teachers cannot assign groups
 
     Args:
-        user_role: Current user's role
+        current_user: Current user dict (with groups and permissions from JWT)
 
     Returns:
-        List of roles that can be assigned
+        List of group dicts that can be assigned
 
     Example:
-        >>> roles = get_accessible_roles('admin')
-        >>> print(roles)  # ['user', 'premium', 'creator', 'teacher', ...]
+        >>> groups = get_accessible_groups(admin_user)
+        >>> print(groups)  # [{'id': '...', 'name': 'user', ...}, ...]
     """
-    role_permissions = {
-        'superadmin': [
-            'user', 'premium', 'creator', 'teacher',
-            'school_admin', 'company_admin', 'moderator',
-            'support', 'admin', 'superadmin'
-        ],
-        'admin': [
-            'user', 'premium', 'creator', 'teacher',
-            'school_admin', 'company_admin', 'moderator', 'support'
-        ],
-        'school_admin': ['user', 'premium', 'teacher'],
-        'company_admin': ['user', 'premium', 'teacher', 'creator'],
-        'teacher': ['user', 'premium'],
-    }
+    from app.application.services.system.auth.permission import PermissionService
 
-    return role_permissions.get(user_role, [])
+    # System admins can assign any group
+    if PermissionService.check_permission(current_user, 'groups.manage'):
+        try:
+            result = execute_query(
+                """
+                SELECT id, name, slug, group_type, frontend_role
+                FROM core.groups
+                WHERE deleted_at IS NULL
+                ORDER BY name ASC
+                """,
+                fetch=True
+            )
+            return result if result else []
+        except Exception:
+            return []
+
+    # Organisation admins can assign non-admin groups in their org
+    if PermissionService.check_permission(current_user, 'users.manage'):
+        org_id = current_user.get('organization_id')
+        if org_id:
+            try:
+                result = execute_query(
+                    """
+                    SELECT id, name, slug, group_type, frontend_role
+                    FROM core.groups
+                    WHERE organization_id = %s
+                        AND group_type != 'role'
+                        AND deleted_at IS NULL
+                    ORDER BY name ASC
+                    """,
+                    (org_id,),
+                    fetch=True
+                )
+                return result if result else []
+            except Exception:
+                return []
+
+    # Regular users cannot assign groups
+    return []

@@ -1,16 +1,16 @@
 """
-Permission Service - Dynamic Hierarchy-Based Access Control
+Permission Service - Group-Based Access Control (GBA)
 
-RBAC 2.0: Flexible permission system with database-configurable thresholds.
-Replaces hardcoded role checks with dynamic hierarchy level checks.
+PHASE B: Group-Based Architecture for scalable permission management.
+Users belong to Groups, Groups have Permissions.
 
-Admin panel can adjust thresholds in real-time without code changes.
+All permission data is cached in Redis for performance.
 """
 
-from typing import Optional
+from typing import Optional, List, Set
 import logging
 
-from app.infrastructure.persistence.database.connection import fetch_one
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)
@@ -18,250 +18,295 @@ logger = logging.getLogger(__name__)
 
 class PermissionService:
     """
-    Dynamic permission checking service using hierarchy levels.
+    Group-based permission checking service using GBA (Group-Based Architecture).
 
-    Permissions are configured in core.permission_thresholds table and
-    cached in Redis for performance.
+    Permissions are assigned to Groups, not individual users.
+    Users inherit permissions from their Groups.
+
+    Data is cached in Redis for high performance.
+
+    GBA Model:
+        User → Groups (core.users_groups) → Permissions (core.group_permissions)
 
     Example:
-        >>> user = {'hierarchy_level': 8, 'role': 'admin'}
-        >>> PermissionService.check_threshold(user, 'courses.edit_any')
+        >>> user = {
+        ...     'user_id': 'abc123',
+        ...     'groups': ['system-admin', 'teachers'],
+        ...     'permissions': ['courses.edit', 'users.manage', 'analytics.view']
+        ... }
+        >>> PermissionService.check_permission(user, 'courses.edit')
         True
-        >>> PermissionService.check_threshold(user, 'system.configure')
-        False  # Requires hierarchy_level >= 9
+        >>> PermissionService.check_permission(user, 'system.configure')
+        False  # Not in user's permissions
     """
 
     # Cache TTL in seconds (5 minutes)
     CACHE_TTL = 300
 
-    # Default fallback if permission not found in database
-    DEFAULT_THRESHOLD = 8  # admin+
+    # Cache keys for performance
+    CACHE_KEY_GROUP_PERMS = 'GROUP_PERMISSIONS'
+    CACHE_KEY_PERM_GROUPS = 'PERMISSION_GROUPS'
+    CACHE_KEY_USER_PERMS = 'USER_PERMISSIONS'
 
     @classmethod
-    def check_threshold(cls, user: dict, permission_key: str) -> bool:
+    def check_permission(cls, user: dict, permission_code: str) -> bool:
         """
-        Check if user's hierarchy level meets the threshold for a permission.
+        Check if user has a specific permission via their groups.
+
+        GBA LOGIC:
+        1. If user has pre-computed 'permissions' array (from JWT), use it (fast)
+        2. Otherwise, lookup from database based on groups
 
         Args:
-            user: User dictionary with 'hierarchy_level' field
-            permission_key: Permission key (e.g., 'courses.edit_any', 'simulations.view_any')
+            user: User dictionary with 'groups' or 'permissions' field
+            permission_code: Permission code to check (e.g., 'courses.edit')
 
         Returns:
-            True if user has sufficient hierarchy level, False otherwise
+            True if user's groups include this permission, False otherwise
 
         Example:
-            >>> user = get_current_user()
-            >>> if PermissionService.check_threshold(user, 'courses.edit_any'):
-            ...     # User can edit any course
-            ...     pass
+            >>> user = get_current_user()  # From JWT token
+            >>> if PermissionService.check_permission(user, 'courses.edit'):
+            ...     # User can edit courses
+            ...     return create_course()
         """
-        hierarchy_level = user.get('hierarchy_level', 0)
+        if not user:
+            return False
 
-        # Get required threshold (cached)
-        required_level = cls._get_threshold(permission_key)
+        # FAST PATH: Check pre-computed permissions (from JWT token)
+        if 'permissions' in user:
+            return permission_code in user.get('permissions', [])
 
-        # Check if user meets threshold
-        has_permission = hierarchy_level >= required_level
+        # LOOKUP PATH: Check permissions via groups
+        user_groups = user.get('groups', [])
+        if not user_groups:
+            logger.debug(f"User {user.get('user_id', 'unknown')} has no groups")
+            return False
 
-        if not has_permission:
-            logger.debug(
-                f"Permission denied: user hierarchy {hierarchy_level} < "
-                f"required {required_level} for {permission_key}"
-            )
+        # Get all groups that have this permission (cached)
+        groups_with_perm = cls._get_groups_with_permission(permission_code)
 
-        return has_permission
+        # Check if user belongs to any group with this permission
+        for group_info in groups_with_perm:
+            if group_info['slug'] in user_groups:
+                logger.debug(
+                    f"User {user.get('user_id', 'unknown')} has permission "
+                    f"'{permission_code}' via group '{group_info['slug']}'"
+                )
+                return True
+
+        logger.debug(
+            f"Permission denied: user groups {user_groups} do not have "
+            f"permission '{permission_code}'"
+        )
+        return False
 
     @classmethod
-    def _get_threshold(cls, permission_key: str) -> int:
+    def get_user_permissions(cls, user_id: str) -> Set[str]:
         """
-        Get minimum hierarchy level required for permission.
+        Get all permissions for a user (via their groups).
 
-        Checks cache first, then database. Falls back to DEFAULT_THRESHOLD
-        if permission not found.
+        Used when building JWT token or for permission audits.
 
         Args:
-            permission_key: Permission key to lookup
+            user_id: User ID
 
         Returns:
-            Minimum hierarchy level required (1-10)
+            Set of permission codes user has
+
+        Example:
+            >>> perms = PermissionService.get_user_permissions('user-123')
+            >>> print(perms)
+            {'courses.edit', 'users.manage', 'analytics.view'}
+        """
+        # Get user's groups
+        user_groups = fetch_all(
+            """
+            SELECT g.slug, g.id
+            FROM core.users_groups ug
+            JOIN core.groups g ON ug.group_id = g.id
+            WHERE ug.user_id = %s AND ug.deleted_at IS NULL
+            """,
+            (user_id,)
+        ) or []
+
+        if not user_groups:
+            logger.debug(f"User {user_id} has no groups")
+            return set()
+
+        # Get all permissions for these groups
+        group_ids = [g['id'] for g in user_groups]
+        permissions = fetch_all(
+            """
+            SELECT DISTINCT p.code
+            FROM core.group_permissions gp
+            JOIN core.permissions p ON gp.permission_id = p.id
+            WHERE gp.group_id = ANY(%s)
+            """,
+            (group_ids,)
+        ) or []
+
+        permission_codes = {p['code'] for p in permissions}
+        logger.debug(f"User {user_id} has {len(permission_codes)} permissions")
+
+        return permission_codes
+
+    @classmethod
+    def _get_groups_with_permission(cls, permission_code: str) -> List[dict]:
+        """
+        Get all groups that have a specific permission.
+
+        Results are cached for performance.
+
+        Args:
+            permission_code: Permission code (e.g., 'courses.edit')
+
+        Returns:
+            List of group dicts with 'id', 'slug', 'name'
         """
         # Try cache first
-        cache_key = CacheService.make_key('PERMISSION_THRESHOLD', permission_key)
+        cache_key = CacheService.make_key(cls.CACHE_KEY_PERM_GROUPS, permission_code)
 
         try:
-            cached_threshold = CacheService.cache_get(cache_key)
-            if cached_threshold is not None:
-                return int(cached_threshold)
+            cached_groups = CacheService.cache_get(cache_key)
+            if cached_groups is not None:
+                import json
+                return json.loads(cached_groups)
         except Exception as e:
-            logger.warning(f"Cache read error for {permission_key}: {e}")
+            logger.warning(f"Cache read error for permission {permission_code}: {e}")
 
         # Cache miss - query database
         try:
-            result = fetch_one(
+            results = fetch_all(
                 """
-                SELECT min_hierarchy_level
-                FROM core.permission_thresholds
-                WHERE permission_key = %s AND is_active = true
+                SELECT DISTINCT g.id, g.slug, g.name
+                FROM core.group_permissions gp
+                JOIN core.permissions p ON gp.permission_id = p.id
+                JOIN core.groups g ON gp.group_id = g.id
+                WHERE p.code = %s AND g.deleted_at IS NULL
+                ORDER BY g.name
                 """,
-                (permission_key,)
-            )
+                (permission_code,)
+            ) or []
 
-            if result:
-                threshold = result['min_hierarchy_level']
-
-                # Cache the result
+            # Cache the result
+            if results:
                 try:
-                    CacheService.cache_set(cache_key, threshold, ttl=cls.CACHE_TTL)
+                    import json
+                    CacheService.cache_set(cache_key, json.dumps(results), ttl=cls.CACHE_TTL)
                 except Exception as e:
-                    logger.warning(f"Cache write error for {permission_key}: {e}")
+                    logger.warning(f"Cache write error for permission {permission_code}: {e}")
 
-                return threshold
-            else:
-                # Permission not found - use default and log warning
-                logger.warning(
-                    f"Permission threshold '{permission_key}' not found in database. "
-                    f"Using default threshold {cls.DEFAULT_THRESHOLD}"
-                )
-
-                # Cache the default to avoid repeated DB queries
-                try:
-                    CacheService.cache_set(cache_key, cls.DEFAULT_THRESHOLD, ttl=60)
-                except Exception:
-                    pass
-
-                return cls.DEFAULT_THRESHOLD
+            return results
 
         except Exception as e:
-            logger.error(f"Database error fetching threshold for {permission_key}: {e}")
-            return cls.DEFAULT_THRESHOLD
+            logger.error(f"Database error fetching groups with permission {permission_code}: {e}")
+            return []
 
     @classmethod
-    def invalidate_threshold_cache(cls, permission_key: Optional[str] = None):
+    def get_group_permissions(cls, group_id: str) -> Set[str]:
         """
-        Invalidate permission threshold cache.
-
-        Call this after updating thresholds in admin panel.
+        Get all permissions for a group.
 
         Args:
-            permission_key: Specific permission to invalidate, or None for all
-
-        Example:
-            >>> # After updating threshold in admin panel:
-            >>> PermissionService.invalidate_threshold_cache('courses.edit_any')
-        """
-        if permission_key:
-            cache_key = CacheService.make_key('PERMISSION_THRESHOLD', permission_key)
-            CacheService.cache_delete(cache_key)
-            logger.info(f"Invalidated cache for permission: {permission_key}")
-        else:
-            # Invalidate all permission thresholds
-            # Note: This is expensive - prefer specific invalidation
-            CacheService.cache_delete_pattern('PERMISSION_THRESHOLD:*')
-            logger.info("Invalidated all permission threshold caches")
-
-    @classmethod
-    def get_all_thresholds(cls) -> list:
-        """
-        Get all permission thresholds from database.
-
-        Used by admin panel to display current configuration.
+            group_id: Group ID
 
         Returns:
-            List of threshold dictionaries with keys:
-            - threshold_id
-            - permission_key
-            - min_hierarchy_level
-            - description
-            - is_active
+            Set of permission codes for the group
         """
-        from app.infrastructure.persistence.database.connection import fetch_all
-
-        results = fetch_all(
-            """
-            SELECT
-                threshold_id,
-                permission_key,
-                min_hierarchy_level,
-                description,
-                is_active,
-                created_at,
-                updated_at
-            FROM core.permission_thresholds
-            ORDER BY permission_key
-            """
-        )
-
-        return results or []
-
-    @classmethod
-    def update_threshold(cls, permission_key: str, new_level: int, user_id: Optional[str] = None) -> bool:
-        """
-        Update permission threshold (admin only).
-
-        Args:
-            permission_key: Permission to update
-            new_level: New minimum hierarchy level (1-10)
-            user_id: User making the change (for audit log)
-
-        Returns:
-            True if updated successfully, False otherwise
-
-        Raises:
-            ValueError: If new_level not in range 1-10
-        """
-        if not (1 <= new_level <= 10):
-            raise ValueError(f"Hierarchy level must be between 1 and 10, got {new_level}")
-
-        from app.infrastructure.persistence.database.connection import execute_query
+        # Try cache first
+        cache_key = CacheService.make_key(cls.CACHE_KEY_GROUP_PERMS, group_id)
 
         try:
-            # Update threshold
-            execute_query(
+            cached_perms = CacheService.cache_get(cache_key)
+            if cached_perms is not None:
+                import json
+                return set(json.loads(cached_perms))
+        except Exception as e:
+            logger.warning(f"Cache read error for group {group_id}: {e}")
+
+        # Cache miss - query database
+        try:
+            results = fetch_all(
                 """
-                UPDATE core.permission_thresholds
-                SET min_hierarchy_level = %s,
-                    updated_at = NOW()
-                WHERE permission_key = %s
+                SELECT DISTINCT p.code
+                FROM core.group_permissions gp
+                JOIN core.permissions p ON gp.permission_id = p.id
+                WHERE gp.group_id = %s
                 """,
-                (new_level, permission_key)
-            )
+                (group_id,)
+            ) or []
 
-            # Invalidate cache
-            cls.invalidate_threshold_cache(permission_key)
+            permission_codes = {r['code'] for r in results}
 
-            logger.info(
-                f"Updated permission threshold: {permission_key} -> {new_level} "
-                f"(by user {user_id or 'system'})"
-            )
+            # Cache the result
+            if results:
+                try:
+                    import json
+                    CacheService.cache_set(cache_key, json.dumps(list(permission_codes)), ttl=cls.CACHE_TTL)
+                except Exception as e:
+                    logger.warning(f"Cache write error for group {group_id}: {e}")
 
-            return True
+            return permission_codes
 
         except Exception as e:
-            logger.error(f"Failed to update threshold {permission_key}: {e}")
-            return False
+            logger.error(f"Database error fetching permissions for group {group_id}: {e}")
+            return set()
+
+    @classmethod
+    def invalidate_group_cache(cls, group_id: Optional[str] = None):
+        """
+        Invalidate permission cache for a group.
+
+        Call this after assigning/removing permissions from a group.
+
+        Args:
+            group_id: Specific group to invalidate, or None for all
+        """
+        if group_id:
+            cache_key = CacheService.make_key(cls.CACHE_KEY_GROUP_PERMS, group_id)
+            CacheService.cache_delete(cache_key)
+            logger.info(f"Invalidated permission cache for group: {group_id}")
+        else:
+            # Invalidate all group permission caches
+            CacheService.cache_delete_pattern(f'{cls.CACHE_KEY_GROUP_PERMS}:*')
+            CacheService.cache_delete_pattern(f'{cls.CACHE_KEY_PERM_GROUPS}:*')
+            logger.info("Invalidated all permission caches")
+
+    @classmethod
+    def invalidate_permission_cache(cls, permission_code: str):
+        """
+        Invalidate cache after permission changes.
+
+        Args:
+            permission_code: Permission code that changed
+        """
+        cache_key = CacheService.make_key(cls.CACHE_KEY_PERM_GROUPS, permission_code)
+        CacheService.cache_delete(cache_key)
+        logger.info(f"Invalidated permission cache for: {permission_code}")
 
 
 # Convenience functions for common permission checks
 def can_view_any_resource(user: dict) -> bool:
     """Check if user can view any resource regardless of ownership."""
-    return PermissionService.check_threshold(user, 'view_any_resource')
+    return PermissionService.check_permission(user, 'view_any_resource')
 
 
 def can_edit_any_resource(user: dict) -> bool:
     """Check if user can edit any resource regardless of ownership."""
-    return PermissionService.check_threshold(user, 'edit_any_resource')
+    return PermissionService.check_permission(user, 'edit_any_resource')
 
 
 def can_delete_any_resource(user: dict) -> bool:
     """Check if user can delete any resource regardless of ownership."""
-    return PermissionService.check_threshold(user, 'delete_any_resource')
+    return PermissionService.check_permission(user, 'delete_any_resource')
 
 
 def can_manage_any_organisation(user: dict) -> bool:
     """Check if user can manage any organisation."""
-    return PermissionService.check_threshold(user, 'organisations.manage_any')
+    return PermissionService.check_permission(user, 'organisations.manage_any')
 
 
 def can_view_all_analytics(user: dict) -> bool:
     """Check if user can view all analytics data."""
-    return PermissionService.check_threshold(user, 'analytics.view_all')
+    return PermissionService.check_permission(user, 'analytics.view_all')

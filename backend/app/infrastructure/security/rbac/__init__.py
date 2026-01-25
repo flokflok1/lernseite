@@ -1,11 +1,15 @@
 """
 Role-Based Access Control (RBAC) Module
 
-This module provides decorators and utilities for access control.
-Currently implements Owner-Admin system.
+MIGRATED from RBAC 2.0 to GBA. This module now re-exports decorators from
+the compatibility wrapper to maintain backward compatibility.
+
+All code should migrate to use:
+  from app.api.middleware.auth import admin_required, permission_required
 """
 
-from app.infrastructure.security.rbac.decorators import (
+# Re-export from compatibility wrapper to maintain backward compatibility
+from app.infrastructure.security.permissions_compat import (
     require_owner,
     require_owner_or_permission
 )

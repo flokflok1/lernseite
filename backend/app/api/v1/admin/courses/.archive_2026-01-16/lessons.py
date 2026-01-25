@@ -23,7 +23,7 @@ from app.api.middleware.auth import permission_required
 
 
 @api_v1.route('/admin/chapters/<chapter_id>/lessons', methods=['GET'])
-@require_permission(Permissions.ADMIN_LESSON_READ)
+@permission_required('content.courses:read')
 def admin_list_lessons(chapter_id: str):
     """List all lessons for a chapter."""
     try:
@@ -52,7 +52,7 @@ def admin_list_lessons(chapter_id: str):
 
 
 @api_v1.route('/admin/chapters/<chapter_id>/lessons', methods=['POST'])
-@require_permission(Permissions.ADMIN_LESSON_WRITE)
+@permission_required('content.courses:write')
 def admin_create_lesson(chapter_id: str):
     """Create a new lesson for a chapter."""
     try:
@@ -108,7 +108,7 @@ def admin_create_lesson(chapter_id: str):
 
 
 @api_v1.route('/admin/lessons/<lesson_id>', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_LESSON_WRITE)
+@permission_required('content.courses:write')
 def admin_update_lesson(lesson_id: str):
     """Update a lesson."""
     try:
@@ -150,7 +150,7 @@ def admin_update_lesson(lesson_id: str):
 
 
 @api_v1.route('/admin/lessons/<lesson_id>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_LESSON_DELETE)
+@permission_required('content.courses:delete')
 def admin_delete_lesson(lesson_id: str):
     """Delete a lesson."""
     try:
@@ -185,7 +185,7 @@ def admin_delete_lesson(lesson_id: str):
 
 
 @api_v1.route('/admin/chapters/<chapter_id>/lessons/reorder', methods=['POST'])
-@require_permission(Permissions.ADMIN_LESSON_WRITE)
+@permission_required('content.courses:write')
 def admin_reorder_lessons(chapter_id: str):
     """Reorder lessons in a chapter."""
     try:

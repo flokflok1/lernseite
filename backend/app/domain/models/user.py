@@ -134,6 +134,7 @@ class UserResponse(UserBase):
     User response model (safe for API responses)
 
     Excludes sensitive fields like password_hash.
+    Uses Group-Based Architecture (GBA) - no hierarchy_level.
 
     Example:
         >>> user = UserResponse(
@@ -148,8 +149,7 @@ class UserResponse(UserBase):
         ... )
     """
     user_id: str = Field(..., description="User ID (UUID)")
-    role: str = Field(..., description="User role")
-    hierarchy_level: int = Field(default=1, description="RBAC 2.0 hierarchy level (1-10)")
+    role: str = Field(..., description="User role (mapped from primary group)")
     organization_id: Optional[int] = Field(None, description="Organisation ID")
     two_factor_enabled: bool = Field(default=False, description="2FA enabled")
     email_verified: bool = Field(default=False, description="Email verified")

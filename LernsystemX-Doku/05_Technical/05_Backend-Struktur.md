@@ -60,7 +60,7 @@ Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig complian
 
 ### 🎯 Neue Features in v3.2
 
-- ✅ **Semantic URL Paths** - `/admin/` → `/admin-panel/` (Clarity: Interface vs. Role)
+- ✅ **Semantic URL Paths** - `/admin/` → `/admin-panel/` (Clarity: Admin Panel Interface)
 - ✅ **Admin Panel Reorganization** - Settings-based Structure (Sidebar-aligned)
 - ✅ **AI Editor System** - Chat, Content Generation, Variants, Sessions
 - ✅ **Compliance APIs** - GDPR Data Export/Deletion, Privacy Controls, Age Verification
@@ -206,9 +206,9 @@ Das Backend ist **modular**, **sicher**, **skalierbar**, **vollständig complian
 │   │           │   │   ├── system_info.py
 │   │           │   │   └── system_stats.py
 │   │           │   │
-│   │           │   ├── /permissions        # 🔐 Permissions & Roles
-│   │           │   │   ├── roles.py
-│   │           │   │   └── permission_thresholds.py
+│   │           │   ├── /groups             # 🔐 Group Management (GBA)
+│   │           │   │   ├── groups.py
+│   │           │   │   └── group_permissions.py
 │   │           │   │
 │   │           │   └── /feature_flags      # 🎚️ Feature Flags
 │   │           │       ├── flags.py
@@ -1349,10 +1349,10 @@ Response: {
 │   │   │   │   │   │   ├── system_info.py          # GET /api/v1/admin-panel/settings/system/info
 │   │   │   │   │   │   └── system_stats.py         # GET /api/v1/admin-panel/settings/system/stats
 │   │   │   │   │   │
-│   │   │   │   │   ├── /permissions  # 🔐 Permissions & Roles
+│   │   │   │   │   ├── /groups  # 🔐 Group Management (GBA)
 │   │   │   │   │   │   ├── __init__.py
-│   │   │   │   │   │   ├── roles.py                # CRUD /api/v1/admin-panel/settings/permissions/roles
-│   │   │   │   │   │   └── permission_thresholds.py # GET/PUT /api/v1/admin-panel/settings/permissions
+│   │   │   │   │   │   ├── groups.py                # CRUD /api/v1/admin-panel/settings/groups
+│   │   │   │   │   │   └── group_permissions.py    # GET/PUT /api/v1/admin-panel/settings/groups/:id/permissions
 │   │   │   │   │   │
 │   │   │   │   │   └── /feature_flags  # 🎚️ Feature Flags
 │   │   │   │   │       ├── __init__.py
@@ -1993,84 +1993,108 @@ FEATURE_FLAGS = {
 
 ---
 
-## 7. Authorization Decorators & RBAC 2.0 (Database-Driven)
+## 7. Authorization Decorators & GBA (Group-Based Architecture)
 
-### 🔐 Overview: Von Hardcoded zu Database-Driven
+### 🔐 Overview: Group-Based Architecture (GBA) für Autorisierung
 
-Das LSX Backend implementiert eine **RBAC 2.0 (Role-Based Access Control 2.0)** mit drei Decorators für Autorisierung:
+Das LSX Backend implementiert eine **GBA (Group-Based Architecture)** mit Permission-Decorators für granulare Autorisierung:
 
-| Decorator | Typ | Zweck | Permission Keys |
-|-----------|-----|-------|-----------------|
-| `@require_system_admin()` | Capability-Based | System-Level Admin Access | `admin:system` |
-| `@require_org_admin()` | Capability-Based | Organization Admin Access | `manage:org:settings`, `admin:organisations` |
-| `@require_org_member()` | Resource-Based | Organization Membership Check | Keine (direkter Organisationszugriff) |
+| Decorator | Typ | Zweck | Prüfung |
+|-----------|-----|-------|---------|
+| `@require_permission('code')` | Capability-Based | Flexible Permission-Checks | `admin:system`, `manage:courses`, etc. |
+| `@require_system_admin()` | Capability-Based | System-Level Admin Access | `admin:system` Permission in core.group_permissions |
+| `@require_org_member()` | Resource-Based | Organization Membership Check | Zugehörigkeit zur Organisation |
 
-**Wichtig:** Das Group-Based Permission System ist **database-driven** und ermöglicht dem **Group Management Admin Panel**, flexible Gruppen-Zuordnungen und Permissions ohne Code-Änderungen zu aktualisieren!
+**Wichtig:** Das GBA System ist **database-driven** (core.groups, core.users_groups, core.permissions, core.group_permissions) und ermöglicht dem **Group Management Admin Panel**, flexible Gruppen-Zuordnungen und Permissions ohne Code-Änderungen zu aktualisieren!
 
 ---
 
 ### 📍 Decorator-Implementierung
 
-#### 1. @require_system_admin()
+#### 1. @require_permission('code')
 
-**Zweck:** System-level administrative access control
+**Zweck:** Flexible, granulare Permission-Checks basierend auf Permission Codes
+
+**Implementierung:**
+```python
+@require_permission('admin:system')
+def system_admin_endpoint():
+    """Requires admin:system permission."""
+    return jsonify({'data': 'system-admin-only'})
+
+@require_permission('manage:courses')
+def course_management_endpoint():
+    """Requires course management permission."""
+    return jsonify({'data': 'course-admin-only'})
+```
+
+**Access-Kriterien (GBA Modell):**
+1. User ist im JWT Token enthalten
+2. JWT enthält `groups[]` Array mit Gruppen-Infos
+3. Prüfung: Hat User eine Gruppe mit dem geforderten Permission?
+4. Permission wird aus `core.group_permissions` WHERE group_id IN (user_groups) AND permission_code = ?
+
+**GBA Permission Check Flow:**
+```
+User Request mit JWT Token
+  ↓
+Decorator extrahiert Permission Code aus @require_permission()
+  ↓
+Queries core.group_permissions:
+  SELECT * FROM core.group_permissions gp
+  WHERE gp.group_id IN (user's group_ids)
+  AND gp.permission_code = 'admin:system'
+  ↓
+Permission Found? → ✅ ALLOW (HTTP 200+)
+Permission Not Found? → ❌ DENY (HTTP 403 Forbidden)
+```
+
+**Sicherheit:**
+- Fail-Secure: Returns 403 Forbidden on database errors (NOT 500)
+- SQL-Injection Prevention: Parameterized Queries mit %s placeholders
+- Audit-Trail: Alle Permission Checks geloggt via middleware
+
+---
+
+#### 2. @require_system_admin()
+
+**Zweck:** System-level administrative access (Convenience Decorator)
 
 **Implementierung:**
 ```python
 @require_system_admin()
-def admin_endpoint():
-    """Requires system administrator role."""
+def admin_dashboard():
+    """Requires admin:system permission."""
+    return jsonify({'data': 'admin-only'})
+
+# Equivalent to:
+@require_permission('admin:system')
+def admin_dashboard():
+    """Requires admin:system permission."""
     return jsonify({'data': 'admin-only'})
 ```
 
-**Access-Kriterien (OR-Logik):**
-- `hierarchy_level >= 9` (Emergency Fallback)
-- User hat `admin:system` Permission in core.role_permissions
-
-**Betroffene Roles:**
-- `admin` (hierarchy_level: 9)
-- `owner` (hierarchy_level: 11)
-
-**Sicherheit:**
-- Fail-Secure: Returns 403 Forbidden on database errors (NOT 500)
-- SQL-Injection Prevention: Uses ParameterizedQueries
-- Audit-Trail: All permission checks logged
-
----
-
-#### 2. @require_org_admin()
-
-**Zweck:** Organization-level administrative access (dual permission support)
-
-**Implementierung:**
+**Intern:**
 ```python
-@require_org_admin()
-def org_admin_endpoint():
-    """Requires organization admin role."""
-    return jsonify({'data': 'org-admin-only'})
+def require_system_admin():
+    """Shorthand für @require_permission('admin:system')"""
+    return require_permission('admin:system')
 ```
 
-**Access-Kriterien (OR-Logik):**
-- `hierarchy_level >= 5` (Emergency Fallback)
-- User hat `manage:org:settings` Permission (organization management)
-- User hat `admin:organisations` Permission (organization administration)
+**Access-Kriterien:**
+- User muss `admin:system` Permission haben
+- Permission kommt aus: `SELECT * FROM core.group_permissions WHERE permission_code = 'admin:system' AND group_id IN (user_groups)`
 
-**Betroffene Roles:**
-- `school_admin` (hierarchy_level: 5)
-- `company_admin` (hierarchy_level: 6)
-- `admin` (hierarchy_level: 9)
-- `owner` (hierarchy_level: 11)
-
-**Unterschied zu @require_system_admin:**
-- Zwei Permission Keys (mehr Granularität)
-- Niedrigere Hierarchy Level Thresholds
-- Für Org-spezifische Admin-Tasks
+**GBA Gruppen mit dieser Permission:**
+- `system-admin` group → hat `admin:system` permission
+- `owner` group → hat `admin:system` permission
+- Alle anderen Gruppen → haben diese Permission nicht
 
 ---
 
 #### 3. @require_org_member()
 
-**Zweck:** RESOURCE-BASED access control (Organization Membership)
+**Zweck:** RESOURCE-BASED access control (Organization Membership Check)
 
 **Implementierung:**
 ```python
@@ -2080,146 +2104,186 @@ def org_scoped_endpoint(org_id):
     return jsonify({'data': f'org-{org_id}-data'})
 ```
 
-**Access-Kriterien:**
-- System Admins (`hierarchy_level >= 9`) können auf beliebige Orgs zugreifen
-- Regular Users müssen `org_id` Parameter mit ihrer `user.organisation_id` matchen
+**Access-Kriterien (GBA Modell):**
+- System Admins (mit `admin:system` permission) → können auf beliebige Organisationen zugreifen
+- Normale Users → müssen in der geforderten Organisation Mitglied sein
+- Check: `SELECT * FROM core.users_groups WHERE user_id = ? AND group_id IN (groups for org_id) AND is_active = TRUE`
 
 **Wichtig: Resource-Based vs. Capability-Based**
-- `@require_system_admin()` & `@require_org_admin()`: **Capability-Based** (Was kann User TUN?)
-- `@require_org_member()`: **Resource-Based** (Auf welche Organisationen kann User ZUGREIFEN?)
+- `@require_permission('code')` & `@require_system_admin()`: **Capability-Based** (Was kann User TUN? Was ist ihre Permission?)
+- `@require_org_member()`: **Resource-Based** (Auf welche Organisationen kann User ZUGREIFEN? Ist User Mitglied?)
 
 Diese architektonische Unterscheidung ist kritisch für korrekte Access Control!
 
+**Beispiel:**
+```python
+# System Admin: Hat 'admin:system' → kann auf alle Orgs zugreifen
+user_groups = ['system-admin']  # Has admin:system permission
+# ALLOW: Zugriff auf organisation/123, 456, 789, ...
+
+# Teacher: Ist nur Mitglied von Org 123
+user_groups = ['teacher-org-123']  # Only in org 123
+# ALLOW: Zugriff auf organisation/123
+# DENY: Zugriff auf organisation/456
+```
+
 ---
 
-### 🗄️ Database Schema: RBAC 2.0
+### 🗄️ Database Schema: Group-Based Architecture (GBA)
 
-**Drei kritische Tabellen:**
+**Vier kritische Tabellen:**
 
-#### 1. core.permissions
+#### 1. core.groups - Gruppendefinition
 ```sql
--- Alle verfügbaren Permissions im System
-CREATE TABLE core.permissions (
-    permission_id SERIAL PRIMARY KEY,
-    permission_key VARCHAR(100) UNIQUE NOT NULL,  -- e.g., 'admin:system'
-    display_name VARCHAR(255),                     -- User-friendly name
+CREATE TABLE core.groups (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,           -- z.B. "system-admin", "teacher", "student"
+    slug VARCHAR(100) UNIQUE NOT NULL,           -- z.B. "system_admin", "teacher", "student"
     description TEXT,
-    category VARCHAR(50),                          -- 'system', 'organization', etc.
-    module VARCHAR(50),                            -- 'admin', 'organizations', etc.
-    is_system BOOLEAN DEFAULT true,               -- System-managed?
-    sort_order INTEGER,
+    group_type VARCHAR(50) NOT NULL,             -- "system", "organization", "custom"
+    frontend_role VARCHAR(100),                  -- "Admin", "Teacher", "Student", etc.
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP
+);
+
+-- Beispiel-Gruppen (System-definiert):
+INSERT INTO core.groups (name, slug, group_type, frontend_role, description) VALUES
+    ('system-admin', 'system_admin', 'system', 'Admin', 'System Administrator'),
+    ('teacher', 'teacher', 'system', 'Teacher', 'Teacher Role'),
+    ('student', 'student', 'system', 'Student', 'Student Role'),
+    ('moderator', 'moderator', 'system', 'Moderator', 'Content Moderator');
+```
+
+#### 2. core.users_groups - Gruppenmitgliedschaft
+```sql
+CREATE TABLE core.users_groups (
+    user_id UUID REFERENCES core.users(user_id),
+    group_id INTEGER REFERENCES core.groups(id),
+    member_role VARCHAR(50) DEFAULT 'member',   -- "owner", "moderator", "member"
+    joined_at TIMESTAMP DEFAULT NOW(),
+    left_at TIMESTAMP NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    PRIMARY KEY (user_id, group_id)
+);
+
+-- Beispiel: Benutzer zu Gruppen zuordnen
+INSERT INTO core.users_groups (user_id, group_id, member_role, is_active) VALUES
+    ('123e4567-e89b-12d3-a456-426614174000', 1, 'owner', true),   -- User is system-admin
+    ('223e4567-e89b-12d3-a456-426614174000', 3, 'member', true);  -- User is student
+```
+
+#### 3. core.permissions - Permission-Definitionen
+```sql
+CREATE TABLE core.permissions (
+    id SERIAL PRIMARY KEY,
+    permission_code VARCHAR(100) UNIQUE NOT NULL,  -- z.B. "admin:system", "manage:courses"
+    description TEXT,
+    resource VARCHAR(100),                         -- "admin", "courses", "users"
+    action VARCHAR(50),                            -- "create", "read", "update", "delete"
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- RBAC 2.0 Permissions:
-INSERT INTO core.permissions (permission_key, display_name, category, module) VALUES
-    ('admin:system', 'System Administrator', 'system', 'admin'),           -- ID: 213
-    ('manage:org:settings', 'Manage Organization Settings', 'organization', 'organizations'), -- ID: 214
-    ('admin:organisations', 'Administer Organizations', 'organization', 'organizations');     -- ID: 215
+-- GBA Permissions:
+INSERT INTO core.permissions (permission_code, resource, action, description) VALUES
+    ('admin:system', 'admin', '*', 'System Administrator'),
+    ('manage:courses', 'courses', 'write', 'Course Management'),
+    ('view:analytics', 'analytics', 'read', 'Analytics Viewing'),
+    ('moderate:content', 'content', 'moderate', 'Content Moderation');
 ```
 
-#### 2. core.role_permissions
+#### 4. core.group_permissions - Permission-Zuordnung (GBA)
 ```sql
--- Junction table: Role → Permission Mappings
-CREATE TABLE core.role_permissions (
-    role_id INTEGER NOT NULL REFERENCES core.roles(role_id),
-    permission_id INTEGER NOT NULL REFERENCES core.permissions(permission_id),
-    PRIMARY KEY (role_id, permission_id),
+CREATE TABLE core.group_permissions (
+    group_id INTEGER REFERENCES core.groups(id),
+    permission_id INTEGER REFERENCES core.permissions(id),
+    is_active BOOLEAN DEFAULT TRUE,
+    PRIMARY KEY (group_id, permission_id),
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- RBAC 2.0 Mappings:
--- admin:system (213) → owner (11), admin (9)
-INSERT INTO core.role_permissions (role_id, permission_id) VALUES
-    (11, 213),  -- owner gets admin:system
-    (9, 213);   -- admin gets admin:system
-
--- manage:org:settings (214) → owner, admin, company_admin, school_admin
-INSERT INTO core.role_permissions (role_id, permission_id) VALUES
-    (11, 214),  -- owner
-    (9, 214),   -- admin
-    (6, 214),   -- company_admin
-    (5, 214);   -- school_admin
-
--- admin:organisations (215) → owner, admin, company_admin, school_admin
-INSERT INTO core.role_permissions (role_id, permission_id) VALUES
-    (11, 215),  -- owner
-    (9, 215),   -- admin
-    (6, 215),   -- company_admin
-    (5, 215);   -- school_admin
+-- GBA Mappings: Welche Gruppen haben welche Permissions?
+-- system-admin group (id: 1) bekommt admin:system permission (id: 1)
+INSERT INTO core.group_permissions (group_id, permission_id, is_active) VALUES
+    (1, 1, true),   -- system-admin → admin:system
+    (2, 2, true),   -- teacher → manage:courses
+    (3, 3, true),   -- student → view:analytics
+    (4, 4, true);   -- moderator → moderate:content
 ```
 
-#### 3. core.roles (Reference)
-```sql
--- Roles with hierarchy levels
-CREATE TABLE core.roles (
-    role_id INTEGER PRIMARY KEY,
-    role_name VARCHAR(100) NOT NULL,
-    hierarchy_level INTEGER,  -- 0-11 (emergency fallback thresholds)
-    created_at TIMESTAMP
-);
-
--- Key Roles for RBAC 2.0:
--- (5, 'school_admin', 5)      -- hierarchy_level >= 5
--- (6, 'company_admin', 6)     -- hierarchy_level >= 5
--- (9, 'admin', 9)             -- hierarchy_level >= 9
--- (11, 'owner', 11)           -- hierarchy_level >= 9
-```
+**Unterschied zu altem RBAC 2.0:**
+- ❌ ALT: `core.roles` + `core.role_permissions` (rollenbasiert)
+- ✅ NEU: `core.groups` + `core.group_permissions` (gruppenbasiert)
+- ✅ NEU: `core.users_groups` ermöglicht flexible Mitgliedschaft
+- ✅ NEU: `member_role` (owner, moderator, member) für Granularität
 
 ---
 
-### 🔄 Permission Check Flow
+### 🔄 GBA Permission Check Flow
 
 ```
-User Request to Protected Endpoint
+User Request mit JWT Token zu Protected Endpoint
   ↓
-Decorator Interceptor (@require_system_admin)
+JWT Token extrahiert
+  ├─ token.user_id
+  ├─ token.groups[] = [{id, name, slug, permissions[]}, ...]
   ↓
-Has Permission in Database?
-  ├─ Query: core.role_permissions WHERE role_id = ? AND permission_id = ?
-  │  (Uses PermissionRepository.user_has_permission)
+Decorator Interceptor (@require_permission('admin:system'))
+  ↓
+Prüfe: Hat User Permission in seinen Gruppen?
+  ├─ Query: SELECT * FROM core.group_permissions gp
+  │         WHERE gp.permission_code = 'admin:system'
+  │         AND gp.group_id IN (user.group_ids)
   │  ↓
   │  Permission Found? → ✅ ALLOW (HTTP 200+)
-  │  Permission Not Found? → Check Fallback
+  │  Permission Not Found? → ❌ DENY (HTTP 403 Forbidden)
   │
-  └─ Fallback: hierarchy_level >= 9?
-     ├─ YES → ✅ ALLOW (Backward Compatible)
-     └─ NO → ❌ DENY (HTTP 403 Forbidden)
-
 Database Error? → ❌ DENY (HTTP 403 Forbidden - Fail-Secure Design)
 ```
 
 ---
 
-### 💡 Backward Compatibility & Emergency Fallback
+### 💡 GBA Permission Auflösungs-Algorithmus
 
-**Design Decision:** Alle drei Decorators behalten `hierarchy_level` Checks:
+**SQL-Funktion: `get_user_effective_permissions(user_id)`**
 
-```python
-# @require_system_admin Flow:
-1. Check Database: PermissionRepository.user_has_permission('admin:system')
-2. If DB Check = TRUE: Grant Access ✅
-3. If DB Check = FALSE: Check Fallback hierarchy_level >= 9
-4. If Fallback = TRUE: Grant Access ✅ (Emergency Access)
-5. Otherwise: Deny Access ❌
-
-# Benefit:
-- Wenn PermissionRepository fehlschlägt: Keine Requests sind blockiert
-- Hierarchy Level bietet Safety Net für emergencies
-- Fail-Secure: Fehler = Deny (nicht Allow!)
+```sql
+SELECT DISTINCT p.permission_code
+FROM core.permissions p
+JOIN core.group_permissions gp ON p.id = gp.permission_id
+JOIN core.groups g ON gp.group_id = g.id
+JOIN core.users_groups ug ON g.id = ug.group_id
+WHERE ug.user_id = $1
+  AND ug.is_active = TRUE
+  AND g.is_active = TRUE
+  AND gp.is_active = TRUE;
 ```
+
+**Ablauf:**
+1. Benutzer Login → Gruppen-Abfrage aus DB
+2. JWT Token beinhaltet: `groups: [{id, name, slug, permissions: [...]}]`
+3. Frontend nutzt `permissions` für UI-Entscheidungen
+4. Backend validiert mit Decorator: `@require_permission('admin:system')`
+5. Permission wird nochmal aus DB gepruft (nicht aus JWT!)
+
+**Benefit:**
+- Permission ist in JWT für schnelle Frontend-Checks
+- Backend prüft trotzdem nochmal aus DB (Security)
+- Keine hardcodierten Rollen im Code
+- Admin kann Permissions zur Laufzeit ändern ohne Code-Änderung
 
 ---
 
-### 📊 Permission Status
+### 📊 GBA Permission Codes
 
-| Permission | Permission ID | Roles | Hierarchy Levels | Status |
-|-----------|--------------|-------|-----------------|--------|
-| `admin:system` | 213 | owner (11), admin (9) | 10, 9 | ✅ Active |
-| `manage:org:settings` | 214 | owner, admin, company_admin, school_admin | 10, 9, 6, 5 | ✅ Active |
-| `admin:organisations` | 215 | owner, admin, company_admin, school_admin | 10, 9, 6, 5 | ✅ Active |
-
-**Total Mappings:** 10 role-permission relationships in core.role_permissions
+| Permission Code | Resource | Action | Für Gruppen | Status |
+|---|---|---|---|---|
+| `admin:system` | admin | * | system-admin, owner | ✅ Active |
+| `manage:courses` | courses | write | teacher, admin, system-admin | ✅ Active |
+| `view:analytics` | analytics | read | teacher, student, admin | ✅ Active |
+| `moderate:content` | content | moderate | moderator, admin, system-admin | ✅ Active |
+| `manage:org:settings` | organisations | write | org-admin, system-admin | ✅ Active |
+| `manage:users` | users | write | admin, system-admin | ✅ Active |
 
 ---
 
@@ -2227,23 +2291,23 @@ Database Error? → ❌ DENY (HTTP 403 Forbidden - Fail-Secure Design)
 
 | Aspect | Implementation |
 |--------|-----------------|
-| **SQL Injection Prevention** | Parameterized Queries in PermissionRepository |
-| **Access Control** | Database-Driven (not hardcoded) |
-| **Fail-Secure** | Returns 403 on database errors (not 500) |
-| **Audit Trail** | All permission checks logged via middleware |
-| **Backward Compat** | hierarchy_level fallback for emergency access |
+| **SQL Injection Prevention** | Parameterized Queries (psycopg3 %s placeholders) |
+| **Access Control** | Vollständig Database-Driven (nicht hardcoded) |
+| **Fail-Secure** | Returns 403 Forbidden on database errors (NOT 500) |
+| **Audit Trail** | Alle Permission Checks geloggt via middleware |
+| **No Role Hardcoding** | Permission Codes vollständig in DB konfigurierbar |
 
 ---
 
 ### 📖 Detaillierte Dokumentation
 
 Für vollständige Details siehe:
-- **Sicherheit & Architektur:** [`01_Core/05_Sicherheit-Berechtigungen.md`](./05_Sicherheit-Berechtigungen.md) - Section 6.1 RBAC 2.0
-- **Implementierung:** `backend/app/infrastructure/security/permissions.py` (455 lines, Quality Gate G01-G10 passed)
-- **Tests:** `backend/tests/unit/test_permission_decorators.py` (15+ test cases)
-- **Migrations:**
-  - `backend/migrations/01_Core/080_add_rbac2_permissions.sql`
-  - `backend/migrations/01_Core/081_map_rbac2_permissions_to_roles.sql`
+- **Datenbank:** [`01_DB-Struktur.md`](./01_DB-Struktur.md) - Section: Group-Based Architecture (GBA)
+- **API Gateway:** [`03_API-Gateway.md`](./03_API-Gateway.md) - Section: GBA-Autorisierung
+- **Frontend:** [`04_Frontend-Struktur.md`](./04_Frontend-Struktur.md) - Section: GBA Router Guards
+- **Implementierung:** `backend/app/infrastructure/security/permissions.py`
+- **Tests:** `backend/tests/integration/test_gba_permissions.py`
+- **Migrations:** `backend/migrations/01_Core/0XX_gba_tables.sql`
 
 ---
 
@@ -2321,7 +2385,7 @@ Für vollständige Details siehe:
 ├── /settings/           # ⚙️ ALLE Settings konsolidiert
 │   ├── /ai/             # 14 AI configuration endpoints
 │   ├── /system/         # System settings & monitoring
-│   ├── /permissions/    # Roles & permission thresholds
+│   ├── /groups/         # Group Management (GBA)
 │   └── /feature_flags/  # Feature flag management
 │
 ├── /audit_logs/         # 📋 Top-Level (eigenes Sidebar-Item)
@@ -2342,8 +2406,8 @@ Für vollständige Details siehe:
 |-----------|-----------|--------|
 | `/api/v1/admin-panel/ai/*` | `/api/v1/admin-panel/settings/ai/*` | ✅ Migrated (14 endpoints) |
 | `/api/v1/admin-panel/system/*` | `/api/v1/admin-panel/settings/system/*` | ✅ Migrated (3 endpoints) |
-| `/api/v1/admin-panel/roles` | `/api/v1/admin-panel/settings/permissions/roles` | ✅ Migrated |
-| `/api/v1/admin-panel/permissions` | `/api/v1/admin-panel/settings/permissions` | ✅ Migrated |
+| `/api/v1/admin-panel/roles` | `/api/v1/admin-panel/settings/groups` | ✅ Migrated (GBA) |
+| `/api/v1/admin-panel/permissions` | `/api/v1/admin-panel/settings/groups/:id/permissions` | ✅ Migrated (GBA) |
 
 **Keine Breaking Changes:**
 - Alle Blueprint `url_prefix` aktualisiert

@@ -277,7 +277,6 @@ def login():
         # Add role field for backwards compatibility with UserResponse model
         # Map group to frontend-compatible role value (e.g., "system-admin" -> "Admin")
         user['role'] = frontend_role
-        user['hierarchy_level'] = 1  # Default hierarchy level (can be enhanced later)
 
         user_response = UserResponse(**user)
         token_response = TokenResponse(
@@ -333,10 +332,51 @@ def refresh():
         if not user or not user.get('is_active', True):
             return error_response(ErrorCode.USER_NOT_FOUND, 401)
 
-        # Create new access token with additional claims (RBAC 2.0)
+        # Query user's active groups (Group-Based RBAC 3.0)
+        # Consistent with login endpoint for token refresh
+        user_groups_result = execute_query(
+            """
+            SELECT
+                g.id,
+                g.name,
+                g.slug,
+                g.group_type,
+                g.frontend_role,
+                ug.member_role,
+                ug.joined_at
+            FROM core.users_groups ug
+            JOIN core.groups g ON ug.group_id = g.id
+            WHERE ug.user_id = %s
+                AND ug.is_active = TRUE
+                AND ug.left_at IS NULL
+            ORDER BY ug.joined_at ASC
+            """,
+            (user_id,),
+            fetch=True
+        )
+        user_groups = user_groups_result if user_groups_result else []
+
+        # Query user's effective permissions using SQL function
+        user_permissions_result = execute_query(
+            "SELECT * FROM get_user_effective_permissions(%s)",
+            (user_id,),
+            fetch=True
+        )
+        permission_codes = [p['permission_code'] for p in user_permissions_result] if user_permissions_result else []
+
+        # Create new access token with GBA claims (Group-Based RBAC 3.0)
+        # Consistent with login endpoint
         additional_claims = {
-            'role': user.get('role', 'user'),
-            'hierarchy_level': user.get('hierarchy_level', 1)
+            'groups': [
+                {
+                    'id': str(g['id']),
+                    'name': g['name'],
+                    'slug': g['slug'],
+                    'type': g['group_type'],
+                    'member_role': g['member_role']
+                } for g in user_groups
+            ],
+            'permissions': permission_codes
         }
         access_token = create_access_token(
             identity=user_id,

@@ -2226,16 +2226,16 @@ Neue Pydantic-Models:
 - `OrgTopCourseAnalytics`, `OrgTopModuleAnalytics`
 - Response-Models: `TopCoursesResponse`, `TopMethodsResponse`, etc.
 
-### Security & RBAC
+### Security & GBA (Group-Based Architecture)
 
-**Permissions:**
-- System-Admin: `Permissions.VIEW_SYSTEM_ANALYTICS`
-- Org-Admin: `Permissions.VIEW_ORG_ANALYTICS`
+**Permission Codes:**
+- System-Admin: `view:analytics` Permission (Groups: system-admin, owner)
+- Org-Admin: `manage:org:settings` Permission (Groups: org-admin, system-admin)
 
 **Decorators:**
-- `@token_required`
-- `@require_permission(Permissions.VIEW_SYSTEM_ANALYTICS)`
-- Multi-Tenancy Check via `check_org_access(user, org_id)`
+- `@token_required` - Requires valid JWT
+- `@require_permission('view:analytics')` - Requires view:analytics permission
+- `@require_org_member()` - Multi-Tenancy Check (Organization Membership)
 
 ### Performance
 
@@ -2253,7 +2253,7 @@ Neue Pydantic-Models:
 
 ✅ **8 neue Analytics-Endpoints** (4 System, 4 Org)
 ✅ **Frontend F8 kompatibel** (AdminAnalyticsPage, OrgAnalyticsPage)
-✅ **RBAC-gesichert** mit Permissions & Multi-Tenancy
+✅ **GBA-gesichert** mit Group-Based Permissions & Multi-Tenancy
 ✅ **Performant** mit optimierten Queries & Caching
 ✅ **Voll dokumentiert** (API-Docs + Technische Docs)
 

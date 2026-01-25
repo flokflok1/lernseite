@@ -110,7 +110,7 @@ def admin_create_exam(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/exams/generate', methods=['POST'])
-@require_permission(Permissions.ADMIN_AI_JOBS_WRITE)
+@permission_required('admin.ai-jobs:write')
 def admin_generate_exam(course_id: str):
     """Generate exam using AI."""
     try:

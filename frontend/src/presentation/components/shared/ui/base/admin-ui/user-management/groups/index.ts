@@ -1,11 +1,12 @@
 /**
- * Roles Management Components (RBAC 2.0)
- * ========================================
- * Barrel export for all roles-related components.
+ * Groups Management Components (GBA - Group-Based Access Control)
+ * ================================================================
+ * Barrel export for all groups-related components.
+ * Migrated from RBAC 2.0 in Phase 3.2 (Component Renaming).
  */
 
-export { default as RoleCard } from '../../../../../../base/admin-ui/user-management/groups/RoleCard.vue'
-export { default as RoleList } from '../../../../../../base/admin-ui/user-management/groups/RoleList.vue'
-export { default as RoleForm } from '../../../../../../base/admin-ui/user-management/groups/RoleForm.vue'
+export { default as GroupCard } from '../../../../../../base/admin-ui/user-management/groups/GroupCard.vue'
+export { default as GroupList } from '../../../../../../base/admin-ui/user-management/groups/GroupList.vue'
+export { default as GroupForm } from '../../../../../../base/admin-ui/user-management/groups/GroupForm.vue'
 export { default as PermissionMatrix } from '../../../../../../base/admin-ui/user-management/groups/PermissionMatrix.vue'
-export { default as RoleTemplateSelector } from '../../../../../../base/admin-ui/user-management/groups/RoleTemplateSelector.vue'
+export { default as GroupTemplateSelector } from '../../../../../../base/admin-ui/user-management/groups/GroupTemplateSelector.vue'

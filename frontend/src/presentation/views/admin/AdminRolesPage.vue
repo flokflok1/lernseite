@@ -56,7 +56,7 @@
     </div>
 
     <!-- Roles List -->
-    <RoleList
+    <GroupList
       :roles="rolesStore.roles"
       :loading="rolesStore.loading"
       @view-details="handleViewDetails"
@@ -78,7 +78,7 @@
             {{ currentRole ? $t('admin.roles.edit') : $t('admin.roles.create') }}
           </h2>
 
-          <RoleForm
+          <GroupForm
             :role="currentRole"
             :available-features="systemFeatures"
             :available-permissions="availablePermissions"
@@ -117,7 +117,7 @@
     >
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full my-8">
         <div class="p-6">
-          <RoleTemplateSelector
+          <GroupTemplateSelector
             :templates="rolesStore.templates"
             :available-features="systemFeatures"
             :loading="rolesStore.loading"
@@ -208,7 +208,7 @@ import { useI18n } from 'vue-i18n'
 import { useRolesStore } from '@/application/stores/modules/admin/roles.store'
 import { getSystemFeatures, getPermissions } from '@/application/services/api/admin'
 import type { RoleWithStats, SystemFeature, Permission, CreateRoleRequest, CreateFromTemplateRequest } from '@/application/services/api/admin'
-import { RoleList, RoleForm, PermissionMatrix, RoleTemplateSelector } from '@/presentation/components/base/admin-ui/user-management/groups'
+import { GroupList, GroupForm, PermissionMatrix, GroupTemplateSelector } from '@/presentation/components/base/admin-ui/user-management/groups'
 
 const { t } = useI18n()
 const rolesStore = useRolesStore()

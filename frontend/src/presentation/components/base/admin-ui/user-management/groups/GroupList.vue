@@ -138,7 +138,7 @@
       v-else
       class="roles-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
     >
-      <RoleCard
+      <GroupCard
         v-for="role in filteredRoles"
         :key="role.role_id"
         :role="role"
@@ -156,7 +156,7 @@
 import { ref, computed } from 'vue'
 import { defineProps, defineEmits } from 'vue'
 import type { RoleWithStats } from '@/application/services/api/admin'
-import RoleCard from './RoleCard.vue'
+import GroupCard from './GroupCard.vue'
 
 const props = defineProps<{
   roles: RoleWithStats[]

@@ -50,7 +50,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminUsersContent from '@/presentation/components/admin/panels/users/AdminUsersContent.vue'
-import AdminGroupsContent from '@/presentation/components/admin/panels/groups/roles-legacy/AdminGroupsContent.vue'
+import AdminGroupsContent from '@/presentation/components/admin/panels/groups/roles-legacy/roles/AdminGroupsContent.vue'
 
 const { t } = useI18n()
 

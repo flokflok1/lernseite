@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AdminUsersContent from '@/presentation/components/admin/panels/users/AdminUsersContent.vue'
-import AdminGroupsContent from '@/presentation/components/admin/panels/groups/roles-legacy/AdminGroupsContent.vue'
+import AdminGroupsContent from '@/presentation/components/admin/panels/groups/roles-legacy/roles/AdminGroupsContent.vue'
 
 /**
  * Admin User & Group Management Window

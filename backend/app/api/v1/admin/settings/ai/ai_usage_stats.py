@@ -19,8 +19,7 @@ import logging
 from typing import Dict, Any, Tuple
 
 from app.api.v1 import api_v1
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai.usage import AIUsageRepository
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
@@ -29,8 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_v1.route('/admin/ai/usage-stats', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_ai_usage_stats() -> Tuple[Dict[str, Any], int]:
     """
     Get system-wide AI usage statistics.

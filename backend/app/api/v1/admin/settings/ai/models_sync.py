@@ -22,8 +22,7 @@ import logging
 import uuid
 import time
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
 from app.application.services.audit_service import AuditService
@@ -49,8 +48,7 @@ models_sync_bp = Blueprint(
 
 
 @models_sync_bp.route('/sync/<int:provider_id>', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def sync_models_from_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Synchronize models from AI provider.

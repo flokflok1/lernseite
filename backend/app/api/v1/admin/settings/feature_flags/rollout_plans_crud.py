@@ -20,8 +20,7 @@ from flask import Blueprint, request, jsonify, g
 from typing import Dict, Any, Tuple, Optional
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.feature_configuration import (
     FeatureConfigurationRepository
 )
@@ -41,8 +40,7 @@ rollout_plans_crud_bp = Blueprint(
 
 
 @rollout_plans_crud_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def list_rollout_plans() -> Tuple[Dict[str, Any], int]:
     """
     List all rollout plans with pagination and filtering.
@@ -107,8 +105,7 @@ def list_rollout_plans() -> Tuple[Dict[str, Any], int]:
 
 
 @rollout_plans_crud_bp.route('/<plan_id>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_rollout_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Get single rollout plan by ID.
@@ -156,8 +153,7 @@ def get_rollout_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @rollout_plans_crud_bp.route('', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def create_rollout_plan() -> Tuple[Dict[str, Any], int]:
     """
     Create new rollout plan for feature.
@@ -228,8 +224,7 @@ def create_rollout_plan() -> Tuple[Dict[str, Any], int]:
 
 
 @rollout_plans_crud_bp.route('/<plan_id>', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def update_rollout_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Update existing rollout plan.
@@ -301,8 +296,7 @@ def update_rollout_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @rollout_plans_crud_bp.route('/<plan_id>', methods=['DELETE'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def delete_rollout_plan(plan_id: str) -> Tuple[str, int]:
     """
     Delete rollout plan.

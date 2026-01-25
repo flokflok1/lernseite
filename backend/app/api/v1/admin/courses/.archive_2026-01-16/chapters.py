@@ -18,12 +18,11 @@ from app.api.v1 import api_v1
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.application.services.audit_service import AuditService
-from app.api.middleware.auth import get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import get_current_user, permission_required
 
 
 @api_v1.route('/admin/courses/<course_id>/chapters', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_list_course_chapters(course_id: str):
     """List all chapters for a course."""
     try:
@@ -41,7 +40,7 @@ def admin_list_course_chapters(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/chapters', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_create_chapter(course_id: str):
     """Create a new chapter for a course."""
     try:
@@ -88,7 +87,7 @@ def admin_create_chapter(course_id: str):
 
 
 @api_v1.route('/admin/chapters/<chapter_id>', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_update_chapter(chapter_id: str):
     """Update a chapter."""
     try:
@@ -122,7 +121,7 @@ def admin_update_chapter(chapter_id: str):
 
 
 @api_v1.route('/admin/chapters/<chapter_id>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_COURSE_DELETE)
+@permission_required('content.courses:delete')
 def admin_delete_chapter(chapter_id: str):
     """Delete a chapter."""
     try:
@@ -157,7 +156,7 @@ def admin_delete_chapter(chapter_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/chapters/reorder', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_reorder_chapters(course_id: str):
     """Reorder chapters in a course."""
     try:

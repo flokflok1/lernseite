@@ -17,8 +17,7 @@ from datetime import datetime
 import logging
 import uuid
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
@@ -41,8 +40,7 @@ models_defaults_bp = Blueprint(
 
 
 @models_defaults_bp.route('/<int:model_id>/default', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def set_default_model(model_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Set model as default for its category.
@@ -110,8 +108,7 @@ def set_default_model(model_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @models_defaults_bp.route('/<int:model_id>/active', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def toggle_model_active(model_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Toggle model active status.
@@ -159,8 +156,7 @@ def toggle_model_active(model_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @models_defaults_bp.route('/default/<category>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_default_model_for_category(category: str) -> Tuple[Dict[str, Any], int]:
     """
     Get default model for a category.

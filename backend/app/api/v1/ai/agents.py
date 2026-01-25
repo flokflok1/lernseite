@@ -27,7 +27,7 @@ from app.domain.models.agent import (
 from app.application.services.agent import AgentService
 from app.infrastructure.persistence.repositories.agent import AgentRepository
 from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD as CourseRepository
-from app.api.middleware.auth import token_required, role_required, get_current_user
+from app.api.middleware.auth import token_required, permission_required, get_current_user
 
 agents_bp = Blueprint('agents', __name__, url_prefix='/agents')
 
@@ -223,7 +223,7 @@ def get_agent_config(course_id: str):
 
 
 @agents_bp.route('/<course_id>/config', methods=['PUT'])
-@role_required('creator', 'teacher', 'school_admin', 'company_admin', 'admin', 'superadmin')
+@permission_required('content.courses:write')
 def update_agent_config(course_id: str):
     """
     Update agent configuration
@@ -282,7 +282,7 @@ def update_agent_config(course_id: str):
 # =============================================================================
 
 @agents_bp.route('/admin/all', methods=['GET'])
-@role_required('admin', 'superadmin')
+@permission_required('admin.system:read')
 def list_all_agents():
     """
     List all agents with statistics (admin only)
@@ -320,7 +320,7 @@ def list_all_agents():
 
 
 @agents_bp.route('/admin/<agent_id>/stats', methods=['GET'])
-@role_required('admin', 'superadmin')
+@permission_required('admin.system:read')
 def get_agent_stats(agent_id: str):
     """
     Get detailed agent statistics (admin only)

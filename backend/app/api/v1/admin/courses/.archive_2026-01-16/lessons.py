@@ -19,7 +19,7 @@ from app.infrastructure.persistence.repositories.courses.chapters import Chapter
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.application.services.audit_service import AuditService
 from app.api.middleware.auth import get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 
 
 @api_v1.route('/admin/chapters/<chapter_id>/lessons', methods=['GET'])

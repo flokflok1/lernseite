@@ -22,8 +22,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 from typing import Tuple, Optional, List
 
-from app.api.middleware.auth import token_required, get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, get_current_user, permission_required
 from app.domain.models.analytics import (
     TimeSeriesResponse,
     TimeSeriesDataPoint,
@@ -198,8 +197,7 @@ def get_organisation_stats(org_id: int):
 # =============================================================================
 
 @org_analytics_bp.route('/<int:org_id>/analytics/top-courses', methods=['GET'])
-@token_required
-@require_permission(Permissions.VIEW_ORG_ANALYTICS)
+@permission_required('org.analytics:read')
 def org_get_top_courses(org_id: int):
     """
     Get top courses for organisation.
@@ -306,8 +304,7 @@ def org_get_top_courses(org_id: int):
 
 
 @org_analytics_bp.route('/<int:org_id>/analytics/top-modules', methods=['GET'])
-@token_required
-@require_permission(Permissions.VIEW_ORG_ANALYTICS)
+@permission_required('org.analytics:read')
 def org_get_top_modules(org_id: int):
     """
     Get top modules for organisation.
@@ -416,8 +413,7 @@ def org_get_top_modules(org_id: int):
 # =============================================================================
 
 @org_analytics_bp.route('/<int:org_id>/analytics/events/time-series', methods=['GET'])
-@token_required
-@require_permission(Permissions.VIEW_ORG_ANALYTICS)
+@permission_required('org.analytics:read')
 def org_get_events_time_series(org_id: int):
     """
     Get organisation events time series.
@@ -512,8 +508,7 @@ def org_get_events_time_series(org_id: int):
 
 
 @org_analytics_bp.route('/<int:org_id>/analytics/active-members/time-series', methods=['GET'])
-@token_required
-@require_permission(Permissions.VIEW_ORG_ANALYTICS)
+@permission_required('org.analytics:read')
 def org_get_active_members_time_series(org_id: int):
     """
     Get organisation active members time series.

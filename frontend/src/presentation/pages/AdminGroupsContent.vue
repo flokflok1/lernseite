@@ -186,13 +186,13 @@
  */
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRolesStore } from '@/application/stores/modules/admin/roles.store'
+import { useGroupsStore } from '@/application/stores/modules/admin/groups.store'
 import { getSystemFeatures, getPermissions } from '@/application/services/api/admin'
 import type { RoleWithStats, SystemFeature, Permission, CreateRoleRequest, CreateFromTemplateRequest } from '@/application/services/api/admin'
 import { GroupList, GroupForm, PermissionMatrix, GroupTemplateSelector } from '@/presentation/components/base/admin-ui/user-management/groups'
 
 const { t } = useI18n()
-const rolesStore = useRolesStore()
+const rolesStore = useGroupsStore()
 
 // Local state
 const showFormModal = ref(false)

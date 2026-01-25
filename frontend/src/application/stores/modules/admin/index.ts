@@ -5,4 +5,7 @@
  */
 
 export * from './admin.store'
-export { useRolesStore } from './roles.store'
+export { useGroupsStore } from './groups.store'
+
+// Deprecated: Use useGroupsStore instead
+export { useGroupsStore as useRolesStore } from './groups.store'

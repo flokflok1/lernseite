@@ -1,7 +1,7 @@
 /**
- * Roles Management Store (RBAC 2.0)
- * ==================================
- * Pinia store for Owner-Admin roles management with custom roles and feature assignments.
+ * Groups Management Store (GBA)
+ * =============================
+ * Pinia store for Owner-Admin group management with custom groups and feature assignments.
  */
 
 import { defineStore } from 'pinia'
@@ -29,7 +29,7 @@ import {
   getSystemFeatures
 } from '@/application/services/api/admin'
 
-export const useRolesStore = defineStore('roles', () => {
+export const useGroupsStore = defineStore('groups', () => {
   // =============================================================================
   // State
   // =============================================================================
@@ -58,7 +58,7 @@ export const useRolesStore = defineStore('roles', () => {
   // =============================================================================
 
   /**
-   * Fetch all roles with optional filtering
+   * Fetch all groups with optional filtering
    */
   async function fetchRoles(params?: {
     is_custom?: boolean
@@ -76,7 +76,7 @@ export const useRolesStore = defineStore('roles', () => {
       roles.value = response.roles
       return response.roles
     } catch (err: any) {
-      error.value = err.response?.data?.error?.message || 'Failed to fetch roles'
+      error.value = err.response?.data?.error?.message || 'Failed to fetch groups'
       throw err
     } finally {
       loading.value = false
@@ -84,7 +84,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Fetch single role with details
+   * Fetch single group with details
    */
   async function fetchRole(roleId: number) {
     loading.value = true
@@ -95,7 +95,7 @@ export const useRolesStore = defineStore('roles', () => {
       selectedRole.value = role
       return role
     } catch (err: any) {
-      error.value = err.response?.data?.error?.message || 'Failed to fetch role'
+      error.value = err.response?.data?.error?.message || 'Failed to fetch group'
       throw err
     } finally {
       loading.value = false
@@ -103,7 +103,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Create custom role
+   * Create custom group
    */
   async function createRole(data: CreateRoleRequest) {
     loading.value = true
@@ -114,7 +114,7 @@ export const useRolesStore = defineStore('roles', () => {
       roles.value.push(newRole)
       return newRole
     } catch (err: any) {
-      error.value = err.response?.data?.error?.message || 'Failed to create role'
+      error.value = err.response?.data?.error?.message || 'Failed to create group'
       throw err
     } finally {
       loading.value = false
@@ -122,7 +122,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Update existing role
+   * Update existing group
    */
   async function updateRole(roleId: number, data: UpdateRoleRequest) {
     loading.value = true
@@ -139,7 +139,7 @@ export const useRolesStore = defineStore('roles', () => {
       }
       return updatedRole
     } catch (err: any) {
-      error.value = err.response?.data?.error?.message || 'Failed to update role'
+      error.value = err.response?.data?.error?.message || 'Failed to update group'
       throw err
     } finally {
       loading.value = false
@@ -147,7 +147,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Delete custom role with user reassignment
+   * Delete custom group with user reassignment
    */
   async function deleteRole(roleId: number, reassignTo?: number) {
     loading.value = true
@@ -161,7 +161,7 @@ export const useRolesStore = defineStore('roles', () => {
       }
       return result
     } catch (err: any) {
-      error.value = err.response?.data?.error?.message || 'Failed to delete role'
+      error.value = err.response?.data?.error?.message || 'Failed to delete group'
       throw err
     } finally {
       loading.value = false
@@ -169,7 +169,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Assign system features to role
+   * Assign system features to group
    */
   async function assignFeatures(roleId: number, data: AssignFeaturesRequest) {
     loading.value = true
@@ -177,7 +177,7 @@ export const useRolesStore = defineStore('roles', () => {
 
     try {
       const result = await assignRoleFeatures(roleId, data)
-      // Refresh role to get updated feature count
+      // Refresh group to get updated feature count
       await fetchRole(roleId)
       return result
     } catch (err: any) {
@@ -189,7 +189,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Assign permissions to role
+   * Assign permissions to group
    */
   async function assignPermissions(roleId: number, data: AssignPermissionsRequest) {
     loading.value = true
@@ -197,7 +197,7 @@ export const useRolesStore = defineStore('roles', () => {
 
     try {
       const result = await assignRolePermissionsV2(roleId, data)
-      // Refresh role to get updated permission count
+      // Refresh group to get updated permission count
       await fetchRole(roleId)
       return result
     } catch (err: any) {
@@ -209,7 +209,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Fetch role templates
+   * Fetch group templates
    */
   async function fetchTemplates() {
     loading.value = true
@@ -228,7 +228,7 @@ export const useRolesStore = defineStore('roles', () => {
   }
 
   /**
-   * Create role from template
+   * Create group from template
    */
   async function createFromTemplate(data: CreateFromTemplateRequest) {
     loading.value = true
@@ -239,7 +239,7 @@ export const useRolesStore = defineStore('roles', () => {
       roles.value.push(newRole)
       return newRole
     } catch (err: any) {
-      error.value = err.response?.data?.error?.message || 'Failed to create role from template'
+      error.value = err.response?.data?.error?.message || 'Failed to create group from template'
       throw err
     } finally {
       loading.value = false

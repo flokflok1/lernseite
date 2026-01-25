@@ -25,8 +25,7 @@ from datetime import datetime
 import logging
 import uuid
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai.profiles import AiModelProfilesRepository as AIProfileRepository
 from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
@@ -54,8 +53,7 @@ VALID_PROFILE_TYPES = {'global', 'organisation', 'user'}
 
 
 @profiles_crud_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def list_profiles() -> Tuple[Dict[str, Any], int]:
     """
     List all AI profiles.
@@ -87,8 +85,7 @@ def list_profiles() -> Tuple[Dict[str, Any], int]:
 
 
 @profiles_crud_bp.route('/<profile_id>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Get AI profile by ID.
@@ -116,8 +113,7 @@ def get_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @profiles_crud_bp.route('', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def create_profile() -> Tuple[Dict[str, Any], int]:
     """
     Create a new AI profile.
@@ -206,8 +202,7 @@ def create_profile() -> Tuple[Dict[str, Any], int]:
 
 
 @profiles_crud_bp.route('/<profile_id>', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def update_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Update AI profile.
@@ -275,8 +270,7 @@ def update_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @profiles_crud_bp.route('/<profile_id>', methods=['DELETE'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def delete_profile(profile_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Delete AI profile.

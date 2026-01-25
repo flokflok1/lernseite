@@ -23,14 +23,14 @@ from app.api.middleware.auth import get_current_user
 from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository
-from app.infrastructure.security.permissions import Permissions, require_permission
+from app.api.middleware.auth import permission_required
 from app.application.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
 
 
 @api_v1.route('/admin/courses/<course_id>/publishing/approve', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_approve_course(course_id: str):
     """
     Approve course for publishing.
@@ -158,7 +158,7 @@ def admin_approve_course(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/publishing/reject', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_reject_course(course_id: str):
     """
     Reject course submission.

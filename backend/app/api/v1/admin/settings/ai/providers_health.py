@@ -16,8 +16,7 @@ from typing import Dict, Any, Tuple
 from datetime import datetime, timedelta
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
@@ -35,8 +34,7 @@ providers_health_bp = Blueprint(
 
 
 @providers_health_bp.route('/<int:provider_id>/health', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_provider_health(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Get current health status for a provider.
@@ -99,8 +97,7 @@ def get_provider_health(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @providers_health_bp.route('/<int:provider_id>/health/history', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_provider_health_history(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Get health check history for a provider.
@@ -174,8 +171,7 @@ def get_provider_health_history(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @providers_health_bp.route('/health', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_all_providers_health() -> Tuple[Dict[str, Any], int]:
     """
     Get health overview for all providers.

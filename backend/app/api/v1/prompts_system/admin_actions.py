@@ -10,8 +10,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.core.bootstrap.extensions import limiter
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.prompts.templates import PromptTemplateRepository
 
 from app.api.v1.prompts_system.blueprints import prompts_actions_bp
@@ -20,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @prompts_actions_bp.route('/<template_id>/duplicate', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("30 per minute")
 def duplicate_prompt_template(template_id: str) -> Tuple[Dict[str, Any], int]:
     """
@@ -64,8 +62,7 @@ def duplicate_prompt_template(template_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @prompts_actions_bp.route('/<template_id>/set-default', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("30 per minute")
 def set_default_prompt_template(template_id: str) -> Tuple[Dict[str, Any], int]:
     """

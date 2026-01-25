@@ -19,7 +19,7 @@ from flask import jsonify, request
 from app.api.v1 import api_v1
 from app.infrastructure.persistence.database import get_connection
 from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
-from app.infrastructure.security.permissions import Permissions, require_permission
+from app.api.middleware.auth import permission_required
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ VALID_VISIBILITIES = ['private', 'community', 'public']
 
 
 @api_v1.route('/admin/publishing/queue', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_get_review_queue():
     """
     Get submitted courses awaiting review (moderation queue).
@@ -72,7 +72,7 @@ def admin_get_review_queue():
 
 
 @api_v1.route('/admin/publishing/published', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_get_published_courses():
     """
     Get published courses in community.

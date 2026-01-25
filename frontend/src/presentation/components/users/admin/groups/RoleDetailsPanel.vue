@@ -35,7 +35,7 @@
     <!-- Permissions Section -->
     <div class="mb-6">
       <div class="flex justify-between items-center mb-3">
-        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $t('admin.roles.permissions') }}</h3>
+        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $t('admin.groups.permissions') }}</h3>
         <div v-if="!editingPermissions">
           <Button size="sm" variant="secondary" @click="startEditing">
             {{ $t('common.edit') }}
@@ -59,7 +59,7 @@
           {{ perm.display_name }}
         </span>
         <span v-if="!role.permissions?.length" class="text-gray-500 text-sm">
-          {{ $t('admin.roles.noPermissions') }}
+          {{ $t('admin.groups.noPermissions') }}
         </span>
       </div>
 
@@ -91,7 +91,7 @@
     <!-- Users Section -->
     <div>
       <h3 class="font-semibold text-gray-900 dark:text-white mb-3">
-        {{ $t('admin.roles.usersWithRole', { count: users.length }) }}
+        {{ $t('admin.groups.usersWithRole', { count: users.length }) }}
       </h3>
       <div class="space-y-2 max-h-48 overflow-y-auto">
         <div
@@ -120,7 +120,7 @@
           </span>
         </div>
         <p v-if="users.length === 0" class="text-gray-500 text-sm p-2">
-          {{ $t('admin.roles.noUsersWithRole') }}
+          {{ $t('admin.groups.noUsersWithRole') }}
         </p>
       </div>
     </div>
@@ -133,7 +133,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
       </svg>
     </div>
-    <p class="text-gray-500">{{ $t('admin.roles.selectRoleHint') }}</p>
+    <p class="text-gray-500">{{ $t('admin.groups.selectRoleHint') }}</p>
   </Card>
 </template>
 

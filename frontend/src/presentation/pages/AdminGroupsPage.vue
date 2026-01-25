@@ -5,14 +5,14 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {{ $t('admin.roles.title') }}
+            {{ $t('admin.groups.title') }}
           </h1>
           <p class="text-gray-600 dark:text-gray-400">
-            {{ $t('admin.roles.subtitle') }}
+            {{ $t('admin.groups.subtitle') }}
           </p>
           <div class="mt-2 flex items-center space-x-2 text-sm text-purple-600 dark:text-purple-400">
             <span class="inline-block px-2 py-1 bg-purple-100 dark:bg-purple-900 rounded">
-              👑 {{ $t('admin.roles.ownerOnly') }}
+              👑 {{ $t('admin.groups.ownerOnly') }}
             </span>
           </div>
         </div>
@@ -24,7 +24,7 @@
             class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center space-x-2"
           >
             <span>📋</span>
-            <span>{{ $t('admin.roles.templates.title') }}</span>
+            <span>{{ $t('admin.groups.templates.title') }}</span>
           </button>
 
           <button
@@ -32,7 +32,7 @@
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2"
           >
             <span>➕</span>
-            <span>{{ $t('admin.roles.createCustom') }}</span>
+            <span>{{ $t('admin.groups.createCustom') }}</span>
           </button>
         </div>
       </div>
@@ -75,7 +75,7 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full my-8">
         <div class="p-6">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            {{ currentRole ? $t('admin.roles.edit') : $t('admin.roles.create') }}
+            {{ currentRole ? $t('admin.groups.edit') : $t('admin.groups.create') }}
           </h2>
 
           <GroupForm
@@ -135,29 +135,29 @@
     >
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          {{ $t('admin.roles.delete') }}
+          {{ $t('admin.groups.delete') }}
         </h3>
 
         <p class="text-gray-600 dark:text-gray-400 mb-4">
-          {{ $t('admin.roles.deleteWarning') }}
+          {{ $t('admin.groups.deleteWarning') }}
         </p>
 
         <div v-if="roleToDelete && roleToDelete.user_count && roleToDelete.user_count > 0" class="mb-4">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('admin.roles.reassignTo') }} *
+            {{ $t('admin.groups.reassignTo') }} *
           </label>
           <select
             v-model="reassignToRoleId"
             required
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">{{ $t('admin.roles.selectTargetRole') }}</option>
+            <option value="">{{ $t('admin.groups.selectTargetRole') }}</option>
             <option
               v-for="role in rolesStore.roles.filter((r) => r.role_id !== roleToDelete?.role_id)"
               :key="role.role_id"
               :value="role.role_id"
             >
-              {{ role.display_name }} ({{ role.user_count || 0 }} {{ $t('admin.roles.userCount') }})
+              {{ role.display_name }} ({{ role.user_count || 0 }} {{ $t('admin.groups.userCount') }})
             </option>
           </select>
         </div>
@@ -175,7 +175,7 @@
             :disabled="roleToDelete && roleToDelete.user_count && roleToDelete.user_count > 0 && !reassignToRoleId"
             class="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {{ $t('admin.roles.delete') }}
+            {{ $t('admin.groups.delete') }}
           </button>
         </div>
       </div>

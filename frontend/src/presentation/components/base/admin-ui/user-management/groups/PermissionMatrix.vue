@@ -3,13 +3,13 @@
     <!-- Header -->
     <div class="mb-6">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        {{ mode === 'features' ? $t('admin.roles.features.title') : $t('admin.roles.permissions.title') }}
+        {{ mode === 'features' ? $t('admin.groups.features.title') : $t('admin.groups.permissions.title') }}
       </h2>
       <p class="text-gray-600 dark:text-gray-400">
-        {{ mode === 'features' ? $t('admin.roles.features.subtitle') : $t('admin.roles.permissions.subtitle') }}
+        {{ mode === 'features' ? $t('admin.groups.features.subtitle') : $t('admin.groups.permissions.subtitle') }}
       </p>
       <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        {{ $t('admin.roles.roleName') }}: <span class="font-semibold">{{ role.display_name }}</span>
+        {{ $t('admin.groups.roleName') }}: <span class="font-semibold">{{ role.display_name }}</span>
       </div>
     </div>
 
@@ -24,7 +24,7 @@
             : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
         ]"
       >
-        🎯 {{ $t('admin.roles.features.title') }}
+        🎯 {{ $t('admin.groups.features.title') }}
         <span class="ml-2 px-2 py-1 rounded bg-white bg-opacity-20 text-xs">
           {{ selectedFeatures.length }}
         </span>
@@ -39,7 +39,7 @@
             : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
         ]"
       >
-        🔐 {{ $t('admin.roles.permissions.title') }}
+        🔐 {{ $t('admin.groups.permissions.title') }}
         <span class="ml-2 px-2 py-1 rounded bg-white bg-opacity-20 text-xs">
           {{ selectedPermissions.length }}
         </span>
@@ -51,10 +51,10 @@
       <label class="flex items-center justify-between cursor-pointer">
         <div>
           <div class="font-medium text-gray-900 dark:text-white">
-            {{ replaceMode ? $t('admin.roles.form.replaceMode') : $t('admin.roles.form.addMode') }}
+            {{ replaceMode ? $t('admin.groups.form.replaceMode') : $t('admin.groups.form.addMode') }}
           </div>
           <div class="text-sm text-gray-500 dark:text-gray-400">
-            {{ replaceMode ? $t('admin.roles.form.replaceModeHint') : $t('admin.roles.form.addModeHint') }}
+            {{ replaceMode ? $t('admin.groups.form.replaceModeHint') : $t('admin.groups.form.addModeHint') }}
           </div>
         </div>
         <div class="relative">
@@ -78,21 +78,21 @@
         <!-- Category Header -->
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ $t(`admin.roles.features.categories.${category}`) }}
+            {{ $t(`admin.groups.features.categories.${category}`) }}
           </h3>
           <div class="flex gap-2">
             <button
               @click="selectAllInCategory(category, true)"
               class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              {{ $t('admin.roles.features.selectAll') }}
+              {{ $t('admin.groups.features.selectAll') }}
             </button>
             <span class="text-gray-400">|</span>
             <button
               @click="selectAllInCategory(category, false)"
               class="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
             >
-              {{ $t('admin.roles.features.deselectAll') }}
+              {{ $t('admin.groups.features.deselectAll') }}
             </button>
           </div>
         </div>
@@ -140,14 +140,14 @@
               @click="selectAllPermissionsInCategory(category, true)"
               class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              {{ $t('admin.roles.permissions.selectAll') }}
+              {{ $t('admin.groups.permissions.selectAll') }}
             </button>
             <span class="text-gray-400">|</span>
             <button
               @click="selectAllPermissionsInCategory(category, false)"
               class="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
             >
-              {{ $t('admin.roles.permissions.deselectAll') }}
+              {{ $t('admin.groups.permissions.deselectAll') }}
             </button>
           </div>
         </div>
@@ -186,10 +186,10 @@
       <div class="flex justify-between items-center">
         <div class="text-sm text-gray-600 dark:text-gray-400">
           <span v-if="mode === 'features'">
-            {{ selectedFeatures.length }} / {{ availableFeatures.length }} {{ $t('admin.roles.features') }}
+            {{ selectedFeatures.length }} / {{ availableFeatures.length }} {{ $t('admin.groups.features') }}
           </span>
           <span v-else>
-            {{ selectedPermissions.length }} / {{ availablePermissions.length }} {{ $t('admin.roles.permissions') }}
+            {{ selectedPermissions.length }} / {{ availablePermissions.length }} {{ $t('admin.groups.permissions') }}
           </span>
         </div>
 
@@ -206,7 +206,7 @@
             :disabled="submitting"
             class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {{ submitting ? $t('common.saving') : (mode === 'features' ? $t('admin.roles.features.assign') : $t('admin.roles.permissions.assign')) }}
+            {{ submitting ? $t('common.saving') : (mode === 'features' ? $t('admin.groups.features.assign') : $t('admin.groups.permissions.assign')) }}
           </button>
         </div>
       </div>

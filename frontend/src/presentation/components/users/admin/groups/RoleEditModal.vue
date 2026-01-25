@@ -7,46 +7,46 @@
     >
       <Card class="w-full max-w-md p-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ mode === 'create' ? $t('admin.roles.createRole') : $t('admin.roles.editRole') }}
+          {{ mode === 'create' ? $t('admin.groups.createRole') : $t('admin.groups.editRole') }}
         </h2>
 
         <div class="space-y-4">
           <div v-if="mode === 'create'">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {{ $t('admin.roles.technicalName') }}
+              {{ $t('admin.groups.technicalName') }}
             </label>
-            <Input v-model="form.role_name" :placeholder="$t('admin.roles.technicalNamePlaceholder')" />
+            <Input v-model="form.role_name" :placeholder="$t('admin.groups.technicalNamePlaceholder')" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {{ $t('admin.roles.displayName') }}
+              {{ $t('admin.groups.displayName') }}
             </label>
-            <Input v-model="form.display_name" :placeholder="$t('admin.roles.displayNamePlaceholder')" />
+            <Input v-model="form.display_name" :placeholder="$t('admin.groups.displayNamePlaceholder')" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {{ $t('admin.roles.description') }}
+              {{ $t('admin.groups.description') }}
             </label>
             <textarea
               v-model="form.description"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               rows="2"
-              :placeholder="$t('admin.roles.descriptionPlaceholder')"
+              :placeholder="$t('admin.groups.descriptionPlaceholder')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {{ $t('admin.roles.hierarchyLevel') }}
+              {{ $t('admin.groups.hierarchyLevel') }}
             </label>
             <Input v-model.number="form.hierarchy_level" type="number" min="1" max="9" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('admin.roles.color') }}
+              {{ $t('admin.groups.color') }}
             </label>
             <div class="flex gap-2 flex-wrap">
               <button

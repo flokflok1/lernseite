@@ -3,10 +3,10 @@
     <!-- Header -->
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-        {{ $t('admin.roles.title') }}
+        {{ $t('admin.groups.title') }}
       </h1>
       <p class="text-gray-600 dark:text-gray-400 mt-1">
-        {{ $t('admin.roles.subtitle') }}
+        {{ $t('admin.groups.subtitle') }}
       </p>
     </div>
 
@@ -21,7 +21,7 @@
             : 'border-transparent text-gray-500 hover:text-gray-700'
         ]"
       >
-        {{ $t('admin.roles.tabRoles') }}
+        {{ $t('admin.groups.tabRoles') }}
       </button>
       <button
         @click="activeTab = 'permissions'"
@@ -32,7 +32,7 @@
             : 'border-transparent text-gray-500 hover:text-gray-700'
         ]"
       >
-        {{ $t('admin.roles.tabPermissions') }}
+        {{ $t('admin.groups.tabPermissions') }}
       </button>
     </div>
 

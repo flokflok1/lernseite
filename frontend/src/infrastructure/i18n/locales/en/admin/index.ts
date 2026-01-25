@@ -3,6 +3,7 @@ import ai_settings from './ai-settings.json'
 import analytics from './analytics.json'
 import course_management from './course-management.json'
 import feature_flags from './feature-flags.json'
+import groups from './groups.json'
 import organisations from './organisations.json'
 import shared from './shared.json'
 import system from './system.json'
@@ -14,6 +15,7 @@ export default {
     ...analytics,
     ...course_management,
     ...feature_flags,
+    ...groups,
     ...organisations,
     ...shared,
     ...system,

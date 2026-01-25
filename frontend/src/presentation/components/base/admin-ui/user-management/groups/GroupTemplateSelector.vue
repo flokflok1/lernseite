@@ -3,10 +3,10 @@
     <!-- Header -->
     <div class="mb-6">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        {{ $t('admin.roles.templates.title') }}
+        {{ $t('admin.groups.templates.title') }}
       </h2>
       <p class="text-gray-600 dark:text-gray-400">
-        {{ $t('admin.roles.templates.subtitle') }}
+        {{ $t('admin.groups.templates.subtitle') }}
       </p>
     </div>
 
@@ -30,10 +30,10 @@
         >
           <div class="text-5xl mb-3">{{ template.default_icon }}</div>
           <h3 class="text-xl font-bold mb-2">
-            {{ $t(`admin.roles.templates.${template.template}`) }}
+            {{ $t(`admin.groups.templates.${template.template}`) }}
           </h3>
           <p class="text-sm opacity-90">
-            {{ $t(`admin.roles.templates.${template.template}Desc`) }}
+            {{ $t(`admin.groups.templates.${template.template}Desc`) }}
           </p>
         </div>
 
@@ -42,7 +42,7 @@
           <!-- Recommended Hierarchy -->
           <div class="flex items-center justify-between mb-4 text-sm">
             <span class="text-gray-500 dark:text-gray-400">
-              {{ $t('admin.roles.hierarchyLevel') }}
+              {{ $t('admin.groups.hierarchyLevel') }}
             </span>
             <span class="font-semibold text-gray-900 dark:text-white">
               {{ template.recommended_hierarchy }}
@@ -52,7 +52,7 @@
           <!-- Default Features -->
           <div class="mb-4">
             <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('admin.roles.features') }} ({{ template.default_features.length }})
+              {{ $t('admin.groups.features') }} ({{ template.default_features.length }})
             </div>
             <div class="flex flex-wrap gap-1">
               <span
@@ -75,7 +75,7 @@
           <button
             class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
-            {{ $t('admin.roles.templates.useTemplate') }}
+            {{ $t('admin.groups.templates.useTemplate') }}
           </button>
         </div>
       </div>
@@ -95,10 +95,10 @@
               <div class="text-4xl">{{ selectedTemplate.default_icon }}</div>
               <div>
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-                  {{ $t(`admin.roles.templates.${selectedTemplate.template}`) }}
+                  {{ $t(`admin.groups.templates.${selectedTemplate.template}`) }}
                 </h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ $t('admin.roles.templates.customize') }}
+                  {{ $t('admin.groups.templates.customize') }}
                 </p>
               </div>
             </div>
@@ -116,33 +116,33 @@
           <!-- Role Name (Required) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('admin.roles.roleName') }} *
+              {{ $t('admin.groups.roleName') }} *
             </label>
             <input
               v-model="customization.role_name"
               type="text"
               required
-              :placeholder="$t('admin.roles.form.roleNamePlaceholder')"
+              :placeholder="$t('admin.groups.form.roleNamePlaceholder')"
               pattern="^[a-z][a-z0-9_]*$"
               minlength="3"
               maxlength="50"
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              {{ $t('admin.roles.form.roleNameHint') }}
+              {{ $t('admin.groups.form.roleNameHint') }}
             </p>
           </div>
 
           <!-- Display Name (Optional Override) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('admin.roles.displayName') }}
+              {{ $t('admin.groups.displayName') }}
               <span class="text-gray-400">({{ $t('common.optional') }})</span>
             </label>
             <input
               v-model="customization.display_name"
               type="text"
-              :placeholder="$t(`admin.roles.templates.${selectedTemplate.template}`)"
+              :placeholder="$t(`admin.groups.templates.${selectedTemplate.template}`)"
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -159,7 +159,7 @@
                 class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ $t('admin.roles.templates.customize') }} {{ $t('admin.roles.features') }}
+                {{ $t('admin.groups.templates.customize') }} {{ $t('admin.groups.features') }}
               </span>
             </label>
 
@@ -190,7 +190,7 @@
             </div>
 
             <p v-else class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              {{ selectedTemplate.default_features.length }} {{ $t('admin.roles.features') }} {{ $t('common.default') }}
+              {{ selectedTemplate.default_features.length }} {{ $t('admin.groups.features') }} {{ $t('common.default') }}
             </p>
           </div>
 
@@ -202,10 +202,10 @@
               <div class="text-3xl">{{ selectedTemplate.default_icon }}</div>
               <div>
                 <div class="text-lg font-semibold text-gray-900 dark:text-white">
-                  {{ customization.display_name || $t(`admin.roles.templates.${selectedTemplate.template}`) }}
+                  {{ customization.display_name || $t(`admin.groups.templates.${selectedTemplate.template}`) }}
                 </div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ customization.role_name || $t('admin.roles.form.roleNamePlaceholder') }}
+                  {{ customization.role_name || $t('admin.groups.form.roleNamePlaceholder') }}
                 </div>
               </div>
             </div>
@@ -226,7 +226,7 @@
               :disabled="!customization.role_name || submitting"
               class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {{ submitting ? $t('common.creating') : $t('admin.roles.templates.createFromTemplate') }}
+              {{ submitting ? $t('common.creating') : $t('admin.groups.templates.createFromTemplate') }}
             </button>
           </div>
         </form>

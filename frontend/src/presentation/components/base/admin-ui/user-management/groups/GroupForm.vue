@@ -3,54 +3,54 @@
     <!-- Basic Information -->
     <div class="section bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('admin.roles.form.basic') }}
+        {{ $t('admin.groups.form.basic') }}
       </h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Role Name -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('admin.roles.roleName') }} *
+            {{ $t('admin.groups.roleName') }} *
           </label>
           <input
             v-model="formData.role_name"
             type="text"
             required
             :disabled="isEditMode"
-            :placeholder="$t('admin.roles.form.roleNamePlaceholder')"
+            :placeholder="$t('admin.groups.form.roleNamePlaceholder')"
             pattern="^[a-z][a-z0-9_]*$"
             minlength="3"
             maxlength="50"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white disabled:opacity-50"
           />
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {{ $t('admin.roles.form.roleNameHint') }}
+            {{ $t('admin.groups.form.roleNameHint') }}
           </p>
         </div>
 
         <!-- Display Name -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('admin.roles.displayName') }} *
+            {{ $t('admin.groups.displayName') }} *
           </label>
           <input
             v-model="formData.display_name"
             type="text"
             required
-            :placeholder="$t('admin.roles.form.displayNamePlaceholder')"
+            :placeholder="$t('admin.groups.form.displayNamePlaceholder')"
             minlength="3"
             maxlength="100"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           />
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {{ $t('admin.roles.form.displayNameHint') }}
+            {{ $t('admin.groups.form.displayNameHint') }}
           </p>
         </div>
 
         <!-- Hierarchy Level -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('admin.roles.form.hierarchyLevelLabel') }} *
+            {{ $t('admin.groups.form.hierarchyLevelLabel') }} *
           </label>
           <input
             v-model.number="formData.hierarchy_level"
@@ -61,14 +61,14 @@
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           />
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {{ $t('admin.roles.form.hierarchyLevelHint') }}
+            {{ $t('admin.groups.form.hierarchyLevelHint') }}
           </p>
         </div>
 
         <!-- Color -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('admin.roles.color') }}
+            {{ $t('admin.groups.color') }}
           </label>
           <div class="flex gap-2">
             <input
@@ -85,41 +85,41 @@
             />
           </div>
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {{ $t('admin.roles.form.colorHint') }}
+            {{ $t('admin.groups.form.colorHint') }}
           </p>
         </div>
 
         <!-- Icon -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('admin.roles.icon') }}
+            {{ $t('admin.groups.icon') }}
           </label>
           <input
             v-model="formData.icon"
             type="text"
             maxlength="10"
-            :placeholder="$t('admin.roles.form.iconPlaceholder')"
+            :placeholder="$t('admin.groups.form.iconPlaceholder')"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           />
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {{ $t('admin.roles.form.iconHint') }}
+            {{ $t('admin.groups.form.iconHint') }}
           </p>
         </div>
 
         <!-- Description (Full Width) -->
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('admin.roles.description') }}
+            {{ $t('admin.groups.description') }}
           </label>
           <textarea
             v-model="formData.description"
             rows="3"
             maxlength="500"
-            :placeholder="$t('admin.roles.form.descriptionPlaceholder')"
+            :placeholder="$t('admin.groups.form.descriptionPlaceholder')"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none"
           ></textarea>
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {{ $t('admin.roles.form.descriptionHint') }}
+            {{ $t('admin.groups.form.descriptionHint') }}
           </p>
         </div>
       </div>
@@ -131,10 +131,10 @@
       class="section bg-white dark:bg-gray-800 rounded-lg shadow p-6"
     >
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('admin.roles.form.selectFeatures') }}
+        {{ $t('admin.groups.form.selectFeatures') }}
       </h3>
       <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-        {{ $t('admin.roles.form.featuresHint') }}
+        {{ $t('admin.groups.form.featuresHint') }}
       </p>
 
       <div class="space-y-2 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded p-4">
@@ -161,8 +161,8 @@
       </div>
 
       <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        {{ formData.feature_ids.length }} {{ $t('admin.roles.features') }}
-        {{ $t('admin.roles.features.assigned') }}
+        {{ formData.feature_ids.length }} {{ $t('admin.groups.features') }}
+        {{ $t('admin.groups.features.assigned') }}
       </div>
     </div>
 
@@ -172,10 +172,10 @@
       class="section bg-white dark:bg-gray-800 rounded-lg shadow p-6"
     >
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('admin.roles.form.selectPermissions') }}
+        {{ $t('admin.groups.form.selectPermissions') }}
       </h3>
       <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-        {{ $t('admin.roles.form.permissionsHint') }}
+        {{ $t('admin.groups.form.permissionsHint') }}
       </p>
 
       <div class="space-y-2 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded p-4">
@@ -202,8 +202,8 @@
       </div>
 
       <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        {{ formData.permission_ids.length }} {{ $t('admin.roles.permissions') }}
-        {{ $t('admin.roles.permissions.assigned') }}
+        {{ formData.permission_ids.length }} {{ $t('admin.groups.permissions') }}
+        {{ $t('admin.groups.permissions.assigned') }}
       </div>
     </div>
 
@@ -226,10 +226,10 @@
           </div>
           <div>
             <div class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ formData.display_name || $t('admin.roles.form.displayNamePlaceholder') }}
+              {{ formData.display_name || $t('admin.groups.form.displayNamePlaceholder') }}
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400">
-              {{ formData.role_name || $t('admin.roles.form.roleNamePlaceholder') }}
+              {{ formData.role_name || $t('admin.groups.form.roleNamePlaceholder') }}
             </div>
           </div>
         </div>
@@ -246,7 +246,7 @@
         @click="$emit('cancel')"
         class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       >
-        {{ $t('admin.roles.form.cancel') }}
+        {{ $t('admin.groups.form.cancel') }}
       </button>
 
       <button
@@ -254,7 +254,7 @@
         :disabled="!isValid || submitting"
         class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {{ submitting ? $t('common.saving') : (isEditMode ? $t('admin.roles.form.update') : $t('admin.roles.form.create')) }}
+        {{ submitting ? $t('common.saving') : (isEditMode ? $t('admin.groups.form.update') : $t('admin.groups.form.create')) }}
       </button>
     </div>
   </form>

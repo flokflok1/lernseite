@@ -1,13 +1,13 @@
 <template>
   <Card class="p-4">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="font-semibold text-gray-900 dark:text-white">{{ $t('admin.roles.roles') }}</h2>
-      <Button size="sm" @click="$emit('create')">+ {{ $t('admin.roles.newRole') }}</Button>
+      <h2 class="font-semibold text-gray-900 dark:text-white">{{ $t('admin.groups.roles') }}</h2>
+      <Button size="sm" @click="$emit('create')">+ {{ $t('admin.groups.newRole') }}</Button>
     </div>
 
     <!-- System Roles -->
     <div class="mb-4">
-      <h3 class="text-xs uppercase text-gray-500 font-medium mb-2">{{ $t('admin.roles.systemRoles') }}</h3>
+      <h3 class="text-xs uppercase text-gray-500 font-medium mb-2">{{ $t('admin.groups.systemRoles') }}</h3>
       <div class="space-y-1">
         <button
           v-for="role in systemRoles"
@@ -31,7 +31,7 @@
               {{ role.display_name }}
             </div>
             <div class="text-xs text-gray-500">
-              {{ role.user_count }} {{ $t('admin.roles.usersCount') }} · {{ role.permission_count }} {{ $t('admin.roles.permissionsCount') }}
+              {{ role.user_count }} {{ $t('admin.groups.usersCount') }} · {{ role.permission_count }} {{ $t('admin.groups.permissionsCount') }}
             </div>
           </div>
         </button>
@@ -40,7 +40,7 @@
 
     <!-- Custom Roles -->
     <div v-if="customRoles.length > 0">
-      <h3 class="text-xs uppercase text-gray-500 font-medium mb-2">{{ $t('admin.roles.customRoles') }}</h3>
+      <h3 class="text-xs uppercase text-gray-500 font-medium mb-2">{{ $t('admin.groups.customRoles') }}</h3>
       <div class="space-y-1">
         <div
           v-for="role in customRoles"
@@ -64,7 +64,7 @@
               {{ role.display_name }}
             </div>
             <div class="text-xs text-gray-500">
-              {{ role.user_count }} {{ $t('admin.roles.usersCount') }} · {{ role.permission_count }} {{ $t('admin.roles.permissionsCount') }}
+              {{ role.user_count }} {{ $t('admin.groups.usersCount') }} · {{ role.permission_count }} {{ $t('admin.groups.permissionsCount') }}
             </div>
           </div>
           <button
@@ -104,7 +104,7 @@ const emit = defineEmits<{
 }>()
 
 function handleDelete(role: Role) {
-  if (!confirm(t('admin.roles.deleteConfirm', { name: role.display_name }))) return
+  if (!confirm(t('admin.groups.deleteConfirm', { name: role.display_name }))) return
   emit('delete', role)
 }
 </script>

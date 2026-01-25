@@ -4,7 +4,7 @@
     <div class="stats-grid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('admin.roles.stats.totalRoles') }}
+          {{ $t('admin.groups.stats.totalRoles') }}
         </div>
         <div class="text-2xl font-bold text-gray-900 dark:text-white">
           {{ roles.length }}
@@ -13,7 +13,7 @@
 
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('admin.roles.stats.systemRolesCount') }}
+          {{ $t('admin.groups.stats.systemRolesCount') }}
         </div>
         <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
           {{ systemRolesCount }}
@@ -22,7 +22,7 @@
 
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('admin.roles.stats.customRolesCount') }}
+          {{ $t('admin.groups.stats.customRolesCount') }}
         </div>
         <div class="text-2xl font-bold text-green-600 dark:text-green-400">
           {{ customRolesCount }}
@@ -31,7 +31,7 @@
 
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('admin.roles.stats.totalUsers') }}
+          {{ $t('admin.groups.stats.totalUsers') }}
         </div>
         <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
           {{ totalUsers }}
@@ -40,7 +40,7 @@
 
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('admin.roles.stats.avgFeatures') }}
+          {{ $t('admin.groups.stats.avgFeatures') }}
         </div>
         <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
           {{ avgFeatures }}
@@ -49,7 +49,7 @@
 
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('admin.roles.stats.avgPermissions') }}
+          {{ $t('admin.groups.stats.avgPermissions') }}
         </div>
         <div class="text-2xl font-bold text-pink-600 dark:text-pink-400">
           {{ avgPermissions }}
@@ -65,7 +65,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            :placeholder="$t('admin.roles.searchPlaceholder')"
+            :placeholder="$t('admin.groups.searchPlaceholder')"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
@@ -81,7 +81,7 @@
                 : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             ]"
           >
-            {{ $t('admin.roles.allRoles') }}
+            {{ $t('admin.groups.allRoles') }}
           </button>
 
           <button
@@ -93,7 +93,7 @@
                 : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             ]"
           >
-            {{ $t('admin.roles.customRoles') }}
+            {{ $t('admin.groups.customRoles') }}
           </button>
 
           <button
@@ -105,7 +105,7 @@
                 : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             ]"
           >
-            {{ $t('admin.roles.systemRoles') }}
+            {{ $t('admin.groups.systemRoles') }}
           </button>
         </div>
       </div>
@@ -115,7 +115,7 @@
     <div v-if="loading" class="text-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
       <p class="mt-4 text-gray-600 dark:text-gray-400">
-        {{ $t('admin.roles.loading') }}
+        {{ $t('admin.groups.loading') }}
       </p>
     </div>
 
@@ -126,10 +126,10 @@
     >
       <div class="text-6xl mb-4">🔍</div>
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-        {{ $t('admin.roles.noRoles') }}
+        {{ $t('admin.groups.noRoles') }}
       </h3>
       <p class="text-gray-600 dark:text-gray-400">
-        {{ filter === 'custom' ? $t('admin.roles.noCustomRoles') : $t('admin.roles.noRoles') }}
+        {{ filter === 'custom' ? $t('admin.groups.noCustomRoles') : $t('admin.groups.noRoles') }}
       </p>
     </div>
 

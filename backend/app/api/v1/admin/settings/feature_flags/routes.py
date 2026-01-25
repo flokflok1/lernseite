@@ -22,8 +22,7 @@ from flask import Blueprint, request, jsonify, g
 from typing import Dict, Any, Tuple, Optional
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.feature_configuration import (
     FeatureConfigurationRepository
 )
@@ -49,8 +48,7 @@ feature_flags_bp = Blueprint(
 # ======================== FEATURE FLAGS CRUD ENDPOINTS ========================
 
 @feature_flags_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def list_feature_flags() -> Tuple[Dict[str, Any], int]:
     """
     List all feature flags with pagination and filtering.
@@ -103,8 +101,7 @@ def list_feature_flags() -> Tuple[Dict[str, Any], int]:
 
 
 @feature_flags_bp.route('/<flag_id>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_feature_flag(flag_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Get single feature flag by ID.
@@ -152,8 +149,7 @@ def get_feature_flag(flag_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @feature_flags_bp.route('', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def create_feature_flag() -> Tuple[Dict[str, Any], int]:
     """
     Create new feature flag.
@@ -225,8 +221,7 @@ def create_feature_flag() -> Tuple[Dict[str, Any], int]:
 
 
 @feature_flags_bp.route('/<flag_id>', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def update_feature_flag(flag_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Update existing feature flag.
@@ -305,8 +300,7 @@ def update_feature_flag(flag_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @feature_flags_bp.route('/<flag_id>', methods=['DELETE'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def delete_feature_flag(flag_id: str) -> Tuple[str, int]:
     """
     Delete feature flag.
@@ -357,8 +351,7 @@ def delete_feature_flag(flag_id: str) -> Tuple[str, int]:
 
 
 @feature_flags_bp.route('/<flag_id>/enable', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def enable_feature_flag(flag_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Enable a feature flag.
@@ -406,8 +399,7 @@ def enable_feature_flag(flag_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @feature_flags_bp.route('/<flag_id>/disable', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def disable_feature_flag(flag_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Disable a feature flag.

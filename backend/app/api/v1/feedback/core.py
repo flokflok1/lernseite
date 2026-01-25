@@ -23,7 +23,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_req
 from datetime import datetime
 
 from app.application.services.dashboard.feedback.service import FeedbackService
-from app.api.middleware.auth import role_required
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.feedback.core import FeedbackRepository
 
 feedback_bp = Blueprint('feedback', __name__, url_prefix='/feedback')
@@ -131,8 +131,7 @@ def get_my_feedback():
 # =============================================================================
 
 @feedback_bp.route('', methods=['GET'])
-@jwt_required()
-@role_required(['admin', 'moderator', 'support'])
+@permission_required('moderation.feedback:read')
 def list_feedback():
     """List all feedback with filters (admin only)."""
     feedback_type = request.args.get('type')
@@ -160,8 +159,7 @@ def list_feedback():
 
 
 @feedback_bp.route('/<feedback_id>', methods=['GET'])
-@jwt_required()
-@role_required(['admin', 'moderator', 'support'])
+@permission_required('moderation.feedback:read')
 def get_feedback(feedback_id: str):
     """Get feedback details (admin only)."""
     feedback = FeedbackService.get_feedback(feedback_id)
@@ -183,8 +181,7 @@ def get_feedback(feedback_id: str):
 # =============================================================================
 
 @feedback_bp.route('/<feedback_id>/status', methods=['PATCH'])
-@jwt_required()
-@role_required(['admin', 'moderator', 'support'])
+@permission_required('moderation.feedback:write')
 def update_status(feedback_id: str):
     """Update feedback status (admin only)."""
     data = request.get_json()
@@ -212,8 +209,7 @@ def update_status(feedback_id: str):
 
 
 @feedback_bp.route('/<feedback_id>/priority', methods=['PATCH'])
-@jwt_required()
-@role_required(['admin', 'moderator', 'support'])
+@permission_required('moderation.feedback:write')
 def update_priority(feedback_id: str):
     """Update feedback priority (admin only)."""
     data = request.get_json()
@@ -244,8 +240,7 @@ def update_priority(feedback_id: str):
 # =============================================================================
 
 @feedback_bp.route('/<feedback_id>/respond', methods=['POST'])
-@jwt_required()
-@role_required(['admin', 'moderator', 'support'])
+@permission_required('moderation.feedback:write')
 def respond_to_feedback(feedback_id: str):
     """Add admin response to feedback."""
     data = request.get_json()
@@ -277,8 +272,7 @@ def respond_to_feedback(feedback_id: str):
 
 
 @feedback_bp.route('/<feedback_id>/notes', methods=['POST'])
-@jwt_required()
-@role_required(['admin', 'moderator', 'support'])
+@permission_required('moderation.feedback:write')
 def add_note(feedback_id: str):
     """Add internal note to feedback."""
     data = request.get_json()
@@ -316,8 +310,7 @@ def add_note(feedback_id: str):
 # =============================================================================
 
 @feedback_bp.route('/dashboard', methods=['GET'])
-@jwt_required()
-@role_required(['admin', 'moderator', 'support'])
+@permission_required('moderation.feedback:read')
 def get_dashboard():
     """Get feedback dashboard data."""
     data = FeedbackService.get_dashboard_data()
@@ -333,8 +326,7 @@ def get_dashboard():
 # =============================================================================
 
 @feedback_bp.route('/generate-summary', methods=['POST'])
-@jwt_required()
-@role_required(['admin'])
+@permission_required('admin.system:write')
 def generate_summary():
     """Generate AI summary for feedback batch."""
     data = request.get_json() or {}
@@ -373,8 +365,7 @@ def generate_summary():
 
 
 @feedback_bp.route('/summaries', methods=['GET'])
-@jwt_required()
-@role_required(['admin', 'moderator'])
+@permission_required('moderation.feedback:read')
 def get_summaries():
     """Get recent summary batches."""
     limit = request.args.get('limit', 10, type=int)
@@ -390,8 +381,7 @@ def get_summaries():
 
 
 @feedback_bp.route('/summaries/<batch_id>', methods=['GET'])
-@jwt_required()
-@role_required(['admin', 'moderator'])
+@permission_required('moderation.feedback:read')
 def get_summary(batch_id: str):
     """Get a specific summary batch."""
     batch = FeedbackRepository.get_summary_batch_by_id(batch_id)

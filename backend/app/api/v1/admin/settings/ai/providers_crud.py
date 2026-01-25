@@ -17,8 +17,7 @@ from flask import Blueprint, request, jsonify, g
 from typing import Dict, Any, Tuple
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
 from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
@@ -37,8 +36,7 @@ providers_crud_bp = Blueprint(
 
 
 @providers_crud_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def list_providers() -> Tuple[Dict[str, Any], int]:
     """
     List all AI providers.
@@ -72,8 +70,7 @@ def list_providers() -> Tuple[Dict[str, Any], int]:
 
 
 @providers_crud_bp.route('/<int:provider_id>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Get AI provider by ID.
@@ -104,8 +101,7 @@ def get_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @providers_crud_bp.route('', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def create_provider() -> Tuple[Dict[str, Any], int]:
     """
     Create a new AI provider.
@@ -175,8 +171,7 @@ def create_provider() -> Tuple[Dict[str, Any], int]:
 
 
 @providers_crud_bp.route('/<int:provider_id>', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def update_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Update AI provider.
@@ -230,8 +225,7 @@ def update_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @providers_crud_bp.route('/<int:provider_id>', methods=['DELETE'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def delete_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Delete AI provider.

@@ -32,10 +32,10 @@ from app.domain.models.user import (
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.api.middleware.auth import (
     admin_required,
-    role_required,
+    permission_required,
     token_required,
     can_manage_user,
-    get_accessible_roles
+    get_accessible_groups
 )
 
 
@@ -48,7 +48,7 @@ users_bp = Blueprint('users', __name__, url_prefix='/users')
 # =============================================================================
 
 @users_bp.route('', methods=['GET'])
-@role_required('admin', 'superadmin', 'school_admin', 'company_admin')
+@permission_required('admin.users:read')
 def list_users():
     """
     List users with pagination and filtering
@@ -158,14 +158,15 @@ def create_user():
         data = request.get_json()
         user_data = UserCreate(**data)
 
-        # Check if admin can assign this role
-        accessible_roles = get_accessible_roles(current_user['role'])
-        if user_data.role not in accessible_roles:
+        # Check if admin can assign this role (GBA - group-based)
+        accessible_groups = get_accessible_groups(current_user)
+        accessible_group_names = [g['frontend_role'] or g['name'] for g in accessible_groups]
+        if user_data.role not in accessible_group_names:
             return jsonify({
                 'success': False,
                 'error': 'Insufficient permissions',
                 'message': f'You cannot assign the role "{user_data.role}"',
-                'accessible_roles': accessible_roles
+                'accessible_roles': accessible_group_names
             }), 403
 
         # Organisation admins can only create users in their organisation
@@ -362,8 +363,9 @@ def update_user(user_id: int):
                     'message': 'You cannot change your own role'
                 }), 403
 
-            accessible_roles = get_accessible_roles(current_user['role'])
-            if update_data.role not in accessible_roles:
+            accessible_groups = get_accessible_groups(current_user)
+            accessible_group_names = [g['frontend_role'] or g['name'] for g in accessible_groups]
+            if update_data.role not in accessible_group_names:
                 return jsonify({
                     'success': False,
                     'error': 'Insufficient permissions',

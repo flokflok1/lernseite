@@ -16,8 +16,7 @@ import logging
 import uuid
 import time
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
 from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
@@ -42,8 +41,7 @@ providers_testing_bp = Blueprint(
 
 
 @providers_testing_bp.route('/<int:provider_id>/test', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def test_provider_connection(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Test provider connection and update health status.

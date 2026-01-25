@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_v1.route('/admin/courses/<course_id>/publishing', methods=['GET'])
-@permission_required('admin.course:read')
+@permission_required('content.courses:read')
 def admin_get_publishing_status(course_id: str):
     """
     Get publishing status for a course.
@@ -85,7 +85,7 @@ def admin_get_publishing_status(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/publishing/submit', methods=['POST'])
-@permission_required('admin.course:write')
+@permission_required('content.courses:write')
 def admin_submit_for_review(course_id: str):
     """
     Submit course for community review.

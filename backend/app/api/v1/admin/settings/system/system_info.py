@@ -14,13 +14,13 @@ from flask import jsonify, current_app
 from datetime import datetime
 
 from .system_operations import api_v1
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.api.gateway.versioning import get_version_info
 from app.api.v1.system.deprecation import list_deprecated_endpoints
 
 
 @api_v1.route('/admin/settings/system/version', methods=['GET'])
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_system_version():
     """
     Get comprehensive system and API version information.
@@ -114,7 +114,7 @@ def get_system_version():
 
 
 @api_v1.route('/admin/settings/system/deprecated-endpoints', methods=['GET'])
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_deprecated_endpoints():
     """
     List all deprecated API endpoints.
@@ -200,7 +200,7 @@ def get_deprecated_endpoints():
 
 
 @api_v1.route('/admin/settings/system/health/detailed', methods=['GET'])
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_detailed_health():
     """
     Get detailed system health information.

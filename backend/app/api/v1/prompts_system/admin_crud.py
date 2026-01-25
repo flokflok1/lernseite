@@ -10,8 +10,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.core.bootstrap.extensions import limiter
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.prompts.templates import PromptTemplateRepository
 
 from app.api.v1.prompts_system.blueprints import prompts_crud_bp
@@ -20,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @prompts_crud_bp.route('', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("60 per minute")
 def list_prompt_templates() -> Tuple[Dict[str, Any], int]:
     """
@@ -59,8 +57,7 @@ def list_prompt_templates() -> Tuple[Dict[str, Any], int]:
 
 
 @prompts_crud_bp.route('/<template_id>', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("60 per minute")
 def get_prompt_template(template_id: str) -> Tuple[Dict[str, Any], int]:
     """

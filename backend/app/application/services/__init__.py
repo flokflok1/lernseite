@@ -43,7 +43,7 @@ def _register_legacy_bridges():
         'course_ai_settings_service', 'course_authoring_service', 'feature_configuration_ab_test',
         'feature_configuration_rollout', 'feature_configuration_service', 'file_context_service',
         'i18n_service', 'math_toolkit_service', 'permission_service', 'prompt_resolver',
-        'role_studio_service', 'tts_service',
+        'tts_service',
     ]
 
     for bridge_name in legacy_bridges:
@@ -75,7 +75,6 @@ from app.application.services.system.features.service import FeatureService
 # Authentication & Authorization (system/auth)
 from app.application.services.system.auth import (
     PermissionService,
-    RoleStudioService,
 )
 
 # Group Management (system/group_management) - RBAC 3.0 group-based authorization
@@ -153,9 +152,7 @@ __all__ = [
 
     # Auth & Authorization
     'PermissionService',
-    'RoleStudioService',
     'GroupManagementService',  # RBAC 3.0 group-based authorization
-    # 'RolesService',  # PHASE B: Removed (replaced with Groups system)
 
     # Audit
     'AuditService',

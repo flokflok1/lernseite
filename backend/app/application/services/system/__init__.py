@@ -10,7 +10,6 @@ Core system infrastructure services:
 
 from app.application.services.system.auth import (
     PermissionService,
-    RoleStudioService,
 )
 from app.application.services.system.audit import AuditService
 from app.application.services.system.group_management import GroupManagementService
@@ -19,7 +18,6 @@ from app.application.services.system.group_management import GroupManagementServ
 
 __all__ = [
     'PermissionService',
-    'RoleStudioService',
     'AuditService',
     'GroupManagementService',
 ]

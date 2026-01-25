@@ -260,56 +260,6 @@ class TestFailSecureDesign:
             f"Critical: Got 500 error when database fails - fail-secure design violated! {response.data}"
 
 
-class TestPermissionIntegrationWithRoleStudio:
-    """Tests for Role Studio admin panel integration with decorators."""
-
-    @patch('app.security.permissions.PermissionRepository.user_has_permission')
-    def test_role_studio_updates_decorator_access(self, mock_has_perm, client, auth_headers):
-        """Test that Role Studio admin panel changes affect decorator access."""
-        # Setup
-        # This test demonstrates how Role Studio changes flow to decorators via PermissionRepository
-
-        # 1. Initially user doesn't have permission (role studio hasn't granted it yet)
-        mock_has_perm.return_value = False
-
-        response1 = client.get('/api/v1/admin/users', headers=auth_headers)
-        # Response depends on endpoint, but auth should fail (403 or 401)
-        assert response1.status_code in [401, 403, 404]  # Denied or endpoint not implemented
-
-        # 2. Simulate Role Studio admin granting permission
-        # In real system, this would update core.role_permissions in database
-        # Here we simulate by changing mock return value
-        mock_has_perm.return_value = True  # Now user has permission via Role Studio
-
-        # 3. Access should now be allowed
-        response2 = client.get('/api/v1/admin/users', headers=auth_headers)
-        # Decorator should now allow access
-        assert response2.status_code != 403  # Not forbidden (decorator allowed it)
-
-    def test_role_studio_permission_changes_effective_immediately(self, client, auth_headers):
-        """Test that permission changes via Role Studio take effect immediately (no restart)."""
-        # This test verifies the key architectural benefit of RBAC 2.0:
-        # Admin can change permissions without restarting backend service
-
-        # The mechanism:
-        # 1. PermissionRepository.user_has_permission() queries database on EVERY request
-        # 2. No hardcoded permission lists in code that require rebuild
-        # 3. No service restart needed after Role Studio changes
-        #
-        # This is verified implicitly by the decorator implementation which:
-        # - Always calls PermissionRepository.user_has_permission() first
-        # - Uses fallback to hierarchy_level only if DB check fails or returns False
-        # - Has no caching layer that would prevent immediate updates
-
-        # In real usage, Role Studio admin panel would:
-        # 1. Update core.permissions table (add/remove permission keys)
-        # 2. Update core.role_permissions table (assign permissions to roles)
-        # 3. Users with those roles immediately get new access on next request
-
-        # This test is conceptual and verified by the architecture, not by execution
-        pass
-
-
 class TestBackwardCompatibility:
     """Tests for backward compatibility with deprecated hierarchy_level system."""
 

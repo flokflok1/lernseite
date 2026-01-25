@@ -23,8 +23,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.core.bootstrap.extensions import limiter
-from app.api.middleware.auth import token_required, get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, get_current_user, permission_required
 from app.domain.models.analytics import (
     AnalyticsEventCreateRequest,
     AnalyticsEventResponse,
@@ -249,8 +248,7 @@ def analytics_health():
 # =============================================================================
 
 @analytics_admin_bp.route('/events/time-series', methods=['GET'])
-@token_required
-@require_permission(Permissions.VIEW_SYSTEM_ANALYTICS)
+@permission_required('admin.analytics:read')
 @limiter.limit("60 per minute")
 def get_events_time_series() -> Tuple[Dict[str, Any], int]:
     """
@@ -332,8 +330,7 @@ def get_events_time_series() -> Tuple[Dict[str, Any], int]:
 
 
 @analytics_admin_bp.route('/active-users/time-series', methods=['GET'])
-@token_required
-@require_permission(Permissions.VIEW_SYSTEM_ANALYTICS)
+@permission_required('admin.analytics:read')
 @limiter.limit("60 per minute")
 def get_active_users_time_series() -> Tuple[Dict[str, Any], int]:
     """

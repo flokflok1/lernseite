@@ -15,8 +15,7 @@ from typing import Dict, Any, Tuple
 from datetime import datetime, timedelta
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
@@ -34,8 +33,7 @@ models_usage_bp = Blueprint(
 
 
 @models_usage_bp.route('/<int:model_id>/usage', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_model_usage(model_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Get usage statistics for a specific AI model.
@@ -132,8 +130,7 @@ def get_model_usage(model_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @models_usage_bp.route('/usage', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_all_models_usage() -> Tuple[Dict[str, Any], int]:
     """
     Get usage statistics for all AI models.

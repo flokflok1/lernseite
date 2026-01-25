@@ -15,8 +15,7 @@ import logging
 import time
 
 from app.core.bootstrap.extensions import limiter
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, permission_required
 from app.application.services.ai_adapter import AIAdapter
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
@@ -38,7 +37,7 @@ __all__ = ['tutor_admin_bp']
 
 @tutor_admin_bp.route('/generate-chapter-theory', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("10 per minute")
 def generate_chapter_theory() -> Tuple[Dict[str, Any], int]:
     """
@@ -182,7 +181,7 @@ Zielgruppe: {context['target_audience']}"""
 
 @tutor_admin_bp.route('/generate-lesson-steps', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("10 per minute")
 def generate_lesson_steps() -> Tuple[Dict[str, Any], int]:
     """
@@ -205,7 +204,7 @@ def generate_lesson_steps() -> Tuple[Dict[str, Any], int]:
 
 @tutor_admin_bp.route('/generate-lesson-detailed', methods=['POST'])
 @token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 @limiter.limit("10 per minute")
 def generate_lesson_detailed() -> Tuple[Dict[str, Any], int]:
     """

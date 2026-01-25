@@ -23,11 +23,11 @@ from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
 from app.application.services.audit_service import AuditService
 from app.api.middleware.auth import get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 
 
 @api_v1.route('/admin/courses/<course_id>/files', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_list_course_files(course_id: str):
     """List all files for a course."""
     try:
@@ -62,7 +62,7 @@ def admin_list_course_files(course_id: str):
 
 
 @api_v1.route('/admin/course-files/<file_id>/serve', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_serve_course_file(file_id: str):
     """Serve a course file for preview/download."""
     try:
@@ -90,7 +90,7 @@ def admin_serve_course_file(file_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/files', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_upload_course_file(course_id: str):
     """Upload a file to a course."""
     try:
@@ -199,7 +199,7 @@ def admin_upload_course_file(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/files/<file_id>', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_get_course_file(course_id: str, file_id: str):
     """Get single course file details."""
     try:
@@ -219,7 +219,7 @@ def admin_get_course_file(course_id: str, file_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/files/<file_id>', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_update_course_file(course_id: str, file_id: str):
     """Update course file metadata."""
     try:
@@ -271,7 +271,7 @@ def admin_update_course_file(course_id: str, file_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/files/<file_id>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_delete_course_file(course_id: str, file_id: str):
     """Delete a course file."""
     try:
@@ -313,7 +313,7 @@ def admin_delete_course_file(course_id: str, file_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/files/reorder', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_reorder_course_files(course_id: str):
     """Reorder course files."""
     try:

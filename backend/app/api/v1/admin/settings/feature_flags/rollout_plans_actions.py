@@ -18,8 +18,7 @@ from flask import Blueprint, request, jsonify, g
 from typing import Dict, Any, Tuple
 import logging
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.persistence.repositories.feature_configuration import (
     FeatureConfigurationRepository
 )
@@ -37,8 +36,7 @@ rollout_plans_actions_bp = Blueprint(
 
 
 @rollout_plans_actions_bp.route('/<plan_id>/execute', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def execute_rollout_stage(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Execute next stage of rollout plan.
@@ -104,8 +102,7 @@ def execute_rollout_stage(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @rollout_plans_actions_bp.route('/<plan_id>/pause', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def pause_rollout(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Pause ongoing rollout plan.
@@ -159,8 +156,7 @@ def pause_rollout(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 
 @rollout_plans_actions_bp.route('/<plan_id>/rollback', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def rollback_deployment(plan_id: str) -> Tuple[Dict[str, Any], int]:
     """
     Rollback completed or in-progress deployment.

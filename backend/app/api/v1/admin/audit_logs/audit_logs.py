@@ -11,13 +11,13 @@ from flask import request, jsonify, current_app, g
 from datetime import datetime
 
 from .system_operations import api_v1
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.application.services.audit_service import AuditService
 from app.infrastructure.persistence.database.connection import fetch_all, fetch_one
 
 
 @api_v1.route('/admin/audit-logs', methods=['GET'])
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_admin_audit_logs():
     """
     Get audit logs for admin dashboard.

@@ -29,11 +29,11 @@ from app.application.services.audit_service import AuditService
 from app.application.services.ai_job_service import AIJobService
 from app.application.services.prompt_resolver import PromptResolver
 from app.api.middleware.auth import get_current_user
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 
 
 @api_v1.route('/admin/courses/<course_id>/exams', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_list_exams(course_id: str):
     """List all exams for a course."""
     try:
@@ -59,7 +59,7 @@ def admin_list_exams(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/exams', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_create_exam(course_id: str):
     """Create new exam manually (without AI)."""
     try:
@@ -224,7 +224,7 @@ def admin_generate_exam(course_id: str):
 
 
 @api_v1.route('/admin/exams/<exam_id>', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('content.courses:read')
 def admin_get_exam(exam_id: str):
     """Get exam details with questions."""
     try:
@@ -244,7 +244,7 @@ def admin_get_exam(exam_id: str):
 
 
 @api_v1.route('/admin/exams/<exam_id>', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('content.courses:write')
 def admin_update_exam(exam_id: str):
     """Update exam metadata."""
     try:
@@ -284,7 +284,7 @@ def admin_update_exam(exam_id: str):
 
 
 @api_v1.route('/admin/exams/<exam_id>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_COURSE_DELETE)
+@permission_required('content.courses:delete')
 def admin_delete_exam(exam_id: str):
     """Delete exam and all questions."""
     try:

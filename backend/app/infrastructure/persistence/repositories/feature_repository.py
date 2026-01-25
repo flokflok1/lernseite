@@ -1,12 +1,12 @@
 """
 Feature Repository - Feature-Based Authorization Data Access
 
-Implements feature access control queries:
-- Role-to-Feature mapping
+Implements feature access control queries (GBA - Group-Based Architecture):
+- System feature metadata
 - Organization feature subscriptions
-- Granular feature permissions
+- Granular feature permissions via groups
 
-RBAC 2.0: Database-driven feature authorization (separate from permission thresholds).
+GBA: Users → Groups → Permissions (supersedes old RBAC 2.0 role-based system)
 """
 
 from typing import Optional, List, Dict, Any
@@ -18,10 +18,10 @@ class FeatureRepository(BaseRepository):
     """
     Repository for feature-based authorization queries.
 
-    Implements feature access patterns:
-    - Role-Feature access mapping
+    Implements feature access patterns with GBA:
+    - System features by code
     - Organization subscriptions
-    - Granular permissions within features
+    - User access via group-permission mappings
     """
 
     @classmethod
@@ -65,18 +65,18 @@ class FeatureRepository(BaseRepository):
             return None
 
     @classmethod
-    def get_role_features(cls, role_id: int) -> List[Dict[str, Any]]:
+    def get_user_group_features(cls, user_id: str) -> List[Dict[str, Any]]:
         """
-        Get all features accessible to a role.
+        Get all features accessible to user via their groups (GBA).
 
         Args:
-            role_id: Role ID to query
+            user_id: User ID to query
 
         Returns:
             List of features with access levels
 
         Example:
-            >>> features = FeatureRepository.get_role_features(role_id=2)
+            >>> features = FeatureRepository.get_user_group_features(user_id='user-123')
             >>> [f['feature_code'] for f in features]
             ['ai_editor', 'code_sandbox', 'learning_journal', ...]
         """
@@ -84,27 +84,30 @@ class FeatureRepository(BaseRepository):
             results = fetch_all(
                 """
                 SELECT DISTINCT
-                    rf.id,
-                    rf.role_id,
-                    rf.feature_code,
-                    rf.access_level,
-                    rf.enabled,
+                    sf.feature_id,
+                    sf.feature_code,
                     sf.feature_name,
                     sf.description,
                     sf.category,
-                    sf.icon
-                FROM roles.role_features rf
+                    sf.icon,
+                    g.name as group_name,
+                    g.id as group_id
+                FROM core.users_groups ug
+                JOIN core.groups g ON ug.group_id = g.id
                 JOIN support_systems.system_features sf
-                    ON rf.feature_code = sf.feature_code
-                WHERE rf.role_id = %s AND rf.enabled = TRUE
+                    ON sf.feature_code = LOWER(g.slug)
+                WHERE ug.user_id = %s
+                    AND ug.is_active = TRUE
+                    AND ug.left_at IS NULL
+                    AND sf.active = TRUE
                 ORDER BY sf.feature_name
                 """,
-                (role_id,)
+                (user_id,)
             )
             return results or []
         except Exception as e:
             import logging
-            logging.error(f"Error fetching role features for role {role_id}: {e}")
+            logging.error(f"Error fetching user features for user {user_id}: {e}")
             return []
 
     @classmethod
@@ -166,40 +169,49 @@ class FeatureRepository(BaseRepository):
             return []
 
     @classmethod
-    def check_role_feature_access(
+    def check_user_group_feature_access(
         cls,
-        role_id: int,
+        user_id: str,
         feature_code: str
     ) -> bool:
         """
-        Check if role has access to a feature.
+        Check if user has access to a feature via their groups (GBA).
 
         Args:
-            role_id: Role ID
+            user_id: User ID
             feature_code: Feature code
 
         Returns:
-            True if role can access feature, False otherwise
+            True if user's groups provide access to feature, False otherwise
 
         Example:
-            >>> can_access = FeatureRepository.check_role_feature_access(2, 'ai_editor')
+            >>> can_access = FeatureRepository.check_user_group_feature_access(
+            ...     'user-123', 'ai_editor'
+            ... )
             >>> can_access
             True
         """
         try:
             result = fetch_one(
                 """
-                SELECT 1 FROM roles.role_features
-                WHERE role_id = %s AND feature_code = %s AND enabled = TRUE
+                SELECT 1 FROM core.users_groups ug
+                JOIN core.groups g ON ug.group_id = g.id
+                JOIN support_systems.system_features sf
+                    ON sf.feature_code = LOWER(g.slug)
+                WHERE ug.user_id = %s
+                    AND sf.feature_code = %s
+                    AND ug.is_active = TRUE
+                    AND ug.left_at IS NULL
+                    AND sf.active = TRUE
                 LIMIT 1
                 """,
-                (role_id, feature_code)
+                (user_id, feature_code)
             )
             return result is not None
         except Exception as e:
             import logging
             logging.error(
-                f"Error checking role feature access ({role_id}, {feature_code}): {e}"
+                f"Error checking user feature access ({user_id}, {feature_code}): {e}"
             )
             return False
 
@@ -256,91 +268,42 @@ class FeatureRepository(BaseRepository):
             return False
 
     @classmethod
-    def get_feature_permission(
+    def get_org_feature_tier(
         cls,
-        role_id: int,
-        feature_code: str,
-        permission_key: str
-    ) -> Optional[bool]:
+        org_id: str,
+        feature_code: str
+    ) -> Optional[str]:
         """
-        Get specific permission for role within feature.
+        Get subscription tier for organization feature.
 
         Args:
-            role_id: Role ID
+            org_id: Organization ID
             feature_code: Feature code
-            permission_key: Permission key (e.g., 'ai_editor.execute')
 
         Returns:
-            True if allowed, False if denied, None if not defined
+            Tier string (e.g., 'basic', 'premium') or None if not subscribed
 
         Example:
-            >>> allowed = FeatureRepository.get_feature_permission(
-            ...     2, 'ai_editor', 'ai_editor.execute'
-            ... )
-            >>> allowed
-            True
+            >>> tier = FeatureRepository.get_org_feature_tier('org-123', 'ai_editor')
+            >>> tier
+            'premium'
         """
         try:
             result = fetch_one(
                 """
-                SELECT allowed FROM roles.feature_permissions
-                WHERE role_id = %s AND feature_code = %s AND permission_key = %s
+                SELECT tier FROM organisations.feature_subscriptions
+                WHERE organisation_id = %s AND feature_code = %s AND is_active = TRUE
+                LIMIT 1
                 """,
-                (role_id, feature_code, permission_key)
+                (org_id, feature_code)
             )
-
-            if result:
-                return result.get('allowed')
-            return None
+            return result.get('tier') if result else None
         except Exception as e:
             import logging
             logging.error(
-                f"Error getting feature permission ({role_id}, {feature_code}, {permission_key}): {e}"
+                f"Error getting org feature tier ({org_id}, {feature_code}): {e}"
             )
             return None
-
-    @classmethod
-    def get_all_role_feature_permissions(
-        cls,
-        role_id: int,
-        feature_code: str
-    ) -> Dict[str, bool]:
-        """
-        Get all permissions for role within a feature.
-
-        Args:
-            role_id: Role ID
-            feature_code: Feature code
-
-        Returns:
-            Dictionary of {permission_key: allowed}
-
-        Example:
-            >>> perms = FeatureRepository.get_all_role_feature_permissions(2, 'ai_editor')
-            >>> perms
-            {'ai_editor.execute': True, 'ai_editor.manage': False}
-        """
-        try:
-            results = fetch_all(
-                """
-                SELECT permission_key, allowed
-                FROM roles.feature_permissions
-                WHERE role_id = %s AND feature_code = %s
-                """,
-                (role_id, feature_code)
-            )
-
-            permissions = {}
-            for row in results:
-                permissions[row['permission_key']] = row['allowed']
-
-            return permissions
-        except Exception as e:
-            import logging
-            logging.error(
-                f"Error getting role feature permissions ({role_id}, {feature_code}): {e}"
-            )
-            return {}
 
     @classmethod
     def count_org_features(

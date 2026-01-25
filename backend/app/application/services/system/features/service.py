@@ -1,12 +1,13 @@
 """
-Feature Service - Feature-Based Authorization Business Logic
+Feature Service - Feature-Based Authorization Business Logic (GBA)
 
-Implements feature access control with caching:
-- User feature availability calculation
+Implements feature access control with Group-Based Architecture (GBA):
+- User feature availability via group membership
+- Organization subscription features
 - Feature metadata caching
 - Context-aware feature filtering (admin/user/community contexts)
 
-RBAC 2.0: Combines role-based features + organization subscriptions.
+GBA: Users → Groups → Features + Organization Subscriptions.
 Caches results in Redis (TTL: 5 minutes) for performance.
 """
 
@@ -48,7 +49,7 @@ class FeatureService:
         Get all features available to a user.
 
         Combines:
-        - Role-based features (from roles.role_features)
+        - Group-based features (via core.users_groups → core.groups → system_features)
         - Organization subscription features (from organisations.feature_subscriptions)
 
         Args:
@@ -70,7 +71,7 @@ class FeatureService:
             return cached
 
         try:
-            # Get user's role and organization
+            # Get user and organization from repository
             with get_connection() as conn:
                 user_repo = UserRepository(conn)
                 user_data = user_repo.find_by_id(user_id)
@@ -79,12 +80,11 @@ class FeatureService:
                     logger.warning(f"User {user_id} not found")
                     return []
 
-                role_id = user_data.get('role_id')
                 org_id = user_data.get('organisation_id')
 
-                # Get role features
+                # Get group-based features (GBA architecture)
                 feature_repo = FeatureRepository(conn)
-                role_features = feature_repo.get_role_features(role_id)
+                group_features = feature_repo.get_user_group_features(user_id)
 
                 # Get org subscription features
                 org_features = []
@@ -97,7 +97,7 @@ class FeatureService:
                 # Merge and deduplicate by feature_code
                 features_dict = {}
 
-                for feature in role_features:
+                for feature in group_features:
                     code = feature['feature_code']
                     if code not in features_dict:
                         features_dict[code] = feature
@@ -278,77 +278,11 @@ class FeatureService:
         return filtered
 
     @classmethod
-    def get_feature_permission(
-        cls,
-        user_id: str,
-        feature_code: str,
-        permission_key: str
-    ) -> Optional[bool]:
-        """
-        Get specific permission within a feature for user.
-
-        Permissions are specific capabilities within features:
-        - 'ai_editor.execute': Can use AI features
-        - 'ai_editor.manage': Can create AI content
-        - 'analytics.export': Can export analytics data
-
-        Args:
-            user_id: User UUID
-            feature_code: Feature code
-            permission_key: Permission key (e.g., 'ai_editor.execute')
-
-        Returns:
-            True if allowed, False if denied, None if not defined
-
-        Example:
-            >>> allowed = FeatureService.get_feature_permission(
-            ...     'user-123', 'ai_editor', 'ai_editor.execute'
-            ... )
-            >>> allowed
-            True
-        """
-        cache_key = (
-            f"{cls.CACHE_PREFIX_FEATURES}:{user_id}:{feature_code}:{permission_key}"
-        )
-        cached = CacheService.cache_get(cache_key)
-
-        if cached is not None:
-            return cached
-
-        try:
-            with get_connection() as conn:
-                user_repo = UserRepository(conn)
-                user_data = user_repo.find_by_id(user_id)
-                if not user_data:
-                    return None
-
-                role_id = user_data.get('role_id')
-
-                # Get permission from repository
-                feature_repo = FeatureRepository(conn)
-                allowed = feature_repo.get_feature_permission(
-                    role_id,
-                    feature_code,
-                    permission_key
-                )
-
-            # Cache the result
-            CacheService.cache_set(cache_key, allowed, ttl=cls.CACHE_TTL)
-
-            return allowed
-
-        except Exception as e:
-            logger.error(
-                f"Error getting feature permission ({user_id}, {feature_code}, {permission_key}): {e}"
-            )
-            return None
-
-    @classmethod
     def invalidate_user_cache(cls, user_id: str) -> None:
         """
         Invalidate cached features for a user.
 
-        Call this when user's role or organization changes.
+        Call this when user's group membership or organization subscription changes.
 
         Args:
             user_id: User UUID

@@ -34,7 +34,10 @@ class DatabaseOperations:
     @staticmethod
     def check_user_access(user_id: str, course_id: str) -> bool:
         """
-        Prüft ob User Zugriff auf Kurs hat.
+        Prüft ob User Zugriff auf Kurs hat (GBA).
+
+        Nutzt GBA-Permissions: Gruppen mit 'content.*:write' oder 'admin.*' Berechtigungen
+        haben Zugriff auf Kurs-Authoring.
 
         Args:
             user_id: User UUID
@@ -43,15 +46,24 @@ class DatabaseOperations:
         Returns:
             True if user has access, False otherwise
         """
-        # Admin/Teacher/Creator haben Zugriff
+        # Check via GBA: Benutzer mit write-Permissionen für Inhalte
         query = """
-            SELECT r.role_name
-            FROM users u
-            JOIN roles r ON r.role_id = u.role_id
-            WHERE u.user_id = %s
+            SELECT 1
+            FROM core.users_groups ug
+            JOIN core.groups g ON ug.group_id = g.id
+            JOIN core.group_permissions gp ON g.id = gp.group_id
+            JOIN core.permissions p ON gp.permission_id = p.id
+            WHERE ug.user_id = %s
+                AND ug.is_active = TRUE
+                AND ug.left_at IS NULL
+                AND (
+                    p.permission_code LIKE 'content.%:write'
+                    OR p.permission_code LIKE 'admin.%:write'
+                )
+            LIMIT 1
         """
         result = fetch_one(query, (user_id,))
-        if result and result['role_name'] in ('admin', 'teacher', 'creator', 'school', 'company'):
+        if result:
             return True
 
         # Oder Kurs-Owner

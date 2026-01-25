@@ -8,20 +8,17 @@ BEGIN;
 -- ============================================================================
 -- 1. CREATE PERMISSIONS TABLE
 -- ============================================================================
-CREATE TABLE permissions (
+CREATE TABLE core.permissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Permission Identity
-    code VARCHAR(100) UNIQUE NOT NULL,  -- e.g. 'courses.view', 'users.edit', 'admin.access'
+    code VARCHAR(100) UNIQUE NOT NULL,  -- e.g. 'content.courses:read', 'admin.users:write'
     display_name VARCHAR(255) NOT NULL,  -- Human-readable name
     description TEXT,  -- Detailed description
 
     -- Classification
     permission_type VARCHAR(50) NOT NULL DEFAULT 'general',  -- system, organisation, group, general
     category VARCHAR(100),  -- e.g. 'courses', 'users', 'content', 'system', 'admin'
-
-    -- Compatibility with RBAC 2.0 (Hierarchy Level based)
-    required_hierarchy_level SMALLINT DEFAULT 0,  -- 0-10, for compatibility checking
 
     -- System Permission Flag
     is_system_permission BOOLEAN DEFAULT FALSE,  -- Cannot be deleted if TRUE
@@ -41,93 +38,64 @@ CREATE TABLE permissions (
         'general'
     )),
 
-    CONSTRAINT chk_hierarchy_level CHECK (required_hierarchy_level >= 0 AND required_hierarchy_level <= 10),
-
     CONSTRAINT chk_protected_system_perms CHECK (
         is_system_permission = FALSE OR is_system_permission = TRUE
     ),
 
-    CONSTRAINT chk_code_format CHECK (code ~ '^[a-z0-9._-]+$')
+    CONSTRAINT chk_code_format CHECK (code ~ '^[a-z0-9._:]+$')
 );
 
 -- ============================================================================
 -- 2. CREATE INDICES FOR PERFORMANCE
 -- ============================================================================
 CREATE UNIQUE INDEX idx_permissions_code
-    ON permissions(code);
+    ON core.permissions(code);
 
 CREATE INDEX idx_permissions_category
-    ON permissions(category);
+    ON core.permissions(category);
 
 CREATE INDEX idx_permissions_permission_type
-    ON permissions(permission_type);
+    ON core.permissions(permission_type);
 
 CREATE INDEX idx_permissions_is_system
-    ON permissions(is_system_permission)
+    ON core.permissions(is_system_permission)
     WHERE is_system_permission = TRUE;
 
-CREATE INDEX idx_permissions_required_level
-    ON permissions(required_hierarchy_level DESC);
-
 -- ============================================================================
--- 3. SEED SYSTEM PERMISSIONS (RBAC 3.0)
+-- 3. SEED SYSTEM PERMISSIONS (GBA - Group-Based Architecture)
 -- ============================================================================
-INSERT INTO permissions (code, display_name, description, permission_type, category, required_hierarchy_level, is_system_permission) VALUES
-    -- System Admin Permissions
-    ('admin.access', 'Admin Panel Access', 'Full access to admin panel', 'system', 'admin', 10, TRUE),
-    ('system.manage', 'System Management', 'Manage system settings and configuration', 'system', 'system', 10, TRUE),
-    ('users.manage', 'Manage Users', 'Create, edit, delete users', 'system', 'users', 10, TRUE),
-    ('roles.manage', 'Manage Roles', 'Manage user roles and permissions', 'system', 'system', 10, TRUE),
-    ('groups.manage', 'Manage Groups', 'Create and manage user groups', 'system', 'system', 9, TRUE),
-    ('organisations.manage', 'Manage Organisations', 'Create and manage organisations', 'system', 'system', 10, TRUE),
+INSERT INTO core.permissions (code, display_name, description, permission_type, category, is_system_permission) VALUES
+    -- Admin Permissions
+    ('admin.ai-jobs:read', 'Read AI Jobs', 'View AI job details, history, and status', 'general', 'admin', TRUE),
+    ('admin.ai-jobs:write', 'Manage AI Jobs', 'Create, update, cancel, or manage AI jobs', 'general', 'admin', TRUE),
+    ('admin.analytics:read', 'View Admin Analytics', 'View system-wide analytics and reports', 'general', 'admin', TRUE),
+    ('admin.courses:write', 'Manage Courses (Admin)', 'Create, edit, publish, or delete courses as admin', 'general', 'admin', TRUE),
+    ('admin.system:read', 'View System Settings', 'View system configuration, settings, and status', 'general', 'admin', TRUE),
+    ('admin.system:write', 'Manage System Settings', 'Modify system configuration and settings', 'general', 'admin', TRUE),
+    ('admin.users:read', 'View Users', 'View user accounts, roles, and information', 'general', 'admin', TRUE),
+    ('admin.users:write', 'Manage Users', 'Create, edit, or modify user accounts and assignments', 'general', 'admin', TRUE),
+    ('admin.users:delete', 'Delete Users', 'Delete or deactivate user accounts', 'general', 'admin', TRUE),
 
-    -- Content Management Permissions
-    ('courses.create', 'Create Courses', 'Create new courses', 'general', 'courses', 3, TRUE),
-    ('courses.edit', 'Edit Courses', 'Edit existing courses', 'general', 'courses', 3, TRUE),
-    ('courses.delete', 'Delete Courses', 'Delete courses', 'general', 'courses', 5, TRUE),
-    ('courses.publish', 'Publish Courses', 'Publish courses', 'general', 'courses', 5, TRUE),
-    ('courses.view', 'View Courses', 'View all courses', 'general', 'courses', 1, TRUE),
+    -- Content Permissions
+    ('content.courses:read', 'Read Courses', 'View course details, chapters, and lessons', 'general', 'content', TRUE),
+    ('content.courses:write', 'Create/Edit Courses', 'Create, edit, or update courses', 'general', 'content', TRUE),
+    ('content.courses:delete', 'Delete Courses', 'Delete courses and associated content', 'general', 'content', TRUE),
+    ('content.moderation:moderate', 'Moderate Content', 'Review, approve, or reject user-generated content', 'general', 'content', TRUE),
 
-    -- Chapter & Lesson Management
-    ('chapters.create', 'Create Chapters', 'Create course chapters', 'general', 'chapters', 3, TRUE),
-    ('chapters.edit', 'Edit Chapters', 'Edit chapters', 'general', 'chapters', 3, TRUE),
-    ('chapters.delete', 'Delete Chapters', 'Delete chapters', 'general', 'chapters', 5, TRUE),
-    ('lessons.create', 'Create Lessons', 'Create lessons', 'general', 'lessons', 2, TRUE),
-    ('lessons.edit', 'Edit Lessons', 'Edit lessons', 'general', 'lessons', 2, TRUE),
-    ('lessons.delete', 'Delete Lessons', 'Delete lessons', 'general', 'lessons', 5, TRUE),
+    -- Moderation Permissions
+    ('moderation.feedback:read', 'View Moderation Feedback', 'View feedback on moderated content and decisions', 'general', 'moderation', TRUE),
+    ('moderation.feedback:write', 'Create Moderation Feedback', 'Add feedback or notes on moderation decisions', 'general', 'moderation', TRUE),
 
-    -- Learning Methods
-    ('learning_methods.create', 'Create Learning Methods', 'Create custom learning methods', 'general', 'learning_methods', 5, TRUE),
-    ('learning_methods.edit', 'Edit Learning Methods', 'Edit learning methods', 'general', 'learning_methods', 5, TRUE),
-    ('learning_methods.delete', 'Delete Learning Methods', 'Delete learning methods', 'general', 'learning_methods', 5, TRUE),
-
-    -- Moderation & Compliance
-    ('content.moderate', 'Moderate Content', 'Moderate user-generated content', 'system', 'moderation', 7, TRUE),
-    ('users.ban', 'Ban Users', 'Ban users from the system', 'system', 'moderation', 8, TRUE),
-    ('analytics.view', 'View Analytics', 'View system analytics', 'system', 'analytics', 5, TRUE),
-    ('audit_log.view', 'View Audit Logs', 'View audit logs', 'system', 'audit', 8, TRUE),
-
-    -- User Permissions
-    ('profile.edit', 'Edit Own Profile', 'Edit own profile information', 'general', 'profile', 1, TRUE),
-    ('password.change', 'Change Password', 'Change own password', 'general', 'security', 1, TRUE),
-    ('subscriptions.view', 'View Subscriptions', 'View subscription information', 'general', 'billing', 1, TRUE),
-
-    -- Social Features
-    ('posts.create', 'Create Posts', 'Create social posts', 'general', 'social', 1, TRUE),
-    ('posts.edit', 'Edit Posts', 'Edit own posts', 'general', 'social', 1, TRUE),
-    ('posts.delete', 'Delete Posts', 'Delete own posts', 'general', 'social', 1, TRUE),
-    ('comments.create', 'Create Comments', 'Create comments on posts', 'general', 'social', 1, TRUE),
-    ('comments.moderate', 'Moderate Comments', 'Moderate social comments', 'system', 'moderation', 6, TRUE),
-
-    -- AI Features
-    ('ai.generate', 'Use AI Generation', 'Use AI content generation', 'general', 'ai', 2, TRUE),
-    ('ai.advanced', 'Advanced AI Features', 'Use advanced AI features', 'general', 'ai', 5, TRUE);
+    -- Organization Permissions
+    ('org.analytics:read', 'View Organization Analytics', 'View organization-level analytics and statistics', 'general', 'org', TRUE)
+ON CONFLICT (code) DO NOTHING;
 
 -- ============================================================================
 -- 4. CREATE TRIGGER FOR updated_at
 -- ============================================================================
+DROP TRIGGER IF EXISTS trigger_permissions_updated_at ON core.permissions;
 CREATE TRIGGER trigger_permissions_updated_at
-    BEFORE UPDATE ON permissions
+    BEFORE UPDATE ON core.permissions
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
@@ -135,15 +103,14 @@ CREATE TRIGGER trigger_permissions_updated_at
 -- 5. CREATE HELPER FUNCTION: Get permission by code
 -- ============================================================================
 CREATE OR REPLACE FUNCTION get_permission_by_code(p_code VARCHAR)
-RETURNS TABLE(id UUID, display_name VARCHAR, permission_type VARCHAR, required_level SMALLINT)
+RETURNS TABLE(id UUID, display_name VARCHAR, permission_type VARCHAR)
 AS $$
     SELECT
-        permissions.id,
-        permissions.display_name,
-        permissions.permission_type,
-        permissions.required_hierarchy_level
-    FROM permissions
-    WHERE permissions.code = p_code;
+        p.id,
+        p.display_name,
+        p.permission_type
+    FROM core.permissions p
+    WHERE p.code = p_code;
 $$ LANGUAGE SQL STABLE;
 
 -- ============================================================================
@@ -153,12 +120,12 @@ CREATE OR REPLACE FUNCTION get_permissions_by_category(p_category VARCHAR)
 RETURNS TABLE(code VARCHAR, display_name VARCHAR, permission_type VARCHAR)
 AS $$
     SELECT
-        permissions.code,
-        permissions.display_name,
-        permissions.permission_type
-    FROM permissions
-    WHERE permissions.category = p_category
-    ORDER BY permissions.code;
+        p.code,
+        p.display_name,
+        p.permission_type
+    FROM core.permissions p
+    WHERE p.category = p_category
+    ORDER BY p.code;
 $$ LANGUAGE SQL STABLE;
 
 -- ============================================================================

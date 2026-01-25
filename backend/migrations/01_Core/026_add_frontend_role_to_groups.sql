@@ -1,12 +1,12 @@
 -- ============================================================================
 -- Migration: 026_add_frontend_role_to_groups.sql
--- Description: Add frontend_role column to groups table for RBAC 3.0 compatibility
+-- Description: Add frontend_role column to groups table for GBA frontend compatibility
 -- Version: 1.0.0
 -- Author: LernsystemX Migration System
 -- Date: 2026-01-22
 -- ============================================================================
 
--- Purpose: Map group slugs to frontend-compatible role values
+-- Purpose: Map group slugs to frontend-compatible role values for backward compatibility
 -- Frontend expects: Free, Premium, Creator, Teacher, School, Company,
 --                   Support, Moderator, Admin, school_admin, company_admin, owner
 
@@ -123,7 +123,7 @@ BEGIN
     ╠════════════════════════════════════════════════════════════════╣
     ║ Groups updated with frontend_role: %                           ║
     ║ Helper function created: get_user_frontend_role()              ║
-    ║ Status: RBAC 3.0 Frontend Compatibility Ready                  ║
+    ║ Status: GBA Frontend Compatibility Ready                       ║
     ╚════════════════════════════════════════════════════════════════╝
     ', v_groups_updated;
 END $$;

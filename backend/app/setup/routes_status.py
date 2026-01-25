@@ -103,7 +103,8 @@ def get_seed_status():
         {
             "success": bool,
             "learning_methods": int,
-            "roles": int,
+            "system_features": int,
+            "groups": int,
             "categories": int,
             "expected": dict
         }
@@ -112,8 +113,9 @@ def get_seed_status():
         GET /setup/seed/status
         Response: {
             "success": true,
-            "learning_methods": 21,
-            "roles": 10,
+            "learning_methods": 12,
+            "system_features": 25,
+            "groups": 10,
             "categories": 8,
             "expected": {...}
         }

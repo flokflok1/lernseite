@@ -276,8 +276,14 @@ def archive_course_authoring_session(session_id):
             WHERE session_id = %s
             AND (created_by = %s OR EXISTS (
                 SELECT 1 FROM users u
-                JOIN roles r ON r.role_id = u.role_id
-                WHERE u.user_id = %s AND r.role_name = 'admin'
+                JOIN core.users_groups ug ON u.user_id = ug.user_id
+                JOIN core.groups g ON ug.group_id = g.id
+                JOIN core.group_permissions gp ON g.id = gp.group_id
+                JOIN core.permissions p ON gp.permission_id = p.id
+                WHERE u.user_id = %s
+                    AND ug.is_active = TRUE
+                    AND ug.left_at IS NULL
+                    AND p.permission_code LIKE 'admin.%'
             ))
         """
         execute_query(query, (session_id, user_id, user_id))

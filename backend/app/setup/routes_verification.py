@@ -33,7 +33,7 @@ def seed_database():
     Creates:
     - Learning methods (12 Content-Lernmethoden)
     - System features (25 features)
-    - Roles (9)
+    - Groups (10 GBA system groups)
     - Categories (8)
 
     Returns:
@@ -42,7 +42,7 @@ def seed_database():
             "success": bool,
             "learning_methods": int,
             "system_features": int,
-            "roles": int,
+            "groups": int,
             "categories": int,
             "errors": [str]
         }
@@ -54,7 +54,7 @@ def seed_database():
             "success": true,
             "learning_methods": 12,
             "system_features": 25,
-            "roles": 9,
+            "groups": 10,
             "categories": 8
         }
     """
@@ -77,7 +77,7 @@ def seed_database():
             'success': True,
             'learning_methods': results['learning_methods'],
             'system_features': results['system_features'],
-            'roles': results['roles'],
+            'groups': results['groups'],
             'categories': results['categories'],
             'message': 'Database seeded successfully'
         }), 200

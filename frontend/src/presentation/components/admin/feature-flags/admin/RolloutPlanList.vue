@@ -138,7 +138,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { RolloutPlan } from '@/infrastructure/api/clients/admin'
+import type { RolloutPlan } from '@/application/services/api/admin'
 
 const { t } = useI18n()
 

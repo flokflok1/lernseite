@@ -364,8 +364,8 @@ import {
   adminDeleteChapter,
   type AdminCourseDetail,
   type AdminChapter
-} from '@/infrastructure/api/clients/admin'
-import { getCategoryTree, type Category, type CategoryTreeNode } from '@/infrastructure/api/clients/content'
+} from '@/application/services/api/admin'
+import { getCategoryTree, type Category, type CategoryTreeNode } from '@/application/services/api/content'
 
 interface Props {
   panel: LsxPanel

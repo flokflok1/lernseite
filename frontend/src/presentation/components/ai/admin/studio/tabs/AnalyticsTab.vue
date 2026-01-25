@@ -209,7 +209,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import { StatsCard } from '@/presentation/components/assessment/admin/settings/exams'
 
 const { t } = useI18n()

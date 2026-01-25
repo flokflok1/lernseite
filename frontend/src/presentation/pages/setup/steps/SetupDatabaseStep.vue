@@ -25,8 +25,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import * as setupApi from '@/infrastructure/api/setup.api'
-import type { DatabaseInitResponse } from '@/infrastructure/api/setup.api'
+import * as setupApi from '@/application/services/api/system'
+import type { DatabaseInitResponse } from '@/application/services/api/system'
 import Button from '@/presentation/components/base/Button.vue'
 
 const { t } = useI18n()

@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { QuizQuestion, QuizAnswerSubmission } from '@/infrastructure/api/clients/learning'
+import type { QuizQuestion, QuizAnswerSubmission } from '@/application/services/api/learning'
 
 const { t } = useI18n()
 

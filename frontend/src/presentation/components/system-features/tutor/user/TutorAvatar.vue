@@ -129,7 +129,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { ttsApi, DEFAULT_TUTOR_VOICE } from '@/infrastructure/api/tts.api'
+import { ttsApi, DEFAULT_TUTOR_VOICE } from '@/application/services/api/system'
 import tutorAvatarSvg from '@/shared/assets/tutor-avatar.svg'
 
 // ============================================================================

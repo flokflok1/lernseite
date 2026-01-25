@@ -243,7 +243,7 @@ import { ref } from 'vue'
 import { useLearningMethods } from './composables/useLearningMethods.ts'
 import { InstancesTab, CatalogTab, StatsTab } from './tabs/index.ts'
 import LearningMethodEditModal from './LearningMethodEditModal.vue'
-import type { AdminLearningMethod, LearningMethodType } from '@/infrastructure/api/admin.api'
+import type { AdminLearningMethod, LearningMethodType } from '@/application/services/api/admin'
 
 interface Props {
   window: {

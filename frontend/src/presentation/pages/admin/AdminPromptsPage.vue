@@ -484,7 +484,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { http } from '@/infrastructure/api/http'
+import { http } from '@/application/services/api/system'
 
 interface PromptTemplate {
   template_id?: string

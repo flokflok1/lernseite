@@ -186,7 +186,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getActionsByCategory, type AuthoringAction } from '@/infrastructure/api/authoring.api'
+import { getActionsByCategory, type AuthoringAction } from '@/application/services/api/learning'
 
 const { t } = useI18n()
 

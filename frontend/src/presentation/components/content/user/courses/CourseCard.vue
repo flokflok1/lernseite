@@ -108,7 +108,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CourseListItem } from '@/infrastructure/api/courses.api'
+import type { CourseListItem } from '@/application/services/api/content'
 
 // ============================================================================
 // Props & Emits

@@ -3,7 +3,7 @@
  *
  * 8 endpoints for plugin discovery, approval, and management.
  */
-import http from '@/infrastructure/api/clients/system/http'
+import http from '@/infrastructure/api/http'
 import type {
   LMPluginMetadata,
   ScanPluginsResponse,

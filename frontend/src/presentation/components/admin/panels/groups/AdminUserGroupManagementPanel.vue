@@ -37,7 +37,7 @@
 
       <!-- Roles Tab -->
       <div v-if="activeTab === 'roles'" class="h-full">
-        <AdminRolesContent />
+        <AdminGroupsContent />
       </div>
     </div>
   </div>
@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AdminUsersContent from '@/presentation/components/admin/panels/users/AdminUsersContent.vue'
-import AdminRolesContent from '@/presentation/components/admin/panels/roles/AdminRolesContent.vue'
+import AdminGroupsContent from '@/presentation/components/admin/panels/groups/roles-legacy/AdminGroupsContent.vue'
 
 /**
  * Admin User & Group Management Window

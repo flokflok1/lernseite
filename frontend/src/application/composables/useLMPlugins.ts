@@ -5,7 +5,7 @@
  * Provides reactive state and actions for plugin management.
  */
 import { ref, computed } from 'vue'
-import { lmPluginsApi } from '@/infrastructure/api/admin/lm-plugins.api'
+import { lmPluginsApi } from '@/application/services/api/admin'
 import type { LMPluginMetadata } from '@/types/plugins'
 
 // Singleton state (shared across all components)

@@ -159,7 +159,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/window.store'
 import { useTheoryManagement } from '@/application/composables/useTheoryManagement'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import {
   ChatPanel,
   ConfirmationPanel,
@@ -173,7 +173,7 @@ import {
   getLMSuggestions,
   type AuthoringAction,
   type LMSuggestion
-} from '@/infrastructure/api/authoring.api'
+} from '@/application/services/api/learning'
 
 const { t } = useI18n()
 

@@ -71,6 +71,7 @@ export {
 // ============================================================================
 export {
   getCategories,
+  getCategoryTree,
   searchCategories,
   type Category,
   type CategoryTreeNode,

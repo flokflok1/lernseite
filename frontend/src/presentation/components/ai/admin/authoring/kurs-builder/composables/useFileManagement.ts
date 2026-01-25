@@ -7,7 +7,7 @@
  */
 
 import { ref, computed, type Ref } from 'vue'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import type { CourseFile } from '../types'
 
 /**

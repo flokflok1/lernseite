@@ -1,7 +1,7 @@
 /**
  * Backward Compatibility Re-export
  * This file re-exports from the new domain-organized location.
- * Existing imports like `import * from '@/infrastructure/api/clients/learning'` continue to work.
+ * Existing imports like `import * from '@/application/services/api/learning'` continue to work.
  *
  * New code should use: import { ... } from '@/infrastructure/api/system'
  */

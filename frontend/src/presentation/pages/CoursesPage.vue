@@ -204,8 +204,8 @@ import {
   getMyCourses,
   type CourseListItem,
   type EnrolledCourse
-} from '@/infrastructure/api/courses.api'
-import { getCategoryTree, type Category, type CategoryTreeNode } from '@/infrastructure/api/categories.api'
+} from '@/application/services/api/content'
+import { getCategoryTree, type Category, type CategoryTreeNode } from '@/application/services/api/content'
 import { useAuthStore } from '@/application/stores/auth.store'
 import Button from '@/presentation/components/base/Button.vue'
 import CourseCard from '@/presentation/components/content/user/courses/CourseCard.vue'

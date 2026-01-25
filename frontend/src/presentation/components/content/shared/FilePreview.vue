@@ -155,7 +155,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/application/stores/window.store'
 import { useWindowStore } from '@/application/stores/window.store'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 
 const { t } = useI18n()
 

@@ -6,11 +6,11 @@
  * New: 14 focused modules in ./admin/
  *
  * All imports remain compatible:
- *   import { adminGetUsers, AdminUser } from '@/infrastructure/api/clients/admin'
+ *   import { adminGetUsers, AdminUser } from '@/application/services/api/admin'
  *
  * Or use new direct imports:
- *   import { adminGetUsers } from '@/infrastructure/api/clients/admin'
- *   import type { AdminUser } from '@/infrastructure/api/clients/admin/types'
+ *   import { adminGetUsers } from '@/application/services/api/admin'
+ *   import type { AdminUser } from '@/application/services/api/admin/types'
  */
 
 // Implementation placeholder

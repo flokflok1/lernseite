@@ -76,7 +76,7 @@
  * =========================
  * Grid display of course chapters with status indicators
  */
-import type { Chapter } from '@/infrastructure/api/clients/learning'
+import type { Chapter } from '@/application/services/api/learning'
 
 interface Props {
   chapters: Chapter[]

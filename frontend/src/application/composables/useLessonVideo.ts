@@ -29,7 +29,7 @@
  */
 
 import { ref, computed } from 'vue'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 
 // Types
 export interface WhiteboardAction {

@@ -72,7 +72,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFeatureFlagsStore } from '@/application/stores/modules/admin/feature-flags.store'
-import type { FeatureFlag, RolloutPlan } from '@/infrastructure/api/clients/admin'
+import type { FeatureFlag, RolloutPlan } from '@/application/services/api/admin'
 import FeatureFlagList from './FeatureFlagList.vue'
 import RolloutPlanList from './RolloutPlanList.vue'
 import FeatureFlagsAnalytics from './FeatureFlagsAnalytics.vue'

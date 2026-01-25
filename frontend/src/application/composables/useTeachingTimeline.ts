@@ -15,7 +15,7 @@
  */
 
 import { ref, computed, readonly } from 'vue'
-import { ttsApi } from '@/infrastructure/api/tts.api'
+import { ttsApi } from '@/application/services/api/system'
 
 // ============================================================================
 // Types

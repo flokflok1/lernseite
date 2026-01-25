@@ -266,8 +266,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import * as coursesApi from '@/infrastructure/api/clients/content'
-import type { CourseListItem } from '@/infrastructure/api/clients/content'
+import * as coursesApi from '@/application/services/api/content'
+import type { CourseListItem } from '@/application/services/api/content'
 
 const { t } = useI18n()
 const router = useRouter()

@@ -7,7 +7,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePlayerStore } from '@/application/stores/player.store'
 import { useTutorStore } from '@/application/stores/tutor.store'
-import type { Chapter } from '@/infrastructure/api/player.api'
+import type { Chapter } from '@/application/services/api/learning'
 
 export function useCourseOverview(courseId: string) {
   const router = useRouter()

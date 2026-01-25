@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AdminLearningMethod, LearningMethodGroup } from '@/infrastructure/api/clients/admin'
+import type { AdminLearningMethod, LearningMethodGroup } from '@/application/services/api/admin'
 
 interface Props {
   editingMethod: AdminLearningMethod | null

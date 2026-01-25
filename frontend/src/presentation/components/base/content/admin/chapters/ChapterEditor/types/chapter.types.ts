@@ -3,7 +3,7 @@
  * Type definitions for chapter editor functionality
  */
 
-import type { AdminChapter, AdminLesson, AdminLearningMethod, LearningMethodType } from '@/infrastructure/api/clients/admin'
+import type { AdminChapter, AdminLesson, AdminLearningMethod, LearningMethodType } from '@/application/services/api/admin'
 import type { LsxPanel } from '@/application/stores/modules/desktop'
 
 export interface ChapterEditorProps {

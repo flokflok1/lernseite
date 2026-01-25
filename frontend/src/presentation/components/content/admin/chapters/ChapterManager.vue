@@ -211,7 +211,7 @@ import {
   adminCreateChapter,
   adminDeleteChapter,
   type AdminChapter
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 const { t, locale } = useI18n()
 

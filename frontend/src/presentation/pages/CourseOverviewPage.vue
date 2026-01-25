@@ -69,7 +69,7 @@ import {
   // REMOVED: CourseDetailsSections (not found)
   useCourseOverview
 } from '@/presentation/components/content/user/courses/overview'
-import type { Chapter } from '@/infrastructure/api/player.api'
+import type { Chapter } from '@/application/services/api/learning'
 
 // ============================================================================
 // Setup

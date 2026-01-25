@@ -114,7 +114,7 @@ import { getLearningMethodByCode, getTierFromCode } from '@/infrastructure/confi
 import {
   adminCreateLearningMethod,
   adminUpdateLearningMethod
-} from '@/infrastructure/api/clients/admin'
+} from '@/application/services/api/admin'
 
 interface Props {
   panel: LsxPanel

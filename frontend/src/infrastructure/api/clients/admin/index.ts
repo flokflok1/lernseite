@@ -32,7 +32,7 @@ export * from './organisations/index' // New: Organisations subdomain
 export * from './groups.api' // GBA: Group-Based Access Control (replaces RBAC)
 export * from './analytics.api'
 // NOTE: Course APIs are in the content domain
-// Import them from '@/infrastructure/api/clients/content' instead
+// Import them from '@/application/services/api/content' instead
 export * from './chapters.api'
 export * from './lessons.api'
 export * from './ai-jobs.api'
@@ -47,3 +47,7 @@ export * from './lm-plugins.api'
 export * from './feature-flags.api'
 export * from './i18n-sync.api'
 export * from './courses.api'
+
+// Export groupsApi (GBA: Group-Based Access Control) as default
+export { default as groupsApi } from './groups.api'
+export * from './system-settings.api'

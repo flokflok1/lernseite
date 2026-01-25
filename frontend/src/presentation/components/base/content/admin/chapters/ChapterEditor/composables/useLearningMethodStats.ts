@@ -11,7 +11,7 @@ import {
   adminGetLearningMethodTypes,
   type AdminLearningMethod,
   type LearningMethodType
-} from '@/infrastructure/api/clients/admin'
+} from '@/application/services/api/admin'
 import type { MethodGroupStats, GroupInfo } from '../types'
 
 export function useLearningMethodStats() {

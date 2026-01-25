@@ -75,7 +75,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTranslation } from '@/application/composables/useTranslation'
-import type { LanguageProgress } from '@/infrastructure/api/i18n.api'
+import type { LanguageProgress } from '@/application/services/api/system'
 
 // Props
 interface Props {

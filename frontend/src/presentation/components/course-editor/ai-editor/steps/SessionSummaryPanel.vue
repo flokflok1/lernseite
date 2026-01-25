@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { PDFUploadResponse, SourceType } from '@/infrastructure/api/clients/learning/editor.api'
+import type { PDFUploadResponse, SourceType } from '@/application/services/api/learning'
 
 interface Props {
   sourceType: SourceType | null

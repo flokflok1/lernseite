@@ -7,7 +7,7 @@
 
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getBundle, getLanguages, type LanguageProgress } from '@/infrastructure/api/i18n.api'
+import { getBundle, getLanguages, type LanguageProgress } from '@/application/services/api/system'
 
 // Cache for loaded bundles
 const bundleCache = new Map<string, Record<string, string>>()

@@ -12,7 +12,7 @@ import {
   type AdminLearningMethod,
   type LearningMethodType,
   type LearningMethodGroup
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 export function useLearningMethods(props: any) {
   const { t } = useI18n()

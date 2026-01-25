@@ -10,8 +10,8 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-// import { getPanelSizes, updatePanelSize as apiUpdatePanelSize } from '@/infrastructure/api/clients/user'
-// TODO: Implement getPanelSizes and updatePanelSize APIs in @/infrastructure/api/clients/user domain
+// import { getPanelSizes, updatePanelSize as apiUpdatePanelSize } from '@/application/services/api/user'
+// TODO: Implement getPanelSizes and updatePanelSize APIs in @/application/services/api/user domain
 
 /**
  * Available panel types
@@ -392,7 +392,7 @@ export const usePanelStore = defineStore('panel', () => {
     }
     saveDebounceTimer = setTimeout(async () => {
       try {
-        // TODO: Implement updatePanelSize API call in @/infrastructure/api/clients/user domain
+        // TODO: Implement updatePanelSize API call in @/application/services/api/user domain
         // await apiUpdatePanelSize(panel.type, constrainedSize.width, constrainedSize.height)
         // For now, localStorage fallback is already saved above
       } catch (error) {
@@ -407,7 +407,7 @@ export const usePanelStore = defineStore('panel', () => {
    */
   async function loadPanelSizesFromServer(): Promise<void> {
     try {
-      // TODO: Implement getPanelSizes API call in @/infrastructure/api/clients/user domain
+      // TODO: Implement getPanelSizes API call in @/application/services/api/user domain
       // Stub response for now - using localStorage fallback
       // const serverSizes = await getPanelSizes()
       // if (serverSizes && Object.keys(serverSizes).length > 0) {

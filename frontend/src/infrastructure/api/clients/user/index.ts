@@ -6,8 +6,8 @@
  * Part of the DDD Architecture - User Domain consolidating authentication, profile, and dashboard.
  *
  * Usage:
- * import { login, getProfile, updateThemePreference } from '@/infrastructure/api/clients/user'
- * import type { User, ProfileResponse, ThemePreferenceResponse } from '@/infrastructure/api/clients/user'
+ * import { login, getProfile, updateThemePreference } from '@/application/services/api/user'
+ * import type { User, ProfileResponse, ThemePreferenceResponse } from '@/application/services/api/user'
  */
 
 // ============================================================================
@@ -90,4 +90,4 @@ export {
 // ============================================================================
 
 // NOTE: Dashboard APIs are in the system domain
-// Import them from '@/infrastructure/api/clients/system' instead
+// Import them from '@/application/services/api/system' instead

@@ -88,7 +88,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePanelStore } from '@/application/stores/modules/desktop'
-import http from '@/infrastructure/api/clients/system/http'
+import http from '@/application/services/api/system'
 
 useI18n()
 const windowStore = usePanelStore()

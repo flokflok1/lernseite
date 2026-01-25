@@ -380,7 +380,7 @@ import {
   type Exam,
   type ExamCreateRequest,
   type ExamGenerateRequest
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 interface Props {
   courseId: string

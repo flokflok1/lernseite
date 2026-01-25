@@ -15,7 +15,7 @@ import Avatar3D from './Avatar3D.vue'
 import FeedbackWindow from './FeedbackWindow.vue'
 import { useAvatarStore, PRESET_AVATARS, type AvatarMode } from '@/application/stores/avatar.store'
 import { useTutorStore, DEFAULT_PERSONALITIES } from '@/application/stores/tutor.store'
-import { tutorChat, tutorTTS } from '@/infrastructure/api/tutor.api'
+import { tutorChat, tutorTTS } from '@/application/services/api/learning'
 
 // Stores
 const avatarStore = useAvatarStore()

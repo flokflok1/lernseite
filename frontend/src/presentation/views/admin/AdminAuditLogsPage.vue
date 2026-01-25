@@ -269,7 +269,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/application/stores/modules/admin'
-import type { AuditLog, AuditLogsFilterParams } from '@/infrastructure/api/clients/admin'
+import type { AuditLog, AuditLogsFilterParams } from '@/application/services/api/admin'
 
 const { locale } = useI18n()
 const adminStore = useAdminStore()

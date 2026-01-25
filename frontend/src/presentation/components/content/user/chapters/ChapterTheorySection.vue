@@ -174,7 +174,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { InteractiveWhiteboard } from '@/presentation/components/system-features/tutor/user'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 
 const { t } = useI18n()
 

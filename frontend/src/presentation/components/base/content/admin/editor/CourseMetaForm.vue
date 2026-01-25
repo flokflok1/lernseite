@@ -122,7 +122,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
 import { useCourseEditorStore } from '@/application/stores/modules/content'
-import { getCategoryTree, type Category, type CategoryTreeNode } from '@/infrastructure/api/clients/content'
+import { getCategoryTree, type Category, type CategoryTreeNode } from '@/application/services/api/content'
 
 const editorStore = useCourseEditorStore()
 

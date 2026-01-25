@@ -168,12 +168,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { AIModelPricing, AIModelPricingUpdateRequest } from '@/infrastructure/api/admin/types'
+import type { AIModelPricing, AIModelPricingUpdateRequest } from '@/application/services/api/admin'
 import {
   adminGetAIPricing,
   adminUpdateAIPricing,
   adminApplyPricingMargin
-} from '@/infrastructure/api/admin/ai-pricing.api'
+} from '@/application/services/api/admin'
 import PricingTable from './PricingTable.vue'
 import PricingEditModal from './PricingEditModal.vue'
 

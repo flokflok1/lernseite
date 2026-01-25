@@ -6,7 +6,7 @@
 
 import { computed, onMounted } from 'vue'
 import { useFeatureFlagsStore } from '@/application/stores/modules/admin/feature-flags.store'
-import type { FeatureFlag } from '@/infrastructure/api/clients/admin'
+import type { FeatureFlag } from '@/application/services/api/admin'
 
 export interface UseFeatureFlagsOptions {
   /**

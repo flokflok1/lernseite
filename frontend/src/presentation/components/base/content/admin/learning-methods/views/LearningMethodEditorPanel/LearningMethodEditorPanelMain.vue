@@ -147,7 +147,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { AdminLearningMethod, LearningMethodType, LearningMethodGroup } from '@/infrastructure/api/clients/admin'
+import type { AdminLearningMethod, LearningMethodType, LearningMethodGroup } from '@/application/services/api/admin'
 import { InstancesTab, CatalogTab, StatsTab } from './tabs'
 import { LearningMethodEditModal } from '.'
 

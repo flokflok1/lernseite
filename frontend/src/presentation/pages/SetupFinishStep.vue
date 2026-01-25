@@ -43,7 +43,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import * as setupApi from '@/infrastructure/api/clients/system'
+import * as setupApi from '@/application/services/api/system'
 import Button from '@/presentation/components/base/Button.vue'
 import { useAppStore } from '@/application/stores/modules/core'
 

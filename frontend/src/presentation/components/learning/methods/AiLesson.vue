@@ -103,7 +103,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-import type { Lesson } from '@/infrastructure/api/player.api'
+import type { Lesson } from '@/application/services/api/learning'
 
 // ============================================================================
 // Props

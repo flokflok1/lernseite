@@ -126,27 +126,43 @@ export {
 // Tokens API Export
 // ============================================================================
 
-// NOTE: Token APIs are not yet fully migrated to infrastructure layer
-// TODO: Implement token functions in tokens.api.ts:
-// - getMyTokens, getTokenTransactions, getTokenUsage
-// - estimateAICost, purchaseTokens
+export {
+  getMyTokens,
+  getTokenTransactions,
+  getTokenUsage,
+  estimateAICost,
+  type TokenBalanceResponse,
+  type TokenTransactionItem,
+  type TokenUsageResponse
+} from './tokens.api'
 
 // ============================================================================
 // Subscriptions API Export
 // ============================================================================
 
-// NOTE: Subscription APIs are not yet fully migrated to infrastructure layer
-// TODO: Implement subscription functions in subscriptions.api.ts:
-// - getPlans, getCurrentSubscription, subscribeToPlan
-// - cancelSubscription, updateSubscription
+export {
+  getPlans,
+  getMySubscription,
+  changeSubscription,
+  cancelSubscription,
+  reactivateSubscription,
+  type SubscriptionPlan,
+  type SubscriptionResponse
+} from './subscriptions.api'
 
 // ============================================================================
 // Gamification API Export
 // ============================================================================
 
-// NOTE: Gamification APIs are not yet fully migrated to infrastructure layer
-// TODO: Implement gamification functions in gamification.api.ts:
-// - getGamificationData, awardXP, completeBadge, getLeaderboard
+export {
+  getMyGamificationData,
+  getMyStats,
+  getMySkills,
+  getMyAchievements,
+  type BaseStats,
+  type GamificationData,
+  type GamificationApiResponse
+} from './gamification.api'
 
 // ============================================================================
 // TTS API Export
@@ -183,3 +199,20 @@ export {
   type OralAnalysisResult,
   type AudioFormatsResponse
 } from './audio.api'
+
+// ============================================================================
+// Math Toolkit API Export
+// ============================================================================
+export {
+  mathToolkitApi,
+  type MathCategory,
+  type MathPattern,
+  type PatternVariable,
+  type PatternStep,
+  type MathFormula,
+  type MathSession,
+  type CalculationStep,
+  type UserProgress,
+  type PatternTask,
+  type CalculatorEntry
+} from './mathToolkit.api'

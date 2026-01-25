@@ -28,4 +28,4 @@ export type {
 } from './management.api'
 
 // Note: OrgCourse is defined in courses.api.ts but re-exported from management.api.ts
-// for convenience. All types are available from '@/infrastructure/api/clients/admin/organisations'
+// for convenience. All types are available from '@/application/services/api/admin/organisations'

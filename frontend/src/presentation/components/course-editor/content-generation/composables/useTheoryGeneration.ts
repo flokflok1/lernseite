@@ -7,7 +7,7 @@
 
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import type { ChapterTheory, TheoryStyle } from '../types/theory.types'
 
 export function useTheoryGeneration() {

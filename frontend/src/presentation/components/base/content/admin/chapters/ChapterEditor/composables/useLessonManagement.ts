@@ -11,7 +11,7 @@ import {
   adminDeleteLesson,
   adminReorderLessons,
   type AdminLesson
-} from '@/infrastructure/api/clients/admin'
+} from '@/application/services/api/admin'
 import type { DragState } from '../types'
 
 export function useLessonManagement(courseId: string, chapterId: string | undefined, isNewChapter: boolean) {

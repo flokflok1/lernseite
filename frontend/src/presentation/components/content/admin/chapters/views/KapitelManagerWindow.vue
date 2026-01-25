@@ -210,7 +210,7 @@ import {
   adminCreateChapter,
   adminDeleteChapter,
   type AdminChapter
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 interface Props {
   window: LsxWindow

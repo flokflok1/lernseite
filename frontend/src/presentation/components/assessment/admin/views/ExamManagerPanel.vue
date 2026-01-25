@@ -380,7 +380,7 @@ import {
   type Exam,
   type ExamCreateRequest,
   type ExamGenerateRequest
-} from '@/infrastructure/api/clients/admin'
+} from '@/application/services/api/admin'
 
 const { t } = useI18n()
 

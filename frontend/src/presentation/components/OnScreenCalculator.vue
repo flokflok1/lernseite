@@ -113,7 +113,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { mathToolkitApi } from '@/infrastructure/api/clients/learning'
+import { mathToolkitApi } from '@/application/services/api/learning'
 
 const { t } = useI18n()
 

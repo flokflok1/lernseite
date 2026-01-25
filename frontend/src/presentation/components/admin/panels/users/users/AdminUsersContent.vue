@@ -450,7 +450,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/application/stores/modules/admin'
-import type { AdminUser, BanUserRequest } from '@/infrastructure/api/clients/admin'
+import type { AdminUser, BanUserRequest } from '@/application/services/api/admin'
 
 const { t } = useI18n()
 const adminStore = useAdminStore()

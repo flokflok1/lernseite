@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/clients/system/http'
+import http from '@/application/services/api/system'
 
 const { t } = useI18n()
 

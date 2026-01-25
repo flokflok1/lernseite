@@ -151,7 +151,7 @@
 import { ref, computed, onMounted, defineAsyncComponent, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LsxPanel } from '@/application/stores/modules/desktop'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 
 const { t } = useI18n()
 

@@ -214,7 +214,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import {
   FeaturesHeader,
   ScopeSelector,

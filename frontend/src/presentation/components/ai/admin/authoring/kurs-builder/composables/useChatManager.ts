@@ -7,7 +7,7 @@
  */
 
 import { ref, nextTick, watch, type Ref } from 'vue'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import type { ChatMessage, Session } from '../types'
 
 /**

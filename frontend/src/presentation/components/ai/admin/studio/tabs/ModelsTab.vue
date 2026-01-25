@@ -129,7 +129,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import { ProviderRow, ModelCard, CategorySelector, StatsOverview, SyncResultBanner, ModelsHeader, ModelsFilter } from '../../settings/models'
 
 const { t } = useI18n()

@@ -179,7 +179,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { QuizResult, QuizData, QuizAnswerSubmission } from '@/infrastructure/api/clients/learning'
+import type { QuizResult, QuizData, QuizAnswerSubmission } from '@/application/services/api/learning'
 import Button from '@/presentation/components/base/Button.vue'
 
 const { t } = useI18n()

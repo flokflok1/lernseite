@@ -197,8 +197,8 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'roles',
-        name: 'AdminRoles',
-        component: () => import('@/presentation/pages/admin/AdminRolesPage.vue'),
+        name: 'AdminGroups',
+        component: () => import('@/presentation/pages/admin/AdminGroupsPage.vue'),
       },
       {
         path: 'system-settings',

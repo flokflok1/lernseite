@@ -456,7 +456,7 @@ import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/application/stores/modules/admin'
 
 const { t } = useI18n()
-import type { AdminUser, BanUserRequest } from '@/infrastructure/api/clients/admin'
+import type { AdminUser, BanUserRequest } from '@/application/services/api/admin'
 
 const adminStore = useAdminStore()
 const router = useRouter()

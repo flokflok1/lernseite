@@ -13,10 +13,10 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User as UserAPIDTO, LoginRequest, RegisterRequest } from '@/infrastructure/api/clients/user'
-import type { ProfileResponse } from '@/infrastructure/api/clients/user'
-import * as authApi from '@/infrastructure/api/clients/user'
-import * as profileApi from '@/infrastructure/api/clients/user'
+import type { User as UserAPIDTO, LoginRequest, RegisterRequest } from '@/application/services/api/user'
+import type { ProfileResponse } from '@/application/services/api/user'
+import * as authApi from '@/application/services/api/user'
+import * as profileApi from '@/application/services/api/user'
 import { User as UserModel } from '@/domain/models/user/User.model'
 import { UserRoleEnum } from '@/domain/models/user/UserRole.vo'
 

@@ -1,13 +1,14 @@
 /**
  * System API Gateway
  *
- * Re-exports system/i18n/math/exam APIs from infrastructure layer.
+ * Re-exports system domain APIs from infrastructure layer.
  * Provides DDD boundary enforcement.
  */
 
-export * from '@/infrastructure/api/clients/i18n'
-export * from '@/infrastructure/api/clients/math-toolkit'
-export * from '@/infrastructure/api/clients/exam-simulation'
-export type * from '@/infrastructure/api/clients/i18n'
-export type * from '@/infrastructure/api/clients/math-toolkit'
-export type * from '@/infrastructure/api/clients/exam-simulation'
+// default export: http client
+export { default } from '@/infrastructure/api/clients/system/http'
+
+// named exports/types: everything from system client index
+export * from '@/infrastructure/api/clients/system'
+export type * from '@/infrastructure/api/clients/system'
+

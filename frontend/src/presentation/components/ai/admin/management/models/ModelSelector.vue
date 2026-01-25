@@ -361,8 +361,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/application/stores/window.store'
-import * as adminApi from '@/infrastructure/api/admin.api'
-import type { AIModelRegistryItem, AIModelRegistryCategory, AIModelUpdateRequest, AIProviderInfo } from '@/infrastructure/api/admin.api'
+import * as adminApi from '@/application/services/api/admin'
+import type { AIModelRegistryItem, AIModelRegistryCategory, AIModelUpdateRequest, AIProviderInfo } from '@/application/services/api/admin'
 
 const { t } = useI18n()
 

@@ -15,7 +15,7 @@ import {
   setDefaultModelForCategory,
   type LMSlotOverview,
   type AIModel
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 const { t } = useI18n()
 

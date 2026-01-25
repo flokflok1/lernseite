@@ -358,7 +358,7 @@ import {
   type AdminLessonCreateRequest,
   type AdminLessonUpdateRequest,
   type LessonType
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 interface Props {
   window: LsxWindow

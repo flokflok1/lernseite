@@ -24,7 +24,7 @@ import {
   type ExamSimulation,
   type ExamQuestion,
   type ExamAttempt
-} from '@/infrastructure/api/examSimulation.api'
+} from '@/application/services/api/learning'
 
 const route = useRoute()
 const router = useRouter()

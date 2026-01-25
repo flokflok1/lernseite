@@ -358,7 +358,7 @@ import {
   type AdminLessonCreateRequest,
   type AdminLessonUpdateRequest,
   type LessonType
-} from '@/infrastructure/api/clients/admin'
+} from '@/application/services/api/admin'
 
 interface Props {
   panel: LsxPanel

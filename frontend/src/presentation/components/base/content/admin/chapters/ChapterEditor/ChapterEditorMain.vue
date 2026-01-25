@@ -13,7 +13,7 @@ import { useVideoManagement } from './composables/useVideoManagement'
 import { InfoTab, TheoryTab, VideosTab, MethodsTab, LessonsTab } from './tabs'
 
 // Types
-import type { AdminLesson } from '@/infrastructure/api/clients/admin'
+import type { AdminLesson } from '@/application/services/api/admin'
 
 interface Props {
   panel: LsxPanel

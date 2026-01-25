@@ -12,7 +12,7 @@ import {
   type AdminChapter,
   type AdminChapterCreateRequest,
   type AdminChapterUpdateRequest
-} from '@/infrastructure/api/clients/admin'
+} from '@/application/services/api/admin'
 import type { LsxPanel } from '@/application/stores/modules/desktop'
 import type { ChapterForm } from '../types'
 

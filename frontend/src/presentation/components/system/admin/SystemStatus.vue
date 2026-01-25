@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { SystemStatsData } from '@/infrastructure/api/admin.api'
+import type { SystemStatsData } from '@/application/services/api/admin'
 
 // ============================================================================
 // Props

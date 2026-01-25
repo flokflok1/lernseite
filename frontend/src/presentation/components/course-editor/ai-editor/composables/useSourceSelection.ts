@@ -8,7 +8,7 @@
  */
 
 import { ref, computed, Ref } from 'vue'
-import { uploadPDF, createSession, setSourceData, type PDFUploadResponse, type AIEditorSession, type SourceType } from '@/infrastructure/api/clients/learning/editor.api'
+import { uploadPDF, createSession, setSourceData, type PDFUploadResponse, type AIEditorSession, type SourceType } from '@/application/services/api/learning'
 import { useI18n } from 'vue-i18n'
 
 export interface SourceSelectionState {

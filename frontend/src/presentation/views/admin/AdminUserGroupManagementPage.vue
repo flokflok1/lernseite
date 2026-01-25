@@ -39,7 +39,7 @@
 
         <!-- Roles Tab -->
         <div v-if="activeTab === 'roles'" class="tab-content">
-          <AdminRolesContent />
+          <AdminGroupsContent />
         </div>
       </div>
     </div>
@@ -50,7 +50,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminUsersContent from '@/presentation/components/admin/panels/users/AdminUsersContent.vue'
-import AdminRolesContent from '@/presentation/components/admin/panels/roles/AdminRolesContent.vue'
+import AdminGroupsContent from '@/presentation/components/admin/panels/groups/roles-legacy/AdminGroupsContent.vue'
 
 const { t } = useI18n()
 

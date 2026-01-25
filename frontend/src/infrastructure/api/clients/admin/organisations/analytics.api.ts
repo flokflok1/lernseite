@@ -13,8 +13,8 @@
  * - Top performers and top courses
  *
  * Usage:
- * import { getOrganisationAnalytics, getOrganisationTokenUsage } from '@/infrastructure/api/clients/admin'
- * import type { OrgAnalyticsOverview } from '@/infrastructure/api/clients/admin'
+ * import { getOrganisationAnalytics, getOrganisationTokenUsage } from '@/application/services/api/admin'
+ * import type { OrgAnalyticsOverview } from '@/application/services/api/admin'
  */
 
 import http from '@/infrastructure/api/http'

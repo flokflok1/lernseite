@@ -19,7 +19,7 @@ import {
   type AdminChapter,
   type CourseFile,
   type CourseFileCategorySummary
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 export interface Chapter {
   chapter_id?: string

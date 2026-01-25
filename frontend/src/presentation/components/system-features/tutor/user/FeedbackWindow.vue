@@ -11,7 +11,7 @@
  */
 
 import { ref, computed, onMounted } from 'vue'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 
 // Props & Emits
 const props = defineProps<{

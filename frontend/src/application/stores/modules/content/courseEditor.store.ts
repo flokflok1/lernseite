@@ -22,8 +22,8 @@ import type {
   UpdateChapterPayload,
   LessonPayload,
   UpdateLessonPayload,
-} from '@/infrastructure/api/clients/content'
-import * as coursesApi from '@/infrastructure/api/clients/content'
+} from '@/application/services/api/content'
+import * as coursesApi from '@/application/services/api/content'
 import { toCourseDomain, toChapterDomain, fromChapterDomain, fromLessonDomain } from './adapters'
 import { Course } from '@/domain/models/course/Course.model'
 import { Chapter } from '@/domain/models/course/Chapter.model'

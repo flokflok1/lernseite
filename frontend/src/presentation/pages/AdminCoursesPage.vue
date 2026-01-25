@@ -295,7 +295,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/application/stores/modules/admin'
 import { usePanelStore } from '@/application/stores/modules/desktop'
-import type { Category } from '@/infrastructure/api/clients/admin'
+import type { Category } from '@/application/services/api/admin'
 
 interface Props {
   mode?: 'manual' | 'ai'

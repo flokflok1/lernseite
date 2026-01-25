@@ -158,3 +158,30 @@ export {
   getLMGroups,
   getLMById
 } from './authoring.api'
+
+// ============================================================================
+// Exam Simulation API Export
+// ============================================================================
+export {
+  getExamContext,
+  createExamSimulation,
+  listExamSimulations,
+  getExamSimulation,
+  deleteExamSimulation,
+  generateExamSimulation,
+  startExamAttempt,
+  listExamAttempts,
+  submitExamAttempt,
+  getUserExamProfile,
+  updateUserExamProfile,
+  type TopicScore,
+  type ExamContext,
+  type ExamSimulationConfig,
+  type ExamQuestion,
+  type ExamSimulation,
+  type ExamAttempt,
+  type SubmitAnswers,
+  type AttemptResult,
+  type UserExamProfile
+} from './examSimulation.api'
+export { getActionsForEntity } from './authoring.api'

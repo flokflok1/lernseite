@@ -124,7 +124,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/http'
+import http from '@/application/services/api/system'
 import { useWindowStore } from '@/application/stores/window.store'
 import { ProviderGrid, ProfileList, ProfileEditor, ApiKeyModal } from '../../settings/global-settings'
 

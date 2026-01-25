@@ -295,7 +295,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/application/stores/admin.store'
 import { useWindowStore } from '@/application/stores/window.store'
-import type { Category } from '@/infrastructure/api/admin.api'
+import type { Category } from '@/application/services/api/admin'
 
 const { t } = useI18n()
 const router = useRouter()

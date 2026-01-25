@@ -113,7 +113,7 @@ import { getLearningMethodByCode, getTierFromCode } from '@/infrastructure/confi
 import {
   adminCreateLearningMethod,
   adminUpdateLearningMethod
-} from '@/infrastructure/api/admin.api'
+} from '@/application/services/api/admin'
 
 interface Props {
   window: LsxWindow

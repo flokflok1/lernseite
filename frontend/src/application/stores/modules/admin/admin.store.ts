@@ -11,7 +11,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as adminApi from '@/infrastructure/api/clients/admin'
+import * as adminApi from '@/application/services/api/admin'
 import type {
   AdminUser,
   AdminOrganisation,
@@ -39,7 +39,7 @@ import type {
   AIJobStatus,
   AIJobType,
   AICourseDraft
-} from '@/infrastructure/api/clients/admin'
+} from '@/application/services/api/admin'
 
 export const useAdminStore = defineStore('admin', () => {
   // ============================================================================

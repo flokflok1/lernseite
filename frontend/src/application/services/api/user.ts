@@ -1,13 +1,9 @@
 /**
  * User API Gateway
  *
- * Re-exports user/profile/tokens/subscriptions APIs from infrastructure layer.
+ * Re-exports user domain APIs from infrastructure layer.
  * Provides DDD boundary enforcement.
  */
 
-export * from '@/infrastructure/api/clients/profile'
-export * from '@/infrastructure/api/clients/tokens'
-export * from '@/infrastructure/api/clients/subscriptions'
-export type * from '@/infrastructure/api/clients/profile'
-export type * from '@/infrastructure/api/clients/tokens'
-export type * from '@/infrastructure/api/clients/subscriptions'
+export * from '@/infrastructure/api/clients/user'
+export type * from '@/infrastructure/api/clients/user'

@@ -34,8 +34,7 @@ from app.domain.models.learning_method import (
     LearningMethodUpdate
 )
 from app.infrastructure.persistence.repositories.learning_method import LearningMethodRepository
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
@@ -254,8 +253,7 @@ def get_method_feedback(method_id: str):
 # =============================================================================
 
 @learning_methods_bp.route('', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('admin.courses:write')
 def create_learning_method():
     """
     Create new learning method (admin only)
@@ -308,8 +306,7 @@ def create_learning_method():
 
 
 @learning_methods_bp.route('/<string:method_id>', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('admin.courses:write')
 def update_learning_method(method_id: str):
     """
     Update learning method (admin only)
@@ -358,8 +355,7 @@ def update_learning_method(method_id: str):
 
 
 @learning_methods_bp.route('/<string:method_id>', methods=['DELETE'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('admin.courses:write')
 def delete_learning_method(method_id: str):
     """
     Delete learning method (admin only)
@@ -390,8 +386,7 @@ def delete_learning_method(method_id: str):
 
 
 @learning_methods_bp.route('/stats', methods=['GET'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('admin.courses:write')
 def get_learning_method_stats():
     """
     Get overall learning method statistics (admin only)
@@ -425,8 +420,7 @@ def get_learning_method_stats():
 
 
 @learning_methods_bp.route('/<string:method_id>/activate', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('admin.courses:write')
 def activate_learning_method(method_id: str):
     """
     Activate learning method (admin only)
@@ -457,8 +451,7 @@ def activate_learning_method(method_id: str):
 
 
 @learning_methods_bp.route('/<string:method_id>/deactivate', methods=['POST'])
-@token_required
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('admin.courses:write')
 def deactivate_learning_method(method_id: str):
     """
     Deactivate learning method (admin only)

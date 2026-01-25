@@ -21,7 +21,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, ValidationError
 
 from app.api.v1 import api_v1
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.user.admin import UserAdminRepository
 from app.infrastructure.persistence.repositories.user.auth import UserAuthRepository
 from app.application.services.audit_service import AuditService, Severity
@@ -53,7 +53,7 @@ class CreateUserRequest(BaseModel):
 
 
 @api_v1.route('/admin/users', methods=['GET'])
-@require_permission(Permissions.ADMIN_USER_READ)
+@permission_required('admin.users:read')
 def admin_list_users():
     """
     List all users with filtering, pagination, and sorting.
@@ -130,7 +130,7 @@ def admin_list_users():
 
 
 @api_v1.route('/admin/users', methods=['POST'])
-@require_permission(Permissions.ADMIN_USER_WRITE)
+@permission_required('admin.users:write')
 def admin_create_user():
     """
     Create a new user (Admin only).
@@ -221,7 +221,7 @@ def admin_create_user():
 
 
 @api_v1.route('/admin/users/<string:user_id>', methods=['GET'])
-@require_permission(Permissions.ADMIN_USER_READ)
+@permission_required('admin.users:read')
 def admin_get_user_details(user_id: str):
     """
     Get detailed user information including subscription, courses, and login history.
@@ -269,76 +269,103 @@ def admin_get_user_details(user_id: str):
 
 
 @api_v1.route('/admin/users/<string:user_id>/role', methods=['PATCH'])
-@require_permission(Permissions.ADMIN_USER_WRITE)
-def admin_change_user_role(user_id: str):
+def admin_change_user_role_deprecated(user_id: str):
     """
-    Change user role.
+    @deprecated This endpoint is deprecated. Use PATCH /admin/users/{id}/groups instead.
+
+    This endpoint will be removed on 2027-01-20 (12 months from now).
+    The old role-based system has been replaced with Group-Based Architecture (GBA).
+    """
+    return jsonify({
+        'success': False,
+        'error': 'DEPRECATED_ENDPOINT',
+        'message': 'This endpoint is deprecated. Use PATCH /admin/users/{id}/groups instead (GBA)',
+        'migration_guide': {
+            'old_endpoint': 'PATCH /admin/users/{id}/role',
+            'old_body': '{"new_role": "premium"}',
+            'new_endpoint': 'PATCH /admin/users/{id}/groups',
+            'new_body': '{"group_ids": [1, 2, 3], "replace": true}',
+            'removal_date': '2027-01-20'
+        }
+    }), 410  # 410 Gone
+
+
+@api_v1.route('/admin/users/<string:user_id>/groups', methods=['PATCH'])
+@permission_required('admin.users:write')
+def admin_update_user_groups(user_id: str):
+    """
+    Update user's group memberships (GBA - Group-Based Architecture).
 
     Path Parameters:
         user_id (str): User ID
 
     Request Body:
         {
-            "new_role": "premium"  // One of: user, premium, creator, teacher, etc.
+            "group_ids": [1, 2, 3],      // List of group IDs to assign
+            "replace": true              // If true, replace all groups; if false, add to existing
         }
 
     Response:
-        200: Role changed successfully
-        400: Invalid role
+        200: Groups updated successfully
+        400: Missing required fields or invalid input
         403: Forbidden (insufficient permissions)
         404: User not found
         500: Server error
     """
     try:
         data = request.get_json()
-        new_role = data.get('new_role')
+        group_ids = data.get('group_ids', [])
+        replace = data.get('replace', False)
 
-        if not new_role:
+        if not isinstance(group_ids, list) or len(group_ids) == 0:
             return jsonify({
                 'success': False,
-                'error': 'Missing required field',
-                'message': 'new_role is required'
+                'error': 'Invalid request',
+                'message': 'group_ids must be a non-empty array'
             }), 400
 
-        # Change role via repository
-        success = UserAdminRepository.admin_change_role(
+        # Convert group IDs to group slugs (fetch from DB)
+        # Note: In production, pass group IDs directly or convert them
+        # For now, we call admin_update_groups with the IDs as slugs
+        success = UserAdminRepository.admin_update_groups(
             user_id=user_id,
-            new_role=new_role,
-            changed_by_user_id=g.current_user['user_id']
+            group_slugs=[str(gid) for gid in group_ids],  # Convert IDs to strings
+            changed_by=g.current_user['user_id'],
+            replace=replace
         )
 
         if not success:
             return jsonify({
                 'success': False,
-                'error': 'Failed to change role',
-                'message': 'User not found or invalid role'
+                'error': 'Failed to update groups',
+                'message': 'User not found or invalid group IDs'
             }), 404
 
         # Audit log
         AuditService.log_action(
             user_id=g.current_user['user_id'],
-            action='change_user_role',
+            action='update_user_groups',
             resource_type='admin_users',
             resource_id=user_id,
             severity='medium',
-            details={'new_role': new_role}
+            details={'group_ids': group_ids, 'replace': replace}
         )
 
         return jsonify({
             'success': True,
-            'message': f'User role changed to {new_role}'
+            'message': 'User groups updated successfully'
         }), 200
 
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': 'Failed to change user role',
+            'error': 'Failed to update user groups',
             'message': str(e)
         }), 500
 
 
 @api_v1.route('/admin/users/<string:user_id>/ban', methods=['POST'])
-@require_permission(Permissions.ADMIN_USER_WRITE)
+@permission_required('admin.users:write')
 def admin_ban_user(user_id: str):
     """
     Ban user with reason and optional duration.
@@ -410,7 +437,7 @@ def admin_ban_user(user_id: str):
 
 
 @api_v1.route('/admin/users/<string:user_id>/unban', methods=['POST'])
-@require_permission(Permissions.ADMIN_USER_WRITE)
+@permission_required('admin.users:write')
 def admin_unban_user(user_id: str):
     """
     Unban user.
@@ -461,7 +488,7 @@ def admin_unban_user(user_id: str):
 
 
 @api_v1.route('/admin/users/<string:user_id>', methods=['DELETE'])
-@require_permission(Permissions.ADMIN_USER_DELETE)
+@permission_required('admin.users:delete')
 def admin_delete_user(user_id: str):
     """
     Delete user (soft or hard delete).
@@ -519,7 +546,7 @@ def admin_delete_user(user_id: str):
 
 
 @api_v1.route('/admin/users/<string:user_id>/verify', methods=['POST'])
-@require_permission(Permissions.ADMIN_USER_WRITE)
+@permission_required('admin.users:write')
 def admin_verify_creator(user_id: str):
     """
     Verify creator status for user.

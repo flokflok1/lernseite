@@ -20,18 +20,17 @@ from flask import jsonify, request
 
 from app.api.v1 import api_v1
 from app.infrastructure.persistence.database import get_connection
-from app.api.middleware.auth import get_current_user
+from app.api.middleware.auth import get_current_user, permission_required
 from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository
-from app.infrastructure.security.permissions import Permissions, require_permission
 from app.application.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
 
 
 @api_v1.route('/admin/courses/<course_id>/publishing', methods=['GET'])
-@require_permission(Permissions.ADMIN_COURSE_READ)
+@permission_required('admin.course:read')
 def admin_get_publishing_status(course_id: str):
     """
     Get publishing status for a course.
@@ -86,7 +85,7 @@ def admin_get_publishing_status(course_id: str):
 
 
 @api_v1.route('/admin/courses/<course_id>/publishing/submit', methods=['POST'])
-@require_permission(Permissions.ADMIN_COURSE_WRITE)
+@permission_required('admin.course:write')
 def admin_submit_for_review(course_id: str):
     """
     Submit course for community review.

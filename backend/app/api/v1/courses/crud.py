@@ -18,7 +18,7 @@ import logging
 
 from app.domain.models.course import CourseCreate, CourseUpdate
 from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.api.middleware.auth import token_required, role_required, get_current_user
+from app.api.middleware.auth import token_required, permission_required, get_current_user
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
@@ -34,7 +34,7 @@ __all__ = ['crud_bp']
 # =============================================================================
 
 @crud_bp.route('', methods=['POST'])
-@role_required('creator', 'teacher', 'school_admin', 'company_admin', 'admin', 'superadmin')
+@permission_required('content.courses:write')
 def create_course():
     """
     Create a new course (creators and above).

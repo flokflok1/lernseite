@@ -16,7 +16,7 @@ import logging
 from typing import Dict, Any
 
 from app.application.services.content_translation_service import ContentTranslationService
-from app.api.middleware.auth import token_required, role_required
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError, UnauthorizedError
 
 logger = logging.getLogger(__name__)
@@ -325,8 +325,7 @@ def update_translation(translation_id: str):
 # ============================================================================
 
 @bp.route('/<translation_id>', methods=['DELETE'])
-@token_required
-@role_required('admin', 'moderator')
+@permission_required('content.moderation:moderate')
 def delete_translation(translation_id: str):
     """
     DELETE /api/v1/translation/{translation_id}

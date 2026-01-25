@@ -22,8 +22,7 @@ import base64
 import logging
 import hashlib
 
-from app.api.middleware.auth import token_required
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
 from app.application.services.audit_service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
@@ -109,8 +108,7 @@ def _validate_api_key_format(provider_name: str, api_key: str) -> bool:
 
 
 @providers_api_keys_bp.route('/<int:provider_id>/api-key', methods=['PUT'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def update_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Update provider API key.
@@ -193,8 +191,7 @@ def update_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
 
 @providers_api_keys_bp.route('/<int:provider_id>/api-key', methods=['DELETE'])
-@token_required
-@require_permission(Permissions.ADMIN_SYSTEM_WRITE)
+@permission_required('admin.system:write')
 def remove_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
     """
     Remove provider API key.

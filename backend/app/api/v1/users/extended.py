@@ -21,7 +21,7 @@ from flask import Blueprint, request, jsonify, g
 
 from app.domain.models.user import UserResponse
 from app.infrastructure.persistence.repositories.user import UserRepository
-from app.api.middleware.auth import admin_required, role_required, can_manage_user
+from app.api.middleware.auth import admin_required, permission_required, can_manage_user
 
 
 # Create users_part2 blueprint (extends users blueprint)
@@ -125,7 +125,7 @@ def deactivate_user(user_id: int):
 # =============================================================================
 
 @users_part2_bp.route('/search', methods=['GET'])
-@role_required('admin', 'superadmin', 'school_admin', 'company_admin', 'teacher')
+@permission_required('admin.users:read')
 def search_users():
     """
     Search users by email, name

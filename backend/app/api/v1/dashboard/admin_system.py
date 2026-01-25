@@ -17,7 +17,7 @@ ISO 27001:2013 compliant - Admin analytics
 from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
 
-from app.api.middleware.auth import token_required, role_required
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository as AdminDashboardRepository
 
 
@@ -29,8 +29,7 @@ admin_dashboard_bp = Blueprint(
 
 
 @admin_dashboard_bp.route('/overview', methods=['GET'])
-@token_required
-@role_required('admin')
+@permission_required('admin.system:read')
 def get_system_overview():
     """
     Get system overview statistics.
@@ -73,8 +72,7 @@ def get_system_overview():
 
 
 @admin_dashboard_bp.route('/activity', methods=['GET'])
-@token_required
-@role_required('admin')
+@permission_required('admin.system:read')
 def get_recent_activity():
     """
     Get recent system activity.
@@ -133,8 +131,7 @@ def get_recent_activity():
 
 
 @admin_dashboard_bp.route('/users', methods=['GET'])
-@token_required
-@role_required('admin')
+@permission_required('admin.system:read')
 def get_user_statistics():
     """
     Get user statistics.
@@ -182,8 +179,7 @@ def get_user_statistics():
 
 
 @admin_dashboard_bp.route('/courses', methods=['GET'])
-@token_required
-@role_required('admin')
+@permission_required('admin.system:read')
 def get_course_statistics():
     """
     Get course statistics.
@@ -235,8 +231,7 @@ def get_course_statistics():
 
 
 @admin_dashboard_bp.route('/ai-usage', methods=['GET'])
-@token_required
-@role_required('admin')
+@permission_required('admin.system:read')
 def get_ai_usage_statistics():
     """
     Get AI usage statistics.

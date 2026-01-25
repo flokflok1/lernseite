@@ -13,14 +13,14 @@ from flask import jsonify, current_app, g
 from datetime import datetime
 
 from .system_operations import api_v1
-from app.infrastructure.security.permissions import require_permission, Permissions
+from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.admin.core import AdminRepository
 from app.domain.models.admin import UserStatsResponse, CourseStatsResponse, SystemStatsResponse
 from app.application.services.audit_service import AuditService
 
 
 @api_v1.route('/admin/stats/users', methods=['GET'])
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_admin_dashboard_user_stats():
     """
     Get user statistics for admin dashboard.
@@ -84,7 +84,7 @@ def get_admin_dashboard_user_stats():
 
 
 @api_v1.route('/admin/stats/courses', methods=['GET'])
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_admin_dashboard_course_stats():
     """
     Get course statistics for admin dashboard.
@@ -148,7 +148,7 @@ def get_admin_dashboard_course_stats():
 
 
 @api_v1.route('/admin/stats/system', methods=['GET'])
-@require_permission(Permissions.ADMIN_SYSTEM_READ)
+@permission_required('admin.system:read')
 def get_admin_dashboard_system_stats():
     """
     Get system statistics for admin dashboard.

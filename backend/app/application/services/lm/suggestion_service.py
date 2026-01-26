@@ -23,35 +23,10 @@ import json
 import logging
 
 from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
 from app.application.services.ai_adapter import AIAdapter
 
 logger = logging.getLogger(__name__)
-
-# Icons für LM-Gruppen (nur Content-Gruppen A, B, C)
-GROUP_ICONS = {
-    'A': '📖',  # Erklärend
-    'B': '✏️',  # Praxis
-    'C': '📝'   # Prüfung
-}
-
-# LM-spezifische Icons (nur 12 Content-LMs)
-LM_ICONS = {
-    # Gruppe A - Erklärend
-    0: '📚',   # Tiefgehende Erklärung
-    1: '🔢',   # Schritt-für-Schritt
-    2: '💡',   # Interaktive Theorie
-    3: '📊',   # Diagramm/Visualisierung
-    4: '🎭',   # Beispiel-Szenario
-    # Gruppe B - Praxis
-    5: '🧮',   # Mathe-Interaktiv
-    6: '🃏',   # Flashcards
-    7: '🎯',   # Drag & Drop
-    8: '📝',   # Lückentext
-    # Gruppe C - Prüfung
-    9: '✍️',   # Freitext-Langantwort
-    10: '❓',  # Multiple-Choice Quiz
-    11: '✅'   # True/False
-}
 
 # System-Prompt für LM-Auswahl (12 Content-LMs, DB-driven)
 LM_SELECTION_SYSTEM_PROMPT = """Du bist ein didaktischer Experte für E-Learning.
@@ -188,7 +163,7 @@ Antworte NUR mit JSON."""
                     'description': method_data.get('description'),
                     'reason': suggestion.get('reason', 'Passend für diese Lektion'),
                     'priority': idx + 1,
-                    'icon': LM_ICONS.get(lm_id, '📋'),
+                    'icon': method_data.get('icon', '📋'),  # DB-driven icon
                     'ki_usage': method_data.get('ki_usage', 'intensive')
                 })
 
@@ -311,7 +286,7 @@ Antworte NUR mit JSON."""
                 'description': method_data.get('description'),
                 'reason': f'Passend für "{lesson_title}"',
                 'priority': len(suggestions) + 1,
-                'icon': LM_ICONS.get(lm_id, '📋'),
+                'icon': method_data.get('icon', '📋'),  # DB-driven icon
                 'ki_usage': method_data.get('ki_usage', 'intensive')
             })
 
@@ -320,38 +295,71 @@ Antworte NUR mit JSON."""
     @staticmethod
     def get_all_lms_grouped() -> Dict[str, Dict]:
         """
-        Gibt alle 12 Content-LMs gruppiert zurück (database-driven).
+        Gibt alle 12 Content-LMs gruppiert zurück (100% database-driven).
+
+        Gruppen und Icons kommen aus der learning_method_groups Tabelle.
+        Lernmethoden und Icons kommen aus der learning_method_types Tabelle.
+
         Für manuelle Auswahl wenn User selbst entscheiden will.
+
+        Returns:
+            Dict mit Struktur:
+            {
+                'A': {
+                    'name': 'Erklärend',
+                    'icon': '📖',
+                    'description': '...',
+                    'sort_order': 1,
+                    'methods': [...]
+                },
+                ...
+            }
         """
         groups = {}
+
+        # Query database for all active groups
+        all_groups = LearningMethodGroupRepository.find_all()
 
         # Query database for all active learning methods
         catalog = LearningMethodCatalogRepository.get_full_catalog()
 
+        # Build group structure from database
+        for group_data in all_groups:
+            group_code = group_data.get('group_code')
+            groups[group_code] = {
+                'name': group_data.get('name'),
+                'description': group_data.get('description'),
+                'icon': group_data.get('icon'),  # DB-driven icon
+                'sort_order': group_data.get('sort_order', 0),
+                'methods': []
+            }
+
+        # Add methods to their groups
         for method_data in catalog:
             group_key = method_data.get('group_code', 'A')
+
+            # Skip if group doesn't exist (shouldn't happen due to FK constraint)
             if group_key not in groups:
-                groups[group_key] = {
-                    'name': {
-                        'A': 'Erklärend',
-                        'B': 'Praxis',
-                        'C': 'Prüfung'
-                    }.get(group_key, group_key),
-                    'icon': GROUP_ICONS.get(group_key, '📋'),
-                    'methods': []
-                }
+                logger.warning(f"Method {method_data.get('method_type')} references unknown group {group_key}")
+                continue
 
             lm_id = method_data.get('method_type', 0)
             groups[group_key]['methods'].append({
                 'lm_id': lm_id,
                 'name': method_data.get('name'),
                 'description': method_data.get('description'),
-                'icon': LM_ICONS.get(lm_id, '📋'),
+                'icon': method_data.get('icon', '📋'),  # DB-driven icon
                 'ki_usage': method_data.get('ki_usage', 'intensive')
             })
 
-        # Sortiere Methoden nach ID
-        for group in groups.values():
+        # Sortiere Gruppen nach sort_order
+        sorted_groups = dict(sorted(
+            groups.items(),
+            key=lambda x: x[1].get('sort_order', 999)
+        ))
+
+        # Sortiere Methoden innerhalb jeder Gruppe nach ID
+        for group in sorted_groups.values():
             group['methods'].sort(key=lambda x: x['lm_id'])
 
-        return groups
+        return sorted_groups

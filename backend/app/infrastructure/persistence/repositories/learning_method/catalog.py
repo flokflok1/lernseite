@@ -28,6 +28,12 @@ from flask import current_app
 
 logger = logging.getLogger(__name__)
 
+# Import group repository for database-driven group validation
+# (prevents circular imports - imported only when needed)
+def _get_group_repository():
+    from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
+    return LearningMethodGroupRepository
+
 
 class LearningMethodCatalogRepository:
     """
@@ -107,13 +113,23 @@ class LearningMethodCatalogRepository:
                         logger.warning("No active learning methods found in catalog")
                         return None
 
+                    # Get groups from database (100% database-driven)
+                    GroupRepository = _get_group_repository()
+                    all_groups = GroupRepository.find_all()
+
                     # Convert to list and process schemas
                     methods_list = []
-                    groups_dict = {
-                        'A': {'name': 'Erklärend (Explanation)', 'count': 0, 'description': 'Explanatory methods for building understanding'},
-                        'B': {'name': 'Praxis (Practice)', 'count': 0, 'description': 'Practical methods for exercise and application'},
-                        'C': {'name': 'Prüfung (Assessment)', 'count': 0, 'description': 'Assessment methods for evaluating competency'}
-                    }
+                    groups_dict = {}
+
+                    # Build groups_dict from database (not hardcoded!)
+                    for group_data in all_groups:
+                        group_code = group_data.get('group_code')
+                        groups_dict[group_code] = {
+                            'name': f"{group_data.get('name')} ({group_code})",  # e.g., "Erklärend (A)"
+                            'count': 0,
+                            'description': group_data.get('description', ''),
+                            'icon': group_data.get('icon', '📋')
+                        }
 
                     for method in methods:
                         # Process ui_schema if it's a string (PostgreSQL returns as string sometimes)
@@ -323,22 +339,25 @@ class LearningMethodCatalogRepository:
         Get all Learning Methods in a specific group with UI schemas.
 
         Args:
-            group_code: Group code ('A', 'B', or 'C')
+            group_code: Group code (dynamically validated against database, e.g., 'A', 'B', 'C')
             use_cache: Use cached result (default: True)
 
         Returns:
             List of methods in group, or None if invalid group
 
         Raises:
-            ValueError: If group_code is not A, B, or C
+            ValueError: If group_code does not exist in learning_method_groups table
 
         Example:
             >>> group_a = LearningMethodCatalogRepository.get_by_group('A')
             >>> len(group_a)
             5  # 5 methods in Group A
         """
-        if group_code not in ('A', 'B', 'C'):
-            raise ValueError(f"Invalid group_code: {group_code}. Must be A, B, or C")
+        # Validate group code against database (dynamically, not hardcoded!)
+        GroupRepository = _get_group_repository()
+        group = GroupRepository.find_by_code(group_code)
+        if not group:
+            raise ValueError(f"Invalid group_code: {group_code}. Group not found in database")
 
         if use_cache:
             cache_key = CacheService.make_key('CATALOG', 'learning_methods', f'group_{group_code}')
@@ -436,9 +455,12 @@ class LearningMethodCatalogRepository:
             cache_key = CacheService.make_key('CATALOG', 'learning_methods', 'all')
             CacheService.delete(cache_key)
 
-            # Invalidate group caches (A, B, C are stable)
-            for group in ['A', 'B', 'C']:
-                cache_key = CacheService.make_key('CATALOG', 'learning_methods', f'group_{group}')
+            # Invalidate group caches - DYNAMIC (query from database, not hardcoded!)
+            GroupRepository = _get_group_repository()
+            all_groups = GroupRepository.find_all()
+            for group_data in all_groups:
+                group_code = group_data.get('group_code')
+                cache_key = CacheService.make_key('CATALOG', 'learning_methods', f'group_{group_code}')
                 CacheService.delete(cache_key)
 
             # Invalidate individual method caches - DYNAMIC (no hardcoded range!)

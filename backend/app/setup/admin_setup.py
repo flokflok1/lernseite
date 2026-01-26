@@ -98,10 +98,11 @@ class AdminSetup:
         first_name: str,
         last_name: str,
         organisation_id: Optional[int] = None,
+        admin_group_slug: str = 'system-admin',
         enable_2fa: bool = False
     ) -> Dict:
         """
-        Create superadmin user
+        Create superadmin user and assign to specified admin group.
 
         Args:
             email: Admin email
@@ -109,26 +110,32 @@ class AdminSetup:
             first_name: Admin first name
             last_name: Admin last name
             organisation_id: Organisation ID (optional)
+            admin_group_slug: Slug of admin group to assign (default: 'system-admin').
+                             Can be 'system-admin', 'owner', 'school-admin', 'company-admin', etc.
+                             Allows flexible admin group assignment without hardcoding.
             enable_2fa: Enable 2FA (default: False)
 
         Returns:
             Dictionary with:
             - user_id: Created user ID
             - email: Admin email
+            - admin_group: Name of admin group assigned
+            - hierarchy_level: Hierarchy level of assigned group
             - recovery_codes: List of recovery codes
             - totp_secret: TOTP secret (if 2FA enabled)
 
         Raises:
-            ValueError: If validation fails
+            ValueError: If validation fails or admin group not found
 
         Example:
             >>> result = AdminSetup.create_admin(
             ...     email='admin@example.com',
             ...     password='SecurePass123!',
             ...     first_name='Admin',
-            ...     last_name='User'
+            ...     last_name='User',
+            ...     admin_group_slug='owner'  # Flexible! Can use any group
             ... )
-            >>> print(f"Admin created with ID: {result['user_id']}")
+            >>> print(f"Admin created with group: {result['admin_group']}")
         """
         # Validate email
         valid_email, email_msg = cls.validate_email(email)
@@ -148,6 +155,45 @@ class AdminSetup:
         if existing_owner:
             raise ValueError("Admin account already exists")
 
+        # Get admin group (FLEXIBLE - not hardcoded!)
+        # AUTO-CREATE if it doesn't exist (for Setup Wizard automation)
+        admin_group = fetch_one(
+            "SELECT id, name, slug, hierarchy_level FROM core.groups WHERE slug = %s LIMIT 1",
+            (admin_group_slug,)
+        )
+
+        if not admin_group:
+            # Auto-create group if not found
+            # This ensures Setup Wizard doesn't break when group doesn't exist
+            group_slug_mapping = {
+                'system-owner': {'name': 'System Owner', 'hierarchy_level': 1000, 'is_system_group': True},
+                'system-admin': {'name': 'System Admin', 'hierarchy_level': 950, 'is_system_group': True},
+                'org-admin': {'name': 'Organization Admin', 'hierarchy_level': 800, 'is_system_group': False},
+            }
+
+            if admin_group_slug not in group_slug_mapping:
+                raise ValueError(f"Admin group '{admin_group_slug}' not found and cannot auto-create (unknown group type)")
+
+            group_config = group_slug_mapping[admin_group_slug]
+
+            # Create group
+            admin_group = execute_query(
+                """
+                INSERT INTO core.groups
+                    (name, slug, hierarchy_level, is_system_group, created_at)
+                VALUES (%s, %s, %s, %s, NOW())
+                ON CONFLICT (slug) DO UPDATE SET updated_at = NOW()
+                RETURNING id, name, slug, hierarchy_level
+                """,
+                (group_config['name'], admin_group_slug, group_config['hierarchy_level'], group_config['is_system_group'])
+            )
+
+            if isinstance(admin_group, list):
+                admin_group = admin_group[0] if admin_group else None
+
+            if not admin_group:
+                raise ValueError(f"Failed to create admin group '{admin_group_slug}'")
+
         # Generate recovery codes
         recovery_codes = cls._generate_recovery_codes(count=10)
 
@@ -166,8 +212,6 @@ class AdminSetup:
             organisation_id = org['organization_id'] if org else None
 
         # Create admin user
-        # Note: role parameter is deprecated (Phase B migration to Groups)
-        # Admin status is now determined by is_owner flag
         admin = UserRepository.create_user(
             email=email,
             password=password,
@@ -187,21 +231,16 @@ class AdminSetup:
             (admin['user_id'],)
         )
 
-        # Add admin user to 'system-admin' group
-        # Get system-admin group
-        system_admin_group = fetch_one(
-            "SELECT group_id FROM core.groups WHERE slug = %s LIMIT 1",
-            ('system-admin',)
+        # Add admin user to specified admin group (FLEXIBLE - NOT HARDCODED!)
+        # Uses admin_group_slug parameter instead of hardcoded 'system-admin'
+        execute_query(
+            """
+            INSERT INTO core.users_groups (user_id, group_id, member_role, created_at)
+            VALUES (%s, %s, %s, NOW())
+            ON CONFLICT (user_id, group_id) DO NOTHING
+            """,
+            (admin['user_id'], admin_group['id'], 'owner')
         )
-        if system_admin_group:
-            execute_query(
-                """
-                INSERT INTO core.users_groups (user_id, group_id, member_role, created_at)
-                VALUES (%s, %s, %s, NOW())
-                ON CONFLICT (user_id, group_id) DO NOTHING
-                """,
-                (admin['user_id'], system_admin_group['group_id'], 'owner')
-            )
 
         # Update 2FA settings if enabled
         if enable_2fa and totp_secret:
@@ -221,8 +260,8 @@ class AdminSetup:
         # Store recovery codes (hashed)
         cls._store_recovery_codes(admin['user_id'], recovery_codes)
 
-        # Log admin creation
-        cls._log_admin_creation(admin['user_id'], email, enable_2fa)
+        # Log admin creation with group info
+        cls._log_admin_creation(admin['user_id'], email, enable_2fa, admin_group)
 
         return {
             'user_id': admin['user_id'],
@@ -230,6 +269,9 @@ class AdminSetup:
             'first_name': admin.get('firstname', ''),
             'last_name': admin.get('lastname', ''),
             'is_owner': not bool(existing_owner),  # True if no owner existed before
+            'admin_group': admin_group['name'],  # Group assigned to
+            'admin_group_slug': admin_group['slug'],
+            'hierarchy_level': admin_group['hierarchy_level'],
             'recovery_codes': recovery_codes,
             'totp_secret': totp_secret if enable_2fa else None,
             'two_factor_enabled': enable_2fa
@@ -295,7 +337,12 @@ class AdminSetup:
             )
 
     @staticmethod
-    def _log_admin_creation(user_id: int, email: str, two_factor_enabled: bool) -> None:
+    def _log_admin_creation(
+        user_id: int,
+        email: str,
+        two_factor_enabled: bool,
+        admin_group: Dict = None
+    ) -> None:
         """
         Log admin creation in audit log
 
@@ -303,6 +350,7 @@ class AdminSetup:
             user_id: Created user ID
             email: Admin email
             two_factor_enabled: Whether 2FA was enabled
+            admin_group: Admin group assigned (dict with name, slug, hierarchy_level)
         """
         import json
 
@@ -311,6 +359,11 @@ class AdminSetup:
             "2fa_enabled": two_factor_enabled,
             "setup_wizard": True
         }
+
+        if admin_group:
+            metadata["admin_group"] = admin_group['name']
+            metadata["admin_group_slug"] = admin_group['slug']
+            metadata["hierarchy_level"] = admin_group['hierarchy_level']
 
         execute_query(
             """

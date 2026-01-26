@@ -86,23 +86,26 @@ def check_setup_access():
     return None
 
 # Import routes after blueprint creation to avoid circular imports
-# Routes are organized by semantic purpose across 5 modules:
+# Routes are organized by semantic purpose across 6 modules:
 # - routes_status.py: Status & health checks (/status, /verify, /health, etc.)
 # - routes_database.py: Database configuration & initialization
 # - routes_setup.py: Admin user & environment setup (/environment, /check, /admin)
 # - routes_setup_config.py: Organization & AI configuration (/organisation, /ki-config)
 # - routes_verification.py: Data seeding, verification, diagnostics, auto-fix
+# - routes_groups.py: Authorization groups & hierarchy management (/groups) [NEW]
 from app.setup import routes_status
 from app.setup import routes_database
 from app.setup import routes_setup
 from app.setup import routes_setup_config
 from app.setup import routes_verification
+from app.setup import routes_groups
 
 # Import setup modules for external use
 from app.setup.system_check import SystemCheck
 from app.setup.db_init import DatabaseInitializer
 from app.setup.install_check import InstallationChecker
 from app.setup.admin_setup import AdminSetup
+from app.setup.group_setup import GroupSetup
 from app.setup.organisation_setup import OrganisationSetup
 from app.setup.seeds import SeedData
 from app.setup.ki_setup import KISetup
@@ -114,6 +117,7 @@ __all__ = [
     'DatabaseInitializer',
     'InstallationChecker',
     'AdminSetup',
+    'GroupSetup',
     'OrganisationSetup',
     'SeedData',
     'KISetup',

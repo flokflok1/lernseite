@@ -48,7 +48,7 @@ Comprehensive development rules in `.claude/rules/`:
 - **Backend:** Flask 3.0 + Python 3.12+, psycopg3 (no ORM), Redis, Celery
 - **Frontend:** Vue.js 3 (Composition API) + TypeScript, Vite, Pinia, TailwindCSS
 - **Database:** PostgreSQL 16, 153 tables, 66 migrations, row-level security
-- **Architecture:** 12 Content-Lernmethoden (LM00-LM11), 25 System-Features, DDD principles
+- **Architecture:** 12 Content-Lernmethoden (Flashcards, Lückentext, Code Challenge, etc.), 25 System-Features, DDD principles
 - **Features:** AI content generation, real-time LiveRoom (WebRTC), token-based premium, multi-language (20 langs)
 
 ## Quick Start
@@ -337,18 +337,18 @@ const errorMsg = t('common.unknownError')
 
 ## Content-Lernmethoden (12 Methods) & System-Features (25)
 
-### Content-Lernmethoden - EXACTLY 12 (LM00-LM11)
+### Content-Lernmethoden - EXACTLY 12
 
-| Group | IDs | Count | Type | Database Constraint |
-|-------|-----|-------|------|-------------------|
-| **A** Erklärend | LM00-LM04 | 5 | Explanation/Theory | `method_type BETWEEN 0 AND 11` |
-| **B** Praxis | LM05-LM08 | 4 | Practice/Exercises | |
-| **C** Prüfung | LM09-LM11 | 3 | Assessment/Exams | |
+| Group | Methods | Count | Type | Database Constraint |
+|-------|---------|-------|------|-------------------|
+| **A** Erklärend | Flashcards, Lückentext, Freitext, Multiple Choice, True/False | 5 | Explanation/Theory | `method_type >= 0` |
+| **B** Praxis | Code Challenge, Case Study, Simulation, Peer Review Exercise | 4 | Practice/Exercises | |
+| **C** Prüfung | Objective Assessment, Practical Exam, Portfolio Assessment | 3 | Assessment/Exams | |
 
-**CRITICAL CONSTRAINTS:**
-- ❌ Do NOT use LM12-LM32 (don't exist)
-- ❌ Do NOT use group_code D, E, F (don't exist)
-- ❌ Do NOT allow method_type > 11 (violates DB constraint)
+**INTERNAL NUMBERING:**
+- Group A: 0-4, Group B: 5-8, Group C: 9-11
+- Numeric IDs (0-11) used internally for efficiency, real names used in all documentation
+- Database allows unlimited extension (no hardcoded max)
 
 **Reference:** `backend/app/ki/learning_method_mapping.py`
 

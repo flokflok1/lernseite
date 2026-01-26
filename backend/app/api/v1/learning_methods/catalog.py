@@ -164,7 +164,7 @@ def get_learning_method_by_type(method_type: int) -> Tuple[Dict[str, Any], int]:
     Returns complete definition of a specific LM including ui_schema.
 
     Path Parameters:
-        - method_type: Learning method type (0-11 for lm00-lm11)
+        - method_type: Learning method type (must be active in database)
 
     Returns:
         Tuple of (response_dict, status_code)
@@ -183,13 +183,15 @@ def get_learning_method_by_type(method_type: int) -> Tuple[Dict[str, Any], int]:
         -> Returns lm05 (Mathe-Interaktiv) with full schema
     """
     try:
-        # Validate method_type
-        if not isinstance(method_type, int) or method_type < 0 or method_type > 11:
+        # Validate method_type using dynamic repository method
+        max_type = LearningMethodCatalogRepository.get_max_active_type()
+
+        if not isinstance(method_type, int) or method_type < 0 or method_type > max_type:
             return jsonify({
                 'success': False,
                 'error': {
                     'code': 'INVALID_METHOD_TYPE',
-                    'message': 'Invalid learning method type. Must be 0-11 (lm00-lm11)',
+                    'message': f'Invalid learning method type. Must be 0-{max_type}',
                     'field': 'method_type'
                 }
             }), 400

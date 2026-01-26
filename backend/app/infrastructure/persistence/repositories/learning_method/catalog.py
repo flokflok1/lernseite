@@ -156,27 +156,89 @@ class LearningMethodCatalogRepository:
             return None
 
     @classmethod
+    def get_max_active_type(cls) -> int:
+        """
+        Get the maximum active learning method type from database.
+
+        Dynamic query - allows system to scale beyond hardcoded limits.
+
+        Returns:
+            Maximum method_type value for active learning methods
+
+        Example:
+            >>> max_type = LearningMethodCatalogRepository.get_max_active_type()
+            >>> 11  # Currently 12 methods (0-11)
+        """
+        try:
+            with db_pool.connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT COALESCE(MAX(method_type), 0)
+                        FROM learning_methods.learning_method_types
+                        WHERE active = TRUE
+                    """)
+                    result = cur.fetchone()
+                    return result[0] if result else 0
+        except Exception as e:
+            logger.exception(f"Error getting max active method type: {e}")
+            return 11  # Fallback to current max
+
+    @classmethod
+    def get_all_active_types(cls) -> List[int]:
+        """
+        Get list of all active learning method types from database.
+
+        Used for cache invalidation and dynamic system scaling.
+
+        Returns:
+            List of active method_type values
+
+        Example:
+            >>> types = LearningMethodCatalogRepository.get_all_active_types()
+            >>> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]  # All 12 methods
+        """
+        try:
+            with db_pool.connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT method_type
+                        FROM learning_methods.learning_method_types
+                        WHERE active = TRUE
+                        ORDER BY method_type
+                    """)
+                    results = cur.fetchall()
+                    return [row[0] for row in results] if results else []
+        except Exception as e:
+            logger.exception(f"Error getting active method types: {e}")
+            return list(range(12))  # Fallback to 0-11
+
+    @classmethod
     def get_by_type(cls, method_type: int, use_cache: bool = True) -> Optional[Dict[str, Any]]:
         """
         Get single Learning Method by type ID with UI schema.
 
         Args:
-            method_type: Learning method type (0-11 for lm00-lm11)
+            method_type: Learning method type (must be active in database)
             use_cache: Use cached result (default: True)
 
         Returns:
             Dictionary with method metadata and ui_schema, or None if not found
 
         Raises:
-            ValueError: If method_type is not 0-11
+            ValueError: If method_type is invalid or inactive
 
         Example:
             >>> lm00 = LearningMethodCatalogRepository.get_by_type(0)
             >>> lm00['name']
             'Tiefgehende Erklärung'
         """
-        if not isinstance(method_type, int) or method_type < 0 or method_type > 11:
-            raise ValueError(f"Invalid method_type: {method_type}. Must be 0-11 (lm00-lm11)")
+        # Validate method_type dynamically
+        if not isinstance(method_type, int) or method_type < 0:
+            raise ValueError(f"Invalid method_type: {method_type}. Must be a non-negative integer")
+
+        max_type = cls.get_max_active_type()
+        if method_type > max_type:
+            raise ValueError(f"Invalid method_type: {method_type}. Maximum active type is {max_type}")
 
         if use_cache:
             cache_key = CacheService.make_key('CATALOG', 'learning_methods', f'type_{method_type}')
@@ -360,9 +422,10 @@ class LearningMethodCatalogRepository:
     @classmethod
     def invalidate_cache(cls) -> None:
         """
-        Invalidate all catalog caches.
+        Invalidate all catalog caches dynamically.
 
         Call this when a new LM is added or LM configuration changes.
+        Dynamically queries database for all active types - no hardcoded limits.
 
         Example:
             >>> # After updating learning methods
@@ -373,17 +436,18 @@ class LearningMethodCatalogRepository:
             cache_key = CacheService.make_key('CATALOG', 'learning_methods', 'all')
             CacheService.delete(cache_key)
 
-            # Invalidate group caches
+            # Invalidate group caches (A, B, C are stable)
             for group in ['A', 'B', 'C']:
                 cache_key = CacheService.make_key('CATALOG', 'learning_methods', f'group_{group}')
                 CacheService.delete(cache_key)
 
-            # Invalidate individual method caches
-            for method_type in range(12):
+            # Invalidate individual method caches - DYNAMIC (no hardcoded range!)
+            active_types = cls.get_all_active_types()
+            for method_type in active_types:
                 cache_key = CacheService.make_key('CATALOG', 'learning_methods', f'type_{method_type}')
                 CacheService.delete(cache_key)
 
-            logger.info("Learning method catalog caches invalidated")
+            logger.info(f"Learning method catalog caches invalidated ({len(active_types)} methods)")
 
         except Exception as e:
             logger.exception(f"Error invalidating catalog cache: {e}")

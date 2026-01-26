@@ -58,10 +58,18 @@ CREATE TABLE IF NOT EXISTS learning_methods.learning_method_types (
     -- KI-Nutzung
     ki_usage VARCHAR(20) NOT NULL,  -- 'intensive', 'medium', 'optional'
 
+    -- Backend Configuration (from learning_method_mapping.py)
+    prompt_template VARCHAR(255),  -- KI Prompt Template key (e.g., 'deep_explanation', 'flashcards')
+    default_config JSONB DEFAULT '{}',  -- Default LM-specific config
+    agent_support JSONB,  -- Agent support configuration: {agent_can_handle, requires_fresh_ai, knowledge_domains, knowledge_cacheable, complexity_threshold}
+
+    -- Frontend Configuration
+    ui_schema JSONB DEFAULT '{}',  -- Dynamic form schema for frontend rendering
+
     -- Weitere Konfiguration
     active BOOLEAN DEFAULT TRUE,  -- Allows disabling without deleting
     deprecated BOOLEAN DEFAULT FALSE,  -- For future methods, mark old ones as deprecated
-    config JSONB DEFAULT '{}',
+    config JSONB DEFAULT '{}',  -- Legacy config (kept for backward compatibility)
     icon VARCHAR(50),
 
     -- Timestamps

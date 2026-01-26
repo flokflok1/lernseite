@@ -21,6 +21,7 @@ from psycopg.rows import dict_row
 
 from app.core.bootstrap.extensions import db_pool
 from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
 
 
 class LearningMethodInstanceRepository:
@@ -188,16 +189,12 @@ class LearningMethodInstanceRepository:
             max_type = LearningMethodCatalogRepository.get_max_active_type()
             raise ValueError(f"Ungültige method_type: {method_type}. Muss zwischen 0 und {max_type} liegen.")
 
-        # Hole Tier aus Datenbank falls nicht angegeben
+        # Hole Tier aus Datenbank falls nicht angegeben (100% DATABASE-DRIVEN, NO HARDCODING!)
         if 'tier' not in data:
             group_code = method_def.get('group_code')
-            # Gruppe A+B = basic, C = premium
-            if group_code in ['A', 'B']:
-                data['tier'] = 'basic'
-            elif group_code == 'C':
-                data['tier'] = 'premium'
-            else:
-                data['tier'] = 'basic'  # Default to basic for unknown groups
+            # Query database for tier - this makes it fully flexible for new groups!
+            tier_from_db = LearningMethodGroupRepository.get_tier_for_group(group_code)
+            data['tier'] = tier_from_db if tier_from_db else 'basic'  # Fallback to basic only if group not found
 
         with db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:

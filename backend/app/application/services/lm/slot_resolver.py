@@ -4,18 +4,8 @@ LM Slot Resolver Service
 Service for resolving AI models for Learning Method capability slots.
 Provides high-level API for getting the right models for each LM functionality.
 
-Example usage:
-    # Get all models for LM24 (Mündliche Erklärung)
-    resolver = LMSlotResolver()
-    models = resolver.resolve_lm_models(24)
-
-    # Result:
-    # {
-    #     'chat': {'model_name': 'gpt-4o', 'model_id': 1, ...},
-    #     'stt': {'model_name': 'whisper-1', 'model_id': 5, ...},
-    #     'tts': None,  # Not configured
-    #     'realtime': None  # Not configured
-    # }
+All learning method configurations are loaded from the database (learning_method_types table).
+No hardcoded LM definitions - fully database-driven.
 
 Author: LernsystemX Team
 Date: 2025-12-04
@@ -25,16 +15,12 @@ from typing import Optional, Dict, List, Any
 from dataclasses import dataclass
 
 from app.domain.ai.configuration.capability_slots import CapabilitySlot, get_slot_definition
-from app.domain.ai.configuration.slots.validation import (
-    get_lm_config,
-    get_lm_required_slots,
-    ALL_LM_CONFIGS
-)
 from app.infrastructure.persistence.repositories.lm_slot import (
     LMSlotAssignmentRepository,
     LMSlotResolverRepository,
     CapabilitySlotRepository
 )
+from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 
 
 @dataclass
@@ -69,7 +55,7 @@ class LMSlotResolver:
         Resolve all models for all slots of a learning method.
 
         Args:
-            learning_method_id: LM ID (0-32)
+            learning_method_id: LM ID (0-11, database-driven)
             chapter_id: Optional chapter ID for override
             course_id: Optional course ID for override
 
@@ -113,7 +99,7 @@ class LMSlotResolver:
         Get the resolved model for a specific slot.
 
         Args:
-            learning_method_id: LM ID (0-32)
+            learning_method_id: LM ID (0-11, database-driven)
             slot: Capability slot enum
             chapter_id: Optional chapter ID
             course_id: Optional course ID
@@ -213,8 +199,9 @@ class LMSlotResolver:
                 'missing_slots': [slot_code, ...]
             }
         """
-        # Get LM config from Python definitions
-        lm_config = get_lm_config(learning_method_id)
+        # Get LM config from database (not hardcoded)
+        lm_def = LearningMethodCatalogRepository.get_by_type(method_type=learning_method_id)
+        lm_name = lm_def.get('name') if lm_def else f'LM{learning_method_id:02d}'
 
         # Get resolution status from database
         check_result = LMSlotResolverRepository.check_required_slots_configured(
@@ -234,7 +221,7 @@ class LMSlotResolver:
         return {
             'ready': check_result['all_configured'],
             'learning_method_id': learning_method_id,
-            'learning_method_name': lm_config.name if lm_config else f'LM{learning_method_id:02d}',
+            'learning_method_name': lm_name,
             'required_count': check_result['required_count'],
             'configured_count': check_result['configured_count'],
             'required_slots': check_result.get('missing_slots', []) + [
@@ -251,8 +238,9 @@ class LMSlotResolver:
 
         Includes requirements, assignments, and status.
         """
-        lm_config = get_lm_config(learning_method_id)
-        if not lm_config:
+        # Get LM from database (not hardcoded)
+        lm_def = LearningMethodCatalogRepository.get_by_type(method_type=learning_method_id)
+        if not lm_def:
             return None
 
         # Get all slots for this LM
@@ -280,8 +268,8 @@ class LMSlotResolver:
 
         return {
             'learning_method_id': learning_method_id,
-            'name': lm_config.name,
-            'group': lm_config.group,
+            'name': lm_def.get('name'),
+            'group': lm_def.get('group_code'),
             'ready': ready_check['ready'],
             'required_count': ready_check['required_count'],
             'configured_count': ready_check['configured_count'],
@@ -290,12 +278,16 @@ class LMSlotResolver:
 
     def get_all_lm_overview(self) -> List[Dict[str, Any]]:
         """
-        Get overview of all 33 LMs with their slot configurations.
+        Get overview of all active learning methods with their slot configurations.
 
-        Used for admin dashboard.
+        Used for admin dashboard. Queries database for all active learning methods.
         """
         overviews = []
-        for lm_id in range(33):
+
+        # Get all active learning methods from database
+        max_type = LearningMethodCatalogRepository.get_max_active_type()
+
+        for lm_id in range(max_type + 1):
             overview = self.get_lm_overview(lm_id)
             if overview:
                 overviews.append(overview)
@@ -322,7 +314,7 @@ class LMSlotManager:
         Assign a model to a slot for an LM.
 
         Args:
-            learning_method_id: LM ID (0-32)
+            learning_method_id: LM ID (0-11, database-driven)
             slot_code: Slot code (e.g., 'chat', 'stt')
             model_id: AI model ID
             scope: 'system', 'course', or 'chapter'
@@ -332,8 +324,9 @@ class LMSlotManager:
         Returns:
             Created assignment dict
         """
-        # Validate LM exists
-        if learning_method_id < 0 or learning_method_id > 32:
+        # Validate LM exists (using database)
+        lm_def = LearningMethodCatalogRepository.get_by_type(method_type=learning_method_id)
+        if not lm_def:
             raise ValueError(f"Invalid learning_method_id: {learning_method_id}")
 
         # Validate slot code

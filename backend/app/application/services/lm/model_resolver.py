@@ -15,7 +15,7 @@ from app.infrastructure.persistence.repositories.lm_model_routing import (
     LMModelRequirementsRepository
 )
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
-from app.infrastructure.validation.learning_method_mapping import get_method_by_id
+from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 
 
 class ModelNotConfiguredError(Exception):
@@ -66,7 +66,7 @@ class LMModelResolver:
         Resolve the AI model for a learning method.
 
         Args:
-            learning_method_id: Learning method ID (0-32)
+            learning_method_id: Learning method ID (0-11, database-driven)
             chapter_id: Optional chapter UUID for chapter-level lookup
             course_id: Optional course UUID for course-level lookup
             allow_fallback: If True, allows returning None instead of raising error
@@ -77,15 +77,15 @@ class LMModelResolver:
 
         Raises:
             ModelNotConfiguredError: If no model configured and LM requires one
-            ValueError: If learning_method_id is invalid
+            ValueError: If learning_method_id is invalid (not 0-11)
         """
         # Validate LM ID
-        if learning_method_id < 0 or learning_method_id > 32:
-            raise ValueError(f'Invalid learning_method_id: {learning_method_id}')
+        if learning_method_id < 0 or learning_method_id > 11:
+            raise ValueError(f'Invalid learning_method_id: {learning_method_id} (must be 0-11)')
 
-        # Get LM definition for better error messages
-        lm_def = get_method_by_id(learning_method_id)
-        lm_name = lm_def.name if lm_def else None
+        # Get LM definition for better error messages (database-driven)
+        lm_def = LearningMethodCatalogRepository.get_by_type(method_type=learning_method_id)
+        lm_name = lm_def.get('name') if lm_def else None
 
         # Use the database function to resolve
         result = LMModelAssignmentRepository.resolve_model_for_lm(
@@ -132,8 +132,8 @@ class LMModelResolver:
             - can_generate: bool
             - error_message: str (if can_generate is False)
         """
-        lm_def = get_method_by_id(learning_method_id)
-        lm_name = lm_def.name if lm_def else f'LM{learning_method_id}'
+        lm_def = LearningMethodCatalogRepository.get_by_type(method_type=learning_method_id)
+        lm_name = lm_def.get('name') if lm_def else f'LM{learning_method_id}'
         lm_code = f'LM{str(learning_method_id).zfill(2)}'
 
         result = LMModelAssignmentRepository.resolve_model_for_lm(
@@ -208,10 +208,9 @@ class LMModelResolver:
         model = AIModelsRepository.get_by_id(resolved.model_id)
 
         if not model:
-            raise ModelNotConfiguredError(
-                learning_method_id,
-                get_method_by_id(learning_method_id).name if get_method_by_id(learning_method_id) else None
-            )
+            lm_def = LearningMethodCatalogRepository.get_by_type(method_type=learning_method_id)
+            lm_name = lm_def.get('name') if lm_def else None
+            raise ModelNotConfiguredError(learning_method_id, lm_name)
 
         return {
             'model_configured': True,

@@ -2,16 +2,14 @@
 LM Suggestion Service - KI-gestützte Lernmethoden-Vorschläge
 
 Die KI analysiert den Lektionskontext und wählt intelligent passende
-Content-Lernmethoden aus den 19 verfügbaren aus.
+Content-Lernmethoden aus den 12 verfügbaren aus.
 
-19 Content-Lernmethoden in 3 Gruppen:
-- A: Erklärend (LM00-LM03, LM06) - 5 Methoden
-- B: Praxis (LM08, LM12-LM15, LM17) - 6 Methoden
-- C: Prüfung (LM18-LM25) - 8 Methoden
+12 Content-Lernmethoden in 3 Gruppen (DB-driven):
+- A: Erklärend (LM00-LM04) - 5 Methoden
+- B: Praxis (LM05-LM08) - 4 Methoden
+- C: Prüfung (LM09-LM11) - 3 Methoden
 
-System-Features (Tutor, IT-Sandboxes, Kollaboration) sind KEINE Content-LMs
-und werden separat behandelt (siehe 02a_System-Features.md).
-
+ALLE Lernmethoden-Definitionen kommen aus der Datenbank (learning_method_types).
 Kein hardcoded Mapping - die KI entscheidet basierend auf:
 - Thema und Inhalt der Lektion
 - Lernziele
@@ -24,11 +22,7 @@ from typing import List, Dict, Optional
 import json
 import logging
 
-from app.infrastructure.validation.learning_method_mapping import (
-    LEARNING_METHODS,
-    LearningMethodDefinition,
-    get_all_methods_as_dict
-)
+from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 from app.application.services.ai_adapter import AIAdapter
 
 logger = logging.getLogger(__name__)
@@ -40,76 +34,62 @@ GROUP_ICONS = {
     'C': '📝'   # Prüfung
 }
 
-# LM-spezifische Icons (nur 19 Content-LMs)
+# LM-spezifische Icons (nur 12 Content-LMs)
 LM_ICONS = {
     # Gruppe A - Erklärend
     0: '📚',   # Tiefgehende Erklärung
     1: '🔢',   # Schritt-für-Schritt
     2: '💡',   # Interaktive Theorie
     3: '📊',   # Diagramm/Visualisierung
-    6: '🎭',   # Beispiel-Szenario
+    4: '🎭',   # Beispiel-Szenario
     # Gruppe B - Praxis
-    8: '🖼️',   # Whiteboard-Aufgabe
-    12: '🧮',  # Mathe-Interaktiv
-    13: '🃏',  # Flashcards
-    14: '🎯',  # Drag & Drop
-    15: '📝',  # Lückentext
-    17: '🧪',  # Hands-on Lab
+    5: '🧮',   # Mathe-Interaktiv
+    6: '🃏',   # Flashcards
+    7: '🎯',   # Drag & Drop
+    8: '📝',   # Lückentext
     # Gruppe C - Prüfung
-    18: '✍️',  # Freitext-Langantwort
-    19: '🏆',  # IHK-Stil Aufgaben
-    20: '📋',  # Multi-Step Praxisprüfung
-    21: '⏱️',  # Zeitlimit-Training
-    22: '❓',  # Prüfungs-Quiz
-    23: '✅',  # Verständnis-Checks
-    24: '🎤',  # Mündliche Erklärung
-    25: '🎓'   # Kapitel-Endprüfung
+    9: '✍️',   # Freitext-Langantwort
+    10: '❓',  # Multiple-Choice Quiz
+    11: '✅'   # True/False
 }
 
-# System-Prompt für LM-Auswahl (nur 19 Content-LMs)
+# System-Prompt für LM-Auswahl (12 Content-LMs, DB-driven)
 LM_SELECTION_SYSTEM_PROMPT = """Du bist ein didaktischer Experte für E-Learning.
 Deine Aufgabe ist es, die passendsten Lernmethoden für eine gegebene Lektion auszuwählen.
 
-Du kennst diese 19 Content-Lernmethoden (gruppiert):
+Du kennst diese 12 Content-Lernmethoden (gruppiert):
 
 GRUPPE A - Erklärend (5 Methoden):
 - LM00: Tiefgehende Erklärung - KI-generierte Erklärung mit Beispielen & Analogien
 - LM01: Schritt-für-Schritt - Sequenzielle Anleitung in nummerierten Schritten
-- LM02: Interaktive Theorie - Theorieblöcke mit eingebetteten Kontrollfragen
-- LM03: Diagramm/Visualisierung - Visuelle Modelle (Netzwerk, OSI, ER, Flows)
-- LM06: Beispiel-Szenario - Realitätsnahe Case-Erklärung eines Konzepts
+- LM02: Interaktive Theorie - Theorie mit interaktiven Frage-Antwort-Elementen
+- LM03: Diagramm/Visualisierung - Grafische Darstellung komplexer Konzepte
+- LM04: Beispiel-Szenario - Praxisnahes Anwendungsbeispiel mit Kontext
 
-GRUPPE B - Praxis (6 Methoden):
-- LM08: Whiteboard-Aufgabe - Lernende zeichnen/verbinden Topologien, Skizzen
-- LM12: Mathe-Interaktiv - Rechenaufgaben mit Schritt-für-Schritt-Erklärung
-- LM13: Flashcards - Karteikarten mit Spaced-Repetition
-- LM14: Drag & Drop - Zuordnungs-/Matching-Aufgaben
-- LM15: Lückentext - Fill-in-the-blanks in Texten/Configs
-- LM17: Hands-on Lab - Virtuelle Umgebung (Terminal/IDE) mit Aufgabe
+GRUPPE B - Praxis (4 Methoden):
+- LM05: Mathe-Interaktiv - Mathematische Aufgaben mit Schritt-Erkennung
+- LM06: Flashcards - Digitale Lernkarten für Wiederholung
+- LM07: Drag & Drop - Zuordnungsaufgaben per Drag & Drop
+- LM08: Lückentext - Lückentexte mit Auto-Korrektur
 
-GRUPPE C - Prüfung (8 Methoden):
-- LM18: Freitext-Langantwort - Lange Antworten, KI bewertet mit Rubric
-- LM19: IHK-Stil Aufgaben - Prüfungsnahe MC/Lückentext/Szenario
-- LM20: Multi-Step Praxisprüfung - Mehrstufige Prüfungsketten
-- LM21: Zeitlimit-Training - Aufgaben unter Zeitdruck (Countdown)
-- LM22: Prüfungs-Quiz - Quiz mit sofortigem Feedback
-- LM23: Verständnis-Checks - Single-Item-Checks nach Lerneinheit
-- LM24: Mündliche Erklärung - User erklärt mündlich, KI bewertet
-- LM25: Kapitel-Endprüfung - Größere Prüfung am Kapitelende
+GRUPPE C - Prüfung (3 Methoden):
+- LM09: Freitext-Langantwort - Offene Fragen mit Agent-Bewertung
+- LM10: Multiple-Choice Quiz - Multiple-Choice Quiz in Prüfungsformat
+- LM11: True/False - Richtig/Falsch Aussagen bewerten
 
 WICHTIGE REGELN:
-1. Wähle 3-6 passende Methoden aus
+1. Wähle 2-4 passende Methoden aus (nicht mehr als verfügbar)
 2. Berücksichtige das Thema (IT, Kaufmännisch, Mathe, etc.)
-3. Mische verschiedene Gruppen (Theorie + Praxis + Prüfung)
+3. Mische verschiedene Gruppen wenn möglich (Theorie + Praxis + Prüfung)
 4. Schließe bereits vorhandene LMs aus
 5. Begründe jede Auswahl kurz
-6. Nutze NUR diese 19 Content-LMs (keine anderen IDs!)
+6. Nutze NUR diese 12 Content-LMs (LM00-LM11)!
 
 Antworte NUR mit validem JSON in diesem Format:
 {
   "suggestions": [
     {
-      "lm_id": 12,
+      "lm_id": 5,
       "reason": "Bezugskalkulation erfordert Berechnungen - Mathe-Interaktiv ist ideal"
     },
     ...
@@ -188,26 +168,28 @@ Antworte NUR mit JSON."""
                     lesson_title, existing_lm_ids, max_suggestions
                 )
 
-            # Anreichern mit Methoden-Details
+            # Anreichern mit Methoden-Details (von Database)
             enriched = []
             for idx, suggestion in enumerate(suggestions[:max_suggestions]):
                 lm_id = suggestion.get('lm_id')
-                if lm_id not in LEARNING_METHODS:
-                    continue
                 if lm_id in existing_lm_ids:
                     continue
 
-                method = LEARNING_METHODS[lm_id]
+                # Query database for method definition
+                method_data = LearningMethodCatalogRepository.get_by_type(method_type=lm_id)
+                if not method_data:
+                    continue
+
                 enriched.append({
                     'lm_id': lm_id,
-                    'name': method.name,
-                    'group': method.group.value,
-                    'method_type': method.method_type.value,
-                    'description': method.description,
+                    'name': method_data.get('name'),
+                    'group': method_data.get('group_code'),
+                    'method_type': lm_id,
+                    'description': method_data.get('description'),
                     'reason': suggestion.get('reason', 'Passend für diese Lektion'),
                     'priority': idx + 1,
                     'icon': LM_ICONS.get(lm_id, '📋'),
-                    'ki_usage': method.ki_usage.value
+                    'ki_usage': method_data.get('ki_usage', 'intensive')
                 })
 
             return enriched
@@ -288,47 +270,49 @@ Antworte NUR mit JSON."""
     ) -> List[Dict]:
         """
         Fallback-Vorschläge wenn KI nicht verfügbar.
-        Einfache Keyword-basierte Heuristik mit 19 Content-LMs.
+        Einfache Keyword-basierte Heuristik mit 12 Content-LMs (LM00-LM11).
         """
         title_lower = lesson_title.lower()
 
-        # Keyword-basierte Vorauswahl (nur gültige Content-LM IDs)
+        # Keyword-basierte Vorauswahl (nur gültige Content-LM IDs: 0-11)
         candidates = []
 
-        # Mathe/Kalkulation Keywords
+        # Mathe/Kalkulation Keywords → Group B (Praxis: 5-8)
         if any(kw in title_lower for kw in ['kalkulation', 'berechnung', 'rechnung', 'prozent', 'zins']):
-            candidates = [12, 19, 15, 1, 22, 8]  # Mathe, IHK, Lückentext, Schritt-für-Schritt
-        # IT Keywords (nutzt Content-LMs, nicht IT-System-Features)
+            candidates = [5, 9, 8, 1, 10, 3]  # Mathe, Freitext, Lückentext, Schritt, Quiz, Diagramm
+        # IT Keywords → Group B + A (Praxis/Erklärung)
         elif any(kw in title_lower for kw in ['netzwerk', 'server', 'code', 'programmierung', 'linux']):
-            candidates = [17, 3, 8, 15, 22, 19]  # Hands-on Lab, Diagramm, Whiteboard
-        # Prüfung Keywords
+            candidates = [3, 7, 8, 1, 10, 5]  # Diagramm, Drag&Drop, Lückentext, Schritt, Quiz, Mathe
+        # Prüfung Keywords → Group C (Prüfung: 9-11)
         elif any(kw in title_lower for kw in ['prüfung', 'test', 'ihk', 'abschluss']):
-            candidates = [19, 22, 21, 25, 20, 18]  # Prüfungs-LMs
+            candidates = [9, 10, 11, 8, 1, 5]  # Freitext, Quiz, TrueFalse, Lückentext, Schritt, Mathe
         # Default: Mix aus allen Gruppen
         else:
-            candidates = [0, 1, 22, 13, 14, 15]  # Erklärung, Schritt, Quiz, Flashcards
+            candidates = [0, 1, 10, 6, 7, 8]  # Erklärung, Schritt, Quiz, Flashcards, DragDrop, Lückentext
 
-        # Filtern und anreichern
+        # Filtern und anreichern (database-driven)
         suggestions = []
         for lm_id in candidates:
             if lm_id in existing_lm_ids:
                 continue
-            if lm_id not in LEARNING_METHODS:
-                continue
             if len(suggestions) >= max_suggestions:
                 break
 
-            method = LEARNING_METHODS[lm_id]
+            # Query database for method definition
+            method_data = LearningMethodCatalogRepository.get_by_type(method_type=lm_id)
+            if not method_data:
+                continue
+
             suggestions.append({
                 'lm_id': lm_id,
-                'name': method.name,
-                'group': method.group.value,
-                'method_type': method.method_type.value,
-                'description': method.description,
+                'name': method_data.get('name'),
+                'group': method_data.get('group_code'),
+                'method_type': lm_id,
+                'description': method_data.get('description'),
                 'reason': f'Passend für "{lesson_title}"',
                 'priority': len(suggestions) + 1,
                 'icon': LM_ICONS.get(lm_id, '📋'),
-                'ki_usage': method.ki_usage.value
+                'ki_usage': method_data.get('ki_usage', 'intensive')
             })
 
         return suggestions
@@ -336,13 +320,16 @@ Antworte NUR mit JSON."""
     @staticmethod
     def get_all_lms_grouped() -> Dict[str, Dict]:
         """
-        Gibt alle 19 Content-LMs gruppiert zurück.
+        Gibt alle 12 Content-LMs gruppiert zurück (database-driven).
         Für manuelle Auswahl wenn User selbst entscheiden will.
         """
         groups = {}
 
-        for method in LEARNING_METHODS.values():
-            group_key = method.group.value
+        # Query database for all active learning methods
+        catalog = LearningMethodCatalogRepository.get_full_catalog()
+
+        for method_data in catalog:
+            group_key = method_data.get('group_code', 'A')
             if group_key not in groups:
                 groups[group_key] = {
                     'name': {
@@ -354,12 +341,13 @@ Antworte NUR mit JSON."""
                     'methods': []
                 }
 
+            lm_id = method_data.get('method_type', 0)
             groups[group_key]['methods'].append({
-                'lm_id': method.lm_id,
-                'name': method.name,
-                'description': method.description,
-                'icon': LM_ICONS.get(method.lm_id, '📋'),
-                'ki_usage': method.ki_usage.value
+                'lm_id': lm_id,
+                'name': method_data.get('name'),
+                'description': method_data.get('description'),
+                'icon': LM_ICONS.get(lm_id, '📋'),
+                'ki_usage': method_data.get('ki_usage', 'intensive')
             })
 
         # Sortiere Methoden nach ID

@@ -5,12 +5,12 @@ Data access layer for learning method instances (konkrete Lernmethoden-Instanzen
 
 Diese Instanzen sind die tatsächlichen Lernmethoden-Einträge, die:
 - Einer Lesson (oder einem Module) zugeordnet sind
-- Einen method_type (LM00-LM31) haben
+- Einen method_type (LM00-LM11, database-driven) haben
 - Spezifische Daten (data JSONB) und optionale Lösungen (solution JSONB) enthalten
 
-Referenz: 02_Lernmethoden.md (32 Lernmethoden, LM00-LM31)
+Referenz: 02_Lernmethoden.md (12 Content-Lernmethoden, LM00-LM11 + Extensions)
 
-Phase D3.2 - Technische Integration
+All learning methods are database-driven from learning_method_types table.
 """
 
 from typing import Dict, Any, Optional, List
@@ -20,7 +20,7 @@ import psycopg
 from psycopg.rows import dict_row
 
 from app.core.bootstrap.extensions import db_pool
-from app.infrastructure.validation.learning_method_mapping import validate_lm_id, get_method_by_id
+from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 
 
 class LearningMethodInstanceRepository:
@@ -179,22 +179,25 @@ class LearningMethodInstanceRepository:
         Raises:
             ValueError: Bei ungültiger method_type
         """
-        # Validiere method_type (0-31)
+        # Validiere method_type (0-11, database-driven)
         method_type = data.get('method_type')
-        if not validate_lm_id(method_type):
-            raise ValueError(f"Ungültige method_type: {method_type}. Muss zwischen 0 und 31 liegen.")
 
-        # Hole Tier aus Mapping falls nicht angegeben
+        # Query database to validate method_type
+        method_def = LearningMethodCatalogRepository.get_by_type(method_type=method_type)
+        if not method_def:
+            max_type = LearningMethodCatalogRepository.get_max_active_type()
+            raise ValueError(f"Ungültige method_type: {method_type}. Muss zwischen 0 und {max_type} liegen.")
+
+        # Hole Tier aus Datenbank falls nicht angegeben
         if 'tier' not in data:
-            method_def = get_method_by_id(method_type)
-            if method_def:
-                # Gruppe A+B = basic, C = premium, D = pro
-                if method_def.group.value in ['A', 'B']:
-                    data['tier'] = 'basic'
-                elif method_def.group.value == 'C':
-                    data['tier'] = 'premium'
-                else:
-                    data['tier'] = 'pro'
+            group_code = method_def.get('group_code')
+            # Gruppe A+B = basic, C = premium
+            if group_code in ['A', 'B']:
+                data['tier'] = 'basic'
+            elif group_code == 'C':
+                data['tier'] = 'premium'
+            else:
+                data['tier'] = 'basic'  # Default to basic for unknown groups
 
         with db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
@@ -247,10 +250,12 @@ class LearningMethodInstanceRepository:
         Raises:
             ValueError: Bei ungültiger method_type
         """
-        # Validiere method_type falls vorhanden
+        # Validiere method_type falls vorhanden (database-driven)
         if 'method_type' in data:
-            if not validate_lm_id(data['method_type']):
-                raise ValueError(f"Ungültige method_type: {data['method_type']}. Muss zwischen 0 und 31 liegen.")
+            method_def = LearningMethodCatalogRepository.get_by_type(method_type=data['method_type'])
+            if not method_def:
+                max_type = LearningMethodCatalogRepository.get_max_active_type()
+                raise ValueError(f"Ungültige method_type: {data['method_type']}. Muss zwischen 0 und {max_type} liegen.")
 
         # Baue dynamisches UPDATE
         update_fields = []

@@ -21,6 +21,7 @@ from .value_objects import (
     ProviderHealth,
     ProviderHealthStatus
 )
+from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 
 
 class AIModelFactory:
@@ -277,7 +278,7 @@ class AIJobFactory:
         """
         Create a lesson auto-generation job.
 
-        Business Rule: Learning methods must be valid (0-11).
+        Business Rule: Learning methods must be valid and active in database.
 
         Args:
             user_id: User requesting the job
@@ -292,10 +293,11 @@ class AIJobFactory:
         Raises:
             ValueError: If learning methods are invalid
         """
-        # Validate learning methods (must be 0-11)
+        # Validate learning methods (dynamically from database)
+        max_type = LearningMethodCatalogRepository.get_max_active_type()
         for lm in learning_methods:
-            if not isinstance(lm, int) or not 0 <= lm <= 11:
-                raise ValueError(f"Invalid learning method ID: {lm}. Must be 0-11.")
+            if not isinstance(lm, int) or not 0 <= lm <= max_type:
+                raise ValueError(f"Invalid learning method ID: {lm}. Must be 0-{max_type}.")
 
         job_id = str(uuid.uuid4())
 

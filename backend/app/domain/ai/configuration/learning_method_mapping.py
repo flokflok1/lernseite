@@ -1,23 +1,20 @@
 """
 Learning Method Mapping - Content-LMs Only (12 Methoden)
 
-Defines the 12 Content-Lernmethoden (lm00-lm11).
-System-Features are in system_features_mapping.py
+⚠️ DEPRECATED - Use Database Instead!
 
-Structure:
+This file is kept for LEGACY COMPATIBILITY ONLY.
+New code should use: LearningMethodCatalogRepository.get_full_catalog()
+
+The 12 Content-Lernmethoden (lm00-lm11) are now 100% DB-driven.
+All metadata is in: learning_methods.learning_method_types table
+
+Structure (for reference):
 - Gruppe A (Erklärend): lm00-lm04 (5 Methoden)
 - Gruppe B (Praxis):    lm05-lm08 (4 Methoden)
 - Gruppe C (Prüfung):   lm09-lm11 (3 Methoden)
 
-REMOVED (now System-Features):
-- Whiteboard-Aufgabe (old lm05) → whiteboard_engine
-- Hands-on Lab (old lm10) → it_sandbox
-- Zeitlimit-Training (old lm14) → timer_wrapper
-- Mündliche Erklärung (old lm17) → speech_to_text
-- IHK-Stil Aufgaben (old lm10) → ihk_exam_system
-- Multi-Step Praxisprüfung (old lm11) → practical_exam_engine
-- Verständnis-Checks (old lm13) → comprehension_checker
-- Kapitel-Endprüfung (old lm14) → chapter_completion_system
+This hardcoded mapping will be REMOVED in v3.0 (future).
 
 Referenz: 02_Lernmethoden.md (Master-Dokument)
           02a_System-Features.md (System-Features)

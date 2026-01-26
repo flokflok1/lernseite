@@ -151,63 +151,89 @@ def get_prompts_by_role(role: str) -> List[PromptTemplate]:
 
 def get_prompt_for_lm_id(lm_id: int) -> Optional[PromptTemplate]:
     """
-    Get prompt template for a specific learning method ID (LM00-LM31).
+    Get prompt template for a specific learning method ID.
 
-    Uses the learning_method_mapping to find the appropriate prompt_key
-    and returns the corresponding template.
+    DB-Driven (v2.0.0+): Fetches prompt_template from database learning_method_types table.
+
+    Legacy Fallback: If database lookup fails, checks PROMPT_REGISTRY code-based registry.
 
     Args:
-        lm_id: Learning method ID (0-31)
+        lm_id: Learning method ID (0-11 for Content-LMs, extensible via database)
 
     Returns:
         PromptTemplate instance or None if no prompt defined
 
     Examples:
-        template = get_prompt_for_lm_id(13)  # LM13 = Flashcards
+        template = get_prompt_for_lm_id(0)   # LM00 = Tiefgehende Erklärung
         if template:
             messages = template.render(context)
     """
-    from app.domain.ai.configuration.learning_method_mapping import get_prompt_key_for_lm_id
+    from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 
-    prompt_key = get_prompt_key_for_lm_id(lm_id)
+    # Try database first (DB-driven approach)
+    try:
+        method_data = LearningMethodCatalogRepository.get_by_type(method_type=lm_id)
 
-    if not prompt_key:
-        current_app.logger.warning(
-            f"No prompt_key found for LM{lm_id:02d}"
-        )
-        return None
+        if method_data and method_data.get('prompt_template'):
+            prompt_key = method_data.get('prompt_template')
 
-    if prompt_key not in PROMPT_REGISTRY:
-        current_app.logger.warning(
-            f"Prompt template '{prompt_key}' for LM{lm_id:02d} not in registry"
-        )
-        return None
+            if prompt_key in PROMPT_REGISTRY:
+                return PROMPT_REGISTRY[prompt_key]
+            else:
+                current_app.logger.debug(
+                    f"Prompt template '{prompt_key}' for LM{lm_id:02d} not in registry"
+                )
+                return None
+    except Exception as e:
+        current_app.logger.debug(f"DB lookup failed for LM{lm_id:02d}: {e}")
 
-    return PROMPT_REGISTRY[prompt_key]
+    # Fallback: No prompt defined for this LM
+    return None
 
 
 def get_prompts_by_group(group: str) -> List[PromptTemplate]:
     """
     Get all prompts for learning methods in a specific group.
 
+    DB-Driven (v2.0.0+): Fetches all LMs from database for the given group_code.
+
     Args:
-        group: Group code ('A', 'B', 'C', 'D')
+        group: Group code ('A' | 'B' | 'C')
 
     Returns:
         List of PromptTemplate instances for that group
-    """
-    from app.domain.ai.configuration.learning_method_mapping import get_methods_by_group, LearningMethodGroup
 
-    try:
-        group_enum = LearningMethodGroup(group)
-    except ValueError:
+    Examples:
+        theory_prompts = get_prompts_by_group('A')  # Explaining group
+        practice_prompts = get_prompts_by_group('B') # Practice group
+        exam_prompts = get_prompts_by_group('C')     # Assessment group
+    """
+    from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+
+    # Validate group code
+    if group.upper() not in ['A', 'B', 'C']:
+        current_app.logger.warning(f"Invalid learning method group: {group}")
         return []
 
-    methods = get_methods_by_group(group_enum)
-    templates = []
+    try:
+        # Get all LMs for this group from database
+        catalog = LearningMethodCatalogRepository.get_full_catalog(use_cache=True)
 
-    for method in methods:
-        if method.prompt_key in PROMPT_REGISTRY:
-            templates.append(PROMPT_REGISTRY[method.prompt_key])
+        if not catalog or 'learning_methods' not in catalog:
+            return []
 
-    return templates
+        templates = []
+
+        # Filter methods by group and find their prompts
+        for method in catalog['learning_methods']:
+            if method.get('group_code') == group.upper():
+                prompt_template = method.get('prompt_template')
+
+                if prompt_template and prompt_template in PROMPT_REGISTRY:
+                    templates.append(PROMPT_REGISTRY[prompt_template])
+
+        return templates
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching prompts for group {group}: {e}")
+        return []

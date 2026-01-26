@@ -92,12 +92,14 @@ def get_learning_method_schema(code: int) -> Tuple[Dict[str, Any], int]:
         -> Returns UI schema for lm05 (Mathe-Interaktiv)
     """
     try:
-        # Validate code parameter
-        if not isinstance(code, int) or code < 0 or code > 11:
-            logger.warning(f"Invalid learning method code requested: {code}")
+        # Validate code parameter (dynamically from database)
+        max_type = LearningMethodCatalogRepository.get_max_active_type()
+
+        if not isinstance(code, int) or code < 0 or code > max_type:
+            logger.warning(f"Invalid learning method code requested: {code} (max: {max_type})")
             raise ValidationError(
                 error_code='INVALID_METHOD_CODE',
-                message=f'Invalid learning method code. Must be 0-11 (lm00-lm11).',
+                message=f'Invalid learning method code. Must be 0-{max_type}.',
                 field='code'
             )
 

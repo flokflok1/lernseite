@@ -209,10 +209,13 @@ def get_prompts_by_group(group: str) -> List[PromptTemplate]:
         exam_prompts = get_prompts_by_group('C')     # Assessment group
     """
     from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+    from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
 
-    # Validate group code
-    if group.upper() not in ['A', 'B', 'C']:
-        current_app.logger.warning(f"Invalid learning method group: {group}")
+    # Validate group code against database (not hardcoded!)
+    group_upper = group.upper()
+    group_data = LearningMethodGroupRepository.find_by_code(group_upper)
+    if not group_data:
+        current_app.logger.warning(f"Invalid learning method group: {group} (not found in database)")
         return []
 
     try:

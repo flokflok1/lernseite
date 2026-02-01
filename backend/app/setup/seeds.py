@@ -72,27 +72,26 @@ class SeedData:
 
             # Return ACTUAL database counts (not insertion counts)
             # This ensures the user sees the correct numbers even if data already exists
-            methods_result = fetch_one("SELECT COUNT(*) as count FROM learning_method_types")
+            methods_result = fetch_one("SELECT COUNT(*) as count FROM learning_methods.learning_method_types")
             results['learning_methods'] = methods_result['count'] if methods_result else 0
 
             methods_with_schemas = fetch_one(
-                "SELECT COUNT(*) as count FROM learning_method_types WHERE ui_schema IS NOT NULL"
+                "SELECT COUNT(*) as count FROM learning_methods.learning_method_types WHERE ui_schema IS NOT NULL"
             )
             results['learning_methods_with_ui_schemas'] = methods_with_schemas['count'] if methods_with_schemas else 0
 
             features_result = fetch_one("SELECT COUNT(*) as count FROM support_systems.system_features")
             results['system_features'] = features_result['count'] if features_result else 0
 
-            features_with_schemas = fetch_one(
-                "SELECT COUNT(*) as count FROM support_systems.system_features WHERE ui_schema IS NOT NULL"
-            )
-            results['system_features_with_ui_schemas'] = features_with_schemas['count'] if features_with_schemas else 0
+            # Note: system_features table doesn't have ui_schema column
+            # UI schema for features is stored elsewhere or not yet implemented
+            results['system_features_with_ui_schemas'] = 0
 
             # Note: Roles replaced by Groups - count groups instead
             groups_result = fetch_one("SELECT COUNT(*) as count FROM core.groups")
             results['groups'] = groups_result['count'] if groups_result else 0
 
-            categories_result = fetch_one("SELECT COUNT(*) as count FROM course_categories")
+            categories_result = fetch_one("SELECT COUNT(*) as count FROM courses.course_categories")
             results['categories'] = categories_result['count'] if categories_result else 0
 
         except Exception as e:
@@ -121,7 +120,7 @@ class SeedData:
         """
         # Check if method types already exist
         if skip_existing:
-            existing = fetch_one("SELECT COUNT(*) FROM learning_method_types")
+            existing = fetch_one("SELECT COUNT(*) FROM learning_methods.learning_method_types")
             if existing and existing['count'] > 0:
                 return 0
 
@@ -317,7 +316,7 @@ class SeedData:
                 import json
                 result = execute_query(
                     """
-                    INSERT INTO learning_method_types (
+                    INSERT INTO learning_methods.learning_method_types (
                         method_type, name, description, group_code, tier,
                         ki_usage, active, config, created_at
                     )
@@ -357,10 +356,10 @@ class SeedData:
             >>> print(f"Learning method types: {status['learning_methods']}")
         """
         try:
-            methods_count = fetch_one("SELECT COUNT(*) FROM learning_method_types")
+            methods_count = fetch_one("SELECT COUNT(*) FROM learning_methods.learning_method_types")
             features_count = fetch_one("SELECT COUNT(*) FROM support_systems.system_features")
             groups_count = fetch_one("SELECT COUNT(*) FROM core.groups")
-            categories_count = fetch_one("SELECT COUNT(*) FROM course_categories")
+            categories_count = fetch_one("SELECT COUNT(*) FROM courses.course_categories")
 
             return {
                 'learning_methods': methods_count['count'] if methods_count else 0,

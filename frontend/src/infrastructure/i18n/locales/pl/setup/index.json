@@ -101,8 +101,9 @@
     },
     "seed": {
       "categories": "Kategorie",
-      "description": "Instaluje metody uczenia się, kategorie i role.",
+      "description": "Instaluje metody uczenia się, kategorie i grupy.",
       "error": "Błąd",
+      "groups": "Grupy",
       "install": "Zainstaluj",
       "installFailed": "Instalacja danych początkowych nie powiodła się",
       "learningMethods": "Metody uczenia się",

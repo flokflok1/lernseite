@@ -176,7 +176,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/application/stores/player.store'
 import { useTutorStore } from '@/application/stores/tutor.store'
-import Button from '@/presentation/components/base/Button.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 import { MethodExecutionPanel } from '@/presentation/components/learning/methods'
 
 // ============================================================================

@@ -1,8 +1,13 @@
 # 34_Setup-Wizard-Installation.md
 
-Version: 2.0
+Version: 2.1
 Stand: Final
-Letzte Aktualisierung: 2025-11-15
+Letzte Aktualisierung: 2026-01-29
+
+> **Änderungen in v2.1:**
+> - First Admin wird automatisch der **Owner-Gruppe** (Level 1000) zugewiesen
+> - Hierarchy-Level-System dokumentiert (siehe `01_Core/01_Gruppenmodell.md`)
+> - Keine hardcoded Seed-Daten - alles dynamisch via Admin UI
 
 Dieses Dokument beschreibt den vollständigen **Setup Wizard** und den gesamten **Installationsprozess** des LSX Lernsystems.
 
@@ -818,7 +823,9 @@ DROP TABLE IF EXISTS users CASCADE;
 
 ## 5. Phase 3: Admin-Setup
 
-Erstellt den ersten Superadmin-Account.
+Erstellt den ersten Admin-Account und weist ihn der **Owner-Gruppe** (Hierarchy Level 1000) zu.
+
+> **Wichtig (v2.1):** Der erste Admin erhält automatisch die **Owner-Gruppe** mit dem höchsten Hierarchy Level (1000). Dies stellt sicher, dass der erste Admin volle Systemkontrolle hat und andere Administratoren ernennen kann. Siehe auch: `01_Core/01_Gruppenmodell.md` für Details zum Hierarchy-Level-System.
 
 ### 5.1 Admin-Setup Workflow
 
@@ -992,21 +999,43 @@ class AdminSetup:
             db.session.add(lsx_org)
             db.session.flush()
 
-        # Create admin
+        # Create admin user
         admin = User(
             email=email,
             password_hash=password_hash,
             first_name=first_name,
             last_name=last_name,
-            role='superadmin',
             organisation_id=lsx_org.organisation_id,
             two_factor_enabled=enable_2fa,
             two_factor_secret=totp_secret if enable_2fa else None,
             email_verified=True,
+            is_owner=True,  # First admin is owner
             created_at=datetime.utcnow()
         )
 
         db.session.add(admin)
+        db.session.flush()
+
+        # Assign to Owner group (Level 1000 - highest authority)
+        # Owner group is auto-created if not exists
+        owner_group = Group.query.filter_by(slug='owner').first()
+        if not owner_group:
+            owner_group = Group(
+                name='Owner',
+                slug='owner',
+                hierarchy_level=1000,
+                is_system_group=True
+            )
+            db.session.add(owner_group)
+            db.session.flush()
+
+        # Add admin to owner group
+        group_member = GroupMember(
+            user_id=admin.user_id,
+            group_id=owner_group.id,
+            member_role='owner'
+        )
+        db.session.add(group_member)
         db.session.commit()
 
         # Log in audit
@@ -1025,6 +1054,9 @@ class AdminSetup:
         return {
             'user_id': admin.user_id,
             'email': admin.email,
+            'is_owner': True,
+            'admin_group': 'Owner',
+            'hierarchy_level': 1000,
             '2fa_enabled': enable_2fa,
             'qr_code': qr_code if enable_2fa else None,
             'recovery_codes': recovery_codes
@@ -2699,7 +2731,7 @@ async function autoFixSystem() {
 
 ## Dokument abgeschlossen
 
-Version: 2.1 (erweitert um Phase 23)
+Version: 2.2 (Owner-Gruppe + Hierarchy Levels)
 Zeilen: 2.500+
 Status: ✅ Final
 
@@ -2708,7 +2740,8 @@ Dieses Dokument beschreibt den vollständigen Setup Wizard für LSX mit:
 • Vollständige Python-Implementierung
 • Vue.js Frontend-Komponente
 • Database-Migrationen
-• Admin-Setup mit 2FA
+• Admin-Setup mit 2FA + **Owner-Gruppe (Level 1000)**
 • KI-Pipeline-Konfiguration
 • Seed-Daten (12 Content-LMs A-C, Kategorien, Rollen)
 • Post-Installation Verification
+• **Hierarchy-Level-System (1-1000)** für granulare Berechtigungen

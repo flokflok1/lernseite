@@ -63,17 +63,7 @@
 
         <!-- KI Settings Tab -->
         <div v-if="activeTab === 'ki'">
-          <div class="space-y-6">
-            <div class="bg-[var(--color-surface)] rounded-lg p-6 border border-[var(--color-border)]">
-              <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
-                {{ $t('admin.systemSettings.ki.title') }}
-              </h3>
-              <p class="text-[var(--color-text-secondary)] mb-6">
-                {{ $t('admin.systemSettings.ki.description') }}
-              </p>
-              <GlobalSettingsTab />
-            </div>
-          </div>
+          <AIConfiguration />
         </div>
 
         <!-- Maintenance Tab -->
@@ -89,10 +79,10 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LsxPanel } from '@/application/stores/modules/desktop'
-import SystemInfoWidget from '@/presentation/components/base/system/admin/settings/SystemInfoWidget.vue'
-import SystemModeManager from '@/presentation/components/base/system/admin/settings/SystemModeManager.vue'
-import MaintenanceModeToggle from '@/presentation/components/base/system/admin/settings/MaintenanceModeToggle.vue'
-import GlobalSettingsTab from '@/presentation/components/studio/ai/admin/studio/tabs/GlobalSettingsTab.vue'
+import SystemInfoWidget from '@/presentation/components/shared/ui/system/admin/settings/SystemInfoWidget.vue'
+import SystemModeManager from '@/presentation/components/shared/ui/system/admin/settings/SystemModeManager.vue'
+import MaintenanceModeToggle from '@/presentation/components/shared/ui/system/admin/settings/MaintenanceModeToggle.vue'
+import { AIConfiguration } from '@/presentation/components/admin/ai-operations'
 
 interface Props {
   panel: LsxPanel

@@ -46,7 +46,7 @@ class AgentCore:
         question: str,
         context: Optional[Dict[str, Any]] = None,
         language: str = 'de',
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Ask the course agent a question (Cache-First Strategy)
@@ -57,7 +57,7 @@ class AgentCore:
             question: User's question
             context: Optional context (lesson_id, chapter_id, etc.)
             language: Response language (default: 'de')
-            organization_id: Optional organisation UUID for billing
+            organisation_id: Optional organisation UUID for billing
 
         Returns:
             {
@@ -78,7 +78,7 @@ class AgentCore:
         agent_id = agent['agent_id']
 
         # Get effective agent config (with org extensions)
-        config = AgentRepository.get_effective_agent_config(course_id, organization_id)
+        config = AgentRepository.get_effective_agent_config(course_id, organisation_id)
 
         # Normalize question for caching
         normalized_question = PromptBuilder.normalize_question(question)
@@ -241,7 +241,7 @@ class AgentCore:
             agent_id=agent_id,
             user_id=user_id,
             course_id=course_id,
-            organization_id=organization_id,
+            organisation_id=organisation_id,
             config=config,
             question=question,
             normalized_question=normalized_question,

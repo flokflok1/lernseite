@@ -74,7 +74,7 @@ def check_course_authorization(course: dict, user: dict):
         can_manage_any = PermissionService.check_threshold(user, 'courses.edit_any')
         is_org_admin = (
             user.get('hierarchy_level', 0) == 5 and  # school_admin, company_admin
-            user.get('organization_id') == course.get('organization_id')
+            user.get('organisation_id') == course.get('organisation_id')
         )
         if not (can_manage_any or is_org_admin):
             return False, error_response(
@@ -122,9 +122,9 @@ def agent_ask(course_id: str):
         except ValidationError as e:
             return error_response('Invalid request', details=e.errors(), code=400)
 
-        # Get organization_id from user if available
-        # Note: Database uses American spelling 'organization_id'
-        organization_id = user.get('organization_id')
+        # Get organisation_id from user if available
+        # Note: Database uses American spelling 'organisation_id'
+        organisation_id = user.get('organisation_id')
 
         # Ask the agent
         result = AgentService.ask(
@@ -133,7 +133,7 @@ def agent_ask(course_id: str):
             question=data.question,
             context=data.context,
             language=data.language,
-            organization_id=organization_id
+            organisation_id=organisation_id
         )
 
         # Build response

@@ -27,25 +27,25 @@ class TokenWalletBase(BaseModel):
         ... )
     """
     user_id: Optional[int] = Field(None, description="User ID (for personal wallets)")
-    organization_id: Optional[int] = Field(None, description="Organisation ID (for org wallets)")
+    organisation_id: Optional[int] = Field(None, description="Organisation ID (for org wallets)")
     balance: int = Field(default=0, ge=0, description="Available token balance")
     reserved: int = Field(default=0, ge=0, description="Reserved tokens (pending operations)")
     currency: str = Field(default="tokens", description="Currency type")
 
-    @field_validator('user_id', 'organization_id')
+    @field_validator('user_id', 'organisation_id')
     @classmethod
     def validate_owner(cls, v, info):
-        """Ensure exactly one of user_id or organization_id is set"""
+        """Ensure exactly one of user_id or organisation_id is set"""
         data = info.data
         user_id = data.get('user_id')
-        org_id = info.field_name == 'organization_id' and v or data.get('organization_id')
+        org_id = info.field_name == 'organisation_id' and v or data.get('organisation_id')
 
         # Check if this is the second field being validated
-        if info.field_name == 'organization_id':
+        if info.field_name == 'organisation_id':
             if user_id is not None and org_id is not None:
-                raise ValueError('Cannot specify both user_id and organization_id')
+                raise ValueError('Cannot specify both user_id and organisation_id')
             if user_id is None and org_id is None:
-                raise ValueError('Must specify either user_id or organization_id')
+                raise ValueError('Must specify either user_id or organisation_id')
 
         return v
 
@@ -155,7 +155,7 @@ class TokenTransactionResponse(TokenTransactionBase):
     """
     transaction_id: int = Field(..., description="Transaction ID")
     user_id: Optional[int] = Field(None, description="User ID")
-    organization_id: Optional[int] = Field(None, description="Organisation ID")
+    organisation_id: Optional[int] = Field(None, description="Organisation ID")
     balance_after: int = Field(..., description="Balance after transaction")
     description: Optional[str] = Field(None, description="Human-readable description")
     ai_module: Optional[str] = Field(None, max_length=100, description="AI module used (if applicable)")
@@ -182,7 +182,7 @@ class TokenUsageStats(BaseModel):
         ... )
     """
     user_id: Optional[int] = Field(None, description="User ID (if user-specific)")
-    organization_id: Optional[int] = Field(None, description="Organisation ID (if org-specific)")
+    organisation_id: Optional[int] = Field(None, description="Organisation ID (if org-specific)")
     total_tokens_used: int = Field(..., ge=0, description="Total tokens consumed")
     total_tokens_bought: int = Field(..., ge=0, description="Total tokens purchased")
     total_tokens_granted: int = Field(..., ge=0, description="Total tokens granted")
@@ -252,22 +252,22 @@ class TokenManualTopupRequest(BaseModel):
         ... )
     """
     user_id: Optional[int] = Field(None, description="User ID")
-    organization_id: Optional[int] = Field(None, description="Organisation ID")
+    organisation_id: Optional[int] = Field(None, description="Organisation ID")
     amount: int = Field(..., description="Token amount (can be negative for deductions)")
     reason: str = Field(..., max_length=255, description="Reason for manual topup")
 
-    @field_validator('user_id', 'organization_id')
+    @field_validator('user_id', 'organisation_id')
     @classmethod
     def validate_target(cls, v, info):
         """Ensure exactly one target is specified"""
         data = info.data
-        if info.field_name == 'organization_id':
+        if info.field_name == 'organisation_id':
             user_id = data.get('user_id')
             org_id = v
             if user_id is None and org_id is None:
-                raise ValueError('Must specify either user_id or organization_id')
+                raise ValueError('Must specify either user_id or organisation_id')
             if user_id is not None and org_id is not None:
-                raise ValueError('Cannot specify both user_id and organization_id')
+                raise ValueError('Cannot specify both user_id and organisation_id')
         return v
 
     model_config = ConfigDict(from_attributes=True)

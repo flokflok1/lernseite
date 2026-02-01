@@ -16,7 +16,7 @@ import json
 import psycopg
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.application.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError, AIQuotaExceededError
 from flask import current_app
 from .base import LearningMethodBaseRepository
@@ -196,7 +196,7 @@ class LearningMethodAIRepository:
             return None, None, None
 
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor(row_factory=dict_row) as cur:
                     cur.execute("""
                         SELECT
@@ -239,7 +239,7 @@ class LearningMethodAIRepository:
         ai_response: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Log execution to database."""
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     INSERT INTO learning_method_executions (
@@ -486,7 +486,7 @@ Erstelle eine strukturierte, interaktive Aufgabe die dem Lernenden hilft, das Th
         model: str,
         provider: str,
         cost_eur: float,
-        organization_id: Optional[str] = None,
+        organisation_id: Optional[str] = None,
         course_id: Optional[str] = None,
         chapter_id: Optional[str] = None,
         lesson_id: Optional[str] = None
@@ -503,7 +503,7 @@ Erstelle eine strukturierte, interaktive Aufgabe die dem Lernenden hilft, das Th
             model: AI model name
             provider: AI provider (anthropic, openai, etc.)
             cost_eur: Cost in EUR
-            organization_id: Organization ID (optional)
+            organisation_id: Organization ID (optional)
             course_id: Course ID (optional)
             chapter_id: Chapter ID (optional)
             lesson_id: Lesson ID (optional)
@@ -513,11 +513,11 @@ Erstelle eine strukturierte, interaktive Aufgabe die dem Lernenden hilft, das Th
         """
         total_tokens = input_tokens + output_tokens
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     INSERT INTO ai_token_usage (
-                        user_id, organization_id, method_id, method_name,
+                        user_id, organisation_id, method_id, method_name,
                         course_id, chapter_id, lesson_id,
                         input_tokens, output_tokens, total_tokens,
                         model, provider, cost_eur
@@ -529,7 +529,7 @@ Erstelle eine strukturierte, interaktive Aufgabe die dem Lernenden hilft, das Th
                     )
                     RETURNING *
                 """, (
-                    user_id, organization_id, method_id, method_name,
+                    user_id, organisation_id, method_id, method_name,
                     course_id, chapter_id, lesson_id,
                     input_tokens, output_tokens, total_tokens,
                     model, provider, cost_eur

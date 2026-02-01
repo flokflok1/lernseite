@@ -753,6 +753,10 @@ def create_app(config_name=None):
     # Initialize Flask app
     app = Flask(__name__, instance_relative_config=True)
 
+    # Disable strict slashes to prevent 308 redirects on API endpoints
+    # This fixes CORS preflight issues when clients request /path without trailing slash
+    app.url_map.strict_slashes = False
+
     # Load configuration
     app.config.from_object(config[config_name])
 

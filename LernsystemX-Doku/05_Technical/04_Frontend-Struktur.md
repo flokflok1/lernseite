@@ -1,7 +1,7 @@
-# 04 – Frontend-Struktur (GBA Edition)
+# 04 – Frontend-Struktur (DDD + GBA Edition)
 
-**Version:** 2.0 (Group-Based Architecture)
-**Stand:** 2026-01-25
+**Version:** 2.1 (DDD Architecture + Course Editor)
+**Stand:** 2026-01-29
 **Status:** Production Ready
 
 Das Dokument definiert die **Domain-Driven Design (DDD) Frontend-Architektur** des LSX Lernsystems mit **Group-Based Authorization (GBA)** für alle Verwaltungs- und Zugriffskontrollfeatures.
@@ -85,106 +85,145 @@ System Features sind **Tools/Technologien**, die Lernmethoden unterstützen (NIC
 
 ---
 
-## Frontend-Verzeichnisstruktur
+## Frontend-Verzeichnisstruktur (DDD Architecture)
 
 ```
 frontend/
 ├── src/
-│   ├── components/                  # Vue Components (Role-Based Organization)
-│   │   ├── admin/                   # System Admin Features (GBA-protected)
-│   │   │   ├── dashboard/
-│   │   │   ├── users/               # User Management
-│   │   │   ├── groups/              # ✅ Group Management (GBA)
-│   │   │   ├── organisations/
-│   │   │   ├── courses/
-│   │   │   ├── categories/
-│   │   │   ├── ai-studio/
-│   │   │   ├── translations/
-│   │   │   ├── billing/
-│   │   │   ├── analytics/
-│   │   │   ├── audit-logs/
-│   │   │   ├── lm-routing/
-│   │   │   └── system-settings/
-│   │   ├── user/                    # End-User Features
-│   │   │   ├── lessons/
-│   │   │   ├── courses/
-│   │   │   ├── dashboard/
-│   │   │   └── profile/
-│   │   ├── shared/                  # Shared UI Components
-│   │   │   ├── base/                # Button, Input, Modal
-│   │   │   ├── layout/              # Layout Components
-│   │   │   └── icons/
-│   │   └── system-features/         # System Features UI
-│   │       ├── whiteboard/
-│   │       ├── video-call/
-│   │       ├── code-sandbox/
-│   │       └── ...
 │   │
-│   ├── pages/                       # Page Components (Routes)
-│   │   ├── LoginPage.vue
-│   │   ├── DashboardPage.vue
-│   │   ├── admin/                   # Admin Pages
-│   │   │   ├── AdminDashboardPage.vue
-│   │   │   ├── AdminUsersPage.vue
-│   │   │   ├── AdminGroupsPage.vue  # ✅ Groups (replaced AdminRolesPage)
+│   ├── presentation/                # 🎨 PRESENTATION LAYER (UI)
+│   │   ├── components/              # Vue Components (Feature-Based + Role-Based)
+│   │   │   │
+│   │   │   ├── admin/               # Admin Features (GBA-protected)
+│   │   │   │   ├── ai-operations/   # KI-Operationen
+│   │   │   │   │   ├── settings/    # KI-Einstellungen
+│   │   │   │   │   ├── learning-methods-management/
+│   │   │   │   │   └── system-features-management/
+│   │   │   │   ├── content-management/  # Content-Verwaltung
+│   │   │   │   │   ├── academy/
+│   │   │   │   │   ├── courses/
+│   │   │   │   │   └── learning-methods-management/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── feature-flags/
+│   │   │   │   ├── groups/          # ✅ Group Management (GBA)
+│   │   │   │   ├── translations/
+│   │   │   │   └── system-settings/
+│   │   │   │
+│   │   │   ├── ai/                  # KI-Features
+│   │   │   │   ├── admin/           # Admin KI-Studio
+│   │   │   │   │   ├── authoring/   # Kurs-Builder, Generation
+│   │   │   │   │   ├── management/  # Jobs, Models, Prompts
+│   │   │   │   │   ├── settings/
+│   │   │   │   │   └── studio/      # AiStudioMain.vue
+│   │   │   │   └── user/            # User KI-Features
+│   │   │   │       ├── chat/
+│   │   │   │       ├── quiz-generation/
+│   │   │   │       └── tutor/
+│   │   │   │
+│   │   │   ├── course-editor/       # ⭐ KURS-EDITOR (Manual + AI)
+│   │   │   │   ├── ai-editor/       # KI-gestützte Kurserstellung
+│   │   │   │   │   ├── composables/ # useSourceSelection.ts
+│   │   │   │   │   ├── steps/       # PDFUploadPanel, SessionSummary
+│   │   │   │   │   ├── AIEditorContainer.vue
+│   │   │   │   │   ├── ChatInterface.vue
+│   │   │   │   │   ├── SourceSelectionContainer.vue
+│   │   │   │   │   └── ...
+│   │   │   │   ├── manual-editor/   # Manueller Editor
+│   │   │   │   │   ├── ManualEditorContainer.vue
+│   │   │   │   │   ├── ChapterEditor.vue
+│   │   │   │   │   └── LessonEditor.vue
+│   │   │   │   ├── content-generation/   # Theorie-Generierung
+│   │   │   │   │   ├── composables/
+│   │   │   │   │   ├── panels/
+│   │   │   │   │   ├── types/
+│   │   │   │   │   └── TheoryGenerationContainer.vue
+│   │   │   │   ├── explanation-generation/  # Erklärungen
+│   │   │   │   │   ├── composables/
+│   │   │   │   │   ├── panels/
+│   │   │   │   │   ├── types/
+│   │   │   │   │   └── ExplanationGenerationContainer.vue
+│   │   │   │   ├── shared/          # Gemeinsame Komponenten
+│   │   │   │   │   ├── ContentEditor.vue
+│   │   │   │   │   ├── MediaUpload.vue
+│   │   │   │   │   ├── PreviewPanel.vue
+│   │   │   │   │   └── ToolbarActions.vue
+│   │   │   │   ├── CourseEditorMain.vue
+│   │   │   │   └── EditorSwitcher.vue
+│   │   │   │
+│   │   │   ├── content/             # Content-Komponenten
+│   │   │   │   ├── admin/
+│   │   │   │   ├── user/
+│   │   │   │   └── shared/
+│   │   │   │
+│   │   │   ├── base/                # Base UI Components
+│   │   │   │   ├── Button.vue, Card.vue, Modal.vue...
+│   │   │   │   ├── core/
+│   │   │   │   ├── layout/
+│   │   │   │   └── learning/
+│   │   │   │
+│   │   │   ├── compliance/          # GDPR/DSA Compliance
+│   │   │   │   ├── CookieConsent.vue
+│   │   │   │   ├── AgeGate.vue
+│   │   │   │   ├── DataExport.vue
+│   │   │   │   └── ...
+│   │   │   │
+│   │   │   └── ...                  # Weitere Feature-Ordner
+│   │   │
+│   │   ├── pages/                   # Page Components (Routes)
+│   │   │   ├── admin/               # Admin Pages
 │   │   │   └── ...
-│   │   └── ...
+│   │   ├── layouts/                 # Layout Components
+│   │   ├── router/                  # Vue Router + GBA Guards
+│   │   ├── views/                   # View Components
+│   │   ├── App.vue
+│   │   └── main.ts
 │   │
-│   ├── domain/                      # Domain Models & Business Logic (DDD)
-│   │   ├── models/
-│   │   │   ├── user.model.ts
-│   │   │   ├── course.model.ts
-│   │   │   ├── group.model.ts       # ✅ Group Domain Model
-│   │   │   └── permission.model.ts
-│   │   ├── factories/
-│   │   │   ├── user.factory.ts
-│   │   │   ├── group.factory.ts     # ✅ Group Factory
-│   │   │   └── ...
-│   │   ├── value-objects/
-│   │   └── events/
-│   │
-│   ├── application/                 # Application Services & State (DDD)
+│   ├── application/                 # 🟡 APPLICATION LAYER (Services & State)
 │   │   ├── services/
-│   │   │   ├── admin/               # Admin Services
-│   │   │   │   ├── UserAdminService.ts
-│   │   │   │   ├── GroupManagementService.ts  # ✅ (replaced RoleAdminService)
-│   │   │   │   └── ...
-│   │   │   └── ...
-│   │   ├── stores/
+│   │   │   └── api/                 # API Services
+│   │   ├── stores/                  # Pinia Stores
 │   │   │   ├── modules/
-│   │   │   │   ├── auth.store.ts    # Authentication
-│   │   │   │   └── admin/
-│   │   │   │       ├── users.store.ts
-│   │   │   │       ├── groups.store.ts  # ✅ (replaced roles.store.ts)
-│   │   │   │       └── ...
-│   │   │   └── index.ts
-│   │   └── composables/
-│   │       ├── useGroupsStore.ts    # ✅ (replaced useRolesStore)
+│   │   │   ├── auth.store.ts
+│   │   │   ├── groups.store.ts      # ✅ Group State (replaced roles.store.ts)
+│   │   │   └── ...
+│   │   └── composables/             # Shared Composables
+│   │       ├── useAccessControl.ts
+│   │       ├── useGroupTier.ts
 │   │       └── ...
 │   │
-│   ├── infrastructure/              # External Services & APIs
-│   │   ├── api/
+│   ├── domain/                      # 🟢 DOMAIN LAYER (Business Logic)
+│   │   ├── models/                  # Domain Models
+│   │   │   ├── admin/
+│   │   │   ├── content/
+│   │   │   ├── course/
+│   │   │   ├── course-editor/       # ✅ Course Editor Models
+│   │   │   ├── social/
+│   │   │   └── user/
+│   │   ├── factories/               # Factory Pattern
+│   │   │   ├── admin/
+│   │   │   ├── content/
+│   │   │   ├── course-editor/       # ✅ Course Editor Factories
+│   │   │   └── ...
+│   │   ├── value-objects/           # Email.vo.ts, etc.
+│   │   ├── events/                  # Domain Events
+│   │   ├── widgets/                 # Widget Definitions
+│   │   └── learning-methods/        # LM Configurations
+│   │
+│   ├── infrastructure/              # 🔵 INFRASTRUCTURE LAYER (External Services)
+│   │   ├── api/                     # API Clients
 │   │   │   ├── clients/
-│   │   │   │   ├── auth.client.ts
-│   │   │   │   ├── admin.client.ts
-│   │   │   │   ├── groups.client.ts # ✅ Groups API Client
-│   │   │   │   └── ...
-│   │   │   └── interceptors/
-│   │   │       ├── auth.interceptor.ts
-│   │   │       └── gba.interceptor.ts  # ✅ GBA Permission Interceptor
-│   │   ├── websocket/
-│   │   └── ...
+│   │   │   ├── admin/
+│   │   │   ├── config/
+│   │   │   └── utils/
+│   │   ├── websocket/               # WebSocket Clients
+│   │   ├── cache/                   # Local Caching
+│   │   ├── i18n/                    # Internationalization
+│   │   └── repositories/            # Data Repositories
 │   │
-│   ├── router/
-│   │   └── index.ts                 # Vue Router Configuration (GBA Guards)
-│   │
-│   ├── locales/                     # i18n Translations (20 Sprachen)
-│   │   ├── de.json
-│   │   ├── en.json
-│   │   └── pl.json
-│   │
-│   ├── main.ts                      # App Entry Point
-│   └── App.vue                      # Root Component
+│   └── shared/                      # Shared Resources
+│       ├── assets/
+│       ├── utils/
+│       └── docs/
 │
 ├── public/                          # Static Assets
 ├── Dockerfile                       # Docker Configuration
@@ -725,19 +764,87 @@ export const useGroupsStore = () => {
 
 ---
 
-## Course Editor Domain (Shared Component)
+## Course Editor Domain (Aligned mit Backend)
 
-Der **Course Editor** ist ein **Shared Domain Component** (nicht nur für Admin), zugänglich über:
-- `/editor` - Für Creators mit `manage:courses` Permission
-- `/admin/kurs-editor` - System Admin Access Point
+Der **Course Editor** ist ein **Feature-Domain Component** mit zwei Modi:
 
-Beide Routes verwenden dieselben Dateien:
+### 🎯 Editor-Modi
+
+| Modus | Komponente | Backend API |
+|-------|------------|-------------|
+| **AI Editor** | `ai-editor/` | `/api/v1/course_editor/ai_editor/` |
+| **Manual Editor** | `manual-editor/` | `/api/v1/course_editor/manual_editor/` |
+
+### 📁 Frontend Struktur
+
+```
+src/presentation/components/course-editor/
+├── ai-editor/                    # KI-gestützte Kurserstellung
+│   ├── composables/              # useSourceSelection.ts
+│   ├── steps/                    # Wizard Steps
+│   │   ├── PDFUploadPanel.vue    # PDF-Upload für Source
+│   │   ├── SessionSummaryPanel.vue
+│   │   └── SourceTypeSelector.vue
+│   ├── AIEditorContainer.vue     # Haupt-Container
+│   ├── ChatInterface.vue         # KI-Chat
+│   ├── SourceSelectionContainer.vue
+│   └── ...
+│
+├── manual-editor/                # Manueller Editor
+│   ├── ManualEditorContainer.vue # Haupt-Container
+│   ├── ChapterEditor.vue
+│   └── LessonEditor.vue
+│
+├── content-generation/           # Theorie-Generierung
+│   ├── composables/useTheoryGeneration.ts
+│   ├── panels/
+│   │   ├── TheoryGenerationDetailPanel.vue
+│   │   ├── TheoryGenerationListPanel.vue
+│   │   └── TheoryGenerationSettingsPanel.vue
+│   ├── types/theory.types.ts
+│   └── TheoryGenerationContainer.vue
+│
+├── explanation-generation/       # Erklärungen-Generierung
+│   ├── composables/useExplanationGeneration.ts
+│   ├── panels/
+│   └── ExplanationGenerationContainer.vue
+│
+├── shared/                       # Gemeinsame Komponenten
+│   ├── ContentEditor.vue
+│   ├── MediaUpload.vue
+│   ├── PreviewPanel.vue
+│   ├── StructurePanel.vue
+│   └── ToolbarActions.vue
+│
+├── CourseEditorMain.vue          # Haupt-Entry Point
+├── EditorSwitcher.vue            # Modus-Umschalter (AI/Manual)
+└── index.ts                      # Barrel Export
+```
+
+### 🔗 Backend API Alignment
+
+| Frontend | Backend |
+|----------|---------|
+| `ai-editor/AIEditorContainer.vue` | `/api/v1/course_editor/ai_editor/authoring.py` |
+| `manual-editor/ChapterEditor.vue` | `/api/v1/course_editor/manual_editor/chapters.py` |
+| `manual-editor/LessonEditor.vue` | `/api/v1/course_editor/manual_editor/lessons.py` |
+| `content-generation/` | `/api/v1/course_editor/ai_editor/actions.py` |
+| `shared/` | `/api/v1/course_editor/shared/` |
+
+### 🛣️ Routing
+
 ```typescript
-src/components/course-editor/           # Shared Domain
-  ├── types/
-  ├── composables/
-  ├── CourseEditorMain.vue
-  └── ...
+// Editor Routes
+{
+  path: '/editor',                   // Creator Access
+  component: () => import('@/presentation/components/course-editor/CourseEditorMain.vue'),
+  meta: { requiresPermission: 'manage:courses' }
+},
+{
+  path: '/admin/kurs-editor',        // Admin Access
+  component: () => import('@/presentation/components/course-editor/CourseEditorMain.vue'),
+  meta: { requiresPermission: 'admin:system' }
+}
 ```
 
 ---
@@ -765,4 +872,4 @@ src/components/course-editor/           # Shared Domain
 
 ---
 
-**Stand:** 2026-01-25 | **Version:** 2.0 (GBA) | **Status:** Production Ready
+**Stand:** 2026-01-29 | **Version:** 2.1 (DDD + Course Editor) | **Status:** Production Ready

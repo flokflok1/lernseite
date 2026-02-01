@@ -74,8 +74,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import Card from '@/presentation/components/base/Card.vue'
-import Button from '@/presentation/components/base/Button.vue'
+import Card from '@/presentation/components/shared/ui/Card.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 import type { BaseWidgetProps } from '@/types/widgets'
 
 // ============================================================================

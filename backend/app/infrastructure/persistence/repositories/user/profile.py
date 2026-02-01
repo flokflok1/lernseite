@@ -36,14 +36,14 @@ class UserProfileRepository(BaseRepository):
             >>> print(theme)  # 'dark'
         """
         user = fetch_one(
-            "SELECT theme_preference FROM core.users WHERE user_id = %s",
+            "SELECT theme FROM core.users WHERE user_id = %s",
             (user_id,)
         )
 
-        if user and user.get('theme_preference'):
-            return user['theme_preference']
+        if user and user.get('theme'):
+            return user['theme']
 
-        # Fallback to 'dark' if user not found or theme_preference is NULL
+        # Fallback to 'dark' if user not found or theme is NULL
         return 'dark'
 
     @classmethod
@@ -70,13 +70,13 @@ class UserProfileRepository(BaseRepository):
         if theme not in valid_themes:
             raise ValueError(f'Theme must be one of: {", ".join(valid_themes)}')
 
-        # Update theme preference
+        # Update theme
         result = execute_query(
             """
             UPDATE core.users
-            SET theme_preference = %s, updated_at = NOW()
+            SET theme = %s, updated_at = NOW()
             WHERE user_id = %s
-            RETURNING theme_preference
+            RETURNING theme
             """,
             (theme, user_id),
             fetch_one=True
@@ -85,4 +85,4 @@ class UserProfileRepository(BaseRepository):
         if not result:
             raise ValueError(f'User with ID {user_id} not found')
 
-        return result['theme_preference']
+        return result['theme']

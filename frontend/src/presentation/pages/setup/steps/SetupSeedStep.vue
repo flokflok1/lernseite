@@ -8,7 +8,7 @@
       <p class="text-sm text-green-800 dark:text-green-200">{{ $t('setup.seed.learningMethods') }}: {{ result.learning_methods || 0 }}</p>
       <p class="text-sm text-green-800 dark:text-green-200">{{ $t('setup.seed.systemFeatures') }}: {{ result.system_features || 0 }}</p>
       <p class="text-sm text-green-800 dark:text-green-200">{{ $t('setup.seed.categories') }}: {{ result.categories || 0 }}</p>
-      <p class="text-sm text-green-800 dark:text-green-200">{{ $t('setup.seed.roles') }}: {{ result.roles || 0 }}</p>
+      <p class="text-sm text-green-800 dark:text-green-200">{{ $t('setup.seed.groups') }}: {{ result.groups || 0 }}</p>
     </div>
 
     <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">{{ error }}</div>
@@ -26,7 +26,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as setupApi from '@/application/services/api/system'
 import type { SeedDataResponse } from '@/application/services/api/system'
-import Button from '@/presentation/components/base/Button.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 
 const { t } = useI18n()
 

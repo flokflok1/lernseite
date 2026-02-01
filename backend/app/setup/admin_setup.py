@@ -98,7 +98,7 @@ class AdminSetup:
         first_name: str,
         last_name: str,
         organisation_id: Optional[int] = None,
-        admin_group_slug: str = 'system-admin',
+        admin_group_slug: str = 'owner',
         enable_2fa: bool = False
     ) -> Dict:
         """
@@ -110,9 +110,9 @@ class AdminSetup:
             first_name: Admin first name
             last_name: Admin last name
             organisation_id: Organisation ID (optional)
-            admin_group_slug: Slug of admin group to assign (default: 'system-admin').
-                             Can be 'system-admin', 'owner', 'school-admin', 'company-admin', etc.
-                             Allows flexible admin group assignment without hardcoding.
+            admin_group_slug: Slug of admin group to assign (default: 'owner').
+                             Can be 'owner', 'system-admin', 'school-admin', 'company-admin', etc.
+                             First admin gets 'owner' (Level 1000) by default.
             enable_2fa: Enable 2FA (default: False)
 
         Returns:
@@ -147,10 +147,16 @@ class AdminSetup:
         if not valid_password:
             raise ValueError(password_msg)
 
-        # Check if admin already exists (has is_owner flag set)
-        # In new system, admin users are determined by is_owner flag
+        # Check if admin already exists (member of Owner group)
+        # In the group-based system, admin users are determined by membership in Owner group
         existing_owner = fetch_one(
-            "SELECT user_id FROM users WHERE is_owner = true LIMIT 1"
+            """
+            SELECT ug.user_id
+            FROM core.users_groups ug
+            JOIN core.groups g ON ug.group_id = g.id
+            WHERE g.slug = 'owner'
+            LIMIT 1
+            """
         )
         if existing_owner:
             raise ValueError("Admin account already exists")
@@ -166,6 +172,7 @@ class AdminSetup:
             # Auto-create group if not found
             # This ensures Setup Wizard doesn't break when group doesn't exist
             group_slug_mapping = {
+                'owner': {'name': 'Owner', 'hierarchy_level': 1000, 'is_system_group': True},
                 'system-owner': {'name': 'System Owner', 'hierarchy_level': 1000, 'is_system_group': True},
                 'system-admin': {'name': 'System Admin', 'hierarchy_level': 950, 'is_system_group': True},
                 'org-admin': {'name': 'Organization Admin', 'hierarchy_level': 800, 'is_system_group': False},
@@ -206,10 +213,10 @@ class AdminSetup:
         if organisation_id is None:
             # Get LSX Academy organisation
             org = fetch_one(
-                "SELECT organization_id FROM organisations.organisations WHERE name = %s",
+                "SELECT organisation_id FROM organisations.organisations WHERE name = %s",
                 ('LSX Academy',)
             )
-            organisation_id = org['organization_id'] if org else None
+            organisation_id = org['organisation_id'] if org else None
 
         # Create admin user
         admin = UserRepository.create_user(
@@ -217,21 +224,11 @@ class AdminSetup:
             password=password,
             first_name=first_name,
             last_name=last_name,
-            organization_id=organisation_id
-        )
-
-        # Set as Owner-Admin (first admin becomes owner)
-        # Mark user as owner (becomes system admin)
-        execute_query(
-            """
-            UPDATE users
-            SET is_owner = true
-            WHERE user_id = %s
-            """,
-            (admin['user_id'],)
+            organisation_id=organisation_id
         )
 
         # Add admin user to specified admin group (FLEXIBLE - NOT HARDCODED!)
+        # Owner status is determined by membership in Owner group (hierarchy_level 1000)
         # Uses admin_group_slug parameter instead of hardcoded 'system-admin'
         execute_query(
             """
@@ -243,15 +240,16 @@ class AdminSetup:
         )
 
         # Update 2FA settings if enabled
+        # Note: TOTP secret is returned to user for authenticator app setup
+        # The two_factor_enabled flag is set in the database
         if enable_2fa and totp_secret:
             execute_query(
                 """
-                UPDATE users
-                SET two_factor_enabled = true,
-                    two_factor_secret = %s
+                UPDATE core.users
+                SET two_factor_enabled = true
                 WHERE user_id = %s
                 """,
-                (totp_secret, admin['user_id'])
+                (admin['user_id'],)
             )
 
         # Mark email as verified (admin account)
@@ -263,11 +261,17 @@ class AdminSetup:
         # Log admin creation with group info
         cls._log_admin_creation(admin['user_id'], email, enable_2fa, admin_group)
 
+        # Parse full_name back to first_name and last_name for response
+        full_name = admin.get('full_name', '')
+        name_parts = full_name.split(' ', 1) if full_name else ['', '']
+        response_first_name = name_parts[0] if name_parts else ''
+        response_last_name = name_parts[1] if len(name_parts) > 1 else ''
+
         return {
             'user_id': admin['user_id'],
             'email': admin['email'],
-            'first_name': admin.get('firstname', ''),
-            'last_name': admin.get('lastname', ''),
+            'first_name': response_first_name,
+            'last_name': response_last_name,
             'is_owner': not bool(existing_owner),  # True if no owner existed before
             'admin_group': admin_group['name'],  # Group assigned to
             'admin_group_slug': admin_group['slug'],
@@ -367,7 +371,7 @@ class AdminSetup:
 
         execute_query(
             """
-            INSERT INTO audit_logs (
+            INSERT INTO core.audit_logs (
                 event_type, user_id, action, severity, metadata, created_at
             )
             VALUES (%s, %s, %s, %s, %s, NOW())

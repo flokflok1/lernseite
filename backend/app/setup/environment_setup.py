@@ -20,7 +20,7 @@ from typing import Dict, Tuple
 class EnvironmentSetup:
     """Handle environment configuration and .env file generation"""
 
-    BACKEND_DIR = Path(__file__).parent.parent
+    BACKEND_DIR = Path(__file__).parent.parent.parent
     ENV_FILE = BACKEND_DIR / '.env'
     ENV_DEV_TEMPLATE = BACKEND_DIR / '.env.example'
     ENV_PROD_TEMPLATE = BACKEND_DIR / '.env.production.example'

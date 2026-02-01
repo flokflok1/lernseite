@@ -1,7 +1,7 @@
 """
 LernsystemX Setup - Organization & AI Configuration Routes
 
-REST API endpoints for organization and AI provider setup:
+REST API endpoints for organisation and AI provider setup:
 - POST /setup/organisation - Create organisation (school, company, etc.)
 - POST /setup/ki-config - Configure AI API keys
 - GET /setup/ki-config - Get configured AI providers
@@ -89,7 +89,7 @@ def create_organisation():
 
         return jsonify({
             'success': True,
-            'organisation_id': org['organization_id'],
+            'organisation_id': org['organisation_id'],
             'name': org['name'],
             'type': org['type'],
             'domain': org.get('domain'),

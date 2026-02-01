@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.persistence.repositories.subscription.crud import PlanRepository
 
 
@@ -47,7 +47,7 @@ class UserSubscriptionRepository:
         Raises:
             ValueError: If user already has active subscription or plan not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Check if user already has active subscription
                 cur.execute("""
@@ -108,7 +108,7 @@ class UserSubscriptionRepository:
         Returns:
             Subscription with plan details or None if not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT

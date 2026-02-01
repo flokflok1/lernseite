@@ -39,7 +39,7 @@ class FeatureFlagManager:
         self,
         feature_name: str,
         user_id: Optional[str] = None,
-        organization_id: Optional[str] = None,
+        organisation_id: Optional[str] = None,
         user_segment: Optional[str] = None
     ) -> bool:
         """
@@ -48,7 +48,7 @@ class FeatureFlagManager:
         Args:
             feature_name: Name of feature flag (e.g., 'user_posts')
             user_id: Optional user ID to check
-            organization_id: Optional organization ID
+            organisation_id: Optional organisation ID
             user_segment: Optional user segment (e.g., 'beta', 'premium')
 
         Returns:
@@ -57,7 +57,7 @@ class FeatureFlagManager:
 
         # Check cache
         if self.redis:
-            cache_key = f"feature_flag:{feature_name}:{user_id}:{organization_id}"
+            cache_key = f"feature_flag:{feature_name}:{user_id}:{organisation_id}"
             cached = self.redis.get(cache_key)
             if cached is not None:
                 return cached == 'true'
@@ -70,9 +70,9 @@ class FeatureFlagManager:
                     self._cache_result(cache_key, user_override)
                 return user_override
 
-        # 2. Check organization-specific override
-        if organization_id:
-            org_override = self._get_org_override(feature_name, organization_id)
+        # 2. Check organisation-specific override
+        if organisation_id:
+            org_override = self._get_org_override(feature_name, organisation_id)
             if org_override is not None:
                 if self.redis:
                     self._cache_result(cache_key, org_override)
@@ -118,10 +118,10 @@ class FeatureFlagManager:
         return override['is_enabled'] if override else None
 
     def _get_org_override(self, feature_name: str, org_id: str) -> Optional[bool]:
-        """Check if organization has specific override"""
+        """Check if organisation has specific override"""
         query = """
             SELECT is_enabled FROM feature_flag_org_overrides
-            WHERE feature_name = %s AND organization_id = %s
+            WHERE feature_name = %s AND organisation_id = %s
         """
         override = fetch_one(query, (feature_name, org_id))
 
@@ -168,7 +168,7 @@ class FeatureFlagManager:
         feature_name: str,
         globally: bool = False,
         user_id: Optional[str] = None,
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ):
         """
         Enable a feature (Admin API)
@@ -177,7 +177,7 @@ class FeatureFlagManager:
             feature_name: Feature flag name
             globally: Enable for all users
             user_id: Enable for specific user
-            organization_id: Enable for specific organization
+            organisation_id: Enable for specific organisation
         """
         if globally:
             query = """
@@ -193,13 +193,13 @@ class FeatureFlagManager:
                 ON CONFLICT (feature_name, user_id) DO UPDATE SET is_enabled = TRUE
             """
             execute_query(query, (feature_name, user_id))
-        elif organization_id:
+        elif organisation_id:
             query = """
-                INSERT INTO feature_flag_org_overrides (feature_name, organization_id, is_enabled)
+                INSERT INTO feature_flag_org_overrides (feature_name, organisation_id, is_enabled)
                 VALUES (%s, %s, TRUE)
-                ON CONFLICT (feature_name, organization_id) DO UPDATE SET is_enabled = TRUE
+                ON CONFLICT (feature_name, organisation_id) DO UPDATE SET is_enabled = TRUE
             """
-            execute_query(query, (feature_name, organization_id))
+            execute_query(query, (feature_name, organisation_id))
 
         self._clear_cache(feature_name)
 
@@ -208,7 +208,7 @@ class FeatureFlagManager:
         feature_name: str,
         globally: bool = False,
         user_id: Optional[str] = None,
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ):
         """Disable a feature (Admin API)"""
         if globally:
@@ -223,12 +223,12 @@ class FeatureFlagManager:
                 WHERE feature_name = %s AND user_id = %s
             """
             execute_query(query, (feature_name, user_id))
-        elif organization_id:
+        elif organisation_id:
             query = """
                 UPDATE feature_flag_org_overrides SET is_enabled = FALSE
-                WHERE feature_name = %s AND organization_id = %s
+                WHERE feature_name = %s AND organisation_id = %s
             """
-            execute_query(query, (feature_name, organization_id))
+            execute_query(query, (feature_name, organisation_id))
 
         self._clear_cache(feature_name)
 

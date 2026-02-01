@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import Card from '@/presentation/components/base/Card.vue'
+import Card from '@/presentation/components/shared/ui/Card.vue'
 import type { BaseWidgetProps } from '@/types/widgets'
 
 const { t } = useI18n()

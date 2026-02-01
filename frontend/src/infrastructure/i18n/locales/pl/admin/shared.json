@@ -56,7 +56,6 @@
     "uptimeDesc": "System działa od"
   },
   "nav": {
-    "aiEditor": "Studio AI",
     "analytics": "Analizy",
     "audit_logs": "Logi audytu",
     "billing": "Rozliczenia",
@@ -65,9 +64,10 @@
     "courseEditor": "Edytor kursów",
     "courses": "Kursy",
     "dashboard": "Panel",
+    "groups": "Grupy",
+    "lmRouting": "Routing Metod Uczenia",
     "members": "Członkowie",
     "organisations": "Organizacje",
-    "roles": "Role i uprawnienia",
     "settings": "Ustawienia",
     "systemSettings": "Ustawienia systemu",
     "translations": "Tłumaczenia",

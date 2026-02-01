@@ -101,12 +101,12 @@
     },
     "seed": {
       "categories": "Kategorien",
-      "description": "Installiert Lernmethoden, Kategorien und Rollen.",
+      "description": "Installiert Lernmethoden, Kategorien und Gruppen.",
       "error": "Fehler",
+      "groups": "Gruppen",
       "install": "Installieren",
       "installFailed": "Seed-Daten-Installation fehlgeschlagen",
       "learningMethods": "Lernmethoden",
-      "roles": "Rollen",
       "success": "Erfolgreich!",
       "systemFeatures": "System-Features",
       "title": "Seed-Daten installieren"

@@ -72,7 +72,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Lesson } from '@/application/services/api/learning'
 import DOMPurify from 'dompurify'
-import DetailedSteps from '../../base/learning/methods/DetailedSteps.vue'
+import DetailedSteps from '../../shared/ui/learning/methods/DetailedSteps.vue'
 
 const { t } = useI18n()
 

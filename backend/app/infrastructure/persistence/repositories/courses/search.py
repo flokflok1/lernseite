@@ -115,7 +115,7 @@ class CourseRepositorySearch(BaseRepository):
         data_query = f"""
             SELECT
                 c.*,
-                u.firstname || ' ' || u.lastname AS creator_name,
+                u.full_name AS creator_name,
                 (SELECT COUNT(*) FROM courses.chapters WHERE course_id = c.course_id) AS chapter_count,
                 (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count
             FROM courses.courses c

@@ -182,7 +182,7 @@ def get_subscription():
             subscription_data = SubscriptionRepository.get_subscription_for_user(user['user_id'])
         elif plan_info['source'] == 'organisation':
             subscription_data = SubscriptionRepository.get_subscription_for_organisation(
-                user['organization_id']
+                user['organisation_id']
             )
 
         # Build response
@@ -248,9 +248,9 @@ def get_token_balance():
         plan_info = BillingService.get_effective_plan_for_user(user['user_id'])
 
         # Determine which wallet to return
-        if plan_info['source'] == 'organisation' and user.get('organization_id'):
+        if plan_info['source'] == 'organisation' and user.get('organisation_id'):
             # Organisation wallet
-            wallet = TokenRepository.get_or_create_organisation_wallet(user['organization_id'])
+            wallet = TokenRepository.get_or_create_organisation_wallet(user['organisation_id'])
             source = 'organisation'
         else:
             # User wallet

@@ -29,10 +29,10 @@ class UserBase(BaseModel):
     Base user model with common fields
 
     Used as foundation for other user models.
+    DB schema uses full_name (not separate first_name/last_name).
     """
     email: EmailStr = Field(..., description="User email address")
-    first_name: str = Field(..., min_length=1, max_length=100, description="User first name", alias="firstname")
-    last_name: str = Field(..., min_length=1, max_length=100, description="User last name", alias="lastname")
+    full_name: str = Field(..., min_length=1, max_length=255, description="User full name")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -45,8 +45,7 @@ class UserCreate(UserBase):
         >>> user_data = UserCreate(
         ...     email="user@example.com",
         ...     password="SecurePass123!",
-        ...     first_name="John",
-        ...     last_name="Doe"
+        ...     full_name="John Doe"
         ... )
     """
     password: str = Field(
@@ -59,7 +58,7 @@ class UserCreate(UserBase):
         default="user",
         description="User role (user, premium, teacher, admin, etc.)"
     )
-    organization_id: Optional[int] = Field(
+    organisation_id: Optional[int] = Field(
         default=None,
         description="Organisation ID (for school/company users)"
     )
@@ -95,13 +94,12 @@ class UserUpdate(BaseModel):
     All fields are optional for partial updates.
 
     Example:
-        >>> update_data = UserUpdate(first_name="Jane")
+        >>> update_data = UserUpdate(full_name="Jane Doe")
     """
     email: Optional[EmailStr] = None
-    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    full_name: Optional[str] = Field(None, min_length=1, max_length=255)
     role: Optional[str] = None
-    organization_id: Optional[int] = None
+    organisation_id: Optional[int] = None
     is_active: Optional[bool] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -134,29 +132,26 @@ class UserResponse(UserBase):
     User response model (safe for API responses)
 
     Excludes sensitive fields like password_hash.
-    Uses Group-Based Architecture (GBA) - no hierarchy_level.
+    Uses Group-Based Architecture (GBA) - authorization via groups only, no role field.
 
     Example:
         >>> user = UserResponse(
         ...     user_id="8828daa5-213d-46b9-981a-a1c6f3233afd",
         ...     email="user@example.com",
-        ...     first_name="John",
-        ...     last_name="Doe",
-        ...     role="user",
+        ...     full_name="John Doe",
         ...     email_verified=True,
         ...     is_active=True,
         ...     created_at=datetime.now()
         ... )
     """
     user_id: str = Field(..., description="User ID (UUID)")
-    role: str = Field(..., description="User role (mapped from primary group)")
-    organization_id: Optional[int] = Field(None, description="Organisation ID")
+    organisation_id: Optional[str] = Field(None, description="Organisation ID (UUID)")
     two_factor_enabled: bool = Field(default=False, description="2FA enabled")
     email_verified: bool = Field(default=False, description="Email verified")
-    status: str = Field(default="active", description="Account status", alias="is_active")
+    is_active: bool = Field(default=True, description="Account active status")
     created_at: datetime = Field(..., description="Account creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
-    last_login: Optional[datetime] = Field(None, description="Last login timestamp")
+    last_login_at: Optional[datetime] = Field(None, description="Last login timestamp")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -167,11 +162,9 @@ class UserProfile(UserResponse):
 
     Example:
         >>> profile = UserProfile(
-        ...     user_id=1,
+        ...     user_id="8828daa5-213d-46b9-981a-a1c6f3233afd",
         ...     email="user@example.com",
-        ...     first_name="John",
-        ...     last_name="Doe",
-        ...     role="premium",
+        ...     full_name="John Doe",
         ...     subscription_plan="premium",
         ...     token_balance=5000
         ... )

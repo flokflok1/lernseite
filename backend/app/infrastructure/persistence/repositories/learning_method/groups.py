@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional, List
 import psycopg
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 
 
 class LearningMethodGroupRepository:
@@ -30,7 +30,7 @@ class LearningMethodGroupRepository:
         Returns:
             List of group dicts sorted by sort_order
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -59,7 +59,7 @@ class LearningMethodGroupRepository:
         Returns:
             Group dict or None if not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -139,7 +139,7 @@ class LearningMethodGroupRepository:
         Returns:
             Created group dict
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     INSERT INTO learning_methods.learning_method_groups
@@ -177,7 +177,7 @@ class LearningMethodGroupRepository:
 
         params.append(group_code)
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 query = f"""
                     UPDATE learning_methods.learning_method_groups

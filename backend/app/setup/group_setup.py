@@ -281,7 +281,7 @@ class GroupSetup:
     @classmethod
     def get_all_groups(cls, organisation_id: Optional[str] = None) -> List[Dict]:
         """
-        Get all groups (optionally filtered by organization).
+        Get all groups (optionally filtered by organisation).
 
         Args:
             organisation_id: Optional org ID to filter
@@ -396,7 +396,7 @@ class GroupSetup:
         """Log permission assignment to audit log."""
         execute_query(
             """
-            INSERT INTO audit_logs (event_type, user_id, action, severity, metadata, created_at)
+            INSERT INTO core.audit_logs (event_type, user_id, action, severity, metadata, created_at)
             VALUES ('permission_assignment', %s, %s, 'low',
                     %s::jsonb, NOW())
             """,

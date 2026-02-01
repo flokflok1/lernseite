@@ -45,14 +45,14 @@ class I18nLanguagesRepository(BaseRepository):
                     language_code,
                     language_name,
                     native_name,
-                    flag_emoji,
+                    flag as flag_emoji,
                     priority,
-                    is_primary,
-                    fallback_language,
-                    active,
-                    completion_percent,
-                    total_keys,
-                    translated_keys,
+                    FALSE as is_primary,
+                    NULL as fallback_language,
+                    is_active as active,
+                    COALESCE(completion_percent, 0) as completion_percent,
+                    COALESCE(total_keys, 0) as total_keys,
+                    COALESCE(translated_keys, 0) as translated_keys,
                     created_at
                 FROM translations.supported_languages
                 ORDER BY priority ASC, language_code ASC
@@ -75,14 +75,14 @@ class I18nLanguagesRepository(BaseRepository):
                     language_code,
                     language_name,
                     native_name,
-                    flag_emoji,
+                    flag as flag_emoji,
                     priority,
-                    is_primary,
-                    fallback_language,
-                    active,
-                    completion_percent,
-                    total_keys,
-                    translated_keys,
+                    FALSE as is_primary,
+                    NULL as fallback_language,
+                    is_active as active,
+                    COALESCE(completion_percent, 0) as completion_percent,
+                    COALESCE(total_keys, 0) as total_keys,
+                    COALESCE(translated_keys, 0) as translated_keys,
                     created_at
                 FROM translations.supported_languages
                 WHERE language_code = %s
@@ -97,23 +97,25 @@ class I18nLanguagesRepository(BaseRepository):
             List of primary languages ordered by priority
         """
         with self.conn.cursor(row_factory=dict_row) as cursor:
+            # Return first language by priority as "primary" (no is_primary column exists)
             cursor.execute("""
                 SELECT
                     language_code,
                     language_name,
                     native_name,
-                    flag_emoji,
+                    flag as flag_emoji,
                     priority,
-                    is_primary,
-                    fallback_language,
-                    active,
-                    completion_percent,
-                    total_keys,
-                    translated_keys,
+                    TRUE as is_primary,
+                    NULL as fallback_language,
+                    is_active as active,
+                    COALESCE(completion_percent, 0) as completion_percent,
+                    COALESCE(total_keys, 0) as total_keys,
+                    COALESCE(translated_keys, 0) as translated_keys,
                     created_at
                 FROM translations.supported_languages
-                WHERE is_primary = TRUE AND active = TRUE
+                WHERE is_active = TRUE
                 ORDER BY priority ASC
+                LIMIT 1
             """)
             return cursor.fetchall()
 

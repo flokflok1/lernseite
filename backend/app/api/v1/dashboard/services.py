@@ -61,7 +61,7 @@ class DashboardLayoutService:
             3. Default layouts are defined in dashboard.py models
 
         Args:
-            user: User dict with keys: user_id, role, organization_id
+            user: User dict with keys: user_id, role, organisation_id
 
         Returns:
             DashboardLayout: User's layout or role default

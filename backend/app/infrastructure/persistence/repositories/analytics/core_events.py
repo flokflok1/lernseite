@@ -40,7 +40,7 @@ class CoreEventsRepository(BaseRepository):
         payload: Optional[Dict] = None,
         session_id: Optional[str] = None,
         ip_address: Optional[str] = None,
-        organization_id: Optional[int] = None
+        organisation_id: Optional[int] = None
     ) -> Dict:
         """
         Insert analytics event
@@ -53,7 +53,7 @@ class CoreEventsRepository(BaseRepository):
             payload: Optional JSONB payload
             session_id: Optional session ID
             ip_address: Optional IP address (will be hashed)
-            organization_id: Optional organisation ID
+            organisation_id: Optional organisation ID
 
         Returns:
             Dict with inserted event data
@@ -75,7 +75,7 @@ class CoreEventsRepository(BaseRepository):
         query = """
             INSERT INTO analytics_events (
                 user_id,
-                organization_id,
+                organisation_id,
                 event_type,
                 resource_type,
                 resource_id,
@@ -92,7 +92,7 @@ class CoreEventsRepository(BaseRepository):
             query,
             (
                 user_id,
-                organization_id,
+                organisation_id,
                 event_type,
                 resource_type,
                 resource_id,
@@ -164,7 +164,7 @@ class CoreEventsRepository(BaseRepository):
     @classmethod
     def get_events_by_organisation(
         cls,
-        organization_id: int,
+        organisation_id: int,
         limit: int = 100,
         offset: int = 0,
         event_type: Optional[str] = None
@@ -173,7 +173,7 @@ class CoreEventsRepository(BaseRepository):
         Get events for entire organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
             limit: Maximum number of events
             offset: Offset for pagination
             event_type: Optional filter by event type
@@ -188,20 +188,20 @@ class CoreEventsRepository(BaseRepository):
             query = """
                 SELECT *
                 FROM analytics_events
-                WHERE organization_id = %s AND event_type = %s
+                WHERE organisation_id = %s AND event_type = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s
             """
-            params = (organization_id, event_type, limit, offset)
+            params = (organisation_id, event_type, limit, offset)
         else:
             query = """
                 SELECT *
                 FROM analytics_events
-                WHERE organization_id = %s
+                WHERE organisation_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s
             """
-            params = (organization_id, limit, offset)
+            params = (organisation_id, limit, offset)
 
         results = fetch_all(query, params)
 

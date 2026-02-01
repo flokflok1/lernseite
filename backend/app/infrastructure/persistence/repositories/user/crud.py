@@ -29,18 +29,34 @@ class UserCrudRepository(BaseRepository):
 
         Returns:
             User data (without password_hash) or None
+            Includes 'role' field derived from user's highest-level group
 
         Note:
             PHASE B: User roles/permissions are now managed through the groups system.
+            The 'role' field is derived from the user's primary group (highest hierarchy).
             Use UserGroupRepository to get user's group memberships.
 
         Example:
             >>> user = UserCrudRepository.find_by_id('8828daa5-213d-46b9-981a-a1c6f3233afd')
             >>> print(user['email'])
+            >>> print(user['role'])  # e.g., 'owner', 'admin', 'user'
         """
+        # Get user with their primary group (highest hierarchy level)
         user = fetch_one(
             """
-            SELECT u.*
+            SELECT
+                u.*,
+                COALESCE(
+                    (SELECT g.slug
+                     FROM core.users_groups ug
+                     JOIN core.groups g ON ug.group_id = g.id
+                     WHERE ug.user_id = u.user_id
+                       AND ug.is_active = TRUE
+                       AND ug.left_at IS NULL
+                     ORDER BY g.hierarchy_level DESC
+                     LIMIT 1),
+                    'user'
+                ) AS role
             FROM core.users u
             WHERE u.user_id = %s
             """,
@@ -52,6 +68,9 @@ class UserCrudRepository(BaseRepository):
             # Convert UUID to string for Pydantic
             if 'user_id' in user and user['user_id']:
                 user['user_id'] = str(user['user_id'])
+            # Convert organisation_id UUID to string if present
+            if 'organisation_id' in user and user['organisation_id']:
+                user['organisation_id'] = str(user['organisation_id'])
 
         return user
 
@@ -65,14 +84,40 @@ class UserCrudRepository(BaseRepository):
 
         Returns:
             User data (without password_hash) or None
+            Includes 'role' field derived from user's highest-level group
 
         Example:
             >>> user = UserCrudRepository.find_by_email('user@example.com')
         """
-        user = fetch_one("SELECT * FROM core.users WHERE email = %s", (email,))
+        # Get user with their primary group (highest hierarchy level)
+        user = fetch_one(
+            """
+            SELECT
+                u.*,
+                COALESCE(
+                    (SELECT g.slug
+                     FROM core.users_groups ug
+                     JOIN core.groups g ON ug.group_id = g.id
+                     WHERE ug.user_id = u.user_id
+                       AND ug.is_active = TRUE
+                       AND ug.left_at IS NULL
+                     ORDER BY g.hierarchy_level DESC
+                     LIMIT 1),
+                    'user'
+                ) AS role
+            FROM core.users u
+            WHERE u.email = %s
+            """,
+            (email,)
+        )
 
         if user:
             user.pop('password_hash', None)
+            # Convert UUIDs to strings for Pydantic
+            if 'user_id' in user and user['user_id']:
+                user['user_id'] = str(user['user_id'])
+            if 'organisation_id' in user and user['organisation_id']:
+                user['organisation_id'] = str(user['organisation_id'])
 
         return user
 

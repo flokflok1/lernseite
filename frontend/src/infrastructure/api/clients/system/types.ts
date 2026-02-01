@@ -136,9 +136,17 @@ export interface EnvironmentConfigResponse {
 export interface LanguageProgress {
   language_code: string
   language_name: string
+  native_name: string
+  flag_emoji?: string
   total_keys: number
   translated_keys: number
-  percentage: number
+  completion_percent: number | string
+  percentage?: number
+  priority: number
+  active: boolean
+  is_primary?: boolean
+  fallback_language?: string | null
+  created_at?: string
 }
 
 export interface TranslationSuggestion {

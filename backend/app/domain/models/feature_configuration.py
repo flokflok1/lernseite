@@ -317,7 +317,7 @@ class FeatureAuditLogResponse(BaseModel):
     change_details: Optional[Dict[str, Any]] = None
     user_id: Optional[str] = None
     user_email: Optional[str] = None
-    organization_id: Optional[str] = None
+    organisation_id: Optional[str] = None
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
     estimated_affected_users: Optional[int] = None

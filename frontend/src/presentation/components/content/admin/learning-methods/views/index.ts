@@ -1,10 +1,9 @@
 /**
- * Learning Method Management Views
+ * BACKWARD COMPATIBILITY RE-EXPORT
  *
- * DEPRECATED: All learning method components have been moved to:
- * @see /presentation/components/base/content/admin/learning-methods/
- *
- * This file is kept for backward compatibility during migration.
+ * Moved to: @/presentation/components/learning/editor/views/
+ * This file maintained for backward compatibility only.
+ * New code should import from: @/presentation/components/learning/editor/
  */
 
-// All exports moved to base/content/admin/learning-methods/
+export * from '../../../learning/editor/views'

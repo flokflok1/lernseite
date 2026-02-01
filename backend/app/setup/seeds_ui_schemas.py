@@ -55,7 +55,7 @@ class SeedDataUISchemas:
         # Check if already seeded
         if skip_existing:
             existing = fetch_one(
-                "SELECT COUNT(*) FROM learning_method_types WHERE ui_schema IS NOT NULL"
+                "SELECT COUNT(*) FROM learning_methods.learning_method_types WHERE ui_schema IS NOT NULL"
             )
             if existing and existing['count'] >= 12:
                 return 0
@@ -67,7 +67,7 @@ class SeedDataUISchemas:
             try:
                 result = execute_query(
                     """
-                    UPDATE learning_method_types
+                    UPDATE learning_methods.learning_method_types
                     SET ui_schema = %s, updated_at = NOW()
                     WHERE method_type = %s
                     RETURNING *
@@ -87,41 +87,20 @@ class SeedDataUISchemas:
         """
         Seed UI schemas for all 25 System Features
 
+        NOTE: Currently skipped because support_systems.system_features table
+        does not have a ui_schema column. UI schemas for features are stored
+        in the config jsonb column instead.
+
         Args:
             skip_existing: Skip if schemas already seeded
 
         Returns:
-            Number of schemas updated
+            Number of schemas updated (always 0 for now)
         """
-        # Check if already seeded
-        if skip_existing:
-            existing = fetch_one(
-                "SELECT COUNT(*) FROM support_systems.system_features WHERE ui_schema IS NOT NULL"
-            )
-            if existing and existing['count'] >= 25:
-                return 0
-
-        ui_schemas = cls._get_system_features_schemas()
-
-        updated = 0
-        for feature_code, schema in ui_schemas.items():
-            try:
-                result = execute_query(
-                    """
-                    UPDATE support_systems.system_features
-                    SET ui_schema = %s, updated_at = NOW()
-                    WHERE feature_code = %s
-                    RETURNING *
-                    """,
-                    (json.dumps(schema), feature_code),
-                    fetch_one=True
-                )
-                if result:
-                    updated += 1
-            except Exception as e:
-                print(f"Error updating UI schema for system feature '{feature_code}': {str(e)}")
-
-        return updated
+        # NOTE: system_features table doesn't have ui_schema column
+        # This feature needs a migration to add the column
+        # For now, we skip this seeding step
+        return 0
 
     @classmethod
     def _get_learning_methods_schemas(cls) -> Dict[int, Dict]:

@@ -123,7 +123,7 @@ def create_group():
         {
             "name": "Organization Owner",
             "slug": "org-owner",
-            "description": "Full authority within organization",
+            "description": "Full authority within organisation",
             "hierarchy_level": 1000,
             "group_type": "org_admin",
             "is_protected": true

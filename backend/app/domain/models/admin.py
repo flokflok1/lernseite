@@ -107,7 +107,7 @@ class UserListItem(BaseModel):
     created_at: datetime
     last_login: Optional[datetime]
     email_verified: bool
-    organization_id: Optional[str]
+    organisation_id: Optional[str]
 
 
 class UserListResponse(BaseModel):
@@ -147,7 +147,7 @@ class UserDetailResponse(BaseModel):
     last_login_ip: Optional[str]
     email_verified: bool
     two_factor_enabled: bool
-    organization_id: Optional[str]
+    organisation_id: Optional[str]
     subscription: Optional[SubscriptionInfo]
     tokens: Optional[TokenInfo]
     courses_created: int = 0

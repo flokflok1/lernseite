@@ -531,13 +531,35 @@ export function getLearningMethodByPromptKey(promptKey: string): LearningMethod 
   return LEARNING_METHODS.find(m => m.promptKey === promptKey)
 }
 
-// Tier-Berechnung basierend auf Gruppe (nur Content-LMs)
-export function getTierFromGroup(group: LearningMethodGroup): 'basic' | 'premium' {
+/**
+ * Tier-Berechnung basierend auf Gruppe (nur Content-LMs)
+ *
+ * DEPRECATED: Diese Funktion ist ein LOCAL FALLBACK mit hardcodierten Tiers.
+ * Für echte Tier-Information aus der Datenbank verwende die useGroupTier Composable:
+ *
+ * @example
+ * // In Vue Komponenten:
+ * import { useGroupTier } from '@/application/composables/useGroupTier'
+ * const { getTierFromGroup, loadGroups } = useGroupTier()
+ * onMounted(async () => await loadGroups())
+ *
+ * @param group - Learning Method Gruppe (A, B, oder C)
+ * @returns Tier Level: 'basic' | 'premium' | 'enterprise'
+ */
+export function getTierFromGroup(group: LearningMethodGroup): 'basic' | 'premium' | 'enterprise' {
+  // WARNUNG: Diese sind LOCAL FALLBACK VALUES!
+  // Die echte Quelle der Wahrheit ist die Datenbank (useGroupTier Composable)
   if (group === 'A' || group === 'B') return 'basic'
   return 'premium' // C
 }
 
-export function getTierFromCode(code: number): 'basic' | 'premium' | 'system-feature' {
+/**
+ * Tier basierend auf Learning Method Code ermitteln.
+ *
+ * @param code - Learning Method Code (0-31)
+ * @returns Tier: 'basic' | 'premium' | 'enterprise' | 'system-feature'
+ */
+export function getTierFromCode(code: number): 'basic' | 'premium' | 'enterprise' | 'system-feature' {
   const method = getLearningMethodByCode(code)
   if (!method) return 'basic'
   if (!method.active) return 'system-feature'

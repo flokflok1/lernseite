@@ -4,7 +4,7 @@ LernsystemX API Package
 RESTful API endpoints organized by ISO/IEC 26515 + DDD principles.
 
 Refactored: 2026-01-11 - Flat structure matching 05_Backend-Struktur.md
-All endpoints now under /api/v1/ with flat organization.
+All endpoints now under /api/v1/ with flat organisation.
 
 Package Structure:
 └── v1/                  # API Version 1 (flat structure)
@@ -24,7 +24,7 @@ Uses:
 - RBAC for authorization
 - Repository Pattern (no ORM)
 
-ISO/IEC/IEEE 26515:2018 compliant - Functional organization
+ISO/IEC/IEEE 26515:2018 compliant - Functional organisation
 """
 
 # =============================================================================

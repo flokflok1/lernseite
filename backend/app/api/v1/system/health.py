@@ -15,7 +15,8 @@ from datetime import datetime
 from flask import jsonify
 import psycopg
 
-from app.core.bootstrap.extensions import redis_client, db_pool
+from app.core.bootstrap import extensions
+from app.core.bootstrap.extensions import redis_client
 
 # Track application start time
 _app_start_time = time.time()
@@ -53,7 +54,7 @@ def check_database() -> dict:
     """
     try:
         start = time.time()
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cur:
                 cur.execute('SELECT 1')
                 cur.fetchone()

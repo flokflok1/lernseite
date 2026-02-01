@@ -552,6 +552,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/window.store'
+import { useGroupTier } from '@/application/composables/useGroupTier'
 
 const { t } = useI18n()
 import type { LsxWindow } from '@/application/stores/window.store'
@@ -568,6 +569,9 @@ import {
   type LearningMethodType,
   type LearningMethodGroup
 } from '@/application/services/api/admin'
+
+// Initialize composable for database-driven group metadata
+const groupTier = useGroupTier()
 
 interface Props {
   window: LsxWindow
@@ -648,14 +652,27 @@ const sortedMethods = computed(() => {
   return [...methods.value].sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
 })
 
-const methodGroups = computed(() => [
-  { id: 'A' as LearningMethodGroup, label: t('windows.learningMethodEditor.groups.A'), count: 5 },
-  { id: 'B' as LearningMethodGroup, label: t('windows.learningMethodEditor.groups.B'), count: 6 },
-  { id: 'C' as LearningMethodGroup, label: t('windows.learningMethodEditor.groups.C'), count: 8 },
-  { id: 'D' as LearningMethodGroup, label: t('windows.learningMethodEditor.groups.D'), count: 5 },
-  { id: 'E' as LearningMethodGroup, label: t('windows.learningMethodEditor.groups.E'), count: 4 },
-  { id: 'F' as LearningMethodGroup, label: t('windows.learningMethodEditor.groups.F'), count: 7 }
-])
+const methodGroups = computed(() => {
+  // Get all group codes from composable (may be empty if not loaded yet)
+  const groupCodes = groupTier.getAllGroupCodes()
+
+  // If groups not yet loaded, return empty array (will be populated once loadLearningMethods completes)
+  if (groupCodes.length === 0) {
+    return []
+  }
+
+  // Build groups array from database groups with dynamic method counts
+  return groupCodes.map(code => {
+    const groupInfo = groupTier.getGroupInfo(code)
+    const methodsInGroup = methodTypes.value.filter(mt => mt.group === code)
+
+    return {
+      id: code as LearningMethodGroup,
+      label: groupInfo?.name || code, // Use database name instead of i18n
+      count: methodsInGroup.length // Dynamic count from methodTypes
+    }
+  })
+})
 
 const filteredMethodTypes = computed(() => {
   if (!selectedGroup.value) return methodTypes.value
@@ -747,36 +764,15 @@ const getMethodGroup = (methodType: number): LearningMethodGroup => {
 }
 
 const getGroupStyle = (group: LearningMethodGroup): string => {
-  const styles: Record<string, string> = {
-    'A': 'background-color: var(--color-info-bg, #dbeafe); color: var(--color-info-text, #1e40af);',
-    'B': 'background-color: var(--color-success-bg, #dcfce7); color: var(--color-success-text, #15803d);',
-    'C': 'background-color: var(--color-warning-bg, #fef3c7); color: var(--color-warning-text, #92400e);',
-    'D': 'background-color: var(--color-premium-bg, #f3e8ff); color: var(--color-premium-text, #6b21a8);',
-    'E': 'background-color: #cffafe; color: #0e7490;',  // Cyan for IT
-    'F': 'background-color: #fce7f3; color: #be185d;'   // Pink for Kollaborativ
-  }
-  return styles[group] || styles['A']
+  return groupTier.getGroupStyle(group)
 }
 
 const getGroupStyleFilled = (group: LearningMethodGroup): string => {
-  const styles: Record<string, string> = {
-    'A': 'background-color: #2563eb;',
-    'B': 'background-color: #16a34a;',
-    'C': 'background-color: #ea580c;',
-    'D': 'background-color: #7c3aed;',
-    'E': 'background-color: #0891b2;',  // Cyan for IT
-    'F': 'background-color: #db2777;'   // Pink for Kollaborativ
-  }
-  return styles[group] || styles['A']
+  return groupTier.getGroupStyleFilled(group)
 }
 
 const getTierStyle = (tier: string): string => {
-  const styles: Record<string, string> = {
-    basic: 'color: var(--color-success, #16a34a);',
-    premium: 'color: var(--color-warning, #ea580c);',
-    pro: 'color: var(--color-premium-text, #6b21a8);'
-  }
-  return styles[tier] || ''
+  return groupTier.getTierStyle(tier)
 }
 
 const getTierLabel = (tier: string): string => {
@@ -788,10 +784,26 @@ const getTierLabel = (tier: string): string => {
   return tierKeys[tier] ? t(tierKeys[tier]) : tier
 }
 
+/**
+ * Get tier from learning method group.
+ * Uses database-driven group tier information via useGroupTier composable.
+ *
+ * REPLACES hardcoded tier mapping: now delegates to @/application/composables/useGroupTier
+ *
+ * @param group - Learning Method Group (A, B, C, etc.)
+ * @returns Tier: 'basic' | 'premium' | 'pro'
+ */
 const getTierFromGroup = (group: LearningMethodGroup): 'basic' | 'premium' | 'pro' => {
-  if (group === 'A' || group === 'B') return 'basic'
-  if (group === 'C' || group === 'E') return 'premium'  // Prüfung & IT = Premium
-  return 'pro' // Gruppe D (Pro), F (Kollaborativ)
+  // Use database-driven tier information from composable
+  const dbTier = groupTier.getTierFromGroup(group)
+
+  // Map database tiers to UI tiers (backward compatibility)
+  const tierMap: Record<string, string> = {
+    'basic': 'basic',
+    'premium': 'premium',
+    'enterprise': 'pro' // 'enterprise' in DB shown as 'pro' in UI
+  }
+  return (tierMap[dbTier] || 'basic') as 'basic' | 'premium' | 'pro'
 }
 
 const createMethodFromType = (methodType: LearningMethodType) => {
@@ -970,6 +982,10 @@ const handleLearningMethodUpdate = () => {
 
 // Lifecycle
 onMounted(() => {
+  // Load database-driven group tier information
+  groupTier.loadGroups()
+
+  // Load learning methods for this chapter
   loadLearningMethods()
 
   // Handle pre-selected group from payload (when opening from chapter editor)

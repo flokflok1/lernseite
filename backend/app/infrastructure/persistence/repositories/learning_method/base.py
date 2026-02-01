@@ -17,7 +17,7 @@ from typing import Dict, Any, Optional, List
 import psycopg
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.cache.service import CacheService
 from flask import current_app
 
@@ -47,7 +47,7 @@ class LearningMethodBaseRepository:
             ttl = current_app.config.get('CACHE_LEARNING_METHOD_TTL', 3600)
 
             def load_methods():
-                with db_pool.connection() as conn:
+                with extensions.db_pool.connection() as conn:
                     with conn.cursor(row_factory=dict_row) as cur:
                         query = """
                             SELECT
@@ -73,7 +73,7 @@ class LearningMethodBaseRepository:
             return CacheService.cache_get_or_set(cache_key, ttl, load_methods)
 
         # Bypass cache
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 query = """
                     SELECT
@@ -107,7 +107,7 @@ class LearningMethodBaseRepository:
         Returns:
             Learning method dictionary or None
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -138,7 +138,7 @@ class LearningMethodBaseRepository:
         Returns:
             Learning method dictionary or None
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -168,7 +168,7 @@ class LearningMethodBaseRepository:
         Returns:
             Created learning method dictionary
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     INSERT INTO learning_methods (
@@ -219,7 +219,7 @@ class LearningMethodBaseRepository:
 
         params.append(method_id)
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 query = f"""
                     UPDATE learning_methods
@@ -248,7 +248,7 @@ class LearningMethodBaseRepository:
         Returns:
             True if deleted, False if not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
                     DELETE FROM learning_methods

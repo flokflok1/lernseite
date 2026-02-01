@@ -497,7 +497,7 @@ class AITokenUsage(BaseModel):
     Example:
         >>> usage = AITokenUsage(
         ...     user_id="550e8400-e29b-41d4-a716-446655440000",
-        ...     organization_id="550e8400-e29b-41d4-a716-446655440001",
+        ...     organisation_id="550e8400-e29b-41d4-a716-446655440001",
         ...     method_id="550e8400-e29b-41d4-a716-446655440002",
         ...     method_name="KI-Tutor",
         ...     input_tokens=150,
@@ -510,7 +510,7 @@ class AITokenUsage(BaseModel):
     """
     usage_id: Optional[str] = Field(None, description="Usage record UUID")
     user_id: str = Field(..., description="User UUID")
-    organization_id: Optional[str] = Field(None, description="Organisation UUID (if applicable)")
+    organisation_id: Optional[str] = Field(None, description="Organisation UUID (if applicable)")
     method_id: str = Field(..., description="Learning method UUID")
     method_name: str = Field(..., description="Method name")
     course_id: Optional[str] = Field(None, description="Course UUID (context)")
@@ -541,7 +541,7 @@ class AITokenUsageStats(BaseModel):
         ... )
     """
     user_id: Optional[int] = Field(None, description="User ID (if user-specific)")
-    organization_id: Optional[int] = Field(None, description="Organisation ID (if org-specific)")
+    organisation_id: Optional[int] = Field(None, description="Organisation ID (if org-specific)")
     total_tokens: int = Field(..., ge=0, description="Total tokens consumed")
     total_cost_eur: float = Field(..., ge=0.0, description="Total cost in EUR")
     total_requests: int = Field(..., ge=0, description="Total AI requests")

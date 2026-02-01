@@ -296,8 +296,8 @@ class SystemModeService:
             True if database is reachable
         """
         try:
-            from app.core.bootstrap.extensions import db_pool
-            with db_pool.connection() as conn:
+            from app.core.bootstrap import extensions
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute('SELECT 1')
                     return True

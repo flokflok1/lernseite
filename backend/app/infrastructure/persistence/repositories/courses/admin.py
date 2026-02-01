@@ -36,7 +36,7 @@ class CourseRepositoryAdmin(BaseRepository):
         status: str = 'all',
         search: Optional[str] = None,
         creator_id: Optional[int] = None,
-        organization_id: Optional[int] = None,
+        organisation_id: Optional[int] = None,
         category: Optional[str] = None,
         category_id: Optional[int] = None,
         level: Optional[str] = None,
@@ -53,7 +53,7 @@ class CourseRepositoryAdmin(BaseRepository):
             status: Filter by status (all, draft, published, archived)
             search: Search in title and description
             creator_id: Filter by creator
-            organization_id: Filter by organisation
+            organisation_id: Filter by organisation
             category: Filter by category
             level: Filter by level
             language: Filter by language
@@ -87,9 +87,9 @@ class CourseRepositoryAdmin(BaseRepository):
             params.append(creator_id)
 
         # Organisation filter
-        if organization_id:
-            conditions.append("c.organization_id = %s")
-            params.append(organization_id)
+        if organisation_id:
+            conditions.append("c.organisation_id = %s")
+            params.append(organisation_id)
 
         # Category filter (by name)
         if category:
@@ -135,8 +135,8 @@ class CourseRepositoryAdmin(BaseRepository):
                 c.title,
                 c.description,
                 c.creator_user_id,
-                u.firstname || ' ' || u.lastname AS creator_name,
-                c.organization_id,
+                u.full_name AS creator_name,
+                c.organisation_id,
                 o.name AS organisation_name,
                 c.category_id,
                 cat.name AS category_name,
@@ -154,7 +154,7 @@ class CourseRepositoryAdmin(BaseRepository):
                 c.status
             FROM courses.courses c
             LEFT JOIN core.users u ON c.creator_user_id = u.user_id
-            LEFT JOIN organisations.organizations o ON c.organization_id = o.organization_id
+            LEFT JOIN organisations.organisations o ON c.organisation_id = o.organisation_id
             LEFT JOIN courses.course_categories cat ON c.category_id = cat.category_id
             WHERE {where_clause}
             ORDER BY {sort} {order}
@@ -198,7 +198,7 @@ class CourseRepositoryAdmin(BaseRepository):
         query = """
             SELECT
                 c.*,
-                u.firstname || ' ' || u.lastname AS creator_name,
+                u.full_name AS creator_name,
                 u.email AS creator_email,
                 o.name AS organisation_name,
                 cc.name AS category_name,
@@ -206,7 +206,7 @@ class CourseRepositoryAdmin(BaseRepository):
                 (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count
             FROM courses.courses c
             LEFT JOIN core.users u ON c.creator_user_id = u.user_id
-            LEFT JOIN organisations.organizations o ON c.organization_id = o.organization_id
+            LEFT JOIN organisations.organisations o ON c.organisation_id = o.organisation_id
             LEFT JOIN courses.course_categories cc ON c.category_id = cc.category_id
             WHERE c.course_id = %s
         """
@@ -231,18 +231,18 @@ class CourseRepositoryAdmin(BaseRepository):
         """
         query = """
             INSERT INTO courses.courses (
-                title, description, creator_user_id, organization_id, course_type,
+                title, description, creator_user_id, organisation_id, course_type,
                 category_id, level, language_default, price,
                 published, thumbnail_url, video_preview_url,
                 tags, status, created_at, updated_at
             ) VALUES (
-                %(title)s, %(description)s, %(creator_user_id)s, %(organization_id)s, 'academy',
+                %(title)s, %(description)s, %(creator_user_id)s, %(organisation_id)s, 'academy',
                 %(category_id)s, %(level)s, %(language_default)s, %(price)s,
                 FALSE, %(thumbnail_url)s, %(video_preview_url)s,
                 %(tags)s, 'draft', NOW(), NOW()
             )
             RETURNING
-                course_id, title, description, creator_user_id AS creator_id, organization_id,
+                course_id, title, description, creator_user_id AS creator_id, organisation_id,
                 category_id, level, language_default, price, published,
                 thumbnail_url, video_preview_url, tags,
                 created_at, updated_at, published_at, status
@@ -251,7 +251,7 @@ class CourseRepositoryAdmin(BaseRepository):
         # Set defaults
         defaults = {
             'description': None,
-            'organization_id': None,
+            'organisation_id': None,
             'category_id': None,
             'level': 'beginner',
             'language_default': 'de',

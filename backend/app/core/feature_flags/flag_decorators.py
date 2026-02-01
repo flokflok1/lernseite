@@ -23,14 +23,14 @@ from flask import jsonify, g
 from app.core.feature_flags.flag_manager import FeatureFlagManager
 
 
-def require_feature(feature_name: str, user_segment: str = None, organization: bool = False):
+def require_feature(feature_name: str, user_segment: str = None, organisation: bool = False):
     """
     Decorator to check if feature is enabled
 
     Args:
         feature_name: Name of feature flag (e.g., 'user_posts')
         user_segment: Optional segment requirement (e.g., 'beta', 'premium')
-        organization: If True, check organization-level flag
+        organisation: If True, check organisation-level flag
 
     Returns:
         Function decorator that returns 403 if feature is disabled
@@ -57,13 +57,13 @@ def require_feature(feature_name: str, user_segment: str = None, organization: b
 
             # Get context from Flask g object
             user_id = g.get('user_id')
-            organization_id = g.get('organization_id') if organization else None
+            organisation_id = g.get('organisation_id') if organisation else None
 
             # Check if feature is enabled
             is_enabled = flag_manager.is_enabled(
                 feature_name,
                 user_id=user_id,
-                organization_id=organization_id,
+                organisation_id=organisation_id,
                 user_segment=user_segment
             )
 
@@ -109,12 +109,12 @@ def optional_feature(feature_name: str, fallback_function=None):
             flag_manager = FeatureFlagManager()
 
             user_id = g.get('user_id')
-            organization_id = g.get('organization_id')
+            organisation_id = g.get('organisation_id')
 
             is_enabled = flag_manager.is_enabled(
                 feature_name,
                 user_id=user_id,
-                organization_id=organization_id
+                organisation_id=organisation_id
             )
 
             if is_enabled:
@@ -159,12 +159,12 @@ def feature_gate(feature_name: str):
             flag_manager = FeatureFlagManager()
 
             user_id = g.get('user_id')
-            organization_id = g.get('organization_id')
+            organisation_id = g.get('organisation_id')
 
             is_enabled = flag_manager.is_enabled(
                 feature_name,
                 user_id=user_id,
-                organization_id=organization_id
+                organisation_id=organisation_id
             )
 
             # Call original function

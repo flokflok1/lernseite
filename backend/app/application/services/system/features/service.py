@@ -71,7 +71,7 @@ class FeatureService:
             return cached
 
         try:
-            # Get user and organization from repository
+            # Get user and organisation from repository
             with get_connection() as conn:
                 user_repo = UserRepository(conn)
                 user_data = user_repo.find_by_id(user_id)
@@ -282,7 +282,7 @@ class FeatureService:
         """
         Invalidate cached features for a user.
 
-        Call this when user's group membership or organization subscription changes.
+        Call this when user's group membership or organisation subscription changes.
 
         Args:
             user_id: User UUID

@@ -114,7 +114,7 @@ def get_bundle(language_code: str):
         # Get bundle
         bundle = I18nService.get_translation_bundle(language_code, namespace)
 
-        return jsonify(bundle), 200
+        return jsonify({'data': bundle}), 200
 
     except NotFoundError as e:
         return jsonify({

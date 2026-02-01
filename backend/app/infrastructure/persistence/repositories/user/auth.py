@@ -29,7 +29,7 @@ class UserAuthRepository(BaseRepository):
         password: str,
         first_name: str,
         last_name: str,
-        organization_id: Optional[int] = None
+        organisation_id: Optional[int] = None
     ) -> Optional[Dict]:
         """
         Create new user with hashed password
@@ -39,7 +39,7 @@ class UserAuthRepository(BaseRepository):
             password: Plain text password (will be hashed)
             first_name: User first name
             last_name: User last name
-            organization_id: Organization ID (optional)
+            organisation_id: Organization ID (optional)
 
         Returns:
             Created user as dictionary (without password_hash)
@@ -69,13 +69,34 @@ class UserAuthRepository(BaseRepository):
         password_hash = cls._hash_password(password)
 
         # Create user (PHASE B: no role column - users belong to groups instead)
+        # Combine first_name + last_name into full_name
+        full_name = f"{first_name} {last_name}".strip()
+
+        # Generate username from email (before @) or full_name
+        # Username must be 3-50 alphanumeric chars with _ and -
+        import re
+        base_username = email.split('@')[0].lower()
+        # Remove invalid characters (keep only alphanumeric, _, -)
+        username = re.sub(r'[^a-z0-9_-]', '', base_username)
+        # Ensure minimum length of 3
+        if len(username) < 3:
+            username = f"user_{username}"
+        # Ensure max length of 50
+        username = username[:50]
+
+        # Check if username exists, append number if needed
+        existing_username = fetch_one("SELECT user_id FROM core.users WHERE username = %s", (username,))
+        if existing_username:
+            import uuid
+            username = f"{username[:42]}_{str(uuid.uuid4())[:6]}"
+
         user = execute_query(
             """
-            INSERT INTO core.users (email, password_hash, firstname, lastname, status, email_verified, is_owner)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO core.users (email, username, password_hash, full_name, is_active, email_verified)
+            VALUES (%s, %s, %s, %s, %s, %s)
             RETURNING *
             """,
-            (email, password_hash, first_name, last_name, 'active', False, False),
+            (email, username, password_hash, full_name, True, False),
             fetch_one=True
         )
 
@@ -113,9 +134,22 @@ class UserAuthRepository(BaseRepository):
             ... else:
             ...     print("Invalid credentials")
         """
+        # Get user with their primary group (highest hierarchy level)
         user = fetch_one(
             """
-            SELECT u.*
+            SELECT
+                u.*,
+                COALESCE(
+                    (SELECT g.slug
+                     FROM core.users_groups ug
+                     JOIN core.groups g ON ug.group_id = g.id
+                     WHERE ug.user_id = u.user_id
+                       AND ug.is_active = TRUE
+                       AND ug.left_at IS NULL
+                     ORDER BY g.hierarchy_level DESC
+                     LIMIT 1),
+                    'user'
+                ) AS role
             FROM core.users u
             WHERE u.email = %s
             """,
@@ -127,8 +161,8 @@ class UserAuthRepository(BaseRepository):
             bcrypt.hashpw(b'dummy', bcrypt.gensalt())
             return None
 
-        # Check if user is active
-        if user.get('status') != 'active':
+        # Check if user is active (using is_active column, not status)
+        if not user.get('is_active', False):
             return None
 
         # Verify password
@@ -137,12 +171,18 @@ class UserAuthRepository(BaseRepository):
 
         # Update last login
         execute_query(
-            "UPDATE core.users SET last_login = %s WHERE user_id = %s",
+            "UPDATE core.users SET last_login_at = %s WHERE user_id = %s",
             (datetime.utcnow(), user['user_id'])
         )
 
         # Remove password_hash from return value
         user.pop('password_hash', None)
+
+        # Convert UUIDs to strings for Pydantic
+        if 'user_id' in user and user['user_id']:
+            user['user_id'] = str(user['user_id'])
+        if 'organisation_id' in user and user['organisation_id']:
+            user['organisation_id'] = str(user['organisation_id'])
 
         return user
 

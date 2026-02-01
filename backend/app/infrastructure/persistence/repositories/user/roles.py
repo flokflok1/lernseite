@@ -67,12 +67,12 @@ class UserRoleRepository(BaseRepository):
         return users
 
     @classmethod
-    def find_by_organisation(cls, organization_id: int, active_only: bool = True) -> List[Dict]:
+    def find_by_organisation(cls, organisation_id: int, active_only: bool = True) -> List[Dict]:
         """
         Find all users in an organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
             active_only: Only return active users (default: True)
 
         Returns:
@@ -81,25 +81,25 @@ class UserRoleRepository(BaseRepository):
         Example:
             >>> org_users = UserRoleRepository.find_by_organisation(5)
         """
-        # Note: users table does NOT have organization_id column
-        # This requires querying via organization_members table
+        # Note: users table does NOT have organisation_id column
+        # This requires querying via organisation_members table
         if active_only:
             users = fetch_all(
                 """
                 SELECT u.* FROM core.users u
-                JOIN organisations.organization_members om ON u.user_id = om.user_id
-                WHERE om.organization_id = %s AND u.status = %s
+                JOIN organisations.organisation_members om ON u.user_id = om.user_id
+                WHERE om.organisation_id = %s AND u.status = %s
                 """,
-                (organization_id, 'active')
+                (organisation_id, 'active')
             )
         else:
             users = fetch_all(
                 """
                 SELECT u.* FROM core.users u
-                JOIN organisations.organization_members om ON u.user_id = om.user_id
-                WHERE om.organization_id = %s
+                JOIN organisations.organisation_members om ON u.user_id = om.user_id
+                WHERE om.organisation_id = %s
                 """,
-                (organization_id,)
+                (organisation_id,)
             )
 
         # Remove password_hash from all users

@@ -92,8 +92,8 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/application/stores/modules/core'
-import Input from '@/presentation/components/base/Input.vue'
-import Button from '@/presentation/components/base/Button.vue'
+import Input from '@/presentation/components/shared/ui/Input.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

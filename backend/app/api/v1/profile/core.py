@@ -19,6 +19,7 @@ from app.domain.models.user import (
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.infrastructure.persistence.repositories.token import TokenRepository
 from app.application.services.system.billing.service import BillingService
+from app.application.services.authorization_service import AuthorizationService
 from app.api.middleware.auth import token_required, get_current_user
 
 core_bp = Blueprint('profile_core', __name__, url_prefix='')
@@ -43,14 +44,17 @@ def get_profile():
     try:
         user = get_current_user()
 
+        # Get user's groups with hierarchy levels
+        user_groups = AuthorizationService.get_user_groups_with_levels(user['user_id'])
+
         # Fetch subscription info
         plan_info = BillingService.get_effective_plan_for_user(user['user_id'])
         subscription_plan = plan_info.get('plan_name', 'free')
         subscription_status = 'active' if plan_info['source'] != 'default' else 'none'
 
         # Fetch token balance
-        if plan_info['source'] == 'organisation' and user.get('organization_id'):
-            wallet = TokenRepository.get_or_create_organisation_wallet(user['organization_id'])
+        if plan_info['source'] == 'organisation' and user.get('organisation_id'):
+            wallet = TokenRepository.get_or_create_organisation_wallet(user['organisation_id'])
         else:
             wallet = TokenRepository.get_or_create_user_wallet(user['user_id'])
 
@@ -72,7 +76,8 @@ def get_profile():
 
         return jsonify({
             'success': True,
-            'profile': profile.model_dump()
+            'profile': profile.model_dump(),
+            'groups': AuthorizationService.format_groups_response(user_groups)
         }), 200
 
     except Exception as e:
@@ -131,7 +136,7 @@ def update_profile():
         # Update user (only include non-None fields)
         update_dict = {
             k: v for k, v in update_data.model_dump().items()
-            if v is not None and k not in ['role', 'is_active', 'organization_id']
+            if v is not None and k not in ['role', 'is_active', 'organisation_id']
         }
 
         if not update_dict:

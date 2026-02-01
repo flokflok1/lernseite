@@ -133,7 +133,7 @@ class GatewayAnalytics:
         org_id = None
         if hasattr(g, 'current_user') and g.current_user:
             user_id = g.current_user.get('user_id')
-            org_id = g.current_user.get('organization_id')
+            org_id = g.current_user.get('organisation_id')
 
         # Build log message (no sensitive data)
         log_data = {

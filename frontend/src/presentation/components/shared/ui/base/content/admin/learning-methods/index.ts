@@ -1,5 +1,10 @@
-// Learning Method Admin Components (Barrel Export)
-// Re-exports from base/content/admin/learning-methods/ (DDD migration)
+/**
+ * BACKWARD COMPATIBILITY RE-EXPORT
+ *
+ * Moved to: @/presentation/components/learning/editor/
+ * This file maintained for backward compatibility only.
+ * New code should import from: @/presentation/components/learning/editor/
+ */
 
-export * from '../../../../../base/content/admin/learning-methods'
-export * from '../../../../../base/content/admin/learning-methods/forms'
+export * from '../../../../../../learning/editor'
+export * from '../../../../../../learning/editor/forms'

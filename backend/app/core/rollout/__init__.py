@@ -2,7 +2,7 @@
 Progressive Rollout System
 
 Enables gradual feature rollout with percentage-based, segment-based,
-and organization-based controls.
+and organisation-based controls.
 """
 
 from app.core.rollout.percentage_rollout import PercentageRollout

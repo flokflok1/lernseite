@@ -325,7 +325,7 @@ class OrganisationDetailResponse(OrganisationResponse):
 
     Example:
         >>> org = OrganisationDetailResponse(
-        ...     organization_id=1,
+        ...     organisation_id=1,
         ...     name="LSX Academy",
         ...     type="system",
         ...     settings={...},
@@ -391,11 +391,11 @@ class TokenPoolCreate(BaseModel):
 
     Example:
         >>> pool = TokenPoolCreate(
-        ...     organization_id=5,
+        ...     organisation_id=5,
         ...     initial_tokens=50000
         ... )
     """
-    organization_id: int = Field(..., description="Organisation ID")
+    organisation_id: int = Field(..., description="Organisation ID")
     initial_tokens: int = Field(default=10000, ge=0, description="Initial token amount")
 
     model_config = ConfigDict(from_attributes=True)

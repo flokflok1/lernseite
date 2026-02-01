@@ -25,11 +25,25 @@ const http: AxiosInstance = axios.create({
 // Request Interceptor - Inject JWT token
 http.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const authStore = useAuthStore()
+    // Try to get token from store first, fallback to localStorage
+    // This handles cases where store might not be initialized yet
+    let token: string | null = null
+
+    try {
+      const authStore = useAuthStore()
+      token = authStore.accessToken
+    } catch {
+      // Store not available, use localStorage directly
+    }
+
+    // Fallback to localStorage if store doesn't have token
+    if (!token) {
+      token = localStorage.getItem('access_token')
+    }
 
     // Add Authorization header if token exists
-    if (authStore.accessToken) {
-      config.headers.Authorization = `Bearer ${authStore.accessToken}`
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
 
     return config

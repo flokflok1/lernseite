@@ -23,10 +23,21 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string
   password: string
-  first_name: string
-  last_name: string
-  role?: string
-  organisation_id?: number
+  full_name: string                    // GBA: Single full_name field
+  username?: string                    // Optional username
+  organisation_id?: string             // UUID string
+}
+
+/**
+ * Group information returned from login (GBA - Group-Based Authorization)
+ */
+export interface UserGroup {
+  id: string
+  name: string
+  slug: string
+  type: string
+  hierarchy_level: number
+  member_role: string
 }
 
 export interface LoginResponse {
@@ -37,6 +48,8 @@ export interface LoginResponse {
   expires_in: number
   refresh_token: string
   user: User
+  groups: UserGroup[]           // GBA: User's groups with hierarchy levels
+  permissions: string[]         // GBA: Effective permissions
   two_factor_required?: boolean
 }
 
@@ -50,14 +63,17 @@ export interface RegisterResponse {
 export interface User {
   user_id: string
   email: string
-  first_name: string
-  last_name: string
-  role: string
-  hierarchy_level?: number // RBAC 2.0: Dynamic hierarchy level (1-10, owner=10)
-  organisation_id: number | null
+  full_name: string                    // GBA: Single full_name field (not first_name/last_name)
+  organisation_id: string | null       // UUID string
   is_active: boolean
+  email_verified: boolean
+  two_factor_enabled: boolean
   created_at: string
-  two_factor_enabled?: boolean
+  updated_at: string
+  last_login_at: string | null
+  // GBA fields (populated after login from merged groups)
+  groups?: UserGroup[]                 // User's groups with hierarchy levels
+  permissions?: string[]               // Effective permissions
 }
 
 export interface UserProfileResponse {
@@ -70,21 +86,24 @@ export interface UserProfileResponse {
 // ============================================================================
 
 export interface ProfileResponse {
-  user_id: number
+  user_id: string                      // UUID string
   email: string
-  first_name: string
-  last_name: string
-  role: string
-  hierarchy_level?: number // RBAC 2.0: Hierarchy level (1-10, owner=10)
-  organisation_id?: number
+  full_name: string                    // GBA: Single full_name field
+  organisation_id?: string             // UUID string
   organisation_name?: string
   is_active: boolean
+  email_verified: boolean
+  two_factor_enabled: boolean
   subscription_plan: string
   subscription_status: string
   token_balance: number
   courses_enrolled: number
   courses_created: number
   created_at: string
+  updated_at: string
+  // GBA fields
+  groups?: UserGroup[]                 // User's groups
+  permissions?: string[]               // Effective permissions
 }
 
 export interface ProfileStatsResponse {
@@ -97,8 +116,7 @@ export interface ProfileStatsResponse {
 }
 
 export interface UpdateProfileRequest {
-  first_name?: string
-  last_name?: string
+  full_name?: string                   // GBA: Single full_name field
   email?: string
 }
 

@@ -4,7 +4,7 @@ Course CRUD Operations (Create, Read, Update)
 Handles basic course data access operations:
 - Course creation
 - Retrieving course details by ID
-- Fetching courses by creator or organization
+- Fetching courses by creator or organisation
 - Updating course metadata
 - Cache invalidation
 
@@ -26,7 +26,7 @@ class CourseRepositoryCRUD(BaseRepository):
 
     Handles all basic database operations for courses including:
     - Course creation
-    - Finding courses by ID, creator, or organization
+    - Finding courses by ID, creator, or organisation
     - Updating course metadata
     - Cache management
     """
@@ -43,7 +43,7 @@ class CourseRepositoryCRUD(BaseRepository):
                 - title: str (required)
                 - description: str
                 - creator_id: int (required)
-                - organization_id: int (optional, for org courses)
+                - organisation_id: int (optional, for org courses)
                 - category: str
                 - level: str (beginner, intermediate, advanced, expert)
                 - language: str (default: 'de')
@@ -67,18 +67,18 @@ class CourseRepositoryCRUD(BaseRepository):
         """
         query = """
             INSERT INTO courses.courses (
-                title, description, creator_user_id, organization_id, course_type,
+                title, description, creator_user_id, organisation_id, course_type,
                 category_id, level, language_default, price,
                 published, thumbnail_url, video_preview_url,
                 tags, status, created_at, updated_at
             ) VALUES (
-                %(title)s, %(description)s, %(creator_user_id)s, %(organization_id)s, 'standard',
+                %(title)s, %(description)s, %(creator_user_id)s, %(organisation_id)s, 'standard',
                 %(category_id)s, %(level)s, %(language_default)s, %(price)s,
                 %(published)s, %(thumbnail_url)s, %(video_preview_url)s,
                 %(tags)s, 'draft', NOW(), NOW()
             )
             RETURNING
-                course_id, title, description, creator_user_id AS creator_id, organization_id,
+                course_id, title, description, creator_user_id AS creator_id, organisation_id,
                 category_id, level, language_default, price, published,
                 thumbnail_url, video_preview_url, tags,
                 created_at, updated_at, published_at, status
@@ -91,7 +91,7 @@ class CourseRepositoryCRUD(BaseRepository):
         # Set defaults
         defaults = {
             'description': None,
-            'organization_id': None,
+            'organisation_id': None,
             'category_id': None,
             'level': 'beginner',
             'language_default': 'de',
@@ -127,14 +127,14 @@ class CourseRepositoryCRUD(BaseRepository):
                 query = """
                     SELECT
                         c.*,
-                        u.firstname || ' ' || u.lastname AS creator_name,
+                        u.full_name AS creator_name,
                         u.email AS creator_email,
                         o.name AS organisation_name,
                         (SELECT COUNT(*) FROM courses.chapters WHERE course_id = c.course_id) AS chapter_count,
                         (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count
                     FROM courses.courses c
                     LEFT JOIN core.users u ON c.creator_user_id = u.user_id
-                    LEFT JOIN organisations.organizations o ON c.organization_id = o.organization_id
+                    LEFT JOIN organisations.organisations o ON c.organisation_id = o.organisation_id
                     WHERE c.course_id = %s
                 """
                 return fetch_one(query, (course_id,))
@@ -145,14 +145,14 @@ class CourseRepositoryCRUD(BaseRepository):
         query = """
             SELECT
                 c.*,
-                u.firstname || ' ' || u.lastname AS creator_name,
+                u.full_name AS creator_name,
                 u.email AS creator_email,
                 o.name AS organisation_name,
                 (SELECT COUNT(*) FROM courses.chapters WHERE course_id = c.course_id) AS chapter_count,
                 (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count
             FROM courses.courses c
             LEFT JOIN core.users u ON c.creator_user_id = u.user_id
-            LEFT JOIN organisations.organizations o ON c.organization_id = o.organization_id
+            LEFT JOIN organisations.organisations o ON c.organisation_id = o.organisation_id
             WHERE c.course_id = %s
         """
 
@@ -214,14 +214,14 @@ class CourseRepositoryCRUD(BaseRepository):
     @classmethod
     def find_by_organisation(
         cls,
-        organization_id: int,
+        organisation_id: int,
         include_archived: bool = False
     ) -> List[Dict[str, Any]]:
         """
         Find all courses by organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
             include_archived: Include archived courses
 
         Returns:
@@ -230,12 +230,12 @@ class CourseRepositoryCRUD(BaseRepository):
         query = """
             SELECT
                 c.*,
-                u.firstname || ' ' || u.lastname AS creator_name,
+                u.full_name AS creator_name,
                 (SELECT COUNT(*) FROM courses.chapters WHERE course_id = c.course_id) AS chapter_count,
                 (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count
             FROM courses.courses c
             LEFT JOIN core.users u ON c.creator_user_id = u.user_id
-            WHERE c.organization_id = %s
+            WHERE c.organisation_id = %s
         """
 
         if not include_archived:
@@ -243,7 +243,7 @@ class CourseRepositoryCRUD(BaseRepository):
 
         query += " ORDER BY c.created_at DESC"
 
-        return fetch_all(query, (organization_id,))
+        return fetch_all(query, (organisation_id,))
 
     @classmethod
     def update(cls, course_id: int, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:

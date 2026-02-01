@@ -5,23 +5,29 @@
  * This file provides a clean interface for importing all user-related APIs and types.
  * Part of the DDD Architecture - User Domain consolidating authentication, profile, and dashboard.
  *
+ * GBA (Group-Based Authorization):
+ * - NO role field - authorization via groups with hierarchy_level (0-1000)
+ * - full_name (not first_name/last_name)
+ * - groups[] and permissions[] from login response
+ *
  * Usage:
  * import { login, getProfile, updateThemePreference } from '@/application/services/api/user'
- * import type { User, ProfileResponse, ThemePreferenceResponse } from '@/application/services/api/user'
+ * import type { User, UserGroup, LoginResponse } from '@/application/services/api/user'
  */
 
 // ============================================================================
-// Types Export (Consolidated from all user API modules)
+// Types Export (Single Source of Truth - types.ts)
 // ============================================================================
 
 export type {
-  // Authentication Types
+  // Authentication Types (GBA)
   ChangePasswordRequest,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
   User,
+  UserGroup,                          // GBA: Group type for authorization
   UserProfileResponse,
   // Profile Types
   PanelSize,
@@ -37,7 +43,7 @@ export type {
 } from './types'
 
 // ============================================================================
-// Authentication API Export
+// Authentication API Export (Functions only - types from ./types)
 // ============================================================================
 
 export {
@@ -46,16 +52,10 @@ export {
   logout,
   refreshToken,
   getUserProfile,
-  type LoginRequest,
-  type LoginResponse,
-  type RegisterRequest,
-  type RegisterResponse,
-  type User,
-  type UserProfileResponse
 } from './auth.api'
 
 // ============================================================================
-// Profile API Export
+// Profile API Export (Functions only - types from ./types)
 // ============================================================================
 
 export {
@@ -71,18 +71,6 @@ export {
   updateWindowSize,
   deleteWindowSize,
   resetUserPreferences,
-  type ProfileResponse,
-  type ProfileStatsResponse,
-  type UpdateProfileRequest,
-  type ChangePasswordRequest,
-  type ThemePreferenceResponse,
-  type UpdateThemePreferenceRequest,
-  type UserPreferences,
-  type PanelSize,
-  type PanelSizesMap,
-  type PanelSizesResponse,
-  type PreferencesResponse,
-  type UpdateThemePreferenceRequest
 } from './profile.api'
 
 // ============================================================================

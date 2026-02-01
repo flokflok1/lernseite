@@ -101,12 +101,12 @@
     },
     "seed": {
       "categories": "Categories",
-      "description": "Installs learning methods, categories and roles.",
+      "description": "Installs learning methods, categories and groups.",
       "error": "Error",
+      "groups": "Groups",
       "install": "Install",
       "installFailed": "Seed data installation failed",
       "learningMethods": "Learning Methods",
-      "roles": "Roles",
       "success": "Successful!",
       "systemFeatures": "System Features",
       "title": "Install Seed Data"

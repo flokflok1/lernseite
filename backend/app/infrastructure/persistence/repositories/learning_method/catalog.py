@@ -22,7 +22,7 @@ from psycopg.rows import dict_row
 import json
 import logging
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.cache.service import CacheService
 from flask import current_app
 
@@ -55,7 +55,7 @@ class LearningMethodCatalogRepository:
             Dictionary with:
             - learning_methods: List of all 12 LMs with full metadata and schemas
             - total: Count (always 12)
-            - groups: Grouped metadata for UI organization
+            - groups: Grouped metadata for UI organisation
 
         Example:
             >>> catalog = LearningMethodCatalogRepository.get_full_catalog()
@@ -84,7 +84,7 @@ class LearningMethodCatalogRepository:
             Catalog dictionary or None if query fails
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor(row_factory=dict_row) as cur:
                     # Fetch all 12 LM types with schemas
                     cur.execute("""
@@ -186,7 +186,7 @@ class LearningMethodCatalogRepository:
             >>> 11  # Currently 12 methods (0-11)
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
                         SELECT COALESCE(MAX(method_type), 0)
@@ -214,7 +214,7 @@ class LearningMethodCatalogRepository:
             >>> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]  # All 12 methods
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
                         SELECT method_type
@@ -279,7 +279,7 @@ class LearningMethodCatalogRepository:
             Method dictionary or None if not found
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor(row_factory=dict_row) as cur:
                     cur.execute("""
                         SELECT
@@ -382,7 +382,7 @@ class LearningMethodCatalogRepository:
             List of methods in group or None if query fails
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor(row_factory=dict_row) as cur:
                     cur.execute("""
                         SELECT

@@ -12,7 +12,7 @@ Tables Required:
 - feature_flag_rollouts
 """
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.core.feature_flags.flag_config import FEATURE_FLAGS, FEATURE_GROUPS
 from datetime import datetime
 
@@ -23,7 +23,7 @@ def seed_feature_flags():
 
     Inserts all flags from flag_config.py with their default state
     """
-    with db_pool.connection() as conn:
+    with extensions.db_pool.connection() as conn:
         with conn.cursor() as cur:
             print("🌱 Seeding feature flags...")
 
@@ -46,7 +46,7 @@ def seed_feature_groups():
     """
     Seed feature flag groups (optional - for admin UI)
     """
-    with db_pool.connection() as conn:
+    with extensions.db_pool.connection() as conn:
         with conn.cursor() as cur:
             print("\n🌱 Seeding feature flag groups...")
 
@@ -71,7 +71,7 @@ def enable_feature_for_beta_users(feature_name: str):
     Args:
         feature_name: Feature flag name
     """
-    with db_pool.connection() as conn:
+    with extensions.db_pool.connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 INSERT INTO feature_flag_segments (feature_name, segment, is_enabled, created_at)
@@ -95,7 +95,7 @@ def set_percentage_rollout(feature_name: str, percentage: int):
     if not 0 <= percentage <= 100:
         raise ValueError("Percentage must be between 0 and 100")
 
-    with db_pool.connection() as conn:
+    with extensions.db_pool.connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 INSERT INTO feature_flag_rollouts (feature_name, percentage, created_at, updated_at)

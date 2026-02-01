@@ -76,15 +76,15 @@ class ConfigManager:
                 SELECT
                     sl.language_code,
                     sl.language_name,
-                    sl.flag_emoji,
+                    sl.flag as flag_emoji,
                     0 AS pending_count,
                     0 AS ai_reviewing_count,
                     0 AS awaiting_human_count,
                     0 AS pending_suggestions,
                     0 AS ai_reviews_24h,
                     NULL AS avg_quality_7d
-                FROM supported_languages sl
-                WHERE sl.active = TRUE
+                FROM translations.supported_languages sl
+                WHERE sl.is_active = TRUE
                 ORDER BY sl.priority
             """
             return fetch_all(query) or []

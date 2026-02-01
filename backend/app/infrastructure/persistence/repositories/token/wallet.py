@@ -12,7 +12,7 @@ Uses psycopg connection pooling for efficient database access.
 from typing import Dict, Any, Optional
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 
 
 class TokenWalletRepository:
@@ -45,7 +45,7 @@ class TokenWalletRepository:
         Raises:
             Exception: On database connection or query error
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Try to get existing wallet
                 cur.execute("""
@@ -70,19 +70,19 @@ class TokenWalletRepository:
                 return wallet
 
     @classmethod
-    def get_or_create_organisation_wallet(cls, organization_id: str) -> Dict[str, Any]:
+    def get_or_create_organisation_wallet(cls, organisation_id: str) -> Dict[str, Any]:
         """
         Get or create token wallet for organisation.
 
         Creates a new wallet with zero balance if one doesn't exist.
 
         Args:
-            organization_id: Organisation UUID
+            organisation_id: Organisation UUID
 
         Returns:
             Wallet dictionary with keys:
             - wallet_id: UUID of the wallet
-            - organization_id: Associated organisation UUID
+            - organisation_id: Associated organisation UUID
             - balance: Current token balance
             - total_purchased: Total tokens purchased
             - total_granted: Total tokens granted
@@ -91,13 +91,13 @@ class TokenWalletRepository:
         Raises:
             Exception: On database connection or query error
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Try to get existing wallet
                 cur.execute("""
                     SELECT * FROM billing_storage.token_wallets
-                    WHERE organization_id = %s
-                """, (organization_id,))
+                    WHERE organisation_id = %s
+                """, (organisation_id,))
 
                 wallet = cur.fetchone()
 
@@ -105,10 +105,10 @@ class TokenWalletRepository:
                     # Create new wallet with zero balance
                     cur.execute("""
                         INSERT INTO billing_storage.token_wallets (
-                            organization_id, balance, total_purchased, total_granted, total_consumed
+                            organisation_id, balance, total_purchased, total_granted, total_consumed
                         ) VALUES (%s, 0, 0, 0, 0)
                         RETURNING *
-                    """, (organization_id,))
+                    """, (organisation_id,))
 
                     wallet = cur.fetchone()
                     conn.commit()
@@ -131,7 +131,7 @@ class TokenWalletRepository:
         Raises:
             Exception: On database connection or query error
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT * FROM billing_storage.token_wallets
@@ -156,7 +156,7 @@ class TokenWalletRepository:
         Raises:
             Exception: On database connection or query error
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT * FROM billing_storage.token_wallets
@@ -166,14 +166,14 @@ class TokenWalletRepository:
                 return cur.fetchone()
 
     @classmethod
-    def get_wallet_for_organisation(cls, organization_id: str) -> Optional[Dict[str, Any]]:
+    def get_wallet_for_organisation(cls, organisation_id: str) -> Optional[Dict[str, Any]]:
         """
         Get wallet for organisation (without creating).
 
         Retrieves existing wallet without auto-creation.
 
         Args:
-            organization_id: Organisation UUID
+            organisation_id: Organisation UUID
 
         Returns:
             Wallet dictionary if found, None otherwise
@@ -181,11 +181,11 @@ class TokenWalletRepository:
         Raises:
             Exception: On database connection or query error
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT * FROM billing_storage.token_wallets
-                    WHERE organization_id = %s
-                """, (organization_id,))
+                    WHERE organisation_id = %s
+                """, (organisation_id,))
 
                 return cur.fetchone()

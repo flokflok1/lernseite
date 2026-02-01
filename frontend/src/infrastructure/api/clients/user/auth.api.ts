@@ -1,162 +1,93 @@
 /**
  * LernsystemX - Authentication API Service
  *
- * Pattern: Transform backend DTOs to domain models at API layer
- * This ensures all callers receive consistent domain models, not backend DTOs
+ * NOTE: Phase B - Group-Based Authorization (GBA) System
+ * - NO role field - authorization via groups
+ * - full_name (not first_name/last_name)
+ * - groups[] with hierarchy_level (0-1000)
+ * - permissions[] derived from group memberships
  *
- * Transformation Flow:
- * Backend sends snake_case DTO
- *   → transformUserFromAPI() handles naming conversion
- *   → User.fromAPI() validates business rules
- *   → Caller receives domain model (camelCase)
+ * Types imported from ./types.ts (Single Source of Truth)
  */
 
 import http from '../http'
-import { transformUserFromAPI } from '../../utils/transformers'
-import { User as UserDomainModel } from '@/domain/models/user/User.model'
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  User,
+  UserGroup,
+  UserProfileResponse,
+} from './types'
 
-// ============================================
-// BACKEND DTO INTERFACES (what backend sends)
-// ============================================
-
-/**
- * Backend User DTO (snake_case - raw from API)
- * Represents exactly what backend returns
- */
-export interface BackendUserDTO {
-  user_id: string
-  email: string
-  first_name: string
-  last_name: string
-  role: string
-  organisation_id: number | null
-  is_active: boolean
-  created_at: string
-  two_factor_enabled?: boolean
+// Re-export types for consumers who import directly from auth.api
+export type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  User,
+  UserGroup,
+  UserProfileResponse,
 }
 
+// ============================================
+// INTERNAL BACKEND DTO (for API response typing)
+// ============================================
+
 /**
- * Backend LoginResponse DTO
+ * Backend LoginResponse DTO (internal - what backend actually sends)
  */
-export interface BackendLoginResponseDTO {
+interface BackendLoginResponseDTO {
   success: boolean
   message: string
   access_token: string
   token_type: string
   expires_in: number
   refresh_token: string
-  user: BackendUserDTO
+  user: User
+  groups: UserGroup[]
+  permissions: string[]
   two_factor_required?: boolean
 }
 
 /**
- * Backend RegisterResponse DTO
+ * Backend RegisterResponse DTO (internal)
  */
-export interface BackendRegisterResponseDTO {
+interface BackendRegisterResponseDTO {
   success: boolean
   message: string
-  user: BackendUserDTO
+  user: User
   email_verification_required: boolean
 }
 
 // ============================================
-// DOMAIN RESPONSE INTERFACES (what callers get)
-// ============================================
-
-/**
- * Domain LoginResponse (contains transformed domain model)
- * This is what the API function returns to callers
- */
-export interface LoginResponse {
-  success: boolean
-  message: string
-  access_token: string
-  token_type: string
-  expires_in: number
-  refresh_token: string
-  user: UserDomainModel
-  two_factor_required?: boolean
-}
-
-/**
- * Domain RegisterResponse
- */
-export interface RegisterResponse {
-  success: boolean
-  message: string
-  user: UserDomainModel
-  email_verification_required: boolean
-}
-
-/**
- * Domain UserProfileResponse
- */
-export interface UserProfileResponse {
-  success: boolean
-  user: UserDomainModel
-}
-
-// ============================================
-// REQUEST INTERFACES (unchanged)
-// ============================================
-
-export interface LoginRequest {
-  email: string
-  password: string
-  totp_code?: string // Optional 2FA code
-}
-
-export interface RegisterRequest {
-  email: string
-  password: string
-  first_name: string
-  last_name: string
-  role?: string
-  organisation_id?: number
-}
-
-// ============================================
-// API FUNCTIONS (with transformation)
+// API FUNCTIONS
 // ============================================
 
 /**
  * Login user with authentication
  *
- * Transformation Flow:
- * 1. Send credentials to /auth/login
- * 2. Receive response with BackendUserDTO (snake_case)
- * 3. Transform snake_case → domain model format using transformUserFromAPI()
- * 4. Create User domain entity via User.fromAPI()
- * 5. Return response with domain model (camelCase)
- *
  * @param credentials - Login credentials
- * @returns LoginResponse with transformed User domain model
+ * @returns LoginResponse with user, groups[], and permissions[] (GBA)
  * @throws UnauthorizedError if credentials invalid
- * @throws ValidationError if server validation fails
  */
 export const login = async (credentials: LoginRequest): Promise<LoginResponse> => {
-  // 1. Call backend API with DTO types
   const response = await http.post<BackendLoginResponseDTO>('/auth/login', credentials)
+  const data = response.data
 
-  // 2. Extract backend response (contains snake_case User DTO)
-  const backendData = response.data
-
-  // 3. Transform backend DTO to intermediate format (handles naming)
-  const transformedUserData = transformUserFromAPI(backendData.user)
-
-  // 4. Create domain model (validates business rules)
-  const domainUser = UserDomainModel.fromAPI(transformedUserData)
-
-  // 5. Return response with domain model (not DTO)
   return {
-    success: backendData.success,
-    message: backendData.message,
-    access_token: backendData.access_token,
-    token_type: backendData.token_type,
-    expires_in: backendData.expires_in,
-    refresh_token: backendData.refresh_token,
-    user: domainUser,
-    two_factor_required: backendData.two_factor_required
+    success: data.success,
+    message: data.message,
+    access_token: data.access_token,
+    token_type: data.token_type,
+    expires_in: data.expires_in,
+    refresh_token: data.refresh_token,
+    user: data.user,
+    groups: data.groups || [],           // GBA: Pass through groups
+    permissions: data.permissions || [], // GBA: Pass through permissions
+    two_factor_required: data.two_factor_required
   }
 }
 
@@ -164,18 +95,15 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
  * Register new user account
  *
  * @param data - Registration data
- * @returns RegisterResponse with transformed User domain model
+ * @returns RegisterResponse with user
  */
 export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
   const response = await http.post<BackendRegisterResponseDTO>('/auth/register', data)
 
-  const transformedUserData = transformUserFromAPI(response.data.user)
-  const domainUser = UserDomainModel.fromAPI(transformedUserData)
-
   return {
     success: response.data.success,
     message: response.data.message,
-    user: domainUser,
+    user: response.data.user,
     email_verification_required: response.data.email_verification_required
   }
 }
@@ -205,16 +133,13 @@ export const logout = async (): Promise<void> => {
 /**
  * Get current user profile
  *
- * @returns UserProfileResponse with transformed User domain model
+ * @returns UserProfileResponse with user
  */
 export const getUserProfile = async (): Promise<UserProfileResponse> => {
-  const response = await http.get<{ success: boolean; user: BackendUserDTO }>('/auth/me')
-
-  const transformedUserData = transformUserFromAPI(response.data.user)
-  const domainUser = UserDomainModel.fromAPI(transformedUserData)
+  const response = await http.get<{ success: boolean; user: User }>('/auth/me')
 
   return {
     success: response.data.success,
-    user: domainUser
+    user: response.data.user
   }
 }

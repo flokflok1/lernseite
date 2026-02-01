@@ -13,7 +13,7 @@ Uses pure psycopg for PostgreSQL access with connection pooling.
 from typing import Dict, Any, Optional, List
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 
 
 class UserGamificationRepository:
@@ -34,7 +34,7 @@ class UserGamificationRepository:
         Returns:
             Stats dictionary or None if not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -61,7 +61,7 @@ class UserGamificationRepository:
         Returns:
             List of skill dictionaries
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -90,7 +90,7 @@ class UserGamificationRepository:
         Returns:
             List of achievement dictionaries
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -120,7 +120,7 @@ class UserGamificationRepository:
         Returns:
             Created stats dictionary
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Insert default XP record
                 cur.execute("""

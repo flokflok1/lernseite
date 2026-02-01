@@ -50,6 +50,7 @@ from app.infrastructure.persistence.repositories.user import UserRepository
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security import BruteForceProtection
 from app.application.services.audit_service import AuditService
+from app.application.services.authorization_service import AuthorizationService
 from app.setup.admin_setup import AdminSetup
 from app.infrastructure.persistence.database.connection import execute_query
 
@@ -74,7 +75,7 @@ def register():
             "first_name": "John",
             "last_name": "Doe",
             "role": "user" (optional),
-            "organization_id": 1 (optional)
+            "organisation_id": 1 (optional)
         }
 
     Response:
@@ -92,7 +93,7 @@ def register():
             first_name=user_data.first_name,
             last_name=user_data.last_name,
             role=user_data.role or 'user',
-            organization_id=user_data.organization_id
+            organisation_id=user_data.organisation_id
         )
 
         user_response = UserResponse(**user)
@@ -193,29 +194,8 @@ def login():
                 remaining = BruteForceProtection.get_remaining_attempts(login_data.email)
                 return error_response(ErrorCode.AUTH_2FA_INVALID, 401, details={'remaining_attempts': remaining})
 
-        # Query user's active groups (Group-Based RBAC 3.0)
-        # Include frontend_role for backward compatibility with frontend UserRoleEnum
-        user_groups_result = execute_query(
-            """
-            SELECT
-                g.id,
-                g.name,
-                g.slug,
-                g.group_type,
-                g.frontend_role,
-                ug.member_role,
-                ug.joined_at
-            FROM core.users_groups ug
-            JOIN core.groups g ON ug.group_id = g.id
-            WHERE ug.user_id = %s
-                AND ug.is_active = TRUE
-                AND ug.left_at IS NULL
-            ORDER BY ug.joined_at ASC
-            """,
-            (user['user_id'],),
-            fetch=True  # IMPORTANT: Fetch all results
-        )
-        user_groups = user_groups_result if user_groups_result else []
+        # Get user's groups with hierarchy levels
+        user_groups = AuthorizationService.get_user_groups_with_levels(user['user_id'])
 
         # Query user's effective permissions using SQL function
         user_permissions_result = execute_query(
@@ -274,9 +254,7 @@ def login():
         if 'user_id' in user and user['user_id'] is not None:
             user['user_id'] = str(user['user_id'])
 
-        # Add role field for backwards compatibility with UserResponse model
-        # Map group to frontend-compatible role value (e.g., "system-admin" -> "Admin")
-        user['role'] = frontend_role
+        # GBA: No role field - authorization is via groups and permissions only
 
         user_response = UserResponse(**user)
         token_response = TokenResponse(
@@ -291,15 +269,7 @@ def login():
             'message': 'Login successful',
             **token_response.model_dump(),
             'refresh_token': refresh_token,
-            'groups': [
-                {
-                    'id': str(g['id']),
-                    'name': g['name'],
-                    'slug': g['slug'],
-                    'type': g['group_type'],
-                    'member_role': g['member_role']
-                } for g in user_groups
-            ],
+            'groups': AuthorizationService.format_groups_response(user_groups),
             'permissions': permission_codes
         }
 
@@ -430,13 +400,20 @@ def get_current_user_info():
         Authorization: Bearer <access_token>
 
     Response:
-        200: User information
+        200: User information with groups and hierarchy level
     """
     try:
         user = get_current_user()
         user_response = UserResponse(**user)
 
-        return jsonify({'success': True, 'user': user_response.model_dump()}), 200
+        # Get user's groups with hierarchy levels
+        user_groups = AuthorizationService.get_user_groups_with_levels(user['user_id'])
+
+        return jsonify({
+            'success': True,
+            'user': user_response.model_dump(),
+            'groups': AuthorizationService.format_groups_response(user_groups)
+        }), 200
 
     except Exception as e:
         logger.error(f"Get user info error: {e}")

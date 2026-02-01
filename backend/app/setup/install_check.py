@@ -108,8 +108,9 @@ class InstallationChecker:
 
             # ALSO write marker to frontend/public/ for offline detection
             # This allows frontend to detect installation even when backend is down
+            # Path: backend/app/setup/install_check.py -> ../../.. = backend/ -> ../frontend/public/
             frontend_marker_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
                 'frontend', 'public', '.lsx-installed'
             )
 
@@ -156,7 +157,7 @@ class InstallationChecker:
 
             # Remove frontend marker
             frontend_marker_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
                 'frontend', 'public', '.lsx-installed'
             )
             if os.path.exists(frontend_marker_path):

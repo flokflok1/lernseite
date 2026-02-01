@@ -78,11 +78,11 @@ class EnrollmentRepository(BaseRepository):
         query = """
             SELECT
                 e.*,
-                u.firstname || ' ' || u.lastname AS user_name,
+                u.full_name AS user_name,
                 u.email AS user_email,
                 c.title AS course_title,
                 c.creator_user_id AS course_creator_id,
-                c.organization_id AS course_organization_id
+                c.organisation_id AS course_organisation_id
             FROM courses.course_enrollments e
             LEFT JOIN core.users u ON e.user_id = u.user_id
             LEFT JOIN courses.courses c ON e.course_id = c.course_id
@@ -175,7 +175,7 @@ class EnrollmentRepository(BaseRepository):
                 c.title AS course_title,
                 c.thumbnail_url AS course_thumbnail,
                 c.creator_user_id,
-                u.firstname || ' ' || u.lastname AS creator_name
+                u.full_name AS creator_name
             FROM courses.course_enrollments e
             LEFT JOIN courses.courses c ON e.course_id = c.course_id
             LEFT JOIN core.users u ON c.creator_user_id = u.user_id
@@ -238,7 +238,7 @@ class EnrollmentRepository(BaseRepository):
         data_query = f"""
             SELECT
                 e.*,
-                u.firstname || ' ' || u.lastname AS user_name,
+                u.full_name AS user_name,
                 u.email AS user_email
             FROM courses.course_enrollments e
             LEFT JOIN core.users u ON e.user_id = u.user_id

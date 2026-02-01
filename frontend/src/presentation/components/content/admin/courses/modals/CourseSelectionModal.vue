@@ -114,7 +114,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/window.store'
-import Modal from '@/presentation/components/base/Modal.vue'
+import Modal from '@/presentation/components/shared/ui/Modal.vue'
 import * as courseApi from '@/application/services/api/content'
 
 interface Course {

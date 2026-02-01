@@ -73,7 +73,7 @@ def get_my_subscription():
             subscription_data = SubscriptionRepository.get_subscription_for_user(user['user_id'])
         elif plan_info['source'] == 'organisation':
             subscription_data = SubscriptionRepository.get_subscription_for_organisation(
-                user['organization_id']
+                user['organisation_id']
             )
 
         # Build response
@@ -90,7 +90,7 @@ def get_my_subscription():
             response['subscription'] = {
                 'subscription_id': str(subscription_data.get('subscription_id', '')),
                 'user_id': str(subscription_data.get('user_id', '')) if subscription_data.get('user_id') else None,
-                'organization_id': str(subscription_data.get('organization_id', '')) if subscription_data.get('organization_id') else None,
+                'organisation_id': str(subscription_data.get('organisation_id', '')) if subscription_data.get('organisation_id') else None,
                 'plan_id': str(subscription_data.get('plan_id', '')) if subscription_data.get('plan_id') else None,
                 'plan_type': subscription_data.get('plan_type'),
                 'plan_name': subscription_data.get('plan_name'),
@@ -201,9 +201,9 @@ def change_subscription():
 
         if not subscription:
             # Check if user has organisation subscription
-            if user.get('organization_id'):
+            if user.get('organisation_id'):
                 org_sub = SubscriptionRepository.get_subscription_for_organisation(
-                    user['organization_id']
+                    user['organisation_id']
                 )
                 if org_sub:
                     return jsonify({
@@ -322,9 +322,9 @@ def cancel_subscription():
 
         if not subscription:
             # Check if organisation subscription
-            if user.get('organization_id'):
+            if user.get('organisation_id'):
                 org_sub = SubscriptionRepository.get_subscription_for_organisation(
-                    user['organization_id']
+                    user['organisation_id']
                 )
                 if org_sub:
                     return jsonify({

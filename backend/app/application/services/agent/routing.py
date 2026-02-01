@@ -36,7 +36,7 @@ class AgentRouter:
         agent_id: str,
         user_id: str,
         course_id: str,
-        organization_id: Optional[str],
+        organisation_id: Optional[str],
         config: Dict[str, Any],
         question: str,
         normalized_question: str,
@@ -55,7 +55,7 @@ class AgentRouter:
             agent_id: Agent UUID
             user_id: User UUID
             course_id: Course UUID
-            organization_id: Optional organisation UUID
+            organisation_id: Optional organisation UUID
             config: Agent configuration with provider info
             question: Original question
             normalized_question: Normalized question
@@ -91,7 +91,7 @@ class AgentRouter:
                 agent_id=agent_id,
                 user_id=user_id,
                 course_id=course_id,
-                organization_id=organization_id,
+                organisation_id=organisation_id,
                 question=question,
                 normalized_question=normalized_question,
                 context=context,
@@ -124,7 +124,7 @@ class AgentRouter:
                         agent_id=agent_id,
                         user_id=user_id,
                         course_id=course_id,
-                        organization_id=organization_id,
+                        organisation_id=organisation_id,
                         question=question,
                         normalized_question=normalized_question,
                         context=context,
@@ -161,7 +161,7 @@ class AgentRouter:
         agent_id: str,
         user_id: str,
         course_id: str,
-        organization_id: Optional[str],
+        organisation_id: Optional[str],
         question: str,
         normalized_question: str,
         context: Optional[Dict[str, Any]],
@@ -185,7 +185,7 @@ class AgentRouter:
             agent_id: Agent UUID
             user_id: User UUID
             course_id: Course UUID
-            organization_id: Optional organisation UUID
+            organisation_id: Optional organisation UUID
             question: Original question
             normalized_question: Normalized question
             context: Optional context
@@ -246,7 +246,7 @@ class AgentRouter:
         user = UserRepository.find_by_id(user_id)
         BillingService.charge_ai_usage(
             user_id=user_id,
-            organization_id=organization_id or (user.get('organization_id') if user else None),
+            organisation_id=organisation_id or (user.get('organisation_id') if user else None),
             method_id=0,  # Agent system
             tokens_used=tokens_used,
             provider=provider,

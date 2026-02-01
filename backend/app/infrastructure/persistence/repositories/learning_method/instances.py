@@ -19,7 +19,7 @@ import uuid
 import psycopg
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
 
@@ -46,7 +46,7 @@ class LearningMethodInstanceRepository:
         Returns:
             Learning Method Instance als Dict oder None
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -89,7 +89,7 @@ class LearningMethodInstanceRepository:
         Returns:
             Liste der Learning Method Instances
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 query = """
                     SELECT
@@ -140,7 +140,7 @@ class LearningMethodInstanceRepository:
         """
         # Aktuelle Implementierung: Suche über Lesson -> Chapter -> Learning Methods
         # TODO: Wenn lesson_id Spalte zur learning_methods Tabelle hinzugefügt wird
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Hole chapter_id der Lesson
                 cur.execute("""
@@ -196,7 +196,7 @@ class LearningMethodInstanceRepository:
             tier_from_db = LearningMethodGroupRepository.get_tier_for_group(group_code)
             data['tier'] = tier_from_db if tier_from_db else 'basic'  # Fallback to basic only if group not found
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     INSERT INTO learning_methods (
@@ -282,7 +282,7 @@ class LearningMethodInstanceRepository:
 
         params.append(method_id)
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 query = f"""
                     UPDATE learning_methods
@@ -306,7 +306,7 @@ class LearningMethodInstanceRepository:
         Returns:
             True wenn gelöscht, False wenn nicht gefunden
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
                     DELETE FROM learning_methods
@@ -354,7 +354,7 @@ class LearningMethodInstanceRepository:
         Returns:
             True wenn erfolgreich
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cur:
                 for index, method_id in enumerate(method_ids):
                     cur.execute("""
@@ -381,7 +381,7 @@ class LearningMethodInstanceRepository:
         Returns:
             Statistik-Dict
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -412,7 +412,7 @@ class LearningMethodInstanceRepository:
         Returns:
             Liste mit method_type und count
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 if course_id:
                     cur.execute("""

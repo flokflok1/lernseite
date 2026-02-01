@@ -89,8 +89,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/application/stores/modules/admin'
-import { CategoryTreeNode, CategoryModal } from '@/presentation/components/base/content/admin/categories'
-import { DeleteConfirmModal } from '@/presentation/components/base/system/shared/dialogs'
+import { CategoryTreeNode, CategoryModal } from '@/presentation/components/shared/ui/content/admin/categories'
+import { DeleteConfirmModal } from '@/presentation/components/shared/ui/system/shared/dialogs'
 
 const { t } = useI18n()
 const adminStore = useAdminStore()

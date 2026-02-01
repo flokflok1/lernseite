@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.persistence.repositories.token import TokenRepository
 from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
 from app.infrastructure.persistence.repositories.user import UserRepository
@@ -57,9 +57,9 @@ class BillingService:
         subscription = SubscriptionRepository.get_subscription_for_user(user_id)
 
         # If no direct subscription, check organisation subscription
-        if not subscription and user.get('organization_id'):
+        if not subscription and user.get('organisation_id'):
             subscription = SubscriptionRepository.get_subscription_for_organisation(
-                user['organization_id']
+                user['organisation_id']
             )
 
         # Default to 'free' plan if no subscription
@@ -93,9 +93,9 @@ class BillingService:
             }
 
         # Get wallet (user or organisation)
-        if user.get('organization_id') and subscription.get('organization_id'):
+        if user.get('organisation_id') and subscription.get('organisation_id'):
             # Use organisation wallet
-            wallet = TokenRepository.get_or_create_organisation_wallet(user['organization_id'])
+            wallet = TokenRepository.get_or_create_organisation_wallet(user['organisation_id'])
         else:
             # Use user wallet
             wallet = TokenRepository.get_or_create_user_wallet(user_id)
@@ -125,7 +125,7 @@ class BillingService:
     @staticmethod
     def charge_ai_usage(
         user_id: str,
-        organization_id: Optional[str],
+        organisation_id: Optional[str],
         method_id: str,
         tokens_used: int,
         provider: str,
@@ -136,7 +136,7 @@ class BillingService:
 
         Args:
             user_id: User ID
-            organization_id: Organisation ID (if applicable)
+            organisation_id: Organisation ID (if applicable)
             method_id: Learning method ID
             tokens_used: Tokens consumed
             provider: AI provider
@@ -150,8 +150,8 @@ class BillingService:
             }
         """
         # Determine which wallet to charge
-        if organization_id:
-            wallet = TokenRepository.get_or_create_organisation_wallet(organization_id)
+        if organisation_id:
+            wallet = TokenRepository.get_or_create_organisation_wallet(organisation_id)
         else:
             wallet = TokenRepository.get_or_create_user_wallet(user_id)
 
@@ -202,9 +202,9 @@ class BillingService:
         # Check organisation subscription
         user = UserRepository.find_by_id(user_id)
 
-        if user and user.get('organization_id'):
+        if user and user.get('organisation_id'):
             org_subscription = SubscriptionRepository.get_subscription_for_organisation(
-                user['organization_id']
+                user['organisation_id']
             )
 
             if org_subscription:
@@ -247,7 +247,7 @@ class BillingService:
             }
         """
         # Get subscription
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -275,10 +275,10 @@ class BillingService:
         # Get wallet
         if subscription.get('user_id'):
             wallet = TokenRepository.get_or_create_user_wallet(subscription['user_id'])
-        elif subscription.get('organization_id'):
-            wallet = TokenRepository.get_or_create_organisation_wallet(subscription['organization_id'])
+        elif subscription.get('organisation_id'):
+            wallet = TokenRepository.get_or_create_organisation_wallet(subscription['organisation_id'])
         else:
-            raise ValueError('Subscription has no user_id or organization_id')
+            raise ValueError('Subscription has no user_id or organisation_id')
 
         # Grant tokens
         transaction = TokenRepository.change_balance(
@@ -291,7 +291,7 @@ class BillingService:
         )
 
         # Update last_grant_date
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
                     UPDATE token_wallets
@@ -400,9 +400,9 @@ class BillingService:
             return False
 
         # Get wallet
-        if user.get('organization_id'):
+        if user.get('organisation_id'):
             # Try organisation wallet first
-            org_wallet = TokenRepository.get_wallet_for_organisation(user['organization_id'])
+            org_wallet = TokenRepository.get_wallet_for_organisation(user['organisation_id'])
             if org_wallet and org_wallet['balance'] >= estimated_cost:
                 return True
 

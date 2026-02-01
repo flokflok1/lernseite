@@ -69,7 +69,9 @@ export type {
   LMSuggestionsResponse,
   LMMethod,
   LMGroupInfo,
-  LMGroupsResponse
+  LMGroupsResponse,
+  LMGroupAPIInfo,
+  LMGroupsAPIResponse
 } from './types'
 
 // ============================================================================
@@ -155,8 +157,8 @@ export {
   getActionStats,
   getPopularActions,
   getLMSuggestions,
-  getLMGroups,
-  getLMById
+  getAllLearningMethods,
+  getLMGroups
 } from './authoring.api'
 
 // ============================================================================

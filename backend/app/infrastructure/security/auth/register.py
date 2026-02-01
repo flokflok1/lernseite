@@ -33,7 +33,7 @@ def register():
             "first_name": "John",
             "last_name": "Doe",
             "role": "user" (optional),
-            "organization_id": 1 (optional)
+            "organisation_id": 1 (optional)
         }
 
     Response:
@@ -55,7 +55,7 @@ def register():
             first_name=user_data.first_name,
             last_name=user_data.last_name,
             role=user_data.role or 'user',
-            organization_id=user_data.organization_id
+            organisation_id=user_data.organisation_id
         )
 
         # Convert to response model

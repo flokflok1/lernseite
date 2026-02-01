@@ -338,7 +338,7 @@ def require_org_member(fn):
     Decorator to check if user is member of a specific organisation (resource-based access).
 
     This decorator verifies resource ownership, NOT capabilities.
-    Uses organization_id from JWT token for fast check.
+    Uses organisation_id from JWT token for fast check.
 
     Args:
         fn: Flask view function to wrap
@@ -350,7 +350,7 @@ def require_org_member(fn):
     @token_required
     def wrapper(*args, **kwargs):
         current_user = g.current_user
-        user_org_id = current_user.get('organization_id')
+        user_org_id = current_user.get('organisation_id')
 
         # System admins (view_any_resource) can access any org
         from app.application.services.system.auth.permission import PermissionService
@@ -358,7 +358,7 @@ def require_org_member(fn):
             return fn(*args, **kwargs)
 
         # Get org_id from URL parameters
-        org_id = kwargs.get('org_id') or kwargs.get('organization_id')
+        org_id = kwargs.get('org_id') or kwargs.get('organisation_id')
 
         if not org_id:
             return jsonify({

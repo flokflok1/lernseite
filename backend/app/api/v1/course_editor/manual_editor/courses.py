@@ -54,7 +54,7 @@ def list_courses():
         status = request.args.get('status', 'all')
         search = request.args.get('search')
         creator_id = request.args.get('creator_id')
-        organization_id = request.args.get('organization_id')
+        organisation_id = request.args.get('organisation_id')
         category = request.args.get('category')
         category_id = request.args.get('category_id')
         level = request.args.get('level')
@@ -72,7 +72,7 @@ def list_courses():
             status=status,
             search=search,
             creator_id=int(creator_id) if creator_id else None,
-            organization_id=int(organization_id) if organization_id else None,
+            organisation_id=int(organisation_id) if organisation_id else None,
             category=category,
             category_id=int(category_id) if category_id else None,
             level=level,

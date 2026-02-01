@@ -29,7 +29,7 @@
  */
 
 import { Chapter } from './Chapter.model'
-import { User } from '../user/User.model'
+import type { User } from '../user/User.types'
 
 export class Course {
   constructor(

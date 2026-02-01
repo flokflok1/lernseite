@@ -119,17 +119,17 @@ class TranslationManager:
                     t.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag_emoji,
+                    sl.flag as flag_emoji,
                     t.value,
                     t.is_verified,
                     t.is_machine_translated,
                     t.translator_id,
-                    u.username as translator_name,
+                    u.full_name as translator_name,
                     t.created_at,
                     t.updated_at
-                FROM i18n_translations t
-                JOIN supported_languages sl ON t.language_code = sl.language_code
-                LEFT JOIN users u ON t.translator_id = u.user_id
+                FROM translations.i18n_translations t
+                JOIN translations.supported_languages sl ON t.language_code = sl.language_code
+                LEFT JOIN core.users u ON t.translator_id = u.user_id
                 WHERE t.key_id = %s
                 ORDER BY sl.priority, sl.language_code
             """

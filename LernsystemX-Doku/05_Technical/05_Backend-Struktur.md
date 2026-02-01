@@ -1,7 +1,8 @@
-# 17 – Backend-Struktur (Final) v4.0 - DDD ARCHITECTURE
+# 17 – Backend-Struktur (Final) v4.1 - DDD ARCHITECTURE
 
-**Version:** 4.0 (DDD - Domain-Driven Design Architecture)
-**Stand:** 18.01.2026
+**Version:** 4.1 (DDD + Course Editor Documentation)
+**Stand:** 29.01.2026
+**Änderungen v4.1:** Course Editor Struktur dokumentiert (ai_editor, manual_editor, shared)
 **Änderungen v4.0:** Complete DDD Architecture Reorganization (Phase 5 Complete) - 275+ files updated, app root cleaned, 7 clear layers: API → Application → Domain → Infrastructure
 
 ---
@@ -661,6 +662,40 @@ Das LernSystemX unterscheidet zwischen zwei Typen von Lernfunktionalität:
 | **Math Toolkit** | `/math_toolkit/` | Mathematische Tools, Übungen, Referenz |
 | **Course Editor** | `/course_editor/` | Manueller Content-Editor, AI-gestützter Editor |
 | **TTS (Text-to-Speech)** | `/tts/` | Sprachausgabe, Audio-Generierung, Aussprache |
+
+### Course Editor Struktur (/api/v1/course_editor/)
+
+Der **Course Editor** ist ein zentrales Feature für Content-Erstellung:
+
+```
+/api/v1/course_editor/
+├── ai_editor/                   # KI-gestützte Kurserstellung
+│   ├── __init__.py
+│   ├── authoring.py             # KI-Authoring Sessions, Chat, Content-Generierung
+│   └── actions.py               # Theorie-/Erklärungen-Generierung
+│
+├── manual_editor/               # Manueller Content-Editor
+│   ├── __init__.py
+│   ├── courses.py               # Kurs CRUD
+│   ├── chapters.py              # Kapitel CRUD
+│   ├── lessons.py               # Lektionen CRUD
+│   ├── exams.py                 # Prüfungen CRUD
+│   ├── theory_sheets.py         # Theorie-Blätter
+│   ├── course_files.py          # Datei-Management
+│   └── course_prompts.py        # Prompt-Templates
+│
+├── shared/                      # Gemeinsame Utilities
+│   ├── __init__.py
+│   ├── permissions.py           # Editor-Permissions (GBA)
+│   ├── publishing.py            # Veröffentlichungs-Workflow
+│   ├── publishing_decisions.py  # Auto-/Manual-Publish Logic
+│   ├── publishing_queue.py      # Publish-Queue
+│   └── publishing_visibility.py # Sichtbarkeits-Kontrolle
+│
+└── __init__.py
+```
+
+**Frontend Alignment:** `src/presentation/components/course-editor/`
 | **Feature Flags** | `/features/` | Progressive Rollout, A/B Testing, Feature Control |
 | **Gamification** | `/gamification/` | XP, Badges, Quests, Achievements |
 

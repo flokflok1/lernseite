@@ -93,22 +93,22 @@ class AgentRepository:
     # =========================================================================
 
     @staticmethod
-    def get_org_extension(agent_id: str, organization_id: str):
-        """Get organization-specific agent extension"""
-        return AgentExtensionRepository.get_org_extension(agent_id, organization_id)
+    def get_org_extension(agent_id: str, organisation_id: str):
+        """Get organisation-specific agent extension"""
+        return AgentExtensionRepository.get_org_extension(agent_id, organisation_id)
 
     @staticmethod
-    def create_org_extension(agent_id: str, organization_id: str, **kwargs):
-        """Create organization-specific agent extension"""
-        return AgentExtensionRepository.create_org_extension(agent_id, organization_id, **kwargs)
+    def create_org_extension(agent_id: str, organisation_id: str, **kwargs):
+        """Create organisation-specific agent extension"""
+        return AgentExtensionRepository.create_org_extension(agent_id, organisation_id, **kwargs)
 
     @staticmethod
     def update_org_extension(extension_id: str, **kwargs):
-        """Update organization extension"""
+        """Update organisation extension"""
         return AgentExtensionRepository.update_org_extension(extension_id, **kwargs)
 
     @staticmethod
-    def get_effective_agent_config(course_id: str, organization_id=None):
+    def get_effective_agent_config(course_id: str, organisation_id=None):
         """
         Get effective agent configuration (merged base + org extension)
 
@@ -119,7 +119,7 @@ class AgentRepository:
         For backward compatibility, this loads the agent first.
         """
         agent = AgentCRUDRepository.get_or_create_agent(course_id)
-        return AgentExtensionRepository.get_effective_agent_config(agent, organization_id)
+        return AgentExtensionRepository.get_effective_agent_config(agent, organisation_id)
 
     # =========================================================================
     # Warming Jobs (from AgentWarmingRepository)

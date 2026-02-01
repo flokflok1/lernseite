@@ -87,7 +87,7 @@ import {
   CourseQuickActions,
   CourseCreatorInfo,
   useCourseDetail
-} from '@/presentation/components/base/content/admin/courses/detail'
+} from '@/presentation/components/shared/ui/content/admin/courses/detail'
 
 // ============================================================================
 // Setup

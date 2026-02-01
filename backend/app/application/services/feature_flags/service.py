@@ -57,7 +57,7 @@ class FeatureConfigurationService:
         feature_name: str,
         user_role: str,
         user_tier: str,
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ) -> Tuple[bool, str]:
         """
         Check if user can access feature (7-point permission system).
@@ -76,7 +76,7 @@ class FeatureConfigurationService:
             feature_name: Feature name to check
             user_role: User's role (admin, teacher, student, etc.)
             user_tier: User's subscription tier (free, premium, enterprise)
-            organization_id: Optional organization ID for org-scoped features
+            organisation_id: Optional organisation ID for org-scoped features
 
         Returns:
             Tuple[bool, str]: (can_access, reason)
@@ -131,9 +131,9 @@ class FeatureConfigurationService:
                 return False, quota_reason
 
             # CHECK 5: Organization hasn't exceeded quotas (if org-scoped)
-            if organization_id:
+            if organisation_id:
                 org_check, org_reason = FeatureConfigurationService._check_org_quotas(
-                    organization_id, feature_name, tier_limit
+                    organisation_id, feature_name, tier_limit
                 )
                 if not org_check:
                     return False, org_reason
@@ -183,15 +183,15 @@ class FeatureConfigurationService:
 
     @staticmethod
     def _check_org_quotas(
-        organization_id: str,
+        organisation_id: str,
         feature_name: str,
         tier_limit: Dict[str, Any]
     ) -> Tuple[bool, str]:
         """
-        Check if organization has exceeded tier-based quotas.
+        Check if organisation has exceeded tier-based quotas.
 
         Args:
-            organization_id: Organization ID
+            organisation_id: Organization ID
             feature_name: Feature name
             tier_limit: Tier limit config with resource limits
 
@@ -202,7 +202,7 @@ class FeatureConfigurationService:
         max_storage = tier_limit.get('max_storage_gb')
         max_concurrent = tier_limit.get('max_concurrent_usage')
 
-        # TODO: Query organization usage table to check quotas
+        # TODO: Query organisation usage table to check quotas
         # For now, return True
 
         return True, ""
@@ -254,7 +254,7 @@ class FeatureConfigurationService:
         user_id: str,
         user_role: str,
         user_tier: str,
-        organization_id: Optional[str] = None,
+        organisation_id: Optional[str] = None,
         limit: int = 100
     ) -> List[Dict[str, Any]]:
         """
@@ -270,7 +270,7 @@ class FeatureConfigurationService:
             user_id: User ID
             user_role: User's role
             user_tier: User's subscription tier
-            organization_id: Optional organization ID
+            organisation_id: Optional organisation ID
             limit: Max features to return
 
         Returns:
@@ -294,7 +294,7 @@ class FeatureConfigurationService:
                     feature_name=feature_name,
                     user_role=user_role,
                     user_tier=user_tier,
-                    organization_id=organization_id
+                    organisation_id=organisation_id
                 )
 
                 if can_access:
@@ -413,7 +413,7 @@ class FeatureConfigurationService:
         action: str,
         change_details: Optional[Dict[str, Any]] = None,
         user_id: Optional[str] = None,
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ) -> None:
         """
         Log feature configuration change to audit log.
@@ -423,7 +423,7 @@ class FeatureConfigurationService:
             action: Action type (FEATURE_ENABLED, FEATURE_DISABLED, etc.)
             change_details: Details of what changed
             user_id: User who made the change
-            organization_id: Organization affected
+            organisation_id: Organization affected
         """
         # TODO: Implement audit logging to feature_flag_audit_log_enhanced table
         logger.info(

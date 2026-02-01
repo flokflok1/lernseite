@@ -159,7 +159,7 @@ def get_course(course_id: str):
             }), 200
 
         # Organisation members can view org courses
-        if course.get('organization_id') and user.get('organization_id') == course['organization_id']:
+        if course.get('organisation_id') and user.get('organisation_id') == course['organisation_id']:
             return jsonify({
                 'success': True,
                 'course': course

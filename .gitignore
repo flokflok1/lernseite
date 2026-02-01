@@ -163,3 +163,4 @@ backend/ai_models/**/*.onnx
 *.onnx
 *.bin
 *.safetensors
+.__archive/

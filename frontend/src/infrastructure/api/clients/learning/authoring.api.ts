@@ -11,6 +11,7 @@
  */
 
 import http from '@/infrastructure/api/http'
+import type { LMGroupAPIInfo, LMGroupsAPIResponse } from './types'
 
 // ============================================================================
 // Types & Interfaces
@@ -326,6 +327,44 @@ export async function getAllLearningMethods(): Promise<LMGroupsResponse> {
 }
 
 /**
+ * Get all learning method groups with tier information from database.
+ *
+ * This is the database-driven endpoint that returns:
+ * - group_code (A, B, C, ...)
+ * - name (Erklärend, Praxis, Prüfung, ...)
+ * - description
+ * - icon/emoji
+ * - tier (basic, premium, enterprise)
+ * - sort_order
+ * - is_active
+ *
+ * REPLACES hardcoded getLMGroupName() and getLMGroupIcon() helper functions.
+ * This endpoint serves as the single source of truth for group metadata.
+ *
+ * @returns LMGroupInfo[] - Array of all active learning method groups with tier info
+ *
+ * @example
+ * const groups = await getLMGroups()
+ * // Returns:
+ * // [
+ * //   {
+ * //     group_code: 'A',
+ * //     name: 'Erklärend',
+ * //     description: 'Explanatory methods...',
+ * //     icon: '📖',
+ * //     tier: 'basic',
+ * //     sort_order: 0,
+ * //     is_active: true
+ * //   },
+ * //   ...
+ * // ]
+ */
+export async function getLMGroups(): Promise<LMGroupAPIInfo[]> {
+  const response = await http.get('/learning-methods/groups')
+  return response.data.data
+}
+
+/**
  * Get display name for LM group
  */
 export function getLMGroupName(group: string): string {
@@ -438,6 +477,11 @@ export function getActionTypeColor(actionType: ActionType): string {
   return colors[actionType] || 'gray'
 }
 
+// ============================================================================
+// Type Re-exports
+// ============================================================================
+export type { LMGroupAPIInfo, LMGroupsAPIResponse }
+
 // Export all functions as default
 export default {
   // Actions API
@@ -454,7 +498,9 @@ export default {
   getLMSuggestions,
   getLMSuggestionsAI,
   getAllLearningMethods,
-  // Helper functions
+  // LM Groups API (Database-Driven)
+  getLMGroups,
+  // Helper functions (DEPRECATED - use getLMGroups() instead)
   groupActionsByCategory,
   filterActionsByLmType,
   getCategoryIcon,

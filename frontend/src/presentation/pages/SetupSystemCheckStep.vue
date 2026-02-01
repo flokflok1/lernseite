@@ -135,8 +135,8 @@
 import { ref, reactive, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
-import Input from '@/presentation/components/base/Input.vue'
-import Button from '@/presentation/components/base/Button.vue'
+import Input from '@/presentation/components/shared/ui/Input.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 
 const { t } = useI18n()
 

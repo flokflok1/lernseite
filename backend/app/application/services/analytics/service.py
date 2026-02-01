@@ -69,7 +69,7 @@ class AnalyticsService:
         Track analytics event
 
         Args:
-            user: User dict from JWT (contains user_id, role, organization_id)
+            user: User dict from JWT (contains user_id, role, organisation_id)
             event_type: Type of event
             resource_type: Optional resource type
             resource_id: Optional resource ID
@@ -84,7 +84,7 @@ class AnalyticsService:
             ValueError: If event_type or resource_type invalid
 
         Example:
-            >>> user = {'user_id': 123, 'role': 'premium', 'organization_id': 5}
+            >>> user = {'user_id': 123, 'role': 'premium', 'organisation_id': 5}
             >>> event = AnalyticsService.track_event(
             ...     user=user,
             ...     event_type='course_view',
@@ -94,7 +94,7 @@ class AnalyticsService:
             ... )
         """
         user_id = user['user_id']
-        organization_id = user.get('organization_id')
+        organisation_id = user.get('organisation_id')
 
         # Validate event type
         try:
@@ -118,7 +118,7 @@ class AnalyticsService:
             payload=payload,
             session_id=session_id,
             ip_address=ip_address,
-            organization_id=organization_id
+            organisation_id=organisation_id
         )
 
         # Record analytics event metric
@@ -130,7 +130,7 @@ class AnalyticsService:
         return AnalyticsEventResponse(
             event_id=db_event['event_id'],
             user_id=str(db_event['user_id']) if db_event.get('user_id') else None,
-            organization_id=str(db_event['organization_id']) if db_event.get('organization_id') else None,
+            organisation_id=str(db_event['organisation_id']) if db_event.get('organisation_id') else None,
             event_type=db_event['event_type'],
             resource_type=db_event.get('resource_type'),
             resource_id=str(db_event['resource_id']) if db_event.get('resource_id') else None,
@@ -170,7 +170,7 @@ class AnalyticsService:
             AnalyticsEventResponse(
                 event_id=event['event_id'],
                 user_id=str(event['user_id']) if event.get('user_id') else None,
-                organization_id=str(event['organization_id']) if event.get('organization_id') else None,
+                organisation_id=str(event['organisation_id']) if event.get('organisation_id') else None,
                 event_type=event['event_type'],
                 resource_type=event.get('resource_type'),
                 resource_id=str(event['resource_id']) if event.get('resource_id') else None,
@@ -225,7 +225,7 @@ class AnalyticsService:
             ValueError: If user not in organisation
 
         Example:
-            >>> user = {'user_id': 123, 'role': 'school_admin', 'organization_id': 5}
+            >>> user = {'user_id': 123, 'role': 'school_admin', 'organisation_id': 5}
             >>> stats = AnalyticsService.get_organisation_statistics(user)
         """
         # Permission check
@@ -235,54 +235,54 @@ class AnalyticsService:
                 f"Requires: Teacher, School Admin, Company Admin, or Admin."
             )
 
-        organization_id = user.get('organization_id')
-        if not organization_id:
+        organisation_id = user.get('organisation_id')
+        if not organisation_id:
             raise ValueError("User not in organisation")
 
         # Try cache first (short TTL for analytics - 1 minute)
         if use_cache:
-            cache_key = CacheService.make_key('ANALYTICS', 'org', str(organization_id), 'stats')
+            cache_key = CacheService.make_key('ANALYTICS', 'org', str(organisation_id), 'stats')
             ttl = current_app.config.get('CACHE_ANALYTICS_TTL', 60)
 
             def load_stats():
-                return cls._compute_organisation_statistics(organization_id)
+                return cls._compute_organisation_statistics(organisation_id)
 
             return CacheService.cache_get_or_set(cache_key, ttl, load_stats)
 
         # Bypass cache
-        return cls._compute_organisation_statistics(organization_id)
+        return cls._compute_organisation_statistics(organisation_id)
 
     @classmethod
-    def _compute_organisation_statistics(cls, organization_id: int) -> AnalyticsOrgStats:
+    def _compute_organisation_statistics(cls, organisation_id: int) -> AnalyticsOrgStats:
         """
         Internal method to compute organisation statistics
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
 
         Returns:
             AnalyticsOrgStats: Computed statistics
         """
 
         # Get total events
-        total_events = AnalyticsRepository.get_org_total_events(organization_id)
+        total_events = AnalyticsRepository.get_org_total_events(organisation_id)
 
         # Get event counts by type
-        event_counts_raw = AnalyticsRepository.count_events_by_type_org(organization_id)
+        event_counts_raw = AnalyticsRepository.count_events_by_type_org(organisation_id)
         event_counts_by_type = {row['event_type']: row['count'] for row in event_counts_raw}
 
         # Get first and last event timestamps
-        timestamps = AnalyticsRepository.get_org_event_timestamps(organization_id)
+        timestamps = AnalyticsRepository.get_org_event_timestamps(organisation_id)
         first_event_at = timestamps['first_event_at'].isoformat() if timestamps.get('first_event_at') else None
         last_event_at = timestamps['last_event_at'].isoformat() if timestamps.get('last_event_at') else None
 
         # Get active users (last 30 days)
-        active_users_30d = AnalyticsRepository.get_active_users_in_org(organization_id, days=30)
+        active_users_30d = AnalyticsRepository.get_active_users_in_org(organisation_id, days=30)
 
         # Get top courses
         top_courses_raw = AnalyticsRepository.get_resource_event_counts(
             'course',
-            organization_id=organization_id,
+            organisation_id=organisation_id,
             limit=10
         )
         top_courses = [
@@ -303,7 +303,7 @@ class AnalyticsService:
             avg_completion_rate = (total_modules_completed / modules_started) * 100
 
         return AnalyticsOrgStats(
-            organization_id=organization_id,
+            organisation_id=organisation_id,
             total_events=total_events,
             total_users=0,  # TODO: Get from organisation_users table
             active_users_30d=active_users_30d,

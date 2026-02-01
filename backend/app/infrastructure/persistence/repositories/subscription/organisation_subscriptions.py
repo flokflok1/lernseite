@@ -8,14 +8,14 @@ Data access layer for organisation subscription operations:
 
 Uses pure psycopg for PostgreSQL access with connection pooling.
 
-Note: Database uses American spelling 'organization_id'
+Note: Database uses American spelling 'organisation_id'
 """
 
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.persistence.repositories.subscription.crud import PlanRepository
 
 
@@ -29,7 +29,7 @@ class OrganisationSubscriptionRepository:
     @classmethod
     def create_subscription(
         cls,
-        organization_id: int,
+        organisation_id: int,
         plan_id: int,
         billing_cycle: str = 'yearly'
     ) -> Dict[str, Any]:
@@ -37,7 +37,7 @@ class OrganisationSubscriptionRepository:
         Create subscription for organisation
 
         Args:
-            organization_id: Organisation identifier
+            organisation_id: Organisation identifier
             plan_id: Subscription plan identifier
             billing_cycle: Billing cycle ('monthly' or 'yearly', default: 'yearly')
 
@@ -48,21 +48,21 @@ class OrganisationSubscriptionRepository:
             ValueError: If organisation already has active subscription or plan not found
 
         Note:
-            Database uses American spelling 'organization_id'
+            Database uses American spelling 'organisation_id'
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Check existing subscription
-                # Note: Database uses American spelling 'organization_id'
+                # Note: Database uses American spelling 'organisation_id'
                 cur.execute("""
                     SELECT * FROM billing_storage.subscriptions
-                    WHERE organization_id = %s AND status = 'active'
-                """, (organization_id,))
+                    WHERE organisation_id = %s AND status = 'active'
+                """, (organisation_id,))
 
                 existing = cur.fetchone()
                 if existing:
                     raise ValueError(
-                        f'Organisation {organization_id} already has active subscription'
+                        f'Organisation {organisation_id} already has active subscription'
                     )
 
                 # Get plan
@@ -79,14 +79,14 @@ class OrganisationSubscriptionRepository:
                     expires_at = started_at + timedelta(days=30)
 
                 # Create subscription
-                # Note: Database uses American spelling 'organization_id'
+                # Note: Database uses American spelling 'organisation_id'
                 cur.execute("""
                     INSERT INTO subscriptions (
-                        organization_id, plan_id, status, billing_cycle,
+                        organisation_id, plan_id, status, billing_cycle,
                         started_at, expires_at, auto_renew
                     ) VALUES (%s, %s, 'active', %s, %s, %s, TRUE)
                     RETURNING *
-                """, (organization_id, plan_id, billing_cycle, started_at, expires_at))
+                """, (organisation_id, plan_id, billing_cycle, started_at, expires_at))
 
                 subscription = cur.fetchone()
                 conn.commit()
@@ -94,22 +94,22 @@ class OrganisationSubscriptionRepository:
                 return subscription
 
     @classmethod
-    def get_subscription(cls, organization_id: int) -> Optional[Dict[str, Any]]:
+    def get_subscription(cls, organisation_id: int) -> Optional[Dict[str, Any]]:
         """
         Get active subscription for organisation
 
         Args:
-            organization_id: Organisation identifier
+            organisation_id: Organisation identifier
 
         Returns:
             Subscription with plan details or None if not found
 
         Note:
-            Database uses American spelling 'organization_id'
+            Database uses American spelling 'organisation_id'
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
-                # Note: Database uses American spelling 'organization_id'
+                # Note: Database uses American spelling 'organisation_id'
                 cur.execute("""
                     SELECT
                         s.*,
@@ -120,9 +120,9 @@ class OrganisationSubscriptionRepository:
                         sp.features as plan_features
                     FROM billing_storage.subscriptions s
                     JOIN billing_storage.subscription_plans sp ON s.plan_id = sp.plan_id
-                    WHERE s.organization_id = %s
+                    WHERE s.organisation_id = %s
                     ORDER BY s.created_at DESC
                     LIMIT 1
-                """, (organization_id,))
+                """, (organisation_id,))
 
                 return cur.fetchone()

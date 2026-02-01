@@ -28,8 +28,8 @@
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as setupApi from '@/application/services/api/system'
-import Input from '@/presentation/components/base/Input.vue'
-import Button from '@/presentation/components/base/Button.vue'
+import Input from '@/presentation/components/shared/ui/Input.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 
 const { t } = useI18n()
 const emit = defineEmits<{ next: []; back: [] }>()

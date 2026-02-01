@@ -1,2 +1,2 @@
-export { default as DeleteConfirmModal } from '../../../../../../../base/system/shared/dialogs/DeleteConfirmModal.vue'
-export { default as DialogManager } from '../../../../../../../base/system/shared/dialogs/DialogManager.vue'
+export { default as DeleteConfirmModal } from '../../../../../../../shared/ui/system/shared/dialogs/DeleteConfirmModal.vue'
+export { default as DialogManager } from '../../../../../../../shared/ui/system/shared/dialogs/DialogManager.vue'

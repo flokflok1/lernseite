@@ -72,7 +72,7 @@ def check_org_membership(user: dict, org_id: int, required_roles: Optional[List[
         return True
 
     # Check basic membership
-    if user.get('organization_id') != org_id:
+    if user.get('organisation_id') != org_id:
         return False
 
     # If no specific role required, membership is enough
@@ -110,7 +110,7 @@ def check_org_access(user: dict, org_id: int) -> None:
         return
 
     # Org members can only access their own org
-    user_org_id = user.get('organization_id')
+    user_org_id = user.get('organisation_id')
     if user_org_id != org_id:
         raise PermissionError(f"Access denied to organisation {org_id}")
 
@@ -254,7 +254,7 @@ def org_get_top_courses(org_id: int):
 
         # Fetch top courses from repository
         raw_data = AnalyticsRepository.get_org_top_courses(
-            organization_id=org_id,
+            organisation_id=org_id,
             limit=limit,
             from_date=from_date,
             to_date=to_date
@@ -360,7 +360,7 @@ def org_get_top_modules(org_id: int):
 
         # Fetch top modules from repository
         raw_data = AnalyticsRepository.get_org_top_modules(
-            organization_id=org_id,
+            organisation_id=org_id,
             limit=limit,
             from_date=from_date,
             to_date=to_date
@@ -463,7 +463,7 @@ def org_get_events_time_series(org_id: int):
         raw_data = AnalyticsRepository.get_events_time_series(
             from_date,
             to_date,
-            organization_id=org_id
+            organisation_id=org_id
         )
 
         # Transform to response model
@@ -558,7 +558,7 @@ def org_get_active_members_time_series(org_id: int):
         raw_data = AnalyticsRepository.get_active_users_time_series(
             from_date,
             to_date,
-            organization_id=org_id
+            organisation_id=org_id
         )
 
         # Transform to response model

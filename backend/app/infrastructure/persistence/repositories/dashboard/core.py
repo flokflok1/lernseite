@@ -49,7 +49,7 @@ class DashboardRepository(BaseRepository):
             SELECT
                 layout_id,
                 user_id,
-                organization_id,
+                organisation_id,
                 role,
                 layout_json,
                 source,
@@ -77,7 +77,7 @@ class DashboardRepository(BaseRepository):
         user_id: int,
         role: str,
         layout_json: Dict,
-        organization_id: Optional[int] = None,
+        organisation_id: Optional[int] = None,
         source: str = 'user'
     ) -> Dict:
         """
@@ -87,7 +87,7 @@ class DashboardRepository(BaseRepository):
             user_id: User ID
             role: User role
             layout_json: Layout configuration as dict
-            organization_id: Organisation ID (optional)
+            organisation_id: Organisation ID (optional)
             source: Layout source ('user', 'role', 'organisation', 'system')
 
         Returns:
@@ -114,7 +114,7 @@ class DashboardRepository(BaseRepository):
                 SET
                     role = %s,
                     layout_json = %s,
-                    organization_id = %s,
+                    organisation_id = %s,
                     source = %s,
                     updated_at = %s
                 WHERE user_id = %s
@@ -126,7 +126,7 @@ class DashboardRepository(BaseRepository):
                 (
                     role,
                     json.dumps(layout_json),
-                    organization_id,
+                    organisation_id,
                     source,
                     datetime.utcnow(),
                     user_id
@@ -137,7 +137,7 @@ class DashboardRepository(BaseRepository):
             insert_query = """
                 INSERT INTO dashboard_layouts (
                     user_id,
-                    organization_id,
+                    organisation_id,
                     role,
                     layout_json,
                     source,
@@ -153,7 +153,7 @@ class DashboardRepository(BaseRepository):
                 insert_query,
                 (
                     user_id,
-                    organization_id,
+                    organisation_id,
                     role,
                     json.dumps(layout_json),
                     source,
@@ -271,12 +271,12 @@ class DashboardRepository(BaseRepository):
         return result['count'] if result else 0
 
     @classmethod
-    def get_layouts_by_organisation(cls, organization_id: int) -> list:
+    def get_layouts_by_organisation(cls, organisation_id: int) -> list:
         """
         Get all layouts for an organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
 
         Returns:
             List of layout dicts
@@ -294,11 +294,11 @@ class DashboardRepository(BaseRepository):
                 created_at,
                 updated_at
             FROM dashboard_layouts
-            WHERE organization_id = %s
+            WHERE organisation_id = %s
             ORDER BY updated_at DESC
         """
 
-        results = fetch_all(query, (organization_id,))
+        results = fetch_all(query, (organisation_id,))
 
         # Parse JSONB fields
         for result in results:

@@ -1,12 +1,9 @@
-export { default as DeepExplanation } from '../../../../../../../base/content/admin/learning-methods/forms/DeepExplanation.vue'
-export { default as DiagramVisualization } from '../../../../../../../base/content/admin/learning-methods/forms/DiagramVisualization.vue'
-export { default as DragAndDrop } from '../../../../../../../base/content/admin/learning-methods/forms/DragAndDrop.vue'
-export { default as ExampleScenario } from '../../../../../../../base/content/admin/learning-methods/forms/ExampleScenario.vue'
-export { default as FillInBlanks } from '../../../../../../../base/content/admin/learning-methods/forms/FillInBlanks.vue'
-export { default as Flashcards } from '../../../../../../../base/content/admin/learning-methods/forms/Flashcards.vue'
-export { default as InteractiveTheory } from '../../../../../../../base/content/admin/learning-methods/forms/InteractiveTheory.vue'
-export { default as LongTextAnswer } from '../../../../../../../base/content/admin/learning-methods/forms/LongTextAnswer.vue'
-export { default as MathInteractive } from '../../../../../../../base/content/admin/learning-methods/forms/MathInteractive.vue'
-export { default as MultipleChoiceQuiz } from '../../../../../../../base/content/admin/learning-methods/forms/MultipleChoiceQuiz.vue'
-export { default as StepByStep } from '../../../../../../../base/content/admin/learning-methods/forms/StepByStep.vue'
-export { default as TrueFalse } from '../../../../../../../base/content/admin/learning-methods/forms/TrueFalse.vue'
+/**
+ * BACKWARD COMPATIBILITY RE-EXPORT
+ *
+ * Moved to: @/presentation/components/learning/editor/forms/
+ * This file maintained for backward compatibility only.
+ * New code should import from: @/presentation/components/learning/editor/forms/
+ */
+
+export * from '../../../../../../learning/editor/forms'

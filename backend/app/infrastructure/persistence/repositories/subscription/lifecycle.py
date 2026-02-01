@@ -13,7 +13,7 @@ Uses pure psycopg for PostgreSQL access with connection pooling.
 from typing import Dict, Any, Optional
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.persistence.repositories.subscription.crud import PlanRepository
 
 
@@ -45,7 +45,7 @@ class SubscriptionLifecycleRepository:
         Raises:
             ValueError: If subscription or plan not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Get current subscription
                 cur.execute("""
@@ -111,7 +111,7 @@ class SubscriptionLifecycleRepository:
         Raises:
             ValueError: If subscription not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 if immediate:
                     # Cancel immediately
@@ -158,7 +158,7 @@ class SubscriptionLifecycleRepository:
         Raises:
             ValueError: If subscription not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     UPDATE billing_storage.subscriptions

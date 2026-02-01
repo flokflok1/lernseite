@@ -107,7 +107,7 @@ class PromptTemplate(BaseModel):
 
     Central model for managing AI prompts across all learning methods.
     Templates are versioned, support multiple AI models, and can be
-    customized per role or organization.
+    customized per role or organisation.
 
     Template Rendering:
         1. Load template from registry: get_prompt_template("explain_concept")

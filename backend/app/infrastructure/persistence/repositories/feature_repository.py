@@ -117,7 +117,7 @@ class FeatureRepository(BaseRepository):
         active_only: bool = True
     ) -> List[Dict[str, Any]]:
         """
-        Get all features subscribed to by organization.
+        Get all features subscribed to by organisation.
 
         Args:
             org_id: Organization ID
@@ -223,7 +223,7 @@ class FeatureRepository(BaseRepository):
         check_expiry: bool = True
     ) -> bool:
         """
-        Check if organization has active subscription to feature.
+        Check if organisation has active subscription to feature.
 
         Args:
             org_id: Organization ID
@@ -274,7 +274,7 @@ class FeatureRepository(BaseRepository):
         feature_code: str
     ) -> Optional[str]:
         """
-        Get subscription tier for organization feature.
+        Get subscription tier for organisation feature.
 
         Args:
             org_id: Organization ID
@@ -313,7 +313,7 @@ class FeatureRepository(BaseRepository):
         active_only: bool = True
     ) -> int:
         """
-        Count features subscribed by organization.
+        Count features subscribed by organisation.
 
         Args:
             org_id: Organization ID

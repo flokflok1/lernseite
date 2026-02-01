@@ -21,7 +21,7 @@ class CourseFileRepository(BaseRepository):
 
     Handles CRUD operations for course_files table including:
     - File uploads and metadata
-    - Category-based organization (script, material, exercise, etc.)
+    - Category-based organisation (script, material, exercise, etc.)
     - AI processing status tracking
     - Download counting
     """
@@ -55,7 +55,7 @@ class CourseFileRepository(BaseRepository):
                 mf.public_url,
                 mf.cdn_url,
                 mf.status as media_status,
-                COALESCE(u.firstname || ' ' || u.lastname, u.email) as uploader_name
+                COALESCE(u.full_name, u.email) as uploader_name
             FROM courses.course_files cf
             LEFT JOIN billing_storage.media_files mf ON cf.file_id = mf.file_id
             LEFT JOIN core.users u ON cf.uploaded_by = u.user_id

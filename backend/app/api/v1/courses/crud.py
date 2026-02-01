@@ -68,9 +68,9 @@ def create_course():
         course_dict = course_data.model_dump()
         course_dict['creator_id'] = user['user_id']
 
-        # Add organization_id if user belongs to one
-        if user.get('organization_id'):
-            course_dict['organization_id'] = user['organization_id']
+        # Add organisation_id if user belongs to one
+        if user.get('organisation_id'):
+            course_dict['organisation_id'] = user['organisation_id']
 
         # Create course
         course = CourseRepository.create(course_dict)
@@ -116,7 +116,7 @@ def update_course(course_id: str):
         # hierarchy_level 5 = school_admin, company_admin
         is_org_admin = (
             user.get('hierarchy_level', 0) == 5 and
-            user.get('organization_id') == course.get('organization_id')
+            user.get('organisation_id') == course.get('organisation_id')
         )
         is_admin = PermissionService.check_threshold(user, 'courses.edit_any')
 

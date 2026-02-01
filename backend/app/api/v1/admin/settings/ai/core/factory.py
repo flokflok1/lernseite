@@ -373,7 +373,7 @@ class AIProfileFactory:
     Enforces business rules:
     1. Profile must have at least one model slot
     2. Each slot must reference a valid, active model
-    3. Only one profile can be default per organization
+    3. Only one profile can be default per organisation
     """
 
     @staticmethod
@@ -393,7 +393,7 @@ class AIProfileFactory:
             profile_name: Profile name
             description: Profile description
             model_slots: Mapping of slot_name -> model_id
-            organisation_id: Optional organization owner
+            organisation_id: Optional organisation owner
             is_default: Whether this is the default profile
 
         Returns:

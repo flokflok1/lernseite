@@ -57,7 +57,7 @@ def list_users():
         page: Page number (default: 1)
         per_page: Items per page (default: 20, max: 100)
         role: Filter by role
-        organization_id: Filter by organisation
+        organisation_id: Filter by organisation
         is_active: Filter by active status (true/false)
         search: Search by email, first_name, last_name
 
@@ -72,7 +72,7 @@ def list_users():
         page = int(request.args.get('page', 1))
         per_page = min(int(request.args.get('per_page', 20)), 100)
         role_filter = request.args.get('role')
-        org_id = request.args.get('organization_id')
+        org_id = request.args.get('organisation_id')
         is_active = request.args.get('is_active')
         search_query = request.args.get('search')
 
@@ -81,9 +81,9 @@ def list_users():
 
         # Organisation admins can only see users in their organisation
         if current_user['role'] in ['school_admin', 'company_admin']:
-            conditions['organization_id'] = current_user['organization_id']
+            conditions['organisation_id'] = current_user['organisation_id']
         elif org_id:
-            conditions['organization_id'] = int(org_id)
+            conditions['organisation_id'] = int(org_id)
 
         if role_filter:
             conditions['role'] = role_filter
@@ -145,7 +145,7 @@ def create_user():
             "first_name": "John",
             "last_name": "Doe",
             "role": "user",
-            "organization_id": 1
+            "organisation_id": 1
         }
 
     Response:
@@ -171,7 +171,7 @@ def create_user():
 
         # Organisation admins can only create users in their organisation
         if current_user['role'] in ['school_admin', 'company_admin']:
-            if user_data.organization_id != current_user.get('organization_id'):
+            if user_data.organisation_id != current_user.get('organisation_id'):
                 return jsonify({
                     'success': False,
                     'error': 'Insufficient permissions',
@@ -184,7 +184,7 @@ def create_user():
             first_name=user_data.first_name,
             last_name=user_data.last_name,
             role=user_data.role,
-            organization_id=user_data.organization_id
+            organisation_id=user_data.organisation_id
         )
 
         user_response = UserResponse(**user)
@@ -288,7 +288,7 @@ def get_user(user_id: int):
         # hierarchy_level 5 = school_admin, company_admin
         is_org_admin = (
             current_user.get('hierarchy_level', 0) == 5 and
-            current_user.get('organization_id') == user.get('organization_id')
+            current_user.get('organisation_id') == user.get('organisation_id')
         )
 
         if not (is_self or is_admin or is_org_admin):

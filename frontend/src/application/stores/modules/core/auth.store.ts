@@ -1,14 +1,17 @@
 /**
- * LernsystemX - Authentication Store (Pinia) - REFACTORED
+ * LernsystemX - Authentication Store (Pinia) - LEVEL-BASED HIERARCHY
  *
  * Manages:
- * - User authentication state (via domain model delegation)
+ * - User authentication state
  * - JWT tokens (access + refresh)
  * - User profile data
- * - Login/Logout actions with User.fromAPI() transformation
+ * - Hierarchy Level (0-1000) from database
+ * - Login/Logout actions
  *
- * REFACTORING NOTE: All business logic delegated to User domain model.
- * Store maintains state ONLY; all permission/role checks go through domain.
+ * NOTE: Phase B - Level-Based Authorization (GBA)
+ * All permissions derived from hierarchy_level (0-1000)
+ * 1000 = Owner, 900 = SystemAdmin, 750 = Moderator, 500 = OrgAdmin, etc.
+ * NO hardcoded enums, NO code changes needed when permissions change
  */
 
 import { defineStore } from 'pinia'
@@ -17,8 +20,6 @@ import type { User as UserAPIDTO, LoginRequest, RegisterRequest } from '@/applic
 import type { ProfileResponse } from '@/application/services/api/user'
 import * as authApi from '@/application/services/api/user'
 import * as profileApi from '@/application/services/api/user'
-import { User as UserModel } from '@/domain/models/user/User.model'
-import { UserRoleEnum } from '@/domain/models/user/UserRole.vo'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -29,48 +30,108 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Computed domain model wrapper (CRITICAL: Single transformation point)
-  // Transforms raw API DTO (snake_case) to domain model (camelCase) in ONE place
-  // This enables all other computed properties to delegate to domain model methods
-  // instead of duplicating business logic
-  const domainUser = computed(() => {
-    if (!user.value) return null
-    try {
-      // Transform API response to domain model instance
-      // User.fromAPI() handles:
-      // - Property name conversion (first_name → firstName, etc.)
-      // - Value object creation (Email, UserRole with validation)
-      // - Date parsing and conversion
-      return UserModel.fromAPI(user.value)
-    } catch (err: any) {
-      // Log transformation errors for debugging
-      console.error('Failed to transform user to domain model:', err)
-      error.value = `User data transformation error: ${err.message}`
-      return null
-    }
-  })
 
   // Getters
   const isAuthenticated = computed(() => !!accessToken.value && !!user.value)
 
-  const fullName = computed(() => domainUser.value?.fullName || '')
+  /**
+   * User's full name from API response
+   */
+  const fullName = computed(() => {
+    if (!user.value) return ''
+    // Backend returns full_name directly (not first_name/last_name)
+    return (user.value as any)?.full_name || ''
+  })
 
-  const userRole = computed(() => domainUser.value?.role.toString() || 'user')
+  /**
+   * User's display role derived from groups (GBA)
+   * Uses the highest hierarchy group name as display role
+   * No hardcoded 'role' field - determined by group membership
+   */
+  const userRole = computed(() => {
+    if (!user.value) return 'Guest'
 
-  const isPremium = computed(() => domainUser.value?.isPremium ?? false)
+    const userGroups = (user.value as any)?.groups || []
+    if (userGroups.length === 0) return 'Member'
 
-  const isTeacher = computed(() => domainUser.value?.role.rawValue === UserRoleEnum.TEACHER)
+    // Find the group with highest hierarchy_level
+    const highestGroup = userGroups.reduce((highest: any, current: any) => {
+      const currentLevel = current.hierarchy_level || 0
+      const highestLevel = highest?.hierarchy_level || 0
+      return currentLevel > highestLevel ? current : highest
+    }, userGroups[0])
 
-  const isCreator = computed(() => domainUser.value?.role.rawValue === UserRoleEnum.CREATOR)
+    // Return group name as display role
+    return highestGroup?.name || 'Member'
+  })
 
-  const isOrgAdmin = computed(() =>
-    domainUser.value?.role.rawValue === UserRoleEnum.SCHOOL_ADMIN ||
-    domainUser.value?.role.rawValue === UserRoleEnum.COMPANY_ADMIN
-  )
+  const isPremium = computed(() => {
+    return (user.value as any)?.is_premium ?? false
+  })
 
-  const isSystemAdmin = computed(() => domainUser.value?.isSystemAdmin ?? false)
+  /**
+   * User's hierarchy level from database (0-1000)
+   * Determined by highest level among all user's groups
+   * 1000 = Owner
+   * 900 = SystemAdmin
+   * 750 = Moderator
+   * 500 = OrgAdmin
+   * 250 = Creator/Teacher
+   * 100 = Premium Member
+   * 10 = Regular Member
+   * 0 = Guest
+   */
+  const userHierarchyLevel = computed(() => {
+    if (!user.value) return 0
 
-  const isOwner = computed(() => domainUser.value?.role.rawValue === UserRoleEnum.OWNER)
+    const userGroups = (user.value as any)?.groups || []
+    if (userGroups.length === 0) return 0
+
+    // Get maximum hierarchy level from all user's groups
+    return Math.max(
+      ...userGroups.map((g: any) => g.hierarchy_level || 0),
+      0
+    )
+  })
+
+  /**
+   * Check if user has at least the required hierarchy level
+   * @param requiredLevel - Minimum hierarchy level (0-1000)
+   * @returns true if user's level >= requiredLevel
+   */
+  const hasHierarchyLevel = (requiredLevel: number): boolean => {
+    return userHierarchyLevel.value >= requiredLevel
+  }
+
+  /**
+   * Is user Owner (hierarchy_level >= 1000)
+   */
+  const isOwner = computed(() => userHierarchyLevel.value >= 1000)
+
+  /**
+   * Is user SystemAdmin or higher (hierarchy_level >= 900)
+   */
+  const isSystemAdmin = computed(() => userHierarchyLevel.value >= 900)
+
+  /**
+   * Is user Moderator or higher (hierarchy_level >= 750)
+   */
+  const isModerator = computed(() => userHierarchyLevel.value >= 750)
+
+  /**
+   * Is user OrgAdmin or higher (hierarchy_level >= 500)
+   */
+  const isOrgAdmin = computed(() => userHierarchyLevel.value >= 500)
+
+  /**
+   * Is user Creator/Teacher or higher (hierarchy_level >= 250)
+   */
+  const isCreator = computed(() => userHierarchyLevel.value >= 250)
+
+  /**
+   * Can user access Admin Panel? (OrgAdmin level or higher = 500+)
+   */
+  const canAccessAdminPanel = computed(() => userHierarchyLevel.value >= 500)
 
   const currentOrganisationId = computed(() => {
     return user.value?.organisation_id || null
@@ -92,13 +153,19 @@ export const useAuthStore = defineStore('auth', () => {
       accessToken.value = response.access_token
       refreshToken.value = response.refresh_token
 
-      // Store user data (as raw DTO - domainUser computed will transform to domain model)
-      user.value = response.user
+      // Store user data with groups merged (GBA - groups come separately in response)
+      // This enables userRole and userHierarchyLevel computed properties to work
+      const userData = {
+        ...response.user,
+        groups: response.groups || [],
+        permissions: response.permissions || []
+      }
+      user.value = userData
 
       // Save to localStorage for persistence
       localStorage.setItem('access_token', response.access_token)
       localStorage.setItem('refresh_token', response.refresh_token)
-      localStorage.setItem('user', JSON.stringify(response.user))
+      localStorage.setItem('user', JSON.stringify(userData))
 
     } catch (err: any) {
       error.value = err.response?.data?.message || err.message || 'Login failed'
@@ -187,8 +254,17 @@ export const useAuthStore = defineStore('auth', () => {
       const profileData = await profileApi.getProfile()
       profile.value = profileData
 
-      // Also update user object with basic info (store as raw DTO - domainUser computed will transform)
-      user.value = profileData
+      // IMPORTANT: Preserve existing groups and permissions when updating user
+      // The profile endpoint doesn't return groups - they come from login response
+      // Merging ensures we don't lose GBA authorization data
+      const existingGroups = (user.value as any)?.groups || []
+      const existingPermissions = (user.value as any)?.permissions || []
+
+      user.value = {
+        ...profileData,
+        groups: existingGroups,
+        permissions: existingPermissions
+      }
 
       // Update localStorage
       localStorage.setItem('user', JSON.stringify(user.value))
@@ -274,12 +350,19 @@ export const useAuthStore = defineStore('auth', () => {
     fullName,
     userRole,
     isPremium,
-    isTeacher,
-    isCreator,
-    isOrgAdmin,
-    isSystemAdmin,
-    isOwner,
     currentOrganisationId,
+
+    // Hierarchy Level (0-1000) - Database-driven, no hardcoding
+    userHierarchyLevel,
+    hasHierarchyLevel,
+
+    // Role Checks (GBA - derived from hierarchy_level)
+    isOwner,              // >= 1000
+    isSystemAdmin,        // >= 900
+    isModerator,          // >= 750
+    isOrgAdmin,           // >= 500
+    isCreator,            // >= 250
+    canAccessAdminPanel,  // >= 500
 
     // Actions
     login,

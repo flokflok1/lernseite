@@ -56,12 +56,12 @@ class AggregationRepository(BaseRepository):
         return fetch_all(query, (user_id,))
 
     @classmethod
-    def count_events_by_type_org(cls, organization_id: int) -> List[Dict]:
+    def count_events_by_type_org(cls, organisation_id: int) -> List[Dict]:
         """
         Count events by type for organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
 
         Returns:
             List of dicts with event_type and count
@@ -72,12 +72,12 @@ class AggregationRepository(BaseRepository):
         query = """
             SELECT event_type, COUNT(*) as count
             FROM analytics_events
-            WHERE organization_id = %s
+            WHERE organisation_id = %s
             GROUP BY event_type
             ORDER BY count DESC
         """
 
-        return fetch_all(query, (organization_id,))
+        return fetch_all(query, (organisation_id,))
 
     @classmethod
     def get_user_total_events(cls, user_id: int) -> int:
@@ -98,18 +98,18 @@ class AggregationRepository(BaseRepository):
         return result['count'] if result else 0
 
     @classmethod
-    def get_org_total_events(cls, organization_id: int) -> int:
+    def get_org_total_events(cls, organisation_id: int) -> int:
         """
         Get total number of events for organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
 
         Returns:
             int: Total event count
         """
-        query = "SELECT COUNT(*) as count FROM analytics_events WHERE organization_id = %s"
-        result = fetch_one(query, (organization_id,))
+        query = "SELECT COUNT(*) as count FROM analytics_events WHERE organisation_id = %s"
+        result = fetch_one(query, (organisation_id,))
         return result['count'] if result else 0
 
     @classmethod
@@ -138,12 +138,12 @@ class AggregationRepository(BaseRepository):
         return result if result else {'first_event_at': None, 'last_event_at': None}
 
     @classmethod
-    def get_org_event_timestamps(cls, organization_id: int) -> Dict:
+    def get_org_event_timestamps(cls, organisation_id: int) -> Dict:
         """
         Get first and last event timestamps for organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
 
         Returns:
             Dict with first_event_at and last_event_at
@@ -153,19 +153,19 @@ class AggregationRepository(BaseRepository):
                 MIN(created_at) as first_event_at,
                 MAX(created_at) as last_event_at
             FROM analytics_events
-            WHERE organization_id = %s
+            WHERE organisation_id = %s
         """
 
-        result = fetch_one(query, (organization_id,))
+        result = fetch_one(query, (organisation_id,))
         return result if result else {'first_event_at': None, 'last_event_at': None}
 
     @classmethod
-    def get_active_users_in_org(cls, organization_id: int, days: int = 30) -> int:
+    def get_active_users_in_org(cls, organisation_id: int, days: int = 30) -> int:
         """
         Get number of active users in organisation within last N days
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
             days: Number of days to look back
 
         Returns:
@@ -177,19 +177,19 @@ class AggregationRepository(BaseRepository):
         query = """
             SELECT COUNT(DISTINCT user_id) as count
             FROM analytics_events
-            WHERE organization_id = %s
+            WHERE organisation_id = %s
               AND created_at >= %s
         """
 
         cutoff = datetime.utcnow() - timedelta(days=days)
-        result = fetch_one(query, (organization_id, cutoff))
+        result = fetch_one(query, (organisation_id, cutoff))
         return result['count'] if result else 0
 
     @classmethod
     def get_resource_event_counts(
         cls,
         resource_type: str,
-        organization_id: Optional[int] = None,
+        organisation_id: Optional[int] = None,
         limit: int = 10
     ) -> List[Dict]:
         """
@@ -197,7 +197,7 @@ class AggregationRepository(BaseRepository):
 
         Args:
             resource_type: Type of resource (course, module, etc.)
-            organization_id: Optional organisation filter
+            organisation_id: Optional organisation filter
             limit: Number of top resources
 
         Returns:
@@ -206,18 +206,18 @@ class AggregationRepository(BaseRepository):
         Example:
             >>> top_courses = AggregationRepository.get_resource_event_counts('course', limit=5)
         """
-        if organization_id:
+        if organisation_id:
             query = """
                 SELECT resource_id, COUNT(*) as count
                 FROM analytics_events
                 WHERE resource_type = %s
-                  AND organization_id = %s
+                  AND organisation_id = %s
                   AND resource_id IS NOT NULL
                 GROUP BY resource_id
                 ORDER BY count DESC
                 LIMIT %s
             """
-            params = (resource_type, organization_id, limit)
+            params = (resource_type, organisation_id, limit)
         else:
             query = """
                 SELECT resource_id, COUNT(*) as count

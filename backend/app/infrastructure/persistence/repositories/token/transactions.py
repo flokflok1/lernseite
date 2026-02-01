@@ -14,7 +14,7 @@ Uses psycopg connection pooling with explicit transaction management.
 from typing import Dict, Any, Optional
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from .wallet import TokenWalletRepository
 
 
@@ -72,7 +72,7 @@ class TokenTransactionRepository:
             ...     reference_id='job-123'
             ... )
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Start transaction
                 conn.execute("BEGIN")
@@ -126,7 +126,7 @@ class TokenTransactionRepository:
                     # Create transaction record for audit trail
                     cur.execute("""
                         INSERT INTO billing_storage.token_transactions (
-                            wallet_id, user_id, organization_id, transaction_type, amount,
+                            wallet_id, user_id, organisation_id, transaction_type, amount,
                             balance_after, description, reference_type, reference_id, ai_module
                         ) VALUES (
                             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
@@ -135,7 +135,7 @@ class TokenTransactionRepository:
                     """, (
                         wallet_id,
                         wallet['user_id'],
-                        wallet['organization_id'],
+                        wallet['organisation_id'],
                         'grant' if amount > 0 else 'consumption',
                         amount,
                         balance_after,
@@ -158,7 +158,7 @@ class TokenTransactionRepository:
     def log_usage_from_ai(
         cls,
         user_id: Optional[str],
-        organization_id: Optional[str],
+        organisation_id: Optional[str],
         method_id: str,
         tokens_used: int,
         provider: str,
@@ -172,7 +172,7 @@ class TokenTransactionRepository:
 
         Args:
             user_id: User UUID (may be None for org-level requests)
-            organization_id: Organisation UUID (may be None for user requests)
+            organisation_id: Organisation UUID (may be None for user requests)
             method_id: Learning method ID or AI operation type
             tokens_used: Total tokens consumed
             provider: AI provider ('anthropic', 'openai', 'deepl', etc.)
@@ -186,7 +186,7 @@ class TokenTransactionRepository:
             AI usage log dictionary with keys:
             - usage_id: UUID of the usage record
             - user_id: Associated user
-            - organization_id: Associated organisation
+            - organisation_id: Associated organisation
             - total_tokens: Tokens used
             - provider: AI provider
             - model: Model used
@@ -198,7 +198,7 @@ class TokenTransactionRepository:
         Example:
             >>> usage = TokenTransactionRepository.log_usage_from_ai(
             ...     user_id='user-123',
-            ...     organization_id=None,
+            ...     organisation_id=None,
             ...     method_id='LM00',
             ...     tokens_used=4500,
             ...     provider='anthropic',
@@ -210,7 +210,7 @@ class TokenTransactionRepository:
             ...     }
             ... )
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Extract metadata with safe defaults
                 model = meta.get('model', 'unknown') if meta else 'unknown'
@@ -221,14 +221,14 @@ class TokenTransactionRepository:
                 # Record AI usage for analytics and cost tracking
                 cur.execute("""
                     INSERT INTO ai_token_usage (
-                        user_id, organization_id, method_id,
+                        user_id, organisation_id, method_id,
                         input_tokens, output_tokens, total_tokens,
                         provider, model, cost_eur
                     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING *
                 """, (
                     user_id,
-                    organization_id,
+                    organisation_id,
                     method_id,
                     input_tokens,
                     output_tokens,
@@ -278,7 +278,7 @@ class TokenTransactionRepository:
             ...     offset=0
             ... )
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT * FROM billing_storage.token_transactions

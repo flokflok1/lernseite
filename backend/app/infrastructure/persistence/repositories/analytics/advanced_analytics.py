@@ -35,7 +35,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         start_date: datetime,
         end_date: datetime,
         user_id: Optional[int] = None,
-        organization_id: Optional[int] = None,
+        organisation_id: Optional[int] = None,
         event_type: Optional[str] = None
     ) -> List[Dict]:
         """
@@ -45,7 +45,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
             start_date: Start of time range
             end_date: End of time range
             user_id: Optional user filter
-            organization_id: Optional organisation filter
+            organisation_id: Optional organisation filter
             event_type: Optional event type filter
 
         Returns:
@@ -64,9 +64,9 @@ class AdvancedAnalyticsRepository(BaseRepository):
             conditions.append("user_id = %s")
             params.append(user_id)
 
-        if organization_id:
-            conditions.append("organization_id = %s")
-            params.append(organization_id)
+        if organisation_id:
+            conditions.append("organisation_id = %s")
+            params.append(organisation_id)
 
         if event_type:
             conditions.append("event_type = %s")
@@ -95,7 +95,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         cls,
         from_date: datetime,
         to_date: datetime,
-        organization_id: Optional[int] = None
+        organisation_id: Optional[int] = None
     ) -> List[Dict]:
         """
         Get events aggregated by day (time series)
@@ -103,7 +103,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         Args:
             from_date: Start date
             to_date: End date
-            organization_id: Optional org filter (None = system-wide)
+            organisation_id: Optional org filter (None = system-wide)
 
         Returns:
             List of dicts with date and count
@@ -112,18 +112,18 @@ class AdvancedAnalyticsRepository(BaseRepository):
             >>> series = AdvancedAnalyticsRepository.get_events_time_series(start, end)
             >>> # [{'date': '2025-01-15', 'count': 245}, ...]
         """
-        if organization_id:
+        if organisation_id:
             query = """
                 SELECT
                     DATE(created_at) as date,
                     COUNT(*) as count
                 FROM analytics_events
                 WHERE created_at BETWEEN %s AND %s
-                  AND organization_id = %s
+                  AND organisation_id = %s
                 GROUP BY DATE(created_at)
                 ORDER BY date ASC
             """
-            params = (from_date, to_date, organization_id)
+            params = (from_date, to_date, organisation_id)
         else:
             query = """
                 SELECT
@@ -143,7 +143,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         cls,
         from_date: datetime,
         to_date: datetime,
-        organization_id: Optional[int] = None
+        organisation_id: Optional[int] = None
     ) -> List[Dict]:
         """
         Get count of unique active users per day (time series)
@@ -151,7 +151,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         Args:
             from_date: Start date
             to_date: End date
-            organization_id: Optional org filter
+            organisation_id: Optional org filter
 
         Returns:
             List of dicts with date and count
@@ -159,18 +159,18 @@ class AdvancedAnalyticsRepository(BaseRepository):
         Example:
             >>> series = AdvancedAnalyticsRepository.get_active_users_time_series(start, end)
         """
-        if organization_id:
+        if organisation_id:
             query = """
                 SELECT
                     DATE(created_at) as date,
                     COUNT(DISTINCT user_id) as count
                 FROM analytics_events
                 WHERE created_at BETWEEN %s AND %s
-                  AND organization_id = %s
+                  AND organisation_id = %s
                 GROUP BY DATE(created_at)
                 ORDER BY date ASC
             """
-            params = (from_date, to_date, organization_id)
+            params = (from_date, to_date, organisation_id)
         else:
             query = """
                 SELECT
@@ -191,7 +191,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         limit: int = 10,
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None,
-        organization_id: Optional[int] = None
+        organisation_id: Optional[int] = None
     ) -> List[Dict]:
         """
         Get top courses by event count with enrollments and completions
@@ -200,7 +200,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
             limit: Number of top courses to return
             from_date: Optional start date
             to_date: Optional end date
-            organization_id: Optional org filter
+            organisation_id: Optional org filter
 
         Returns:
             List of dicts with course data
@@ -215,9 +215,9 @@ class AdvancedAnalyticsRepository(BaseRepository):
             conditions.append("ae.created_at BETWEEN %s AND %s")
             params.extend([from_date, to_date])
 
-        if organization_id:
-            conditions.append("ae.organization_id = %s")
-            params.append(organization_id)
+        if organisation_id:
+            conditions.append("ae.organisation_id = %s")
+            params.append(organisation_id)
 
         where_clause = " AND ".join(conditions)
         params.append(limit)
@@ -301,7 +301,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
     @classmethod
     def get_org_top_courses(
         cls,
-        organization_id: int,
+        organisation_id: int,
         limit: int = 10,
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None
@@ -310,7 +310,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         Get top courses for organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
             limit: Number of top courses
             from_date: Optional start date
             to_date: Optional end date
@@ -321,9 +321,9 @@ class AdvancedAnalyticsRepository(BaseRepository):
         conditions = [
             "ae.resource_type = 'course'",
             "ae.resource_id IS NOT NULL",
-            "ae.organization_id = %s"
+            "ae.organisation_id = %s"
         ]
-        params = [organization_id]
+        params = [organisation_id]
 
         if from_date and to_date:
             conditions.append("ae.created_at BETWEEN %s AND %s")
@@ -350,7 +350,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                      WHERE ce.course_id = CAST(ae.resource_id AS INTEGER)
                        AND ce.completion_percentage = 100
                        AND ce.user_id IN (
-                           SELECT user_id FROM core.users WHERE organization_id = %s
+                           SELECT user_id FROM core.users WHERE organisation_id = %s
                        )),
                     0
                 ) * 100.0 / NULLIF(COUNT(DISTINCT ae.user_id), 0) as completion_rate,
@@ -363,14 +363,14 @@ class AdvancedAnalyticsRepository(BaseRepository):
             LIMIT %s
         """
 
-        # Add organization_id again for completion_rate subquery
-        final_params = [organization_id] + params
+        # Add organisation_id again for completion_rate subquery
+        final_params = [organisation_id] + params
         return fetch_all(query, tuple(final_params))
 
     @classmethod
     def get_org_top_modules(
         cls,
-        organization_id: int,
+        organisation_id: int,
         limit: int = 10,
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None
@@ -379,7 +379,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
         Get top modules for organisation
 
         Args:
-            organization_id: Organisation ID
+            organisation_id: Organisation ID
             limit: Number of top modules
             from_date: Optional start date
             to_date: Optional end date
@@ -391,9 +391,9 @@ class AdvancedAnalyticsRepository(BaseRepository):
             "ae.event_type = 'module_complete'",
             "ae.resource_type = 'module'",
             "ae.resource_id IS NOT NULL",
-            "ae.organization_id = %s"
+            "ae.organisation_id = %s"
         ]
-        params = [organization_id]
+        params = [organisation_id]
 
         if from_date and to_date:
             conditions.append("ae.created_at BETWEEN %s AND %s")

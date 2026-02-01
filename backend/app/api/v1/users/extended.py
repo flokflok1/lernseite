@@ -156,8 +156,8 @@ def search_users():
 
         # Filter by organisation for org admins
         if current_user['role'] in ['school_admin', 'company_admin', 'teacher']:
-            org_id = current_user.get('organization_id')
-            users = [u for u in users if u.get('organization_id') == org_id]
+            org_id = current_user.get('organisation_id')
+            users = [u for u in users if u.get('organisation_id') == org_id]
 
         user_responses = [UserResponse(**user) for user in users]
 

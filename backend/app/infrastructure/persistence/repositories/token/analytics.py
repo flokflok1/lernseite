@@ -14,7 +14,7 @@ from typing import Dict, Any
 from datetime import datetime, timedelta
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from .wallet import TokenWalletRepository
 
 
@@ -62,7 +62,7 @@ class TokenAnalyticsRepository:
         """
         period_start = datetime.now() - timedelta(days=period_days)
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Get or create wallet to ensure we have latest data
                 wallet = TokenWalletRepository.get_or_create_user_wallet(user_id)
@@ -110,7 +110,7 @@ class TokenAnalyticsRepository:
                 }
 
     @classmethod
-    def get_org_token_stats(cls, organization_id: str, period_days: int = 30) -> Dict[str, Any]:
+    def get_org_token_stats(cls, organisation_id: str, period_days: int = 30) -> Dict[str, Any]:
         """
         Get token usage statistics for organisation.
 
@@ -119,12 +119,12 @@ class TokenAnalyticsRepository:
         - Consumption breakdown by transaction reason
 
         Args:
-            organization_id: Organisation UUID
+            organisation_id: Organisation UUID
             period_days: Period for recent statistics (default: 30 days)
 
         Returns:
             Statistics dictionary with keys:
-            - organization_id: The organisation
+            - organisation_id: The organisation
             - current_balance: Current token balance
             - total_tokens_used: Lifetime tokens consumed
             - total_tokens_bought: Lifetime tokens purchased
@@ -142,11 +142,11 @@ class TokenAnalyticsRepository:
         """
         period_start = datetime.now() - timedelta(days=period_days)
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Get or create wallet to ensure we have latest data
                 wallet = TokenWalletRepository.get_or_create_organisation_wallet(
-                    organization_id
+                    organisation_id
                 )
 
                 # Get consumption breakdown by transaction reason
@@ -165,7 +165,7 @@ class TokenAnalyticsRepository:
                 by_reason = {row['reason']: row['total'] for row in cur.fetchall()}
 
                 return {
-                    'organization_id': organization_id,
+                    'organisation_id': organisation_id,
                     'current_balance': wallet['balance'],
                     'total_tokens_used': wallet['total_consumed'],
                     'total_tokens_bought': wallet['total_purchased'],
@@ -200,7 +200,7 @@ class TokenAnalyticsRepository:
             >>> print(f"Total wallets: {stats['total_wallets']}")
             >>> print(f"Total system balance: {stats['total_balance']}")
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT

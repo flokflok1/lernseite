@@ -30,7 +30,7 @@ class LanguageManager:
             return LanguageManager._primary_language
 
         try:
-            query = "SELECT language_code FROM supported_languages WHERE is_primary = TRUE LIMIT 1"
+            query = "SELECT language_code FROM translations.supported_languages WHERE is_primary = TRUE LIMIT 1"
             result = fetch_one(query)
             if result:
                 LanguageManager._primary_language = result['language_code']
@@ -64,7 +64,7 @@ class LanguageManager:
 
         try:
             # Get total keys count
-            key_count_query = "SELECT COUNT(*) as cnt FROM i18n_keys WHERE TRUE"
+            key_count_query = "SELECT COUNT(*) as cnt FROM translations.i18n_keys WHERE TRUE"
             key_count_result = fetch_one(key_count_query)
             total_keys = key_count_result['cnt'] if key_count_result else 0
 
@@ -73,24 +73,24 @@ class LanguageManager:
                     sl.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag_emoji,
-                    COALESCE(sl.is_primary, FALSE) as is_primary,
+                    sl.flag as flag_emoji,
+                    FALSE as is_primary,
                     COALESCE(sl.priority, 100) as priority,
-                    sl.fallback_language,
-                    COALESCE(sl.rtl, FALSE) as rtl,
-                    sl.active,
+                    NULL as fallback_language,
+                    COALESCE(sl.is_rtl, FALSE) as rtl,
+                    sl.is_active as active,
                     %s as total_keys,
                     COALESCE(trans_count.cnt, 0) as translated_keys,
                     CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s) ELSE 0 END as completion_percent,
                     0 as verified_keys,
                     0 as pending_suggestions
-                FROM supported_languages sl
+                FROM translations.supported_languages sl
                 LEFT JOIN (
                     SELECT language_code, COUNT(*) as cnt
-                    FROM i18n_translations
+                    FROM translations.i18n_translations
                     GROUP BY language_code
                 ) trans_count ON sl.language_code = trans_count.language_code
-                WHERE sl.active = TRUE
+                WHERE sl.is_active = TRUE
                 ORDER BY sl.priority, sl.language_name
             """
             result = fetch_all(query, (total_keys, total_keys, total_keys))
@@ -115,7 +115,7 @@ class LanguageManager:
         """
         try:
             # Get total keys count
-            key_count_query = "SELECT COUNT(*) as cnt FROM i18n_keys WHERE TRUE"
+            key_count_query = "SELECT COUNT(*) as cnt FROM translations.i18n_keys WHERE TRUE"
             key_count_result = fetch_one(key_count_query)
             total_keys = key_count_result['cnt'] if key_count_result else 0
 
@@ -124,18 +124,18 @@ class LanguageManager:
                     sl.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag_emoji,
+                    sl.flag as flag_emoji,
                     COALESCE(sl.is_primary, FALSE) as is_primary,
                     COALESCE(sl.priority, 100) as priority,
-                    sl.fallback_language,
-                    sl.active,
+                    NULL as fallback_language,
+                    sl.is_active as active,
                     %s as total_keys,
                     COALESCE(trans_count.cnt, 0) as translated_keys,
                     CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s) ELSE 0 END as completion_percent
-                FROM supported_languages sl
+                FROM translations.supported_languages sl
                 LEFT JOIN (
                     SELECT language_code, COUNT(*) as cnt
-                    FROM i18n_translations
+                    FROM translations.i18n_translations
                     WHERE language_code = %s
                     GROUP BY language_code
                 ) trans_count ON sl.language_code = trans_count.language_code

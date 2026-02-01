@@ -153,14 +153,19 @@ const stopHealthCheck = () => {
 }
 
 // Start health check on mount
-onMounted(() => {
-  const setupCompleted = localStorage.getItem('lsx-setup-completed') === 'true'
+onMounted(async () => {
+  // Wait for app store to check installation status
+  if (appStore.installed === null) {
+    await appStore.checkInstallationStatus()
+  }
 
-  // Only start health check if setup was completed
-  // (No need to check if setup was never done)
-  if (setupCompleted) {
+  // Only start health check if setup was completed (not required)
+  // (No need to check if setup is in progress or required)
+  if (!appStore.setupRequired) {
     console.log('[App] Starting dynamic backend health check (1s when UP, 5s when DOWN)')
     startHealthCheck()
+  } else {
+    console.log('[App] Setup required - skipping backend health check during setup')
   }
 })
 

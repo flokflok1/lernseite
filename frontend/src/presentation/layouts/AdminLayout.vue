@@ -104,8 +104,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/application/stores/auth.store'
 import { useWindowStore } from '@/application/stores/window.store'
-import { DesktopLayer } from '@/presentation/components/layout'
-import { LanguageSelector } from '@/presentation/components/layout/i18n'
+import { DesktopLayer } from '@/presentation/components/shared/layout'
+import { LanguageSelector } from '@/presentation/components/shared/layout/i18n'
 
 // ============================================================================
 // Props
@@ -160,11 +160,11 @@ const menuItems = computed(() => {
   return [
     { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
     { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
-    { path: '/admin/roles', label: t('admin.nav.roles'), icon: '🔐' },
+    { path: '/admin/groups', label: t('admin.nav.groups'), icon: '👥' },
     { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
     { path: '/admin/kurs-editor', label: t('admin.nav.courseEditor'), icon: '📝' },
     { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
-    { path: '/admin/ai-studio', label: t('admin.nav.aiStudio'), icon: '🤖' },
+    { path: '/admin/lm-routing', label: t('admin.nav.lmRouting'), icon: '📚' },
     // TODO: Fix i18n translations system (locales dir issue)
     // { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
     { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },

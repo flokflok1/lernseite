@@ -173,7 +173,7 @@ class AuditService:
             # Insert audit log
             result = execute_query(
                 """
-                INSERT INTO audit_logs (
+                INSERT INTO core.audit_logs (
                     event_type, event_category, severity,
                     user_id, user_email, user_role,
                     session_id, ip_address, user_agent,

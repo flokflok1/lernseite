@@ -24,6 +24,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
 from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)
@@ -231,6 +232,135 @@ def get_learning_method_by_type(method_type: int) -> Tuple[Dict[str, Any], int]:
             'error': {
                 'code': 'FETCH_ERROR',
                 'message': 'Failed to load learning method'
+            }
+        }), 500
+
+
+@catalog_bp.route('/groups', methods=['GET'])
+def get_learning_method_groups() -> Tuple[Dict[str, Any], int]:
+    """
+    Get all Learning Method Groups with tier information.
+
+    Public endpoint - no authentication required.
+    Returns all group codes (A, B, C, ...) with metadata.
+
+    This endpoint serves as the single source of truth for:
+    - Group code (A, B, C, ...)
+    - Group name (Erklärend, Praxis, Prüfung, ...)
+    - Group description
+    - Group icon/emoji
+    - Group tier level (basic, premium, enterprise)
+    - Group sort order
+    - Group active status
+
+    Query Parameters:
+        - cache: Use cached result (default: true)
+
+    Response Format:
+    {
+        "success": true,
+        "data": [
+            {
+                "group_code": "A",
+                "name": "Erklärend",
+                "description": "Explanatory methods for building understanding",
+                "icon": "📖",
+                "tier": "basic",
+                "sort_order": 0,
+                "is_active": true
+            },
+            {
+                "group_code": "B",
+                "name": "Praxis",
+                "description": "Practical methods for exercise and application",
+                "icon": "✏️",
+                "tier": "basic",
+                "sort_order": 1,
+                "is_active": true
+            },
+            {
+                "group_code": "C",
+                "name": "Prüfung",
+                "description": "Assessment methods for evaluating competency",
+                "icon": "📝",
+                "tier": "premium",
+                "sort_order": 2,
+                "is_active": true
+            }
+        ],
+        "total": 3,
+        "timestamp": "2026-01-21T12:34:56.789Z"
+    }
+
+    Returns:
+        Tuple of (response_dict, status_code)
+
+    Status Codes:
+        200: Success - groups returned
+        500: Server error
+
+    Examples:
+        GET /api/v1/learning-methods/groups
+        -> Returns all 3 groups (A, B, C) with tier information
+
+        GET /api/v1/learning-methods/groups?cache=false
+        -> Bypass cache and get fresh data from database
+
+    Note:
+        This endpoint DOES NOT require authentication.
+        All group data is public and cached for performance.
+        Frontend uses this to determine tier levels for UI rendering.
+    """
+    try:
+        # Check cache preference
+        use_cache = request.args.get('cache', 'true').lower() != 'false'
+
+        # Get all active groups from repository
+        groups = LearningMethodGroupRepository.find_all()
+
+        if not groups:
+            logger.warning("No learning method groups found in database")
+            return jsonify({
+                'success': True,
+                'data': [],
+                'total': 0,
+                'timestamp': request.headers.get('X-Timestamp', '')
+            }), 200
+
+        # Format response: convert Row objects to dicts
+        groups_data = []
+        for group in groups:
+            # Handle both dict and Row objects
+            if isinstance(group, dict):
+                group_dict = group
+            else:
+                # Row object - convert to dict
+                group_dict = dict(group) if hasattr(group, '__iter__') else group.__dict__
+
+            groups_data.append({
+                'group_code': group_dict.get('group_code'),
+                'name': group_dict.get('name'),
+                'description': group_dict.get('description'),
+                'icon': group_dict.get('icon'),
+                'tier': group_dict.get('tier'),
+                'sort_order': group_dict.get('sort_order'),
+                'is_active': group_dict.get('is_active', True)
+            })
+
+        return jsonify({
+            'success': True,
+            'data': groups_data,
+            'total': len(groups_data),
+            'timestamp': request.headers.get('X-Timestamp', '')
+        }), 200
+
+    except Exception as e:
+        logger.exception(f"Error fetching learning method groups: {e}")
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'GROUPS_ERROR',
+                'message': 'Failed to load learning method groups'
             }
         }), 500
 

@@ -283,7 +283,7 @@ def organisation_member_required(fn: Callable) -> Callable:
         @organisation_member_required
         def org_courses():
             user = get_current_user()
-            org_id = user['organization_id']
+            org_id = user['organisation_id']
             return jsonify({'org_id': org_id})
 
     Returns:
@@ -295,7 +295,7 @@ def organisation_member_required(fn: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         user = g.current_user
 
-        if not user.get('organization_id'):
+        if not user.get('organisation_id'):
             return error_response(
                 ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
                 status=403,
@@ -378,8 +378,8 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
     # (can manage users in their org with manage_users permission)
     if PermissionService.check_permission(current_user, 'users.manage'):
         same_org = (
-            current_user.get('organization_id') ==
-            target_user.get('organization_id')
+            current_user.get('organisation_id') ==
+            target_user.get('organisation_id')
         )
         # Can manage users who don't have system admin permission
         can_manage_target = not PermissionService.check_permission(
@@ -392,8 +392,8 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
     # (can manage students in their org with students.manage permission)
     if PermissionService.check_permission(current_user, 'students.manage'):
         same_org = (
-            current_user.get('organization_id') ==
-            target_user.get('organization_id')
+            current_user.get('organisation_id') ==
+            target_user.get('organisation_id')
         )
         # Can manage users who don't have admin permissions
         is_admin = PermissionService.check_permission(
@@ -446,14 +446,14 @@ def get_accessible_groups(current_user: dict) -> List[dict]:
 
     # Organisation admins can assign non-admin groups in their org
     if PermissionService.check_permission(current_user, 'users.manage'):
-        org_id = current_user.get('organization_id')
+        org_id = current_user.get('organisation_id')
         if org_id:
             try:
                 result = execute_query(
                     """
                     SELECT id, name, slug, group_type, frontend_role
                     FROM core.groups
-                    WHERE organization_id = %s
+                    WHERE organisation_id = %s
                         AND group_type != 'role'
                         AND deleted_at IS NULL
                     ORDER BY name ASC

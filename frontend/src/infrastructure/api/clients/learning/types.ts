@@ -428,3 +428,25 @@ export interface LMGroupInfo {
 }
 
 export type LMGroupsResponse = Record<string, LMGroupInfo>
+
+// ============================================================================
+// LM Groups API Types (Database-Driven) - NEW
+// ============================================================================
+// These types replace the hardcoded getLMGroupName() and getLMGroupIcon() helpers
+// and provide tier information directly from the database.
+
+export interface LMGroupAPIInfo {
+  group_code: string
+  name: string
+  description: string
+  icon: string
+  tier: 'basic' | 'premium' | 'enterprise'
+  sort_order: number
+  is_active: boolean
+}
+
+export interface LMGroupsAPIResponse {
+  success: boolean
+  data: LMGroupAPIInfo[]
+  total: number
+}

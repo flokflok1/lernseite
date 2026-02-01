@@ -20,7 +20,7 @@ class APIGateway:
     """
     Central API Gateway Router for LernsystemX.
 
-    Manages route registration, segmentation, and organization.
+    Manages route registration, segmentation, and organisation.
     """
 
     def __init__(self, app: Flask = None):
@@ -141,6 +141,7 @@ class APIGateway:
                 '/health/ready',
                 '/health/live',
                 '/metrics',
+                '/setup/*',  # Setup Wizard - exempt from rate limiting
             ],
         }
 
@@ -164,7 +165,7 @@ class APIGateway:
             return 'auth'
         elif path.startswith('/api/v1'):
             return 'app'
-        elif path.startswith('/health') or path == '/metrics':
+        elif path.startswith('/health') or path == '/metrics' or path.startswith('/setup'):
             return 'health'
         else:
             return 'unknown'

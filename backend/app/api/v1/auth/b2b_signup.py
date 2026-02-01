@@ -109,8 +109,8 @@ class B2BSignupResponseSchema(BaseModel):
     message: str
 
     # Organization
-    organization_id: str
-    organization_name: str
+    organisation_id: str
+    organisation_name: str
 
     # Owner User
     owner_user_id: str
@@ -143,8 +143,8 @@ def create_b2b_account() -> Tuple[Dict, int]:
 
     This endpoint implements the complete flow:
     1. Validate request data
-    2. Check for conflicts (email, organization)
-    3. Create organization
+    2. Check for conflicts (email, organisation)
+    3. Create organisation
     4. Create owner user
     5. Create owner group and assign user (NEW)
     6. Assign admin permissions (NEW)
@@ -166,15 +166,15 @@ def create_b2b_account() -> Tuple[Dict, int]:
     Returns:
         201 Created: Account created successfully with owner group
         400 Bad Request: Validation error
-        409 Conflict: Email or organization already exists
+        409 Conflict: Email or organisation already exists
         500 Internal Server Error: Database or system error
 
     Success Response:
         {
             "success": true,
             "message": "B2B account created successfully",
-            "organization_id": "...",
-            "organization_name": "...",
+            "organisation_id": "...",
+            "organisation_name": "...",
             "owner_user_id": "...",
             "owner_email": "...",
             "owner_group_id": "...",
@@ -220,13 +220,13 @@ def create_b2b_account() -> Tuple[Dict, int]:
                 )
                 raise ConflictError(f"Email {data.owner_email} is already registered")
 
-            # Check organization name not in use (optional - depends on business logic)
+            # Check organisation name not in use (optional - depends on business logic)
             org_repo = OrganizationRepository(conn)
             existing_org = org_repo.find_by_name(data.company_name)
 
             if existing_org:
                 logger.warning(
-                    f"B2B signup failed: organization name in use",
+                    f"B2B signup failed: organisation name in use",
                     extra={'company_name': data.company_name}
                 )
                 raise ConflictError(f"Organization name {data.company_name} is already taken")
@@ -237,8 +237,8 @@ def create_b2b_account() -> Tuple[Dict, int]:
         with get_db_connection() as conn:
             org_repo = OrganizationRepository(conn)
 
-            organization = org_repo.create({
-                'organization_id': org_id,
+            organisation = org_repo.create({
+                'organisation_id': org_id,
                 'name': data.company_name,
                 'email': data.company_email or data.owner_email,
                 'type': 'b2b_customer',
@@ -252,12 +252,12 @@ def create_b2b_account() -> Tuple[Dict, int]:
                 }
             })
 
-            if not organization:
-                raise InternalServerError("Failed to create organization")
+            if not organisation:
+                raise InternalServerError("Failed to create organisation")
 
         logger.info(
             f"Organization created for B2B signup",
-            extra={'organization_id': org_id, 'company_name': data.company_name}
+            extra={'organisation_id': org_id, 'company_name': data.company_name}
         )
 
         # ====== STEP 4: Create Owner User ======
@@ -284,8 +284,8 @@ def create_b2b_account() -> Tuple[Dict, int]:
                 raise InternalServerError("Failed to create owner user")
 
         logger.info(
-            f"Owner user created for B2B organization",
-            extra={'user_id': user_id, 'organization_id': org_id, 'email': data.owner_email}
+            f"Owner user created for B2B organisation",
+            extra={'user_id': user_id, 'organisation_id': org_id, 'email': data.owner_email}
         )
 
         # ====== STEP 5: Create Owner Group (NEW!) ======
@@ -295,15 +295,15 @@ def create_b2b_account() -> Tuple[Dict, int]:
         owner_group = None
         try:
             owner_group = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id,
                 created_by='system'  # System operation, not a specific user
             )
 
             if not owner_group:
                 logger.error(
-                    f"Failed to create owner group for B2B organization",
-                    extra={'organization_id': org_id, 'user_id': user_id}
+                    f"Failed to create owner group for B2B organisation",
+                    extra={'organisation_id': org_id, 'user_id': user_id}
                 )
                 # Continue - non-critical issue, owner can be added manually later
                 owner_group = {'id': None, 'name': 'Owner'}
@@ -311,7 +311,7 @@ def create_b2b_account() -> Tuple[Dict, int]:
                 logger.info(
                     f"Owner group created and user assigned",
                     extra={
-                        'organization_id': org_id,
+                        'organisation_id': org_id,
                         'group_id': owner_group['id'],
                         'user_id': user_id
                     }
@@ -320,7 +320,7 @@ def create_b2b_account() -> Tuple[Dict, int]:
         except ValueError as e:
             logger.error(
                 f"Validation error creating owner group: {str(e)}",
-                extra={'organization_id': org_id, 'user_id': user_id}
+                extra={'organisation_id': org_id, 'user_id': user_id}
             )
             # Continue - owner can be manually assigned permissions
             owner_group = {'id': None, 'name': 'Owner'}
@@ -328,7 +328,7 @@ def create_b2b_account() -> Tuple[Dict, int]:
         except Exception as e:
             logger.error(
                 f"Unexpected error creating owner group: {str(e)}",
-                extra={'organization_id': org_id, 'user_id': user_id}
+                extra={'organisation_id': org_id, 'user_id': user_id}
             )
             # Continue - owner can be manually assigned permissions
             owner_group = {'id': None, 'name': 'Owner'}
@@ -349,7 +349,7 @@ def create_b2b_account() -> Tuple[Dict, int]:
 
         # ====== STEP 7: Log Action for Audit Trail ======
         with get_db_connection() as conn:
-            # Log organization creation
+            # Log organisation creation
             conn.execute(
                 """
                 INSERT INTO core.audit_logs (user_id, action, resource_type, resource_id,
@@ -359,9 +359,9 @@ def create_b2b_account() -> Tuple[Dict, int]:
                 (
                     user_id,
                     'org.created',
-                    'organization',
+                    'organisation',
                     org_id,
-                    f'B2B organization created: {data.company_name}',
+                    f'B2B organisation created: {data.company_name}',
                     {'plan': data.plan, 'type': 'b2b_customer'},
                     datetime.utcnow()
                 )
@@ -379,8 +379,8 @@ def create_b2b_account() -> Tuple[Dict, int]:
                     'user.created',
                     'user',
                     user_id,
-                    f'B2B organization owner created: {data.owner_email}',
-                    {'organization_id': org_id, 'role': 'owner'},
+                    f'B2B organisation owner created: {data.owner_email}',
+                    {'organisation_id': org_id, 'role': 'owner'},
                     datetime.utcnow()
                 )
             )
@@ -390,7 +390,7 @@ def create_b2b_account() -> Tuple[Dict, int]:
         logger.info(
             f"B2B signup completed successfully",
             extra={
-                'organization_id': org_id,
+                'organisation_id': org_id,
                 'user_id': user_id,
                 'owner_group_id': owner_group.get('id') if owner_group else None
             }
@@ -400,8 +400,8 @@ def create_b2b_account() -> Tuple[Dict, int]:
         response = B2BSignupResponseSchema(
             success=True,
             message="B2B account created successfully. Owner group has been automatically created.",
-            organization_id=org_id,
-            organization_name=data.company_name,
+            organisation_id=org_id,
+            organisation_name=data.company_name,
             owner_user_id=user_id,
             owner_email=data.owner_email,
             owner_group_id=owner_group.get('id') if owner_group else None,

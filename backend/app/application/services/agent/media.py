@@ -28,7 +28,7 @@ class MediaOperations:
         question: str,
         context: Optional[Dict[str, Any]] = None,
         language: str = 'de',
-        organization_id: Optional[str] = None,
+        organisation_id: Optional[str] = None,
         voice: str = 'nova',
         speech_speed: float = 1.0,
         ask_func=None  # Injected ask() function to avoid circular imports
@@ -45,7 +45,7 @@ class MediaOperations:
             question: User's question
             context: Optional context
             language: Response language
-            organization_id: Optional org UUID
+            organisation_id: Optional org UUID
             voice: TTS voice (nova, alloy, echo, fable, onyx, shimmer)
             speech_speed: Speech speed (0.25-4.0)
             ask_func: Injected ask() function
@@ -84,7 +84,7 @@ class MediaOperations:
             question=question,
             context=context,
             language=language,
-            organization_id=organization_id
+            organisation_id=organisation_id
         )
 
         # If error or no answer, return without audio

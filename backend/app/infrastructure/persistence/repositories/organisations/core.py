@@ -28,7 +28,7 @@ class OrganisationRepository(BaseRepository):
     Implements all organisation operations following the repository pattern.
     """
 
-    table_name = 'organisations.organizations'
+    table_name = 'organisations.organisations'
     pk_column = 'org_id'
 
     @classmethod
@@ -352,13 +352,13 @@ class OrganisationRepository(BaseRepository):
         # Class statistics (for schools)
         class_count_query = """
             SELECT COUNT(*) as total_classes
-            FROM organisations.organization_classes
+            FROM organisations.organisation_classes
             WHERE org_id = %s
         """
         class_result = fetch_one(class_count_query, (org_id,))
         stats['total_classes'] = class_result['total_classes'] if class_result else 0
 
-        # Token wallet info (from organisations.organizations table)
+        # Token wallet info (from organisations.organisations table)
         org = cls.get_organisation_by_id(org_id)
         if org:
             stats['token_wallet'] = {
@@ -586,7 +586,7 @@ class OrganisationRepository(BaseRepository):
 
         # Update token_used
         query = """
-            UPDATE organisations.organizations
+            UPDATE organisations.organisations
             SET token_used = token_used + %s, updated_at = %s
             WHERE org_id = %s
         """
@@ -609,7 +609,7 @@ class OrganisationRepository(BaseRepository):
             >>> org = OrganisationRepository.add_tokens(5, 50000)
         """
         query = """
-            UPDATE organisations.organizations
+            UPDATE organisations.organisations
             SET token_pool = token_pool + %s, updated_at = %s
             WHERE org_id = %s
             RETURNING *

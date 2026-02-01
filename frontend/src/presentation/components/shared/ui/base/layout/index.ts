@@ -6,7 +6,7 @@
  * have been moved to @/components/workspace
  */
 
-export { default as Footer } from '../../../../base/layout/Footer.vue'
-export { default as MiniPreview } from '../../../../base/layout/MiniPreview.vue'
-export { default as ProtectedContent } from '../../../../base/layout/ProtectedContent.vue'
-export { default as AdSlot } from '../../../../base/layout/ads/AdSlot.vue'
+export { default as Footer } from '../../../../shared/ui/layout/Footer.vue'
+export { default as MiniPreview } from '../../../../shared/ui/layout/MiniPreview.vue'
+export { default as ProtectedContent } from '../../../../shared/ui/layout/ProtectedContent.vue'
+export { default as AdSlot } from '../../../../shared/ui/layout/ads/AdSlot.vue'

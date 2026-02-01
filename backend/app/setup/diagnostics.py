@@ -57,7 +57,7 @@ class SystemDiagnostics:
             DiagnosticCheckResult with connection status
         """
         try:
-            from app.core.bootstrap.extensions import db_pool
+            from app.core.bootstrap import extensions
 
             if db_pool is None:
                 return DiagnosticCheckResult(
@@ -69,7 +69,7 @@ class SystemDiagnostics:
                 )
 
             # Test connection
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("SELECT version();")
                     version = cur.fetchone()[0]

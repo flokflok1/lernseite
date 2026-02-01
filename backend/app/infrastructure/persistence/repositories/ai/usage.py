@@ -28,7 +28,7 @@ class AIUsageRepository:
         cls,
         period: str = 'month',
         user_id: Optional[str] = None,
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Get AI usage statistics for a given period.
@@ -36,7 +36,7 @@ class AIUsageRepository:
         Args:
             period: Time period ('day', 'week', 'month', 'year')
             user_id: Filter by user ID (optional)
-            organization_id: Filter by organization ID (optional)
+            organisation_id: Filter by organisation ID (optional)
 
         Returns:
             Dict with usage statistics:
@@ -68,9 +68,9 @@ class AIUsageRepository:
             where_clauses.append("k.user_id = %s")
             params.append(user_id)
 
-        if organization_id:
-            where_clauses.append("k.organization_id = %s")
-            params.append(organization_id)
+        if organisation_id:
+            where_clauses.append("k.organisation_id = %s")
+            params.append(organisation_id)
 
         where_sql = " AND ".join(where_clauses)
 
@@ -164,7 +164,7 @@ class AIUsageRepository:
         cls,
         days: int = 30,
         user_id: Optional[str] = None,
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get daily usage statistics for the last N days.
@@ -172,7 +172,7 @@ class AIUsageRepository:
         Args:
             days: Number of days to retrieve (default: 30)
             user_id: Filter by user ID (optional)
-            organization_id: Filter by organization ID (optional)
+            organisation_id: Filter by organisation ID (optional)
 
         Returns:
             List of daily usage stats
@@ -184,9 +184,9 @@ class AIUsageRepository:
             where_clauses.append("user_id = %s")
             params.append(user_id)
 
-        if organization_id:
-            where_clauses.append("organization_id = %s")
-            params.append(organization_id)
+        if organisation_id:
+            where_clauses.append("organisation_id = %s")
+            params.append(organisation_id)
 
         where_sql = " AND ".join(where_clauses)
 
@@ -219,7 +219,7 @@ class AIUsageRepository:
         cls,
         period_days: int = 30,
         limit: int = 10,
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get top users by AI usage.
@@ -227,7 +227,7 @@ class AIUsageRepository:
         Args:
             period_days: Period in days
             limit: Number of top users to return
-            organization_id: Filter by organization (optional)
+            organisation_id: Filter by organisation (optional)
 
         Returns:
             List of top users with usage stats
@@ -235,9 +235,9 @@ class AIUsageRepository:
         where_clauses = ["k.created_at >= CURRENT_DATE - INTERVAL '%s days'"]
         params = [period_days]
 
-        if organization_id:
-            where_clauses.append("k.organization_id = %s")
-            params.append(organization_id)
+        if organisation_id:
+            where_clauses.append("k.organisation_id = %s")
+            params.append(organisation_id)
 
         where_sql = " AND ".join(where_clauses)
         params.append(limit)

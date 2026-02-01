@@ -1,2 +1,2 @@
 export * from './dialogs'
-export { default as CategoryTreeNode } from '../../../../../../base/content/admin/categories/CategoryTreeNode.vue'
+export { default as CategoryTreeNode } from '../../../../../../shared/ui/content/admin/categories/CategoryTreeNode.vue'

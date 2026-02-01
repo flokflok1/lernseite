@@ -1,7 +1,7 @@
 """
 Agent Organization Extensions Repository
 
-Database access for organization-specific agent customizations:
+Database access for organisation-specific agent customizations:
 - Organization-level agent configuration overrides
 - Custom personas, languages, and terminology per org
 - Context merging for effective agent configuration
@@ -16,7 +16,7 @@ from app.infrastructure.persistence.repositories.base_repository import BaseRepo
 
 class AgentExtensionRepository(BaseRepository):
     """
-    Repository for organization-specific agent extensions
+    Repository for organisation-specific agent extensions
 
     Tables:
     - agent_org_extensions: Organization customizations for agents
@@ -25,14 +25,14 @@ class AgentExtensionRepository(BaseRepository):
     @staticmethod
     def get_org_extension(
         agent_id: str,
-        organization_id: str
+        organisation_id: str
     ) -> Optional[Dict[str, Any]]:
         """
-        Get organization-specific agent extension
+        Get organisation-specific agent extension
 
         Args:
             agent_id: Agent UUID
-            organization_id: Organization UUID
+            organisation_id: Organization UUID
 
         Returns:
             Extension data or None if not found
@@ -41,7 +41,7 @@ class AgentExtensionRepository(BaseRepository):
             SELECT
                 extension_id,
                 agent_id,
-                organization_id,
+                organisation_id,
                 custom_persona,
                 custom_language,
                 custom_terminology,
@@ -52,22 +52,22 @@ class AgentExtensionRepository(BaseRepository):
                 created_at,
                 updated_at
             FROM agent_org_extensions
-            WHERE agent_id = %s AND organization_id = %s
+            WHERE agent_id = %s AND organisation_id = %s
         """
-        return AgentExtensionRepository.fetch_one(query, (agent_id, organization_id))
+        return AgentExtensionRepository.fetch_one(query, (agent_id, organisation_id))
 
     @staticmethod
     def create_org_extension(
         agent_id: str,
-        organization_id: str,
+        organisation_id: str,
         **kwargs
     ) -> Dict[str, Any]:
         """
-        Create organization-specific agent extension
+        Create organisation-specific agent extension
 
         Args:
             agent_id: Agent UUID
-            organization_id: Organization UUID
+            organisation_id: Organization UUID
             **kwargs: Extension settings including:
                 - custom_persona: Organization-specific agent persona
                 - custom_language: Default language for org
@@ -82,7 +82,7 @@ class AgentExtensionRepository(BaseRepository):
         query = """
             INSERT INTO agent_org_extensions (
                 agent_id,
-                organization_id,
+                organisation_id,
                 custom_persona,
                 custom_language,
                 custom_terminology,
@@ -96,7 +96,7 @@ class AgentExtensionRepository(BaseRepository):
         """
         return AgentExtensionRepository.fetch_one(query, (
             agent_id,
-            organization_id,
+            organisation_id,
             kwargs.get('custom_persona'),
             kwargs.get('custom_language'),
             json.dumps(kwargs.get('custom_terminology', {})),
@@ -111,7 +111,7 @@ class AgentExtensionRepository(BaseRepository):
         **kwargs
     ) -> Optional[Dict[str, Any]]:
         """
-        Update organization extension
+        Update organisation extension
 
         Args:
             extension_id: Extension UUID
@@ -150,21 +150,21 @@ class AgentExtensionRepository(BaseRepository):
     @staticmethod
     def get_effective_agent_config(
         base_agent: Dict[str, Any],
-        organization_id: Optional[str] = None
+        organisation_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Get effective agent configuration, merging base + org extension
 
-        Combines base agent configuration with organization-specific
+        Combines base agent configuration with organisation-specific
         overrides to produce the final configuration used for a course
-        within an organization context.
+        within an organisation context.
 
         Args:
             base_agent: Base agent configuration dict
-            organization_id: Optional organization UUID for merging extensions
+            organisation_id: Optional organisation UUID for merging extensions
 
         Returns:
-            Merged agent configuration with organization overrides applied
+            Merged agent configuration with organisation overrides applied
         """
         config = {
             'agent_id': base_agent['agent_id'],
@@ -181,11 +181,11 @@ class AgentExtensionRepository(BaseRepository):
             'blocked_topics': []
         }
 
-        # Merge organization extension if available
-        if organization_id:
+        # Merge organisation extension if available
+        if organisation_id:
             ext = AgentExtensionRepository.get_org_extension(
                 base_agent['agent_id'],
-                organization_id
+                organisation_id
             )
             if ext and ext.get('enabled', True):
                 if ext.get('custom_persona'):

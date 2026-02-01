@@ -13,7 +13,7 @@ from typing import Dict, Any, List
 from datetime import datetime, timedelta
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 
 
 class SubscriptionAnalyticsRepository:
@@ -46,7 +46,7 @@ class SubscriptionAnalyticsRepository:
             - mrr: Monthly recurring revenue
             - arr: Annual recurring revenue
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Total counts
                 cur.execute("""
@@ -118,12 +118,12 @@ class SubscriptionAnalyticsRepository:
 
         Returns:
             List of expiring subscription dictionaries with:
-            - subscription_id, user_id, organization_id
+            - subscription_id, user_id, organisation_id
             - status, billing_cycle, expires_at
             - plan_name, monthly_price_eur
             - auto_renew flag
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 expires_before = datetime.now() + timedelta(days=days)
 

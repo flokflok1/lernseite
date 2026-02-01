@@ -223,7 +223,7 @@ def validate_ownership_xor(
     """
     Validate XOR (exclusive OR) constraint: either field_a or field_b must be set, but not both.
 
-    Used for ownership fields like (user_id OR organization_id, but not both).
+    Used for ownership fields like (user_id OR organisation_id, but not both).
 
     Args:
         obj: Dictionary containing the field values

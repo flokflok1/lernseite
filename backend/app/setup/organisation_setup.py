@@ -71,7 +71,7 @@ class OrganisationSetup:
         # Check domain uniqueness
         if domain:
             existing = fetch_one(
-                "SELECT organization_id FROM organisations.organisations WHERE domain = %s",
+                "SELECT organisation_id FROM organisations.organisations WHERE domain = %s",
                 (domain,)
             )
             if existing:
@@ -101,11 +101,11 @@ class OrganisationSetup:
             raise RuntimeError("Failed to create organisation")
 
         # Create default settings
-        cls._create_default_settings(org['organization_id'], org_type, settings)
+        cls._create_default_settings(org['organisation_id'], org_type, settings)
 
         # Create token pool for schools and companies
         if org_type in ['school', 'company']:
-            cls._create_token_pool(org['organization_id'])
+            cls._create_token_pool(org['organisation_id'])
 
         return org
 
@@ -229,11 +229,11 @@ class OrganisationSetup:
             Token pools are used for schools and companies
             to allocate AI tokens to their users.
         """
-        # Create organization-level token wallet
+        # Create organisation-level token wallet
         execute_query(
             """
             INSERT INTO token_wallets (
-                user_id, organization_id, balance, total_granted,
+                user_id, organisation_id, balance, total_granted,
                 total_purchased, total_consumed, created_at
             )
             VALUES (NULL, %s, %s, %s, 0, 0, NOW())
@@ -257,7 +257,7 @@ class OrganisationSetup:
             >>> org = OrganisationSetup.get_organisation(1)
         """
         return fetch_one(
-            "SELECT * FROM organisations.organisations WHERE organization_id = %s",
+            "SELECT * FROM organisations.organisations WHERE organisation_id = %s",
             (organisation_id,)
         )
 
@@ -334,7 +334,7 @@ class OrganisationSetup:
             """
             UPDATE organisations.organisations
             SET logo_url = %s, updated_at = NOW()
-            WHERE organization_id = %s
+            WHERE organisation_id = %s
             """,
             (logo_url, organisation_id)
         )
@@ -356,7 +356,7 @@ class OrganisationSetup:
             >>> OrganisationSetup.activate_organisation(5)
         """
         execute_query(
-            "UPDATE organisations.organisations SET status = 'active' WHERE organization_id = %s",
+            "UPDATE organisations.organisations SET status = 'active' WHERE organisation_id = %s",
             (organisation_id,)
         )
         return True
@@ -376,7 +376,7 @@ class OrganisationSetup:
             >>> OrganisationSetup.deactivate_organisation(5)
         """
         execute_query(
-            "UPDATE organisations.organisations SET status = 'inactive' WHERE organization_id = %s",
+            "UPDATE organisations.organisations SET status = 'inactive' WHERE organisation_id = %s",
             (organisation_id,)
         )
         return True

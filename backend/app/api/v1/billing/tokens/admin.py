@@ -44,7 +44,7 @@ def manual_topup():
 
     Request Body:
         {
-            "user_id": 42,  // OR "organization_id": 10
+            "user_id": 42,  // OR "organisation_id": 10
             "amount": 5000,  // Positive = grant, negative = deduct
             "reason": "Support compensation for service outage"
         }
@@ -77,9 +77,9 @@ def manual_topup():
 
         else:
             # Organisation wallet
-            wallet = TokenRepository.get_or_create_organisation_wallet(topup_request.organization_id)
+            wallet = TokenRepository.get_or_create_organisation_wallet(topup_request.organisation_id)
             target_type = 'organisation'
-            target_id = topup_request.organization_id
+            target_id = topup_request.organisation_id
 
         # Change balance
         transaction = TokenRepository.change_balance(

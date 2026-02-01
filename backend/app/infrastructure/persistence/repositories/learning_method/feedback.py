@@ -12,7 +12,7 @@ Feedback data used for quality analysis and continuous improvement.
 from typing import Dict, Any, Optional, List
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 
 
 class LearningMethodFeedbackRepository:
@@ -53,7 +53,7 @@ class LearningMethodFeedbackRepository:
         Raises:
             ValueError: If execution not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Get method_id from execution
                 cur.execute("""
@@ -100,7 +100,7 @@ class LearningMethodFeedbackRepository:
         Returns:
             List of feedback records with user info
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT
@@ -135,7 +135,7 @@ class LearningMethodFeedbackRepository:
                 'rating_distribution': {1: count, 2: count, ...}
             }
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Build query parts
                 where_clause = "WHERE method_id = %s" if method_id else ""

@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 
 
 class LearningMethodStatisticsRepository:
@@ -50,7 +50,7 @@ class LearningMethodStatisticsRepository:
         """
         period_start = datetime.now() - timedelta(days=period_days)
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Get total stats
                 cur.execute("""
@@ -135,7 +135,7 @@ class LearningMethodStatisticsRepository:
         Returns:
             List of execution records with method info
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 if method_id:
                     cur.execute("""
@@ -206,7 +206,7 @@ class LearningMethodStatisticsRepository:
         Returns:
             True if deleted, False if not found or not owned
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
                     DELETE FROM learning_method_executions
@@ -235,7 +235,7 @@ class LearningMethodStatisticsRepository:
                 'total_cost_eur': float
             }
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 # Get method counts
                 cur.execute("""

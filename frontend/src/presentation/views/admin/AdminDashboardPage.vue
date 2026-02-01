@@ -182,8 +182,8 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { adminGetUserStats, adminGetCourseStats, adminGetSystemStatsData } from '@/application/services/api/admin'
 import type { UserStatsData, CourseStatsData, SystemStatsData } from '@/application/services/api/admin'
-import StatsCard from '@/presentation/components/base/system/shared/StatsCard.vue'
-import SystemStatus from '@/presentation/components/base/system/admin/SystemStatus.vue'
+import StatsCard from '@/presentation/components/shared/ui/system/shared/StatsCard.vue'
+import SystemStatus from '@/presentation/components/shared/ui/system/admin/SystemStatus.vue'
 
 // ============================================================================
 // State

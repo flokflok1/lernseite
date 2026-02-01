@@ -53,7 +53,7 @@ class CoursePromptRepository(
     Unified Repository for course_prompts table operations.
 
     Combines CRUD, deletion, and statistics operations.
-    Inherits from multiple repositories for better code organization.
+    Inherits from multiple repositories for better code organisation.
 
     Example:
         prompt = CoursePromptRepository.find_by_id("prompt-uuid")

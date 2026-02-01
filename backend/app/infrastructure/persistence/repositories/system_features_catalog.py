@@ -23,7 +23,7 @@ from psycopg.rows import dict_row
 import json
 import logging
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.infrastructure.cache.service import CacheService
 from flask import current_app
 
@@ -50,7 +50,7 @@ class SystemFeaturesCatalogRepository:
             Dictionary with:
             - features: List of all system features with full metadata and schemas
             - total: Count (always 25 or less depending on seeded data)
-            - categories: Grouped metadata for UI organization
+            - categories: Grouped metadata for UI organisation
 
         Example:
             >>> catalog = SystemFeaturesCatalogRepository.get_full_catalog()
@@ -79,7 +79,7 @@ class SystemFeaturesCatalogRepository:
             Catalog dictionary or None if query fails
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor(row_factory=dict_row) as cur:
                     # Fetch all system features with schemas
                     cur.execute("""
@@ -209,7 +209,7 @@ class SystemFeaturesCatalogRepository:
             Feature dictionary or None if not found
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor(row_factory=dict_row) as cur:
                     cur.execute("""
                         SELECT
@@ -315,7 +315,7 @@ class SystemFeaturesCatalogRepository:
             List of features in category or None if query fails
         """
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor(row_factory=dict_row) as cur:
                     cur.execute("""
                         SELECT

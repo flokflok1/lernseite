@@ -1,2 +1,2 @@
-export { default as ChapterManager } from '../../../../../../base/content/admin/chapters/ChapterManager.vue'
-export { default as ChapterPreview } from '../../../../../../base/content/admin/chapters/ChapterPreview.vue'
+export { default as ChapterManager } from '../../../../../../shared/ui/content/admin/chapters/ChapterManager.vue'
+export { default as ChapterPreview } from '../../../../../../shared/ui/content/admin/chapters/ChapterPreview.vue'

@@ -13,7 +13,7 @@ Uses psycopg connection pooling with explicit transaction management.
 from typing import Optional
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from .wallet import TokenWalletRepository
 from .transactions import TokenTransactionRepository
 
@@ -64,7 +64,7 @@ class TokenAdminRepository:
         if amount <= 0:
             raise ValueError("Amount must be positive")
 
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 try:
                     # Get or create wallet for user

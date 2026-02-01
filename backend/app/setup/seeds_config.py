@@ -380,7 +380,7 @@ class SeedDataConfig:
         """
         # Check if categories already exist
         if skip_existing:
-            existing = fetch_one("SELECT COUNT(*) FROM course_categories")
+            existing = fetch_one("SELECT COUNT(*) FROM courses.course_categories")
             if existing and existing['count'] > 0:
                 return 0
 
@@ -456,7 +456,7 @@ class SeedDataConfig:
             try:
                 result = execute_query(
                     """
-                    INSERT INTO course_categories (
+                    INSERT INTO courses.course_categories (
                         category_name, description, icon, color, display_order,
                         is_active, created_at
                     )

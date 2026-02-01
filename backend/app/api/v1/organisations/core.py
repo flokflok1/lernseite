@@ -62,7 +62,7 @@ def can_manage_organisation(user: dict, org_id: int) -> bool:
         return True
 
     # Organisation admins can only manage their own organisation
-    if user.get('organization_id') == org_id:
+    if user.get('organisation_id') == org_id:
         # Check if user has org_admin role
         org_user_query = """
             SELECT org_role FROM organisation_users
@@ -94,7 +94,7 @@ def check_org_membership(user: dict, org_id: int, required_roles: Optional[list]
         return True
 
     # Check basic membership
-    if user.get('organization_id') != org_id:
+    if user.get('organisation_id') != org_id:
         return False
 
     # If no specific role required, membership is enough
@@ -280,7 +280,7 @@ def get_organisation(org_id: int):
         from app.application.services.permission_service import PermissionService
         if not PermissionService.check_threshold(current_user, 'organisations.view_any'):
             # Check if user is member of this organisation
-            if current_user.get('organization_id') != org_id:
+            if current_user.get('organisation_id') != org_id:
                 return jsonify({
                     'success': False,
                     'error': 'Forbidden',

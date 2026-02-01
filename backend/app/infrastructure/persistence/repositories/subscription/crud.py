@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional, List
 import psycopg
 from psycopg.rows import dict_row
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 
 
 class PlanRepository:
@@ -34,7 +34,7 @@ class PlanRepository:
         Returns:
             List of plan dictionaries
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 query = "SELECT * FROM subscription_plans"
 
@@ -57,7 +57,7 @@ class PlanRepository:
         Returns:
             Plan dictionary or None if not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT * FROM billing_storage.subscription_plans
@@ -77,7 +77,7 @@ class PlanRepository:
         Returns:
             Plan dictionary or None if not found
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT * FROM billing_storage.subscription_plans
@@ -108,7 +108,7 @@ class PlanRepository:
         Raises:
             ValueError: If required plan_data fields missing
         """
-        with db_pool.connection() as conn:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     INSERT INTO subscription_plans (

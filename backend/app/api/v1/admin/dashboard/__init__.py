@@ -18,7 +18,7 @@ import logging
 import psycopg
 from datetime import datetime, timedelta
 
-from app.core.bootstrap.extensions import db_pool
+from app.core.bootstrap import extensions
 from app.api.middleware.auth import token_required
 from app.infrastructure.utils.exceptions import APIException
 

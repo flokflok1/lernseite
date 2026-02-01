@@ -2,11 +2,13 @@
 
 **Status:** 🟢 Group-Based System (seit 2026-01-21)
 **Typ:** Architecture Documentation
-**Version:** 2.0 (Group-Based)
+**Version:** 2.1 (Group-Based + Hierarchy Levels)
 **Zielgruppe:** Architekten, Backend-Entwickler, Admins
 
 > **Wichtig:** Dieses Dokument beschreibt das NEW Group-Based Permission System.
 > Alte RBAC 2.0 Dokumentation siehe: `.claude/RBAC-2.0-LEGACY.md`
+>
+> **NEU in v2.1:** Hierarchy-Level-System für granulare Berechtigungshierarchie (1-1000)
 
 ---
 
@@ -56,18 +58,122 @@ Ein User = MEHRERE Gruppen (Many-to-Many)
 
 ---
 
-## 📋 6 Vordefinierte Gruppen
+## 🔺 Hierarchy-Level-System (NEU in v2.1)
 
-Diese 6 Gruppen sind in JEDEM System verfügbar und können nicht gelöscht werden:
+### **Konzept: Berechtigungshierarchie 1-1000**
 
-### 1. **Admin Group**
-**Beschreibung:** Systemweiter Administrator. Volles System-Management.
+Jede Gruppe hat ein `hierarchy_level` (1-1000), das ihre Autoritäts-Ebene definiert:
+
+```
+Level 1000 ─────────────────────────── HÖCHSTE AUTORITÄT
+    │
+    └─ Owner (System-Eigentümer)
+           ↳ Kann ALLE anderen Gruppen verwalten
+           ↳ Einziger mit Level 1000
+
+Level 950 ──────────────────────────── SYSTEM-ADMIN
+    │
+    └─ System-Admin
+           ↳ Kann Gruppen bis Level 949 verwalten
+
+Level 800 ──────────────────────────── ORG-ADMIN
+    │
+    └─ Organization Admin
+           ↳ Kann Gruppen in eigener Org verwalten
+
+Level 500 ──────────────────────────── MODERATOREN
+    │
+    └─ Moderator, Support, Teacher
+
+Level 100 ──────────────────────────── BASIS
+    │
+    └─ Creator, Student
+
+Level 1 ────────────────────────────── NIEDRIGSTE
+```
+
+**Wichtige Regeln:**
+
+| Regel | Beschreibung |
+|-------|-------------|
+| **Höher verwaltet Niedriger** | Ein User kann nur Gruppen/User verwalten, deren Level < eigenes Level |
+| **Fail-Secure** | Ohne explizites Level = Level 1 (niedrigste Berechtigung) |
+| **Owner ist höchstes Level** | Level 1000 ist für Owner reserviert |
+| **Keine Self-Elevation** | Ein User kann sein eigenes Level nicht erhöhen |
+
+### **Implementierung in Datenbank:**
+
+```sql
+-- core.groups Tabelle enthält hierarchy_level
+CREATE TABLE core.groups (
+    id UUID PRIMARY KEY,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    hierarchy_level INTEGER DEFAULT 100,  -- 1-1000
+    is_system_group BOOLEAN DEFAULT FALSE,
+    -- ...
+);
+
+-- Beispiel: Check ob User berechtigt ist, Gruppe zu verwalten
+SELECT
+    target_group.hierarchy_level < user_max_level
+FROM core.groups target_group
+WHERE target_group.id = 'target_group_id'
+  AND user_max_level > target_group.hierarchy_level;
+```
+
+---
+
+## 📋 7 Vordefinierte System-Gruppen
+
+Diese Gruppen sind in JEDEM System verfügbar. **Owner** und **System-Admin** sind System-Gruppen (können nicht gelöscht werden):
+
+### 0. **Owner Group** ⭐ (System-Eigentümer)
+
+**Beschreibung:** Höchste Autorität im System. Wird automatisch beim Setup Wizard erstellt.
+
+**Hierarchy Level:** `1000` (höchstes Level)
+
+**Permissions:**
+- `*:*` - ALLE Permissions (implizit)
+- Kann alle anderen Gruppen verwalten
+- Kann System-Einstellungen ändern
+- Kann andere Admins ernennen
+
+**Typische User:**
+- Erster Admin-Account (erstellt via Setup Wizard)
+- Plattform-Eigentümer
+- Technischer Geschäftsführer
+
+**Besonderheiten:**
+- Automatisch zugewiesen bei Setup Wizard (erster Admin)
+- Kann nicht gelöscht werden
+- Mindestens 1 Owner muss immer existieren
+
+**Setup Wizard Zuweisung:**
+```python
+# app/setup/admin_setup.py
+AdminSetup.create_admin(
+    email='admin@example.com',
+    password='SecurePass123!',
+    first_name='Admin',
+    last_name='User',
+    admin_group_slug='owner'  # Default: Owner mit Level 1000
+)
+```
+
+---
+
+### 1. **System-Admin Group**
+**Beschreibung:** System-Administrator. Umfangreiches System-Management (unter Owner).
+
+**Hierarchy Level:** `950` (knapp unter Owner)
 
 **Permissions:**
 - `admin:system` - Gesamtes System verwalten
-- `users:manage:all` - Alle Benutzer verwalten
-- `groups:manage:all` - Alle Gruppen erstellen/löschen
-- `permissions:assign:all` - Alle Permissions vergeben
+- `users:manage:all` - Alle Benutzer verwalten (außer Owner)
+- `groups:manage:below` - Gruppen mit Level < 950 verwalten
+- `permissions:assign:below` - Permissions für Level < 950 vergeben
 - `audit:view:all` - Alle Audit-Logs einsehen
 - `settings:system` - System-Einstellungen ändern
 
@@ -76,8 +182,13 @@ Diese 6 Gruppen sind in JEDEM System verfügbar und können nicht gelöscht werd
 - DevOps-Team
 - Sicherheitsbeauftragte
 
+**Einschränkungen gegenüber Owner:**
+- Kann Owner-Accounts nicht verwalten
+- Kann keine neuen Owner ernennen
+- Kann eigenes Level nicht auf 1000 erhöhen
+
 **Mapping von Alt-Rollen:**
-- RBAC 2.0 `role='admin'` → jetzt Member der Admin-Group
+- RBAC 2.0 `role='admin'` → jetzt Member der System-Admin-Group
 
 ---
 
@@ -428,7 +539,8 @@ export function hasFeature(user, featureCode: string): boolean {
 | Kriterium | RBAC 2.0 (Alt) | Group-Based (Neu) |
 |-----------|---|---|
 | **User-Rollen-Mapping** | 1:1 (One role per user) | Many-to-Many (Multiple groups per user) |
-| **Basis-Rollen** | 9 Rollen (Free, Premium, Creator, Teacher, School, Company, Support, Moderator, Admin) | 6 Predefined Groups + Custom Groups |
+| **Basis-Rollen** | 9 Rollen (Free, Premium, Creator, Teacher, School, Company, Support, Moderator, Admin) | 7 Predefined Groups + Custom Groups |
+| **Hierarchie** | Flach (keine Levels) | Hierarchy Levels (1-1000, Owner=1000) |
 | **Permission-Model** | Hardcoded role → permissions | Dynamic: Set Union aus ALLEN user groups |
 | **Neue Rollen hinzufügen** | DB Schema Change + Code Update | Just DB INSERT in `core.groups` |
 | **User zu Rolle** | `UPDATE users SET role='teacher'` | `INSERT INTO group_members` |
@@ -483,8 +595,16 @@ UPDATE core.users SET role_deprecated = role;
 
 | Version | Datum | Änderung | Status |
 |---------|-------|----------|--------|
-| 1.0 | 2025-XX-XX | Initiiale RBAC 2.0 Dokumentation (Role-Based) | Archived |
-| 2.0 | 2026-01-21 | Umstellung auf Group-Based System | ✅ CURRENT |
+| 1.0 | 2025-XX-XX | Initiale RBAC 2.0 Dokumentation (Role-Based) | Archived |
+| 2.0 | 2026-01-21 | Umstellung auf Group-Based System | Archived |
+| 2.1 | 2026-01-29 | Hierarchy-Level-System (1-1000), Owner-Gruppe hinzugefügt | ✅ CURRENT |
+
+**Änderungen in v2.1:**
+- Hierarchy-Level-System (1-1000) dokumentiert
+- Owner-Gruppe als höchste Autorität (Level 1000) hinzugefügt
+- Setup Wizard weist ersten Admin automatisch Owner-Gruppe zu
+- System-Admin jetzt mit Level 950 (unter Owner)
+- 7 statt 6 vordefinierte Gruppen
 
 **Zukunfts-Änderungen:**
 
@@ -496,5 +616,5 @@ UPDATE core.users SET role_deprecated = role;
 ---
 
 **Dokument abgeschlossen:** ✅
-**Gültig ab:** 2026-01-21
+**Gültig ab:** 2026-01-29
 **Nächste Überprüfung:** Nach Phase 2 (Datenmodell-Definition)

@@ -52,7 +52,7 @@ class AgentService:
     """
 
     @staticmethod
-    def ask(course_id: str, user_id: str, question: str, context=None, language='de', organization_id=None):
+    def ask(course_id: str, user_id: str, question: str, context=None, language='de', organisation_id=None):
         """Delegate to AgentCore.ask()"""
         return AgentCore.ask(
             course_id=course_id,
@@ -60,7 +60,7 @@ class AgentService:
             question=question,
             context=context,
             language=language,
-            organization_id=organization_id
+            organisation_id=organisation_id
         )
 
     @staticmethod
@@ -101,7 +101,7 @@ class AgentService:
         )
 
     @staticmethod
-    def ask_with_audio(course_id: str, user_id: str, question: str, context=None, language='de', organization_id=None, voice='nova', speech_speed=1.0):
+    def ask_with_audio(course_id: str, user_id: str, question: str, context=None, language='de', organisation_id=None, voice='nova', speech_speed=1.0):
         """Delegate to MediaOperations.ask_with_audio()"""
         return MediaOperations.ask_with_audio(
             course_id=course_id,
@@ -109,7 +109,7 @@ class AgentService:
             question=question,
             context=context,
             language=language,
-            organization_id=organization_id,
+            organisation_id=organisation_id,
             voice=voice,
             speech_speed=speech_speed,
             ask_func=AgentCore.ask  # Inject ask() function

@@ -4,4 +4,4 @@
  * Internationalization UI components
  */
 
-export { default as LanguageSelector } from '../../../../../base/core/i18n/LanguageSelector.vue'
+export { default as LanguageSelector } from '../../../../../shared/ui/core/i18n/LanguageSelector.vue'

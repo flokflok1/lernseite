@@ -82,9 +82,9 @@ export const useAppStore = defineStore('app', () => {
 
       if (setupCompleted) {
         // Setup was completed before - backend is just down temporarily
-        // Keep installed=true, but mark setupRequired=true to show maintenance message
+        // Keep installed=true and setupRequired=false so user can access login
         installed.value = true
-        setupRequired.value = true
+        setupRequired.value = false
         console.warn('[App Store] Backend unreachable, but setup was previously completed')
       } else {
         // Setup was never completed - assume not installed
@@ -108,6 +108,32 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('lsx-setup-completed', 'true')
   }
 
+  /**
+   * Reset setup state (for debugging)
+   * Clears all localStorage and resets state to uninstalled
+   */
+  const resetSetup = (): void => {
+    console.log('[App Store] Resetting setup state...')
+
+    // Clear all setup-related localStorage
+    localStorage.removeItem('lsx-setup-completed')
+    localStorage.removeItem('lsx-setup-status')
+    sessionStorage.removeItem('lsx-setup-completed')
+    sessionStorage.removeItem('lsx-setup-status')
+
+    // Reset state
+    installed.value = false
+    setupRequired.value = true
+    version.value = null
+
+    console.log('[App Store] ✅ Setup reset complete - localStorage cleared')
+    console.log('[App Store] State:', {
+      installed: installed.value,
+      setupRequired: setupRequired.value,
+      version: version.value
+    })
+  }
+
   return {
     // State
     installed,
@@ -118,5 +144,6 @@ export const useAppStore = defineStore('app', () => {
     // Actions
     checkInstallationStatus,
     markAsInstalled,
+    resetSetup,
   }
 })

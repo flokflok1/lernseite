@@ -38,6 +38,6 @@ class UserOverrideRequest(BaseModel):
 
 class OrgOverrideRequest(BaseModel):
     """Organization-specific override request"""
-    organization_id: str
+    organisation_id: str
     is_enabled: bool
     reason: Optional[str] = None

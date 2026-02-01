@@ -109,7 +109,7 @@ import {
   MethodCardList,
   // ... other removed components
 } from '@/presentation/components/learning/methods/method-execution'
-import { TaskManagerModal } from '@/presentation/components/base/system/shared/dialogs'
+import { TaskManagerModal } from '@/presentation/components/shared/ui/system/shared/dialogs'
 
 const { t } = useI18n()
 

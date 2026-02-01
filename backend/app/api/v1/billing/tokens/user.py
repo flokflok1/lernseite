@@ -71,9 +71,9 @@ def get_my_token_balance():
         plan_info = BillingService.get_effective_plan_for_user(user['user_id'])
 
         # Determine which wallet to return
-        if plan_info['source'] == 'organisation' and user.get('organization_id'):
+        if plan_info['source'] == 'organisation' and user.get('organisation_id'):
             # Organisation wallet
-            wallet = TokenRepository.get_or_create_organisation_wallet(user['organization_id'])
+            wallet = TokenRepository.get_or_create_organisation_wallet(user['organisation_id'])
             source = 'organisation'
         else:
             # User wallet
@@ -111,9 +111,9 @@ def get_my_token_balance():
         }), 500
 
 
-@tokens_bp.route('/organisation/<int:organization_id>', methods=['GET'])
+@tokens_bp.route('/organisation/<int:organisation_id>', methods=['GET'])
 @token_required
-def get_organisation_tokens(organization_id: int):
+def get_organisation_tokens(organisation_id: int):
     """
     Get organisation token balance (org admin only)
 
@@ -123,7 +123,7 @@ def get_organisation_tokens(organization_id: int):
         Authorization: Bearer <access_token>
 
     Path Parameters:
-        organization_id: Organisation ID
+        organisation_id: Organisation ID
 
     Response:
         200: Organisation token balance
@@ -134,7 +134,7 @@ def get_organisation_tokens(organization_id: int):
         user = get_current_user()
 
         # Verify user is admin of this organisation
-        if user.get('organization_id') != organization_id:
+        if user.get('organisation_id') != organisation_id:
             return jsonify({
                 'success': False,
                 'error': 'Forbidden',
@@ -150,7 +150,7 @@ def get_organisation_tokens(organization_id: int):
             }), 403
 
         # Get organisation wallet
-        wallet = TokenRepository.get_wallet_for_organisation(organization_id)
+        wallet = TokenRepository.get_wallet_for_organisation(organisation_id)
 
         if not wallet:
             return jsonify({
@@ -164,7 +164,7 @@ def get_organisation_tokens(organization_id: int):
 
         # Get usage statistics
         stats = TokenRepository.get_org_token_stats(
-            organization_id=organization_id,
+            organisation_id=organisation_id,
             period_days=30
         )
 

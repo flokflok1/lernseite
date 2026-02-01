@@ -29,7 +29,7 @@ class AIJobRepository:
 
     Database columns:
     - job_id (PK)
-    - user_id, organization_id
+    - user_id, organisation_id
     - job_type, input_data (JSONB), output_data (JSONB)
     - status (queued, processing, completed, failed, cancelled)
     - progress_percentage, priority
@@ -52,7 +52,7 @@ class AIJobRepository:
                 - input_data: dict (optional) - JSONB input data
                 - prompt_id: UUID (optional) - reference to course_prompts
                 - storage_path: str (optional) - full file path
-                - organization_id: UUID (optional)
+                - organisation_id: UUID (optional)
                 - priority: int (optional, default 0)
 
         Returns:
@@ -96,7 +96,7 @@ class AIJobRepository:
             'output_data': None,
             'prompt_id': None,
             'storage_path': None,
-            'organization_id': None,
+            'organisation_id': None,
             'model': None  # Phase C3.4: AI Model Override
         }
 

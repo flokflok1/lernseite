@@ -12,8 +12,6 @@
           <option value="school">{{ $t('setup.organisation.typeSchool') }}</option>
           <option value="company">{{ $t('setup.organisation.typeCompany') }}</option>
           <option value="creator_org">{{ $t('setup.organisation.typeCreator') }}</option>
-          <option value="community">{{ $t('setup.organisation.typeCommunity') }}</option>
-          <option value="system">{{ $t('setup.organisation.typeSystem') }}</option>
         </select>
       </div>
     </form>
@@ -36,8 +34,8 @@
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as setupApi from '@/application/services/api/system'
-import Input from '@/presentation/components/base/Input.vue'
-import Button from '@/presentation/components/base/Button.vue'
+import Input from '@/presentation/components/shared/ui/Input.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 
 const { t } = useI18n()
 
@@ -49,7 +47,7 @@ const error = ref('')
 
 const form = reactive({
   name: '',
-  org_type: 'academy' as 'system' | 'school' | 'company' | 'academy' | 'creator_org' | 'community',
+  org_type: 'academy' as 'academy' | 'school' | 'company' | 'creator_org',
 })
 
 const submit = async () => {

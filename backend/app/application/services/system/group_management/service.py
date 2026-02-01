@@ -561,42 +561,42 @@ class GroupManagementService:
     @classmethod
     def create_owner_group_for_organization(
         cls,
-        organization_id: str,
+        organisation_id: str,
         owner_user_id: str,
         created_by: Optional[str] = None
     ) -> Optional[Dict]:
         """
-        Create an "Owner" group for a new organization and assign owner.
+        Create an "Owner" group for a new organisation and assign owner.
 
         This is called during account creation for B2B customers.
-        Creates organization-specific owner group and adds the account creator to it.
+        Creates organisation-specific owner group and adds the account creator to it.
 
         Args:
-            organization_id: Organization ID (B2B customer)
-            owner_user_id: User ID of the organization owner
+            organisation_id: Organization ID (B2B customer)
+            owner_user_id: User ID of the organisation owner
             created_by: Admin user ID performing the operation (optional)
 
         Returns:
             Created group dict or None on failure
 
         Raises:
-            ValueError: If organization not found or owner user not found
+            ValueError: If organisation not found or owner user not found
 
         Example:
             >>> group = GroupManagementService.create_owner_group_for_organization(
-            ...     organization_id='org-uuid',
+            ...     organisation_id='org-uuid',
             ...     owner_user_id='user-uuid',
             ...     created_by='admin-uuid'
             ... )
         """
         try:
-            # Verify organization exists
+            # Verify organisation exists
             org_check = fetch_one(
-                "SELECT id FROM organisations.organisations WHERE organization_id = %s",
-                (organization_id,)
+                "SELECT id FROM organisations.organisations WHERE organisation_id = %s",
+                (organisation_id,)
             )
             if not org_check:
-                raise ValueError(f"Organization {organization_id} not found")
+                raise ValueError(f"Organization {organisation_id} not found")
 
             # Verify owner user exists
             user_check = fetch_one(
@@ -606,18 +606,18 @@ class GroupManagementService:
             if not user_check:
                 raise ValueError(f"User {owner_user_id} not found")
 
-            # Create organization-specific owner group
+            # Create organisation-specific owner group
             owner_group = cls.create_group(
                 name=f"Owner",
-                slug=f"{organization_id}-owner",
-                organisation_id=organization_id,
+                slug=f"{organisation_id}-owner",
+                organisation_id=organisation_id,
                 group_type="org_admin",
-                description=f"Owner group for organization {organization_id}",
+                description=f"Owner group for organisation {organisation_id}",
                 created_by=created_by
             )
 
             if not owner_group:
-                logger.error(f"Failed to create owner group for organization {organization_id}")
+                logger.error(f"Failed to create owner group for organisation {organisation_id}")
                 return None
 
             # Add owner user to the group
@@ -631,7 +631,7 @@ class GroupManagementService:
             cls._assign_owner_permissions(owner_group['id'], created_by)
 
             logger.info(
-                f"Created owner group for organization {organization_id}, "
+                f"Created owner group for organisation {organisation_id}, "
                 f"assigned user {owner_user_id}"
             )
 
@@ -642,14 +642,14 @@ class GroupManagementService:
                     VALUES (%s, %s, %s, %s)
                     """,
                     (created_by, 'org.owner_group_created',
-                     f"Created owner group for organization {organization_id}",
-                     f'{{"group_id": "{owner_group["id"]}", "organization_id": "{organization_id}"}}')
+                     f"Created owner group for organisation {organisation_id}",
+                     f'{{"group_id": "{owner_group["id"]}", "organisation_id": "{organisation_id}"}}')
                 )
 
             return owner_group
 
         except Exception as e:
-            logger.error(f"Error creating owner group for organization {organization_id}: {str(e)}")
+            logger.error(f"Error creating owner group for organisation {organisation_id}: {str(e)}")
             raise
 
     @classmethod

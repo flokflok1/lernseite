@@ -54,7 +54,7 @@ class MigrationManager:
         Returns:
             Path to migrations directory
         """
-        backend_root = Path(__file__).parent.parent
+        backend_root = Path(__file__).parent.parent.parent
         migrations_path = backend_root / MigrationManager.MIGRATIONS_DIR
 
         # Create if doesn't exist
@@ -98,10 +98,11 @@ class MigrationManager:
 
         # First, try to find new-style numbered migrations (001-071)
         # Support subdirectories with **/ glob pattern
-        # IMPORTANT: Sort by filename (number) not by path!
+        # IMPORTANT: Sort by relative path to preserve folder order (01_Core before 02_Content)
+        # This ensures dependencies are loaded in the correct sequence
         for migration_file in sorted(
             migrations_dir.glob("**/[0-9][0-9][0-9]_*.sql"),
-            key=lambda p: p.name  # Sort by filename only (001_..., 002_..., etc.)
+            key=lambda p: str(p.relative_to(migrations_dir))  # Sort by full relative path
         ):
             # Skip verify_schema.sql and other non-migration files
             if migration_file.name.startswith('verify_'):
@@ -251,12 +252,12 @@ class MigrationManager:
         Returns:
             Dictionary mapping migration_id to migration info
         """
-        from app.core.bootstrap.extensions import db_pool
+        from app.core.bootstrap import extensions
 
         applied = {}
 
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     # Check if migration_history exists
                     cur.execute("""
@@ -338,7 +339,7 @@ class MigrationManager:
         Returns:
             Dictionary with execution result
         """
-        from app.core.bootstrap.extensions import db_pool
+        from app.core.bootstrap import extensions
         import time
 
         # Find migration
@@ -374,7 +375,7 @@ class MigrationManager:
         start_time = time.time()
 
         try:
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     # Execute migration SQL
                     cur.execute(up_sql)

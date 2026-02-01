@@ -425,7 +425,7 @@ class OrgExtensionResponse(BaseModel):
     """
     extension_id: str = Field(..., description="Extension UUID")
     agent_id: str = Field(..., description="Agent UUID")
-    organization_id: str = Field(..., description="Organisation UUID")
+    organisation_id: str = Field(..., description="Organisation UUID")
     custom_persona: Optional[str] = None
     custom_language: Optional[str] = None
     custom_terminology: Optional[Dict[str, str]] = None

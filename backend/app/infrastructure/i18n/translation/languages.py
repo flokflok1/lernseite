@@ -73,7 +73,7 @@ def create_language():
     try:
         # Check if language already exists
         check = fetch_one(
-            "SELECT 1 FROM supported_languages WHERE language_code = %s",
+            "SELECT 1 FROM translations.supported_languages WHERE language_code = %s",
             (data['language_code'],)
         )
         if check:
@@ -84,9 +84,9 @@ def create_language():
 
         # Insert new language
         execute_query("""
-            INSERT INTO supported_languages (
-                language_code, language_name, native_name, flag_emoji,
-                active, rtl, is_primary, priority, fallback_language
+            INSERT INTO translations.supported_languages (
+                language_code, language_name, native_name, flag,
+                is_active, is_rtl, is_primary, priority, fallback_language
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
@@ -145,7 +145,7 @@ def update_language(language_code: str):
     try:
         # Check if language exists
         check = fetch_one(
-            "SELECT 1 FROM supported_languages WHERE language_code = %s",
+            "SELECT 1 FROM translations.supported_languages WHERE language_code = %s",
             (language_code,)
         )
         if not check:
@@ -165,13 +165,13 @@ def update_language(language_code: str):
             updates.append("native_name = %s")
             params.append(data['native_name'])
         if 'flag_emoji' in data:
-            updates.append("flag_emoji = %s")
+            updates.append("flag = %s")
             params.append(data['flag_emoji'])
         if 'active' in data:
-            updates.append("active = %s")
+            updates.append("is_active = %s")
             params.append(data['active'])
         if 'rtl' in data:
-            updates.append("rtl = %s")
+            updates.append("is_rtl = %s")
             params.append(data['rtl'])
         if 'is_primary' in data:
             updates.append("is_primary = %s")
@@ -192,7 +192,7 @@ def update_language(language_code: str):
         params.append(language_code)
 
         execute_query(f"""
-            UPDATE supported_languages
+            UPDATE translations.supported_languages
             SET {', '.join(updates)}
             WHERE language_code = %s
         """, tuple(params))
@@ -233,7 +233,7 @@ def delete_language(language_code: str):
     try:
         # Check if language exists
         check = fetch_one(
-            "SELECT 1 FROM supported_languages WHERE language_code = %s",
+            "SELECT 1 FROM translations.supported_languages WHERE language_code = %s",
             (language_code,)
         )
         if not check:
@@ -244,13 +244,13 @@ def delete_language(language_code: str):
 
         # Delete translations first (cascade)
         execute_query(
-            "DELETE FROM i18n_translations WHERE language_code = %s",
+            "DELETE FROM translations.i18n_translations WHERE language_code = %s",
             (language_code,)
         )
 
         # Delete the language
         execute_query(
-            "DELETE FROM supported_languages WHERE language_code = %s",
+            "DELETE FROM translations.supported_languages WHERE language_code = %s",
             (language_code,)
         )
 

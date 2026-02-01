@@ -1,14 +1,12 @@
 /**
  * LernsystemX - User Profile API Service
  *
- * Pattern: Transform backend DTOs to domain models at API layer
- * Profile responses include user data plus profile-specific fields
- * All snake_case backend fields transformed to camelCase at API layer
+ * NOTE: Phase B - Database-Driven GBA System
+ * Returns transformed profile data (camelCase)
+ * No domain model transformation needed
  */
 
 import http from '../http'
-import { transformUserFromAPI } from '../../utils/transformers'
-import { User as UserDomainModel } from '@/domain/models/user/User.model'
 
 // ============================================================================
 // BACKEND DTO INTERFACES (what backend sends - snake_case)

@@ -32,7 +32,7 @@ class UserSegments:
         'premium_users': 'Premium/paid subscribers',
         'internal': 'Internal team members',
         'educators': 'Teachers and educators',
-        'enterprise': 'Enterprise organization members',
+        'enterprise': 'Enterprise organisation members',
         'early_adopters': 'Early adopters',
         'power_users': 'High-engagement users'
     }

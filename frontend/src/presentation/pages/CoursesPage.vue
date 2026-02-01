@@ -207,7 +207,7 @@ import {
 } from '@/application/services/api/content'
 import { getCategoryTree, type Category, type CategoryTreeNode } from '@/application/services/api/content'
 import { useAuthStore } from '@/application/stores/auth.store'
-import Button from '@/presentation/components/base/Button.vue'
+import Button from '@/presentation/components/shared/ui/Button.vue'
 import CourseCard from '@/presentation/components/content/user/courses/CourseCard.vue'
 import EnrolledCourseCard from '@/presentation/components/content/user/courses/EnrolledCourseCard.vue'
 

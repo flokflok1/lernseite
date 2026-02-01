@@ -207,7 +207,7 @@ class DatabaseInitializer:
             import time
 
             # Add backend directory to path
-            backend_path = Path(__file__).parent.parent
+            backend_path = Path(__file__).parent.parent.parent
             if str(backend_path) not in sys.path:
                 sys.path.insert(0, str(backend_path))
 
@@ -227,16 +227,44 @@ class DatabaseInitializer:
                     and not f.name.endswith(('.bak', '.old', '.tmp'))  # Exclude backups
                 ]
 
-                # Sort by migration number (001, 002, ...) extracted from filename
-                def get_migration_number(filepath):
-                    """Extract migration number from filename (e.g., 001 from 001_core_users_roles.sql)"""
+                # Sort by folder number, then filename number to preserve correct order
+                # This ensures: 01_Core infrastructure -> 02_Content -> ... -> 00_Seeds (last)
+                def get_sort_key(filepath):
+                    """
+                    Generate sort key: tuple of (folder_priority, folder_number, migration_number)
+                    This ensures infrastructure migrations run before content, and seeds run last.
+                    """
                     import re
-                    match = re.match(r'^(\d+)', filepath.name)
-                    return int(match.group(1)) if match else 9999
+                    relative = filepath.relative_to(migrations_dir)
+                    parts = relative.parts  # e.g., ('01_Core', '000_functions.sql')
 
-                sql_files = sorted(all_sql_files, key=get_migration_number)
+                    folder = parts[0] if len(parts) > 1 else ''
+                    filename = parts[-1]
+
+                    # Extract folder number
+                    folder_match = re.match(r'^(\d+)', folder)
+                    folder_num = int(folder_match.group(1)) if folder_match else 999
+
+                    # Special handling: 00_Seeds should run LAST (after 01-12)
+                    # So we give it priority 999 to sort after all numbered folders
+                    if folder_num == 0:  # 00_Seeds
+                        folder_priority = 999
+                    else:
+                        folder_priority = folder_num
+
+                    # Extract migration number from filename
+                    filename_match = re.match(r'^(\d+)', filename.replace('.sql', ''))
+                    migration_num = int(filename_match.group(1)) if filename_match else 999
+
+                    return (folder_priority, migration_num, filename)
+
+                sql_files = sorted(all_sql_files, key=get_sort_key)
 
                 logger.info(f"[DB_INIT] Found {len(sql_files)} migration files")
+                logger.info(f"[DB_INIT] NEW SORTING APPLIED - First 20 migrations:")
+                for i, f in enumerate(sql_files[:20]):
+                    sort_key = get_sort_key(f)
+                    logger.info(f"[DB_INIT]   {i+1}. {f.stem:60} key={sort_key}")
                 if len(sql_files) == 0:
                     logger.error(f"[DB_INIT] ERROR: No migrations found in {migrations_dir}")
                     all_files = list(migrations_dir.glob('*.sql'))

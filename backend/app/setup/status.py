@@ -79,9 +79,9 @@ class SystemStatus:
             Dictionary with DB schema version info
         """
         try:
-            from app.core.bootstrap.extensions import db_pool
+            from app.core.bootstrap import extensions
 
-            with db_pool.connection() as conn:
+            with extensions.db_pool.connection() as conn:
                 with conn.cursor() as cur:
                     # Check if migration_history table exists
                     cur.execute("""

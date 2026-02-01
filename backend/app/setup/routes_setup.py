@@ -18,7 +18,7 @@ from app.setup.system_check import SystemCheck
 from app.setup.install_check import InstallationChecker
 from app.setup.admin_setup import AdminSetup
 from app.setup.environment_setup import EnvironmentSetup
-from app.core.bootstrap.extensions import db_pool, init_db_pool
+from app.core.bootstrap import extensions, init_db_pool
 
 
 @setup_bp.route('/environment', methods=['POST'])
@@ -293,6 +293,9 @@ def create_admin():
             'error': str(e)
         }), 400
     except Exception as e:
+        import traceback
+        current_app.logger.error(f"Admin creation failed: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
         return jsonify({
             'success': False,
             'error': 'Admin creation failed',

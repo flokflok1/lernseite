@@ -229,7 +229,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/application/stores/modules/admin'
-import { AnalyticsKpiCard, LineChart } from '@/presentation/components/base/charts/charts'
+import { AnalyticsKpiCard, LineChart } from '@/presentation/components/shared/ui/charts/charts'
 
 const { t } = useI18n()
 

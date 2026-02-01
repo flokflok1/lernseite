@@ -169,11 +169,11 @@ ERROR_CODE_I18N_MAPPING: Dict[str, str] = {
     # =================================================================
     # ORGANIZATION ERRORS (5 codes)
     # =================================================================
-    "ORG_NOT_FOUND": "error.organization.notFound",
-    "ORG_CREATE_FAILED": "error.organization.create.failed",
-    "ORG_UPDATE_FAILED": "error.organization.update.failed",
-    "ORG_MEMBER_NOT_FOUND": "error.organization.member.notFound",
-    "ORG_QUOTA_EXCEEDED": "error.organization.quota.exceeded",
+    "ORG_NOT_FOUND": "error.organisation.notFound",
+    "ORG_CREATE_FAILED": "error.organisation.create.failed",
+    "ORG_UPDATE_FAILED": "error.organisation.update.failed",
+    "ORG_MEMBER_NOT_FOUND": "error.organisation.member.notFound",
+    "ORG_QUOTA_EXCEEDED": "error.organisation.quota.exceeded",
 
     # =================================================================
     # CATEGORY ERRORS (4 codes)

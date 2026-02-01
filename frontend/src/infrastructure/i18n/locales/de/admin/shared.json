@@ -56,7 +56,6 @@
     "uptimeDesc": "System läuft seit"
   },
   "nav": {
-    "aiEditor": "AI Studio",
     "analytics": "Analytics",
     "audit_logs": "Audit Logs",
     "billing": "Billing",
@@ -65,9 +64,10 @@
     "courseEditor": "Kurs-Editor",
     "courses": "Kurse",
     "dashboard": "Dashboard",
+    "groups": "Gruppen",
+    "lmRouting": "LM-Routing",
     "members": "Mitglieder",
     "organisations": "Organisationen",
-    "roles": "Rollen & Rechte",
     "settings": "Einstellungen",
     "systemSettings": "Systemeinstellungen",
     "translations": "Übersetzungen",

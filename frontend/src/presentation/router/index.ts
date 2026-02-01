@@ -21,7 +21,7 @@ const routes: RouteRecordRaw[] = [
     path: '/setup',
     name: 'Setup',
     component: () => import('@/presentation/pages/setup/SetupWizardPage.vue'),
-    meta: { ignoreSetupCheck: true }, // Don't redirect to setup from setup
+    // Access controlled by navigation guard - redirects to login if setup not required
   },
 
   // Public Routes
@@ -135,8 +135,8 @@ const routes: RouteRecordRaw[] = [
         redirect: '/admin/kurs-editor',
       },
       {
-        path: 'ki-studio',
-        redirect: '/admin/ai-studio',
+        path: 'roles',
+        redirect: '/admin/groups',
       },
       // New route names (Wave 6)
       {
@@ -196,7 +196,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/presentation/pages/admin/AdminLMRoutingPage.vue'),
       },
       {
-        path: 'roles',
+        path: 'groups',
         name: 'AdminGroups',
         component: () => import('@/presentation/pages/admin/AdminGroupsPage.vue'),
       },
@@ -289,52 +289,34 @@ router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
   const appStore = useAppStore()
 
-  // =====================================================
-  // CHECK INSTALLATION STATUS FIRST
-  // =====================================================
-  // IMPORTANT: Must check installation status BEFORE reading localStorage
-  // because checkInstallationStatus() fetches static marker and sets localStorage
-  // This is critical for Private Mode / new users!
-  if (appStore.installed === null && !to.meta.ignoreSetupCheck) {
+  // ALWAYS check installation status first (only once per session)
+  if (appStore.installed === null) {
+    console.log('[Router Guard] First load - checking installation status')
     await appStore.checkInstallationStatus()
   }
 
-  // =====================================================
-  // SETUP LOCKOUT: Check localStorage AFTER installation check
-  // =====================================================
-  // Now read localStorage (may have been set by checkInstallationStatus above)
-  const isSetupCompleted = localStorage.getItem('lsx-setup-completed') === 'true'
-
-  if (isSetupCompleted && to.path === '/setup') {
-    console.log('[Router Guard] Setup already completed - redirecting to login')
-    next({ name: 'Login' })
+  // SETUP ROUTE PROTECTION: Block access to /setup when system is already installed
+  if (to.path === '/setup') {
+    if (!appStore.setupRequired) {
+      console.log('[Router Guard] Setup not required, redirecting to login')
+      next({ name: 'Login' })
+      return
+    }
+    // Setup is required - allow access to setup page
+    next()
     return
   }
 
-  // =====================================================
-  // BACKEND DOWN HANDLING
-  // =====================================================
-  // If backend is unreachable but localStorage says setup is done,
-  // show maintenance message instead of redirecting to setup
-  if (isSetupCompleted && appStore.setupRequired && !to.meta.ignoreSetupCheck && !to.meta.isPublic) {
-    // Backend is down but setup was completed
-    // Show maintenance page instead of setup
-    console.warn('[Router Guard] Backend unreachable - setup completed but backend down')
-    // Allow navigation to show maintenance message in App.vue
-    // (App.vue will handle showing maintenance message)
-  }
-  // If system is not installed and route is not setup, redirect to setup
-  // Allow public pages (legal, etc.) even during setup
-  else if (appStore.setupRequired && !to.meta.ignoreSetupCheck && !to.meta.isPublic && !isSetupCompleted) {
-    if (to.path !== '/setup') {
-      next({ name: 'Setup' })
-      return
-    }
+  // If setup is required but not on setup page, redirect to setup
+  if (appStore.setupRequired) {
+    console.log('[Router Guard] Setup required, redirecting to setup')
+    next({ name: 'Setup' })
+    return
   }
 
-  // If system is installed and trying to access setup, redirect to login
-  if (appStore.installed && to.path === '/setup') {
-    next({ name: 'Login' })
+  // SKIP auth checks for public pages
+  if (to.meta.isPublic) {
+    next()
     return
   }
 

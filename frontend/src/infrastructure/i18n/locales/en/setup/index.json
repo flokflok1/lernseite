@@ -1,6 +1,6 @@
 {
   "setup": {
-    "admin": {
+    "initialAdmin": {
       "confirmPassword": "Confirm Password",
       "createFailed": "Admin creation failed",
       "description": "Create the first administrator account.",

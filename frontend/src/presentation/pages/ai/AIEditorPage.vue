@@ -24,10 +24,10 @@
       <div v-if="isAdmin" class="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
         <div class="flex items-center gap-2 text-amber-800 dark:text-amber-200">
           <span class="text-lg">🔐</span>
-          <span class="font-medium">{{ $t('admin.aiEditor.adminSection') }}</span>
+          <span class="font-medium">{{ $t('panel.aiEditor.adminSection') }}</span>
         </div>
         <p class="text-sm text-amber-600 dark:text-amber-400 mt-1">
-          {{ $t('admin.aiEditor.adminSectionDesc') }}
+          {{ $t('panel.aiEditor.adminSectionDesc') }}
         </p>
       </div>
     </div>

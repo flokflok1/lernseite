@@ -10,21 +10,21 @@
         <span v-if="loading" class="animate-pulse">--</span>
         <span v-else>{{ stats.videos }}</span>
       </div>
-      <div class="text-sm text-gray-500">{{ $t('admin.aiEditor.stats.videosGenerated') }}</div>
+      <div class="text-sm text-gray-500">{{ $t('panel.aiEditor.stats.videosGenerated') }}</div>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
       <div class="text-2xl font-bold text-gray-900 dark:text-white">
         <span v-if="loading" class="animate-pulse">--</span>
         <span v-else>{{ stats.prompts }}</span>
       </div>
-      <div class="text-sm text-gray-500">{{ $t('admin.aiEditor.stats.prompts') }}</div>
+      <div class="text-sm text-gray-500">{{ $t('panel.aiEditor.stats.prompts') }}</div>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
       <div class="text-2xl font-bold text-gray-900 dark:text-white">
         <span v-if="loading" class="animate-pulse">--</span>
         <span v-else>{{ stats.tokens }}</span>
       </div>
-      <div class="text-sm text-gray-500">{{ $t('admin.aiEditor.stats.tokensMonth') }}</div>
+      <div class="text-sm text-gray-500">{{ $t('panel.aiEditor.stats.tokensMonth') }}</div>
     </div>
     <!-- Cost only shown for admins -->
     <div
@@ -35,7 +35,7 @@
         <span v-if="loading" class="animate-pulse">--</span>
         <span v-else>{{ stats.cost }}</span>
       </div>
-      <div class="text-sm text-gray-500">{{ $t('admin.aiEditor.stats.costMonth') }}</div>
+      <div class="text-sm text-gray-500">{{ $t('panel.aiEditor.stats.costMonth') }}</div>
     </div>
     <!-- Users see courses count instead of cost -->
     <div
@@ -46,7 +46,7 @@
         <span v-if="loading" class="animate-pulse">--</span>
         <span v-else>{{ stats.courses || '0' }}</span>
       </div>
-      <div class="text-sm text-gray-500">{{ $t('admin.aiEditor.stats.courses') }}</div>
+      <div class="text-sm text-gray-500">{{ $t('panel.aiEditor.stats.courses') }}</div>
     </div>
   </div>
 </template>

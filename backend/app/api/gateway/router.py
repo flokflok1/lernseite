@@ -15,6 +15,8 @@ Phase 21 - API Gateway
 from flask import Flask, Blueprint
 from typing import Dict, List
 
+from app.api.middleware.panel_alias import register_panel_alias_middleware
+
 
 class APIGateway:
     """
@@ -45,6 +47,9 @@ class APIGateway:
             return
 
         app.logger.info('Initializing API Gateway...')
+
+        # Register panel alias middleware for /api/v1/panel/* -> /api/v1/admin-panel/*
+        register_panel_alias_middleware(app)
 
     def register_routes(self, app: Flask):
         """
@@ -131,6 +136,10 @@ class APIGateway:
                 '/api/v1/admin/users/*',
                 '/api/v1/admin/organisations/*',
             ],
+            'Admin Panel APIs': [
+                '/api/v1/panel/*',           # NEW (preferred)
+                '/api/v1/admin-panel/*',     # DEPRECATED
+            ],
             'Organisation APIs': [
                 '/api/v1/organisations/*',
                 '/api/v1/org/analytics/*',
@@ -157,6 +166,8 @@ class APIGateway:
         """
         if path.startswith('/api/v1/public'):
             return 'public'
+        elif path.startswith('/api/v1/panel') or path.startswith('/api/v1/admin-panel'):
+            return 'admin-panel'
         elif path.startswith('/api/v1/admin'):
             return 'admin'
         elif path.startswith('/api/v1/organisations') or path.startswith('/api/v1/org'):

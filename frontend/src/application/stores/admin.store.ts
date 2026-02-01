@@ -1,1 +1,2 @@
-export * from './modules/admin/admin.store'
+// Backwards compatibility - redirects to panel.store
+export * from './modules/admin/panel.store'

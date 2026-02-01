@@ -88,12 +88,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/application/stores/admin.store'
+import { usePanelStore } from '@/application/stores/panel.store'
 import { CategoryTreeNode, CategoryModal } from '@/presentation/components/content/admin/categories'
 import { DeleteConfirmModal } from '@/presentation/components/system/shared'
 
 const { t } = useI18n()
-const adminStore = useAdminStore()
+const panelStore = usePanelStore()
 
 // State
 const isLoading = ref(false)
@@ -105,7 +105,7 @@ const deletingCategory = ref(null)
 const selectedParentId = ref(null)
 
 // Computed
-const categoryTree = computed(() => adminStore.categoryTree || [])
+const categoryTree = computed(() => panelStore.categoryTree || [])
 
 const flatCategories = computed(() => {
   const result = []
@@ -129,7 +129,7 @@ const loadCategories = async (forceReload = false) => {
   error.value = ''
 
   try {
-    await adminStore.loadCategoryTree(false, forceReload) // Load all categories (including inactive)
+    await panelStore.loadCategoryTree(false, forceReload) // Load all categories (including inactive)
   } catch (e) {
     error.value = e.message || t('panel.categories.loadError')
   } finally {
@@ -171,10 +171,10 @@ const handleSave = async (categoryData) => {
   try {
     if (editingCategory.value) {
       // Update existing category
-      await adminStore.updateCategory(editingCategory.value.category_id, categoryData)
+      await panelStore.updateCategory(editingCategory.value.category_id, categoryData)
     } else {
       // Create new category
-      await adminStore.createCategory(categoryData)
+      await panelStore.createCategory(categoryData)
     }
 
     closeModal()
@@ -193,7 +193,7 @@ const handleDelete = async () => {
   if (!deletingCategory.value) return
 
   try {
-    await adminStore.deleteCategory(deletingCategory.value.category_id)
+    await panelStore.deleteCategory(deletingCategory.value.category_id)
     showDeleteConfirm.value = false
     deletingCategory.value = null
     await loadCategories(true) // Force reload after delete
@@ -210,7 +210,7 @@ const toggleActive = async (category) => {
   }
 
   try {
-    await adminStore.updateCategory(category.category_id, {
+    await panelStore.updateCategory(category.category_id, {
       is_active: !category.is_active
     })
     await loadCategories(true) // Force reload after toggle

@@ -108,15 +108,15 @@
 
     <!-- Courses Table -->
     <div class="bg-[var(--color-surface)] rounded shadow-sm border border-[var(--color-border)]">
-      <div v-if="adminStore.isLoading" class="p-4 text-center">
+      <div v-if="panelStore.isLoading" class="p-4 text-center">
         <p class="text-xs text-[var(--color-text-secondary)]">{{ $t('panel.courses.loading') }}</p>
       </div>
 
-      <div v-else-if="adminStore.error" class="p-4 text-center">
-        <p class="text-xs text-red-600">{{ adminStore.error }}</p>
+      <div v-else-if="panelStore.error" class="p-4 text-center">
+        <p class="text-xs text-red-600">{{ panelStore.error }}</p>
       </div>
 
-      <div v-else-if="adminStore.courses.length === 0" class="p-4 text-center">
+      <div v-else-if="panelStore.courses.length === 0" class="p-4 text-center">
         <p class="text-xs text-[var(--color-text-secondary)]">{{ $t('panel.courses.noCourses') }}</p>
       </div>
 
@@ -149,7 +149,7 @@
           </thead>
           <tbody class="bg-[var(--color-surface)] divide-y divide-[var(--color-border)]">
             <tr
-              v-for="course in adminStore.courses"
+              v-for="course in panelStore.courses"
               :key="course.course_id"
               class="hover:bg-[var(--color-background)]"
             >
@@ -258,10 +258,10 @@
       </div>
 
       <!-- Pagination - Compact -->
-      <div v-if="adminStore.courses.length > 0" class="px-3 py-2 border-t border-[var(--color-border)]">
+      <div v-if="panelStore.courses.length > 0" class="px-3 py-2 border-t border-[var(--color-border)]">
         <div class="flex items-center justify-between">
           <div class="text-xs text-[var(--color-text-secondary)]">
-            {{ (currentPage - 1) * perPage + 1 }}-{{ Math.min(currentPage * perPage, adminStore.coursesTotal) }} von {{ adminStore.coursesTotal }}
+            {{ (currentPage - 1) * perPage + 1 }}-{{ Math.min(currentPage * perPage, panelStore.coursesTotal) }} von {{ panelStore.coursesTotal }}
           </div>
           <div class="flex gap-1 items-center">
             <button
@@ -272,11 +272,11 @@
               &lt;
             </button>
             <span class="px-2 py-1 text-xs text-[var(--color-text-primary)]">
-              {{ currentPage }}/{{ Math.ceil(adminStore.coursesTotal / perPage) }}
+              {{ currentPage }}/{{ Math.ceil(panelStore.coursesTotal / perPage) }}
             </span>
             <button
               @click="changePage(currentPage + 1)"
-              :disabled="currentPage >= Math.ceil(adminStore.coursesTotal / perPage)"
+              :disabled="currentPage >= Math.ceil(panelStore.coursesTotal / perPage)"
               class="px-2 py-1 text-xs border border-[var(--color-border)] rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--color-background)]"
             >
               &gt;
@@ -293,13 +293,13 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/application/stores/admin.store'
+import { usePanelStore } from '@/application/stores/panel.store'
 import { useWindowStore } from '@/application/stores/window.store'
 import type { Category } from '@/application/services/api/admin'
 
 const { t } = useI18n()
 const router = useRouter()
-const adminStore = useAdminStore()
+const panelStore = usePanelStore()
 const windowStore = useWindowStore()
 
 // Filters
@@ -336,7 +336,7 @@ const flatCategories = computed((): Category[] => {
       }
     }
   }
-  flatten(adminStore.categoryTree)
+  flatten(panelStore.categoryTree)
   return result
 })
 
@@ -344,7 +344,7 @@ const flatCategories = computed((): Category[] => {
  * Load courses with current filters
  */
 const loadCourses = async () => {
-  await adminStore.loadCourses({
+  await panelStore.loadCourses({
     page: currentPage.value,
     per_page: perPage.value,
     search: searchQuery.value || undefined,
@@ -408,7 +408,7 @@ const publishCourse = async (courseId: string) => {
   }
 
   try {
-    await adminStore.publishCourse(courseId)
+    await panelStore.publishCourse(courseId)
     loadCourses() // Reload to update status
   } catch (error) {
     console.error('Failed to publish course:', error)
@@ -424,7 +424,7 @@ const unpublishCourse = async (courseId: string) => {
   }
 
   try {
-    await adminStore.unpublishCourse(courseId)
+    await panelStore.unpublishCourse(courseId)
     loadCourses() // Reload to update status
   } catch (error) {
     console.error('Failed to unpublish course:', error)
@@ -440,7 +440,7 @@ const archiveCourse = async (courseId: string) => {
   }
 
   try {
-    await adminStore.archiveCourse(courseId)
+    await panelStore.archiveCourse(courseId)
     loadCourses() // Reload to update status
   } catch (error) {
     console.error('Failed to archive course:', error)
@@ -456,7 +456,7 @@ const unarchiveCourse = async (courseId: string) => {
   }
 
   try {
-    await adminStore.unarchiveCourse(courseId)
+    await panelStore.unarchiveCourse(courseId)
     loadCourses() // Reload to update status
   } catch (error) {
     console.error('Failed to unarchive course:', error)
@@ -481,7 +481,7 @@ const permanentDeleteCourse = async (courseId: string, courseTitle: string) => {
   }
 
   try {
-    await adminStore.permanentDeleteCourse(courseId, `Permanent gelöscht durch Admin`)
+    await panelStore.permanentDeleteCourse(courseId, `Permanent gelöscht durch Admin`)
     loadCourses() // Reload to update list
   } catch (error) {
     console.error('Failed to permanently delete course:', error)
@@ -570,7 +570,7 @@ onMounted(async () => {
       console.error('Failed to load courses:', err)
       // UI will show empty state
     }),
-    adminStore.loadCategoryTree().catch(err => {
+    panelStore.loadCategoryTree().catch(err => {
       console.warn('Failed to load categories (database not initialized?):', err)
       // UI will work without categories
     })

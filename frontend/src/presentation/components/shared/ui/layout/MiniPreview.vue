@@ -21,7 +21,7 @@
     <template v-if="window.type === 'admin-ai-job'">
       <div class="lsx-mini-preview-header">
         <div class="lsx-mini-preview-title">{{ window.livePreview?.title || window.title }}</div>
-        <div class="lsx-mini-preview-subtitle">{{ $t('admin.aiJobs.jobType') }}</div>
+        <div class="lsx-mini-preview-subtitle">{{ $t('panel.aiJobs.jobType') }}</div>
       </div>
 
       <div class="lsx-mini-preview-body">

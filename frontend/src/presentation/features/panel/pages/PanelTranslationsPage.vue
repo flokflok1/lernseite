@@ -226,77 +226,41 @@ import http from '@/application/services/api/system'
 // i18n
 const { t } = useI18n()
 
-// Import locale files for sync (split by domain)
-import deCommon from '@/infrastructure/i18n/locales/de/common.json'
-import deAdmin from '@/infrastructure/i18n/locales/de/admin.json'
-import deWindowsAdmin from '@/infrastructure/i18n/locales/de/windows/admin.json'
-import deWindowsAiStudio from '@/infrastructure/i18n/locales/de/windows/aiStudio.json'
-import deWindowsCommon from '@/infrastructure/i18n/locales/de/windows/common.json'
-import deWindowsViewer from '@/infrastructure/i18n/locales/de/windows/viewer.json'
-import deWindowsLearningMethods from '@/infrastructure/i18n/locales/de/windows/learningMethods.json'
-import deCourses from '@/infrastructure/i18n/locales/de/courses.json'
-import deDashboard from '@/infrastructure/i18n/locales/de/dashboard.json'
-import deSetup from '@/infrastructure/i18n/locales/de/setup.json'
-import deLegal from '@/infrastructure/i18n/locales/de/legal.json'
+// Import locale modules (matching i18n.ts structure)
+// German (de)
+import deCommon from '@/infrastructure/i18n/locales/de/common'
+import deDashboard from '@/infrastructure/i18n/locales/de/dashboard'
+import deSetup from '@/infrastructure/i18n/locales/de/setup'
+import deLegal from '@/infrastructure/i18n/locales/de/legal'
+import dePanel from '@/infrastructure/i18n/locales/de/panel'
+import deAiEditor from '@/infrastructure/i18n/locales/de/aiEditor'
+import deCourses from '@/infrastructure/i18n/locales/de/courses'
+import deFeatures from '@/infrastructure/i18n/locales/de/features'
 
-import enCommon from '@/infrastructure/i18n/locales/en/common.json'
-import enAdmin from '@/infrastructure/i18n/locales/en/admin.json'
-import enWindowsAdmin from '@/infrastructure/i18n/locales/en/windows/admin.json'
-import enWindowsAiStudio from '@/infrastructure/i18n/locales/en/windows/aiStudio.json'
-import enWindowsCommon from '@/infrastructure/i18n/locales/en/windows/common.json'
-import enWindowsViewer from '@/infrastructure/i18n/locales/en/windows/viewer.json'
-import enWindowsLearningMethods from '@/infrastructure/i18n/locales/en/windows/learningMethods.json'
-import enCourses from '@/infrastructure/i18n/locales/en/courses.json'
-import enDashboard from '@/infrastructure/i18n/locales/en/dashboard.json'
-import enSetup from '@/infrastructure/i18n/locales/en/setup.json'
-import enLegal from '@/infrastructure/i18n/locales/en/legal.json'
+// English (en)
+import enCommon from '@/infrastructure/i18n/locales/en/common'
+import enDashboard from '@/infrastructure/i18n/locales/en/dashboard'
+import enSetup from '@/infrastructure/i18n/locales/en/setup'
+import enLegal from '@/infrastructure/i18n/locales/en/legal'
+import enPanel from '@/infrastructure/i18n/locales/en/panel'
+import enAiEditor from '@/infrastructure/i18n/locales/en/aiEditor'
+import enCourses from '@/infrastructure/i18n/locales/en/courses'
+import enFeatures from '@/infrastructure/i18n/locales/en/features'
 
-import plCommon from '@/infrastructure/i18n/locales/pl/common.json'
-import plAdmin from '@/infrastructure/i18n/locales/pl/admin.json'
-import plWindowsAdmin from '@/infrastructure/i18n/locales/pl/windows/admin.json'
-import plWindowsAiStudio from '@/infrastructure/i18n/locales/pl/windows/aiStudio.json'
-import plWindowsCommon from '@/infrastructure/i18n/locales/pl/windows/common.json'
-import plWindowsViewer from '@/infrastructure/i18n/locales/pl/windows/viewer.json'
-import plWindowsLearningMethods from '@/infrastructure/i18n/locales/pl/windows/learningMethods.json'
-import plCourses from '@/infrastructure/i18n/locales/pl/courses.json'
-import plDashboard from '@/infrastructure/i18n/locales/pl/dashboard.json'
-import plSetup from '@/infrastructure/i18n/locales/pl/setup.json'
-import plLegal from '@/infrastructure/i18n/locales/pl/legal.json'
+// Polish (pl)
+import plCommon from '@/infrastructure/i18n/locales/pl/common'
+import plDashboard from '@/infrastructure/i18n/locales/pl/dashboard'
+import plSetup from '@/infrastructure/i18n/locales/pl/setup'
+import plLegal from '@/infrastructure/i18n/locales/pl/legal'
+import plPanel from '@/infrastructure/i18n/locales/pl/panel'
+import plAiEditor from '@/infrastructure/i18n/locales/pl/aiEditor'
+import plCourses from '@/infrastructure/i18n/locales/pl/courses'
+import plFeatures from '@/infrastructure/i18n/locales/pl/features'
 
-// Merge window modules
-const deWindows = {
-  windows: {
-    ...deWindowsAdmin,
-    ...deWindowsAiStudio,
-    ...deWindowsCommon,
-    ...deWindowsViewer,
-    learningMethods: deWindowsLearningMethods
-  }
-}
-
-const enWindows = {
-  windows: {
-    ...enWindowsAdmin,
-    ...enWindowsAiStudio,
-    ...enWindowsCommon,
-    ...enWindowsViewer,
-    learningMethods: enWindowsLearningMethods
-  }
-}
-
-const plWindows = {
-  windows: {
-    ...plWindowsAdmin,
-    ...plWindowsAiStudio,
-    ...plWindowsCommon,
-    ...plWindowsViewer,
-    learningMethods: plWindowsLearningMethods
-  }
-}
-
-const deMessages = { ...deCommon, ...deAdmin, ...deWindows, ...deCourses, ...deDashboard, ...deSetup, ...deLegal }
-const enMessages = { ...enCommon, ...enAdmin, ...enWindows, ...enCourses, ...enDashboard, ...enSetup, ...enLegal }
-const plMessages = { ...plCommon, ...plAdmin, ...plWindows, ...plCourses, ...plDashboard, ...plSetup, ...plLegal }
+// Merge all modules into language objects
+const deMessages = { ...deCommon, ...deDashboard, ...deSetup, ...deLegal, ...dePanel, ...deAiEditor, ...deCourses, ...deFeatures }
+const enMessages = { ...enCommon, ...enDashboard, ...enSetup, ...enLegal, ...enPanel, ...enAiEditor, ...enCourses, ...enFeatures }
+const plMessages = { ...plCommon, ...plDashboard, ...plSetup, ...plLegal, ...plPanel, ...plAiEditor, ...plCourses, ...plFeatures }
 
 // Types
 interface Language {

@@ -217,7 +217,7 @@ const artifactTypes = computed(() => [
   { value: 'code', label: 'Code/Skripte' },
   { value: 'diagram', label: 'Diagramme' },
   { value: 'screenshot', label: 'Screenshots' },
-  { value: 'video', label: t('admin.systemFeatures.projectPortfolio.videos') },
+  { value: 'video', label: t('panel.systemFeatures.projectPortfolio.videos') },
   { value: 'presentation', label: 'Praesentationen' },
   { value: 'config', label: 'Konfigurationsdateien' },
   { value: 'other', label: 'Sonstiges' }

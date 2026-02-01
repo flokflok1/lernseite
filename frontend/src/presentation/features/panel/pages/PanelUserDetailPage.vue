@@ -313,14 +313,14 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/application/stores/admin.store'
+import { usePanelStore } from '@/application/stores/panel.store'
 import type { AdminUser, BanUserRequest } from '@/application/services/api/admin'
 import { adminGetUserDetail } from '@/application/services/api/admin'
 
 const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const adminStore = useAdminStore()
+const panelStore = usePanelStore()
 
 const user = ref<AdminUser | null>(null)
 const loading = ref(true)
@@ -390,7 +390,7 @@ const confirmBan = async () => {
   if (!user.value || !canSubmitBan.value) return
 
   try {
-    await adminStore.banUser(user.value.user_id, banForm.value)
+    await panelStore.banUser(user.value.user_id, banForm.value)
     closeBanModal()
     await loadUserDetail()
   } catch (err) {
@@ -412,7 +412,7 @@ const confirmUnban = async () => {
   if (!user.value || !canSubmitUnban.value) return
 
   try {
-    await adminStore.unbanUser(user.value.user_id, unbanForm.value.reason)
+    await panelStore.unbanUser(user.value.user_id, unbanForm.value.reason)
     closeUnbanModal()
     await loadUserDetail()
   } catch (err) {
@@ -434,7 +434,7 @@ const confirmGrantTokens = async () => {
   if (!user.value || !canSubmitGrantTokens.value) return
 
   try {
-    const newBalance = await adminStore.grantTokens(
+    const newBalance = await panelStore.grantTokens(
       user.value.user_id,
       grantTokensForm.value.amount,
       grantTokensForm.value.reason

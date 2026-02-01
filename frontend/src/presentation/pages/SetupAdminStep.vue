@@ -1,21 +1,21 @@
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ $t('setup.admin.title') }}</h2>
-    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ $t('setup.admin.description') }}</p>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ $t('setup.initialAdmin.title') }}</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ $t('setup.initialAdmin.description') }}</p>
 
     <form v-if="!success" @submit.prevent="submit" class="space-y-4 mb-6">
       <div class="grid grid-cols-2 gap-4">
-        <Input v-model="form.first_name" :label="$t('setup.admin.firstName')" required />
-        <Input v-model="form.last_name" :label="$t('setup.admin.lastName')" required />
+        <Input v-model="form.first_name" :label="$t('setup.initialAdmin.firstName')" required />
+        <Input v-model="form.last_name" :label="$t('setup.initialAdmin.lastName')" required />
       </div>
-      <Input v-model="form.email" type="email" :label="$t('setup.admin.email')" required />
-      <Input v-model="form.password" type="password" :label="$t('setup.admin.password')" required :hint="$t('setup.admin.passwordHint')" />
-      <Input v-model="confirmPassword" type="password" :label="$t('setup.admin.confirmPassword')" required />
+      <Input v-model="form.email" type="email" :label="$t('setup.initialAdmin.email')" required />
+      <Input v-model="form.password" type="password" :label="$t('setup.initialAdmin.password')" required :hint="$t('setup.initialAdmin.passwordHint')" />
+      <Input v-model="confirmPassword" type="password" :label="$t('setup.initialAdmin.confirmPassword')" required />
     </form>
 
     <div v-else class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg">
-      <p class="font-medium text-green-900 dark:text-green-100">{{ $t('setup.admin.success') }}</p>
-      <p class="text-sm text-green-700 dark:text-green-300 mt-2">{{ $t('setup.admin.email') }}: {{ form.email }}</p>
+      <p class="font-medium text-green-900 dark:text-green-100">{{ $t('setup.initialAdmin.success') }}</p>
+      <p class="text-sm text-green-700 dark:text-green-300 mt-2">{{ $t('setup.initialAdmin.email') }}: {{ form.email }}</p>
     </div>
 
     <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">{{ error }}</div>
@@ -53,7 +53,7 @@ const form = reactive({
 
 const submit = async () => {
   if (form.password !== confirmPassword.value) {
-    error.value = t('setup.admin.passwordMismatch')
+    error.value = t('setup.initialAdmin.passwordMismatch')
     return
   }
   loading.value = true
@@ -62,7 +62,7 @@ const submit = async () => {
     await setupApi.createAdmin(form)
     success.value = true
   } catch (err: any) {
-    error.value = err.response?.data?.message || t('setup.admin.createFailed')
+    error.value = err.response?.data?.message || t('setup.initialAdmin.createFailed')
   } finally {
     loading.value = false
   }

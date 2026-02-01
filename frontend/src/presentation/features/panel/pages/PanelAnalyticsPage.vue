@@ -228,7 +228,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/application/stores/admin.store'
+import { usePanelStore } from '@/application/stores/panel.store'
 import { AnalyticsKpiCard, LineChart } from '@/presentation/components/analytics/charts'
 
 const { t } = useI18n()
@@ -237,7 +237,7 @@ const { t } = useI18n()
 // Store
 // ============================================================================
 
-const adminStore = useAdminStore()
+const panelStore = usePanelStore()
 
 // ============================================================================
 // State
@@ -256,10 +256,10 @@ const timeframeOptions = computed(() => [
 // Computed
 // ============================================================================
 
-const systemStats = computed(() => adminStore.systemStats)
-const systemAnalytics = computed(() => adminStore.systemAnalytics)
-const analyticsLoading = computed(() => adminStore.systemAnalyticsLoading)
-const analyticsError = computed(() => adminStore.systemAnalyticsError)
+const systemStats = computed(() => panelStore.systemStats)
+const systemAnalytics = computed(() => panelStore.systemAnalytics)
+const analyticsLoading = computed(() => panelStore.systemAnalyticsLoading)
+const analyticsError = computed(() => panelStore.systemAnalyticsError)
 
 const hasData = computed(() => {
   return systemStats.value !== null && systemAnalytics.value !== null
@@ -332,8 +332,8 @@ const activeUsersChartData = computed(() => {
 const loadAnalyticsData = async () => {
   try {
     await Promise.all([
-      adminStore.loadAdminDashboard(),
-      adminStore.loadAdminAnalytics(selectedTimeframe.value)
+      panelStore.loadAdminDashboard(),
+      panelStore.loadAdminAnalytics(selectedTimeframe.value)
     ])
   } catch (error) {
     console.error('Failed to load analytics:', error)
@@ -344,7 +344,7 @@ const loadAnalyticsData = async () => {
 
 const changeTimeframe = async (timeframe: 7 | 30 | 90) => {
   selectedTimeframe.value = timeframe
-  await adminStore.changeAnalyticsTimeframe(timeframe)
+  await panelStore.changeAnalyticsTimeframe(timeframe)
 }
 
 const formatDate = (dateString: string): string => {

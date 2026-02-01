@@ -48,11 +48,11 @@
 
     <!-- Users Table -->
     <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)]">
-      <div v-if="adminStore.loading" class="p-8 text-center">
+      <div v-if="panelStore.loading" class="p-8 text-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
       </div>
 
-      <div v-else-if="adminStore.users.length === 0" class="p-8 text-center text-[var(--color-text-secondary)]">
+      <div v-else-if="panelStore.users.length === 0" class="p-8 text-center text-[var(--color-text-secondary)]">
         {{ $t('panel.users.noUsers') }}
       </div>
 
@@ -69,7 +69,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border)]">
-          <tr v-for="user in adminStore.users" :key="user.user_id" class="hover:bg-[var(--color-surface-secondary)]">
+          <tr v-for="user in panelStore.users" :key="user.user_id" class="hover:bg-[var(--color-surface-secondary)]">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="font-medium text-[var(--color-text-primary)]">{{ user.first_name }} {{ user.last_name }}</div>
             </td>
@@ -139,21 +139,21 @@
       </table>
 
       <!-- Pagination -->
-      <div v-if="adminStore.usersTotalPages > 1" class="px-6 py-4 border-t border-[var(--color-border)] flex justify-between items-center">
+      <div v-if="panelStore.usersTotalPages > 1" class="px-6 py-4 border-t border-[var(--color-border)] flex justify-between items-center">
         <p class="text-sm text-[var(--color-text-secondary)]">
-          {{ $t('panel.users.pagination', { page: adminStore.usersPage, total: adminStore.usersTotalPages, count: adminStore.usersTotal }) }}
+          {{ $t('panel.users.pagination', { page: panelStore.usersPage, total: panelStore.usersTotalPages, count: panelStore.usersTotal }) }}
         </p>
         <div class="flex gap-2">
           <button
-            @click="changePage(adminStore.usersPage - 1)"
-            :disabled="adminStore.usersPage === 1"
+            @click="changePage(panelStore.usersPage - 1)"
+            :disabled="panelStore.usersPage === 1"
             class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50"
           >
             {{ $t('common.back') }}
           </button>
           <button
-            @click="changePage(adminStore.usersPage + 1)"
-            :disabled="adminStore.usersPage >= adminStore.usersTotalPages"
+            @click="changePage(panelStore.usersPage + 1)"
+            :disabled="panelStore.usersPage >= panelStore.usersTotalPages"
             class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50"
           >
             {{ $t('common.next') }}
@@ -365,12 +365,12 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/application/stores/admin.store'
+import { usePanelStore } from '@/application/stores/panel.store'
 
 const { t } = useI18n()
 import type { AdminUser, BanUserRequest } from '@/application/services/api/admin'
 
-const adminStore = useAdminStore()
+const panelStore = usePanelStore()
 const router = useRouter()
 
 // Search & Filters
@@ -388,11 +388,11 @@ const debouncedSearch = () => {
 }
 
 const loadUsers = async () => {
-  await adminStore.loadUsers({
+  await panelStore.loadUsers({
     search: searchQuery.value || undefined,
     role: roleFilter.value || undefined,
     status: statusFilter.value as any,
-    page: adminStore.usersPage
+    page: panelStore.usersPage
   })
 }
 
@@ -404,7 +404,7 @@ const resetFilters = () => {
 }
 
 const changePage = (page: number) => {
-  adminStore.usersPage = page
+  panelStore.usersPage = page
   loadUsers()
 }
 
@@ -471,7 +471,7 @@ const confirmBan = async () => {
   if (!selectedUser.value || !canSubmitBan.value) return
 
   try {
-    await adminStore.banUser(selectedUser.value.user_id, banForm.value)
+    await panelStore.banUser(selectedUser.value.user_id, banForm.value)
     closeBanModal()
     await loadUsers()
   } catch (err) {
@@ -495,7 +495,7 @@ const confirmUnban = async () => {
   if (!selectedUser.value || !canSubmitUnban.value) return
 
   try {
-    await adminStore.unbanUser(selectedUser.value.user_id, unbanForm.value.reason)
+    await panelStore.unbanUser(selectedUser.value.user_id, unbanForm.value.reason)
     closeUnbanModal()
     await loadUsers()
   } catch (err) {
@@ -519,7 +519,7 @@ const confirmGrantTokens = async () => {
   if (!selectedUser.value || !canSubmitGrantTokens.value) return
 
   try {
-    await adminStore.grantTokens(
+    await panelStore.grantTokens(
       selectedUser.value.user_id,
       grantTokensForm.value.amount,
       grantTokensForm.value.reason
@@ -547,7 +547,7 @@ const confirmVerifyCreator = async () => {
   if (!selectedUser.value || !canSubmitVerifyCreator.value) return
 
   try {
-    await adminStore.verifyCreator(
+    await panelStore.verifyCreator(
       selectedUser.value.user_id,
       verifyCreatorForm.value.verified,
       verifyCreatorForm.value.reason

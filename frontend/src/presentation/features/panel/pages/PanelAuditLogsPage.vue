@@ -92,11 +92,11 @@
 
     <!-- Audit Logs Table -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-      <div v-if="adminStore.loading" class="p-8 text-center">
+      <div v-if="panelStore.loading" class="p-8 text-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
       </div>
 
-      <div v-else-if="adminStore.auditLogs.length === 0" class="p-8 text-center text-gray-500">
+      <div v-else-if="panelStore.auditLogs.length === 0" class="p-8 text-center text-gray-500">
         {{ $t('panel.auditLogs.noLogs') }}
       </div>
 
@@ -114,7 +114,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
-            <tr v-for="log in adminStore.auditLogs" :key="log.log_id" class="hover:bg-gray-50">
+            <tr v-for="log in panelStore.auditLogs" :key="log.log_id" class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ formatDateTime(log.created_at) }}
               </td>
@@ -152,23 +152,23 @@
 
       <!-- Pagination -->
       <div
-        v-if="adminStore.auditLogsTotalPages > 1"
+        v-if="panelStore.auditLogsTotalPages > 1"
         class="px-6 py-4 border-t border-gray-200 flex justify-between items-center"
       >
         <p class="text-sm text-gray-600">
-          {{ $t('panel.auditLogs.pagination', { page: adminStore.auditLogsPage, total: adminStore.auditLogsTotalPages, count: adminStore.auditLogsTotal }) }}
+          {{ $t('panel.auditLogs.pagination', { page: panelStore.auditLogsPage, total: panelStore.auditLogsTotalPages, count: panelStore.auditLogsTotal }) }}
         </p>
         <div class="flex gap-2">
           <button
-            @click="changePage(adminStore.auditLogsPage - 1)"
-            :disabled="adminStore.auditLogsPage === 1"
+            @click="changePage(panelStore.auditLogsPage - 1)"
+            :disabled="panelStore.auditLogsPage === 1"
             class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
           >
             {{ $t('panel.auditLogs.prev') }}
           </button>
           <button
-            @click="changePage(adminStore.auditLogsPage + 1)"
-            :disabled="adminStore.auditLogsPage >= adminStore.auditLogsTotalPages"
+            @click="changePage(panelStore.auditLogsPage + 1)"
+            :disabled="panelStore.auditLogsPage >= panelStore.auditLogsTotalPages"
             class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
           >
             {{ $t('panel.auditLogs.next') }}
@@ -268,11 +268,11 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/application/stores/admin.store'
+import { usePanelStore } from '@/application/stores/panel.store'
 import type { AuditLog, AuditLogsFilterParams } from '@/application/services/api/admin'
 
 const { locale } = useI18n()
-const adminStore = useAdminStore()
+const panelStore = usePanelStore()
 
 const filters = reactive<AuditLogsFilterParams>({
   user_id: undefined,
@@ -300,7 +300,7 @@ const loadLogs = async () => {
   if (filters.to) params.to = filters.to
   if (filters.success !== undefined && filters.success !== '') params.success = filters.success
 
-  await adminStore.loadAuditLogs(params)
+  await panelStore.loadAuditLogs(params)
 }
 
 const resetFilters = () => {

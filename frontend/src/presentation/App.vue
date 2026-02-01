@@ -234,8 +234,8 @@ const layout = computed(() => {
     return 'div'
   }
 
-  // Admin routes use their own AdminLayout - no BaseLayout wrapper!
-  if (route.path.startsWith('/admin')) {
+  // Panel routes use PanelLayout (handled by router component definition)
+  if (route.path.startsWith('/panel')) {
     return 'div'
   }
 

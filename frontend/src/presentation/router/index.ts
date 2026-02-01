@@ -16,7 +16,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/application/stores/auth.store'
 import { useAppStore } from '@/application/stores/app.store'
-import { panelRoutes, adminLegacyRedirect } from '@/presentation/features/panel/routes'
+import { panelRoutes } from '@/presentation/features/panel/routes'
 import { editorRoutes } from '@/presentation/features/editor/routes'
 
 const routes: RouteRecordRaw[] = [
@@ -116,11 +116,8 @@ const routes: RouteRecordRaw[] = [
     // GBA handles feature visibility inside component
   },
 
-  // Panel Routes (System Administration - formerly /admin)
+  // Panel Routes (System Administration)
   panelRoutes,
-
-  // Legacy /admin redirect to /panel
-  adminLegacyRedirect,
 
   // Editor Routes (Course Authoring)
   editorRoutes,

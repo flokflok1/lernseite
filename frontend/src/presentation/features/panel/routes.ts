@@ -107,16 +107,4 @@ export const panelRoutes: RouteRecordRaw = {
   ],
 }
 
-// Legacy /admin redirect to /panel
-export const adminLegacyRedirect: RouteRecordRaw = {
-  path: '/admin/:pathMatch(.*)*',
-  redirect: (to) => {
-    const path = to.params.pathMatch
-    if (Array.isArray(path)) {
-      return `/panel/${path.join('/')}`
-    }
-    return `/panel/${path || ''}`
-  },
-}
-
 export default panelRoutes

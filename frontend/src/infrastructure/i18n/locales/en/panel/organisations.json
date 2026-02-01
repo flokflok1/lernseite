@@ -1,0 +1,83 @@
+{
+  "orgAnalyticsPage": {
+    "charts": {
+      "activeMembers": "Active Members",
+      "activeMembersPerDay": "Active Members per Day",
+      "events": "Events",
+      "eventsPerDay": "Events per Day"
+    },
+    "days30": "30 Days",
+    "days7": "7 Days",
+    "days90": "90 Days",
+    "kpi": {
+      "activeIn7d": "{count} active (7d)",
+      "activeMembers30d": "Active Members (30d)",
+      "assignedCourses": "Assigned Courses",
+      "avgCompletionRate": "Avg Completion Rate",
+      "tokenPool": "Token Pool",
+      "tokenUsage": "Token Usage",
+      "tokensAvailable": "{count} available",
+      "tokensUsed30d": "Tokens Used (30d)",
+      "tokensUsed7d": "Tokens Used (7d)",
+      "totalMembers": "Total Members"
+    },
+    "loadError": "Error loading analytics data",
+    "loading": "Loading...",
+    "loadingData": "Loading analytics data...",
+    "noData": "No analytics data available",
+    "noDataAvailable": "No data available",
+    "noDataHint": "Please ensure your organisation is active.",
+    "refresh": "Refresh",
+    "subtitle": "Progress & Statistics for Your Organisation",
+    "timeframe": "Timeframe:",
+    "title": "Analytics",
+    "topLists": {
+      "avgMinutes": "Avg {minutes} Min",
+      "avgProgress": "Avg {percent}% Progress",
+      "completionRate": "{percent}% Completion Rate",
+      "completions": "{count} Completions",
+      "coursesCompleted": "{count} Courses Completed",
+      "events": "{count} Events",
+      "participants": "{count} Participants",
+      "progress": "{percent}% Progress",
+      "topChapters": "Top Chapters",
+      "topCourses": "Top Courses",
+      "topLearners": "Top Learners"
+    }
+  },
+  "orgCoursesPage": {
+    "subtitle": "Course assignments",
+    "title": "Courses"
+  },
+  "orgDashboardPage": {
+    "active": "{count} active",
+    "assignCourses": "Assign courses",
+    "assignCoursesDesc": "Manage learning paths",
+    "completionRate": "Completion rate",
+    "consumed": "{percent}% consumed",
+    "courses": "Courses",
+    "manageMembers": "Manage members",
+    "manageMembersDesc": "Invite & assign",
+    "members": "Members",
+    "noOrganisation": "You are not assigned to any organization.",
+    "subtitle": "Overview of your organization",
+    "title": "Organization Dashboard",
+    "tokensAvailable": "Tokens available",
+    "viewProgress": "View progress",
+    "viewProgressDesc": "Analytics & Reports"
+  },
+  "orgSettingsPage": {
+    "subtitle": "Organization settings",
+    "title": "Settings"
+  },
+  "orgUsersPage": {
+    "subtitle": "Organization members",
+    "title": "Members"
+  },
+  "org_admin": "Organization Admin",
+  "organisations": {
+    "subtitle": "Schools & Companies",
+    "title": "Organizations",
+    "workInProgress": "Organization Management - Implementation in progress"
+  }
+}

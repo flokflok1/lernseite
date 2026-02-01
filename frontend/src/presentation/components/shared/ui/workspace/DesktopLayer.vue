@@ -71,7 +71,7 @@ const AdminLessonEditorPanel = defineAsyncComponent(() => import('@/presentation
 const AdminLessonPreviewPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/lessons/views/LessonPreviewPanel.vue'))
 
 // Content Management - Learning Methods
-const AdminLearningMethodEditorPanel = defineAsyncComponent(() => import('@/presentation/components/learning/editor/views/LearningMethodEditorPanel.vue'))
+const AdminLearningMethodEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/learning-methods/views/LearningMethodEditorPanel.vue'))
 
 // Assessment
 const AdminExamManagerPanel = defineAsyncComponent(() => import('@/presentation/components/studio/assessment/admin/views/ExamManagerPanel.vue'))

@@ -28,10 +28,12 @@ http.interceptors.request.use(
     // Try to get token from store first, fallback to localStorage
     // This handles cases where store might not be initialized yet
     let token: string | null = null
+    let tokenSource = 'none'
 
     try {
       const authStore = useAuthStore()
       token = authStore.accessToken
+      if (token) tokenSource = 'store'
     } catch {
       // Store not available, use localStorage directly
     }
@@ -39,11 +41,17 @@ http.interceptors.request.use(
     // Fallback to localStorage if store doesn't have token
     if (!token) {
       token = localStorage.getItem('access_token')
+      if (token) tokenSource = 'localStorage'
     }
 
     // Add Authorization header if token exists
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+
+    // Debug logging for admin endpoints
+    if (config.url?.includes('/admin/')) {
+      console.log(`[HTTP] ${config.method?.toUpperCase()} ${config.url} | Token: ${token ? `${token.substring(0, 20)}...` : 'NONE'} (${tokenSource})`)
     }
 
     return config
@@ -64,14 +72,23 @@ http.interceptors.response.use(
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (error.response?.status === 401) {
-      // Logout user and redirect to login
-      await authStore.logout()
-      router.push('/login')
+      // Check if this is a login/register request (don't auto-logout for these)
+      const isAuthEndpoint = error.config?.url?.includes('/auth/login') ||
+                            error.config?.url?.includes('/auth/register')
 
-      return Promise.reject({
-        message: 'Session expired. Please login again.',
-        status: 401,
-      })
+      if (!isAuthEndpoint) {
+        // Logout user and redirect to login (only for authenticated routes)
+        await authStore.logout()
+        router.push('/login')
+
+        return Promise.reject({
+          message: 'Session expired. Please login again.',
+          status: 401,
+        })
+      }
+
+      // For login/register failures, pass the error through unchanged
+      return Promise.reject(error)
     }
 
     // Handle 403 Forbidden - Insufficient permissions

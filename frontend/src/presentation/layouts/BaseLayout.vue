@@ -64,14 +64,14 @@
           >
             ⚙️ {{ t('nav.settings') }}
           </router-link>
-          <!-- Admin Panel (System Admin) -->
+          <!-- Panel (System Admin) -->
           <router-link
             v-if="authStore.isSystemAdmin"
-            to="/admin"
+            to="/panel"
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"
           >
-            🔧 {{ t('nav.admin') }}
+            🔧 {{ t('nav.panel') }}
           </router-link>
 
         </nav>

@@ -33,6 +33,7 @@ import deTutor from '@/infrastructure/i18n/locales/de/tutor'
 import deLegal from '@/infrastructure/i18n/locales/de/legal'
 
 import deAdmin from '@/infrastructure/i18n/locales/de/admin'
+import dePanel from '@/infrastructure/i18n/locales/de/panel'
 import deAiEditor from '@/infrastructure/i18n/locales/de/aiEditor'
 import deCourses from '@/infrastructure/i18n/locales/de/courses'
 import deFeatures from '@/infrastructure/i18n/locales/de/features'
@@ -46,6 +47,7 @@ import enTutor from '@/infrastructure/i18n/locales/en/tutor'
 import enLegal from '@/infrastructure/i18n/locales/en/legal'
 
 import enAdmin from '@/infrastructure/i18n/locales/en/admin'
+import enPanel from '@/infrastructure/i18n/locales/en/panel'
 import enAiEditor from '@/infrastructure/i18n/locales/en/aiEditor'
 import enCourses from '@/infrastructure/i18n/locales/en/courses'
 import enFeatures from '@/infrastructure/i18n/locales/en/features'
@@ -59,6 +61,7 @@ import plTutor from '@/infrastructure/i18n/locales/pl/tutor'
 import plLegal from '@/infrastructure/i18n/locales/pl/legal'
 
 import plAdmin from '@/infrastructure/i18n/locales/pl/admin'
+import plPanel from '@/infrastructure/i18n/locales/pl/panel'
 import plAiEditor from '@/infrastructure/i18n/locales/pl/aiEditor'
 import plCourses from '@/infrastructure/i18n/locales/pl/courses'
 import plFeatures from '@/infrastructure/i18n/locales/pl/features'
@@ -72,6 +75,7 @@ const de = {
   ...deTutor,
   ...deLegal,
   ...deAdmin,
+  ...dePanel,
   ...deAiEditor,
   ...deCourses,
   ...deFeatures
@@ -85,6 +89,7 @@ const en = {
   ...enTutor,
   ...enLegal,
   ...enAdmin,
+  ...enPanel,
   ...enAiEditor,
   ...enCourses,
   ...enFeatures
@@ -98,6 +103,7 @@ const pl = {
   ...plTutor,
   ...plLegal,
   ...plAdmin,
+  ...plPanel,
   ...plAiEditor,
   ...plCourses,
   ...plFeatures

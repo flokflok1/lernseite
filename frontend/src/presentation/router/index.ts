@@ -5,6 +5,8 @@
  * - Setup: /setup (installation wizard)
  * - Public: /login, /register
  * - Protected: /dashboard, /courses, /profile
+ * - Panel: /panel (system administration, formerly /admin)
+ * - Editor: /editor (course authoring)
  *
  * Navigation Guards:
  * - requiresAuth: Redirect to /login if not authenticated
@@ -14,6 +16,8 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/application/stores/auth.store'
 import { useAppStore } from '@/application/stores/app.store'
+import { panelRoutes, adminLegacyRedirect } from '@/presentation/features/panel/routes'
+import { editorRoutes } from '@/presentation/features/editor/routes'
 
 const routes: RouteRecordRaw[] = [
   // Setup Wizard Routes
@@ -103,111 +107,23 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
 
-  // Admin Routes (System Admins only)
+  // AI Editor (GBA-based - all authenticated users)
   {
-    path: '/admin',
-    component: () => import('@/presentation/layouts/AdminLayout.vue'),
-    meta: { requiresAuth: true, requiresSystemAdmin: true },
-    children: [
-      {
-        path: '',
-        name: 'AdminDashboard',
-        component: () => import('@/presentation/pages/admin/AdminDashboardPage.vue'),
-      },
-      {
-        path: 'users',
-        name: 'AdminUsers',
-        component: () => import('@/presentation/pages/admin/AdminUsersPage.vue'),
-      },
-      {
-        path: 'users/:userId',
-        name: 'AdminUserDetail',
-        component: () => import('@/presentation/pages/admin/AdminUserDetailPage.vue'),
-      },
-      {
-        path: 'organisations',
-        name: 'AdminOrganisations',
-        component: () => import('@/presentation/pages/admin/AdminOrganisationsPage.vue'),
-      },
-      // Redirects for renamed routes (Wave 6)
-      {
-        path: 'kurse',
-        redirect: '/admin/kurs-editor',
-      },
-      {
-        path: 'roles',
-        redirect: '/admin/groups',
-      },
-      // New route names (Wave 6)
-      {
-        path: 'kurs-editor',
-        name: 'AdminCourseEditor',
-        component: () => import('@/presentation/pages/admin/AdminCourseEditorPage.vue'),
-      },
-      {
-        path: 'kurs-editor/:id',
-        name: 'admin-course-detail',
-        component: () => import('@/presentation/pages/admin/AdminCourseDetailPage.vue'),
-        props: true,
-      },
-      {
-        path: 'ai-studio',
-        name: 'AdminAIStudio',
-        component: () => import('@/presentation/pages/admin/AdminKIStudioPage.vue'),
-      },
-      // Legacy route (old name)
-      {
-        path: 'courses',
-        redirect: '/admin/kurs-editor',
-      },
-      {
-        path: 'courses/:id',
-        redirect: (to) => `/admin/kurs-editor/${to.params.id}`,
-      },
-      {
-        path: 'categories',
-        name: 'AdminCategories',
-        component: () => import('@/presentation/pages/admin/AdminCategoriesPage.vue'),
-      },
-      {
-        path: 'billing',
-        name: 'AdminBilling',
-        component: () => import('@/presentation/pages/admin/AdminBillingPage.vue'),
-      },
-      {
-        path: 'analytics',
-        name: 'AdminAnalytics',
-        component: () => import('@/presentation/pages/admin/AdminAnalyticsPage.vue'),
-      },
-      {
-        path: 'audit-logs',
-        name: 'AdminAuditLogs',
-        component: () => import('@/presentation/pages/admin/AdminAuditLogsPage.vue'),
-      },
-      // TODO: Fix i18n translations system (locales dir issue)
-      // {
-      //   path: 'translations',
-      //   name: 'AdminTranslations',
-      //   component: () => import('@/presentation/pages/admin/AdminTranslationsPage.vue'),
-      // },
-      {
-        path: 'lm-routing',
-        name: 'AdminLMRouting',
-        component: () => import('@/presentation/pages/admin/AdminLMRoutingPage.vue'),
-      },
-      {
-        path: 'groups',
-        name: 'AdminGroups',
-        component: () => import('@/presentation/pages/admin/AdminGroupsPage.vue'),
-      },
-      {
-        path: 'system-settings',
-        name: 'AdminSystemSettings',
-        component: () => import('@/presentation/pages/admin/AdminSystemSettingsPage.vue'),
-      },
-    ],
+    path: '/ai-editor',
+    name: 'AIEditor',
+    component: () => import('@/presentation/pages/ai/AIEditorPage.vue'),
+    meta: { requiresAuth: true },
+    // GBA handles feature visibility inside component
   },
 
+  // Panel Routes (System Administration - formerly /admin)
+  panelRoutes,
+
+  // Legacy /admin redirect to /panel
+  adminLegacyRedirect,
+
+  // Editor Routes (Course Authoring)
+  editorRoutes,
 
   // Creator/Teacher Routes (Course Editor)
   {

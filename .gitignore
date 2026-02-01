@@ -152,3 +152,14 @@ db_credentials.txt
 
 # Large model files
 backend/models/piper/*.onnx
+# Backups (nie committen!)
+*_backup_*.tar.gz
+*.backup
+backend_backup_*
+
+# AI Models (zu groß für GitHub)
+backend/ai_models/piper/*.onnx
+backend/ai_models/**/*.onnx
+*.onnx
+*.bin
+*.safetensors

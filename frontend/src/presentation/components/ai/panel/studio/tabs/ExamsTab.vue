@@ -117,7 +117,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/application/services/api/system'
-import { FilesPanel, ChatPanel, ActivityPanel, FilePreviewModal, ExamPreviewPanel } from '@/presentation/components/assessment/admin/settings/exams'
+import { FilesPanel, ChatPanel, ActivityPanel, FilePreviewModal, ExamPreviewPanel } from '@/presentation/components/assessment/panel/settings/exams'
 
 const { t } = useI18n()
 

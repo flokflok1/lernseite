@@ -53,7 +53,7 @@ const handleSelectMode = (mode: 'manual' | 'ai') => {
 
   // Navigate to appropriate editor
   const coursePath = props.courseId ? `/${props.courseId}` : ''
-  router.push(`/admin/kurs-editor/${mode}${coursePath}`)
+  router.push(`/panel/kurs-editor/${mode}${coursePath}`)
 }
 
 const handleCancel = () => {

@@ -13,7 +13,7 @@ import { useI18n } from 'vue-i18n'
 import ScanPanel from './panels/ScanPanel.vue'
 import ComparisonPanel from './panels/ComparisonPanel.vue'
 import HistoryPanel from './panels/HistoryPanel.vue'
-import { useSyncManager } from '@/features/admin/useSyncManager'
+import { useSyncManager } from '@/features/panel/useSyncManager'
 import type { SyncMode } from './types/sync.types'
 
 const { t } = useI18n()

@@ -6,4 +6,4 @@
 // - admin/user-management/* → users/admin/*
 
 // Admin User Management
-export * from './admin/groups'
+export * from './panel/groups'

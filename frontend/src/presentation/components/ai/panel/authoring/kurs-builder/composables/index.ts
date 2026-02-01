@@ -9,7 +9,7 @@
  * import {
  *   useSessionManager,
  *   useChatManager
- * } from '@/presentation/components/ai/admin/authoring/kurs-builder/composables'
+ * } from '@/presentation/components/ai/panel/authoring/kurs-builder/composables'
  * ```
  *
  * @module kurs-builder/composables

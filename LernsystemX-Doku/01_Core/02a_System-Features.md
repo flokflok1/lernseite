@@ -18,11 +18,18 @@ Dieses Dokument beschreibt **System-Features**, die **keine Content-Lernmethoden
 - Aufgabenformate (Flashcards, Quiz, Lückentext)
 - Pro Kapitel individualisiert mit Inhalt gefüllt
 - Keine eigene Infrastruktur (nur JSONB-Content)
+- **Task-Fokus:** WAS der Lernende macht
 
 **System-Features** (dieses Dokument):
 - Tools/Services mit eigener Infrastruktur
 - Kurs-übergreifend konfigurierbar
 - Benötigen oft externe Services (Container, KI-APIs, WebRTC)
+- **Runtime-Fokus:** WELCHE Features während der Ausführung aktiv sind
+
+> ⚠️ **Wichtig:** System-Features sind KEINE Aufgaben/Tasks. Sie sind Runtime-Erweiterungen, die eine LM-Instanz anreichern können.
+> - Timer ist kein Task → Timer ist ein SF, das zu MCQ (lm03) hinzugefügt wird
+> - Proctoring ist kein Task → Proctoring ist ein SF für Exam-Runner
+> - Whiteboard ist ein Tool → User zeichnet in LM-Instanz, Whiteboard-SF wertet aus
 
 **📌 Backend-Integration:** Siehe `05_Technical/05_Backend-Struktur.md` **Abschnitt 1.5** für die detaillierte Backend-Implementierung und Flask-Blueprint-Struktur aller System-Features.
 
@@ -43,6 +50,22 @@ Dieses Dokument beschreibt **System-Features**, die **keine Content-Lernmethoden
 | **IT Environments** | code_sandbox, network_simulation, terminal_access | 3 |
 
 **Total:** 25 System-Features (davon 15 aus früheren LMs ausgelagert)
+
+---
+
+## Runner/Experience Layer Integration
+
+System-Features werden vom **Runner/Experience Layer** orchestriert. Der Runner bestimmt, WELCHE SF für einen bestimmten Modus aktiv sind:
+
+| Runner-Modus | Aktive System-Features | Beschreibung |
+|--------------|------------------------|--------------|
+| `learn.default` | Keine SF erforderlich | Standard-Lernen ohne Extras |
+| `learn.guided` | `npc_tutor`, `adaptive_difficulty` | KI-geführtes Lernen mit Hints |
+| `exam.practice` | `timer_wrapper`, `chapter_completion_system` | Übungsprüfung mit Timer |
+| `exam.simulation` | `timer_wrapper`, `ihk_exam_system`, `practical_exam_engine` | IHK/CompTIA-Prüfungssimulation |
+| `game.quiz_battle` | `xp_quest_system`, `peer_instruction` | Multiplayer-Wettbewerb |
+
+**Wichtig:** Der Runner aktiviert SF automatisch basierend auf dem gewählten Modus. Creators können zusätzliche SF manuell pro Kurs/Kapitel aktivieren.
 
 ---
 

@@ -221,7 +221,7 @@ import {
   FeatureGroup,
   FeatureToggle,
   ActionsBar
-} from '@/presentation/components/studio/assessment/admin/settings/exams'
+} from '@/presentation/components/studio/assessment/panel/settings/exams'
 
 const { t } = useI18n()
 

@@ -485,7 +485,7 @@ const createCourse = async (): Promise<void> => {
 
     // Navigate to course detail page
     if (courseId) {
-      router.push(`/admin/courses/${courseId}`)
+      router.push(`/panel/courses/${courseId}`)
     }
   } catch (error: any) {
     console.error('Failed to create course:', error)

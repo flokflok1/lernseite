@@ -9,7 +9,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { SyncHistorySummary } from '../types/sync.types'
-import { useSyncManager } from '@/features/admin/useSyncManager'
+import { useSyncManager } from '@/features/panel/useSyncManager'
 
 const { t } = useI18n()
 const {

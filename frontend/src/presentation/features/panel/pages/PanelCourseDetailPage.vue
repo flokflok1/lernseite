@@ -86,7 +86,7 @@ import {
   CourseQuickActions,
   CourseCreatorInfo,
   useCourseDetail
-} from '@/presentation/components/content/admin/courses/detail'
+} from '@/presentation/components/content/panel/courses/detail'
 
 // ============================================================================
 // Setup

@@ -7,9 +7,9 @@
 // - base/dialogs/* → system/shared/dialogs/ (Wave 1)
 
 // Admin System Operations
-export { default as SystemStatus } from '../../../../shared/ui/system/admin/SystemStatus.vue'
-export * from './admin/settings'
-export * from './admin/views'
+export { default as SystemStatus } from '../../../../shared/ui/system/panel/SystemStatus.vue'
+export * from './panel/settings'
+export * from './panel/views'
 
 // Shared System Components
 export * from './shared/dialogs'

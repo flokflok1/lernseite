@@ -8,8 +8,8 @@
 
 // Admin System Operations
 export { default as SystemStatus } from './admin/SystemStatus.vue'
-export * from './admin/settings'
-export * from './admin/views'
+export * from './panel/settings'
+export * from './panel/views'
 
 // Shared System Components
 export * from './shared/dialogs'

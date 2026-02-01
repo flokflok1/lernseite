@@ -67,7 +67,7 @@ note right of modules
   - 1 Theorie-Blatt (Pflicht)
   - 12 Content-Lernmethoden (siehe 02_Lernmethoden.md)
   - Optional: Quiz-Pool
-  - Optional: Kapitel-Endprüfung (LM25)
+  - Optional: Kapitel-Endprüfung (via Exam-Runner)
 end note
 
 @enduml
@@ -102,16 +102,16 @@ package "Kurs" {
 
   package "Modul 1 (Kapitel)" {
     [Theorie-Blatt 1]
-    [LM13: Flashcards]
-    [LM22: Prüfungs-Quiz]
-    [LM05: Mindmap-Generator]
+    [lm00: Flashcards]
+    [lm03: Multiple Choice]
+    [lm04: True/False]
   }
 
   package "Modul 2 (Kapitel)" {
     [Theorie-Blatt 2]
-    [LM03: Diagramm/Visualisierung]
-    [LM11: IT-Szenario lösen]
-    [LM25: Kapitel-Endprüfung]
+    [lm01: Lückentext]
+    [lm05: Code Challenge]
+    [Kapitel-Quiz (Exam-Runner)]
   }
 
   package "Modul N" {
@@ -133,9 +133,9 @@ package "Kurs" {
 [Kurs-Metadaten] --> "Prüfungen"
 
 "Modul 1 (Kapitel)" --> [Theorie-Blatt 1] : 1:1
-"Modul 1 (Kapitel)" --> [LM13: Flashcards] : 1:n
-"Modul 1 (Kapitel)" --> [LM22: Prüfungs-Quiz] : 1:n
-"Modul 1 (Kapitel)" --> [LM05: Mindmap-Generator] : 1:n
+"Modul 1 (Kapitel)" --> [lm00: Flashcards] : 1:n
+"Modul 1 (Kapitel)" --> [lm03: Multiple Choice] : 1:n
+"Modul 1 (Kapitel)" --> [lm04: True/False] : 1:n
 
 @enduml
 ```
@@ -610,26 +610,26 @@ package "Modul: OSI-Modell" {
   }
 
   rectangle "Lernmethoden" #LightGreen {
-    [Methode 1: Flashcards] #LightYellow
-    [Methode 2: MCQ Quiz] #LightYellow
-    [Methode 4: Matching] #LightYellow
-    [Methode 14: Timeline] #LightCyan
-    [LM08: Whiteboard-Aufgabe] #LightCoral
+    [lm00: Flashcards] #LightYellow
+    [lm03: Multiple Choice] #LightYellow
+    [lm01: Lückentext] #LightYellow
+    [lm05: Code Challenge] #LightCyan
+    [lm06: Case Study] #LightCoral
   }
 }
 
-[OSI-7-Schichten erklärt] --> [Methode 1: Flashcards]
-[OSI-7-Schichten erklärt] --> [Methode 2: MCQ Quiz]
-[OSI-7-Schichten erklärt] --> [Methode 4: Matching]
-[OSI-7-Schichten erklärt] --> [Methode 14: Timeline]
-[OSI-7-Schichten erklärt] --> [LM08: Whiteboard-Aufgabe]
+[OSI-7-Schichten erklärt] --> [lm00: Flashcards]
+[OSI-7-Schichten erklärt] --> [lm03: Multiple Choice]
+[OSI-7-Schichten erklärt] --> [lm01: Lückentext]
+[OSI-7-Schichten erklärt] --> [lm05: Code Challenge]
+[OSI-7-Schichten erklärt] --> [lm06: Case Study]
 
 note right of "Lernmethoden"
-  - Flashcards: Schichten auswendig lernen
-  - MCQ: Wissenstest
-  - Matching: Schicht ↔ Funktion
-  - Timeline: Datenfluss visualisieren
-  - Whiteboard-KI: Netzwerk zeichnen
+  - lm00 Flashcards: Schichten auswendig lernen
+  - lm03 MCQ: Wissenstest
+  - lm01 Lückentext: Begriffe einsetzen
+  - lm05 Code Challenge: Netzwerk-Config
+  - lm06 Case Study: OSI-Analyse
 end note
 
 @enduml
@@ -720,7 +720,7 @@ package "Prüfungen" {
     [IHK/CompTIA Standard]
 
     note right
-      - Pro-Methode #20
+      - Exam-Runner + SF
       - KI-generiert
       - Premium konsumiert
       - Creator/School erstellt
@@ -772,7 +772,7 @@ package "Prüfungen" {
 }
 ```
 
-### 7.2 KI-Prüfungssimulation (Pro-Methode #20)
+### 7.2 KI-Prüfungssimulation (Exam-Runner + System-Features)
 
 | Eigenschaft | Details |
 |-------------|---------|
@@ -870,6 +870,29 @@ end note
 | **Zertifikat** | ✅ Bei Bestehen |
 | **Wiederholbar** | Ja (mit Wartezeit) |
 
+### 7.4 Runner/Experience Layer (Wichtig!)
+
+> ⚠️ **Wichtige Abgrenzung:** Prüfungen sind KEINE Lernmethoden (LM). Prüfungen sind Kompositionen aus:
+> - **Content-Lernmethoden (LM):** Die eigentlichen Aufgaben (lm03 MCQ, lm02 Freitext, etc.)
+> - **System-Features (SF):** Runtime-Features wie Timer, Proctoring, Scoring
+> - **Runner/Experience Layer:** Steuert Flow, UI-Modus, Auswertung
+
+| Schicht | Verantwortung | Beispiele |
+|---------|---------------|-----------|
+| **LM (Task)** | Was wird gemacht? | Flashcard anzeigen, Quiz beantworten, Code schreiben |
+| **SF (Runtime)** | Welche Features aktiv? | Timer, Whiteboard, Code-Sandbox, Live-Collaboration |
+| **Runner (Experience)** | Wie wird es ausgeführt? | `learn.default`, `exam.simulation`, `game.quiz_battle` |
+
+**Runner-Modi:**
+
+| Modus | Beschreibung | LM-Beispiel | SF-Beispiel |
+|-------|--------------|-------------|-------------|
+| `learn.default` | Standard-Lernen | lm00 Flashcards | Keine Timer |
+| `learn.guided` | KI-geführt | lm03 MCQ | Hints aktiv |
+| `exam.practice` | Übungsprüfung | lm03 MCQ, lm02 Freitext | Timer, Scoring |
+| `exam.simulation` | IHK/CompTIA-Stil | lm03 MCQ, lm06 Case Study | Timer, Proctoring, Scoring |
+| `game.quiz_battle` | Multiplayer-Quiz | lm03 MCQ | Live-Sync, Leaderboard |
+
 ---
 
 ## 8. Kurs-Editor
@@ -895,7 +918,7 @@ package "Editor-Features" {
   }
 
   rectangle "Premium-Features" #LightBlue {
-    [Gruppe C: Prüfungsorientierte Methoden (LM18–LM25)]
+    [Gruppe C: Prüfungsorientierte Methoden (lm09–lm11)]
     [KI-Unterstützung]
     [Community Publishing]
   }

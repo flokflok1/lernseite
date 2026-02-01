@@ -16,7 +16,7 @@
 
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSyncManager } from '@/features/admin/useSyncManager'
+import { useSyncManager } from '@/features/panel/useSyncManager'
 import ComparisonStatusBar from './ComparisonStatusBar.vue'
 import CategoryFilter from './CategoryFilter.vue'
 import ComparisonItemRow from './ComparisonItemRow.vue'

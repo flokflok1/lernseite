@@ -315,7 +315,7 @@ async function loadExistingStructure() {
     const chapters = chaptersRes.data.data?.chapters || chaptersRes.data.chapters || []
     const structureChapters: Chapter[] = []
     for (const ch of chapters) {
-      const lessonsRes = await http.get(`/admin/chapters/${ch.chapter_id}/lessons`)
+      const lessonsRes = await http.get(`/panel/chapters/${ch.chapter_id}/lessons`)
       const lessons = lessonsRes.data.success ? (lessonsRes.data.data?.lessons || lessonsRes.data.lessons || []) : []
       structureChapters.push({
         id: ch.chapter_id, title: ch.title, description: ch.description || '',

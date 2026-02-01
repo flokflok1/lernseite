@@ -2,4 +2,4 @@
  * System Operations Views
  */
 
-export { default as PanelManagerPanel } from '../../../../../../shared/ui/system/admin/views/PanelManagerPanel.vue'
+export { default as PanelManagerPanel } from '../../../../../../shared/ui/system/panel/views/PanelManagerPanel.vue'

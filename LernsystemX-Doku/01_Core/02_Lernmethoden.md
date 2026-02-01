@@ -12,6 +12,37 @@ Das LernSystemX (LSX) nutzt **12 Content-Lernmethoden** als didaktische Baustein
 
 Jede Lernmethode beschreibt ein **Aufgabenformat** (z.B. Flashcards, Lückentext, Freitext-Prüfung), während die konkreten Inhalte pro Kurs und Kapitel frei definiert werden.
 
+### Definition: Was ist eine Content-Lernmethode?
+
+> **LM = Task/Interaktion**
+>
+> Eine Lernmethode (LM) ist eine **Aufgabe**, die der Lernende ausführt:
+> - Flashcard durcharbeiten
+> - Quiz-Frage beantworten
+> - Code schreiben
+> - Case Study analysieren
+>
+> **LM ≠ Feature/Tool/Timer/Prüfung**
+>
+> Diese gehören zu **System-Features** (siehe `02a_System-Features.md`) oder zum **Runner/Experience Layer**.
+
+### Semantische Codes (lm00-lm11)
+
+LM-Codes sind **generisch und semantisch**, NICHT fachspezifisch:
+
+| ✅ Korrekt | ❌ Falsch |
+|-----------|----------|
+| `lm00` (Flashcards) | `lm00_netzwerk` |
+| `lm03` (Multiple Choice) | `lm03_math` |
+| `lm05` (Code Challenge) | `lm_python_basics` |
+
+**Der Inhalt bestimmt das Fach, NICHT der LM-Code.**
+
+Beispiel:
+- `lm03` + content="OSI-Modell Quiz" → Netzwerk-Quiz
+- `lm03` + content="Mathematik Quiz" → Mathe-Quiz
+- Gleiche LM, unterschiedlicher Inhalt.
+
 **Clean Separation (2026-01-02):**
 System-Features (Tools/Services mit eigener Infrastruktur) wurden aus den Content-LMs entfernt und sind nun in `02a_System-Features.md` dokumentiert.
 

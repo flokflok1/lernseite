@@ -286,7 +286,7 @@ async function loadFile() {
 
   try {
     // Use relative path - http client adds base URL automatically
-    const serveUrl = `/admin/course-files/${file.value.id}/serve`
+    const serveUrl = `/panel/course-files/${file.value.id}/serve`
 
     if (isPdf.value) {
       const response = await http.get(serveUrl, { responseType: 'blob' })
@@ -302,7 +302,7 @@ async function loadFile() {
     } else {
       // For unsupported types, build full URL for download
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
-      fileUrl.value = `${baseUrl}/admin/course-files/${file.value.id}/serve`
+      fileUrl.value = `${baseUrl}/panel/course-files/${file.value.id}/serve`
     }
   } catch (err: any) {
     console.error('File load error:', err)
@@ -320,7 +320,7 @@ async function loadChapterLessons() {
   }
 
   try {
-    const res = await http.get(`/admin/chapters/${chapter.value.chapter_id}/lessons`)
+    const res = await http.get(`/panel/chapters/${chapter.value.chapter_id}/lessons`)
     if (res.data.success) {
       chapterLessons.value = res.data.data?.lessons || res.data.lessons || []
     }

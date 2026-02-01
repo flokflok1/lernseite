@@ -49,37 +49,37 @@ import Taskbar from './Taskbar.vue'
 
 // Import panel content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations
-const AdminAiEditorPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/admin/studio/views/AiEditorPanel.vue'))
-const AdminAIKapitelGeneratorPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/admin/authoring/views/KapitelGeneratorPanel.vue'))
-const AdminAIJobPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/admin/management/jobs/views/AIJobPanel.vue'))
-const AdminModelSelectorPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/admin/management/models/views/ModelSelectorPanel.vue'))
-const AdminPromptBrowserPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/admin/management/prompts/views/PromptBrowserPanel.vue'))
+const AdminAiEditorPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/panel/studio/views/AiEditorPanel.vue'))
+const AdminAIKapitelGeneratorPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/panel/authoring/views/KapitelGeneratorPanel.vue'))
+const AdminAIJobPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/panel/management/jobs/views/AIJobPanel.vue'))
+const AdminModelSelectorPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/panel/management/models/views/ModelSelectorPanel.vue'))
+const AdminPromptBrowserPanel = defineAsyncComponent(() => import('@/presentation/components/studio/ai/panel/management/prompts/views/PromptBrowserPanel.vue'))
 
 // Content Management - Courses
-const AdminCourseCreatePanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/courses/views/CourseCreatePanel.vue'))
-const AdminCourseEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/courses/views/CourseEditorPanel.vue'))
-const AdminCourseListEditorPanel = defineAsyncComponent(() => import('@/presentation/components/admin/panels/courses/CourseListEditorPanel.vue'))
-const AdminCourseFilesPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/courses/views/CourseFilesPanel.vue'))
+const AdminCourseCreatePanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/courses/views/CourseCreatePanel.vue'))
+const AdminCourseEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/courses/views/CourseEditorPanel.vue'))
+const AdminCourseListEditorPanel = defineAsyncComponent(() => import('@/presentation/components/panel/panels/courses/CourseListEditorPanel.vue'))
+const AdminCourseFilesPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/courses/views/CourseFilesPanel.vue'))
 
 // Content Management - Chapters
-const AdminKapitelEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/chapters/views/KapitelEditorPanel.vue'))
-const AdminKapitelManagerPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/chapters/views/KapitelManagerPanel.vue'))
-const AdminChapterPreviewPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/chapters/views/ChapterPreviewPanel.vue'))
+const AdminKapitelEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/chapters/views/KapitelEditorPanel.vue'))
+const AdminKapitelManagerPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/chapters/views/KapitelManagerPanel.vue'))
+const AdminChapterPreviewPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/chapters/views/ChapterPreviewPanel.vue'))
 
 // Content Management - Lessons
-const AdminLessonEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/lessons/views/LessonEditorPanel.vue'))
-const AdminLessonPreviewPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/lessons/views/LessonPreviewPanel.vue'))
+const AdminLessonEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/lessons/views/LessonEditorPanel.vue'))
+const AdminLessonPreviewPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/lessons/views/LessonPreviewPanel.vue'))
 
 // Content Management - Learning Methods
-const AdminLearningMethodEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/admin/learning-methods/views/LearningMethodEditorPanel.vue'))
+const AdminLearningMethodEditorPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/content/panel/learning-methods/views/LearningMethodEditorPanel.vue'))
 
 // Assessment
-const AdminExamManagerPanel = defineAsyncComponent(() => import('@/presentation/components/studio/assessment/admin/views/ExamManagerPanel.vue'))
+const AdminExamManagerPanel = defineAsyncComponent(() => import('@/presentation/components/studio/assessment/panel/views/ExamManagerPanel.vue'))
 
 // System Operations
-const AdminFilePreviewPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/system/admin/views/FilePreviewPanel.vue'))
-const AdminPanelManagerPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/system/admin/views/PanelManagerPanel.vue'))
-const AdminUserGroupManagementPanel = defineAsyncComponent(() => import('@/presentation/components/admin/panels/groups/AdminUserGroupManagementPanel.vue'))
+const AdminFilePreviewPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/system/panel/views/FilePreviewPanel.vue'))
+const AdminPanelManagerPanel = defineAsyncComponent(() => import('@/presentation/components/shared/ui/system/panel/views/PanelManagerPanel.vue'))
+const AdminUserGroupManagementPanel = defineAsyncComponent(() => import('@/presentation/components/panel/panels/groups/AdminUserGroupManagementPanel.vue'))
 
 // Learning Method Forms (12 Content-LMs: 00-11) - Updated 2026-01-11
 // LM12-32 deleted (were System-Features, not Content-LMs)

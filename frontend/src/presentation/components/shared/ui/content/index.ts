@@ -1,18 +1,18 @@
 // Content Domain Components
 // Manages courses, chapters, lessons, and learning methods
-// 
+//
 // Migrated from:
-// - admin/content-management/* → content/admin/*
+// - admin/content-management/* → content/panel/*
 // - user/courses/* → content/user/courses/*
 // - user/chapters/* → content/user/chapters/*
 
-// Admin Sub-Domain
-export * from './admin/categories'
-export * from './admin/chapters'
-export * from './admin/courses'
-export * from './admin/editor'
-export * from './admin/learning-methods'
-export * from './admin/lessons'
+// Panel Sub-Domain
+export * from './panel/categories'
+export * from './panel/chapters'
+export * from './panel/courses'
+export * from './panel/editor'
+export * from './panel/learning-methods'
+export * from './panel/lessons'
 
 // User Sub-Domain
 export * from './user/courses'

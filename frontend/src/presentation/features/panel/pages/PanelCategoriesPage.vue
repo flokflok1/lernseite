@@ -89,7 +89,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePanelStore } from '@/application/stores/panel.store'
-import { CategoryTreeNode, CategoryModal } from '@/presentation/components/content/admin/categories'
+import { CategoryTreeNode, CategoryModal } from '@/presentation/components/content/panel/categories'
 import { DeleteConfirmModal } from '@/presentation/components/system/shared'
 
 const { t } = useI18n()

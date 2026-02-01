@@ -186,10 +186,10 @@
  */
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useGroupsStore } from '@/application/stores/modules/admin/groups.store'
+import { useGroupsStore } from '@/application/stores/modules/panel/groups.store'
 import { getSystemFeatures, getPermissions } from '@/application/services/api/admin'
 import type { RoleWithStats, SystemFeature, Permission, CreateRoleRequest, CreateFromTemplateRequest } from '@/application/services/api/admin'
-import { GroupList, GroupForm, PermissionMatrix, GroupTemplateSelector } from '@/presentation/components/shared/ui/admin-ui/user-management/groups'
+import { GroupList, GroupForm, PermissionMatrix, GroupTemplateSelector } from '@/presentation/components/shared/ui/panel-ui/user-management/groups'
 
 const { t } = useI18n()
 const rolesStore = useGroupsStore()

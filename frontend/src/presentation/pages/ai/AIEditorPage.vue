@@ -67,7 +67,7 @@ async function loadStats() {
   try {
     // Admin sees system-wide stats
     const endpoint = isAdmin.value
-      ? '/admin/ai/usage-stats?period=month'
+      ? '/panel/ai/usage-stats?period=month'
       : '/ai/my-usage-stats?period=month'
 
     const response = await http.get(endpoint)

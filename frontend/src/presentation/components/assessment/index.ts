@@ -7,9 +7,9 @@
 // - admin/ai-operations/settings/exams/* → assessment/admin/settings/exams/ (Wave 4)
 
 // Admin Assessment
-export * from './admin/exams'
-export * from './admin/views'
-export * from './admin/settings/exams'
+export * from './panel/exams'
+export * from './panel/views'
+export * from './panel/settings/exams'
 
 // User Assessment
 export * from './user'

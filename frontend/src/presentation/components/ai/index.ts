@@ -8,10 +8,10 @@
 // IMPORTANT: Exam settings moved to assessment/admin/settings/exams/
 
 // Admin Sub-Domain
-export * from './admin/authoring'
-export * from './admin/management'
-export * from './admin/settings'
-export * from './admin/studio'
+export * from './panel/authoring'
+export * from './panel/management'
+export * from './panel/settings'
+export * from './panel/studio'
 
 // User Sub-Domain
 export * from './user/chat'

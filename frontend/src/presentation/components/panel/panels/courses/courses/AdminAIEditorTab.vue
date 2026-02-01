@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AiEditorPanel from '@/presentation/components/studio/ai/admin/studio/views/AiEditorPanel.vue'
+import AiEditorPanel from '@/presentation/components/studio/ai/panel/studio/views/AiEditorPanel.vue'
 
 // Create a minimal panel object that satisfies AiEditorPanel's requirements
 const windowData = ref({

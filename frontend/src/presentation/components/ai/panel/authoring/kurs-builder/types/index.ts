@@ -11,7 +11,7 @@
  *   ChatMessage,
  *   Course,
  *   Chapter
- * } from '@/presentation/components/ai/admin/authoring/kurs-builder/types'
+ * } from '@/presentation/components/ai/panel/authoring/kurs-builder/types'
  * ```
  *
  * @module kurs-builder/types

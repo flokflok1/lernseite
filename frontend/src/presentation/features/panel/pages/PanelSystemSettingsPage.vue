@@ -130,7 +130,7 @@ import { useI18n } from 'vue-i18n'
 import { useSystemMode } from '@/application/composables/useSystemMode'
 
 // Sub-components
-import { SystemInfoWidget, SystemModeManager, MaintenanceModeToggle } from '@/presentation/components/system/admin/settings'
+import { SystemInfoWidget, SystemModeManager, MaintenanceModeToggle } from '@/presentation/components/system/panel/settings'
 
 const { t } = useI18n()
 

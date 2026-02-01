@@ -338,95 +338,97 @@ Das **Admin Panel** ist eine **System Administration Interface** unter `/admin` 
 
 ```typescript
 // src/presentation/router/index.ts
+// Note: Routes use /panel (not /admin) as of 2026-02 migration
 
 {
-  path: '/admin',
-  component: () => import('@/presentation/layouts/AdminLayout.vue'),
+  path: '/panel',
+  component: () => import('@/presentation/layouts/PanelLayout.vue'),
   meta: {
     requiresAuth: true,
-    requiresPermission: 'admin:system'  // ✅ GBA: Requires admin:system
+    requiresPermission: 'panel:access'  // ✅ GBA: Requires panel:access
   },
   children: [
     {
       path: '',
-      name: 'AdminDashboard',
-      component: () => import('@/presentation/pages/admin/AdminDashboardPage.vue'),
+      name: 'PanelDashboard',
+      component: () => import('@/presentation/features/panel/pages/PanelDashboardPage.vue'),
     },
     {
       path: 'users',
-      name: 'AdminUsers',
-      component: () => import('@/presentation/pages/admin/AdminUsersPage.vue'),
+      name: 'PanelUsers',
+      component: () => import('@/presentation/features/panel/pages/PanelUsersPage.vue'),
     },
     {
       path: 'users/:userId',
-      name: 'AdminUserDetail',
-      component: () => import('@/presentation/pages/admin/AdminUserDetailPage.vue'),
+      name: 'PanelUserDetail',
+      component: () => import('@/presentation/features/panel/pages/PanelUserDetailPage.vue'),
     },
     {
       path: 'groups',                                              // ✅ Changed from 'roles'
-      name: 'AdminGroups',
-      component: () => import('@/presentation/pages/admin/AdminGroupsPage.vue'),
+      name: 'PanelGroups',
+      component: () => import('@/presentation/features/panel/pages/PanelGroupsPage.vue'),
     },
     {
       path: 'organisations',
-      name: 'AdminOrganisations',
-      component: () => import('@/presentation/pages/admin/AdminOrganisationsPage.vue'),
+      name: 'PanelOrganisations',
+      component: () => import('@/presentation/features/panel/pages/PanelOrganisationsPage.vue'),
     },
     {
       path: 'kurs-editor',
-      name: 'AdminCourseEditor',
-      component: () => import('@/presentation/pages/admin/AdminCoursesPage.vue'),
+      name: 'PanelCourseEditor',
+      component: () => import('@/presentation/features/panel/pages/PanelCoursesPage.vue'),
     },
     {
       path: 'categories',
-      name: 'AdminCategories',
-      component: () => import('@/presentation/pages/admin/AdminCategoriesPage.vue'),
+      name: 'PanelCategories',
+      component: () => import('@/presentation/features/panel/pages/PanelCategoriesPage.vue'),
     },
     {
       path: 'ai-studio',
-      name: 'AdminAIStudio',
-      component: () => import('@/presentation/pages/admin/AdminKIStudioPage.vue'),
+      name: 'PanelAIStudio',
+      component: () => import('@/presentation/features/panel/pages/PanelKIStudioPage.vue'),
     },
     {
       path: 'translations',
-      name: 'AdminTranslations',
-      component: () => import('@/presentation/pages/admin/AdminTranslationsPage.vue'),
+      name: 'PanelTranslations',
+      component: () => import('@/presentation/features/panel/pages/PanelTranslationsPage.vue'),
     },
     {
       path: 'billing',
-      name: 'AdminBilling',
-      component: () => import('@/presentation/pages/admin/AdminBillingPage.vue'),
+      name: 'PanelBilling',
+      component: () => import('@/presentation/features/panel/pages/PanelBillingPage.vue'),
     },
     {
       path: 'analytics',
-      name: 'AdminAnalytics',
-      component: () => import('@/presentation/pages/admin/AdminAnalyticsPage.vue'),
+      name: 'PanelAnalytics',
+      component: () => import('@/presentation/features/panel/pages/PanelAnalyticsPage.vue'),
     },
     {
       path: 'audit-logs',
-      name: 'AdminAuditLogs',
-      component: () => import('@/presentation/pages/admin/AdminAuditLogsPage.vue'),
+      name: 'PanelAuditLogs',
+      component: () => import('@/presentation/features/panel/pages/PanelAuditLogsPage.vue'),
     },
     {
       path: 'lm-routing',
-      name: 'AdminLMRouting',
-      component: () => import('@/presentation/pages/admin/AdminLMRoutingPage.vue'),
+      name: 'PanelLMRouting',
+      component: () => import('@/presentation/features/panel/pages/PanelLMRoutingPage.vue'),
     },
     {
       path: 'system-settings',
-      name: 'AdminSystemSettings',
-      component: () => import('@/presentation/pages/admin/AdminSystemSettingsPage.vue'),
+      name: 'PanelSystemSettings',
+      component: () => import('@/presentation/features/panel/pages/PanelSystemSettingsPage.vue'),
     },
   ],
 }
 ```
 
-### Admin Panel Services (GBA-Aligned)
+### Panel Services (GBA-Aligned)
 
 ```typescript
-// src/application/services/admin/
+// src/application/services/panel/
+// Note: Renamed from /admin/ as of 2026-02 migration
 
-├── UserAdminService.ts                     # User CRUD
+├── UserPanelService.ts                     # User CRUD
 ├── GroupManagementService.ts               # ✅ Group CRUD + Permission Management (replaced RoleAdminService)
 ├── OrganisationService.ts
 ├── CourseAdminService.ts
@@ -499,12 +501,13 @@ export class GroupManagementService {
 }
 ```
 
-### Admin Panel Stores (Pinia)
+### Panel Stores (Pinia)
 
 ```typescript
-// src/application/stores/modules/admin/
+// src/application/stores/modules/panel/
+// Note: Renamed from /admin/ as of 2026-02 migration
 
-├── adminDashboard.store.ts
+├── panelDashboard.store.ts
 ├── users.store.ts
 ├── groups.store.ts                         # ✅ Group state management (replaced roles.store.ts)
 ├── organisations.store.ts
@@ -522,11 +525,12 @@ export class GroupManagementService {
 ### groups.store.ts (NEW - Replaces roles.store.ts)
 
 ```typescript
-// src/application/stores/modules/admin/groups.store.ts
+// src/application/stores/modules/panel/groups.store.ts
+// Note: Path renamed from /admin/ as of 2026-02 migration
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { GroupManagementService } from '@/application/services/admin/GroupManagementService'
+import { GroupManagementService } from '@/application/services/panel/GroupManagementService'
 
 interface Group {
   id: number
@@ -538,7 +542,7 @@ interface Group {
   permissions: string[]
 }
 
-export const useGroupsStore = defineStore('admin/groups', () => {
+export const useGroupsStore = defineStore('panel/groups', () => {
   const service = new GroupManagementService()
 
   const groups = ref<Group[]>([])
@@ -594,7 +598,8 @@ export const useGroupsStore = defineStore('admin/groups', () => {
 ### Admin Layout (mit GBA Menu)
 
 ```vue
-<!-- src/presentation/layouts/AdminLayout.vue -->
+<!-- src/presentation/layouts/PanelLayout.vue -->
+<!-- Note: Renamed from AdminLayout.vue as of 2026-02 migration -->
 
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -604,31 +609,31 @@ import { useAuthStore } from '@/application/stores/auth.store'
 const { t } = useI18n()
 const authStore = useAuthStore()
 
-// ✅ 12 Admin menu items (Groups instead of Roles)
+// ✅ 12 Panel menu items (Groups instead of Roles)
 const menuItems = computed(() => [
-  { path: '/admin', label: t('admin.nav.dashboard'), icon: '📊' },
-  { path: '/admin/users', label: t('admin.nav.users'), icon: '👥' },
-  { path: '/admin/groups', label: t('admin.nav.groups'), icon: '👫' },        // ✅ Changed from roles
-  { path: '/admin/organisations', label: t('admin.nav.organisations'), icon: '🏢' },
-  { path: '/admin/kurs-editor', label: t('admin.nav.courseEditor'), icon: '📝' },
-  { path: '/admin/categories', label: t('admin.nav.categories'), icon: '📁' },
-  { path: '/admin/ai-studio', label: t('admin.nav.aiStudio'), icon: '🤖' },
-  { path: '/admin/translations', label: t('admin.nav.translations'), icon: '🌐' },
-  { path: '/admin/billing', label: t('admin.nav.billing'), icon: '💰' },
-  { path: '/admin/analytics', label: t('admin.nav.analytics'), icon: '📈' },
-  { path: '/admin/audit-logs', label: t('admin.nav.auditLogs'), icon: '📋' },
-  { path: '/admin/system-settings', label: t('admin.nav.settings'), icon: '⚙️' }
+  { path: '/panel', label: t('panel.nav.dashboard'), icon: '📊' },
+  { path: '/panel/users', label: t('panel.nav.users'), icon: '👥' },
+  { path: '/panel/groups', label: t('panel.nav.groups'), icon: '👫' },        // ✅ Changed from roles
+  { path: '/panel/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
+  { path: '/panel/kurs-editor', label: t('panel.nav.courseEditor'), icon: '📝' },
+  { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
+  { path: '/panel/ai-studio', label: t('panel.nav.aiStudio'), icon: '🤖' },
+  { path: '/panel/translations', label: t('panel.nav.translations'), icon: '🌐' },
+  { path: '/panel/billing', label: t('panel.nav.billing'), icon: '💰' },
+  { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },
+  { path: '/panel/audit-logs', label: t('panel.nav.auditLogs'), icon: '📋' },
+  { path: '/panel/system-settings', label: t('panel.nav.settings'), icon: '⚙️' }
 ])
 </script>
 
 <template>
-  <div class="admin-layout flex h-screen overflow-hidden bg-[var(--color-bg)]">
+  <div class="panel-layout flex h-screen overflow-hidden bg-[var(--color-bg)]">
     <!-- Sidebar Navigation -->
     <aside class="w-72 bg-[var(--color-surface)] border-r border-[var(--color-border)]">
       <!-- Logo -->
       <div class="p-5 border-b">
-        <h1 class="text-lg font-bold">LSX Admin</h1>
-        <p class="text-sm text-secondary">{{ t('admin.system_admin') }}</p>
+        <h1 class="text-lg font-bold">LSX Panel</h1>
+        <p class="text-sm text-secondary">{{ t('panel.system_panel') }}</p>
       </div>
 
       <!-- Navigation Menu -->
@@ -733,8 +738,9 @@ export const requirePermission = (permission: string) => {
 
 ```typescript
 // src/application/composables/useGroupsStore.ts (replaces useRolesStore)
+// Note: Path renamed from /admin/ to /panel/ as of 2026-02 migration
 
-import { useGroupsStore as useStore } from '@/application/stores/modules/admin/groups.store'
+import { useGroupsStore as useStore } from '@/application/stores/modules/panel/groups.store'
 
 export const useGroupsStore = () => {
   const groupsStore = useStore()
@@ -841,25 +847,34 @@ src/presentation/components/course-editor/
   meta: { requiresPermission: 'manage:courses' }
 },
 {
-  path: '/admin/kurs-editor',        // Admin Access
+  path: '/panel/kurs-editor',        // Panel Access (renamed from /admin/)
   component: () => import('@/presentation/components/course-editor/CourseEditorMain.vue'),
-  meta: { requiresPermission: 'admin:system' }
+  meta: { requiresPermission: 'panel:access' }
 }
 ```
 
 ---
 
-## Zusammenfassung GBA-Migration
+## Zusammenfassung GBA-Migration + Panel-Rename
 
-### ✅ Abgeschlossene Änderungen
+### ✅ Abgeschlossene Änderungen (GBA)
 
-- ✅ **Admin Routes:** Umgestellt von `/admin/roles` zu `/admin/groups`
+- ✅ **Panel Routes:** Umgestellt von `/panel/roles` zu `/panel/groups`
 - ✅ **Services:** `RoleAdminService` → `GroupManagementService`
 - ✅ **Stores:** `roles.store.ts` → `groups.store.ts`
 - ✅ **Composables:** `useRolesStore()` → `useGroupsStore()`
 - ✅ **Components:** All role-related components → group-based equivalents
 - ✅ **Router Guards:** GBA-basiert via `requiresPermission` Meta
-- ✅ **i18n:** Admin menu updated (groups statt roles)
+- ✅ **i18n:** Panel menu updated (groups statt roles)
+
+### ✅ Panel-Rename Migration (2026-02)
+
+- ✅ **Route-Prefix:** `/admin` → `/panel`
+- ✅ **Services Path:** `/services/admin/` → `/services/panel/`
+- ✅ **Stores Path:** `/stores/modules/admin/` → `/stores/modules/panel/`
+- ✅ **Components Path:** `/components/admin/` → `/components/panel/`
+- ✅ **i18n Namespace:** `admin.*` → `panel.*`
+- ✅ **Layout:** `AdminLayout.vue` → `PanelLayout.vue`
 
 ### ✅ GBA-Features
 

@@ -399,7 +399,7 @@ async function loadStats() {
   loadError.value = null
 
   try {
-    const response = await http.get('/admin/ai/usage-stats', {
+    const response = await http.get('/panel/ai/usage-stats', {
       params: { period: selectedPeriod.value }
     })
 

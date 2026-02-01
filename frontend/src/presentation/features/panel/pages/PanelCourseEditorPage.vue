@@ -136,7 +136,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/window.store'
-import CourseSelectionModal from '@/presentation/components/content/admin/courses/modals/CourseSelectionModal.vue'
+import CourseSelectionModal from '@/presentation/components/content/panel/courses/modals/CourseSelectionModal.vue'
 
 interface Course {
   course_id: string

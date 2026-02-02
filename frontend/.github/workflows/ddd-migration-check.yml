@@ -1,0 +1,316 @@
+name: DDD Migration Validation
+
+# Run on push to main/develop and on pull requests
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "refactor/frontend-ddd*"
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # 1. LINT & CODE QUALITY
+  # ============================================
+  lint:
+    name: ESLint & Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint (Check for deprecated imports)
+        run: npx eslint src/ --max-warnings 0
+        continue-on-error: false
+
+      - name: Prettier (Format check)
+        run: npx prettier --check src/
+
+  # ============================================
+  # 2. TYPE CHECKING & BUILD
+  # ============================================
+  type-check:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+  # ============================================
+  # 3. IMPORT VALIDATION
+  # ============================================
+  validate-imports:
+    name: Validate Imports (DDD Migration)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate imports
+        run: npm run validate:imports
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: import-validation-report
+          path: |
+            import-errors.log
+            import-warnings.log
+
+  # ============================================
+  # 4. UNIT & INTEGRATION TESTS
+  # ============================================
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Generate coverage report
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/coverage-final.json
+          flags: frontend
+          name: frontend-coverage
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: ./coverage/lcov.info
+
+  # ============================================
+  # 5. BUNDLE SIZE TRACKING
+  # ============================================
+  bundle-size:
+    name: Bundle Size Comparison
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check bundle size
+        run: npm run migrate:check
+
+      - name: Upload bundle metrics
+        uses: actions/upload-artifact@v3
+        with:
+          name: bundle-metrics
+          path: |
+            .migration-metrics/bundle-*.json
+
+  # ============================================
+  # 6. VISUAL REGRESSION TESTING (Percy)
+  # ============================================
+  visual-regression:
+    name: Percy Visual Regression Testing
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Percy Visual Regression
+        run: npm run percy:test
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+        continue-on-error: true # Don't fail pipeline if Percy unavailable
+
+      - name: Upload Percy artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: percy-report
+          path: .percy/
+
+  # ============================================
+  # 7. MIGRATION PROGRESS REPORT
+  # ============================================
+  migration-report:
+    name: DDD Migration Progress Report
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs:
+      - lint
+      - type-check
+      - validate-imports
+      - test
+      - bundle-size
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate migration report
+        run: |
+          npm run migrate:report > migration-report.txt
+          echo "## DDD Migration Progress" >> $GITHUB_STEP_SUMMARY
+          cat migration-report.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload migration report
+        uses: actions/upload-artifact@v3
+        with:
+          name: migration-report
+          path: migration-report.txt
+
+  # ============================================
+  # 8. SUCCESS SUMMARY
+  # ============================================
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - type-check
+      - validate-imports
+      - test
+    if: always()
+
+    steps:
+      - name: Check job status
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ]; then
+            echo "❌ ESLint check failed"
+            exit 1
+          fi
+
+          if [ "${{ needs.type-check.result }}" != "success" ]; then
+            echo "❌ TypeScript type check failed"
+            exit 1
+          fi
+
+          if [ "${{ needs.validate-imports.result }}" != "success" ]; then
+            echo "❌ Import validation failed"
+            exit 1
+          fi
+
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "❌ Tests failed"
+            exit 1
+          fi
+
+          echo "✅ All validations passed!"
+          echo "## DDD Migration CI/CD Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ ESLint check passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ TypeScript compilation passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Import validation passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests passed" >> $GITHUB_STEP_SUMMARY
+
+# ============================================
+# VALIDATION WORKFLOW
+# ============================================
+# This workflow runs on every push and PR to ensure:
+#
+# 1. ESLint .......................... Deprecated imports caught
+# 2. TypeScript ....................... Type safety maintained
+# 3. Import Validation ............... Broken imports detected
+# 4. Tests ........................... 75%+ coverage maintained
+# 5. Bundle Size ..................... No unexpected increases
+# 6. Visual Regression (Percy) ....... No layout regressions
+# 7. Migration Report ................ Progress tracked
+#
+# PHASES COVERED:
+# - Phase 0: Foundation (All checks pass)
+# - Phase 1-7: Each domain migration validated before merge
+#
+# DEPRECATION TIMELINE:
+# - 2026-01-20 to 2026-07-20: Warn on deprecated imports
+# - 2026-07-20 to 2027-01-20: Error on deprecated imports
+# - 2027-01-20+: Deprecated imports removed (v3.0.0)

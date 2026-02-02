@@ -1,0 +1,11 @@
+{
+  "tutor": {
+    "avatar": {
+      "error_load_vrm": "Failed to load VRM avatar",
+      "error_loading_scene": "Error loading 3D scene",
+      "error_no_glb": "No GLB avatar available",
+      "error_no_vrm": "No VRM data found in file",
+      "loading": "Loading teacher..."
+    }
+  }
+}

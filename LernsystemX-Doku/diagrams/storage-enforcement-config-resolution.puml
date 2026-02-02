@@ -1,0 +1,65 @@
+@startuml Storage Enforcement - Configuration Resolution Logic
+!theme default
+title Storage Enforcement System - Configuration Resolution Decision Tree
+
+start
+:Receive request with
+organisation_id (optional);
+
+if (organisation_id provided?) then (yes)
+  :Query: find_by_organisation(
+    organisation_id
+  );
+
+  if (Organisation config found?) then (yes)
+    :✅ Use organisation-specific config;
+    stop
+  else (no)
+    :Org config not found,
+    continue to system default;
+  endif
+else (no)
+  :No organisation_id provided,
+  skip org lookup;
+endif
+
+:Query: find_system_default();
+
+if (System default found?) then (yes)
+  :✅ Use system default config;
+  stop
+else (no)
+  :System default not found,
+  use internal defaults;
+endif
+
+:✅ Use hardcoded internal defaults
+(should rarely reach here);
+stop
+
+note right
+  **Typical Scenarios:**
+
+  **B2B (Organisation):**
+  - organisation_id='school-123'
+  - Lookup finds soft enforcement config
+  - Use org-specific rules
+
+  **B2C (Individual):**
+  - organisation_id=null
+  - Skip to system default
+  - Use hard enforcement config
+
+  **New Organisation:**
+  - organisation_id='new-org'
+  - No org config yet
+  - Fallback to system default
+  - Admin can create org-specific later
+
+  **Failsafe:**
+  - Internal defaults never fail
+  - Ensures system always has config
+  - Should never be needed in practice
+end note
+
+@enduml

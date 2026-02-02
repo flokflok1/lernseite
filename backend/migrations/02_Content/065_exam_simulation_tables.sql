@@ -1,19 +1,14 @@
 -- ============================================================================
--- Migration 047: KI-Prüfungssimulation Tables
--- ============================================================================
--- Erstellt Tabellen für:
--- 1. user_profiles (erweitert mit Prüfungs-Kontext)
--- 2. user_learning_analytics (Lernfortschritt pro Thema)
--- 3. exam_simulations (KI-generierte Prüfungssimulationen)
--- 4. courses Erweiterungen (profession_tag, exam_level, region)
+-- Migration: 065_exam_simulation_tables.sql
+-- Version: 1.0.0
+-- Description: KI-Prüfungssimulation Tables
+-- Author: LernsystemX Migration System
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- 1. USER_PROFILES - Erweiterte Benutzerprofile mit Prüfungskontext
--- ============================================================================
-CREATE TABLE IF NOT EXISTS user_profiles (
+CREATE TABLE IF NOT EXISTS core.user_profiles (
     profile_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL UNIQUE REFERENCES core.users(user_id) ON DELETE CASCADE,
 
     -- Berufliche Informationen
     profession VARCHAR(100),              -- z.B. "FISI", "Einzelhandel", "Industriekaufmann"
@@ -49,10 +44,10 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 );
 
 -- Indizes für user_profiles
-CREATE INDEX IF NOT EXISTS idx_user_profiles_user ON user_profiles(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_profession ON user_profiles(profession);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_target_exam ON user_profiles(target_exam);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_region ON user_profiles(region);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user ON core.user_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_profession ON core.user_profiles(profession);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_target_exam ON core.user_profiles(target_exam);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_region ON core.user_profiles(region);
 
 -- Trigger für updated_at
 CREATE OR REPLACE FUNCTION update_user_profiles_timestamp()
@@ -63,9 +58,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS user_profiles_updated ON user_profiles;
+DROP TRIGGER IF EXISTS user_profiles_updated ON core.user_profiles;
 CREATE TRIGGER user_profiles_updated
-    BEFORE UPDATE ON user_profiles
+    BEFORE UPDATE ON core.user_profiles
     FOR EACH ROW
     EXECUTE FUNCTION update_user_profiles_timestamp();
 
@@ -73,10 +68,10 @@ CREATE TRIGGER user_profiles_updated
 -- ============================================================================
 -- 2. USER_LEARNING_ANALYTICS - Lernfortschritt pro Thema
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS user_learning_analytics (
+CREATE TABLE IF NOT EXISTS analytics.user_learning_analytics (
     analytics_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    course_id UUID REFERENCES courses(course_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
+    course_id UUID REFERENCES courses.courses(course_id) ON DELETE CASCADE,
 
     -- Themen-Tracking
     topic VARCHAR(100) NOT NULL,          -- z.B. "Kalkulation", "Netzwerk", "SQL"
@@ -116,16 +111,16 @@ CREATE TABLE IF NOT EXISTS user_learning_analytics (
 );
 
 -- Indizes für user_learning_analytics
-CREATE INDEX IF NOT EXISTS idx_ula_user ON user_learning_analytics(user_id);
-CREATE INDEX IF NOT EXISTS idx_ula_course ON user_learning_analytics(course_id);
-CREATE INDEX IF NOT EXISTS idx_ula_topic ON user_learning_analytics(topic);
-CREATE INDEX IF NOT EXISTS idx_ula_score ON user_learning_analytics(score_avg);
-CREATE INDEX IF NOT EXISTS idx_ula_user_course ON user_learning_analytics(user_id, course_id);
+CREATE INDEX IF NOT EXISTS idx_ula_user ON analytics.user_learning_analytics(user_id);
+CREATE INDEX IF NOT EXISTS idx_ula_course ON analytics.user_learning_analytics(course_id);
+CREATE INDEX IF NOT EXISTS idx_ula_topic ON analytics.user_learning_analytics(topic);
+CREATE INDEX IF NOT EXISTS idx_ula_score ON analytics.user_learning_analytics(score_avg);
+CREATE INDEX IF NOT EXISTS idx_ula_user_course ON analytics.user_learning_analytics(user_id, course_id);
 
 -- Trigger für updated_at
-DROP TRIGGER IF EXISTS ula_updated ON user_learning_analytics;
+DROP TRIGGER IF EXISTS ula_updated ON analytics.user_learning_analytics;
 CREATE TRIGGER ula_updated
-    BEFORE UPDATE ON user_learning_analytics
+    BEFORE UPDATE ON analytics.user_learning_analytics
     FOR EACH ROW
     EXECUTE FUNCTION update_user_profiles_timestamp();
 
@@ -133,10 +128,10 @@ CREATE TRIGGER ula_updated
 -- ============================================================================
 -- 3. EXAM_SIMULATIONS - KI-generierte Prüfungssimulationen
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS exam_simulations (
+CREATE TABLE IF NOT EXISTS assessments.exam_simulations (
     simulation_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    course_id UUID NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    course_id UUID NOT NULL REFERENCES courses.courses(course_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
 
     -- Simulation Metadaten
     title VARCHAR(255),                   -- z.B. "AP1 Simulation - Kalkulation Fokus"
@@ -213,17 +208,17 @@ CREATE TABLE IF NOT EXISTS exam_simulations (
 );
 
 -- Indizes für exam_simulations
-CREATE INDEX IF NOT EXISTS idx_examsim_course ON exam_simulations(course_id);
-CREATE INDEX IF NOT EXISTS idx_examsim_user ON exam_simulations(user_id);
-CREATE INDEX IF NOT EXISTS idx_examsim_status ON exam_simulations(status);
-CREATE INDEX IF NOT EXISTS idx_examsim_created ON exam_simulations(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_examsim_context ON exam_simulations USING GIN (context_json);
-CREATE INDEX IF NOT EXISTS idx_examsim_config ON exam_simulations USING GIN (config_json);
+CREATE INDEX IF NOT EXISTS idx_examsim_course ON assessments.exam_simulations(course_id);
+CREATE INDEX IF NOT EXISTS idx_examsim_user ON assessments.exam_simulations(user_id);
+CREATE INDEX IF NOT EXISTS idx_examsim_status ON assessments.exam_simulations(status);
+CREATE INDEX IF NOT EXISTS idx_examsim_created ON assessments.exam_simulations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_examsim_context ON assessments.exam_simulations USING GIN (context_json);
+CREATE INDEX IF NOT EXISTS idx_examsim_config ON assessments.exam_simulations USING GIN (config_json);
 
 -- Trigger für updated_at
-DROP TRIGGER IF EXISTS examsim_updated ON exam_simulations;
+DROP TRIGGER IF EXISTS examsim_updated ON assessments.exam_simulations;
 CREATE TRIGGER examsim_updated
-    BEFORE UPDATE ON exam_simulations
+    BEFORE UPDATE ON assessments.exam_simulations
     FOR EACH ROW
     EXECUTE FUNCTION update_user_profiles_timestamp();
 
@@ -231,10 +226,10 @@ CREATE TRIGGER examsim_updated
 -- ============================================================================
 -- 4. EXAM_SIMULATION_ATTEMPTS - Versuche/Durchläufe einer Simulation
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS exam_simulation_attempts (
+CREATE TABLE IF NOT EXISTS assessments.exam_simulation_attempts (
     attempt_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    simulation_id UUID NOT NULL REFERENCES exam_simulations(simulation_id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    simulation_id UUID NOT NULL REFERENCES assessments.exam_simulations(simulation_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
 
     -- Versuch-Daten
     started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -259,15 +254,15 @@ CREATE TABLE IF NOT EXISTS exam_simulation_attempts (
 );
 
 -- Indizes für exam_simulation_attempts
-CREATE INDEX IF NOT EXISTS idx_esa_simulation ON exam_simulation_attempts(simulation_id);
-CREATE INDEX IF NOT EXISTS idx_esa_user ON exam_simulation_attempts(user_id);
-CREATE INDEX IF NOT EXISTS idx_esa_status ON exam_simulation_attempts(status);
+CREATE INDEX IF NOT EXISTS idx_esa_simulation ON assessments.exam_simulation_attempts(simulation_id);
+CREATE INDEX IF NOT EXISTS idx_esa_user ON assessments.exam_simulation_attempts(user_id);
+CREATE INDEX IF NOT EXISTS idx_esa_status ON assessments.exam_simulation_attempts(status);
 
 
 -- ============================================================================
 -- 5. COURSES ERWEITERUNGEN - Prüfungs-spezifische Felder
 -- ============================================================================
-ALTER TABLE courses
+ALTER TABLE courses.courses
 ADD COLUMN IF NOT EXISTS profession_tag VARCHAR(50),
 ADD COLUMN IF NOT EXISTS exam_level VARCHAR(50),
 ADD COLUMN IF NOT EXISTS exam_region VARCHAR(100),
@@ -277,31 +272,31 @@ ADD COLUMN IF NOT EXISTS detected_topics TEXT[],
 ADD COLUMN IF NOT EXISTS exam_metadata JSONB DEFAULT '{}';
 
 -- Index für neue Felder
-CREATE INDEX IF NOT EXISTS idx_courses_profession ON courses(profession_tag);
-CREATE INDEX IF NOT EXISTS idx_courses_exam_level ON courses(exam_level);
+CREATE INDEX IF NOT EXISTS idx_courses_profession ON courses.courses(profession_tag);
+CREATE INDEX IF NOT EXISTS idx_courses_exam_level ON courses.courses(exam_level);
 
 
 -- ============================================================================
 -- 6. COURSE_FILES ERWEITERUNGEN - Prüfungsdatei-Markierung
 -- ============================================================================
-ALTER TABLE course_files
+ALTER TABLE courses.course_files
 ADD COLUMN IF NOT EXISTS is_exam_relevant BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS exam_topics TEXT[],
 ADD COLUMN IF NOT EXISTS content_summary TEXT,
 ADD COLUMN IF NOT EXISTS analyzed_at TIMESTAMP WITH TIME ZONE;
 
 -- Index für exam-relevante Dateien
-CREATE INDEX IF NOT EXISTS idx_cf_exam_relevant ON course_files(is_exam_relevant) WHERE is_exam_relevant = TRUE;
+CREATE INDEX IF NOT EXISTS idx_cf_exam_relevant ON courses.course_files(is_exam_relevant) WHERE is_exam_relevant = TRUE;
 
 
 -- ============================================================================
 -- KOMMENTARE
 -- ============================================================================
-COMMENT ON TABLE user_profiles IS 'Erweiterte Benutzerprofile mit Prüfungs- und Ausbildungskontext';
-COMMENT ON TABLE user_learning_analytics IS 'Lernfortschritt und Leistungsdaten pro Thema für adaptive Prüfungsvorbereitung';
-COMMENT ON TABLE exam_simulations IS 'KI-generierte Prüfungssimulationen mit Smart/Manual Mode';
-COMMENT ON TABLE exam_simulation_attempts IS 'Durchläufe/Versuche von Prüfungssimulationen';
+COMMENT ON TABLE core.user_profiles IS 'Erweiterte Benutzerprofile mit Prüfungs- und Ausbildungskontext';
+COMMENT ON TABLE analytics.user_learning_analytics IS 'Lernfortschritt und Leistungsdaten pro Thema für adaptive Prüfungsvorbereitung';
+COMMENT ON TABLE assessments.exam_simulations IS 'KI-generierte Prüfungssimulationen mit Smart/Manual Mode';
+COMMENT ON TABLE assessments.exam_simulation_attempts IS 'Durchläufe/Versuche von Prüfungssimulationen';
 
-COMMENT ON COLUMN exam_simulations.context_json IS 'Automatisch erkannter Prüfungskontext (Beruf, Level, Region, Schwächen)';
-COMMENT ON COLUMN exam_simulations.config_json IS 'User-Konfiguration (Mode, Fokus, Schwierigkeit, Zeitlimit)';
-COMMENT ON COLUMN exam_simulations.result_json IS 'Generierte Prüfung mit Summary und Fragen';
+COMMENT ON COLUMN assessments.exam_simulations.context_json IS 'Automatisch erkannter Prüfungskontext (Beruf, Level, Region, Schwächen)';
+COMMENT ON COLUMN assessments.exam_simulations.config_json IS 'User-Konfiguration (Mode, Fokus, Schwierigkeit, Zeitlimit)';
+COMMENT ON COLUMN assessments.exam_simulations.result_json IS 'Generierte Prüfung mit Summary und Fragen';

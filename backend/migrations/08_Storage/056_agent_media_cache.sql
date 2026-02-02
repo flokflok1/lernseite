@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: 066_agent_media_cache.sql
+-- Migration: 056_agent_media_cache.sql
 -- Description: Agent Media Cache - TTS, Audio, Video, Transcripts
 -- Author: Claude Code
 -- Date: 2025-12-10
@@ -23,9 +23,9 @@ BEGIN;
 -- TABLE: agent_media_cache
 -- Description: Cached media assets (audio, video, images)
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_media_cache (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_media_cache (
     media_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID REFERENCES course_agents(agent_id) ON DELETE CASCADE,
+    agent_id UUID REFERENCES smart_agents.course_agents(agent_id) ON DELETE CASCADE,
 
     -- Media Identification
     content_hash VARCHAR(64) NOT NULL,  -- SHA256 of source content
@@ -78,20 +78,20 @@ CREATE TABLE IF NOT EXISTS agent_media_cache (
     )
 );
 
-CREATE INDEX idx_agent_media_cache_agent ON agent_media_cache(agent_id);
-CREATE INDEX idx_agent_media_cache_hash ON agent_media_cache(content_hash);
-CREATE INDEX idx_agent_media_cache_type ON agent_media_cache(media_type);
-CREATE INDEX idx_agent_media_cache_source ON agent_media_cache(source_type, source_id);
-CREATE INDEX idx_agent_media_cache_expires ON agent_media_cache(expires_at) WHERE expires_at IS NOT NULL;
-CREATE INDEX idx_agent_media_cache_access ON agent_media_cache(last_accessed_at DESC);
+CREATE INDEX idx_agent_media_cache_agent ON smart_agents.agent_media_cache (agent_id);
+CREATE INDEX idx_agent_media_cache_hash ON smart_agents.agent_media_cache (content_hash);
+CREATE INDEX idx_agent_media_cache_type ON smart_agents.agent_media_cache (media_type);
+CREATE INDEX idx_agent_media_cache_source ON smart_agents.agent_media_cache (source_type, source_id);
+CREATE INDEX idx_agent_media_cache_expires ON smart_agents.agent_media_cache (expires_at) WHERE expires_at IS NOT NULL;
+CREATE INDEX idx_agent_media_cache_access ON smart_agents.agent_media_cache (last_accessed_at DESC);
 
 -- ============================================================================
 -- TABLE: agent_tts_cache
 -- Description: Specialized TTS audio cache with voice settings
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_tts_cache (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_tts_cache (
     tts_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    media_id UUID NOT NULL REFERENCES agent_media_cache(media_id) ON DELETE CASCADE,
+    media_id UUID NOT NULL REFERENCES smart_agents.agent_media_cache(media_id) ON DELETE CASCADE,
 
     -- Text Source
     text_hash VARCHAR(64) NOT NULL,
@@ -118,16 +118,16 @@ CREATE TABLE IF NOT EXISTS agent_tts_cache (
     UNIQUE(text_hash, voice_id, speech_speed, voice_provider)
 );
 
-CREATE INDEX idx_agent_tts_text ON agent_tts_cache(text_hash);
-CREATE INDEX idx_agent_tts_voice ON agent_tts_cache(voice_id);
+CREATE INDEX idx_agent_tts_text ON smart_agents.agent_tts_cache (text_hash);
+CREATE INDEX idx_agent_tts_voice ON smart_agents.agent_tts_cache (voice_id);
 
 -- ============================================================================
 -- TABLE: agent_transcript_cache
 -- Description: Cached audio/video transcriptions
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_transcript_cache (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_transcript_cache (
     transcript_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    media_id UUID REFERENCES agent_media_cache(media_id) ON DELETE CASCADE,
+    media_id UUID REFERENCES smart_agents.agent_media_cache(media_id) ON DELETE CASCADE,
 
     -- Source Audio/Video
     source_file_hash VARCHAR(64) NOT NULL,
@@ -156,27 +156,26 @@ CREATE TABLE IF NOT EXISTS agent_transcript_cache (
     UNIQUE(source_file_hash)
 );
 
-CREATE INDEX idx_agent_transcript_hash ON agent_transcript_cache(source_file_hash);
-CREATE INDEX idx_agent_transcript_lang ON agent_transcript_cache(transcript_language);
+CREATE INDEX idx_agent_transcript_hash ON smart_agents.agent_transcript_cache (source_file_hash);
+CREATE INDEX idx_agent_transcript_lang ON smart_agents.agent_transcript_cache (transcript_language);
 
 -- Full-text search for transcripts
-CREATE INDEX idx_agent_transcript_fts ON agent_transcript_cache
-    USING GIN (to_tsvector('german', transcript_text));
+CREATE INDEX idx_agent_transcript_fts ON smart_agents.agent_transcript_cache USING GIN (to_tsvector('german', transcript_text));
 
 -- ============================================================================
 -- TABLE: agent_video_cache
 -- Description: Cached video explanations and avatar videos
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_video_cache (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_video_cache (
     video_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    media_id UUID NOT NULL REFERENCES agent_media_cache(media_id) ON DELETE CASCADE,
+    media_id UUID NOT NULL REFERENCES smart_agents.agent_media_cache(media_id) ON DELETE CASCADE,
 
     -- Video Type
     video_type VARCHAR(30) NOT NULL,  -- explanation, avatar_lipsync, diagram_anim
 
     -- Source Content
     source_text TEXT,                  -- Script/explanation text
-    source_audio_id UUID REFERENCES agent_tts_cache(tts_id),  -- Linked TTS
+    source_audio_id UUID REFERENCES smart_agents.agent_tts_cache(tts_id),  -- Linked TTS
 
     -- Avatar Settings (for lip-sync videos)
     avatar_id VARCHAR(50),
@@ -203,17 +202,17 @@ CREATE TABLE IF NOT EXISTS agent_video_cache (
     )
 );
 
-CREATE INDEX idx_agent_video_type ON agent_video_cache(video_type);
-CREATE INDEX idx_agent_video_avatar ON agent_video_cache(avatar_id);
+CREATE INDEX idx_agent_video_type ON smart_agents.agent_video_cache (video_type);
+CREATE INDEX idx_agent_video_avatar ON smart_agents.agent_video_cache (avatar_id);
 
 -- ============================================================================
 -- TABLE: agent_realtime_sessions
 -- Description: Track realtime audio/video sessions for caching
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_realtime_sessions (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_realtime_sessions (
     session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID REFERENCES course_agents(agent_id) ON DELETE SET NULL,
-    user_id UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    agent_id UUID REFERENCES smart_agents.course_agents(agent_id) ON DELETE SET NULL,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
 
     -- Session Info
     session_type VARCHAR(30) NOT NULL,  -- voice_chat, video_tutoring
@@ -226,7 +225,7 @@ CREATE TABLE IF NOT EXISTS agent_realtime_sessions (
     recording_size_bytes BIGINT,
 
     -- Transcript
-    transcript_id UUID REFERENCES agent_transcript_cache(transcript_id),
+    transcript_id UUID REFERENCES smart_agents.agent_transcript_cache(transcript_id),
 
     -- AI Interactions
     total_turns INTEGER DEFAULT 0,
@@ -252,10 +251,10 @@ CREATE TABLE IF NOT EXISTS agent_realtime_sessions (
     )
 );
 
-CREATE INDEX idx_agent_realtime_agent ON agent_realtime_sessions(agent_id);
-CREATE INDEX idx_agent_realtime_user ON agent_realtime_sessions(user_id);
-CREATE INDEX idx_agent_realtime_type ON agent_realtime_sessions(session_type);
-CREATE INDEX idx_agent_realtime_started ON agent_realtime_sessions(started_at DESC);
+CREATE INDEX idx_agent_realtime_agent ON smart_agents.agent_realtime_sessions (agent_id);
+CREATE INDEX idx_agent_realtime_user ON smart_agents.agent_realtime_sessions (user_id);
+CREATE INDEX idx_agent_realtime_type ON smart_agents.agent_realtime_sessions (session_type);
+CREATE INDEX idx_agent_realtime_started ON smart_agents.agent_realtime_sessions (started_at DESC);
 
 -- ============================================================================
 -- VIEW: v_agent_media_stats
@@ -286,10 +285,10 @@ SELECT
     -- Estimated Savings
     SUM(amc.access_count * amc.generation_cost) - SUM(amc.generation_cost) as estimated_savings
 
-FROM course_agents ca
-JOIN courses c ON ca.course_id = c.course_id
-LEFT JOIN agent_media_cache amc ON ca.agent_id = amc.agent_id
-LEFT JOIN agent_transcript_cache atc ON amc.media_id = atc.media_id
+FROM smart_agents.course_agents ca
+JOIN courses.courses c ON ca.course_id = c.course_id
+LEFT JOIN smart_agents.agent_media_cache amc ON ca.agent_id = amc.agent_id
+LEFT JOIN smart_agents.agent_transcript_cache atc ON amc.media_id = atc.media_id
 GROUP BY ca.agent_id, ca.course_id, c.title;
 
 -- ============================================================================
@@ -319,8 +318,8 @@ BEGIN
     -- Check for existing cache
     SELECT amc.media_id, amc.storage_path
     INTO v_media_id, v_storage_path
-    FROM agent_tts_cache atc
-    JOIN agent_media_cache amc ON atc.media_id = amc.media_id
+    FROM smart_agents.agent_tts_cache atc
+    JOIN smart_agents.agent_media_cache amc ON atc.media_id = amc.media_id
     WHERE atc.text_hash = v_text_hash
       AND atc.voice_id = p_voice_id
       AND atc.voice_provider = p_voice_provider
@@ -330,7 +329,7 @@ BEGIN
 
     IF v_media_id IS NOT NULL THEN
         -- Update access stats
-        UPDATE agent_media_cache
+        UPDATE smart_agents.agent_media_cache
         SET access_count = access_count + 1,
             last_accessed_at = NOW()
         WHERE media_id = v_media_id;
@@ -361,15 +360,15 @@ DECLARE
 BEGIN
     SELECT atc.transcript_id, atc.transcript_text, atc.segments
     INTO v_transcript_id, v_text, v_segments
-    FROM agent_transcript_cache atc
+    FROM smart_agents.agent_transcript_cache atc
     WHERE atc.source_file_hash = p_file_hash;
 
     IF v_transcript_id IS NOT NULL THEN
         -- Update access stats
-        UPDATE agent_media_cache amc
+        UPDATE smart_agents.agent_media_cache amc
         SET access_count = access_count + 1,
             last_accessed_at = NOW()
-        FROM agent_transcript_cache atc
+        FROM smart_agents.agent_transcript_cache atc
         WHERE atc.transcript_id = v_transcript_id
           AND amc.media_id = atc.media_id;
 
@@ -383,19 +382,19 @@ $$ LANGUAGE plpgsql;
 -- ============================================================================
 -- Extend agent_knowledge_base for media references
 -- ============================================================================
-ALTER TABLE agent_knowledge_base ADD COLUMN IF NOT EXISTS tts_media_id UUID REFERENCES agent_media_cache(media_id);
-ALTER TABLE agent_knowledge_base ADD COLUMN IF NOT EXISTS video_media_id UUID REFERENCES agent_media_cache(media_id);
-ALTER TABLE agent_knowledge_base ADD COLUMN IF NOT EXISTS has_audio BOOLEAN DEFAULT FALSE;
-ALTER TABLE agent_knowledge_base ADD COLUMN IF NOT EXISTS has_video BOOLEAN DEFAULT FALSE;
+ALTER TABLE smart_agents.agent_knowledge_base ADD COLUMN IF NOT EXISTS tts_media_id UUID REFERENCES smart_agents.agent_media_cache(media_id);
+ALTER TABLE smart_agents.agent_knowledge_base ADD COLUMN IF NOT EXISTS video_media_id UUID REFERENCES smart_agents.agent_media_cache(media_id);
+ALTER TABLE smart_agents.agent_knowledge_base ADD COLUMN IF NOT EXISTS has_audio BOOLEAN DEFAULT FALSE;
+ALTER TABLE smart_agents.agent_knowledge_base ADD COLUMN IF NOT EXISTS has_video BOOLEAN DEFAULT FALSE;
 
 -- ============================================================================
 -- TRIGGERS
 -- ============================================================================
 
 -- Update timestamp trigger for agent_media_cache
-DROP TRIGGER IF EXISTS update_agent_media_cache_updated_at ON agent_media_cache;
+DROP TRIGGER IF EXISTS update_agent_media_cache_updated_at ON smart_agents.agent_media_cache ;
 CREATE TRIGGER update_agent_media_cache_updated_at
-    BEFORE UPDATE ON agent_media_cache
+    BEFORE UPDATE ON smart_agents.agent_media_cache
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 COMMIT;

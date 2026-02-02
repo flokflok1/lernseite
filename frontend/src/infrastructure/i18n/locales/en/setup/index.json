@@ -1,0 +1,140 @@
+{
+  "setup": {
+    "initialAdmin": {
+      "confirmPassword": "Confirm Password",
+      "createFailed": "Admin creation failed",
+      "description": "Create the first administrator account.",
+      "email": "Email",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "password": "Password",
+      "passwordHint": "Min. 8 characters, 1 uppercase, 1 number",
+      "passwordMismatch": "Passwords do not match",
+      "success": "Admin account successfully created!",
+      "title": "Create Admin Account"
+    },
+    "ai": {
+      "anthropicKey": "Anthropic API Key",
+      "deeplKey": "DeepL API Key",
+      "description": "Configure AI providers (optional, can be added later).",
+      "openaiKey": "OpenAI API Key",
+      "optional": "Optional",
+      "saveFailed": "AI configuration failed",
+      "skip": "Skip",
+      "success": "AI configuration saved!",
+      "title": "AI Configuration"
+    },
+    "common": {
+      "back": "Back",
+      "create": "Create",
+      "next": "Next",
+      "save": "Save"
+    },
+    "database": {
+      "description": "Creates all tables, indexes and database structure.",
+      "error": "Error",
+      "indexes": "Indexes",
+      "initFailed": "Database initialization failed",
+      "initialize": "Initialize",
+      "schemas": "Schemas",
+      "success": "Successful!",
+      "tables": "Tables",
+      "title": "Initialize Database"
+    },
+    "environment": {
+      "configFailed": "Configuration error",
+      "configureButton": "Configure Environment",
+      "configuring": "Configuring...",
+      "description": "Choose the environment for your LernsystemX installation.",
+      "development": {
+        "debugMode": "Debug mode enabled",
+        "description": "For local development and testing",
+        "detailedLogging": "Detailed logging",
+        "hotReload": "Hot-reload for code changes",
+        "localhostCors": "Localhost CORS allowed",
+        "title": "Development"
+      },
+      "infoBox": {
+        "description": "The .env file will be automatically created with secure random keys. SECRET_KEY and JWT_SECRET_KEY will be cryptographically securely generated.",
+        "title": "Automatic Configuration"
+      },
+      "networkError": "Network error during configuration",
+      "production": {
+        "description": "For live deployment",
+        "optimizedPerformance": "Optimized performance",
+        "productionLogging": "Production logging",
+        "rateLimiting": "Rate limiting",
+        "securityHeaders": "Security headers enabled",
+        "title": "Production"
+      },
+      "success": "Environment \"{env}\" successfully configured! Secure keys were automatically generated.",
+      "title": "Environment Selection"
+    },
+    "finish": {
+      "allChecksPassed": "All checks passed!",
+      "complete": "Complete Installation",
+      "completeFailed": "Installation completion failed",
+      "description": "Verify the installation and complete the setup process.",
+      "goToLogin": "Go to Login",
+      "reloadNote": "The page will reload when you click 'Go to Login'.",
+      "success": "Installation successfully completed!",
+      "successDesc": "The system is now ready to use.",
+      "title": "Complete Installation",
+      "verify": "Verify",
+      "verifyFailed": "Verification failed",
+      "verifying": "Verifying..."
+    },
+    "organisation": {
+      "createFailed": "Organisation creation failed",
+      "description": "Create your first organisation (school/company).",
+      "name": "Organisation Name",
+      "namePlaceholder": "My School",
+      "success": "Organisation created!",
+      "title": "Setup Organisation",
+      "type": "Type",
+      "typeAcademy": "Academy (Platform)",
+      "typeCommunity": "Community",
+      "typeCompany": "Company",
+      "typeCreator": "Creator Organisation",
+      "typeSchool": "School",
+      "typeSystem": "System"
+    },
+    "seed": {
+      "categories": "Categories",
+      "description": "Installs learning methods, categories and groups.",
+      "error": "Error",
+      "groups": "Groups",
+      "install": "Install",
+      "installFailed": "Seed data installation failed",
+      "learningMethods": "Learning Methods",
+      "success": "Successful!",
+      "systemFeatures": "System Features",
+      "title": "Install Seed Data"
+    },
+    "steps": {
+      "admin": "Admin",
+      "ai": "AI Config",
+      "database": "Database",
+      "environment": "Environment",
+      "finish": "Finish",
+      "organisation": "Organisation",
+      "seed": "Data",
+      "system": "Configuration"
+    },
+    "systemCheck": {
+      "connectionFailed": "Connection failed",
+      "connectionTested": "Connection tested",
+      "database": "PostgreSQL Database",
+      "db": "DB",
+      "dbName": "Database Name",
+      "description": "Configure connections to database and Redis.",
+      "host": "Host",
+      "password": "Password",
+      "port": "Port",
+      "redis": "Redis",
+      "testConnection": "Test Connection",
+      "title": "System Configuration",
+      "user": "User"
+    }
+  }
+}

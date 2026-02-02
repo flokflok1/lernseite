@@ -7,12 +7,12 @@
 -- ============================================================================
 
 -- ============================================================================
--- TABLE: organization_settings
+-- TABLE: organisation_settings
 -- Description: Organization-specific configuration and preferences
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS organization_settings (
+CREATE TABLE IF NOT EXISTS organisations.organisation_settings (
     setting_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    organisation_id UUID REFERENCES organisations.organisations(organisation_id) ON DELETE CASCADE,
     key VARCHAR(100) NOT NULL,
     value TEXT,
     value_type VARCHAR(20) DEFAULT 'string',
@@ -21,21 +21,21 @@ CREATE TABLE IF NOT EXISTS organization_settings (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT chk_org_setting_type CHECK (value_type IN ('string', 'number', 'boolean', 'json')),
-    UNIQUE (organization_id, key)
+    UNIQUE (organisation_id, key)
 );
 
-CREATE INDEX IF NOT EXISTS idx_org_settings_org ON organization_settings(organization_id);
-CREATE INDEX IF NOT EXISTS idx_org_settings_key ON organization_settings(key);
+CREATE INDEX IF NOT EXISTS idx_org_settings_org ON organisations.organisation_settings (organisation_id);
+CREATE INDEX IF NOT EXISTS idx_org_settings_key ON organisations.organisation_settings (key);
 
-COMMENT ON TABLE organization_settings IS 'Organization-specific settings and preferences';
+COMMENT ON TABLE organisations.organisation_settings IS 'Organization-specific settings and preferences';
 
 -- ============================================================================
--- TABLE: organization_branding
+-- TABLE: organisation_branding
 -- Description: Branding and white-label configuration
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS organization_branding (
+CREATE TABLE IF NOT EXISTS organisations.organisation_branding (
     branding_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE UNIQUE,
+    organisation_id UUID REFERENCES organisations.organisations(organisation_id) ON DELETE CASCADE UNIQUE,
     primary_color VARCHAR(7) DEFAULT '#1a73e8',
     secondary_color VARCHAR(7) DEFAULT '#34a853',
     accent_color VARCHAR(7),
@@ -51,40 +51,40 @@ CREATE TABLE IF NOT EXISTS organization_branding (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_org_branding_org ON organization_branding(organization_id);
-CREATE INDEX IF NOT EXISTS idx_org_branding_domain ON organization_branding(custom_domain);
+CREATE INDEX IF NOT EXISTS idx_org_branding_org ON organisations.organisation_branding (organisation_id);
+CREATE INDEX IF NOT EXISTS idx_org_branding_domain ON organisations.organisation_branding (custom_domain);
 
-COMMENT ON TABLE organization_branding IS 'White-label branding configuration for organizations';
+COMMENT ON TABLE organisations.organisation_branding IS 'White-label branding configuration for organizations';
 
 -- ============================================================================
--- TABLE: organization_features
+-- TABLE: organisation_features
 -- Description: Feature flags for organizations
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS organization_features (
+CREATE TABLE IF NOT EXISTS organisations.organisation_features (
     feature_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    organisation_id UUID REFERENCES organisations.organisations(organisation_id) ON DELETE CASCADE,
     feature_key VARCHAR(100) NOT NULL,
     enabled BOOLEAN DEFAULT TRUE,
     config JSONB,
     expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (organization_id, feature_key)
+    UNIQUE (organisation_id, feature_key)
 );
 
-CREATE INDEX IF NOT EXISTS idx_org_features_org ON organization_features(organization_id);
-CREATE INDEX IF NOT EXISTS idx_org_features_key ON organization_features(feature_key);
-CREATE INDEX IF NOT EXISTS idx_org_features_enabled ON organization_features(enabled) WHERE enabled = TRUE;
+CREATE INDEX IF NOT EXISTS idx_org_features_org ON organisations.organisation_features (organisation_id);
+CREATE INDEX IF NOT EXISTS idx_org_features_key ON organisations.organisation_features (feature_key);
+CREATE INDEX IF NOT EXISTS idx_org_features_enabled ON organisations.organisation_features (enabled) WHERE enabled = TRUE;
 
-COMMENT ON TABLE organization_features IS 'Feature toggles for organizations (e.g., ai_enabled, liverooms, analytics)';
+COMMENT ON TABLE organisations.organisation_features IS 'Feature toggles for organizations (e.g., ai_enabled, liverooms, analytics)';
 
 -- ============================================================================
--- TABLE: organization_quotas
+-- TABLE: organisation_quotas
 -- Description: Resource quotas and limits for organizations
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS organization_quotas (
+CREATE TABLE IF NOT EXISTS organisations.organisation_quotas (
     quota_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    organisation_id UUID REFERENCES organisations.organisations(organisation_id) ON DELETE CASCADE,
     resource_type VARCHAR(50) NOT NULL,
     quota_limit INTEGER NOT NULL,
     current_usage INTEGER DEFAULT 0,
@@ -94,27 +94,27 @@ CREATE TABLE IF NOT EXISTS organization_quotas (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT chk_org_quota_resource CHECK (resource_type IN ('users', 'courses', 'storage_mb', 'ai_requests', 'liverooms', 'recordings')),
     CONSTRAINT chk_org_quota_reset CHECK (reset_period IN ('daily', 'weekly', 'monthly', 'yearly', 'never')),
-    UNIQUE (organization_id, resource_type)
+    UNIQUE (organisation_id, resource_type)
 );
 
-CREATE INDEX IF NOT EXISTS idx_org_quotas_org ON organization_quotas(organization_id);
-CREATE INDEX IF NOT EXISTS idx_org_quotas_resource ON organization_quotas(resource_type);
+CREATE INDEX IF NOT EXISTS idx_org_quotas_org ON organisations.organisation_quotas (organisation_id);
+CREATE INDEX IF NOT EXISTS idx_org_quotas_resource ON organisations.organisation_quotas (resource_type);
 
-COMMENT ON TABLE organization_quotas IS 'Resource quotas and usage tracking for organizations';
+COMMENT ON TABLE organisations.organisation_quotas IS 'Resource quotas and usage tracking for organizations';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_org_settings_updated_at BEFORE UPDATE ON organization_settings
+CREATE TRIGGER update_org_settings_updated_at BEFORE UPDATE ON organisations.organisation_settings
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_org_branding_updated_at BEFORE UPDATE ON organization_branding
+CREATE TRIGGER update_org_branding_updated_at BEFORE UPDATE ON organisations.organisation_branding
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_org_features_updated_at BEFORE UPDATE ON organization_features
+CREATE TRIGGER update_org_features_updated_at BEFORE UPDATE ON organisations.organisation_features
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_org_quotas_updated_at BEFORE UPDATE ON organization_quotas
+CREATE TRIGGER update_org_quotas_updated_at BEFORE UPDATE ON organisations.organisation_quotas
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================

@@ -1,22 +1,17 @@
 -- ============================================================================
 -- Migration: 040_integrity_checks.sql
--- Description: Final integrity checks, RLS policies, and system verification
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- ROW LEVEL SECURITY POLICIES
--- ============================================================================
-
--- Enable RLS on key multi-tenant tables
-ALTER TABLE rooms ENABLE ROW LEVEL SECURITY;
-ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE liveroom.rooms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE courses.courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analytics.analytics_events ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Rooms - Organization isolation
-CREATE POLICY room_org_isolation ON rooms
+CREATE POLICY room_org_isolation ON liveroom.rooms
 FOR SELECT
 USING (
     org_id::text = current_setting('app.current_org_id', true) OR
@@ -24,21 +19,21 @@ USING (
 );
 
 -- RLS Policy: Courses - Creator/Organization access
-CREATE POLICY course_access_policy ON courses
+CREATE POLICY course_access_policy ON courses.courses
 FOR SELECT
 USING (
     published = TRUE OR
     creator_user_id::text = current_setting('app.current_user_id', true) OR
-    organization_id::text = current_setting('app.current_org_id', true) OR
+    organisation_id::text = current_setting('app.current_org_id', true) OR
     current_setting('app.user_role', true) IN ('admin', 'moderator')
 );
 
 -- RLS Policy: Analytics - User/Organization isolation
-CREATE POLICY analytics_isolation ON analytics_events
+CREATE POLICY analytics_isolation ON analytics.analytics_events
 FOR SELECT
 USING (
     user_id::text = current_setting('app.current_user_id', true) OR
-    organization_id::text = current_setting('app.current_org_id', true) OR
+    organisation_id::text = current_setting('app.current_org_id', true) OR
     current_setting('app.user_role', true) IN ('admin', 'support')
 );
 
@@ -48,11 +43,11 @@ USING (
 
 -- Ensure email uniqueness across all users
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_unique_lower
-ON users(LOWER(email));
+ON core.users(LOWER(email));
 
 -- Ensure organization domains are unique and valid
 CREATE UNIQUE INDEX IF NOT EXISTS idx_organizations_domain_unique_lower
-ON organizations(LOWER(domain)) WHERE domain IS NOT NULL;
+ON organisations.organisations(LOWER(domain)) WHERE domain IS NOT NULL;
 
 -- ============================================================================
 -- DATABASE FUNCTIONS
@@ -87,17 +82,17 @@ $$ LANGUAGE plpgsql VOLATILE;
 COMMENT ON FUNCTION generate_certificate_number IS 'Generate unique certificate number (LSX-YY-XXXXXXXX)';
 
 -- Function: Check if user has permission
-CREATE OR REPLACE FUNCTION user_has_permission(p_user_id UUID, p_permission_key VARCHAR)
+CREATE OR REPLACE FUNCTION user_has_permission(p_user_id UUID, p_permission_code VARCHAR)
 RETURNS BOOLEAN AS $$
 DECLARE
     has_perm BOOLEAN;
 BEGIN
     SELECT EXISTS (
         SELECT 1
-        FROM users u
-        JOIN role_permissions rp ON u.role_id = rp.role_id
-        JOIN permissions p ON rp.permission_id = p.permission_id
-        WHERE u.user_id = p_user_id AND p.permission_key = p_permission_key
+        FROM core.users u
+        JOIN core.role_permissions rp ON u.role_id = rp.role_id
+        JOIN core.permissions p ON rp.permission_id = p.permission_id
+        WHERE u.user_id = p_user_id AND p.permission_key = p_permission_code
     ) INTO has_perm;
 
     RETURN has_perm;
@@ -115,17 +110,16 @@ CREATE OR REPLACE VIEW v_active_subscriptions AS
 SELECT
     s.subscription_id,
     s.user_id,
-    s.organization_id,
+    s.organisation_id,
     s.plan_type,
     s.status,
     s.current_period_end,
     u.email,
-    u.firstname,
-    u.lastname,
-    o.name AS organization_name
-FROM subscriptions s
-LEFT JOIN users u ON s.user_id = u.user_id
-LEFT JOIN organizations o ON s.organization_id = o.organization_id
+    u.full_name,
+    o.name AS organisation_name
+FROM billing_storage.subscriptions s
+LEFT JOIN core.users u ON s.user_id = u.user_id
+LEFT JOIN organisations.organisations o ON s.organisation_id = o.organisation_id
 WHERE s.status IN ('active', 'trialing');
 
 COMMENT ON VIEW v_active_subscriptions IS 'Active subscriptions with user/org details';
@@ -142,10 +136,10 @@ SELECT
     ce.completed_at,
     COUNT(DISTINCT cp.chapter_id) AS chapters_completed,
     COUNT(DISTINCT lc.lesson_id) AS lessons_completed
-FROM course_enrollments ce
-JOIN courses c ON ce.course_id = c.course_id
-LEFT JOIN chapter_progress cp ON ce.user_id = cp.user_id AND cp.completion_percentage = 100
-LEFT JOIN lesson_completions lc ON ce.user_id = lc.user_id
+FROM courses.course_enrollments ce
+JOIN courses.courses c ON ce.course_id = c.course_id
+LEFT JOIN courses.chapter_progress cp ON ce.user_id = cp.user_id AND cp.completion_percentage = 100
+LEFT JOIN courses.lesson_completions lc ON ce.user_id = lc.user_id
 GROUP BY ce.user_id, ce.course_id, c.title, ce.completion_percentage, ce.status, ce.enrolled_at, ce.completed_at;
 
 COMMENT ON VIEW v_user_course_progress IS 'User course progress summary';

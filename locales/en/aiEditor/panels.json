@@ -1,0 +1,30 @@
+{
+  "lernmethodenTab": {
+    "activeContext": "Active context:",
+    "generate": "+ Generate",
+    "groupLabel": "Group {code}",
+    "groups": {
+      "collaborative": "Collaborative",
+      "exam": "Exam",
+      "explaining": "Explaining",
+      "it": "IT",
+      "practice": "Practice",
+      "pro": "Pro"
+    },
+    "instancesCount": "{count} instances",
+    "kiUsage": {
+      "high": "Intensive",
+      "intensive": "Intensive",
+      "low": "Low",
+      "medium": "Medium",
+      "none": "No AI",
+      "optional": "Optional"
+    },
+    "loading": "Loading learning methods...",
+    "noCourseSelected": "No course selected",
+    "selectCourseHint": "Select a course to manage learning methods.",
+    "stats": "{total} learning method instances in {lessons} lessons",
+    "title": "Learning Methods: {title}",
+    "usedCount": "{count} used"
+  }
+}

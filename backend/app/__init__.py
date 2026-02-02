@@ -1,17 +1,37 @@
 """
 LernsystemX Backend - Flask Application Factory
 
-This module implements the factory pattern for creating Flask application instances.
-Supports multiple configurations (development, production, testing).
+Comprehensive application initialization implementing the factory pattern
+for creating Flask application instances supporting multiple configurations
+(development, production, testing).
+
+Coordinates initialization of:
+- Flask extensions (database, JWT, WebSocket, rate limiting, mail)
+- Security configuration (CORS, JWT callbacks, rate limiting, security headers)
+- Middleware (monitoring, API gateway, KI prompts, WebSocket)
+- Error handlers (custom exceptions, HTTP status codes)
+- Blueprints (API routes through gateway)
+- Shell context (utilities for Flask shell)
+
+Architecture:
+- Modular initialization functions
+- Clear separation of concerns
+- Proper error handling and logging
+- Support for multiple environments
 """
 
 import os
-from flask import Flask, jsonify
-from flask_cors import CORS
+from flask import Flask, jsonify, request, Response
 from werkzeug.exceptions import HTTPException
 
-from app.config import config
-from app.extensions import (
+from app.core.bootstrap.config import config
+from app.infrastructure.i18n.error_codes import ErrorCode, error_response
+
+# ============================================================================
+# SECTION 1: EXTENSIONS INITIALIZATION
+# ============================================================================
+
+from app.core.bootstrap.extensions import (
     db_pool,
     init_db_pool,
     jwt,
@@ -23,78 +43,7 @@ from app.extensions import (
 )
 
 
-def create_app(config_name=None):
-    """
-    Application Factory Pattern
-
-    Args:
-        config_name (str): Configuration name ('development', 'production', 'testing')
-                          Defaults to FLASK_ENV environment variable or 'development'
-
-    Returns:
-        Flask: Configured Flask application instance
-    """
-    # Determine configuration
-    if config_name is None:
-        config_name = os.getenv('FLASK_ENV', 'development')
-
-    # Initialize Flask app
-    app = Flask(__name__, instance_relative_config=True)
-
-    # Load configuration
-    app.config.from_object(config[config_name])
-
-    # Ensure instance folder exists
-    try:
-        os.makedirs(app.instance_path, exist_ok=True)
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        os.makedirs('logs', exist_ok=True)
-    except OSError:
-        pass
-
-    # Initialize extensions
-    register_extensions(app)
-
-    # Configure JWT callbacks
-    configure_jwt(app)
-
-    # Setup API Gateway (Phase 21) - BEFORE blueprint registration
-    setup_gateway(app)
-
-    # Register blueprints
-    register_blueprints(app)
-
-    # Register error handlers
-    register_error_handlers(app)
-
-    # Configure CORS
-    configure_cors(app)
-
-    # Register shell context
-    register_shell_context(app)
-
-    # Initialize Celery
-    init_celery(app)
-
-    # Setup monitoring (if enabled)
-    setup_monitoring(app)
-
-    # Setup rate limiting & brute-force protection (Phase 20)
-    setup_rate_limiting(app)
-
-    # Setup security headers (Phase 20)
-    setup_security_headers(app)
-
-    # Initialize KI Prompt System (Phase 24)
-    setup_prompt_system(app)
-
-    # Register WebSocket events (Phase D4)
-    register_socket_events(app)
-
-    return app
-
-
-def register_extensions(app):
+def register_extensions(app: Flask) -> None:
     """
     Register Flask extensions
 
@@ -121,19 +70,91 @@ def register_extensions(app):
     # Rate Limiting
     limiter.init_app(app)
 
-    # Email
+    # Email (Legacy Flask-Mail)
     mail.init_app(app)
 
+    # Email Service (New Template-based Email Utility)
+    from app.utils.email import init_email_service
+    init_email_service(app)
 
-def configure_jwt(app):
+
+def register_shell_context(app: Flask) -> None:
+    """
+    Register shell context for Flask shell
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    @app.shell_context_processor
+    def make_shell_context():
+        """Add database pool and utilities to shell context"""
+        from app.infrastructure.persistence.repositories.user import UserRepository
+        from app.infrastructure.persistence.repositories.courses import CourseRepository
+        from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+        from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+        from app.infrastructure.persistence.repositories.enrollments.core import EnrollmentRepository
+        from app.infrastructure.persistence.repositories.category import CategoryRepository
+        from app.infrastructure.persistence.repositories.learning_method import LearningMethodRepository
+        from app.infrastructure.persistence.repositories.token import TokenRepository
+        from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
+        from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
+        from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository
+        from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
+        from app.application.services.ai_adapter import AIAdapter
+        from app.application.services.system.billing.service import BillingService
+
+        return {
+            'db_pool': db_pool,
+            'redis': redis_client,
+            'UserRepository': UserRepository,
+            'CourseRepository': CourseRepository,
+            'ChapterRepository': ChapterRepository,
+            'LessonRepository': LessonRepository,
+            'EnrollmentRepository': EnrollmentRepository,
+            'CategoryRepository': CategoryRepository,
+            'LearningMethodRepository': LearningMethodRepository,
+            'TokenRepository': TokenRepository,
+            'SubscriptionRepository': SubscriptionRepository,
+            'OrganisationRepository': OrganisationRepository,
+            'DashboardRepository': DashboardRepository,
+            'AnalyticsRepository': AnalyticsRepository,
+            'AIAdapter': AIAdapter,
+            'BillingService': BillingService
+        }
+
+
+def init_celery(app: Flask) -> None:
+    """
+    Initialize Celery with Flask app context
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        """Make celery tasks work with Flask app context"""
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+
+
+# ============================================================================
+# SECTION 2: SECURITY CONFIGURATION
+# ============================================================================
+
+from flask_cors import CORS
+
+
+def configure_jwt(app: Flask) -> None:
     """
     Configure JWT extension with callbacks
 
     Args:
         app (Flask): Flask application instance
     """
-    from flask_jwt_extended import JWTManager
-
     # JWT error handlers
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
@@ -187,6 +208,340 @@ def configure_jwt(app):
     #     return redis_client.get(f"blacklist:{jti}") is not None
 
 
+def configure_cors(app: Flask) -> None:
+    """
+    Configure CORS for the application
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    CORS(
+        app,
+        origins=app.config['CORS_ORIGINS'],
+        supports_credentials=True,
+        allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
+        expose_headers=['Content-Type', 'Authorization'],
+        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        max_age=3600  # Cache preflight requests for 1 hour
+    )
+
+    # Add global OPTIONS handler for all routes
+    @app.after_request
+    def after_request(response):
+        """Add CORS headers to all responses"""
+        origin = request.headers.get('Origin')
+
+        # Allow configured origins
+        if origin:
+            allowed_origins = app.config.get('CORS_ORIGINS', ['*'])
+            if '*' in allowed_origins or origin in allowed_origins:
+                response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers['Access-Control-Allow-Credentials'] = 'true'
+                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+                response.headers['Access-Control-Max-Age'] = '3600'
+
+        return response
+
+
+def setup_rate_limiting(app: Flask) -> None:
+    """
+    Setup rate limiting and brute-force protection (Phase 20).
+
+    Initializes rate limiting configuration and registers error handlers.
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    from app.infrastructure.security import init_rate_limiter, handle_rate_limit_exceeded
+
+    # Initialize rate limiter
+    init_rate_limiter(app)
+
+    # Register rate limit error handler
+    app.register_error_handler(429, handle_rate_limit_exceeded)
+
+
+def setup_security_headers(app: Flask) -> None:
+    """
+    Setup security headers middleware (Phase 20).
+
+    Adds security headers to all HTTP responses to protect against:
+    - Clickjacking (X-Frame-Options)
+    - MIME-sniffing (X-Content-Type-Options)
+    - XSS attacks (X-XSS-Protection, CSP)
+    - Protocol downgrade (HSTS)
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    from app.api.middleware.security_headers import setup_security_headers as init_security_headers
+
+    # Initialize security headers
+    init_security_headers(app)
+
+
+# ============================================================================
+# SECTION 3: ERROR HANDLERS
+# ============================================================================
+
+def register_error_handlers(app: Flask) -> None:
+    """
+    Register global error handlers
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    from pydantic import ValidationError
+    from app.infrastructure.utils.exceptions import APIException
+
+    @app.errorhandler(APIException)
+    def handle_api_exception(error):
+        """Handle custom API exceptions"""
+        return jsonify(error.to_dict()), error.status_code
+
+    @app.errorhandler(ValidationError)
+    def handle_validation_error(error):
+        """Handle Pydantic validation errors"""
+        return error_response(
+            ErrorCode.VALIDATION_ERROR,
+            status=400,
+            details={'validation_errors': error.errors()}
+        )
+
+    @app.errorhandler(ValueError)
+    def handle_value_error(error):
+        """Handle ValueError exceptions"""
+        return error_response(
+            ErrorCode.BAD_REQUEST,
+            status=400,
+            details={'value_error': str(error)}
+        )
+
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(error):
+        """Handle HTTP exceptions"""
+        # Map HTTP error codes to ErrorCode enum values
+        error_code_map = {
+            400: ErrorCode.BAD_REQUEST,
+            401: ErrorCode.UNAUTHORIZED,
+            403: ErrorCode.FORBIDDEN,
+            404: ErrorCode.NOT_FOUND,
+            405: ErrorCode.FORBIDDEN,  # Method not allowed
+            429: ErrorCode.BAD_REQUEST,  # Rate limit
+            500: ErrorCode.INTERNAL_ERROR,
+            503: ErrorCode.INTERNAL_ERROR,
+        }
+        error_code = error_code_map.get(error.code, ErrorCode.INTERNAL_ERROR)
+        return error_response(
+            error_code,
+            status=error.code,
+            details={'http_error': error.name}
+        )
+
+    @app.errorhandler(Exception)
+    def handle_exception(error):
+        """Handle general exceptions"""
+        app.logger.error(f'Unhandled exception: {str(error)}')
+        details = {}
+        # Only include details in development
+        if app.config.get('DEBUG'):
+            details['error_detail'] = str(error)
+        return error_response(
+            ErrorCode.INTERNAL_ERROR,
+            status=500,
+            details=details
+        )
+
+    @app.errorhandler(404)
+    def not_found(error):
+        """Handle 404 errors"""
+        return error_response(ErrorCode.NOT_FOUND, status=404)
+
+    @app.errorhandler(429)
+    def ratelimit_handler(error):
+        """Handle rate limit exceeded"""
+        return error_response(
+            ErrorCode.BAD_REQUEST,
+            status=429,
+            details={'reason': 'rate_limit_exceeded'}
+        )
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        """Handle 400 errors"""
+        return error_response(ErrorCode.BAD_REQUEST, status=400)
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        """Handle 401 errors"""
+        return error_response(ErrorCode.UNAUTHORIZED, status=401)
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        """Handle 403 errors"""
+        return error_response(ErrorCode.FORBIDDEN, status=403)
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        """Handle 405 errors"""
+        return error_response(
+            ErrorCode.FORBIDDEN,
+            status=405,
+            details={'reason': 'method_not_allowed'}
+        )
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        """Handle 500 errors"""
+        app.logger.error(f'Internal server error: {str(error)}')
+        return error_response(ErrorCode.INTERNAL_ERROR, status=500)
+
+
+# ============================================================================
+# SECTION 4: MIDDLEWARE & INFRASTRUCTURE
+# ============================================================================
+
+def setup_monitoring(app: Flask) -> None:
+    """
+    Setup monitoring and metrics collection (if enabled)
+
+    Registers:
+    - Monitoring middleware for automatic HTTP request instrumentation
+    - /metrics endpoint for Prometheus scraping
+    - Application info metrics
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    if not app.config.get('MONITORING_ENABLED', False):
+        app.logger.info('Monitoring disabled - skipping metrics setup')
+        return
+
+    app.logger.info('Setting up monitoring and metrics...')
+
+    # Setup monitoring middleware
+    from app.api.middleware import setup_monitoring_middleware
+    setup_monitoring_middleware(app)
+
+    # Initialize application info metric
+    from app.infrastructure.monitoring import initialize_app_info
+    import sys
+
+    initialize_app_info(
+        version=app.config.get('LSX_VERSION', '1.0.0'),
+        environment=app.config.get('LSX_ENV', 'development'),
+        python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    )
+
+    # Register /metrics endpoint
+    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+
+    @app.route(app.config.get('MONITORING_METRICS_PATH', '/metrics'))
+    def metrics():
+        """
+        Prometheus metrics endpoint
+
+        Returns all collected metrics in Prometheus format.
+        This endpoint should be restricted via Nginx (IP whitelist or Basic Auth).
+
+        Returns:
+            Response: Metrics in Prometheus text format
+        """
+        return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
+    app.logger.info(f"Metrics endpoint registered at {app.config.get('MONITORING_METRICS_PATH', '/metrics')}")
+
+
+def setup_gateway(app: Flask) -> None:
+    """
+    Setup API Gateway (Phase 21 + Phase 22).
+
+    Initializes:
+    - Gateway routing and segmentation
+    - Gateway-level middleware
+    - Gateway analytics and logging
+    - Gateway rate limiting
+    - API versioning and deprecation management (Phase 22)
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    from app.api.gateway import setup_gateway_middleware, setup_gateway_versioning
+    from app.api.gateway.analytics import setup_gateway_analytics
+    from app.api.gateway.rate_limiting import setup_gateway_rate_limiting
+
+    # Setup gateway middleware (request validation)
+    setup_gateway_middleware(app)
+
+    # Setup gateway analytics (request tracking)
+    setup_gateway_analytics(app)
+
+    # Setup gateway rate limiting
+    setup_gateway_rate_limiting(app)
+
+    # Setup API versioning (Phase 22)
+    setup_gateway_versioning(app)
+
+    # Register routes through gateway (called in register_blueprints)
+    # Note: Actual route registration happens in register_blueprints()
+    # This is just initialization
+
+
+def setup_prompt_system(app: Flask) -> None:
+    """
+    Setup KI Prompt System (Phase 24).
+
+    Initializes central prompt registry with default templates for:
+    - explain_concept
+    - flashcards
+    - quiz_generator
+    - socratic_tutor
+    - summarize_lesson
+    - translation_assistant
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    with app.app_context():
+        try:
+            from app.domain.ai.configuration.prompt_registry import init_default_prompts
+            init_default_prompts()
+
+            # Initialize AI Editor prompts (Phase D4)
+            from app.domain.ai.configuration.ai_editor_prompts import init_ai_editor_prompts
+            init_ai_editor_prompts()
+
+            app.logger.info('KI Prompt System initialized successfully')
+        except Exception as e:
+            app.logger.error(f'Failed to initialize KI Prompt System: {str(e)}')
+            # Don't fail app startup, just log the error
+            # Prompts can be registered later if needed
+
+
+def register_socket_events(app: Flask) -> None:
+    """
+    Register WebSocket event handlers (Phase D4).
+
+    Initializes SocketIO namespaces for:
+    - AI Editor real-time updates (/ai-editor)
+
+    Args:
+        app (Flask): Flask application instance
+    """
+    try:
+        from app.infrastructure.realtime.sockets import register_socket_events as register_events
+        register_events(socketio)
+        app.logger.info('WebSocket events registered successfully')
+    except Exception as e:
+        app.logger.error(f'Failed to register WebSocket events: {str(e)}')
+        # Don't fail app startup, just log the error
+
+
+# ============================================================================
+# SECTION 5: BLUEPRINT REGISTRATION
+# ============================================================================
+
 def register_blueprints(app):
     """
     Register Flask blueprints for API routes through the Gateway (Phase 21).
@@ -202,12 +557,12 @@ def register_blueprints(app):
     import sys
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__))))
 
-    from setup.install_check import InstallationChecker
+    from app.setup.install_check import InstallationChecker
 
     is_installed = InstallationChecker.is_installed()
 
     # ALWAYS register Setup Wizard (for status checks and reinstall)
-    from setup import setup_bp
+    from app.setup import setup_bp
     app.register_blueprint(setup_bp)
 
     if is_installed:
@@ -215,29 +570,30 @@ def register_blueprints(app):
         app.logger.info('System installed - loading application routes via API Gateway')
 
         # Register all routes through the API Gateway
-        from app.gateway import register_gateway_routes
+        from app.api.gateway import register_gateway_routes
         register_gateway_routes(app)
 
         # Future API Blueprints:
         # Course routes (Phase 9)
-        # from app.api.courses import courses_bp
+        # from app.api.user.courses import courses_bp
         # app.register_blueprint(courses_bp)
 
         # Organisation routes (Phase 10)
-        # from app.api.organisations import organisations_bp
+        # from app.api.shared.organisations import organisations_bp
         # app.register_blueprint(organisations_bp)
 
-        # AI routes (Phase 11)
-        # from app.api.ai import ai_bp
-        # app.register_blueprint(ai_bp)
+        # AI Operations routes (Admin) - TODO: Complete refactoring needed
+        # These blueprints are still being migrated and have missing dependencies
+        # For now, endpoints are registered via api_v1 blueprint in app/api/admin/
+        app.logger.info("ℹ AI Operations routes: Available via API Gateway")
 
         # Payment routes (Phase 12)
         # from app.api.payments import payments_bp
         # app.register_blueprint(payments_bp)
 
-        # Community routes (Phase 13)
-        # from app.api.community import community_bp
-        # app.register_blueprint(community_bp)
+        # Social, Messaging, Community routes now registered via api_v1
+        # See: app/api/social/__init__.py, app/api/messaging/__init__.py, app/api/community/__init__.py
+        app.logger.info("✓ Social/Messaging/Community routes auto-registered via api_v1")
 
         # LiveRoom routes (Phase 14)
         # from app.api.liveroom import liveroom_bp
@@ -349,7 +705,7 @@ def register_blueprints(app):
             }), 200
 
     # Health check endpoints (always available)
-    from app.api.health import health_check, health_check_detailed, readiness_check, liveness_check
+    from app.api.v1.system.health import health_check, health_check_detailed, readiness_check, liveness_check
 
     @app.route('/health')
     def health():
@@ -372,381 +728,83 @@ def register_blueprints(app):
         return liveness_check()
 
 
-def register_error_handlers(app):
+# ============================================================================
+# SECTION 6: APPLICATION FACTORY
+# ============================================================================
+
+def create_app(config_name=None):
     """
-    Register global error handlers
+    Application Factory Pattern
+
+    Creates and initializes a fully configured Flask application instance
+    with all extensions, security, middleware, and blueprints registered.
 
     Args:
-        app (Flask): Flask application instance
+        config_name (str): Configuration name ('development', 'production', 'testing')
+                          Defaults to FLASK_ENV environment variable or 'development'
+
+    Returns:
+        Flask: Configured Flask application instance
     """
-    from pydantic import ValidationError
+    # Determine configuration
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'development')
 
-    @app.errorhandler(ValidationError)
-    def handle_validation_error(error):
-        """Handle Pydantic validation errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Validation error',
-            'details': error.errors(),
-            'status_code': 400
-        }), 400
+    # Initialize Flask app
+    app = Flask(__name__, instance_relative_config=True)
 
-    @app.errorhandler(ValueError)
-    def handle_value_error(error):
-        """Handle ValueError exceptions"""
-        return jsonify({
-            'success': False,
-            'error': 'Invalid value',
-            'message': str(error),
-            'status_code': 400
-        }), 400
+    # Disable strict slashes to prevent 308 redirects on API endpoints
+    # This fixes CORS preflight issues when clients request /path without trailing slash
+    app.url_map.strict_slashes = False
 
-    @app.errorhandler(HTTPException)
-    def handle_http_exception(error):
-        """Handle HTTP exceptions"""
-        response = {
-            'success': False,
-            'error': error.name,
-            'message': error.description,
-            'status_code': error.code
-        }
-        return jsonify(response), error.code
+    # Load configuration
+    app.config.from_object(config[config_name])
 
-    @app.errorhandler(Exception)
-    def handle_exception(error):
-        """Handle general exceptions"""
-        app.logger.error(f'Unhandled exception: {str(error)}')
-        response = {
-            'success': False,
-            'error': 'Internal Server Error',
-            'message': 'An unexpected error occurred',
-            'status_code': 500
-        }
-        # Only include details in development
-        if app.config.get('DEBUG'):
-            response['details'] = str(error)
-        return jsonify(response), 500
-
-    @app.errorhandler(404)
-    def not_found(error):
-        """Handle 404 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Not Found',
-            'message': 'The requested resource was not found',
-            'status_code': 404
-        }), 404
-
-    @app.errorhandler(429)
-    def ratelimit_handler(error):
-        """Handle rate limit exceeded"""
-        return jsonify({
-            'success': False,
-            'error': 'Too Many Requests',
-            'message': 'Rate limit exceeded. Please try again later.',
-            'status_code': 429
-        }), 429
-
-    @app.errorhandler(400)
-    def bad_request(error):
-        """Handle 400 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Bad Request',
-            'message': 'The request could not be understood by the server',
-            'status_code': 400
-        }), 400
-
-    @app.errorhandler(401)
-    def unauthorized(error):
-        """Handle 401 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Unauthorized',
-            'message': 'Authentication is required to access this resource',
-            'status_code': 401
-        }), 401
-
-    @app.errorhandler(403)
-    def forbidden(error):
-        """Handle 403 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Forbidden',
-            'message': 'You do not have permission to access this resource',
-            'status_code': 403
-        }), 403
-
-    @app.errorhandler(405)
-    def method_not_allowed(error):
-        """Handle 405 errors"""
-        return jsonify({
-            'success': False,
-            'error': 'Method Not Allowed',
-            'message': 'The method is not allowed for the requested URL',
-            'status_code': 405
-        }), 405
-
-    @app.errorhandler(500)
-    def internal_server_error(error):
-        """Handle 500 errors"""
-        app.logger.error(f'Internal server error: {str(error)}')
-        return jsonify({
-            'success': False,
-            'error': 'Internal Server Error',
-            'message': 'An internal server error occurred',
-            'status_code': 500
-        }), 500
-
-
-def configure_cors(app):
-    """
-    Configure CORS for the application
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    CORS(
-        app,
-        origins=app.config['CORS_ORIGINS'],
-        supports_credentials=True,
-        allow_headers=['Content-Type', 'Authorization'],
-        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-    )
-
-
-def register_shell_context(app):
-    """
-    Register shell context for Flask shell
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    @app.shell_context_processor
-    def make_shell_context():
-        """Add database pool and utilities to shell context"""
-        from app.repositories.user_repository import UserRepository
-        from app.repositories.course_repository import CourseRepository
-        from app.repositories.chapter_repository import ChapterRepository
-        from app.repositories.lesson_repository import LessonRepository
-        from app.repositories.enrollment_repository import EnrollmentRepository
-        from app.repositories.category_repository import CategoryRepository
-        from app.repositories.learning_method_repository import LearningMethodRepository
-        from app.repositories.token_repository import TokenRepository
-        from app.repositories.subscription_repository import SubscriptionRepository
-        from app.repositories.organisation_repository import OrganisationRepository
-        from app.repositories.dashboard_repository import DashboardRepository
-        from app.repositories.analytics_repository import AnalyticsRepository
-        from app.services.ai_adapter import AIAdapter
-        from app.services.billing_service import BillingService
-
-        return {
-            'db_pool': db_pool,
-            'redis': redis_client,
-            'UserRepository': UserRepository,
-            'CourseRepository': CourseRepository,
-            'ChapterRepository': ChapterRepository,
-            'LessonRepository': LessonRepository,
-            'EnrollmentRepository': EnrollmentRepository,
-            'CategoryRepository': CategoryRepository,
-            'LearningMethodRepository': LearningMethodRepository,
-            'TokenRepository': TokenRepository,
-            'SubscriptionRepository': SubscriptionRepository,
-            'OrganisationRepository': OrganisationRepository,
-            'DashboardRepository': DashboardRepository,
-            'AnalyticsRepository': AnalyticsRepository,
-            'AIAdapter': AIAdapter,
-            'BillingService': BillingService
-        }
-
-
-def init_celery(app):
-    """
-    Initialize Celery with Flask app context
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    celery.conf.update(app.config)
-
-    class ContextTask(celery.Task):
-        """Make celery tasks work with Flask app context"""
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-
-
-def setup_monitoring(app):
-    """
-    Setup monitoring and metrics collection (if enabled)
-
-    Registers:
-    - Monitoring middleware for automatic HTTP request instrumentation
-    - /metrics endpoint for Prometheus scraping
-    - Application info metrics
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    if not app.config.get('MONITORING_ENABLED', False):
-        app.logger.info('Monitoring disabled - skipping metrics setup')
-        return
-
-    app.logger.info('Setting up monitoring and metrics...')
-
-    # Setup monitoring middleware
-    from app.middleware import setup_monitoring_middleware
-    setup_monitoring_middleware(app)
-
-    # Initialize application info metric
-    from app.monitoring import initialize_app_info
-    import sys
-
-    initialize_app_info(
-        version=app.config.get('LSX_VERSION', '1.0.0'),
-        environment=app.config.get('LSX_ENV', 'development'),
-        python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    )
-
-    # Register /metrics endpoint
-    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-
-    @app.route(app.config.get('MONITORING_METRICS_PATH', '/metrics'))
-    def metrics():
-        """
-        Prometheus metrics endpoint
-
-        Returns all collected metrics in Prometheus format.
-        This endpoint should be restricted via Nginx (IP whitelist or Basic Auth).
-
-        Returns:
-            Response: Metrics in Prometheus text format
-        """
-        from flask import Response
-        return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
-
-    app.logger.info(f"Metrics endpoint registered at {app.config.get('MONITORING_METRICS_PATH', '/metrics')}")
-
-
-def setup_rate_limiting(app):
-    """
-    Setup rate limiting and brute-force protection (Phase 20).
-
-    Initializes rate limiting configuration and registers error handlers.
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    from app.security import init_rate_limiter, handle_rate_limit_exceeded
-
-    # Initialize rate limiter
-    init_rate_limiter(app)
-
-    # Register rate limit error handler
-    app.register_error_handler(429, handle_rate_limit_exceeded)
-
-
-def setup_security_headers(app):
-    """
-    Setup security headers middleware (Phase 20).
-
-    Adds security headers to all HTTP responses to protect against:
-    - Clickjacking (X-Frame-Options)
-    - MIME-sniffing (X-Content-Type-Options)
-    - XSS attacks (X-XSS-Protection, CSP)
-    - Protocol downgrade (HSTS)
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    from app.middleware.security_headers import setup_security_headers as init_security_headers
-
-    # Initialize security headers
-    init_security_headers(app)
-
-
-def setup_gateway(app):
-    """
-    Setup API Gateway (Phase 21 + Phase 22).
-
-    Initializes:
-    - Gateway routing and segmentation
-    - Gateway-level middleware
-    - Gateway analytics and logging
-    - Gateway rate limiting
-    - API versioning and deprecation management (Phase 22)
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    from app.gateway import register_gateway_routes, setup_gateway_middleware, setup_gateway_versioning
-    from app.gateway.analytics import setup_gateway_analytics
-    from app.gateway.rate_limiting import setup_gateway_rate_limiting
-
-    # Setup gateway middleware (request validation)
-    setup_gateway_middleware(app)
-
-    # Setup gateway analytics (request tracking)
-    setup_gateway_analytics(app)
-
-    # Setup gateway rate limiting
-    setup_gateway_rate_limiting(app)
-
-    # Setup API versioning (Phase 22)
-    setup_gateway_versioning(app)
-
-    # Register routes through gateway (called in register_blueprints)
-    # Note: Actual route registration happens in register_blueprints()
-    # This is just initialization
-
-
-def setup_prompt_system(app):
-    """
-    Setup KI Prompt System (Phase 24).
-
-    Initializes central prompt registry with default templates for:
-    - explain_concept
-    - flashcards
-    - quiz_generator
-    - socratic_tutor
-    - summarize_lesson
-    - translation_assistant
-
-    Args:
-        app (Flask): Flask application instance
-    """
-    with app.app_context():
-        try:
-            from app.ki.prompt_registry import init_default_prompts
-            init_default_prompts()
-
-            # Initialize AI Studio prompts (Phase D4)
-            from app.ki.ai_studio_prompts import init_ai_studio_prompts
-            init_ai_studio_prompts()
-
-            app.logger.info('KI Prompt System initialized successfully')
-        except Exception as e:
-            app.logger.error(f'Failed to initialize KI Prompt System: {str(e)}')
-            # Don't fail app startup, just log the error
-            # Prompts can be registered later if needed
-
-
-def register_socket_events(app):
-    """
-    Register WebSocket event handlers (Phase D4).
-
-    Initializes SocketIO namespaces for:
-    - AI Studio real-time updates (/ai-studio)
-
-    Args:
-        app (Flask): Flask application instance
-    """
+    # Ensure instance folder exists
     try:
-        from app.sockets import register_socket_events as register_events
-        register_events(socketio)
-        app.logger.info('WebSocket events registered successfully')
-    except Exception as e:
-        app.logger.error(f'Failed to register WebSocket events: {str(e)}')
-        # Don't fail app startup, just log the error
+        os.makedirs(app.instance_path, exist_ok=True)
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs('logs', exist_ok=True)
+    except OSError:
+        pass
+
+    # Initialize extensions (Section 1)
+    register_extensions(app)
+
+    # Configure JWT callbacks (Section 2)
+    configure_jwt(app)
+
+    # Setup API Gateway (Section 4) - BEFORE blueprint registration
+    setup_gateway(app)
+
+    # Register blueprints (Section 5)
+    register_blueprints(app)
+
+    # Register error handlers (Section 3)
+    register_error_handlers(app)
+
+    # Configure CORS (Section 2)
+    configure_cors(app)
+
+    # Register shell context (Section 1)
+    register_shell_context(app)
+
+    # Initialize Celery (Section 1)
+    init_celery(app)
+
+    # Setup monitoring (Section 4) - if enabled
+    setup_monitoring(app)
+
+    # Setup rate limiting & brute-force protection (Section 2)
+    setup_rate_limiting(app)
+
+    # Setup security headers (Section 2)
+    setup_security_headers(app)
+
+    # Initialize KI Prompt System (Section 4)
+    setup_prompt_system(app)
+
+    # Register WebSocket events (Section 4)
+    register_socket_events(app)
+
+    return app

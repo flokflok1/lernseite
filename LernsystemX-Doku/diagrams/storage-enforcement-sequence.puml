@@ -1,0 +1,68 @@
+@startuml Storage Enforcement - File Upload Sequence Diagram
+!theme default
+title Storage Enforcement System - File Upload Request Flow
+
+actor User
+participant "File Upload\nEndpoint" as Endpoint
+participant "StorageEnforcementService" as Service
+participant "StorageEnforcementConfig\nRepository" as Repo
+database "PostgreSQL\nDatabase" as DB
+
+User -> Endpoint: POST /api/upload\n{file, size}
+activate Endpoint
+
+Endpoint -> Endpoint: Extract organisation_id\nfrom JWT token
+
+Endpoint -> Service: can_upload(\n  percent_used=78.5,\n  organisation_id='org-123'\n)
+activate Service
+
+Service -> Repo: get_config_for_organisation_or_default(\n  organisation_id='org-123'\n)
+activate Repo
+
+Repo -> DB: SELECT * FROM storage_enforcement_configs\nWHERE organisation_id = 'org-123'\nAND is_system_default = FALSE
+activate DB
+
+alt Org-Specific Config Found
+  DB -> Repo: Row {config}
+  Repo -> Repo: Parse to StorageEnforcementConfig
+else No Org Config
+  deactivate DB
+  Repo -> DB: SELECT * FROM storage_enforcement_configs\nWHERE is_system_default = TRUE
+  activate DB
+  DB -> Repo: Row {system_default}
+  Repo -> Repo: Parse to StorageEnforcementConfig
+end
+
+deactivate DB
+Repo -> Service: StorageEnforcementConfig(\n  enforcement_type='soft',\n  hard_limit_percent=110,\n  actions_json={...},\n  ...\n)
+deactivate Repo
+
+Service -> Service: action = get_enforcement_action(\n  percent_used=78.5,\n  config\n)
+
+Service -> Service: Lookup '50_to_80' range\nin actions_json
+
+Service -> Service: action = {\n  'status': 'yellow',\n  'upload': 'allowed',\n  'notifications': 'weekly_reminder'\n}
+
+Service -> Service: upload_status = 'allowed'
+
+Service -> Endpoint: return (True, "")
+deactivate Service
+
+Endpoint -> Endpoint: Upload allowed!\nProcess file...
+
+Endpoint -> User: 200 OK\n{file_id, upload_status}
+deactivate Endpoint
+
+note over User, DB
+  **Configuration Resolution:**
+  1. ✅ Organisation-specific config found
+  2. Would fallback to system default if not found
+  3. Would use internal defaults if neither found
+
+  **Enforcement Decision:**
+  - percent_used (78.5%) → '50_to_80' range
+  - actions_json['50_to_80'] → { 'upload': 'allowed' }
+  - Result: Upload permitted with no warning
+end note
+
+@enduml

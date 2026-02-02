@@ -1,0 +1,157 @@
+{
+  "aiSettingsPage": {
+    "apiKey": {
+      "hide": "Ukryj",
+      "label": "Klucz API",
+      "placeholderEmpty": "Wprowadź klucz API...",
+      "placeholderSet": "********** (już ustawiony)",
+      "remove": "Usuń",
+      "save": "Zapisz",
+      "saving": "Zapisywanie...",
+      "show": "Pokaż",
+      "test": "Testuj",
+      "testing": "Testowanie..."
+    },
+    "availableModels": {
+      "modelSelector": "Selektor modeli",
+      "modelsFromProviders": "{count} modeli od {providers} dostawców",
+      "title": "Dostępne modele"
+    },
+    "defaultModel": {
+      "defaultModelLabel": "Domyślny model",
+      "defaultProvider": "Domyślny dostawca",
+      "input": "Wejście",
+      "output": "Wyjście",
+      "perThousandTokens": "za 1K tokenów",
+      "saveSettings": "Zapisz ustawienia",
+      "savingSettings": "Zapisywanie...",
+      "subtitle": "Wybierz domyślnego dostawcę i model dla operacji AI",
+      "title": "Domyślny model AI"
+    },
+    "loadingProviders": "Ładowanie dostawców...",
+    "messages": {
+      "apiKeyRemoved": "Klucz API usunięty pomyślnie",
+      "apiKeySaveError": "Błąd zapisywania klucza API",
+      "apiKeySaved": "Klucz API zapisany pomyślnie",
+      "confirmRemove": "Czy na pewno usunąć klucz API dla {provider}?",
+      "connectionFailed": "Połączenie nieudane",
+      "connectionSuccess": "Połączenie udane!",
+      "loadError": "Błąd ładowania dostawców",
+      "networkError": "Błąd sieci podczas ładowania dostawców",
+      "networkErrorGeneric": "Błąd sieci",
+      "removeError": "Błąd usuwania klucza API",
+      "responseTime": "Czas odpowiedzi: {time}ms",
+      "settingsSaveError": "Błąd zapisywania ustawień",
+      "settingsSaved": "Ustawienia zapisane pomyślnie",
+      "testNetworkError": "Błąd sieci podczas testu",
+      "unknownError": "Nieznany błąd ładowania dostawców",
+      "unknownErrorGeneric": "Nieznany błąd"
+    },
+    "retry": "Spróbuj ponownie",
+    "settings": {
+      "enableProvider": "Włącz dostawcę",
+      "lastValidated": "Ostatnio zwalidowano:",
+      "priority": "Priorytet (wyższy = preferowany)",
+      "rateLimit": "Limit żądań (na minutę)"
+    },
+    "stats": {
+      "active": "Aktywni",
+      "configured": "Skonfigurowane",
+      "providersTotal": "Dostawcy łącznie"
+    },
+    "status": {
+      "active": "Aktywny",
+      "apiKeySet": "Klucz API ustawiony",
+      "inactive": "Nieaktywny",
+      "noApiKey": "Brak klucza API"
+    },
+    "subtitle": "Zarządzaj kluczami API i ustawieniami dostawców AI",
+    "title": "Ustawienia AI"
+  },
+  "learning": {
+    "tiers": {
+      "basic": "Podstawowy",
+      "premium": "Premium",
+      "pro": "Pro"
+    }
+  },
+  "learningMethods": {
+    "form": {
+      "cancelButton": "Anuluj",
+      "createButton": "Utwórz",
+      "difficultyEasy": "Łatwy",
+      "difficultyHard": "Trudny",
+      "difficultyLabel": "Trudność",
+      "difficultyMedium": "Średni",
+      "durationLabel": "Czas trwania (minuty)",
+      "instructionsLabel": "Instrukcje",
+      "instructionsPlaceholder": "Opcjonalne instrukcje dla ucznia...",
+      "savingButton": "Zapisywanie...",
+      "titleLabel": "Tytuł *",
+      "titlePlaceholder": "np. Wprowadzenie do...",
+      "updateButton": "Zapisz"
+    },
+    "tabs": {
+      "catalog": "Katalog (31)",
+      "instances": "Metody nauki",
+      "stats": "Statystyka"
+    }
+  },
+  "lmRouting": {
+    "categories": {
+      "audio": "Audio",
+      "chat": "Chat",
+      "embedding": "Embedding",
+      "image": "Obraz",
+      "moderation": "Moderacja",
+      "realtime": "Realtime",
+      "reasoning": "Reasoning",
+      "video": "Video",
+      "vision": "Vision"
+    },
+    "defaultModelSet": "Ustawiono domyślny model dla {category}",
+    "defaultModelsPerCategory": "Domyślne modele według kategorii",
+    "group": "Grupa {key} - {name}",
+    "groupNames": {
+      "A": "Wyjaśniające",
+      "B": "Praktyka",
+      "C": "Egzamin",
+      "D": "Pro",
+      "E": "IT",
+      "F": "Współpraca"
+    },
+    "legend": "Legenda",
+    "legendAudio": "Audio = TTS + STT",
+    "legendChat": "Chat = Generowanie tekstu",
+    "legendColoredRequired": "Kolorowe znaczniki = Wymagane",
+    "legendGrayOptional": "Szare znaczniki = Opcjonalne",
+    "legendRealtime": "Realtime = Live Tutor",
+    "legendReasoning": "Reasoning = o1/DeepSeek",
+    "legendVideo": "Video = Sora (Video + Audio!)",
+    "lmRequirements": "Metody nauki i ich wymagania",
+    "loadError": "Błąd ładowania",
+    "presetCheap": "Tani",
+    "presetMedium": "Średni",
+    "presetPremium": "Premium",
+    "quickSetup": "Szybka konfiguracja:",
+    "saveError": "Błąd zapisywania",
+    "slotsConfigured": "{count} slotów skonfigurowanych",
+    "subtitle": "Wybierz domyślne modele dla każdej kategorii. Przy LM-ach widzisz jakich kategorii potrzebują.",
+    "title": "Konfiguracja Modeli AI"
+  },
+  "methods": {
+    "title": "Metody nauki"
+  },
+  "prompts": {
+    "scopes": {
+      "all": "Wszystkie",
+      "examGeneration": "Generowanie egzaminów",
+      "moduleGeneration": "Generowanie modułów",
+      "quizGeneration": "Generowanie testów"
+    },
+    "types": {
+      "courseGeneration": "Generowanie kursów",
+      "lessonGeneration": "Generowanie lekcji"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+# Percy Configuration for DDD Migration Visual Regression Testing
+#
+# Percy automates visual testing by comparing screenshots across deployments
+# Integrated with GitHub Actions CI/CD pipeline
+#
+# Installation:
+#   npm install --save-dev @percy/cli @percy/cypress
+#
+# Authentication:
+#   export PERCY_TOKEN=<your-percy-token>
+#   (Get token from: https://percy.io/organizations)
+
+version: 2
+
+static:
+  # Capture static files for visual regression
+  cleanUrls: true
+  include: "**/*.html"
+  exclude:
+    - "node_modules/**"
+    - "dist/**"
+
+discovery:
+  # Automatically discover and capture pages
+  allowed-hosts:
+    - localhost
+  network-idle-timeout: 750
+
+app:
+  # Application configuration
+  static-dir: "./dist"
+  baseurl: http://localhost:5173
+
+capture:
+  # Screenshot capture settings
+  widths:
+    - 375   # Mobile
+    - 768   # Tablet
+    - 1280  # Desktop
+  min-height: 1024
+  enable-javascript: true
+  network-idle-timeout: 750
+
+  # Critical pages for visual regression (Phase 0-1)
+  pages:
+    # Dashboard
+    - path: "/"
+    - path: "/dashboard"
+
+    # Authentication
+    - path: "/auth/login"
+    - path: "/auth/register"
+
+    # Content (Phase 1 Pilot)
+    - path: "/courses"
+    - path: "/courses/create"
+    - path: "/courses/[id]/edit"
+
+    # Learning (Phase 1 Pilot)
+    - path: "/learn/[course-id]"
+    - path: "/learn/[course-id]/lessons/[lesson-id]"
+
+    # Admin (Phase 2)
+    - path: "/admin/dashboard"
+    - path: "/admin/users"
+    - path: "/admin/courses"
+
+upload:
+  # Upload settings
+  files-pattern: "dist/**/*.{html,css,js,png,jpg,svg}"
+  include-files:
+    - dist/
+  exclude-files:
+    - "**/*.map"
+    - "**/*.test.*"
+
+# GitHub Actions Integration
+# Add to .github/workflows/ddd-migration-check.yml:
+#   - name: Percy Snapshots
+#     run: npx percy exec -- npm run percy:test
+#     env:
+#       PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+
+# Environment-specific configurations
+environments:
+  production:
+    static-dir: "./dist"
+    baseurl: https://lernsystemx.com
+
+  staging:
+    static-dir: "./dist"
+    baseurl: https://staging.lernsystemx.com
+
+# Parallel processing for faster results
+parallel: 4
+
+# Fail if image differences exceed threshold
+thresholds:
+  added-lines: 1000
+  removed-lines: 1000

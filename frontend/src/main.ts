@@ -6,11 +6,12 @@
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import router from './router'
-import App from './App.vue'
-import './style.css'
-import { useThemeStore } from './store/theme.store'
-import { setupI18n, initializeI18n } from './plugins/i18n'
+import router from './presentation/router'
+import App from './presentation/App.vue'
+import './presentation/style.css'
+import { useThemeStore } from '@/application/stores/modules/ui'
+import { useAppStore } from '@/application/stores/modules/core/app.store'
+import { setupI18n, initializeI18n } from './infrastructure/plugins/i18n'
 
 // ============================================================================
 // Async App Initialization
@@ -43,9 +44,28 @@ import { setupI18n, initializeI18n } from './plugins/i18n'
     app.use(router)
 
     // 6. Mount app (theme and i18n are already applied)
-    app.mount('#app')
+    const appElement = document.getElementById('app')
+    if (!appElement) {
+      throw new Error('Cannot find #app element in HTML')
+    }
 
+    app.mount(appElement)
     console.log('[Main] App mounted successfully')
+
+    // 7. Expose app store to window for debugging (Setup reset)
+    // Usage from console: window.lsxResetSetup()
+    // Delay this so Pinia and router are fully initialized
+    setTimeout(() => {
+      const appStore = useAppStore()
+      ;(window as any).lsxResetSetup = () => {
+        appStore.resetSetup()
+        console.log('[Window] Setup reset! Reloading page in 1 second...')
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
+      }
+      console.log('[Main] Debug commands available: window.lsxResetSetup()')
+    }, 100)
 
   } catch (error) {
     console.error('[Main] App initialization failed:', error)

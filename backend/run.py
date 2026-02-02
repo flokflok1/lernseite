@@ -13,7 +13,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 from app import create_app, socketio
-from app.extensions import db_pool, celery
+from app.core.bootstrap.extensions import db_pool, celery
 
 
 # Create Flask application instance
@@ -165,12 +165,14 @@ if __name__ == '__main__':
     app.logger.info(f'Debug mode: {debug}')
 
     # Run with SocketIO support
+    # Note: use_reloader=False because Flask-SocketIO has its own auto-reload mechanism
+    # and Werkzeug's reloader conflicts with SocketIO's process management
     socketio.run(
         app,
         host='0.0.0.0',
         port=port,
         debug=debug,
-        use_reloader=debug,
+        use_reloader=False,  # Disabled - SocketIO handles reloading internally
         log_output=debug,
         allow_unsafe_werkzeug=True  # Allow Werkzeug in development
     )

@@ -1,20 +1,21 @@
 -- ============================================================================
 -- Migration: 006_audit_logging.sql
--- Description: Comprehensive audit logging system
 -- Version: 1.0.0
+-- Description: Database migration
 -- Author: LernsystemX Migration System
--- Date: 2025-01-17
+-- Date: 2026-01-02
 -- ============================================================================
 
--- ============================================================================
--- TABLE: audit_logs
--- Description: General audit trail for all system operations
--- ============================================================================
-CREATE TABLE IF NOT EXISTS audit_logs (
+-- Drop old versions of tables if they exist (e.g., from old Migration 001 without organisation_id)
+DROP TABLE IF EXISTS core.audit_logs CASCADE;
+DROP TABLE IF EXISTS core.data_access_logs CASCADE;
+DROP TABLE IF EXISTS core.change_history CASCADE;
+
+CREATE TABLE IF NOT EXISTS core.audit_logs (
     log_id BIGSERIAL PRIMARY KEY,
     event_type VARCHAR(100) NOT NULL,
-    user_id UUID REFERENCES users(user_id) ON DELETE SET NULL,
-    organization_id UUID REFERENCES organizations(organization_id) ON DELETE SET NULL,
+    user_id UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
+    organisation_id UUID REFERENCES organisations.organisations(organisation_id) ON DELETE SET NULL,
     resource_type VARCHAR(100),
     resource_id VARCHAR(255),
     action VARCHAR(50) NOT NULL,
@@ -36,28 +37,28 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     CONSTRAINT chk_audit_severity CHECK (severity IN ('debug', 'info', 'warning', 'error', 'critical'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_org ON audit_logs(organization_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_event ON audit_logs(event_type, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(resource_type, resource_id);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_severity ON audit_logs(severity, created_at DESC) WHERE severity IN ('error', 'critical');
-CREATE INDEX IF NOT EXISTS idx_audit_logs_time ON audit_logs(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_event_category ON audit_logs(event_category, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user_email ON audit_logs(user_email, created_at DESC) WHERE user_email IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_audit_logs_session ON audit_logs(session_id) WHERE session_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_audit_logs_success ON audit_logs(success, created_at DESC) WHERE success = FALSE;
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON core.audit_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_org ON core.audit_logs(organisation_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_event ON core.audit_logs(event_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON core.audit_logs(resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON core.audit_logs(action, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_severity ON core.audit_logs(severity, created_at DESC) WHERE severity IN ('error', 'critical');
+CREATE INDEX IF NOT EXISTS idx_audit_logs_time ON core.audit_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_event_category ON core.audit_logs(event_category, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_email ON core.audit_logs(user_email, created_at DESC) WHERE user_email IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_audit_logs_session ON core.audit_logs(session_id) WHERE session_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_audit_logs_success ON core.audit_logs(success, created_at DESC) WHERE success = FALSE;
 
-COMMENT ON TABLE audit_logs IS 'Comprehensive audit trail for compliance and security monitoring';
+COMMENT ON TABLE core.audit_logs IS 'Comprehensive audit trail for compliance and security monitoring';
 
 -- ============================================================================
 -- TABLE: data_access_logs
 -- Description: GDPR-compliant data access logging
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS data_access_logs (
+CREATE TABLE IF NOT EXISTS core.data_access_logs (
     access_id BIGSERIAL PRIMARY KEY,
-    accessed_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
-    accessed_user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    accessed_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
+    accessed_user_id UUID REFERENCES core.users(user_id) ON DELETE CASCADE,
     access_type VARCHAR(50) NOT NULL,
     data_category VARCHAR(100),
     purpose VARCHAR(255),
@@ -66,35 +67,35 @@ CREATE TABLE IF NOT EXISTS data_access_logs (
     CONSTRAINT chk_data_access_type CHECK (access_type IN ('view', 'export', 'modification', 'deletion', 'anonymization'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_data_access_by ON data_access_logs(accessed_by, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_data_access_user ON data_access_logs(accessed_user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_data_access_type ON data_access_logs(access_type);
-CREATE INDEX IF NOT EXISTS idx_data_access_time ON data_access_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_data_access_by ON core.data_access_logs(accessed_by, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_data_access_user ON core.data_access_logs(accessed_user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_data_access_type ON core.data_access_logs(access_type);
+CREATE INDEX IF NOT EXISTS idx_data_access_time ON core.data_access_logs(created_at DESC);
 
-COMMENT ON TABLE data_access_logs IS 'GDPR-compliant logging of personal data access';
+COMMENT ON TABLE core.data_access_logs IS 'GDPR-compliant logging of personal data access';
 
 -- ============================================================================
 -- TABLE: change_history
 -- Description: Detailed change tracking for important entities
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS change_history (
+CREATE TABLE IF NOT EXISTS core.change_history (
     change_id BIGSERIAL PRIMARY KEY,
     table_name VARCHAR(100) NOT NULL,
     record_id VARCHAR(255) NOT NULL,
     operation VARCHAR(20) NOT NULL,
     old_values JSONB,
     new_values JSONB,
-    changed_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    changed_by UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
     changed_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT chk_change_operation CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_change_history_table ON change_history(table_name, record_id);
-CREATE INDEX IF NOT EXISTS idx_change_history_user ON change_history(changed_by, changed_at DESC);
-CREATE INDEX IF NOT EXISTS idx_change_history_operation ON change_history(operation, changed_at DESC);
-CREATE INDEX IF NOT EXISTS idx_change_history_time ON change_history(changed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_change_history_table ON core.change_history(table_name, record_id);
+CREATE INDEX IF NOT EXISTS idx_change_history_user ON core.change_history(changed_by, changed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_change_history_operation ON core.change_history(operation, changed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_change_history_time ON core.change_history(changed_at DESC);
 
-COMMENT ON TABLE change_history IS 'Detailed change tracking for version control and audit';
+COMMENT ON TABLE core.change_history IS 'Detailed change tracking for version control and audit';
 
 -- ============================================================================
 -- End of Migration: 006_audit_logging.sql

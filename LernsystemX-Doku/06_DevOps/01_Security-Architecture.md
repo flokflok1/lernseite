@@ -34,7 +34,7 @@ Person(admin, "Administrator", "Verwaltet Organisation")
 System_Boundary(lsx, "LSX Lernsystem") {
     System(webapp, "Web Application", "Geschützte Frontend & Backend API")
     System(auth, "Authentication Service", "JWT, 2FA, OAuth2")
-    System(rbac, "Authorization Service", "Rollenbasierte Zugriffskontrolle")
+    System(rbac, "Authorization Service", "Group-Based Access Control")
     System(audit, "Audit & Logging", "Sicherheitsrelevante Events")
 }
 
@@ -79,7 +79,7 @@ System_Boundary(security_layer, "Security Layer") {
 
 System_Boundary(auth_system, "Authentication & Authorization") {
     Container(auth_service, "Auth Service", "Python Flask", "JWT Generation, 2FA")
-    Container(rbac_service, "RBAC Service", "Python", "Permission Checks")
+    Container(rbac_service, "Group Management Service", "Python", "Permission Checks")
     Container(session_store, "Session Store", "Redis", "Encrypted Sessions")
 }
 
@@ -673,13 +673,13 @@ def webauthn_register():
 
 ---
 
-## 5. Rollenbasierte Zugriffskontrolle (RBAC)
+## 5. Group-Based Access Control (GBA)
 
-### 5.1 RBAC Authorization Flow
+### 5.1 Group-Based Authorization Flow
 
 ```plantuml
 @startuml
-title RBAC Authorization Flow
+title Group-Based Authorization Flow
 
 participant "User" as user
 participant "Frontend" as frontend
@@ -737,7 +737,7 @@ end note
 @enduml
 ```
 
-### 5.2 RBAC Implementation
+### 5.2 Group-Based Implementation
 
 **Permission Decorator:**
 ```python

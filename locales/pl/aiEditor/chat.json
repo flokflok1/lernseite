@@ -1,0 +1,40 @@
+{
+  "aiEditorChat": {
+    "assistant": "Asystent AI",
+    "clearChat": "Wyczyść czat",
+    "collapse": "Zwiń",
+    "confirmClear": "Na pewno wyczyścić czat?",
+    "context": "Kontekst",
+    "defaultSuggestions": {
+      "modelComparison": "Który model jest lepszy?",
+      "teachingSteps": "Czym są Teaching Steps?",
+      "videoGeneration": "Jak wygenerować wideo?"
+    },
+    "enterToSend": "Enter = Wyślij",
+    "fallbackActions": {
+      "explain": {
+        "label": "Wyjaśnij",
+        "prompt": "Wyjaśnij mi obecny temat w prosty sposób."
+      },
+      "improve": {
+        "label": "Ulepsz",
+        "prompt": "Jak mogę ulepszyć treść?"
+      },
+      "quiz": {
+        "label": "Quiz",
+        "prompt": "Utwórz quiz na ten temat."
+      },
+      "summarize": {
+        "label": "Podsumowanie",
+        "prompt": "Podsumuj treść."
+      }
+    },
+    "loadingActions": "Ładowanie akcji...",
+    "online": "Online",
+    "placeholder": "Wpisz wiadomość...",
+    "suggestions": "Sugestie:",
+    "title": "Czat AI",
+    "welcomeText": "Jestem Twoim asystentem AI. Zadawaj mi pytania o aktualną treść lub generowanie.",
+    "welcomeTitle": "Cześć!"
+  }
+}

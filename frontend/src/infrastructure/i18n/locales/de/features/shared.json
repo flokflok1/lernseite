@@ -1,0 +1,100 @@
+{
+  "modelSelector": {
+    "all": "Alle",
+    "allProviders": "Alle Provider",
+    "cancel": "Abbrechen",
+    "categories": {
+      "audio": "Audio",
+      "chat": "Chat",
+      "embedding": "Embedding",
+      "image": "Bild",
+      "moderation": "Moderation",
+      "realtime": "Realtime",
+      "reasoning": "Reasoning",
+      "video": "Video"
+    },
+    "category": "Kategorie:",
+    "context": "Kontext:",
+    "cost": "Kosten:",
+    "costLevels": {
+      "free": "Kostenlos",
+      "high": "Teuer",
+      "low": "Günstig",
+      "medium": "Mittel",
+      "veryHigh": "Sehr teuer"
+    },
+    "default": "Default",
+    "editPrices": "Preise bearbeiten",
+    "functions": "Functions",
+    "input": "Input:",
+    "inputPrice": "Input-Preis (pro 1K Tokens)",
+    "isDefault": "Ist Default",
+    "loading": "Lade Modelle...",
+    "modelCount": "{count} Modelle",
+    "noApiKey": "Kein API Key",
+    "noModels": "Keine Modelle gefunden",
+    "onlyConfigured": "Nur konfiguriert",
+    "output": "Output:",
+    "outputPrice": "Output-Preis (pro 1K Tokens)",
+    "priceExample": "Beispiel: 0.005 = $0.005 pro 1K Tokens",
+    "priceInfo": "Preise werden pro 1.000 Tokens in USD angegeben.",
+    "prices": "Preise",
+    "provider": "Provider:",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "scopeCourse": "Modell für Kurs auswählen",
+    "scopeGlobal": "System-Default Modell auswählen",
+    "scopeModule": "Modell für Modul auswählen",
+    "searchPlaceholder": "Modell suchen...",
+    "selectForCourse": "Für Kurs übernehmen",
+    "selectForModule": "Für Modul übernehmen",
+    "selectModel": "Modell auswählen",
+    "selected": "Ausgewählt:",
+    "setAsDefault": "Als Default setzen",
+    "setting": "Setze...",
+    "speed": "Geschwindigkeit:",
+    "speedLevels": {
+      "fast": "Schnell",
+      "medium": "Mittel",
+      "slow": "Langsam",
+      "veryFast": "Sehr schnell"
+    },
+    "sync": "Modelle sync",
+    "syncing": "Synchronisiere...",
+    "title": "AI Model Selector",
+    "tokens": "{count} Tokens",
+    "vision": "Vision"
+  },
+  "panelManager": {
+    "close": "Schließen",
+    "defaults": {
+      "aiCourse": "KI-Kurs",
+      "editCourse": "Kurs bearbeiten",
+      "newCourse": "Neuer Kurs",
+      "newLesson": "Neue Lektion",
+      "newModule": "Neues Modul"
+    },
+    "noMinimized": "Keine minimierten Panels",
+    "noMinimizedHint": "Minimierte Panels erscheinen hier",
+    "noPreview": "Keine Vorschau verfügbar",
+    "restore": "Wiederherstellen",
+    "status": {
+      "aiActive": "KI aktiv",
+      "archived": "Archiviert",
+      "done": "Fertig",
+      "draft": "Entwurf",
+      "error": "Fehler",
+      "published": "Veröffentlicht",
+      "waiting": "Warten"
+    },
+    "title": "Minimierte Panels",
+    "types": {
+      "adminAiJob": "KI-Kursgenerator",
+      "adminCourseCreate": "Kurs erstellen",
+      "adminCourseEditor": "Kurs bearbeiten",
+      "adminLessonEditor": "Lektion bearbeiten",
+      "adminModuleEditor": "Modul bearbeiten",
+      "adminPanelManager": "Panel-Verwaltung"
+    }
+  }
+}

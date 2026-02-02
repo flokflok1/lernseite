@@ -1,0 +1,191 @@
+{
+  "chapters": {
+    "chapter": "Chapter",
+    "errors": {
+      "saveFirst": "Please save the chapter first",
+      "titleRequired": "Chapter name is required"
+    },
+    "tabs": {
+      "info": "Chapter Info",
+      "lessons": "Lessons",
+      "methods": "Learning Methods",
+      "theory": "Theory Sheets",
+      "videos": "Videos"
+    }
+  },
+  "courseChat": {
+    "calculatorTutorial": "Calculator Tutorial",
+    "createChapters": "Create 3 Chapters",
+    "generateExam": "Generate Exam",
+    "suggestStructure": "Suggest Structure"
+  },
+  "courseDetail": {
+    "actions": {
+      "aiEditor": "AI Editor",
+      "aiExam": "AI Exam",
+      "archive": "Archive",
+      "chapters": "Chapters",
+      "edit": "Edit",
+      "exams": "Exams",
+      "files": "Files",
+      "publish": "Publish",
+      "title": "Actions",
+      "unpublish": "Unpublish"
+    },
+    "back": "Back",
+    "confirm": {
+      "archive": "Do you really want to archive this course?",
+      "deleteChapter": "Do you really want to delete the chapter \"{title}\"?\n\nAll lessons in this chapter will also be deleted.",
+      "deleteFile": "Do you really want to delete the file \"{name}\"?",
+      "generateExam": "Do you want to generate an AI exam for the course \"{title}\"?",
+      "generateExamDefault": "The default prompt will be used.",
+      "generateExamNote": "The AI will automatically create exam questions based on the course content.\nThis process may take a few minutes.",
+      "generateExamPrompt": "Selected prompt: {prompt}",
+      "publish": "Do you really want to publish this course?",
+      "unpublish": "Do you really want to unpublish this course?"
+    },
+    "creator": {
+      "email": "Email",
+      "name": "Name",
+      "noOrganisation": "None",
+      "organisation": "Organization",
+      "title": "Creator",
+      "unknown": "Unknown"
+    },
+    "dialogs": {
+      "aiEditor": "AI Editor: {title}",
+      "chapters": "Chapters: {title}",
+      "editChapter": "Chapter: {title}",
+      "editCourse": "Edit Course: {title}",
+      "exams": "Exams: {title}",
+      "files": "Files: {title}",
+      "generateExam": "Generate AI Exam: {title}",
+      "newChapter": "Create New Chapter",
+      "prompts": "Prompts: {title}",
+      "selectPrompt": "Select Prompt for AI Exam"
+    },
+    "errors": {
+      "archive": "Error archiving",
+      "deleteChapter": "Error deleting chapter",
+      "deleteFile": "Error deleting",
+      "generateExam": "Error generating exam",
+      "loadFiles": "Error loading files",
+      "publish": "Error publishing",
+      "unpublish": "Error unpublishing",
+      "uploadFile": "Error uploading"
+    },
+    "fileAlreadyExists": "File \"{name}\" already exists for this course.",
+    "fileCategories": {
+      "exercise": "Exercise",
+      "material": "Material",
+      "other": "Other",
+      "reference": "Reference",
+      "script": "Script",
+      "solution": "Solution",
+      "template": "Template"
+    },
+    "info": {
+      "category": "Category",
+      "courseId": "Course ID",
+      "createdAt": "Created",
+      "noCategory": "None",
+      "price": "Price",
+      "private": "Private",
+      "public": "Public",
+      "title": "Course Info",
+      "visibility": "Visibility"
+    },
+    "invalidCourseId": "Invalid Course ID",
+    "level": {
+      "advanced": "Advanced",
+      "beginner": "Beginner",
+      "expert": "Expert",
+      "intermediate": "Intermediate",
+      "unknown": "Unknown"
+    },
+    "loadError": "Loading Error",
+    "loadErrorDetails": "Error loading course details",
+    "loadingDetails": "Loading course details...",
+    "premium": "Premium",
+    "price": {
+      "free": "Free",
+      "freePremium": "Free (Premium - no ads)",
+      "freeWithAds": "Free (with ads)",
+      "paidPremium": "{price} € (Premium - no ads)"
+    },
+    "retry": "Retry",
+    "stats": {
+      "chapters": "Chapters",
+      "completion": "Completion",
+      "exams": "Exams",
+      "files": "Files",
+      "lessons": "Lessons",
+      "participants": "Participants",
+      "prompts": "Prompts",
+      "rating": "Rating"
+    },
+    "status": {
+      "archived": "Archived",
+      "draft": "Draft",
+      "published": "Published",
+      "unknown": "Unknown"
+    },
+    "success": {
+      "examGenerating": "AI Exam is being generated!",
+      "examId": "Exam ID: {id}",
+      "examNote": "The exam is being generated in the background. You can track progress in the Exam Manager.",
+      "jobId": "Job ID: {id}"
+    },
+    "withAds": "With Ads"
+  },
+  "courseEditor": {
+    "aiEditor": "AI Editor",
+    "aiEditorDesc": "AI-powered course creation with automatic content generation",
+    "contactAdmin": "Please contact an administrator to gain access.",
+    "manualEditor": "Manual Editor",
+    "manualEditorDesc": "Create and edit course content manually",
+    "modeHint": "You can change the editor mode at any time later.",
+    "modes": {
+      "ai": "AI Editor",
+      "aiDesc": "AI-powered course creation with automatic content generation",
+      "manual": "Manual Editor",
+      "manualDesc": "Create and edit course content manually"
+    },
+    "permissionDenied": "You do not have the required permissions for this action.",
+    "selectMode": "Select Course Editor",
+    "selectModeDesc": "Which editor would you like to use for course creation?",
+    "title": "Course Editor"
+  },
+  "courses": {
+    "placeholders": {
+      "descriptionInput": "Enter course description...",
+      "titleInput": "Enter course title..."
+    },
+    "tabs": {
+      "actions": "Actions",
+      "chapters": "Chapters",
+      "metadata": "Metadata"
+    }
+  },
+  "exams": {
+    "errors": {
+      "createFailed": "Failed to create",
+      "deleteFailed": "Failed to delete",
+      "generationFailed": "Failed to generate"
+    }
+  },
+  "lessons": {
+    "confirmDelete": "Really delete this lesson? This action cannot be undone.",
+    "createNew": "Create New Lesson",
+    "duration": "Duration",
+    "edit": "Edit Lesson",
+    "exercises": "Exercises",
+    "learningMethods": "Learning Methods",
+    "lesson": "Lesson",
+    "methodsAreCreatedInStudio": "Learning methods are created in the studio",
+    "noMethods": "No learning methods created",
+    "noTheory": "No theory sheets available",
+    "theory": "Theory",
+    "theoryCanBeGenerated": "Theory sheets can be generated with AI"
+  }
+}

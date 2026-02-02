@@ -37,7 +37,7 @@ marketplace --> author : 75% Revenue
 marketplace --> platform : 25% Platform Fee
 
 note right of creator
-  ✅ Alle 19 Content-LMs erstellen (A-C)
+  ✅ Alle 12 Content-LMs erstellen (A-C)
   ✅ Global Publishing
   ✅ 75% Revenue Share
   ✅ Creator-Analytics
@@ -105,7 +105,7 @@ Person(buyer, "Käufer", "Kursteilnehmer")
 
 System_Boundary(creator_system, "Creator System") {
   Container(creator_dashboard, "Creator Dashboard", "Vue.js", "Einnahmen, Analytics, Kursverwaltung")
-  Container(course_editor, "Advanced Course Editor", "Vue.js", "19 Content-LMs (A-C) + Pro-Features")
+  Container(course_editor, "Advanced Course Editor", "Vue.js", "12 Content-LMs (A-C) + Pro-Features")
   Container(marketplace_mgmt, "Marketplace Manager", "Python/Flask", "Kursverkauf & Pricing")
   Container(payout_service, "Payout Service", "Python", "Einnahmen-Auszahlung")
   Container(global_publisher, "Global Publisher", "Python", "20-Sprachen-Publishing")
@@ -333,7 +333,7 @@ end note
 title Creator Feature-Set
 
 Container_Boundary(creator_features, "Creator Features") {
-  Component(course_editor, "Advanced Course Editor", "Vue.js", "19 Content-LMs (A-C) + Pro")
+  Component(course_editor, "Advanced Course Editor", "Vue.js", "12 Content-LMs (A-C) + Pro")
   Component(ai_tools, "KI-Tools", "Python/AI", "Generierung & Optimierung")
   Component(global_pub, "Global Publishing", "Python", "20 Sprachen")
   Component(monetization, "Monetarisierung", "Python", "Marketplace & Revenue")
@@ -602,7 +602,7 @@ end note
 |-------------|---------|
 | **Preis** | Kostenlos |
 | **Sichtbarkeit** | Öffentlich |
-| **Methoden** | Alle 19 Content-LMs (A-C) |
+| **Methoden** | Alle 12 Content-LMs (A-C) |
 | **Global Publishing** | ✅ Optional |
 | **Zweck** | Marketing, Portfolio, Community-Building |
 | **Analytics** | Basic (Views, Enrollments, Ratings) |
@@ -615,7 +615,7 @@ end note
 | **Preis** | 9,99 € - 299,99 € (Creator wählt) |
 | **Revenue Share** | 75% an Creator |
 | **Sichtbarkeit** | Weltweit (20 Sprachen) |
-| **Methoden** | Alle 19 Content-LMs (A-C) |
+| **Methoden** | Alle 12 Content-LMs (A-C) |
 | **Global Publishing** | ✅ Empfohlen |
 | **Analytics** | Advanced (Sales, Revenue, Conversion, Retention) |
 | **Auszahlung** | Monatlich via Stripe |
@@ -627,7 +627,7 @@ end note
 | **Preis** | Intern |
 | **Sichtbarkeit** | Privat |
 | **Zweck** | Entwürfe, Experimente, später öffentlich |
-| **Methoden** | Alle 19 Content-LMs (A-C) |
+| **Methoden** | Alle 12 Content-LMs (A-C) |
 
 #### 4.4 Beta-Kurse
 
@@ -1151,7 +1151,7 @@ Content-Type: application/json
 | **Revenue Share** | 75% an Creator |
 | **Auszahlung** | Monatlich via Stripe (Minimum 50 €) |
 | **Global Publishing** | 20 Sprachen kostenlos |
-| **Lernmethoden** | Alle 19 Content-LMs (A-C) |
+| **Lernmethoden** | Alle 12 Content-LMs (A-C) |
 | **Kurstypen** | Community, Marketplace, Privat, Beta |
 | **Analytics** | Vollständig (Revenue, Sales, Conversion, Retention) |
 | **Branding** | Creator-Profilseite, Verified Badge |

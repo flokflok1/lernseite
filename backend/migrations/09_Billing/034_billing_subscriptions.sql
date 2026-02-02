@@ -10,7 +10,7 @@
 -- TABLE: subscription_plans
 -- Description: Available subscription plan definitions
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS subscription_plans (
+CREATE TABLE IF NOT EXISTS billing_storage.subscription_plans (
     plan_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     plan_code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -30,19 +30,19 @@ CREATE TABLE IF NOT EXISTS subscription_plans (
     CONSTRAINT chk_plan_type CHECK (plan_type IN ('free', 'premium', 'creator', 'teacher', 'school', 'company'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_subscription_plans_code ON subscription_plans(plan_code);
-CREATE INDEX IF NOT EXISTS idx_subscription_plans_type ON subscription_plans(plan_type);
-CREATE INDEX IF NOT EXISTS idx_subscription_plans_active ON subscription_plans(active) WHERE active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_subscription_plans_code ON billing_storage.subscription_plans (plan_code);
+CREATE INDEX IF NOT EXISTS idx_subscription_plans_type ON billing_storage.subscription_plans (plan_type);
+CREATE INDEX IF NOT EXISTS idx_subscription_plans_active ON billing_storage.subscription_plans (active) WHERE active = TRUE;
 
-COMMENT ON TABLE subscription_plans IS 'Subscription plan definitions with pricing and features';
+COMMENT ON TABLE billing_storage.subscription_plans IS 'Subscription plan definitions with pricing and features';
 
 -- ============================================================================
 -- TABLE: subscription_changes
 -- Description: History of subscription upgrades/downgrades
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS subscription_changes (
+CREATE TABLE IF NOT EXISTS billing_storage.subscription_changes (
     change_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    subscription_id UUID REFERENCES subscriptions(subscription_id) ON DELETE CASCADE,
+    subscription_id UUID REFERENCES billing_storage.subscriptions(subscription_id) ON DELETE CASCADE,
     change_type VARCHAR(50) NOT NULL,
     from_plan VARCHAR(50),
     to_plan VARCHAR(50),
@@ -52,27 +52,22 @@ CREATE TABLE IF NOT EXISTS subscription_changes (
     CONSTRAINT chk_subscription_change_type CHECK (change_type IN ('upgrade', 'downgrade', 'cancel', 'reactivate', 'trial_start', 'trial_end'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_subscription_changes_sub ON subscription_changes(subscription_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_subscription_changes_type ON subscription_changes(change_type);
-CREATE INDEX IF NOT EXISTS idx_subscription_changes_effective ON subscription_changes(effective_date);
+CREATE INDEX IF NOT EXISTS idx_subscription_changes_sub ON billing_storage.subscription_changes (subscription_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_subscription_changes_type ON billing_storage.subscription_changes (change_type);
+CREATE INDEX IF NOT EXISTS idx_subscription_changes_effective ON billing_storage.subscription_changes (effective_date);
 
-COMMENT ON TABLE subscription_changes IS 'History of subscription plan changes';
+COMMENT ON TABLE billing_storage.subscription_changes IS 'History of subscription plan changes';
 
 -- ============================================================================
 -- Trigger: Update updated_at timestamp
 -- ============================================================================
-CREATE TRIGGER update_subscription_plans_updated_at BEFORE UPDATE ON subscription_plans
+CREATE TRIGGER update_subscription_plans_updated_at BEFORE UPDATE ON billing_storage.subscription_plans
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
--- Seed Subscription Plans
+-- NOTE: Subscription plans are managed dynamically via Admin UI
+-- No seed data here - plans are created/edited in the admin panel
 -- ============================================================================
-INSERT INTO subscription_plans (plan_code, name, plan_type, features, price_monthly, price_yearly, token_monthly_grant) VALUES
-    ('free', 'Free', 'free', '{"methods": 11, "ai": false, "max_courses": 3}'::jsonb, 0, 0, 0),
-    ('premium', 'Premium', 'premium', '{"methods": 17, "ai": true, "max_courses": 999}'::jsonb, 14.99, 143.90, 10000),
-    ('creator', 'Creator', 'creator', '{"methods": 21, "ai": true, "marketplace": true, "revenue_share": 0.75}'::jsonb, 29.99, 287.90, 50000),
-    ('teacher', 'Lehrer', 'teacher', '{"methods": 21, "ai": true, "classes": 10, "students": 300}'::jsonb, 49.99, 479.90, 100000)
-ON CONFLICT (plan_code) DO NOTHING;
 
 -- ============================================================================
 -- ALTER TABLE: subscriptions
@@ -85,14 +80,14 @@ BEGIN
         SELECT 1 FROM information_schema.columns
         WHERE table_name = 'subscriptions' AND column_name = 'plan_id'
     ) THEN
-        ALTER TABLE subscriptions ADD COLUMN plan_id UUID;
+        ALTER TABLE billing_storage.subscriptions ADD COLUMN plan_id UUID;
     END IF;
 END$$;
 
 -- Update existing subscriptions to link with subscription_plans based on plan_type
-UPDATE subscriptions s
+UPDATE billing_storage.subscriptions s
 SET plan_id = sp.plan_id
-FROM subscription_plans sp
+FROM billing_storage.subscription_plans sp
 WHERE s.plan_type = sp.plan_type
   AND s.plan_id IS NULL;
 
@@ -104,16 +99,16 @@ BEGIN
         WHERE constraint_name = 'fk_subscriptions_plan_id'
           AND table_name = 'subscriptions'
     ) THEN
-        ALTER TABLE subscriptions
+        ALTER TABLE billing_storage.subscriptions
         ADD CONSTRAINT fk_subscriptions_plan_id
-        FOREIGN KEY (plan_id) REFERENCES subscription_plans(plan_id) ON DELETE SET NULL;
+        FOREIGN KEY (plan_id) REFERENCES billing_storage.subscription_plans(plan_id) ON DELETE SET NULL;
     END IF;
 END$$;
 
 -- Create index on plan_id if it doesn't exist
-CREATE INDEX IF NOT EXISTS idx_subscriptions_plan_id ON subscriptions(plan_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_plan_id ON billing_storage.subscriptions (plan_id);
 
-COMMENT ON COLUMN subscriptions.plan_id IS 'Foreign key reference to subscription_plans table';
+COMMENT ON COLUMN billing_storage.subscriptions.plan_id IS 'Foreign key reference to subscription_plans table';
 
 -- ============================================================================
 -- End of Migration: 034_billing_subscriptions.sql

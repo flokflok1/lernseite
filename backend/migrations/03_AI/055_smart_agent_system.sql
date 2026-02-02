@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: 065_smart_agent_system.sql
+-- Migration: 055_smart_agent_system.sql
 -- Description: Smart Agent System with Knowledge Caching
 -- Author: Claude Code
 -- Date: 2025-12-10
@@ -11,9 +11,9 @@ BEGIN;
 -- TABLE: course_agents
 -- Description: Configuration for each course's smart agent
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS course_agents (
+CREATE TABLE IF NOT EXISTS smart_agents.course_agents (
     agent_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    course_id UUID NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
+    course_id UUID NOT NULL REFERENCES courses.courses(course_id) ON DELETE CASCADE,
 
     -- Agent Settings
     name VARCHAR(100) DEFAULT 'KI-Tutor',
@@ -53,16 +53,16 @@ CREATE TABLE IF NOT EXISTS course_agents (
     )
 );
 
-CREATE INDEX idx_course_agents_course ON course_agents(course_id);
-CREATE INDEX idx_course_agents_status ON course_agents(knowledge_status);
+CREATE INDEX idx_course_agents_course ON smart_agents.course_agents (course_id);
+CREATE INDEX idx_course_agents_status ON smart_agents.course_agents (knowledge_status);
 
 -- ============================================================================
 -- TABLE: agent_knowledge_base
 -- Description: Pre-generated and learned knowledge entries
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_knowledge_base (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_knowledge_base (
     knowledge_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID NOT NULL REFERENCES course_agents(agent_id) ON DELETE CASCADE,
+    agent_id UUID NOT NULL REFERENCES smart_agents.course_agents(agent_id) ON DELETE CASCADE,
 
     -- Scope (where this knowledge applies)
     scope_type VARCHAR(20) NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS agent_knowledge_base (
 
     -- Versioning
     version INTEGER DEFAULT 1,
-    superseded_by UUID REFERENCES agent_knowledge_base(knowledge_id),
+    superseded_by UUID REFERENCES smart_agents.agent_knowledge_base(knowledge_id),
 
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -106,24 +106,23 @@ CREATE TABLE IF NOT EXISTS agent_knowledge_base (
     )
 );
 
-CREATE INDEX idx_agent_knowledge_agent ON agent_knowledge_base(agent_id);
-CREATE INDEX idx_agent_knowledge_scope ON agent_knowledge_base(scope_type, scope_id);
-CREATE INDEX idx_agent_knowledge_hash ON agent_knowledge_base(question_hash);
-CREATE INDEX idx_agent_knowledge_type ON agent_knowledge_base(knowledge_type);
-CREATE INDEX idx_agent_knowledge_method ON agent_knowledge_base(method_type) WHERE method_type IS NOT NULL;
-CREATE INDEX idx_agent_knowledge_quality ON agent_knowledge_base(quality_score DESC);
+CREATE INDEX idx_agent_knowledge_agent ON smart_agents.agent_knowledge_base (agent_id);
+CREATE INDEX idx_agent_knowledge_scope ON smart_agents.agent_knowledge_base (scope_type, scope_id);
+CREATE INDEX idx_agent_knowledge_hash ON smart_agents.agent_knowledge_base (question_hash);
+CREATE INDEX idx_agent_knowledge_type ON smart_agents.agent_knowledge_base (knowledge_type);
+CREATE INDEX idx_agent_knowledge_method ON smart_agents.agent_knowledge_base (method_type) WHERE method_type IS NOT NULL;
+CREATE INDEX idx_agent_knowledge_quality ON smart_agents.agent_knowledge_base (quality_score DESC);
 
 -- Full-text search index for question matching
-CREATE INDEX idx_agent_knowledge_question_fts ON agent_knowledge_base
-    USING GIN (to_tsvector('german', COALESCE(question_text, '')));
+CREATE INDEX idx_agent_knowledge_question_fts ON smart_agents.agent_knowledge_base USING GIN (to_tsvector('german', COALESCE(question_text, '')));
 
 -- ============================================================================
 -- TABLE: agent_cache_entries
 -- Description: Redis cache metadata and warm-up tracking
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_cache_entries (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_cache_entries (
     cache_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID NOT NULL REFERENCES course_agents(agent_id) ON DELETE CASCADE,
+    agent_id UUID NOT NULL REFERENCES smart_agents.course_agents(agent_id) ON DELETE CASCADE,
 
     -- Cache Key Info
     cache_key VARCHAR(200) NOT NULL,
@@ -138,7 +137,7 @@ CREATE TABLE IF NOT EXISTS agent_cache_entries (
     last_hit_at TIMESTAMPTZ,
 
     -- Source Knowledge
-    knowledge_id UUID REFERENCES agent_knowledge_base(knowledge_id) ON DELETE SET NULL,
+    knowledge_id UUID REFERENCES smart_agents.agent_knowledge_base(knowledge_id) ON DELETE SET NULL,
 
     created_at TIMESTAMPTZ DEFAULT NOW(),
 
@@ -146,18 +145,18 @@ CREATE TABLE IF NOT EXISTS agent_cache_entries (
     CONSTRAINT chk_cache_tier CHECK (cache_tier BETWEEN 1 AND 3)
 );
 
-CREATE INDEX idx_agent_cache_agent ON agent_cache_entries(agent_id);
-CREATE INDEX idx_agent_cache_expires ON agent_cache_entries(expires_at);
-CREATE INDEX idx_agent_cache_tier ON agent_cache_entries(cache_tier);
+CREATE INDEX idx_agent_cache_agent ON smart_agents.agent_cache_entries (agent_id);
+CREATE INDEX idx_agent_cache_expires ON smart_agents.agent_cache_entries (expires_at);
+CREATE INDEX idx_agent_cache_tier ON smart_agents.agent_cache_entries (cache_tier);
 
 -- ============================================================================
 -- TABLE: agent_query_log
 -- Description: Track all agent queries for learning and analytics
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_query_log (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_query_log (
     query_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID NOT NULL REFERENCES course_agents(agent_id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    agent_id UUID NOT NULL REFERENCES smart_agents.course_agents(agent_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES core.users(user_id) ON DELETE CASCADE,
 
     -- Query Details
     query_text TEXT NOT NULL,
@@ -197,20 +196,20 @@ CREATE TABLE IF NOT EXISTS agent_query_log (
     CONSTRAINT chk_query_rating CHECK (user_rating IS NULL OR user_rating BETWEEN 1 AND 5)
 );
 
-CREATE INDEX idx_agent_query_agent ON agent_query_log(agent_id);
-CREATE INDEX idx_agent_query_user ON agent_query_log(user_id);
-CREATE INDEX idx_agent_query_hash ON agent_query_log(query_hash);
-CREATE INDEX idx_agent_query_created ON agent_query_log(created_at DESC);
-CREATE INDEX idx_agent_query_source ON agent_query_log(response_source);
+CREATE INDEX idx_agent_query_agent ON smart_agents.agent_query_log (agent_id);
+CREATE INDEX idx_agent_query_user ON smart_agents.agent_query_log (user_id);
+CREATE INDEX idx_agent_query_hash ON smart_agents.agent_query_log (query_hash);
+CREATE INDEX idx_agent_query_created ON smart_agents.agent_query_log (created_at DESC);
+CREATE INDEX idx_agent_query_source ON smart_agents.agent_query_log (response_source);
 
 -- ============================================================================
 -- TABLE: agent_org_extensions
 -- Description: Organization-specific agent customizations
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_org_extensions (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_org_extensions (
     extension_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID NOT NULL REFERENCES course_agents(agent_id) ON DELETE CASCADE,
-    organization_id UUID NOT NULL REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    agent_id UUID NOT NULL REFERENCES smart_agents.course_agents(agent_id) ON DELETE CASCADE,
+    organisation_id UUID NOT NULL REFERENCES organisations.organisations(organisation_id) ON DELETE CASCADE,
 
     -- Custom Settings
     custom_persona VARCHAR(50),
@@ -229,19 +228,19 @@ CREATE TABLE IF NOT EXISTS agent_org_extensions (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-    UNIQUE(agent_id, organization_id)
+    UNIQUE(agent_id, organisation_id)
 );
 
-CREATE INDEX idx_agent_org_ext_agent ON agent_org_extensions(agent_id);
-CREATE INDEX idx_agent_org_ext_org ON agent_org_extensions(organization_id);
+CREATE INDEX idx_agent_org_ext_agent ON smart_agents.agent_org_extensions (agent_id);
+CREATE INDEX idx_agent_org_ext_org ON smart_agents.agent_org_extensions (organisation_id);
 
 -- ============================================================================
 -- TABLE: agent_warm_jobs
 -- Description: Background jobs for knowledge warm-up
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS agent_warm_jobs (
+CREATE TABLE IF NOT EXISTS smart_agents.agent_warm_jobs (
     job_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID NOT NULL REFERENCES course_agents(agent_id) ON DELETE CASCADE,
+    agent_id UUID NOT NULL REFERENCES smart_agents.course_agents(agent_id) ON DELETE CASCADE,
 
     -- Job Config
     job_type VARCHAR(30) NOT NULL,
@@ -271,8 +270,8 @@ CREATE TABLE IF NOT EXISTS agent_warm_jobs (
     )
 );
 
-CREATE INDEX idx_agent_warm_jobs_agent ON agent_warm_jobs(agent_id);
-CREATE INDEX idx_agent_warm_jobs_status ON agent_warm_jobs(status);
+CREATE INDEX idx_agent_warm_jobs_agent ON smart_agents.agent_warm_jobs (agent_id);
+CREATE INDEX idx_agent_warm_jobs_status ON smart_agents.agent_warm_jobs (status);
 
 -- ============================================================================
 -- VIEW: v_agent_stats
@@ -297,10 +296,10 @@ SELECT
     COUNT(DISTINCT aql.query_id) FILTER (WHERE aql.created_at > NOW() - INTERVAL '24 hours') as queries_24h,
     ca.last_warmed_at,
     ca.created_at
-FROM course_agents ca
-JOIN courses c ON ca.course_id = c.course_id
-LEFT JOIN agent_knowledge_base akb ON ca.agent_id = akb.agent_id
-LEFT JOIN agent_query_log aql ON ca.agent_id = aql.agent_id
+FROM smart_agents.course_agents ca
+JOIN courses.courses c ON ca.course_id = c.course_id
+LEFT JOIN smart_agents.agent_knowledge_base akb ON ca.agent_id = akb.agent_id
+LEFT JOIN smart_agents.agent_query_log aql ON ca.agent_id = aql.agent_id
 GROUP BY ca.agent_id, ca.course_id, c.title, ca.name, ca.knowledge_status,
          ca.total_queries, ca.cache_hits, ca.tokens_saved, ca.last_warmed_at, ca.created_at;
 
@@ -309,19 +308,19 @@ GROUP BY ca.agent_id, ca.course_id, c.title, ca.name, ca.knowledge_status,
 -- ============================================================================
 
 -- Update timestamp triggers
-DROP TRIGGER IF EXISTS update_course_agents_updated_at ON course_agents;
+DROP TRIGGER IF EXISTS update_course_agents_updated_at ON smart_agents.course_agents ;
 CREATE TRIGGER update_course_agents_updated_at
-    BEFORE UPDATE ON course_agents
+    BEFORE UPDATE ON smart_agents.course_agents
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_agent_knowledge_updated_at ON agent_knowledge_base;
+DROP TRIGGER IF EXISTS update_agent_knowledge_updated_at ON smart_agents.agent_knowledge_base ;
 CREATE TRIGGER update_agent_knowledge_updated_at
-    BEFORE UPDATE ON agent_knowledge_base
+    BEFORE UPDATE ON smart_agents.agent_knowledge_base
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_agent_org_ext_updated_at ON agent_org_extensions;
+DROP TRIGGER IF EXISTS update_agent_org_ext_updated_at ON smart_agents.agent_org_extensions ;
 CREATE TRIGGER update_agent_org_ext_updated_at
-    BEFORE UPDATE ON agent_org_extensions
+    BEFORE UPDATE ON smart_agents.agent_org_extensions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
@@ -334,7 +333,7 @@ CREATE OR REPLACE FUNCTION increment_agent_stats(
     p_tokens_saved INTEGER DEFAULT 0
 ) RETURNS VOID AS $$
 BEGIN
-    UPDATE course_agents
+    UPDATE smart_agents.course_agents
     SET
         total_queries = total_queries + 1,
         cache_hits = cache_hits + CASE WHEN p_cache_hit THEN 1 ELSE 0 END,
@@ -368,7 +367,7 @@ BEGIN
             to_tsvector('german', COALESCE(akb.question_text, '')),
             plainto_tsquery('german', p_query_text)
         ) as similarity_rank
-    FROM agent_knowledge_base akb
+    FROM smart_agents.agent_knowledge_base akb
     WHERE akb.agent_id = p_agent_id
       AND akb.question_text IS NOT NULL
       AND to_tsvector('german', akb.question_text) @@ plainto_tsquery('german', p_query_text)
@@ -380,9 +379,9 @@ $$ LANGUAGE plpgsql;
 -- ============================================================================
 -- Extend ki_requests table for cache tracking
 -- ============================================================================
-ALTER TABLE ki_requests ADD COLUMN IF NOT EXISTS cache_hit BOOLEAN DEFAULT FALSE;
-ALTER TABLE ki_requests ADD COLUMN IF NOT EXISTS cache_key VARCHAR(200);
-ALTER TABLE ki_requests ADD COLUMN IF NOT EXISTS tokens_saved INTEGER DEFAULT 0;
+ALTER TABLE ai_pipeline.ki_requests ADD COLUMN IF NOT EXISTS cache_hit BOOLEAN DEFAULT FALSE;
+ALTER TABLE ai_pipeline.ki_requests ADD COLUMN IF NOT EXISTS cache_key VARCHAR(200);
+ALTER TABLE ai_pipeline.ki_requests ADD COLUMN IF NOT EXISTS tokens_saved INTEGER DEFAULT 0;
 
 COMMIT;
 

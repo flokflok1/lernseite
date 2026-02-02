@@ -15,7 +15,7 @@ Das LSX-Zugriffssystem definiert präzise, welche Rollen welche Funktionen **nut
 @startuml
 title Zugriffskontroll-Matrix
 
-package "Content Access (19 Content-Lernmethoden)" {
+package "Content Access (12 Content-Lernmethoden)" {
   [Gruppe A: Erklärend (LM00-03, LM06)] as basis
   [Gruppe B: Praxis (LM08, LM12-15, LM17)] as premium_methods
   [Gruppe C: Prüfung (LM18–LM25)] as pruefung
@@ -70,7 +70,7 @@ note right of free
 end note
 
 note right of premium_user
-  Alle 19 Content-Lernmethoden (A-C)
+  Alle 12 Content-Lernmethoden (A-C)
   KI-Vollzugriff
   Erstellen für private Zwecke
 end note
@@ -91,7 +91,7 @@ end note
 | Nr. | Prinzip |
 |-----|---------|
 | 1 | Jede Rolle hat klar definierte, unveränderliche Rechte |
-| 2 | Premium = Lernen auf höchstem Level (alle 19 Content-Lernmethoden **konsumieren**) |
+| 2 | Premium = Lernen auf höchstem Level (alle 12 Content-Lernmethoden **konsumieren**) |
 | 3 | Creator = Inhalte erstellen & monetarisieren |
 | 4 | Schulen/Unternehmen = Verwaltung von Menschen & Lernpfaden |
 | 5 | Admins = Systemsteuerung |
@@ -108,8 +108,8 @@ end note
 
 | Funktion | Free | Premium | Creator | Lehrer | Schule | Unternehmen | Support | Mod | Admin |
 |----------|------|---------|---------|--------|--------|-------------|---------|-----|-------|
-| **19 LMs konsumieren** | ✅ Gruppe A+B teil | ✅ Alle (A-C) | ✅ Alle | ✅ Alle | ✅ Alle | ✅ Alle | ✅ Lesen | ✅ Lesen | ✅ Alle |
-| **19 LMs erstellen** | ❌ | 🔶 Privat | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
+| **12 LMs konsumieren** | ✅ Gruppe A+B teil | ✅ Alle (A-C) | ✅ Alle | ✅ Alle | ✅ Alle | ✅ Alle | ✅ Lesen | ✅ Lesen | ✅ Alle |
+| **12 LMs erstellen** | ❌ | 🔶 Privat | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
 | **KI-Nutzung** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
 | **Private Kurse** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
 | **Community-Kurse** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
@@ -136,10 +136,10 @@ end note
 | Rolle | Zugriff |
 |-------|---------|
 | Free | Gruppe A+B teilweise (ausgewählte Methoden) |
-| Premium | Alle 19 Content-Lernmethoden (A-C) |
-| Creator/Teacher/School/Company | Alle 19 Content-Lernmethoden |
+| Premium | Alle 12 Content-Lernmethoden (A-C) |
+| Creator/Teacher/School/Company | Alle 12 Content-Lernmethoden |
 | Support/Mod | Lesezugriff auf alle |
-| Admin | Alle 19 Content-Lernmethoden |
+| Admin | Alle 12 Content-Lernmethoden |
 
 ### Erstellen (Produzieren)
 
@@ -170,7 +170,7 @@ end note
 
 | Bereich | Zugriff |
 |---------|---------|
-| Lernmethoden | ✅ Alle 19 Content-LMs konsumieren (A-C) |
+| Lernmethoden | ✅ Alle 12 Content-LMs konsumieren (A-C) |
 | KI | ✅ Vollzugriff |
 | Kurserstellung | ✅ Community & Privat (alle Content-LMs) |
 | Gruppen | ✅ Erstellen & Beitreten |
@@ -186,7 +186,7 @@ end note
 
 | Bereich | Zugriff |
 |---------|---------|
-| Lernmethoden | ✅ Alle 19 Content-LMs erstellen & konsumieren (A-C) |
+| Lernmethoden | ✅ Alle 12 Content-LMs erstellen & konsumieren (A-C) |
 | KI | ✅ KI-Baukasten für Kursgenerierung |
 | Monetarisierung | ✅ 75% Revenue Share |
 | Global Publishing | ✅ 20 Sprachen kostenlos |
@@ -200,7 +200,7 @@ end note
 
 | Bereich | Zugriff |
 |---------|---------|
-| Lernmethoden | ✅ Alle 19 Content-LMs erstellen (A-C) |
+| Lernmethoden | ✅ Alle 12 Content-LMs erstellen (A-C) |
 | KI | ✅ Prüfungsgenerator, Content-Erstellung |
 | LiveRoom | ✅ Pro (unbegrenzte Teilnehmer) |
 | Klassen | ✅ Verwaltung |
@@ -214,7 +214,7 @@ end note
 | Bereich | Zugriff |
 |---------|---------|
 | Verwaltung | ✅ Lehrer/Mitarbeiter hinzufügen |
-| Lernmethoden | ✅ Alle 19 Content-LMs erstellen (A-C) |
+| Lernmethoden | ✅ Alle 12 Content-LMs erstellen (A-C) |
 | Global Publishing | ✅ 20 Sprachen |
 | Domain | ✅ Branding & White-Label |
 | Token-Pool | ✅ Zentral für Organisation |
@@ -260,9 +260,9 @@ end note
 
 ---
 
-## Zugriff auf die 19 Content-Lernmethoden (A-C)
+## Zugriff auf die 12 Content-Lernmethoden (A-C)
 
-> **Referenz:** Alle 19 Content-Lernmethoden sind im Master-Dokument [02_Lernmethoden.md](02_Lernmethoden.md) definiert.
+> **Referenz:** Alle 12 Content-Lernmethoden sind im Master-Dokument [02_Lernmethoden.md](02_Lernmethoden.md) definiert.
 
 ### Gruppe A – Erklärende Methoden (LM00-03, LM06)
 
@@ -364,7 +364,7 @@ end note
 
 - **Strikte Trennung:** Keine Rollenverschmelzung
 - **Fair für Free:** Zugang zu Basis-Lernmethoden
-- **Premium-Power:** Alle 19 Content-LMs (A-C) konsumieren
+- **Premium-Power:** Alle 12 Content-LMs (A-C) konsumieren
 - **Creator-Monetarisierung:** 75% Revenue Share
 - **Enterprise-Ready:** Schule & Unternehmen vollständig ausgestattet
 

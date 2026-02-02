@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vielen Dank für Ihre Anfrage - LernSystemX</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px 8px 0 0;
+            margin: -30px -30px 30px -30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0ea5e9;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .highlight-box h3 {
+            margin-top: 0;
+            color: #0369a1;
+        }
+        .timeline {
+            margin: 30px 0;
+        }
+        .timeline-item {
+            display: flex;
+            margin: 15px 0;
+            align-items: flex-start;
+        }
+        .timeline-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .timeline-content {
+            flex-grow: 1;
+        }
+        .timeline-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+        .timeline-description {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .contact-info {
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .contact-info h3 {
+            margin-top: 0;
+            color: #111827;
+        }
+        .contact-row {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .contact-icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Vielen Dank!</h1>
+            <p>Ihre Anfrage wurde erfolgreich übermittelt</p>
+        </div>
+
+        <div class="content">
+            <p>Hallo <strong>{{ contact_person }}</strong>,</p>
+
+            <p>
+                vielen Dank für Ihr Interesse an LernSystemX! Wir haben Ihre Anfrage von
+                <strong>{{ company_name }}</strong> erhalten und freuen uns, Sie als potentiellen
+                B2B-Partner begrüßen zu dürfen.
+            </p>
+
+            <div class="highlight-box">
+                <h3>🚀 Was passiert jetzt?</h3>
+                <p>
+                    Unser Team wird sich <strong>innerhalb der nächsten 24 Stunden</strong>
+                    bei Ihnen melden, um Ihre Anforderungen zu besprechen und ein
+                    individuelles Angebot zu erstellen.
+                </p>
+            </div>
+
+            <div class="timeline">
+                <h3>📅 Der nächste Schritt im Überblick</h3>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">1</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Erste Kontaktaufnahme</div>
+                        <div class="timeline-description">
+                            Unser Sales-Team meldet sich telefonisch oder per E-Mail bei Ihnen
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">2</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Bedarfsanalyse</div>
+                        <div class="timeline-description">
+                            Wir klären Ihre Anforderungen, Nutzerzahl und gewünschte Features
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">3</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Individuelles Angebot</div>
+                        <div class="timeline-description">
+                            Sie erhalten ein auf Ihr Unternehmen zugeschnittenes Angebot
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">4</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Onboarding</div>
+                        <div class="timeline-description">
+                            Nach Vertragsabschluss richten wir Ihre Organisation ein und schulen Ihr Team
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-info">
+                <h3>📞 Sie haben Fragen?</h3>
+                <p>Wir sind gerne für Sie da:</p>
+                <div class="contact-row">
+                    <span class="contact-icon">📧</span>
+                    <span><a href="mailto:sales@lernsystemx.com">sales@lernsystemx.com</a></span>
+                </div>
+                <div class="contact-row">
+                    <span class="contact-icon">☎️</span>
+                    <span><a href="tel:+4930123456789">+49 30 123 456 789</a></span>
+                </div>
+                <div class="contact-row">
+                    <span class="contact-icon">🌐</span>
+                    <span><a href="https://lernsystemx.com">lernsystemx.com</a></span>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px;">
+                Wir freuen uns darauf, Sie kennenzulernen!<br>
+                <strong>Ihr LernSystemX Team</strong>
+            </p>
+        </div>
+
+        <div class="footer">
+            <div class="social-links">
+                <a href="#" class="social-link">LinkedIn</a> •
+                <a href="#" class="social-link">Twitter</a> •
+                <a href="#" class="social-link">YouTube</a>
+            </div>
+            <p style="margin: 20px 0; font-size: 12px; color: #9ca3af;">
+                LernSystemX GmbH | Musterstraße 123 | 10115 Berlin<br>
+                Diese E-Mail wurde an {{ email }} gesendet.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

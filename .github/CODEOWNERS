@@ -1,0 +1,8 @@
+# Default owners for the whole repo
+* @flokflok1
+
+# Backend security-sensitive areas
+backend/app/api/v1/runner/ @flokflok1
+backend/app/application/services/runner/ @flokflok1
+backend/app/infrastructure/redis/ @flokflok1
+backend/app/infrastructure/i18n/ @flokflok1

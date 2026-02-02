@@ -122,10 +122,26 @@ Thumbs.db
 
 # User uploads (AI jobs, course materials)
 app/uploads/
+uploads/
 storage/
 
 # Media cache (TTS audio, generated content)
 media_cache/
+
+# Runtime directories
+cache/
+temp/
+
+# Archive backups (old code structures)
+_archive/
+
+# Compliance evidence (contains sensitive audit data - NEVER commit!)
+compliance_evidence/gdpr/*
+compliance_evidence/iso27001/*
+compliance_evidence/dsa/*
+compliance_evidence/netzdg/*
+compliance_evidence/audits/*
+!compliance_evidence/**/README.md
 
 # ============================================
 # CRITICAL: Credentials & Test Files

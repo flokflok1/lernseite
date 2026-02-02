@@ -1,361 +1,600 @@
-# 32_API-Gateway.md (Final)  
-Version: 1.0  
-Stand: Final
+# 03 – API-Gateway (GBA Edition)
 
-Dieses Dokument beschreibt das gesamte **API-Gateway-System** des LSX Lernsystems.  
-Das API-Gateway ist die zentrale Schicht, die **alle Anfragen** reguliert, steuert, validiert und weiterleitet.  
-Es bildet die erste technische Sicherheitsbarriere und orchestriert sämtliche Microservices.
+**Version:** 2.0 (Group-Based Architecture)
+**Stand:** 2026-01-25
+**Status:** Production Ready
 
----
+Das Dokument beschreibt das **API-Gateway-System** des LSX Lernsystems als zentrale Sicherheitsschicht.
 
-# 1. Ziele des API-Gateways
-
-Das API-Gateway soll:
-
-- als zentraler Einstiegspunkt für alle Clients dienen  
-- Routing zu Backend-Services übernehmen  
-- Authentifizierung & Autorisierung prüfen  
-- Rate Limits durchsetzen  
-- API-Versionierung ermöglichen  
-- Monitoring & Logging bündeln  
-- Caching an der richtigen Stelle aktivieren  
-- WebSockets (LiveRoom) verwalten  
-- statische Assets ausliefern (nur wo sinnvoll)  
-
-Es ersetzt einzelne, unkontrollierte API-Endpunkte durch einen einheitlichen Kontrollpunkt.
+Das API-Gateway ist der Single Entry Point für alle Clients und implementiert **Group-Based Authorization (GBA)** für alle geschützten Endpoints.
 
 ---
 
-# 2. Architekturübersicht
+## Überblick
 
-Das Gateway sitzt VOR allen Services:
+Das API-Gateway erfüllt folgende Funktionen:
 
-[User Browser / Mobile App]
-↓
-[API Gateway (Traefik / Nginx / Kong / Envoy)]
-↓
-[Backend API Services]
-↓
-[Worker / KI-Pipeline / Datenbanken]
-
-yaml
-Code kopieren
+- 🔐 **GBA Authorization** - Group-basierte Berechtigungsprüfung für jeden Request
+- 🎯 **Routing** - Weiterleitung zu Backend-Services
+- 🔑 **JWT-Validierung** - Token-Parsing und Signatur-Verifizierung
+- ⏱️ **Rate Limiting** - Schutz vor Überlastung
+- 📊 **Monitoring** - Zentrale Logging- und Tracking-Infrastruktur
+- 🌍 **Multi-Tenant** - Organisations-Isolation und -Routing
+- 🔌 **WebSocket** - LiveRoom und Real-Time Services
+- 🛡️ **Security** - WAF, DDoS-Schutz, Request Validation
 
 ---
 
-# 3. Verantwortlichkeiten
+## Architektur
 
-Das Gateway übernimmt folgende Aufgaben:
-
-- Authentifizierung / JWT-Validierung  
-- Header-Validierung  
-- Rate Limiting  
-- IP-Filtering (Firewall Layer 7)  
-- Routing zu Microservices  
-- Domain- und Tenant-Routing (Organisationen)  
-- Logging & Request Tracking  
-- CORS-Handling  
-- WebSocket Proxy  
-- Request Size Limits  
-- Throttling für KI-Requests  
-
----
-
-# 4. Routing-Struktur
-
-LSX verwendet das folgende Routenlayout:
-
-/api/v1/auth/* → Auth-Service
-/api/v1/users/* → User-Service
-/api/v1/courses/* → Course-Service
-/api/v1/modules/* → Module-Service
-/api/v1/methods/* → Learning-Methods-Service
-/api/v1/community/* → Community-Service
-/api/v1/creator/* → Creator-Service
-/api/v1/organisation/* → Org-Service
-/api/v1/exams/* → Exam-Service
-/api/v1/liveroom/* → LiveRoom WebSocket Gateway
-/api/v1/ki/* → KI-Pipeline-Service
-/api/v1/payments/* → Payment-Service
-/api/v1/analytics/* → Analytics-Service
-/api/v1/admin/* → Admin-Service
-
-yaml
-Code kopieren
-
-**Alle Routes laufen über das API-Gateway und werden dort validiert.**
+```
+[Clients: Web/Mobile/Desktop]
+           ↓
+[API Gateway (Traefik/Kong/nginx)]
+    ├─ JWT Validation
+    ├─ GBA Permission Check (groups[] + permissions)
+    ├─ Rate Limiting
+    └─ Request Routing
+           ↓
+[Backend Services]
+    ├─ /api/v1/auth/*
+    ├─ /api/v1/courses/*
+    ├─ /api/v1/admin/*
+    └─ /api/v1/learning-methods/*
+           ↓
+[Databases, Cache, Workers]
+```
 
 ---
 
-# 5. Versionierung (API Versioning)
+## Routing-Struktur
 
-LSX verwendet **URL-basierte Versionierung**:
+LSX nutzt folgende API-Routes (alle mit v1-Versionierung):
 
-- `/api/v1/…` = stabile Version  
-- `/api/v2/…` = neue Versionen, Beta, Breaking Changes  
+| Route | Service | Beschreibung |
+|-------|---------|--------------|
+| `/api/v1/auth/*` | Auth Service | Login, Register, Token Refresh |
+| `/api/v1/users/*` | User Service | Benutzerverwaltung |
+| `/api/v1/courses/*` | Course Service | Kurse, Kapitel, Lektionen |
+| `/api/v1/admin-panel/*` | Admin Service | System Administration (GBA) |
+| `/api/v1/course_editor/*` | Editor Service | Content Authoring |
+| `/api/v1/learning_methods/*` | Methods Service | LM00-LM11 Execution |
+| `/api/v1/community/*` | Community Service | Social Network |
+| `/api/v1/liveroom/*` | LiveRoom Service | WebRTC + Whiteboard |
+| `/api/v1/compliance/*` | Compliance Service | GDPR, DSA, NetzDG |
+| `/api/v1/moderation/*` | Moderation Service | Content Review & DRM |
+| `/api/v1/payments/*` | Payment Service | Token Billing |
+| `/api/v1/analytics/*` | Analytics Service | Dashboards & Metrics |
 
-Regeln:
-
-- v1 bleibt kompatibel  
-- v2 wird parallel eingeführt  
-- Migration erfolgt schrittweise  
-- Deprecation-Hinweise werden über den Header gesendet  
-
-Header:
-
-X-LSX-API-Version: 1
-X-LSX-API-Deprecated: false
-
-yaml
-Code kopieren
+**Wichtig:** Alle Routes werden durch das Gateway geleitet und müssen die JWT-Validierung + GBA-Prüfung bestehen.
 
 ---
 
-# 6. Authentifizierung im Gateway
+## API-Versionierung
 
-Jeder Request durchläuft:
+LSX nutzt **URL-basierte Versionierung**:
 
-1. **JWT Access Token Check**  
-2. **Refresh Token Logik (falls expired)**  
-3. **Rollenprüfung**  
-4. **Organisation Routing** (Mandantenerkennung)  
+- `/api/v1/*` - Stabile Version (langfristig kompatibel)
+- `/api/v2/*` - Neue Versionen mit Breaking Changes (optional)
 
-### 6.1 Header Anforderungen
+**Regeln:**
+- v1 bleibt kompatibel mit existierenden Clients
+- v2 wird parallel eingeführt bei Breaking Changes
+- Deprecation-Hinweise im Response-Header
 
+---
+
+## GBA-Authentifizierung im Gateway
+
+Jeder Request durchläuft folgendes Flow:
+
+```
+1. Header Validation
+   ↓
+2. JWT Token Extraction & Validation
+   ├─ Signatur-Verifizierung
+   ├─ Ablaufzeit-Prüfung
+   └─ groups[] Array Extraktion
+   ↓
+3. GBA Permission Check
+   ├─ Permission Code aus Endpoint
+   ├─ User's effective permissions ermitteln
+   └─ Zugriff erlaubt/verweigert?
+   ↓
+4. Organisation Routing (Multi-Tenant)
+   ├─ X-LSX-Org-ID aus JWT
+   └─ Resource-Isolation prüfen
+   ↓
+5. Request Forwarding oder 403 Forbidden
+```
+
+### Header-Anforderungen
+
+```
+Authorization: Bearer <jwt>              # REQUIRED - Access Token
+X-LSX-Client: web|mobile|admin          # REQUIRED - Client Type
+X-LSX-Org-ID: <org-uuid>                # OPTIONAL - Auto-erkannt aus JWT
+X-LSX-Request-ID: <tracking-id>         # AUTO - Gesetzt vom Gateway
+```
+
+### JWT Token Struktur (mit GBA)
+
+```json
+{
+  "sub": "user-uuid",
+  "user_id": "user-uuid",
+  "email": "user@example.com",
+  "name": "Full Name",
+  "organisation_id": "org-uuid",
+  "iat": 1704067200,
+  "exp": 1704153600,
+
+  "groups": [
+    {
+      "id": 1,
+      "name": "system-admin",
+      "slug": "system_admin",
+      "type": "system",
+      "permissions": [
+        "admin:system",
+        "admin:organisations",
+        "manage:*"
+      ]
+    },
+    {
+      "id": 52,
+      "name": "course-creators",
+      "slug": "course_creators",
+      "type": "organisation",
+      "permissions": [
+        "manage:courses",
+        "manage:content",
+        "view:analytics"
+      ]
+    }
+  ]
+}
+```
+
+### Token-Validierung im Gateway
+
+Das Gateway prüft:
+
+1. **Signatur** - JWT korrekt signiert mit SECRET_KEY?
+2. **Ablaufzeit** - `exp` claim noch gültig?
+3. **groups[] Array** - Vorhanden und nicht leer?
+4. **Berechtigungen** - User hat Permissions für den angeforderten Endpoint?
+5. **Organisation** - Resource gehört zur User's Organisation?
+
+**Fehler-Response bei fehlender Authentifizierung:**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Missing or invalid JWT token"
+  }
+}
+```
+**Status:** 401 Unauthorized
+
+---
+
+## GBA-Autorisierung (Permission Checking)
+
+### Permission Decorator Pattern
+
+Der Backend nutzt **Permission Decorators** zur Endpoint-Absicherung:
+
+```python
+# Python Flask Example
+
+@bp.route('/api/v1/admin-panel/users', methods=['GET'])
+@require_permission('admin:system')
+def list_all_users():
+    """
+    Nur Benutzer mit admin:system Permission dürfen zugreifen.
+    Der Decorator prüft automatisch:
+    1. JWT vorhanden?
+    2. groups[] vorhanden?
+    3. Eine der User-Gruppen hat 'admin:system' permission?
+    """
+    return get_users()
+
+@bp.route('/api/v1/courses', methods=['POST'])
+@require_permission('manage:courses')
+def create_course():
+    """Erfordert manage:courses Permission"""
+    return create_new_course()
+
+@bp.route('/api/v1/admin-panel/courses/<course_id>', methods=['DELETE'])
+@require_permission('admin:system', 'manage:courses')  # ANY
+def delete_course(course_id):
+    """Erfordert admin:system ODER manage:courses"""
+    return delete_course_by_id(course_id)
+```
+
+### Permission Codes (Master List)
+
+| Code | Bedeutung | Gruppen |
+|------|-----------|---------|
+| `admin:system` | System-Admin (alles) | system-admin |
+| `admin:organisations` | Organisationen verwalten | system-admin, org-admin |
+| `manage:courses` | Kurse erstellen/ändern | course-creators, teachers |
+| `manage:content` | Content-Authoring | course-creators, teachers |
+| `manage:users` | Benutzer verwalten | org-admin, support |
+| `manage:groups` | Gruppen verwalten | system-admin, org-admin |
+| `view:analytics` | Analytics/Reports anschauen | org-admin, teachers, analytics-viewers |
+| `view:moderation` | Moderation-Panel | moderators, system-admin |
+| `manage:compliance` | Compliance-Tools | compliance-officers, system-admin |
+
+### Autorisierungsprozess im Gateway
+
+```
+User Request: GET /api/v1/admin-panel/users
+    ↓
+Gateway: JWT validieren
+    ↓
+Backend: Decorator @require_permission('admin:system') prüft:
+    1. Extract user.groups[] aus JWT
+    2. Für jede Gruppe: Hat sie 'admin:system'?
+    3. NICHT gefunden? → 403 Forbidden
+    4. GEFUNDEN? → Request durchlassen
+    ↓
+Response: 200 OK (mit Daten) oder 403 Forbidden
+```
+
+**Fehler-Response bei mangelnden Berechtigungen:**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "You don't have permission to access this resource",
+    "required_permission": "admin:system",
+    "your_permissions": ["manage:courses", "view:analytics"]
+  }
+}
+```
+**Status:** 403 Forbidden
+
+---
+
+## Rate Limiting
+
+### Limit-Tiers
+
+| Route | Public User | Premium | Org Admin |
+|-------|------------|---------|-----------|
+| `/api/v1/auth/*` | 5/min | 10/min | 10/min |
+| `/api/v1/courses/*` | 30/min | 60/min | 120/min |
+| `/api/v1/learning_methods/*` | 60/min | 200/min | 500/min |
+| `/api/v1/admin-panel/*` | N/A | N/A | 100/min |
+| `/api/v1/moderation/*` | N/A | N/A | 200/min |
+
+**Anpassbar pro Organisation** (über Subscription).
+
+**Fehler bei Überschreitung:**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Too many requests",
+    "retry_after": 60
+  }
+}
+```
+**Status:** 429 Too Many Requests
+
+---
+
+## Multi-Tenant Routing (Organisationen)
+
+Das Gateway erkennt Organisationen über:
+
+### Domain-basiert
+```
+schule-123.lernsystemx.com     → org_id = "xyz-123"
+firma-training.lernsystemx.com → org_id = "xyz-456"
+academy.lernsystemx.com         → Org Auto-Erkennung via JWT
+```
+
+### JWT-basiert (X-LSX-Org-ID)
 ```
 Authorization: Bearer <jwt>
-X-LSX-Client: web|mobile|admin
-X-LSX-Org-ID: optional (automatisch erkannt)
+  ↓
+JWT decode: organisation_id = "xyz-123"
+  ↓
+Gateway setzt: X-LSX-Org-ID: xyz-123
+  ↓
+Backend nutzt X-LSX-Org-ID für Resource-Filtering
 ```
 
-yaml
-Code kopieren
+### Tenant-Isolation Rules
 
-### 6.2 Token Parsing
-
-Das Gateway validiert:
-
-- Signatur  
-- Ablaufzeit  
-- Rollen  
-- Organisation  
-
-Wenn ungültig → `401 Unauthorized`
+- ✅ User kann nur auf Ressourcen seiner Organisation zugreifen
+- ✅ System-Admin (`admin:system`) kann alle Organisationen sehen
+- ❌ Cross-Tenant Zugriffe sind NICHT erlaubt (selbst mit Token)
+- ✅ Jede Org hat eigene Kurse, Benutzer, Liveroom-Instanzen
+- ✅ Jede Org hat separate Token-Wallets & Subscriptions
 
 ---
 
-# 7. Rate Limits
+## CORS-Konfiguration
 
-Beispiele:
+Nur explizit erlaubte Domains akzeptiert:
 
-### 7.1 Standardlimits
-
-| Route | Limit |
-|-------|--------|
-| Auth | 5 Requests / Minute / IP |
-| KI | 30 Requests / Minute / User |
-| Analytics | 60 / Minute |
-| LiveRoom | 100 / Minute |
-| Public API | 10 / Minute |
-
-### 7.2 Organisationen können erweiterte Limits kaufen
-
-- Schulen: +200 %  
-- Unternehmen: +500 %  
-- Premium-User: +50 %  
-
----
-
-# 8. Multi-Tenant Routing (Schulen/Unternehmen)
-
-Das Gateway erkennt anhand der Domain:
-
-schule123.de → Org 51
-training-firma.com → Org 88
-academy.lsx.com → LSX Default
-
-makefile
-Code kopieren
-
-Intern:
-
-X-LSX-Org-ID
-
-yaml
-Code kopieren
-
-wird automatisch gesetzt.
-
-Multi-Tenant Regeln:
-
-- Keine Cross-Tenant Zugriffe  
-- Jede Organisation hat eigene Ressourcen  
-- LiveRoom Instanzen separat  
-- Tokenpools separat  
-
----
-
-# 9. CORS-Konfiguration
-
-Nur definierte Domains werden akzeptiert:
-
-*.lsx.com
+```
+*.lernsystemx.com
 *.schule-domain.de
 *.firma-domain.com
-localhost:3000
+localhost:3000 (Development)
+```
 
-makefile
-Code kopieren
+**Erlaubte HTTP-Methoden:**
+```
+GET, POST, PUT, PATCH, DELETE, OPTIONS
+```
 
-Methoden:
-
-GET, POST, PATCH, DELETE, OPTIONS
-
-css
-Code kopieren
-
-Sichere Header:
-
-Authorization, Content-Type, X-LSX-*
-
-yaml
-Code kopieren
-
----
-
-# 10. WebSocket Routing – LiveRoom
-
-Das Gateway leitet WebSockets weiter:
-
-/api/v1/liveroom/ws
-
-yaml
-Code kopieren
-
-Features:
-
-- Token-Authentifizierung  
-- Room-Validation  
-- Anti-Flood Protection  
-- Heartbeat Messages  
-- Auto-Reconnect  
-
----
-
-# 11. Request-Validation
-
-Jeder Request wird geprüft:
-
-- Header  
-- Body Size (max. 20MB)  
-- JSON-Format  
-- Rate Limits  
-- Rolle  
-- Organisation  
-- Content-Type  
-
-Ungültig → `400 / 403`
-
----
-
-# 12. Gateway-Logging
-
-Jeder Request erhält eine Tracking-ID:
-
+**Erlaubte Header:**
+```
+Authorization
+Content-Type
+X-LSX-Client
+X-LSX-Org-ID
 X-LSX-Request-ID
+Accept-Language
+```
 
-yaml
-Code kopieren
-
-Logs enthalten:
-
-- Pfad  
-- Nutzer-ID  
-- Organisation  
-- Dauer  
-- Statuscode  
-- IP  
-- KI-Tokens (falls KI-Service)  
-- User-Agent  
+**Deny-by-Default:** Requests von nicht-erlaubten Origins erhalten 403.
 
 ---
 
-# 13. Fehlerbehandlung
+## WebSocket Routing (LiveRoom)
 
-Gateway erzeugt:
+Für Real-Time Communication (WebRTC, Whiteboard, Chat):
 
-### 13.1 Standardfehler
+```
+ws://api.lernsystemx.com/api/v1/liveroom/ws
+wss://api.lernsystemx.com/api/v1/liveroom/ws (SSL)
+```
 
-- 400 → Bad Request  
-- 401 → Unauthorized  
-- 403 → Forbidden  
-- 404 → Not Found  
-- 429 → Too Many Requests  
-- 502 → Bad Gateway (Backend down)  
+### WebSocket Authentifizierung
 
-### 13.2 Einheitliche Fehlerstruktur
+```javascript
+// Client sendet JWT im Query-Parameter oder Header
+const ws = new WebSocket(
+  'wss://api.lernsystemx.com/api/v1/liveroom/ws?token=' + jwtToken
+);
+
+// Oder Header-basiert (je nach Implementierung):
+ws.setRequestHeader('Authorization', 'Bearer ' + jwtToken);
+```
+
+### Gateway prüft WebSocket-Requests auf:
+
+- ✅ Gültiges JWT vorhanden?
+- ✅ User in der Liveroom-Gruppe eingetragen?
+- ✅ Liveroom selbst existiert?
+- ✅ Rate Limits für WebSocket-Events einhalten
+
+**Fehler:** 403 Forbidden (WebSocket wird abgelehnt)
+
+---
+
+## Request-Validierung
+
+Alle eingehenden Requests werden validiert:
+
+```
+1. HTTP-Methode erlaubt?
+   GET, POST, PUT, PATCH, DELETE, OPTIONS
+   ↓
+2. Content-Type gültig?
+   application/json, application/x-www-form-urlencoded
+   ↓
+3. Body-Größe OK?
+   Max 20MB pro Request
+   ↓
+4. JSON-Format korrekt?
+   ↓
+5. Rate Limit nicht überschritten?
+   ↓
+6. JWT vorhanden & gültig?
+   ↓
+7. GBA Permission vorhanden?
+   ↓
+8. Weiterleitung zum Backend-Service
+```
+
+**Typische Fehler:**
+- 400 Bad Request - Format/Validierungsfehler
+- 401 Unauthorized - Kein gültiges JWT
+- 403 Forbidden - Permission nicht vorhanden
+- 413 Payload Too Large - Body zu groß
+- 429 Too Many Requests - Rate Limit überschritten
+
+---
+
+## Gateway-Logging & Monitoring
+
+### Request Tracking
+
+Jeder Request erhält eine **eindeutige Tracking-ID**:
+
+```
+X-LSX-Request-ID: <uuid>
+```
+
+Diese wird in allen Logs verwendet für End-to-End Tracing.
+
+### Zentrale Logs enthalten:
+
+```json
+{
+  "timestamp": "2026-01-25T14:30:00Z",
+  "request_id": "uuid-1234",
+  "method": "GET",
+  "path": "/api/v1/courses",
+  "user_id": "user-uuid",
+  "organisation_id": "org-uuid",
+  "status_code": 200,
+  "response_time_ms": 245,
+  "ip_address": "192.168.1.1",
+  "user_agent": "Mozilla/5.0...",
+  "groups": ["teachers", "course-creators"],
+  "permissions_checked": ["manage:courses"],
+  "permission_result": "granted"
+}
+```
+
+### Monitoring-Dashboards
+
+- 📊 Request-Rate pro Endpoint
+- ⏱️ Response-Times (p50, p95, p99)
+- 🔴 Error Rates (4xx, 5xx)
+- 🔐 Failed Authorization Attempts
+- 🌍 Request Distribution by Org
+- 🛑 Rate Limit Hits
+
+---
+
+## Fehlerbehandlung
+
+### Standard HTTP-Codes
+
+| Code | Bedeutung | Beispiel |
+|------|-----------|----------|
+| 200 | OK | Erfolgreich abgearbeitet |
+| 201 | Created | Ressource erstellt |
+| 204 | No Content | OK, kein Body |
+| 400 | Bad Request | Ungültige Eingabe |
+| 401 | Unauthorized | Kein JWT / JWT ungültig |
+| 403 | Forbidden | Permission nicht vorhanden |
+| 404 | Not Found | Ressource nicht gefunden |
+| 409 | Conflict | Datenproblem (z.B. duplicate) |
+| 429 | Too Many Requests | Rate Limit überschritten |
+| 500 | Internal Server Error | Backend-Fehler |
+| 502 | Bad Gateway | Backend nicht erreichbar |
+| 503 | Service Unavailable | Gateway in Wartung |
+
+### Einheitliche Error Response
 
 ```json
 {
   "success": false,
-  "error_code": "API-403",
-  "message": "Access denied",
-  "request_id": "abc-123-xyz"
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "You don't have permission to perform this action",
+    "details": {
+      "required_permission": "admin:system",
+      "your_groups": ["teachers", "students"]
+    }
+  },
+  "request_id": "uuid-1234"
 }
-14. Sicherheitsmechanismen
-WAF (Web Application Firewall)
+```
 
-DDoS Schutz
+---
 
-Geo Blocking
+## Sicherheitsmechanismen
 
-Bot Filter
+Das Gateway implementiert mehrschichtige Sicherheit:
 
-SQL Injection Blocker
+### 🔐 GBA-basierte Autorisierung
+- Alle Endpoints prüfen Benutzer-Berechtigungen über groups[]
+- Permission-Decorator auf jedem geschützten Endpoint
+- Fine-grained Permission Codes (admin:system, manage:courses, etc.)
+- Fail-Secure: Bei fehlender Permission → 403
 
-Header Whitelisting
+### 🛡️ Web Application Firewall (WAF)
+- SQL Injection Detection & Prevention
+- XSS Prevention
+- Header Validation
+- Payload Inspection
 
-Payload Inspection
+### 🚨 DDoS-Schutz
+- Rate Limiting pro User / IP
+- Connection Limits
+- Request Size Limits
+- Slowloris Protection
 
-15. API-Gateway Deployment
-Empfehlung:
-Traefik oder Kong
+### 🌍 Geo-Blocking
+- Erlaubte Länder pro Org konfigurierbar
+- IP-Geolocation Check
+- Verdächtige Länder blocken
 
-Features:
+### 🤖 Bot Detection
+- User-Agent Analysis
+- Behavioral Pattern Detection
+- CAPTCHA Integration (optional)
 
-automatische Zertifikate (Let’s Encrypt)
+### 📋 Header Whitelisting
+- Nur bekannte Header akzeptiert
+- Custom LSX Headers validiert
+- Authorization Header mandatory für protected endpoints
 
-Load Balancing
+### 🔑 JWT Sicherheit
+- HS256 oder RS256 Signing
+- Secret Key Rotation
+- Token Expiration (kurz für Access, lang für Refresh)
+- Blacklist für widerrufene Tokens
 
-Canary Releases
+---
 
-Rate Limiting
+## API-Gateway Deployment
 
-Header Injection
+### Empfohlene Tools
 
-Rewrites & Redirects
+**Traefik oder Kong** - beide unterstützen:
 
-Multi-Tenant Domain Routing
+- ✅ Automatische SSL-Zertifikate (Let's Encrypt)
+- ✅ Load Balancing (Round-Robin, Least Conn)
+- ✅ Canary Releases (Schrittweise Rollouts)
+- ✅ Rate Limiting & Quota Management
+- ✅ Header Injection & Rewriting
+- ✅ URL Rewrites & Redirects
+- ✅ Multi-Tenant Domain Routing
+- ✅ WebSocket Proxy
+- ✅ Built-in WAF
+- ✅ Health Checks & Auto-Recovery
 
-16. Zusammenfassung
+### Docker Deployment
+
+```yaml
+version: '3.8'
+services:
+  gateway:
+    image: traefik:v3.0
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/traefik.yml:ro
+    environment:
+      - LE_EMAIL=admin@lernsystemx.com
+      - DOMAIN=api.lernsystemx.com
+```
+
+---
+
+## Zusammenfassung
+
 Das LSX API-Gateway ist:
 
-sicher
+- 🔐 **Sicher** - GBA-basierte Autorisierung auf jedem Request
+- 📈 **Skalierbar** - Load Balanced, Multi-Instance
+- 🎯 **Zentralisiert** - Single Entry Point für alle Clients
+- 🏗️ **Modular** - Service-agnostisch, flexibel erweiterbar
+- 🌍 **Mandantenfähig** - Vollständige Organisation-Isolation
+- 🚀 **Performance-optimiert** - Caching, Compression, Connection Pooling
+- 🛡️ **Compliance-ready** - WAF, Rate Limits, Audit Logging
+- 🔄 **Zukunftssicher** - API v1/v2 Unterstützung, Progressive Upgrades
 
-skalierbar
+Es bildet die **kritische Sicherheits- und Routing-Infrastruktur** für alle Verbindungen zwischen Clients, Backend-Services, und externen Systems.
 
-zentralisiert
+---
 
-modular
-
-mandantenfähig
-
-KI-optimiert
-
-professionell
-
-zukunftssicher
-
-Es bildet den Kern aller Verbindungen zwischen Frontend, Backend, KI, Organisationen und Workern.
-
-Dokument abgeschlossen.
+**Stand:** 2026-01-25 | **Version:** 2.0 (GBA) | **Status:** Production Ready

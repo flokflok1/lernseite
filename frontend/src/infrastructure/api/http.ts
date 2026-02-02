@@ -1,0 +1,123 @@
+/**
+ * LernsystemX - HTTP Client with JWT Support
+ *
+ * Centralized Axios instance with:
+ * - JWT token auto-injection
+ * - Auto-logout on 401
+ * - Request/Response interceptors
+ */
+
+import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import { useAuthStore } from '@/application/stores/auth.store'
+import router from '@/presentation/router'
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
+
+// Create Axios instance
+const http: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 120000, // 120 seconds - AI requests need more time
+})
+
+// Request Interceptor - Inject JWT token
+http.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    // Try to get token from store first, fallback to localStorage
+    // This handles cases where store might not be initialized yet
+    let token: string | null = null
+    let tokenSource = 'none'
+
+    try {
+      const authStore = useAuthStore()
+      token = authStore.accessToken
+      if (token) tokenSource = 'store'
+    } catch {
+      // Store not available, use localStorage directly
+    }
+
+    // Fallback to localStorage if store doesn't have token
+    if (!token) {
+      token = localStorage.getItem('access_token')
+      if (token) tokenSource = 'localStorage'
+    }
+
+    // Add Authorization header if token exists
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
+    // Debug logging for admin endpoints
+    if (config.url?.includes('/admin/')) {
+      console.log(`[HTTP] ${config.method?.toUpperCase()} ${config.url} | Token: ${token ? `${token.substring(0, 20)}...` : 'NONE'} (${tokenSource})`)
+    }
+
+    return config
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error)
+  }
+)
+
+// Response Interceptor - Handle errors
+http.interceptors.response.use(
+  (response) => {
+    // Return data directly from successful responses
+    return response
+  },
+  async (error: AxiosError) => {
+    const authStore = useAuthStore()
+
+    // Handle 401 Unauthorized - Token expired or invalid
+    if (error.response?.status === 401) {
+      // Check if this is a login/register request (don't auto-logout for these)
+      const isAuthEndpoint = error.config?.url?.includes('/auth/login') ||
+                            error.config?.url?.includes('/auth/register')
+
+      if (!isAuthEndpoint) {
+        // Logout user and redirect to login (only for authenticated routes)
+        await authStore.logout()
+        router.push('/login')
+
+        return Promise.reject({
+          message: 'Session expired. Please login again.',
+          status: 401,
+        })
+      }
+
+      // For login/register failures, pass the error through unchanged
+      return Promise.reject(error)
+    }
+
+    // Handle 403 Forbidden - Insufficient permissions
+    if (error.response?.status === 403) {
+      return Promise.reject({
+        message: 'You do not have permission to access this resource.',
+        status: 403,
+      })
+    }
+
+    // Handle 429 Too Many Requests - Rate limiting
+    if (error.response?.status === 429) {
+      return Promise.reject({
+        message: 'Too many requests. Please try again later.',
+        status: 429,
+      })
+    }
+
+    // Handle 500+ Server Errors
+    if (error.response && error.response.status >= 500) {
+      return Promise.reject({
+        message: 'Server error. Please try again later.',
+        status: error.response.status,
+      })
+    }
+
+    // Return error for other cases
+    return Promise.reject(error)
+  }
+)
+
+export default http

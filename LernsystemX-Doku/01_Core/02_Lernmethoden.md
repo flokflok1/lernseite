@@ -1,361 +1,605 @@
-# 02 – Lernmethoden (19 Content-Methoden, dynamisch)
+# 02 – Lernmethoden (12 Content-Methoden)
 
-**Version:** 4.0  
-**Stand:** 2025-12-28  
-**Status:** Master-Dokument für Content-Lernmethoden (ohne System-Features)
+**Version:** 6.0
+**Stand:** 2026-01-02
+**Status:** Master-Dokument für Content-Lernmethoden (Clean Separation + Agent Intelligence)
 
 ---
 
 ## Einleitung
 
-Das LernSystemX (LSX) nutzt **19 aktive Content-Lernmethoden** als didaktische Bausteine, die sich inhaltlich vollständig an unterschiedliche Kurse, Zielgruppen und Prüfungsformate anpassen lassen.[file:8][file:1]
-Jede Lernmethode beschreibt ein **Aufgaben- bzw. Interaktionsformat** (z.B. Flashcards, Lückentext, Freitext-Prüfung), während die konkreten Inhalte pro Kurs und Modul frei definiert werden.[file:1]
+Das LernSystemX (LSX) nutzt **12 Content-Lernmethoden** als didaktische Bausteine, die sich inhaltlich vollständig an unterschiedliche Kurse, Zielgruppen und Prüfungsformate anpassen lassen.
+
+Jede Lernmethode beschreibt ein **Aufgabenformat** (z.B. Flashcards, Lückentext, Freitext-Prüfung), während die konkreten Inhalte pro Kurs und Kapitel frei definiert werden.
+
+### Definition: Was ist eine Content-Lernmethode?
+
+> **LM = Task/Interaktion**
+>
+> Eine Lernmethode (LM) ist eine **Aufgabe**, die der Lernende ausführt:
+> - Flashcard durcharbeiten
+> - Quiz-Frage beantworten
+> - Code schreiben
+> - Case Study analysieren
+>
+> **LM ≠ Feature/Tool/Timer/Prüfung**
+>
+> Diese gehören zu **System-Features** (siehe `02a_System-Features.md`) oder zum **Runner/Experience Layer**.
+
+### Semantische Codes (lm00-lm11)
+
+LM-Codes sind **generisch und semantisch**, NICHT fachspezifisch:
+
+| ✅ Korrekt | ❌ Falsch |
+|-----------|----------|
+| `lm00` (Flashcards) | `lm00_netzwerk` |
+| `lm03` (Multiple Choice) | `lm03_math` |
+| `lm05` (Code Challenge) | `lm_python_basics` |
+
+**Der Inhalt bestimmt das Fach, NICHT der LM-Code.**
+
+Beispiel:
+- `lm03` + content="OSI-Modell Quiz" → Netzwerk-Quiz
+- `lm03` + content="Mathematik Quiz" → Mathe-Quiz
+- Gleiche LM, unterschiedlicher Inhalt.
+
+**Clean Separation (2026-01-02):**
+System-Features (Tools/Services mit eigener Infrastruktur) wurden aus den Content-LMs entfernt und sind nun in `02a_System-Features.md` dokumentiert.
+
+**Agent Intelligence (2026-01-02):**
+Content-LMs nutzen ein intelligentes Agent-System, das DB-Wissen mit KI-Unterstützung kombiniert (siehe Migration `066_agent_global_knowledge.sql`).
 
 ---
 
-## Didaktische Rollen der 19 Methoden
+## Didaktische Rollen der 12 Methoden
 
-| Gruppe | Name | IDs | Phase im Lernprozess | Hauptziel |
-|--------|------|-----|----------------------|-----------|
-| **A** | Erklärend | LM00–LM03, LM06 | Einstieg, Erarbeiten | Verständnis aufbauen |
-| **B** | Praxis | LM08, LM12–LM15, LM17 | Üben, Anwenden | Fertigkeiten aufbauen |
-| **C** | Prüfung | LM18–LM25 | Prüfen, Transfer | Kompetenz nachweisen |
+| Gruppe | Name | IDs | Anzahl | Fokus |
+|--------|------|-----|--------|-------|
+| **A** | Erklärend | lm00-lm04 | 5 | Verständnis aufbauen |
+| **B** | Praxis | lm05-lm08 | 4 | Anwenden & Üben |
+| **C** | Prüfung | lm09-lm11 | 3 | Kompetenz nachweisen |
 
-**Hinweis:** Ehemalige Gruppen **D, E, F** (Pro-, IT- und kollaborative Features) werden als **System-Features** separat dokumentiert und zählen nicht mehr zu den Content-Lernmethoden.[file:8][file:1]
+**Ehemalige LMs (jetzt System-Features):**
+- lm05 (Whiteboard) → `whiteboard_engine`
+- lm10 (Hands-on Lab) → `it_sandbox`
+- lm14 (Zeitlimit) → `timer_wrapper`
+- lm17 (Mündliche Erklärung) → `speech_to_text`
+- **NEU (2026-01-02):**
+  - lm10 (IHK-Stil) → `ihk_exam_system`
+  - lm11 (Multi-Step Praxis) → `practical_exam_engine`
+  - lm13 (Verständnis-Checks) → `comprehension_checker`
+  - lm14 (Kapitel-Endprüfung) → `chapter_completion_system`
 
 ---
 
 ## Technische Grundlage – Format vs. Inhalt
 
-Die 19 Lernmethoden sind technisch als **Methodentypen** umgesetzt; jede konkrete Aufgabe im Kurs ist eine **Instanz eines Typs**.[file:1]
+Die 12 Lernmethoden sind technisch als **Methodentypen** umgesetzt; jede konkrete Aufgabe im Kurs ist eine **Instanz eines Typs**.
 
-### Methodentypen in der Datenbank
+### Datenbankstruktur
 
 ```sql
--- Tabelle für Instanzen von Lernmethoden in Modulen
-CREATE TABLE learningmethods (
-    methodid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    moduleid UUID REFERENCES modules(moduleid) ON DELETE CASCADE,
-    methodtype INTEGER CHECK (methodtype BETWEEN 0 AND 31), -- 0 = LM00, 1 = LM01, ... 31 = LM31
+-- Tabelle für Instanzen von Lernmethoden in Kapiteln
+CREATE TABLE learning_methods.learning_method_instances (
+    instance_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    chapter_id UUID REFERENCES courses.chapters(chapter_id) ON DELETE CASCADE,
+    method_type INTEGER NOT NULL REFERENCES learning_methods.learning_method_types(method_type),
     title VARCHAR(255) NOT NULL,
     instructions TEXT,
-    data JSONB NOT NULL,          -- inhaltliche Ausgestaltung
+    content JSONB NOT NULL,
     solution JSONB,
-    tier VARCHAR(20) CHECK (tier IN ('basic','premium','pro')),
-    difficulty VARCHAR(20) CHECK (difficulty IN ('easy','medium','hard')),
-    durationminutes INTEGER,
-    orderindex INTEGER DEFAULT 0,
-    published BOOLEAN DEFAULT FALSE,
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    metadata JSONB DEFAULT '{}',
+    order_index INTEGER DEFAULT 0,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Methodentypen (12 Content-LMs)
+CREATE TABLE learning_methods.learning_method_types (
+    method_type INTEGER PRIMARY KEY CHECK (method_type BETWEEN 0 AND 11),
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    group_code CHAR(1) CHECK (group_code IN ('A', 'B', 'C')),
+    tier VARCHAR(20) CHECK (tier IN ('basic', 'premium')),
+    icon VARCHAR(50),
+    prompt_template VARCHAR(100),
+    default_config JSONB DEFAULT '{}'
 );
 ```
 
-- **`methodtype`** legt nur das **Format** fest (z.B. Quiz, Flashcards, Lückentext).[file:1]
-- **`data`** enthält die **individuellen Inhalte** der Aufgabe (Fragen, Textbausteine, Beispiele, Punkteverteilung usw.).[file:1]
+- **`method_type`** legt nur das **Format** fest (0-11 für Content-LMs)
+- **`content`** enthält die **individuellen Inhalte** der Aufgabe (JSONB)
+- **Foreign Key** statt hardcoded Constraint → flexibel erweiterbar
 
-### Konfiguration pro Kurs/Modul
+### Agent-basierte Intelligenz
 
-Über zusätzliche Tabellen wie `course_module_methods` oder Konfigurationsfelder in `data` können:
-- Schwierigkeitsgrade,
-- Themenbereiche,
-- Zeitlimits,
-- Punkte-Schemata
-pro Kurs oder Modul angepasst werden, ohne das Format selbst zu ändern.[file:1]
+Seit Version 6.0 nutzen Content-LMs ein intelligentes Agent-System:
 
-Typischer Ansatz im `data`-Feld einer Instanz:
+```python
+@dataclass
+class AgentSupport:
+    agent_can_handle: bool          # Agent kann ohne AI antworten?
+    requires_fresh_ai: bool          # Immer frische AI-Generierung?
+    knowledge_domains: List[str]     # Wissensdomänen (networking, math, etc.)
+    knowledge_cacheable: bool        # Antworten cachebar?
+    complexity_threshold: int        # 1-5: Wann zu AI eskalieren?
+```
+
+**Agent-Flow:**
+1. User stellt Frage
+2. Agent prüft **lokale** Knowledge Base (kurs-spezifisch)
+3. Agent prüft **globale** Knowledge Base (cross-course)
+4. Falls nicht gefunden → AI-Call + Wissen speichern
+5. Nächste ähnliche Frage → aus Cache (Token-Ersparnis!)
+
+---
+
+## Übersicht – 12 Content-Lernmethoden
+
+| LM-ID | Name | Gruppe | Agent-Support | Tier | Didaktisches Ziel |
+|-------|------|--------|---------------|------|-------------------|
+| **Gruppe A – Erklärend (5 Methoden)** ||||||
+| lm00 | Tiefgehende Erklärung | A | ✅ Yes (general) | basic | Komplexe Konzepte verstehen |
+| lm01 | Schritt-für-Schritt | A | ✅ Yes (general) | basic | Prozeduren sicher nachvollziehen |
+| lm02 | Interaktive Theorie | A | ✅ Yes (general) | basic | Theorie aktiv verarbeiten |
+| lm03 | Diagramm/Visualisierung | A | ✅ Yes (general) | basic | Strukturen/Prozesse begreifen |
+| lm04 | Beispiel-Szenario | A | ✅ Yes (general) | basic | Transfer in reale Situationen |
+| **Gruppe B – Praxis (4 Methoden)** ||||||
+| lm05 | Mathe-Interaktiv | B | ✅ Yes (math) | basic | Rechnen/Logik schrittweise beherrschen |
+| lm06 | Flashcards | B | ❌ No | basic | Fakten/Wissen langfristig behalten |
+| lm07 | Drag & Drop | B | ❌ No | basic | Begriffe/Strukturen sicher zuordnen |
+| lm08 | Lückentext | B | ❌ No | basic | Fachbegriffe gezielt anwenden |
+| **Gruppe C – Prüfung (3 Methoden)** ||||||
+| lm09 | Freitext-Langantwort | C | ✅ Yes (general) | premium | Zusammenhängend schreiben/argumentieren |
+| lm10 | Multiple-Choice Quiz | C | ❌ No | basic | Wissensstand schnell checken |
+| lm11 | True/False | C | ❌ No | basic | Aussagen bewerten (Richtig/Falsch) |
+
+**Agent-Support Legende:**
+- ✅ Yes = Agent entscheidet eigenständig: DB-Wissen vs. AI-Call
+- ❌ No = Rein format-basiert, keine Agent-Unterstützung nötig
+
+---
+
+## Gruppe A – Erklärend (lm00-lm04)
+
+**Didaktische Rolle:** Lernende verstehen neue Inhalte, bauen ein tragfähiges mentales Modell auf.
+
+### lm00 – Tiefgehende Erklärung
+
+- **Didaktisches Ziel:** Komplexe Themen systematisch verständlich machen mit Beispielen & Analogien
+- **Agent-Support:** ✅ Ja (general knowledge, cacheable, threshold=2)
+- **Einsatzszenarien:**
+  - Einführung OSI-Modell
+  - Subnetting-Konzepte
+  - Datenbank-Normalformen
+- **Content-Struktur:**
+  ```json
+  {
+    "concept": "Konzeptname",
+    "explanation": "Detaillierte Erklärung...",
+    "examples": ["Beispiel 1", "Beispiel 2"],
+    "analogies": ["Analogie 1"]
+  }
+  ```
+- **Agent-Flow:** Agent prüft DB → bei Bedarf AI → speichert Erklärung
+
+### lm01 – Schritt-für-Schritt
+
+- **Didaktisches Ziel:** Prozedurales Wissen aufbauen; Abläufe reproduzieren
+- **Agent-Support:** ✅ Ja (general knowledge, cacheable, threshold=2)
+- **Einsatzszenarien:**
+  - „Webserver installieren"
+  - „Linux-Benutzer anlegen"
+  - „Lineare Gleichung lösen"
+- **Content-Struktur:**
+  ```json
+  {
+    "process_title": "Titel",
+    "introduction": "Einleitung",
+    "steps": [
+      {"title": "Schritt 1", "description": "...", "hint": "..."},
+      {"title": "Schritt 2", "description": "..."}
+    ],
+    "summary": "Zusammenfassung"
+  }
+  ```
+
+### lm02 – Interaktive Theorie
+
+- **Didaktisches Ziel:** Theorie mit eingebetteten Verständnisfragen
+- **Agent-Support:** ✅ Ja (general knowledge, cacheable, threshold=2)
+- **Content-Struktur:**
+  ```json
+  {
+    "topic": "Thema",
+    "sections": [
+      {
+        "title": "Abschnitt 1",
+        "theory": "Theorietext...",
+        "question": "Verständnisfrage?"
+      }
+    ]
+  }
+  ```
+
+### lm03 – Diagramm/Visualisierung
+
+- **Didaktisches Ziel:** Abstrakte Strukturen visuell greifbar machen
+- **Agent-Support:** ✅ Ja (general knowledge, cacheable, threshold=3)
+- **Einsatzszenarien:**
+  - Netzwerk-Topologie
+  - ER-Diagramm
+  - Ablaufdiagramm
+- **Content-Struktur:**
+  ```json
+  {
+    "diagram_title": "Titel",
+    "diagram_type": "network|flowchart|uml|er",
+    "description": "Kontext",
+    "diagram_code": "Mermaid/PlantUML code (optional)",
+    "elements": [{"name": "Element", "description": "..."}],
+    "learning_goal": "Lernziel"
+  }
+  ```
+
+### lm04 – Beispiel-Szenario
+
+- **Didaktisches Ziel:** Theorie in realistischen Situationen anwenden
+- **Agent-Support:** ✅ Ja (general knowledge, cacheable, threshold=3)
+- **Einsatzszenarien:**
+  - „Netzwerk langsam – Troubleshooting"
+  - „Server-Ausfall vor Prüfung"
+- **Content-Struktur:**
+  ```json
+  {
+    "topic": "Thema",
+    "industry_context": "IT|BWL|...",
+    "scenarios": [
+      {
+        "title": "Szenario",
+        "situation": "Ausgangssituation",
+        "challenge": "Problem",
+        "solution": "Lösung",
+        "takeaway": "Lernerkenntnis"
+      }
+    ],
+    "complexity": "simple|moderate|complex"
+  }
+  ```
+
+---
+
+## Gruppe B – Praxis (lm05-lm08)
+
+**Didaktische Rolle:** Wissen wird aktiv angewendet und in praktische Fertigkeiten überführt.
+
+### lm05 – Mathe-Interaktiv
+
+- **Didaktisches Ziel:** Rechenwege verstehen, nicht nur Ergebnisse
+- **Agent-Support:** ✅ Ja (math domain, cacheable, threshold=3)
+- **Einsatzszenarien:**
+  - Subnetting
+  - Prozentrechnung
+  - Algebra
+- **Content-Struktur:**
+  ```json
+  {
+    "instruction": "Aufgabenstellung",
+    "math_area": "arithmetic|algebra|geometry|calculus|statistics|linear_algebra",
+    "formula": "LaTeX formula",
+    "solution_steps": ["Schritt 1", "Schritt 2"],
+    "final_answer": "x = 5",
+    "step_by_step": true,
+    "show_hints": true
+  }
+  ```
+- **Agent-Flow:** Agent kennt mathematische Lösungswege → cached für ähnliche Aufgaben
+
+### lm06 – Flashcards
+
+- **Didaktisches Ziel:** Fakten/Wissen langfristig behalten (Spaced Repetition)
+- **Agent-Support:** ❌ Nein (rein format-basiert, keine Bewertung nötig)
+- **Content-Struktur:**
+  ```json
+  {
+    "cards": [
+      {"front": "Frage", "back": "Antwort"},
+      {"front": "Begriff", "back": "Definition"}
+    ],
+    "shuffle": true,
+    "spaced_repetition": true
+  }
+  ```
+
+### lm07 – Drag & Drop
+
+- **Didaktisches Ziel:** Begriffe/Strukturen sicher zuordnen
+- **Agent-Support:** ❌ Nein (exakte Zuordnung, kein Bewertungsspielraum)
+- **Content-Struktur:**
+  ```json
+  {
+    "instruction": "Ordne zu...",
+    "items": ["Item 1", "Item 2"],
+    "targets": ["Ziel A", "Ziel B"],
+    "correct_mapping": {"Item 1": "Ziel A", "Item 2": "Ziel B"},
+    "randomize": true,
+    "show_hints": false
+  }
+  ```
+
+### lm08 – Lückentext
+
+- **Didaktisches Ziel:** Fachbegriffe gezielt anwenden
+- **Agent-Support:** ❌ Nein (exakte String-Matching)
+- **Content-Struktur:**
+  ```json
+  {
+    "text": "Text mit {{Lücke1}} und {{Lücke2}}...",
+    "blanks": {
+      "Lücke1": {"answer": "Antwort1", "alternatives": []},
+      "Lücke2": {"answer": "Antwort2", "alternatives": ["Alt"]}
+    },
+    "case_sensitive": false,
+    "show_hints": true,
+    "show_word_bank": false
+  }
+  ```
+
+---
+
+## Gruppe C – Prüfung (lm09-lm11)
+
+**Didaktische Rolle:** Kompetenz nachweisen, Lernfortschritt prüfen.
+
+### lm09 – Freitext-Langantwort
+
+- **Didaktisches Ziel:** Zusammenhängend schreiben/argumentieren mit Agent-Bewertung
+- **Agent-Support:** ✅ Ja (general knowledge, cacheable, threshold=4)
+- **Content-Struktur:**
+  ```json
+  {
+    "exam_topic": "Thema",
+    "questions": [
+      {
+        "question_text": "Offene Frage...",
+        "expected_points": "Kernpunkte, die erwartet werden",
+        "max_points": 10,
+        "min_words": 100
+      }
+    ],
+    "criteria": {
+      "content_accuracy": true,
+      "completeness": true,
+      "structure": false,
+      "terminology": false
+    },
+    "show_detailed_feedback": true,
+    "show_model_answer": false
+  }
+  ```
+- **Agent-Flow:**
+  1. User gibt Antwort ab
+  2. Agent prüft Knowledge Base: "Haben wir ähnliche Freitext-Fragen bewertet?"
+  3. Falls ja → nutzt gelerntes Bewertungsmuster
+  4. Falls nein → AI-Call für Bewertung → speichert Bewertungsmuster
+  5. Gibt konstruktives Feedback
+
+### lm10 – Multiple-Choice Quiz
+
+- **Didaktisches Ziel:** Wissensstand schnell checken
+- **Agent-Support:** ❌ Nein (vordefinierte Antworten, kein Bewertungsspielraum)
+- **Content-Struktur:**
+  ```json
+  {
+    "questions": [
+      {
+        "question_text": "Frage...",
+        "options": ["Option A", "Option B", "Option C", "Option D"],
+        "correct_answers": [0, 2]
+      }
+    ],
+    "randomize": true,
+    "questions_per_set": 20
+  }
+  ```
+
+### lm11 – True/False
+
+- **Didaktisches Ziel:** Aussagen bewerten (Richtig/Falsch)
+- **Agent-Support:** ❌ Nein (binäre Entscheidung, keine Interpretation)
+- **Content-Struktur:**
+  ```json
+  {
+    "statements": [
+      {
+        "text": "Aussage...",
+        "is_true": true,
+        "explanation": "Erklärung warum richtig/falsch..."
+      }
+    ],
+    "randomize": true,
+    "show_explanations": true
+  }
+  ```
+
+---
+
+## Backend-Integration
+
+### Python Mapping (mit Agent-Support)
+
+```python
+# backend/app/ki/learning_method_mapping.py
+
+@dataclass
+class AgentSupport:
+    agent_can_handle: bool
+    requires_fresh_ai: bool
+    knowledge_domains: List[str]
+    knowledge_cacheable: bool
+    complexity_threshold: int
+
+LEARNING_METHODS = {
+    0: LearningMethodDefinition(
+        lm_id=0,
+        name="Tiefgehende Erklärung",
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            requires_fresh_ai=False,
+            knowledge_domains=["general"],
+            knowledge_cacheable=True,
+            complexity_threshold=2
+        )
+    ),
+    # ... lm01-04 (agent_can_handle=True)
+    5: LearningMethodDefinition(
+        lm_id=5,
+        name="Mathe-Interaktiv",
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            knowledge_domains=["math"],
+            ...
+        )
+    ),
+    # ... lm06-08 (agent_can_handle=False)
+    9: LearningMethodDefinition(
+        lm_id=9,
+        name="Freitext-Langantwort",
+        agent_support=AgentSupport(
+            agent_can_handle=True,
+            complexity_threshold=4,
+            ...
+        )
+    ),
+    # ... lm10-11 (agent_can_handle=False)
+}
+
+ACTIVE_LEARNING_METHODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+GROUP_A_EXPLAINING = [0, 1, 2, 3, 4]  # 5 LMs
+GROUP_B_PRACTICE = [5, 6, 7, 8]       # 4 LMs
+GROUP_C_EXAM = [9, 10, 11]            # 3 LMs
+```
+
+### Frontend-Komponenten
+
+```
+frontend/src/components/learning-methods/
+├── DeepExplanation.vue        (lm00)
+├── StepByStep.vue             (lm01)
+├── InteractiveTheory.vue      (lm02)
+├── DiagramVisualization.vue   (lm03)
+├── ExampleScenario.vue        (lm04)
+├── MathInteractive.vue        (lm05) ← aus system-features verschoben
+├── Flashcards.vue             (lm06)
+├── DragDrop.vue               (lm07)
+├── FillBlanks.vue             (lm08)
+├── LongAnswer.vue             (lm09)
+├── MultipleChoiceQuiz.vue     (lm10) ← renummeriert
+└── TrueFalse.vue              (lm11) ← NEU
+```
+
+### i18n-Struktur (DE/EN/PL)
 
 ```json
+// de/windows/learningMethods.json
 {
-  "items": [
-    { "q": "Was ist eine IP-Adresse?", "a": "Netzwerkadresse" },
-    { "q": "Port für HTTPS?", "a": "443" }
-  ],
-  "topic": "Netzwerkgrundlagen",
-  "difficulty": "medium",
-  "max_score": 10
+  "lm00": { "conceptLabel": "Konzept *", ... },
+  "lm01": { "processTitleLabel": "Prozess *", ... },
+  "lm02": { "topicLabel": "Thema *", ... },
+  "lm03": { "diagramTitleLabel": "Diagramm-Titel *", ... },
+  "lm04": { "topicLabel": "Thema / Konzept *", ... },
+  "lm05": { "title": "Mathe-Interaktiv", ... },
+  "lm06": { "title": "Flashcards (Karteikarten)", ... },
+  "lm07": { "title": "Drag & Drop", ... },
+  "lm08": { "title": "Lückentext-Aufgaben", ... },
+  "lm09": { "title": "Freitext-Langantwort", ... },
+  "lm10": { "title": "Multiple-Choice Quiz", ... },
+  "lm11": { "title": "True/False", ... }
 }
 ```
 
 ---
 
-## Übersicht – 19 Content-Lernmethoden
+## Agent Intelligence System (Migration 066)
 
-| LM-ID | Name | Gruppe | Didaktisches Ziel | Typische Phase |
-|-------|------|--------|-------------------|----------------|
-| LM00 | Tiefgehende Erklärung | A – Erklärend | Komplexe Konzepte verstehen | Einstieg/Erarbeiten |
-| LM01 | Schritt-für-Schritt | A – Erklärend | Prozeduren sicher nachvollziehen | Erarbeiten |
-| LM02 | Interaktive Theorie | A – Erklärend | Theorie aktiv verarbeiten | Erarbeiten |
-| LM03 | Diagramm/Visualisierung | A – Erklärend | Strukturen/Prozesse begreifen | Einstieg/Erarbeiten |
-| LM06 | Beispiel-Szenario | A – Erklärend | Transfer in reale Situationen | Erarbeiten |
-| LM08 | Whiteboard-Aufgabe | B – Praxis | Visualisierend anwenden | Üben/Anwenden |
-| LM12 | Mathe-Interaktiv | B – Praxis | Rechnen/Logik schrittweise beherrschen | Üben |
-| LM13 | Flashcards | B – Praxis | Fakten/Wissen langfristig behalten | Wiederholen |
-| LM14 | Drag & Drop | B – Praxis | Begriffe/Strukturen sicher zuordnen | Üben |
-| LM15 | Lückentext | B – Praxis | Fachbegriffe gezielt anwenden | Üben |
-| LM17 | Hands-on Lab | B – Praxis | Praktische Skills im Umfeld trainieren | Anwenden |
-| LM18 | Freitext-Langantwort | C – Prüfung | Zusammenhängend schreiben/argumentieren | Prüfung |
-| LM19 | IHK-Stil Aufgaben | C – Prüfung | Prüfungsformat 1:1 simulieren | Prüfungsvorbereitung |
-| LM20 | Multi-Step Praxisprüfung | C – Prüfung | Komplexe Handlungsketten meistern | Abschlussprüfung |
-| LM21 | Zeitlimit-Training | C – Prüfung | Arbeiten unter Zeitdruck trainieren | Prüfungsvorbereitung |
-| LM22 | Prüfungs-Quiz | C – Prüfung | Wissensstand schnell checken | Zwischentest |
-| LM23 | Verständnis-Checks | C – Prüfung | Mikro-Checks nach Lerneinheiten | Laufende Diagnose |
-| LM24 | Mündliche Erklärung | C – Prüfung | Mündlich erklären und begründen | Mdl. Prüfung |
-| LM25 | Kapitel-Endprüfung | C – Prüfung | Lernfortschritt auf Kapitel-Ebene prüfen | Kapitelende |
+### Cross-Course Knowledge Sharing
 
----
+**Schema:** `agent_intelligence`
 
-## Gruppe A – Erklärend (LM00–LM03, LM06)
+**Kernidee:** Agents lernen nicht nur kurs-spezifisch, sondern teilen Wissen system-weit.
 
-**Didaktische Rolle:** Lernende verstehen neue Inhalte, bauen ein tragfähiges mentales Modell auf und können Begriffe in eigenen Worten erklären.[file:8]
+**Tabellen:**
+- `domain_taxonomy` - Wissensdomänen (networking, programming, math, business...)
+- `global_knowledge_pool` - Kurs-übergreifende Wissensbasis
+- `agent_learning_events` - Lernhistorie
+- `cross_agent_sync_status` - Sync zwischen lokaler & globaler Wissensbasis
 
-### LM00 – Tiefgehende Erklärung (Deep Explanation)
+**Flow:**
+1. Agent in Kurs A lernt: "Was ist TCP?"
+2. Agent speichert Antwort in **lokale** Knowledge Base
+3. Bei hoher Qualität: Agent teilt in **globale** Knowledge Base
+4. Agent in Kurs B fragt: "Was ist TCP?"
+5. Agent findet Antwort in **globaler** Knowledge Base → **kein AI-Call!**
+6. Token-Ersparnis + schnellere Antwort
 
-- **Didaktisches Ziel:** Komplexe Themen systematisch verständlich machen, inkl. Beispiele und Analogien.[file:8]
-- **Einsatzszenarien:**
-  - Einführung ins OSI-Modell.
-  - Erklärung von Subnetting-Konzepten.
-  - Grundlagen von Datenbanken (Normalformen).
-- **Technische Anforderungen (typisch):**
-  - Inputs: `theory_json`, `learning_goals`, ggf. `examples`.[file:1]
-  - Settings: `difficulty`, `target_level` (z.B. „Azubi 1. Lehrjahr“), `max_tokens`.[file:1]
-  - Optional: KI-Prompt-Key `deep_explanation` für KI-generierte Texte.[file:8]
+**Confidence-Mechanismus:**
+- Agent 1 beantwortet "Was ist OSI-Modell?" → Confidence 0.5
+- Agent 2 bestätigt gleiche Antwort → Confidence 0.6
+- Agent 3 bestätigt → Confidence 0.7
+- Ab Confidence 0.8 → "verified" Status
 
-### LM01 – Schritt-für-Schritt (Step-by-Step)
-
-- **Didaktisches Ziel:** Prozedurales Wissen aufbauen; Lernende können Abläufe reproduzieren und später variieren.[file:8]
-- **Einsatzszenarien:**
-  - „Wie installiere ich einen Webserver?“.
-  - „Wie richte ich einen Benutzer in Linux an?“.
-  - „Wie löse ich eine lineare Gleichung?“.
-- **Technische Anforderungen:**
-  - Inputs: `procedure_steps` oder Roh-Text, aus dem Schritte extrahiert werden.[file:1]
-  - Settings: `step_count`, `show_hints`, `allow_backtracking`.[file:1]
-  - Prompt-Key: `step_by_step`.[file:8]
-
-### LM02 – Interaktive Theorie (Interactive Theory)
-
-- **Didaktisches Ziel:** Theorie nicht nur lesen, sondern direkt mit kleinen Fragen/Checks verknüpfen.[file:8]
-- **Einsatzszenarien:**
-  - Theorie-Text zu „TCP vs. UDP“ mit eingebetteten Verständnisfragen.
-  - Grundlagen der Objektorientierung (Klasse, Objekt, Vererbung).
-- **Technische Anforderungen:**
-  - Inputs: `theory_sections`, `inline_questions`.[file:1]
-  - Settings: `question_frequency`, `feedback_mode` (sofort/gebündelt).[file:1]
-  - Prompt-Key: `interactive_theory`.[file:8]
-
-### LM03 – Diagramm/Visualisierung (Diagram Visualization)
-
-- **Didaktisches Ziel:** Abstrakte Strukturen durch visuelle Darstellungen greifbar machen.[file:8]
-- **Einsatzszenarien:**
-  - Netzwerk-Topologie zeichnen.
-  - ER-Diagramm für eine kleine Datenbank.
-  - Ablaufdiagramm für einen Login-Prozess.
-- **Technische Anforderungen:**
-  - Inputs: `structure_description` (z.B. JSON mit Knoten/Kanten).[file:1]
-  - Settings: `diagram_type` (Netzwerk, ER, Flow), `render_engine`.[file:1]
-  - Optional: Anbindung an Whiteboard/Diagramm-Tool.
-
-### LM06 – Beispiel-Szenario (Example Scenario)
-
-- **Didaktisches Ziel:** Theorie im Kontext realistischer Situationen anwenden.[file:8]
-- **Einsatzszenarien:**
-  - „Kunde meldet langsames Netzwerk – wie gehst du vor?“.
-  - „Server fällt vor der Prüfung aus – welche Schritte?“.
-- **Technische Anforderungen:**
-  - Inputs: `scenario_description`, `expected_steps`, `evaluation_rubric`.[file:1]
-  - Settings: `complexity`, `allow_multiple_solutions`.[file:1]
-  - Prompt-Key: `scenario_explanation`.[file:8]
-
----
-
-## Gruppe B – Praxis (LM08, LM12–LM15, LM17)
-
-**Didaktische Rolle:** Wissen wird aktiv angewendet und in praktische Fertigkeiten überführt.[file:8]
-
-### LM08 – Whiteboard-Aufgabe
-
-- **Didaktisches Ziel:** Inhalte zeichnend/visuell rekonstruieren; fördert räumliches und vernetztes Denken.[file:8]
-- **Einsatzszenarien:**
-  - Netzwerk-Topologie skizzieren.
-  - Schichtenmodell zeichnen.
-- **Technische Anforderungen:**
-  - Inputs: `task_description`, optionale Beispiel-Lösungen.[file:1]
-  - Settings: `allow_ki_feedback`, `max_board_pages`.[file:1]
-  - Prompt-Key: `whiteboard`.[file:8]
-
-### LM12 – Mathe-Interaktiv
-
-- **Didaktisches Ziel:** Rechenwege verstehen, nicht nur Ergebnisse auswendig lernen.[file:8]
-- **Einsatzszenarien:**
-  - Subnetting-Aufgaben.
-  - Prozentrechnung in BWL.
-- **Technische Anforderungen:**
-  - Inputs: `equations`, `solution_steps` oder nur `equations` für KI-generierte Schritte.[file:1]
-  - Settings: `step_by_step=true`, `show_hints`, `max_attempts`.[file:1]
-  - Prompt-Key: `math_interactive`.[file:8]
-
-### LM13 – Flashcards
-
-- **Didaktisches Ziel:** Begriffe, Definitionen, Formeln langfristig im Gedächtnis verankern.[file:8]
-- **Einsatzszenarien:**
-  - Fachbegriffe Netzwerke.
-  - Prüfungsrelevante Schlagworte.
-- **Technische Anforderungen:**
-  - Inputs: `cards` mit `front`, `back`, optional `tags`.[file:1]
-  - Settings: `spaced_repetition_mode`, `new_cards_per_day`.[file:1]
-  - Prompt-Key: `flashcards`.[file:8]
-
-### LM14 – Drag & Drop
-
-- **Didaktisches Ziel:** Zuordnungswissen und Strukturverständnis stärken.[file:8]
-- **Einsatzszenarien:**
-  - OSI-Schichten zu Protokollen zuordnen.
-  - Begriffe den richtigen Kategorien zuordnen.
-- **Technische Anforderungen:**
-  - Inputs: `pairs` oder `categories` + `items`.[file:1]
-  - Settings: `allow_partial_credit`, `shuffle_items`.[file:1]
-  - Prompt-Key: `drag_drop`.[file:8]
-
-### LM15 – Lückentext (Cloze)
-
-- **Didaktisches Ziel:** Präzises Fachvokabular anwenden.[file:8]
-- **Einsatzszenarien:**
-  - Konfigurationssnippets mit fehlenden Parametern.
-  - Theorietexte mit Schlüsselbegriffen.
-- **Technische Anforderungen:**
-  - Inputs: `base_text` + Markierung der Lücken oder bereits strukturiert als `gaps`.[file:1]
-  - Settings: `case_sensitive`, `tolerance` (Rechtschreibung), `show_solutions`.[file:1]
-  - Prompt-Key: `fill_blanks`.[file:8]
-
-### LM17 – Hands-on Lab
-
-- **Didaktisches Ziel:** Praktische Handlungsabläufe im „sicheren“ Umfeld trainieren.[file:8]
-- **Einsatzszenarien:**
-  - Linux-Commands im Terminal.
-  - Router konfigurieren in einer Sandbox.
-- **Technische Anforderungen:**
-  - Inputs: `lab_description`, `environment_config`, `check_commands`.[file:1]
-  - Settings: `time_budget`, `retry_policy`, `auto_grading`.[file:1]
-  - Prompt-Key: `hands_on_lab`.[file:8]
-
----
-
-## Gruppe C – Prüfung (LM18–LM25)
-
-**Didaktische Rolle:** Lernfortschritt sichtbar machen, Prüfungsformate trainieren und Zertifikatsprüfungen simulieren.[file:8]
-
-### LM18 – Freitext-Langantwort
-
-- **Didaktisches Ziel:** Zusammenhängend schreiben, argumentieren und fachlich korrekt begründen.[file:8]
-- **Einsatzszenarien:**
-  - IHK-ähnliche Langfragen.
-  - Projektreflexionen.
-- **Technische Anforderungen:**
-  - Inputs: `prompt`, optional `rubric` (Bewertungsraster).[file:1]
-  - Settings: `min_words`, `max_words`, `allow_resubmission`.[file:1]
-  - Prompt-Key: `long_answer`.[file:8]
-
-### LM19 – IHK-Stil Aufgaben
-
-- **Didaktisches Ziel:** Originalprüfungen möglichst nah simulieren.[file:8]
-- **Einsatzszenarien:**
-  - AP1/AP2-Simulationen.
-  - Schulabschlussprüfungen.
-- **Technische Anforderungen:**
-  - Inputs: `items` mit unterschiedlichen Fragetypen (MC, Lückentext, Szenario).[file:1]
-  - Settings: `exam_profile` (z.B. `IHK_FISI_AP1`), `points_per_item`.[file:1]
-  - Prompt-Key: `ihk_style`.[file:8]
-
-### LM20 – Multi-Step Praxisprüfung
-
-- **Didaktisches Ziel:** Mehrschrittige, realistische Prüfungen mit aufeinander aufbauenden Aufgaben.[file:8]
-- **Einsatzszenarien:**
-  - Komplettes Netzwerkdesign + Implementierung.
-  - Projektähnliche Fallstudien.
-- **Technische Anforderungen:**
-  - Inputs: `steps` mit eigenen Teilaufgaben.[file:1]
-  - Settings: `must_pass_all_steps`, `partial_scoring`.[file:1]
-  - Prompt-Key: `multi_step_exam`.[file:8]
-
-### LM21 – Zeitlimit-Training
-
-- **Didaktisches Ziel:** Zeitmanagement und Stressresistenz unter Prüfungsbedingungen trainieren.[file:8]
-- **Einsatzszenarien:**
-  - 90-Minuten-Simulation mit kleineren Aufgaben.
-  - Kurze „Speed-Tests“ vor der Prüfung.
-- **Technische Anforderungen:**
-  - Inputs: Referenz auf andere Aufgaben/Methoden oder eingebettete Items.[file:1]
-  - Settings: `time_limit_seconds`, `show_timer`, `allow_pause=false`.[file:1]
-  - Prompt-Key: `time_limit`.[file:8]
-
-### LM22 – Prüfungs-Quiz
-
-- **Didaktisches Ziel:** Wissensstand schnell checken und gezielt Lücken finden.[file:8]
-- **Einsatzszenarien:**
-  - Test nach jedem Modul.
-  - Vorbereitung auf große Tests.
-- **Technische Anforderungen:**
-  - Inputs: `questions` (MC, Single Choice, Matching) mit `correct`-Index.[file:1]
-  - Settings: `randomize_order`, `show_explanations`, `pass_threshold`.[file:1]
-  - Prompt-Key: `exam_quiz`.[file:8]
-
-### LM23 – Verständnis-Checks
-
-- **Didaktisches Ziel:** Mikro-Diagnosen direkt nach kleinen Theorieblöcken.[file:8]
-- **Einsatzszenarien:**
-  - Eine Frage nach jedem Unterkapitel.
-  - Kurze Checks während eines Live-Vortrags.
-- **Technische Anforderungen:**
-  - Inputs: Einfache `single_item`-Fragen.[file:1]
-  - Settings: `trigger_mode` (nach X Minuten/Abschnitten), `mandatory`.[file:1]
-  - Prompt-Key: `comprehension_check`.[file:8]
-
-### LM24 – Mündliche Erklärung
-
-- **Didaktisches Ziel:** Fachliche Inhalte frei und verständlich mündlich darstellen.[file:8]
-- **Einsatzszenarien:**
-  - Mündliche IHK-Simulation.
-  - Kurzpräsentationen.
-- **Technische Anforderungen:**
-  - Inputs: `prompt`, optional Beispielantworten.
-  - Settings: `max_recording_time`, `auto_transcribe`, `rubric`.[file:1]
-  - Prompt-Key: `oral_explanation`.[file:8]
-
-### LM25 – Kapitel-Endprüfung
-
-- **Didaktisches Ziel:** Abschließende Überprüfung eines Themenblocks.[file:8]
-- **Einsatzszenarien:**
-  - Ende eines Kurses oder eines großen Moduls.
-- **Technische Anforderungen:**
-  - Inputs: Mischung aus `items`, optional Verweise auf bestehende LM-Instanzen.[file:1]
-  - Settings: `weight_in_course_grade`, `retake_policy`.[file:1]
-  - Prompt-Key: `chapter_exam`.[file:8]
-
----
-
-## Wahl der passenden Lernmethode
-
-| Lernziel | Geeignete Gruppen | Typische LMs |
-|----------|-------------------|--------------|
-| Neues Thema verstehen | A | LM00, LM01, LM02, LM03, LM06 |
-| Üben/Anwenden | B | LM08, LM12, LM13, LM14, LM15, LM17 |
-| Prüfungsvorbereitung | C | LM18, LM19, LM21, LM22, LM23 |
-| Abschlussprüfung | C | LM20, LM25 |
+**Funktionen:**
+- `contribute_to_global_knowledge()` - Teilt lokales Wissen
+- `import_global_knowledge()` - Importiert globales Wissen
+- `find_global_knowledge()` - Sucht mit Full-Text Search
+- `sync_agent_knowledge()` - Sync zwischen lokal & global
 
 ---
 
 ## Abgrenzung zu System-Features
 
-Folgende ehemals als Lernmethoden geführten Elemente gelten nun als **System-Features** und werden in einer eigenen Dokumentation beschrieben:[file:8][file:1]
+**Content-LMs** = Aufgabenformate, die mit Inhalt gefüllt werden:
+- Flashcards, Quiz, Lückentext, Freitext → pro Kapitel individualisiert
+- Keine eigene Infrastruktur (nur JSONB-Content)
+- **KÖNNEN** Agent-Support nutzen (lm00-05, lm09)
 
-- Pro-/Gamification-Features (z.B. Adaptive Difficulty, Quest-/XP-System).
-- TutorAgent/NPC-Tutor.
-- IT-spezifische Werkzeuge (z.B. Code-Sandbox als Umgebung, nicht das Aufgabenformat selbst).
-- Kollaborative Workflows (Peer Review, Team-Projekte, Inverted Classroom als Kurs-/LiveRoom-Logik).
+**System-Features** = Tools/Services mit eigener Infrastruktur:
+- Whiteboard-Engine, IT-Sandbox, IHK-Prüfungssystem → kurs-übergreifend
+- Benötigen externe Services (Container, KI-APIs, WebRTC)
+- **MÜSSEN** immer eigene Logik/Infrastruktur haben
 
-Die 19 Content-Lernmethoden in diesem Dokument konzentrieren sich bewusst auf **Aufgaben- und Prüfungsformate**, die sich über Inhalte und Konfiguration in vielen Kontexten wiederverwenden lassen.[file:8]
+**Siehe:** `02a_System-Features.md` für ausgelagerte Features
 
 ---
 
-*Ende: 02 – Lernmethoden (19 Content-Methoden, dynamisch)*
+## Changelog
+
+### Version 6.0 (2026-01-02) - Agent Intelligence System
+- ✅ Reduziert von 15 auf **12 Content-Lernmethoden**
+- ✅ 4 weitere LMs ausgelagert zu System-Features:
+  - lm10 (IHK-Stil) → `ihk_exam_system`
+  - lm11 (Multi-Step Praxis) → `practical_exam_engine`
+  - lm13 (Verständnis-Checks) → `comprehension_checker`
+  - lm14 (Kapitel-Endprüfung) → `chapter_completion_system`
+- ✅ Neue Gruppe C: lm09-lm11 (nur 3 LMs)
+- ✅ **Agent-System integriert:**
+  - `AgentSupport` Dataclass statt `ki_usage` String
+  - Cross-Course Knowledge Sharing (Migration 066)
+  - Global Knowledge Pool (domain_taxonomy, agent_intelligence)
+- ✅ 7 LMs mit Agent-Support: lm00-05, lm09
+- ✅ 5 LMs ohne Agent-Support: lm06-08, lm10-11
+- ✅ i18n: DE/EN/PL für 12 LMs aktualisiert
+- ✅ Frontend: Komponenten renummeriert, `TrueFalse.vue` neu
+
+### Version 5.0 (2026-01-02) - Clean Separation
+- Reduziert von 19 auf 15 Content-Lernmethoden
+- 4 LMs ausgelagert zu System-Features (Whiteboard, IT-Sandbox, Timer, Speech-to-Text)
+
+### Version 4.0 (2025-12-28)
+- Dokumentation zu 12 Content-LMs (vor Clean Separation)
+
+---
+
+*Stand: 2026-01-02 - Clean Separation + Agent Intelligence Complete*

@@ -146,7 +146,7 @@ Rel(payout_service, paypal_api, "Zahlt aus", "REST")
 
 | Feature | Status | Details |
 |---------|--------|---------|
-| Alle 19 Content-Lernmethoden | ✅ | Konsumieren + Erstellen (privat) |
+| Alle 12 Content-Lernmethoden | ✅ | Konsumieren + Erstellen (privat) |
 | KI-Zugriff | ✅ | 300 Tokens/Monat inkl. |
 | Community-Publishing | ✅ | Nur kostenlos |
 | Private Kurse | ✅ | Unbegrenzt |

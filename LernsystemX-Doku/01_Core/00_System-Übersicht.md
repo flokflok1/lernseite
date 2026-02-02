@@ -31,7 +31,7 @@ Person(creator, "Creator", "Erstellt & verkauft Kurse")
 Person(teacher, "Lehrer", "Unterrichtet & verwaltet Klassen")
 Person(admin, "Admin", "Systemverwaltung")
 
-System(lsx, "LSX Lernsystem", "KI-gestützte Lernplattform mit 19 Content-Lernmethoden")
+System(lsx, "LSX Lernsystem", "KI-gestützte Lernplattform mit 12 Content-Lernmethoden")
 
 System_Ext(ki_api, "KI APIs", "Anthropic Claude, OpenAI")
 System_Ext(payment, "Payment Provider", "Stripe, PayPal")
@@ -50,7 +50,7 @@ Rel(lsx, webrtc, "Video/Audio Streaming", "WebRTC/STUN/TURN")
 Rel(lsx, email, "Sendet Benachrichtigungen", "SMTP")
 
 note right of lsx
-  - 19 Content-Lernmethoden (Gruppen A-C)
+  - 12 Content-Lernmethoden (Gruppen A-C)
   - 9 Rollenmodell
   - KI-Content-Pipeline
   - Global Publishing (20 Sprachen)
@@ -68,7 +68,7 @@ end note
 
 | Feature | Beschreibung |
 |---------|-------------|
-| **19 Content-Lernmethoden** | 3 Gruppen (A-C): Erklaerend, Praxis, Pruefung |
+| **12 Content-Lernmethoden** | 3 Gruppen (A-C): Erklaerend, Praxis, Pruefung |
 | **Modulare Kurse** | Flexible Kursstruktur |
 | **Theorie-Blätter** | Zentrale Wissensdokumente |
 | **Prüfungen** | KI-generierte Tests & Simulationen |
@@ -247,7 +247,7 @@ note right of user
 end note
 
 note right of methods
-  19 Content-Lernmethoden:
+  12 Content-Lernmethoden:
   - Gruppe A: 5 (Erklaerend)
   - Gruppe B: 6 (Praxis)
   - Gruppe C: 8 (Pruefung)
@@ -262,7 +262,7 @@ end note
 | Rolle | Zugriff | Besonderheiten |
 |-------|---------|----------------|
 | 🆓 **Free User** | Basis-Kurse, ausgewählte Methoden | ❌ Keine KI |
-| 💎 **Premium User** | Alle 19 Content-Lernmethoden, KI-Zugriff | Private Gruppen |
+| 💎 **Premium User** | Alle 12 Content-Lernmethoden, KI-Zugriff | Private Gruppen |
 | 🎨 **Creator** | Kurs-Erstellung, Verkauf | 75% Revenue Share |
 | 👨‍🏫 **Lehrer/Dozent** | Klassen-Verwaltung, LiveRoom Pro | Prüfungs-Generator |
 | 🏫 **Schule** | Lehrer + Schüler verwalten | Domain-Branding |
@@ -275,13 +275,13 @@ end note
 
 ## 4. Lernmethoden-System
 
-### 🎯 19 Content-Lernmethoden
+### 🎯 12 Content-Lernmethoden
 
 > **Details:** Siehe [02_Lernmethoden.md](02_Lernmethoden.md) für die vollständige Spezifikation. System-Features siehe [02a_System-Features.md](02a_System-Features.md).
 
 ```plantuml
 @startuml
-title Lernmethoden-Kategorisierung (19 Content-LMs + System-Features)
+title Lernmethoden-Kategorisierung (12 Content-LMs + System-Features)
 
 package "Gruppe A – Erklärende Methoden (LM00–LM07)" #LightGreen {
   [LM00 Deep Explanation]
@@ -354,7 +354,7 @@ pro --> "Gruppe D – Pro/Gamification (LM26–LM31)" : "Erstellt"
 | **C** | Prüfungsorientiert | LM18–LM25 | 8 | Optional bis Intensiv |
 | **D** | Pro/Gamification | LM26–LM31 | 6 | Mittel bis Intensiv |
 
-**Gesamt: 19 Content-Lernmethoden (5 + 6 + 8) + System-Features**
+**Gesamt: 12 Content-Lernmethoden (5 + 6 + 8) + System-Features**
 
 ---
 
@@ -408,7 +408,7 @@ package "Content Enhancement" {
 | 4 | 🖊️ **Whiteboard-Analyse** | Diagramm- & Zeichnungserkennung |
 | 5 | 📚 **Modul-Generator** | Kursstruktur-Erstellung |
 | 6 | 📖 **Theorieblatt-Generator** | Lerninhalte aufbereiten |
-| 7 | 🎯 **Lernmethoden-Generator** | 19 Content-Lernmethoden befüllen |
+| 7 | 🎯 **Lernmethoden-Generator** | 12 Content-Lernmethoden befüllen |
 | 8 | ❓ **Quiz-Generator** | Prüfungsfragen erstellen |
 | 9 | 📝 **Prüfungssimulation** | Vollständige Tests generieren |
 | 10 | 💡 **Summarizer/Erklär-KI** | Zusammenfassungen & Vereinfachungen |
@@ -846,7 +846,7 @@ end note
 | Bereich | Details |
 |---------|---------|
 | 👥 **User Management** | 9 Rollen mit klaren Grenzen |
-| 📚 **Lernmethoden** | 19 Content-LMs in 3 Gruppen (A-C) + System-Features |
+| 📚 **Lernmethoden** | 12 Content-LMs in 3 Gruppen (A-C) + System-Features |
 | 🤖 **KI-Integration** | 13 spezialisierte KI-Module |
 | 🌍 **Mehrsprachigkeit** | 20 Sprachen via Global Publishing |
 | 🎥 **LiveRoom** | WebRTC mit Whiteboard-KI |
@@ -861,7 +861,7 @@ end note
 ```
 ┌─────────────────────────────────────────────────┐
 │  🎓 KI-gestützte Lernplattform                  │
-│  📚 19 Content-Lernmethoden (A-C)               │
+│  📚 12 Content-Lernmethoden (A-C)               │
 │  👥 9 Rollenmodell                              │
 │  🤖 13 KI-Module                                │
 │  🌍 20 Sprachen                                 │
@@ -882,7 +882,7 @@ Detaillierte Informationen finden sich in den folgenden Dokumenten:
 | Dokument | Thema |
 |----------|-------|
 | 📋 `01_Rollenmodell.md` | Alle 9 Rollen im Detail |
-| 🎯 `02_Lernmethoden.md` | 19 Content-Lernmethoden (Gruppen A-C) – Master-Dokument |
+| 🎯 `02_Lernmethoden.md` | 12 Content-Lernmethoden (Gruppen A-C) – Master-Dokument |
 | 🔐 `03_Zugriffssystem.md` | Berechtigungen & Zugriffskontrolle |
 | 📚 `04_Kurs-Architektur.md` | Kurs- & Modulstruktur |
 | 🤖 `09_KI-Pipeline.md` | KI-Module & Workflows |

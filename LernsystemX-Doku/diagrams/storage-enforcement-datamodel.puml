@@ -1,0 +1,133 @@
+@startuml Storage Enforcement - Data Model
+!theme default
+title Storage Enforcement System - Data Model & Database Schema
+
+package "Database Schema" {
+  entity "storage_enforcement_configs" as Configs {
+    **id** : UUID (Primary Key)
+    --
+    organisation_id : UUID (Foreign Key, nullable)
+    is_system_default : BOOLEAN
+    --
+    enforcement_type : VARCHAR(20)  /* hard|soft|none */
+    warning_threshold_percent : INTEGER
+    critical_threshold_percent : INTEGER
+    hard_limit_percent : INTEGER
+    grace_period_days : INTEGER
+    auto_cleanup_soft_deleted_days : INTEGER
+    warning_frequency : VARCHAR(20)  /* daily|weekly|once */
+    --
+    send_email_warnings : BOOLEAN
+    send_ui_notifications : BOOLEAN
+    --
+    **actions_json** : JSONB
+    --
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+  }
+
+  entity "organisations" as Orgs {
+    **id** : UUID (Primary Key)
+    --
+    name : VARCHAR(255)
+    email : VARCHAR(255)
+  }
+
+  Configs }o--|| Orgs : "belongs to (nullable)"
+}
+
+note right of Configs
+  **Indexes for Performance:**
+  - PRIMARY KEY (id)
+  - UNIQUE (organisation_id, is_system_default)
+  - INDEX organisation_id
+  - INDEX is_system_default
+
+  **Constraints:**
+  - enforcement_type IN ('hard', 'soft', 'none')
+  - warning_frequency IN ('daily', 'weekly', 'once')
+  - warning_threshold_percent BETWEEN 0-100
+  - hard_limit_percent >= 100
+end note
+
+package "JSON Structure (actions_json)" {
+  note as ActionJSON
+    {
+      "0_to_50": {
+        "status": "green",
+        "upload": "allowed",
+        "download": "allowed",
+        "notifications": "none",
+        "display_message": "✅ Plenty of storage available"
+      },
+      "50_to_80": {
+        "status": "yellow",
+        "upload": "allowed",
+        "download": "allowed",
+        "notifications": "weekly_reminder",
+        "display_message": "🟡 Storage usage at {percent}%..."
+      },
+      "80_to_100": {
+        "status": "orange/red",
+        "upload": "allowed_with_warning",
+        "download": "allowed",
+        "notifications": "daily_warning",
+        "suggest_cleanup": true
+      },
+      "100_plus": {
+        "status": "red/black",
+        "upload": "blocked",
+        "download": "allowed/readonly",
+        "grace_period_days": 30,
+        "allow_deletions_only": true
+      },
+      "grace_period_expired": {
+        "status": "alert",
+        "upload": "blocked",
+        "download": "readonly",
+        "action_required": true,
+        "contact_support": true
+      }
+    }
+  end note
+}
+
+package "Domain Models (Python Dataclasses)" {
+  entity "StorageEnforcementConfig" as DomainConfig {
+    id: str
+    organisation_id: Optional[str]
+    is_system_default: bool
+    --
+    warning_threshold_percent: int
+    critical_threshold_percent: int
+    hard_limit_percent: int
+    --
+    enforcement_type: str
+    grace_period_days: int
+    auto_cleanup_soft_deleted_days: int
+    warning_frequency: str
+    --
+    send_email_warnings: bool
+    send_ui_notifications: bool
+    --
+    actions_json: Dict[str, Any]
+    --
+    created_at: datetime
+    updated_at: datetime
+    __
+    get_action_for_percent(percent: float) → Dict
+    to_dict() → Dict
+  }
+}
+
+note right of DomainConfig
+  **Key Method:**
+  get_action_for_percent(85.5)
+  → Determines '80_to_100' range
+  → Returns actions_json['80_to_100']
+  → Response: { 'status': 'red', 'upload': '...', ... }
+end note
+
+Configs --> DomainConfig : "maps to\nStorageEnforcementConfig\nmodel"
+
+@enduml

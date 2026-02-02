@@ -39,6 +39,7 @@ class ErrorCode(str, Enum):
     BUSINESS_LOGIC_ERROR = "BUSINESS_LOGIC_ERROR"
     OPERATION_FAILED = "OPERATION_FAILED"
     CONFLICT = "CONFLICT"
+    GONE = "GONE"  # Resource no longer available (e.g., expired session)
 
     # ========================================================================
     # AUTH ERRORS
@@ -227,6 +228,19 @@ class ErrorCode(str, Enum):
     # ========================================================================
     FEEDBACK_CREATE_FAILED = "FEEDBACK_CREATE_FAILED"
     FEEDBACK_INVALID_TYPE = "FEEDBACK_INVALID_TYPE"
+
+    # ========================================================================
+    # RUNNER ERRORS
+    # ========================================================================
+    RUNNER_SESSION_NOT_FOUND = "RUNNER_SESSION_NOT_FOUND"
+    RUNNER_SESSION_EXPIRED = "RUNNER_SESSION_EXPIRED"
+    RUNNER_SESSION_NOT_ACTIVE = "RUNNER_SESSION_NOT_ACTIVE"
+    RUNNER_SESSION_CREATE_FAILED = "RUNNER_SESSION_CREATE_FAILED"
+    RUNNER_MODE_NOT_FOUND = "RUNNER_MODE_NOT_FOUND"
+    RUNNER_MODE_INCOMPATIBLE = "RUNNER_MODE_INCOMPATIBLE"
+    RUNNER_METHOD_NOT_FOUND = "RUNNER_METHOD_NOT_FOUND"
+    RUNNER_ACCESS_DENIED = "RUNNER_ACCESS_DENIED"
+    RUNNER_EXAM_LOCKED = "RUNNER_EXAM_LOCKED"
 
     # ========================================================================
     # ROLE MANAGEMENT ERRORS (13 codes)

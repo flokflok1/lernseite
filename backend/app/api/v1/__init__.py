@@ -151,6 +151,20 @@ feature_config_rollout_bp = feature_configuration.rollout_bp
 feature_config_ab_tests_bp = feature_configuration.ab_tests_bp
 feature_config_audit_bp = feature_configuration.audit_bp
 
+# =============================================================================
+# PANEL API - Configuration / Administration
+# =============================================================================
+from app.api.v1.panel import (
+    runner_modes_bp as panel_runner_modes_bp,
+    lm_type_compatibility_bp as panel_lm_type_compatibility_bp,
+    system_features_bp as panel_system_features_bp
+)
+
+# =============================================================================
+# RUNNER API - Execution / Learning / Exams
+# =============================================================================
+from app.api.v1.runner import sessions_bp as runner_sessions_bp
+
 
 # Feature-flagged packages
 try:
@@ -239,10 +253,22 @@ api_v1.register_blueprint(feature_config_audit_bp)
 if groups_bp:
     api_v1.register_blueprint(groups_bp)
 
+# =============================================================================
+# PANEL API - Configuration / Administration
+# =============================================================================
+api_v1.register_blueprint(panel_runner_modes_bp)
+api_v1.register_blueprint(panel_lm_type_compatibility_bp)
+api_v1.register_blueprint(panel_system_features_bp)
+
+# =============================================================================
+# RUNNER API - Execution / Learning / Exams
+# =============================================================================
+api_v1.register_blueprint(runner_sessions_bp)
+
 # Export all
 __all__ = [
     'api_v1',
-    'auth_bp', 'business_contact_bp', 'users_bp', 'users_part2_bp', 'profile_bp', 'health_bp',  # ← NEW: Added business_contact_bp export (b2b_signup_bp temporarily disabled)
+    'auth_bp', 'business_contact_bp', 'users_bp', 'users_part2_bp', 'profile_bp', 'health_bp',
     'courses_core_bp', 'courses_crud_bp', 'courses_publishing_bp', 'courses_enrollment_bp', 'categories_admin_bp', 'categories_hierarchy_bp', 'categories_public_bp', 'learning_methods_bp',
     'chapter_theory_bp', 'lesson_explanations_bp', 'lesson_videos_bp', 'exam_simulations_bp',
     'subscriptions_bp', 'tokens_bp', 'admin_tokens_bp', 'organisations_bp', 'feedback_bp',
@@ -254,5 +280,9 @@ __all__ = [
     'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp', 'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
     'groups_bp',
+    # Panel API - Configuration / Administration
+    'panel_runner_modes_bp', 'panel_lm_type_compatibility_bp', 'panel_system_features_bp',
+    # Runner API - Execution / Learning / Exams
+    'runner_sessions_bp',
     'dashboard', 'admin_panel', 'social', 'community', 'messaging'
 ]

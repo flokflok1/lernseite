@@ -17,6 +17,7 @@ from .ai_execution import LearningMethodAIRepository
 from .feedback import LearningMethodFeedbackRepository
 from .statistics import LearningMethodStatisticsRepository
 from .instances import LearningMethodInstanceRepository
+from .progress import LearningMethodProgressRepository
 from .types import (
     LearningMethodBase,
     AIExecutionResult,
@@ -48,6 +49,7 @@ __all__ = [
     'LearningMethodFeedbackRepository',
     'LearningMethodStatisticsRepository',
     'LearningMethodInstanceRepository',
+    'LearningMethodProgressRepository',
     # Types
     'LearningMethodBase',
     'AIExecutionResult',

@@ -438,6 +438,45 @@ class LearningMethodInstanceRepository:
                 return cur.fetchall()
 
     # =========================================================================
+    # RUNNER SESSION SUPPORT
+    # =========================================================================
+
+    @classmethod
+    def find_for_runner(cls, method_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Find learning method instance with runner-relevant data.
+
+        Returns data needed for runner session initialization, including
+        course context via lesson/chapter hierarchy.
+
+        Args:
+            method_id: UUID of the learning method instance
+
+        Returns:
+            Dict with method_id, lesson_id, method_type, default_mode_id,
+            time_limit_seconds, config, chapter_id, course_id
+        """
+        with extensions.db_pool.connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("""
+                    SELECT
+                        lmi.method_id,
+                        lmi.lesson_id,
+                        lmi.method_type,
+                        lmi.default_mode_id,
+                        lmi.time_limit_seconds,
+                        lmi.config,
+                        l.chapter_id,
+                        c.course_id
+                    FROM learning_methods.learning_method_instances lmi
+                    LEFT JOIN content.lessons l ON lmi.lesson_id = l.lesson_id
+                    LEFT JOIN content.chapters ch ON l.chapter_id = ch.chapter_id
+                    LEFT JOIN content.courses c ON ch.course_id = c.course_id
+                    WHERE lmi.method_id = %s
+                """, (method_id,))
+                return cur.fetchone()
+
+    # =========================================================================
     # HELPER METHODS
     # =========================================================================
 

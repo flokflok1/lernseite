@@ -228,7 +228,7 @@ export function useSessionManager(courseId: Ref<string | undefined>) {
       }
 
       return false
-    } catch (err) {
+    } catch (_err) {
       // No active session found (expected case)
       console.debug('No active session for course:', courseId.value)
       return false

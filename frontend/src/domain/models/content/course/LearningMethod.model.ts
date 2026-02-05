@@ -27,13 +27,27 @@
 import { MethodType } from './MethodType.vo'
 
 export class LearningMethod {
+  public readonly id: string
+  public readonly methodType: MethodType
+  public readonly name: string
+  public readonly description: string
+  public readonly icon: string
+
   constructor(
-    public readonly id: string,
-    public readonly methodType: MethodType,
-    public readonly name: string,
-    public readonly description: string,
-    public readonly icon: string
-  ) {}
+    id: string,
+    methodType: MethodType,
+    name: string,
+    description: string,
+    icon: string
+  ) {
+    this.id = id
+    this.methodType = methodType
+    this.name = name
+    this.description = description
+    this.icon = icon
+    // Enforce runtime immutability
+    Object.freeze(this)
+  }
 
   /**
    * Display name combining method type and name.

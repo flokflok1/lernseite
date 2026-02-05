@@ -193,7 +193,7 @@ function formatDate(dateString: string): string {
   })
 }
 
-function openCourseQuick(course: Course) {
+function openCourseQuick(_course: Course) {
   // Open modal with course pre-selected
   showModal.value = true
 }

@@ -46,7 +46,7 @@ import { useWindowStore } from '@/application/stores/window.store'
 import type { WindowType } from '@/application/stores/window.store'
 import WindowComponent from './WindowComponent.vue'
 import Taskbar from './Taskbar.vue'
-import { LEARNING_METHOD_REGISTRY, getLearningMethodForm } from '@/presentation/components/learning/editor/learning-methods.registry'
+import { LEARNING_METHOD_REGISTRY as _LEARNING_METHOD_REGISTRY, getLearningMethodForm } from '@/presentation/components/learning/editor/learning-methods.registry'
 
 // Import window content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations

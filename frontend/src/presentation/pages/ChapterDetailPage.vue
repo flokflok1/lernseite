@@ -152,18 +152,18 @@ const {
   chapter,
   courseName,
   lessons,
-  lessonProgress,
-  theoryData,
-  theoryLoading,
+  lessonProgress: _lessonProgress,
+  theoryData: _theoryData,
+  theoryLoading: _theoryLoading,
   // Computed
-  progress,
-  completedLessons,
-  isChapterCompleted,
+  progress: _progress,
+  completedLessons: _completedLessons,
+  isChapterCompleted: _isChapterCompleted,
   // Methods
-  isLessonCompleted,
+  isLessonCompleted: _isLessonCompleted,
   isLessonLocked,
-  loadChapterData,
-  loadTheoryById,
+  loadChapterData: _loadChapterData,
+  loadTheoryById: _loadTheoryById,
   generateTheory,
   initialize
 } = useChapterDetail(courseId, chapterId)
@@ -181,11 +181,11 @@ const selectedLessonIndex = ref<number | null>(null)
 // Navigation
 // ============================================================================
 
-function goBackToCourse() {
+function _goBackToCourse() {
   router.push({ name: 'CourseOverview', params: { courseId } })
 }
 
-function handleTabChange(tab: 'theory' | 'lessons') {
+function _handleTabChange(tab: 'theory' | 'lessons') {
   activeTab.value = tab
 }
 
@@ -193,7 +193,7 @@ function handleTabChange(tab: 'theory' | 'lessons') {
 // Theory Actions
 // ============================================================================
 
-async function handleGenerateTheory() {
+async function _handleGenerateTheory() {
   await generateTheory()
 }
 
@@ -201,7 +201,7 @@ async function handleGenerateTheory() {
 // Lesson Actions
 // ============================================================================
 
-function handleLessonSelect(lesson: any, index: number) {
+function _handleLessonSelect(lesson: any, index: number) {
   // Check if locked
   if (isLessonLocked(lesson, index)) return
 

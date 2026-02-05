@@ -12,10 +12,10 @@
  * - Detailed feedback on oral explanations
  */
 
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { AudioRecorder } from '@/presentation/components/shared/ui/learning/audio'
-import { analyzeOralExplanation, transcribeAudio } from '@/application/services/api/system'
+import { analyzeOralExplanation, transcribeAudio as _transcribeAudio } from '@/application/services/api/system'
 import { tutorChat, tutorTTS } from '@/application/services/api/system'
 
 const { t } = useI18n()
@@ -180,7 +180,7 @@ const startExam = async () => {
   }
 }
 
-const handleRecording = async (blob: Blob, duration: number) => {
+const handleRecording = async (blob: Blob, _duration: number) => {
   phase.value = 'answer'
   isLoading.value = true
   error.value = null

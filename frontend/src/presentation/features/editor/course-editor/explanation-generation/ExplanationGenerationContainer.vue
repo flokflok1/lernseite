@@ -47,8 +47,8 @@ const {
   isLoading,
   isGenerating,
   error,
-  currentExplanationTitle,
-  currentExplanationStyle
+  currentExplanationTitle: _currentExplanationTitle,
+  currentExplanationStyle: _currentExplanationStyle
 } = explanationMgr
 
 // Combined error (local + from composable)

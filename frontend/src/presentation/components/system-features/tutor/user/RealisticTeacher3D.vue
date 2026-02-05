@@ -58,7 +58,7 @@ import {
   type ExpressionType,
   type PointTarget,
   type LoadedAvatar,
-  type AvatarParts
+  type AvatarParts as _AvatarParts
 } from './teacher3d'
 
 // ============================================================================
@@ -100,7 +100,7 @@ const emit = defineEmits<{
 // ============================================================================
 // Stores
 // ============================================================================
-const avatarStore = useAvatarStore()
+const _avatarStore = useAvatarStore()
 
 // ============================================================================
 // State
@@ -194,7 +194,7 @@ function onVRMLoaded(avatar: LoadedAvatar): void {
 /**
  * VRM loading failed - try human avatar
  */
-function onVRMError(errorKey: string): void {
+function onVRMError(_errorKey: string): void {
   console.warn('VRM loading failed, trying human avatar')
 
   const scene = getScene()
@@ -235,7 +235,7 @@ function onHumanLoaded(avatar: LoadedAvatar): void {
 /**
  * Human loading failed - use procedural or robot
  */
-function onHumanError(errorKey: string): void {
+function onHumanError(_errorKey: string): void {
   console.warn('Human GLB loading failed, creating procedural avatar')
 
   const scene = getScene()
@@ -323,7 +323,7 @@ watch(() => props.expression, (expression) => {
 // Animation Loop
 // ============================================================================
 
-function animate(): void {
+function _animate(): void {
   if (!animationController) return
   animationController.update(0)  // Delta handled by controller's clock
 }

@@ -136,8 +136,8 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const isDrawing = ref(false)
 const cursorPosition = ref({ x: 0, y: 0 })
 const actionHistory = ref<ActionHistoryEntry[]>([])
-const currentActionQueue = ref<WhiteboardAction[]>([])
-const isProcessingQueue = ref(false)
+const _currentActionQueue = ref<WhiteboardAction[]>([])
+const _isProcessingQueue = ref(false)
 
 // ============================================================================
 // Computed

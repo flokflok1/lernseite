@@ -201,7 +201,7 @@ let audioProgressInterval: number | null = null
 // ============================================================================
 // Computed
 // ============================================================================
-const shouldSpeak = computed(() => props.text && props.text.length > 0)
+const _shouldSpeak = computed(() => props.text && props.text.length > 0)
 
 // ============================================================================
 // Methods
@@ -250,7 +250,7 @@ async function generateAndPlayAudio() {
         emit('speech-end')
       }
 
-      audioElement.onerror = (e) => {
+      audioElement.onerror = (_e) => {
         isSpeaking.value = false
         isThinking.value = false
         stopProgressTracking()

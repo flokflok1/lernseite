@@ -10,7 +10,7 @@
  * - Smooth transitions between states
  */
 
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { VRMLoaderPlugin, VRM, VRMExpressionPresetName, VRMHumanBoneName } from '@pixiv/three-vrm'
@@ -43,7 +43,7 @@ let vrm: VRM | null = null
 
 // Animation state
 let blinkTimer = 0
-let breathTimer = 0
+let _breathTimer = 0
 let talkTimer = 0
 let currentMouthOpen = 0
 let targetMouthOpen = 0

@@ -208,7 +208,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
-const { resolveSchema, currentLocale } = useSchemaI18n()
+const { resolveSchema } = useSchemaI18n()
 const error = ref<string | null>(null)
 
 // Resolve schema with i18n translations

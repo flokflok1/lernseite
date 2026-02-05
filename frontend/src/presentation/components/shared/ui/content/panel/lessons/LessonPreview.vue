@@ -148,7 +148,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, defineAsyncComponent, h } from 'vue'
+import { ref, computed, onMounted, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LsxPanel } from '@/application/stores/modules/desktop'
 import http from '@/application/services/api/system'
@@ -312,7 +312,7 @@ function getMethodRenderer(methodType: number | string) {
       if (config.raw_content && typeof config.raw_content === 'string') {
         try {
           config = { ...config, ...JSON.parse(config.raw_content) }
-        } catch (e) { /* ignore parse errors */ }
+        } catch { /* ignore parse errors */ }
       }
 
       // LM12 - Mathe-Interaktiv (uses "steps" in DB, not "exercises")

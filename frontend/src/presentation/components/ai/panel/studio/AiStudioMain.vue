@@ -197,7 +197,7 @@ import type { LsxWindow } from '@/application/stores/window.store'
 // Components (reuse from views)
 import {
   AiStudioHeader,
-  CourseSelector,
+  CourseSelector as _CourseSelector,
   NewCourseModal,
   CourseStructureSidebar,
   useAiStudioState,

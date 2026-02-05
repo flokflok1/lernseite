@@ -216,7 +216,7 @@ export const useThemeStore = defineStore('theme', () => {
       // Backend-Wert abfragen
       const backendValue = await fetchBackendThemePreference()
       themePreference.value = backendValue ?? 'dark'
-    } catch (e) {
+    } catch (_e) {
       themePreference.value = 'dark'
     }
 

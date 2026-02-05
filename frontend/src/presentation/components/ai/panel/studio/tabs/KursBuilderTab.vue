@@ -155,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/window.store'
 import { useTheoryManagement } from '@/application/composables/useTheoryManagement'
@@ -171,7 +171,7 @@ import {
   getActionsByCategory,
   getActionsForEntity,
   getLMSuggestions,
-  type AuthoringAction,
+  type AuthoringAction as _AuthoringAction,
   type LMSuggestion
 } from '@/application/services/api/learning'
 

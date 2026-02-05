@@ -233,7 +233,7 @@ export interface ChapterPayload {
   estimated_time?: number
 }
 
-export interface UpdateChapterPayload extends Partial<ChapterPayload> {}
+export type UpdateChapterPayload = Partial<ChapterPayload>
 
 export interface EditableChapter {
   chapter_id: string  // UUID (Refactored: module_id → chapter_id 2025-11-27)
@@ -256,7 +256,7 @@ export interface LessonPayload {
   content?: any
 }
 
-export interface UpdateLessonPayload extends Partial<LessonPayload> {}
+export type UpdateLessonPayload = Partial<LessonPayload>
 
 export interface EditableLesson {
   lesson_id: number

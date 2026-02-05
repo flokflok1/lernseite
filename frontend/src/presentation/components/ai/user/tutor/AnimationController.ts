@@ -122,7 +122,7 @@ export class AnimationController {
    * Update human avatar animations
    */
   private updateHuman(delta: number, time: number): void {
-    const { model, head, spine, rightArm, leftArm, mouth, morphMeshes } = this.parts
+    const { model: _model, head, spine, rightArm, leftArm, mouth, morphMeshes } = this.parts
 
     // Subtle breathing animation
     if (spine) {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePanelStore } from '@/application/stores/modules/desktop/panel.store'
 
@@ -182,13 +182,13 @@ describe('usePanelStore - Multi-Window Support', () => {
     it('should transfer focus when closing active panel', () => {
       const store = usePanelStore()
 
-      const panel1Id = store.openPanel({
+      const _panel1Id = store.openPanel({
         type: 'admin-ai-editor',
         title: 'Panel 1',
         icon: '🤖'
       })
 
-      const panel2Id = store.openPanel({
+      const _panel2Id = store.openPanel({
         type: 'admin-course-editor',
         title: 'Panel 2',
         icon: '📝'
@@ -248,7 +248,7 @@ describe('usePanelStore - Multi-Window Support', () => {
     it('should update active panel and z-index', () => {
       const store = usePanelStore()
 
-      const panel1Id = store.openPanel({
+      const _panel1Id = store.openPanel({
         type: 'admin-ai-editor',
         title: 'Panel 1',
         icon: '🤖'

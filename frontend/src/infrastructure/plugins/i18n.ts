@@ -16,7 +16,7 @@
  * Fallback: Always German (de)
  */
 
-import { createI18n, useI18n } from 'vue-i18n'
+import { createI18n } from 'vue-i18n'
 import type { App } from 'vue'
 import { initializeSchemaI18n } from '@/application/composables/useSchemaI18n'
 
@@ -183,7 +183,7 @@ export async function initializeI18n(): Promise<void> {
             i18n.global.setLocaleMessage('de', { ...currentDe, ...deBundle })
             console.log('[i18n] Merged German API bundle with file translations')
           }
-        } catch (e) {
+        } catch (_e) {
           // Silently fall back to file translations (expected during setup)
         }
 
@@ -196,11 +196,11 @@ export async function initializeI18n(): Promise<void> {
               i18n.global.setLocaleMessage(savedLang, { ...currentLang, ...bundle })
               console.log(`[i18n] Merged ${savedLang} API bundle with file translations`)
             }
-          } catch (e) {
+          } catch (_e) {
             // Silently fall back to file translations
           }
         }
-      } catch (error) {
+      } catch (_error) {
         // API not available, using file-based translations only
       }
     } else {
@@ -242,7 +242,7 @@ export async function setLanguage(lang: string): Promise<void> {
         i18n.global.setLocaleMessage(lang, bundle)
       }
     }
-  } catch (e) {
+  } catch (_e) {
     console.warn(`[i18n] Could not load ${lang} from API`)
   }
 

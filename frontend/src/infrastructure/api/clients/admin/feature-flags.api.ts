@@ -18,9 +18,7 @@ import type {
   FeatureFlagUpdateRequest,
   FeatureFlagFilters,
   RolloutPlan,
-  RolloutPhase,
-  PaginatedResponse,
-  ApiResponse
+  PaginatedResponse
 } from './types'
 
 // ============================================================================

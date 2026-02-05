@@ -12,7 +12,7 @@
  * - Detailed feedback on oral explanations
  */
 
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { AudioRecorder } from '@/presentation/components/shared/ui/learning/audio'
 // import { analyzeOralExplanation, transcribeAudio } from '@/application/services/api/system'
@@ -126,7 +126,7 @@ const examinerPersonaLabel = computed(() => {
 })
 
 // System prompt for the examiner
-const examinerSystemPrompt = computed(() => {
+const _examinerSystemPrompt = computed(() => {
   const persona = methodData.value.examiner_persona
   const personaPrompt = t(`lesson.oral.systemPrompts.${persona}`)
 
@@ -187,7 +187,7 @@ const startExam = async () => {
   }
 }
 
-const handleRecording = async (blob: Blob, duration: number) => {
+const handleRecording = async (_blob: Blob, _duration: number) => {
   phase.value = 'answer'
   isLoading.value = true
   error.value = null

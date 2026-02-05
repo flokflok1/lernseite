@@ -318,7 +318,7 @@ let searchTimeout: ReturnType<typeof setTimeout> | null = null
 // Flatten category tree for simple dropdown
 const flatCategories = computed((): Category[] => {
   const result: Category[] = []
-  const flatten = (nodes: any[], parentLevel: number = 0) => {
+  const flatten = (nodes: any[], _parentLevel: number = 0) => {
     for (const node of nodes) {
       result.push({
         category_id: node.category_id,

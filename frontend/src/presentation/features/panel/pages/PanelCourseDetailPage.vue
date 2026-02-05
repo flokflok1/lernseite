@@ -109,7 +109,7 @@ const {
   course,
   loading,
   error,
-  chapters,
+  chapters: _chapters,
   // Computed
   lessonCount,
   fileCount,
@@ -123,7 +123,7 @@ const {
   showAdBadge,
   showPremiumBadge,
   // Methods
-  loadCourse,
+  loadCourse: _loadCourse,
   loadCourseChapters,
   publishCourse,
   unpublishCourse,

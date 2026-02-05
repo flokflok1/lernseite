@@ -52,7 +52,7 @@ export function useSchemaI18n() {
   let currentResolver: I18nSchemaResolver
   try {
     currentResolver = getGlobalI18nResolver()
-  } catch (error) {
+  } catch (_error) {
     // Use global i18n instance (not hook return)
     currentResolver = createGlobalI18nResolver(i18n)
   }

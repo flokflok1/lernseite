@@ -154,15 +154,17 @@ export class Chapter {
    * // }
    */
   toJSON(): object {
+    // Lessons are sorted by order for consistent serialization output
+    const sortedLessons = this.sortedLessons
     return {
       id: this.id,
       courseId: this.courseId,
       title: this.title,
       order: this.order,
-      lessons: this.lessons.map(l => l.toJSON()),
+      lessons: sortedLessons.map(l => l.toJSON()),
       displayTitle: this.displayTitle,
       totalLessons: this.totalLessons,
-      sortedLessons: this.sortedLessons.map(l => l.toJSON())
+      sortedLessons: sortedLessons.map(l => l.toJSON())
     }
   }
 }

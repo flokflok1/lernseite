@@ -81,7 +81,7 @@ export type AISessionUpdatedHandler = (event: AISessionUpdatedEvent) => void
 
 export class CourseEditorWebSocketManager {
   private socket: Socket | null = null
-  private handlers: Map<string, Set<Function>> = new Map()
+  private handlers: Map<string, Set<(...args: unknown[]) => void>> = new Map()
 
   constructor(socket: Socket) {
     this.socket = socket
@@ -171,7 +171,7 @@ export class CourseEditorWebSocketManager {
     if (handlers) {
       handlers.forEach((handler) => {
         try {
-          (handler as Function)(data)
+          (handler as (data: unknown) => void)(data)
         } catch (error) {
           console.error(`Error in ${event} handler:`, error)
         }

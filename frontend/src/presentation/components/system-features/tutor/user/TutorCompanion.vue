@@ -62,7 +62,7 @@ const initThreeJS = () => {
       powerPreference: 'default',
       failIfMajorPerformanceCaveat: false
     })
-  } catch (e) {
+  } catch {
     console.warn('WebGL not available, using fallback')
     // Fallback: show static avatar image instead
     container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-4xl">🤖</div>'

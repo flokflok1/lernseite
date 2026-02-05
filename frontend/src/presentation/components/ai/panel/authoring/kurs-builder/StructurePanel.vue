@@ -206,7 +206,7 @@ function handleChapterDragStart(e: DragEvent, chapterIndex: number) {
   e.dataTransfer!.setData('text/plain', `chapter:${chapterIndex}`)
 }
 
-function handleChapterDragOver(e: DragEvent, chapterId: string) {
+function handleChapterDragOver(_e: DragEvent, chapterId: string) {
   if (draggingType.value !== 'chapter') return
   dragOverChapterId.value = chapterId
 }
@@ -215,7 +215,7 @@ function handleChapterDragLeave() {
   dragOverChapterId.value = null
 }
 
-function handleChapterDrop(e: DragEvent, targetIndex: number) {
+function handleChapterDrop(_e: DragEvent, targetIndex: number) {
   if (draggingType.value !== 'chapter') return
   const fromIndex = draggingFromIndex.value
   if (fromIndex !== targetIndex && fromIndex !== -1) {
@@ -237,7 +237,7 @@ function handleLessonDragStart(e: DragEvent, chapterIndex: number, lessonIndex: 
   e.dataTransfer!.setData('text/plain', `lesson:${chapterIndex}:${lessonIndex}`)
 }
 
-function handleLessonDragOver(e: DragEvent, lessonId: string) {
+function handleLessonDragOver(_e: DragEvent, lessonId: string) {
   if (draggingType.value !== 'lesson') return
   dragOverLessonId.value = lessonId
 }
@@ -246,7 +246,7 @@ function handleLessonDragLeave() {
   dragOverLessonId.value = null
 }
 
-function handleLessonDrop(e: DragEvent, targetChapterIndex: number, targetLessonIndex: number) {
+function handleLessonDrop(_e: DragEvent, _targetChapterIndex: number, _targetLessonIndex: number) {
   if (draggingType.value !== 'lesson') return
   // Lesson drop handling - parent should handle the actual reordering
   handleDragEnd()

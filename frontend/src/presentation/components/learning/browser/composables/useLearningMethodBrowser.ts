@@ -14,7 +14,7 @@
  * Uses useAccessibleMethods for tier-based filtering
  */
 
-import { computed, ref, type Ref, type ComputedRef } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useGroupTier } from '@/application/composables/useGroupTier'
 import { useAccessibleMethods } from '../composables/useAccessibleMethods'
@@ -49,9 +49,9 @@ export interface BrowserMethod {
  * ```
  */
 export function useLearningMethodBrowser() {
-  const { t } = useI18n()
+  const { t: _t } = useI18n()
   const groupTier = useGroupTier()
-  const { accessibleMethods, userTier } = useAccessibleMethods()
+  const { accessibleMethods, userTier: _userTier } = useAccessibleMethods()
 
   // Filters state
   const filters = ref<BrowserFilters>({

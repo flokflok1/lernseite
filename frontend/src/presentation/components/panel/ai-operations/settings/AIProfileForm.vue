@@ -52,7 +52,7 @@ const availableModels = computed(() => {
 })
 
 const availableCategories = computed(() => {
-  const allCategories = getModelCategories()
+  const _allCategories = getModelCategories()
   const providerModels = getModelsByProvider(form.value.provider)
   const providerCategories = new Set<string>()
 

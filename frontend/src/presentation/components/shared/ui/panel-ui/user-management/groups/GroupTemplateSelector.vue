@@ -56,7 +56,7 @@
             </div>
             <div class="flex flex-wrap gap-1">
               <span
-                v-for="(feature, index) in template.default_features.slice(0, 5)"
+                v-for="(feature, _index) in template.default_features.slice(0, 5)"
                 :key="feature"
                 class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
               >

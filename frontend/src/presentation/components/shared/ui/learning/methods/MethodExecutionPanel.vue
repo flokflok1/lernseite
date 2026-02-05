@@ -98,7 +98,7 @@
  * Coordinates method execution, task management, and token balance
  * Refactored from 1601 LOC to ~250 LOC (-84%)
  */
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LearningMethod } from '@/domain/learning-methods'
 import MathTaskModal from './MathTaskModal.vue'
@@ -161,7 +161,7 @@ const {
   // Methods - Metadata
   getMethodIcon,
   getMethodName,
-  getMethodMetadata,
+  getMethodMetadata: _getMethodMetadata,
 
   // Methods - Task Generation
   canExecute,

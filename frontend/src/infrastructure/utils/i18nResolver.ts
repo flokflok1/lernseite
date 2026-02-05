@@ -149,7 +149,7 @@ export class I18nSchemaResolver {
           return germanTranslation
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Key resolution failed, use fallback
     }
 

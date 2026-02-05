@@ -141,7 +141,7 @@
  * ============================
  * Displays chapter theory content
  */
-import { computed } from 'vue'
+import { computed as _computed } from 'vue'
 
 interface Props {
   theoryData: any | null

@@ -233,7 +233,7 @@
       :editing-method="editingMethod"
       :edit-form="editForm"
       @close="editingMethod = null"
-      @save="saveEditedMethod(editingMethod)"
+      @save="handleSaveFromModal"
     />
   </div>
 </template>
@@ -243,7 +243,7 @@ import { ref } from 'vue'
 import { useLearningMethods } from './composables/useLearningMethods.ts'
 import { InstancesTab, CatalogTab, StatsTab } from './tabs/index.ts'
 import LearningMethodEditModal from './LearningMethodEditModal.vue'
-import type { AdminLearningMethod, LearningMethodType } from '@/application/services/api/admin'
+import type { AdminLearningMethod, LearningMethodType as _LearningMethodType } from '@/application/services/api/admin'
 
 interface Props {
   window: {
@@ -268,26 +268,26 @@ const editingMethod = ref<AdminLearningMethod | null>(null)
 // Use composable for all business logic
 const {
   methods,
-  methodTypes,
+  methodTypes: _methodTypes,
   loading,
   error,
   saveStatus,
   selectorGroup,
-  selectedGroup,
+  selectedGroup: _selectedGroup,
   catalogActiveGroup,
   editForm,
   stats,
   dragState,
-  chapterId,
+  chapterId: _chapterId,
   chapterTitle,
-  courseId,
+  courseId: _courseId,
   courseTitle,
   sortedMethods,
   methodGroups,
-  filteredMethodTypes,
+  filteredMethodTypes: _filteredMethodTypes,
   selectorMethodTypes,
   loadLearningMethods,
-  calculateStats,
+  calculateStats: _calculateStats,
   getMethodTypeName,
   getGroupPosition,
   getGroupPositionById,
@@ -306,8 +306,28 @@ const {
   handleDragOver,
   handleDrop,
   handleDragEnd,
-  handleLearningMethodUpdate
+  handleLearningMethodUpdate: _handleLearningMethodUpdate
 } = useLearningMethods(props)
+
+// Handle save from modal with form data
+interface EditFormData {
+  title: string
+  instructions: string
+  duration_minutes: number
+  difficulty: 'easy' | 'medium' | 'hard'
+  tier: 'basic' | 'premium' | 'pro'
+}
+
+function handleSaveFromModal(formData: EditFormData): void {
+  if (!editingMethod.value) return
+  // Merge form data with editing method and save
+  const updatedMethod = {
+    ...editingMethod.value,
+    ...formData
+  }
+  saveEditedMethod(updatedMethod)
+  editingMethod.value = null
+}
 
 // Load on mount
 import { onMounted } from 'vue'

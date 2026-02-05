@@ -9,7 +9,6 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
   LessonExplanation,
-  ExplanationStep,
   ExplanationStyle
 } from '../types/explanation.types'
 
@@ -217,8 +216,8 @@ function useHttp() {
   // This would be injected from main.ts or similar
   // For now, we'll export a reference to be filled in during implementation
   return {
-    get: async (url: string) => ({ data: { success: false, data: null } }),
-    post: async (url: string, data: any) => ({ data: { success: false, data: null } }),
-    delete: async (url: string) => ({ data: { success: false, data: null } })
+    get: async (_url: string) => ({ data: { success: false, data: null } }),
+    post: async (_url: string, _data: any) => ({ data: { success: false, data: null } }),
+    delete: async (_url: string) => ({ data: { success: false, data: null } })
   }
 }

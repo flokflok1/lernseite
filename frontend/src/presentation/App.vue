@@ -80,7 +80,7 @@ const checkBackendHealth = async (): Promise<boolean> => {
       signal: AbortSignal.timeout(3000) // 3 second timeout
     })
     return response.ok
-  } catch (error) {
+  } catch {
     // Backend is unreachable (suppress error logging to avoid console spam)
     return false
   }
@@ -203,7 +203,7 @@ const retryConnection = async () => {
 }
 
 // Show tutor only when logged in and not on excluded pages
-const showTutor = computed(() => {
+const _showTutor = computed(() => {
   // Must be authenticated
   if (!authStore.isAuthenticated) return false
 

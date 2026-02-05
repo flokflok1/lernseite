@@ -3,7 +3,7 @@
  * =============================
  * Manages course overview data, progress, and chapter navigation
  */
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePlayerStore } from '@/application/stores/player.store'
 import { useTutorStore } from '@/application/stores/tutor.store'

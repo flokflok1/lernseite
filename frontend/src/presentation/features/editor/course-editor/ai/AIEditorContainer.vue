@@ -11,7 +11,7 @@ import ContentGenerator from './ContentGenerator.vue'
 import VariantSelector from './VariantSelector.vue'
 import GenerationHistory from './GenerationHistory.vue'
 import SourceSelectionContainer from './SourceSelectionContainer.vue'
-import { ContentEditor, PreviewPanel, StructurePanel, ToolbarActions } from '../shared'
+import { ContentEditor, PreviewPanel, StructurePanel } from '../shared'
 import { TheoryGenerationContainer } from '../content-generation'
 import { ExplanationGenerationContainer } from '../explanation-generation'
 

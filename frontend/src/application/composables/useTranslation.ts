@@ -5,7 +5,7 @@
  * Integrates with vue-i18n and provides caching.
  */
 
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getBundle, getLanguages, type LanguageProgress } from '@/application/services/api/system'
 
@@ -21,7 +21,7 @@ const loadError = ref<string | null>(null)
  * Main translation composable
  */
 export function useTranslation() {
-  const { t, locale, setLocaleMessage, mergeLocaleMessage, getLocaleMessage, availableLocales } = useI18n()
+  const { t, locale, mergeLocaleMessage, availableLocales } = useI18n()
 
   /**
    * Load translations for a language from API
@@ -62,7 +62,7 @@ export function useTranslation() {
       try {
         localStorage.setItem(`lsx-i18n-${cacheKey}`, JSON.stringify(bundle))
         localStorage.setItem(`lsx-i18n-${cacheKey}-time`, Date.now().toString())
-      } catch (e) {
+      } catch (_e) {
         // localStorage might be full, ignore
       }
     } catch (error: any) {
@@ -152,7 +152,7 @@ export function useTranslation() {
       const languages = await getLanguages()
       languagesCache.value = languages
       return languages
-    } catch (error) {
+    } catch (_error) {
       // API not available - build from available locales
       console.warn('[i18n] Could not fetch languages from API, using available locales')
 

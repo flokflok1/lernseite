@@ -15,7 +15,6 @@
 
 import http from '@/infrastructure/api/http'
 import type {
-  QueueItem,
   QueueItemResponse,
   QueueListResponse,
   AssignmentRequest,

@@ -261,7 +261,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { defineProps, defineEmits } from 'vue'
 import type { RoleWithStats, SystemFeature } from '@/application/services/api/admin'
 import type { Permission } from '@/application/services/api/admin'

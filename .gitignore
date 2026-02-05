@@ -164,3 +164,4 @@ backend/ai_models/**/*.onnx
 *.bin
 *.safetensors
 .__archive/
+.claude/settings.local.json

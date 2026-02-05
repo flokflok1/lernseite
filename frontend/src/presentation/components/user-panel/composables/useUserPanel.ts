@@ -198,7 +198,7 @@ export function useUserPanel() {
   /**
    * Delete user account
    */
-  const deleteAccount = async (password: string) => {
+  const deleteAccount = async (_password: string) => {
     if (!currentUser.value) {
       error.value = 'User not authenticated'
       return false

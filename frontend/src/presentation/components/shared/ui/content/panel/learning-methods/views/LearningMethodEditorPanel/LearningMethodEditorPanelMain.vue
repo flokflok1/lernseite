@@ -139,7 +139,7 @@
       :get-group-position-by-id="getGroupPositionById"
       :get-method-type-name="getMethodTypeName"
       @close="editingMethodId = null"
-      @save="handleSaveMethod"
+      @save="handleSaveMethodFromModal"
     />
   </div>
 </template>
@@ -345,7 +345,15 @@ function handleReorderMethods(methods: AdminLearningMethod[]): void {
   emit('update:methods', methods)
 }
 
-function handleSaveMethod(): void {
+interface EditFormData {
+  title: string
+  instructions: string
+  duration_minutes: number
+  difficulty: 'easy' | 'medium' | 'hard'
+  tier: 'basic' | 'premium' | 'pro'
+}
+
+function handleSaveMethodFromModal(formData: EditFormData): void {
   if (!editingMethod.value) return
 
   saveStatus.value = 'saving'
@@ -360,7 +368,7 @@ function handleSaveMethod(): void {
 
   emit('save-method', {
     ...editingMethod.value,
-    ...editForm.value
+    ...formData
   })
 }
 

@@ -273,7 +273,7 @@ import { usePanelStore } from '@/application/stores/modules/desktop'
 import type { Category } from '@/application/services/api/admin'
 
 const { t } = useI18n()
-const router = useRouter()
+const _router = useRouter()
 const panelStore = usePanelStore()
 const windowStore = usePanelStore()
 
@@ -291,7 +291,7 @@ let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 const flatCategories = computed((): Category[] => {
   const result: Category[] = []
-  const flatten = (nodes: any[], parentLevel: number = 0) => {
+  const flatten = (nodes: any[], _parentLevel: number = 0) => {
     for (const node of nodes) {
       result.push({
         category_id: node.category_id,

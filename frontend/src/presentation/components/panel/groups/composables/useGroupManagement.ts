@@ -4,7 +4,7 @@
  * Manages group CRUD operations and permissions (Group-Based Access Control)
  */
 
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import {
   fetchGroups as fetchGroupsAPI,
   createGroup as createGroupAPI,

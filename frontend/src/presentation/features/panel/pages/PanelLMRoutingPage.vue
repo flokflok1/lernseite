@@ -54,7 +54,7 @@ const modelsByCategory = computed(() => {
 })
 
 // Get category info by code
-const getCategoryInfo = (code: string) => categories.find(c => c.code === code)
+const getCategoryInfo = (code: string) => categories.value.find(c => c.code === code)
 
 // What categories does each LM need?
 const getLMRequirements = (lm: LMSlotOverview) => {

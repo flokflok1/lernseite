@@ -24,7 +24,7 @@
             {{ $t('windows.learningMethodEditor.title') }}
           </label>
           <input
-            v-model="editForm.title"
+            v-model="localForm.title"
             type="text"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             :placeholder="$t('windows.learningMethodEditor.titlePlaceholder')"
@@ -37,7 +37,7 @@
             {{ $t('windows.learningMethodEditor.instructions') }}
           </label>
           <textarea
-            v-model="editForm.instructions"
+            v-model="localForm.instructions"
             rows="3"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none"
             :placeholder="$t('windows.learningMethodEditor.instructionsPlaceholder')"
@@ -52,7 +52,7 @@
             </label>
             <div class="flex items-center gap-2">
               <input
-                v-model.number="editForm.duration_minutes"
+                v-model.number="localForm.duration_minutes"
                 type="number"
                 min="0"
                 max="480"
@@ -70,7 +70,7 @@
               {{ $t('windows.learningMethodEditor.difficulty') }}
             </label>
             <select
-              v-model="editForm.difficulty"
+              v-model="localForm.difficulty"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             >
               <option value="easy">{{ $t('windows.learningMethodEditor.easy') }}</option>
@@ -86,7 +86,7 @@
             {{ $t('windows.learningMethodEditor.tier') }}
           </label>
           <select
-            v-model="editForm.tier"
+            v-model="localForm.tier"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           >
             <option value="basic">{{ $t('windows.learningMethodEditor.tierOptions.basic') }}</option>
@@ -105,7 +105,7 @@
           {{ $t('windows.learningMethodEditor.cancel') }}
         </button>
         <button
-          @click="$emit('save')"
+          @click="handleSave"
           class="flex-1 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-colors"
         >
           {{ $t('windows.learningMethodEditor.save') }}
@@ -116,26 +116,60 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import type { AdminLearningMethod } from '@/application/services/api/admin'
+
+interface EditFormData {
+  title: string
+  instructions: string
+  duration_minutes: number
+  difficulty: 'easy' | 'medium' | 'hard'
+  tier: 'basic' | 'premium' | 'pro'
+}
 
 interface Props {
   editingMethod: AdminLearningMethod | null
-  editForm: {
-    title: string
-    instructions: string
-    duration_minutes: number
-    difficulty: 'easy' | 'medium' | 'hard'
-    tier: 'basic' | 'premium' | 'pro'
-  }
+  editForm: EditFormData
 }
 
 interface Emits {
   (e: 'close'): void
-  (e: 'save'): void
+  (e: 'save', formData: EditFormData): void
 }
 
-defineProps<Props>()
-defineEmits<Emits>()
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+// Local state for controlled component pattern (no prop mutation)
+const localForm = ref<EditFormData>({
+  title: '',
+  instructions: '',
+  duration_minutes: 0,
+  difficulty: 'medium',
+  tier: 'basic'
+})
+
+// Sync local state when prop changes (deep clone to avoid reference sharing)
+watch(
+  () => props.editForm,
+  (newForm) => {
+    if (newForm) {
+      localForm.value = {
+        title: newForm.title ?? '',
+        instructions: newForm.instructions ?? '',
+        duration_minutes: newForm.duration_minutes ?? 0,
+        difficulty: newForm.difficulty ?? 'medium',
+        tier: newForm.tier ?? 'basic'
+      }
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+// Emit form data on save
+function handleSave(): void {
+  emit('save', { ...localForm.value })
+}
 </script>
 
 <style scoped>

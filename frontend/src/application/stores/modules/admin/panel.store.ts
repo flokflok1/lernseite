@@ -34,12 +34,7 @@ import type {
   AdminChapterCreateRequest,
   AdminChapterUpdateRequest,
   Category,
-  CategoryTreeNode,
-  CategoryTree,
-  AIJob,
-  AIJobStatus,
-  AIJobType,
-  AICourseDraft
+  CategoryTreeNode
 } from '@/application/services/api/admin'
 
 export const usePanelStore = defineStore('panel', () => {

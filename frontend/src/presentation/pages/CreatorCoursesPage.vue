@@ -270,7 +270,7 @@ import * as coursesApi from '@/application/services/api/content'
 import type { CourseListItem } from '@/application/services/api/content'
 
 const { t } = useI18n()
-const router = useRouter()
+const _router = useRouter()
 
 // State
 const courses = ref<CourseListItem[]>([])

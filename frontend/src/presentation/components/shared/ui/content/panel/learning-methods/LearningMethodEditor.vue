@@ -558,7 +558,7 @@ import type { LsxPanel } from '@/application/stores/modules/desktop'
 import {
   adminGetLearningMethodTypes,
   adminGetChapterLearningMethods,
-  adminCreateLearningMethod,
+  adminCreateLearningMethod as _adminCreateLearningMethod,
   adminUpdateLearningMethod,
   adminDeleteLearningMethod,
   adminReorderLearningMethods,
@@ -657,7 +657,7 @@ const methodGroups = computed(() => [
   { id: 'F' as LearningMethodGroup, label: t('features.learningMethodEditor.groups.F'), count: 7 }
 ])
 
-const filteredMethodTypes = computed(() => {
+const _filteredMethodTypes = computed(() => {
   if (!selectedGroup.value) return methodTypes.value
   return methodTypes.value.filter(mt => mt.group === selectedGroup.value)
 })

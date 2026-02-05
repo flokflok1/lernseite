@@ -111,7 +111,7 @@ const emit = defineEmits<{
 
 // i18n
 const { t } = useI18n()
-const { currentLanguage, setLanguage, fetchLanguages, isLoading } = useTranslation()
+const { currentLanguage, setLanguage, fetchLanguages, isLoading: _isLoading } = useTranslation()
 
 // State
 const isOpen = ref(false)
@@ -128,7 +128,7 @@ const otherLanguages = computed(() =>
   languages.value.filter(l => l.active && l.priority > 3 && Number(l.completion_percent) > 50)
 )
 
-const currentLang = computed(() =>
+const _currentLang = computed(() =>
   languages.value.find(l => l.language_code === currentLanguage.value)
 )
 

@@ -253,7 +253,7 @@ const filteredPrompts = computed(() => {
 
 // Methods
 const getScopeIcon = (scope: string): string => {
-  const found = availableScopes.find(s => s.value === scope)
+  const found = availableScopes.value.find(s => s.value === scope)
   return found?.icon || '📋'
 }
 

@@ -9,7 +9,7 @@
  * - TTS (Text-to-Speech) integration
  * - Whiteboard actions coordination
  */
-import { ref, computed, watch, onUnmounted, type Ref } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/application/services/api/system'
 import type InteractiveWhiteboard from '../../InteractiveWhiteboard.vue'

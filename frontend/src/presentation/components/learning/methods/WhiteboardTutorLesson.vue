@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { InteractiveWhiteboard, OnScreenCalculator, RealisticTeacher3D } from '@/presentation/components/system-features/tutor/user'
 import {
@@ -261,7 +261,7 @@ function onCalculatorCorrect(result: number) {
   timeline.submitCalculatorResult(result, true)
 }
 
-function onCalculatorWrong(result: number) {
+function onCalculatorWrong(_result: number) {
   // Keep calculator open for retry
 }
 

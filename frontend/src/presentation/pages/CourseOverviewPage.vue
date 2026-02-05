@@ -69,7 +69,7 @@ import {
   // REMOVED: CourseDetailsSections (not found)
   useCourseOverview
 } from '@/presentation/components/content/user/courses/overview'
-import type { Chapter } from '@/application/services/api/learning'
+import type { Chapter as _Chapter } from '@/application/services/api/learning'
 
 // ============================================================================
 // Setup
@@ -91,13 +91,13 @@ const {
   // Computed - Progress
   totalChapters,
   completedChapters,
-  progressPercentage,
-  averageGrade,
-  learningTimeFormatted,
+  progressPercentage: _progressPercentage,
+  averageGrade: _averageGrade,
+  learningTimeFormatted: _learningTimeFormatted,
   currentChapterIndex,
   // Methods - Chapter Status
-  isCompleted,
-  isCurrent,
+  isCompleted: _isCompleted,
+  isCurrent: _isCurrent,
   isLocked,
   getChapterStatus,
   // Methods - Navigation

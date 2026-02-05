@@ -12,7 +12,7 @@ interface Message {
   timestamp: Date
 }
 
-const messages = ref<Message[]>([])
+const _messages = ref<Message[]>([])
 const inputText = ref('')
 
 const sendMessage = async () => {

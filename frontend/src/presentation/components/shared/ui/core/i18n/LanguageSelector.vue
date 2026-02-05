@@ -98,7 +98,7 @@ const emit = defineEmits<{
 
 // i18n
 const { t } = useI18n()
-const { currentLanguage, setLanguage, fetchLanguages, isLoading } = useTranslation()
+const { currentLanguage, setLanguage, fetchLanguages, isLoading: _isLoading } = useTranslation()
 
 // State
 const isOpen = ref(false)

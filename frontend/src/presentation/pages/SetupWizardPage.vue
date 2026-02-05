@@ -75,7 +75,7 @@ import SetupAIConfigStep from './steps/SetupAIConfigStep.vue'
 import SetupSeedStep from './steps/SetupSeedStep.vue'
 import SetupFinishStep from './steps/SetupFinishStep.vue'
 
-const router = useRouter()
+const _router = useRouter()
 const { t } = useI18n()
 
 interface Step {

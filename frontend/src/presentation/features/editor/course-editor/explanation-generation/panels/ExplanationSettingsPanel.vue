@@ -6,7 +6,7 @@
 -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
+// Vue imports removed - not needed in this component
 import { useI18n } from 'vue-i18n'
 import type { LessonExplanation } from '../types/explanation.types'
 

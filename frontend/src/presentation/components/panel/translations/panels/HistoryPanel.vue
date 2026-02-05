@@ -13,9 +13,9 @@ import { useSyncManager } from '@/features/panel/useSyncManager'
 
 const { t } = useI18n()
 const {
-  syncHistory,
+  syncHistory: _syncHistory,
   historyPage,
-  historyPageSize,
+  historyPageSize: _historyPageSize,
   isLoadingHistory,
   paginatedHistory,
   historyTotalPages,

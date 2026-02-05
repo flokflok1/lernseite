@@ -12,7 +12,6 @@ import type {
   ComparisonPanelResponse,
   ApplyRequest,
   ApplyResponse,
-  RollbackRequest,
   RollbackResponse,
   HistoryListResponse,
   DashboardResponse,

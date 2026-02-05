@@ -4,7 +4,7 @@
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
-    <template #method-fields="{ form }">
+    <template #method-fields="{ form: _form }">
       <div class="space-y-4">
         <!-- Prüfungstyp -->
         <div>

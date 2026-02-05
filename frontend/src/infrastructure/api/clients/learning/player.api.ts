@@ -14,7 +14,6 @@ import {
   transformCourseFromAPI,
   transformChapterFromAPI,
   transformLessonFromAPI,
-  transformPaginationFromAPI,
   transformCourseProgressFromAPI,
   transformChapterProgressFromAPI,
   transformLessonProgressFromAPI,

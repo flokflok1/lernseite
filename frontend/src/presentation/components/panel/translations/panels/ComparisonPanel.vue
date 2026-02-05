@@ -38,7 +38,7 @@ const {
   paginatedComparisonItems,
   comparisonPage,
   comparisonTotalPages,
-  comparisonPageSize,
+  comparisonPageSize: _comparisonPageSize,
   pendingResolutionsCount,
   conflictsCount,
   isLoadingComparison,

@@ -14,6 +14,10 @@
     "test:watch": "vitest --config config/vitest.config.ts --watch",
     "test:coverage": "vitest --config config/vitest.config.ts --coverage",
     "test:ui": "vitest --config config/vitest.config.ts --ui",
+
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+
     "migrate:baseline": "node scripts/compare-bundle-size.js --baseline",
     "migrate:check": "node scripts/compare-bundle-size.js --check",
     "migrate:report": "node scripts/compare-bundle-size.js --report",
@@ -26,7 +30,7 @@
     "codemod:deprecations:apply": "npx jscodeshift -t scripts/transforms/add-deprecation-notices.js src/",
     "percy:baseline": "npm run build && percy exec -- npm run preview",
     "percy:test": "percy exec -- npm run preview",
-    "percy:approval": "echo '🎨 Review visual diffs at: https://percy.io/[project-slug]'"
+    "percy:approval": "echo \"🎨 Review visual diffs at: https://percy.io/[project-slug]\""
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",

@@ -87,7 +87,11 @@ INSERT INTO core.permissions (code, display_name, description, permission_type, 
     ('moderation.feedback:write', 'Create Moderation Feedback', 'Add feedback or notes on moderation decisions', 'general', 'moderation', TRUE),
 
     -- Organization Permissions
-    ('org.analytics:read', 'View Organization Analytics', 'View organization-level analytics and statistics', 'general', 'org', TRUE)
+    ('org.analytics:read', 'View Organization Analytics', 'View organization-level analytics and statistics', 'general', 'org', TRUE),
+
+    -- Runner Permissions (Learning Method Execution)
+    ('runner.sessions.execute', 'Execute Runner Sessions', 'Start, submit answers, and complete learning method sessions', 'general', 'runner', TRUE),
+    ('runner.sessions.read', 'Read Runner Sessions', 'View session state, progress, and history', 'general', 'runner', TRUE)
 ON CONFLICT (code) DO NOTHING;
 
 -- ============================================================================

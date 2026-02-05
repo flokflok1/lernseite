@@ -90,7 +90,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTTS } from '@/application/composables/useTTS'
 import type { Course, Lesson } from '@/types'
-import type { LessonExplanation } from '@/application/composables/useTheoryManagement'
+import type { LessonExplanation as _LessonExplanation } from '@/application/composables/useTheoryManagement'
 import InteractiveWhiteboard from '../../user/InteractiveWhiteboard.vue'
 import {
   ExplanationList,

@@ -188,11 +188,11 @@ watch(() => props.selectedTTSModel, (newVal) => {
 })
 
 // Emit changes to parent
-watch(selectedVoiceLocal, (newVal) => {
+watch(selectedVoiceLocal, (_newVal) => {
   // Parent will handle this via v-model in orchestrator
 })
 
-watch(selectedTTSModelLocal, (newVal) => {
+watch(selectedTTSModelLocal, (_newVal) => {
   // Parent will handle this via v-model in orchestrator
 })
 </script>

@@ -16,7 +16,6 @@ import {
   adminUploadCourseFile,
   adminDeleteCourseFile,
   type AdminCourseDetail,
-  type AdminChapter,
   type CourseFile,
   type CourseFileCategorySummary
 } from '@/application/services/api/admin'

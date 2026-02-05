@@ -83,7 +83,7 @@ const checkPermission = async () => {
     stream.getTracks().forEach(track => track.stop())
     hasPermission.value = true
     return true
-  } catch (err) {
+  } catch {
     hasPermission.value = false
     errorMessage.value = t('common.audio.microphoneAccessDenied')
     emit('error', errorMessage.value)

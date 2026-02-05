@@ -26,7 +26,6 @@ import {
   adminPauseRollout,
   adminResumeRollout,
   adminRollbackFeature,
-  adminToggleFeature,
   adminGetEnabledFeatures,
   adminGetFeaturesByCategory
 } from '@/application/services/api/admin'

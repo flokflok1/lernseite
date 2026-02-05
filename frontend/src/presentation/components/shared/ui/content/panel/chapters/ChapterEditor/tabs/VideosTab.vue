@@ -44,7 +44,7 @@ const handleUrlChange = (index: number, url: string) => {
   })
 }
 
-const getVideoPreview = (url: string): string | null => {
+const _getVideoPreview = (url: string): string | null => {
   if (!url) return null
 
   // YouTube

@@ -685,7 +685,7 @@ async function previewTemplate(template: PromptTemplate) {
       previewData.value = response.data.data
       showPreviewModal.value = true
     }
-  } catch (e: any) {
+  } catch {
     // Fallback: show raw template
     previewData.value = {
       system_prompt: template.system_prompt,

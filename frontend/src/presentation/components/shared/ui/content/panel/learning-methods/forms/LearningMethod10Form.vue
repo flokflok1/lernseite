@@ -4,7 +4,7 @@
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
-    <template #method-fields="{ form }">
+    <template #method-fields="{ form: _form }">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useI18n as _useI18n } from 'vue-i18n'
 import type { LsxPanel } from '@/application/stores/modules/desktop'
 import BaseLearningMethodForm from './BaseLearningMethodForm.vue'
 

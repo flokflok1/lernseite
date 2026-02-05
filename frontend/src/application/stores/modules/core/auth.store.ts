@@ -216,7 +216,7 @@ export const useAuthStore = defineStore('auth', () => {
               localStorage.setItem('access_token', refreshResponse.access_token)
               // Now try logout again with fresh token
               await authApi.logout()
-            } catch (refreshErr) {
+            } catch (_refreshErr) {
               // Refresh also failed - just proceed with local logout
               console.log('Refresh failed during logout, proceeding with local logout')
             }

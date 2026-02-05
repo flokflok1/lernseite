@@ -373,7 +373,7 @@ async function setAsDefault() {
     } else {
       showToast('error', t('windows.aiStudioGlobalSettings.setDefaultError'))
     }
-  } catch (error) {
+  } catch {
     showToast('error', t('windows.aiStudioGlobalSettings.setDefaultError'))
   }
 }
@@ -434,7 +434,7 @@ async function testProvider(provider: Provider) {
       response.data.success
         ? t('windows.aiStudioGlobalSettings.providerOk', { provider: provider.display_name })
         : t('windows.aiStudioGlobalSettings.providerFailed', { provider: provider.display_name }))
-  } catch (error) {
+  } catch {
     showToast('error', t('windows.aiStudioGlobalSettings.providerFailed', { provider: provider.display_name }))
   } finally {
     testingProvider.value = null

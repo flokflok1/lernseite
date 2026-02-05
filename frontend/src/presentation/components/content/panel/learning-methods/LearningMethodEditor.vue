@@ -559,7 +559,7 @@ import type { LsxWindow } from '@/application/stores/window.store'
 import {
   adminGetLearningMethodTypes,
   adminGetChapterLearningMethods,
-  adminCreateLearningMethod,
+  adminCreateLearningMethod as _adminCreateLearningMethod,
   adminUpdateLearningMethod,
   adminDeleteLearningMethod,
   adminReorderLearningMethods,
@@ -674,7 +674,7 @@ const methodGroups = computed(() => {
   })
 })
 
-const filteredMethodTypes = computed(() => {
+const _filteredMethodTypes = computed(() => {
   if (!selectedGroup.value) return methodTypes.value
   return methodTypes.value.filter(mt => mt.group === selectedGroup.value)
 })

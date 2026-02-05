@@ -13,7 +13,7 @@
  * REPLACES hardcoded tier logic with database-driven approach
  */
 
-import { computed, ref, type Ref, type ComputedRef } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import { useUserStore } from '@/application/stores/modules/core/user.store'
 import { useGroupTier } from '@/application/composables/useGroupTier'
 import type { AdminLearningMethod, LearningMethodType } from '@/application/services/api/admin'

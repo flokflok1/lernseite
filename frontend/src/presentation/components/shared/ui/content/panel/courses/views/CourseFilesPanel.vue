@@ -241,7 +241,7 @@ const handleFileSelect = async (event: Event) => {
   try {
     // Upload each file
     for (const file of Array.from(selectedFiles)) {
-      const response = await adminUploadCourseFile(courseId.value, file, {
+      const _response = await adminUploadCourseFile(courseId.value, file, {
         file_category: 'material'
       })
 

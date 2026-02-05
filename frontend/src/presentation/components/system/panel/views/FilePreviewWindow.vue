@@ -321,7 +321,7 @@ async function loadChapterLessons() {
     if (res.data.success) {
       chapterLessons.value = res.data.data?.lessons || res.data.lessons || []
     }
-  } catch (err: any) {
+  } catch {
     error.value = 'Lektionen konnten nicht geladen werden'
   } finally {
     loading.value = false

@@ -403,7 +403,7 @@ function getShortKey(keyPath: string): string {
   return parts.slice(1).join('.') || keyPath
 }
 
-function getLanguageFlag(code: string): string {
+function _getLanguageFlag(code: string): string {
   const lang = languages.value.find(l => l.language_code === code)
   return lang?.flag_emoji || '🌐'
 }
@@ -490,7 +490,7 @@ async function saveTranslation(item: TranslationItem) {
 
     statusMessage.value = { type: 'success', text: t('panel.translations.saved') }
     setTimeout(() => statusMessage.value = null, 2000)
-  } catch (error: any) {
+  } catch {
     statusMessage.value = { type: 'error', text: t('panel.translations.saveFailed') }
   } finally {
     cancelEdit()

@@ -324,7 +324,7 @@ async function loadChapterLessons() {
     if (res.data.success) {
       chapterLessons.value = res.data.data?.lessons || res.data.lessons || []
     }
-  } catch (err: any) {
+  } catch {
     error.value = t('windows.filePreview.lessonsLoadError')
   } finally {
     loading.value = false

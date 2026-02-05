@@ -411,7 +411,7 @@ export const usePlayerStore = defineStore('player', () => {
       try {
         const attempts = await playerApi.getQuizAttempts(lessonId)
         quizAttempts.value = attempts
-      } catch (err) {
+      } catch (_err) {
         // Attempt history not critical
         quizAttempts.value = []
       }

@@ -157,7 +157,7 @@ import Card from '@/presentation/components/shared/ui/Card.vue'
 
 const { t } = useI18n()
 const themeStore = useThemeStore()
-const authStore = useAuthStore()
+const _authStore = useAuthStore()
 
 const loading = ref(true)
 const saving = ref(false)

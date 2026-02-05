@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { MethodGroupStats, GroupInfo } from '../types'
+import type { MethodGroupStats, GroupInfo as _GroupInfo } from '../types'
 
 interface Props {
   methodStats: Record<string, MethodGroupStats>

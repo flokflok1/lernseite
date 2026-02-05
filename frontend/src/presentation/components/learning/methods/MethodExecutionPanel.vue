@@ -98,7 +98,7 @@
  * Coordinates method execution, task management, and token balance
  * Refactored from 1601 LOC to ~250 LOC (-84%)
  */
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LearningMethod } from '@/types/learning-methods'
 // REMOVED: import MathTaskModal (file not found)
@@ -136,14 +136,14 @@ const {
 
   // State - Tasks
   generatedTasks,
-  selectedTaskIndex,
+  selectedTaskIndex: _selectedTaskIndex,
   selectedTasks,
 
   // State - UI
   isExecuting,
   errorMessage,
   showAllTasksModal,
-  showTaskModal,
+  showTaskModal: _showTaskModal,
 
   // State - Modal Filters
   sortBy,
@@ -160,7 +160,7 @@ const {
   // Methods - Metadata
   getMethodIcon,
   getMethodName,
-  getMethodMetadata,
+  getMethodMetadata: _getMethodMetadata,
 
   // Methods - Task Generation
   canExecute,
@@ -168,8 +168,8 @@ const {
 
   // Methods - Task Management
   openTaskModal,
-  closeTaskModal,
-  handleTaskComplete,
+  closeTaskModal: _closeTaskModal,
+  handleTaskComplete: _handleTaskComplete,
   toggleTaskSelection,
   toggleAllTasks,
   deleteTask,

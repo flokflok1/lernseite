@@ -7,7 +7,7 @@
  */
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { StructurePanel, ContentEditor, PreviewPanel, ToolbarActions } from '../shared'
 import { TheoryGenerationContainer } from '../content-generation'
 import { ExplanationGenerationContainer } from '../explanation-generation'

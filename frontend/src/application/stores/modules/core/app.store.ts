@@ -42,7 +42,7 @@ export const useAppStore = defineStore('app', () => {
           return true
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Static file doesn't exist or fetch failed - this is OK
       // It just means setup was never completed
       console.log('[App Store] No static marker found (setup not completed yet)')

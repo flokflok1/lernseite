@@ -14,7 +14,7 @@ interface Category {
   count: number
 }
 
-interface CategoryOption {
+interface _CategoryOption {
   label: string
   value: string
   icon: string

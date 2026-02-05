@@ -5,7 +5,7 @@ import { useAISettings, type AIProfile } from './composables/useAISettings'
 import AIProfileForm from './AIProfileForm.vue'
 
 const { t } = useI18n()
-const { settings, profilesLoading, loadProfiles, deleteProfile, getModelsByProvider } = useAISettings()
+const { settings, profilesLoading, loadProfiles, deleteProfile, getModelsByProvider: _getModelsByProvider } = useAISettings()
 
 const showForm = ref(false)
 const editingProfile = ref<AIProfile | null>(null)

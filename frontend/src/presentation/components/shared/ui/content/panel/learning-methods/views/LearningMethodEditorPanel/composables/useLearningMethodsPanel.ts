@@ -20,7 +20,6 @@ import { useGroupTier } from '@/application/composables/useGroupTier'
 import {
   adminGetLearningMethodTypes,
   adminGetChapterLearningMethods,
-  adminCreateLearningMethod,
   adminUpdateLearningMethod,
   adminDeleteLearningMethod,
   adminReorderLearningMethods,
@@ -32,7 +31,7 @@ import {
 } from '@/application/services/api/admin'
 
 export function useLearningMethodsPanel(props: any) {
-  const { t } = useI18n()
+  const { t: _t } = useI18n()
   const panelStore = usePanelStore()
   const groupTier = useGroupTier()
 

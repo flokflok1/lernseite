@@ -475,7 +475,7 @@ const generateExam = async () => {
   if (!generateForm.value.title || totalQuestions.value < 5) return
 
   try {
-    const result = await adminGenerateExam(props.courseId, generateForm.value)
+    const _result = await adminGenerateExam(props.courseId, generateForm.value)
     showGenerateDialog.value = false
 
     // Reset form

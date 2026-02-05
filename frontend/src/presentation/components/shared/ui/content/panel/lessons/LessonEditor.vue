@@ -402,7 +402,7 @@ let saveTimeout: number | null = null
 
 // Computed
 const isNewLesson = computed(() => !props.panel.payload?.lessonId)
-const courseId = computed(() => props.panel.payload?.courseId as string)  // UUID
+const _courseId = computed(() => props.panel.payload?.courseId as string)  // UUID
 const moduleId = computed(() => props.panel.payload?.moduleId as number)
 const lessonId = computed(() => props.panel.payload?.lessonId as string | undefined)  // UUID
 

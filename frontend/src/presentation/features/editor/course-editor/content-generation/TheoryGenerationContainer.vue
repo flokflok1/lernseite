@@ -44,8 +44,8 @@ const {
   isLoading,
   isGenerating,
   error,
-  currentTheoryTitle,
-  currentTheoryStyle
+  currentTheoryTitle: _currentTheoryTitle,
+  currentTheoryStyle: _currentTheoryStyle
 } = theoryMgmt
 
 // Combined error (local + from composable)

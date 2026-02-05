@@ -35,7 +35,7 @@ const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 const {
-  state,
+  state: _state,
   currentStep,
   isLoading,
   error,
@@ -43,9 +43,9 @@ const {
   uploadedFile,
   pdfAnalysis,
   sessionData,
-  canProceedToUpload,
-  canProceedToSummary,
-  canFinalize,
+  canProceedToUpload: _canProceedToUpload,
+  canProceedToSummary: _canProceedToSummary,
+  canFinalize: _canFinalize,
   selectSourceType,
   uploadPDFFile,
   createManualSession,
@@ -77,7 +77,7 @@ const handleSourceTypeSelected = (type: 'pdf' | 'manual' | 'template') => {
   selectSourceType(type)
 }
 
-const handlePDFUploadComplete = async () => {
+const _handlePDFUploadComplete = async () => {
   // PDF analysis and session creation happens in uploadPDFFile
   // Just transition to summary
 }

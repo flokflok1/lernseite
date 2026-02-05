@@ -13,7 +13,7 @@
     :method-code="METHOD_CODE"
     :additional-data="methodData"
   >
-    <template #method-fields="{ form }">
+    <template #method-fields="{ form: _form }">
       <!-- Fallstudie Titel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">

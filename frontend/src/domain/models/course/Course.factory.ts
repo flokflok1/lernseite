@@ -1,5 +1,4 @@
 import { Course } from './Course.model'
-import { Chapter } from './Chapter.model'
 
 /**
  * Course Factory

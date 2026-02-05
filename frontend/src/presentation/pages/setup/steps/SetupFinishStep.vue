@@ -66,7 +66,7 @@ interface VerifyResponse {
   timestamp?: string
 }
 
-const router = useRouter()
+const _router = useRouter()
 const appStore = useAppStore()
 
 const verifying = ref(false)

@@ -406,7 +406,7 @@ let saveTimeout: number | null = null
 
 // Computed
 const isNewLesson = computed(() => !props.window.payload?.lessonId)
-const courseId = computed(() => props.window.payload?.courseId as string)  // UUID
+const _courseId = computed(() => props.window.payload?.courseId as string)  // UUID
 const moduleId = computed(() => props.window.payload?.moduleId as number)
 const lessonId = computed(() => props.window.payload?.lessonId as string | undefined)  // UUID
 

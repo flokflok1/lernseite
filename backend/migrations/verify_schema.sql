@@ -97,10 +97,13 @@ SELECT
         ) THEN '✓ EXISTS'
         ELSE '✗ MISSING'
     END AS status
+-- RBAC→GBA migration: Replaced 'roles' with GBA tables (groups, users_groups, group_permissions)
 FROM (VALUES
     ('users'),
-    ('roles'),
+    ('groups'),
+    ('users_groups'),
     ('permissions'),
+    ('group_permissions'),
     ('organisations'),
     ('courses'),
     ('chapters'),
@@ -116,7 +119,6 @@ FROM (VALUES
     ('analytics_events'),
     ('notifications'),
     ('media_files'),
-    ('groups'),
     ('translations'),
     ('migration_history')
 ) AS v(table_name)
@@ -183,9 +185,16 @@ LIMIT 10;
 \echo ''
 
 -- 13. Verify system seeds
+-- RBAC→GBA migration: Replaced core.roles with GBA tables
 \echo '13. SYSTEM SEED DATA VERIFICATION'
 \echo '---'
-SELECT 'Roles:' AS entity, COUNT(*)::TEXT AS count FROM core.roles
+SELECT 'Groups (GBA):' AS entity, COUNT(*)::TEXT AS count FROM core.groups
+UNION ALL
+SELECT 'System Groups:', COUNT(*)::TEXT FROM core.groups WHERE is_system_group = TRUE
+UNION ALL
+SELECT 'Permissions:', COUNT(*)::TEXT FROM core.permissions
+UNION ALL
+SELECT 'Group-Permission Mappings:', COUNT(*)::TEXT FROM core.group_permissions
 UNION ALL
 SELECT 'AI Providers:', COUNT(*)::TEXT FROM ai_pipeline.ai_providers
 UNION ALL

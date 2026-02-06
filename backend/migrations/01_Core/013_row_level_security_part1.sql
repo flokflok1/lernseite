@@ -41,11 +41,12 @@ COMMENT ON FUNCTION current_organisation_id IS
 'Returns current organisation from session variable (set by middleware)';
 
 -- Funktion: Ist aktueller User Admin?
+-- RBAC→GBA migration: Replaced role_id=9 check with GBA permission check
 CREATE OR REPLACE FUNCTION is_admin_user()
 RETURNS BOOLEAN AS $$
 DECLARE
     v_user_id TEXT;
-    v_role_id INTEGER;
+    v_is_admin BOOLEAN;
 BEGIN
     -- Hole user_id aus Session
     v_user_id := current_setting('app.current_user_id', true);
@@ -54,13 +55,20 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- Prüfe ob User Admin-Rolle hat (role_id = 9)
-    SELECT role_id INTO v_role_id
-    FROM core.users
-    WHERE user_id = v_user_id::UUID
-    AND status = 'active';
+    -- GBA: Check if user is member of system-admin group (via users_groups)
+    -- This replaces the old hardcoded role_id = 9 check
+    SELECT EXISTS (
+        SELECT 1
+        FROM core.users_groups ug
+        JOIN core.groups g ON ug.group_id = g.id
+        WHERE ug.user_id = v_user_id::UUID
+          AND g.slug = 'system-admin'
+          AND g.is_system_group = TRUE
+          AND ug.is_active = TRUE
+          AND ug.left_at IS NULL
+    ) INTO v_is_admin;
 
-    RETURN v_role_id = 9;
+    RETURN COALESCE(v_is_admin, FALSE);
 EXCEPTION
     WHEN OTHERS THEN
         RETURN FALSE;
@@ -68,7 +76,7 @@ END;
 $$ LANGUAGE plpgsql STABLE;
 
 COMMENT ON FUNCTION is_admin_user IS
-'Checks if current user has admin role (bypasses RLS)';
+'Checks if current user is system-admin (GBA-based, bypasses RLS)';
 
 -- Funktion: Prüfe ob User zur Organisation gehört
 CREATE OR REPLACE FUNCTION user_belongs_to_organisation(

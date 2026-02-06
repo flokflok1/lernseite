@@ -82,24 +82,31 @@ $$ LANGUAGE plpgsql VOLATILE;
 COMMENT ON FUNCTION generate_certificate_number IS 'Generate unique certificate number (LSX-YY-XXXXXXXX)';
 
 -- Function: Check if user has permission
+-- RBAC→GBA migration: Replaced role_permissions with GBA group_permissions path
+-- Note: This function is also defined in 024_modify_users_for_groups.sql
+-- Keeping here for explicit documentation of the GBA permission check pattern
 CREATE OR REPLACE FUNCTION user_has_permission(p_user_id UUID, p_permission_code VARCHAR)
 RETURNS BOOLEAN AS $$
 DECLARE
     has_perm BOOLEAN;
 BEGIN
+    -- GBA: Check permission via users_groups → group_permissions → permissions
     SELECT EXISTS (
         SELECT 1
-        FROM core.users u
-        JOIN core.role_permissions rp ON u.role_id = rp.role_id
-        JOIN core.permissions p ON rp.permission_id = p.permission_id
-        WHERE u.user_id = p_user_id AND p.permission_key = p_permission_code
+        FROM core.users_groups ug
+        JOIN core.group_permissions gp ON ug.group_id = gp.group_id
+        JOIN core.permissions p ON gp.permission_id = p.id
+        WHERE ug.user_id = p_user_id
+          AND p.code = p_permission_code
+          AND ug.is_active = TRUE
+          AND ug.left_at IS NULL
     ) INTO has_perm;
 
-    RETURN has_perm;
+    RETURN COALESCE(has_perm, FALSE);
 END;
 $$ LANGUAGE plpgsql STABLE;
 
-COMMENT ON FUNCTION user_has_permission IS 'Check if user has specific permission';
+COMMENT ON FUNCTION user_has_permission IS 'Check if user has specific permission (GBA-based via group memberships)';
 
 -- ============================================================================
 -- VIEWS FOR COMMON QUERIES

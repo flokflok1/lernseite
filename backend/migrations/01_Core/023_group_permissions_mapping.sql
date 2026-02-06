@@ -78,125 +78,37 @@ WHERE p.is_system_permission = TRUE
 ON CONFLICT (group_id, permission_id) DO NOTHING;
 
 -- ============================================================================
--- 4. SEED PERMISSIONS FOR DEFAULT GROUPS
+-- 4. DYNAMIC PERMISSION MANAGEMENT (GBA Architecture)
 -- ============================================================================
-
--- Content Creators Group - Can create and edit courses
-INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
-SELECT
-    (SELECT id FROM core.groups WHERE slug = 'content-creators' LIMIT 1),
-    p.id,
-    NULL
-FROM core.permissions p
-WHERE p.code IN (
-    'courses.create',
-    'courses.edit',
-    'courses.view',
-    'chapters.create',
-    'chapters.edit',
-    'lessons.create',
-    'lessons.edit',
-    'learning_methods.create',
-    'posts.create',
-    'posts.edit',
-    'posts.delete',
-    'ai.generate',
-    'ai.advanced'
-)
-ON CONFLICT (group_id, permission_id) DO NOTHING;
-
--- Teachers Group - Can manage courses and students
-INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
-SELECT
-    (SELECT id FROM core.groups WHERE slug = 'teachers' LIMIT 1),
-    p.id,
-    NULL
-FROM core.permissions p
-WHERE p.code IN (
-    'courses.create',
-    'courses.edit',
-    'courses.view',
-    'chapters.create',
-    'chapters.edit',
-    'lessons.create',
-    'lessons.edit',
-    'courses.publish',
-    'posts.create',
-    'posts.edit',
-    'posts.delete',
-    'analytics.view',
-    'ai.generate',
-    'ai.advanced'
-)
-ON CONFLICT (group_id, permission_id) DO NOTHING;
-
--- Moderators Group - Can moderate content
-INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
-SELECT
-    (SELECT id FROM core.groups WHERE slug = 'content-moderators' LIMIT 1),
-    p.id,
-    NULL
-FROM core.permissions p
-WHERE p.code IN (
-    'content.moderate',
-    'users.ban',
-    'comments.moderate',
-    'analytics.view',
-    'audit_log.view'
-)
-ON CONFLICT (group_id, permission_id) DO NOTHING;
-
--- Support Team Group - Limited admin access
-INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
-SELECT
-    (SELECT id FROM core.groups WHERE slug = 'support-team' LIMIT 1),
-    p.id,
-    NULL
-FROM core.permissions p
-WHERE p.code IN (
-    'users.manage',
-    'analytics.view',
-    'audit_log.view',
-    'content.moderate'
-)
-ON CONFLICT (group_id, permission_id) DO NOTHING;
-
--- Premium Members Group - Advanced features
-INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
-SELECT
-    (SELECT id FROM core.groups WHERE slug = 'premium-members' LIMIT 1),
-    p.id,
-    NULL
-FROM core.permissions p
-WHERE p.code IN (
-    'ai.generate',
-    'ai.advanced',
-    'posts.create',
-    'posts.edit',
-    'posts.delete',
-    'comments.create'
-)
-ON CONFLICT (group_id, permission_id) DO NOTHING;
-
--- Regular Users Group - Basic permissions
-INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
-SELECT
-    (SELECT id FROM core.groups WHERE slug = 'system-users' LIMIT 1),
-    p.id,
-    NULL
-FROM core.permissions p
-WHERE p.code IN (
-    'courses.view',
-    'profile.edit',
-    'password.change',
-    'subscriptions.view',
-    'posts.create',
-    'posts.edit',
-    'posts.delete',
-    'comments.create',
-    'ai.generate'
-)
-ON CONFLICT (group_id, permission_id) DO NOTHING;
+-- RBAC→GBA migration: Hard-coded permission mappings removed.
+--
+-- BOOTSTRAP MINIMUM:
+--   - system-admin group gets ALL permissions (seeded above)
+--   - All other groups start with NO permissions
+--
+-- DYNAMIC PERMISSION ASSIGNMENT:
+--   Permissions for other groups (teachers, creators, premium, moderators, etc.)
+--   should be assigned via:
+--   - Admin Panel: Settings → Groups → [Group] → Permissions
+--   - API: POST /api/v1/admin/groups/{group_id}/permissions
+--
+-- RATIONALE:
+--   - Different organizations have different permission requirements
+--   - Admins can customize permissions per deployment
+--   - No hard-coded assumptions about group capabilities
+--   - First admin can configure all group permissions via Panel
+--
+-- AVAILABLE GROUPS (created above, no permissions by default):
+--   - system-users: Regular users
+--   - content-creators: Content authors
+--   - teachers: Course instructors
+--   - content-moderators: Content moderation staff
+--   - support-team: Support staff
+--   - premium-members: Premium subscribers
+--
+-- PERMISSION TEMPLATES (recommended for Panel UI):
+--   See: /api/v1/admin/permission-templates for suggested configurations
+-- ============================================================================
 
 -- ============================================================================
 -- 5. CREATE HELPER FUNCTION: Get permissions for a group

@@ -1,6 +1,7 @@
 {
   "groups": {
     "actions": "Actions",
+    "addPermissionPlaceholder": "Add permission (e.g. admin.system:read)",
     "affectedUsers": "Affected users",
     "allRoles": "All groups",
     "assignFeatures": "Assign features",
@@ -11,8 +12,10 @@
     "createSuccess": "Group created successfully",
     "createdAt": "Created at",
     "createdBy": "Created by",
+    "customGroups": "Custom Groups",
     "customRoles": "Custom groups",
     "delete": "Delete group",
+    "deleteConfirm": "Really delete group \"{name}\"?",
     "deleteSuccess": "Group deleted successfully",
     "deleteSystemWarning": "System groups cannot be deleted",
     "deleteWarning": "Delete group? All users with this group will be reassigned to another group.",
@@ -92,6 +95,7 @@
       "update": "Update group",
       "validate": "Validate"
     },
+    "groups": "Groups",
     "hierarchyLevel": "Hierarchy level",
     "icon": "Icon",
     "isCustom": "Custom group",
@@ -99,10 +103,21 @@
     "list": "Group list",
     "loading": "Loading groups...",
     "manageUsers": "Manage users",
+    "accessLevel": {
+      "owner": "Owner",
+      "member": "Member",
+      "viewer": "Viewer"
+    },
+    "accessLevelLabel": "Access level",
+    "membersCount": "{count} Members",
+    "newGroup": "New Group",
     "noCustomRoles": "No custom groups available",
+    "noMembers": "No members in this group",
+    "noPermissions": "No permissions assigned",
     "noRoles": "No groups found",
     "ownerOnly": "Owner-Admin only",
     "permissionCount": "Permissions",
+    "permissionsLabel": "Permissions",
     "permissions": {
       "assign": "Assign permissions",
       "assignSuccess": "{count} permissions assigned successfully",
@@ -121,6 +136,7 @@
     "reassignTo": "Reassign users to",
     "roleName": "Group name",
     "searchPlaceholder": "Search group...",
+    "selectGroupHint": "Select a group from the list",
     "selectTargetRole": "Select target group",
     "stats": {
       "avgFeatures": "Avg features per group",
@@ -131,7 +147,11 @@
       "totalUsers": "Assigned users"
     },
     "subtitle": "Dynamic group system with custom groups & feature assignments (GBA)",
+    "systemGroups": "System Groups",
     "systemRoles": "System groups",
+    "tabMembers": "Members",
+    "tabPermissions": "Permissions",
+    "tabRoles": "Groups",
     "templates": {
       "auditor": "Auditor",
       "auditorDesc": "Read-only access for compliance audits",
@@ -151,6 +171,9 @@
       "useTemplate": "Use template"
     },
     "title": "Group Management",
+    "typeCustom": "Custom",
+    "typeOrg": "Organization",
+    "typeSystem": "System",
     "updateSuccess": "Group updated successfully",
     "userCount": "Users",
     "viewUsers": "View users"

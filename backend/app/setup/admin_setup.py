@@ -232,7 +232,7 @@ class AdminSetup:
         # Uses admin_group_slug parameter instead of hardcoded 'system-admin'
         execute_query(
             """
-            INSERT INTO core.users_groups (user_id, group_id, member_role, created_at)
+            INSERT INTO core.users_groups (user_id, group_id, access_level, created_at)
             VALUES (%s, %s, %s, NOW())
             ON CONFLICT (user_id, group_id) DO NOTHING
             """,

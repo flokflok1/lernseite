@@ -104,7 +104,7 @@ class AuthorizationService:
                     g.group_type,
                     g.frontend_role,
                     g.hierarchy_level,
-                    ug.member_role,
+                    ug.access_level,
                     ug.joined_at
                 FROM core.users_groups ug
                 JOIN core.groups g ON ug.group_id = g.id
@@ -141,6 +141,6 @@ class AuthorizationService:
                 'slug': g['slug'],
                 'type': g['group_type'],
                 'hierarchy_level': g['hierarchy_level'],
-                'member_role': g.get('member_role')
+                'access_level': g.get('access_level')
             } for g in groups
         ]

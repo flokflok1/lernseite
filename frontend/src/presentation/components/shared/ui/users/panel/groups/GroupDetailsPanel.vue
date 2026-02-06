@@ -18,7 +18,7 @@
       </div>
       <div class="flex gap-2">
         <Button
-          v-if="group.type !== 'system_admin'"
+          v-if="!group.is_protected"
           variant="secondary"
           size="sm"
           @click="$emit('edit', group)"
@@ -31,7 +31,7 @@
     <!-- Permissions Section (GBA) -->
     <div class="mb-6">
       <div class="flex justify-between items-center mb-3">
-        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $t('panel.groups.permissions') }}</h3>
+        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $t('panel.groups.permissionsLabel') }}</h3>
         <div v-if="!editingPermissions">
           <Button size="sm" variant="secondary" @click="startEditing">
             {{ $t('common.edit') }}
@@ -92,18 +92,21 @@
       <div class="space-y-2 max-h-48 overflow-y-auto">
         <div
           v-for="member in users"
-          :key="member.id"
+          :key="member.user_id"
           class="flex items-center gap-3 p-2 rounded bg-gray-50 dark:bg-gray-800"
         >
           <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium">
-            {{ member.user_id.charAt(0).toUpperCase() }}
+            {{ (member.full_name || member.username || '?').charAt(0).toUpperCase() }}
           </div>
           <div class="flex-1 min-w-0">
             <div class="font-medium text-gray-900 dark:text-white truncate">
-              {{ member.user_id }}
+              {{ member.full_name || member.username }}
             </div>
-            <div class="text-xs text-gray-500 truncate">{{ member.role }}</div>
+            <div class="text-xs text-gray-500 truncate">{{ member.email }}</div>
           </div>
+          <span class="px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+            {{ $t(`panel.groups.accessLevel.${member.access_level}`, member.access_level) }}
+          </span>
         </div>
         <p v-if="users.length === 0" class="text-gray-500 text-sm p-2">
           {{ $t('panel.groups.noMembers') }}
@@ -152,11 +155,9 @@ const emit = defineEmits<{
 // Computed
 const groupColorClass = computed(() => {
   if (!props.group) return 'bg-gray-600'
-  switch (props.group.type) {
-    case 'system_admin': return 'bg-red-600'
-    case 'org_admin': return 'bg-blue-600'
-    default: return 'bg-green-600'
-  }
+  if (props.group.is_protected) return 'bg-red-600'
+  if (props.group.is_system_group) return 'bg-blue-600'
+  return 'bg-green-600'
 })
 
 const groupTypeLabel = computed(() => {

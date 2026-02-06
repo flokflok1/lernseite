@@ -38,15 +38,12 @@ export function useGroupsManagement() {
   const error = ref<string | null>(null)
   const totalGroups = ref(0)
 
-  // Computed
+  // Computed - classify by is_system_group flag (covers all group_type values)
   const systemGroups = computed(() =>
-    groups.value.filter(g => g.type === 'system_admin')
-  )
-  const orgGroups = computed(() =>
-    groups.value.filter(g => g.type === 'org_admin')
+    groups.value.filter(g => g.is_system_group)
   )
   const customGroups = computed(() =>
-    groups.value.filter(g => g.type === 'custom')
+    groups.value.filter(g => !g.is_system_group)
   )
 
   // Load all groups
@@ -71,14 +68,27 @@ export function useGroupsManagement() {
     error.value = null
 
     try {
-      const [fullGroup, members, permissions] = await Promise.all([
+      const [groupResult, membersResult, permissionsResult] = await Promise.allSettled([
         fetchGroup(group.id),
         fetchGroupMembers(group.id),
         fetchGroupPermissions(group.id)
       ])
-      selectedGroup.value = fullGroup
-      groupMembers.value = members.data
-      groupPermissions.value = permissions.data
+
+      if (groupResult.status === 'fulfilled') {
+        selectedGroup.value = groupResult.value
+      }
+      if (membersResult.status === 'fulfilled') {
+        groupMembers.value = membersResult.value.data
+      } else {
+        groupMembers.value = []
+        console.error('[GBA] Failed to load members:', membersResult.reason)
+      }
+      if (permissionsResult.status === 'fulfilled') {
+        groupPermissions.value = permissionsResult.value.data
+      } else {
+        groupPermissions.value = []
+        console.error('[GBA] Failed to load permissions:', permissionsResult.reason)
+      }
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to load group details'
       console.error('[GBA] Failed to load group details:', e)
@@ -239,7 +249,6 @@ export function useGroupsManagement() {
     totalGroups,
     // Computed
     systemGroups,
-    orgGroups,
     customGroups,
     // Methods
     loadGroups,

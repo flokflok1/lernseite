@@ -18,7 +18,8 @@ import type {
   ErrorResponse
 } from '@/presentation/components/admin/translations/types/sync.types'
 
-const BASE_URL = '/api/v1/admin/i18n-sync'
+// Note: http.ts already has baseURL '/api/v1', so we only need the relative path
+const BASE_URL = '/admin/i18n-sync'
 
 /**
  * i18n Sync API Service

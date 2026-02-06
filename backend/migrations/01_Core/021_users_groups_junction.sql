@@ -16,7 +16,7 @@ CREATE TABLE core.users_groups (
     group_id UUID NOT NULL REFERENCES core.groups(id) ON DELETE CASCADE,
 
     -- Membership Details
-    member_role VARCHAR(50) NOT NULL DEFAULT 'member',  -- member, editor, owner, moderator, admin
+    access_level VARCHAR(50) NOT NULL DEFAULT 'member',  -- owner, member, viewer
     joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     left_at TIMESTAMP WITH TIME ZONE,  -- Soft delete: NULL = still member, has value = left
 
@@ -32,12 +32,10 @@ CREATE TABLE core.users_groups (
     CONSTRAINT unique_user_per_group UNIQUE(user_id, group_id),
 
     -- Constraints
-    CONSTRAINT chk_member_role CHECK (member_role IN (
-        'member',
-        'editor',
+    CONSTRAINT chk_access_level CHECK (access_level IN (
         'owner',
-        'moderator',
-        'admin'
+        'member',
+        'viewer'
     )),
 
     CONSTRAINT chk_left_at_null_or_after_joined CHECK (
@@ -63,8 +61,8 @@ CREATE INDEX idx_users_groups_active
     ON core.users_groups(is_active)
     WHERE is_active = TRUE;
 
-CREATE INDEX idx_users_groups_member_role
-    ON core.users_groups(member_role);
+CREATE INDEX idx_users_groups_access_level
+    ON core.users_groups(access_level);
 
 CREATE INDEX idx_users_groups_joined_at
     ON core.users_groups(joined_at DESC);
@@ -80,9 +78,9 @@ CREATE INDEX idx_users_groups_group_active
     WHERE is_active = TRUE;
 
 -- Index for: "Get all group owners"
-CREATE INDEX idx_users_groups_owner_role
-    ON core.users_groups(group_id, member_role)
-    WHERE member_role IN ('owner', 'admin') AND is_active = TRUE;
+CREATE INDEX idx_users_groups_owner_access_level
+    ON core.users_groups(group_id, access_level)
+    WHERE access_level = 'owner' AND is_active = TRUE;
 
 -- ============================================================================
 -- 3. ENABLE ROW-LEVEL SECURITY
@@ -103,12 +101,12 @@ CREATE TRIGGER trigger_users_groups_updated_at
 -- 5. CREATE HELPER FUNCTION: Get active groups for user
 -- ============================================================================
 CREATE OR REPLACE FUNCTION get_user_active_groups(p_user_id UUID)
-RETURNS TABLE(group_id UUID, group_name VARCHAR, member_role VARCHAR, organisation_id UUID)
+RETURNS TABLE(group_id UUID, group_name VARCHAR, access_level VARCHAR, organisation_id UUID)
 AS $$
     SELECT
         g.id,
         g.name,
-        ug.member_role,
+        ug.access_level,
         g.organisation_id
     FROM core.users_groups ug
     JOIN core.groups g ON ug.group_id = g.id
@@ -122,12 +120,12 @@ $$ LANGUAGE SQL STABLE;
 -- 6. CREATE HELPER FUNCTION: Get group members with role
 -- ============================================================================
 CREATE OR REPLACE FUNCTION get_group_members(p_group_id UUID)
-RETURNS TABLE(user_id UUID, user_email VARCHAR, member_role VARCHAR, joined_at TIMESTAMP)
+RETURNS TABLE(user_id UUID, user_email VARCHAR, access_level VARCHAR, joined_at TIMESTAMP)
 AS $$
     SELECT
         u.user_id,
         u.email,
-        ug.member_role,
+        ug.access_level,
         ug.joined_at
     FROM core.users_groups ug
     JOIN core.users u ON ug.user_id = u.user_id

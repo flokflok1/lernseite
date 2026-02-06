@@ -1,6 +1,7 @@
 {
   "groups": {
     "actions": "Akcje",
+    "addPermissionPlaceholder": "Dodaj uprawnienie (np. admin.system:read)",
     "affectedUsers": "Dotknięci użytkownicy",
     "allRoles": "Wszystkie grupy",
     "assignFeatures": "Przypisz funkcje",
@@ -11,8 +12,10 @@
     "createSuccess": "Grupa utworzona pomyślnie",
     "createdAt": "Utworzono",
     "createdBy": "Utworzył",
+    "customGroups": "Grupy niestandardowe",
     "customRoles": "Grupy niestandardowe",
     "delete": "Usuń grupę",
+    "deleteConfirm": "Czy na pewno usunąć grupę \"{name}\"?",
     "deleteSuccess": "Grupa usunięta pomyślnie",
     "deleteSystemWarning": "Grup systemowych nie można usuwać",
     "deleteWarning": "Usunąć grupę? Wszyscy użytkownicy z tą grupą zostaną przypisani do innej grupy.",
@@ -92,6 +95,7 @@
       "update": "Zaktualizuj grupę",
       "validate": "Waliduj"
     },
+    "groups": "Grupy",
     "hierarchyLevel": "Poziom hierarchii",
     "icon": "Ikona",
     "isCustom": "Grupa niestandardowa",
@@ -99,10 +103,21 @@
     "list": "Lista grup",
     "loading": "Ładowanie grup...",
     "manageUsers": "Zarządzaj użytkownikami",
+    "accessLevel": {
+      "owner": "Właściciel",
+      "member": "Członek",
+      "viewer": "Widz"
+    },
+    "accessLevelLabel": "Poziom dostępu",
+    "membersCount": "{count} członków",
+    "newGroup": "Nowa grupa",
     "noCustomRoles": "Brak dostępnych grup niestandardowych",
+    "noMembers": "Brak członków w tej grupie",
+    "noPermissions": "Brak przypisanych uprawnień",
     "noRoles": "Nie znaleziono grup",
     "ownerOnly": "Tylko Owner-Admin",
     "permissionCount": "Uprawnienia",
+    "permissionsLabel": "Uprawnienia",
     "permissions": {
       "assign": "Przypisz uprawnienia",
       "assignSuccess": "{count} uprawnień przypisanych pomyślnie",
@@ -121,6 +136,7 @@
     "reassignTo": "Przypisz użytkowników do",
     "roleName": "Nazwa grupy",
     "searchPlaceholder": "Wyszukaj grupę...",
+    "selectGroupHint": "Wybierz grupę z listy",
     "selectTargetRole": "Wybierz grupę docelową",
     "stats": {
       "avgFeatures": "Średnio funkcji na grupę",
@@ -131,7 +147,11 @@
       "totalUsers": "Przypisani użytkownicy"
     },
     "subtitle": "Dynamiczny system grup z niestandardowymi grupami i przypisaniami funkcji (GBA)",
+    "systemGroups": "Grupy systemowe",
     "systemRoles": "Grupy systemowe",
+    "tabMembers": "Członkowie",
+    "tabPermissions": "Uprawnienia",
+    "tabRoles": "Grupy",
     "templates": {
       "auditor": "Audytor",
       "auditorDesc": "Dostęp tylko do odczytu dla audytów zgodności",
@@ -151,6 +171,9 @@
       "useTemplate": "Użyj szablonu"
     },
     "title": "Zarządzanie grupami",
+    "typeCustom": "Niestandardowa",
+    "typeOrg": "Organizacja",
+    "typeSystem": "System",
     "updateSuccess": "Grupa zaktualizowana pomyślnie",
     "userCount": "Użytkownicy",
     "viewUsers": "Wyświetl użytkowników"

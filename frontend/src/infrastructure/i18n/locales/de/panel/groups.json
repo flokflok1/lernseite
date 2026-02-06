@@ -1,6 +1,7 @@
 {
   "groups": {
     "actions": "Aktionen",
+    "addPermissionPlaceholder": "Berechtigung hinzufügen (z.B. admin.system:read)",
     "affectedUsers": "Betroffene Benutzer",
     "allRoles": "Alle Gruppen",
     "assignFeatures": "Features zuweisen",
@@ -11,8 +12,10 @@
     "createSuccess": "Gruppe erfolgreich erstellt",
     "createdAt": "Erstellt am",
     "createdBy": "Erstellt von",
+    "customGroups": "Custom-Gruppen",
     "customRoles": "Custom-Gruppen",
     "delete": "Gruppe löschen",
+    "deleteConfirm": "Gruppe \"{name}\" wirklich löschen?",
     "deleteSuccess": "Gruppe erfolgreich gelöscht",
     "deleteSystemWarning": "System-Gruppen können nicht gelöscht werden",
     "deleteWarning": "Gruppe löschen? Alle Benutzer mit dieser Gruppe werden auf eine andere Gruppe umgestellt.",
@@ -92,6 +95,7 @@
       "update": "Gruppe aktualisieren",
       "validate": "Validieren"
     },
+    "groups": "Gruppen",
     "hierarchyLevel": "Hierarchie-Ebene",
     "icon": "Icon",
     "isCustom": "Custom-Gruppe",
@@ -99,10 +103,21 @@
     "list": "Gruppenliste",
     "loading": "Lade Gruppen...",
     "manageUsers": "Benutzer verwalten",
+    "accessLevel": {
+      "owner": "Eigentümer",
+      "member": "Mitglied",
+      "viewer": "Betrachter"
+    },
+    "accessLevelLabel": "Zugriffsebene",
+    "membersCount": "{count} Mitglieder",
+    "newGroup": "Neue Gruppe",
     "noCustomRoles": "Keine Custom-Gruppen vorhanden",
+    "noMembers": "Keine Mitglieder in dieser Gruppe",
+    "noPermissions": "Keine Berechtigungen zugewiesen",
     "noRoles": "Keine Gruppen gefunden",
     "ownerOnly": "Nur Owner-Admin",
     "permissionCount": "Berechtigungen",
+    "permissionsLabel": "Berechtigungen",
     "permissions": {
       "assign": "Berechtigungen zuweisen",
       "assignSuccess": "{count} Berechtigungen erfolgreich zugewiesen",
@@ -121,6 +136,7 @@
     "reassignTo": "Benutzer zuweisen zu",
     "roleName": "Gruppenname",
     "searchPlaceholder": "Gruppe suchen...",
+    "selectGroupHint": "Wählen Sie eine Gruppe aus der Liste",
     "selectTargetRole": "Ziel-Gruppe wählen",
     "stats": {
       "avgFeatures": "Ø Features pro Gruppe",
@@ -131,7 +147,11 @@
       "totalUsers": "Zugewiesene Benutzer"
     },
     "subtitle": "Dynamisches Gruppen-System mit Custom Groups & Feature-Zuweisungen (GBA)",
+    "systemGroups": "System-Gruppen",
     "systemRoles": "System-Gruppen",
+    "tabMembers": "Mitglieder",
+    "tabPermissions": "Berechtigungen",
+    "tabRoles": "Gruppen",
     "templates": {
       "auditor": "Prüfer",
       "auditorDesc": "Nur-Lese-Zugriff für Compliance-Prüfungen",
@@ -151,6 +171,9 @@
       "useTemplate": "Vorlage verwenden"
     },
     "title": "Gruppenverwaltung",
+    "typeCustom": "Custom",
+    "typeOrg": "Organisation",
+    "typeSystem": "System",
     "updateSuccess": "Gruppe erfolgreich aktualisiert",
     "userCount": "Benutzer",
     "viewUsers": "Benutzer anzeigen"

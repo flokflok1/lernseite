@@ -2,4 +2,4 @@
  * Group Management Types
  */
 
-export type { Group } from './group.types.ts'
+export type { Group, GroupMember, GroupPermission } from './group.types'

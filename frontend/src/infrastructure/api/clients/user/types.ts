@@ -37,7 +37,7 @@ export interface UserGroup {
   slug: string
   type: string
   hierarchy_level: number
-  member_role: string
+  access_level: string
 }
 
 export interface LoginResponse {

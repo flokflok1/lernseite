@@ -22,9 +22,10 @@ import type {
   Group,
   GroupMember,
   GroupPermission
-} from '@/presentation/components/admin/groups/types'
+} from '@/presentation/components/panel/groups/types'
 
-const BASE_URL = '/api/v1/admin/groups'
+// Note: http.ts already has baseURL '/api/v1', so we only need the relative path
+const BASE_URL = '/admin/groups'
 
 /**
  * Fetch all groups with pagination
@@ -42,7 +43,15 @@ export async function fetchGroups(
   })
 
   const response = await api.get(`${BASE_URL}?${params.toString()}`)
-  return response.data
+  const result = response.data
+  // Map backend field names to frontend types
+  if (result.data) {
+    result.data = result.data.map((g: Record<string, unknown>) => ({
+      ...g,
+      type: g.group_type ?? g.type
+    }))
+  }
+  return result
 }
 
 /**
@@ -52,7 +61,8 @@ export async function fetchGroups(
  */
 export async function fetchGroup(groupId: string): Promise<Group> {
   const response = await api.get(`${BASE_URL}/${groupId}`)
-  return response.data.data
+  const g = response.data.data
+  return { ...g, type: g.group_type ?? g.type }
 }
 
 /**
@@ -124,17 +134,17 @@ export async function fetchGroupMembers(
  * Add member to group
  * @param groupId - The group ID
  * @param userId - The user ID
- * @param role - Member role (owner, member, viewer)
+ * @param accessLevel - Access level (owner, member, viewer)
  * @returns Promise with member data
  */
 export async function addGroupMember(
   groupId: string,
   userId: string,
-  role: 'owner' | 'member' | 'viewer' = 'member'
+  accessLevel: 'owner' | 'member' | 'viewer' = 'member'
 ): Promise<GroupMember> {
   const response = await api.post(
     `${BASE_URL}/${groupId}/members`,
-    { user_id: userId, role }
+    { user_id: userId, access_level: accessLevel }
   )
   return response.data.data
 }
@@ -172,7 +182,15 @@ export async function fetchGroupPermissions(
   const response = await api.get(
     `${BASE_URL}/${groupId}/permissions?${params.toString()}`
   )
-  return response.data
+  const result = response.data
+  // Map backend 'code' to frontend 'permission' field
+  if (result.data) {
+    result.data = result.data.map((p: Record<string, unknown>) => ({
+      ...p,
+      permission: p.code ?? p.permission
+    }))
+  }
+  return result
 }
 
 /**

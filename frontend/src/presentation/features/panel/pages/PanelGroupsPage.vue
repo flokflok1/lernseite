@@ -13,10 +13,10 @@
     <!-- Tabs -->
     <div class="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
       <button
-        @click="activeTab = 'roles'"
+        @click="activeTab = 'groups'"
         :class="[
           'px-4 py-2 font-medium border-b-2 -mb-px transition-colors',
-          activeTab === 'roles'
+          activeTab === 'groups'
             ? 'border-blue-500 text-blue-600'
             : 'border-transparent text-gray-500 hover:text-gray-700'
         ]"
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Groups Tab (GBA) -->
-    <div v-if="activeTab === 'roles'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div v-if="activeTab === 'groups'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Groups List -->
       <div class="lg:col-span-1">
         <GroupsListView
@@ -122,7 +122,7 @@ const {
   initialize
 } = useGroupsManagement()
 
-const activeTab = ref<'roles' | 'permissions'>('roles')
+const activeTab = ref<'groups' | 'permissions'>('groups')
 
 // Modal state
 const showModal = ref(false)
@@ -134,8 +134,8 @@ function openCreateModal() {
 }
 
 function openEditModal(group: Group) {
-  // System groups cannot be edited
-  if (group.type === 'system_admin') return
+  // Protected groups cannot be edited
+  if (group.is_protected) return
   modalMode.value = 'edit'
   showModal.value = true
 }

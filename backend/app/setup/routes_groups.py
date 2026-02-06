@@ -287,7 +287,7 @@ def assign_user(group_id: str):
     Request Body:
         {
             "user_id": "user-uuid",         # Required
-            "member_role": "member",        # Optional (member, moderator, owner)
+            "access_level": "member",       # Optional (owner, member, viewer)
             "admin_user_id": "admin-uuid"   # Optional (for admin validation)
         }
 
@@ -299,7 +299,7 @@ def assign_user(group_id: str):
         POST /setup/groups/group-uuid/assign-user
         {
             "user_id": "user-uuid",
-            "member_role": "owner"
+            "access_level": "owner"
         }
     """
     try:
@@ -312,7 +312,7 @@ def assign_user(group_id: str):
             user_id=data['user_id'],
             group_id=group_id,
             admin_user_id=data.get('admin_user_id'),
-            member_role=data.get('member_role', 'member')
+            access_level=data.get('access_level', 'member')
         )
 
         return _get_response(assignment, 201)

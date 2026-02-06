@@ -142,7 +142,7 @@ class GroupSetup:
         user_id: str,
         group_id: str,
         admin_user_id: Optional[str] = None,
-        member_role: str = 'member'
+        access_level: str = 'member'
     ) -> Dict:
         """
         Assign a user to a group (with optional admin authorization check).
@@ -151,7 +151,7 @@ class GroupSetup:
             user_id: Target user ID
             group_id: Group ID to assign
             admin_user_id: Admin performing the assignment (for audit logging)
-            member_role: Role within group (member, moderator, owner)
+            access_level: Access level within group (owner, member, viewer)
 
         Returns:
             Dictionary with assignment data
@@ -166,10 +166,10 @@ class GroupSetup:
             ...     admin_user_id='admin-789'
             ... )
         """
-        # Validate member role
-        valid_roles = ['member', 'moderator', 'owner']
-        if member_role not in valid_roles:
-            raise ValueError(f"Invalid member_role. Must be one of: {', '.join(valid_roles)}")
+        # Validate access level
+        valid_levels = ['owner', 'member', 'viewer']
+        if access_level not in valid_levels:
+            raise ValueError(f"Invalid access_level. Must be one of: {', '.join(valid_levels)}")
 
         # Get group hierarchy level
         group = fetch_one(
@@ -192,14 +192,14 @@ class GroupSetup:
         result = execute_query(
             """
             INSERT INTO core.users_groups (
-                user_id, group_id, member_role, is_active, joined_at, created_at
+                user_id, group_id, access_level, is_active, joined_at, created_at
             )
             VALUES (%s, %s, %s, TRUE, NOW(), NOW())
             ON CONFLICT (user_id, group_id) DO UPDATE
-            SET is_active = TRUE, member_role = %s
-            RETURNING user_id, group_id, member_role, joined_at
+            SET is_active = TRUE, access_level = %s
+            RETURNING user_id, group_id, access_level, joined_at
             """,
-            (user_id, group_id, member_role, member_role),
+            (user_id, group_id, access_level, access_level),
             fetch_one=True
         )
 
@@ -213,7 +213,7 @@ class GroupSetup:
         return {
             'user_id': result['user_id'],
             'group_id': result['group_id'],
-            'member_role': result['member_role'],
+            'access_level': result['access_level'],
             'joined_at': result['joined_at'].isoformat() if result['joined_at'] else None
         }
 

@@ -220,10 +220,45 @@ AND table_name IN ('users', 'courses', 'organisations', 'subscriptions', 'rooms'
 ORDER BY table_name;
 \echo ''
 
--- 15. Final status
+-- 15. GBA access_level verification (core.users_groups)
+\echo '15. GBA ACCESS_LEVEL VERIFICATION'
+\echo '---'
+-- Verify access_level column exists
+SELECT
+    column_name,
+    data_type,
+    column_default,
+    CASE
+        WHEN column_name = 'access_level' THEN '✓ CORRECT (GBA)'
+        WHEN column_name IN ('member_role', 'role') THEN '✗ LEGACY — must be renamed to access_level'
+        ELSE '? UNKNOWN'
+    END AS status
+FROM information_schema.columns
+WHERE table_schema = 'core'
+AND table_name = 'users_groups'
+AND column_name IN ('access_level', 'member_role', 'role')
+ORDER BY column_name;
+
+-- Verify constraint
+SELECT
+    constraint_name,
+    CASE
+        WHEN constraint_name = 'chk_access_level' THEN '✓ CORRECT'
+        WHEN constraint_name = 'chk_member_role' THEN '✗ LEGACY'
+        ELSE constraint_name
+    END AS status
+FROM information_schema.table_constraints
+WHERE table_schema = 'core'
+AND table_name = 'users_groups'
+AND constraint_type = 'CHECK'
+AND constraint_name IN ('chk_access_level', 'chk_member_role');
+\echo ''
+
+-- 16. Final status
 \echo '========================================'
 \echo 'SCHEMA VERIFICATION COMPLETE'
 \echo '========================================'
 \echo 'Review the output above for any issues.'
 \echo 'Expected: 102 tables, 0 missing PKs, RLS enabled on key tables'
+\echo 'GBA: access_level column present, no member_role/role in core.users_groups'
 \echo ''

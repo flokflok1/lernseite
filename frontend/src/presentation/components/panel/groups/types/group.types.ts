@@ -6,23 +6,31 @@ export interface Group {
   id: string
   name: string
   slug: string
-  type: 'system_admin' | 'org_admin' | 'custom'
-  member_role?: 'owner' | 'member' | 'viewer'
-  created_at: Date
-  updated_at?: Date
+  type: string
+  description?: string
+  hierarchy_level?: number
+  is_system_group: boolean
+  is_protected: boolean
+  access_level?: 'owner' | 'member' | 'viewer'
+  created_at: string
+  updated_at?: string
 }
 
 export interface GroupMember {
-  id: string
-  group_id: string
   user_id: string
-  role: 'owner' | 'member' | 'viewer'
-  joined_at: Date
+  email: string
+  full_name: string
+  username: string
+  access_level: string
+  joined_at: string
+  is_active: boolean
 }
 
 export interface GroupPermission {
   id: string
-  group_id: string
   permission: string
-  granted_at: Date
+  display_name?: string
+  category?: string
+  description?: string
+  assigned_at?: string
 }

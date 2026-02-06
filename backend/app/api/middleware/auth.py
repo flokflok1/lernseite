@@ -118,6 +118,14 @@ def token_required(fn: Callable) -> Callable:
             if not user.get('is_active', True):
                 return error_response(ErrorCode.AUTH_ACCOUNT_DISABLED, status=403)
 
+            # Merge JWT claims (permissions, groups) into user dict for fast permission checks
+            # The JWT contains pre-computed permissions from login, avoiding DB lookups
+            jwt_claims = get_jwt()
+            if 'permissions' in jwt_claims:
+                user['permissions'] = jwt_claims['permissions']
+            if 'groups' in jwt_claims:
+                user['groups'] = jwt_claims['groups']
+
             # Store user in request context
             g.current_user = user
 
@@ -191,13 +199,25 @@ def admin_required(fn: Callable) -> Callable:
         user_id = user.get('user_id')
 
         # Check if user has admin permission via group membership (GBA)
-        # Admin groups: system-admin, superadmin
         from app.application.services.system.auth.permission import PermissionService
 
-        # Check if user can view any resource (admin permission)
-        if not PermissionService.check_permission(user, 'view_any_resource'):
+        # Ensure user has groups populated for permission check
+        # If 'groups' not in user dict, use 'role' as single group (from find_by_id)
+        if 'groups' not in user and 'role' in user:
+            user['groups'] = [user['role']]
+
+        # Check if user has admin system access permission (GBA)
+        # Uses admin.system:read as the baseline admin permission
+        has_permission = PermissionService.check_permission(user, 'admin.system:read')
+
+        # Fallback: If no permission via groups, check by user_id directly
+        if not has_permission and user_id:
+            user_perms = PermissionService.get_user_permissions(user_id)
+            has_permission = 'admin.system:read' in user_perms
+
+        if not has_permission:
             user_groups = user.get('groups', [])
-            group_names = [g.get('name', 'unknown') for g in user_groups] if isinstance(user_groups, list) else []
+            group_names = user_groups if isinstance(user_groups, list) else []
 
             return error_response(
                 ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
@@ -249,8 +269,8 @@ def permission_required(*permissions: str) -> Callable:
             # Admin group has all permissions (GBA)
             from app.application.services.system.auth.permission import PermissionService
 
-            # Check if user has view_any_resource permission (admin permission)
-            if PermissionService.check_permission(user, 'view_any_resource'):
+            # Check if user has admin system access (bypasses specific permission checks)
+            if PermissionService.check_permission(user, 'admin.system:read'):
                 return fn(*args, **kwargs)
 
             # Check if user has ANY of the required permissions (GBA)
@@ -372,10 +392,10 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
     """
     from app.application.services.system.auth.permission import PermissionService
 
-    # Check if current user is system admin (has view_any_resource permission)
-    if PermissionService.check_permission(current_user, 'view_any_resource'):
+    # Check if current user is system admin (has admin.system:read permission)
+    if PermissionService.check_permission(current_user, 'admin.system:read'):
         # System admins can manage anyone except other system admins
-        if PermissionService.check_permission(target_user, 'view_any_resource'):
+        if PermissionService.check_permission(target_user, 'admin.system:read'):
             return False  # Admin can't manage other admins
         return True
 
@@ -389,7 +409,7 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
         # Can manage users who don't have system admin permission
         can_manage_target = not PermissionService.check_permission(
             target_user,
-            'view_any_resource'
+            'admin.system:read'
         )
         return same_org and can_manage_target
 
@@ -404,7 +424,7 @@ def can_manage_user(current_user: dict, target_user: dict) -> bool:
         is_admin = PermissionService.check_permission(
             target_user,
             'users.manage'
-        ) or PermissionService.check_permission(target_user, 'view_any_resource')
+        ) or PermissionService.check_permission(target_user, 'admin.system:read')
         return same_org and not is_admin
 
     # Regular users cannot manage others

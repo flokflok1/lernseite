@@ -227,7 +227,7 @@ def login():
             }
         )
 
-        # Create JWT tokens with group-based claims (RBAC 3.0)
+        # Create JWT tokens with group-based claims (GBA)
         additional_claims = {
             'groups': [
                 {
@@ -235,7 +235,7 @@ def login():
                     'name': g['name'],
                     'slug': g['slug'],
                     'type': g['group_type'],
-                    'member_role': g['member_role']
+                    'access_level': g['access_level']
                 } for g in user_groups
             ],
             'permissions': permission_codes
@@ -312,7 +312,7 @@ def refresh():
                 g.slug,
                 g.group_type,
                 g.frontend_role,
-                ug.member_role,
+                ug.access_level,
                 ug.joined_at
             FROM core.users_groups ug
             JOIN core.groups g ON ug.group_id = g.id
@@ -334,7 +334,7 @@ def refresh():
         )
         permission_codes = [p['permission_code'] for p in user_permissions_result] if user_permissions_result else []
 
-        # Create new access token with GBA claims (Group-Based RBAC 3.0)
+        # Create new access token with GBA claims
         # Consistent with login endpoint
         additional_claims = {
             'groups': [
@@ -343,7 +343,7 @@ def refresh():
                     'name': g['name'],
                     'slug': g['slug'],
                     'type': g['group_type'],
-                    'member_role': g['member_role']
+                    'access_level': g['access_level']
                 } for g in user_groups
             ],
             'permissions': permission_codes

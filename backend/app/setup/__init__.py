@@ -23,6 +23,15 @@ setup_bp = Blueprint(
     url_prefix='/setup'
 )
 
+# Exempt setup blueprint from rate limiting
+# Setup endpoints are frequently polled (/status) and should not be rate-limited
+try:
+    from app.core.bootstrap.extensions import limiter
+    limiter.exempt(setup_bp)
+except ImportError:
+    # Limiter not available during early initialization
+    pass
+
 # Setup security - lock setup wizard after installation
 @setup_bp.before_request
 def check_setup_access():

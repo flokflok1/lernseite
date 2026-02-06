@@ -121,14 +121,14 @@ export {
 export {
   createSession,
   getSession,
-  getSessionsList,
+  listSessions as getSessionsList, // Alias: listSessions -> getSessionsList
   updateSession,
   deleteSession,
   getTemplates,
   uploadPDF,
   setSourceData,
-  generateVariants,
-  getSessionStats,
+  generateContent as generateVariants, // Alias: generateContent -> generateVariants
+  getStats as getSessionStats, // Alias: getStats -> getSessionStats
   finalizeSession
 } from './editor.api'
 

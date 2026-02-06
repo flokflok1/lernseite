@@ -269,13 +269,12 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
 
-  // Check Creator or Teacher access
+  // Check Creator or Teacher access (hierarchy_level >= 250)
   if (to.meta.requiresCreatorOrTeacher) {
-    const allowedRoles = ['creator', 'teacher', 'school_admin', 'company_admin', 'admin', 'superadmin']
-    const hasAccess = allowedRoles.includes(authStore.userRole)
-
-    if (!hasAccess) {
-      console.warn('Access denied: Creator/Teacher role required')
+    // Use GBA hierarchy-level based check instead of hardcoded role strings
+    // isCreator = hierarchy_level >= 250 (includes Creator, Teacher, OrgAdmin, Moderator, Admin, Owner)
+    if (!authStore.isCreator) {
+      console.warn('Access denied: Creator/Teacher role required (hierarchy_level >= 250)')
       next({ name: 'Dashboard' })
       return
     }

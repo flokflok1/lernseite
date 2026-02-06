@@ -95,6 +95,11 @@ def token_required(fn: Callable) -> Callable:
     """
     @wraps(fn)
     def wrapper(*args, **kwargs):
+        # Skip authentication for CORS preflight requests
+        # OPTIONS requests don't include Authorization headers
+        if request.method == 'OPTIONS':
+            return fn(*args, **kwargs)
+
         try:
             # Verify JWT token
             verify_jwt_in_request()

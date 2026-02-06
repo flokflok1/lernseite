@@ -15,7 +15,7 @@ from app.domain.models.panel.runner_modes import (
     FeatureMappingSet,
     LMTypeModeCompatibilitySet
 )
-from app.api.middleware.auth import require_auth, require_permission
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.api.utils.responses import success_response, error_response
 
@@ -27,8 +27,8 @@ bp = Blueprint('panel_runner_modes', __name__, url_prefix='/panel/runner-modes')
 # =============================================================================
 
 @bp.route('', methods=['GET'])
-@require_auth
-@require_permission('panel.runner_modes.read')
+@token_required
+@permission_required('panel.runner_modes.read')
 def list_modes():
     """
     GET /api/v1/panel/runner-modes
@@ -52,8 +52,8 @@ def list_modes():
 
 
 @bp.route('/<int:mode_id>', methods=['GET'])
-@require_auth
-@require_permission('panel.runner_modes.read')
+@token_required
+@permission_required('panel.runner_modes.read')
 def get_mode(mode_id: int):
     """
     GET /api/v1/panel/runner-modes/{mode_id}
@@ -73,8 +73,8 @@ def get_mode(mode_id: int):
 
 
 @bp.route('/code/<string:mode_code>', methods=['GET'])
-@require_auth
-@require_permission('panel.runner_modes.read')
+@token_required
+@permission_required('panel.runner_modes.read')
 def get_mode_by_code(mode_code: str):
     """
     GET /api/v1/panel/runner-modes/code/{mode_code}
@@ -94,8 +94,8 @@ def get_mode_by_code(mode_code: str):
 
 
 @bp.route('', methods=['POST'])
-@require_auth
-@require_permission('panel.runner_modes.create')
+@token_required
+@permission_required('panel.runner_modes.create')
 def create_mode():
     """
     POST /api/v1/panel/runner-modes
@@ -132,8 +132,8 @@ def create_mode():
 
 
 @bp.route('/<int:mode_id>', methods=['PATCH'])
-@require_auth
-@require_permission('panel.runner_modes.update')
+@token_required
+@permission_required('panel.runner_modes.update')
 def update_mode(mode_id: int):
     """
     PATCH /api/v1/panel/runner-modes/{mode_id}
@@ -158,8 +158,8 @@ def update_mode(mode_id: int):
 
 
 @bp.route('/<int:mode_id>', methods=['DELETE'])
-@require_auth
-@require_permission('panel.runner_modes.delete')
+@token_required
+@permission_required('panel.runner_modes.delete')
 def delete_mode(mode_id: int):
     """
     DELETE /api/v1/panel/runner-modes/{mode_id}
@@ -183,8 +183,8 @@ def delete_mode(mode_id: int):
 # =============================================================================
 
 @bp.route('/<int:mode_id>/features', methods=['GET'])
-@require_auth
-@require_permission('panel.runner_modes.read')
+@token_required
+@permission_required('panel.runner_modes.read')
 def get_mode_features(mode_id: int):
     """
     GET /api/v1/panel/runner-modes/{mode_id}/features
@@ -204,8 +204,8 @@ def get_mode_features(mode_id: int):
 
 
 @bp.route('/<int:mode_id>/features', methods=['PUT'])
-@require_auth
-@require_permission('panel.runner_modes.update')
+@token_required
+@permission_required('panel.runner_modes.update')
 def set_mode_features(mode_id: int):
     """
     PUT /api/v1/panel/runner-modes/{mode_id}/features

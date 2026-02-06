@@ -114,7 +114,7 @@ import importlib
 admin_panel = importlib.import_module('.admin', package='app.api.v1')
 
 # Admin Dashboard - Extract blueprint from dashboard module
-# Dashboard statistics endpoints
+# Dashboard statistics endpoints (fixed SQL queries with schema-prefixed table names)
 try:
     admin_dashboard = importlib.import_module('.dashboard', package='app.api.v1.admin')
     admin_dashboard_bp = admin_dashboard.bp

@@ -1,13 +1,12 @@
 /**
- * Panel Store Modules
- * ===================
+ * Panel Store Modules (GBA - Group-Based Access)
+ * ===============================================
  * Barrel export for all panel-related stores.
- * Renamed: admin → panel (2026-02-01)
+ *
+ * NOTE: Groups/Permissions management uses useGroupsManagement composable
+ * from @/presentation/components/shared/composables/useGroupsManagement
+ * instead of a Pinia store.
  */
 
 export * from './panel.store'
-export { useGroupsStore } from './groups.store'
-
-// Deprecated: Use useGroupsStore instead
-export { useGroupsStore as useRolesStore } from './groups.store'
 

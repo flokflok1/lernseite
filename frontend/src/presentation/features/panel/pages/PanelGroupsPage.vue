@@ -36,26 +36,26 @@
       </button>
     </div>
 
-    <!-- Roles Tab -->
+    <!-- Groups Tab (GBA) -->
     <div v-if="activeTab === 'roles'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Roles List -->
+      <!-- Groups List -->
       <div class="lg:col-span-1">
-        <RolesListView
-          :system-roles="systemRoles"
-          :custom-roles="customRoles"
-          :selected-role-id="selectedRole?.role_id"
-          @select="selectRole"
+        <GroupsListView
+          :system-groups="systemGroups"
+          :custom-groups="customGroups"
+          :selected-group-id="selectedGroup?.id"
+          @select="selectGroup"
           @create="openCreateModal"
-          @delete="handleDeleteRole"
+          @delete="handleDeleteGroup"
         />
       </div>
 
-      <!-- Role Details -->
+      <!-- Group Details -->
       <div class="lg:col-span-2">
-        <RoleDetailsPanel
-          :role="selectedRole"
-          :users="roleUsers"
-          :available-permissions="permissions"
+        <GroupDetailsPanel
+          :group="selectedGroup"
+          :users="groupMembers"
+          :available-permissions="groupPermissions"
           @edit="openEditModal"
           @save-permissions="handleSavePermissions"
         />
@@ -65,54 +65,62 @@
     <!-- Permissions Tab -->
     <PermissionsOverview
       v-if="activeTab === 'permissions'"
-      :permissions="permissions"
+      :permissions="groupPermissions"
     />
 
-    <!-- Create/Edit Modal -->
-    <RoleEditModal
+    <!-- Create/Edit Modal (GBA) -->
+    <GroupEditModal
       :show="showModal"
       :mode="modalMode"
-      :role="selectedRole"
+      :group="selectedGroup"
       @close="showModal = false"
-      @save="handleSaveRole"
+      @save="handleSaveGroup"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 /**
- * Admin Roles & Permissions Page
- * ===============================
- * Orchestrator page for roles management.
- * Uses sub-components from components/panel/user-management/groups/
+ * Admin Groups & Permissions Page (GBA)
+ * ======================================
+ * Orchestrator page for groups management.
+ * Uses GBA (Group-Based Access) system.
  */
 import { ref, onMounted } from 'vue'
 import {
-  RolesListView,
-  RoleDetailsPanel,
-  RoleEditModal,
+  GroupsListView,
+  GroupDetailsPanel,
+  GroupEditModal,
   PermissionsOverview,
-  useRolesManagement,
-  type RoleFormData
+  useGroupsManagement
 } from '@/presentation/components/users/panel/groups'
-import type { Role } from '@/application/services/api/admin'
+import type { Group } from '@/presentation/components/panel/groups/types/group.types'
+
+// GBA Form Data type
+interface GroupFormData {
+  name: string
+  slug: string
+  type: 'system_admin' | 'org_admin' | 'custom'
+  description?: string
+}
 
 const {
   // State
-  selectedRole,
-  roleUsers,
-  permissions,
+  selectedGroup,
+  groupMembers,
+  groupPermissions,
   // Computed
-  systemRoles,
-  customRoles,
+  systemGroups,
+  customGroups,
   // Methods
-  selectRole,
-  createRole,
-  updateRole,
-  deleteRole,
-  setRolePermissions,
+  selectGroup,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+  grantPermission,
+  revokePermission,
   initialize
-} = useRolesManagement()
+} = useGroupsManagement()
 
 const activeTab = ref<'roles' | 'permissions'>('roles')
 
@@ -125,19 +133,20 @@ function openCreateModal() {
   showModal.value = true
 }
 
-function openEditModal(role: Role) {
-  if (role.is_system) return
+function openEditModal(group: Group) {
+  // System groups cannot be edited
+  if (group.type === 'system_admin') return
   modalMode.value = 'edit'
   showModal.value = true
 }
 
-async function handleSaveRole(data: RoleFormData) {
+async function handleSaveGroup(data: GroupFormData) {
   let success = false
 
   if (modalMode.value === 'create') {
-    success = await createRole(data)
-  } else if (selectedRole.value) {
-    success = await updateRole(selectedRole.value.role_id, data)
+    success = await createGroup(data)
+  } else if (selectedGroup.value) {
+    success = await updateGroup(selectedGroup.value.id, data)
   }
 
   if (success) {
@@ -145,13 +154,30 @@ async function handleSaveRole(data: RoleFormData) {
   }
 }
 
-async function handleDeleteRole(role: Role) {
-  await deleteRole(role)
+async function handleDeleteGroup(group: Group) {
+  await deleteGroup(group)
 }
 
-async function handleSavePermissions(permissionIds: number[]) {
-  if (!selectedRole.value) return
-  await setRolePermissions(selectedRole.value.role_id, permissionIds)
+async function handleSavePermissions(permissionCodes: string[]) {
+  if (!selectedGroup.value) return
+  const groupId = selectedGroup.value.id
+
+  // Get current permissions
+  const currentPerms = groupPermissions.value.map(p => p.permission)
+
+  // Revoke removed permissions
+  for (const perm of groupPermissions.value) {
+    if (!permissionCodes.includes(perm.permission)) {
+      await revokePermission(groupId, perm.id)
+    }
+  }
+
+  // Grant new permissions
+  for (const code of permissionCodes) {
+    if (!currentPerms.includes(code)) {
+      await grantPermission(groupId, code)
+    }
+  }
 }
 
 // Initialize on mount

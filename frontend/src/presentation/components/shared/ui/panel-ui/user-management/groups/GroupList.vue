@@ -1,63 +1,36 @@
 <template>
-  <div class="role-list">
-    <!-- Stats Header -->
-    <div class="stats-grid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+  <div class="group-list">
+    <!-- Stats Header (GBA) -->
+    <div class="stats-grid grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('panel.groups.stats.totalRoles') }}
+          {{ $t('panel.groups.stats.totalGroups') }}
         </div>
         <div class="text-2xl font-bold text-gray-900 dark:text-white">
-          {{ roles.length }}
+          {{ groups.length }}
         </div>
       </div>
 
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('panel.groups.stats.systemRolesCount') }}
+          {{ $t('panel.groups.systemGroups') }}
         </div>
         <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-          {{ systemRolesCount }}
+          {{ systemGroupsCount }}
         </div>
       </div>
 
       <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('panel.groups.stats.customRolesCount') }}
+          {{ $t('panel.groups.customGroups') }}
         </div>
         <div class="text-2xl font-bold text-green-600 dark:text-green-400">
-          {{ customRolesCount }}
-        </div>
-      </div>
-
-      <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('panel.groups.stats.totalUsers') }}
-        </div>
-        <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-          {{ totalUsers }}
-        </div>
-      </div>
-
-      <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('panel.groups.stats.avgFeatures') }}
-        </div>
-        <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-          {{ avgFeatures }}
-        </div>
-      </div>
-
-      <div class="stat-card bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          {{ $t('panel.groups.stats.avgPermissions') }}
-        </div>
-        <div class="text-2xl font-bold text-pink-600 dark:text-pink-400">
-          {{ avgPermissions }}
+          {{ customGroupsCount }}
         </div>
       </div>
     </div>
 
-    <!-- Filters & Search -->
+    <!-- Filters & Search (GBA) -->
     <div class="filters bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
       <div class="flex flex-col md:flex-row gap-4">
         <!-- Search -->
@@ -70,7 +43,7 @@
           />
         </div>
 
-        <!-- Filter Buttons -->
+        <!-- Filter Buttons (GBA) -->
         <div class="flex gap-2">
           <button
             @click="filter = 'all'"
@@ -81,7 +54,7 @@
                 : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             ]"
           >
-            {{ $t('panel.groups.allRoles') }}
+            {{ $t('panel.groups.allGroups') }}
           </button>
 
           <button
@@ -93,7 +66,7 @@
                 : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             ]"
           >
-            {{ $t('panel.groups.customRoles') }}
+            {{ $t('panel.groups.customGroups') }}
           </button>
 
           <button
@@ -105,7 +78,7 @@
                 : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             ]"
           >
-            {{ $t('panel.groups.systemRoles') }}
+            {{ $t('panel.groups.systemGroups') }}
           </button>
         </div>
       </div>
@@ -119,33 +92,32 @@
       </p>
     </div>
 
-    <!-- Empty State -->
+    <!-- Empty State (GBA) -->
     <div
-      v-else-if="filteredRoles.length === 0"
+      v-else-if="filteredGroups.length === 0"
       class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow"
     >
       <div class="text-6xl mb-4">🔍</div>
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-        {{ $t('panel.groups.noRoles') }}
+        {{ $t('panel.groups.noGroups') }}
       </h3>
       <p class="text-gray-600 dark:text-gray-400">
-        {{ filter === 'custom' ? $t('panel.groups.noCustomRoles') : $t('panel.groups.noRoles') }}
+        {{ filter === 'custom' ? $t('panel.groups.noCustomGroups') : $t('panel.groups.noGroups') }}
       </p>
     </div>
 
-    <!-- Roles Grid -->
+    <!-- Groups Grid (GBA) -->
     <div
       v-else
-      class="roles-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      class="groups-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
     >
       <GroupCard
-        v-for="role in filteredRoles"
-        :key="role.role_id"
-        :role="role"
+        v-for="group in filteredGroups"
+        :key="group.id"
+        :group="group"
         @view-details="$emit('view-details', $event)"
         @edit="$emit('edit', $event)"
         @delete="$emit('delete', $event)"
-        @assign-features="$emit('assign-features', $event)"
         @assign-permissions="$emit('assign-permissions', $event)"
       />
     </div>
@@ -153,76 +125,62 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Group List (GBA)
+ * Displays groups with filtering and search.
+ */
 import { ref, computed } from 'vue'
-import { defineProps, defineEmits } from 'vue'
-import type { RoleWithStats } from '@/application/services/api/admin'
+import type { Group } from '@/presentation/components/panel/groups/types/group.types'
 import GroupCard from './GroupCard.vue'
 
 const props = defineProps<{
-  roles: RoleWithStats[]
+  groups: Group[]
   loading?: boolean
 }>()
 
 defineEmits<{
-  (e: 'view-details', role: RoleWithStats): void
-  (e: 'edit', role: RoleWithStats): void
-  (e: 'delete', role: RoleWithStats): void
-  (e: 'assign-features', role: RoleWithStats): void
-  (e: 'assign-permissions', role: RoleWithStats): void
+  (e: 'view-details', group: Group): void
+  (e: 'edit', group: Group): void
+  (e: 'delete', group: Group): void
+  (e: 'assign-permissions', group: Group): void
 }>()
 
 // Local state
 const searchQuery = ref('')
 const filter = ref<'all' | 'custom' | 'system'>('all')
 
-// Computed
-const filteredRoles = computed(() => {
-  let filtered = props.roles
+// Computed (GBA)
+const filteredGroups = computed(() => {
+  let filtered = props.groups
 
   // Apply search
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(
-      (role) =>
-        role.role_name.toLowerCase().includes(query) ||
-        role.display_name.toLowerCase().includes(query) ||
-        (role.description && role.description.toLowerCase().includes(query))
+      (group) =>
+        group.name.toLowerCase().includes(query) ||
+        group.slug.toLowerCase().includes(query) ||
+        (group.description && group.description.toLowerCase().includes(query))
     )
   }
 
-  // Apply filter
+  // Apply filter (GBA - by type)
   if (filter.value === 'custom') {
-    filtered = filtered.filter((role) => role.is_custom)
+    filtered = filtered.filter((group) => group.type === 'custom')
   } else if (filter.value === 'system') {
-    filtered = filtered.filter((role) => role.is_system)
+    filtered = filtered.filter((group) => group.type === 'system_admin' || group.type === 'org_admin')
   }
 
   return filtered
 })
 
-const systemRolesCount = computed(() =>
-  props.roles.filter((r) => r.is_system).length
+const systemGroupsCount = computed(() =>
+  props.groups.filter((g) => g.type === 'system_admin' || g.type === 'org_admin').length
 )
 
-const customRolesCount = computed(() =>
-  props.roles.filter((r) => r.is_custom).length
+const customGroupsCount = computed(() =>
+  props.groups.filter((g) => g.type === 'custom').length
 )
-
-const totalUsers = computed(() =>
-  props.roles.reduce((sum, role) => sum + (role.user_count || 0), 0)
-)
-
-const avgFeatures = computed(() => {
-  if (props.roles.length === 0) return 0
-  const total = props.roles.reduce((sum, role) => sum + (role.feature_count || 0), 0)
-  return Math.round(total / props.roles.length)
-})
-
-const avgPermissions = computed(() => {
-  if (props.roles.length === 0) return 0
-  const total = props.roles.reduce((sum, role) => sum + (role.permission_count || 0), 0)
-  return Math.round(total / props.roles.length)
-})
 </script>
 
 <style scoped>
@@ -234,7 +192,7 @@ const avgPermissions = computed(() => {
   transform: translateY(-2px);
 }
 
-.roles-grid {
+.groups-grid {
   animation: fadeIn 0.3s ease;
 }
 

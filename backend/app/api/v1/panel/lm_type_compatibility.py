@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 from app.application.services.panel import PanelRunnerModeService
 from app.domain.models.panel.runner_modes import LMTypeModeCompatibilitySet
-from app.api.middleware.auth import require_auth, require_permission
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.api.utils.responses import success_response, error_response
 
@@ -18,8 +18,8 @@ bp = Blueprint('panel_lm_type_compatibility', __name__, url_prefix='/panel/lm-ty
 
 
 @bp.route('/<int:method_type>/modes', methods=['GET'])
-@require_auth
-@require_permission('panel.lm_types.read')
+@token_required
+@permission_required('panel.lm_types.read')
 def get_lm_type_modes(method_type: int):
     """
     GET /api/v1/panel/lm-types/{method_type}/modes
@@ -42,8 +42,8 @@ def get_lm_type_modes(method_type: int):
 
 
 @bp.route('/<int:method_type>/modes', methods=['PUT'])
-@require_auth
-@require_permission('panel.lm_types.update')
+@token_required
+@permission_required('panel.lm_types.update')
 def set_lm_type_modes(method_type: int):
     """
     PUT /api/v1/panel/lm-types/{method_type}/modes

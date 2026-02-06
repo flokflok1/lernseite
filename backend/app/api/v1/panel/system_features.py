@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 from app.application.services.panel import PanelRunnerModeService
 from app.domain.models.panel.system_features import SystemFeatureUpdate
-from app.api.middleware.auth import require_auth, require_permission
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.api.utils.responses import success_response, error_response
 
@@ -18,8 +18,8 @@ bp = Blueprint('panel_system_features', __name__, url_prefix='/panel/system-feat
 
 
 @bp.route('', methods=['GET'])
-@require_auth
-@require_permission('panel.system_features.read')
+@token_required
+@permission_required('panel.system_features.read')
 def list_system_features():
     """
     GET /api/v1/panel/system-features
@@ -51,8 +51,8 @@ def list_system_features():
 
 
 @bp.route('/<int:feature_id>', methods=['GET'])
-@require_auth
-@require_permission('panel.system_features.read')
+@token_required
+@permission_required('panel.system_features.read')
 def get_system_feature(feature_id: int):
     """
     GET /api/v1/panel/system-features/{feature_id}
@@ -72,8 +72,8 @@ def get_system_feature(feature_id: int):
 
 
 @bp.route('/<int:feature_id>', methods=['PATCH'])
-@require_auth
-@require_permission('panel.system_features.update')
+@token_required
+@permission_required('panel.system_features.update')
 def update_system_feature(feature_id: int):
     """
     PATCH /api/v1/panel/system-features/{feature_id}

@@ -47,7 +47,9 @@ const categories = computed(() => [
 // Models grouped by category
 const modelsByCategory = computed(() => {
   const grouped: Record<string, AIModel[]> = {}
-  for (const cat of categories) {
+  // Defensive: ensure categories.value is iterable
+  const cats = categories.value ?? []
+  for (const cat of cats) {
     grouped[cat.code] = models.value.filter(m => m.category === cat.code)
   }
   return grouped

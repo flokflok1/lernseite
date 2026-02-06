@@ -1,8 +1,8 @@
-// Roles Management Components
-export { default as RolesListView } from './RolesListView.vue'
-export { default as RoleDetailsPanel } from './RoleDetailsPanel.vue'
-export { default as RoleEditModal } from './RoleEditModal.vue'
+// Groups Management Components (GBA)
+export { default as GroupsListView } from './GroupsListView.vue'
+export { default as GroupDetailsPanel } from './GroupDetailsPanel.vue'
+export { default as GroupEditModal } from './GroupEditModal.vue'
 export { default as PermissionsOverview } from './PermissionsOverview.vue'
 
-// Composables
-export { useRolesManagement } from './composables/useRolesManagement.ts'
+// Composables (GBA)
+export { useGroupsManagement } from '@/presentation/components/shared/composables/useGroupsManagement'

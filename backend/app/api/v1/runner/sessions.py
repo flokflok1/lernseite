@@ -14,7 +14,7 @@ from app.domain.models.runner.sessions import (
     SessionStateUpdate,
     SessionFinishRequest
 )
-from app.api.middleware.auth import require_auth, require_permission
+from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.api.utils.responses import success_response, error_response
 
@@ -26,8 +26,8 @@ bp = Blueprint('runner_sessions', __name__, url_prefix='/runner/sessions')
 # =============================================================================
 
 @bp.route('', methods=['POST'])
-@require_auth
-@require_permission('runner.sessions.execute')
+@token_required
+@permission_required('runner.sessions.execute')
 def start_session():
     """
     POST /api/v1/runner/sessions
@@ -81,8 +81,8 @@ def start_session():
 
 
 @bp.route('/<string:session_id>', methods=['GET'])
-@require_auth
-@require_permission('runner.sessions.read')
+@token_required
+@permission_required('runner.sessions.read')
 def get_session_state(session_id: str):
     """
     GET /api/v1/runner/sessions/{session_id}
@@ -119,8 +119,8 @@ def get_session_state(session_id: str):
 
 
 @bp.route('/<string:session_id>/state', methods=['PATCH'])
-@require_auth
-@require_permission('runner.sessions.execute')
+@token_required
+@permission_required('runner.sessions.execute')
 def update_session_state(session_id: str):
     """
     PATCH /api/v1/runner/sessions/{session_id}/state
@@ -161,8 +161,8 @@ def update_session_state(session_id: str):
 
 
 @bp.route('/<string:session_id>/finish', methods=['POST'])
-@require_auth
-@require_permission('runner.sessions.execute')
+@token_required
+@permission_required('runner.sessions.execute')
 def finish_session(session_id: str):
     """
     POST /api/v1/runner/sessions/{session_id}/finish

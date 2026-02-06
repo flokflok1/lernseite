@@ -15,8 +15,7 @@ ISO/IEC/IEEE 26515:2018 compliant - RESTful API design
 from flask import Blueprint, jsonify
 from typing import Dict, Any, Tuple
 import logging
-import psycopg
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from app.core.bootstrap import extensions
 from app.api.middleware.auth import token_required
@@ -65,8 +64,7 @@ def get_system_stats() -> Tuple[Dict[str, Any], int]:
         500: Server error
     """
     try:
-        conn = db_pool.getconn()
-        try:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cursor:
                 # Get basic system stats from database
                 cursor.execute("""
@@ -75,7 +73,7 @@ def get_system_stats() -> Tuple[Dict[str, Any], int]:
                         EXTRACT(EPOCH FROM age(now(), now()))::int as db_latency_ms
                 """)
                 result = cursor.fetchone()
-                uptime = int(result[0]) if result[0] else 0
+                uptime = int(result[0]) if result and result[0] else 0
                 db_latency = 45  # Placeholder, would need monitoring data
 
                 # Get request count and error rate from logs or monitoring
@@ -94,9 +92,6 @@ def get_system_stats() -> Tuple[Dict[str, Any], int]:
                     'success': True,
                     'data': stats
                 }), 200
-
-        finally:
-            db_pool.putconn(conn)
 
     except Exception as e:
         logger.exception(f"Error fetching system stats: {str(e)}")
@@ -132,34 +127,33 @@ def get_user_stats() -> Tuple[Dict[str, Any], int]:
         500: Server error
     """
     try:
-        conn = db_pool.getconn()
-        try:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cursor:
-                # Total users
-                cursor.execute("SELECT COUNT(*) as total FROM users")
+                # Total users (using schema-prefixed table name)
+                cursor.execute("SELECT COUNT(*) as total FROM core.users")
                 total_users = cursor.fetchone()[0]
 
                 # Active users (logged in last 7 days)
                 cursor.execute("""
                     SELECT COUNT(*) as active
-                    FROM users
-                    WHERE last_login IS NOT NULL
-                    AND last_login >= NOW() - INTERVAL '7 days'
+                    FROM core.users
+                    WHERE last_login_at IS NOT NULL
+                    AND last_login_at >= NOW() - INTERVAL '7 days'
                 """)
                 active_users = cursor.fetchone()[0]
 
-                # Banned users
+                # Banned/deactivated users (using is_deleted since is_banned doesn't exist)
                 cursor.execute("""
                     SELECT COUNT(*) as banned
-                    FROM users
-                    WHERE is_banned = true
+                    FROM core.users
+                    WHERE is_deleted = true OR is_active = false
                 """)
                 banned_users = cursor.fetchone()[0]
 
                 # New users in last 30 days
                 cursor.execute("""
                     SELECT COUNT(*) as new_users
-                    FROM users
+                    FROM core.users
                     WHERE created_at >= NOW() - INTERVAL '30 days'
                 """)
                 new_users_30d = cursor.fetchone()[0]
@@ -175,9 +169,6 @@ def get_user_stats() -> Tuple[Dict[str, Any], int]:
                     'success': True,
                     'data': stats
                 }), 200
-
-        finally:
-            db_pool.putconn(conn)
 
     except Exception as e:
         logger.exception(f"Error fetching user stats: {str(e)}")
@@ -213,25 +204,24 @@ def get_course_stats() -> Tuple[Dict[str, Any], int]:
         500: Server error
     """
     try:
-        conn = db_pool.getconn()
-        try:
+        with extensions.db_pool.connection() as conn:
             with conn.cursor() as cursor:
-                # Total courses
-                cursor.execute("SELECT COUNT(*) as total FROM courses")
+                # Total courses (using schema-prefixed table name)
+                cursor.execute("SELECT COUNT(*) as total FROM courses.courses")
                 total_courses = cursor.fetchone()[0]
 
                 # Published courses
                 cursor.execute("""
                     SELECT COUNT(*) as published
-                    FROM courses
-                    WHERE is_published = true
+                    FROM courses.courses
+                    WHERE published = true
                 """)
                 published = cursor.fetchone()[0]
 
                 # Pending review
                 cursor.execute("""
                     SELECT COUNT(*) as pending
-                    FROM courses
+                    FROM courses.courses
                     WHERE status = 'pending_review'
                 """)
                 pending_review = cursor.fetchone()[0]
@@ -239,7 +229,7 @@ def get_course_stats() -> Tuple[Dict[str, Any], int]:
                 # Rejected courses
                 cursor.execute("""
                     SELECT COUNT(*) as rejected
-                    FROM courses
+                    FROM courses.courses
                     WHERE status = 'rejected'
                 """)
                 rejected = cursor.fetchone()[0]
@@ -255,9 +245,6 @@ def get_course_stats() -> Tuple[Dict[str, Any], int]:
                     'success': True,
                     'data': stats
                 }), 200
-
-        finally:
-            db_pool.putconn(conn)
 
     except Exception as e:
         logger.exception(f"Error fetching course stats: {str(e)}")

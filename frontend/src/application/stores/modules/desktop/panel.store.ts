@@ -147,7 +147,7 @@ function savePersistedSizesToStorage(sizes: Record<string, { width: number; heig
 // Debounce timer for API calls
 let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-export const usePanelStore = defineStore('panel', () => {
+export const usePanelStore = defineStore('desktop-panel', () => {
   // ============================================================================
   // State
   // ============================================================================

@@ -1,27 +1,27 @@
 <template>
   <!-- Has group selected (GBA) -->
-  <Card v-if="role" class="p-6">
+  <Card v-if="group" class="p-6">
     <div class="flex justify-between items-start mb-6">
       <div class="flex items-center gap-4">
         <span
           class="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl"
           :class="groupColorClass"
         >
-          {{ role.name.charAt(0).toUpperCase() }}
+          {{ group.name.charAt(0).toUpperCase() }}
         </span>
         <div>
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-            {{ role.name }}
+            {{ group.name }}
           </h2>
-          <p class="text-gray-500">{{ role.slug }} · {{ groupTypeLabel }}</p>
+          <p class="text-gray-500">{{ group.slug }} · {{ groupTypeLabel }}</p>
         </div>
       </div>
       <div class="flex gap-2">
         <Button
-          v-if="role.type !== 'system_admin'"
+          v-if="group.type !== 'system_admin'"
           variant="secondary"
           size="sm"
-          @click="$emit('edit', role)"
+          @click="$emit('edit', group)"
         >
           {{ $t('common.edit') }}
         </Button>
@@ -137,7 +137,7 @@ import type { Group, GroupMember, GroupPermission } from '@/presentation/compone
 const { t } = useI18n()
 
 interface Props {
-  role: Group | null
+  group: Group | null
   users: GroupMember[]
   availablePermissions: GroupPermission[]
 }
@@ -151,8 +151,8 @@ const emit = defineEmits<{
 
 // Computed
 const groupColorClass = computed(() => {
-  if (!props.role) return 'bg-gray-600'
-  switch (props.role.type) {
+  if (!props.group) return 'bg-gray-600'
+  switch (props.group.type) {
     case 'system_admin': return 'bg-red-600'
     case 'org_admin': return 'bg-blue-600'
     default: return 'bg-green-600'
@@ -160,8 +160,8 @@ const groupColorClass = computed(() => {
 })
 
 const groupTypeLabel = computed(() => {
-  if (!props.role) return ''
-  switch (props.role.type) {
+  if (!props.group) return ''
+  switch (props.group.type) {
     case 'system_admin': return t('panel.groups.typeSystem')
     case 'org_admin': return t('panel.groups.typeOrg')
     default: return t('panel.groups.typeCustom')
@@ -201,7 +201,7 @@ function cancelEditing() {
 }
 
 // Reset editing state when group changes
-watch(() => props.role, () => {
+watch(() => props.group, () => {
   editingPermissions.value = false
 })
 </script>

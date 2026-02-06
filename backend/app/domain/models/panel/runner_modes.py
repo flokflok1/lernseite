@@ -28,7 +28,7 @@ class RunnerModeCreate(BaseModel):
         ...,
         min_length=2,
         max_length=50,
-        regex=r'^[a-z][a-z0-9_]*$',
+        pattern=r'^[a-z][a-z0-9_]*$',
         description="Unique code (lowercase, underscores allowed)"
     )
     name: str = Field(
@@ -80,7 +80,7 @@ class RunnerModeCreate(BaseModel):
         return v.lower()
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "mode_code": "practice",
                 "name": "Practice Mode",
@@ -108,7 +108,7 @@ class RunnerModeUpdate(BaseModel):
     active: Optional[bool] = None
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "name": "Updated Practice Mode",
                 "allows_hints": False
@@ -135,7 +135,7 @@ class RunnerModeResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class RunnerModeListResponse(BaseModel):
@@ -163,7 +163,7 @@ class FeatureMappingItem(BaseModel):
     )
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "feature_id": 3,
                 "relationship": "required",
@@ -181,7 +181,7 @@ class FeatureMappingRequest(BaseModel):
     )
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "features": [
                     {"feature_id": 3, "relationship": "required", "config": {}},
@@ -200,7 +200,7 @@ class FeatureMappingResponse(BaseModel):
     features: List[Dict[str, Any]]
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "mode_id": 1,
                 "mode_code": "exam",
@@ -233,7 +233,7 @@ class LMTypeModeItem(BaseModel):
     )
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "mode_id": 2,
                 "is_compatible": True,
@@ -259,7 +259,7 @@ class LMTypeModeRequest(BaseModel):
         return v
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "modes": [
                     {"mode_id": 1, "is_compatible": True, "is_default": True},
@@ -277,7 +277,7 @@ class LMTypeModeResponse(BaseModel):
     modes: List[Dict[str, Any]]
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "method_type": 5,
                 "modes": [

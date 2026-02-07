@@ -60,8 +60,6 @@ class LanguageManager:
         if cached:
             return cached
 
-        primary_lang = LanguageManager.get_primary_language()
-
         try:
             # Get total keys count
             key_count_query = "SELECT COUNT(*) as cnt FROM translations.i18n_keys WHERE TRUE"
@@ -74,7 +72,7 @@ class LanguageManager:
                     sl.language_name,
                     sl.native_name,
                     sl.flag as flag_emoji,
-                    FALSE as is_primary,
+                    sl.is_primary,
                     COALESCE(sl.priority, 100) as priority,
                     NULL as fallback_language,
                     COALESCE(sl.is_rtl, FALSE) as rtl,
@@ -103,6 +101,86 @@ class LanguageManager:
             return []
 
     @staticmethod
+    def get_all_languages() -> List[Dict[str, Any]]:
+        """
+        Get ALL languages (including inactive) for admin management.
+
+        Returns:
+            List of all language records with progress statistics
+        """
+        cache_key = "i18n:languages:all"
+
+        cached = CacheService.cache_get(cache_key)
+        if cached:
+            return cached
+
+        try:
+            key_count_query = "SELECT COUNT(*) as cnt FROM translations.i18n_keys WHERE TRUE"
+            key_count_result = fetch_one(key_count_query)
+            total_keys = key_count_result['cnt'] if key_count_result else 0
+
+            query = """
+                SELECT
+                    sl.language_code,
+                    sl.language_name,
+                    sl.native_name,
+                    sl.flag as flag_emoji,
+                    sl.is_primary,
+                    COALESCE(sl.priority, 100) as priority,
+                    COALESCE(sl.is_rtl, FALSE) as rtl,
+                    sl.is_active as active,
+                    %s as total_keys,
+                    COALESCE(trans_count.cnt, 0) as translated_keys,
+                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s) ELSE 0 END as completion_percent
+                FROM translations.supported_languages sl
+                LEFT JOIN (
+                    SELECT language_code, COUNT(*) as cnt
+                    FROM translations.i18n_translations
+                    GROUP BY language_code
+                ) trans_count ON sl.language_code = trans_count.language_code
+                ORDER BY sl.priority, sl.language_name
+            """
+            result = fetch_all(query, (total_keys, total_keys, total_keys))
+            languages = result if result else []
+
+            CacheService.cache_set(cache_key, languages, 300)
+            return languages
+        except Exception as e:
+            logger.error(f"Error fetching all languages: {e}")
+            return []
+
+    @staticmethod
+    def set_primary_language(language_code: str) -> bool:
+        """
+        Set a language as the primary (default) language.
+        Unsets the previous primary first (DB unique index enforces one primary).
+
+        Args:
+            language_code: The language code to set as primary
+
+        Returns:
+            True if successful, False otherwise
+        """
+        from app.infrastructure.persistence.database.connection import execute_query
+
+        try:
+            # Unset current primary, then set new one (within same transaction)
+            execute_query(
+                "UPDATE translations.supported_languages SET is_primary = FALSE WHERE is_primary = TRUE"
+            )
+            execute_query(
+                "UPDATE translations.supported_languages SET is_primary = TRUE WHERE language_code = %s",
+                (language_code,)
+            )
+            LanguageManager.invalidate_primary_language_cache()
+            CacheService.cache_delete("i18n:languages")
+            CacheService.cache_delete("i18n:languages:all")
+            return True
+        except Exception as e:
+            logger.error(f"Error setting primary language to {language_code}: {e}")
+            return False
+
+    @staticmethod
     def get_language_progress(language_code: str) -> Optional[Dict[str, Any]]:
         """
         Get detailed progress for a specific language.
@@ -125,7 +203,7 @@ class LanguageManager:
                     sl.language_name,
                     sl.native_name,
                     sl.flag as flag_emoji,
-                    COALESCE(sl.is_primary, FALSE) as is_primary,
+                    sl.is_primary,
                     COALESCE(sl.priority, 100) as priority,
                     NULL as fallback_language,
                     sl.is_active as active,

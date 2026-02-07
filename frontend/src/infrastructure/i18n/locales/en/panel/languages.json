@@ -1,0 +1,71 @@
+{
+  "languages": {
+    "title": "Language Management",
+    "subtitle": "Manage system languages and set default language",
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "nativeName": "Native Name",
+      "flag": "Flag",
+      "status": "Status",
+      "primary": "Default",
+      "completion": "Progress",
+      "priority": "Priority",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "setPrimary": "Set as Default",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Add Language"
+    },
+    "badges": {
+      "primary": "Default",
+      "rtl": "RTL"
+    },
+    "confirm": {
+      "delete": "Really delete language \"{name}\"? All translations for this language will be removed.",
+      "setPrimary": "Set \"{name}\" as default language?",
+      "deactivate": "Deactivate language \"{name}\"?"
+    },
+    "toast": {
+      "created": "Language created successfully",
+      "updated": "Language updated successfully",
+      "deleted": "Language deleted successfully",
+      "primaryChanged": "Default language changed to \"{name}\"",
+      "activated": "Language activated",
+      "deactivated": "Language deactivated",
+      "errorLoad": "Error loading languages",
+      "errorCreate": "Error creating language",
+      "errorUpdate": "Error updating language",
+      "errorDelete": "Error deleting language",
+      "cannotDeletePrimary": "Cannot delete the default language"
+    },
+    "modal": {
+      "createTitle": "New Language",
+      "editTitle": "Edit Language",
+      "code": "Language code (e.g. fr)",
+      "codePlaceholder": "fr",
+      "name": "English Name",
+      "namePlaceholder": "French",
+      "nativeName": "Native Name",
+      "nativeNamePlaceholder": "Français",
+      "flag": "Flag Emoji",
+      "flagPlaceholder": "🇫🇷",
+      "active": "Active",
+      "rtl": "Right-to-Left (RTL)",
+      "priority": "Priority",
+      "priorityHint": "Lower values are shown first",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "empty": "No languages configured",
+    "loading": "Loading languages..."
+  }
+}

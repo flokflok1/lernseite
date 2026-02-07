@@ -26,12 +26,13 @@ i18n_languages_bp = Blueprint('i18n_languages', __name__, url_prefix='/i18n')
 @permission_required('i18n.view')
 def admin_get_languages():
     """
-    Get all languages (admin view with more details).
+    Get all languages (admin view with more details, includes inactive).
 
     Returns:
         List of all languages with full metadata
     """
-    languages = I18nService.get_languages()
+    from app.application.services.i18n.languages import LanguageManager
+    languages = LanguageManager.get_all_languages()
     return jsonify({
         'success': True,
         'data': languages
@@ -173,9 +174,11 @@ def update_language(language_code: str):
         if 'rtl' in data:
             updates.append("is_rtl = %s")
             params.append(data['rtl'])
-        if 'is_primary' in data:
-            updates.append("is_primary = %s")
-            params.append(data['is_primary'])
+        primary_changed = False
+        if 'is_primary' in data and data['is_primary']:
+            # Use LanguageManager to safely toggle primary (unsets others first)
+            from app.application.services.i18n.languages import LanguageManager
+            primary_changed = LanguageManager.set_primary_language(language_code)
         if 'priority' in data:
             updates.append("priority = %s")
             params.append(data['priority'])
@@ -183,21 +186,22 @@ def update_language(language_code: str):
             updates.append("fallback_language = %s")
             params.append(data['fallback_language'] if data['fallback_language'] else None)
 
-        if not updates:
+        if not updates and not primary_changed:
             return jsonify({
                 'success': False,
                 'error': {'code': 'INVALID_INPUT', 'message': 'No fields to update'}
             }), 400
 
-        params.append(language_code)
+        if updates:
+            params.append(language_code)
 
-        execute_query(f"""
-            UPDATE translations.supported_languages
-            SET {', '.join(updates)}
-            WHERE language_code = %s
-        """, tuple(params))
+            execute_query(f"""
+                UPDATE translations.supported_languages
+                SET {', '.join(updates)}
+                WHERE language_code = %s
+            """, tuple(params))
 
-        I18nService.invalidate_cache(language_code)
+            I18nService.invalidate_cache(language_code)
 
         return jsonify({'success': True})
 
@@ -223,8 +227,9 @@ def delete_language(language_code: str):
     """
     from app.infrastructure.persistence.database.connection import execute_query, fetch_one
 
-    # Don't allow deleting German (primary language)
-    if language_code == 'de':
+    # Don't allow deleting the primary language (dynamic check)
+    from app.application.services.i18n.languages import LanguageManager
+    if language_code == LanguageManager.get_primary_language():
         return jsonify({
             'success': False,
             'error': {'code': 'FORBIDDEN', 'message': 'Cannot delete primary language'}

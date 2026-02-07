@@ -1,0 +1,71 @@
+{
+  "languages": {
+    "title": "Sprachenverwaltung",
+    "subtitle": "Systemsprachen verwalten und Standardsprache festlegen",
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "nativeName": "Eigenname",
+      "flag": "Flagge",
+      "status": "Status",
+      "primary": "Standard",
+      "completion": "Fortschritt",
+      "priority": "Priorität",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "actions": {
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "setPrimary": "Als Standard setzen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "create": "Sprache hinzufügen"
+    },
+    "badges": {
+      "primary": "Standard",
+      "rtl": "RTL"
+    },
+    "confirm": {
+      "delete": "Sprache \"{name}\" wirklich löschen? Alle Übersetzungen für diese Sprache werden entfernt.",
+      "setPrimary": "\"{name}\" als Standardsprache festlegen?",
+      "deactivate": "Sprache \"{name}\" deaktivieren?"
+    },
+    "toast": {
+      "created": "Sprache erfolgreich erstellt",
+      "updated": "Sprache erfolgreich aktualisiert",
+      "deleted": "Sprache erfolgreich gelöscht",
+      "primaryChanged": "Standardsprache geändert zu \"{name}\"",
+      "activated": "Sprache aktiviert",
+      "deactivated": "Sprache deaktiviert",
+      "errorLoad": "Fehler beim Laden der Sprachen",
+      "errorCreate": "Fehler beim Erstellen der Sprache",
+      "errorUpdate": "Fehler beim Aktualisieren der Sprache",
+      "errorDelete": "Fehler beim Löschen der Sprache",
+      "cannotDeletePrimary": "Standardsprache kann nicht gelöscht werden"
+    },
+    "modal": {
+      "createTitle": "Neue Sprache",
+      "editTitle": "Sprache bearbeiten",
+      "code": "Sprachcode (z.B. fr)",
+      "codePlaceholder": "fr",
+      "name": "Englischer Name",
+      "namePlaceholder": "French",
+      "nativeName": "Eigenname",
+      "nativeNamePlaceholder": "Français",
+      "flag": "Flaggen-Emoji",
+      "flagPlaceholder": "🇫🇷",
+      "active": "Aktiv",
+      "rtl": "Rechts-nach-Links (RTL)",
+      "priority": "Priorität",
+      "priorityHint": "Niedrigere Werte werden zuerst angezeigt",
+      "save": "Speichern",
+      "cancel": "Abbrechen"
+    },
+    "empty": "Keine Sprachen konfiguriert",
+    "loading": "Sprachen werden geladen..."
+  }
+}

@@ -83,6 +83,11 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelAuditLogs',
       component: () => import('@/presentation/features/panel/pages/PanelAuditLogsPage.vue'),
     },
+    {
+      path: 'languages',
+      name: 'PanelLanguages',
+      component: () => import('@/presentation/features/panel/pages/PanelLanguagesPage.vue'),
+    },
     // TODO: Fix i18n translations system (locales dir issue)
     // {
     //   path: 'translations',

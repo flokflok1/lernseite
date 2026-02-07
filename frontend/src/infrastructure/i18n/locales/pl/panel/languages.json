@@ -1,0 +1,71 @@
+{
+  "languages": {
+    "title": "Zarządzanie językami",
+    "subtitle": "Zarządzaj językami systemu i ustaw język domyślny",
+    "table": {
+      "code": "Kod",
+      "name": "Nazwa",
+      "nativeName": "Nazwa rodzima",
+      "flag": "Flaga",
+      "status": "Status",
+      "primary": "Domyślny",
+      "completion": "Postęp",
+      "priority": "Priorytet",
+      "actions": "Akcje"
+    },
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny"
+    },
+    "actions": {
+      "activate": "Aktywuj",
+      "deactivate": "Dezaktywuj",
+      "setPrimary": "Ustaw jako domyślny",
+      "edit": "Edytuj",
+      "delete": "Usuń",
+      "create": "Dodaj język"
+    },
+    "badges": {
+      "primary": "Domyślny",
+      "rtl": "RTL"
+    },
+    "confirm": {
+      "delete": "Naprawdę usunąć język \"{name}\"? Wszystkie tłumaczenia dla tego języka zostaną usunięte.",
+      "setPrimary": "Ustawić \"{name}\" jako język domyślny?",
+      "deactivate": "Dezaktywować język \"{name}\"?"
+    },
+    "toast": {
+      "created": "Język utworzony pomyślnie",
+      "updated": "Język zaktualizowany pomyślnie",
+      "deleted": "Język usunięty pomyślnie",
+      "primaryChanged": "Język domyślny zmieniony na \"{name}\"",
+      "activated": "Język aktywowany",
+      "deactivated": "Język dezaktywowany",
+      "errorLoad": "Błąd ładowania języków",
+      "errorCreate": "Błąd tworzenia języka",
+      "errorUpdate": "Błąd aktualizacji języka",
+      "errorDelete": "Błąd usuwania języka",
+      "cannotDeletePrimary": "Nie można usunąć języka domyślnego"
+    },
+    "modal": {
+      "createTitle": "Nowy język",
+      "editTitle": "Edytuj język",
+      "code": "Kod języka (np. fr)",
+      "codePlaceholder": "fr",
+      "name": "Nazwa angielska",
+      "namePlaceholder": "French",
+      "nativeName": "Nazwa rodzima",
+      "nativeNamePlaceholder": "Français",
+      "flag": "Emoji flagi",
+      "flagPlaceholder": "🇫🇷",
+      "active": "Aktywny",
+      "rtl": "Od prawej do lewej (RTL)",
+      "priority": "Priorytet",
+      "priorityHint": "Niższe wartości są wyświetlane jako pierwsze",
+      "save": "Zapisz",
+      "cancel": "Anuluj"
+    },
+    "empty": "Nie skonfigurowano żadnych języków",
+    "loading": "Ładowanie języków..."
+  }
+}

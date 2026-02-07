@@ -2,4 +2,4 @@
  * Group Management Types
  */
 
-export type { Group, GroupMember, GroupPermission } from './group.types'
+export type { Group, GroupMember, GroupPermission, RegistryPermission } from './group.types'

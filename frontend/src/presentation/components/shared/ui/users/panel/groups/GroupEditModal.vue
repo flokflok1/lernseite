@@ -7,31 +7,31 @@
     >
       <Card class="w-full max-w-md p-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ mode === 'create' ? $t('panel.groups.createGroup') : $t('panel.groups.editGroup') }}
+          {{ mode === 'create' ? $t('panel.groups.create') : $t('panel.groups.edit') }}
         </h2>
 
         <div class="space-y-4">
           <!-- Group Name (GBA) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {{ $t('panel.groups.groupName') }}
+              {{ $t('panel.groups.roleName') }}
             </label>
-            <Input v-model="form.name" :placeholder="$t('panel.groups.groupNamePlaceholder')" />
+            <Input v-model="form.name" :placeholder="$t('panel.groups.form.roleNamePlaceholder')" />
           </div>
 
           <!-- Slug (GBA) -->
           <div v-if="mode === 'create'">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {{ $t('panel.groups.slug') }}
+              {{ $t('panel.groups.form.slug') }}
             </label>
-            <Input v-model="form.slug" :placeholder="$t('panel.groups.slugPlaceholder')" />
-            <p class="text-xs text-gray-500 mt-1">{{ $t('panel.groups.slugHelp') }}</p>
+            <Input v-model="form.slug" :placeholder="$t('panel.groups.form.slugPlaceholder')" />
+            <p class="text-xs text-gray-500 mt-1">{{ $t('panel.groups.form.slugHelp') }}</p>
           </div>
 
           <!-- Group Type (GBA) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {{ $t('panel.groups.groupType') }}
+              {{ $t('panel.groups.form.groupType') }}
             </label>
             <select
               v-model="form.type"
@@ -52,7 +52,7 @@
               v-model="form.description"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               rows="2"
-              :placeholder="$t('panel.groups.descriptionPlaceholder')"
+              :placeholder="$t('panel.groups.form.descriptionPlaceholder')"
             />
           </div>
         </div>

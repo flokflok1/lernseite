@@ -15,13 +15,15 @@
  * - GET /api/v1/admin/groups/<id>/permissions - List group permissions
  * - POST /api/v1/admin/groups/<id>/permissions - Grant permission to group
  * - DELETE /api/v1/admin/groups/<id>/permissions/<perm_id> - Revoke permission
+ * - GET /api/v1/admin/groups/permissions/registry - List all available permissions
  */
 
 import api from '@/infrastructure/api/http'
 import type {
   Group,
   GroupMember,
-  GroupPermission
+  GroupPermission,
+  RegistryPermission
 } from '@/presentation/components/panel/groups/types'
 
 // Note: http.ts already has baseURL '/api/v1', so we only need the relative path
@@ -223,6 +225,28 @@ export async function revokeGroupPermission(
   await api.delete(`${BASE_URL}/${groupId}/permissions/${permissionId}`)
 }
 
+/**
+ * Fetch all available permissions from the global registry
+ * @param category - Optional category filter
+ * @returns Promise with permissions array, total count, and categories list
+ */
+export async function fetchPermissionsRegistry(
+  category?: string
+): Promise<{ data: RegistryPermission[]; total: number; categories: string[] }> {
+  const params = new URLSearchParams()
+  if (category) {
+    params.set('category', category)
+  }
+
+  const query = params.toString()
+  const url = query
+    ? `${BASE_URL}/permissions/registry?${query}`
+    : `${BASE_URL}/permissions/registry`
+
+  const response = await api.get(url)
+  return response.data
+}
+
 export default {
   fetchGroups,
   fetchGroup,
@@ -234,5 +258,6 @@ export default {
   removeGroupMember,
   fetchGroupPermissions,
   grantGroupPermission,
-  revokeGroupPermission
+  revokeGroupPermission,
+  fetchPermissionsRegistry
 }

@@ -34,3 +34,12 @@ export interface GroupPermission {
   description?: string
   assigned_at?: string
 }
+
+/** Permission from global registry (core.permissions table) */
+export interface RegistryPermission {
+  id: string
+  code: string
+  display_name: string
+  category: string
+  description?: string
+}

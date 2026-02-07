@@ -62,10 +62,9 @@
       </div>
     </div>
 
-    <!-- Permissions Tab -->
+    <!-- Permissions Tab (self-contained, fetches from registry) -->
     <PermissionsOverview
       v-if="activeTab === 'permissions'"
-      :permissions="groupPermissions"
     />
 
     <!-- Create/Edit Modal (GBA) -->

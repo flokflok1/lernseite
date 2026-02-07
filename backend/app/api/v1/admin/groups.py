@@ -295,6 +295,90 @@ def list_groups() -> Tuple[Dict[str, Any], int]:
         }), 500
 
 
+# ============================================================================
+# PERMISSIONS REGISTRY (ALL PERMISSIONS)
+# IMPORTANT: Must be defined BEFORE /<group_id> routes to avoid shadowing
+# ============================================================================
+
+@bp.route('/permissions/registry', methods=['GET'])
+@token_required
+@admin_required
+def list_all_permissions() -> Tuple[Dict[str, Any], int]:
+    """
+    GET /admin/groups/permissions/registry
+
+    List ALL available permissions from the registry, grouped by category.
+    Used by the PermissionsOverview to display assignable permissions.
+
+    Query Parameters:
+        - category: Optional category filter
+
+    Returns:
+        200: {data: Permission[], total: int, categories: str[]}
+    """
+    try:
+        category = request.args.get('category')
+
+        if category:
+            permissions = fetch_all(
+                """
+                SELECT id, code, display_name, category, description
+                FROM core.permissions
+                WHERE category = %s
+                ORDER BY category, code ASC
+                """,
+                (category,)
+            )
+        else:
+            permissions = fetch_all(
+                """
+                SELECT id, code, display_name, category, description
+                FROM core.permissions
+                ORDER BY category, code ASC
+                """
+            )
+
+        # Get distinct categories
+        categories_result = fetch_all(
+            """
+            SELECT DISTINCT category
+            FROM core.permissions
+            ORDER BY category ASC
+            """
+        )
+        categories = [c['category'] for c in categories_result] if categories_result else []
+
+        data = [
+            {
+                'id': p['id'],
+                'code': p['code'],
+                'display_name': p['display_name'],
+                'category': p['category'],
+                'description': p['description']
+            }
+            for p in permissions
+        ]
+
+        return jsonify({
+            'data': data,
+            'total': len(data),
+            'categories': categories
+        }), 200
+
+    except Exception as e:
+        logger.exception(f"Error listing permissions registry: {e}")
+        return jsonify({
+            'error': {
+                'code': 'PERMISSIONS_REGISTRY_ERROR',
+                'message': 'Failed to list permissions registry'
+            }
+        }), 500
+
+
+# ============================================================================
+# SINGLE GROUP ENDPOINTS
+# ============================================================================
+
 @bp.route('/<group_id>', methods=['GET'])
 @token_required
 @admin_required

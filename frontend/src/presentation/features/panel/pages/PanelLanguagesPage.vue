@@ -166,6 +166,22 @@
       </table>
     </div>
 
+    <!-- Translation Tools (Seed + AI Translate) -->
+    <LanguageTranslationToolbar
+      v-if="languages.length > 0"
+      :languages="languages"
+      @refresh-languages="loadLanguages"
+      class="mt-6"
+    />
+
+    <!-- Translation Review Table -->
+    <TranslationReviewPanel
+      v-if="languages.length > 0"
+      :languages="languages"
+      @refresh-languages="loadLanguages"
+      class="mt-6"
+    />
+
     <!-- Create/Edit Modal -->
     <div
       v-if="showModal"
@@ -303,6 +319,8 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { languagesApi, type AdminLanguage } from '@/infrastructure/api/clients/admin/languages.api'
+import LanguageTranslationToolbar from '../components/LanguageTranslationToolbar.vue'
+import TranslationReviewPanel from '../components/TranslationReviewPanel.vue'
 
 import flagDe from '@/assets/flags/de.svg'
 import flagEn from '@/assets/flags/en.svg'

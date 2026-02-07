@@ -1,7 +1,7 @@
 """
 i18n AI Generation Module
 =========================
-AI-powered translation generation using Anthropic Claude.
+AI-powered translation generation using the configured default translation model.
 """
 
 from typing import Optional, Dict, Any
@@ -16,7 +16,7 @@ class AITranslationGenerator:
 
     @staticmethod
     def generate_ai_translation(
-        key_id: int,
+        key_id: str,
         target_language: str,
         user_id: str,
         primary_language: str = 'de',
@@ -35,23 +35,24 @@ class AITranslationGenerator:
         Returns:
             Result dict with success status and translation or error
         """
-        from app.application.services.ai_adapter import AIAdapter
+        from app.application.services.ai.adapter import AIAdapter
+        from app.infrastructure.persistence.repositories.ai_models.defaults import AIModelsDefaultRepository
 
         try:
             # Get key info and primary language source
             key_query = """
                 SELECT
                     k.key_path,
-                    k.context as description,
+                    k.description,
                     k.context as context_hint,
-                    k.placeholders,
-                    n.namespace_code,
-                    t.value as source_value,
+                    k.namespace_code,
+                    t.translated_value as source_value,
                     sl.language_name as source_language_name
-                FROM i18n_keys k
-                LEFT JOIN i18n_namespaces n ON k.namespace_id = n.namespace_id
-                LEFT JOIN i18n_translations t ON k.key_id = t.key_id AND t.language_code = %s
-                LEFT JOIN supported_languages sl ON sl.language_code = %s
+                FROM translations.i18n_keys k
+                LEFT JOIN translations.i18n_translations t
+                    ON k.key_id = t.key_id AND t.language_code = %s
+                LEFT JOIN translations.supported_languages sl
+                    ON sl.language_code = %s
                 WHERE k.key_id = %s
             """
             key_info = fetch_one(key_query, (primary_language, primary_language, key_id))
@@ -60,12 +61,23 @@ class AITranslationGenerator:
                 return {'success': False, 'error': f'No {primary_language.upper()} source text found'}
 
             # Get target language info
-            lang_query = "SELECT language_name, native_name FROM supported_languages WHERE language_code = %s"
+            lang_query = """
+                SELECT language_name, native_name
+                FROM translations.supported_languages
+                WHERE language_code = %s
+            """
             lang_info = fetch_one(lang_query, (target_language,))
 
             if not lang_info:
                 return {'success': False, 'error': 'Target language not found'}
 
+            # Resolve AI model from admin settings — NO fallback
+            model_info = AIModelsDefaultRepository.get_default_model('translation')
+            if not model_info:
+                return {'success': False, 'error': 'No default translation model configured. Configure in AI Settings.'}
+
+            provider = model_info['provider_name']
+            model_name = model_info['model_name']
             source_lang_name = key_info.get('source_language_name', 'German')
 
             # Build AI prompt
@@ -74,7 +86,6 @@ class AITranslationGenerator:
 Context: This is a UI text for key "{key_info['key_path']}" in namespace "{key_info['namespace_code']}".
 {f"Description: {key_info['description']}" if key_info.get('description') else ""}
 {f"Context hint: {key_info['context_hint']}" if key_info.get('context_hint') else ""}
-{f"Placeholders to preserve: {key_info['placeholders']}" if key_info.get('placeholders') else ""}
 
 {source_lang_name} text:
 {key_info['source_value']}
@@ -85,34 +96,36 @@ IMPORTANT:
 - Keep it concise - this is UI text
 - Return ONLY the translated text, nothing else"""
 
-            # Call AI
-            result = AIAdapter.generate_content(
+            # Call AI via adapter
+            adapter = AIAdapter(provider=provider, model=model_name)
+            result = adapter.send_request(
                 prompt=prompt,
-                provider='anthropic',
-                user_id=user_id,
-                max_tokens=500
+                language=target_language,
+                max_tokens=500,
+                temperature=0.3
             )
 
-            if result and result.get('content'):
-                translated_text = result['content'].strip()
+            if result and result.get('output_text'):
+                translated_text = result['output_text'].strip()
 
                 # Save translation if callback provided
                 if set_translation_fn:
                     set_translation_fn(
                         key_id=key_id,
                         language_code=target_language,
-                        value=translated_text,
-                        translator_id=user_id,
-                        is_machine_translated=True
+                        translated_value=translated_text,
+                        translator_user_id=user_id,
+                        translation_source='llm'
                     )
 
                 return {
                     'success': True,
                     'translation': translated_text,
-                    'tokens_used': result.get('tokens_used', 0)
+                    'tokens_used': result.get('total_tokens', 0),
+                    'cost_eur': result.get('cost_eur', 0)
                 }
 
-            return {'success': False, 'error': 'AI generation failed'}
+            return {'success': False, 'error': 'AI generation returned empty result'}
 
         except Exception as e:
             logger.error(f"Error generating AI translation: {e}")
@@ -121,7 +134,7 @@ IMPORTANT:
     @staticmethod
     def bulk_generate_translations(
         target_language: str,
-        namespace_id: Optional[int] = None,
+        namespace_code: Optional[str] = None,
         user_id: str = None,
         limit: int = 50,
         primary_language: str = 'de',
@@ -132,7 +145,7 @@ IMPORTANT:
 
         Args:
             target_language: Target language code
-            namespace_id: Optional namespace filter
+            namespace_code: Optional namespace filter
             user_id: Requesting user ID
             limit: Max keys to generate
             primary_language: Source language code
@@ -145,21 +158,22 @@ IMPORTANT:
             # Find keys missing translations for target language
             query = """
                 SELECT k.key_id, k.key_path
-                FROM i18n_keys k
-                WHERE NOT EXISTS (
-                    SELECT 1 FROM i18n_translations t
+                FROM translations.i18n_keys k
+                WHERE k.is_active = TRUE
+                AND NOT EXISTS (
+                    SELECT 1 FROM translations.i18n_translations t
                     WHERE t.key_id = k.key_id AND t.language_code = %s
                 )
                 AND EXISTS (
-                    SELECT 1 FROM i18n_translations t
+                    SELECT 1 FROM translations.i18n_translations t
                     WHERE t.key_id = k.key_id AND t.language_code = %s
                 )
             """
             params = [target_language, primary_language]
 
-            if namespace_id:
-                query += " AND k.namespace_id = %s"
-                params.append(namespace_id)
+            if namespace_code:
+                query += " AND k.namespace_code = %s"
+                params.append(namespace_code)
 
             query += " LIMIT %s"
             params.append(limit)

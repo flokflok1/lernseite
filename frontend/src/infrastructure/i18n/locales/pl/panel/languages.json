@@ -67,6 +67,45 @@
       "cancel": "Anuluj"
     },
     "empty": "Nie skonfigurowano żadnych języków",
-    "loading": "Ładowanie języków..."
+    "loading": "Ładowanie języków...",
+    "seed": {
+      "button": "Importuj dane referencyjne",
+      "hint": "Importuj istniejące pliki lokalizacji (de/en/pl) do bazy danych",
+      "importing": "Importowanie {lang}...",
+      "success": "Zaimportowano {count} tłumaczeń dla {lang}",
+      "complete": "Dane referencyjne zaimportowane pomyślnie",
+      "error": "Błąd importowania danych lokalizacji"
+    },
+    "translate": {
+      "button": "Tłumaczenie AI",
+      "sourceLanguage": "Tłumacz z",
+      "targetLanguage": "na",
+      "start": "Rozpocznij tłumaczenie",
+      "progress": "Tłumaczenie... {percent}%",
+      "translatedCount": "{translated} z {total} przetłumaczonych",
+      "failedCount": "{count} nieudanych",
+      "complete": "Tłumaczenie zakończone",
+      "error": "Tłumaczenie nie powiodło się",
+      "noModel": "Nie skonfigurowano modelu AI do tłumaczeń. Najpierw skonfiguruj w ustawieniach AI."
+    },
+    "review": {
+      "title": "Przegląd tłumaczeń",
+      "subtitle": "Przeglądaj i weryfikuj tłumaczenia wygenerowane przez AI",
+      "sourceValue": "Źródło",
+      "translatedValue": "Tłumaczenie",
+      "verified": "Zweryfikowane",
+      "unverified": "Niezweryfikowane",
+      "verify": "Zweryfikuj",
+      "verifySelected": "Zweryfikuj wybrane",
+      "edit": "Edytuj",
+      "save": "Zapisz",
+      "cancel": "Anuluj",
+      "noResults": "Nie znaleziono tłumaczeń",
+      "filterNamespace": "Przestrzeń nazw",
+      "filterStatus": "Status",
+      "filterAll": "Wszystkie",
+      "search": "Szukaj kluczy lub wartości...",
+      "source": "Źródło"
+    }
   }
 }

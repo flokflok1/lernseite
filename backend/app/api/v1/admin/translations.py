@@ -2,16 +2,19 @@
 Admin Translations API
 ======================
 
-Deterministic helper endpoints for translation management.
-
-Endpoints:
-    POST /api/v1/admin/translations/supported-languages/draft
-        - Suggest language metadata from a code or name input
-        - Fully deterministic (no AI, no DB writes)
+Translation management endpoints:
+- Language draft suggestion (deterministic)
+- JSON locale import
+- AI bulk translation (step-based jobs)
+- Translation review / edit / verify
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.application.services.i18n.keys import KeyManager
+from app.application.services.i18n.translations import TranslationManager
+import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -157,3 +160,113 @@ def draft_language():
         'success': True,
         'data': draft,
     }), 200
+
+
+# ---------------------------------------------------------------------------
+# Helper: flatten nested JSON to dot-notation
+# ---------------------------------------------------------------------------
+
+def _flatten_json(data: dict, prefix: str = '') -> dict:
+    """
+    Flatten nested dict to dot-notation key paths.
+
+    Example:
+        {"a": {"b": "val"}} -> {"a.b": "val"}
+    """
+    result = {}
+    for key, value in data.items():
+        full_key = f'{prefix}.{key}' if prefix else key
+        if isinstance(value, dict):
+            result.update(_flatten_json(value, full_key))
+        else:
+            result[full_key] = str(value) if value is not None else ''
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Task 6: Import JSON locale files
+# ---------------------------------------------------------------------------
+
+@bp.route('/import-locales', methods=['POST'])
+@token_required
+@admin_required
+def import_locales():
+    """
+    Import locale JSON data into the i18n database tables.
+
+    Request Body:
+        {
+            "language_code": "en",
+            "namespaces": {
+                "common": {"save": "Save", "cancel": "Cancel"},
+                "panel.system": {"title": "System", "auditLogs.action": "Action"}
+            }
+        }
+
+    Returns:
+        { success, keys_created, translations_imported }
+    """
+    data = request.get_json(silent=True) or {}
+    language_code = data.get('language_code')
+    namespaces = data.get('namespaces')
+
+    if not language_code or not isinstance(namespaces, dict):
+        return jsonify({'success': False, 'error': 'language_code and namespaces required'}), 400
+
+    # Verify language exists in supported_languages
+    lang = fetch_one(
+        "SELECT language_code FROM translations.supported_languages WHERE language_code = %s",
+        (language_code,)
+    )
+    if not lang:
+        return jsonify({'success': False, 'error': f'Language {language_code} not found in supported_languages'}), 404
+
+    keys_created = 0
+    translations_imported = 0
+    user_id = g.user_id
+
+    for namespace_code, ns_data in namespaces.items():
+        if not isinstance(ns_data, dict):
+            continue
+
+        flat = _flatten_json(ns_data)
+
+        for key_path, value in flat.items():
+            # UPSERT key
+            key_result = fetch_one("""
+                INSERT INTO translations.i18n_keys (namespace_code, key_path, default_value)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (namespace_code, key_path) DO UPDATE SET updated_at = NOW()
+                RETURNING key_id, (xmax = 0) AS was_inserted
+            """, (namespace_code, key_path, value if language_code == 'de' else ''))
+
+            if not key_result:
+                continue
+
+            if key_result.get('was_inserted'):
+                keys_created += 1
+
+            # UPSERT translation
+            success = TranslationManager.set_translation(
+                key_id=str(key_result['key_id']),
+                language_code=language_code,
+                translated_value=value,
+                translator_user_id=user_id,
+                translation_source='imported'
+            )
+            if success:
+                translations_imported += 1
+
+    logger.info(f"Locale import: lang={language_code}, keys={keys_created}, translations={translations_imported}")
+
+    return jsonify({
+        'success': True,
+        'keys_created': keys_created,
+        'translations_imported': translations_imported,
+    }), 200
+
+# ---------------------------------------------------------------------------
+# Part 2 + Part 3: Bulk translate + Review endpoints
+# Routes are registered via translations_part2.py and translations_part3.py
+# ---------------------------------------------------------------------------
+from app.api.v1.admin import translations_part2, translations_part3  # noqa: F401, E402

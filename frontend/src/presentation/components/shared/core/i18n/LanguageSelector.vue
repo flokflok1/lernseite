@@ -7,7 +7,7 @@
       @click="toggleDropdown"
       :title="t('i18n.select_language')"
     >
-      <span class="flag">{{ currentFlag }}</span>
+      <img :src="currentFlag" :alt="currentLanguage" class="flag" />
       <span v-if="showLabel" class="label">{{ currentLabel }}</span>
       <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -27,7 +27,7 @@
             :class="{ 'is-active': lang.language_code === currentLanguage }"
             @click="selectLanguage(lang.language_code)"
           >
-            <span class="flag">{{ lang.flag_emoji }}</span>
+            <img :src="flagUrl(lang.flag_svg_code)" :alt="lang.language_code" class="flag" />
             <span class="name">{{ lang.native_name }}</span>
             <span v-if="lang.completion_percent < 100" class="completion">
               {{ Math.round(lang.completion_percent) }}%
@@ -48,7 +48,7 @@
             :class="{ 'is-active': lang.language_code === currentLanguage }"
             @click="selectLanguage(lang.language_code)"
           >
-            <span class="flag">{{ lang.flag_emoji }}</span>
+            <img :src="flagUrl(lang.flag_svg_code)" :alt="lang.language_code" class="flag" />
             <span class="name">{{ lang.native_name }}</span>
             <span class="completion">{{ Math.round(lang.completion_percent) }}%</span>
           </button>
@@ -76,6 +76,18 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTranslation } from '@/application/composables/useTranslation'
 import type { LanguageProgress } from '@/application/services/api/system'
+
+// SVG flag assets
+import flagDe from '@/assets/flags/de.svg'
+import flagEn from '@/assets/flags/en.svg'
+import flagPl from '@/assets/flags/pl.svg'
+import flagPlaceholder from '@/assets/flags/placeholder.svg'
+
+const flagAssets: Record<string, string> = { de: flagDe, en: flagEn, pl: flagPl }
+function flagUrl(code: string | undefined): string {
+  if (!code) return flagPlaceholder
+  return flagAssets[code] ?? flagPlaceholder
+}
 
 // Props
 interface Props {
@@ -117,7 +129,7 @@ const currentLang = computed(() =>
   languages.value.find(l => l.language_code === currentLanguage.value)
 )
 
-const currentFlag = computed(() => currentLang.value?.flag_emoji || '🌐')
+const currentFlag = computed(() => flagUrl(currentLang.value?.flag_svg_code))
 const currentLabel = computed(() => currentLang.value?.native_name || currentLanguage.value.toUpperCase())
 
 // Methods
@@ -189,8 +201,11 @@ onUnmounted(() => {
 }
 
 .flag {
-  font-size: 1.25rem;
-  line-height: 1;
+  width: 1.5rem;
+  height: 1rem;
+  object-fit: cover;
+  border-radius: 0.125rem;
+  border: 1px solid var(--color-border, #e5e7eb);
 }
 
 .label {
@@ -263,7 +278,8 @@ onUnmounted(() => {
 }
 
 .dropdown-item .flag {
-  font-size: 1.25rem;
+  width: 1.5rem;
+  height: 1rem;
 }
 
 .dropdown-item .name {

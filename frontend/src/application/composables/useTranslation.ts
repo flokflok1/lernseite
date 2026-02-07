@@ -113,9 +113,9 @@ export function useTranslation() {
 
     // Language metadata (flexible - can be extended)
     const languageMetadata: Record<string, { name: string; nativeName: string; flag: string }> = {
-      de: { name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
-      en: { name: 'English', nativeName: 'English', flag: '🇬🇧' },
-      pl: { name: 'Polish', nativeName: 'Polski', flag: '🇵🇱' }
+      de: { name: 'German', nativeName: 'Deutsch', flag: 'de' },
+      en: { name: 'English', nativeName: 'English', flag: 'gb' },
+      pl: { name: 'Polish', nativeName: 'Polski', flag: 'pl' }
     }
 
     if (!isInstalled) {
@@ -125,16 +125,16 @@ export function useTranslation() {
           const meta = languageMetadata[code] || {
             name: code.toUpperCase(),
             nativeName: code.toUpperCase(),
-            flag: '🌐'
+            flag: ''
           }
           return {
             language_code: code,
             language_name: meta.name,
             native_name: meta.nativeName,
-            flag_emoji: meta.flag,
+            flag_svg_code: meta.flag,
             is_primary: true,
             priority: index + 1,
-            fallback_language: code === 'de' ? null : 'de',
+
             rtl: false,
             active: true,
             total_keys: 0,
@@ -161,16 +161,16 @@ export function useTranslation() {
           const meta = languageMetadata[code] || {
             name: code.toUpperCase(),
             nativeName: code.toUpperCase(),
-            flag: '🌐'
+            flag: ''
           }
           return {
             language_code: code,
             language_name: meta.name,
             native_name: meta.nativeName,
-            flag_emoji: meta.flag,
+            flag_svg_code: meta.flag,
             is_primary: true,
             priority: index + 1,
-            fallback_language: code === 'de' ? null : 'de',
+
             rtl: false,
             active: true,
             total_keys: 0,

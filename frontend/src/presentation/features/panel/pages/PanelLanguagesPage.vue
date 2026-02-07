@@ -63,7 +63,9 @@
             class="hover:bg-gray-50 dark:hover:bg-gray-750"
           >
             <!-- Flag -->
-            <td class="px-4 py-3 text-2xl">{{ lang.flag_emoji }}</td>
+            <td class="px-4 py-3">
+              <img :src="flagUrl(lang.flag_svg_code)" :alt="lang.language_code" class="w-8 h-6 rounded object-cover" />
+            </td>
 
             <!-- Code -->
             <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">
@@ -219,18 +221,23 @@
             />
           </div>
 
-          <!-- Flag Emoji -->
+          <!-- Flag SVG Code -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {{ $t('panel.languages.modal.flag') }}
             </label>
-            <input
-              v-model="form.flag_emoji"
-              type="text"
-              :placeholder="$t('panel.languages.modal.flagPlaceholder')"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-              required
-            />
+            <div class="flex items-center gap-2">
+              <input
+                v-model="form.flag_svg_code"
+                type="text"
+                :placeholder="$t('panel.languages.modal.flagPlaceholder')"
+                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-mono"
+                pattern="[a-z0-9\-]{2,10}"
+                required
+              />
+              <img :src="flagUrl(form.flag_svg_code)" :alt="form.flag_svg_code" class="w-8 h-6 rounded object-cover" />
+            </div>
+            <p class="text-xs text-gray-500 mt-1">{{ $t('panel.languages.modal.flagHint') }}</p>
           </div>
 
           <!-- Priority -->
@@ -297,6 +304,18 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { languagesApi, type AdminLanguage } from '@/infrastructure/api/clients/admin/languages.api'
 
+import flagDe from '@/assets/flags/de.svg'
+import flagEn from '@/assets/flags/en.svg'
+import flagPl from '@/assets/flags/pl.svg'
+import flagPlaceholder from '@/assets/flags/placeholder.svg'
+
+const flagAssets: Record<string, string> = { de: flagDe, en: flagEn, pl: flagPl }
+
+function flagUrl(code: string | undefined): string {
+  if (!code) return flagPlaceholder
+  return flagAssets[code] ?? flagPlaceholder
+}
+
 const { t } = useI18n()
 
 // ============================================================================
@@ -314,7 +333,7 @@ const form = ref({
   language_code: '',
   language_name: '',
   native_name: '',
-  flag_emoji: '',
+  flag_svg_code: '',
   active: true,
   rtl: false,
   priority: 100
@@ -346,7 +365,7 @@ function openCreateModal() {
     language_code: '',
     language_name: '',
     native_name: '',
-    flag_emoji: '',
+    flag_svg_code: '',
     active: true,
     rtl: false,
     priority: 100
@@ -361,7 +380,7 @@ function openEditModal(lang: AdminLanguage) {
     language_code: lang.language_code,
     language_name: lang.language_name,
     native_name: lang.native_name,
-    flag_emoji: lang.flag_emoji,
+    flag_svg_code: lang.flag_svg_code,
     active: lang.active,
     rtl: lang.rtl,
     priority: lang.priority

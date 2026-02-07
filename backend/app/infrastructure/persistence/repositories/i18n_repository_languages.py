@@ -37,7 +37,7 @@ class I18nLanguagesRepository(BaseRepository):
         Get all supported languages.
 
         Returns:
-            List of language configurations (code, name, priority, is_primary, flag_emoji, completion_percent)
+            List of language configurations (code, name, priority, is_primary, flag_svg_code, completion_percent)
         """
         with self.conn.cursor(row_factory=dict_row) as cursor:
             cursor.execute("""
@@ -45,10 +45,9 @@ class I18nLanguagesRepository(BaseRepository):
                     language_code,
                     language_name,
                     native_name,
-                    flag as flag_emoji,
+                    flag_svg_code,
                     priority,
-                    FALSE as is_primary,
-                    NULL as fallback_language,
+                    is_primary,
                     is_active as active,
                     COALESCE(completion_percent, 0) as completion_percent,
                     COALESCE(total_keys, 0) as total_keys,
@@ -75,10 +74,9 @@ class I18nLanguagesRepository(BaseRepository):
                     language_code,
                     language_name,
                     native_name,
-                    flag as flag_emoji,
+                    flag_svg_code,
                     priority,
-                    FALSE as is_primary,
-                    NULL as fallback_language,
+                    is_primary,
                     is_active as active,
                     COALESCE(completion_percent, 0) as completion_percent,
                     COALESCE(total_keys, 0) as total_keys,
@@ -97,16 +95,14 @@ class I18nLanguagesRepository(BaseRepository):
             List of primary languages ordered by priority
         """
         with self.conn.cursor(row_factory=dict_row) as cursor:
-            # Return first language by priority as "primary" (no is_primary column exists)
             cursor.execute("""
                 SELECT
                     language_code,
                     language_name,
                     native_name,
-                    flag as flag_emoji,
+                    flag_svg_code,
                     priority,
-                    TRUE as is_primary,
-                    NULL as fallback_language,
+                    is_primary,
                     is_active as active,
                     COALESCE(completion_percent, 0) as completion_percent,
                     COALESCE(total_keys, 0) as total_keys,

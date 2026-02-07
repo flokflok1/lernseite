@@ -7,7 +7,7 @@
       @click="toggleDropdown"
       :title="t('i18n.select_language')"
     >
-      <span class="flag" :data-lang="currentLanguage">{{ currentFlag }}</span>
+      <img :src="currentFlag" :alt="currentLanguage" class="flag" />
       <span v-if="showLabel" class="label">{{ currentLabel }}</span>
       <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -27,7 +27,7 @@
             :class="{ 'is-active': lang.language_code === currentLanguage }"
             @click="selectLanguage(lang.language_code)"
           >
-            <span class="flag" :data-lang="lang.language_code">{{ lang.flag_emoji }}</span>
+            <img :src="flagUrl(lang.flag_svg_code)" :alt="lang.language_code" class="flag" />
             <span class="name">{{ t(`languages.${lang.language_code}`) }}</span>
             <span v-if="lang.completion_percent < 100" class="completion">
               {{ Math.round(lang.completion_percent) }}%
@@ -48,7 +48,7 @@
             :class="{ 'is-active': lang.language_code === currentLanguage }"
             @click="selectLanguage(lang.language_code)"
           >
-            <span class="flag" :data-lang="lang.language_code">{{ lang.flag_emoji }}</span>
+            <img :src="flagUrl(lang.flag_svg_code)" :alt="lang.language_code" class="flag" />
             <span class="name">{{ t(`languages.${lang.language_code}`) }}</span>
             <span class="completion">{{ Math.round(lang.completion_percent) }}%</span>
           </button>
@@ -76,6 +76,18 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTranslation } from '@/features/useTranslation'
 import type { LanguageProgress } from '@/application/services/api/system'
+
+// SVG flag assets
+import flagDe from '@/assets/flags/de.svg'
+import flagEn from '@/assets/flags/en.svg'
+import flagPl from '@/assets/flags/pl.svg'
+import flagPlaceholder from '@/assets/flags/placeholder.svg'
+
+const flagAssets: Record<string, string> = { de: flagDe, en: flagEn, pl: flagPl }
+function flagUrl(code: string | undefined): string {
+  if (!code) return flagPlaceholder
+  return flagAssets[code] ?? flagPlaceholder
+}
 
 // Props
 interface Props {
@@ -117,7 +129,7 @@ const currentLang = computed(() =>
   languages.value.find(l => l.language_code === currentLanguage.value)
 )
 
-const currentFlag = computed(() => currentLang.value?.flag_emoji || '🌐')
+const currentFlag = computed(() => flagUrl(currentLang.value?.flag_svg_code))
 const currentLabel = computed(() => {
   if (currentLang.value?.language_code) {
     return t(`languages.${currentLang.value.language_code}`)
@@ -128,15 +140,6 @@ const currentLabel = computed(() => {
 // Methods
 function toggleDropdown() {
   isOpen.value = !isOpen.value
-  console.log(`[LanguageSelector] Dropdown ${isOpen.value ? 'opened' : 'closed'}`)
-
-  // If emoji not supported and dropdown just opened, replace emoji in items
-  if (isOpen.value && document.documentElement.getAttribute('data-emoji-support') === 'false') {
-    setTimeout(() => {
-      console.log('[LanguageSelector] Replacing emoji in dropdown items...')
-      replaceEmojiWithLanguageCode()
-    }, 10)
-  }
 }
 
 async function selectLanguage(lang: string) {
@@ -162,141 +165,9 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 
-// Check if emoji rendering works properly
-function emojiSupported(): boolean {
-  try {
-    // Windows detection - use SVG by default on Windows
-    const isWindows = /Win/.test(navigator.platform)
-    if (isWindows) {
-      console.log('[LanguageSelector] Windows detected - using SVG flags instead of emoji')
-      return false // Disable emoji on Windows, use SVG
-    }
-
-    const canvas = document.createElement('canvas')
-    canvas.width = 100
-    canvas.height = 100
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return true // Assume it works if we can't test
-
-    // Test 1: Measure rendered width of flag emoji vs text
-    // A properly rendered flag emoji should be ~30-35px wide (single glyph)
-    // When degraded to text, it's usually wider or much narrower
-    ctx.font = 'bold 30px "Apple Color Emoji", "Segoe UI Emoji", sans-serif'
-    const emojiWidth = ctx.measureText('🇬🇧').width
-    const textWidth = ctx.measureText('GB').width
-
-    // If emoji width is similar to text width (within 5px), it likely degraded
-    // A proper emoji should be narrower or have different metrics
-    if (Math.abs(emojiWidth - textWidth) < 5) {
-      console.log(`[LanguageSelector] Emoji width (${emojiWidth}) too close to text width (${textWidth}) - likely degraded`)
-      return false
-    }
-
-    // Test 2: Visual pixel rendering check
-    // Clear canvas and test visual rendering
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, 100, 100)
-    ctx.fillStyle = '#000000'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('🇩🇪', 10, 50)
-
-    // Get pixel data and check for rendering
-    const imageData = ctx.getImageData(0, 0, 100, 100).data
-    let nonWhitePixels = 0
-    let coloredPixels = 0  // Pixels with color (not just black/gray text)
-
-    for (let i = 0; i < imageData.length; i += 4) {
-      const r = imageData[i]
-      const g = imageData[i + 1]
-      const b = imageData[i + 2]
-
-      // Count non-white pixels
-      if (r < 240 || g < 240 || b < 240) {
-        nonWhitePixels++
-
-        // Count colored pixels (emoji are usually colorful, text is monochrome)
-        // Check if this pixel has significant color variation (not just grayscale)
-        const maxComponent = Math.max(r, g, b)
-        const minComponent = Math.min(r, g, b)
-        if (maxComponent - minComponent > 50) {
-          coloredPixels++  // Color variation indicates emoji, not text
-        }
-      }
-    }
-
-    // If we have significant color variation, emoji rendered properly
-    if (coloredPixels > 50) {
-      console.log(`[LanguageSelector] Detected colored pixels (${coloredPixels}) - emoji likely rendered`)
-      return true
-    }
-
-    // If we have very few non-white pixels, emoji didn't render at all
-    if (nonWhitePixels < 50) {
-      console.log(`[LanguageSelector] Very few pixels rendered (${nonWhitePixels}) - emoji not supported`)
-      return false
-    }
-
-    // If we have non-white pixels but no color variation, it's likely degraded to text
-    if (nonWhitePixels > 100 && coloredPixels < 50) {
-      console.log(`[LanguageSelector] Pixels detected (${nonWhitePixels}) but no color variation (${coloredPixels}) - likely text degradation`)
-      return false
-    }
-
-    console.log(`[LanguageSelector] Ambiguous detection: pixels=${nonWhitePixels}, colored=${coloredPixels} - assuming supported`)
-    return true
-  } catch (e) {
-    console.log(`[LanguageSelector] Error during emoji detection: ${e}`)
-    return true // Assume it works if detection fails
-  }
-}
-
-// Replace emoji with language code for systems without emoji support
-function replaceEmojiWithLanguageCode() {
-  const hasEmojiSupport = document.documentElement.getAttribute('data-emoji-support')
-  if (hasEmojiSupport !== 'false') return // Only replace if emoji not supported
-
-  // Find all .flag elements with data-lang
-  const flagElements = document.querySelectorAll('.flag[data-lang]')
-  let replaced = 0
-
-  flagElements.forEach((el) => {
-    const langCode = el.getAttribute('data-lang')
-    // Replace with uppercase language code (EN, DE, PL)
-    if (langCode && langCode.length <= 3) {
-      const upper = langCode.toUpperCase()
-      el.textContent = upper
-      replaced++
-    }
-  })
-
-  if (replaced > 0) {
-    console.log(`[LanguageSelector] Replaced ${replaced} emoji with language codes`)
-  }
-}
-
 // Lifecycle
 onMounted(async () => {
-  // Check emoji support first
-  const hasEmojiSupport = emojiSupported()
-  console.log(`[LanguageSelector] Emoji support detected: ${hasEmojiSupport}`)
-
-  if (!hasEmojiSupport) {
-    document.documentElement.setAttribute('data-emoji-support', 'false')
-    console.log('[LanguageSelector] Set data-emoji-support="false" on root')
-  }
-
-  // Load languages
   languages.value = await fetchLanguages()
-  console.log(`[LanguageSelector] Loaded ${languages.value.length} languages`)
-
-  // Replace emoji immediately if not supported
-  if (!hasEmojiSupport) {
-    // Wait a tick for DOM to be fully updated
-    setTimeout(() => {
-      replaceEmojiWithLanguageCode()
-    }, 10)
-  }
-
   document.addEventListener('keydown', handleKeydown)
 })
 
@@ -335,57 +206,11 @@ onUnmounted(() => {
 }
 
 .flag {
-  font-size: 1.25rem;
-  line-height: 1;
-  text-align: center;
-  /* Support emoji rendering across browsers */
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
-  /* Optimize emoji rendering */
-  font-feature-settings: "liga" 0;
-  font-variant: normal;
-}
-
-/* Fallback for Windows 11 Chromium when regional indicators don't render */
-@supports (font-variant: emoji) {
-  .flag {
-    font-variant: emoji;
-  }
-}
-
-/* When emoji support is disabled, display language flag SVG instead of emoji */
-:root[data-emoji-support="false"] .flag {
   width: 1.5rem;
   height: 1rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.25rem;
-  position: relative;
-  color: transparent;
-  font-size: 0;
-  line-height: 0;
+  object-fit: cover;
+  border-radius: 0.125rem;
   border: 1px solid var(--color-border, #e5e7eb);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-  overflow: hidden;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-/* Germany flag: Black-Red-Gold (Schwarz-Rot-Gold) */
-:root[data-emoji-support="false"] .flag[data-lang="de"] {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600"><rect width="900" height="200" fill="%23000000"/><rect y="200" width="900" height="200" fill="%23DD0000"/><rect y="400" width="900" height="200" fill="%23FFCE00"/></svg>');
-}
-
-/* USA flag: Stars and Stripes (Red-White-Blue) */
-:root[data-emoji-support="false"] .flag[data-lang="en"] {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600"><rect width="900" height="600" fill="%23B22234"/><g fill="%23FFFFFF"><rect y="46" width="900" height="46"/><rect y="138" width="900" height="46"/><rect y="230" width="900" height="46"/><rect y="322" width="900" height="46"/><rect y="414" width="900" height="46"/><rect y="506" width="900" height="46"/></g><rect width="360" height="322" fill="%233C3B6B"/></svg>');
-}
-
-/* Poland flag: White-Red (Weiß-Rot) */
-:root[data-emoji-support="false"] .flag[data-lang="pl"] {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600"><rect width="900" height="300" fill="%23FFFFFF"/><rect y="300" width="900" height="300" fill="%23DC143C"/></svg>');
 }
 
 .label {
@@ -458,7 +283,8 @@ onUnmounted(() => {
 }
 
 .dropdown-item .flag {
-  font-size: 1.25rem;
+  width: 1.5rem;
+  height: 1rem;
 }
 
 .dropdown-item .name {

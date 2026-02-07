@@ -119,7 +119,7 @@ class TranslationManager:
                     t.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag as flag_emoji,
+                    sl.flag_svg_code,
                     t.value,
                     t.is_verified,
                     t.is_machine_translated,

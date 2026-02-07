@@ -287,7 +287,7 @@
     "addLanguage": "Add Language",
     "addLanguageTitle": "Add New Language",
     "allCategories": "All Categories",
-    "flag": "Flag Emoji (e.g. 🇫🇷)",
+    "flag": "SVG Flag Code (e.g. fr)",
     "languageAdded": "Language has been added",
     "languageCode": "Language Code (e.g. fr)",
     "languageName": "Language Name (e.g. French)",

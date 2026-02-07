@@ -15,7 +15,7 @@ export interface AdminLanguage {
   language_code: string
   language_name: string
   native_name: string
-  flag_emoji: string
+  flag_svg_code: string
   is_primary: boolean
   priority: number
   rtl: boolean
@@ -30,24 +30,32 @@ export interface CreateLanguagePayload {
   language_code: string
   language_name: string
   native_name: string
-  flag_emoji: string
+  flag_svg_code: string
   active?: boolean
   rtl?: boolean
   is_primary?: boolean
   priority?: number
-  fallback_language?: string
 }
 
 /** Payload for updating a language */
 export interface UpdateLanguagePayload {
   language_name?: string
   native_name?: string
-  flag_emoji?: string
+  flag_svg_code?: string
   active?: boolean
   rtl?: boolean
   is_primary?: boolean
   priority?: number
-  fallback_language?: string | null
+}
+
+/** Response from the deterministic draft endpoint */
+export interface LanguageDraft {
+  code: string
+  name: string
+  native_name: string
+  flag_svg_code: string
+  is_rtl: boolean
+  priority: number
 }
 
 interface ApiSuccessResponse<T> {
@@ -107,6 +115,22 @@ export const languagesApi = {
     } catch (error: any) {
       const errorData = error.response?.data as ApiErrorResponse
       throw new Error(errorData?.error?.message || 'Failed to update language')
+    }
+  },
+
+  /**
+   * Suggest language metadata from a code or name (deterministic, no AI).
+   */
+  draft: async (input: string): Promise<LanguageDraft> => {
+    try {
+      const response = await api.post<ApiSuccessResponse<LanguageDraft>>(
+        '/admin/translations/supported-languages/draft',
+        { input }
+      )
+      return response.data.data
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to get language draft')
     }
   },
 

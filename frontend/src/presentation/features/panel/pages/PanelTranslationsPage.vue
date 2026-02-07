@@ -45,7 +45,7 @@
         class="px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg"
       >
         <option v-for="lang in languages" :key="lang.language_code" :value="lang.language_code">
-          {{ lang.flag_emoji }} {{ lang.native_name }} ({{ Math.round(lang.completion_percent) }}%)
+          {{ lang.native_name }} ({{ Math.round(lang.completion_percent) }}%)
         </option>
       </select>
 
@@ -201,7 +201,7 @@
           </div>
           <div>
             <label class="block text-sm text-[var(--color-text-secondary)] mb-1">{{ $t('panel.translations.flag') }}</label>
-            <input v-model="newLanguage.flag" type="text" placeholder="z.B. 🇫🇷" class="w-full px-3 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" />
+            <input v-model="newLanguage.flag" type="text" placeholder="z.B. fr" pattern="[a-z0-9\-]{2,10}" class="w-full px-3 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" />
           </div>
         </div>
 
@@ -267,7 +267,7 @@ interface Language {
   language_code: string
   language_name: string
   native_name: string
-  flag_emoji: string
+  flag_svg_code: string
   completion_percent: number
   translated_keys: number
   total_keys: number
@@ -405,7 +405,7 @@ function getShortKey(keyPath: string): string {
 
 function _getLanguageFlag(code: string): string {
   const lang = languages.value.find(l => l.language_code === code)
-  return lang?.flag_emoji || '🌐'
+  return lang?.flag_svg_code || code
 }
 
 async function loadLanguages() {
@@ -535,7 +535,7 @@ async function addLanguage() {
       language_code: newLanguage.value.code,
       language_name: newLanguage.value.name,
       native_name: newLanguage.value.native || newLanguage.value.name,
-      flag_emoji: newLanguage.value.flag || '🌐',
+      flag_svg_code: newLanguage.value.flag || newLanguage.value.code,
       active: true
     })
 

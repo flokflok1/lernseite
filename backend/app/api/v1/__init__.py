@@ -140,6 +140,14 @@ except (ImportError, AttributeError) as e:
     print(f"ERROR: Failed to extract admin_groups blueprint: {e}")
     raise
 
+# Admin Translations - Deterministic helpers for translation management
+try:
+    admin_translations = importlib.import_module('.translations', package='app.api.v1.admin')
+    admin_translations_bp = admin_translations.bp
+except (ImportError, AttributeError) as e:
+    print(f"ERROR: Failed to extract admin_translations blueprint: {e}")
+    raise
+
 # Admin Settings - Extract feature_flags blueprints from settings module
 # First, ensure settings module is loaded by accessing it from admin_panel
 try:
@@ -249,6 +257,9 @@ api_v1.register_blueprint(learning_methods_admin_bp)
 # Register admin-panel groups blueprint (GBA - Group-Based Authorization)
 api_v1.register_blueprint(admin_groups_bp)
 
+# Register admin-panel translations blueprint (language draft helper)
+api_v1.register_blueprint(admin_translations_bp)
+
 # Register admin-panel settings blueprints (feature_flags)
 api_v1.register_blueprint(feature_flags_bp)
 api_v1.register_blueprint(rollout_plans_crud_bp)
@@ -290,6 +301,7 @@ __all__ = [
     'features_bp', 'course_editor_bp',
     'learning_methods_admin_bp',
     'admin_groups_bp',
+    'admin_translations_bp',
     'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp', 'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
     'groups_bp',

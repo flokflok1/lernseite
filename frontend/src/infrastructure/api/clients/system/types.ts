@@ -137,7 +137,7 @@ export interface LanguageProgress {
   language_code: string
   language_name: string
   native_name: string
-  flag_emoji?: string
+  flag_svg_code?: string
   total_keys: number
   translated_keys: number
   completion_percent: number | string
@@ -145,7 +145,6 @@ export interface LanguageProgress {
   priority: number
   active: boolean
   is_primary?: boolean
-  fallback_language?: string | null
   created_at?: string
 }
 

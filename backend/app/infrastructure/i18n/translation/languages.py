@@ -49,12 +49,11 @@ def create_language():
         language_code: ISO language code (required)
         language_name: English name (required)
         native_name: Native name (required)
-        flag_emoji: Flag emoji (required)
+        flag_svg_code: SVG flag code, e.g. 'de', 'en', 'pl' (required)
         active: Whether language is active, default True (optional)
         rtl: Right-to-left language, default False (optional)
         is_primary: Whether this is primary language, default False (optional)
         priority: Sort priority, default 100 (optional)
-        fallback_language: Fallback language code (optional)
 
     Returns:
         language_code of created language
@@ -63,7 +62,7 @@ def create_language():
 
     data = request.get_json()
 
-    required = ['language_code', 'language_name', 'native_name', 'flag_emoji']
+    required = ['language_code', 'language_name', 'native_name', 'flag_svg_code']
     for field in required:
         if not data.get(field):
             return jsonify({
@@ -86,20 +85,19 @@ def create_language():
         # Insert new language
         execute_query("""
             INSERT INTO translations.supported_languages (
-                language_code, language_name, native_name, flag,
-                is_active, is_rtl, is_primary, priority, fallback_language
+                language_code, language_name, native_name, flag_svg_code,
+                is_active, is_rtl, is_primary, priority
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             data['language_code'],
             data['language_name'],
             data['native_name'],
-            data['flag_emoji'],
+            data['flag_svg_code'],
             data.get('active', True),
             data.get('rtl', False),
             data.get('is_primary', False),
-            data.get('priority', 100),
-            data.get('fallback_language') or None
+            data.get('priority', 100)
         ))
 
         I18nService.invalidate_cache()
@@ -129,12 +127,11 @@ def update_language(language_code: str):
     Request Body:
         language_name: English name (optional)
         native_name: Native name (optional)
-        flag_emoji: Flag emoji (optional)
+        flag_svg_code: SVG flag code (optional)
         active: Whether language is active (optional)
         rtl: Right-to-left language (optional)
         is_primary: Whether this is primary language (optional)
         priority: Sort priority (optional)
-        fallback_language: Fallback language code (optional)
 
     Returns:
         Success status
@@ -165,9 +162,9 @@ def update_language(language_code: str):
         if 'native_name' in data:
             updates.append("native_name = %s")
             params.append(data['native_name'])
-        if 'flag_emoji' in data:
-            updates.append("flag = %s")
-            params.append(data['flag_emoji'])
+        if 'flag_svg_code' in data:
+            updates.append("flag_svg_code = %s")
+            params.append(data['flag_svg_code'])
         if 'active' in data:
             updates.append("is_active = %s")
             params.append(data['active'])
@@ -182,9 +179,6 @@ def update_language(language_code: str):
         if 'priority' in data:
             updates.append("priority = %s")
             params.append(data['priority'])
-        if 'fallback_language' in data:
-            updates.append("fallback_language = %s")
-            params.append(data['fallback_language'] if data['fallback_language'] else None)
 
         if not updates and not primary_changed:
             return jsonify({
@@ -295,7 +289,7 @@ def export_locales():
             lang_codes = [l.strip() for l in languages_param.split(',')]
         else:
             lang_rows = fetch_all(
-                "SELECT language_code FROM supported_languages WHERE active = TRUE ORDER BY priority"
+                "SELECT language_code FROM translations.supported_languages WHERE is_active = TRUE ORDER BY priority"
             ) or []
             lang_codes = [r['language_code'] for r in lang_rows]
 
@@ -305,8 +299,8 @@ def export_locales():
                 k.key_path,
                 t.language_code,
                 t.value
-            FROM i18n_keys k
-            LEFT JOIN i18n_translations t ON k.key_id = t.key_id
+            FROM translations.i18n_keys k
+            LEFT JOIN translations.i18n_translations t ON k.key_id = t.key_id
             WHERE t.language_code = ANY(%s)
             ORDER BY k.key_path, t.language_code
         """

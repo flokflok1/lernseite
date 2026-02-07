@@ -10,10 +10,9 @@ export interface LanguageProgress {
   language_code: string
   language_name: string
   native_name: string
-  flag_emoji: string
+  flag_svg_code: string
   is_primary: boolean
   priority: number
-  fallback_language: string | null
   rtl: boolean
   active: boolean
   total_keys: number
@@ -177,7 +176,7 @@ export async function requestTranslation(data: {
 export async function getModerationDashboard(): Promise<Array<{
   language_code: string
   language_name: string
-  flag_emoji: string
+  flag_svg_code: string
   pending_count: number
   ai_reviewing_count: number
   awaiting_human_count: number
@@ -295,7 +294,7 @@ export async function getKeyTranslations(keyId: string): Promise<Array<{
   translation_id: string
   language_code: string
   language_name: string
-  flag_emoji: string
+  flag_svg_code: string
   value: string
   status: string
   is_verified: boolean
@@ -395,12 +394,12 @@ export async function createLanguage(data: {
   language_code: string
   language_name: string
   native_name: string
-  flag_emoji: string
+  flag_svg_code: string
   active?: boolean
   rtl?: boolean
   is_primary?: boolean
   priority?: number
-  fallback_language?: string | null
+
 }): Promise<{ language_code: string }> {
   const response = await http.post('/i18n/admin/languages', data)
   return response.data.data
@@ -414,12 +413,12 @@ export async function updateLanguage(
   data: {
     language_name?: string
     native_name?: string
-    flag_emoji?: string
+    flag_svg_code?: string
     active?: boolean
     rtl?: boolean
     is_primary?: boolean
     priority?: number
-    fallback_language?: string | null
+  
   }
 ): Promise<void> {
   await http.put(`/i18n/admin/languages/${languageCode}`, data)

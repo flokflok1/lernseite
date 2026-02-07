@@ -26,6 +26,6 @@ feature_configuration = importlib.import_module('.feature-configuration', packag
 from .settings import ai, permissions, feature_flags
 
 # Import admin endpoints
-from . import learning_methods, dashboard, groups
+from . import learning_methods, dashboard, groups, translations
 
-__all__ = ['feature_configuration', 'ai', 'permissions', 'feature_flags', 'learning_methods', 'dashboard', 'groups']
+__all__ = ['feature_configuration', 'ai', 'permissions', 'feature_flags', 'learning_methods', 'dashboard', 'groups', 'translations']

@@ -1,7 +1,7 @@
 """Explore Page - Discover New Content"""
 
 from typing import List, Dict, Any
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.domain.ports.registry import repos
 
 
 class ExploreService:
@@ -22,4 +22,4 @@ class ExploreService:
             ORDER BY p.created_at DESC
             LIMIT %s
         """
-        return BaseRepository.fetch_all(query, (user_id, limit))
+        return repos.query_runner.fetch_all(query, (user_id, limit))

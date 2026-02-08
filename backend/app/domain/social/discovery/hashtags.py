@@ -1,7 +1,7 @@
 """Hashtag System"""
 
 from typing import List, Dict, Any
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.domain.ports.registry import repos
 
 
 class HashtagService:
@@ -18,4 +18,4 @@ class HashtagService:
             ORDER BY post_count DESC
             LIMIT %s
         """
-        return BaseRepository.fetch_all(query, (limit,))
+        return repos.query_runner.fetch_all(query, (limit,))

@@ -20,9 +20,7 @@ from typing import Dict, Any, Optional
 
 from app.application.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError
 from app.application.services.ai_job_service import AIJobService
-from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
-from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.domain.ports.registry import repos
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -492,10 +490,8 @@ def run_ai_course_generation(job_id: str, ai_provider: str = 'openai', ai_model:
     Returns:
         True if successful, False otherwise
     """
-    from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
-
     # Phase C3.4: Check if job has a model override
-    job = AIJobRepository.find_by_id(job_id)
+    job = repos.ai_jobs.find_by_id(job_id)
     if job and job.get('model'):
         ai_model = job['model']
         logger.info(f'Using job model override: {ai_model}')

@@ -1,7 +1,7 @@
 """Full-Text Search"""
 
 from typing import List, Dict, Any
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.domain.ports.registry import repos
 
 
 class SearchService:
@@ -19,4 +19,4 @@ class SearchService:
             ORDER BY p.created_at DESC
             LIMIT %s
         """
-        return BaseRepository.fetch_all(query, (f'%{query_text}%', limit))
+        return repos.query_runner.fetch_all(query, (f'%{query_text}%', limit))

@@ -7,8 +7,7 @@ Max thread depth: 2 (comment → reply → reply to reply).
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from app.infrastructure.persistence.repositories.social_comments import SocialCommentsRepository
-from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
+from app.domain.ports.registry import repos
 
 
 class CommentsService:
@@ -43,7 +42,7 @@ class CommentsService:
             }
 
         # Check if post exists
-        post = SocialPostsRepository.get_by_id(post_id)
+        post = repos.social_posts.get_by_id(post_id)
         if not post:
             return {
                 'success': False,
@@ -53,7 +52,7 @@ class CommentsService:
         # Determine thread level
         thread_level = 0
         if parent_comment_id:
-            parent = SocialCommentsRepository.get_comment(parent_comment_id)
+            parent = repos.social_comments.get_comment(parent_comment_id)
             if not parent:
                 return {
                     'success': False,
@@ -70,7 +69,7 @@ class CommentsService:
                 }
 
         # Create comment (trigger updates comments_count)
-        comment = SocialCommentsRepository.create_comment(
+        comment = repos.social_comments.create_comment(
             user_id, post_id, content, parent_comment_id, thread_level
         )
 
@@ -104,7 +103,7 @@ class CommentsService:
                 'error': 'Comment must be between 1 and 2000 characters'
             }
 
-        comment = SocialCommentsRepository.update_comment(comment_id, user_id, content)
+        comment = repos.social_comments.update_comment(comment_id, user_id, content)
 
         if comment:
             return {
@@ -125,7 +124,7 @@ class CommentsService:
         Returns:
             Success status
         """
-        success = SocialCommentsRepository.soft_delete_comment(comment_id, user_id)
+        success = repos.social_comments.soft_delete_comment(comment_id, user_id)
 
         if success:
             return {
@@ -141,7 +140,7 @@ class CommentsService:
     @staticmethod
     def get_comment(comment_id: str) -> Optional[Dict[str, Any]]:
         """Get a single comment by ID."""
-        return SocialCommentsRepository.get_comment(comment_id)
+        return repos.social_comments.get_comment(comment_id)
 
     @staticmethod
     def get_post_comments(post_id: str, limit: int = 50, offset: int = 0,
@@ -162,10 +161,10 @@ class CommentsService:
         if sort not in valid_sorts:
             sort = 'recent'
 
-        comments = SocialCommentsRepository.get_post_comments(post_id, limit, offset, sort)
+        comments = repos.social_comments.get_post_comments(post_id, limit, offset, sort)
 
         # Get total count
-        total = SocialCommentsRepository.get_comment_count(post_id)
+        total = repos.social_comments.get_comment_count(post_id)
 
         return {
             'comments': comments,
@@ -181,7 +180,7 @@ class CommentsService:
     def get_comment_replies(parent_comment_id: str, limit: int = 20,
                            offset: int = 0) -> List[Dict[str, Any]]:
         """Get replies to a comment."""
-        return SocialCommentsRepository.get_comment_replies(
+        return repos.social_comments.get_comment_replies(
             parent_comment_id, limit, offset
         )
 
@@ -189,7 +188,7 @@ class CommentsService:
     def get_user_comments(user_id: str, limit: int = 50,
                          offset: int = 0) -> List[Dict[str, Any]]:
         """Get all comments by a user."""
-        return SocialCommentsRepository.get_user_comments(user_id, limit, offset)
+        return repos.social_comments.get_user_comments(user_id, limit, offset)
 
     @staticmethod
     def get_comment_tree(post_id: str, max_depth: int = 2) -> List[Dict[str, Any]]:
@@ -206,7 +205,7 @@ class CommentsService:
         if max_depth > CommentsService.MAX_THREAD_DEPTH:
             max_depth = CommentsService.MAX_THREAD_DEPTH
 
-        return SocialCommentsRepository.get_comment_tree(post_id, max_depth)
+        return repos.social_comments.get_comment_tree(post_id, max_depth)
 
     # =====================
     # COMMENT LIKES
@@ -225,7 +224,7 @@ class CommentsService:
             Success status and like record
         """
         # Check if comment exists
-        comment = SocialCommentsRepository.get_comment(comment_id)
+        comment = repos.social_comments.get_comment(comment_id)
         if not comment:
             return {
                 'success': False,
@@ -233,7 +232,7 @@ class CommentsService:
             }
 
         # Check if already liked
-        existing = SocialCommentsRepository.get_comment_like(user_id, comment_id)
+        existing = repos.social_comments.get_comment_like(user_id, comment_id)
         if existing:
             return {
                 'success': False,
@@ -242,7 +241,7 @@ class CommentsService:
             }
 
         # Create like (trigger updates likes_count)
-        like = SocialCommentsRepository.like_comment(user_id, comment_id)
+        like = repos.social_comments.like_comment(user_id, comment_id)
 
         if like:
             return {
@@ -258,7 +257,7 @@ class CommentsService:
     @staticmethod
     def unlike_comment(user_id: str, comment_id: str) -> Dict[str, Any]:
         """Unlike a comment."""
-        success = SocialCommentsRepository.unlike_comment(user_id, comment_id)
+        success = repos.social_comments.unlike_comment(user_id, comment_id)
 
         if success:
             return {
@@ -275,7 +274,7 @@ class CommentsService:
     def get_comment_likes(comment_id: str, limit: int = 50,
                          offset: int = 0) -> List[Dict[str, Any]]:
         """Get all users who liked a comment."""
-        return SocialCommentsRepository.get_comment_likes(comment_id, limit, offset)
+        return repos.social_comments.get_comment_likes(comment_id, limit, offset)
 
     # =====================
     # MODERATION (Post Author)
@@ -293,7 +292,7 @@ class CommentsService:
         Returns:
             Success status and pinned comment
         """
-        comment = SocialCommentsRepository.pin_comment(comment_id, post_author_id)
+        comment = repos.social_comments.pin_comment(comment_id, post_author_id)
 
         if comment:
             return {
@@ -309,7 +308,7 @@ class CommentsService:
     @staticmethod
     def unpin_comment(comment_id: str, post_author_id: str) -> Dict[str, Any]:
         """Unpin a comment (only post author can unpin)."""
-        comment = SocialCommentsRepository.unpin_comment(comment_id, post_author_id)
+        comment = repos.social_comments.unpin_comment(comment_id, post_author_id)
 
         if comment:
             return {
@@ -325,4 +324,4 @@ class CommentsService:
     @staticmethod
     def get_pinned_comments(post_id: str) -> List[Dict[str, Any]]:
         """Get all pinned comments for a post."""
-        return SocialCommentsRepository.get_pinned_comments(post_id)
+        return repos.social_comments.get_pinned_comments(post_id)

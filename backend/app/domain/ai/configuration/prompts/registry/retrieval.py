@@ -8,6 +8,7 @@ from typing import List, Optional
 from flask import current_app
 
 from app.domain.ai.configuration.prompt_models import PromptTemplate
+from app.domain.ports.registry import repos
 from .core import PROMPT_REGISTRY, PromptRegistryError
 from .db_override import DB_OVERRIDE_ENABLED, db_record_to_template
 
@@ -37,8 +38,7 @@ def get_prompt_template(code: str, check_db: bool = True) -> PromptTemplate:
     # Try database first (if enabled)
     if DB_OVERRIDE_ENABLED and check_db:
         try:
-            from app.infrastructure.persistence.repositories.prompts.templates import PromptTemplateRepository
-            db_template = PromptTemplateRepository.find_by_code(code)
+            db_template = repos.prompt_templates.find_by_code(code)
 
             if db_template:
                 # Convert DB record to PromptTemplate
@@ -81,8 +81,7 @@ def get_prompt_with_style(category: str, style: str = 'standard') -> Optional[Pr
     # Try database first
     if DB_OVERRIDE_ENABLED:
         try:
-            from app.infrastructure.persistence.repositories.prompts.templates import PromptTemplateRepository
-            db_template = PromptTemplateRepository.find_by_category_and_style(category, style)
+            db_template = repos.prompt_templates.find_by_category_and_style(category, style)
 
             if db_template:
                 return db_record_to_template(db_template)
@@ -168,11 +167,9 @@ def get_prompt_for_lm_id(lm_id: int) -> Optional[PromptTemplate]:
         if template:
             messages = template.render(context)
     """
-    from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
-
     # Try database first (DB-driven approach)
     try:
-        method_data = LearningMethodCatalogRepository.get_by_type(method_type=lm_id)
+        method_data = repos.lm_catalog.get_by_type(method_type=lm_id)
 
         if method_data and method_data.get('prompt_template'):
             prompt_key = method_data.get('prompt_template')
@@ -208,19 +205,16 @@ def get_prompts_by_group(group: str) -> List[PromptTemplate]:
         practice_prompts = get_prompts_by_group('B') # Practice group
         exam_prompts = get_prompts_by_group('C')     # Assessment group
     """
-    from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
-    from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
-
     # Validate group code against database (not hardcoded!)
     group_upper = group.upper()
-    group_data = LearningMethodGroupRepository.find_by_code(group_upper)
+    group_data = repos.lm_groups.find_by_code(group_upper)
     if not group_data:
         current_app.logger.warning(f"Invalid learning method group: {group} (not found in database)")
         return []
 
     try:
         # Get all LMs for this group from database
-        catalog = LearningMethodCatalogRepository.get_full_catalog(use_cache=True)
+        catalog = repos.lm_catalog.get_full_catalog(use_cache=True)
 
         if not catalog or 'learning_methods' not in catalog:
             return []

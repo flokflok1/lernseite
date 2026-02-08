@@ -6,6 +6,7 @@ Handles all post creation, reading, updating, and deletion logic.
 
 from typing import Optional, Dict, List
 from datetime import datetime
+from app.domain.ports.registry import repos
 
 
 class PostManager:
@@ -38,7 +39,6 @@ class PostManager:
         Returns:
             Dict with post data
         """
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
         from app.domain.social.posts.media_handler import MediaHandler
         from app.domain.ai.content_moderation.text_classifier import TextClassifier
 
@@ -56,7 +56,7 @@ class PostManager:
             'created_at': datetime.utcnow()
         }
 
-        post = SocialPostsRepository.create(post_data)
+        post = repos.social_posts.create(post_data)
 
         # Handle media attachments
         if media_urls:
@@ -84,9 +84,7 @@ class PostManager:
         Returns:
             Post data or None if not found/no access
         """
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-
-        post = SocialPostsRepository.get_by_id(post_id)
+        post = repos.social_posts.get_by_id(post_id)
 
         if not post:
             return None
@@ -96,8 +94,7 @@ class PostManager:
             return None
 
         if post['visibility'] == 'followers':
-            from app.infrastructure.persistence.repositories.social_follows import SocialFollowsRepository
-            if not SocialFollowsRepository.is_following(viewer_user_id, post['user_id']):
+            if not repos.social_follows.is_following(viewer_user_id, post['user_id']):
                 return None
 
         return post
@@ -121,9 +118,7 @@ class PostManager:
         Returns:
             Updated post or None if not found/no permission
         """
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-
-        post = SocialPostsRepository.get_by_id(post_id)
+        post = repos.social_posts.get_by_id(post_id)
 
         if not post or post['user_id'] != user_id:
             return None
@@ -138,7 +133,7 @@ class PostManager:
             update_data['visibility'] = visibility
 
         if update_data:
-            return SocialPostsRepository.update(post_id, update_data)
+            return repos.social_posts.update(post_id, update_data)
 
         return post
 
@@ -154,14 +149,12 @@ class PostManager:
         Returns:
             True if deleted, False if not found/no permission
         """
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-
-        post = SocialPostsRepository.get_by_id(post_id)
+        post = repos.social_posts.get_by_id(post_id)
 
         if not post or post['user_id'] != user_id:
             return False
 
-        return SocialPostsRepository.soft_delete(post_id)
+        return repos.social_posts.soft_delete(post_id)
 
     @staticmethod
     def get_user_posts(
@@ -182,9 +175,7 @@ class PostManager:
         Returns:
             Dict with posts list and pagination info
         """
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-
-        posts = SocialPostsRepository.get_user_posts(
+        posts = repos.social_posts.get_user_posts(
             user_id=target_user_id,
             viewer_user_id=viewer_user_id,
             page=page,
@@ -205,33 +196,27 @@ class PostManager:
         Returns:
             True if pinned, False if failed
         """
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-
-        post = SocialPostsRepository.get_by_id(post_id)
+        post = repos.social_posts.get_by_id(post_id)
 
         if not post or post['user_id'] != user_id:
             return False
 
         # Unpin previous pinned post
-        SocialPostsRepository.unpin_all_for_user(user_id)
+        repos.social_posts.unpin_all_for_user(user_id)
 
         # Pin this post
-        return SocialPostsRepository.pin(post_id)
+        return repos.social_posts.pin(post_id)
 
     @staticmethod
     def _handle_mentions(post_id: str, user_ids: List[str]):
         """Handle @mentions in post"""
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-
         for mentioned_user_id in user_ids:
-            SocialPostsRepository.add_mention(post_id, mentioned_user_id)
+            repos.social_posts.add_mention(post_id, mentioned_user_id)
 
     @staticmethod
     def _handle_hashtags(post_id: str, hashtags: List[str]):
         """Handle hashtags in post"""
-        from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-
         for hashtag in hashtags:
             # Normalize hashtag (lowercase, remove #)
             normalized = hashtag.lower().strip('#')
-            SocialPostsRepository.add_hashtag(post_id, normalized)
+            repos.social_posts.add_hashtag(post_id, normalized)

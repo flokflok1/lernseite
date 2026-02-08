@@ -7,9 +7,7 @@ Compliant with DSA Art. 24 (Algorithm Disclosure).
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
-from app.infrastructure.persistence.repositories.social_posts import SocialPostsRepository
-from app.infrastructure.persistence.repositories.social_follows import SocialFollowsRepository
-from app.infrastructure.persistence.repositories.social_likes import SocialLikesRepository
+from app.domain.ports.registry import repos
 
 
 class FeedGenerator:
@@ -70,7 +68,7 @@ class FeedGenerator:
         - User interaction history
         """
         # Get users that current user follows
-        following = SocialFollowsRepository.get_following(user_id, limit=1000, offset=0)
+        following = repos.social_follows.get_following(user_id, limit=1000, offset=0)
         following_ids = [f['following_id'] for f in following]
 
         if not following_ids:
@@ -100,7 +98,7 @@ class FeedGenerator:
             ORDER BY final_score DESC, p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        posts = SocialPostsRepository.fetch_all(query, (following_ids, limit, offset))
+        posts = repos.social_posts.fetch_all(query, (following_ids, limit, offset))
 
         # Add user interaction context
         for post in posts:
@@ -117,7 +115,7 @@ class FeedGenerator:
         Chronological feed (newest first).
         No algorithmic ranking - simple time-based ordering.
         """
-        following = SocialFollowsRepository.get_following(user_id, limit=1000, offset=0)
+        following = repos.social_follows.get_following(user_id, limit=1000, offset=0)
         following_ids = [f['following_id'] for f in following]
 
         if not following_ids:
@@ -134,7 +132,7 @@ class FeedGenerator:
             ORDER BY p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        posts = SocialPostsRepository.fetch_all(query, (following_ids, limit, offset))
+        posts = repos.social_posts.fetch_all(query, (following_ids, limit, offset))
 
         for post in posts:
             post['user_has_liked'] = FeedGenerator._check_user_liked(user_id, post['post_id'])
@@ -171,7 +169,7 @@ class FeedGenerator:
             ORDER BY trending_score DESC, p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        posts = SocialPostsRepository.fetch_all(query, (limit, offset))
+        posts = repos.social_posts.fetch_all(query, (limit, offset))
 
         for post in posts:
             post['user_has_liked'] = FeedGenerator._check_user_liked(user_id, post['post_id'])
@@ -196,7 +194,7 @@ class FeedGenerator:
         Returns:
             List of public posts user doesn't follow
         """
-        following = SocialFollowsRepository.get_following(user_id, limit=1000, offset=0)
+        following = repos.social_follows.get_following(user_id, limit=1000, offset=0)
         following_ids = [f['following_id'] for f in following]
         following_ids.append(user_id)  # Exclude own posts
 
@@ -215,7 +213,7 @@ class FeedGenerator:
                 ORDER BY engagement_score DESC, p.created_at DESC
                 LIMIT %s OFFSET %s
             """
-            posts = SocialPostsRepository.fetch_all(
+            posts = repos.social_posts.fetch_all(
                 query, (following_ids, category, limit, offset)
             )
         else:
@@ -232,7 +230,7 @@ class FeedGenerator:
                 ORDER BY engagement_score DESC, p.created_at DESC
                 LIMIT %s OFFSET %s
             """
-            posts = SocialPostsRepository.fetch_all(query, (following_ids, limit, offset))
+            posts = repos.social_posts.fetch_all(query, (following_ids, limit, offset))
 
         for post in posts:
             post['user_has_liked'] = FeedGenerator._check_user_liked(user_id, post['post_id'])
@@ -257,7 +255,7 @@ class FeedGenerator:
             ORDER BY p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        return SocialPostsRepository.fetch_all(query, (hashtag.lower(), limit, offset))
+        return repos.social_posts.fetch_all(query, (hashtag.lower(), limit, offset))
 
     # =====================
     # HELPER METHODS
@@ -266,11 +264,11 @@ class FeedGenerator:
     @staticmethod
     def _check_user_liked(user_id: str, post_id: str) -> bool:
         """Check if user has liked a post."""
-        like = SocialLikesRepository.get_like(user_id, post_id)
+        like = repos.social_likes.get_like(user_id, post_id)
         return like is not None
 
     @staticmethod
     def _check_user_bookmarked(user_id: str, post_id: str) -> bool:
         """Check if user has bookmarked a post."""
-        bookmark = SocialLikesRepository.get_bookmark(user_id, post_id)
+        bookmark = repos.social_likes.get_bookmark(user_id, post_id)
         return bookmark is not None

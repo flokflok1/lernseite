@@ -6,8 +6,7 @@ Manages follow/unfollow operations, suggestions, blocks, and mutes.
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from app.infrastructure.persistence.repositories.social_follows import SocialFollowsRepository
-from app.infrastructure.persistence.repositories.user import UserRepository
+from app.domain.ports.registry import repos
 
 
 class FollowManager:
@@ -33,7 +32,7 @@ class FollowManager:
             }
 
         # Check if already following
-        existing = SocialFollowsRepository.get_follow(follower_id, following_id)
+        existing = repos.social_follows.get_follow(follower_id, following_id)
         if existing:
             return {
                 'success': False,
@@ -42,14 +41,14 @@ class FollowManager:
             }
 
         # Check if blocked
-        if SocialFollowsRepository.is_blocked(following_id, follower_id):
+        if repos.social_follows.is_blocked(following_id, follower_id):
             return {
                 'success': False,
                 'error': 'Cannot follow this user'
             }
 
         # Get target user profile
-        target_user = UserRepository.find_by_id(following_id)
+        target_user = repos.users.find_by_id(following_id)
         if not target_user:
             return {
                 'success': False,
@@ -60,7 +59,7 @@ class FollowManager:
         requires_approval = target_user.get('is_private', False)
 
         # Create follow
-        follow = SocialFollowsRepository.create_follow(
+        follow = repos.social_follows.create_follow(
             follower_id, following_id, requires_approval
         )
 
@@ -88,7 +87,7 @@ class FollowManager:
         Returns:
             Success status
         """
-        success = SocialFollowsRepository.delete_follow(follower_id, following_id)
+        success = repos.social_follows.delete_follow(follower_id, following_id)
 
         if success:
             return {
@@ -113,7 +112,7 @@ class FollowManager:
         Returns:
             Approved follow relationship
         """
-        follow = SocialFollowsRepository.approve_follow(follower_id, user_id)
+        follow = repos.social_follows.approve_follow(follower_id, user_id)
 
         if follow:
             return {
@@ -138,7 +137,7 @@ class FollowManager:
         Returns:
             Success status
         """
-        success = SocialFollowsRepository.reject_follow(follower_id, user_id)
+        success = repos.social_follows.reject_follow(follower_id, user_id)
 
         if success:
             return {
@@ -154,17 +153,17 @@ class FollowManager:
     @staticmethod
     def get_followers(user_id: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
         """Get list of followers."""
-        return SocialFollowsRepository.get_followers(user_id, limit, offset)
+        return repos.social_follows.get_followers(user_id, limit, offset)
 
     @staticmethod
     def get_following(user_id: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
         """Get list of users being followed."""
-        return SocialFollowsRepository.get_following(user_id, limit, offset)
+        return repos.social_follows.get_following(user_id, limit, offset)
 
     @staticmethod
     def get_pending_requests(user_id: str) -> List[Dict[str, Any]]:
         """Get pending follow requests."""
-        return SocialFollowsRepository.get_pending_requests(user_id)
+        return repos.social_follows.get_pending_requests(user_id)
 
     @staticmethod
     def get_follow_stats(user_id: str) -> Dict[str, Any]:
@@ -174,7 +173,7 @@ class FollowManager:
         Returns:
             Followers count, following count, posts count, engagement rate
         """
-        stats = SocialFollowsRepository.get_user_stats(user_id)
+        stats = repos.social_follows.get_user_stats(user_id)
 
         if not stats:
             # User has no stats yet, return defaults
@@ -202,20 +201,20 @@ class FollowManager:
         - Geographic proximity
         - Organization membership
         """
-        return SocialFollowsRepository.get_follow_suggestions(user_id, limit)
+        return repos.social_follows.get_follow_suggestions(user_id, limit)
 
     @staticmethod
     def create_suggestion(user_id: str, suggested_user_id: str,
                          reason: str, score: float = 0.5) -> Optional[Dict[str, Any]]:
         """Create a follow suggestion (for AI system)."""
-        return SocialFollowsRepository.create_suggestion(
+        return repos.social_follows.create_suggestion(
             user_id, suggested_user_id, reason, score
         )
 
     @staticmethod
     def dismiss_suggestion(user_id: str, suggested_user_id: str) -> bool:
         """Dismiss a follow suggestion."""
-        return SocialFollowsRepository.dismiss_suggestion(user_id, suggested_user_id)
+        return repos.social_follows.dismiss_suggestion(user_id, suggested_user_id)
 
     # =====================
     # BLOCK & MUTE
@@ -243,7 +242,7 @@ class FollowManager:
                 'error': 'Cannot block yourself'
             }
 
-        block = SocialFollowsRepository.create_block(blocker_id, blocked_id, reason)
+        block = repos.social_follows.create_block(blocker_id, blocked_id, reason)
 
         if block:
             return {
@@ -260,7 +259,7 @@ class FollowManager:
     @staticmethod
     def unblock_user(blocker_id: str, blocked_id: str) -> Dict[str, Any]:
         """Unblock a user."""
-        success = SocialFollowsRepository.remove_block(blocker_id, blocked_id)
+        success = repos.social_follows.remove_block(blocker_id, blocked_id)
 
         if success:
             return {
@@ -276,7 +275,7 @@ class FollowManager:
     @staticmethod
     def get_blocks(user_id: str) -> List[Dict[str, Any]]:
         """Get all blocked users."""
-        return SocialFollowsRepository.get_blocks(user_id)
+        return repos.social_follows.get_blocks(user_id)
 
     @staticmethod
     def mute_user(muter_id: str, muted_id: str,
@@ -298,7 +297,7 @@ class FollowManager:
                 'error': 'Cannot mute yourself'
             }
 
-        mute = SocialFollowsRepository.create_mute(muter_id, muted_id, duration_days)
+        mute = repos.social_follows.create_mute(muter_id, muted_id, duration_days)
 
         if mute:
             return {
@@ -315,7 +314,7 @@ class FollowManager:
     @staticmethod
     def unmute_user(muter_id: str, muted_id: str) -> Dict[str, Any]:
         """Unmute a user."""
-        success = SocialFollowsRepository.remove_mute(muter_id, muted_id)
+        success = repos.social_follows.remove_mute(muter_id, muted_id)
 
         if success:
             return {
@@ -331,20 +330,20 @@ class FollowManager:
     @staticmethod
     def get_mutes(user_id: str) -> List[Dict[str, Any]]:
         """Get all active mutes."""
-        return SocialFollowsRepository.get_mutes(user_id)
+        return repos.social_follows.get_mutes(user_id)
 
     @staticmethod
     def is_following(follower_id: str, following_id: str) -> bool:
         """Check if user A follows user B (active status)."""
-        follow = SocialFollowsRepository.get_follow(follower_id, following_id)
+        follow = repos.social_follows.get_follow(follower_id, following_id)
         return follow is not None and follow.get('status') == 'active'
 
     @staticmethod
     def is_blocked(blocker_id: str, blocked_id: str) -> bool:
         """Check if user A has blocked user B."""
-        return SocialFollowsRepository.is_blocked(blocker_id, blocked_id)
+        return repos.social_follows.is_blocked(blocker_id, blocked_id)
 
     @staticmethod
     def is_muted(muter_id: str, muted_id: str) -> bool:
         """Check if user A has muted user B (and mute is still active)."""
-        return SocialFollowsRepository.is_muted(muter_id, muted_id)
+        return repos.social_follows.is_muted(muter_id, muted_id)

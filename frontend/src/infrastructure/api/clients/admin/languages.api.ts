@@ -3,12 +3,14 @@
  *
  * HTTP client for system language management endpoints.
  * Maps to backend: /api/v1/i18n/admin/languages
+ *                   /api/v1/admin/translations/*
  */
 
 import api from '@/infrastructure/api/http'
 
 // Note: http.ts already has baseURL '/api/v1'
 const BASE_URL = '/i18n/admin'
+const TRANSLATIONS_URL = '/admin/translations'
 
 /** Language record returned by the API */
 export interface AdminLanguage {
@@ -56,6 +58,49 @@ export interface LanguageDraft {
   flag_svg_code: string
   is_rtl: boolean
   priority: number
+}
+
+/** Import result */
+export interface ImportResult {
+  keys_created: number
+  translations_imported: number
+}
+
+/** Bulk translate job progress */
+export interface BulkTranslateJob {
+  job_id: string
+  status: 'queued' | 'processing' | 'completed' | 'failed'
+  progress_percentage: number
+  output_data: {
+    translated: number
+    failed: number
+    total: number
+    offset: number
+    error?: string
+  }
+}
+
+/** Review translation item */
+export interface ReviewTranslation {
+  translation_id: string
+  key_id: string
+  key_path: string
+  namespace_code: string
+  source_value: string
+  translated_value: string
+  translation_source: string
+  is_verified: boolean
+  quality_score: number | null
+  updated_at: string | null
+}
+
+/** Paginated review response */
+export interface ReviewResponse {
+  data: ReviewTranslation[]
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
 }
 
 interface ApiSuccessResponse<T> {
@@ -124,7 +169,7 @@ export const languagesApi = {
   draft: async (input: string): Promise<LanguageDraft> => {
     try {
       const response = await api.post<ApiSuccessResponse<LanguageDraft>>(
-        '/admin/translations/supported-languages/draft',
+        `${TRANSLATIONS_URL}/supported-languages/draft`,
         { input }
       )
       return response.data.data
@@ -143,6 +188,138 @@ export const languagesApi = {
     } catch (error: any) {
       const errorData = error.response?.data as ApiErrorResponse
       throw new Error(errorData?.error?.message || 'Failed to delete language')
+    }
+  },
+
+  /**
+   * Import locale JSON data for a language.
+   */
+  importLocales: async (
+    languageCode: string,
+    namespaces: Record<string, Record<string, unknown>>
+  ): Promise<ImportResult> => {
+    try {
+      const response = await api.post<ApiSuccessResponse<ImportResult> & ImportResult>(
+        `${TRANSLATIONS_URL}/import-locales`,
+        { language_code: languageCode, namespaces }
+      )
+      return {
+        keys_created: response.data.keys_created ?? response.data.data?.keys_created ?? 0,
+        translations_imported: response.data.translations_imported ?? response.data.data?.translations_imported ?? 0
+      }
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to import locales')
+    }
+  },
+
+  /**
+   * Create a bulk translation job.
+   */
+  startBulkTranslate: async (
+    sourceLanguage: string,
+    targetLanguage: string,
+    namespaceCode?: string | null
+  ): Promise<BulkTranslateJob> => {
+    try {
+      const response = await api.post<{ success: true } & BulkTranslateJob>(
+        `${TRANSLATIONS_URL}/bulk-translate`,
+        { source_language: sourceLanguage, target_language: targetLanguage, namespace_code: namespaceCode ?? null }
+      )
+      return response.data
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to start bulk translate')
+    }
+  },
+
+  /**
+   * Execute next step in bulk translation job.
+   */
+  runBulkTranslateStep: async (jobId: string): Promise<BulkTranslateJob> => {
+    try {
+      const response = await api.post<{ success: true } & BulkTranslateJob>(
+        `${TRANSLATIONS_URL}/bulk-translate/${jobId}/run`
+      )
+      return response.data
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to run translate step')
+    }
+  },
+
+  /**
+   * Poll bulk translation job progress.
+   */
+  getBulkTranslateProgress: async (jobId: string): Promise<BulkTranslateJob> => {
+    try {
+      const response = await api.get<{ success: true } & BulkTranslateJob>(
+        `${TRANSLATIONS_URL}/bulk-translate/${jobId}`
+      )
+      return response.data
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to get translate progress')
+    }
+  },
+
+  /**
+   * Get paginated translations for review.
+   */
+  getReviewTranslations: async (params: {
+    language: string
+    source_language?: string
+    namespace?: string
+    status?: 'all' | 'verified' | 'unverified'
+    search?: string
+    page?: number
+    per_page?: number
+  }): Promise<ReviewResponse> => {
+    try {
+      const response = await api.get<{ success: true } & ReviewResponse>(
+        `${TRANSLATIONS_URL}/review`,
+        { params }
+      )
+      return response.data
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to load review translations')
+    }
+  },
+
+  /**
+   * Edit a single translation value.
+   */
+  editTranslation: async (translationId: string, translatedValue: string): Promise<void> => {
+    try {
+      await api.put(`${TRANSLATIONS_URL}/review/${translationId}`, { translated_value: translatedValue })
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to edit translation')
+    }
+  },
+
+  /**
+   * Verify a single translation.
+   */
+  verifyTranslation: async (translationId: string): Promise<void> => {
+    try {
+      await api.post(`${TRANSLATIONS_URL}/review/${translationId}/verify`)
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to verify translation')
+    }
+  },
+
+  /**
+   * Bulk verify multiple translations.
+   */
+  bulkVerifyTranslations: async (translationIds: string[]): Promise<void> => {
+    try {
+      await api.post(`${TRANSLATIONS_URL}/review/bulk-verify`, { translation_ids: translationIds })
+    } catch (error: any) {
+      const errorData = error.response?.data as ApiErrorResponse
+      throw new Error(errorData?.error?.message || 'Failed to bulk verify translations')
     }
   }
 }

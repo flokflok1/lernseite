@@ -67,6 +67,45 @@
       "cancel": "Cancel"
     },
     "empty": "No languages configured",
-    "loading": "Loading languages..."
+    "loading": "Loading languages...",
+    "seed": {
+      "button": "Seed Reference Data",
+      "hint": "Import existing locale files (de/en/pl) into the database",
+      "importing": "Importing {lang}...",
+      "success": "Imported {count} translations for {lang}",
+      "complete": "Reference data seeded successfully",
+      "error": "Error importing locale data"
+    },
+    "translate": {
+      "button": "AI Translate",
+      "sourceLanguage": "Translate from",
+      "targetLanguage": "to",
+      "start": "Start Translation",
+      "progress": "Translating... {percent}%",
+      "translatedCount": "{translated} of {total} translated",
+      "failedCount": "{count} failed",
+      "complete": "Translation completed",
+      "error": "Translation failed",
+      "noModel": "No AI translation model configured. Set up in AI Settings first."
+    },
+    "review": {
+      "title": "Translation Review",
+      "subtitle": "Review and verify AI-generated translations",
+      "sourceValue": "Source",
+      "translatedValue": "Translation",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "verify": "Verify",
+      "verifySelected": "Verify Selected",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "noResults": "No translations found",
+      "filterNamespace": "Namespace",
+      "filterStatus": "Status",
+      "filterAll": "All",
+      "search": "Search keys or values...",
+      "source": "Source"
+    }
   }
 }

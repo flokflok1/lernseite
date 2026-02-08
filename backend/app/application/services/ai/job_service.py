@@ -35,6 +35,7 @@ class AIJobService:
     TYPE_COURSE_FROM_PDF = 'course_from_pdf'
     TYPE_MODULE_AUTOGEN = 'module_autogen'
     TYPE_LESSON_AUTOGEN = 'lesson_autogen'
+    TYPE_TRANSLATION = 'translation'
 
     # Job status constants (DB uses 'queued' instead of 'pending')
     STATUS_PENDING = 'queued'  # Alias for backwards compatibility
@@ -44,7 +45,7 @@ class AIJobService:
     STATUS_FAILED = 'failed'
     STATUS_CANCELLED = 'cancelled'
 
-    VALID_TYPES = [TYPE_COURSE_FROM_PDF, TYPE_MODULE_AUTOGEN, TYPE_LESSON_AUTOGEN]
+    VALID_TYPES = [TYPE_COURSE_FROM_PDF, TYPE_MODULE_AUTOGEN, TYPE_LESSON_AUTOGEN, TYPE_TRANSLATION]
     VALID_STATUSES = [STATUS_QUEUED, STATUS_PROCESSING, STATUS_COMPLETED, STATUS_FAILED, STATUS_CANCELLED]
 
     @staticmethod

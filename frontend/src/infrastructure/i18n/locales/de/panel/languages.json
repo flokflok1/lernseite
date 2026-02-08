@@ -67,6 +67,45 @@
       "cancel": "Abbrechen"
     },
     "empty": "Keine Sprachen konfiguriert",
-    "loading": "Sprachen werden geladen..."
+    "loading": "Sprachen werden geladen...",
+    "seed": {
+      "button": "Referenzdaten importieren",
+      "hint": "Bestehende Locale-Dateien (de/en/pl) in die Datenbank importieren",
+      "importing": "{lang} wird importiert...",
+      "success": "{count} Übersetzungen für {lang} importiert",
+      "complete": "Referenzdaten erfolgreich importiert",
+      "error": "Fehler beim Importieren der Locale-Daten"
+    },
+    "translate": {
+      "button": "KI-Übersetzen",
+      "sourceLanguage": "Übersetzen von",
+      "targetLanguage": "nach",
+      "start": "Übersetzung starten",
+      "progress": "Übersetze... {percent}%",
+      "translatedCount": "{translated} von {total} übersetzt",
+      "failedCount": "{count} fehlgeschlagen",
+      "complete": "Übersetzung abgeschlossen",
+      "error": "Übersetzung fehlgeschlagen",
+      "noModel": "Kein KI-Übersetzungsmodell konfiguriert. Zuerst in den KI-Einstellungen einrichten."
+    },
+    "review": {
+      "title": "Übersetzungsprüfung",
+      "subtitle": "KI-generierte Übersetzungen prüfen und verifizieren",
+      "sourceValue": "Quelle",
+      "translatedValue": "Übersetzung",
+      "verified": "Verifiziert",
+      "unverified": "Nicht verifiziert",
+      "verify": "Verifizieren",
+      "verifySelected": "Ausgewählte verifizieren",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "noResults": "Keine Übersetzungen gefunden",
+      "filterNamespace": "Namespace",
+      "filterStatus": "Status",
+      "filterAll": "Alle",
+      "search": "Schlüssel oder Werte suchen...",
+      "source": "Quelle"
+    }
   }
 }

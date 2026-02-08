@@ -119,17 +119,17 @@ class TranslationManager:
                     t.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag_svg_code,
-                    t.value,
+                    sl.flag AS flag_svg_code,
+                    t.translated_value,
                     t.is_verified,
-                    t.is_machine_translated,
-                    t.translator_id,
+                    t.translation_source,
+                    t.translator_user_id,
                     u.full_name as translator_name,
                     t.created_at,
                     t.updated_at
                 FROM translations.i18n_translations t
                 JOIN translations.supported_languages sl ON t.language_code = sl.language_code
-                LEFT JOIN core.users u ON t.translator_id = u.user_id
+                LEFT JOIN core.users u ON t.translator_user_id = u.user_id
                 WHERE t.key_id = %s
                 ORDER BY sl.priority, sl.language_code
             """
@@ -142,9 +142,9 @@ class TranslationManager:
     def set_translation(
         key_id: str,
         language_code: str,
-        value: str,
-        translator_id: Optional[str] = None,
-        is_machine_translated: bool = False
+        translated_value: str,
+        translator_user_id: Optional[str] = None,
+        translation_source: str = 'manual'
     ) -> bool:
         """
         Set or update a translation.
@@ -152,26 +152,26 @@ class TranslationManager:
         Args:
             key_id: The key identifier
             language_code: Target language code
-            value: Translation value
-            translator_id: Optional translator user ID
-            is_machine_translated: Whether AI-generated
+            translated_value: Translation value
+            translator_user_id: Optional translator user ID
+            translation_source: Source type (manual, deepl, llm, community, imported)
 
         Returns:
             True if successful
         """
         try:
-            source = 'ai' if is_machine_translated else 'manual'
             query = """
-                INSERT INTO i18n_translations (key_id, language_code, value, created_by, source)
+                INSERT INTO translations.i18n_translations
+                    (key_id, language_code, translated_value, translator_user_id, translation_source)
                 VALUES (%s, %s, %s, %s, %s)
                 ON CONFLICT (key_id, language_code)
                 DO UPDATE SET
-                    value = EXCLUDED.value,
-                    created_by = COALESCE(EXCLUDED.created_by, i18n_translations.created_by),
-                    source = EXCLUDED.source,
+                    translated_value = EXCLUDED.translated_value,
+                    translator_user_id = COALESCE(EXCLUDED.translator_user_id, translations.i18n_translations.translator_user_id),
+                    translation_source = EXCLUDED.translation_source,
                     updated_at = NOW()
             """
-            execute_query(query, (key_id, language_code, value, translator_id, source))
+            execute_query(query, (key_id, language_code, translated_value, translator_user_id, translation_source))
             TranslationManager.invalidate_cache(language_code)
             return True
         except Exception as e:

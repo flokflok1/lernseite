@@ -92,9 +92,8 @@ from app.api.v1.analytics import analytics_bp, org_analytics_bp
 # Gamification endpoint
 from app.api.v1.gamification import gamification_bp
 
-# i18n endpoints are registered via app.i18n package
-# DO NOT import from app.api.v1.i18n - that creates duplicate blueprint names
-# The app.i18n package handles all i18n blueprint registration
+# i18n endpoints (API layer is the single source of truth for all blueprints)
+from app.api.v1.i18n import I18N_BLUEPRINTS
 
 # Feature-based authorization endpoints (public + authenticated)
 from app.api.v1.features import features_bp, features_catalog_bp
@@ -243,7 +242,10 @@ api_v1.register_blueprint(analytics_bp)
 api_v1.register_blueprint(org_analytics_bp)
 api_v1.register_blueprint(gamification_bp)
 api_v1.register_blueprint(audio_bp)
-# i18n blueprints registered via app.i18n package (avoid duplicate names)
+# i18n blueprints (registered from api/v1/i18n/ - DDD single source of truth)
+for _i18n_bp in I18N_BLUEPRINTS:
+    api_v1.register_blueprint(_i18n_bp)
+
 api_v1.register_blueprint(features_bp)
 api_v1.register_blueprint(features_catalog_bp)
 api_v1.register_blueprint(course_editor_bp)

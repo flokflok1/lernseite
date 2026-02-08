@@ -26,14 +26,14 @@ class KeyManager:
         try:
             query = """
                 SELECT
-                    n.namespace_id,
                     n.namespace_code,
                     n.name,
                     n.description,
                     n.icon,
                     n.sort_order,
-                    0 as key_count
-                FROM i18n_namespaces n
+                    (SELECT COUNT(*) FROM translations.i18n_keys k
+                     WHERE k.namespace_code = n.namespace_code AND k.is_active = TRUE) as key_count
+                FROM translations.i18n_namespaces n
                 WHERE n.is_active = TRUE
                 ORDER BY n.sort_order
             """
@@ -44,7 +44,7 @@ class KeyManager:
 
     @staticmethod
     def get_keys(
-        namespace_id: Optional[int] = None,
+        namespace_code: Optional[str] = None,
         search: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
@@ -54,7 +54,7 @@ class KeyManager:
         Get translation keys with pagination.
 
         Args:
-            namespace_id: Optional namespace filter
+            namespace_code: Optional namespace filter
             search: Optional search term for key path/context
             limit: Results per page
             offset: Results offset
@@ -65,12 +65,12 @@ class KeyManager:
         """
         try:
             # Build WHERE conditions
-            conditions = ["1=1"]  # Always true base condition
+            conditions = ["k.is_active = TRUE"]
             params = []
 
-            if namespace_id:
-                conditions.append("k.namespace_id = %s")
-                params.append(namespace_id)
+            if namespace_code:
+                conditions.append("k.namespace_code = %s")
+                params.append(namespace_code)
 
             if search:
                 conditions.append("(k.key_path ILIKE %s OR k.context ILIKE %s)")
@@ -81,7 +81,7 @@ class KeyManager:
             # Count total
             count_query = f"""
                 SELECT COUNT(*) as total
-                FROM i18n_keys k
+                FROM translations.i18n_keys k
                 WHERE {where_clause}
             """
             count_result = fetch_one(count_query, tuple(params))
@@ -91,22 +91,22 @@ class KeyManager:
             query = f"""
                 SELECT
                     k.key_id,
-                    k.namespace_id,
-                    n.namespace_code,
+                    k.namespace_code,
                     k.key_path,
-                    k.context as description,
+                    k.default_value,
+                    k.description,
                     k.context as context_hint,
-                    k.max_length,
-                    k.placeholders,
-                    TRUE as is_active,
+                    k.is_active,
                     k.created_at,
-                    (SELECT value FROM i18n_translations WHERE key_id = k.key_id AND language_code = %s LIMIT 1) as primary_value,
-                    (SELECT COUNT(*) FROM i18n_translations WHERE key_id = k.key_id) as translation_count,
-                    (SELECT COUNT(*) FROM supported_languages WHERE active = TRUE) as total_languages
-                FROM i18n_keys k
-                LEFT JOIN i18n_namespaces n ON k.namespace_id = n.namespace_id
+                    (SELECT translated_value FROM translations.i18n_translations
+                     WHERE key_id = k.key_id AND language_code = %s LIMIT 1) as primary_value,
+                    (SELECT COUNT(*) FROM translations.i18n_translations
+                     WHERE key_id = k.key_id) as translation_count,
+                    (SELECT COUNT(*) FROM translations.supported_languages
+                     WHERE is_active = TRUE) as total_languages
+                FROM translations.i18n_keys k
                 WHERE {where_clause}
-                ORDER BY n.sort_order, k.key_path
+                ORDER BY k.namespace_code, k.key_path
                 LIMIT %s OFFSET %s
             """
             # Insert primary_language at the beginning of params
@@ -126,36 +126,35 @@ class KeyManager:
 
     @staticmethod
     def create_key(
-        namespace_id: int,
+        namespace_code: str,
         key_path: str,
+        default_value: str = '',
         description: Optional[str] = None,
-        context_hint: Optional[str] = None,
-        max_length: Optional[int] = None,
-        placeholders: Optional[List[str]] = None
-    ) -> Optional[int]:
+        context: Optional[str] = None
+    ) -> Optional[str]:
         """
         Create a new translation key.
 
         Args:
-            namespace_id: The namespace for this key
+            namespace_code: The namespace code for this key
             key_path: Dot-notation key path (e.g., 'common.save')
+            default_value: Default text (usually German)
             description: Optional description for translators
-            context_hint: Optional UI context information
-            max_length: Optional max length for translations
-            placeholders: Optional list of placeholder names
+            context: Optional UI context information
 
         Returns:
-            New key ID or None on error
+            New key ID (UUID) or None on error
         """
         try:
             query = """
-                INSERT INTO i18n_keys (namespace_id, key_path, description, context_hint, max_length, placeholders)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO translations.i18n_keys
+                    (namespace_code, key_path, default_value, description, context)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (namespace_code, key_path) DO NOTHING
                 RETURNING key_id
             """
             result = fetch_one(query, (
-                namespace_id, key_path, description, context_hint, max_length,
-                json.dumps(placeholders) if placeholders else None
+                namespace_code, key_path, default_value, description, context
             ))
             return result['key_id'] if result else None
         except Exception as e:

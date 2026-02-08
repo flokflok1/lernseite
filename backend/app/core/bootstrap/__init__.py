@@ -10,6 +10,7 @@ from app.core.bootstrap.config import config, Config
 from app.core.bootstrap.extensions import (
     db_pool,
     init_db_pool,
+    close_db_pool,
     jwt,
     socketio,
     limiter,
@@ -24,6 +25,7 @@ __all__ = [
     'Config',
     'db_pool',
     'init_db_pool',
+    'close_db_pool',
     'jwt',
     'socketio',
     'limiter',

@@ -6,6 +6,8 @@ Extensions are initialized here and then bound to the app in the factory pattern
 """
 
 import os
+import atexit
+import logging
 import redis
 from dotenv import load_dotenv
 
@@ -45,7 +47,28 @@ def init_db_pool(database_url: str, min_size: int = 2, max_size: int = 10):
         timeout=30,
         max_idle=300
     )
+    atexit.register(close_db_pool)
     return db_pool
+
+
+def close_db_pool() -> None:
+    """
+    Close the database connection pool safely.
+
+    Safe to call multiple times or when db_pool is None.
+    Registered via atexit for CLI one-shots, and via
+    app.teardown_appcontext for Flask request lifecycle.
+    """
+    global db_pool
+    if db_pool is None:
+        return
+    try:
+        db_pool.close()
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.warning("Error closing db_pool: %s", e)
+    finally:
+        db_pool = None
 
 
 def refresh_db_pool(database_url: str = None):
@@ -374,6 +397,7 @@ class RedisHelper:
 __all__ = [
     'db_pool',
     'init_db_pool',
+    'close_db_pool',
     'refresh_db_pool',
     'jwt',
     'socketio',

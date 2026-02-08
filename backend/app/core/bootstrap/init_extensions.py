@@ -49,7 +49,7 @@ def register_extensions(app: Flask) -> None:
     mail.init_app(app)
 
     # Email Service (New Template-based Email Utility)
-    from app.utils.email import init_email_service
+    from app.infrastructure.notifications.email import init_email_service
     init_email_service(app)
 
 

@@ -5,7 +5,7 @@ Handles email sending with template rendering support.
 Supports multiple email providers: SMTP, SendGrid, AWS SES.
 
 Usage:
-    from app.utils.email import send_email
+    from app.infrastructure.notifications.email import send_email
 
     send_email(
         to_email='customer@example.com',
@@ -359,7 +359,7 @@ def init_email_service(app):
     Initialize email service with Flask app.
 
     Call this from app factory (app/__init__.py):
-        from app.utils.email import init_email_service
+        from app.infrastructure.notifications.email import init_email_service
         init_email_service(app)
     """
     email_service.init_app(app)

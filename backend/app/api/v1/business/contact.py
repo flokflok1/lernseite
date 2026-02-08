@@ -220,7 +220,7 @@ def send_admin_notification(data: BusinessContactSchema, request_id: str):
         data: Contact form data
         request_id: Generated request ID
     """
-    from app.utils.email import send_email
+    from app.infrastructure.notifications.email import send_email
     from datetime import datetime
 
     # Get admin email from config or use default
@@ -281,7 +281,7 @@ def send_customer_confirmation(data: BusinessContactSchema):
     Args:
         data: Contact form data
     """
-    from app.utils.email import send_email
+    from app.infrastructure.notifications.email import send_email
 
     try:
         # Send confirmation email to customer

@@ -53,7 +53,7 @@ def maintenance_mode_check():
     # Check if user is authenticated and is admin (RBAC 2.0: dynamic from DB)
     user = g.get('current_user')
     if user:
-        from app.application.services.permission_service import PermissionService
+        from app.application.services.system.auth.permission import PermissionService
         if PermissionService.check_threshold(user, 'maintenance.access'):
             # Admin+ can access - add header to indicate maintenance mode
             g.maintenance_mode_active = True

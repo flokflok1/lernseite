@@ -5,7 +5,7 @@ NOTICE: This module is deprecated. Use individual modules from the
 math_toolkit package instead:
 
 Old:
-  from app.application.services.math_toolkit_service import MathToolkitService
+  from app.application.services.math_toolkit.service import MathToolkitService
   MathToolkitService.evaluate_expression(expr)
 
 New:

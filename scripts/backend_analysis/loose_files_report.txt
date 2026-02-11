@@ -1,0 +1,313 @@
+LOOSE FILES REPORT
+======================================================================
+
+app/domain/models/feature_flags.py
+  Lines: 43
+  Size: 948 bytes
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/method_loader.py
+  Lines: 62
+  Size: 1811 bytes
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/file_loader.py
+  Lines: 72
+  Size: 2048 bytes
+  Modified: 2026-02-03
+
+app/domain/models/social.py
+  Lines: 83
+  Size: 2329 bytes
+  Modified: 2026-02-03
+
+app/domain/models/admin_ai.py
+  Lines: 97
+  Size: 3671 bytes
+  Modified: 2026-02-03
+
+app/api/v1/prompts_system/admin_crud.py
+  Lines: 98
+  Size: 2803 bytes
+  Modified: 2026-02-03
+
+app/infrastructure/persistence/repositories/permission_repository.py
+  Lines: 100
+  Size: 3677 bytes
+  Modified: 2026-02-03
+
+app/setup/security.py
+  Lines: 101
+  Size: 3049 bytes
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/progress_loader.py
+  Lines: 102
+  Size: 3181 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/settings/ai/ai_usage_stats.py
+  Lines: 102
+  Size: 3761 bytes
+  Modified: 2026-02-03
+
+app/api/v1/prompts_system/admin_actions.py
+  Lines: 103
+  Size: 3202 bytes
+  Modified: 2026-02-03
+
+app/infrastructure/i18n/message_codes.py
+  Lines: 116
+  Size: 4712 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/shared/publishing_visibility.py
+  Lines: 131
+  Size: 4513 bytes
+  Modified: 2026-02-09
+
+app/core/feature_flags/db_seed.py
+  Lines: 133
+  Size: 4388 bytes
+  Modified: 2026-02-03
+
+app/application/services/plugins/lm_discovery.py
+  Lines: 135
+  Size: 4518 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/shared/publishing_queue.py
+  Lines: 136
+  Size: 4358 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/owner.py
+  Lines: 140
+  Size: 3888 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/ai_editor/actions.py
+  Lines: 146
+  Size: 4267 bytes
+  Modified: 2026-02-03
+
+app/api/v1/prompts_system/admin_categories.py
+  Lines: 148
+  Size: 4647 bytes
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/prompt_builder.py
+  Lines: 150
+  Size: 5359 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/learning_methods.py
+  Lines: 150
+  Size: 5036 bytes
+  Modified: 2026-02-03
+
+app/domain/models/course_publishing.py
+  Lines: 164
+  Size: 6011 bytes
+  Modified: 2026-02-03
+
+app/api/middleware/maintenance_mode.py
+  Lines: 166
+  Size: 4675 bytes
+  Modified: 2026-02-09
+
+app/infrastructure/persistence/repositories/course_prompt/queries.py
+  Lines: 178
+  Size: 4689 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/shared/publishing.py
+  Lines: 179
+  Size: 6194 bytes
+  Modified: 2026-02-09
+
+app/domain/models/moderation_audit.py
+  Lines: 186
+  Size: 6189 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/manual_editor/chapters.py
+  Lines: 206
+  Size: 7711 bytes
+  Modified: 2026-02-09
+
+app/api/v1/dashboard/recommendations.py
+  Lines: 213
+  Size: 5813 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/settings/system/system_stats.py
+  Lines: 214
+  Size: 5869 bytes
+  Modified: 2026-02-09
+
+app/api/v1/admin/translations_part3.py
+  Lines: 220
+  Size: 8027 bytes
+  Modified: 2026-02-07
+
+app/api/v1/dashboard/layouts.py
+  Lines: 228
+  Size: 6225 bytes
+  Modified: 2026-02-03
+
+app/application/services/plugins/lm_registry.py
+  Lines: 241
+  Size: 7723 bytes
+  Modified: 2026-02-03
+
+app/infrastructure/utils/validation_exception_wrapper.py
+  Lines: 244
+  Size: 8239 bytes
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/context_loader.py
+  Lines: 249
+  Size: 7782 bytes
+  Modified: 2026-02-03
+
+app/setup/routes_setup_config.py
+  Lines: 261
+  Size: 7644 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/settings/system/system_info.py
+  Lines: 279
+  Size: 8698 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/shared/publishing_decisions.py
+  Lines: 286
+  Size: 10582 bytes
+  Modified: 2026-02-09
+
+app/api/v1/dashboard/admin_system.py
+  Lines: 289
+  Size: 8003 bytes
+  Modified: 2026-02-03
+
+app/setup/status.py
+  Lines: 294
+  Size: 10577 bytes
+  Modified: 2026-02-03
+
+app/setup/routes_status.py
+  Lines: 297
+  Size: 7584 bytes
+  Modified: 2026-02-03
+
+app/setup/routes_setup.py
+  Lines: 303
+  Size: 9497 bytes
+  Modified: 2026-02-03
+
+app/domain/models/admin_groups.py
+  Lines: 304
+  Size: 8606 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/manual_editor/course_prompts.py
+  Lines: 305
+  Size: 11391 bytes
+  Modified: 2026-02-09
+
+app/domain/models/ai_editor.py
+  Lines: 310
+  Size: 9597 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/translations_part2.py
+  Lines: 324
+  Size: 12176 bytes
+  Modified: 2026-02-07
+
+app/api/v1/course_editor/manual_editor/exams.py
+  Lines: 324
+  Size: 12256 bytes
+  Modified: 2026-02-09
+
+app/domain/social/engagement/comments.py
+  Lines: 327
+  Size: 9748 bytes
+  Modified: 2026-02-08
+
+app/api/v1/course_editor/manual_editor/course_files.py
+  Lines: 349
+  Size: 14087 bytes
+  Modified: 2026-02-09
+
+app/domain/models/feature_configuration.py
+  Lines: 371
+  Size: 12326 bytes
+  Modified: 2026-02-03
+
+app/domain/models/i18n_sync.py
+  Lines: 406
+  Size: 14471 bytes
+  Modified: 2026-02-03
+
+app/setup/routes_groups.py
+  Lines: 407
+  Size: 12694 bytes
+  Modified: 2026-02-07
+
+app/domain/social/engagement/likes.py
+  Lines: 407
+  Size: 12002 bytes
+  Modified: 2026-02-08
+
+app/api/v1/admin/courses/course_analytics.py
+  Lines: 436
+  Size: 13391 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/courses/course_ai_settings.py
+  Lines: 437
+  Size: 13784 bytes
+  Modified: 2026-02-09
+
+app/setup/routes_database.py
+  Lines: 439
+  Size: 13928 bytes
+  Modified: 2026-02-03
+
+app/api/v1/course_editor/manual_editor/theory_sheets.py
+  Lines: 446
+  Size: 15267 bytes
+  Modified: 2026-02-09
+
+app/api/v1/admin/i18n_sync.py
+  Lines: 477
+  Size: 13612 bytes
+  Modified: 2026-02-03
+
+app/domain/ai/configuration/system_features_mapping.py
+  Lines: 477
+  Size: 17798 bytes
+  Modified: 2026-02-03
+
+app/setup/routes_verification.py
+  Lines: 480
+  Size: 14537 bytes
+  Modified: 2026-02-03
+
+app/api/v1/dashboard/widgets.py
+  Lines: 497
+  Size: 12702 bytes
+  Modified: 2026-02-03
+
+app/api/v1/admin/user_management/users.py
+  Lines: 608
+  Size: 18733 bytes
+  Modified: 2026-02-09
+
+app/api/v1/admin/groups.py
+  Lines: 922
+  Size: 26939 bytes
+  Modified: 2026-02-07
+

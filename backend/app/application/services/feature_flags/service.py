@@ -28,7 +28,7 @@ from app.infrastructure.persistence.repositories.feature_configuration import (
     FeatureConfigurationRepository,
     FeatureRoleMappingRepository
 )
-from app.infrastructure.persistence.repositories.feature_configuration_part2 import (
+from app.infrastructure.persistence.repositories.features.configuration_part2 import (
     FeatureTierLimitRepository,
     FeatureCacheStatusRepository
 )

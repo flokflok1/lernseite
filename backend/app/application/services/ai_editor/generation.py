@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 
 from app.domain.ai.configuration.prompt_registry import get_prompt_template, PromptRegistryError
-from app.application.services.ai_adapter import AIAdapter, AIProviderError
+from app.application.services.ai.adapter import AIAdapter, AIProviderError
 from app.infrastructure.persistence.repositories.ai.editor import (
     AIEditorRepository,
     AIEditorAnalyticsRepository

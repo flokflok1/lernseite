@@ -14,7 +14,7 @@ Caches results in Redis (TTL: 5 minutes) for performance.
 from typing import List, Optional, Dict, Any
 import logging
 
-from app.infrastructure.persistence.repositories.feature_repository import FeatureRepository
+from app.infrastructure.persistence.repositories.features.repository import FeatureRepository
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.infrastructure.cache.service import CacheService
 from app.infrastructure.persistence.database import get_connection

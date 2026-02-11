@@ -1,9 +1,2 @@
-"""
-System API package
-
-Contains system-level utilities:
-- health: Health check endpoints for monitoring
-- deprecation: Deprecation decorator system
-"""
-
+"""System API Package - System administration and settings"""
 __all__ = []

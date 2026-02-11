@@ -11,7 +11,7 @@ ISO 9001:2015 compliant - Agent extension management
 
 import json
 from typing import Dict, Any, Optional
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class AgentExtensionRepository(BaseRepository):

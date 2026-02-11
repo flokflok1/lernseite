@@ -98,6 +98,6 @@ __all__ = [
 
     # NOTE: AIJobService, PromptResolver, ExamContextDetector are available via:
     # - Direct imports: from app.application.services.ai.job_service import AIJobService
-    # - Or bridge files: from app.application.services.ai_job_service import AIJobService
+    # - Or bridge files: from app.application.services.ai.job_service import AIJobService
     # They are not re-exported here to avoid circular import issues
 ]

@@ -5,7 +5,7 @@ Database operations for social_posts table
 """
 
 from typing import Optional, Dict, List
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class SocialPostsRepository(BaseRepository):

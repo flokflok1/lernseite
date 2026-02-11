@@ -23,42 +23,6 @@ BACKWARD COMPATIBILITY NOTES:
 """
 
 # ============================================
-# LEGACY BRIDGE REGISTRATION (MUST BE FIRST!)
-# ============================================
-# Register legacy bridge modules IMMEDIATELY so old import paths work
-# This must happen before any other imports in this package
-
-import sys
-import importlib.util
-from pathlib import Path
-
-def _register_legacy_bridges():
-    """Register legacy bridge modules in sys.modules for backward compatibility."""
-    bridges_dir = Path(__file__).parent / '_legacy_bridges'
-    if not bridges_dir.exists():
-        return
-
-    legacy_bridges = [
-        'ai_adapter', 'ai_job_service', 'audit_service', 'content_translation_service',
-        'course_ai_settings_service', 'course_authoring_service', 'feature_configuration_ab_test',
-        'feature_configuration_rollout', 'feature_configuration_service', 'file_context_service',
-        'i18n_service', 'math_toolkit_service', 'permission_service', 'prompt_resolver',
-        'tts_service',
-    ]
-
-    for bridge_name in legacy_bridges:
-        bridge_file = bridges_dir / f'{bridge_name}.py'
-        if bridge_file.exists():
-            module_path = f'app.application.services.{bridge_name}'
-            spec = importlib.util.spec_from_file_location(module_path, bridge_file)
-            if spec and spec.loader:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                sys.modules[module_path] = module
-
-_register_legacy_bridges()
-
-# ============================================
 # ROOT-LEVEL UTILITY SERVICES (Cross-cutting concerns)
 # ============================================
 from app.application.services.ai.adapter import AIAdapter

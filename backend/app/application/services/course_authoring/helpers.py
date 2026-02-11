@@ -80,7 +80,7 @@ class DataHelpers:
             Extracted file context string
         """
         try:
-            from app.application.services.file_context_service import FileContextService
+            from app.application.services.system.files.context import FileContextService
             return FileContextService.extract_for_ai_context(file_ids, 'course')
         except Exception as e:
             logger.warning(f"Could not extract file context: {e}")

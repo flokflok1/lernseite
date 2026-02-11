@@ -1,0 +1,1294 @@
+1️⃣  ROOT-LEVEL LOOSE FILES
+Files in root directories that should be in subdirectories
+─────────────────────────────────────────────────────────────
+
+📁 backend/app/core/configuration
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ feature_config.py (19 lines)
+   ❌ rollout_config.py (25 lines)
+
+📁 backend/app/core/bootstrap
+   Files: 8 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ init_extensions.py (116 lines)
+   ❌ container.py (59 lines)
+   ❌ security.py (128 lines)
+   ❌ error_handlers.py (123 lines)
+   ❌ config.py (445 lines)
+   ❌ extensions.py (409 lines)
+   ❌ blueprints.py (176 lines)
+   ❌ middleware.py (99 lines)
+
+📁 backend/app/domain/ports/core
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ base.py (42 lines)
+   ❌ registry.py (56 lines)
+
+📁 backend/app/domain/ports/social
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ ports.py (401 lines)
+
+📁 backend/app/domain/ports/ai
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ ports.py (51 lines)
+
+📁 backend/app/domain/social/engagement
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ likes.py (407 lines)
+   ❌ comments.py (327 lines)
+
+📁 backend/app/domain/social/posts
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ post_manager.py (222 lines)
+
+📁 backend/app/domain/social/analytics
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ engagement_metrics.py (22 lines)
+   ❌ reach_metrics.py (9 lines)
+
+📁 backend/app/domain/social/follow
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ follow_manager.py (349 lines)
+
+📁 backend/app/domain/social/feed
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ feed_generator.py (274 lines)
+
+📁 backend/app/domain/social/notifications
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ notification_manager.py (30 lines)
+   ❌ realtime.py (10 lines)
+
+📁 backend/app/domain/models/content
+   Files: 7 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ course_prompt.py (267 lines)
+   ❌ learning_method.py (634 lines)
+   ❌ publishing.py (164 lines)
+   ❌ theory_sheet.py (163 lines)
+   ❌ course.py (444 lines)
+   ❌ category.py (464 lines)
+   ❌ social.py (83 lines)
+
+📁 backend/app/domain/models/panel
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ runner_modes.py (304 lines)
+   ❌ system_features.py (113 lines)
+
+📁 backend/app/domain/models/runner
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ sessions.py (251 lines)
+
+📁 backend/app/domain/models/analytics
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (329 lines)
+
+📁 backend/app/domain/models/admin
+   Files: 13 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ dashboard.py (236 lines)
+   ❌ validators.py (399 lines)
+   ❌ system_settings.py (74 lines)
+   ❌ core.py (243 lines)
+   ❌ groups.py (304 lines)
+   ❌ token.py (346 lines)
+   ❌ user.py (434 lines)
+   ❌ organisation.py (599 lines)
+   ❌ moderation_audit.py (186 lines)
+   ❌ course.py (220 lines)
+   ❌ subscription.py (492 lines)
+   ❌ ai.py (97 lines)
+   ❌ exam.py (260 lines)
+
+📁 backend/app/domain/ai
+   Files: 1 | Subdirs: 5 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ ai_course_generator.py (500 lines)
+
+📁 backend/app/domain/ai/configuration
+   Files: 5 | Subdirs: 3 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ system_features_mapping.py (477 lines)
+   ❌ ai_editor_prompts.py (20 lines)
+   ❌ prompt_models.py (407 lines)
+   ❌ capability_slots.py (236 lines)
+   ❌ prompt_registry.py (38 lines)
+
+📁 backend/app/domain/ai/configuration/prompts/authoring
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ lesson.py (99 lines)
+   ❌ course.py (190 lines)
+   ❌ method.py (71 lines)
+   ❌ general.py (338 lines)
+   ❌ chapter.py (100 lines)
+
+📁 backend/app/domain/ai/configuration/prompts/registry/core
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ registry.py (57 lines)
+   ❌ retrieval.py (236 lines)
+
+📁 backend/app/domain/ai/configuration/prompts/registry/initialization
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ setup.py (452 lines)
+
+📁 backend/app/domain/ai/configuration/prompts/registry/storage
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ db_override.py (81 lines)
+
+📁 backend/app/domain/ai/configuration/prompts/ai_editor
+   Files: 7 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ source.py (93 lines)
+   ❌ theory.py (98 lines)
+   ❌ methods.py (96 lines)
+   ❌ lessons.py (96 lines)
+   ❌ review.py (102 lines)
+   ❌ finalize.py (126 lines)
+   ❌ _base.py (43 lines)
+
+📁 backend/app/domain/ai/configuration/slots
+   Files: 3 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ validation.py (30 lines)
+   ❌ capabilities.py (41 lines)
+   ❌ mapping.py (41 lines)
+
+📁 backend/app/domain/ai/safety
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ grooming_detector.py (17 lines)
+
+📁 backend/app/domain/ai/content_moderation
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ text_classifier.py (28 lines)
+
+📁 backend/app/domain/ai/recommendation
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ content_recommender.py (13 lines)
+
+📁 backend/app/api/utils
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ responses.py (91 lines)
+
+📁 backend/app/api/middleware
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ security_headers.py (181 lines)
+   ❌ maintenance_mode.py (166 lines)
+   ❌ monitoring_middleware.py (187 lines)
+   ❌ auth.py (494 lines)
+   ❌ panel_alias.py (128 lines)
+
+📁 backend/app/api/gateway
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ analytics.py (204 lines)
+   ❌ rate_limiting.py (155 lines)
+   ❌ versioning.py (357 lines)
+   ❌ router.py (212 lines)
+   ❌ middleware.py (169 lines)
+
+📁 backend/app/api/v1/billing/tokens
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ user.py (393 lines)
+   ❌ admin.py (168 lines)
+
+📁 backend/app/api/v1/panel
+   Files: 3 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ runner_modes.py (243 lines)
+   ❌ system_features.py (109 lines)
+   ❌ lm_type_compatibility.py (83 lines)
+
+📁 backend/app/api/v1/profile
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (323 lines)
+   ❌ user_data.py (288 lines)
+   ❌ preferences.py (247 lines)
+   ❌ routes.py (46 lines)
+   ❌ ui_layout_preferences.py (173 lines)
+
+📁 backend/app/api/v1/users
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (416 lines)
+   ❌ extended.py (196 lines)
+
+📁 backend/app/api/v1/community
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ groups.py (540 lines)
+   ❌ forums.py (14 lines)
+
+📁 backend/app/api/v1/learning_methods
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ chapters.py (349 lines)
+   ❌ core.py (481 lines)
+   ❌ catalog.py (368 lines)
+   ❌ explanations.py (271 lines)
+   ❌ videos.py (493 lines)
+
+📁 backend/app/api/v1/course_editor/manual_editor
+   Files: 7 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ chapters.py (206 lines)
+   ❌ exams.py (324 lines)
+   ❌ courses.py (358 lines)
+   ❌ course_prompts.py (305 lines)
+   ❌ lessons.py (228 lines)
+   ❌ course_files.py (349 lines)
+   ❌ theory_sheets.py (446 lines)
+
+📁 backend/app/api/v1/course_editor/shared
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ publishing_decisions.py (286 lines)
+   ❌ publishing_queue.py (136 lines)
+   ❌ publishing.py (179 lines)
+   ❌ permissions.py (157 lines)
+   ❌ publishing_visibility.py (131 lines)
+
+📁 backend/app/api/v1/course_editor/ai_editor
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ authoring.py (450 lines)
+   ❌ actions.py (146 lines)
+
+📁 backend/app/api/v1/runner
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ sessions.py (215 lines)
+
+📁 backend/app/api/v1/feedback
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (398 lines)
+
+📁 backend/app/api/v1/auth
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ routes.py (636 lines)
+
+📁 backend/app/api/v1/analytics
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (412 lines)
+   ❌ organisations.py (603 lines)
+
+📁 backend/app/api/v1/gamification
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (80 lines)
+
+📁 backend/app/api/v1/media_archive/audio
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ streaming.py (238 lines)
+   ❌ processing.py (260 lines)
+
+📁 backend/app/api/v1/media_archive/tts
+   Files: 7 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ voices.py (113 lines)
+   ❌ scripts.py (156 lines)
+   ❌ config.py (44 lines)
+   ❌ synthesis.py (327 lines)
+   ❌ tutor.py (187 lines)
+   ❌ pronunciation.py (205 lines)
+   ❌ helpers.py (136 lines)
+
+📁 backend/app/api/v1/tts
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ audio.py (480 lines)
+   ❌ core.py (216 lines)
+   ❌ pronunciations.py (219 lines)
+   ❌ synthesis.py (591 lines)
+
+📁 backend/app/api/v1/math_toolkit
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ reference.py (280 lines)
+   ❌ tasks.py (102 lines)
+   ❌ admin.py (142 lines)
+   ❌ practice.py (418 lines)
+
+📁 backend/app/api/v1/dashboard
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ services.py (644 lines)
+   ❌ admin_system.py (289 lines)
+   ❌ widgets.py (497 lines)
+   ❌ layouts.py (228 lines)
+   ❌ recommendations.py (213 lines)
+
+📁 backend/app/api/v1/admin/feature-configuration
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (390 lines)
+   ❌ core_part2.py (154 lines)
+   ❌ audit.py (435 lines)
+   ❌ ab_tests.py (500 lines)
+   ❌ rollout.py (485 lines)
+
+📁 backend/app/api/v1/admin/settings/permissions
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ permission_thresholds.py (384 lines)
+
+📁 backend/app/api/v1/admin/settings/ai
+   Files: 14 | Subdirs: 2 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ providers_api_keys.py (247 lines)
+   ❌ ai_model_profiles.py (320 lines)
+   ❌ jobs_finalization.py (269 lines)
+   ❌ ai_usage_stats.py (102 lines)
+   ❌ models_sync.py (250 lines)
+   ❌ models_defaults.py (185 lines)
+   ❌ providers_crud.py (274 lines)
+   ❌ jobs_creation.py (279 lines)
+   ❌ jobs_management.py (283 lines)
+   ❌ providers_health.py (307 lines)
+   ❌ models_crud.py (304 lines)
+   ❌ models_usage.py (225 lines)
+   ❌ providers_testing.py (162 lines)
+   ❌ ai_pricing.py (522 lines)
+
+📁 backend/app/api/v1/admin/settings/ai/core
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ services.py (391 lines)
+   ❌ value_objects.py (263 lines)
+   ❌ events.py (272 lines)
+   ❌ factory.py (420 lines)
+
+📁 backend/app/api/v1/admin/user_management
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ users.py (608 lines)
+
+📁 backend/app/api/v1/admin/courses
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ course_ai_settings.py (437 lines)
+   ❌ course_analytics.py (436 lines)
+
+📁 backend/app/api/v1/social
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ follow.py (218 lines)
+   ❌ feed.py (141 lines)
+   ❌ posts.py (239 lines)
+   ❌ likes.py (219 lines)
+   ❌ comments.py (256 lines)
+
+📁 backend/app/api/v1/organisations
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (588 lines)
+
+📁 backend/app/api/v1/prompts_system
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ admin_crud.py (98 lines)
+   ❌ admin_categories.py (148 lines)
+   ❌ value_objects.py (85 lines)
+   ❌ admin_actions.py (103 lines)
+   ❌ blueprints.py (28 lines)
+
+📁 backend/app/api/v1/business
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ contact.py (554 lines)
+
+📁 backend/app/api/v1/messaging
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ direct_messages.py (26 lines)
+   ❌ group_chat.py (17 lines)
+
+📁 backend/app/api/v1/courses
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ enrollment.py (327 lines)
+   ❌ core.py (187 lines)
+   ❌ publishing.py (157 lines)
+   ❌ crud.py (185 lines)
+
+📁 backend/app/api/v1/exam_simulations
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (617 lines)
+   ❌ attempts.py (293 lines)
+   ❌ routes.py (43 lines)
+   ❌ settings.py (199 lines)
+
+📁 backend/app/api/v1/features
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (423 lines)
+   ❌ catalog.py (339 lines)
+
+📁 backend/app/api/v1/subscriptions
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (523 lines)
+
+📁 backend/app/api/v1/system
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ deprecation.py (351 lines)
+   ❌ health.py (236 lines)
+
+📁 backend/app/api/v1/ai
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ agents.py (344 lines)
+
+📁 backend/app/infrastructure/utils
+   Files: 3 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ exceptions.py (72 lines)
+   ❌ validation_exception_wrapper.py (244 lines)
+   ❌ validation_error_mapping.py (177 lines)
+
+📁 backend/app/infrastructure/i18n
+   Files: 4 | Subdirs: 5 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ error_code_i18n_mapping.py (335 lines)
+   ❌ error_codes.py (346 lines)
+   ❌ _helpers.py (25 lines)
+   ❌ message_codes.py (116 lines)
+
+📁 backend/app/infrastructure/persistence/database
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ connection.py (360 lines)
+
+📁 backend/app/infrastructure/persistence/repositories
+   Files: 1 | Subdirs: 40 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ feature_configuration.py (249 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/authoring
+   Files: 11 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ plan_versions.py (229 lines)
+   ❌ dialog_messages.py (201 lines)
+   ❌ files.py (290 lines)
+   ❌ milestones.py (200 lines)
+   ❌ analysis.py (252 lines)
+   ❌ finalization.py (423 lines)
+   ❌ refinements.py (252 lines)
+   ❌ changes.py (265 lines)
+   ❌ decision_explanations.py (189 lines)
+   ❌ user_journey.py (179 lines)
+   ❌ generations.py (268 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/i18n
+   Files: 11 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ import_repository.py (352 lines)
+   ❌ languages.py (292 lines)
+   ❌ translations.py (252 lines)
+   ❌ sync_changes.py (254 lines)
+   ❌ sync.py (64 lines)
+   ❌ sync_resolutions.py (266 lines)
+   ❌ sync_repository.py (612 lines)
+   ❌ sync_ops.py (315 lines)
+   ❌ repository.py (248 lines)
+   ❌ community.py (284 lines)
+   ❌ translation.py (552 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/lm_model_routing
+   Files: 3 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ requirements.py (141 lines)
+   ❌ resolver.py (105 lines)
+   ❌ assignments.py (372 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/core
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ base.py (437 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/token
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ wallet.py (191 lines)
+   ❌ analytics.py (223 lines)
+   ❌ admin.py (98 lines)
+   ❌ transactions.py (290 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/course_prompt
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ statistics.py (52 lines)
+   ❌ queries.py (178 lines)
+   ❌ crud.py (264 lines)
+   ❌ deletion.py (143 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/knowledge
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ query_log.py (262 lines)
+   ❌ cache.py (113 lines)
+   ❌ search.py (146 lines)
+   ❌ learning.py (85 lines)
+   ❌ crud.py (275 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/feedback
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (452 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/analytics
+   Files: 3 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core_events.py (230 lines)
+   ❌ advanced_analytics.py (421 lines)
+   ❌ aggregation.py (233 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/gamification
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ user_stats.py (189 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/group
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (721 lines)
+   ❌ management.py (491 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/lm_slot
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ requirements.py (133 lines)
+   ❌ resolver.py (121 lines)
+   ❌ assignments.py (427 lines)
+   ❌ slots.py (70 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/enrollments
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (484 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/audit
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ log.py (152 lines)
+   ❌ moderation_audit.py (386 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/settings
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ system.py (315 lines)
+   ❌ user_preferences.py (252 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/subscription
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ user_subscriptions.py (141 lines)
+   ❌ analytics.py (143 lines)
+   ❌ lifecycle.py (177 lines)
+   ❌ crud.py (131 lines)
+   ❌ organisation_subscriptions.py (128 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/tts
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (234 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/plugins
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ lm_plugins.py (280 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/prompts
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ templates.py (486 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/dashboard
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (308 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/admin
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ permission_repository.py (100 lines)
+   ❌ core.py (156 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/agent
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ agents.py (279 lines)
+   ❌ extensions.py (202 lines)
+   ❌ stats.py (77 lines)
+   ❌ warming.py (145 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/authoring_action
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ reorder.py (50 lines)
+   ❌ analytics.py (180 lines)
+   ❌ queries.py (202 lines)
+   ❌ crud.py (262 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/organisations
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (626 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/courses
+   Files: 9 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ statistics.py (72 lines)
+   ❌ chapters.py (253 lines)
+   ❌ files.py (357 lines)
+   ❌ ai_settings.py (333 lines)
+   ❌ lifecycle.py (171 lines)
+   ❌ search.py (141 lines)
+   ❌ crud.py (289 lines)
+   ❌ lessons.py (470 lines)
+   ❌ admin.py (313 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/features
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ system_catalog.py (407 lines)
+   ❌ repository.py (390 lines)
+   ❌ system_features_repository.py (297 lines)
+   ❌ configuration_part2.py (388 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/exams
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (343 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/learning_method
+   Files: 9 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ base.py (274 lines)
+   ❌ statistics.py (296 lines)
+   ❌ groups.py (214 lines)
+   ❌ catalog.py (478 lines)
+   ❌ feedback.py (182 lines)
+   ❌ instances.py (524 lines)
+   ❌ ai_execution.py (539 lines)
+   ❌ progress.py (178 lines)
+   ❌ types.py (72 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/user
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ auth.py (266 lines)
+   ❌ crud.py (210 lines)
+   ❌ roles.py (149 lines)
+   ❌ admin.py (509 lines)
+   ❌ profile.py (88 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/category
+   Files: 3 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ base_category_repository.py (325 lines)
+   ❌ hierarchy_category_repository.py (428 lines)
+   ❌ utils_category_repository.py (138 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/ai_models
+   Files: 6 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ sync.py (41 lines)
+   ❌ defaults.py (120 lines)
+   ❌ query.py (218 lines)
+   ❌ pricing.py (123 lines)
+   ❌ crud.py (217 lines)
+   ❌ stats.py (87 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/ai
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ jobs.py (446 lines)
+   ❌ providers.py (422 lines)
+   ❌ editor.py (437 lines)
+   ❌ usage.py (273 lines)
+   ❌ profiles.py (312 lines)
+
+📁 backend/app/infrastructure/persistence/repositories/widgets
+   Files: 3 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ widget_instance_repository.py (378 lines)
+   ❌ recommendation_repository.py (254 lines)
+   ❌ widget_repository.py (289 lines)
+
+📁 backend/app/infrastructure/monitoring/feature_analytics
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ feature_usage.py (16 lines)
+
+📁 backend/app/infrastructure/monitoring/trust_safety
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ moderator_dashboard.py (16 lines)
+
+📁 backend/app/infrastructure/tasks
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ exam_tasks.py (296 lines)
+
+📁 backend/app/infrastructure/security
+   Files: 3 | Subdirs: 3 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ permissions_compat.py (581 lines)
+   ❌ rate_limit.py (351 lines)
+   ❌ permissions.py (37 lines)
+
+📁 backend/app/infrastructure/security/auth
+   Files: 6 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ login.py (290 lines)
+   ❌ core.py (34 lines)
+   ❌ two_factor.py (270 lines)
+   ❌ _helpers.py (69 lines)
+   ❌ register.py (140 lines)
+   ❌ password.py (119 lines)
+
+📁 backend/app/infrastructure/redis
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ runner_state.py (367 lines)
+
+📁 backend/app/infrastructure/realtime/sockets
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ ai_editor_events.py (258 lines)
+
+📁 backend/app/infrastructure/cache
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (555 lines)
+
+📁 backend/app/infrastructure/notifications
+   Files: 1 | Subdirs: 1 | __init__.py: NO
+   LOOSE FILES (should be in subdirectory):
+   ❌ email.py (366 lines)
+
+📁 backend/app/application/services
+   Files: 1 | Subdirs: 22 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ authorization_service.py (146 lines)
+
+📁 backend/app/application/services/content
+   Files: 2 | Subdirs: 2 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ translation_jobs.py (114 lines)
+   ❌ translation.py (406 lines)
+
+📁 backend/app/application/services/content/publishing
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (542 lines)
+
+📁 backend/app/application/services/panel
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ runner_mode_service.py (397 lines)
+
+📁 backend/app/application/services/authoring
+   Files: 7 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ exceptions.py (8 lines)
+   ❌ session_manager.py (141 lines)
+   ❌ authoring_service.py (223 lines)
+   ❌ content_saver.py (200 lines)
+   ❌ chat_processor.py (170 lines)
+   ❌ preview_generator.py (145 lines)
+   ❌ helpers.py (171 lines)
+
+📁 backend/app/application/services/i18n
+   Files: 7 | Subdirs: 2 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ languages.py (231 lines)
+   ❌ suggestions.py (188 lines)
+   ❌ translations.py (196 lines)
+   ❌ config.py (133 lines)
+   ❌ bridge.py (228 lines)
+   ❌ ai_generation.py (218 lines)
+   ❌ keys.py (162 lines)
+
+📁 backend/app/application/services/i18n/legacy
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (505 lines)
+   ❌ import_service.py (343 lines)
+   ❌ sync_service.py (323 lines)
+   ❌ sync_apply.py (289 lines)
+   ❌ sync_analytics.py (281 lines)
+
+📁 backend/app/application/services/lm
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ math_toolkit.py (311 lines)
+   ❌ model_resolver.py (257 lines)
+   ❌ suggestion_service.py (365 lines)
+   ❌ slot_resolver.py (430 lines)
+
+📁 backend/app/application/services/feature_flags
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (436 lines)
+   ❌ cache.py (386 lines)
+   ❌ ab_test.py (405 lines)
+   ❌ rollout.py (436 lines)
+
+📁 backend/app/application/services/pdf
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ exceptions.py (20 lines)
+   ❌ analysis.py (367 lines)
+   ❌ bridge.py (194 lines)
+   ❌ extraction.py (120 lines)
+   ❌ validation.py (122 lines)
+
+📁 backend/app/application/services/runner
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ session_service.py (645 lines)
+
+📁 backend/app/application/services/ai_editor
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (242 lines)
+   ❌ finalization.py (312 lines)
+   ❌ utils.py (64 lines)
+   ❌ generation.py (341 lines)
+
+📁 backend/app/application/services/analytics
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (401 lines)
+
+📁 backend/app/application/services/math_toolkit
+   Files: 9 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ parser.py (91 lines)
+   ❌ hints.py (69 lines)
+   ❌ steps.py (90 lines)
+   ❌ solver.py (96 lines)
+   ❌ tasks.py (135 lines)
+   ❌ patterns.py (304 lines)
+   ❌ sessions.py (136 lines)
+   ❌ calculator.py (79 lines)
+   ❌ progress.py (147 lines)
+
+📁 backend/app/application/services/plugins
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ lm_registry.py (241 lines)
+   ❌ lm_discovery.py (135 lines)
+
+📁 backend/app/application/services/moderation
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (438 lines)
+
+📁 backend/app/application/services/dashboard
+   Files: 2 | Subdirs: 2 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ recommendation_service.py (202 lines)
+   ❌ widget_service.py (310 lines)
+
+📁 backend/app/application/services/dashboard/feedback
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (445 lines)
+
+📁 backend/app/application/services/agent
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ core.py (307 lines)
+   ❌ prompts.py (113 lines)
+   ❌ media.py (279 lines)
+   ❌ routing.py (270 lines)
+   ❌ knowledge.py (192 lines)
+
+📁 backend/app/application/services/tutor_knowledge
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ context_loader.py (249 lines)
+   ❌ file_loader.py (72 lines)
+   ❌ prompt_builder.py (150 lines)
+   ❌ method_loader.py (62 lines)
+   ❌ progress_loader.py (102 lines)
+
+📁 backend/app/application/services/media_cache
+   Files: 4 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ transcript_service.py (160 lines)
+   ❌ session_service.py (243 lines)
+   ❌ repository.py (350 lines)
+   ❌ tts_service.py (316 lines)
+
+📁 backend/app/application/services/course_authoring
+   Files: 7 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ prompts.py (159 lines)
+   ❌ exceptions.py (8 lines)
+   ❌ operations.py (157 lines)
+   ❌ database.py (333 lines)
+   ❌ validation.py (64 lines)
+   ❌ session.py (410 lines)
+   ❌ helpers.py (189 lines)
+
+📁 backend/app/application/services/lesson_video
+   Files: 7 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ orchestration.py (295 lines)
+   ❌ models.py (73 lines)
+   ❌ exceptions.py (8 lines)
+   ❌ generation.py (161 lines)
+   ❌ caching.py (191 lines)
+   ❌ status.py (71 lines)
+   ❌ helpers.py (178 lines)
+
+📁 backend/app/application/services/system
+   Files: 1 | Subdirs: 7 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ system_mode_service.py (320 lines)
+
+📁 backend/app/application/services/system/billing
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (415 lines)
+
+📁 backend/app/application/services/system/files
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ context.py (502 lines)
+
+📁 backend/app/application/services/system/auth
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ permission.py (312 lines)
+
+📁 backend/app/application/services/system/audit
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (546 lines)
+
+📁 backend/app/application/services/system/group_management
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (703 lines)
+
+📁 backend/app/application/services/system/features
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ service.py (351 lines)
+
+📁 backend/app/application/services/ai
+   Files: 6 | Subdirs: 5 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ static.py (295 lines)
+   ❌ job_service.py (338 lines)
+   ❌ adapter.py (396 lines)
+   ❌ exceptions.py (25 lines)
+   ❌ config.py (173 lines)
+   ❌ course_settings.py (356 lines)
+
+📁 backend/app/application/services/ai/context
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ detector.py (479 lines)
+
+📁 backend/app/application/services/ai/prompts
+   Files: 1 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ resolver.py (399 lines)
+
+📁 backend/app/application/services/ai/models
+   Files: 2 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ sync.py (556 lines)
+   ❌ profiles.py (364 lines)
+
+📁 backend/app/application/services/ai/providers
+   Files: 5 | Subdirs: 1 | __init__.py: YES
+   LOOSE FILES (should be in subdirectory):
+   ❌ anthropic.py (188 lines)
+   ❌ cohere.py (197 lines)
+   ❌ huggingface.py (184 lines)
+   ❌ google.py (183 lines)
+   ❌ openai.py (177 lines)
+
+
+2️⃣  SINGLE-FILE DIRECTORIES (No __init__.py)
+Directories with only 1 .py file and NO __init__.py (broken packages)
+─────────────────────────────────────────────────────────────
+
+📁 backend/app/infrastructure/notifications
+   ❌ email.py (366 lines) - NO __init__.py!
+   ACTION: Add __init__.py or move file to parent
+
+
+3️⃣  ISOLATED FILES (No sibling files)
+Files alone in a directory with only __init__.py (should merge with parent)
+─────────────────────────────────────────────────────────────
+
+📁 backend/app/core/feature_flags/management
+   ⚠️  manager.py (284 lines) + __init__.py (11 lines)
+   CONSIDER: Merge into parent or add more related files
+
+📁 backend/app/core/feature_flags/decorators
+   ⚠️  decorators.py (192 lines) + __init__.py (17 lines)
+   CONSIDER: Merge into parent or add more related files
+
+📁 backend/app/domain/social/profiles/management
+   ⚠️  manager.py (20 lines) + __init__.py (11 lines)
+   CONSIDER: Merge into parent or add more related files
+
+📁 backend/app/domain/social/discovery/search
+   ⚠️  core.py (22 lines) + __init__.py (11 lines)
+   CONSIDER: Merge into parent or add more related files
+
+📁 backend/app/api/v1/i18n/admin
+   ⚠️  admin.py (119 lines) + __init__.py (12 lines)
+   CONSIDER: Merge into parent or add more related files
+
+📁 backend/app/api/v1/admin/learning_methods
+   ⚠️  routes.py (150 lines) + __init__.py (0 lines)
+   CONSIDER: Merge into parent or add more related files
+
+📁 backend/app/api/v1/admin/owner
+   ⚠️  routes.py (140 lines) + __init__.py (0 lines)
+   CONSIDER: Merge into parent or add more related files
+
+
+4️⃣  MISNAMED FILES (Should be in subdirectory)
+Files with *_service.py, *_manager.py, etc. at wrong level
+─────────────────────────────────────────────────────────────
+
+📁 backend/app/domain/social/posts
+   ❌ post_manager.py (222 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/domain/social/posts/post/ subdirectory
+
+📁 backend/app/domain/social/follow
+   ❌ follow_manager.py (349 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/domain/social/follow/follow/ subdirectory
+
+📁 backend/app/domain/social/feed
+   ❌ feed_generator.py (274 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/domain/social/feed/feed/ subdirectory
+
+📁 backend/app/domain/ai
+   ❌ ai_course_generator.py (500 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/domain/ai/ai_course/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/i18n
+   ❌ import_repository.py (352 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/i18n/import/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/i18n
+   ❌ sync_repository.py (612 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/i18n/sync/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/admin
+   ❌ permission_repository.py (100 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/admin/permission/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/features
+   ❌ system_features_repository.py (297 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/features/system_features/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/category
+   ❌ base_category_repository.py (325 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/category/base_category/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/category
+   ❌ hierarchy_category_repository.py (428 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/category/hierarchy_category/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/category
+   ❌ utils_category_repository.py (138 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/category/utils_category/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/widgets
+   ❌ widget_instance_repository.py (378 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/widgets/widget_instance/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/widgets
+   ❌ recommendation_repository.py (254 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/widgets/recommendation/ subdirectory
+
+📁 backend/app/infrastructure/persistence/repositories/widgets
+   ❌ widget_repository.py (289 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/infrastructure/persistence/repositories/widgets/widget/ subdirectory
+
+📁 backend/app/application/services/panel
+   ❌ runner_mode_service.py (397 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/panel/runner_mode/ subdirectory
+
+📁 backend/app/application/services/authoring
+   ❌ session_manager.py (141 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/authoring/session/ subdirectory
+
+📁 backend/app/application/services/authoring
+   ❌ authoring_service.py (223 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/authoring/authoring/ subdirectory
+
+📁 backend/app/application/services/authoring
+   ❌ preview_generator.py (145 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/authoring/preview/ subdirectory
+
+📁 backend/app/application/services/i18n/legacy
+   ❌ import_service.py (343 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/i18n/legacy/import/ subdirectory
+
+📁 backend/app/application/services/i18n/legacy
+   ❌ sync_service.py (323 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/i18n/legacy/sync/ subdirectory
+
+📁 backend/app/application/services/lm
+   ❌ suggestion_service.py (365 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/lm/suggestion/ subdirectory
+
+📁 backend/app/application/services
+   ❌ authorization_service.py (146 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/authorization/ subdirectory
+
+📁 backend/app/application/services/runner
+   ❌ session_service.py (645 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/runner/session/ subdirectory
+
+📁 backend/app/application/services/dashboard
+   ❌ recommendation_service.py (202 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/dashboard/recommendation/ subdirectory
+
+📁 backend/app/application/services/dashboard
+   ❌ widget_service.py (310 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/dashboard/widget/ subdirectory
+
+📁 backend/app/application/services/media_cache
+   ❌ transcript_service.py (160 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/media_cache/transcript/ subdirectory
+
+📁 backend/app/application/services/media_cache
+   ❌ session_service.py (243 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/media_cache/session/ subdirectory
+
+📁 backend/app/application/services/media_cache
+   ❌ tts_service.py (316 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/media_cache/tts/ subdirectory
+
+📁 backend/app/application/services/system
+   ❌ system_mode_service.py (320 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/system/system_mode/ subdirectory
+
+📁 backend/app/application/services/ai
+   ❌ job_service.py (338 lines)
+   REASON: *_service/*.py pattern - should be in subdirectory
+   SUGGESTION: Create backend/app/application/services/ai/job/ subdirectory
+
+
+5️⃣  UTILITY HELL (utils.py, helpers.py in wrong places)
+Generic utility files that should be in app/utils/ or domain-specific
+─────────────────────────────────────────────────────────────
+
+📁 backend/app/api/v1/media_archive/tts/helpers.py
+   ⚠️  helpers.py (136 lines)
+   LOCATION: backend/app/api/v1/media_archive/tts
+   SUGGESTION: Move to app/utils/ or rename to domain-specific name
+
+📁 backend/app/application/services/authoring/helpers.py
+   ⚠️  helpers.py (171 lines)
+   LOCATION: backend/app/application/services/authoring
+   SUGGESTION: Move to app/utils/ or rename to domain-specific name
+
+📁 backend/app/application/services/ai_editor/utils.py
+   ⚠️  utils.py (64 lines)
+   LOCATION: backend/app/application/services/ai_editor
+   SUGGESTION: Move to app/utils/ or rename to domain-specific name
+
+📁 backend/app/application/services/course_authoring/helpers.py
+   ⚠️  helpers.py (189 lines)
+   LOCATION: backend/app/application/services/course_authoring
+   SUGGESTION: Move to app/utils/ or rename to domain-specific name
+
+📁 backend/app/application/services/lesson_video/helpers.py
+   ⚠️  helpers.py (178 lines)
+   LOCATION: backend/app/application/services/lesson_video
+   SUGGESTION: Move to app/utils/ or rename to domain-specific name
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║                    SUMMARY STATISTICS                         ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📊 Total .py files: 742
+📊 Total directories: 411
+❌ Single-file dirs (no __init__): 1
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 DETECTED ISSUES BY CATEGORY:
+   1️⃣  Root-level loose files: 147
+   2️⃣  Broken packages (no __init__): 1
+   3️⃣  Isolated files: 7
+   4️⃣  Misnamed files: 177
+   5️⃣  Utility hell: 5
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Report saved to: backend/_LOOSE_FILES_COMPREHENSIVE.txt
+

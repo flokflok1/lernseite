@@ -18,7 +18,7 @@ import re
 from werkzeug.utils import secure_filename
 
 from app.api.middleware.auth import token_required
-from app.application.services.ai_adapter import AIAdapter
+from app.application.services.ai.adapter import AIAdapter
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,944 @@
+═══════════════════════════════════════════════════════════════════════════════
+COMPREHENSIVE BACKEND REORGANIZATION AUDIT REPORT
+═══════════════════════════════════════════════════════════════════════════════
+
+Generated: $(date +"%Y-%m-%d %H:%M:%S")
+Working Directory: /home/pascal/Lernsystem/backend
+Purpose: Pre-reorganization audit of 14 critical directories
+
+This report documents:
+1. ACTUAL files in each directory (with exact names and sizes)
+2. PROPOSED new structure for each directory
+3. COMPLETE move plan with real file names
+4. Import update requirements
+
+═══════════════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════════════
+DIRECTORY 1/14: domain/models/
+═══════════════════════════════════════════════════════════════════════════════
+
+CURRENT STATUS: ✅ ALREADY REORGANIZED (as of this audit)
+
+Current Structure:
+[329K]  app/domain/models/
+├── [137K]  admin
+│   ├── [3.6K]  ai.py
+│   ├── [7.7K]  core.py
+│   ├── [9.8K]  course.py
+│   ├── [9.7K]  dashboard.py
+│   ├── [ 10K]  exam.py
+│   ├── [8.4K]  groups.py
+│   ├── [   0]  __init__.py
+│   ├── [6.0K]  moderation_audit.py
+│   ├── [ 21K]  organisation.py
+│   ├── [ 17K]  subscription.py
+│   ├── [2.1K]  system_settings.py
+│   ├── [ 13K]  token.py
+│   ├── [ 13K]  user.py
+│   └── [ 11K]  validators.py
+├── [ 28K]  ai
+│   ├── [ 15K]  agent.py
+│   ├── [9.4K]  editor.py
+│   └── [   0]  __init__.py
+├── [ 16K]  analytics
+│   ├── [ 12K]  core.py
+│   └── [   0]  __init__.py
+├── [ 82K]  content
+│   ├── [ 16K]  category.py
+│   ├── [7.9K]  course_prompt.py
+│   ├── [ 15K]  course.py
+│   ├── [   0]  __init__.py
+│   ├── [ 25K]  learning_method.py
+│   ├── [5.9K]  publishing.py
+│   ├── [2.3K]  social.py
+│   └── [5.4K]  theory_sheet.py
+├── [ 31K]  features
+│   ├── [ 12K]  configuration.py
+│   ├── [ 948]  flags.py
+│   ├── [ 14K]  i18n_sync.py
+│   └── [   0]  __init__.py
+├── [2.0K]  __init__.py
+├── [ 16K]  panel
+│   ├── [ 955]  __init__.py
+│   ├── [8.5K]  runner_modes.py
+│   └── [3.0K]  system_features.py
+└── [ 12K]  runner
+    ├── [ 531]  __init__.py
+    └── [7.6K]  sessions.py
+
+ 329K used in 8 directories, 37 files
+
+NOTES:
+- This directory was already reorganized during initial attempt
+- Files successfully moved into: admin/, ai/, content/, features/, analytics/
+- No further action needed for this directory
+
+═══════════════════════════════════════════════════════════════════════════════
+DIRECTORY 2/14: infrastructure/persistence/repositories/
+═══════════════════════════════════════════════════════════════════════════════
+
+CURRENT FILES (with sizes):
+app/infrastructure/persistence/repositories/audit_log.py (4,9K)
+app/infrastructure/persistence/repositories/chapter_theory.py (6,1K)
+app/infrastructure/persistence/repositories/course_publishing.py (12K)
+app/infrastructure/persistence/repositories/feature_configuration_part2.py (13K)
+app/infrastructure/persistence/repositories/feature_configuration.py (7,6K)
+app/infrastructure/persistence/repositories/feature_repository.py (13K)
+app/infrastructure/persistence/repositories/i18n_import_repository.py (12K)
+app/infrastructure/persistence/repositories/i18n_repository_community.py (11K)
+app/infrastructure/persistence/repositories/i18n_repository_languages.py (10K)
+app/infrastructure/persistence/repositories/i18n_repository.py (9,9K)
+app/infrastructure/persistence/repositories/i18n_repository_translations.py (9,0K)
+app/infrastructure/persistence/repositories/i18n_sync_changes.py (8,4K)
+app/infrastructure/persistence/repositories/i18n_sync_ops.py (11K)
+app/infrastructure/persistence/repositories/i18n_sync.py (1,9K)
+app/infrastructure/persistence/repositories/i18n_sync_repository.py (20K)
+app/infrastructure/persistence/repositories/i18n_sync_resolutions.py (8,5K)
+app/infrastructure/persistence/repositories/i18n_translation.py (18K)
+app/infrastructure/persistence/repositories/__init__.py (1,1K)
+app/infrastructure/persistence/repositories/moderation_audit.py (12K)
+app/infrastructure/persistence/repositories/permission_repository.py (3,6K)
+app/infrastructure/persistence/repositories/runner_modes_repository.py (12K)
+app/infrastructure/persistence/repositories/runner_sessions_repository.py (9,9K)
+app/infrastructure/persistence/repositories/system_features_catalog.py (17K)
+app/infrastructure/persistence/repositories/system_features_repository.py (8,2K)
+app/infrastructure/persistence/repositories/theory_sheet.py (12K)
+
+FILE COUNT:
+Total Python files: 25
+
+PROPOSED STRUCTURE:
+repositories/
+├── core/                          # Base repository + core infrastructure
+│   ├── __init__.py
+│   └── (base repository if found elsewhere)
+├── content/                       # Course content repositories
+│   ├── __init__.py
+│   ├── chapter_theory.py
+│   ├── publishing.py             ← course_publishing.py
+│   └── theory_sheet.py
+├── features/                      # Feature management
+│   ├── __init__.py
+│   ├── configuration.py
+│   ├── configuration_part2.py
+│   ├── repository.py             ← feature_repository.py
+│   ├── system_catalog.py         ← system_features_catalog.py
+│   └── system_features_repository.py
+├── i18n/                          # Internationalization
+│   ├── __init__.py
+│   ├── import_repository.py      ← i18n_import_repository.py
+│   ├── repository.py             ← i18n_repository.py
+│   ├── community.py              ← i18n_repository_community.py
+│   ├── languages.py              ← i18n_repository_languages.py
+│   ├── translations.py           ← i18n_repository_translations.py
+│   ├── sync.py                   ← i18n_sync.py
+│   ├── sync_changes.py
+│   ├── sync_ops.py
+│   ├── sync_repository.py
+│   ├── sync_resolutions.py
+│   └── translation.py            ← i18n_translation.py
+├── audit/                         # Audit & moderation
+│   ├── __init__.py
+│   ├── log.py                    ← audit_log.py
+│   └── moderation_audit.py
+├── runner/                        # Runner system
+│   ├── __init__.py
+│   ├── modes.py                  ← runner_modes_repository.py
+│   └── sessions.py               ← runner_sessions_repository.py
+└── admin/                         # Admin operations
+    ├── __init__.py
+    └── permission_repository.py
+
+MOVE PLAN:
+# Create directories
+mkdir -p app/infrastructure/persistence/repositories/{core,content,features,i18n,audit,runner,admin}
+
+# Move content files
+mv app/infrastructure/persistence/repositories/chapter_theory.py \
+   app/infrastructure/persistence/repositories/content/chapter_theory.py
+mv app/infrastructure/persistence/repositories/course_publishing.py \
+   app/infrastructure/persistence/repositories/content/publishing.py
+mv app/infrastructure/persistence/repositories/theory_sheet.py \
+   app/infrastructure/persistence/repositories/content/theory_sheet.py
+
+# Move features files
+mv app/infrastructure/persistence/repositories/feature_configuration.py \
+   app/infrastructure/persistence/repositories/features/configuration.py
+mv app/infrastructure/persistence/repositories/feature_configuration_part2.py \
+   app/infrastructure/persistence/repositories/features/configuration_part2.py
+mv app/infrastructure/persistence/repositories/feature_repository.py \
+   app/infrastructure/persistence/repositories/features/repository.py
+mv app/infrastructure/persistence/repositories/system_features_catalog.py \
+   app/infrastructure/persistence/repositories/features/system_catalog.py
+mv app/infrastructure/persistence/repositories/system_features_repository.py \
+   app/infrastructure/persistence/repositories/features/system_features_repository.py
+
+# Move i18n files
+mv app/infrastructure/persistence/repositories/i18n_import_repository.py \
+   app/infrastructure/persistence/repositories/i18n/import_repository.py
+mv app/infrastructure/persistence/repositories/i18n_repository.py \
+   app/infrastructure/persistence/repositories/i18n/repository.py
+mv app/infrastructure/persistence/repositories/i18n_repository_community.py \
+   app/infrastructure/persistence/repositories/i18n/community.py
+mv app/infrastructure/persistence/repositories/i18n_repository_languages.py \
+   app/infrastructure/persistence/repositories/i18n/languages.py
+mv app/infrastructure/persistence/repositories/i18n_repository_translations.py \
+   app/infrastructure/persistence/repositories/i18n/translations.py
+mv app/infrastructure/persistence/repositories/i18n_sync.py \
+   app/infrastructure/persistence/repositories/i18n/sync.py
+mv app/infrastructure/persistence/repositories/i18n_sync_changes.py \
+   app/infrastructure/persistence/repositories/i18n/sync_changes.py
+mv app/infrastructure/persistence/repositories/i18n_sync_ops.py \
+   app/infrastructure/persistence/repositories/i18n/sync_ops.py
+mv app/infrastructure/persistence/repositories/i18n_sync_repository.py \
+   app/infrastructure/persistence/repositories/i18n/sync_repository.py
+mv app/infrastructure/persistence/repositories/i18n_sync_resolutions.py \
+   app/infrastructure/persistence/repositories/i18n/sync_resolutions.py
+mv app/infrastructure/persistence/repositories/i18n_translation.py \
+   app/infrastructure/persistence/repositories/i18n/translation.py
+
+# Move audit files
+mv app/infrastructure/persistence/repositories/audit_log.py \
+   app/infrastructure/persistence/repositories/audit/log.py
+mv app/infrastructure/persistence/repositories/moderation_audit.py \
+   app/infrastructure/persistence/repositories/audit/moderation_audit.py
+
+# Move runner files
+mv app/infrastructure/persistence/repositories/runner_modes_repository.py \
+   app/infrastructure/persistence/repositories/runner/modes.py
+mv app/infrastructure/persistence/repositories/runner_sessions_repository.py \
+   app/infrastructure/persistence/repositories/runner/sessions.py
+
+# Move admin files
+mv app/infrastructure/persistence/repositories/permission_repository.py \
+   app/infrastructure/persistence/repositories/admin/permission_repository.py
+
+# Create __init__.py files
+for dir in core content features i18n audit runner admin; do
+  touch app/infrastructure/persistence/repositories/$dir/__init__.py
+done
+
+
+═══════════════════════════════════════════════════════════════════════════════
+DIRECTORY 3/14: setup/
+═══════════════════════════════════════════════════════════════════════════════
+
+CURRENT FILES (with sizes):
+app/setup/admin_setup.py (17K)
+app/setup/db_init.py (15K)
+app/setup/diagnostics.py (20K)
+app/setup/environment_setup.py (9,3K)
+app/setup/group_setup.py (15K)
+app/setup/__init__.py (4,6K)
+app/setup/install_check.py (9,5K)
+app/setup/ki_setup.py (17K)
+app/setup/migrations.py (18K)
+app/setup/organisation_setup.py (13K)
+app/setup/routes_database.py (14K)
+app/setup/routes_groups.py (13K)
+app/setup/routes_setup_config.py (7,5K)
+app/setup/routes_setup.py (9,3K)
+app/setup/routes_status.py (7,5K)
+app/setup/routes_verification.py (15K)
+app/setup/security.py (3,0K)
+app/setup/seeds_config.py (19K)
+app/setup/seeds.py (15K)
+app/setup/seeds_ui_schemas.py (46K)
+app/setup/status.py (11K)
+app/setup/system_check.py (9,8K)
+app/setup/verify_checks.py (17K)
+app/setup/verify.py (7,8K)
+
+FILE COUNT:
+Total Python files: 24
+
+PROPOSED STRUCTURE:
+setup/
+├── initialization/                # Setup & initialization
+│   ├── __init__.py
+│   ├── admin.py                  ← admin_setup.py
+│   ├── database.py               ← db_init.py
+│   ├── environment.py            ← environment_setup.py
+│   ├── groups.py                 ← group_setup.py
+│   ├── ai.py                     ← ki_setup.py
+│   ├── organisations.py          ← organisation_setup.py
+│   ├── users.py                  ← user_setup.py
+│   └── migrations.py             ← migrations.py (if exists)
+├── routes/                        # Setup routes
+│   ├── __init__.py
+│   ├── database.py               ← routes_database.py
+│   ├── groups.py                 ← routes_groups.py
+│   ├── setup.py                  ← routes_setup.py
+│   ├── config.py                 ← routes_setup_config.py
+│   ├── status.py                 ← routes_status.py
+│   ├── verification.py           ← routes_verification.py
+│   └── security.py               ← security.py
+├── diagnostics/                   # Status & diagnostics
+│   ├── __init__.py
+│   ├── status.py                 ← status.py
+│   ├── checks.py                 ← diagnostics.py
+│   ├── install.py                ← install_check.py
+│   └── verify.py                 ← verify_checks.py
+└── seeds/                         # Data seeding
+    ├── __init__.py
+    └── ui_schemas.py             ← seeds_ui_schemas.py
+
+MOVE PLAN:
+# Create directories
+mkdir -p app/setup/{initialization,routes,diagnostics,seeds}
+
+# Move initialization files
+[ -f app/setup/admin_setup.py ] && mv app/setup/admin_setup.py app/setup/initialization/admin.py
+[ -f app/setup/db_init.py ] && mv app/setup/db_init.py app/setup/initialization/database.py
+[ -f app/setup/environment_setup.py ] && mv app/setup/environment_setup.py app/setup/initialization/environment.py
+[ -f app/setup/group_setup.py ] && mv app/setup/group_setup.py app/setup/initialization/groups.py
+[ -f app/setup/ki_setup.py ] && mv app/setup/ki_setup.py app/setup/initialization/ai.py
+[ -f app/setup/organisation_setup.py ] && mv app/setup/organisation_setup.py app/setup/initialization/organisations.py
+[ -f app/setup/user_setup.py ] && mv app/setup/user_setup.py app/setup/initialization/users.py
+[ -f app/setup/migrations.py ] && mv app/setup/migrations.py app/setup/initialization/migrations.py
+
+# Move routes files
+[ -f app/setup/routes_database.py ] && mv app/setup/routes_database.py app/setup/routes/database.py
+[ -f app/setup/routes_groups.py ] && mv app/setup/routes_groups.py app/setup/routes/groups.py
+[ -f app/setup/routes_setup.py ] && mv app/setup/routes_setup.py app/setup/routes/setup.py
+[ -f app/setup/routes_setup_config.py ] && mv app/setup/routes_setup_config.py app/setup/routes/config.py
+[ -f app/setup/routes_status.py ] && mv app/setup/routes_status.py app/setup/routes/status.py
+[ -f app/setup/routes_verification.py ] && mv app/setup/routes_verification.py app/setup/routes/verification.py
+[ -f app/setup/security.py ] && mv app/setup/security.py app/setup/routes/security.py
+
+# Move diagnostics files
+[ -f app/setup/status.py ] && mv app/setup/status.py app/setup/diagnostics/status.py
+[ -f app/setup/diagnostics.py ] && mv app/setup/diagnostics.py app/setup/diagnostics/checks.py
+[ -f app/setup/install_check.py ] && mv app/setup/install_check.py app/setup/diagnostics/install.py
+[ -f app/setup/verify_checks.py ] && mv app/setup/verify_checks.py app/setup/diagnostics/verify.py
+
+# Move seeds files
+[ -f app/setup/seeds_ui_schemas.py ] && mv app/setup/seeds_ui_schemas.py app/setup/seeds/ui_schemas.py
+
+# Create __init__.py files
+for dir in initialization routes diagnostics seeds; do
+  touch app/setup/$dir/__init__.py
+done
+
+
+═══════════════════════════════════════════════════════════════════════════════
+DIRECTORY 4/14: api/v1/admin/
+═══════════════════════════════════════════════════════════════════════════════
+
+CURRENT FILES (excluding subdirectories):
+app/api/v1/admin/groups.py (27K)
+app/api/v1/admin/i18n_sync.py (14K)
+app/api/v1/admin/__init__.py (1,1K)
+app/api/v1/admin/learning_methods.py (5,0K)
+app/api/v1/admin/owner.py (3,8K)
+app/api/v1/admin/translations_part2.py (12K)
+app/api/v1/admin/translations_part3.py (7,9K)
+app/api/v1/admin/translations.py (9,6K)
+
+EXISTING SUBDIRECTORIES:
+app/api/v1/admin/courses/
+app/api/v1/admin/dashboard/
+app/api/v1/admin/feature-configuration/
+app/api/v1/admin/__pycache__/
+app/api/v1/admin/settings/
+app/api/v1/admin/user_management/
+
+PROPOSED STRUCTURE:
+admin/
+├── groups/                        # Group management
+│   ├── __init__.py
+│   └── routes.py                 ← groups.py
+├── i18n/                          # i18n admin
+│   ├── __init__.py
+│   ├── sync.py                   ← i18n_sync.py
+│   ├── translations.py           ← translations.py
+│   ├── translations_part2.py
+│   └── translations_part3.py
+├── learning_methods/              # Learning methods
+│   ├── __init__.py
+│   └── routes.py                 ← learning_methods.py
+├── owner/                         # Owner functions
+│   ├── __init__.py
+│   └── routes.py                 ← owner.py
+└── [existing subdirectories remain]
+
+MOVE PLAN:
+# Create directories
+mkdir -p app/api/v1/admin/{groups,i18n,learning_methods,owner}
+
+# Move files
+[ -f app/api/v1/admin/groups.py ] && mv app/api/v1/admin/groups.py app/api/v1/admin/groups/routes.py
+[ -f app/api/v1/admin/i18n_sync.py ] && mv app/api/v1/admin/i18n_sync.py app/api/v1/admin/i18n/sync.py
+[ -f app/api/v1/admin/translations.py ] && mv app/api/v1/admin/translations.py app/api/v1/admin/i18n/translations.py
+[ -f app/api/v1/admin/translations_part2.py ] && mv app/api/v1/admin/translations_part2.py app/api/v1/admin/i18n/translations_part2.py
+[ -f app/api/v1/admin/translations_part3.py ] && mv app/api/v1/admin/translations_part3.py app/api/v1/admin/i18n/translations_part3.py
+[ -f app/api/v1/admin/learning_methods.py ] && mv app/api/v1/admin/learning_methods.py app/api/v1/admin/learning_methods/routes.py
+[ -f app/api/v1/admin/owner.py ] && mv app/api/v1/admin/owner.py app/api/v1/admin/owner/routes.py
+
+# Create __init__.py files
+for dir in groups i18n learning_methods owner; do
+  touch app/api/v1/admin/$dir/__init__.py
+done
+
+
+═══════════════════════════════════════════════════════════════════════════════
+DIRECTORIES 5-14: REMAINING DIRECTORIES
+═══════════════════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: api/v1/tutor
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/api/v1/tutor/__init__.py (709)
+app/api/v1/tutor/tutor_admin.py (11K)
+app/api/v1/tutor/tutor_core.py (13K)
+app/api/v1/tutor/tutor_user.py (8,1K)
+
+SUBDIRECTORIES:
+app/api/v1/tutor/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: api/v1/categories
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/api/v1/categories/admin.py (13K)
+app/api/v1/categories/hierarchy.py (6,0K)
+app/api/v1/categories/__init__.py (237)
+app/api/v1/categories/public.py (6,8K)
+
+SUBDIRECTORIES:
+app/api/v1/categories/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: api/v1/admin/settings/system
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/api/v1/admin/settings/system/__init__.py (485)
+app/api/v1/admin/settings/system/settings.py (8,8K)
+app/api/v1/admin/settings/system/system_info.py (8,5K)
+app/api/v1/admin/settings/system/system_stats.py (5,8K)
+
+SUBDIRECTORIES:
+app/api/v1/admin/settings/system/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: api/v1/admin/settings/feature_flags
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/api/v1/admin/settings/feature_flags/__init__.py (985)
+app/api/v1/admin/settings/feature_flags/rollout_plans_actions.py (7,9K)
+app/api/v1/admin/settings/feature_flags/rollout_plans_crud.py (13K)
+app/api/v1/admin/settings/feature_flags/routes.py (15K)
+app/api/v1/admin/settings/feature_flags/schemas.py (5,5K)
+
+SUBDIRECTORIES:
+app/api/v1/admin/settings/feature_flags/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: domain/ports
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/domain/ports/ai.py (1,4K)
+app/domain/ports/base.py (1,2K)
+app/domain/ports/__init__.py (439)
+app/domain/ports/registry.py (1,9K)
+app/domain/ports/social.py (11K)
+
+SUBDIRECTORIES:
+app/domain/ports/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: domain/ai/configuration/prompts/registry
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/domain/ai/configuration/prompts/registry/core.py (1,7K)
+app/domain/ai/configuration/prompts/registry/db_override.py (2,5K)
+app/domain/ai/configuration/prompts/registry/initialization.py (18K)
+app/domain/ai/configuration/prompts/registry/__init__.py (1,3K)
+app/domain/ai/configuration/prompts/registry/retrieval.py (7,6K)
+
+SUBDIRECTORIES:
+app/domain/ai/configuration/prompts/registry/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: domain/social/profiles
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/domain/social/profiles/achievements.py (447)
+app/domain/social/profiles/avatar.py (425)
+app/domain/social/profiles/__init__.py (386)
+app/domain/social/profiles/portfolio.py (674)
+app/domain/social/profiles/profile_manager.py (587)
+
+SUBDIRECTORIES:
+app/domain/social/profiles/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: domain/social/discovery
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/domain/social/discovery/explore.py (883)
+app/domain/social/discovery/hashtags.py (645)
+app/domain/social/discovery/__init__.py (361)
+app/domain/social/discovery/search.py (681)
+app/domain/social/discovery/trending.py (912)
+
+SUBDIRECTORIES:
+app/domain/social/discovery/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: core/feature_flags
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/core/feature_flags/db_seed.py (4,3K)
+app/core/feature_flags/flag_config.py (6,0K)
+app/core/feature_flags/flag_decorators.py (6,0K)
+app/core/feature_flags/flag_manager.py (9,9K)
+app/core/feature_flags/__init__.py (856)
+
+SUBDIRECTORIES:
+app/core/feature_flags/__pycache__/
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY: core/rollout
+───────────────────────────────────────────────────────────────────
+✅ EXISTS
+
+FILES:
+app/core/rollout/ab_testing.py (2,5K)
+app/core/rollout/__init__.py (476)
+app/core/rollout/org_rollout.py (2,5K)
+app/core/rollout/percentage_rollout.py (1,7K)
+app/core/rollout/user_segments.py (1,8K)
+
+SUBDIRECTORIES:
+app/core/rollout/__pycache__/
+
+
+
+═══════════════════════════════════════════════════════════════════════════════
+DETAILED MOVE PLANS FOR DIRECTORIES 5-14
+═══════════════════════════════════════════════════════════════════════════════
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 5/14: api/v1/tutor/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+tutor/
+├── roles/
+│   ├── __init__.py
+│   ├── admin.py              ← tutor_admin.py
+│   ├── core.py               ← tutor_core.py
+│   └── user.py               ← tutor_user.py
+
+MOVE PLAN:
+mkdir -p app/api/v1/tutor/roles
+[ -f app/api/v1/tutor/tutor_admin.py ] && mv app/api/v1/tutor/tutor_admin.py app/api/v1/tutor/roles/admin.py
+[ -f app/api/v1/tutor/tutor_core.py ] && mv app/api/v1/tutor/tutor_core.py app/api/v1/tutor/roles/core.py
+[ -f app/api/v1/tutor/tutor_user.py ] && mv app/api/v1/tutor/tutor_user.py app/api/v1/tutor/roles/user.py
+touch app/api/v1/tutor/roles/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 6/14: api/v1/categories/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+categories/
+├── admin/
+│   ├── __init__.py
+│   └── routes.py             ← admin.py
+├── public/
+│   ├── __init__.py
+│   ├── routes.py             ← public.py
+│   └── hierarchy.py          ← hierarchy.py
+
+MOVE PLAN:
+mkdir -p app/api/v1/categories/{admin,public}
+[ -f app/api/v1/categories/admin.py ] && mv app/api/v1/categories/admin.py app/api/v1/categories/admin/routes.py
+[ -f app/api/v1/categories/public.py ] && mv app/api/v1/categories/public.py app/api/v1/categories/public/routes.py
+[ -f app/api/v1/categories/hierarchy.py ] && mv app/api/v1/categories/hierarchy.py app/api/v1/categories/public/hierarchy.py
+touch app/api/v1/categories/admin/__init__.py
+touch app/api/v1/categories/public/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 7/14: api/v1/admin/settings/system/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+system/
+├── config/
+│   ├── __init__.py
+│   └── settings.py           ← settings.py
+├── monitoring/
+│   ├── __init__.py
+│   ├── info.py               ← system_info.py
+│   └── stats.py              ← system_stats.py
+
+MOVE PLAN:
+mkdir -p app/api/v1/admin/settings/system/{config,monitoring}
+[ -f app/api/v1/admin/settings/system/settings.py ] && mv app/api/v1/admin/settings/system/settings.py app/api/v1/admin/settings/system/config/settings.py
+[ -f app/api/v1/admin/settings/system/system_info.py ] && mv app/api/v1/admin/settings/system/system_info.py app/api/v1/admin/settings/system/monitoring/info.py
+[ -f app/api/v1/admin/settings/system/system_stats.py ] && mv app/api/v1/admin/settings/system/system_stats.py app/api/v1/admin/settings/system/monitoring/stats.py
+touch app/api/v1/admin/settings/system/config/__init__.py
+touch app/api/v1/admin/settings/system/monitoring/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 8/14: api/v1/admin/settings/feature_flags/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+feature_flags/
+├── core/
+│   ├── __init__.py
+│   ├── routes.py             ← routes.py
+│   └── schemas.py            ← schemas.py
+├── rollout_plans/
+│   ├── __init__.py
+│   ├── actions.py            ← rollout_plans_actions.py
+│   └── crud.py               ← rollout_plans_crud.py
+
+MOVE PLAN:
+mkdir -p app/api/v1/admin/settings/feature_flags/{core,rollout_plans}
+[ -f app/api/v1/admin/settings/feature_flags/routes.py ] && mv app/api/v1/admin/settings/feature_flags/routes.py app/api/v1/admin/settings/feature_flags/core/routes.py
+[ -f app/api/v1/admin/settings/feature_flags/schemas.py ] && mv app/api/v1/admin/settings/feature_flags/schemas.py app/api/v1/admin/settings/feature_flags/core/schemas.py
+[ -f app/api/v1/admin/settings/feature_flags/rollout_plans_actions.py ] && mv app/api/v1/admin/settings/feature_flags/rollout_plans_actions.py app/api/v1/admin/settings/feature_flags/rollout_plans/actions.py
+[ -f app/api/v1/admin/settings/feature_flags/rollout_plans_crud.py ] && mv app/api/v1/admin/settings/feature_flags/rollout_plans_crud.py app/api/v1/admin/settings/feature_flags/rollout_plans/crud.py
+touch app/api/v1/admin/settings/feature_flags/core/__init__.py
+touch app/api/v1/admin/settings/feature_flags/rollout_plans/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 9/14: domain/ports/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+ports/
+├── ai/
+│   ├── __init__.py
+│   └── ports.py              ← ai.py
+├── social/
+│   ├── __init__.py
+│   └── ports.py              ← social.py
+├── core/
+│   ├── __init__.py
+│   ├── base.py               ← base.py
+│   └── registry.py           ← registry.py
+
+MOVE PLAN:
+mkdir -p app/domain/ports/{ai,social,core}
+[ -f app/domain/ports/ai.py ] && mv app/domain/ports/ai.py app/domain/ports/ai/ports.py
+[ -f app/domain/ports/social.py ] && mv app/domain/ports/social.py app/domain/ports/social/ports.py
+[ -f app/domain/ports/base.py ] && mv app/domain/ports/base.py app/domain/ports/core/base.py
+[ -f app/domain/ports/registry.py ] && mv app/domain/ports/registry.py app/domain/ports/core/registry.py
+touch app/domain/ports/ai/__init__.py
+touch app/domain/ports/social/__init__.py
+touch app/domain/ports/core/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 10/14: domain/ai/configuration/prompts/registry/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+registry/
+├── core/
+│   ├── __init__.py
+│   ├── registry.py           ← core.py
+│   └── retrieval.py          ← retrieval.py
+├── storage/
+│   ├── __init__.py
+│   └── db_override.py        ← db_override.py
+├── initialization/
+│   ├── __init__.py
+│   └── setup.py              ← initialization.py
+
+MOVE PLAN:
+mkdir -p app/domain/ai/configuration/prompts/registry/{core,storage,initialization}
+[ -f app/domain/ai/configuration/prompts/registry/core.py ] && mv app/domain/ai/configuration/prompts/registry/core.py app/domain/ai/configuration/prompts/registry/core/registry.py
+[ -f app/domain/ai/configuration/prompts/registry/retrieval.py ] && mv app/domain/ai/configuration/prompts/registry/retrieval.py app/domain/ai/configuration/prompts/registry/core/retrieval.py
+[ -f app/domain/ai/configuration/prompts/registry/db_override.py ] && mv app/domain/ai/configuration/prompts/registry/db_override.py app/domain/ai/configuration/prompts/registry/storage/db_override.py
+[ -f app/domain/ai/configuration/prompts/registry/initialization.py ] && mv app/domain/ai/configuration/prompts/registry/initialization.py app/domain/ai/configuration/prompts/registry/initialization/setup.py
+touch app/domain/ai/configuration/prompts/registry/core/__init__.py
+touch app/domain/ai/configuration/prompts/registry/storage/__init__.py
+touch app/domain/ai/configuration/prompts/registry/initialization/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 11/14: domain/social/profiles/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+profiles/
+├── components/
+│   ├── __init__.py
+│   ├── achievements.py       ← achievements.py
+│   ├── avatar.py             ← avatar.py
+│   └── portfolio.py          ← portfolio.py
+├── management/
+│   ├── __init__.py
+│   └── manager.py            ← profile_manager.py
+
+MOVE PLAN:
+mkdir -p app/domain/social/profiles/{components,management}
+[ -f app/domain/social/profiles/achievements.py ] && mv app/domain/social/profiles/achievements.py app/domain/social/profiles/components/achievements.py
+[ -f app/domain/social/profiles/avatar.py ] && mv app/domain/social/profiles/avatar.py app/domain/social/profiles/components/avatar.py
+[ -f app/domain/social/profiles/portfolio.py ] && mv app/domain/social/profiles/portfolio.py app/domain/social/profiles/components/portfolio.py
+[ -f app/domain/social/profiles/profile_manager.py ] && mv app/domain/social/profiles/profile_manager.py app/domain/social/profiles/management/manager.py
+touch app/domain/social/profiles/components/__init__.py
+touch app/domain/social/profiles/management/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 12/14: domain/social/discovery/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+discovery/
+├── search/
+│   ├── __init__.py
+│   └── core.py               ← search.py
+├── features/
+│   ├── __init__.py
+│   ├── explore.py            ← explore.py
+│   ├── hashtags.py           ← hashtags.py
+│   └── trending.py           ← trending.py
+
+MOVE PLAN:
+mkdir -p app/domain/social/discovery/{search,features}
+[ -f app/domain/social/discovery/search.py ] && mv app/domain/social/discovery/search.py app/domain/social/discovery/search/core.py
+[ -f app/domain/social/discovery/explore.py ] && mv app/domain/social/discovery/explore.py app/domain/social/discovery/features/explore.py
+[ -f app/domain/social/discovery/hashtags.py ] && mv app/domain/social/discovery/hashtags.py app/domain/social/discovery/features/hashtags.py
+[ -f app/domain/social/discovery/trending.py ] && mv app/domain/social/discovery/trending.py app/domain/social/discovery/features/trending.py
+touch app/domain/social/discovery/search/__init__.py
+touch app/domain/social/discovery/features/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 13/14: core/feature_flags/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+feature_flags/
+├── config/
+│   ├── __init__.py
+│   ├── flags.py              ← flag_config.py
+│   └── seeds.py              ← db_seed.py
+├── decorators/
+│   ├── __init__.py
+│   └── decorators.py         ← flag_decorators.py
+├── management/
+│   ├── __init__.py
+│   └── manager.py            ← flag_manager.py
+
+MOVE PLAN:
+mkdir -p app/core/feature_flags/{config,decorators,management}
+[ -f app/core/feature_flags/flag_config.py ] && mv app/core/feature_flags/flag_config.py app/core/feature_flags/config/flags.py
+[ -f app/core/feature_flags/db_seed.py ] && mv app/core/feature_flags/db_seed.py app/core/feature_flags/config/seeds.py
+[ -f app/core/feature_flags/flag_decorators.py ] && mv app/core/feature_flags/flag_decorators.py app/core/feature_flags/decorators/decorators.py
+[ -f app/core/feature_flags/flag_manager.py ] && mv app/core/feature_flags/flag_manager.py app/core/feature_flags/management/manager.py
+touch app/core/feature_flags/config/__init__.py
+touch app/core/feature_flags/decorators/__init__.py
+touch app/core/feature_flags/management/__init__.py
+
+
+───────────────────────────────────────────────────────────────────
+DIRECTORY 14/14: core/rollout/
+───────────────────────────────────────────────────────────────────
+
+PROPOSED STRUCTURE:
+rollout/
+├── strategies/
+│   ├── __init__.py
+│   ├── ab_testing.py         ← ab_testing.py
+│   └── percentage.py         ← percentage_rollout.py
+├── targeting/
+│   ├── __init__.py
+│   ├── organisation.py       ← org_rollout.py
+│   └── segments.py           ← user_segments.py
+
+MOVE PLAN:
+mkdir -p app/core/rollout/{strategies,targeting}
+[ -f app/core/rollout/ab_testing.py ] && mv app/core/rollout/ab_testing.py app/core/rollout/strategies/ab_testing.py
+[ -f app/core/rollout/percentage_rollout.py ] && mv app/core/rollout/percentage_rollout.py app/core/rollout/strategies/percentage.py
+[ -f app/core/rollout/org_rollout.py ] && mv app/core/rollout/org_rollout.py app/core/rollout/targeting/organisation.py
+[ -f app/core/rollout/user_segments.py ] && mv app/core/rollout/user_segments.py app/core/rollout/targeting/segments.py
+touch app/core/rollout/strategies/__init__.py
+touch app/core/rollout/targeting/__init__.py
+
+
+═══════════════════════════════════════════════════════════════════════════════
+IMPORT UPDATE STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+After file reorganization, ALL imports must be updated. The strategy:
+
+1. FIND ALL IMPORT STATEMENTS:
+   Find all files that import from reorganized modules:
+   
+   grep -r "from app.domain.models import" app/ --include="*.py"
+   grep -r "from app.infrastructure.persistence.repositories import" app/ --include="*.py"
+   grep -r "from app.setup import" app/ --include="*.py"
+   grep -r "from app.api.v1.admin import" app/ --include="*.py"
+   (etc. for all 14 directories)
+
+2. UPDATE PATTERNS:
+   Old: from app.domain.models import User
+   New: from app.domain.models.admin import User
+   
+   Old: from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
+   New: from app.infrastructure.persistence.repositories.i18n.repository import I18nRepository
+   
+   Old: from app.setup.db_init import initialize_database
+   New: from app.setup.initialization.database import initialize_database
+
+3. AUTOMATED UPDATE SCRIPT:
+   Create a Python script to update all imports automatically using AST parsing
+   or regex replacements with verification.
+
+4. VERIFICATION:
+   After updates:
+   - Run: python -m py_compile app/**/*.py
+   - Run: pytest tests/ (if tests exist)
+   - Ensure backend starts: python run.py
+
+═══════════════════════════════════════════════════════════════════════════════
+BARREL EXPORTS STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+Each new subdirectory should have a __init__.py with barrel exports:
+
+Example for app/domain/models/admin/__init__.py:
+───────────────────────────────────────────────────────────────────
+"""Admin domain models."""
+from .core import Admin, AdminRole
+from .ai import AdminAI
+from .course import AdminCourse
+from .exam import AdminExam
+from .groups import AdminGroup
+from .dashboard import Dashboard
+from .moderation_audit import ModerationAudit
+from .organisation import Organisation
+from .subscription import Subscription
+from .system_settings import SystemSettings
+from .token import Token
+from .user import User
+from .validators import validate_admin_input
+
+__all__ = [
+    'Admin', 'AdminRole', 'AdminAI', 'AdminCourse', 'AdminExam',
+    'AdminGroup', 'Dashboard', 'ModerationAudit', 'Organisation',
+    'Subscription', 'SystemSettings', 'Token', 'User',
+    'validate_admin_input'
+]
+───────────────────────────────────────────────────────────────────
+
+This allows:
+  from app.domain.models.admin import User, Token, Organisation
+
+Instead of:
+  from app.domain.models.admin.user import User
+  from app.domain.models.admin.token import Token
+  from app.domain.models.admin.organisation import Organisation
+
+═══════════════════════════════════════════════════════════════════════════════
+EXECUTION PLAN SUMMARY
+═══════════════════════════════════════════════════════════════════════════════
+
+PHASE 1: File Reorganization (14 directories)
+  ✅ Directory 1: domain/models/ (ALREADY DONE)
+  ⏸️ Directory 2: infrastructure/persistence/repositories/
+  ⏸️ Directory 3: setup/
+  ⏸️ Directory 4: api/v1/admin/
+  ⏸️ Directory 5: api/v1/tutor/
+  ⏸️ Directory 6: api/v1/categories/
+  ⏸️ Directory 7: api/v1/admin/settings/system/
+  ⏸️ Directory 8: api/v1/admin/settings/feature_flags/
+  ⏸️ Directory 9: domain/ports/
+  ⏸️ Directory 10: domain/ai/configuration/prompts/registry/
+  ⏸️ Directory 11: domain/social/profiles/
+  ⏸️ Directory 12: domain/social/discovery/
+  ⏸️ Directory 13: core/feature_flags/
+  ⏸️ Directory 14: core/rollout/
+
+PHASE 2: Create Barrel Exports
+  - Create __init__.py files with proper exports for all subdirectories
+  - Document all exported classes/functions
+
+PHASE 3: Import Updates
+  - Scan codebase for affected imports
+  - Update all import statements
+  - Verify no broken imports
+
+PHASE 4: Verification
+  - Run py_compile on all Python files
+  - Run pytest (if tests exist)
+  - Start backend server
+  - Verify no runtime errors
+
+PHASE 5: Git Operations
+  - Stage changes
+  - Create comprehensive commit
+  - Push to reorganization branch
+
+═══════════════════════════════════════════════════════════════════════════════
+ESTIMATED IMPACT
+═══════════════════════════════════════════════════════════════════════════════
+
+Files to be moved: ~150-200 files across 14 directories
+New subdirectories: ~40-50 new subdirectories
+Import statements affected: Estimated 500-1000+ import statements
+Lines of code affected: Estimated 10,000+ LOC (imports only)
+
+Risk Level: HIGH (massive refactoring)
+Recommended: Create backup branch before execution
+Testing Required: EXTENSIVE (all functionality must be verified)
+
+═══════════════════════════════════════════════════════════════════════════════
+END OF AUDIT REPORT
+═══════════════════════════════════════════════════════════════════════════════
+
+Generated: $(date +"%Y-%m-%d %H:%M:%S")
+Report saved to: /home/pascal/Lernsystem/backend/_reorganization_audit.txt
+
+Next Steps:
+1. Review this audit report carefully
+2. Approve or modify the reorganization plan
+3. Execute file moves (Phase 1)
+4. Create barrel exports (Phase 2)
+5. Update imports (Phase 3)
+6. Verify everything works (Phase 4)
+7. Commit changes (Phase 5)
+

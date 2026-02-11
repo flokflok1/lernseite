@@ -6,7 +6,7 @@ Handles database operations for social follows, blocks, mutes, and suggestions.
 
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class SocialFollowsRepository(BaseRepository):

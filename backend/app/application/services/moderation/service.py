@@ -19,9 +19,9 @@ from datetime import datetime
 from decimal import Decimal
 from flask import current_app
 
-from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository, ModerationAction
-from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
-from app.application.services.audit_service import AuditService
+from app.infrastructure.persistence.repositories.audit.moderation_audit import ModerationAuditRepository, ModerationAction
+from app.infrastructure.persistence.repositories.content.publishing import CoursePublishingRepository
+from app.application.services.system.audit.service import AuditService
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError, ConflictError
 
 # NOTE: CourseRepository imported lazily (inside methods) to avoid circular imports

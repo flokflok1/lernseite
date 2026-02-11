@@ -11,8 +11,8 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from app.application.services.ai_adapter import AIAdapter, AIProviderError
-from app.application.services.file_context_service import FileContextService
+from app.application.services.ai.adapter import AIAdapter, AIProviderError
+from app.application.services.system.files.context import FileContextService
 from app.domain.ai.configuration.prompts.authoring import get_authoring_prompt
 
 from .exceptions import AuthoringServiceError

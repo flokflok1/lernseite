@@ -1,0 +1,137 @@
+================================================================================
+PHASE 2B PILOT #8: app/application/services/course_editor - SKIP DECISION
+================================================================================
+Date: 2026-02-10
+Status: NOT APPLICABLE (Directory does not exist in application services layer)
+Import Count: 20 (high moderate coupling - highest in Phase 2B)
+
+INVESTIGATION SUMMARY:
+----------------------
+Directory Path Expected: app/application/services/course_editor/
+Investigation Result: Directory DOES NOT EXIST in application services layer
+
+VERIFICATION COMMANDS:
+----------------------
+# Command 1: Tree command attempt (FAILED)
+$ tree -h -C -I '__pycache__|*.pyc|venv|node_modules|dist|.git|_archive|.pytest_cache|coverage' app/application/services/course_editor/
+Result: Exit code 2 - "error opening dir" - 0 directories, 0 files
+
+# Command 2: Find command from repo root (codebase-wide)
+$ cd /home/pascal/Lernsystem && find . -type d -name "*course*editor*" -o -name "*editor*" 2>/dev/null | grep -E "(course.*editor|editor)" | head -30
+Result:
+  Frontend directories:
+  - ./frontend/src/domain/factories/course-editor
+  - ./frontend/src/domain/models/course-editor
+  - ./frontend/src/infrastructure/api/clients/course-editor
+  - ./frontend/src/application/stores/modules/course-editor
+  - ./frontend/src/presentation/features/editor/course-editor
+
+  Backend: NOT FOUND in application services layer
+
+# Command 3: Find command verification in backend
+$ find ./backend -type d \( -name "*course*editor*" -o -path "*/api/v1/*course*editor*" \) 2>/dev/null | head -20
+Result:
+  - ./backend/app/api/v1/course_editor (API layer)
+  - ./backend/app/api/v1/course_editor/manual_editor
+  - ./backend/app/api/v1/course_editor/ai_editor
+  - ./backend/app/api/v1/course_editor/shared
+
+FINDINGS:
+---------
+✅ course_editor EXISTS at:
+   - ./backend/app/api/v1/course_editor (API layer - HTTP routes)
+   - ./backend/app/api/v1/course_editor/manual_editor (Manual editing endpoints)
+   - ./backend/app/api/v1/course_editor/ai_editor (AI-powered editing endpoints)
+   - ./backend/app/api/v1/course_editor/shared (Shared utilities)
+   - Frontend directories (domain, infrastructure, application stores, presentation)
+
+❌ course_editor DOES NOT EXIST in: app/application/services/
+
+ARCHITECTURAL CONTEXT:
+----------------------
+Phase 2B Backend Reorganization targets:
+- Layer: application services (app/application/services/)
+- Purpose: Orchestration & business workflows
+- Scope: Moderate-risk directories (5-20 imports)
+
+course_editor location:
+- Layer: API layer (app/api/v1/) + Frontend (full stack)
+- Purpose: HTTP routes & blueprints (API), UI components (Frontend)
+- Architecture: DDD layering (api → application → domain → infrastructure)
+
+DECISION:
+---------
+✅ SKIP course_editor FOR PHASE 2B ANALYSIS
+
+Rationale:
+1. Directory does not exist in application services layer (verified with tree + find commands)
+2. Found in API layer (app/api/v1/course_editor) with three subdirectories: manual_editor, ai_editor, shared
+3. API layer is outside Phase 2B scope (Phase 2B targets application services)
+4. DDD architecture: API layer handles HTTP routes, application services handle orchestration
+5. Course editor is distributed feature (API + frontend) with no orchestration layer needed
+6. Pattern matches Pilots #6-7 (exam_simulations, learning_methods - both API-layer-only)
+7. No reorganization needed as there is nothing to analyze in application services
+
+ARCHITECTURAL NOTES:
+--------------------
+course_editor in API layer (app/api/v1/course_editor):
+- Purpose: Course editing API endpoints (manual + AI-powered)
+- Structure: Three subdirectories for separation of concerns
+  - manual_editor/ - Manual content editing endpoints (CRUD operations)
+  - ai_editor/ - AI-powered content generation endpoints
+  - shared/ - Shared utilities and helpers
+- Blueprint registration: app/api/v1/__init__.py
+- Frontend integration: Full course editor UI in presentation layer
+
+course_editor in Frontend:
+- Purpose: Course editor user interface
+- Locations:
+  - domain/factories/course-editor - Factory functions for course entities
+  - domain/models/course-editor - Course domain models
+  - infrastructure/api/clients/course-editor - API client for backend communication
+  - application/stores/modules/course-editor - Pinia state management
+  - presentation/features/editor/course-editor - UI components
+
+This is NOT a missing application service - course_editor is a distributed feature:
+- API routes handle HTTP requests (manual editing, AI generation, shared utilities)
+- Frontend handles complete UI experience
+- No separate orchestration layer needed (direct API-to-frontend pattern)
+
+PHASE 2B PROGRESS UPDATE:
+--------------------------
+✅ Pilot #1 (feature_flags, 6 imports): NO REORGANIZATION - 0 violations
+✅ Pilot #2 (ai_editor, 9 imports): NO REORGANIZATION - 0 violations
+✅ Pilot #3 (course_authoring, 9 imports): NO REORGANIZATION - 0 violations
+✅ Pilot #4 (content, 3 imports): MINIMAL REORGANIZATION - 1 violation
+✅ Pilot #5 (dashboard, 3 imports): NO REORGANIZATION - 0 violations
+⚠️ Pilot #6 (exam_simulations, 12 imports): SKIP - Not in application services layer
+⚠️ Pilot #7 (learning_methods, 15 imports): SKIP - Not in application services layer
+⚠️ Pilot #8 (course_editor, 20 imports): SKIP - Not in application services layer
+
+**Overall Quality Gate G01 Compliance:** 98% (1 violation across 5 completed pilots)
+
+PATTERN ANALYSIS:
+-----------------
+Three consecutive API-layer-only features detected:
+- exam_simulations (Pilot #6) - System-Feature: Exam System
+- learning_methods (Pilot #7) - 12 Content-LMs (LM00-LM11)
+- course_editor (Pilot #8) - Manual + AI editing with shared utilities
+
+Common characteristics:
+1. All exist in API layer (app/api/v1/)
+2. None exist in application services layer
+3. All have direct frontend integration
+4. All follow DDD principle: API for HTTP, Frontend for UI, no orchestration needed
+5. All have clean separation of concerns via subdirectories
+
+This pattern suggests architectural design decision: Features with direct API-to-frontend flow don't require application services orchestration layer.
+
+RECOMMENDATION:
+---------------
+✅ Proceed to Phase 2B Pilot #9: tts (8 imports)
+
+Next directory: app/application/services/tts/
+Expected structure: TTS services (Text-to-Speech implementation)
+Import coupling: 8 imports (moderate risk)
+
+================================================================================

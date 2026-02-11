@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 
 from app.infrastructure.persistence.database.connection import fetch_one, execute_query
-from app.application.services.ai_adapter import AIAdapter, AIProviderError
+from app.application.services.ai.adapter import AIAdapter, AIProviderError
 from app.application.services.course_authoring.exceptions import CourseAuthoringError
 from app.application.services.course_authoring.database import DatabaseOperations
 from app.application.services.course_authoring.prompts import PromptGenerator

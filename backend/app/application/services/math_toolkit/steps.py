@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 import json
 import logging
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 logger = logging.getLogger(__name__)
 

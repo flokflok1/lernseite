@@ -1,0 +1,662 @@
+BACKEND REORGANIZATION CANDIDATES
+================================================================================
+
+
+domain/models/ (26 files)
+--------------------------------------------------------------------------------
+  admin.py
+  admin_ai.py
+  admin_course.py
+  admin_exam.py
+  admin_groups.py
+  agent.py
+  ai_editor.py
+  analytics.py
+  category.py
+  course.py
+  course_prompt.py
+  course_publishing.py
+  dashboard.py
+  feature_configuration.py
+  feature_flags.py
+  i18n_sync.py
+  learning_method.py
+  moderation_audit.py
+  organisation.py
+  social.py
+  subscription.py
+  system_settings.py
+  theory_sheet.py
+  token.py
+  user.py
+  validators.py
+
+infrastructure/persistence/repositories/ (25 files)
+--------------------------------------------------------------------------------
+  audit_log.py
+  base_repository.py
+  chapter_theory.py
+  course_publishing.py
+  feature_configuration.py
+  feature_configuration_part2.py
+  feature_repository.py
+  i18n_import_repository.py
+  i18n_repository.py
+  i18n_repository_community.py
+  i18n_repository_languages.py
+  i18n_repository_translations.py
+  i18n_sync.py
+  i18n_sync_changes.py
+  i18n_sync_ops.py
+  i18n_sync_repository.py
+  i18n_sync_resolutions.py
+  i18n_translation.py
+  moderation_audit.py
+  permission_repository.py
+  runner_modes_repository.py
+  runner_sessions_repository.py
+  system_features_catalog.py
+  system_features_repository.py
+  theory_sheet.py
+
+setup/ (23 files)
+--------------------------------------------------------------------------------
+  admin_setup.py
+  db_init.py
+  diagnostics.py
+  environment_setup.py
+  group_setup.py
+  install_check.py
+  ki_setup.py
+  migrations.py
+  organisation_setup.py
+  routes_database.py
+  routes_groups.py
+  routes_setup.py
+  routes_setup_config.py
+  routes_status.py
+  routes_verification.py
+  security.py
+  seeds.py
+  seeds_config.py
+  seeds_ui_schemas.py
+  status.py
+  system_check.py
+  verify.py
+  verify_checks.py
+
+api/v1/admin/settings/ai/ (14 files)
+--------------------------------------------------------------------------------
+  ai_model_profiles.py
+  ai_pricing.py
+  ai_usage_stats.py
+  jobs_creation.py
+  jobs_finalization.py
+  jobs_management.py
+  models_crud.py
+  models_defaults.py
+  models_sync.py
+  models_usage.py
+  providers_api_keys.py
+  providers_crud.py
+  providers_health.py
+  providers_testing.py
+
+infrastructure/persistence/repositories/authoring/ (11 files)
+--------------------------------------------------------------------------------
+  analysis.py
+  changes.py
+  decision_explanations.py
+  dialog_messages.py
+  files.py
+  finalization.py
+  generations.py
+  milestones.py
+  plan_versions.py
+  refinements.py
+  user_journey.py
+
+application/services/math_toolkit/ (9 files)
+--------------------------------------------------------------------------------
+  calculator.py
+  hints.py
+  parser.py
+  patterns.py
+  progress.py
+  sessions.py
+  solver.py
+  steps.py
+  tasks.py
+
+infrastructure/persistence/repositories/courses/ (9 files)
+--------------------------------------------------------------------------------
+  admin.py
+  ai_settings.py
+  chapters.py
+  crud.py
+  files.py
+  lessons.py
+  lifecycle.py
+  search.py
+  statistics.py
+
+infrastructure/persistence/repositories/learning_method/ (9 files)
+--------------------------------------------------------------------------------
+  ai_execution.py
+  base.py
+  catalog.py
+  feedback.py
+  groups.py
+  instances.py
+  progress.py
+  statistics.py
+  types.py
+
+api/v1/i18n/ (8 files)
+--------------------------------------------------------------------------------
+  admin.py
+  ai_translation.py
+  keys.py
+  languages.py
+  moderation.py
+  public.py
+  suggestions.py
+  translation_api.py
+
+core/bootstrap/ (8 files)
+--------------------------------------------------------------------------------
+  blueprints.py
+  config.py
+  container.py
+  error_handlers.py
+  extensions.py
+  init_extensions.py
+  middleware.py
+  security.py
+
+application/services/authoring/ (7 files)
+--------------------------------------------------------------------------------
+  authoring_service.py
+  chat_processor.py
+  content_saver.py
+  exceptions.py
+  helpers.py
+  preview_generator.py
+  session_manager.py
+
+application/services/i18n/ (7 files)
+--------------------------------------------------------------------------------
+  ai_generation.py
+  bridge.py
+  config.py
+  keys.py
+  languages.py
+  suggestions.py
+  translations.py
+
+application/services/course_authoring/ (7 files)
+--------------------------------------------------------------------------------
+  database.py
+  exceptions.py
+  helpers.py
+  operations.py
+  prompts.py
+  session.py
+  validation.py
+
+application/services/lesson_video/ (7 files)
+--------------------------------------------------------------------------------
+  caching.py
+  exceptions.py
+  generation.py
+  helpers.py
+  models.py
+  orchestration.py
+  status.py
+
+api/v1/admin/ (7 files)
+--------------------------------------------------------------------------------
+  groups.py
+  i18n_sync.py
+  learning_methods.py
+  owner.py
+  translations.py
+  translations_part2.py
+  translations_part3.py
+
+api/v1/media_archive/tts/ (7 files)
+--------------------------------------------------------------------------------
+  config.py
+  helpers.py
+  pronunciation.py
+  scripts.py
+  synthesis.py
+  tutor.py
+  voices.py
+
+api/v1/course_editor/manual_editor/ (7 files)
+--------------------------------------------------------------------------------
+  chapters.py
+  course_files.py
+  course_prompts.py
+  courses.py
+  exams.py
+  lessons.py
+  theory_sheets.py
+
+domain/ai/configuration/prompts/ai_editor/ (7 files)
+--------------------------------------------------------------------------------
+  _base.py
+  finalize.py
+  lessons.py
+  methods.py
+  review.py
+  source.py
+  theory.py
+
+application/services/ai/ (6 files)
+--------------------------------------------------------------------------------
+  adapter.py
+  config.py
+  course_settings.py
+  exceptions.py
+  job_service.py
+  static.py
+
+infrastructure/security/auth/ (6 files)
+--------------------------------------------------------------------------------
+  _helpers.py
+  core.py
+  login.py
+  password.py
+  register.py
+  two_factor.py
+
+infrastructure/persistence/repositories/ai_models/ (6 files)
+--------------------------------------------------------------------------------
+  crud.py
+  defaults.py
+  pricing.py
+  query.py
+  stats.py
+  sync.py
+
+application/services/pdf/ (5 files)
+--------------------------------------------------------------------------------
+  analysis.py
+  bridge.py
+  exceptions.py
+  extraction.py
+  validation.py
+
+application/services/agent/ (5 files)
+--------------------------------------------------------------------------------
+  core.py
+  knowledge.py
+  media.py
+  prompts.py
+  routing.py
+
+application/services/tutor_knowledge/ (5 files)
+--------------------------------------------------------------------------------
+  context_loader.py
+  file_loader.py
+  method_loader.py
+  progress_loader.py
+  prompt_builder.py
+
+application/services/ai/providers/ (5 files)
+--------------------------------------------------------------------------------
+  anthropic.py
+  cohere.py
+  google.py
+  huggingface.py
+  openai.py
+
+application/services/i18n/legacy/ (5 files)
+--------------------------------------------------------------------------------
+  import_service.py
+  service.py
+  sync_analytics.py
+  sync_apply.py
+  sync_service.py
+
+infrastructure/persistence/repositories/knowledge/ (5 files)
+--------------------------------------------------------------------------------
+  cache.py
+  crud.py
+  learning.py
+  query_log.py
+  search.py
+
+infrastructure/persistence/repositories/subscription/ (5 files)
+--------------------------------------------------------------------------------
+  analytics.py
+  crud.py
+  lifecycle.py
+  organisation_subscriptions.py
+  user_subscriptions.py
+
+infrastructure/persistence/repositories/user/ (5 files)
+--------------------------------------------------------------------------------
+  admin.py
+  auth.py
+  crud.py
+  profile.py
+  roles.py
+
+infrastructure/persistence/repositories/ai/ (5 files)
+--------------------------------------------------------------------------------
+  editor.py
+  jobs.py
+  profiles.py
+  providers.py
+  usage.py
+
+api/middleware/ (5 files)
+--------------------------------------------------------------------------------
+  auth.py
+  maintenance_mode.py
+  monitoring_middleware.py
+  panel_alias.py
+  security_headers.py
+
+api/gateway/ (5 files)
+--------------------------------------------------------------------------------
+  analytics.py
+  middleware.py
+  rate_limiting.py
+  router.py
+  versioning.py
+
+api/v1/profile/ (5 files)
+--------------------------------------------------------------------------------
+  core.py
+  preferences.py
+  routes.py
+  ui_layout_preferences.py
+  user_data.py
+
+api/v1/learning_methods/ (5 files)
+--------------------------------------------------------------------------------
+  catalog.py
+  chapters.py
+  core.py
+  explanations.py
+  videos.py
+
+api/v1/dashboard/ (5 files)
+--------------------------------------------------------------------------------
+  admin_system.py
+  layouts.py
+  recommendations.py
+  services.py
+  widgets.py
+
+api/v1/social/ (5 files)
+--------------------------------------------------------------------------------
+  comments.py
+  feed.py
+  follow.py
+  likes.py
+  posts.py
+
+api/v1/prompts_system/ (5 files)
+--------------------------------------------------------------------------------
+  admin_actions.py
+  admin_categories.py
+  admin_crud.py
+  blueprints.py
+  value_objects.py
+
+api/v1/admin/feature-configuration/ (5 files)
+--------------------------------------------------------------------------------
+  ab_tests.py
+  audit.py
+  core.py
+  core_part2.py
+  rollout.py
+
+api/v1/course_editor/shared/ (5 files)
+--------------------------------------------------------------------------------
+  permissions.py
+  publishing.py
+  publishing_decisions.py
+  publishing_queue.py
+  publishing_visibility.py
+
+domain/ai/configuration/ (5 files)
+--------------------------------------------------------------------------------
+  ai_editor_prompts.py
+  capability_slots.py
+  prompt_models.py
+  prompt_registry.py
+  system_features_mapping.py
+
+domain/ai/configuration/prompts/authoring/ (5 files)
+--------------------------------------------------------------------------------
+  chapter.py
+  course.py
+  general.py
+  lesson.py
+  method.py
+
+application/services/lm/ (4 files)
+--------------------------------------------------------------------------------
+  math_toolkit.py
+  model_resolver.py
+  slot_resolver.py
+  suggestion_service.py
+
+application/services/feature_flags/ (4 files)
+--------------------------------------------------------------------------------
+  ab_test.py
+  cache.py
+  rollout.py
+  service.py
+
+application/services/ai_editor/ (4 files)
+--------------------------------------------------------------------------------
+  finalization.py
+  generation.py
+  service.py
+  utils.py
+
+application/services/media_cache/ (4 files)
+--------------------------------------------------------------------------------
+  repository.py
+  session_service.py
+  transcript_service.py
+  tts_service.py
+
+infrastructure/i18n/ (4 files)
+--------------------------------------------------------------------------------
+  _helpers.py
+  error_code_i18n_mapping.py
+  error_codes.py
+  message_codes.py
+
+infrastructure/persistence/repositories/token/ (4 files)
+--------------------------------------------------------------------------------
+  admin.py
+  analytics.py
+  transactions.py
+  wallet.py
+
+infrastructure/persistence/repositories/course_prompt/ (4 files)
+--------------------------------------------------------------------------------
+  crud.py
+  deletion.py
+  queries.py
+  statistics.py
+
+infrastructure/persistence/repositories/lm_slot/ (4 files)
+--------------------------------------------------------------------------------
+  assignments.py
+  requirements.py
+  resolver.py
+  slots.py
+
+infrastructure/persistence/repositories/agent/ (4 files)
+--------------------------------------------------------------------------------
+  agents.py
+  extensions.py
+  stats.py
+  warming.py
+
+infrastructure/persistence/repositories/authoring_action/ (4 files)
+--------------------------------------------------------------------------------
+  analytics.py
+  crud.py
+  queries.py
+  reorder.py
+
+api/v1/tts/ (4 files)
+--------------------------------------------------------------------------------
+  audio.py
+  core.py
+  pronunciations.py
+  synthesis.py
+
+api/v1/math_toolkit/ (4 files)
+--------------------------------------------------------------------------------
+  admin.py
+  practice.py
+  reference.py
+  tasks.py
+
+api/v1/courses/ (4 files)
+--------------------------------------------------------------------------------
+  core.py
+  crud.py
+  enrollment.py
+  publishing.py
+
+api/v1/exam_simulations/ (4 files)
+--------------------------------------------------------------------------------
+  attempts.py
+  core.py
+  routes.py
+  settings.py
+
+api/v1/admin/settings/feature_flags/ (4 files)
+--------------------------------------------------------------------------------
+  rollout_plans_actions.py
+  rollout_plans_crud.py
+  routes.py
+  schemas.py
+
+api/v1/admin/settings/ai/core/ (4 files)
+--------------------------------------------------------------------------------
+  events.py
+  factory.py
+  services.py
+  value_objects.py
+
+domain/ports/ (4 files)
+--------------------------------------------------------------------------------
+  ai.py
+  base.py
+  registry.py
+  social.py
+
+domain/ai/configuration/prompts/registry/ (4 files)
+--------------------------------------------------------------------------------
+  core.py
+  db_override.py
+  initialization.py
+  retrieval.py
+
+domain/social/profiles/ (4 files)
+--------------------------------------------------------------------------------
+  achievements.py
+  avatar.py
+  portfolio.py
+  profile_manager.py
+
+domain/social/discovery/ (4 files)
+--------------------------------------------------------------------------------
+  explore.py
+  hashtags.py
+  search.py
+  trending.py
+
+core/feature_flags/ (4 files)
+--------------------------------------------------------------------------------
+  db_seed.py
+  flag_config.py
+  flag_decorators.py
+  flag_manager.py
+
+core/rollout/ (4 files)
+--------------------------------------------------------------------------------
+  ab_testing.py
+  org_rollout.py
+  percentage_rollout.py
+  user_segments.py
+
+infrastructure/utils/ (3 files)
+--------------------------------------------------------------------------------
+  exceptions.py
+  validation_error_mapping.py
+  validation_exception_wrapper.py
+
+infrastructure/security/ (3 files)
+--------------------------------------------------------------------------------
+  permissions.py
+  permissions_compat.py
+  rate_limit.py
+
+infrastructure/persistence/repositories/lm_model_routing/ (3 files)
+--------------------------------------------------------------------------------
+  assignments.py
+  requirements.py
+  resolver.py
+
+infrastructure/persistence/repositories/analytics/ (3 files)
+--------------------------------------------------------------------------------
+  advanced_analytics.py
+  aggregation.py
+  core_events.py
+
+infrastructure/persistence/repositories/category/ (3 files)
+--------------------------------------------------------------------------------
+  base_category_repository.py
+  hierarchy_category_repository.py
+  utils_category_repository.py
+
+infrastructure/persistence/repositories/widgets/ (3 files)
+--------------------------------------------------------------------------------
+  recommendation_repository.py
+  widget_instance_repository.py
+  widget_repository.py
+
+api/v1/panel/ (3 files)
+--------------------------------------------------------------------------------
+  lm_type_compatibility.py
+  runner_modes.py
+  system_features.py
+
+api/v1/tutor/ (3 files)
+--------------------------------------------------------------------------------
+  tutor_admin.py
+  tutor_core.py
+  tutor_user.py
+
+api/v1/categories/ (3 files)
+--------------------------------------------------------------------------------
+  admin.py
+  hierarchy.py
+  public.py
+
+api/v1/admin/settings/system/ (3 files)
+--------------------------------------------------------------------------------
+  settings.py
+  system_info.py
+  system_stats.py
+
+domain/ai/configuration/slots/ (3 files)
+--------------------------------------------------------------------------------
+  capabilities.py
+  mapping.py
+  validation.py

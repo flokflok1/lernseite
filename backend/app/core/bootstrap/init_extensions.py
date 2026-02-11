@@ -75,7 +75,7 @@ def register_shell_context(app: Flask) -> None:
         from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
         from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository
         from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
-        from app.application.services.ai_adapter import AIAdapter
+        from app.application.services.ai.adapter import AIAdapter
         from app.application.services.system.billing.service import BillingService
 
         return {

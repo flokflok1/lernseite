@@ -11,7 +11,7 @@ import logging
 from typing import Dict, Any, Optional
 
 from app.infrastructure.cache.service import CacheService
-from app.application.services.ai_adapter import AIAdapter, AIProviderError
+from app.application.services.ai.adapter import AIAdapter, AIProviderError
 from app.infrastructure.persistence.repositories.agent import AgentRepository
 from app.infrastructure.persistence.repositories.knowledge import KnowledgeRepository
 from app.infrastructure.persistence.repositories.user import UserRepository

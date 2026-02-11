@@ -1,20 +1,21 @@
 """
 Prompts System API Package
 
-Feature-based structure (flattened from admin/core structure):
-- admin_crud.py: Prompt CRUD operations (101 LOC)
-  - From admin/crud.py
+AI prompt template management with categories and actions.
 
-- admin_actions.py: Prompt actions (106 LOC)
-  - From admin/actions.py
+Structure:
+- admin/ - Admin prompt management (CRUD, actions, categories)
+- blueprints.py - Blueprint definitions
+- value_objects.py - Domain value objects
 
-- admin_categories.py: Prompt categories management (151 LOC)
-  - From admin/categories.py
+Consolidated from: prompts_system/ root admin_* files (Batch 5, Phase 7)
+Previously flattened from: admin/prompts/
 
-- value_objects.py: Prompt value objects (85 LOC)
-  - From core/value_objects.py
-
-Total: 443 LOC across 4 feature files
+Endpoints (Admin - @permission_required):
+- GET/POST/PUT/DELETE /prompts - Prompt CRUD operations
+- POST /prompts/:id/activate - Activate prompt
+- POST /prompts/:id/test - Test prompt
+- GET/POST /prompts/categories - Category management
 
 All routes: /api/v1/prompts/*
 """
@@ -29,11 +30,11 @@ from app.api.v1.prompts_system.blueprints import (
 # Import domain logic
 from app.api.v1.prompts_system import value_objects
 
-# Import endpoint modules
-from app.api.v1.prompts_system import (
-    admin_crud,
-    admin_actions,
-    admin_categories
+# Import endpoint modules from admin subdirectory
+from app.api.v1.prompts_system.admin import (
+    crud,
+    actions,
+    categories
 )
 
 # All blueprints to register
@@ -49,9 +50,9 @@ for bp in ALL_BLUEPRINTS:
     api_v1.register_blueprint(bp)
 
 __all__ = [
-    'admin_crud',
-    'admin_actions',
-    'admin_categories',
+    'crud',
+    'actions',
+    'categories',
     'value_objects',
     'prompts_crud_bp',
     'prompts_actions_bp',

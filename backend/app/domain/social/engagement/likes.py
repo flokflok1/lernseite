@@ -6,7 +6,7 @@ Manages likes, reactions, shares, and bookmarks.
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from app.domain.ports.registry import repos
+from app.domain.ports.core.registry import repos
 
 
 class LikesService:

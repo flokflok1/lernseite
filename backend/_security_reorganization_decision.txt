@@ -1,0 +1,144 @@
+================================================================================
+PHASE 2A PILOT #5: app/infrastructure/security - REORGANIZATION DECISION
+================================================================================
+Date: 2026-02-10
+Status: PARTIAL REORGANIZATION (auth/ already complete, permissions_compat.py Quality Gate violation ACCEPTED)
+Import Count: 5 (low-moderate coupling)
+
+DIRECTORY ANALYSIS:
+-------------------
+Files inspected:
+1. __init__.py (46 lines) - Root barrel export
+2. permissions.py (37 lines) - Core permissions module
+3. permissions_compat.py (581 lines) - ⚠️ TEMPORARY compatibility wrapper (EXCEEDS 500-line Quality Gate G01)
+4. rate_limit.py (351 lines) - Rate limiting and brute force protection
+5. auth/__init__.py (70 lines) - Auth barrel export
+6. auth/core.py (34 lines) - Shared auth utilities
+7. auth/_helpers.py (69 lines) - Auth helper functions
+8. auth/login.py (290 lines) - Login, refresh, logout endpoints
+9. auth/password.py (119 lines) - Password reset endpoints
+10. auth/register.py (140 lines) - Registration endpoints
+11. auth/two_factor.py (270 lines) - 2FA endpoints
+
+Total: ~2,007 lines across 11 files
+
+CURRENT STRUCTURE (Partially Reorganized):
+--------------------------------------------
+app/infrastructure/security/
+├── __init__.py (46 lines) - Root barrel export
+├── permissions.py (37 lines) - Core permissions (GBA)
+├── permissions_compat.py (581 lines) - ⚠️ TEMPORARY RBAC 2.0 → GBA migration wrapper
+├── rate_limit.py (351 lines) - Rate limiting
+└── auth/ (ALREADY REORGANIZED - 2026-01-07)
+    ├── __init__.py (70 lines) - Auth barrel export
+    ├── core.py (34 lines) - Auth core utilities
+    ├── _helpers.py (69 lines) - Shared imports/utilities
+    ├── login.py (290 lines) - Login endpoints (4 endpoints)
+    ├── password.py (119 lines) - Password reset (2 endpoints)
+    ├── register.py (140 lines) - Registration (2 endpoints)
+    └── two_factor.py (270 lines) - 2FA endpoints (3 endpoints)
+
+EVALUATION:
+-----------
+✅ auth/ subdirectory ALREADY REORGANIZED (2026-01-07)
+   - Refactored from monolithic auth.py (771 lines)
+   - Split into 4 focused modules (<500 lines each)
+   - Clean barrel export pattern
+   - Well-documented refactoring
+
+⚠️ permissions_compat.py QUALITY GATE VIOLATION
+   - File size: 581 lines (EXCEEDS 500-line limit)
+   - Purpose: TEMPORARY compatibility wrapper for RBAC 2.0 → GBA migration
+   - Status: Explicitly documented as temporary, will be deleted post-migration
+   - Structure:
+     * Lines 32-108: Permissions class with old RBAC 2.0 constants
+     * Lines 114-202: _map_permission_code() (old → new permission mapping)
+     * Lines 210-554: Decorator wrappers (7 decorators + 2 utility functions)
+     * Lines 557-582: Migration notes
+
+✅ Root barrel export (__init__.py) - clean and focused (46 lines)
+✅ permissions.py - core GBA permissions (37 lines)
+✅ rate_limit.py - rate limiting logic (351 lines, under limit)
+
+STRENGTHS:
+----------
+1. **auth/ Subdirectory (Already Complete)**:
+   - Well-structured with 4 focused modules
+   - All files under 500-line limit
+   - Clean barrel export pattern
+   - Clear documentation of refactoring date (2026-01-07)
+   - Follows single responsibility principle
+
+2. **Root Organization**:
+   - Clean separation: permissions.py (GBA), permissions_compat.py (migration), rate_limit.py
+   - Good barrel export exposing clear public API
+
+3. **Migration Strategy**:
+   - Documented migration path (RBAC 2.0 → GBA)
+   - Explicit temporary nature of compatibility wrapper
+   - Clear instructions for code migration
+
+QUALITY GATE VIOLATION ANALYSIS:
+---------------------------------
+**permissions_compat.py (581 lines > 500-line limit):**
+
+Rationale for ACCEPTING violation:
+1. ✅ File is explicitly documented as TEMPORARY
+2. ✅ Will be deleted once RBAC 2.0 → GBA migration completes
+3. ✅ Splitting would be awkward (tight coupling between mappings and decorators)
+4. ✅ Not worth engineering effort to split temporary code
+5. ✅ Migration notes explicitly state: "Once all files have been migrated to new syntax, this wrapper can be deleted"
+
+Alternative considered but REJECTED:
+- Splitting into permissions_compat_part2.py would:
+  * Add complexity for temporary code
+  * Require additional barrel exports
+  * Be deleted soon anyway
+  * Break logical cohesion (mappings + decorators belong together)
+
+DECISION: ✅ ACCEPT Quality Gate violation for permissions_compat.py as temporary migration code
+
+CAVEAT: File MUST be deleted once RBAC 2.0 → GBA migration completes across codebase
+
+DECISION:
+---------
+✅ NO ADDITIONAL REORGANIZATION NEEDED
+
+Rationale:
+1. auth/ subdirectory is already well-organized (refactored 2026-01-07)
+2. permissions_compat.py Quality Gate violation is ACCEPTED (temporary migration code)
+3. Root organization is clean (permissions.py, rate_limit.py, barrel export)
+4. Low-moderate coupling (5 imports) means minimal risk
+5. Current structure scales well for security module needs
+
+COMPARISON TO PREVIOUS DIRECTORIES:
+------------------------------------
+i18n API (reorganized - Phase 2A Pilot #1):
+- 8 files → 4 thematic subdirectories (admin, translation, public, moderation)
+
+panel API (no reorganization - Phase 2A Pilot #2):
+- 3 files → flat structure (too small to reorganize)
+
+profile API (already reorganized - Phase 2A Pilot #3):
+- 5 files → feature-based organization (refactored 2026-01-17)
+
+monitoring (no reorganization - Phase 2A Pilot #4):
+- 6 files → 3 thematic subdirectories (already well-organized)
+
+security (partial reorganization - Phase 2A Pilot #5):
+- 11 files → auth/ subdirectory ALREADY REORGANIZED (2026-01-07)
+- permissions_compat.py Quality Gate violation ACCEPTED (temporary)
+- This IS the target architecture (with caveat for temporary file)
+
+RECOMMENDATION:
+---------------
+✅ Security directory is well-organized
+✅ auth/ subdirectory exemplifies target architecture
+⚠️ Monitor permissions_compat.py - DELETE when migration completes
+✅ No immediate reorganization work needed
+
+PHASE 2A STATUS: COMPLETE (5/5 low-risk directories analyzed)
+
+Next step: Move to Phase 2B (moderate-risk directories with 5-20 imports)
+
+================================================================================

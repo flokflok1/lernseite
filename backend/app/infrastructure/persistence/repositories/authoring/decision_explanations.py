@@ -4,7 +4,7 @@ Repository for ai_decision_explanations table (AI Transparency)
 from typing import Dict, List, Optional
 import logging
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 logger = logging.getLogger(__name__)
 

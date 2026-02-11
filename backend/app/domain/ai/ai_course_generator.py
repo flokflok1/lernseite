@@ -18,9 +18,9 @@ import logging
 import json
 from typing import Dict, Any, Optional
 
-from app.application.services.ai_adapter import AIAdapter, AIProviderError, AITimeoutError
-from app.application.services.ai_job_service import AIJobService
-from app.domain.ports.registry import repos
+from app.application.services.ai.adapter import AIAdapter, AIProviderError, AITimeoutError
+from app.application.services.ai.job_service import AIJobService
+from app.domain.ports.core.registry import repos
 
 # Setup logger
 logger = logging.getLogger(__name__)

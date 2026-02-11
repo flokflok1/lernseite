@@ -18,7 +18,7 @@ from app.core.bootstrap import extensions
 from app.infrastructure.persistence.repositories.token import TokenRepository
 from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
 from app.infrastructure.persistence.repositories.user import UserRepository
-from app.domain.models.learning_method import get_required_tier, check_tier_access
+from app.domain.models.content.learning_method import get_required_tier, check_tier_access
 
 
 class BillingService:

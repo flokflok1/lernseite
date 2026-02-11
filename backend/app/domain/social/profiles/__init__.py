@@ -1,8 +1,25 @@
-"""User Profiles System"""
+"""
+User Profiles System
 
-from app.domain.social.profiles.profile_manager import ProfileManager
-from app.domain.social.profiles.avatar import AvatarService
-from app.domain.social.profiles.portfolio import PortfolioService
-from app.domain.social.profiles.achievements import AchievementsService
+Provides profile management and profile-related components.
+"""
 
-__all__ = ['ProfileManager', 'AvatarService', 'PortfolioService', 'AchievementsService']
+# Re-export from components
+from app.domain.social.profiles.components import (
+    AchievementsService,
+    AvatarService,
+    PortfolioService
+)
+
+# Re-export from management
+from app.domain.social.profiles.management import ProfileManager
+
+__all__ = [
+    # Components
+    'AchievementsService',
+    'AvatarService',
+    'PortfolioService',
+
+    # Management
+    'ProfileManager'
+]

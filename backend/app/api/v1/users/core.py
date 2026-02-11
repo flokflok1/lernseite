@@ -23,7 +23,7 @@ Refactored: 2026-01-12 - Consolidated from users/ folder into flat file
 from flask import Blueprint, request, jsonify, g
 from pydantic import ValidationError
 
-from app.domain.models.user import (
+from app.domain.models.admin.user import (
     UserCreate,
     UserUpdate,
     UserResponse,
@@ -282,7 +282,7 @@ def get_user(user_id: int):
 
         # Check permissions: Users can view themselves, admins can view anyone, org admins can view users in their org
         # RBAC 2.0: Use dynamic permission checking
-        from app.application.services.permission_service import PermissionService
+        from app.application.services.system.auth.permission import PermissionService
         is_self = current_user['user_id'] == user_id
         is_admin = PermissionService.check_threshold(current_user, 'users.view_all')
         # hierarchy_level 5 = school_admin, company_admin

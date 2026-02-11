@@ -9,7 +9,7 @@ ISO 9001:2015 compliant - Repository layer
 """
 
 from typing import Dict, Optional, List
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 

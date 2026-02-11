@@ -26,7 +26,7 @@ from app.infrastructure.persistence.database.connection import (
     insert_returning,
     execute_query,
 )
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class LMModelAssignmentRepository(BaseRepository):

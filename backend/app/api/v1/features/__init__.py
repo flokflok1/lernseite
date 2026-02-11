@@ -1,11 +1,9 @@
-"""Features Module - Feature Flags and Feature Management
+"""
+Features API Package
 
-Exports:
-- features_bp: Main feature flags and management endpoints
-- features_catalog_bp: System Features catalog (25 features with ui_schemas)
+Feature management and feature flag configuration endpoints.
+
+Phase 5: Consolidated from admin/feature-configuration/ and admin/settings/feature_flags/
 """
 
-from app.api.v1.features.core import features_bp
-from app.api.v1.features.catalog import catalog_bp as features_catalog_bp
-
-__all__ = ['features_bp', 'features_catalog_bp']
+__all__ = []

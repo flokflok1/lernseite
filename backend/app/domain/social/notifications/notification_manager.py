@@ -1,7 +1,7 @@
 """Notification Management"""
 
 from typing import List, Dict, Any
-from app.domain.ports.registry import repos
+from app.domain.ports.core.registry import repos
 
 
 class NotificationManager:

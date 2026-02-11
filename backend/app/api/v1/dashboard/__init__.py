@@ -1,41 +1,38 @@
 """
 Dashboard API Package
 
-Feature-based structure (flattened from admin/core/layouts/recommendations/user/widgets structure):
-- widgets.py: Widget registry and instance management (503 LOC)
-  - Widget registry endpoints (get available widgets)
-  - Widget instance management (add, remove, update position/settings, toggle visibility)
-  - Consolidated from widgets/registry.py, widgets/instances.py, widgets/models.py
+Feature-based structure with role separation (Phase 1 Consolidation).
 
-- layouts.py: Dashboard layout management (228 LOC)
-  - From layouts/endpoints.py
+Structure:
+├── admin/                     # Admin dashboards
+│   ├── stats/                # Quick statistics endpoints
+│   │   └── __init__.py       # /dashboard/admin/stats/* (251 LOC)
+│   └── system/               # Full system dashboard views
+│       └── __init__.py       # /dashboard/admin/system/* (289 LOC)
+│
+├── user/                      # User dashboards
+│   ├── widgets.py            # Widget registry/management (497 LOC)
+│   ├── layouts.py            # Layout management (228 LOC)
+│   └── recommendations.py    # Recommendations (213 LOC)
+│
+└── shared/                    # Shared services
+    └── services.py           # Core dashboard services (644 LOC)
 
-- recommendations.py: Dashboard recommendations (213 LOC)
-  - From recommendations/endpoints.py
+Consolidated from:
+- api/v1/admin/dashboard/ → dashboard/admin/stats/
+- api/v1/dashboard/admin_system.py → dashboard/admin/system/
+- api/v1/dashboard/*.py → dashboard/user/*.py
 
-- admin_system.py: Admin system dashboard (294 LOC)
-  - From admin/system_dashboard.py
+Total: ~2122 LOC (down from split structure)
 
-- services.py: Dashboard core services (644 LOC)
-  - From core/services.py
+All routes:
+- /api/v1/dashboard/admin/stats/* (admin stats)
+- /api/v1/dashboard/admin/system/* (admin system views)
+- /api/v1/dashboard/* (user widgets/layouts/recommendations - existing)
 
-Total: 1882 LOC across 5 feature files (down from 2010 LOC in 7 files + subdirectories)
-
-All routes: /api/v1/dashboard/*
+Part of: Phase 1 Dashboard Consolidation (Feature-based structure)
 """
 
-from app.api.v1.dashboard import (
-    widgets,
-    layouts,
-    recommendations,
-    admin_system,
-    services
-)
+from app.api.v1.dashboard import admin, user, shared
 
-__all__ = [
-    'widgets',
-    'layouts',
-    'recommendations',
-    'admin_system',
-    'services'
-]
+__all__ = ['admin', 'user', 'shared']

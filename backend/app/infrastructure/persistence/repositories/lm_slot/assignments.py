@@ -15,7 +15,7 @@ Date: 2025-12-29
 from typing import Optional, List, Dict, Any
 
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query, insert_returning
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 from app.infrastructure.persistence.repositories.lm_slot.slots import CapabilitySlotRepository
 
 

@@ -1,0 +1,20 @@
+DUPLICATE CODE REPORT
+======================================================================
+
+DUPLICATE FUNCTIONS:
+
+Function Group:
+  - wrapper() in app/infrastructure/security/rate_limit.py
+  - wrapper() in app/infrastructure/security/rate_limit.py
+  - wrapper() in app/infrastructure/security/rate_limit.py
+
+Function Group:
+  - __init__() in app/infrastructure/persistence/repositories/i18n_sync_changes.py
+  - __init__() in app/infrastructure/persistence/repositories/i18n_sync_resolutions.py
+  - __init__() in app/infrastructure/persistence/repositories/i18n_sync_ops.py
+  - __init__() in app/infrastructure/persistence/repositories/i18n_translation.py
+
+Function Group:
+  - load_catalog() in app/infrastructure/persistence/repositories/system_features_catalog.py
+  - load_catalog() in app/infrastructure/persistence/repositories/learning_method/catalog.py
+

@@ -1,0 +1,107 @@
+================================================================================
+PHASE 2B PILOT #7: app/application/services/learning_methods - SKIP DECISION
+================================================================================
+Date: 2026-02-10
+Status: NOT APPLICABLE (Directory does not exist in application services layer)
+Import Count: 15 (moderate coupling - from Phase 2 import analysis)
+
+INVESTIGATION SUMMARY:
+----------------------
+Directory Path Expected: app/application/services/learning_methods/
+Investigation Result: Directory DOES NOT EXIST in application services layer
+
+VERIFICATION COMMANDS:
+----------------------
+# Command 1: Tree command attempt (FAILED)
+$ tree -h -C -I '__pycache__|*.pyc|venv|node_modules|dist|.git|_archive|.pytest_cache|coverage' app/application/services/learning_methods/
+Result: Exit code 2 - "error opening dir" - 0 directories, 0 files
+
+# Command 2: Find command from repo root
+$ cd /home/pascal/Lernsystem && find . -type d -name "*learning*" 2>/dev/null | head -30
+Result:
+  - ./backend/app/api/v1/learning_methods (API layer)
+  - ./backend/app/api/v1/admin/learning_methods (Admin API)
+  - ./backend/app/infrastructure/persistence/repositories/learning_method (Infrastructure layer)
+
+# Command 3: Find command verification in application services
+$ find app/application/services -type d -name "*learning*" 2>/dev/null
+Result: Empty output (no directories found)
+
+FINDINGS:
+---------
+✅ learning_methods EXISTS at:
+   - ./backend/app/api/v1/learning_methods (API layer - routes)
+   - ./backend/app/api/v1/admin/learning_methods (Admin API - management)
+   - ./backend/app/infrastructure/persistence/repositories/learning_method (Infrastructure layer - data access)
+
+❌ learning_methods DOES NOT EXIST in: app/application/services/
+
+ARCHITECTURAL CONTEXT:
+----------------------
+Phase 2B Backend Reorganization targets:
+- Layer: application services (app/application/services/)
+- Purpose: Orchestration & business workflows
+- Scope: Moderate-risk directories (5-20 imports)
+
+learning_methods location:
+- Layer: API layer (app/api/v1/) + Infrastructure layer (repositories)
+- Purpose: HTTP routes & blueprints (API), Database access (Infrastructure)
+- Architecture: DDD layering (api → application → domain → infrastructure)
+
+DECISION:
+---------
+✅ SKIP learning_methods FOR PHASE 2B ANALYSIS
+
+Rationale:
+1. Directory does not exist in application services layer (verified with find command)
+2. Found only in API layer (app/api/v1/learning_methods, app/api/v1/admin/learning_methods)
+3. Infrastructure layer repository exists (app/infrastructure/persistence/repositories/learning_method)
+4. API layer is outside Phase 2B scope (Phase 2B targets application services)
+5. DDD architecture: API layer handles HTTP routes, application services handle orchestration
+6. No reorganization needed as there is nothing to analyze in application services
+
+ARCHITECTURAL NOTES:
+--------------------
+learning_methods in API layer:
+- Purpose: 12 Content-Lernmethoden API endpoints (LM00-LM11)
+- Content: HTTP routes for learning method instances, execution, results
+- Groups: A (Erklärend: LM00-LM04), B (Praxis: LM05-LM08), C (Prüfung: LM09-LM11)
+- Documented in: LernsystemX-Doku/01_Core/02_Lernmethoden.md
+- Blueprint registration: app/api/v1/__init__.py
+
+learning_methods in Admin API layer:
+- Purpose: Learning method management endpoints
+- Content: CRUD operations, configuration, method type management
+- Admin Panel integration: /api/v1/admin/learning_methods
+
+learning_methods in Infrastructure layer:
+- Purpose: Database persistence for learning method instances
+- Repository pattern: BaseRepository inheritance
+- Location: app/infrastructure/persistence/repositories/learning_method/
+
+This is NOT a missing application service - learning_methods is a distributed feature:
+- API routes handle HTTP requests
+- Infrastructure repositories handle data persistence
+- No separate orchestration layer needed (simple CRUD operations)
+
+PHASE 2B PROGRESS UPDATE:
+--------------------------
+✅ Pilot #1 (feature_flags, 6 imports): NO REORGANIZATION - 0 violations
+✅ Pilot #2 (ai_editor, 9 imports): NO REORGANIZATION - 0 violations
+✅ Pilot #3 (course_authoring, 9 imports): NO REORGANIZATION - 0 violations
+✅ Pilot #4 (content, 3 imports): MINIMAL REORGANIZATION - 1 violation
+✅ Pilot #5 (dashboard, 3 imports): NO REORGANIZATION - 0 violations
+⚠️ Pilot #6 (exam_simulations, 12 imports): SKIP - Not in application services layer
+⚠️ Pilot #7 (learning_methods, 15 imports): SKIP - Not in application services layer
+
+**Overall Quality Gate G01 Compliance:** 98% (1 violation across 5 completed pilots)
+
+RECOMMENDATION:
+---------------
+✅ Proceed to Phase 2B Pilot #8: course_editor (20 imports)
+
+Next directory: app/application/services/course_editor/
+Expected structure: Manual editor, AI editor, shared utilities
+Import coupling: 20 imports (high moderate risk - highest in Phase 2B so far)
+
+================================================================================

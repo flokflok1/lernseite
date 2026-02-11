@@ -1,0 +1,95 @@
+TRUE LOOSE FILES (Dead Code Candidates)
+======================================================================
+
+app/infrastructure/i18n/_helpers.py
+  Lines: 25
+  Modified: 2026-02-03
+
+app/infrastructure/security/auth/core.py
+  Lines: 34
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/method_loader.py
+  Lines: 62
+  Modified: 2026-02-03
+
+app/infrastructure/security/auth/_helpers.py
+  Lines: 69
+  Modified: 2026-02-09
+
+app/application/services/tutor_knowledge/file_loader.py
+  Lines: 72
+  Modified: 2026-02-03
+
+app/infrastructure/persistence/repositories/permission_repository.py
+  Lines: 100
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/progress_loader.py
+  Lines: 102
+  Modified: 2026-02-03
+
+app/infrastructure/persistence/repositories/lm_model_routing/resolver.py
+  Lines: 105
+  Modified: 2026-02-03
+
+app/infrastructure/i18n/message_codes.py
+  Lines: 116
+  Modified: 2026-02-03
+
+app/core/feature_flags/db_seed.py
+  Lines: 133
+  Modified: 2026-02-03
+
+app/application/services/plugins/lm_discovery.py
+  Lines: 135
+  Modified: 2026-02-03
+
+app/api/v1/media_archive/tts/helpers.py
+  Lines: 136
+  Modified: 2026-02-09
+
+app/application/services/tutor_knowledge/prompt_builder.py
+  Lines: 150
+  Modified: 2026-02-03
+
+app/api/v1/admin/settings/feature_flags/schemas.py
+  Lines: 164
+  Modified: 2026-02-03
+
+app/application/services/authoring/helpers.py
+  Lines: 171
+  Modified: 2026-02-03
+
+app/infrastructure/persistence/repositories/course_prompt/queries.py
+  Lines: 178
+  Modified: 2026-02-03
+
+app/application/services/i18n/bridge.py
+  Lines: 228
+  Modified: 2026-02-03
+
+app/application/services/plugins/lm_registry.py
+  Lines: 241
+  Modified: 2026-02-03
+
+app/infrastructure/utils/validation_exception_wrapper.py
+  Lines: 244
+  Modified: 2026-02-03
+
+app/application/services/tutor_knowledge/context_loader.py
+  Lines: 249
+  Modified: 2026-02-03
+
+app/domain/social/engagement/comments.py
+  Lines: 327
+  Modified: 2026-02-08
+
+app/domain/social/engagement/likes.py
+  Lines: 407
+  Modified: 2026-02-08
+
+app/domain/ai/configuration/system_features_mapping.py
+  Lines: 477
+  Modified: 2026-02-03
+

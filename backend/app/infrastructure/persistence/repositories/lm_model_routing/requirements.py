@@ -17,7 +17,7 @@ from typing import Optional, Dict
 from datetime import datetime
 
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class LMModelRequirementsRepository(BaseRepository):

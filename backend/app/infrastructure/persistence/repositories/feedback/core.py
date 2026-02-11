@@ -11,7 +11,7 @@ Handles:
 
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class FeedbackRepository(BaseRepository):

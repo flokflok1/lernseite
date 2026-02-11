@@ -1,8 +1,22 @@
-"""Discovery System"""
+"""
+Social Discovery System
 
-from app.domain.social.discovery.trending import TrendingService
-from app.domain.social.discovery.explore import ExploreService
-from app.domain.social.discovery.hashtags import HashtagService
+Provides search and discovery features for social content.
+"""
+
+# Re-export from search
 from app.domain.social.discovery.search import SearchService
 
-__all__ = ['TrendingService', 'ExploreService', 'HashtagService', 'SearchService']
+# Re-export from features
+from app.domain.social.discovery.features import (
+    ExploreService,
+    HashtagService,
+    TrendingService
+)
+
+__all__ = [
+    'SearchService',
+    'ExploreService',
+    'HashtagService',
+    'TrendingService'
+]

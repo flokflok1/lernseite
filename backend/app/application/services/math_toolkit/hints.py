@@ -7,7 +7,7 @@ Provides contextual hints based on pattern, error type, and scaffolding level.
 from typing import Optional
 import logging
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 logger = logging.getLogger(__name__)
 

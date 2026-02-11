@@ -7,14 +7,14 @@ blueprints are registered (so domain code can already use `repos.*`).
 This is the ONLY place that bridges infrastructure → domain ports.
 """
 
-from app.domain.ports.registry import repos
+from app.domain.ports.core.registry import repos
 
 
 def wire_repositories() -> None:
     """Bind concrete repository classes to the domain port registry."""
 
     # -- base / shared --
-    from app.infrastructure.persistence.repositories.base_repository import (
+    from app.infrastructure.persistence.repositories.core.base import (
         BaseRepository,
     )
     from app.infrastructure.persistence.repositories.user import UserRepository

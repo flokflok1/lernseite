@@ -1,24 +1,29 @@
 """
-Social API Module
+Social API Package
 
-All social endpoints are feature-flagged for progressive rollout.
+Social network features with posts, feed, follows, likes, and comments.
 
-Blueprints (must be registered with api_v1):
-- posts_bp - User Posts (@require_feature('user_posts')) - /social/posts
-- feed_bp - Feed System (@require_feature('feed_system')) - /social/feed
-- follow_bp - Follow System (@require_feature('follow_system')) - /social/follow
-- likes_bp - Likes & Reactions (@require_feature('likes_reactions')) - /social/likes
-- comments_bp - Comments (@require_feature('comments')) - /social/comments
+Structure:
+- user/ - User social endpoints (posts, feed, follow, likes, comments)
 
-Note: All endpoints are feature-flagged. Disabled features will return 403.
-Registration: Blueprints are registered in app/api/__init__.py after api_v1 creation.
+Consolidated from: social/ root files (Batch 5, Phase 7)
+
+All endpoints are feature-flagged for progressive rollout (@require_feature):
+- /social/posts - User Posts (@require_feature('user_posts'))
+- /social/feed - Feed System (@require_feature('feed_system'))
+- /social/follow - Follow System (@require_feature('follow_system'))
+- /social/likes - Likes & Reactions (@require_feature('likes_reactions'))
+- /social/comments - Comments (@require_feature('comments'))
+
+All endpoints require authentication (@token_required) + feature flag check
+Disabled features return 403 Forbidden
 """
 
-from app.api.v1.social.posts import posts_bp
-from app.api.v1.social.feed import feed_bp
-from app.api.v1.social.follow import follow_bp
-from app.api.v1.social.likes import likes_bp
-from app.api.v1.social.comments import comments_bp
+from app.api.v1.social.user.posts import posts_bp
+from app.api.v1.social.user.feed import feed_bp
+from app.api.v1.social.user.follow import follow_bp
+from app.api.v1.social.user.likes import likes_bp
+from app.api.v1.social.user.comments import comments_bp
 
 __all__ = [
     'posts_bp',

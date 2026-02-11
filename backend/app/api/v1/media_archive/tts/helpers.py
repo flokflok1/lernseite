@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import TTS Service for pronunciation
 try:
-    from app.application.services.tts_service import TTSService
+    from app.application.services.media_cache.tts_service import TTSService
     TTS_SERVICE_AVAILABLE = True
 except ImportError:
     TTS_SERVICE_AVAILABLE = False

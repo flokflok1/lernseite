@@ -13,7 +13,7 @@ from uuid import uuid4
 from datetime import datetime
 from psycopg.rows import dict_row
 from app.infrastructure.persistence.database import get_connection
-from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
+from app.infrastructure.persistence.repositories.i18n.repository import I18nRepository
 import logging
 
 logger = logging.getLogger(__name__)

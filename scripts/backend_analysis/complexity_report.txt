@@ -1,0 +1,108 @@
+COMPLEXITY REPORT (G01 Violations)
+======================================================================
+
+app/setup/seeds_ui_schemas.py
+  Lines: 1127 (+627 over limit)
+
+app/api/v1/admin/groups.py
+  Lines: 922 (+422 over limit)
+
+app/infrastructure/persistence/repositories/group/core.py
+  Lines: 721 (+221 over limit)
+
+app/application/services/system/group_management/service.py
+  Lines: 703 (+203 over limit)
+
+app/application/services/runner/session_service.py
+  Lines: 645 (+145 over limit)
+
+app/api/v1/dashboard/services.py
+  Lines: 644 (+144 over limit)
+
+app/api/v1/auth/routes.py
+  Lines: 636 (+136 over limit)
+
+app/domain/models/learning_method.py
+  Lines: 634 (+134 over limit)
+
+app/infrastructure/persistence/repositories/organisations/core.py
+  Lines: 626 (+126 over limit)
+
+app/api/v1/exam_simulations/core.py
+  Lines: 617 (+117 over limit)
+
+app/infrastructure/persistence/repositories/i18n_sync_repository.py
+  Lines: 612 (+112 over limit)
+
+app/api/v1/admin/user_management/users.py
+  Lines: 608 (+108 over limit)
+
+app/api/v1/analytics/organisations.py
+  Lines: 603 (+103 over limit)
+
+app/domain/models/organisation.py
+  Lines: 599 (+99 over limit)
+
+app/api/v1/tts/synthesis.py
+  Lines: 591 (+91 over limit)
+
+app/api/v1/organisations/core.py
+  Lines: 588 (+88 over limit)
+
+app/infrastructure/security/permissions_compat.py
+  Lines: 581 (+81 over limit)
+
+app/setup/diagnostics.py
+  Lines: 570 (+70 over limit)
+
+app/application/services/ai/models/sync.py
+  Lines: 556 (+56 over limit)
+
+app/infrastructure/cache/service.py
+  Lines: 555 (+55 over limit)
+
+app/api/v1/business/contact.py
+  Lines: 554 (+54 over limit)
+
+app/infrastructure/persistence/repositories/i18n_translation.py
+  Lines: 552 (+52 over limit)
+
+app/setup/ki_setup.py
+  Lines: 548 (+48 over limit)
+
+app/application/services/system/audit/service.py
+  Lines: 546 (+46 over limit)
+
+app/application/services/content/publishing/service.py
+  Lines: 542 (+42 over limit)
+
+app/api/v1/community/groups.py
+  Lines: 540 (+40 over limit)
+
+app/infrastructure/persistence/repositories/learning_method/ai_execution.py
+  Lines: 539 (+39 over limit)
+
+app/infrastructure/persistence/repositories/learning_method/instances.py
+  Lines: 524 (+24 over limit)
+
+app/api/v1/subscriptions/core.py
+  Lines: 523 (+23 over limit)
+
+app/api/v1/admin/settings/ai/ai_pricing.py
+  Lines: 522 (+22 over limit)
+
+app/infrastructure/persistence/repositories/user/admin.py
+  Lines: 509 (+9 over limit)
+
+app/setup/verify_checks.py
+  Lines: 507 (+7 over limit)
+
+app/setup/migrations.py
+  Lines: 505 (+5 over limit)
+
+app/application/services/i18n/legacy/service.py
+  Lines: 505 (+5 over limit)
+
+app/application/services/system/files/context.py
+  Lines: 502 (+2 over limit)
+

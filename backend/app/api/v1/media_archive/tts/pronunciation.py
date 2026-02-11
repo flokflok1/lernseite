@@ -39,7 +39,7 @@ def get_pronunciations():
         language = request.args.get('language', 'de')
 
         if TTS_SERVICE_AVAILABLE:
-            from app.application.services.tts_service import TTSService
+            from app.application.services.media_cache.tts_service import TTSService
             pronunciations = TTSService.load_pronunciations(language)
         else:
             # Return empty dict if service not available
@@ -95,7 +95,7 @@ def add_pronunciation():
             }), 400
 
         if TTS_SERVICE_AVAILABLE:
-            from app.application.services.tts_service import TTSService
+            from app.application.services.media_cache.tts_service import TTSService
             success = TTSService.add_pronunciation(word, phonetic, language, category)
             if success:
                 return jsonify({
@@ -162,7 +162,7 @@ async def generate_ai_pronunciation():
                 'error': {'message': 'TTSService not available'}
             }), 503
 
-        from app.application.services.tts_service import TTSService
+        from app.application.services.media_cache.tts_service import TTSService
 
         # Check if already exists
         existing = TTSService.get_pronunciation(word, language)

@@ -18,16 +18,42 @@ Usage:
         ...
 """
 
-from app.core.feature_flags.flag_manager import FeatureFlagManager
-from app.core.feature_flags.flag_decorators import (
+# Re-export from management
+from app.core.feature_flags.management import FeatureFlagManager
+
+# Re-export from decorators
+from app.core.feature_flags.decorators import (
     require_feature,
     optional_feature,
     feature_gate
 )
 
+# Re-export from config (utilities)
+from app.core.feature_flags.config import (
+    get_feature_flag_status,
+    get_all_feature_flags,
+    get_feature_group,
+    seed_feature_flags,
+    seed_feature_groups,
+    enable_feature_for_beta_users,
+    set_percentage_rollout
+)
+
 __all__ = [
+    # Management
     'FeatureFlagManager',
+
+    # Decorators
     'require_feature',
     'optional_feature',
-    'feature_gate'
+    'feature_gate',
+
+    # Configuration utilities
+    'get_feature_flag_status',
+    'get_all_feature_flags',
+    'get_feature_group',
+    'seed_feature_flags',
+    'seed_feature_groups',
+    'enable_feature_for_beta_users',
+    'set_percentage_rollout'
 ]

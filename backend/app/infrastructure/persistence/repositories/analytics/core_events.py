@@ -16,7 +16,7 @@ from datetime import datetime
 import json
 import hashlib
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 

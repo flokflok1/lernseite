@@ -7,7 +7,7 @@ Handles pattern recognition exercises and answer validation.
 from typing import Dict, Any, List, Optional
 import logging
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 logger = logging.getLogger(__name__)
 

@@ -36,7 +36,7 @@ from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
 logger = logging.getLogger(__name__)
 
-from app.domain.models.user import (
+from app.domain.models.admin.user import (
     UserCreate,
     UserLogin,
     UserResponse,
@@ -49,7 +49,7 @@ from app.domain.models.user import (
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security import BruteForceProtection
-from app.application.services.audit_service import AuditService
+from app.application.services.system.audit.service import AuditService
 from app.application.services.authorization_service import AuthorizationService
 from app.setup.admin_setup import AdminSetup
 from app.infrastructure.persistence.database.connection import execute_query

@@ -12,7 +12,7 @@ Inherits from BaseRepository for connection pooling and standard operations.
 from typing import Optional, Dict
 import hashlib
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class KnowledgeRepositoryLearning(BaseRepository):

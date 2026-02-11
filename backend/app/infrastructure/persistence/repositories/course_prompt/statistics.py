@@ -6,7 +6,7 @@ Provides counting and aggregation operations for course prompts.
 Part of: repositories/course_prompt package
 """
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 from . import queries
 
 

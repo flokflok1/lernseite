@@ -7,7 +7,7 @@ Compliant with DSA Art. 24 (Algorithm Disclosure).
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
-from app.domain.ports.registry import repos
+from app.domain.ports.core.registry import repos
 
 
 class FeedGenerator:

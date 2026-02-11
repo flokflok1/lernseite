@@ -5,7 +5,7 @@ Handles database operations for TTS pronunciation data.
 """
 
 from typing import Optional, List, Dict, Any
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class TTSRepository(BaseRepository):

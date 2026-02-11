@@ -6,7 +6,7 @@ Handles all post creation, reading, updating, and deletion logic.
 
 from typing import Optional, Dict, List
 from datetime import datetime
-from app.domain.ports.registry import repos
+from app.domain.ports.core.registry import repos
 
 
 class PostManager:

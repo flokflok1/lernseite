@@ -24,7 +24,7 @@ import logging
 
 from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
-from app.application.services.ai_adapter import AIAdapter
+from app.application.services.ai.adapter import AIAdapter
 
 logger = logging.getLogger(__name__)
 

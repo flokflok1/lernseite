@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, List
 import logging
 from datetime import datetime
 
-from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
+from app.infrastructure.persistence.repositories.i18n.repository import I18nRepository
 from app.infrastructure.cache.service import CacheService
 from app.infrastructure.persistence.database import get_connection
 
@@ -397,7 +397,7 @@ class I18nService:
             List of pending suggestions with voting data
         """
         try:
-            from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
+            from app.infrastructure.persistence.repositories.i18n.repository import I18nRepository
 
             with get_connection() as conn:
                 repo = I18nRepository(conn)
@@ -440,7 +440,7 @@ class I18nService:
             raise ValueError("Suggestion text cannot be empty")
 
         try:
-            from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
+            from app.infrastructure.persistence.repositories.i18n.repository import I18nRepository
 
             with get_connection() as conn:
                 repo = I18nRepository(conn)
@@ -486,7 +486,7 @@ class I18nService:
             raise ValueError("Vote must be 1 (upvote) or -1 (downvote)")
 
         try:
-            from app.infrastructure.persistence.repositories.i18n_repository import I18nRepository
+            from app.infrastructure.persistence.repositories.i18n.repository import I18nRepository
 
             with get_connection() as conn:
                 repo = I18nRepository(conn)

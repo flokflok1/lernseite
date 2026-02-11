@@ -9,7 +9,7 @@ from typing import Optional, List, Dict, Any
 import logging
 import json
 
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 
 logger = logging.getLogger(__name__)

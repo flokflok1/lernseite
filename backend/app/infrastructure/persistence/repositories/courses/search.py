@@ -13,7 +13,7 @@ Used by learners and course browsers (non-admin).
 from typing import Optional, Dict, List, Any
 
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
 class CourseRepositorySearch(BaseRepository):

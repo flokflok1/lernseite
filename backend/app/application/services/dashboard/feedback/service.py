@@ -125,7 +125,7 @@ class FeedbackService:
 
         try:
             # Import AI adapter
-            from app.application.services.ai_adapter import AIAdapter
+            from app.application.services.ai.adapter import AIAdapter
 
             # Build prompt
             prompt = f"""Analysiere das folgende Nutzer-Feedback und extrahiere:
@@ -243,7 +243,7 @@ Antworte im JSON-Format:
             return None
 
         try:
-            from app.application.services.ai_adapter import AIAdapter
+            from app.application.services.ai.adapter import AIAdapter
 
             # Build feedback list for prompt
             feedback_texts = []

@@ -1,7 +1,7 @@
 """Engagement Metrics (Likes, Comments, Shares)"""
 
 from typing import Dict, Any
-from app.domain.ports.registry import repos
+from app.domain.ports.core.registry import repos
 
 
 class EngagementMetrics:

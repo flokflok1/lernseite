@@ -15,7 +15,7 @@ ISO 27001:2013 compliant - Secure category data management
 from typing import Optional, Dict, List, Any
 
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
-from app.infrastructure.persistence.repositories.base_repository import BaseRepository
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 from app.infrastructure.cache.service import CacheService
 from flask import current_app
 

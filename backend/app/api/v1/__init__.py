@@ -71,7 +71,7 @@ from app.api.v1.courses.public.publishing import publishing_bp as courses_publis
 from app.api.v1.courses.public.enrollment import enrollment_bp as courses_enrollment_bp
 from app.api.v1.categories import admin_bp as categories_admin_bp, hierarchy_bp as categories_hierarchy_bp, public_bp as categories_public_bp
 from app.api.v1.learning_methods import learning_methods_bp, learning_methods_catalog_bp, chapter_theory_bp, lesson_explanations_bp, lesson_videos_bp
-from app.api.v1.exam_simulations import exams_bp as exam_simulations_bp
+from app.api.v1.system_features.exam_simulations import exams_bp as exam_simulations_bp
 
 # Billing endpoints
 from app.api.v1.subscriptions import subscriptions_bp
@@ -88,7 +88,7 @@ from app.api.v1.tutor import tutor_bp, tutor_admin_bp
 from app.api.v1.ai.user.agents import agents_bp  # Phase 2: Moved to ai/user/
 from app.api.v1.ai import admin as ai_admin  # Phase 2: Triggers AI admin blueprint registration
 from app.api.v1.tts import synthesis_bp as tts_bp, pronunciations_bp as tts_pronunciations_bp, audio_bp
-from app.api.v1.math_toolkit import practice_bp as math_toolkit_practice_bp, reference_bp as math_toolkit_reference_bp, tasks_bp as math_toolkit_tasks_bp, admin_bp as math_toolkit_admin_bp
+from app.api.v1.system_features.math_toolkit import practice_bp as math_toolkit_practice_bp, reference_bp as math_toolkit_reference_bp, tasks_bp as math_toolkit_tasks_bp, admin_bp as math_toolkit_admin_bp
 
 # Analytics endpoints
 from app.api.v1.analytics import analytics_bp, org_analytics_bp
@@ -153,12 +153,16 @@ from app.api.v1.features.admin.configuration import (
 )
 
 # =============================================================================
+# SYSTEM FEATURES - 25 System-Features (Interactive, Exam, Math, etc.)
+# =============================================================================
+from app.api.v1.system_features import system_features_bp, registry_bp as panel_system_features_bp
+
+# =============================================================================
 # PANEL API - Configuration / Administration
 # =============================================================================
 from app.api.v1.panel import (
     runner_modes_bp as panel_runner_modes_bp,
-    lm_type_compatibility_bp as panel_lm_type_compatibility_bp,
-    system_features_bp as panel_system_features_bp
+    lm_type_compatibility_bp as panel_lm_type_compatibility_bp
 )
 
 # =============================================================================
@@ -209,6 +213,10 @@ api_v1.register_blueprint(chapter_theory_bp)
 api_v1.register_blueprint(lesson_explanations_bp)
 api_v1.register_blueprint(lesson_videos_bp)
 api_v1.register_blueprint(exam_simulations_bp)
+
+# System Features (25 Features in 10 Categories)
+api_v1.register_blueprint(system_features_bp)
+
 api_v1.register_blueprint(subscriptions_bp)
 api_v1.register_blueprint(tokens_bp)
 api_v1.register_blueprint(admin_tokens_bp)

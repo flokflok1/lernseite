@@ -23,9 +23,9 @@ Endpoints (Admin):
 ISO/IEC/IEEE 26515:2018 compliant - RESTful API design
 """
 
-from app.api.v1.system_features.math_toolkit.admin.routes import admin_bp
-from app.api.v1.system_features.math_toolkit.user.practice import practice_bp
-from app.api.v1.system_features.math_toolkit.user.reference import reference_bp
-from app.api.v1.system_features.math_toolkit.user.tasks import tasks_bp
+from app.api.v1.system_features.math.toolkit.admin.routes import admin_bp
+from app.api.v1.system_features.math.toolkit.user.practice import practice_bp
+from app.api.v1.system_features.math.toolkit.user.reference import reference_bp
+from app.api.v1.system_features.math.toolkit.user.tasks import tasks_bp
 
 __all__ = ['admin_bp', 'practice_bp', 'reference_bp', 'tasks_bp']

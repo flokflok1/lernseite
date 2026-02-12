@@ -59,15 +59,15 @@ from flask import Blueprint
 # EXISTING FEATURES (Already Implemented)
 # =============================================================================
 
-# Exam Simulations (existing)
-from app.api.v1.system_features.exam_simulations import exams_bp
+# Exam Features (existing: simulations)
+from app.api.v1.system_features.exam import exams_bp
 
-# Math Toolkit (existing)
-from app.api.v1.system_features.math_toolkit import (
-    admin_bp as math_admin_bp,
-    practice_bp as math_practice_bp,
-    reference_bp as math_reference_bp,
-    tasks_bp as math_tasks_bp
+# Math Features (existing: toolkit)
+from app.api.v1.system_features.math import (
+    math_admin_bp,
+    math_practice_bp,
+    math_reference_bp,
+    math_tasks_bp
 )
 
 # Feature Registry (Panel API - existing)

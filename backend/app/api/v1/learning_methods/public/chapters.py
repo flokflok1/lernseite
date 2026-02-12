@@ -26,7 +26,7 @@ from typing import Optional, Dict, Any, List
 
 from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
-from app.infrastructure.persistence.repositories.chapter_theory import ChapterTheoryRepository
+from app.infrastructure.persistence.repositories.content.chapter_theory import ChapterTheoryRepository
 
 # Blueprint
 chapter_theory_bp = Blueprint('chapter_theory', __name__, url_prefix='')

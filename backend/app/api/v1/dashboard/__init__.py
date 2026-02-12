@@ -35,4 +35,17 @@ Part of: Phase 1 Dashboard Consolidation (Feature-based structure)
 
 from app.api.v1.dashboard import admin, user, shared
 
-__all__ = ['admin', 'user', 'shared']
+# Export user blueprints
+from app.api.v1.dashboard.user.widgets import widgets_registry_bp, widgets_instances_bp
+from app.api.v1.dashboard.user.layouts import layouts_bp
+from app.api.v1.dashboard.user.recommendations import recommendations_bp
+
+__all__ = [
+    'admin',
+    'user',
+    'shared',
+    'widgets_registry_bp',
+    'widgets_instances_bp',
+    'layouts_bp',
+    'recommendations_bp'
+]

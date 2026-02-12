@@ -21,7 +21,7 @@ from datetime import datetime
 from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository
 from app.infrastructure.persistence.repositories.widgets.widget_repository import WidgetRepository
 from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository as RecommendationRepository  # TODO: Fix this
-from app.domain.models.dashboard import (
+from app.domain.models.admin.dashboard import (
     DashboardLayout,
     DashboardWidgetInstance,
     get_default_layout_for_role

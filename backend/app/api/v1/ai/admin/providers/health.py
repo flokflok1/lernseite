@@ -22,7 +22,7 @@ from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
-from .core.services import AIHealthMonitoringService
+from ..core.services import AIHealthMonitoringService
 
 logger = logging.getLogger(__name__)
 

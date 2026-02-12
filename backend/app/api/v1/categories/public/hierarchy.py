@@ -13,7 +13,7 @@ ISO 27001:2013 compliant
 
 from flask import Blueprint, request, jsonify
 
-from app.domain.models.category import (
+from app.domain.models.content.category import (
     CategoryResponse,
     CategoryTreeNode,
     CategoryTreeResponse,

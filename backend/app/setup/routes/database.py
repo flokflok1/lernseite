@@ -19,8 +19,8 @@ from pathlib import Path
 import logging
 
 from app.setup import setup_bp
-from app.setup.install_check import InstallationChecker
-from app.setup.db_init import DatabaseInitializer
+from app.setup.diagnostics.install import InstallationChecker
+from app.setup.initialization.database import DatabaseInitializer
 from app.core.bootstrap.extensions import refresh_db_pool
 
 

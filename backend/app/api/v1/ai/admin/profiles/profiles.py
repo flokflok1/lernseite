@@ -32,8 +32,8 @@ from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError
 
 # DDD Core Domain
-from .core.factory import AIProfileFactory
-from .core.events import (
+from ..core.factory import AIProfileFactory
+from ..core.events import (
     AIProfileUpdatedEvent,
     EventPublisher,
     EventPriority

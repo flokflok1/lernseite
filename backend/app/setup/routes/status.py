@@ -15,9 +15,9 @@ ISO/IEC/IEEE 26515:2018 compliant - API documentation
 
 from flask import request, jsonify, current_app
 from app.setup import setup_bp
-from app.setup.install_check import InstallationChecker
-from app.setup.seeds import SeedData
-from app.setup.verify import SetupVerification
+from app.setup.diagnostics.install import InstallationChecker  # Fixed path (2026-02-12)
+from app.setup.seeds.seeds import SeedData  # Fixed path (2026-02-12)
+from app.setup.diagnostics.verify import VerificationChecks as SetupVerification  # Fixed path (2026-02-12)
 
 
 @setup_bp.route('/status', methods=['GET'])
@@ -77,7 +77,7 @@ def get_environment_info():
         }
     """
     try:
-        from app.setup.environment_setup import EnvironmentSetup
+        from app.setup.initialization.environment import EnvironmentSetup  # Fixed path (2026-02-12)
 
         info = EnvironmentSetup.get_environment_info()
 

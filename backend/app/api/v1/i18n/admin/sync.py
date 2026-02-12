@@ -19,9 +19,9 @@ from datetime import datetime
 
 from app.infrastructure.persistence.database import get_connection
 from app.api.middleware.auth import token_required, admin_required
-from app.application.services.i18n_sync_service import I18nSyncService
-from app.application.services.i18n_sync_service_apply import I18nSyncServiceApply
-from app.application.services.i18n_sync_service_analytics import I18nSyncServiceAnalytics
+from app.application.services.i18n.legacy.sync_service import I18nSyncService
+from app.application.services.i18n.legacy.sync_apply import I18nSyncApplyService
+from app.application.services.i18n.legacy.sync_analytics import I18nSyncAnalyticsService
 from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
@@ -53,7 +53,7 @@ def get_dashboard_stats():
         }
     """
     with get_connection() as conn:
-        service = I18nSyncServiceAnalytics(conn)
+        service = I18nSyncAnalyticsService(conn)
         stats = service.get_dashboard_stats()
 
     return jsonify({
@@ -289,7 +289,7 @@ def apply_sync():
     auto_resolve = data.get('auto_resolve', False)
     
     with get_connection() as conn:
-        service = I18nSyncServiceApply(conn)
+        service = I18nSyncApplyService(conn)
         sync, stats = service.apply_sync(sync_id, auto_resolve=auto_resolve)
     
     logger.info(
@@ -337,7 +337,7 @@ def rollback_sync():
     reason = data['reason']
 
     with get_connection() as conn:
-        service = I18nSyncServiceApply(conn)
+        service = I18nSyncApplyService(conn)
         sync = service.rollback_sync(sync_id, g.current_user.id, reason)
     
     logger.warning(
@@ -429,7 +429,7 @@ def get_sync_details(sync_id: str):
         }
     """
     with get_connection() as conn:
-        service = I18nSyncServiceAnalytics(conn)
+        service = I18nSyncAnalyticsService(conn)
         details = service.get_sync_details(sync_id)
     
     return jsonify({

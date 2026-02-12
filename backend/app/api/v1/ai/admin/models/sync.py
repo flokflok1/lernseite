@@ -30,9 +30,9 @@ from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
-from .core.factory import AIModelFactory
-from .core.services import AISyncService
-from .core.events import (
+from ..core.factory import AIModelFactory
+from ..core.services import AISyncService
+from ..core.events import (
     AIModelSyncedEvent,
     EventPublisher,
     EventPriority

@@ -20,8 +20,8 @@ Phase D4 - KI-Kurs-Builder
 from flask import request, jsonify, g
 import logging
 
-from app.api.v1.course_editor.ai_editor import ai_editor_bp
-from app.api.v1.course_editor.shared.permissions import check_course_permission
+from app.api.v1.courses.editor.ai import ai_editor_bp
+from app.api.v1.courses.editor.shared.permissions import check_course_permission
 from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.i18n.error_codes import ErrorCode

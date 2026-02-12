@@ -269,4 +269,4 @@ def import_locales():
 # Part 2 + Part 3: Bulk translate + Review endpoints
 # Routes are registered via translations_part2.py and translations_part3.py
 # ---------------------------------------------------------------------------
-from app.api.v1.admin import translations_part2, translations_part3  # noqa: F401, E402
+from app.api.v1.i18n.admin.translations import translations_part2, translations_part3  # noqa: F401, E402

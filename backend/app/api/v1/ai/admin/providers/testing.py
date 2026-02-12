@@ -23,13 +23,13 @@ from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
-from .core.services import AIHealthMonitoringService
-from .core.events import (
+from ..core.services import AIHealthMonitoringService
+from ..core.events import (
     AIProviderHealthChangedEvent,
     EventPublisher,
     EventPriority
 )
-from .core.value_objects import ProviderHealth
+from ..core.value_objects import ProviderHealth
 
 logger = logging.getLogger(__name__)
 

@@ -26,9 +26,9 @@ from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
-from .core.factory import AIModelFactory
-from .core.services import AIModelSelectionService
-from .core.value_objects import ModelCategoryEnum
+from ..core.factory import AIModelFactory
+from ..core.services import AIModelSelectionService
+from ..core.value_objects import ModelCategoryEnum
 
 logger = logging.getLogger(__name__)
 

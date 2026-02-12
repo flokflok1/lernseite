@@ -20,11 +20,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from app.api.v1.course_editor.manual_editor import manual_editor_bp
-from app.api.v1.course_editor.shared.permissions import check_course_permission
+from app.api.v1.courses.editor.manual import manual_editor_bp
+from app.api.v1.courses.editor.shared.permissions import check_course_permission
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
-from app.domain.models.course_prompt import (
+from app.domain.models.content.course_prompt import (
     CoursePromptResponse,
     CoursePromptUpdateRequest,
     CoursePromptResolveRequest,

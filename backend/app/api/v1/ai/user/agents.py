@@ -18,7 +18,7 @@ ISO 9001:2015 compliant - Agent Core Layer
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.domain.models.agent import (
+from app.domain.models.ai.agent import (
     AgentAskRequest,
     AgentAskResponse,
     AgentConfigUpdate,
@@ -26,7 +26,7 @@ from app.domain.models.agent import (
 )
 from app.application.services.agent import AgentService
 from app.infrastructure.persistence.repositories.agent import AgentRepository
-from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD as CourseRepository
+from app.infrastructure.persistence.repositories.courses import CourseRepositoryCRUD as CourseRepository
 from app.api.middleware.auth import token_required, permission_required, get_current_user
 
 agents_bp = Blueprint('agents', __name__, url_prefix='/agents')

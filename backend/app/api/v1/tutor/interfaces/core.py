@@ -358,7 +358,7 @@ def get_style_config(style: GenerationStyle) -> dict:
 def save_chapter_theory(chapter_id: str, style: str, theory_data: dict, tokens_used: int, user_id: str):
     """Save generated theory to database."""
     try:
-        from app.infrastructure.persistence.repositories.chapter_theory import ChapterTheoryRepository
+        from app.infrastructure.persistence.repositories.content.chapter_theory import ChapterTheoryRepository
         ChapterTheoryRepository.create({
             'chapter_id': chapter_id,
             'style': style,

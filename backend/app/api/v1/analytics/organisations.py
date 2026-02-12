@@ -31,7 +31,7 @@ from app.domain.models.analytics import (
     OrgTopModulesResponse,
     OrgTopModuleAnalytics
 )
-from app.domain.models.organisation import OrganisationStatsResponse
+from app.domain.models.admin.organisation import OrganisationStatsResponse
 from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
 from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
 from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository

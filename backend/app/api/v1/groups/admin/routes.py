@@ -25,7 +25,7 @@ from flask import Blueprint, jsonify, request, g
 from typing import Dict, Any, Tuple, List, Optional
 import logging
 
-from app.setup.group_setup import GroupSetup
+from app.setup.initialization.groups import GroupSetup
 from app.api.middleware.auth import token_required, admin_required
 from app.infrastructure.utils.exceptions import NotFoundError, ValidationError
 from app.infrastructure.persistence.database.connection import execute_query, fetch_one, fetch_all

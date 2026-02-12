@@ -9,15 +9,15 @@ from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime
 import uuid
 
-from app.infrastructure.persistence.repositories.runner_modes_repository import (
+from app.infrastructure.persistence.repositories.runner.modes import (
     RunnerModesRepository,
     RunnerModeFeatureMapRepository,
     LMTypeModeCompatibilityRepository
 )
-from app.infrastructure.persistence.repositories.runner_sessions_repository import (
+from app.infrastructure.persistence.repositories.runner.sessions import (
     RunnerSessionsRepository
 )
-from app.infrastructure.persistence.repositories.system_features_repository import (
+from app.infrastructure.persistence.repositories.features.system_features_repository import (
     CourseSystemFeaturesRepository
 )
 from app.infrastructure.persistence.repositories.learning_method import (

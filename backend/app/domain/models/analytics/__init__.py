@@ -25,6 +25,8 @@ from app.domain.models.analytics.core import (
     TopMethodsResponse,
     OrgTopCourseAnalytics,
     OrgTopModuleAnalytics,
+    OrgTopCoursesResponse,
+    OrgTopModulesResponse,
 )
 
 __all__ = [
@@ -48,4 +50,6 @@ __all__ = [
     'TopMethodsResponse',
     'OrgTopCourseAnalytics',
     'OrgTopModuleAnalytics',
+    'OrgTopCoursesResponse',
+    'OrgTopModulesResponse',
 ]

@@ -24,17 +24,17 @@ from pydantic import ValidationError
 
 from flask import jsonify, request
 
-from app.api.v1.course_editor.manual_editor import manual_editor_bp
-from app.api.v1.course_editor.shared.permissions import check_course_permission
+from app.api.v1.courses.editor.manual import manual_editor_bp
+from app.api.v1.courses.editor.shared.permissions import check_course_permission
 from app.api.middleware.auth import get_current_user
-from app.domain.models.theory_sheet import (
+from app.domain.models.content.theory_sheet import (
     TheorySheetCreate,
     TheorySheetResponse,
     TheorySheetUpdate,
 )
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
-from app.infrastructure.persistence.repositories.theory_sheet import TheorySheetRepository
+from app.infrastructure.persistence.repositories.content.theory_sheet import TheorySheetRepository
 from app.application.services.system.audit.service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response

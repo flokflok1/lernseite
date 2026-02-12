@@ -16,8 +16,8 @@ import logging
 from datetime import datetime
 
 from app.infrastructure.persistence.database import get_db_connection
-from app.infrastructure.persistence.repositories.feature_configuration_part2 import FeatureAbTestRepository
-from app.application.services.system.feature_configuration.ab_test import FeatureConfigurationAbTestService
+from app.infrastructure.persistence.repositories.features.configuration_part2 import FeatureAbTestRepository
+from app.application.services.feature_flags.ab_test import FeatureConfigurationAbTestService
 from app.application.services.feature_flags.cache import FeatureConfigurationCacheService
 from app.infrastructure.utils.exceptions import (
     ValidationError,

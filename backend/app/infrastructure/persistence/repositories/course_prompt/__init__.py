@@ -14,7 +14,7 @@ Modules:
 - statistics: Counting and aggregation operations
 
 Example:
-    from app.infrastructure.persistence.repositories.course_prompt import CoursePromptRepository
+    from app.infrastructure.persistence.repositories.course_prompt.crud import CoursePromptRepository
 
     # Find prompt
     prompt = CoursePromptRepository.find_by_id("prompt-uuid")

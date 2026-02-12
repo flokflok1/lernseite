@@ -13,7 +13,7 @@ ISO 27001:2013 compliant - Recommendations API
 from flask import Blueprint, request, jsonify
 
 from app.api.middleware.auth import token_required, get_current_user
-from app.api.v1.dashboard.services import DashboardRecommendationService
+from app.api.v1.dashboard.shared.services import DashboardRecommendationService
 
 
 recommendations_bp = Blueprint(

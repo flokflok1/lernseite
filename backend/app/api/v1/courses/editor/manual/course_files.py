@@ -22,8 +22,8 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
-from app.api.v1.course_editor.manual_editor import manual_editor_bp
-from app.api.v1.course_editor.shared.permissions import check_course_permission
+from app.api.v1.courses.editor.manual import manual_editor_bp
+from app.api.v1.courses.editor.shared.permissions import check_course_permission
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
 from app.application.services.system.audit.service import AuditService

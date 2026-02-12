@@ -24,7 +24,7 @@ from flask import Blueprint, jsonify, request, current_app
 from typing import Dict, Any, Tuple
 import logging
 
-from app.infrastructure.persistence.repositories.system_features_catalog import SystemFeaturesCatalogRepository
+from app.infrastructure.persistence.repositories.features.system_catalog import SystemFeaturesCatalogRepository
 from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)

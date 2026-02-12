@@ -46,6 +46,7 @@ Refactored: 2026-01-12 - All folders consolidated into flat files
 
 from flask import Blueprint
 import sys
+import importlib
 
 # Create main API v1 blueprint
 # This is THE ONLY api_v1 blueprint - parent package imports this!

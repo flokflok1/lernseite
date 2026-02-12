@@ -5,7 +5,7 @@ Provides rollout plan management with CRUD operations and action controls.
 """
 
 # CRUD operations
-from app.api.v1.admin.settings.feature_flags.rollout_plans.crud import (
+from app.api.v1.features.admin.flags.rollout_plans.crud import (
     list_rollout_plans,
     get_rollout_plan,
     create_rollout_plan,
@@ -14,7 +14,7 @@ from app.api.v1.admin.settings.feature_flags.rollout_plans.crud import (
 )
 
 # Action controls
-from app.api.v1.admin.settings.feature_flags.rollout_plans.actions import (
+from app.api.v1.features.admin.flags.rollout_plans.actions import (
     execute_rollout_stage,
     pause_rollout,
     rollback_deployment

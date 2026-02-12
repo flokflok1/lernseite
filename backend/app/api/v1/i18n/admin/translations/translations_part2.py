@@ -10,7 +10,7 @@ from flask import request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 from app.application.services.i18n.translations import TranslationManager
-from app.api.v1.admin.translations import bp
+from app.api.v1.i18n.admin.translations.translations import bp
 import json
 import logging
 

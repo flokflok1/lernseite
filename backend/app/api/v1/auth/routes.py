@@ -51,7 +51,7 @@ from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security import BruteForceProtection
 from app.application.services.system.audit.service import AuditService
 from app.application.services.authorization_service import AuthorizationService
-from app.setup.admin_setup import AdminSetup
+from app.setup.initialization.admin import AdminSetup
 from app.infrastructure.persistence.database.connection import execute_query
 
 

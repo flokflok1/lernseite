@@ -7,12 +7,12 @@ Panel API - Configuration only, NO execution logic.
 
 from typing import Any, Dict, List, Optional, Tuple
 
-from app.infrastructure.persistence.repositories.runner_modes_repository import (
+from app.infrastructure.persistence.repositories.runner.modes import (
     RunnerModesRepository,
     RunnerModeFeatureMapRepository,
     LMTypeModeCompatibilityRepository
 )
-from app.infrastructure.persistence.repositories.system_features_repository import (
+from app.infrastructure.persistence.repositories.features.system_features_repository import (
     SystemFeaturesRepository
 )
 from app.infrastructure.i18n.error_codes import ErrorCode

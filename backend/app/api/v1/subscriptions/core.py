@@ -25,7 +25,7 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.domain.models.subscription import (
+from app.domain.models.admin.subscription import (
     SubscriptionResponse,
     SubscriptionChangeRequest,
     SubscriptionCancelRequest,

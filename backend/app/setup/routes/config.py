@@ -12,8 +12,8 @@ ISO/IEC/IEEE 26515:2018 compliant - API documentation
 import os
 from flask import request, jsonify
 from app.setup import setup_bp
-from app.setup.organisation_setup import OrganisationSetup
-from app.setup.ki_setup import KISetup
+from app.setup.initialization.organisations import OrganisationSetup
+from app.setup.initialization.ai import KISetup
 
 
 @setup_bp.route('/organisation', methods=['POST'])

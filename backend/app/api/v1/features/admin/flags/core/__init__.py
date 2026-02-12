@@ -5,7 +5,7 @@ Provides core feature flag management functionality including routes and schemas
 """
 
 # Route functions
-from app.api.v1.admin.settings.feature_flags.core.routes import (
+from app.api.v1.features.admin.flags.core.routes import (
     list_feature_flags,
     get_feature_flag,
     create_feature_flag,
@@ -16,7 +16,7 @@ from app.api.v1.admin.settings.feature_flags.core.routes import (
 )
 
 # Pydantic schemas and enums
-from app.api.v1.admin.settings.feature_flags.core.schemas import (
+from app.api.v1.features.admin.flags.core.schemas import (
     FeatureCategoryEnum,
     RolloutStatusEnum,
     FeatureFlagCreateSchema,

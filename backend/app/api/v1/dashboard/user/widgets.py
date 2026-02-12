@@ -27,7 +27,7 @@ from pydantic import BaseModel, ValidationError
 from typing import Optional, Dict
 
 from app.api.middleware.auth import token_required, get_current_user
-from app.api.v1.dashboard.services import DashboardWidgetService
+from app.api.v1.dashboard.shared.services import DashboardWidgetService
 
 
 # ===== PYDANTIC MODELS =====

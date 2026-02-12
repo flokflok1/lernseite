@@ -23,7 +23,7 @@ def register_blueprints(app: Flask) -> None:
     """
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
-    from app.setup.install_check import InstallationChecker
+    from app.setup.diagnostics.install import InstallationChecker
 
     is_installed = InstallationChecker.is_installed()
 

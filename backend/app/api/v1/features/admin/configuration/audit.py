@@ -15,7 +15,7 @@ import logging
 from datetime import datetime, timedelta
 
 from app.infrastructure.persistence.database import get_db_connection
-from app.infrastructure.persistence.repositories.audit_log import AuditLogRepository
+from app.infrastructure.persistence.repositories.audit.log import AuditLogRepository
 from app.infrastructure.utils.exceptions import ValidationError, NotFoundError
 from app.api.middleware.auth import token_required, admin_required
 

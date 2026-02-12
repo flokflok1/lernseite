@@ -24,7 +24,7 @@ from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
-from .core.factory import AIProviderFactory
+from ..core.factory import AIProviderFactory
 
 logger = logging.getLogger(__name__)
 

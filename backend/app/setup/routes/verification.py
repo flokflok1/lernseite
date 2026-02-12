@@ -15,9 +15,9 @@ ISO/IEC/IEEE 26515:2018 compliant - API documentation
 import os
 from flask import request, jsonify, current_app, Response
 from app.setup import setup_bp
-from app.setup.seeds import SeedData
-from app.setup.install_check import InstallationChecker
-from app.setup.verify import SetupVerification
+from app.setup.seeds.seeds import SeedData
+from app.setup.diagnostics.install import InstallationChecker
+from app.setup.diagnostics.verify import VerificationChecks as SetupVerification
 
 
 @setup_bp.route('/seed', methods=['POST'])
@@ -427,7 +427,7 @@ def run_auto_fix():
 
         # Fix: Run pending migrations
         if "pending_migrations" in requested_fixes:
-            from app.setup.migrations import MigrationManager
+            from app.setup.initialization.migrations import MigrationManager
 
             result = MigrationManager.run_pending_migrations()
             fixes_applied.append({
@@ -441,7 +441,7 @@ def run_auto_fix():
         if "rerun_seeds" in requested_fixes:
             try:
                 from app.setup.seeds import SeedData
-                from app.setup.install_check import InstallationChecker
+                from app.setup.diagnostics.install import InstallationChecker
 
                 # Only run if installed
                 if InstallationChecker.is_installed():

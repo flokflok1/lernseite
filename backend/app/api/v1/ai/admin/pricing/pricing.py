@@ -32,8 +32,8 @@ from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
 # DDD Core Domain
-from .core.services import AIUsageService
-from .core.value_objects import Margin
+from ..core.services import AIUsageService
+from ..core.value_objects import Margin
 
 logger = logging.getLogger(__name__)
 

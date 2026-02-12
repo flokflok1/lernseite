@@ -8,7 +8,7 @@ Only allows read-only endpoints (/status, /verify) unless admin key is provided.
 import os
 from functools import wraps
 from flask import request, jsonify
-from app.setup.install_check import InstallationChecker
+from app.setup.diagnostics.install import InstallationChecker
 
 
 # Setup Admin Key (set in .env for emergency access)

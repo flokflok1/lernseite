@@ -28,7 +28,7 @@ from app.application.services.system.audit.service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
-from .schemas import RolloutPlanSchema
+from app.api.v1.features.admin.flags.core.schemas import RolloutPlanSchema
 
 logger = logging.getLogger(__name__)
 

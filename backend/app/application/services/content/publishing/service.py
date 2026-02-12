@@ -23,8 +23,8 @@ from datetime import datetime
 from decimal import Decimal
 from flask import current_app
 
-from app.infrastructure.persistence.repositories.course_publishing import CoursePublishingRepository
-from app.infrastructure.persistence.repositories.moderation_audit import ModerationAuditRepository
+from app.infrastructure.persistence.repositories.content.publishing import CoursePublishingRepository
+from app.infrastructure.persistence.repositories.audit.moderation_audit import ModerationAuditRepository
 from app.application.services.system.audit.service import AuditService
 from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, ConflictError
 

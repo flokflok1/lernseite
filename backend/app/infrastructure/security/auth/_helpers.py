@@ -29,7 +29,7 @@ from app.infrastructure.persistence.repositories.user import UserRepository
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security import BruteForceProtection
 from app.application.services.system.audit.service import AuditService
-from app.setup.admin_setup import AdminSetup
+from app.setup.initialization.admin import AdminSetup
 
 
 __all__ = [

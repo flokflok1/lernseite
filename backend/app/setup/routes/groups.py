@@ -13,8 +13,8 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify
 from typing import Dict, Tuple
-from app.setup.group_setup import GroupSetup
-from app.setup.admin_setup import AdminSetup
+from app.setup.initialization.groups import GroupSetup
+from app.setup.initialization.admin import AdminSetup
 
 
 bp = Blueprint('setup_groups', __name__, url_prefix='/setup/groups')

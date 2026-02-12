@@ -44,7 +44,7 @@ def check_setup_access():
       - Read-only endpoints (/status, /verify*) → Allow
       - Write endpoints (POST/PUT/DELETE) → Require X-Setup-Admin-Key
     """
-    from app.setup.install_check import InstallationChecker
+    from app.setup.diagnostics.install import InstallationChecker
 
     # Check if system is installed
     is_installed = InstallationChecker.is_installed()
@@ -96,29 +96,29 @@ def check_setup_access():
 
 # Import routes after blueprint creation to avoid circular imports
 # Routes are organized by semantic purpose across 6 modules:
-# - routes_status.py: Status & health checks (/status, /verify, /health, etc.)
-# - routes_database.py: Database configuration & initialization
-# - routes_setup.py: Admin user & environment setup (/environment, /check, /admin)
-# - routes_setup_config.py: Organization & AI configuration (/organisation, /ki-config)
-# - routes_verification.py: Data seeding, verification, diagnostics, auto-fix
-# - routes_groups.py: Authorization groups & hierarchy management (/groups) [NEW]
-from app.setup import routes_status
-from app.setup import routes_database
-from app.setup import routes_setup
-from app.setup import routes_setup_config
-from app.setup import routes_verification
-from app.setup import routes_groups
+# - routes/status.py: Status & health checks (/status, /verify, /health, etc.)
+# - routes/database.py: Database configuration & initialization
+# - routes/setup.py: Admin user & environment setup (/environment, /check, /admin)
+# - routes/config.py: Organization & AI configuration (/organisation, /ki-config)
+# - routes/verification.py: Data seeding, verification, diagnostics, auto-fix
+# - routes/groups.py: Authorization groups & hierarchy management (/groups) [NEW]
+from app.setup.routes import status  # Fixed: was routes_status (2026-02-12)
+from app.setup.routes import database
+from app.setup.routes import setup
+from app.setup.routes import config
+from app.setup.routes import verification
+from app.setup.routes import groups
 
-# Import setup modules for external use
-from app.setup.system_check import SystemCheck
-from app.setup.db_init import DatabaseInitializer
-from app.setup.install_check import InstallationChecker
-from app.setup.admin_setup import AdminSetup
-from app.setup.group_setup import GroupSetup
-from app.setup.organisation_setup import OrganisationSetup
-from app.setup.seeds import SeedData
-from app.setup.ki_setup import KISetup
-from app.setup.verify import SetupVerification
+# Import setup modules for external use (Fixed paths 2026-02-12)
+from app.setup.diagnostics.system_check import SystemCheck
+from app.setup.initialization.database import DatabaseInitializer
+from app.setup.diagnostics.install import InstallationChecker
+from app.setup.initialization.admin import AdminSetup
+from app.setup.initialization.groups import GroupSetup
+from app.setup.initialization.organisations import OrganisationSetup
+from app.setup.seeds.seeds import SeedData
+from app.setup.initialization.ai import KISetup
+from app.setup.diagnostics.verify import VerificationChecks as SetupVerification  # Fixed class name (2026-02-12)
 
 __all__ = [
     'setup_bp',

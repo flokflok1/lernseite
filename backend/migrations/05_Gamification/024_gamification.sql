@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS gamification.user_xp (
     total_xp INTEGER DEFAULT 0,
     current_level INTEGER DEFAULT 1,
     xp_to_next_level INTEGER DEFAULT 100,
+    strength INTEGER DEFAULT 0,
+    intelligence INTEGER DEFAULT 0,
+    stamina INTEGER DEFAULT 0,
+    gold INTEGER DEFAULT 0,
+    skill_points INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

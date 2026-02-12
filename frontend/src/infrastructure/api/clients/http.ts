@@ -13,6 +13,9 @@ import router from '@/presentation/router'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
+// Flag to prevent infinite logout loop when token expires
+let isLoggingOut = false
+
 // Create Axios instance
 const http: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -64,13 +67,19 @@ http.interceptors.response.use(
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (error.response?.status === 401) {
-      // Check if this is a login/register request (don't auto-logout for these)
+      // Don't auto-logout for auth endpoints (login, register, logout, refresh)
       const isAuthEndpoint = error.config?.url?.includes('/auth/login') ||
-                            error.config?.url?.includes('/auth/register')
+                            error.config?.url?.includes('/auth/register') ||
+                            error.config?.url?.includes('/auth/logout') ||
+                            error.config?.url?.includes('/auth/refresh')
 
-      if (!isAuthEndpoint) {
-        // Logout user and redirect to login (only for authenticated routes)
-        await authStore.logout()
+      if (!isAuthEndpoint && !isLoggingOut) {
+        isLoggingOut = true
+        try {
+          await authStore.logout()
+        } finally {
+          isLoggingOut = false
+        }
         router.push('/login')
 
         return Promise.reject({
@@ -79,7 +88,7 @@ http.interceptors.response.use(
         })
       }
 
-      // For login/register failures, pass the error through unchanged
+      // For auth endpoint failures, pass the error through unchanged
       return Promise.reject(error)
     }
 

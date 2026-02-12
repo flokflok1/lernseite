@@ -26,7 +26,7 @@
     <div class="dashboard-header">
       <div class="header-content">
         <h1 class="header-title">
-          {{ t('dashboard.welcome_name', { name: authStore.user?.first_name }) }}
+          {{ t('dashboard.welcome_name', { name: authStore.fullName || authStore.user?.email?.split('@')[0] || '' }) }}
         </h1>
         <p class="header-subtitle">{{ t('dashboard.subtitle') }}</p>
       </div>
@@ -48,10 +48,34 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <span class="loading-text">{{ t('dashboard.loading') }}</span>
+    <!-- Loading Skeleton -->
+    <div v-if="loading" class="skeleton-grid">
+      <aside class="skeleton-sidebar">
+        <div class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line w-60"></div>
+          <div class="skeleton-line w-40"></div>
+          <div class="skeleton-bar"></div>
+          <div class="skeleton-stats">
+            <div class="skeleton-stat-block"></div>
+            <div class="skeleton-stat-block"></div>
+          </div>
+        </div>
+      </aside>
+      <main class="skeleton-main">
+        <div class="skeleton-tabs">
+          <div class="skeleton-tab"></div>
+          <div class="skeleton-tab"></div>
+          <div class="skeleton-tab"></div>
+        </div>
+        <div class="skeleton-quest"></div>
+        <div class="skeleton-quest"></div>
+        <div class="skeleton-quest"></div>
+      </main>
+      <aside class="skeleton-inventory">
+        <div class="skeleton-card small"></div>
+        <div class="skeleton-card small"></div>
+      </aside>
     </div>
 
     <!-- Error State -->
@@ -115,6 +139,9 @@
                 <span class="empty-icon">📭</span>
                 <p class="empty-text">{{ t('dashboard.no_courses') }}</p>
                 <p class="empty-hint">{{ t('dashboard.no_courses_hint') }}</p>
+                <button class="cta-btn" @click="router.push('/courses')">
+                  📚 {{ t('dashboard.discover_courses') }}
+                </button>
               </div>
 
               <div v-else class="courses-list">
@@ -188,6 +215,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/application/stores/auth.store'
 import { useGamificationStore } from '@/application/stores/gamification.store'
@@ -208,6 +236,7 @@ import RpgInventorySummary from '@/presentation/components/shared/ui/gamificatio
 // Stores & i18n
 // ============================================================================
 
+const router = useRouter()
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const gamificationStore = useGamificationStore()
@@ -425,32 +454,108 @@ onMounted(() => {
   color: var(--color-text-primary);
 }
 
-/* Loading State */
-.loading-state {
+/* Skeleton Loading */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.skeleton-sidebar,
+.skeleton-inventory {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 20px;
   gap: 16px;
 }
 
-.loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
+.skeleton-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-card.small {
+  padding: 16px;
+  min-height: 120px;
+}
+
+.skeleton-avatar {
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  background: var(--color-border);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.skeleton-line {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--color-border);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-.loading-text {
-  font-size: 15px;
-  color: var(--color-text-secondary);
+.skeleton-line.w-60 { width: 60%; }
+.skeleton-line.w-40 { width: 40%; }
+
+.skeleton-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--color-border);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.skeleton-stat-block {
+  height: 60px;
+  border-radius: 12px;
+  background: var(--color-border);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.skeleton-tab {
+  flex: 1;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--color-border);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-quest {
+  height: 80px;
+  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* Error State */
@@ -618,7 +723,27 @@ onMounted(() => {
 .empty-hint {
   font-size: 14px;
   color: var(--color-text-muted);
-  margin: 0;
+  margin: 0 0 20px 0;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
 }
 
 .courses-list {
@@ -641,7 +766,8 @@ onMounted(() => {
 
 .course-card:hover {
   border-color: var(--color-primary);
-  transform: translateX(4px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .course-icon {
@@ -799,6 +925,14 @@ onMounted(() => {
 
 /* Responsive */
 @media (max-width: 1200px) {
+  .skeleton-grid {
+    grid-template-columns: 1fr 280px;
+  }
+
+  .skeleton-sidebar {
+    grid-column: 1 / -1;
+  }
+
   .dashboard-grid {
     grid-template-columns: 1fr 280px;
   }
@@ -819,6 +953,10 @@ onMounted(() => {
 }
 
 @media (max-width: 900px) {
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-grid {
     grid-template-columns: 1fr;
   }

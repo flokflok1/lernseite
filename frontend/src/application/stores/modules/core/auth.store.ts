@@ -260,8 +260,13 @@ export const useAuthStore = defineStore('auth', () => {
       const existingGroups = (user.value as any)?.groups || []
       const existingPermissions = (user.value as any)?.permissions || []
 
+      // Build full_name from profile's firstName/lastName (profile uses camelCase)
+      const profileAny = profileData as any
+      const fullName = [profileAny.firstName, profileAny.lastName].filter(Boolean).join(' ')
+
       user.value = {
         ...profileData,
+        full_name: fullName || (user.value as any)?.full_name || '',
         groups: existingGroups,
         permissions: existingPermissions
       }

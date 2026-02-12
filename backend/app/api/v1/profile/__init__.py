@@ -26,7 +26,7 @@ from app.api.v1.profile.user.user_data import user_data_bp as profile_user_data_
 from app.api.v1.profile.user.ui_layout_preferences import ui_layout_preferences_bp as profile_ui_layout_bp
 
 # Create main blueprint (barrel export)
-profile_bp = Blueprint('profile', __name__, url_prefix='')
+profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
 
 # Register all child blueprints
 profile_bp.register_blueprint(profile_core_bp)

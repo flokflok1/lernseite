@@ -18,6 +18,7 @@ Usage (for backward compatibility with existing code):
 
 from .languages import I18nLanguagesRepository
 from .translations import I18nTranslationsRepository
+from .community import I18nCommunityRepository
 from .import_repository import I18nImportRepository
 import psycopg
 

@@ -152,25 +152,30 @@ def _register_setup_wizard_routes(app: Flask) -> None:
 
 
 def _register_health_endpoints(app: Flask) -> None:
-    """Register health check endpoints (always available)."""
+    """Register health check endpoints (always available, exempt from rate limiting)."""
     from app.api.v1.system.health import health_check, health_check_detailed, readiness_check, liveness_check
+    from app.core.bootstrap.extensions import limiter
 
     @app.route('/health')
+    @limiter.exempt
     def health():
         """Basic health check endpoint"""
         return health_check()
 
     @app.route('/health/detailed')
+    @limiter.exempt
     def health_detailed():
         """Detailed health check endpoint"""
         return health_check_detailed()
 
     @app.route('/health/ready')
+    @limiter.exempt
     def ready():
         """Readiness check for K8s"""
         return readiness_check()
 
     @app.route('/health/live')
+    @limiter.exempt
     def live():
         """Liveness check for K8s"""
         return liveness_check()

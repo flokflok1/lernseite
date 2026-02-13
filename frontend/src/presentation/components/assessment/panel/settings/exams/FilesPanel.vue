@@ -8,8 +8,8 @@
   <div class="files-panel">
     <div class="panel-header">
       <span class="panel-icon">📁</span>
-      <span class="panel-title">{{ $t('windows.aiStudioFiles.title') }}</span>
-      <button @click="$emit('refresh')" class="refresh-btn" :title="$t('windows.aiStudioFiles.refresh')">🔄</button>
+      <span class="panel-title">{{ $t('aiEditorFiles.title') }}</span>
+      <button @click="$emit('refresh')" class="refresh-btn" :title="$t('aiEditorFiles.refresh')">🔄</button>
     </div>
 
     <!-- File Categories -->
@@ -31,12 +31,12 @@
     <div class="file-list">
       <div v-if="isLoading" class="loading-files">
         <div class="spinner"></div>
-        <span>{{ $t('windows.aiStudioFiles.loading') }}</span>
+        <span>{{ $t('aiEditorFiles.loading') }}</span>
       </div>
 
       <div v-else-if="filteredFiles.length === 0" class="no-files">
         <span class="no-files-icon">📭</span>
-        <p>{{ $t('windows.aiStudioFiles.noFiles') }}</p>
+        <p>{{ $t('aiEditorFiles.noFiles') }}</p>
       </div>
 
       <div
@@ -62,7 +62,7 @@
             {{ formatFileSize(file.file_size_bytes) }} • {{ file.file_category }}
           </span>
         </div>
-        <button @click="$emit('preview', file)" class="preview-btn" :title="$t('windows.aiStudioFiles.preview')">
+        <button @click="$emit('preview', file)" class="preview-btn" :title="$t('aiEditorFiles.preview')">
           👁️
         </button>
       </div>
@@ -71,10 +71,10 @@
     <!-- Select All / Clear -->
     <div class="file-actions">
       <button @click="$emit('select-all')" class="action-link">
-        ✓ {{ $t('windows.aiStudioFiles.selectAll') }}
+        ✓ {{ $t('aiEditorFiles.selectAll') }}
       </button>
       <button @click="$emit('clear-selection')" class="action-link">
-        ✗ {{ $t('windows.aiStudioFiles.clearSelection') }}
+        ✗ {{ $t('aiEditorFiles.clearSelection') }}
       </button>
     </div>
   </div>

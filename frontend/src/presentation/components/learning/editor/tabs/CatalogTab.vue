@@ -3,7 +3,7 @@
     <!-- Fixed Header -->
     <div class="catalog-header">
       <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-1">
-        {{ $t('windows.learningMethodEditor.catalogTitle') }}
+        {{ $t('learningMethodEditor.catalogTitle') }}
       </h3>
       <!-- Group Tabs -->
       <div class="flex gap-1 mt-3">

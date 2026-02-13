@@ -8,7 +8,7 @@
 <template>
   <div class="admin-ai-job-window">
     <p class="text-[var(--color-text-secondary)] p-8 text-center">
-      {{ $t('windows.aiJob.placeholder') }}
+      {{ $t('aiJob.placeholder') }}
       <br />
       Job ID: {{ window.payload?.jobId }}
     </p>

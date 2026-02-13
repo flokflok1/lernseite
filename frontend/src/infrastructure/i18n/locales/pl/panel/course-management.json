@@ -195,7 +195,9 @@
       "actions": "Działania",
       "chapters": "Rozdziały",
       "metadata": "Metadane"
-    }
+    },
+    "panels": "Panele",
+    "panelManager": "Menedżer paneli"
   },
   "exams": {
     "errors": {

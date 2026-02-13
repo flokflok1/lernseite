@@ -28,10 +28,10 @@
             ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
             : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
         >
-          {{ model.active ? $t('windows.aiStudioModels.active') : $t('windows.aiStudioModels.inactive') }}
+          {{ model.active ? $t('aiEditorModels.active') : $t('aiEditorModels.inactive') }}
         </span>
         <span v-if="model.is_default" class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-          ⭐ {{ $t('windows.aiStudioModelCard.default') }}
+          ⭐ {{ $t('aiEditorModelCard.default') }}
         </span>
       </div>
     </div>
@@ -75,14 +75,14 @@
           ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400'
           : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400'"
       >
-        {{ model.active ? $t('windows.aiStudioModels.deactivate') : $t('windows.aiStudioModels.activate') }}
+        {{ model.active ? $t('aiEditorModels.deactivate') : $t('aiEditorModels.activate') }}
       </button>
       <button
         v-if="!model.is_default && model.active"
         @click="$emit('makeDefault')"
         class="flex-1 px-3 py-1.5 text-xs bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-lg transition-colors"
       >
-        {{ $t('windows.aiStudioModels.setDefault') }}
+        {{ $t('aiEditorModels.setDefault') }}
       </button>
     </div>
   </div>

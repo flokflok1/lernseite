@@ -19,10 +19,10 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm text-[var(--color-text-secondary)]">
-            {{ $t('windows.learningMethodEditor.courseLabel') }} <span class="font-medium text-[var(--color-text-primary)]">{{ courseTitle }}</span>
+            {{ $t('learningMethodEditor.courseLabel') }} <span class="font-medium text-[var(--color-text-primary)]">{{ courseTitle }}</span>
           </p>
           <p class="text-xs text-[var(--color-text-tertiary)]">
-            {{ $t('windows.learningMethodEditor.chapterLabel') }} {{ chapterTitle }}
+            {{ $t('learningMethodEditor.chapterLabel') }} {{ chapterTitle }}
           </p>
         </div>
         <!-- Save Status Indicator -->
@@ -32,16 +32,16 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ $t('windows.learningMethodEditor.saving') }}
+            {{ $t('learningMethodEditor.saving') }}
           </span>
           <span v-else-if="saveStatus === 'saved'" class="flex items-center gap-1" style="color: var(--color-success, #16a34a);">
             <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
             </svg>
-            {{ $t('windows.learningMethodEditor.saved') }}
+            {{ $t('learningMethodEditor.saved') }}
           </span>
           <span v-else-if="saveStatus === 'error'" style="color: var(--color-error, #dc2626);">
-            {{ $t('windows.learningMethodEditor.saveError') }}
+            {{ $t('learningMethodEditor.saveError') }}
           </span>
         </div>
       </div>
@@ -51,7 +51,7 @@
     <div v-if="loading" class="flex-1 flex items-center justify-center">
       <div class="text-center">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[var(--color-primary)] mx-auto mb-3"></div>
-        <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.loading') }}</p>
+        <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.loading') }}</p>
       </div>
     </div>
 
@@ -64,7 +64,7 @@
           class="mt-3 px-3 py-1.5 text-white text-sm rounded"
           style="background-color: var(--color-error, #dc2626);"
         >
-          {{ $t('windows.learningMethodEditor.retry') }}
+          {{ $t('learningMethodEditor.retry') }}
         </button>
       </div>
     </div>
@@ -97,7 +97,7 @@
         <div v-if="activeTab === 'instances'" class="h-full overflow-y-auto p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">
-              {{ $t('windows.learningMethodEditor.tabs.instances') }} {{ methods.length > 0 ? `(${methods.length})` : '' }}
+              {{ $t('learningMethodEditor.tabs.instances') }} {{ methods.length > 0 ? `(${methods.length})` : '' }}
             </h3>
             <button
               @click="showMethodTypeSelector = true"
@@ -106,16 +106,16 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              {{ $t('windows.learningMethodEditor.addMethod') }}
+              {{ $t('learningMethodEditor.addMethod') }}
             </button>
           </div>
 
           <!-- Empty State -->
           <div v-if="methods.length === 0" class="text-center py-12">
             <div class="text-5xl mb-3">🎯</div>
-            <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('windows.learningMethodEditor.emptyTitle') }}</p>
+            <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('learningMethodEditor.emptyTitle') }}</p>
             <p class="text-sm text-[var(--color-text-tertiary)]">
-              {{ $t('windows.learningMethodEditor.emptyDesc') }}
+              {{ $t('learningMethodEditor.emptyDesc') }}
             </p>
           </div>
 
@@ -162,12 +162,12 @@
                         class="text-xs px-2 py-0.5 rounded"
                         style="background-color: var(--color-success-bg, #dcfce7); color: var(--color-success-text, #15803d);"
                       >
-                        {{ $t('windows.learningMethodEditor.published') }}
+                        {{ $t('learningMethodEditor.published') }}
                       </span>
                     </div>
                     <div class="flex gap-4 text-xs text-[var(--color-text-secondary)]">
                       <span>{{ getMethodTypeName(method.method_type) }}</span>
-                      <span v-if="method.duration_minutes">{{ method.duration_minutes }} {{ $t('windows.learningMethodEditor.minutes') }}</span>
+                      <span v-if="method.duration_minutes">{{ method.duration_minutes }} {{ $t('learningMethodEditor.minutes') }}</span>
                       <span :style="getTierStyle(method.tier)">{{ getTierLabel(method.tier) }}</span>
                     </div>
                   </div>
@@ -179,7 +179,7 @@
                     @click="editMethod(method)"
                     class="p-1.5 rounded transition-colors"
                     style="color: var(--color-text-secondary);"
-                    :title="$t('windows.learningMethodEditor.edit')"
+                    :title="$t('learningMethodEditor.edit')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -189,7 +189,7 @@
                     @click="togglePublish(method)"
                     class="p-1.5 rounded transition-colors"
                     :style="method.published ? 'color: var(--color-warning, #ea580c);' : 'color: var(--color-success, #16a34a);'"
-                    :title="method.published ? $t('windows.learningMethodEditor.withdraw') : $t('windows.learningMethodEditor.publish')"
+                    :title="method.published ? $t('learningMethodEditor.withdraw') : $t('learningMethodEditor.publish')"
                   >
                     <svg v-if="method.published" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
@@ -203,7 +203,7 @@
                     @click="deleteMethod(method.method_id)"
                     class="p-1.5 rounded transition-colors"
                     style="color: var(--color-error, #dc2626);"
-                    :title="$t('windows.learningMethodEditor.delete')"
+                    :title="$t('learningMethodEditor.delete')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -220,7 +220,7 @@
           <!-- Fixed Header -->
           <div class="catalog-header">
             <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-1">
-              {{ $t('windows.learningMethodEditor.catalogTitle') }}
+              {{ $t('learningMethodEditor.catalogTitle') }}
             </h3>
             <!-- Group Tabs -->
             <div class="flex gap-1 mt-3">
@@ -281,53 +281,53 @@
         <!-- Statistics Tab -->
         <div v-else-if="activeTab === 'stats'" class="h-full overflow-y-auto p-6">
           <div class="mb-6">
-            <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-2">{{ $t('windows.learningMethodEditor.stats.title') }}</h3>
+            <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-2">{{ $t('learningMethodEditor.stats.title') }}</h3>
             <p class="text-sm text-[var(--color-text-secondary)]">
-              {{ $t('windows.learningMethodEditor.stats.description') }}
+              {{ $t('learningMethodEditor.stats.description') }}
             </p>
           </div>
 
           <div v-if="stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 text-center">
               <p class="text-3xl font-bold text-[var(--color-text-primary)]">{{ stats.total_methods }}</p>
-              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.stats.total') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.stats.total') }}</p>
             </div>
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 text-center">
               <p class="text-3xl font-bold" style="color: var(--color-success, #16a34a);">{{ stats.published_count }}</p>
-              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.stats.publishedCount') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.stats.publishedCount') }}</p>
             </div>
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 text-center">
               <p class="text-3xl font-bold text-[var(--color-primary)]">{{ stats.unique_types }}</p>
-              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.stats.methodTypes') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.stats.methodTypes') }}</p>
             </div>
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 text-center">
-              <p class="text-3xl font-bold text-[var(--color-text-primary)]">{{ stats.total_duration }} {{ $t('windows.learningMethodEditor.minutes') }}</p>
-              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.stats.totalDuration') }}</p>
+              <p class="text-3xl font-bold text-[var(--color-text-primary)]">{{ stats.total_duration }} {{ $t('learningMethodEditor.minutes') }}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.stats.totalDuration') }}</p>
             </div>
           </div>
 
           <!-- Difficulty Distribution -->
           <div v-if="stats" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
-              <h4 class="font-medium text-[var(--color-text-primary)] mb-3">{{ $t('windows.learningMethodEditor.stats.difficultyTitle') }}</h4>
+              <h4 class="font-medium text-[var(--color-text-primary)] mb-3">{{ $t('learningMethodEditor.stats.difficultyTitle') }}</h4>
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.difficultyOptions.easy') }}</span>
+                  <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.difficultyOptions.easy') }}</span>
                   <span class="font-medium" style="color: var(--color-success, #16a34a);">{{ stats.easy_count }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.difficultyOptions.medium') }}</span>
+                  <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.difficultyOptions.medium') }}</span>
                   <span class="font-medium" style="color: var(--color-warning, #ea580c);">{{ stats.medium_count }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('windows.learningMethodEditor.difficultyOptions.hard') }}</span>
+                  <span class="text-sm text-[var(--color-text-secondary)]">{{ $t('learningMethodEditor.difficultyOptions.hard') }}</span>
                   <span class="font-medium" style="color: var(--color-error, #dc2626);">{{ stats.hard_count }}</span>
                 </div>
               </div>
             </div>
 
             <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
-              <h4 class="font-medium text-[var(--color-text-primary)] mb-3">{{ $t('windows.learningMethodEditor.stats.tierTitle') }}</h4>
+              <h4 class="font-medium text-[var(--color-text-primary)] mb-3">{{ $t('learningMethodEditor.stats.tierTitle') }}</h4>
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-[var(--color-text-secondary)]">Basic</span>
@@ -357,7 +357,7 @@
       <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
         <div class="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
           <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">
-            {{ $t('windows.learningMethodEditor.selectMethod') }}
+            {{ $t('learningMethodEditor.selectMethod') }}
           </h3>
           <button
             @click="showMethodTypeSelector = false"
@@ -428,7 +428,7 @@
       <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
         <div class="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
           <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">
-            {{ $t('windows.learningMethodEditor.editMethod') }}
+            {{ $t('learningMethodEditor.editMethod') }}
           </h3>
           <button
             @click="editingMethod = null"
@@ -444,7 +444,7 @@
           <!-- Method Type (readonly) -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.learningMethodEditor.methodType') }}
+              {{ $t('learningMethodEditor.methodType') }}
             </label>
             <div class="flex items-center gap-2">
               <span
@@ -462,26 +462,26 @@
           <!-- Title -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.learningMethodEditor.methodTitle') }}
+              {{ $t('learningMethodEditor.methodTitle') }}
             </label>
             <input
               v-model="editForm.title"
               type="text"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-              :placeholder="$t('windows.learningMethodEditor.titlePlaceholder')"
+              :placeholder="$t('learningMethodEditor.titlePlaceholder')"
             />
           </div>
 
           <!-- Instructions -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.learningMethodEditor.instructions') }}
+              {{ $t('learningMethodEditor.instructions') }}
             </label>
             <textarea
               v-model="editForm.instructions"
               rows="3"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-              :placeholder="$t('windows.learningMethodEditor.instructionsPlaceholder')"
+              :placeholder="$t('learningMethodEditor.instructionsPlaceholder')"
             ></textarea>
           </div>
 
@@ -489,7 +489,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.learningMethodEditor.duration') }}
+                {{ $t('learningMethodEditor.duration') }}
               </label>
               <input
                 v-model.number="editForm.duration_minutes"
@@ -500,15 +500,15 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('windows.learningMethodEditor.difficulty') }}
+                {{ $t('learningMethodEditor.difficulty') }}
               </label>
               <select
                 v-model="editForm.difficulty"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               >
-                <option value="easy">{{ $t('windows.learningMethodEditor.difficultyOptions.easy') }}</option>
-                <option value="medium">{{ $t('windows.learningMethodEditor.difficultyOptions.medium') }}</option>
-                <option value="hard">{{ $t('windows.learningMethodEditor.difficultyOptions.hard') }}</option>
+                <option value="easy">{{ $t('learningMethodEditor.difficultyOptions.easy') }}</option>
+                <option value="medium">{{ $t('learningMethodEditor.difficultyOptions.medium') }}</option>
+                <option value="hard">{{ $t('learningMethodEditor.difficultyOptions.hard') }}</option>
               </select>
             </div>
           </div>
@@ -516,15 +516,15 @@
           <!-- Tier -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.learningMethodEditor.tier') }}
+              {{ $t('learningMethodEditor.tier') }}
             </label>
             <select
               v-model="editForm.tier"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             >
-              <option value="basic">{{ $t('windows.learningMethodEditor.tierOptions.basic') }}</option>
-              <option value="premium">{{ $t('windows.learningMethodEditor.tierOptions.premium') }}</option>
-              <option value="pro">{{ $t('windows.learningMethodEditor.tierOptions.pro') }}</option>
+              <option value="basic">{{ $t('learningMethodEditor.tierOptions.basic') }}</option>
+              <option value="premium">{{ $t('learningMethodEditor.tierOptions.premium') }}</option>
+              <option value="pro">{{ $t('learningMethodEditor.tierOptions.pro') }}</option>
             </select>
           </div>
         </div>
@@ -534,13 +534,13 @@
             @click="editingMethod = null"
             class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-background)] transition-colors"
           >
-            {{ $t('windows.learningMethodEditor.cancel') }}
+            {{ $t('learningMethodEditor.cancel') }}
           </button>
           <button
             @click="saveEditedMethod"
             class="px-4 py-2 text-sm bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-colors"
           >
-            {{ $t('windows.learningMethodEditor.save') }}
+            {{ $t('learningMethodEditor.save') }}
           </button>
         </div>
       </div>
@@ -638,9 +638,9 @@ const dragState = ref({
 
 // Computed
 const tabs = computed(() => [
-  { id: 'instances', label: t('windows.learningMethodEditor.tabs.instances'), icon: '🎯' },
-  { id: 'catalog', label: t('windows.learningMethodEditor.tabs.catalog'), icon: '📖' },
-  { id: 'stats', label: t('windows.learningMethodEditor.tabs.stats'), icon: '📊' }
+  { id: 'instances', label: t('learningMethodEditor.tabs.instances'), icon: '🎯' },
+  { id: 'catalog', label: t('learningMethodEditor.tabs.catalog'), icon: '📖' },
+  { id: 'stats', label: t('learningMethodEditor.tabs.stats'), icon: '📊' }
 ])
 
 const chapterId = computed(() => props.window.payload?.chapterId as string)
@@ -686,7 +686,7 @@ const selectorMethodTypes = computed(() => {
 // Methods
 const loadLearningMethods = async () => {
   if (!chapterId.value) {
-    error.value = t('windows.learningMethodEditor.noChapterId')
+    error.value = t('learningMethodEditor.noChapterId')
     loading.value = false
     return
   }
@@ -711,7 +711,7 @@ const loadLearningMethods = async () => {
     }
   } catch (err: any) {
     console.error('Error loading learning methods:', err)
-    error.value = err.response?.data?.message || t('windows.learningMethodEditor.loadError')
+    error.value = err.response?.data?.message || t('learningMethodEditor.loadError')
   } finally {
     loading.value = false
   }
@@ -777,9 +777,9 @@ const getTierStyle = (tier: string): string => {
 
 const getTierLabel = (tier: string): string => {
   const tierKeys: Record<string, string> = {
-    basic: 'windows.learningMethodEditor.tierOptions.basic',
-    premium: 'windows.learningMethodEditor.tierOptions.premium',
-    pro: 'windows.learningMethodEditor.tierOptions.pro'
+    basic: 'learningMethodEditor.tierOptions.basic',
+    premium: 'learningMethodEditor.tierOptions.premium',
+    pro: 'learningMethodEditor.tierOptions.pro'
   }
   return tierKeys[tier] ? t(tierKeys[tier]) : tier
 }
@@ -815,7 +815,7 @@ const createMethodFromType = (methodType: LearningMethodType) => {
   const windowType = `learning-method-${methodType.lm_id}-form` as any
   windowStore.openWindow({
     type: windowType,
-    title: t('windows.learningMethodEditor.createWindowTitle', { name: methodType.name }),
+    title: t('learningMethodEditor.createPanelTitle', { name: methodType.name }),
     icon: '📝',
     payload: {
       chapterId: chapterId.value,
@@ -836,7 +836,7 @@ const editMethod = (method: AdminLearningMethod) => {
 
   windowStore.openWindow({
     type: windowType,
-    title: t('windows.learningMethodEditor.editWindowTitle', { name: methodTypeInfo?.name || t('windows.learningMethodEditor.defaultMethodName') }),
+    title: t('learningMethodEditor.editPanelTitle', { name: methodTypeInfo?.name || t('learningMethodEditor.defaultMethodName') }),
     icon: '✏️',
     payload: {
       chapterId: chapterId.value,
@@ -914,7 +914,7 @@ const togglePublish = async (method: AdminLearningMethod) => {
 }
 
 const deleteMethod = async (methodId: string) => {
-  if (!confirm(t('windows.learningMethodEditor.deleteConfirm'))) return
+  if (!confirm(t('learningMethodEditor.deleteConfirm'))) return
 
   saveStatus.value = 'saving'
 

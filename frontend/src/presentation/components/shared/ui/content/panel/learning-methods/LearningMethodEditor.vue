@@ -786,7 +786,7 @@ const createMethodFromType = (methodType: LearningMethodType) => {
   const panelType = `learning-method-${methodType.lm_id}-form` as any
   panelStore.openPanel({
     type: panelType,
-    title: t('features.learningMethodEditor.createWindowTitle', { name: methodType.name }),
+    title: t('features.learningMethodEditor.createPanelTitle', { name: methodType.name }),
     icon: '📝',
     payload: {
       chapterId: chapterId.value,
@@ -807,7 +807,7 @@ const editMethod = (method: AdminLearningMethod) => {
 
   panelStore.openPanel({
     type: panelType,
-    title: t('features.learningMethodEditor.editWindowTitle', { name: methodTypeInfo?.name || t('features.learningMethodEditor.defaultMethodName') }),
+    title: t('features.learningMethodEditor.editPanelTitle', { name: methodTypeInfo?.name || t('features.learningMethodEditor.defaultMethodName') }),
     icon: '✏️',
     payload: {
       chapterId: chapterId.value,

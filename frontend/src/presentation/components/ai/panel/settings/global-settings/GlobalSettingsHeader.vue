@@ -6,26 +6,26 @@
 <template>
   <div class="header-bar">
     <div class="header-left">
-      <h2 class="header-title">{{ $t('windows.aiStudioGlobalSettings.title') }}</h2>
+      <h2 class="header-title">{{ $t('aiEditorGlobalSettings.title') }}</h2>
       <div class="header-stats">
-        <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('windows.aiStudioGlobalSettings.models') }}</span>
+        <span class="stat-item">{{ stats.total_models || 0 }} {{ $t('aiEditorGlobalSettings.models') }}</span>
         <span class="stat-divider">|</span>
-        <span class="stat-item">{{ stats.providers || 0 }} {{ $t('windows.aiStudioGlobalSettings.providers') }}</span>
+        <span class="stat-item">{{ stats.providers || 0 }} {{ $t('aiEditorGlobalSettings.providers') }}</span>
         <span class="stat-divider">|</span>
-        <span class="stat-item">{{ categoriesCount }} {{ $t('windows.aiStudioGlobalSettings.categories') }}</span>
+        <span class="stat-item">{{ categoriesCount }} {{ $t('aiEditorGlobalSettings.categories') }}</span>
       </div>
     </div>
     <div class="header-actions">
       <button @click="$emit('openPricing')" class="btn-action pricing">
-        {{ $t('windows.aiPricing.title') }}
+        {{ $t('aiPricing.title') }}
       </button>
       <button @click="$emit('syncAll')" :disabled="isSyncing" class="btn-action">
         <span :class="{ 'animate-spin': isSyncing }">🔄</span>
-        {{ isSyncing ? $t('windows.aiStudioGlobalSettings.syncing') : $t('windows.aiStudioGlobalSettings.syncAll') }}
+        {{ isSyncing ? $t('aiEditorGlobalSettings.syncing') : $t('aiEditorGlobalSettings.syncAll') }}
       </button>
       <button @click="$emit('testAll')" :disabled="isTesting" class="btn-action secondary">
         <span :class="{ 'animate-spin': isTesting }">🔌</span>
-        {{ isTesting ? $t('windows.aiStudioGlobalSettings.testing') : $t('windows.aiStudioGlobalSettings.testAll') }}
+        {{ isTesting ? $t('aiEditorGlobalSettings.testing') : $t('aiEditorGlobalSettings.testAll') }}
       </button>
     </div>
   </div>

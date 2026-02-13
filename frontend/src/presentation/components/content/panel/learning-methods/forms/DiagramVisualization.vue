@@ -18,12 +18,12 @@
       <!-- Diagramm-Titel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm03.diagramTitleLabel') }}
+          {{ $t('learningMethods.lm03.diagramTitleLabel') }}
         </label>
         <input
           v-model="methodData.diagram_title"
           type="text"
-          :placeholder="$t('windows.learningMethods.lm03.diagramTitlePlaceholder')"
+          :placeholder="$t('learningMethods.lm03.diagramTitlePlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -32,37 +32,37 @@
       <!-- Diagramm-Typ -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm03.diagramTypeLabel') }}
+          {{ $t('learningMethods.lm03.diagramTypeLabel') }}
         </label>
         <select
           v-model="methodData.diagram_type"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         >
-          <option value="">{{ $t('windows.learningMethods.lm03.diagramTypeDefault') }}</option>
-          <option value="flowchart">{{ $t('windows.learningMethods.lm03.diagramTypeFlowchart') }}</option>
-          <option value="network">{{ $t('windows.learningMethods.lm03.diagramTypeNetwork') }}</option>
-          <option value="uml_class">{{ $t('windows.learningMethods.lm03.diagramTypeUmlClass') }}</option>
-          <option value="uml_sequence">{{ $t('windows.learningMethods.lm03.diagramTypeUmlSequence') }}</option>
-          <option value="uml_usecase">{{ $t('windows.learningMethods.lm03.diagramTypeUmlUsecase') }}</option>
-          <option value="er_diagram">{{ $t('windows.learningMethods.lm03.diagramTypeErDiagram') }}</option>
-          <option value="hierarchy">{{ $t('windows.learningMethods.lm03.diagramTypeHierarchy') }}</option>
-          <option value="timeline">{{ $t('windows.learningMethods.lm03.diagramTypeTimeline') }}</option>
-          <option value="process">{{ $t('windows.learningMethods.lm03.diagramTypeProcess') }}</option>
-          <option value="architecture">{{ $t('windows.learningMethods.lm03.diagramTypeArchitecture') }}</option>
-          <option value="other">{{ $t('windows.learningMethods.lm03.diagramTypeOther') }}</option>
+          <option value="">{{ $t('learningMethods.lm03.diagramTypeDefault') }}</option>
+          <option value="flowchart">{{ $t('learningMethods.lm03.diagramTypeFlowchart') }}</option>
+          <option value="network">{{ $t('learningMethods.lm03.diagramTypeNetwork') }}</option>
+          <option value="uml_class">{{ $t('learningMethods.lm03.diagramTypeUmlClass') }}</option>
+          <option value="uml_sequence">{{ $t('learningMethods.lm03.diagramTypeUmlSequence') }}</option>
+          <option value="uml_usecase">{{ $t('learningMethods.lm03.diagramTypeUmlUsecase') }}</option>
+          <option value="er_diagram">{{ $t('learningMethods.lm03.diagramTypeErDiagram') }}</option>
+          <option value="hierarchy">{{ $t('learningMethods.lm03.diagramTypeHierarchy') }}</option>
+          <option value="timeline">{{ $t('learningMethods.lm03.diagramTypeTimeline') }}</option>
+          <option value="process">{{ $t('learningMethods.lm03.diagramTypeProcess') }}</option>
+          <option value="architecture">{{ $t('learningMethods.lm03.diagramTypeArchitecture') }}</option>
+          <option value="other">{{ $t('learningMethods.lm03.diagramTypeOther') }}</option>
         </select>
       </div>
 
       <!-- Beschreibung -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm03.descriptionLabel') }}
+          {{ $t('learningMethods.lm03.descriptionLabel') }}
         </label>
         <textarea
           v-model="methodData.description"
           rows="3"
-          :placeholder="$t('windows.learningMethods.lm03.descriptionPlaceholder')"
+          :placeholder="$t('learningMethods.lm03.descriptionPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
@@ -70,7 +70,7 @@
       <!-- Mermaid/PlantUML Code -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm03.diagramCodeLabel') }}
+          {{ $t('learningMethods.lm03.diagramCodeLabel') }}
         </label>
         <textarea
           v-model="methodData.diagram_code"
@@ -84,7 +84,7 @@
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] font-mono text-sm"
         />
         <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-          {{ $t('windows.learningMethods.lm03.diagramCodeHint') }}
+          {{ $t('learningMethods.lm03.diagramCodeHint') }}
         </p>
       </div>
 
@@ -92,32 +92,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            {{ $t('windows.learningMethods.lm03.elementsLabel') }}
+            {{ $t('learningMethods.lm03.elementsLabel') }}
           </label>
           <button
             @click="addElement"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            {{ $t('windows.learningMethods.lm03.addElement') }}
+            {{ $t('learningMethods.lm03.addElement') }}
           </button>
         </div>
 
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          {{ $t('windows.learningMethods.lm03.elementsHint') }}
+          {{ $t('learningMethods.lm03.elementsHint') }}
         </p>
 
         <div v-for="(element, index) in methodData.elements" :key="index" class="mb-2 flex gap-2">
           <input
             v-model="element.name"
             type="text"
-            :placeholder="$t('windows.learningMethods.lm03.elementNamePlaceholder')"
+            :placeholder="$t('learningMethods.lm03.elementNamePlaceholder')"
             class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <input
             v-model="element.description"
             type="text"
-            :placeholder="$t('windows.learningMethods.lm03.elementDescriptionPlaceholder')"
+            :placeholder="$t('learningMethods.lm03.elementDescriptionPlaceholder')"
             class="flex-[2] px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <button
@@ -133,12 +133,12 @@
       <!-- Lernziel -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm03.learningGoalLabel') }}
+          {{ $t('learningMethods.lm03.learningGoalLabel') }}
         </label>
         <input
           v-model="methodData.learning_goal"
           type="text"
-          :placeholder="$t('windows.learningMethods.lm03.learningGoalPlaceholder')"
+          :placeholder="$t('learningMethods.lm03.learningGoalPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>

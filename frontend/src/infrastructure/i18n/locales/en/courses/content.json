@@ -492,5 +492,28 @@
     "pdfInfoText": "PDF, Word (DOC, DOCX), PowerPoint (PPT, PPTX), OpenDocument (ODP, ODT). Max. 50 MB.",
     "uploadAndAnalyze": "Upload and Analyze",
     "uploading": "Uploading..."
+  },
+  "chapterManager": {
+    "title": "Manage Chapters",
+    "newChapter": "New Chapter",
+    "noChaptersTitle": "No Chapters",
+    "noChaptersDesc": "Create the first chapter for this course.",
+    "createFirst": "Create First Chapter",
+    "lessonsCount": "{count} Lessons",
+    "edit": "Edit",
+    "delete": "Delete",
+    "chapterTitle": "Chapter Title",
+    "titlePlaceholder": "Enter chapter title...",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter chapter description...",
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "createChapter": "Create Chapter",
+    "tipAfterCreate": "After creating, you can add lessons.",
+    "newChapterTitle": "Create New Chapter",
+    "createError": "Error creating chapter",
+    "editChapter": "Chapter: {title}",
+    "deleteConfirm": "Do you really want to delete the chapter \"{title}\"?",
+    "deleteError": "Error deleting chapter"
   }
 }

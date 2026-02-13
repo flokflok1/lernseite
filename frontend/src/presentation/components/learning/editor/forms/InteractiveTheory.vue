@@ -18,12 +18,12 @@
       <!-- Thema -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm02.topicLabel') }}
+          {{ $t('learningMethods.lm02.topicLabel') }}
         </label>
         <input
           v-model="methodData.topic"
           type="text"
-          :placeholder="$t('windows.learningMethods.lm02.topicPlaceholder')"
+          :placeholder="$t('learningMethods.lm02.topicPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -33,32 +33,32 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            {{ $t('windows.learningMethods.lm02.sectionsLabel') }}
+            {{ $t('learningMethods.lm02.sectionsLabel') }}
           </label>
           <button
             @click="addSection"
             type="button"
             class="text-sm text-[var(--color-primary)] hover:underline"
           >
-            {{ $t('windows.learningMethods.lm02.addSection') }}
+            {{ $t('learningMethods.lm02.addSection') }}
           </button>
         </div>
 
         <div v-if="methodData.sections.length === 0" class="text-sm text-[var(--color-text-secondary)] italic mb-3">
-          {{ $t('windows.learningMethods.lm02.noSections') }}
+          {{ $t('learningMethods.lm02.noSections') }}
         </div>
 
         <div v-for="(section, index) in methodData.sections" :key="index" class="mb-4 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface-secondary)]">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-bold text-[var(--color-primary)]">
-              {{ $t('windows.learningMethods.lm02.sectionNumber', { n: index + 1 }) }}
+              {{ $t('learningMethods.lm02.sectionNumber', { n: index + 1 }) }}
             </span>
             <button
               @click="removeSection(index)"
               type="button"
               class="text-sm text-red-500 hover:underline"
             >
-              {{ $t('windows.learningMethods.lm02.removeSection') }}
+              {{ $t('learningMethods.lm02.removeSection') }}
             </button>
           </div>
 
@@ -66,12 +66,12 @@
             <!-- Abschnitt-Titel -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm02.sectionTitleLabel') }}
+                {{ $t('learningMethods.lm02.sectionTitleLabel') }}
               </label>
               <input
                 v-model="section.title"
                 type="text"
-                :placeholder="$t('windows.learningMethods.lm02.sectionTitlePlaceholder')"
+                :placeholder="$t('learningMethods.lm02.sectionTitlePlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
@@ -79,12 +79,12 @@
             <!-- Theorie-Text -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm02.theoryLabel') }}
+                {{ $t('learningMethods.lm02.theoryLabel') }}
               </label>
               <textarea
                 v-model="section.theory"
                 rows="4"
-                :placeholder="$t('windows.learningMethods.lm02.theoryPlaceholder')"
+                :placeholder="$t('learningMethods.lm02.theoryPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />
@@ -93,12 +93,12 @@
             <!-- Verständnisfrage -->
             <div class="border-t border-[var(--color-border)] pt-3 mt-3">
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {{ $t('windows.learningMethods.lm02.questionLabel') }}
+                {{ $t('learningMethods.lm02.questionLabel') }}
               </label>
               <input
                 v-model="section.question"
                 type="text"
-                :placeholder="$t('windows.learningMethods.lm02.questionPlaceholder')"
+                :placeholder="$t('learningMethods.lm02.questionPlaceholder')"
                 class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 required
               />

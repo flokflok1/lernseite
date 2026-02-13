@@ -18,8 +18,8 @@
     <!-- Kein Kurs gewählt -->
     <div v-if="!course" class="empty-state">
       <div class="icon">📊</div>
-      <h3>{{ $t('windows.aiStudioAnalytics.noCourse') }}</h3>
-      <p>{{ $t('windows.aiStudioAnalytics.selectCourse') }}</p>
+      <h3>{{ $t('aiEditorAnalytics.noCourse') }}</h3>
+      <p>{{ $t('aiEditorAnalytics.selectCourse') }}</p>
     </div>
 
     <!-- Analytics Content -->
@@ -27,93 +27,93 @@
       <!-- Header -->
       <div class="mb-6">
         <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
-          📊 {{ $t('windows.aiStudioAnalytics.title', { title: course.title }) }}
+          📊 {{ $t('aiEditorAnalytics.title', { title: course.title }) }}
         </h2>
         <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          {{ $t('windows.aiStudioAnalytics.subtitle') }}
+          {{ $t('aiEditorAnalytics.subtitle') }}
         </p>
       </div>
 
       <!-- Loading -->
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
-        <p>{{ $t('windows.aiStudioAnalytics.loading') }}</p>
+        <p>{{ $t('aiEditorAnalytics.loading') }}</p>
       </div>
 
       <!-- Stats Grid -->
       <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Content Stats Card -->
-        <StatsCard icon="📚" :title="$t('windows.aiStudioAnalytics.content')">
+        <StatsCard icon="📚" :title="$t('aiEditorAnalytics.content')">
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-value">{{ analytics.content?.chapter_count || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.chapters') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.chapters') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ analytics.content?.lesson_count || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.lessons') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.lessons') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ analytics.content?.method_count || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.methods') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.methods') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ analytics.content?.unique_methods || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.methodTypes') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.methodTypes') }}</span>
             </div>
           </div>
           <template #footer>
             <span class="text-xs text-[var(--color-text-tertiary)]">
-              {{ $t('windows.aiStudioAnalytics.chaptersPublished', { published: analytics.content?.published_chapters || 0, total: analytics.content?.chapter_count || 0 }) }}
+              {{ $t('aiEditorAnalytics.chaptersPublished', { published: analytics.content?.published_chapters || 0, total: analytics.content?.chapter_count || 0 }) }}
             </span>
           </template>
         </StatsCard>
 
         <!-- AI Usage Card -->
-        <StatsCard icon="🤖" :title="$t('windows.aiStudioAnalytics.aiUsage', { days: analytics.ai_usage?.period_days || 30 })">
+        <StatsCard icon="🤖" :title="$t('aiEditorAnalytics.aiUsage', { days: analytics.ai_usage?.period_days || 30 })">
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-value">{{ analytics.ai_usage?.total_requests || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.requests') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.requests') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ formatTokens(analytics.ai_usage?.total_tokens || 0) }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.tokens') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.tokens') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">${{ (analytics.ai_usage?.total_cost_usd || 0).toFixed(2) }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.cost') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.cost') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ analytics.ai_usage?.unique_users || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.users') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.users') }}</span>
             </div>
           </div>
           <template #footer>
             <span class="text-xs text-[var(--color-text-tertiary)]">
-              {{ $t('windows.aiStudioAnalytics.requestTypes', { count: analytics.ai_usage?.request_types || 0 }) }}
+              {{ $t('aiEditorAnalytics.requestTypes', { count: analytics.ai_usage?.request_types || 0 }) }}
             </span>
           </template>
         </StatsCard>
 
         <!-- Engagement Stats Card -->
-        <StatsCard icon="👥" :title="$t('windows.aiStudioAnalytics.engagement')">
+        <StatsCard icon="👥" :title="$t('aiEditorAnalytics.engagement')">
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-value">{{ analytics.enrollments?.total_enrollments || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.enrollments') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.enrollments') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ analytics.enrollments?.active_enrollments || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.active') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.active') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ analytics.enrollments?.completed_enrollments || 0 }}</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.completed') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.completed') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ Math.round(analytics.enrollments?.avg_progress || 0) }}%</span>
-              <span class="stat-label">{{ $t('windows.aiStudioAnalytics.avgProgress') }}</span>
+              <span class="stat-label">{{ $t('aiEditorAnalytics.avgProgress') }}</span>
             </div>
           </div>
         </StatsCard>
@@ -122,7 +122,7 @@
         <div class="stats-card">
           <div class="card-header">
             <span class="card-icon">🧩</span>
-            <span class="card-title">{{ $t('windows.aiStudioAnalytics.methodDistribution') }}</span>
+            <span class="card-title">{{ $t('aiEditorAnalytics.methodDistribution') }}</span>
           </div>
           <div class="method-list">
             <div
@@ -143,7 +143,7 @@
               </div>
             </div>
             <div v-if="!analytics.method_distribution?.length" class="text-sm text-[var(--color-text-tertiary)] text-center py-4">
-              {{ $t('windows.aiStudioAnalytics.noMethods') }}
+              {{ $t('aiEditorAnalytics.noMethods') }}
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@
         <div class="stats-card lg:col-span-2">
           <div class="card-header">
             <span class="card-icon">📋</span>
-            <span class="card-title">{{ $t('windows.aiStudioAnalytics.recentSessions') }}</span>
+            <span class="card-title">{{ $t('aiEditorAnalytics.recentSessions') }}</span>
           </div>
           <div class="sessions-list">
             <div
@@ -163,14 +163,14 @@
               <div class="session-status" :class="session.status"></div>
               <div class="session-info">
                 <span class="session-id">{{ session.session_id.slice(0, 8) }}...</span>
-                <span class="session-meta">{{ session.model_profile }} • {{ formatTokens(session.tokens_used) }} {{ $t('windows.aiStudioAnalytics.tokens') }}</span>
+                <span class="session-meta">{{ session.model_profile }} • {{ formatTokens(session.tokens_used) }} {{ $t('aiEditorAnalytics.tokens') }}</span>
               </div>
               <div class="session-time">
                 {{ formatDate(session.updated_at) }}
               </div>
             </div>
             <div v-if="!analytics.recent_sessions?.length" class="text-sm text-[var(--color-text-tertiary)] text-center py-4">
-              {{ $t('windows.aiStudioAnalytics.noSessions') }}
+              {{ $t('aiEditorAnalytics.noSessions') }}
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@
         <div v-if="analytics.ai_usage?.by_type?.length" class="stats-card lg:col-span-2">
           <div class="card-header">
             <span class="card-icon">📈</span>
-            <span class="card-title">{{ $t('windows.aiStudioAnalytics.aiRequestsByType') }}</span>
+            <span class="card-title">{{ $t('aiEditorAnalytics.aiRequestsByType') }}</span>
           </div>
           <div class="request-types-grid">
             <div
@@ -188,8 +188,8 @@
               class="request-type-item"
             >
               <span class="type-name">{{ formatRequestType(typeInfo.type) }}</span>
-              <span class="type-count">{{ typeInfo.count }} {{ $t('windows.aiStudioAnalytics.requests') }}</span>
-              <span class="type-tokens">{{ formatTokens(typeInfo.tokens) }} {{ $t('windows.aiStudioAnalytics.tokens') }}</span>
+              <span class="type-count">{{ typeInfo.count }} {{ $t('aiEditorAnalytics.requests') }}</span>
+              <span class="type-tokens">{{ formatTokens(typeInfo.tokens) }} {{ $t('aiEditorAnalytics.tokens') }}</span>
             </div>
           </div>
         </div>
@@ -197,9 +197,9 @@
 
       <!-- Last Updated -->
       <div v-if="analytics.generated_at" class="mt-6 text-xs text-[var(--color-text-tertiary)] text-right">
-        {{ $t('windows.aiStudioAnalytics.lastUpdated', { date: formatDate(analytics.generated_at) }) }}
+        {{ $t('aiEditorAnalytics.lastUpdated', { date: formatDate(analytics.generated_at) }) }}
         <button @click="loadAnalytics" class="ml-2 text-[var(--color-primary)] hover:underline">
-          {{ $t('windows.aiStudioAnalytics.refresh') }}
+          {{ $t('aiEditorAnalytics.refresh') }}
         </button>
       </div>
     </template>
@@ -312,7 +312,7 @@ function formatDate(dateStr: string): string {
 }
 
 function formatRequestType(type: string): string {
-  const key = `windows.aiStudioAnalytics.requestTypeLabels.${type}`
+  const key = `aiEditorAnalytics.requestTypeLabels.${type}`
   const translated = t(key)
   // Falls keine Übersetzung gefunden, Fallback auf original
   return translated !== key ? translated : type

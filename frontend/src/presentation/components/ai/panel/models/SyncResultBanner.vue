@@ -16,9 +16,9 @@
       </span>
     </div>
     <div v-if="result.details" class="mt-2 text-sm text-[var(--color-text-secondary)]">
-      {{ $t('windows.aiEditorModels.added') }}: {{ result.details.added || 0 }} |
-      {{ $t('windows.aiEditorModels.updated') }}: {{ result.details.updated || 0 }} |
-      {{ $t('windows.aiEditorModels.total') }}: {{ result.details.synced || 0 }}
+      {{ $t('aiEditorModels.added') }}: {{ result.details.added || 0 }} |
+      {{ $t('aiEditorModels.updated') }}: {{ result.details.updated || 0 }} |
+      {{ $t('aiEditorModels.total') }}: {{ result.details.synced || 0 }}
     </div>
   </div>
 </template>

@@ -195,7 +195,9 @@
       "actions": "Aktionen",
       "chapters": "Kapitel",
       "metadata": "Metadaten"
-    }
+    },
+    "panels": "Arbeitsbereiche",
+    "panelManager": "Panel-Verwaltung"
   },
   "exams": {
     "errors": {

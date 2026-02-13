@@ -7,7 +7,7 @@
   <div class="settings-card">
     <div class="card-header">
       <span class="card-icon">🎯</span>
-      <span class="card-title">{{ $t('windows.aiEditorSettings.applyProfile') }}</span>
+      <span class="card-title">{{ $t('aiEditorSettings.applyProfile') }}</span>
     </div>
     <div class="profile-grid">
       <button
@@ -26,7 +26,7 @@
     </div>
     <div class="card-footer">
       <span class="text-xs text-[var(--color-text-tertiary)]">
-        {{ $t('windows.aiEditorSettings.profileHint') }}
+        {{ $t('aiEditorSettings.profileHint') }}
       </span>
     </div>
   </div>

@@ -16,8 +16,8 @@
     <!-- No Course Selected -->
     <div v-if="!course" class="empty-state">
       <div class="empty-icon">📝</div>
-      <h3>{{ $t('windows.aiStudioExams.selectCourse') }}</h3>
-      <p>{{ $t('windows.aiStudioExams.selectCourseHint') }}</p>
+      <h3>{{ $t('aiEditorExams.selectCourse') }}</h3>
+      <p>{{ $t('aiEditorExams.selectCourseHint') }}</p>
     </div>
 
     <!-- Main Content -->
@@ -26,21 +26,21 @@
       <div class="exams-header">
         <div class="header-icon">📝</div>
         <div class="header-info">
-          <h2>{{ $t('windows.aiStudioExams.title') }}</h2>
+          <h2>{{ $t('aiEditorExams.title') }}</h2>
           <p>{{ course.title }}</p>
         </div>
         <div class="header-stats">
           <div class="stat">
             <span class="stat-value">{{ courseFiles.length }}</span>
-            <span class="stat-label">{{ $t('windows.aiStudioExams.files') }}</span>
+            <span class="stat-label">{{ $t('aiEditorExams.files') }}</span>
           </div>
           <div class="stat">
             <span class="stat-value">{{ selectedFiles.length }}</span>
-            <span class="stat-label">{{ $t('windows.aiStudioExams.selected') }}</span>
+            <span class="stat-label">{{ $t('aiEditorExams.selected') }}</span>
           </div>
           <div class="stat">
             <span class="stat-value">{{ totalQuestions }}</span>
-            <span class="stat-label">{{ $t('windows.aiStudioExams.questions') }}</span>
+            <span class="stat-label">{{ $t('aiEditorExams.questions') }}</span>
           </div>
         </div>
       </div>
@@ -142,12 +142,12 @@ const props = withDefaults(defineProps<Props>(), { course: null, chapter: null, 
 
 // File categories
 const fileCategories = computed(() => [
-  { id: 'all', name: t('windows.aiStudioExams.fileCategories.all'), icon: '📁' },
-  { id: 'script', name: t('windows.aiStudioExams.fileCategories.script'), icon: '📖' },
-  { id: 'material', name: t('windows.aiStudioExams.fileCategories.material'), icon: '📚' },
-  { id: 'exercise', name: t('windows.aiStudioExams.fileCategories.exercise'), icon: '✏️' },
-  { id: 'solution', name: t('windows.aiStudioExams.fileCategories.solution'), icon: '✅' },
-  { id: 'reference', name: t('windows.aiStudioExams.fileCategories.reference'), icon: '📎' }
+  { id: 'all', name: t('aiEditorExams.fileCategories.all'), icon: '📁' },
+  { id: 'script', name: t('aiEditorExams.fileCategories.script'), icon: '📖' },
+  { id: 'material', name: t('aiEditorExams.fileCategories.material'), icon: '📚' },
+  { id: 'exercise', name: t('aiEditorExams.fileCategories.exercise'), icon: '✏️' },
+  { id: 'solution', name: t('aiEditorExams.fileCategories.solution'), icon: '✅' },
+  { id: 'reference', name: t('aiEditorExams.fileCategories.reference'), icon: '📎' }
 ])
 
 // State
@@ -224,7 +224,7 @@ async function openFilePreview(file: CourseFile) {
     try {
       const response = await http.get(previewFileUrl.value, { responseType: 'text' })
       previewContent.value = response.data
-    } catch { previewContent.value = t('windows.aiStudioExams.loadFileError') }
+    } catch { previewContent.value = t('aiEditorExams.loadFileError') }
   }
 }
 
@@ -250,13 +250,13 @@ async function sendMessage(content: string) {
 
 async function generateExam(prompt: string) {
   isGenerating.value = true
-  currentActivity.value = t('windows.aiStudioExams.analyzing')
+  currentActivity.value = t('aiEditorExams.analyzing')
   activityLog.value = []
   const startTime = Date.now()
 
   try {
-    if (selectedFiles.value.length > 0) addActivity(t('windows.aiStudioExams.analyzingFiles', { count: selectedFiles.value.length }), 'pending')
-    addActivity(t('windows.aiStudioExams.generatingQuestions'), 'pending')
+    if (selectedFiles.value.length > 0) addActivity(t('aiEditorExams.analyzingFiles', { count: selectedFiles.value.length }), 'pending')
+    addActivity(t('aiEditorExams.generatingQuestions'), 'pending')
 
     const response = await http.post('/admin/ai/generate-exam', {
       course_id: props.course?.course_id, chapter_id: props.chapter?.chapter_id, prompt,
@@ -266,7 +266,7 @@ async function generateExam(prompt: string) {
 
     if (response.data.success) {
       const data = response.data.data
-      updateLastActivity(t('windows.aiStudioExams.questionsGenerated'), 'success', Date.now() - startTime)
+      updateLastActivity(t('aiEditorExams.questionsGenerated'), 'success', Date.now() - startTime)
       tokensUsed.value += data.tokens_used || 0
       currentExam.value = { title: data.title || 'Generierte Prüfung', description: data.description, duration: data.duration_minutes || durationMinutes.value, questions: data.questions || [] }
 
@@ -277,7 +277,7 @@ async function generateExam(prompt: string) {
       })
     } else throw new Error(response.data.error?.message || 'Generierung fehlgeschlagen')
   } catch (error: any) {
-    updateLastActivity(t('windows.aiStudioExams.generationError'), 'error', Date.now() - startTime)
+    updateLastActivity(t('aiEditorExams.generationError'), 'error', Date.now() - startTime)
     messages.value.push({ role: 'assistant', content: `❌ Fehler: ${error.response?.data?.error?.message || error.message}`, timestamp: new Date() })
   } finally {
     isGenerating.value = false
@@ -321,7 +321,7 @@ function editQuestion(idx: number) { console.log('Edit question:', idx) }
 async function regenerateQuestion(idx: number) {
   if (!currentExam.value) return
   const question = currentExam.value.questions[idx]
-  currentActivity.value = t('windows.aiStudioExams.regeneratingQuestion', { num: idx + 1 })
+  currentActivity.value = t('aiEditorExams.regeneratingQuestion', { num: idx + 1 })
   try {
     const response = await http.post('/admin/ai/regenerate-question', { course_id: props.course?.course_id, chapter_id: props.chapter?.chapter_id, question_type: question.type, context: question.question, source_files: selectedFiles.value })
     if (response.data.success && response.data.data.question) {
@@ -334,7 +334,7 @@ async function regenerateQuestion(idx: number) {
 
 function deleteQuestion(idx: number) {
   if (!currentExam.value) return
-  if (confirm(t('windows.aiStudioExams.confirmDeleteQuestion'))) currentExam.value.questions.splice(idx, 1)
+  if (confirm(t('aiEditorExams.confirmDeleteQuestion'))) currentExam.value.questions.splice(idx, 1)
 }
 
 watch(() => props.course, () => {

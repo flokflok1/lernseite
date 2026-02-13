@@ -118,7 +118,7 @@ export function useLearningMethods(props: any) {
   // Methods
   const loadLearningMethods = async () => {
     if (!chapterId.value) {
-      error.value = t('windows.learningMethodEditor.noChapterId')
+      error.value = t('learningMethodEditor.noChapterId')
       loading.value = false
       return
     }
@@ -143,7 +143,7 @@ export function useLearningMethods(props: any) {
       }
     } catch (err: any) {
       console.error('Error loading learning methods:', err)
-      error.value = err.response?.data?.message || t('windows.learningMethodEditor.loadError')
+      error.value = err.response?.data?.message || t('learningMethodEditor.loadError')
     } finally {
       loading.value = false
     }
@@ -209,9 +209,9 @@ export function useLearningMethods(props: any) {
 
   const getTierLabel = (tier: string): string => {
     const tierKeys: Record<string, string> = {
-      basic: 'windows.learningMethodEditor.tierOptions.basic',
-      premium: 'windows.learningMethodEditor.tierOptions.premium',
-      pro: 'windows.learningMethodEditor.tierOptions.pro'
+      basic: 'learningMethodEditor.tierOptions.basic',
+      premium: 'learningMethodEditor.tierOptions.premium',
+      pro: 'learningMethodEditor.tierOptions.pro'
     }
     return tierKeys[tier] ? t(tierKeys[tier]) : tier
   }
@@ -248,7 +248,7 @@ export function useLearningMethods(props: any) {
     const windowType = `learning-method-${methodType.lm_id}-form` as any
     windowStore.openWindow({
       type: windowType,
-      title: t('windows.learningMethodEditor.createWindowTitle', { name: methodType.name }),
+      title: t('learningMethodEditor.createPanelTitle', { name: methodType.name }),
       icon: '📝',
       payload: {
         chapterId: chapterId.value,
@@ -317,7 +317,7 @@ export function useLearningMethods(props: any) {
   }
 
   const deleteMethod = async (methodId: string) => {
-    if (!confirm(t('windows.learningMethodEditor.deleteConfirm'))) return
+    if (!confirm(t('learningMethodEditor.deleteConfirm'))) return
 
     saveStatus.value = 'saving'
 

@@ -13,10 +13,10 @@
     <!-- Header -->
     <div class="p-4 border-b border-[var(--color-border)]">
       <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-        {{ $t('windows.aiKapitelGenerator.title') }}
+        {{ $t('aiKapitelGenerator.title') }}
       </h2>
       <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-        {{ $t('windows.aiKapitelGenerator.subtitle') }}
+        {{ $t('aiKapitelGenerator.subtitle') }}
       </p>
     </div>
 
@@ -25,10 +25,10 @@
       <!-- Course Selection -->
       <div v-if="!selectedCourseId" class="space-y-4">
         <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-          {{ $t('windows.aiKapitelGenerator.selectCourse') }}
+          {{ $t('aiKapitelGenerator.selectCourse') }}
         </label>
         <p class="text-sm text-[var(--color-text-secondary)]">
-          {{ $t('windows.aiKapitelGenerator.noCourseHint') }}
+          {{ $t('aiKapitelGenerator.noCourseHint') }}
         </p>
       </div>
 
@@ -37,7 +37,7 @@
         <!-- Mode Selection -->
         <div class="space-y-3">
           <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-            {{ $t('windows.aiKapitelGenerator.generationMethod') }}
+            {{ $t('aiKapitelGenerator.generationMethod') }}
           </label>
           <div class="flex gap-3">
             <button
@@ -49,7 +49,7 @@
                   : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-hover)]'
               ]"
             >
-              {{ $t('windows.aiKapitelGenerator.pdfUpload') }}
+              {{ $t('aiKapitelGenerator.pdfUpload') }}
             </button>
             <button
               @click="generationMode = 'prompt'"
@@ -60,7 +60,7 @@
                   : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-hover)]'
               ]"
             >
-              {{ $t('windows.aiKapitelGenerator.textPrompt') }}
+              {{ $t('aiKapitelGenerator.textPrompt') }}
             </button>
           </div>
         </div>
@@ -83,10 +83,10 @@
             <div v-if="!selectedFile" class="space-y-2">
               <div class="text-4xl">📄</div>
               <p class="text-[var(--color-text-secondary)]">
-                {{ $t('windows.aiKapitelGenerator.dropPdfHint') }}
+                {{ $t('aiKapitelGenerator.dropPdfHint') }}
               </p>
               <p class="text-xs text-[var(--color-text-tertiary)]">
-                {{ $t('windows.aiKapitelGenerator.maxSize') }}
+                {{ $t('aiKapitelGenerator.maxSize') }}
               </p>
             </div>
             <div v-else class="space-y-2">
@@ -105,19 +105,19 @@
         <div v-if="generationMode === 'prompt'" class="space-y-4">
           <div class="space-y-2">
             <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-              {{ $t('windows.aiKapitelGenerator.describeContent') }}
+              {{ $t('aiKapitelGenerator.describeContent') }}
             </label>
             <textarea
               v-model="promptText"
               class="w-full h-32 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-tertiary)] resize-none focus:outline-none focus:border-[var(--color-primary)]"
-              :placeholder="$t('windows.aiKapitelGenerator.contentPlaceholder')"
+              :placeholder="$t('aiKapitelGenerator.contentPlaceholder')"
             ></textarea>
           </div>
 
           <!-- Chapter Count -->
           <div class="space-y-2">
             <label class="block text-sm font-medium text-[var(--color-text-primary)]">
-              {{ $t('windows.aiKapitelGenerator.chapterCount') }}
+              {{ $t('aiKapitelGenerator.chapterCount') }}
             </label>
             <input
               v-model.number="chapterCount"
@@ -133,7 +133,7 @@
         <div v-if="isGenerating" class="space-y-4">
           <div class="flex items-center gap-3">
             <div class="animate-spin w-5 h-5 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"></div>
-            <span class="text-[var(--color-text-primary)]">{{ $t('windows.aiKapitelGenerator.generatingChapters') }}</span>
+            <span class="text-[var(--color-text-primary)]">{{ $t('aiKapitelGenerator.generatingChapters') }}</span>
           </div>
           <div class="w-full h-2 bg-[var(--color-surface)] rounded-full overflow-hidden">
             <div
@@ -154,7 +154,7 @@
         <!-- Generated Preview -->
         <div v-if="generatedChapters.length > 0" class="space-y-4">
           <h3 class="text-sm font-medium text-[var(--color-text-primary)]">
-            {{ $t('windows.aiKapitelGenerator.generatedChaptersTitle', { count: generatedChapters.length }) }}
+            {{ $t('aiKapitelGenerator.generatedChaptersTitle', { count: generatedChapters.length }) }}
           </h3>
           <div class="space-y-2 max-h-48 overflow-y-auto">
             <div
@@ -180,7 +180,7 @@
         @click="$emit('close')"
         class="px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
       >
-        {{ $t('windows.aiKapitelGenerator.cancel') }}
+        {{ $t('aiKapitelGenerator.cancel') }}
       </button>
       <button
         v-if="generatedChapters.length > 0"
@@ -188,7 +188,7 @@
         :disabled="isApplying"
         class="px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-primary-hover)] disabled:opacity-50 transition-colors"
       >
-        {{ isApplying ? $t('windows.aiKapitelGenerator.applying') : $t('windows.aiKapitelGenerator.applyChapters') }}
+        {{ isApplying ? $t('aiKapitelGenerator.applying') : $t('aiKapitelGenerator.applyChapters') }}
       </button>
       <button
         v-else
@@ -196,7 +196,7 @@
         :disabled="!canGenerate || isGenerating"
         class="px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-primary-hover)] disabled:opacity-50 transition-colors"
       >
-        {{ $t('windows.aiKapitelGenerator.generate') }}
+        {{ $t('aiKapitelGenerator.generate') }}
       </button>
     </div>
   </div>
@@ -279,7 +279,7 @@ async function startGeneration() {
 
   isGenerating.value = true
   progress.value = 0
-  statusMessage.value = t('windows.aiKapitelGenerator.initializing')
+  statusMessage.value = t('aiKapitelGenerator.initializing')
   errorMessage.value = ''
   generatedChapters.value = []
 
@@ -288,7 +288,7 @@ async function startGeneration() {
     for (let i = 0; i <= 100; i += 10) {
       await new Promise(resolve => setTimeout(resolve, 300))
       progress.value = i
-      statusMessage.value = i < 50 ? t('windows.aiKapitelGenerator.analyzingContent') : t('windows.aiKapitelGenerator.generatingStructure')
+      statusMessage.value = i < 50 ? t('aiKapitelGenerator.analyzingContent') : t('aiKapitelGenerator.generatingStructure')
     }
 
     // Mock generated chapters (real implementation would use API response)
@@ -298,9 +298,9 @@ async function startGeneration() {
       order_index: i + 1
     }))
 
-    statusMessage.value = t('windows.aiKapitelGenerator.done')
+    statusMessage.value = t('aiKapitelGenerator.done')
   } catch (error: any) {
-    errorMessage.value = error.message || t('windows.aiKapitelGenerator.generationError')
+    errorMessage.value = error.message || t('aiKapitelGenerator.generationError')
   } finally {
     isGenerating.value = false
   }
@@ -315,7 +315,7 @@ async function applyChapters() {
     console.log('Applying chapters to course:', selectedCourseId.value, generatedChapters.value)
     // Success - close window or show success message
   } catch (error: any) {
-    errorMessage.value = error.message || t('windows.aiKapitelGenerator.applyError')
+    errorMessage.value = error.message || t('aiKapitelGenerator.applyError')
   } finally {
     isApplying.value = false
   }

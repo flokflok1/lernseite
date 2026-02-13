@@ -29,7 +29,7 @@
         </button>
         <div>
           <h2 class="text-sm font-semibold text-[var(--color-text-primary)]">
-            {{ currentView === 'list' ? $t('windows.chapterManager.title') : viewTitle }}
+            {{ currentView === 'list' ? $t('chapterManager.title') : viewTitle }}
           </h2>
           <p class="text-xs text-[var(--color-text-secondary)]">
             {{ courseTitle }}
@@ -46,7 +46,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          {{ $t('windows.chapterManager.newChapter') }}
+          {{ $t('chapterManager.newChapter') }}
         </button>
       </div>
     </div>
@@ -68,16 +68,16 @@
             </svg>
           </div>
           <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
-            {{ $t('windows.chapterManager.noChaptersTitle') }}
+            {{ $t('chapterManager.noChaptersTitle') }}
           </h3>
           <p class="text-sm text-[var(--color-text-secondary)] mb-6 max-w-sm mx-auto">
-            {{ $t('windows.chapterManager.noChaptersDesc') }}
+            {{ $t('chapterManager.noChaptersDesc') }}
           </p>
           <button
             @click="createManual"
             class="px-4 py-2 text-sm font-medium rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] transition-colors"
           >
-            {{ $t('windows.chapterManager.createFirst') }}
+            {{ $t('chapterManager.createFirst') }}
           </button>
         </div>
 
@@ -104,7 +104,7 @@
                 </p>
                 <div class="flex items-center gap-4 mt-2 text-xs text-[var(--color-text-tertiary)]">
                   <span v-if="chapter.lesson_count !== undefined">
-                    {{ $t('windows.chapterManager.lessonsCount', { count: chapter.lesson_count }) }}
+                    {{ $t('chapterManager.lessonsCount', { count: chapter.lesson_count }) }}
                   </span>
                   <span v-if="chapter.updated_at">
                     {{ formatDate(chapter.updated_at) }}
@@ -117,7 +117,7 @@
                 <button
                   @click="editChapter(chapter)"
                   class="p-2 rounded-lg hover:bg-blue-100 text-[var(--color-text-secondary)] hover:text-blue-600 transition-colors"
-                  :title="$t('windows.chapterManager.edit')"
+                  :title="$t('chapterManager.edit')"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -126,7 +126,7 @@
                 <button
                   @click="deleteChapter(chapter)"
                   class="p-2 rounded-lg hover:bg-red-100 text-[var(--color-text-secondary)] hover:text-red-600 transition-colors"
-                  :title="$t('windows.chapterManager.delete')"
+                  :title="$t('chapterManager.delete')"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -144,13 +144,13 @@
           <!-- Title -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.chapterManager.chapterTitle') }}
+              {{ $t('chapterManager.chapterTitle') }}
             </label>
             <input
               v-model="newChapter.title"
               type="text"
               class="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-              :placeholder="$t('windows.chapterManager.titlePlaceholder')"
+              :placeholder="$t('chapterManager.titlePlaceholder')"
               @keydown.enter="saveNewChapter"
             />
           </div>
@@ -158,13 +158,13 @@
           <!-- Description -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-              {{ $t('windows.chapterManager.description') }}
+              {{ $t('chapterManager.description') }}
             </label>
             <textarea
               v-model="newChapter.description"
               rows="4"
               class="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
-              :placeholder="$t('windows.chapterManager.descriptionPlaceholder')"
+              :placeholder="$t('chapterManager.descriptionPlaceholder')"
             ></textarea>
           </div>
 
@@ -174,7 +174,7 @@
               @click="goBack"
               class="px-4 py-2 text-sm font-medium rounded-lg border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-secondary)] transition-colors"
             >
-              {{ $t('windows.chapterManager.cancel') }}
+              {{ $t('chapterManager.cancel') }}
             </button>
             <button
               @click="saveNewChapter"
@@ -185,14 +185,14 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ saving ? $t('windows.chapterManager.creating') : $t('windows.chapterManager.createChapter') }}
+              {{ saving ? $t('chapterManager.creating') : $t('chapterManager.createChapter') }}
             </button>
           </div>
 
           <!-- Tipp -->
           <div class="p-4 rounded-lg bg-[var(--color-info-bg)] border border-[var(--color-info-border)]">
             <p class="text-sm text-[var(--color-info-text)]">
-              {{ $t('windows.chapterManager.tipAfterCreate') }}
+              {{ $t('chapterManager.tipAfterCreate') }}
             </p>
           </div>
         </div>
@@ -267,7 +267,7 @@ function goBack() {
 
 function createManual() {
   currentView.value = 'create-manual'
-  viewTitle.value = t('windows.chapterManager.newChapterTitle')
+  viewTitle.value = t('chapterManager.newChapterTitle')
   newChapter.value = { title: '', description: '' }
 }
 
@@ -292,7 +292,7 @@ async function saveNewChapter() {
 
   } catch (error: any) {
     console.error('Failed to create chapter:', error)
-    alert(t('windows.chapterManager.createError') + ': ' + (error.response?.data?.message || error.message))
+    alert(t('chapterManager.createError') + ': ' + (error.response?.data?.message || error.message))
   } finally {
     saving.value = false
   }
@@ -301,7 +301,7 @@ async function saveNewChapter() {
 function editChapter(chapter: AdminChapter) {
   windowStore.openWindow({
     type: 'admin-kapitel-editor',
-    title: t('windows.chapterManager.windowChapter', { title: chapter.title }),
+    title: t('chapterManager.editChapter', { title: chapter.title }),
     icon: '📖',
     payload: {
       courseId: courseId.value,
@@ -313,7 +313,7 @@ function editChapter(chapter: AdminChapter) {
 }
 
 async function deleteChapter(chapter: AdminChapter) {
-  if (!confirm(t('windows.chapterManager.deleteConfirm', { title: chapter.title }))) {
+  if (!confirm(t('chapterManager.deleteConfirm', { title: chapter.title }))) {
     return
   }
 
@@ -322,7 +322,7 @@ async function deleteChapter(chapter: AdminChapter) {
     await loadChapters()
   } catch (error: any) {
     console.error('Failed to delete chapter:', error)
-    alert(t('windows.chapterManager.deleteError') + ': ' + (error.response?.data?.message || error.message))
+    alert(t('chapterManager.deleteError') + ': ' + (error.response?.data?.message || error.message))
   }
 }
 

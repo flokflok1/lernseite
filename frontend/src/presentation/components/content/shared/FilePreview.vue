@@ -25,7 +25,7 @@
           v-if="previewType === 'file' && fileUrl"
           @click="downloadFile"
           class="action-btn"
-          :title="$t('windows.filePreview.download')"
+          :title="$t('filePreview.download')"
         >
           ⬇️
         </button>
@@ -33,7 +33,7 @@
           v-if="previewType !== 'file'"
           @click="openEditor"
           class="action-btn"
-          :title="$t('windows.filePreview.edit')"
+          :title="$t('filePreview.edit')"
         >
           ✏️
         </button>
@@ -45,7 +45,7 @@
       <!-- Loading -->
       <div v-if="loading" class="state-loading">
         <div class="spinner"></div>
-        <p>{{ $t('windows.filePreview.loading') }}</p>
+        <p>{{ $t('filePreview.loading') }}</p>
       </div>
 
       <!-- Error -->
@@ -79,8 +79,8 @@
         <!-- Unsupported -->
         <div v-else class="state-unsupported">
           <span>📄</span>
-          <p>{{ $t('windows.filePreview.noPreview') }}</p>
-          <button @click="downloadFile" class="download-btn">{{ $t('windows.filePreview.download') }}</button>
+          <p>{{ $t('filePreview.noPreview') }}</p>
+          <button @click="downloadFile" class="download-btn">{{ $t('filePreview.download') }}</button>
         </div>
       </template>
 
@@ -91,12 +91,12 @@
             <h2>{{ chapter?.title }}</h2>
             <p v-if="chapter?.description">{{ chapter.description }}</p>
             <div class="chapter-stats">
-              <span>📄 {{ $t('windows.filePreview.lessonsCount', { count: chapterLessons.length }) }}</span>
+              <span>📄 {{ $t('filePreview.lessonsCount', { count: chapterLessons.length }) }}</span>
             </div>
           </div>
 
           <div class="lessons-list">
-            <h4>{{ $t('windows.filePreview.lessons') }}</h4>
+            <h4>{{ $t('filePreview.lessons') }}</h4>
             <div
               v-for="(lesson, idx) in chapterLessons"
               :key="lesson.lesson_id"
@@ -111,7 +111,7 @@
               <span class="lesson-arrow">→</span>
             </div>
             <div v-if="!chapterLessons.length" class="no-lessons">
-              {{ $t('windows.filePreview.noLessons') }}
+              {{ $t('filePreview.noLessons') }}
             </div>
           </div>
         </div>
@@ -124,19 +124,19 @@
             <h2>{{ lesson?.title }}</h2>
             <p v-if="lesson?.description">{{ lesson.description }}</p>
             <div class="lesson-meta-info">
-              <span v-if="lesson?.duration_minutes">⏱️ {{ lesson.duration_minutes }} {{ $t('windows.filePreview.min') }}</span>
+              <span v-if="lesson?.duration_minutes">⏱️ {{ lesson.duration_minutes }} {{ $t('filePreview.min') }}</span>
               <span v-if="lesson?.content?.lm_primary">🧩 LM{{ lesson.content.lm_primary }}</span>
             </div>
           </div>
 
           <div v-if="lesson?.content" class="lesson-content">
-            <h4>{{ $t('windows.filePreview.content') }}</h4>
+            <h4>{{ $t('filePreview.content') }}</h4>
             <div v-if="lesson.content.theory" class="content-section">
-              <h5>{{ $t('windows.filePreview.theory') }}</h5>
+              <h5>{{ $t('filePreview.theory') }}</h5>
               <div class="theory-text">{{ lesson.content.theory }}</div>
             </div>
             <div v-if="lesson.content.steps?.length" class="content-section">
-              <h5>{{ $t('windows.filePreview.steps') }}</h5>
+              <h5>{{ $t('filePreview.steps') }}</h5>
               <ol class="steps-list">
                 <li v-for="(step, idx) in lesson.content.steps" :key="idx">
                   {{ step.title || step.text || step }}
@@ -226,10 +226,10 @@ const headerIcon = computed(() => {
 })
 
 const headerTitle = computed(() => {
-  if (previewType.value === 'file') return file.value?.name || t('windows.filePreview.file')
-  if (previewType.value === 'chapter') return chapter.value?.title || t('windows.filePreview.chapter')
-  if (previewType.value === 'lesson') return lesson.value?.title || t('windows.lessonPreview.lesson')
-  return t('windows.filePreview.preview')
+  if (previewType.value === 'file') return file.value?.name || t('filePreview.file')
+  if (previewType.value === 'chapter') return chapter.value?.title || t('filePreview.chapter')
+  if (previewType.value === 'lesson') return lesson.value?.title || t('lessonPreview.lesson')
+  return t('filePreview.preview')
 })
 
 const headerMeta = computed(() => {
@@ -237,10 +237,10 @@ const headerMeta = computed(() => {
     return `${formatFileSize(file.value?.size)} · ${file.value?.type?.toUpperCase()}`
   }
   if (previewType.value === 'chapter') {
-    return t('windows.filePreview.lessonsCount', { count: chapterLessons.value.length })
+    return t('filePreview.lessonsCount', { count: chapterLessons.value.length })
   }
   if (previewType.value === 'lesson') {
-    return lesson.value?.duration_minutes ? `${lesson.value.duration_minutes} ${t('windows.filePreview.min')}` : t('windows.lessonPreview.lesson')
+    return lesson.value?.duration_minutes ? `${lesson.value.duration_minutes} ${t('filePreview.min')}` : t('lessonPreview.lesson')
   }
   return ''
 })
@@ -268,18 +268,18 @@ async function loadContent() {
       // Lesson data already in payload
       loading.value = false
     } else {
-      error.value = t('windows.filePreview.unknownType')
+      error.value = t('filePreview.unknownType')
       loading.value = false
     }
   } catch (err: any) {
-    error.value = err.message || t('windows.filePreview.loadError')
+    error.value = err.message || t('filePreview.loadError')
     loading.value = false
   }
 }
 
 async function loadFile() {
   if (!file.value?.id) {
-    error.value = t('windows.filePreview.noFileId')
+    error.value = t('filePreview.noFileId')
     loading.value = false
     return
   }
@@ -306,7 +306,7 @@ async function loadFile() {
     }
   } catch (err: any) {
     console.error('File load error:', err)
-    error.value = err.response?.data?.error || t('windows.filePreview.fileLoadError')
+    error.value = err.response?.data?.error || t('filePreview.fileLoadError')
   } finally {
     loading.value = false
   }
@@ -314,7 +314,7 @@ async function loadFile() {
 
 async function loadChapterLessons() {
   if (!chapter.value?.chapter_id) {
-    error.value = t('windows.filePreview.noChapterId')
+    error.value = t('filePreview.noChapterId')
     loading.value = false
     return
   }
@@ -325,7 +325,7 @@ async function loadChapterLessons() {
       chapterLessons.value = res.data.data?.lessons || res.data.lessons || []
     }
   } catch {
-    error.value = t('windows.filePreview.lessonsLoadError')
+    error.value = t('filePreview.lessonsLoadError')
   } finally {
     loading.value = false
   }
@@ -348,7 +348,7 @@ function openEditor() {
 function openLessonPreview(lesson: LessonPayload) {
   windowStore.openWindow({
     type: 'admin-file-preview',
-    title: `${t('windows.lessonPreview.lesson')}: ${lesson.title}`,
+    title: `${t('lessonPreview.lesson')}: ${lesson.title}`,
     icon: '📄',
     payload: { lesson },
     size: { width: 700, height: 500 }

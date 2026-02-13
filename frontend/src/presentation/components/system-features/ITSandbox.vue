@@ -9,7 +9,7 @@
         <!-- Prüfungstyp -->
         <div>
           <label for="exam_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ $t('windows.learningMethods.lm22.examTypeLabel') }}
+            {{ $t('learningMethods.lm22.examTypeLabel') }}
           </label>
           <select
             id="exam_type"
@@ -17,19 +17,19 @@
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             required
           >
-            <option value="">{{ $t('windows.learningMethods.lm22.examTypeDefault') }}</option>
-            <option value="mixed">{{ $t('windows.learningMethods.lm22.examTypeMixed') }}</option>
-            <option value="multiple_choice">{{ $t('windows.learningMethods.lm22.examTypeMultipleChoice') }}</option>
-            <option value="short_answer">{{ $t('windows.learningMethods.lm22.examTypeShortAnswer') }}</option>
-            <option value="essay">{{ $t('windows.learningMethods.lm22.examTypeEssay') }}</option>
-            <option value="true_false">{{ $t('windows.learningMethods.lm22.examTypeTrueFalse') }}</option>
+            <option value="">{{ $t('learningMethods.lm22.examTypeDefault') }}</option>
+            <option value="mixed">{{ $t('learningMethods.lm22.examTypeMixed') }}</option>
+            <option value="multiple_choice">{{ $t('learningMethods.lm22.examTypeMultipleChoice') }}</option>
+            <option value="short_answer">{{ $t('learningMethods.lm22.examTypeShortAnswer') }}</option>
+            <option value="essay">{{ $t('learningMethods.lm22.examTypeEssay') }}</option>
+            <option value="true_false">{{ $t('learningMethods.lm22.examTypeTrueFalse') }}</option>
           </select>
         </div>
 
         <!-- Zeitlimit -->
         <div>
           <label for="time_limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ $t('windows.learningMethods.lm22.timeLimitLabel') }}
+            {{ $t('learningMethods.lm22.timeLimitLabel') }}
           </label>
           <input
             id="time_limit"
@@ -42,14 +42,14 @@
             required
           />
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {{ $t('windows.learningMethods.lm22.timeLimitHint') }}
+            {{ $t('learningMethods.lm22.timeLimitHint') }}
           </p>
         </div>
 
         <!-- Anzahl der Fragen -->
         <div>
           <label for="question_count" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ $t('windows.learningMethods.lm22.questionCountLabel') }}
+            {{ $t('learningMethods.lm22.questionCountLabel') }}
           </label>
           <input
             id="question_count"
@@ -61,14 +61,14 @@
             required
           />
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {{ $t('windows.learningMethods.lm22.questionCountHint') }}
+            {{ $t('learningMethods.lm22.questionCountHint') }}
           </p>
         </div>
 
         <!-- Bestehensgrenze -->
         <div>
           <label for="passing_score" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ $t('windows.learningMethods.lm22.passingScoreLabel') }}
+            {{ $t('learningMethods.lm22.passingScoreLabel') }}
           </label>
           <div class="flex gap-4 items-center">
             <input
@@ -83,7 +83,7 @@
             <span class="text-sm text-gray-600 dark:text-gray-400">%</span>
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {{ $t('windows.learningMethods.lm22.passingScoreHint') }}
+            {{ $t('learningMethods.lm22.passingScoreHint') }}
           </p>
         </div>
       </div>

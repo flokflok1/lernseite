@@ -17,7 +17,7 @@
           @click="openWindowManager"
           class="px-3 py-1.5 text-sm bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] rounded hover:bg-[var(--color-background)] transition-colors"
         >
-          {{ $t('panel.courses.windows') }}
+          {{ $t('panel.courses.panels') }}
         </button>
       </div>
     </div>
@@ -556,7 +556,7 @@ function openCourseCreateWindow(): void {
 function openWindowManager(): void {
   windowStore.openWindow({
     type: 'panel-window-manager',
-    title: t('panel.courses.windowManager'),
+    title: t('panel.courses.panelManager'),
     icon: '🗂',
     size: { width: 400, height: 500 }
   })

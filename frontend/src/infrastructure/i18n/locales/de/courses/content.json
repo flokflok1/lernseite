@@ -492,5 +492,28 @@
     "pdfInfoText": "PDF, Word (DOC, DOCX), PowerPoint (PPT, PPTX), OpenDocument (ODP, ODT). Max. 50 MB.",
     "uploadAndAnalyze": "Hochladen und Analysieren",
     "uploading": "Wird hochgeladen..."
+  },
+  "chapterManager": {
+    "title": "Kapitel verwalten",
+    "newChapter": "Neues Kapitel",
+    "noChaptersTitle": "Keine Kapitel vorhanden",
+    "noChaptersDesc": "Erstellen Sie das erste Kapitel für diesen Kurs.",
+    "createFirst": "Erstes Kapitel erstellen",
+    "lessonsCount": "{count} Lektionen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "chapterTitle": "Kapiteltitel",
+    "titlePlaceholder": "Titel des Kapitels eingeben...",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Beschreibung des Kapitels eingeben...",
+    "cancel": "Abbrechen",
+    "creating": "Erstelle...",
+    "createChapter": "Kapitel erstellen",
+    "tipAfterCreate": "Nach dem Erstellen können Sie Lektionen hinzufügen.",
+    "newChapterTitle": "Neues Kapitel erstellen",
+    "createError": "Fehler beim Erstellen des Kapitels",
+    "editChapter": "Kapitel: {title}",
+    "deleteConfirm": "Möchten Sie das Kapitel \"{title}\" wirklich löschen?",
+    "deleteError": "Fehler beim Löschen des Kapitels"
   }
 }

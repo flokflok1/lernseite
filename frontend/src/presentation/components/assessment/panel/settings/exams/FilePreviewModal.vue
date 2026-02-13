@@ -16,10 +16,10 @@
         </div>
         <div class="preview-actions">
           <button @click="$emit('download', file)" class="preview-action-btn">
-            ⬇️ {{ $t('windows.aiStudioExams.download') }}
+            ⬇️ {{ $t('aiEditorExams.download') }}
           </button>
           <button @click="$emit('toggle-selection', file)" class="preview-action-btn" :class="{ selected: isSelected }">
-            {{ isSelected ? '✓ ' + $t('windows.aiStudioExams.deselect') : '+ ' + $t('windows.aiStudioExams.select') }}
+            {{ isSelected ? '✓ ' + $t('aiEditorExams.deselect') : '+ ' + $t('aiEditorExams.select') }}
           </button>
           <button @click="$emit('close')" class="preview-close-btn">✕</button>
         </div>
@@ -37,10 +37,10 @@
         <!-- No Preview Available -->
         <div v-else class="no-preview">
           <span class="no-preview-icon">📄</span>
-          <p>{{ $t('windows.aiStudioExams.previewNotAvailable') }}</p>
+          <p>{{ $t('aiEditorExams.previewNotAvailable') }}</p>
           <p class="file-type">{{ file.file_type }}</p>
           <button @click="$emit('download', file)" class="download-btn">
-            ⬇️ {{ $t('windows.aiStudioExams.downloadFile') }}
+            ⬇️ {{ $t('aiEditorExams.downloadFile') }}
           </button>
         </div>
       </div>

@@ -96,5 +96,28 @@
       "adminModuleEditor": "Edytuj moduł",
       "adminPanelManager": "Menedżer paneli"
     }
+  },
+  "chapterManager": {
+    "title": "Zarządzaj rozdziałami",
+    "newChapter": "Nowy rozdział",
+    "noChaptersTitle": "Brak rozdziałów",
+    "noChaptersDesc": "Utwórz pierwszy rozdział dla tego kursu.",
+    "createFirst": "Utwórz pierwszy rozdział",
+    "lessonsCount": "{count} Lekcji",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "chapterTitle": "Tytuł rozdziału",
+    "titlePlaceholder": "Wpisz tytuł rozdziału...",
+    "description": "Opis",
+    "descriptionPlaceholder": "Wpisz opis rozdziału...",
+    "cancel": "Anuluj",
+    "creating": "Tworzenie...",
+    "createChapter": "Utwórz rozdział",
+    "tipAfterCreate": "Po utworzeniu możesz dodać lekcje.",
+    "newChapterTitle": "Utwórz nowy rozdział",
+    "createError": "Błąd tworzenia rozdziału",
+    "editChapter": "Rozdział: {title}",
+    "deleteConfirm": "Czy na pewno chcesz usunąć rozdział \"{title}\"?",
+    "deleteError": "Błąd usuwania rozdziału"
   }
 }

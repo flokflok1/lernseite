@@ -11,15 +11,15 @@
 <template>
   <div class="admin-window-manager-window p-6">
     <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
-      {{ $t('windows.windowManager.title') }}
+      {{ $t('panelManager.title') }}
     </h3>
 
     <!-- Empty State -->
     <div v-if="minimizedWindows.length === 0" class="text-center py-12">
       <div class="text-5xl mb-3">🪟</div>
-      <p class="text-[var(--color-text-secondary)] mb-1">{{ $t('windows.windowManager.noMinimized') }}</p>
+      <p class="text-[var(--color-text-secondary)] mb-1">{{ $t('panelManager.noMinimized') }}</p>
       <p class="text-xs text-[var(--color-text-tertiary)]">
-        {{ $t('windows.windowManager.noMinimizedHint') }}
+        {{ $t('panelManager.noMinimizedHint') }}
       </p>
     </div>
 
@@ -67,7 +67,7 @@
             <button
               @click.stop="restoreWindow(win.id)"
               class="p-1.5 rounded hover:bg-[var(--color-primary)]/10 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
-              :title="$t('windows.windowManager.restore')"
+              :title="$t('panelManager.restore')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -76,7 +76,7 @@
             <button
               @click.stop="closeWindow(win.id)"
               class="p-1.5 rounded hover:bg-red-500/10 text-[var(--color-text-secondary)] hover:text-red-500 transition-colors"
-              :title="$t('windows.windowManager.close')"
+              :title="$t('panelManager.close')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -137,7 +137,7 @@
 
             <!-- Fallback -->
             <template v-else>
-              <p class="text-[var(--color-text-secondary)]">{{ $t('windows.windowManager.noPreview') }}</p>
+              <p class="text-[var(--color-text-secondary)]">{{ $t('panelManager.noPreview') }}</p>
             </template>
           </div>
         </div>
@@ -251,7 +251,7 @@ function getWindowTypeLabel(type: WindowType): string {
     'admin-window-manager': 'adminWindowManager'
   }
   const key = keyMap[type]
-  return key ? t(`windows.windowManager.types.${key}`) : type
+  return key ? t(`panelManager.types.${key}`) : type
 }
 
 function getWindowTitle(win: LsxWindow): string {
@@ -259,20 +259,20 @@ function getWindowTitle(win: LsxWindow): string {
 
   switch (win.type) {
     case 'admin-course-create':
-      return payload.courseDraft?.title || t('windows.windowManager.defaults.newCourse')
+      return payload.courseDraft?.title || t('panelManager.defaults.newCourse')
 
     case 'admin-course-editor':
-      return payload.course?.title || t('windows.windowManager.defaults.editCourse')
+      return payload.course?.title || t('panelManager.defaults.editCourse')
 
     case 'admin-module-editor':
-      return payload.module?.title || t('windows.windowManager.defaults.newModule')
+      return payload.module?.title || t('panelManager.defaults.newModule')
 
     case 'admin-lesson-editor':
-      return payload.lesson?.title || t('windows.windowManager.defaults.newLesson')
+      return payload.lesson?.title || t('panelManager.defaults.newLesson')
 
     case 'admin-ai-job':
       const jobData = payload.job || {}
-      return jobData.output_data?.course?.title || payload.fileName || t('windows.windowManager.defaults.aiCourse')
+      return jobData.output_data?.course?.title || payload.fileName || t('panelManager.defaults.aiCourse')
 
     default:
       return win.title
@@ -284,20 +284,20 @@ function getWindowStatus(win: LsxWindow): string | null {
 
   switch (win.type) {
     case 'admin-course-create':
-      return t('windows.windowManager.status.draft')
+      return t('panelManager.status.draft')
 
     case 'admin-course-editor':
       const courseStatus = payload.course?.status
-      if (courseStatus === 'published') return t('windows.windowManager.status.published')
-      if (courseStatus === 'archived') return t('windows.windowManager.status.archived')
-      return t('windows.windowManager.status.draft')
+      if (courseStatus === 'published') return t('panelManager.status.published')
+      if (courseStatus === 'archived') return t('panelManager.status.archived')
+      return t('panelManager.status.draft')
 
     case 'admin-ai-job':
       const jobStatus = payload.job?.status
-      if (jobStatus === 'processing') return t('windows.windowManager.status.aiActive')
-      if (jobStatus === 'completed') return t('windows.windowManager.status.done')
-      if (jobStatus === 'failed') return t('windows.windowManager.status.error')
-      return t('windows.windowManager.status.waiting')
+      if (jobStatus === 'processing') return t('panelManager.status.aiActive')
+      if (jobStatus === 'completed') return t('panelManager.status.done')
+      if (jobStatus === 'failed') return t('panelManager.status.error')
+      return t('panelManager.status.waiting')
 
     default:
       return null

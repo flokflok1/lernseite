@@ -12,7 +12,7 @@
     <!-- Header -->
     <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between animated-header-gradient">
       <div>
-        <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $t('windows.courseFiles.title') }}</h2>
+        <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $t('courseFiles.title') }}</h2>
         <p class="text-xs text-gray-500 dark:text-gray-400">{{ courseTitle }}</p>
       </div>
       <div class="flex items-center gap-2">
@@ -33,7 +33,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
           </svg>
           <div v-else class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-          <span>{{ isUploading ? $t('windows.courseFiles.uploading') : $t('windows.courseFiles.upload') }}</span>
+          <span>{{ isUploading ? $t('courseFiles.uploading') : $t('courseFiles.upload') }}</span>
         </button>
       </div>
     </div>
@@ -44,7 +44,7 @@
       <div v-if="loading" class="flex items-center justify-center h-full">
         <div class="text-center">
           <div class="animate-spin rounded-full h-8 w-8 border-2 border-purple-600 border-t-transparent mx-auto mb-3"></div>
-          <p class="text-sm text-gray-600 dark:text-gray-400">{{ $t('windows.courseFiles.loadingFiles') }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">{{ $t('courseFiles.loadingFiles') }}</p>
         </div>
       </div>
 
@@ -53,7 +53,7 @@
         <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <p class="text-sm text-red-700 dark:text-red-300">{{ error }}</p>
           <button @click="loadFiles" class="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline font-medium">
-            {{ $t('windows.courseFiles.retry') }}
+            {{ $t('courseFiles.retry') }}
           </button>
         </div>
       </div>
@@ -108,7 +108,7 @@
               <button
                 @click="downloadFile(file)"
                 class="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
-                :title="$t('windows.courseFiles.download')"
+                :title="$t('courseFiles.download')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -117,7 +117,7 @@
               <button
                 @click="deleteFile(file)"
                 class="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                :title="$t('windows.courseFiles.delete')"
+                :title="$t('courseFiles.delete')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -136,15 +136,15 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
             </svg>
           </div>
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">{{ $t('windows.courseFiles.noFilesTitle') }}</h3>
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">{{ $t('courseFiles.noFilesTitle') }}</h3>
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-xs mx-auto">
-            {{ $t('windows.courseFiles.noFilesDesc') }}
+            {{ $t('courseFiles.noFilesDesc') }}
           </p>
           <button
             @click="triggerFileUpload"
             class="px-4 py-2 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white text-sm rounded-lg font-medium transition-all shadow-sm hover:shadow-md"
           >
-            {{ $t('windows.courseFiles.uploadFirst') }}
+            {{ $t('courseFiles.uploadFirst') }}
           </button>
         </div>
       </div>
@@ -153,8 +153,8 @@
     <!-- Footer with stats -->
     <div v-if="files.length > 0" class="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
       <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-        <span>{{ $t('windows.courseFiles.filesCount', { count: files.length }) }}</span>
-        <span>{{ $t('windows.courseFiles.totalSize', { size: formatFileSize(totalSize) }) }}</span>
+        <span>{{ $t('courseFiles.filesCount', { count: files.length }) }}</span>
+        <span>{{ $t('courseFiles.totalSize', { size: formatFileSize(totalSize) }) }}</span>
       </div>
     </div>
   </div>
@@ -220,7 +220,7 @@ const loadFiles = async () => {
     files.value = response.files
   } catch (err: any) {
     console.error('Error loading files:', err)
-    error.value = err.response?.data?.message || err.message || t('windows.courseFiles.loadError')
+    error.value = err.response?.data?.message || err.message || t('courseFiles.loadError')
   } finally {
     loading.value = false
   }
@@ -246,14 +246,14 @@ const handleFileSelect = async (event: Event) => {
       })
 
       if (response.already_exists) {
-        alert(response.message || t('windows.courseFiles.fileExists', { name: file.name }))
+        alert(response.message || t('courseFiles.fileExists', { name: file.name }))
       }
     }
 
     await loadFiles()
   } catch (err: any) {
     console.error('Error uploading file:', err)
-    alert(t('windows.courseFiles.uploadError') + ': ' + (err.response?.data?.error || err.message))
+    alert(t('courseFiles.uploadError') + ': ' + (err.response?.data?.error || err.message))
   } finally {
     isUploading.value = false
     if (target) target.value = ''
@@ -269,7 +269,7 @@ const downloadFile = (file: CourseFile) => {
 const deleteFile = async (file: CourseFile) => {
   if (!courseId.value) return
 
-  const confirmed = confirm(t('windows.courseFiles.deleteConfirm', { name: file.display_name || file.file_name }))
+  const confirmed = confirm(t('courseFiles.deleteConfirm', { name: file.display_name || file.file_name }))
   if (!confirmed) return
 
   try {
@@ -277,7 +277,7 @@ const deleteFile = async (file: CourseFile) => {
     await loadFiles()
   } catch (err: any) {
     console.error('Error deleting file:', err)
-    alert(t('windows.courseFiles.deleteError') + ': ' + (err.response?.data?.error || err.message))
+    alert(t('courseFiles.deleteError') + ': ' + (err.response?.data?.error || err.message))
   }
 }
 
@@ -298,7 +298,7 @@ const formatDate = (dateString: string): string => {
 }
 
 const getCategoryLabel = (category: CourseFileCategory): string => {
-  return t(`windows.courseFiles.categories.${category}`) || category
+  return t(`courseFiles.categories.${category}`) || category
 }
 
 const getFileIcon = (fileType: string): string => {

@@ -7,7 +7,7 @@
   <div class="types-panel">
     <div class="panel-header">
       <span class="panel-icon">📚</span>
-      <span class="panel-title">{{ $t('windows.aiStudioContent.contentTypes') }}</span>
+      <span class="panel-title">{{ $t('aiEditorContent.contentTypes') }}</span>
     </div>
 
     <div class="type-list">
@@ -27,15 +27,15 @@
 
     <!-- Lesson Info -->
     <div class="info-section">
-      <h4>{{ $t('windows.aiStudioContent.lesson') }}</h4>
+      <h4>{{ $t('aiEditorContent.lesson') }}</h4>
       <div class="info-item">
-        <span class="info-label">{{ $t('windows.aiStudioContent.type') }}</span>
+        <span class="info-label">{{ $t('aiEditorContent.type') }}</span>
         <span class="info-value">{{ lessonType }}</span>
       </div>
       <div class="info-item">
-        <span class="info-label">{{ $t('windows.aiStudioContent.status') }}</span>
+        <span class="info-label">{{ $t('aiEditorContent.status') }}</span>
         <span class="info-value status-badge" :class="hasContent ? 'saved' : 'draft'">
-          {{ hasContent ? $t('windows.aiStudioContent.saved') : $t('windows.aiStudioContent.draft') }}
+          {{ hasContent ? $t('aiEditorContent.saved') : $t('aiEditorContent.draft') }}
         </span>
       </div>
     </div>
@@ -43,7 +43,7 @@
     <!-- Quick Actions -->
     <div class="quick-actions">
       <button @click="$emit('back')" class="action-btn">
-        {{ $t('windows.aiStudioContent.backToChapter') }}
+        {{ $t('aiEditorContent.backToChapter') }}
       </button>
     </div>
   </div>

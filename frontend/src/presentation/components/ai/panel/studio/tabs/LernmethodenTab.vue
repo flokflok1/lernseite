@@ -26,8 +26,8 @@
     <!-- Kein Kurs gewählt -->
     <div v-if="!course" class="empty-state">
       <div class="icon">🧩</div>
-      <h3>{{ $t('windows.lernmethodenTab.noCourseSelected') }}</h3>
-      <p>{{ $t('windows.lernmethodenTab.selectCourseHint') }}</p>
+      <h3>{{ $t('lernmethodenTab.noCourseSelected') }}</h3>
+      <p>{{ $t('lernmethodenTab.selectCourseHint') }}</p>
     </div>
 
     <!-- Lernmethoden Content -->
@@ -36,10 +36,10 @@
       <div class="mb-6 flex items-center justify-between">
         <div>
           <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
-            🧩 {{ $t('windows.lernmethodenTab.title', { title: course.title }) }}
+            🧩 {{ $t('lernmethodenTab.title', { title: course.title }) }}
           </h2>
           <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-            {{ $t('windows.lernmethodenTab.stats', { total: methodStats.total, lessons: methodStats.lessons }) }}
+            {{ $t('lernmethodenTab.stats', { total: methodStats.total, lessons: methodStats.lessons }) }}
           </p>
         </div>
 
@@ -69,7 +69,7 @@
       <!-- Loading -->
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
-        <p>{{ $t('windows.lernmethodenTab.loading') }}</p>
+        <p>{{ $t('lernmethodenTab.loading') }}</p>
       </div>
 
       <!-- Method Groups -->
@@ -80,10 +80,10 @@
             <div class="group-info">
               <span class="group-icon">{{ group.icon }}</span>
               <span class="group-name">{{ group.name }}</span>
-              <span class="group-code">{{ $t('windows.lernmethodenTab.groupLabel', { code: group.code }) }}</span>
+              <span class="group-code">{{ $t('lernmethodenTab.groupLabel', { code: group.code }) }}</span>
             </div>
             <div class="group-stats">
-              <span class="group-count">{{ $t('windows.lernmethodenTab.usedCount', { count: getGroupMethodCount(group.code) }) }}</span>
+              <span class="group-count">{{ $t('lernmethodenTab.usedCount', { count: getGroupMethodCount(group.code) }) }}</span>
               <svg
                 class="expand-icon"
                 :class="{ expanded: expandedGroups.has(group.code) }"
@@ -112,7 +112,7 @@
 
       <!-- Selected Context Info -->
       <div v-if="selectedChapter || selectedLesson" class="context-info">
-        <span class="context-label">{{ $t('windows.lernmethodenTab.activeContext') }}</span>
+        <span class="context-label">{{ $t('lernmethodenTab.activeContext') }}</span>
         <span v-if="selectedLesson" class="context-value">
           {{ selectedChapter?.title }} → {{ selectedLesson.title }}
         </span>
@@ -182,12 +182,12 @@ const expandedGroups = ref<Set<string>>(new Set(['A', 'B', 'C']))
 // Group definitions (uses i18n)
 function getGroupDefinitions() {
   return [
-    { code: 'A', name: t('windows.lernmethodenTab.groups.explaining'), icon: '📖' },
-    { code: 'B', name: t('windows.lernmethodenTab.groups.practice'), icon: '🎯' },
-    { code: 'C', name: t('windows.lernmethodenTab.groups.exam'), icon: '📝' },
-    { code: 'D', name: t('windows.lernmethodenTab.groups.pro'), icon: '⭐' },
-    { code: 'E', name: t('windows.lernmethodenTab.groups.it'), icon: '💻' },
-    { code: 'F', name: t('windows.lernmethodenTab.groups.collaborative'), icon: '👥' }
+    { code: 'A', name: t('lernmethodenTab.groups.explaining'), icon: '📖' },
+    { code: 'B', name: t('lernmethodenTab.groups.practice'), icon: '🎯' },
+    { code: 'C', name: t('lernmethodenTab.groups.exam'), icon: '📝' },
+    { code: 'D', name: t('lernmethodenTab.groups.pro'), icon: '⭐' },
+    { code: 'E', name: t('lernmethodenTab.groups.it'), icon: '💻' },
+    { code: 'F', name: t('lernmethodenTab.groups.collaborative'), icon: '👥' }
   ]
 }
 

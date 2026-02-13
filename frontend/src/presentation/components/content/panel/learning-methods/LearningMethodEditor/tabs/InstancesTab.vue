@@ -2,7 +2,7 @@
   <div class="h-full overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">
-        {{ $t('windows.learningMethodEditor.tabs.instances') }} {{ methods.length > 0 ? `(${methods.length})` : '' }}
+        {{ $t('learningMethodEditor.tabs.instances') }} {{ methods.length > 0 ? `(${methods.length})` : '' }}
       </h3>
       <button
         @click="$emit('open-selector')"
@@ -11,16 +11,16 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        {{ $t('windows.learningMethodEditor.addMethod') }}
+        {{ $t('learningMethodEditor.addMethod') }}
       </button>
     </div>
 
     <!-- Empty State -->
     <div v-if="methods.length === 0" class="text-center py-12">
       <div class="text-5xl mb-3">🎯</div>
-      <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('windows.learningMethodEditor.emptyTitle') }}</p>
+      <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('learningMethodEditor.emptyTitle') }}</p>
       <p class="text-sm text-[var(--color-text-tertiary)]">
-        {{ $t('windows.learningMethodEditor.emptyDesc') }}
+        {{ $t('learningMethodEditor.emptyDesc') }}
       </p>
     </div>
 
@@ -67,12 +67,12 @@
                   class="text-xs px-2 py-0.5 rounded"
                   style="background-color: var(--color-success-bg, #dcfce7); color: var(--color-success-text, #15803d);"
                 >
-                  {{ $t('windows.learningMethodEditor.published') }}
+                  {{ $t('learningMethodEditor.published') }}
                 </span>
               </div>
               <div class="flex gap-4 text-xs text-[var(--color-text-secondary)]">
                 <span>{{ getMethodTypeName(method.method_type) }}</span>
-                <span v-if="method.duration_minutes">{{ method.duration_minutes }} {{ $t('windows.learningMethodEditor.minutes') }}</span>
+                <span v-if="method.duration_minutes">{{ method.duration_minutes }} {{ $t('learningMethodEditor.minutes') }}</span>
                 <span :style="getTierStyle(method.tier)">{{ getTierLabel(method.tier) }}</span>
               </div>
             </div>
@@ -84,7 +84,7 @@
               @click="$emit('edit', method)"
               class="p-1.5 rounded transition-colors"
               style="color: var(--color-text-secondary);"
-              :title="$t('windows.learningMethodEditor.edit')"
+              :title="$t('learningMethodEditor.edit')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -94,7 +94,7 @@
               @click="togglePublish(method)"
               class="p-1.5 rounded transition-colors"
               :style="method.published ? 'color: var(--color-warning, #ea580c);' : 'color: var(--color-success, #16a34a);'"
-              :title="method.published ? $t('windows.learningMethodEditor.withdraw') : $t('windows.learningMethodEditor.publish')"
+              :title="method.published ? $t('learningMethodEditor.withdraw') : $t('learningMethodEditor.publish')"
             >
               <svg v-if="method.published" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
@@ -108,7 +108,7 @@
               @click="deleteMethod(method.method_id)"
               class="p-1.5 rounded transition-colors"
               style="color: var(--color-error, #dc2626);"
-              :title="$t('windows.learningMethodEditor.delete')"
+              :title="$t('learningMethodEditor.delete')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

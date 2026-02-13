@@ -18,14 +18,14 @@
               @change="$emit('toggle-all')"
             />
           </th>
-          <th class="col-provider">{{ $t('windows.aiPricing.provider') }}</th>
-          <th class="col-model">{{ $t('windows.aiPricing.model') }}</th>
-          <th class="col-category">{{ $t('windows.aiPricing.category') }}</th>
-          <th class="col-cost">{{ $t('windows.aiPricing.inputCost') }}</th>
-          <th class="col-cost">{{ $t('windows.aiPricing.outputCost') }}</th>
-          <th class="col-price">{{ $t('windows.aiPricing.inputPrice') }}</th>
-          <th class="col-price">{{ $t('windows.aiPricing.outputPrice') }}</th>
-          <th class="col-margin">{{ $t('windows.aiPricing.margin') }}</th>
+          <th class="col-provider">{{ $t('aiPricing.provider') }}</th>
+          <th class="col-model">{{ $t('aiPricing.model') }}</th>
+          <th class="col-category">{{ $t('aiPricing.category') }}</th>
+          <th class="col-cost">{{ $t('aiPricing.inputCost') }}</th>
+          <th class="col-cost">{{ $t('aiPricing.outputCost') }}</th>
+          <th class="col-price">{{ $t('aiPricing.inputPrice') }}</th>
+          <th class="col-price">{{ $t('aiPricing.outputPrice') }}</th>
+          <th class="col-margin">{{ $t('aiPricing.margin') }}</th>
           <th class="col-actions">{{ $t('common.actions') }}</th>
         </tr>
       </thead>
@@ -91,7 +91,7 @@
         </tr>
         <tr v-if="models.length === 0">
           <td colspan="10" class="empty-state">
-            {{ $t('windows.aiPricing.noModels') }}
+            {{ $t('aiPricing.noModels') }}
           </td>
         </tr>
       </tbody>

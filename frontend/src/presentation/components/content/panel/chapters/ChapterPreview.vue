@@ -12,17 +12,17 @@
     <div class="preview-header">
       <div class="chapter-badge">
         <span class="badge-icon">📖</span>
-        <span class="badge-label">{{ $t('windows.chapterPreview.chapter') }}</span>
+        <span class="badge-label">{{ $t('chapterPreview.chapter') }}</span>
       </div>
-      <h1 class="chapter-title">{{ chapter?.title || $t('windows.chapterPreview.unknownChapter') }}</h1>
-      <button class="close-btn" @click="$emit('close')" :title="$t('windows.chapterPreview.close')">×</button>
+      <h1 class="chapter-title">{{ chapter?.title || $t('chapterPreview.unknownChapter') }}</h1>
+      <button class="close-btn" @click="$emit('close')" :title="$t('chapterPreview.close')">×</button>
     </div>
 
     <!-- Content -->
     <div class="preview-content">
       <!-- Description -->
       <div v-if="chapter?.description" class="description-section">
-        <h3>📝 {{ $t('windows.chapterPreview.description') }}</h3>
+        <h3>📝 {{ $t('chapterPreview.description') }}</h3>
         <p>{{ chapter.description }}</p>
       </div>
 
@@ -31,23 +31,23 @@
         <div class="stat-card">
           <span class="stat-icon">📄</span>
           <span class="stat-value">{{ lessonsCount }}</span>
-          <span class="stat-label">{{ $t('windows.chapterPreview.lessons') }}</span>
+          <span class="stat-label">{{ $t('chapterPreview.lessons') }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-icon">📚</span>
           <span class="stat-value">{{ methodsCount }}</span>
-          <span class="stat-label">{{ $t('windows.chapterPreview.learningMethods') }}</span>
+          <span class="stat-label">{{ $t('chapterPreview.learningMethods') }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-icon">⏱️</span>
           <span class="stat-value">{{ totalDuration }}</span>
-          <span class="stat-label">{{ $t('windows.chapterPreview.minutes') }}</span>
+          <span class="stat-label">{{ $t('chapterPreview.minutes') }}</span>
         </div>
       </div>
 
       <!-- Lessons List -->
       <div class="lessons-section">
-        <h3>📋 {{ $t('windows.chapterPreview.lessonsInChapter') }}</h3>
+        <h3>📋 {{ $t('chapterPreview.lessonsInChapter') }}</h3>
 
         <div v-if="chapter?.lessons?.length" class="lessons-list">
           <div
@@ -62,11 +62,11 @@
               <div class="lesson-meta">
                 <span v-if="lesson.methods?.length" class="meta-item methods">
                   <span class="meta-icon">📚</span>
-                  {{ lesson.methods.length }} {{ lesson.methods.length !== 1 ? $t('windows.chapterPreview.learningMethodPlural') : $t('windows.chapterPreview.learningMethod') }}
+                  {{ lesson.methods.length }} {{ lesson.methods.length !== 1 ? $t('chapterPreview.learningMethodPlural') : $t('chapterPreview.learningMethod') }}
                 </span>
                 <span v-if="lesson.duration_minutes" class="meta-item duration">
                   <span class="meta-icon">⏱️</span>
-                  {{ lesson.duration_minutes }} {{ $t('windows.chapterPreview.min') }}
+                  {{ lesson.duration_minutes }} {{ $t('chapterPreview.min') }}
                 </span>
               </div>
             </div>
@@ -88,14 +88,14 @@
 
         <div v-else class="no-lessons">
           <span class="empty-icon">📭</span>
-          <p>{{ $t('windows.chapterPreview.noLessons') }}</p>
-          <p class="empty-hint">{{ $t('windows.chapterPreview.lessonsCreatedInStudio') }}</p>
+          <p>{{ $t('chapterPreview.noLessons') }}</p>
+          <p class="empty-hint">{{ $t('chapterPreview.lessonsCreatedInStudio') }}</p>
         </div>
       </div>
 
       <!-- Learning Methods Overview -->
       <div v-if="uniqueMethods.length > 0" class="methods-overview">
-        <h3>🎯 {{ $t('windows.chapterPreview.usedLearningMethods') }}</h3>
+        <h3>🎯 {{ $t('chapterPreview.usedLearningMethods') }}</h3>
         <div class="methods-tags">
           <span
             v-for="method in uniqueMethods"
@@ -114,16 +114,16 @@
     <div class="preview-footer">
       <div class="footer-info">
         <span class="info-item">
-          {{ $t('windows.chapterPreview.created') }}: {{ formatDate(chapter?.created_at) }}
+          {{ $t('chapterPreview.created') }}: {{ formatDate(chapter?.created_at) }}
         </span>
       </div>
       <div class="footer-actions">
         <button class="action-btn secondary" @click="$emit('close')">
-          {{ $t('windows.chapterPreview.close') }}
+          {{ $t('chapterPreview.close') }}
         </button>
         <button class="action-btn primary" @click="openInUserMode">
           <span>🚀</span>
-          {{ $t('windows.chapterPreview.openInUserMode') }}
+          {{ $t('chapterPreview.openInUserMode') }}
         </button>
       </div>
     </div>
@@ -243,7 +243,7 @@ function getMethodName(type: number | string | undefined): string {
 }
 
 function formatDate(dateStr?: string): string {
-  if (!dateStr) return t('windows.chapterPreview.unknown')
+  if (!dateStr) return t('chapterPreview.unknown')
   const localeMap: Record<string, string> = { de: 'de-DE', en: 'en-US', pl: 'pl-PL' }
   return new Date(dateStr).toLocaleDateString(localeMap[locale.value] || 'de-DE', {
     day: '2-digit',

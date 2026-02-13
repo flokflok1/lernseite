@@ -8,22 +8,22 @@
     <div v-if="showCreateForm" class="create-form">
       <div class="panel-header">
         <span class="panel-icon">✨</span>
-        <span class="panel-title">{{ $t('windows.lessonExplanationView.newExplanation') }}</span>
+        <span class="panel-title">{{ $t('lessonExplanationView.newExplanation') }}</span>
       </div>
 
       <div class="form-content">
         <div class="form-section">
-          <label>{{ $t('windows.lessonExplanationView.styleLabel') }}</label>
+          <label>{{ $t('lessonExplanationView.styleLabel') }}</label>
           <select v-model="localStyle" class="form-select">
-            <option value="adhs">{{ $t('windows.lessonExplanationView.styles.adhs') }}</option>
-            <option value="detailed">{{ $t('windows.lessonExplanationView.styles.detailed') }}</option>
-            <option value="short">{{ $t('windows.lessonExplanationView.styles.short') }}</option>
-            <option value="exam_focus">{{ $t('windows.lessonExplanationView.styles.examFocus') }}</option>
+            <option value="adhs">{{ $t('lessonExplanationView.styles.adhs') }}</option>
+            <option value="detailed">{{ $t('lessonExplanationView.styles.detailed') }}</option>
+            <option value="short">{{ $t('lessonExplanationView.styles.short') }}</option>
+            <option value="exam_focus">{{ $t('lessonExplanationView.styles.examFocus') }}</option>
           </select>
         </div>
 
         <div class="form-section">
-          <label>{{ $t('windows.lessonExplanationView.voiceLabel') }}</label>
+          <label>{{ $t('lessonExplanationView.voiceLabel') }}</label>
           <select v-model="localVoice" class="form-select">
             <option v-for="voice in voices" :key="voice.id" :value="voice.id">
               {{ voice.name }}
@@ -34,7 +34,7 @@
         <div class="form-section">
           <label class="checkbox-label">
             <input type="checkbox" v-model="localGenerateWithAudio" />
-            {{ $t('windows.lessonExplanationView.generateWithAudio') }}
+            {{ $t('lessonExplanationView.generateWithAudio') }}
           </label>
         </div>
 
@@ -43,12 +43,12 @@
           class="generate-btn"
           :disabled="isGenerating"
         >
-          <span v-if="isGenerating">{{ $t('windows.lessonExplanationView.generating') }}</span>
-          <span v-else>{{ $t('windows.lessonExplanationView.generate') }}</span>
+          <span v-if="isGenerating">{{ $t('lessonExplanationView.generating') }}</span>
+          <span v-else>{{ $t('lessonExplanationView.generate') }}</span>
         </button>
 
         <button @click="$emit('cancel-create')" class="cancel-btn">
-          {{ $t('windows.lessonExplanationView.cancel') }}
+          {{ $t('lessonExplanationView.cancel') }}
         </button>
       </div>
     </div>
@@ -62,23 +62,23 @@
         </div>
         <div class="tutor-info">
           <span class="tutor-name">
-            {{ explanation.title || $t('windows.lessonExplanationView.tutorExplains') }}
+            {{ explanation.title || $t('lessonExplanationView.tutorExplains') }}
           </span>
           <span class="tutor-status" :class="{ speaking: isSpeaking }">
             {{ isSpeaking
-                ? $t('windows.lessonExplanationView.speaking')
-                : $t('windows.lessonExplanationView.ready')
+                ? $t('lessonExplanationView.speaking')
+                : $t('lessonExplanationView.ready')
             }}
           </span>
         </div>
         <div class="tutor-controls">
-          <select v-model="localSelectedVoice" class="tts-select" :title="$t('windows.lessonExplanationView.voiceLabel')">
+          <select v-model="localSelectedVoice" class="tts-select" :title="$t('lessonExplanationView.voiceLabel')">
             <option v-for="voice in voices" :key="voice.id" :value="voice.id">
               {{ voice.name }}
             </option>
           </select>
-          <select v-model="localSelectedModel" class="tts-select" :title="$t('windows.lessonExplanationView.ttsModel')">
-            <option value="browser">{{ $t('windows.lessonExplanationView.browserFree') }}</option>
+          <select v-model="localSelectedModel" class="tts-select" :title="$t('lessonExplanationView.ttsModel')">
+            <option value="browser">{{ $t('lessonExplanationView.browserFree') }}</option>
             <option value="tts-1">TTS-1</option>
             <option value="tts-1-hd">TTS-1-HD</option>
           </select>
@@ -94,18 +94,18 @@
           <div class="progress-fill" :style="{ width: `${progressPercent}%` }"></div>
         </div>
         <span class="progress-text">
-          {{ $t('windows.lessonExplanationView.stepProgress', { current: currentStep + 1, total: stepsCount }) }}
+          {{ $t('lessonExplanationView.stepProgress', { current: currentStep + 1, total: stepsCount }) }}
         </span>
         <button
           v-if="currentStep === 0 && !isSpeaking && !isAnimating"
           @click="$emit('start')"
           class="start-btn"
         >
-          {{ $t('windows.lessonExplanationView.start') }}
+          {{ $t('lessonExplanationView.start') }}
         </button>
         <div v-if="isAnimating" class="animating-indicator">
           <span class="spinner-small"></span>
-          <span>{{ $t('windows.lessonExplanationView.drawing') }}</span>
+          <span>{{ $t('lessonExplanationView.drawing') }}</span>
         </div>
       </div>
 
@@ -120,10 +120,10 @@
         <div class="step-card" v-if="currentStepData">
           <div class="step-header">
             <span class="step-badge">
-              {{ $t('windows.lessonExplanationView.stepBadge', { n: currentStep + 1 }) }}
+              {{ $t('lessonExplanationView.stepBadge', { n: currentStep + 1 }) }}
             </span>
             <h3 class="step-title">
-              {{ currentStepData.title || $t('windows.lessonExplanationView.stepTitle', { n: currentStep + 1 }) }}
+              {{ currentStepData.title || $t('lessonExplanationView.stepTitle', { n: currentStep + 1 }) }}
             </h3>
           </div>
 
@@ -136,13 +136,13 @@
           <div v-if="currentStepData.calculator" class="calculator-box">
             <div class="calc-header">
               <span class="calc-icon">🔢</span>
-              <span class="calc-label">{{ $t('windows.lessonExplanationView.calculatorInput') }}</span>
+              <span class="calc-label">{{ $t('lessonExplanationView.calculatorInput') }}</span>
             </div>
             <div class="calc-input">
               <code>{{ currentStepData.calculator }}</code>
             </div>
             <div v-if="currentStepData.result" class="calc-result">
-              <span class="equals">{{ $t('windows.lessonExplanationView.equals') }}</span>
+              <span class="equals">{{ $t('lessonExplanationView.equals') }}</span>
               <span class="result-value">{{ currentStepData.result }}</span>
             </div>
           </div>
@@ -163,7 +163,7 @@
       <!-- Navigation -->
       <div class="step-navigation">
         <button @click="$emit('prev')" :disabled="!canGoPrev" class="nav-btn">
-          {{ $t('windows.lessonExplanationView.back') }}
+          {{ $t('lessonExplanationView.back') }}
         </button>
         <div class="step-dots">
           <span
@@ -175,7 +175,7 @@
           ></span>
         </div>
         <button @click="$emit('next')" :disabled="!canGoNext" class="nav-btn">
-          {{ $t('windows.lessonExplanationView.next') }}
+          {{ $t('lessonExplanationView.next') }}
         </button>
       </div>
     </div>
@@ -183,7 +183,7 @@
     <!-- No Selection -->
     <div v-else class="no-selection">
       <span class="empty-icon">📝</span>
-      <p>{{ $t('windows.lessonExplanationView.noSelection') }}</p>
+      <p>{{ $t('lessonExplanationView.noSelection') }}</p>
     </div>
   </div>
 </template>

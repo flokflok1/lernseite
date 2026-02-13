@@ -1,7 +1,7 @@
 <template>
   <div class="h-full overflow-y-auto p-6">
     <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-6">
-      {{ $t('windows.learningMethodEditor.tabs.statistics') }}
+      {{ $t('learningMethodEditor.tabs.statistics') }}
     </h3>
 
     <!-- Key Metrics -->
@@ -9,7 +9,7 @@
       <!-- Total Methods -->
       <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          {{ $t('windows.learningMethodEditor.totalMethods') }}
+          {{ $t('learningMethodEditor.totalMethods') }}
         </p>
         <p class="text-3xl font-bold text-[var(--color-primary)]">
           {{ stats?.total_methods || 0 }}
@@ -19,7 +19,7 @@
       <!-- Published Count -->
       <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          {{ $t('windows.learningMethodEditor.publishedCount') }}
+          {{ $t('learningMethodEditor.publishedCount') }}
         </p>
         <p class="text-3xl font-bold text-[var(--color-success)]">
           {{ stats?.published_count || 0 }}
@@ -29,7 +29,7 @@
       <!-- Unique Types -->
       <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          {{ $t('windows.learningMethodEditor.uniqueTypes') }}
+          {{ $t('learningMethodEditor.uniqueTypes') }}
         </p>
         <p class="text-3xl font-bold text-[var(--color-info)]">
           {{ stats?.unique_types || 0 }}
@@ -39,10 +39,10 @@
       <!-- Total Duration -->
       <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
         <p class="text-xs text-[var(--color-text-secondary)] mb-2">
-          {{ $t('windows.learningMethodEditor.totalDuration') }}
+          {{ $t('learningMethodEditor.totalDuration') }}
         </p>
         <p class="text-3xl font-bold text-[var(--color-warning)]">
-          {{ stats?.total_duration || 0 }} {{ $t('windows.learningMethodEditor.minutes') }}
+          {{ stats?.total_duration || 0 }} {{ $t('learningMethodEditor.minutes') }}
         </p>
       </div>
     </div>
@@ -52,14 +52,14 @@
       <!-- Difficulty Distribution -->
       <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
         <h4 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
-          {{ $t('windows.learningMethodEditor.difficultyDistribution') }}
+          {{ $t('learningMethodEditor.difficultyDistribution') }}
         </h4>
         <div class="space-y-3">
           <!-- Easy -->
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('windows.learningMethodEditor.easy') }}
+                {{ $t('learningMethodEditor.easy') }}
               </span>
               <span class="text-sm font-semibold text-[var(--color-success)]">
                 {{ stats?.easy_count || 0 }}
@@ -77,7 +77,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('windows.learningMethodEditor.medium') }}
+                {{ $t('learningMethodEditor.medium') }}
               </span>
               <span class="text-sm font-semibold text-[var(--color-warning)]">
                 {{ stats?.medium_count || 0 }}
@@ -95,7 +95,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('windows.learningMethodEditor.hard') }}
+                {{ $t('learningMethodEditor.hard') }}
               </span>
               <span class="text-sm font-semibold text-[var(--color-error)]">
                 {{ stats?.hard_count || 0 }}
@@ -114,14 +114,14 @@
       <!-- Tier Distribution -->
       <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
         <h4 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
-          {{ $t('windows.learningMethodEditor.tierDistribution') }}
+          {{ $t('learningMethodEditor.tierDistribution') }}
         </h4>
         <div class="space-y-3">
           <!-- Basic -->
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('windows.learningMethodEditor.tierOptions.basic') }}
+                {{ $t('learningMethodEditor.tierOptions.basic') }}
               </span>
               <span class="text-sm font-semibold text-[var(--color-success)]">
                 {{ stats?.basic_count || 0 }}
@@ -139,7 +139,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('windows.learningMethodEditor.tierOptions.premium') }}
+                {{ $t('learningMethodEditor.tierOptions.premium') }}
               </span>
               <span class="text-sm font-semibold text-[var(--color-warning)]">
                 {{ stats?.premium_count || 0 }}
@@ -157,7 +157,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('windows.learningMethodEditor.tierOptions.pro') }}
+                {{ $t('learningMethodEditor.tierOptions.pro') }}
               </span>
               <span class="text-sm font-semibold" style="color: var(--color-premium-text, #6b21a8);">
                 {{ stats?.pro_count || 0 }}

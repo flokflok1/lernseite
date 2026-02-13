@@ -14,16 +14,16 @@
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center py-20">
       <div class="animate-spin text-4xl">⏳</div>
-      <span class="ml-3 text-[var(--color-text-secondary)]">{{ $t('windows.aiEditorStats.loading') }}</span>
+      <span class="ml-3 text-[var(--color-text-secondary)]">{{ $t('aiEditorStats.loading') }}</span>
     </div>
 
     <!-- Error State -->
     <div v-else-if="loadError" class="p-6 bg-red-50 dark:bg-red-900/20 rounded-xl text-center">
       <div class="text-4xl mb-3">❌</div>
-      <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">{{ $t('windows.aiEditorStats.errorTitle') }}</h3>
+      <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">{{ $t('aiEditorStats.errorTitle') }}</h3>
       <p class="text-red-500 dark:text-red-300 mb-4">{{ loadError }}</p>
       <button @click="loadStats" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-        {{ $t('windows.aiEditorStats.retry') }}
+        {{ $t('aiEditorStats.retry') }}
       </button>
     </div>
 
@@ -32,9 +32,9 @@
       <!-- Header -->
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('windows.aiEditorStats.title') }}</h2>
+          <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('aiEditorStats.title') }}</h2>
           <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-            {{ $t('windows.aiEditorStats.subtitle') }}
+            {{ $t('aiEditorStats.subtitle') }}
           </p>
         </div>
         <div class="flex gap-2">
@@ -43,10 +43,10 @@
             @change="loadStats"
             class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)]"
           >
-            <option value="today">{{ $t('windows.aiEditorStats.periods.today') }}</option>
-            <option value="week">{{ $t('windows.aiEditorStats.periods.week') }}</option>
-            <option value="month">{{ $t('windows.aiEditorStats.periods.month') }}</option>
-            <option value="year">{{ $t('windows.aiEditorStats.periods.year') }}</option>
+            <option value="today">{{ $t('aiEditorStats.periods.today') }}</option>
+            <option value="week">{{ $t('aiEditorStats.periods.week') }}</option>
+            <option value="month">{{ $t('aiEditorStats.periods.month') }}</option>
+            <option value="year">{{ $t('aiEditorStats.periods.year') }}</option>
           </select>
           <button
             @click="loadStats"
@@ -54,7 +54,7 @@
             class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-surface-secondary)] transition-colors flex items-center gap-2"
           >
             <span :class="{ 'animate-spin': isLoading }">🔄</span>
-            {{ $t('windows.aiEditorStats.refresh') }}
+            {{ $t('aiEditorStats.refresh') }}
           </button>
         </div>
       </div>
@@ -63,7 +63,7 @@
       <div class="grid grid-cols-4 gap-4 mb-8">
         <div class="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl p-4 text-white">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-blue-100">{{ $t('windows.aiEditorStats.totalTokens') }}</span>
+            <span class="text-blue-100">{{ $t('aiEditorStats.totalTokens') }}</span>
             <span class="text-2xl">🪙</span>
           </div>
           <div class="text-3xl font-bold">{{ formatNumber(stats.total_tokens) }}</div>
@@ -74,34 +74,34 @@
 
         <div class="bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl p-4 text-white">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-green-100">{{ $t('windows.aiEditorStats.estimatedCost') }}</span>
+            <span class="text-green-100">{{ $t('aiEditorStats.estimatedCost') }}</span>
             <span class="text-2xl">💰</span>
           </div>
           <div class="text-3xl font-bold">${{ stats.total_cost.toFixed(2) }}</div>
           <div class="text-sm text-green-100 mt-1">
-            {{ $t('windows.aiEditorStats.perThousand') }}
+            {{ $t('aiEditorStats.perThousand') }}
           </div>
         </div>
 
         <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-4 text-white">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-purple-100">{{ $t('windows.aiEditorStats.generations') }}</span>
+            <span class="text-purple-100">{{ $t('aiEditorStats.generations') }}</span>
             <span class="text-2xl">✨</span>
           </div>
           <div class="text-3xl font-bold">{{ formatNumber(stats.total_generations) }}</div>
           <div class="text-sm text-purple-100 mt-1">
-            {{ stats.total_sessions }} {{ $t('windows.aiEditorStats.sessions') }}
+            {{ stats.total_sessions }} {{ $t('aiEditorStats.sessions') }}
           </div>
         </div>
 
         <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-4 text-white">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-orange-100">{{ $t('windows.aiEditorStats.successRate') }}</span>
+            <span class="text-orange-100">{{ $t('aiEditorStats.successRate') }}</span>
             <span class="text-2xl">📈</span>
           </div>
           <div class="text-3xl font-bold">{{ performance.success_rate }}%</div>
           <div class="text-sm text-orange-100 mt-1">
-            {{ performance.total_requests }} {{ $t('windows.aiEditorStats.requests') }}
+            {{ performance.total_requests }} {{ $t('aiEditorStats.requests') }}
           </div>
         </div>
       </div>
@@ -110,7 +110,7 @@
       <div class="grid grid-cols-2 gap-6 mb-8">
         <!-- Usage by Category -->
         <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4">
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('windows.aiEditorStats.usageByCategory') }}</h3>
+          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('aiEditorStats.usageByCategory') }}</h3>
           <div v-if="byCategory.length > 0" class="space-y-3">
             <div
               v-for="item in byCategory"
@@ -131,34 +131,34 @@
                 </div>
               </div>
               <span class="text-xs text-[var(--color-text-tertiary)] w-16 text-right">
-                {{ item.count }} {{ $t('windows.aiEditorStats.times') }}
+                {{ item.count }} {{ $t('aiEditorStats.times') }}
               </span>
             </div>
           </div>
           <div v-else class="text-center py-8 text-[var(--color-text-tertiary)]">
-            {{ $t('windows.aiEditorStats.noDataPeriod') }}
+            {{ $t('aiEditorStats.noDataPeriod') }}
           </div>
         </div>
 
         <!-- Performance Metrics -->
         <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4">
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('windows.aiEditorStats.performanceMetrics') }}</h3>
+          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('aiEditorStats.performanceMetrics') }}</h3>
           <div class="grid grid-cols-2 gap-4">
             <div class="text-center p-4 bg-[var(--color-surface-secondary)] rounded-lg">
               <div class="text-3xl font-bold text-[var(--color-text-primary)]">{{ performance.avg_latency_ms }}ms</div>
-              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('windows.aiEditorStats.avgLatency') }}</div>
+              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('aiEditorStats.avgLatency') }}</div>
             </div>
             <div class="text-center p-4 bg-[var(--color-surface-secondary)] rounded-lg">
               <div class="text-3xl font-bold text-green-500">{{ performance.success_rate }}%</div>
-              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('windows.aiEditorStats.successRate') }}</div>
+              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('aiEditorStats.successRate') }}</div>
             </div>
             <div class="text-center p-4 bg-[var(--color-surface-secondary)] rounded-lg">
               <div class="text-3xl font-bold text-[var(--color-text-primary)]">{{ avgTokensPerRequest }}</div>
-              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('windows.aiEditorStats.tokensPerRequest') }}</div>
+              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('aiEditorStats.tokensPerRequest') }}</div>
             </div>
             <div class="text-center p-4 bg-[var(--color-surface-secondary)] rounded-lg">
               <div class="text-3xl font-bold text-[var(--color-text-primary)]">{{ stats.total_sessions }}</div>
-              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('windows.aiEditorStats.sessions') }}</div>
+              <div class="text-xs text-[var(--color-text-tertiary)] mt-1">{{ $t('aiEditorStats.sessions') }}</div>
             </div>
           </div>
         </div>
@@ -168,7 +168,7 @@
       <div class="grid grid-cols-2 gap-6">
         <!-- Model Usage -->
         <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4">
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('windows.aiEditorStats.modelUsage') }}</h3>
+          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('aiEditorStats.modelUsage') }}</h3>
           <div v-if="byModel.length > 0" class="space-y-3">
             <div
               v-for="model in byModel"
@@ -188,19 +188,19 @@
                 </div>
               </div>
               <div class="text-right">
-                <div class="text-sm font-medium text-[var(--color-text-primary)]">{{ model.request_count }} {{ $t('windows.aiEditorStats.requests') }}</div>
+                <div class="text-sm font-medium text-[var(--color-text-primary)]">{{ model.request_count }} {{ $t('aiEditorStats.requests') }}</div>
                 <div class="text-xs text-[var(--color-text-tertiary)]">{{ formatNumber(model.tokens_used) }} Tokens</div>
               </div>
             </div>
           </div>
           <div v-else class="text-center py-8 text-[var(--color-text-tertiary)]">
-            {{ $t('windows.aiEditorStats.noModelUsage') }}
+            {{ $t('aiEditorStats.noModelUsage') }}
           </div>
         </div>
 
         <!-- Recent Activity -->
         <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4">
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('windows.aiEditorStats.recentActivity') }}</h3>
+          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('aiEditorStats.recentActivity') }}</h3>
           <div v-if="recentActivity.length > 0" class="space-y-2 max-h-64 overflow-y-auto">
             <div
               v-for="activity in recentActivity"
@@ -216,7 +216,7 @@
               <div class="flex-1 min-w-0">
                 <div class="text-sm text-[var(--color-text-primary)] truncate">{{ activity.title }}</div>
                 <div class="text-xs text-[var(--color-text-tertiary)]">
-                  {{ activity.model }} • {{ activity.tokens > 0 ? `${activity.tokens} ${$t('windows.aiEditorStats.tokens')}` : '-' }}
+                  {{ activity.model }} • {{ activity.tokens > 0 ? `${activity.tokens} ${$t('aiEditorStats.tokens')}` : '-' }}
                 </div>
               </div>
               <div class="text-xs text-[var(--color-text-tertiary)] flex-shrink-0">
@@ -225,7 +225,7 @@
             </div>
           </div>
           <div v-else class="text-center py-8 text-[var(--color-text-tertiary)]">
-            {{ $t('windows.aiEditorStats.noActivity') }}
+            {{ $t('aiEditorStats.noActivity') }}
           </div>
         </div>
       </div>
@@ -301,7 +301,7 @@ const performance = ref<Performance>({
 
 // Computed
 const selectedPeriodLabel = computed(() => {
-  const key = `windows.aiStudioStats.periods.${selectedPeriod.value}`
+  const key = `aiEditorStats.periods.${selectedPeriod.value}`
   return t(key)
 })
 
@@ -424,11 +424,11 @@ async function loadStats() {
         total_requests: data.performance?.total_requests || 0
       }
     } else {
-      throw new Error(response.data.error?.message || t('windows.aiEditorStats.loadError'))
+      throw new Error(response.data.error?.message || t('aiEditorStats.loadError'))
     }
   } catch (error: any) {
     console.error('Failed to load stats:', error)
-    loadError.value = error.response?.data?.error?.message || error.message || t('windows.aiEditorStats.loadError')
+    loadError.value = error.response?.data?.error?.message || error.message || t('aiEditorStats.loadError')
   } finally {
     isLoading.value = false
   }

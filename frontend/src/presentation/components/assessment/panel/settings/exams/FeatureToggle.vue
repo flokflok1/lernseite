@@ -20,10 +20,10 @@
     </div>
     <div class="feature-cost">
       <span class="cost-value">{{ tokenCost }}</span>
-      <span class="cost-label">{{ $t('windows.aiStudioFeatures.tokens') }}</span>
+      <span class="cost-label">{{ $t('aiEditorFeatures.tokens') }}</span>
     </div>
     <div v-if="inherited !== null" class="inherited-badge" :class="{ active: modelValue === inherited }">
-      {{ modelValue === inherited ? $t('windows.aiStudioFeatures.inherited') : $t('windows.aiStudioFeatures.overridden') }}
+      {{ modelValue === inherited ? $t('aiEditorFeatures.inherited') : $t('aiEditorFeatures.overridden') }}
     </div>
   </div>
 </template>

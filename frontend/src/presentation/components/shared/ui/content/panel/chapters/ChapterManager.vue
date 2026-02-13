@@ -301,7 +301,7 @@ async function saveNewChapter() {
 function editChapter(chapter: AdminChapter) {
   panelStore.openPanel({
     type: 'admin-kapitel-editor',
-    title: t('features.chapterManager.windowChapter', { title: chapter.title }),
+    title: t('features.chapterManager.editChapter', { title: chapter.title }),
     icon: '📖',
     payload: {
       courseId: courseId.value,

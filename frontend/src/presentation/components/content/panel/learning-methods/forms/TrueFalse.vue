@@ -9,17 +9,17 @@
         <!-- Description -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('windows.learningMethods.lm11.title') }}
+            {{ $t('learningMethods.lm11.title') }}
           </label>
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.learningMethods.lm11.description') }}
+            {{ $t('learningMethods.lm11.description') }}
           </p>
         </div>
 
         <!-- Statements List -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            {{ $t('windows.learningMethods.lm11.statementsLabel') }}
+            {{ $t('learningMethods.lm11.statementsLabel') }}
           </label>
 
           <div v-if="methodData.statements && methodData.statements.length > 0" class="space-y-3">
@@ -37,7 +37,7 @@
                     v-model="statement.text"
                     rows="2"
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                    :placeholder="$t('windows.learningMethods.lm11.statementPlaceholder')"
+                    :placeholder="$t('learningMethods.lm11.statementPlaceholder')"
                     required
                   ></textarea>
                 </div>
@@ -63,7 +63,7 @@
                     class="text-green-600 focus:ring-green-500"
                   />
                   <span class="text-sm text-gray-700 dark:text-gray-300">
-                    {{ $t('windows.learningMethods.lm11.optionTrue') }}
+                    {{ $t('learningMethods.lm11.optionTrue') }}
                   </span>
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer">
@@ -75,7 +75,7 @@
                     class="text-red-600 focus:ring-red-500"
                   />
                   <span class="text-sm text-gray-700 dark:text-gray-300">
-                    {{ $t('windows.learningMethods.lm11.optionFalse') }}
+                    {{ $t('learningMethods.lm11.optionFalse') }}
                   </span>
                 </label>
               </div>
@@ -85,14 +85,14 @@
                   v-model="statement.explanation"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  :placeholder="$t('windows.learningMethods.lm11.explanationPlaceholder')"
+                  :placeholder="$t('learningMethods.lm11.explanationPlaceholder')"
                 />
               </div>
             </div>
           </div>
 
           <div v-else class="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg text-center text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('windows.learningMethods.lm11.noStatements') }}
+            {{ $t('learningMethods.lm11.noStatements') }}
           </div>
 
           <button
@@ -100,7 +100,7 @@
             @click="addStatement"
             class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
           >
-            {{ $t('windows.learningMethods.lm11.addStatement') }}
+            {{ $t('learningMethods.lm11.addStatement') }}
           </button>
         </div>
 
@@ -117,7 +117,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              {{ $t('windows.learningMethods.lm11.randomizeLabel') }}
+              {{ $t('learningMethods.lm11.randomizeLabel') }}
             </span>
           </label>
 
@@ -128,7 +128,7 @@
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span class="text-sm text-gray-700 dark:text-gray-300">
-              {{ $t('windows.learningMethods.lm11.showExplanationsLabel') }}
+              {{ $t('learningMethods.lm11.showExplanationsLabel') }}
             </span>
           </label>
         </div>

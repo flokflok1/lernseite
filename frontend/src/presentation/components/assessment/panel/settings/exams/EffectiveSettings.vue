@@ -7,9 +7,9 @@
   <div class="settings-card lg:col-span-2">
     <div class="card-header">
       <span class="card-icon">✅</span>
-      <span class="card-title">{{ $t('windows.aiStudioSettings.effectiveSettings') }}</span>
+      <span class="card-title">{{ $t('aiEditorSettings.effectiveSettings') }}</span>
       <span v-if="profileName" class="profile-badge">
-        {{ $t('windows.aiStudioSettings.profile') }}: {{ profileName }}
+        {{ $t('aiEditorSettings.profile') }}: {{ profileName }}
       </span>
     </div>
     <div class="effective-grid">
@@ -39,7 +39,7 @@
       </div>
     </div>
     <div class="card-footer text-xs text-[var(--color-text-tertiary)]">
-      {{ $t('windows.aiStudioSettings.fallbackChain') }}
+      {{ $t('aiEditorSettings.fallbackChain') }}
     </div>
   </div>
 </template>

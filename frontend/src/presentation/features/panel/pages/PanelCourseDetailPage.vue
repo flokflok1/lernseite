@@ -140,7 +140,7 @@ function openEditorWindow(): void {
 
   windowStore.openWindow({
     type: 'panel-course-editor',
-    title: t('panel.courseDetail.windows.editCourse', { title: course.value.title }),
+    title: t('panel.courseDetail.dialogs.editCourse', { title: course.value.title }),
     icon: '✏️',
     payload: {
       courseId: course.value.course_id,
@@ -154,7 +154,7 @@ function openChaptersWindow(): void {
 
   windowStore.openWindow({
     type: 'panel-kapitel-manager',
-    title: t('panel.courseDetail.windows.chapters', { title: course.value.title }),
+    title: t('panel.courseDetail.dialogs.chapters', { title: course.value.title }),
     icon: '📚',
     payload: {
       courseId: course.value.course_id,
@@ -168,7 +168,7 @@ function openFilesWindow(): void {
 
   windowStore.openWindow({
     type: 'panel-course-files',
-    title: t('panel.courseDetail.windows.files', { title: course.value.title }),
+    title: t('panel.courseDetail.dialogs.files', { title: course.value.title }),
     icon: '📁',
     payload: {
       courseId: course.value.course_id,
@@ -182,7 +182,7 @@ function openExamsWindow(): void {
 
   windowStore.openWindow({
     type: 'panel-exam-manager',
-    title: t('panel.courseDetail.windows.exams', { title: course.value.title }),
+    title: t('panel.courseDetail.dialogs.exams', { title: course.value.title }),
     icon: '📝',
     payload: {
       courseId: course.value.course_id,
@@ -196,7 +196,7 @@ function generateExam(): void {
 
   windowStore.openWindow({
     type: 'panel-ai-exam-generator',
-    title: t('panel.courseDetail.windows.generateExam', { title: course.value.title }),
+    title: t('panel.courseDetail.dialogs.generateExam', { title: course.value.title }),
     icon: '🤖',
     payload: {
       courseId: course.value.course_id,
@@ -210,7 +210,7 @@ function openAiStudioWindow(): void {
 
   windowStore.openWindow({
     type: 'panel-ai-studio',
-    title: t('panel.courseDetail.windows.aiStudio', { title: course.value.title }),
+    title: t('panel.courseDetail.aiEditor', { title: course.value.title }),
     icon: '🤖',
     payload: {
       courseId: course.value.course_id,

@@ -7,18 +7,18 @@
   <div v-if="provider" class="modal-overlay" @click="$emit('close')">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <h3>{{ provider.display_name }} - {{ $t('windows.aiStudioGlobalSettings.apiKeyTitle') }}</h3>
+        <h3>{{ provider.display_name }} - {{ $t('aiEditorGlobalSettings.apiKeyTitle') }}</h3>
         <button @click="$emit('close')" class="modal-close">×</button>
       </div>
       <div class="modal-body">
         <div class="form-row">
-          <label>{{ $t('windows.aiStudioGlobalSettings.apiKeyTitle') }}</label>
+          <label>{{ $t('aiEditorGlobalSettings.apiKeyTitle') }}</label>
           <div class="input-group">
             <input
               :value="apiKey"
               @input="$emit('update:apiKey', ($event.target as HTMLInputElement).value)"
               :type="showKey ? 'text' : 'password'"
-              :placeholder="provider.has_api_key ? $t('windows.aiStudioGlobalSettings.apiKeyMasked') : $t('windows.aiStudioGlobalSettings.apiKeyPlaceholder')"
+              :placeholder="provider.has_api_key ? $t('aiEditorGlobalSettings.apiKeyMasked') : $t('aiEditorGlobalSettings.apiKeyPlaceholder')"
               class="form-input mono"
             />
             <button @click="$emit('toggleShow')" class="btn-icon">{{ showKey ? '🙈' : '👁️' }}</button>
@@ -27,8 +27,8 @@
         <div v-if="result" class="api-key-result" :class="result.success ? 'success' : 'error'">{{ result.message }}</div>
       </div>
       <div class="modal-footer">
-        <button @click="$emit('test')" :disabled="testing" class="btn-secondary">{{ testing ? $t('windows.aiStudioGlobalSettings.testingApiKey') : $t('windows.aiStudioGlobalSettings.testApiKey') }}</button>
-        <button @click="$emit('save')" :disabled="!apiKey || saving" class="btn-primary">{{ saving ? $t('windows.aiStudioGlobalSettings.savingApiKey') : $t('windows.aiStudioGlobalSettings.saveApiKey') }}</button>
+        <button @click="$emit('test')" :disabled="testing" class="btn-secondary">{{ testing ? $t('aiEditorGlobalSettings.testingApiKey') : $t('aiEditorGlobalSettings.testApiKey') }}</button>
+        <button @click="$emit('save')" :disabled="!apiKey || saving" class="btn-primary">{{ saving ? $t('aiEditorGlobalSettings.savingApiKey') : $t('aiEditorGlobalSettings.saveApiKey') }}</button>
       </div>
     </div>
   </div>

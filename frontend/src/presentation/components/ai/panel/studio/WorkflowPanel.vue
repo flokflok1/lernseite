@@ -13,18 +13,18 @@
     <div class="context-header">
       <span class="context-icon">{{ context.type === 'chapter' ? '📖' : '📄' }}</span>
       <div class="context-details">
-        <span class="context-type">{{ context.type === 'chapter' ? $t('windows.aiEditorWorkflow.chapter') : $t('windows.aiEditorWorkflow.lesson') }}</span>
+        <span class="context-type">{{ context.type === 'chapter' ? $t('aiEditorWorkflow.chapter') : $t('aiEditorWorkflow.lesson') }}</span>
         <span class="context-title">{{ context.title }}</span>
       </div>
-      <button @click="$emit('close')" class="context-close" :title="$t('windows.aiEditorWorkflow.closeContext')">×</button>
+      <button @click="$emit('close')" class="context-close" :title="$t('aiEditorWorkflow.closeContext')">×</button>
     </div>
 
     <!-- Step 1: Analyze with Materials -->
     <div class="workflow-section analyze-section">
       <div class="workflow-header">
         <span class="workflow-icon">🔍</span>
-        <span class="workflow-title">{{ $t('windows.aiEditorWorkflow.step1') }}</span>
-        <span v-if="selectedFileCount" class="workflow-badge">{{ selectedFileCount }} {{ $t('windows.aiEditorWorkflow.files') }}</span>
+        <span class="workflow-title">{{ $t('aiEditorWorkflow.step1') }}</span>
+        <span v-if="selectedFileCount" class="workflow-badge">{{ selectedFileCount }} {{ $t('aiEditorWorkflow.files') }}</span>
       </div>
       <button
         @click="$emit('analyze')"
@@ -32,12 +32,12 @@
         :class="{ 'is-loading': isAnalyzing }"
         :disabled="isAnalyzing || disabled"
       >
-        <span v-if="isAnalyzing">⏳ {{ $t('windows.aiEditorWorkflow.analyzing') }}</span>
-        <span v-else-if="selectedFileCount">🔍 {{ $t('windows.aiEditorWorkflow.analyzeWithFiles', { count: selectedFileCount }) }}</span>
-        <span v-else>🔍 {{ $t('windows.aiEditorWorkflow.analyzeContext') }}</span>
+        <span v-if="isAnalyzing">⏳ {{ $t('aiEditorWorkflow.analyzing') }}</span>
+        <span v-else-if="selectedFileCount">🔍 {{ $t('aiEditorWorkflow.analyzeWithFiles', { count: selectedFileCount }) }}</span>
+        <span v-else>🔍 {{ $t('aiEditorWorkflow.analyzeContext') }}</span>
       </button>
       <p v-if="!selectedFileCount" class="workflow-hint">
-        💡 {{ $t('windows.aiEditorWorkflow.tipMaterials') }}
+        💡 {{ $t('aiEditorWorkflow.tipMaterials') }}
       </p>
     </div>
 
@@ -45,21 +45,21 @@
     <div class="workflow-section theory-section">
       <div class="workflow-header">
         <span class="workflow-icon">📖</span>
-        <span class="workflow-title">{{ $t('windows.aiEditorWorkflow.step2') }}</span>
-        <span v-if="isLoadingTheories" class="workflow-badge">{{ $t('windows.aiEditorWorkflow.loading') }}</span>
+        <span class="workflow-title">{{ $t('aiEditorWorkflow.step2') }}</span>
+        <span v-if="isLoadingTheories" class="workflow-badge">{{ $t('aiEditorWorkflow.loading') }}</span>
         <span v-else-if="context.type === 'chapter' && theories.length" class="workflow-badge">
-          {{ theories.length }} {{ $t('windows.aiEditorWorkflow.available') }}
+          {{ theories.length }} {{ $t('aiEditorWorkflow.available') }}
         </span>
         <span v-else-if="context.type === 'lesson' && explanations.length" class="workflow-badge">
-          {{ explanations.length }} {{ $t('windows.aiEditorWorkflow.available') }}
+          {{ explanations.length }} {{ $t('aiEditorWorkflow.available') }}
         </span>
-        <span v-else class="workflow-badge workflow-badge--empty">{{ $t('windows.aiEditorWorkflow.none') }}</span>
+        <span v-else class="workflow-badge workflow-badge--empty">{{ $t('aiEditorWorkflow.none') }}</span>
       </div>
 
       <!-- Loading State -->
       <div v-if="isLoadingTheories" class="theory-loading">
         <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="loading-text">{{ $t('windows.aiEditorWorkflow.loadingContent') }}</span>
+        <span class="loading-text">{{ $t('aiEditorWorkflow.loadingContent') }}</span>
       </div>
 
       <!-- Chapter: Existing Theories List -->
@@ -77,20 +77,20 @@
               <span class="theory-item-title">{{ theory.title }}</span>
               <span class="theory-item-meta">{{ theory.style }} · {{ formatDate(theory.createdAt) }}</span>
             </div>
-            <span v-if="theory.audioUrl" class="theory-item-audio" :title="$t('windows.aiEditorWorkflow.withAudio')">🔊</span>
+            <span v-if="theory.audioUrl" class="theory-item-audio" :title="$t('aiEditorWorkflow.withAudio')">🔊</span>
           </div>
         </div>
         <div v-else class="no-content-hint">
           <span>📋</span>
-          <p>{{ $t('windows.aiEditorWorkflow.noSummary') }}</p>
+          <p>{{ $t('aiEditorWorkflow.noSummary') }}</p>
         </div>
         <button
           @click="$emit('generate-theory')"
           class="workflow-action-btn workflow-action-btn--theory"
           :disabled="isGeneratingTheory || disabled"
         >
-          <span v-if="isGeneratingTheory">⏳ {{ $t('windows.aiEditorWorkflow.generating') }}</span>
-          <span v-else>{{ theories.length ? '➕ ' + $t('windows.aiEditorWorkflow.addSummary') : '📚 ' + $t('windows.aiEditorWorkflow.createSummary') }}</span>
+          <span v-if="isGeneratingTheory">⏳ {{ $t('aiEditorWorkflow.generating') }}</span>
+          <span v-else>{{ theories.length ? '➕ ' + $t('aiEditorWorkflow.addSummary') : '📚 ' + $t('aiEditorWorkflow.createSummary') }}</span>
         </button>
       </div>
 
@@ -106,21 +106,21 @@
             <span class="theory-item-icon">📝</span>
             <div class="theory-item-info">
               <span class="theory-item-title">{{ expl.title }}</span>
-              <span class="theory-item-meta">{{ expl.stepCount }} {{ $t('windows.aiEditorWorkflow.steps') }} · {{ formatDate(expl.createdAt) }}</span>
+              <span class="theory-item-meta">{{ expl.stepCount }} {{ $t('aiEditorWorkflow.steps') }} · {{ formatDate(expl.createdAt) }}</span>
             </div>
           </div>
         </div>
         <div v-else class="no-content-hint">
           <span>📝</span>
-          <p>{{ $t('windows.aiEditorWorkflow.noTheory') }}</p>
+          <p>{{ $t('aiEditorWorkflow.noTheory') }}</p>
         </div>
         <button
           @click="$emit('generate-theory')"
           class="workflow-action-btn workflow-action-btn--theory"
           :disabled="isGeneratingTheory || disabled"
         >
-          <span v-if="isGeneratingTheory">⏳ {{ $t('windows.aiEditorWorkflow.generating') }}</span>
-          <span v-else>{{ explanations.length ? '➕ ' + $t('windows.aiEditorWorkflow.addTheory') : '📖 ' + $t('windows.aiEditorWorkflow.createTheory') }}</span>
+          <span v-if="isGeneratingTheory">⏳ {{ $t('aiEditorWorkflow.generating') }}</span>
+          <span v-else>{{ explanations.length ? '➕ ' + $t('aiEditorWorkflow.addTheory') : '📖 ' + $t('aiEditorWorkflow.createTheory') }}</span>
         </button>
       </div>
     </div>
@@ -129,14 +129,14 @@
     <div v-if="context.type === 'lesson'" class="workflow-section lm-section">
       <div class="workflow-header">
         <span class="workflow-icon">🧠</span>
-        <span class="workflow-title">{{ $t('windows.aiEditorWorkflow.step3') }}</span>
-        <span v-if="isLoadingLMSuggestions" class="workflow-badge">{{ $t('windows.aiEditorWorkflow.analyzing') }}</span>
+        <span class="workflow-title">{{ $t('aiEditorWorkflow.step3') }}</span>
+        <span v-if="isLoadingLMSuggestions" class="workflow-badge">{{ $t('aiEditorWorkflow.analyzing') }}</span>
       </div>
       <div v-if="isLoadingLMSuggestions" class="lm-suggestions-loading">
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
-        <span class="loading-text">{{ $t('windows.aiEditorWorkflow.aiAnalyzing') }}</span>
+        <span class="loading-text">{{ $t('aiEditorWorkflow.aiAnalyzing') }}</span>
       </div>
       <div v-else-if="lmSuggestions.length > 0" class="lm-suggestions-grid">
         <button
@@ -158,14 +158,14 @@
         </button>
       </div>
       <div v-else class="lm-no-suggestions">
-        <span>{{ $t('windows.aiEditorWorkflow.analyzeFirst') }}</span>
+        <span>{{ $t('aiEditorWorkflow.analyzeFirst') }}</span>
       </div>
     </div>
 
     <!-- Context-specific Actions -->
     <div class="context-actions">
       <template v-if="isLoadingActions">
-        <span class="loading-text">{{ $t('windows.aiEditorWorkflow.loadingActions') }}</span>
+        <span class="loading-text">{{ $t('aiEditorWorkflow.loadingActions') }}</span>
       </template>
       <template v-else>
         <button

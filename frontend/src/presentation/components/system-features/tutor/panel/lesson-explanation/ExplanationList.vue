@@ -6,11 +6,11 @@
   <div class="explanation-list">
     <div class="panel-header">
       <span class="panel-icon">📝</span>
-      <span class="panel-title">{{ $t('windows.lessonExplanationView.explanations') }}</span>
+      <span class="panel-title">{{ $t('lessonExplanationView.explanations') }}</span>
       <button
         @click="$emit('refresh')"
         class="refresh-btn"
-        :title="$t('windows.lessonExplanationView.refresh')"
+        :title="$t('lessonExplanationView.refresh')"
       >
         🔄
       </button>
@@ -19,14 +19,14 @@
     <!-- Loading -->
     <div v-if="isLoading" class="list-loading">
       <div class="spinner"></div>
-      <span>{{ $t('windows.lessonExplanationView.loading') }}</span>
+      <span>{{ $t('lessonExplanationView.loading') }}</span>
     </div>
 
     <!-- Explanation List -->
     <div v-else class="content-list">
       <div v-if="explanations.length === 0" class="list-empty">
         <span class="empty-icon-small">📝</span>
-        <p>{{ $t('windows.lessonExplanationView.noExplanations') }}</p>
+        <p>{{ $t('lessonExplanationView.noExplanations') }}</p>
       </div>
 
       <div
@@ -40,7 +40,7 @@
         <div class="item-info">
           <span class="item-name">{{ expl.title }}</span>
           <span class="item-meta">
-            {{ $t('windows.lessonExplanationView.stepsCount', { count: expl.stepCount }) }} •
+            {{ $t('lessonExplanationView.stepsCount', { count: expl.stepCount }) }} •
             {{ formatDate(expl.createdAt) }}
           </span>
         </div>
@@ -48,7 +48,7 @@
           <button
             @click.stop="handleDelete(expl.explanationId)"
             class="item-btn danger"
-            :title="$t('windows.lessonExplanationView.delete')"
+            :title="$t('lessonExplanationView.delete')"
           >
             🗑️
           </button>
@@ -59,7 +59,7 @@
     <!-- Create New Button -->
     <div class="list-actions">
       <button @click="$emit('create')" class="create-btn">
-        {{ $t('windows.lessonExplanationView.createNew') }}
+        {{ $t('lessonExplanationView.createNew') }}
       </button>
     </div>
   </div>
@@ -93,7 +93,7 @@ const emit = defineEmits<{
 
 // Methods
 function handleDelete(id: string): void {
-  if (confirm(t('windows.lessonExplanationView.confirmDelete'))) {
+  if (confirm(t('lessonExplanationView.confirmDelete'))) {
     emit('delete', id)
   }
 }

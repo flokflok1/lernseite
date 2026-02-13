@@ -26,10 +26,10 @@
           >
             {{
               saveStatus === 'saving'
-                ? $t('windows.learningMethodEditor.saving')
+                ? $t('learningMethodEditor.saving')
                 : saveStatus === 'saved'
-                  ? $t('windows.learningMethodEditor.saved')
-                  : $t('windows.learningMethodEditor.error')
+                  ? $t('learningMethodEditor.saved')
+                  : $t('learningMethodEditor.error')
             }}
           </div>
         </div>
@@ -46,7 +46,7 @@
           </svg>
         </div>
         <p class="mt-4 text-[var(--color-text-secondary)]">
-          {{ $t('windows.learningMethodEditor.loading') }}
+          {{ $t('learningMethodEditor.loading') }}
         </p>
       </div>
     </div>
@@ -56,7 +56,7 @@
       <div class="text-center max-w-md">
         <div class="text-4xl mb-3">⚠️</div>
         <h3 class="text-lg font-semibold text-[var(--color-error)] mb-2">
-          {{ $t('windows.learningMethodEditor.error') }}
+          {{ $t('learningMethodEditor.error') }}
         </h3>
         <p class="text-sm text-[var(--color-text-secondary)] mb-4">
           {{ error }}
@@ -65,7 +65,7 @@
           @click="loadLearningMethods"
           class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-colors"
         >
-          {{ $t('windows.learningMethodEditor.retry') }}
+          {{ $t('learningMethodEditor.retry') }}
         </button>
       </div>
     </div>
@@ -84,7 +84,7 @@
                 : 'text-[var(--color-text-secondary)] border-transparent hover:text-[var(--color-text-primary)]'
             ]"
           >
-            {{ $t('windows.learningMethodEditor.tabs.instances') }}
+            {{ $t('learningMethodEditor.tabs.instances') }}
             <span class="ml-2 inline text-xs px-2 py-0.5 rounded bg-[var(--color-border)] text-[var(--color-text-secondary)]">
               {{ methods.length }}
             </span>
@@ -98,7 +98,7 @@
                 : 'text-[var(--color-text-secondary)] border-transparent hover:text-[var(--color-text-primary)]'
             ]"
           >
-            {{ $t('windows.learningMethodEditor.tabs.catalog') }}
+            {{ $t('learningMethodEditor.tabs.catalog') }}
           </button>
           <button
             @click="activeTab = 'stats'"
@@ -109,7 +109,7 @@
                 : 'text-[var(--color-text-secondary)] border-transparent hover:text-[var(--color-text-primary)]'
             ]"
           >
-            {{ $t('windows.learningMethodEditor.tabs.statistics') }}
+            {{ $t('learningMethodEditor.tabs.statistics') }}
           </button>
         </div>
       </div>
@@ -171,7 +171,7 @@
         <!-- Header -->
         <div class="sticky top-0 bg-[var(--color-surface)] border-b border-[var(--color-border)] p-4 flex items-center justify-between">
           <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-            {{ $t('windows.learningMethodEditor.selectMethod') }}
+            {{ $t('learningMethodEditor.selectMethod') }}
           </h2>
           <button
             @click="showMethodTypeSelector = false"

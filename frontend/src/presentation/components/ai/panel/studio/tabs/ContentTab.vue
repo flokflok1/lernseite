@@ -12,8 +12,8 @@
     <!-- No Lesson Selected -->
     <div v-if="!lesson" class="empty-state">
       <div class="empty-icon">📝</div>
-      <h3>{{ $t('windows.aiStudioContent.emptyTitle') }}</h3>
-      <p>{{ $t('windows.aiStudioContent.emptyText') }}</p>
+      <h3>{{ $t('aiEditorContent.emptyTitle') }}</h3>
+      <p>{{ $t('aiEditorContent.emptyText') }}</p>
     </div>
 
     <!-- Main Content -->
@@ -123,10 +123,10 @@ const lastSaved = ref<string | null>(null)
 
 // Content Types - computed to use i18n
 const contentTypes = computed(() => [
-  { id: 'theory', name: t('windows.aiStudioContent.theory'), emoji: '📚' },
-  { id: 'example', name: t('windows.aiStudioContent.example'), emoji: '💡' },
-  { id: 'exercise', name: t('windows.aiStudioContent.exercise'), emoji: '✏️' },
-  { id: 'summary', name: t('windows.aiStudioContent.summary'), emoji: '📋' }
+  { id: 'theory', name: t('aiEditorContent.theory'), emoji: '📚' },
+  { id: 'example', name: t('aiEditorContent.example'), emoji: '💡' },
+  { id: 'exercise', name: t('aiEditorContent.exercise'), emoji: '✏️' },
+  { id: 'summary', name: t('aiEditorContent.summary'), emoji: '📋' }
 ])
 
 // Computed
@@ -145,13 +145,13 @@ const hasContent = computed(() => {
 // Get content type name
 function getContentTypeName(typeId: string): string {
   const type = contentTypes.value.find(ct => ct.id === typeId)
-  return type ? type.name : t('windows.aiStudioContent.content')
+  return type ? type.name : t('aiEditorContent.content')
 }
 
 // Methods
 function addTeachingStep() {
   teachingSteps.value.push({
-    title: t('windows.aiStudioContent.stepN', { n: teachingSteps.value.length + 1 }),
+    title: t('aiEditorContent.stepN', { n: teachingSteps.value.length + 1 }),
     speech: '',
     animation: 'talking',
     duration: '0:30'
@@ -218,7 +218,7 @@ async function saveContent() {
 }
 
 function resetContent() {
-  if (confirm(t('windows.aiStudioContent.confirmReset'))) {
+  if (confirm(t('aiEditorContent.confirmReset'))) {
     contentText.value = ''
     teachingSteps.value = []
     lastSaved.value = null

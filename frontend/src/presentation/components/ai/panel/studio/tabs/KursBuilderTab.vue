@@ -16,11 +16,11 @@
       <div class="header-left">
         <span class="header-icon">🏗️</span>
         <div class="header-info">
-          <h3 class="header-title">{{ $t('windows.kursBuilder.title') }}</h3>
+          <h3 class="header-title">{{ $t('kursBuilder.title') }}</h3>
           <div class="header-meta">
             <span v-if="course" class="course-badge">{{ course.title }}</span>
             <span v-if="draftStats.chapters > 0" class="stats-badge">
-              {{ $t('windows.kursBuilder.statsChapters', { chapters: draftStats.chapters, lessons: draftStats.lessons }) }}
+              {{ $t('kursBuilder.statsChapters', { chapters: draftStats.chapters, lessons: draftStats.lessons }) }}
             </span>
           </div>
         </div>
@@ -29,20 +29,20 @@
       <div class="header-right">
         <div v-if="session" class="session-info">
           <span class="session-dot active"></span>
-          <span class="session-text">{{ $t('windows.kursBuilder.sessionActive') }}</span>
+          <span class="session-text">{{ $t('kursBuilder.sessionActive') }}</span>
           <span class="session-id">{{ session.session_id.slice(0, 8) }}</span>
         </div>
         <div v-else class="session-info">
           <span class="session-dot inactive"></span>
-          <span class="session-text">{{ $t('windows.kursBuilder.noSession') }}</span>
+          <span class="session-text">{{ $t('kursBuilder.noSession') }}</span>
         </div>
 
         <button v-if="!session && course" @click="createSession" :disabled="creatingSession" class="btn-primary">
-          {{ creatingSession ? $t('windows.kursBuilder.creating') : $t('windows.kursBuilder.newSession') }}
+          {{ creatingSession ? $t('kursBuilder.creating') : $t('kursBuilder.newSession') }}
         </button>
 
         <button v-if="session?.status === 'active'" @click="finalizeSession" :disabled="finalizing || !hasChanges" class="btn-success">
-          {{ finalizing ? $t('windows.kursBuilder.finalizing') : $t('windows.kursBuilder.finalize') }}
+          {{ finalizing ? $t('kursBuilder.finalizing') : $t('kursBuilder.finalize') }}
         </button>
       </div>
     </div>
@@ -50,8 +50,8 @@
     <!-- No Course Selected -->
     <div v-if="!course" class="empty-state">
       <span class="empty-icon">📚</span>
-      <p class="empty-title">{{ $t('windows.kursBuilder.noCourseSelected') }}</p>
-      <p class="empty-hint">{{ $t('windows.kursBuilder.selectCourseHint') }}</p>
+      <p class="empty-title">{{ $t('kursBuilder.noCourseSelected') }}</p>
+      <p class="empty-hint">{{ $t('kursBuilder.selectCourseHint') }}</p>
     </div>
 
     <!-- Main Content (2 Spalten) -->
@@ -268,10 +268,10 @@ async function loadQuickActions() {
 
 function getFallbackActions(): QuickAction[] {
   return [
-    { action_id: 'fb-1', action_key: 'structure_suggest', label: t('windows.kursBuilder.fallbackActions.structureSuggest'), icon: '📋', prompt_template: 'Analysiere das Kursmaterial und schlage eine passende Kapitelstruktur vor.', mode: 'structure' },
-    { action_id: 'fb-2', action_key: 'chapters_create_3', label: t('windows.kursBuilder.fallbackActions.createChapters'), icon: '📚', prompt_template: 'Erstelle 3 Kapitel mit je 3-5 Lektionen basierend auf dem Kursmaterial.', mode: 'structure' },
-    { action_id: 'fb-3', action_key: 'exam_generate', label: t('windows.kursBuilder.fallbackActions.generateExam'), icon: '🎓', prompt_template: 'Generiere IHK-Stil Prüfungsfragen basierend auf den vorhandenen Kapiteln.', mode: 'exam' },
-    { action_id: 'fb-4', action_key: 'material_analyze', label: t('windows.kursBuilder.fallbackActions.analyzeMaterial'), icon: '🔍', prompt_template: 'Analysiere das hochgeladene Material und extrahiere die wichtigsten Konzepte.', mode: 'analyze' }
+    { action_id: 'fb-1', action_key: 'structure_suggest', label: t('kursBuilder.fallbackActions.structureSuggest'), icon: '📋', prompt_template: 'Analysiere das Kursmaterial und schlage eine passende Kapitelstruktur vor.', mode: 'structure' },
+    { action_id: 'fb-2', action_key: 'chapters_create_3', label: t('kursBuilder.fallbackActions.createChapters'), icon: '📚', prompt_template: 'Erstelle 3 Kapitel mit je 3-5 Lektionen basierend auf dem Kursmaterial.', mode: 'structure' },
+    { action_id: 'fb-3', action_key: 'exam_generate', label: t('kursBuilder.fallbackActions.generateExam'), icon: '🎓', prompt_template: 'Generiere IHK-Stil Prüfungsfragen basierend auf den vorhandenen Kapiteln.', mode: 'exam' },
+    { action_id: 'fb-4', action_key: 'material_analyze', label: t('kursBuilder.fallbackActions.analyzeMaterial'), icon: '🔍', prompt_template: 'Analysiere das hochgeladene Material und extrahiere die wichtigsten Konzepte.', mode: 'analyze' }
   ]
 }
 
@@ -436,10 +436,10 @@ async function analyzeLessonWithFiles(chapter: Chapter, lesson: Lesson) {
     const response = await http.post('/admin/ai-studio/analyze-lesson', { course_id: props.course.course_id, chapter_id: chapter.id, chapter_title: chapter.title, lesson_id: lesson.id, lesson_title: lesson.title, file_ids: selectedFileIds.value, request_type: 'lm_recommendation' })
     if (response.data.success) {
       const analysis = response.data.data
-      addSystemMessage(`**${t('windows.kursBuilder.messages.analysisFor', { name: lesson.title })}**\n\n${analysis.summary || ''}\n\n**${t('windows.kursBuilder.messages.recommendedMethods')}**\n${(analysis.recommended_lms || []).map((lm: any) => `- ${lm.name}: ${lm.reason}`).join('\n')}`)
+      addSystemMessage(`**${t('kursBuilder.messages.analysisFor', { name: lesson.title })}**\n\n${analysis.summary || ''}\n\n**${t('kursBuilder.messages.recommendedMethods')}**\n${(analysis.recommended_lms || []).map((lm: any) => `- ${lm.name}: ${lm.reason}`).join('\n')}`)
       if (analysis.recommended_lms?.length) lmSuggestions.value = analysis.recommended_lms.map((lm: any) => ({ lm_id: lm.lm_id, name: lm.name, reason: lm.reason, confidence: lm.confidence || 0.8 }))
     }
-  } catch { addSystemMessage(t('windows.kursBuilder.messages.analysisError', { name: lesson.title })) }
+  } catch { addSystemMessage(t('kursBuilder.messages.analysisError', { name: lesson.title })) }
   finally { analyzingLessonId.value = null }
 }
 
@@ -451,11 +451,11 @@ async function analyzeSelectedContext() {
     const response = await http.post('/admin/ai-studio/analyze-lesson', { course_id: props.course.course_id, chapter_id: isChapter ? selectedContext.value.id : selectedContext.value.parentChapter?.id, chapter_title: isChapter ? selectedContext.value.title : selectedContext.value.parentChapter?.title, lesson_id: isChapter ? null : selectedContext.value.id, lesson_title: isChapter ? null : selectedContext.value.title, file_ids: selectedFileIds.value, request_type: 'lm_recommendation' })
     if (response.data.success) {
       const analysis = response.data.data
-      const contextName = isChapter ? `${t('windows.kursBuilder.chapter')} "${selectedContext.value.title}"` : `${t('windows.kursBuilder.lesson')} "${selectedContext.value.title}"`
-      addSystemMessage(`**${t('windows.kursBuilder.messages.analysisFor', { name: contextName })}**\n\n${analysis.summary || ''}\n\n${selectedFileIds.value.length ? `📁 ${t('windows.kursBuilder.messages.filesAnalyzed', { count: selectedFileIds.value.length })}` : ''}`)
+      const contextName = isChapter ? `${t('kursBuilder.chapter')} "${selectedContext.value.title}"` : `${t('kursBuilder.lesson')} "${selectedContext.value.title}"`
+      addSystemMessage(`**${t('kursBuilder.messages.analysisFor', { name: contextName })}**\n\n${analysis.summary || ''}\n\n${selectedFileIds.value.length ? `📁 ${t('kursBuilder.messages.filesAnalyzed', { count: selectedFileIds.value.length })}` : ''}`)
       if (!isChapter && analysis.recommended_lms?.length) lmSuggestions.value = analysis.recommended_lms.map((lm: any) => ({ lm_id: lm.lm_id, name: lm.name, reason: lm.reason, confidence: lm.confidence || 0.8, icon: lm.icon || '📝', group: lm.group || 'B' }))
     }
-  } catch { addSystemMessage(t('windows.kursBuilder.messages.analysisErrorGeneric')) }
+  } catch { addSystemMessage(t('kursBuilder.messages.analysisErrorGeneric')) }
   finally { isAnalyzing.value = false }
 }
 
@@ -467,8 +467,8 @@ async function generateTheory() {
     const prompt = isChapter ? `Erstelle eine Zusammenfassung für das Kapitel "${selectedContext.value.title}".` : `Erstelle ein detailliertes Theorieblatt für die Lektion "${selectedContext.value.title}".`
     selectedMode.value = isChapter ? 'chapter_summary' : 'lesson_theory'
     await sendMessage(prompt, selectedMode.value)
-    addSystemMessage(t('windows.kursBuilder.messages.generatingTheory', { title: selectedContext.value.title }))
-  } catch { addSystemMessage(t('windows.kursBuilder.messages.generatingTheoryError')) }
+    addSystemMessage(t('kursBuilder.messages.generatingTheory', { title: selectedContext.value.title }))
+  } catch { addSystemMessage(t('kursBuilder.messages.generatingTheoryError')) }
   finally { isGeneratingTheory.value = false }
 }
 

@@ -15,16 +15,16 @@
 
     <!-- Toolbar -->
     <div class="editor-toolbar">
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.bold')"><strong>B</strong></button>
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.italic')"><em>I</em></button>
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.underline')"><u>U</u></button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.bold')"><strong>B</strong></button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.italic')"><em>I</em></button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.underline')"><u>U</u></button>
       <div class="toolbar-divider"></div>
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.list')">📋</button>
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.numberedList')">🔢</button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.list')">📋</button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.numberedList')">🔢</button>
       <div class="toolbar-divider"></div>
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.formula')">ƒx</button>
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.code')">&lt;/&gt;</button>
-      <button class="toolbar-btn" :title="$t('windows.aiStudioContent.image')">🖼️</button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.formula')">ƒx</button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.code')">&lt;/&gt;</button>
+      <button class="toolbar-btn" :title="$t('aiEditorContent.image')">🖼️</button>
     </div>
 
     <!-- Editor Area -->
@@ -33,20 +33,20 @@
         :value="content"
         @input="$emit('update:content', ($event.target as HTMLTextAreaElement).value)"
         class="editor-textarea"
-        :placeholder="$t('windows.aiStudioContent.editorPlaceholder')"
+        :placeholder="$t('aiEditorContent.editorPlaceholder')"
       ></textarea>
     </div>
 
     <!-- Editor Footer -->
     <div class="editor-footer">
       <div class="word-count">
-        <span>{{ wordCount }} {{ $t('windows.aiStudioContent.words') }}</span>
-        <span>{{ characterCount }} {{ $t('windows.aiStudioContent.characters') }}</span>
+        <span>{{ wordCount }} {{ $t('aiEditorContent.words') }}</span>
+        <span>{{ characterCount }} {{ $t('aiEditorContent.characters') }}</span>
       </div>
       <div class="editor-actions">
-        <button @click="$emit('reset')" class="btn-secondary">{{ $t('windows.aiStudioContent.reset') }}</button>
+        <button @click="$emit('reset')" class="btn-secondary">{{ $t('aiEditorContent.reset') }}</button>
         <button @click="$emit('save')" class="btn-primary" :disabled="isSaving">
-          {{ isSaving ? $t('windows.aiStudioContent.saving') : $t('windows.aiStudioContent.save') }}
+          {{ isSaving ? $t('aiEditorContent.saving') : $t('aiEditorContent.save') }}
         </button>
       </div>
     </div>

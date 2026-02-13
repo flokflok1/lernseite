@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="sticky top-0 bg-[var(--color-surface)] border-b border-[var(--color-border)] p-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-          {{ $t('windows.learningMethodEditor.editMethod') }}
+          {{ $t('learningMethodEditor.editMethod') }}
         </h2>
         <button
           @click="$emit('close')"
@@ -21,26 +21,26 @@
         <!-- Title -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-            {{ $t('windows.learningMethodEditor.title') }}
+            {{ $t('learningMethodEditor.title') }}
           </label>
           <input
             v-model="localForm.title"
             type="text"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            :placeholder="$t('windows.learningMethodEditor.titlePlaceholder')"
+            :placeholder="$t('learningMethodEditor.titlePlaceholder')"
           />
         </div>
 
         <!-- Instructions -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-            {{ $t('windows.learningMethodEditor.instructions') }}
+            {{ $t('learningMethodEditor.instructions') }}
           </label>
           <textarea
             v-model="localForm.instructions"
             rows="3"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none"
-            :placeholder="$t('windows.learningMethodEditor.instructionsPlaceholder')"
+            :placeholder="$t('learningMethodEditor.instructionsPlaceholder')"
           />
         </div>
 
@@ -48,7 +48,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-              {{ $t('windows.learningMethodEditor.duration') }}
+              {{ $t('learningMethodEditor.duration') }}
             </label>
             <div class="flex items-center gap-2">
               <input
@@ -59,7 +59,7 @@
                 class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
               <span class="text-sm text-[var(--color-text-secondary)]">
-                {{ $t('windows.learningMethodEditor.minutes') }}
+                {{ $t('learningMethodEditor.minutes') }}
               </span>
             </div>
           </div>
@@ -67,15 +67,15 @@
           <!-- Difficulty -->
           <div>
             <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-              {{ $t('windows.learningMethodEditor.difficulty') }}
+              {{ $t('learningMethodEditor.difficulty') }}
             </label>
             <select
               v-model="localForm.difficulty"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             >
-              <option value="easy">{{ $t('windows.learningMethodEditor.easy') }}</option>
-              <option value="medium">{{ $t('windows.learningMethodEditor.medium') }}</option>
-              <option value="hard">{{ $t('windows.learningMethodEditor.hard') }}</option>
+              <option value="easy">{{ $t('learningMethodEditor.easy') }}</option>
+              <option value="medium">{{ $t('learningMethodEditor.medium') }}</option>
+              <option value="hard">{{ $t('learningMethodEditor.hard') }}</option>
             </select>
           </div>
         </div>
@@ -83,15 +83,15 @@
         <!-- Tier -->
         <div>
           <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-            {{ $t('windows.learningMethodEditor.tier') }}
+            {{ $t('learningMethodEditor.tier') }}
           </label>
           <select
             v-model="localForm.tier"
             class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           >
-            <option value="basic">{{ $t('windows.learningMethodEditor.tierOptions.basic') }}</option>
-            <option value="premium">{{ $t('windows.learningMethodEditor.tierOptions.premium') }}</option>
-            <option value="pro">{{ $t('windows.learningMethodEditor.tierOptions.pro') }}</option>
+            <option value="basic">{{ $t('learningMethodEditor.tierOptions.basic') }}</option>
+            <option value="premium">{{ $t('learningMethodEditor.tierOptions.premium') }}</option>
+            <option value="pro">{{ $t('learningMethodEditor.tierOptions.pro') }}</option>
           </select>
         </div>
       </div>
@@ -102,13 +102,13 @@
           @click="$emit('close')"
           class="flex-1 px-4 py-2 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-background)] transition-colors"
         >
-          {{ $t('windows.learningMethodEditor.cancel') }}
+          {{ $t('learningMethodEditor.cancel') }}
         </button>
         <button
           @click="handleSave"
           class="flex-1 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-colors"
         >
-          {{ $t('windows.learningMethodEditor.save') }}
+          {{ $t('learningMethodEditor.save') }}
         </button>
       </div>
     </div>

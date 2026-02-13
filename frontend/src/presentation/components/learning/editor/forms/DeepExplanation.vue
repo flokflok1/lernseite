@@ -14,12 +14,12 @@
       <!-- Konzept -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm00.conceptLabel') }}
+          {{ $t('learningMethods.lm00.conceptLabel') }}
         </label>
         <input
           v-model="methodData.concept"
           type="text"
-          :placeholder="$t('windows.learningMethods.lm00.conceptPlaceholder')"
+          :placeholder="$t('learningMethods.lm00.conceptPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -28,12 +28,12 @@
       <!-- Erklärung -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm00.explanationLabel') }}
+          {{ $t('learningMethods.lm00.explanationLabel') }}
         </label>
         <textarea
           v-model="methodData.explanation"
           rows="6"
-          :placeholder="$t('windows.learningMethods.lm00.explanationPlaceholder')"
+          :placeholder="$t('learningMethods.lm00.explanationPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           required
         />
@@ -42,16 +42,16 @@
       <!-- Beispiele -->
       <div>
         <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          {{ $t('windows.learningMethods.lm00.examplesLabel') }}
+          {{ $t('learningMethods.lm00.examplesLabel') }}
         </label>
         <textarea
           v-model="methodData.examples"
           rows="4"
-          :placeholder="$t('windows.learningMethods.lm00.examplesPlaceholder')"
+          :placeholder="$t('learningMethods.lm00.examplesPlaceholder')"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
         <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-          {{ $t('windows.learningMethods.lm00.examplesHint') }}
+          {{ $t('learningMethods.lm00.examplesHint') }}
         </p>
       </div>
     </template>

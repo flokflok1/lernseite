@@ -21,7 +21,7 @@
       class="h-full w-full flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-surface-secondary)] transition-colors"
     >
       <span class="text-2xl">💬</span>
-      <span class="text-xs text-[var(--color-text-tertiary)] writing-mode-vertical">{{ $t('windows.aiStudioChat.title') }}</span>
+      <span class="text-xs text-[var(--color-text-tertiary)] writing-mode-vertical">{{ $t('aiEditorChat.title') }}</span>
     </button>
 
     <!-- Expanded Panel -->
@@ -31,10 +31,10 @@
         <div class="flex items-center gap-2">
           <span class="text-xl">🤖</span>
           <div>
-            <h3 class="font-medium text-[var(--color-text-primary)] text-sm">{{ $t('windows.aiStudioChat.assistant') }}</h3>
+            <h3 class="font-medium text-[var(--color-text-primary)] text-sm">{{ $t('aiEditorChat.assistant') }}</h3>
             <p class="text-xs text-[var(--color-text-tertiary)]">
               <span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span>
-              {{ $t('windows.aiStudioChat.online') }}
+              {{ $t('aiEditorChat.online') }}
             </p>
           </div>
         </div>
@@ -42,14 +42,14 @@
           <button
             @click="clearChat"
             class="p-1.5 hover:bg-[var(--color-surface-secondary)] rounded transition-colors"
-            :title="$t('windows.aiStudioChat.clearChat')"
+            :title="$t('aiEditorChat.clearChat')"
           >
             🗑️
           </button>
           <button
             @click="togglePanel"
             class="p-1.5 hover:bg-[var(--color-surface-secondary)] rounded transition-colors"
-            :title="$t('windows.aiStudioChat.collapse')"
+            :title="$t('aiEditorChat.collapse')"
           >
             ›
           </button>
@@ -59,7 +59,7 @@
       <!-- Quick Actions - Loaded from DB -->
       <div class="p-2 border-b border-[var(--color-border)]">
         <div v-if="actionsLoading" class="text-xs text-center text-[var(--color-text-tertiary)] py-1">
-          {{ $t('windows.aiStudioChat.loadingActions') }}
+          {{ $t('aiEditorChat.loadingActions') }}
         </div>
         <div v-else class="flex flex-wrap gap-1">
           <button
@@ -77,7 +77,7 @@
       <div v-if="currentContext" class="p-2 bg-[var(--color-primary-subtle)] text-xs">
         <div class="flex items-center gap-2">
           <span class="text-[var(--color-primary)]">📍</span>
-          <span class="text-[var(--color-text-secondary)]">{{ $t('windows.aiStudioChat.context') }}: {{ currentContext }}</span>
+          <span class="text-[var(--color-text-secondary)]">{{ $t('aiEditorChat.context') }}: {{ currentContext }}</span>
         </div>
       </div>
 
@@ -86,9 +86,9 @@
         <!-- Welcome Message -->
         <div v-if="messages.length === 0" class="text-center py-6">
           <span class="text-4xl mb-3 block">👋</span>
-          <h4 class="font-medium text-[var(--color-text-primary)] mb-1">{{ $t('windows.aiStudioChat.welcomeTitle') }}</h4>
+          <h4 class="font-medium text-[var(--color-text-primary)] mb-1">{{ $t('aiEditorChat.welcomeTitle') }}</h4>
           <p class="text-sm text-[var(--color-text-secondary)]">
-            {{ $t('windows.aiStudioChat.welcomeText') }}
+            {{ $t('aiEditorChat.welcomeText') }}
           </p>
         </div>
 
@@ -143,7 +143,7 @@
 
       <!-- Suggestions -->
       <div v-if="suggestions.length > 0" class="p-2 border-t border-[var(--color-border)]">
-        <p class="text-xs text-[var(--color-text-tertiary)] mb-1">{{ $t('windows.aiStudioChat.suggestions') }}</p>
+        <p class="text-xs text-[var(--color-text-tertiary)] mb-1">{{ $t('aiEditorChat.suggestions') }}</p>
         <div class="flex flex-wrap gap-1">
           <button
             v-for="suggestion in suggestions"
@@ -163,7 +163,7 @@
             v-model="inputMessage"
             @keydown.enter.prevent="sendMessage"
             class="flex-1 px-3 py-2 bg-[var(--color-surface-secondary)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)] resize-none focus:outline-none focus:border-[var(--color-primary)]"
-            :placeholder="$t('windows.aiStudioChat.placeholder')"
+            :placeholder="$t('aiEditorChat.placeholder')"
             rows="2"
           ></textarea>
           <button
@@ -175,7 +175,7 @@
           </button>
         </div>
         <div class="flex items-center justify-between mt-2 text-xs text-[var(--color-text-tertiary)]">
-          <span>{{ $t('windows.aiStudioChat.enterToSend') }}</span>
+          <span>{{ $t('aiEditorChat.enterToSend') }}</span>
           <span>{{ inputMessage.length }}/500</span>
         </div>
       </div>
@@ -225,10 +225,10 @@ const quickActions = ref<QuickAction[]>([])
 
 // Fallback actions if DB is not available
 const fallbackActions: QuickAction[] = [
-  { action_id: 'fb-1', action_key: 'explain', label: t('windows.aiStudioChat.fallbackActions.explain.label'), icon: '📖', prompt_template: t('windows.aiStudioChat.fallbackActions.explain.prompt') },
-  { action_id: 'fb-2', action_key: 'improve', label: t('windows.aiStudioChat.fallbackActions.improve.label'), icon: '✨', prompt_template: t('windows.aiStudioChat.fallbackActions.improve.prompt') },
-  { action_id: 'fb-3', action_key: 'quiz_create', label: t('windows.aiStudioChat.fallbackActions.quiz.label'), icon: '❓', prompt_template: t('windows.aiStudioChat.fallbackActions.quiz.prompt') },
-  { action_id: 'fb-4', action_key: 'summarize', label: t('windows.aiStudioChat.fallbackActions.summarize.label'), icon: '📝', prompt_template: t('windows.aiStudioChat.fallbackActions.summarize.prompt') }
+  { action_id: 'fb-1', action_key: 'explain', label: t('aiEditorChat.fallbackActions.explain.label'), icon: '📖', prompt_template: t('aiEditorChat.fallbackActions.explain.prompt') },
+  { action_id: 'fb-2', action_key: 'improve', label: t('aiEditorChat.fallbackActions.improve.label'), icon: '✨', prompt_template: t('aiEditorChat.fallbackActions.improve.prompt') },
+  { action_id: 'fb-3', action_key: 'quiz_create', label: t('aiEditorChat.fallbackActions.quiz.label'), icon: '❓', prompt_template: t('aiEditorChat.fallbackActions.quiz.prompt') },
+  { action_id: 'fb-4', action_key: 'summarize', label: t('aiEditorChat.fallbackActions.summarize.label'), icon: '📝', prompt_template: t('aiEditorChat.fallbackActions.summarize.prompt') }
 ]
 
 // Load actions from database
@@ -257,9 +257,9 @@ async function loadQuickActions() {
 
 // Suggestions based on context
 const suggestions = ref<string[]>([
-  t('windows.aiStudioChat.defaultSuggestions.teachingSteps'),
-  t('windows.aiStudioChat.defaultSuggestions.videoGeneration'),
-  t('windows.aiStudioChat.defaultSuggestions.modelComparison')
+  t('aiEditorChat.defaultSuggestions.teachingSteps'),
+  t('aiEditorChat.defaultSuggestions.videoGeneration'),
+  t('aiEditorChat.defaultSuggestions.modelComparison')
 ])
 
 // Current Context
@@ -278,7 +278,7 @@ function togglePanel() {
 }
 
 function clearChat() {
-  if (messages.value.length === 0 || confirm(t('windows.aiStudioChat.confirmClear'))) {
+  if (messages.value.length === 0 || confirm(t('aiEditorChat.confirmClear'))) {
     messages.value = []
   }
 }

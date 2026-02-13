@@ -139,9 +139,6 @@
     "subtitle": "Wähle Default-Modelle für jede Kategorie. Bei den LMs siehst du welche Kategorien sie brauchen.",
     "title": "KI-Modell Konfiguration"
   },
-  "methods": {
-    "title": "Lernmethoden"
-  },
   "prompts": {
     "scopes": {
       "all": "Alle",

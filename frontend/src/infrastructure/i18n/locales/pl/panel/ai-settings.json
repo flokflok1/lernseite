@@ -139,9 +139,6 @@
     "subtitle": "Wybierz domyślne modele dla każdej kategorii. Przy LM-ach widzisz jakich kategorii potrzebują.",
     "title": "Konfiguracja Modeli AI"
   },
-  "methods": {
-    "title": "Metody nauki"
-  },
   "prompts": {
     "scopes": {
       "all": "Wszystkie",

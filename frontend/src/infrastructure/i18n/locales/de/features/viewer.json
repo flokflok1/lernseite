@@ -160,23 +160,5 @@
     "ttsModel": "TTS Modell",
     "tutorExplains": "Tutor erklärt",
     "voiceLabel": "Stimme:"
-  },
-  "profileEditor": {
-    "cancel": "Abbrechen",
-    "delete": "Löschen",
-    "description": "Beschreibung",
-    "descriptionPlaceholder": "Optional",
-    "editProfile": "Profil bearbeiten",
-    "emptyState": "Wähle ein Profil aus der Liste",
-    "key": "Schlüssel",
-    "keyPlaceholder": "z.B. premium",
-    "modelsPerCategory": "Modelle pro Kategorie",
-    "name": "Name",
-    "namePlaceholder": "Anzeigename",
-    "newProfile": "Neues Profil",
-    "notSet": "Nicht gesetzt",
-    "save": "Speichern",
-    "saving": "Speichern...",
-    "setAsDefault": "Als Default"
   }
 }

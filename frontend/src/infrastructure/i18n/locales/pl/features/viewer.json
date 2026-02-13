@@ -160,23 +160,5 @@
     "ttsModel": "Model TTS",
     "tutorExplains": "Tutor wyjaśnia",
     "voiceLabel": "Głos:"
-  },
-  "profileEditor": {
-    "cancel": "Anuluj",
-    "delete": "Usuń",
-    "description": "Opis",
-    "descriptionPlaceholder": "Opcjonalny",
-    "editProfile": "Edytuj profil",
-    "emptyState": "Wybierz profil z listy",
-    "key": "Klucz",
-    "keyPlaceholder": "np. premium",
-    "modelsPerCategory": "Modele na kategorię",
-    "name": "Nazwa",
-    "namePlaceholder": "Nazwa wyświetlana",
-    "newProfile": "Nowy profil",
-    "notSet": "Nie ustawiono",
-    "save": "Zapisz",
-    "saving": "Zapisywanie...",
-    "setAsDefault": "Ustaw jako domyślny"
   }
 }

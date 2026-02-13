@@ -1,8 +1,4 @@
 {
-  "allCategories": "Wszystkie kategorie",
-  "allCourses": "Wszystkie kursy",
-  "chat": "Czat",
-  "description": "Twoje kompleksowe narzędzie do tworzenia kursów wspomaganych AI. Generuj filmy, zarządzaj promptami i konfiguruj modele.",
   "features": {
     "models": "Modele",
     "modelsDesc": "Konfiguruj modele AI",
@@ -11,20 +7,6 @@
     "videos": "Filmy",
     "videosDesc": "Generator wideo Sora 2"
   },
-  "lessons": "Lekcje",
-  "newChapter": "Nowy rozdział",
-  "newCourse": "Nowy kurs",
-  "noCategory": "Bez kategorii",
-  "noCoursesAvailable": "Brak dostępnych kursów",
-  "noCoursesFound": "Nie znaleziono kursów",
-  "openStudio": "Otwórz AI Studio",
-  "recentlyEdited": "Ostatnio edytowane",
-  "search": "Szukaj...",
-  "searchCourse": "Szukaj kursów...",
-  "searchResults": "Wyniki wyszukiwania",
-  "selectCourse": "Wybierz kurs",
-  "selectCourseHint": "Wybierz kurs, aby zacząć",
-  "selectCourseToView": "Wybierz kurs do wyświetlenia",
   "stats": {
     "costMonth": "Koszt (Miesiąc)",
     "prompts": "Prompty",
@@ -41,6 +23,5 @@
     "prompts": "Prompty",
     "settings": "Ustawienia",
     "tutor": "AI Tutor"
-  },
-  "title": "AI Editor"
+  }
 }

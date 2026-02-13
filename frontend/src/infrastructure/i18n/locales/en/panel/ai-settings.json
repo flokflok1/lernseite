@@ -139,9 +139,6 @@
     "subtitle": "Choose default models for each category. For the LMs you can see which categories they need.",
     "title": "AI Model Configuration"
   },
-  "methods": {
-    "title": "Learning Methods"
-  },
   "prompts": {
     "scopes": {
       "all": "All",

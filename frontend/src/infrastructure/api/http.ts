@@ -8,8 +8,7 @@
  */
 
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore } from '@/application/stores/auth.store'
-import router from '@/presentation/router'
+import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
 
@@ -88,7 +87,9 @@ http.interceptors.response.use(
         } finally {
           isLoggingOut = false
         }
-        router.push('/login')
+        // Full page reload to /login clears all stale state after session expiry.
+        // Using window.location instead of router.push avoids importing from presentation layer (DDD).
+        window.location.href = '/login'
 
         return Promise.reject({
           message: 'Session expired. Please login again.',

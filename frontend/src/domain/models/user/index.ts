@@ -3,10 +3,10 @@
  * ==================
  * Models for user profiles, authentication, sessions
  *
- * NOTE: Phase B - GBA Database-Driven Roles
- * All roles/groups now come from database (core.groups)
- * User.model.ts, User.factory.ts, and UserRole.vo.ts removed
- * No complex domain models needed - store works with raw API DTOs
+ * GBA (Group-Based Authorization):
+ * - UserModel: Full domain model with hierarchy-based role checks
+ * - User: Minimal interface for cross-model references (Course.model.ts)
  */
 
+export { UserModel } from './User.model'
 export type { User } from './User.types'

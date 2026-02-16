@@ -1,26 +1,22 @@
 /**
  * API Clients - Barrel Export
  *
- * Consolidated exports for all domain-organized API clients:
- * - admin: Admin operations (users, courses, permissions)
- * - compliance: GDPR, DSA, legal compliance
- * - content: Content management
- * - course-editor: AI-powered course editor
+ * Consolidated exports for all domain-organized API clients.
+ * Structure mirrors backend api/v1/:
+ * - panel/admin: Admin operations (users, courses, permissions)
+ * - panel/editor: Content authoring (courses, AI editor)
+ * - panel/user: User profile, tokens, subscriptions, gamification
+ * - public: Setup, i18n (unauthenticated)
  * - learning: Learning player, authoring, editor
+ * - compliance: GDPR, DSA, legal compliance
  * - moderation: Content moderation
  * - social: Social network (posts, comments, follows)
- * - system: System operations
- * - user: User profile and settings
  * - shared: Common utilities and types
  */
 
-export * from './admin'
-export * from './compliance'
-export * from './content'
-export * from './course-editor'
+export * from './panel/admin'
+export * from './panel/editor'
+export * from './panel/user'
+export * from './public'
 export * from './learning'
-export * from './moderation'
-export * from './social'
-export * from './system'
-export * from './user'
 export * from './shared'

@@ -76,8 +76,9 @@ class I18nService:
         is_machine_translated: bool = False
     ) -> bool:
         """Set or update a translation."""
+        source = 'machine' if is_machine_translated else 'manual'
         return TranslationManager.set_translation(
-            key_id, language_code, value, translator_id, is_machine_translated
+            key_id, language_code, value, translator_id, source
         )
 
     # ===== Key Methods =====

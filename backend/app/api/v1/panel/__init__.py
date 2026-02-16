@@ -16,9 +16,9 @@ from flask import Blueprint
 panel_bp = Blueprint('panel', __name__, url_prefix='/panel')
 
 # Import child blueprints
-from app.api.v1.panel.runner_modes import bp as runner_modes_bp
-from app.api.v1.panel.lm_type_compatibility import bp as lm_type_compatibility_bp
-from app.api.v1.panel.system_features import bp as system_features_bp
+from app.api.v1.panel.admin.config.runner_modes import bp as runner_modes_bp
+from app.api.v1.panel.admin.config.lm_type_compatibility import bp as lm_type_compatibility_bp
+from app.api.v1.panel.admin.config.system_features import bp as system_features_bp
 
 __all__ = [
     'panel_bp',

@@ -1,13 +1,29 @@
-/**
- * Desktop Stores (Deprecated Re-export Barrel)
- *
- * @deprecated Import from '@/application/stores/modules/desktop' instead
- * This re-export barrel will be REMOVED on 2027-01-20 (12 months)
- * ESLint will error after 2026-07-20 (6 months)
- *
- * Migration Guide:
- * - Old: import { useDesktopStore } from '@/application/stores/modules/desktop'
- * - New: import { useDesktopStore } from '@/application/stores/modules/desktop'
- */
+// Core
+export { useAuthStore } from './modules/core/auth.store'
+export { useAppStore } from './modules/core/app.store'
 
-export * from '@/application/stores/modules/desktop'
+// Admin
+export { useAdminPanelStore } from './modules/admin/panel.store'
+export { useAdminStore } from './modules/admin/admin.store'
+
+// Content
+export { useCourseEditorStore } from './modules/content/courseEditor.store'
+export { usePlayerStore } from './modules/content/player.store'
+
+// Workspace
+export { usePanelStore as useWorkspacePanelStore } from './modules/workspace/panel.store'
+
+// Feature Flags
+export { useFeatureFlagsStore } from './modules/feature-flags/feature-flags.store'
+
+// Learning
+export { useDashboardStore } from './modules/learning/dashboard.store'
+export { useTutorStore } from './modules/learning/tutor.store'
+
+// System
+export { useGamificationStore } from './modules/system/gamification.store'
+
+// UI
+export { useAvatarStore } from './modules/ui/avatar.store'
+export { useThemeStore } from './modules/ui/theme.store'
+export { useWindowStore } from './modules/ui/window.store'

@@ -102,8 +102,8 @@
 import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/application/stores/auth.store'
-import { useWindowStore } from '@/application/stores/window.store'
+import { useAuthStore } from '@/application/stores/modules/core/auth.store'
+import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import { DesktopLayer } from '@/presentation/components/shared/layout'
 import { LanguageSelector } from '@/presentation/components/shared/layout/i18n'
 
@@ -171,6 +171,7 @@ const menuItems = computed(() => {
     { path: '/panel/billing', label: t('panel.nav.billing'), icon: '💰' },
     { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },
     { path: '/panel/audit-logs', label: t('panel.nav.audit_logs'), icon: '📋' },
+    { path: '/panel/ai-settings', label: t('panel.nav.ai_settings'), icon: '🤖' },
     { path: '/panel/system-settings', label: t('panel.nav.settings'), icon: '⚙️' }
   ]
 })

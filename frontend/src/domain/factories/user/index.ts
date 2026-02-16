@@ -4,4 +4,4 @@
  * Factory methods for creating user domain objects
  */
 
-// Factories organized here
+export { UserFactory } from './UserFactory'

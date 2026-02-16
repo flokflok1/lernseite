@@ -47,7 +47,7 @@ import BaseLayout from '@/presentation/layouts/BaseLayout.vue'
 import AuthLayout from '@/presentation/layouts/AuthLayout.vue'
 // import { TutorCompanion } from '@/presentation/components/studio/system-features/tutor/user'
 import { useAuthStore } from '@/application/stores/modules/core'
-import { useAppStore } from '@/application/stores/app.store'
+import { useAppStore } from '@/application/stores/modules/core/app.store'
 // import { useTutorStore } from '@/application/stores/modules/learning'
 
 const route = useRoute()

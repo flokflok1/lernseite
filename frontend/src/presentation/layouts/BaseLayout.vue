@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/application/stores/auth.store'
+import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Footer } from '@/presentation/components/shared/layout'

@@ -4,4 +4,4 @@
  * Models for learning methods, flashcards, quizzes, progress
  */
 
-// Export models when available
+export { QuizResultModel } from './QuizResult.model'

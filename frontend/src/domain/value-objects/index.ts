@@ -1,8 +1,8 @@
 /**
  * Domain Value Objects
  * ====================
- * Immutable value objects with built-in validation:
- * - Email: Email address value object
+ * Immutable value objects with built-in validation.
  */
 
-export * from './Email.vo'
+// Currently empty — Email.vo and LearningMethodGroup.vo were removed as unused.
+// Add new value objects here as needed.

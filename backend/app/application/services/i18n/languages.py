@@ -71,14 +71,14 @@ class LanguageManager:
                     sl.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag_svg_code,
+                    sl.flag AS flag_svg_code,
                     sl.is_primary,
                     COALESCE(sl.priority, 100) as priority,
                     COALESCE(sl.is_rtl, FALSE) as rtl,
                     sl.is_active as active,
                     %s as total_keys,
                     COALESCE(trans_count.cnt, 0) as translated_keys,
-                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s) ELSE 0 END as completion_percent,
+                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s)::int ELSE 0 END as completion_percent,
                     0 as verified_keys,
                     0 as pending_suggestions
                 FROM translations.supported_languages sl
@@ -123,14 +123,14 @@ class LanguageManager:
                     sl.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag_svg_code,
+                    sl.flag AS flag_svg_code,
                     sl.is_primary,
                     COALESCE(sl.priority, 100) as priority,
                     COALESCE(sl.is_rtl, FALSE) as rtl,
                     sl.is_active as active,
                     %s as total_keys,
                     COALESCE(trans_count.cnt, 0) as translated_keys,
-                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s) ELSE 0 END as completion_percent
+                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s)::int ELSE 0 END as completion_percent
                 FROM translations.supported_languages sl
                 LEFT JOIN (
                     SELECT language_code, COUNT(*) as cnt
@@ -201,13 +201,13 @@ class LanguageManager:
                     sl.language_code,
                     sl.language_name,
                     sl.native_name,
-                    sl.flag_svg_code,
+                    sl.flag AS flag_svg_code,
                     sl.is_primary,
                     COALESCE(sl.priority, 100) as priority,
                     sl.is_active as active,
                     %s as total_keys,
                     COALESCE(trans_count.cnt, 0) as translated_keys,
-                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s) ELSE 0 END as completion_percent
+                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s)::int ELSE 0 END as completion_percent
                 FROM translations.supported_languages sl
                 LEFT JOIN (
                     SELECT language_code, COUNT(*) as cnt

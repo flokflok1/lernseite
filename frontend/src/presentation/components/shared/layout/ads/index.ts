@@ -1,2 +1,2 @@
 // Ads Components
-export { default as AdSlot } from '../../ui/layout/ads/AdSlot.vue'
+export { default as AdSlot } from './AdSlot.vue'

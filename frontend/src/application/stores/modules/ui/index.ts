@@ -1,7 +1,3 @@
-/**
- * UI Stores
- * Re-exports all UI-related stores (theme, avatar)
- */
-
-export * from './theme.store'
-export * from './avatar.store'
+export { useAvatarStore } from './avatar.store'
+export { useThemeStore } from './theme.store'
+export { useWindowStore } from './window.store'

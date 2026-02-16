@@ -1,0 +1,27 @@
+"""
+Shared Course Editor Utilities
+
+Permission decorators, shared logic, and publishing workflow for Course Editor.
+"""
+
+from .permissions import (
+    check_course_permission,
+    can_edit_course,
+    can_publish_course,
+    can_delete_course
+)
+
+# Import publishing workflow modules to register routes
+from . import (
+    publishing,
+    publishing_decisions,
+    publishing_visibility,
+    publishing_queue
+)
+
+__all__ = [
+    'check_course_permission',
+    'can_edit_course',
+    'can_publish_course',
+    'can_delete_course'
+]

@@ -9,7 +9,7 @@
  * Refactored: modules → chapters (2025-11-27)
  */
 
-import http from '../http'
+import http from '@/infrastructure/api/http'
 import {
   transformCourseFromAPI,
   transformChapterFromAPI,

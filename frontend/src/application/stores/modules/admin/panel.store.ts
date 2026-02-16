@@ -12,7 +12,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as adminApi from '@/application/services/api/admin'
+import * as adminApi from '@/application/services/api/panel-admin'
 import type {
   AdminUser,
   AdminOrganisation,
@@ -35,7 +35,7 @@ import type {
   AdminChapterUpdateRequest,
   Category,
   CategoryTreeNode
-} from '@/application/services/api/admin'
+} from '@/application/services/api/panel-admin'
 
 export const usePanelStore = defineStore('panel', () => {
   // ============================================================================

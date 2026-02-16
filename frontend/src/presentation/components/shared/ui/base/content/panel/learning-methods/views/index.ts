@@ -1,4 +1,0 @@
-/**
- * Learning Method Management Views
- */
-

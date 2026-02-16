@@ -45,6 +45,7 @@
       "settingsSaved": "Ustawienia zapisane pomyślnie",
       "testNetworkError": "Błąd sieci podczas testu",
       "unknownError": "Nieznany błąd ładowania dostawców",
+      "modelNotFound": "Nie znaleziono modelu",
       "unknownErrorGeneric": "Nieznany błąd"
     },
     "retry": "Spróbuj ponownie",

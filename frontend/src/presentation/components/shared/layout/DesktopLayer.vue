@@ -42,40 +42,40 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
-import { useWindowStore } from '@/application/stores/window.store'
-import type { WindowType } from '@/application/stores/window.store'
+import { useWindowStore } from '@/application/stores/modules/ui/window.store'
+import type { WindowType } from '@/application/stores/modules/ui/window.store'
 import WindowComponent from './WindowComponent.vue'
 import Taskbar from './Taskbar.vue'
-import { LEARNING_METHOD_REGISTRY as _LEARNING_METHOD_REGISTRY, getLearningMethodForm } from '@/presentation/components/learning/editor/learning-methods.registry'
+import { LEARNING_METHOD_REGISTRY as _LEARNING_METHOD_REGISTRY, getLearningMethodForm } from '@/presentation/components/panel/admin/learning-methods/learning-methods.registry'
 
 // Import window content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations
-const AdminAiStudioWindow = defineAsyncComponent(() => import('@/presentation/components/ai/panel/studio/views/AiStudioProWindow.vue'))
-const AdminAIKapitelGeneratorWindow = defineAsyncComponent(() => import('@/presentation/components/ai/panel/authoring/views/KapitelGeneratorWindow.vue'))
-const AdminAIJobWindow = defineAsyncComponent(() => import('@/presentation/components/ai/panel/management/jobs/views/AIJobWindow.vue'))
-const AdminModelSelectorWindow = defineAsyncComponent(() => import('@/presentation/components/ai/panel/management/models/views/ModelSelectorWindow.vue'))
-const AdminPromptBrowserWindow = defineAsyncComponent(() => import('@/presentation/components/ai/panel/management/prompts/PromptBrowser.vue'))
+const AdminAiStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/studio/views/AiStudioProWindow.vue'))
+const AdminAIKapitelGeneratorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/authoring/views/KapitelGeneratorWindow.vue'))
+const AdminAIJobWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/ai/management/jobs/views/AIJobWindow.vue'))
+const AdminModelSelectorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/ai/management/models/views/ModelSelectorWindow.vue'))
+const AdminPromptBrowserWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/ai/management/prompts/PromptBrowser.vue'))
 
 // Content Management - Courses
-const AdminCourseCreateWindow = defineAsyncComponent(() => import('@/presentation/components/content/panel/courses/views/CourseCreateWindow.vue'))
-const AdminCourseEditorWindow = defineAsyncComponent(() => import('@/presentation/components/content/panel/courses/views/CourseEditorWindow.vue'))
-const AdminCourseFilesWindow = defineAsyncComponent(() => import('@/presentation/components/content/panel/courses/views/CourseFilesWindow.vue'))
+const AdminCourseCreateWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/courses/views/CourseCreateWindow.vue'))
+const AdminCourseEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/courses/views/CourseEditorWindow.vue'))
+const AdminCourseFilesWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/courses/views/CourseFilesWindow.vue'))
 
 // Content Management - Chapters
 // MIGRATED: KapitelEditorWindow deleted (Windows forbidden) - use KapitelEditorPanel (Panel-based)
-const AdminKapitelManagerWindow = defineAsyncComponent(() => import('@/presentation/components/content/panel/chapters/views/KapitelManagerWindow.vue'))
-const AdminChapterPreviewWindow = defineAsyncComponent(() => import('@/presentation/components/content/panel/chapters/views/ChapterPreviewWindow.vue'))
+const AdminKapitelManagerWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/chapters/views/KapitelManagerWindow.vue'))
+const AdminChapterPreviewWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/chapters/views/ChapterPreviewWindow.vue'))
 
 // Content Management - Lessons
-const AdminLessonEditorWindow = defineAsyncComponent(() => import('@/presentation/components/content/panel/lessons/views/LessonEditorWindow.vue'))
-const AdminLessonPreviewWindow = defineAsyncComponent(() => import('@/presentation/components/content/panel/lessons/views/LessonPreviewWindow.vue'))
+const AdminLessonEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/lessons/views/LessonEditorWindow.vue'))
+const AdminLessonPreviewWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/lessons/views/LessonPreviewWindow.vue'))
 
 // Assessment
-const AdminExamManagerWindow = defineAsyncComponent(() => import('@/presentation/components/assessment/panel/views/ExamManagerWindow.vue'))
+const AdminExamManagerWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/assessment/views/ExamManagerWindow.vue'))
 
 // System Operations
-const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/presentation/components/system/panel/views/FilePreviewWindow.vue'))
-const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentation/components/system/panel/views/WindowManagerWindow.vue'))
+const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/system/views/FilePreviewWindow.vue'))
+const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/system/views/WindowManagerWindow.vue'))
 
 const windowStore = useWindowStore()
 

@@ -163,7 +163,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useSchemaI18n } from '@/application/composables/useSchemaI18n'
+import { useSchemaI18n } from '@/application/composables/i18n/useSchemaI18n'
 import type { UISchema, ResolvedField } from '@/infrastructure/utils/i18nResolver'
 
 interface Props {

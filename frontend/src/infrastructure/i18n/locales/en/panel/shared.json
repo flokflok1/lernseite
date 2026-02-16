@@ -56,6 +56,7 @@
     "uptimeDesc": "System running since"
   },
   "nav": {
+    "ai_settings": "AI Settings",
     "analytics": "Analytics",
     "audit_logs": "Audit Logs",
     "billing": "Billing",

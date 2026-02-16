@@ -6,7 +6,7 @@
 import { ref, computed, readonly } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTheoryManagement, type LessonExplanation, type TeachingStep } from '@/features/useTheoryManagement'
-import http from '@/application/services/api/system'
+import http from '@/infrastructure/api/http'
 
 // ============================================================================
 // Types

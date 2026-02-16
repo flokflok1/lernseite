@@ -45,13 +45,13 @@ class I18nLanguagesRepository(BaseRepository):
                     language_code,
                     language_name,
                     native_name,
-                    flag_svg_code,
+                    flag AS flag_svg_code,
                     priority,
                     is_primary,
                     is_active as active,
-                    COALESCE(completion_percent, 0) as completion_percent,
-                    COALESCE(total_keys, 0) as total_keys,
-                    COALESCE(translated_keys, 0) as translated_keys,
+                    COALESCE(completion_percent, 0)::int as completion_percent,
+                    COALESCE(total_keys, 0)::int as total_keys,
+                    COALESCE(translated_keys, 0)::int as translated_keys,
                     created_at
                 FROM translations.supported_languages
                 ORDER BY priority ASC, language_code ASC
@@ -74,13 +74,13 @@ class I18nLanguagesRepository(BaseRepository):
                     language_code,
                     language_name,
                     native_name,
-                    flag_svg_code,
+                    flag AS flag_svg_code,
                     priority,
                     is_primary,
                     is_active as active,
-                    COALESCE(completion_percent, 0) as completion_percent,
-                    COALESCE(total_keys, 0) as total_keys,
-                    COALESCE(translated_keys, 0) as translated_keys,
+                    COALESCE(completion_percent, 0)::int as completion_percent,
+                    COALESCE(total_keys, 0)::int as total_keys,
+                    COALESCE(translated_keys, 0)::int as translated_keys,
                     created_at
                 FROM translations.supported_languages
                 WHERE language_code = %s
@@ -100,13 +100,13 @@ class I18nLanguagesRepository(BaseRepository):
                     language_code,
                     language_name,
                     native_name,
-                    flag_svg_code,
+                    flag AS flag_svg_code,
                     priority,
                     is_primary,
                     is_active as active,
-                    COALESCE(completion_percent, 0) as completion_percent,
-                    COALESCE(total_keys, 0) as total_keys,
-                    COALESCE(translated_keys, 0) as translated_keys,
+                    COALESCE(completion_percent, 0)::int as completion_percent,
+                    COALESCE(total_keys, 0)::int as total_keys,
+                    COALESCE(translated_keys, 0)::int as translated_keys,
                     created_at
                 FROM translations.supported_languages
                 WHERE is_active = TRUE

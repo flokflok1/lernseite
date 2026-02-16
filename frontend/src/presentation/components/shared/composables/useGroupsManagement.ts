@@ -26,7 +26,7 @@ import {
   type Group,
   type GroupMember,
   type GroupPermission
-} from '@/infrastructure/api/clients/admin/groups.api'
+} from '@/infrastructure/api/clients/panel/admin/groups.api'
 
 export function useGroupsManagement() {
   // State

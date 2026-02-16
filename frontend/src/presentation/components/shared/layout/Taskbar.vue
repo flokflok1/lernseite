@@ -30,8 +30,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useWindowStore } from '@/application/stores/window.store'
-import type { LsxWindow as _LsxWindow } from '@/application/stores/window.store'
+import { useWindowStore } from '@/application/stores/modules/ui/window.store'
+import type { LsxWindow as _LsxWindow } from '@/application/stores/modules/ui/window.store'
 
 const windowStore = useWindowStore()
 

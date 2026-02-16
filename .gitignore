@@ -165,3 +165,5 @@ backend/ai_models/**/*.onnx
 *.safetensors
 .__archive/
 .claude/settings.local.json
+.worktrees/
+.playwright-mcp/

@@ -122,7 +122,7 @@ class AIProviderRepository:
                 created_at,
                 updated_at,
                 CASE WHEN encrypted_api_key IS NOT NULL THEN true ELSE false END as has_api_key
-            FROM ai_providers
+            FROM ai_pipeline.ai_providers
         """
 
         if not include_inactive:
@@ -334,7 +334,7 @@ class AIProviderRepository:
             error_message: Error message if any
         """
         query = """
-            INSERT INTO ai_provider_health (provider_id, status, response_time_ms, error_message)
+            INSERT INTO ai_pipeline.ai_provider_health (provider_id, status, response_time_ms, error_message)
             VALUES (%s, %s, %s, %s)
         """
         execute_query(query, (provider_id, status, response_time_ms, error_message))
@@ -353,7 +353,7 @@ class AIProviderRepository:
         """
         query = """
             SELECT health_id, status, response_time_ms, error_message, checked_at
-            FROM ai_provider_health
+            FROM ai_pipeline.ai_provider_health
             WHERE provider_id = %s
             ORDER BY checked_at DESC
             LIMIT %s

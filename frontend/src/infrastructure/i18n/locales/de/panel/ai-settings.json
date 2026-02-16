@@ -45,6 +45,7 @@
       "settingsSaved": "Einstellungen erfolgreich gespeichert",
       "testNetworkError": "Netzwerkfehler beim Testen",
       "unknownError": "Unbekannter Fehler beim Laden der Provider",
+      "modelNotFound": "Modell nicht gefunden",
       "unknownErrorGeneric": "Unbekannter Fehler"
     },
     "retry": "Erneut versuchen",

@@ -76,7 +76,7 @@ class ConfigManager:
                 SELECT
                     sl.language_code,
                     sl.language_name,
-                    sl.flag_svg_code,
+                    sl.flag AS flag_svg_code,
                     0 AS pending_count,
                     0 AS ai_reviewing_count,
                     0 AS awaiting_human_count,

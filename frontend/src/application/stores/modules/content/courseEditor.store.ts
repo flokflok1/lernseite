@@ -22,8 +22,8 @@ import type {
   UpdateChapterPayload,
   LessonPayload,
   UpdateLessonPayload,
-} from '@/application/services/api/content'
-import * as coursesApi from '@/application/services/api/content'
+} from '@/application/services/api/panel-editor'
+import * as coursesApi from '@/application/services/api/panel-editor'
 import { toCourseDomain, toChapterDomain, fromChapterDomain, fromLessonDomain } from './adapters'
 
 export const useCourseEditorStore = defineStore('courseEditor', () => {

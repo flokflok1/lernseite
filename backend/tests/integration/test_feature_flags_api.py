@@ -49,17 +49,17 @@ class TestFeatureFlagsAPI:
 
         # Feature Flags CRUD routes
         expected_routes = [
-            '/admin-panel/settings/feature-flags',
-            '/admin-panel/settings/feature-flags/<flag_id>',
-            '/admin-panel/settings/feature-flags/<flag_id>/enable',
-            '/admin-panel/settings/feature-flags/<flag_id>/disable',
+            '/panel/settings/feature-flags',
+            '/panel/settings/feature-flags/<flag_id>',
+            '/panel/settings/feature-flags/<flag_id>/enable',
+            '/panel/settings/feature-flags/<flag_id>/disable',
             # Rollout Plans CRUD routes
-            '/admin-panel/settings/rollout-plans',
-            '/admin-panel/settings/rollout-plans/<plan_id>',
+            '/panel/settings/rollout-plans',
+            '/panel/settings/rollout-plans/<plan_id>',
             # Rollout Plans Action routes
-            '/admin-panel/settings/rollout-plans/<plan_id>/execute',
-            '/admin-panel/settings/rollout-plans/<plan_id>/pause',
-            '/admin-panel/settings/rollout-plans/<plan_id>/rollback',
+            '/panel/settings/rollout-plans/<plan_id>/execute',
+            '/panel/settings/rollout-plans/<plan_id>/pause',
+            '/panel/settings/rollout-plans/<plan_id>/rollback',
         ]
 
         # Verify routes exist (they should be registered under api_v1)
@@ -80,10 +80,10 @@ class TestFeatureFlagsAPI:
         # Import the modules using importlib to handle hyphenated directory names
         import importlib
 
-        # Use relative imports to handle hyphenated 'admin-panel' directory
-        admin_panel = importlib.import_module('.admin-panel', package='app.api.v1')
-        settings = importlib.import_module('.settings', package='app.api.v1.admin-panel')
-        feature_flags = importlib.import_module('.feature_flags', package='app.api.v1.admin-panel.settings')
+        # Use relative imports to handle hyphenated 'panel' directory
+        admin_panel = importlib.import_module('.panel', package='app.api.v1')
+        settings = importlib.import_module('.settings', package='app.api.v1.panel')
+        feature_flags = importlib.import_module('.feature_flags', package='app.api.v1.panel.settings')
 
         routes = feature_flags.routes
         rollout_plans_crud = feature_flags.rollout_plans_crud
@@ -113,18 +113,18 @@ class TestFeatureFlagsEndpoints:
         Test that all 8 feature flags CRUD endpoints are properly structured.
 
         Endpoints:
-        1. GET /admin-panel/settings/feature-flags (List)
-        2. GET /admin-panel/settings/feature-flags/<id> (Get)
-        3. POST /admin-panel/settings/feature-flags (Create)
-        4. PUT /admin-panel/settings/feature-flags/<id> (Update)
-        5. DELETE /admin-panel/settings/feature-flags/<id> (Delete)
-        6. POST /admin-panel/settings/feature-flags/<id>/enable (Enable)
-        7. POST /admin-panel/settings/feature-flags/<id>/disable (Disable)
+        1. GET /panel/settings/feature-flags (List)
+        2. GET /panel/settings/feature-flags/<id> (Get)
+        3. POST /panel/settings/feature-flags (Create)
+        4. PUT /panel/settings/feature-flags/<id> (Update)
+        5. DELETE /panel/settings/feature-flags/<id> (Delete)
+        6. POST /panel/settings/feature-flags/<id>/enable (Enable)
+        7. POST /panel/settings/feature-flags/<id>/disable (Disable)
         8. + 1 more: Implicit GET for feature flag detail view
         """
         # Import using importlib to handle hyphenated directory names
         import importlib
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
 
         # Verify module has endpoint functions
@@ -148,15 +148,15 @@ class TestFeatureFlagsEndpoints:
         Test that all 5 rollout plans CRUD endpoints are properly structured.
 
         Endpoints:
-        1. GET /admin-panel/settings/rollout-plans (List)
-        2. GET /admin-panel/settings/rollout-plans/<id> (Get)
-        3. POST /admin-panel/settings/rollout-plans (Create)
-        4. PUT /admin-panel/settings/rollout-plans/<id> (Update)
-        5. DELETE /admin-panel/settings/rollout-plans/<id> (Delete)
+        1. GET /panel/settings/rollout-plans (List)
+        2. GET /panel/settings/rollout-plans/<id> (Get)
+        3. POST /panel/settings/rollout-plans (Create)
+        4. PUT /panel/settings/rollout-plans/<id> (Update)
+        5. DELETE /panel/settings/rollout-plans/<id> (Delete)
         """
         # Import via importlib to avoid hyphen issues
         import importlib
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         rollout_plans_crud = feature_flags.rollout_plans_crud
 
         # Verify module has endpoint functions
@@ -178,13 +178,13 @@ class TestFeatureFlagsEndpoints:
         Test that all 3 rollout plans action endpoints are properly structured.
 
         Endpoints:
-        1. POST /admin-panel/settings/rollout-plans/<id>/execute (Execute stage)
-        2. POST /admin-panel/settings/rollout-plans/<id>/pause (Pause rollout)
-        3. POST /admin-panel/settings/rollout-plans/<id>/rollback (Rollback)
+        1. POST /panel/settings/rollout-plans/<id>/execute (Execute stage)
+        2. POST /panel/settings/rollout-plans/<id>/pause (Pause rollout)
+        3. POST /panel/settings/rollout-plans/<id>/rollback (Rollback)
         """
         # Import via importlib to avoid hyphen issues
         import importlib
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         rollout_plans_actions = feature_flags.rollout_plans_actions
 
         # Verify module has endpoint functions
@@ -203,7 +203,7 @@ class TestFeatureFlagsEndpoints:
         """Test that all Pydantic schemas are valid and importable."""
         # Import via importlib to avoid hyphen issues
         import importlib
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         schemas = feature_flags.schemas
 
         # Verify schemas are importable
@@ -231,7 +231,7 @@ class TestFeatureFlagsEndpoints:
         import inspect
         import importlib
         # Import via importlib to avoid hyphen issues
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
         rollout_plans_crud = feature_flags.rollout_plans_crud
         rollout_plans_actions = feature_flags.rollout_plans_actions
@@ -256,7 +256,7 @@ class TestFeatureFlagsEndpoints:
         import inspect
         import importlib
         # Import via importlib to avoid hyphen issues
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
 
         # Check that endpoints import and use ErrorCode
@@ -269,7 +269,7 @@ class TestFeatureFlagsEndpoints:
         import inspect
         import importlib
         # Import via importlib to avoid hyphen issues
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
         rollout_plans_crud = feature_flags.rollout_plans_crud
         rollout_plans_actions = feature_flags.rollout_plans_actions
@@ -291,7 +291,7 @@ class TestFeatureFlagsEndpoints:
         import inspect
         import importlib
         # Import via importlib to avoid hyphen issues
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
 
         source = inspect.getsource(routes)
@@ -303,7 +303,7 @@ class TestFeatureFlagsEndpoints:
         import inspect
         import importlib
         # Import via importlib to avoid hyphen issues
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
 
         # Check list_feature_flags has return type hint
@@ -325,9 +325,9 @@ class TestFeatureFlagsQualityGates:
         import os
 
         files_to_check = [
-            '/home/pascal/Lernsystem/backend/app/api/v1/admin-panel/settings/feature_flags/routes.py',
-            '/home/pascal/Lernsystem/backend/app/api/v1/admin-panel/settings/feature_flags/rollout_plans_crud.py',
-            '/home/pascal/Lernsystem/backend/app/api/v1/admin-panel/settings/feature_flags/rollout_plans_actions.py',
+            '/home/pascal/Lernsystem/backend/app/api/v1/panel/settings/feature_flags/routes.py',
+            '/home/pascal/Lernsystem/backend/app/api/v1/panel/settings/feature_flags/rollout_plans_crud.py',
+            '/home/pascal/Lernsystem/backend/app/api/v1/panel/settings/feature_flags/rollout_plans_actions.py',
         ]
 
         for file_path in files_to_check:
@@ -340,7 +340,7 @@ class TestFeatureFlagsQualityGates:
         """Test that imports are correct and follow DDD pattern."""
         # Try to import the modules via importlib to avoid hyphen issues
         import importlib
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
         rollout_plans_crud = feature_flags.rollout_plans_crud
         rollout_plans_actions = feature_flags.rollout_plans_actions
@@ -355,7 +355,7 @@ class TestFeatureFlagsQualityGates:
         import inspect
         import importlib
         # Import via importlib to avoid hyphen issues
-        feature_flags = importlib.import_module('.admin-panel.settings.feature_flags', package='app.api.v1')
+        feature_flags = importlib.import_module('.panel.settings.feature_flags', package='app.api.v1')
         routes = feature_flags.routes
         rollout_plans_crud = feature_flags.rollout_plans_crud
         rollout_plans_actions = feature_flags.rollout_plans_actions

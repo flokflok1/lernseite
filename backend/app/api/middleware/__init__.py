@@ -25,12 +25,6 @@ from app.api.middleware.monitoring_middleware import (
     monitor_function
 )
 
-from app.api.middleware.panel_alias import (
-    register_panel_alias_middleware,
-    get_canonical_url,
-    is_deprecated_prefix
-)
-
 __all__ = [
     'token_required',
     'admin_required',
@@ -39,7 +33,4 @@ __all__ = [
     'get_current_user_id',
     'setup_monitoring_middleware',
     'monitor_function',
-    'register_panel_alias_middleware',
-    'get_canonical_url',
-    'is_deprecated_prefix'
 ]

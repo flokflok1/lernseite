@@ -165,24 +165,11 @@ export interface QuizSubmitRequest {
   answers: QuizAnswerSubmission[]
 }
 
-export interface QuizQuestionResult {
-  question_id: number
-  is_correct: boolean
-  points_earned: number
-  user_answer: any
-  correct_answer: any
-  explanation?: string
-}
-
-export interface QuizResult {
-  quiz_id: number
-  passed: boolean
-  score: number
-  total_points: number
-  percentage: number
-  questions: QuizQuestionResult[]
-  completed_at: string
-}
+/**
+ * QuizQuestionResult and QuizResult re-exported from domain.
+ * Canonical definitions live in domain/models/learning/types.ts
+ */
+export type { QuizQuestionResult, QuizResult } from '@/domain/models/learning/types'
 
 export interface SavedTaskExecution {
   execution_id: number

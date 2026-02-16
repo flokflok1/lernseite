@@ -143,7 +143,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/application/stores/window.store'
+import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
 
 const { t } = useI18n()
 

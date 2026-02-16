@@ -18,7 +18,7 @@
 
 import { createI18n } from 'vue-i18n'
 import type { App } from 'vue'
-import { initializeSchemaI18n } from '@/application/composables/useSchemaI18n'
+import { initializeSchemaI18n } from '@/application/composables/i18n/useSchemaI18n'
 
 // =============================================================================
 // Import locale modules (organized by language/domain in infrastructure layer)
@@ -173,7 +173,7 @@ export async function initializeI18n(): Promise<void> {
     if (isInstalled) {
       try {
         // Import API dynamically to avoid circular dependencies
-        const { getBundle } = await import('@/infrastructure/api/clients/system/i18n.api')
+        const { getBundle } = await import('@/infrastructure/api/clients/public/i18n.api')
 
         // Load German (base language) from API and merge with file translations
         try {
@@ -236,7 +236,7 @@ export async function setLanguage(lang: string): Promise<void> {
     // If we don't have this language in memory yet, try loading from API
     const currentMessages = i18n.global.getLocaleMessage(lang)
     if (!currentMessages || Object.keys(currentMessages).length === 0) {
-      const { getBundle } = await import('@/infrastructure/api/clients/system/i18n.api')
+      const { getBundle } = await import('@/infrastructure/api/clients/public/i18n.api')
       const bundle = await getBundle(lang)
       if (bundle && Object.keys(bundle).length > 0) {
         i18n.global.setLocaleMessage(lang, bundle)

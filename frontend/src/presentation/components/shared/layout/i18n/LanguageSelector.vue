@@ -76,8 +76,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useTranslation } from '@/application/composables/useTranslation'
-import type { LanguageProgress } from '@/application/services/api/system'
+import { useTranslation } from '@/application/composables/i18n/useTranslation'
+import type { LanguageProgress } from '@/application/services/api/public'
 import 'flag-icons/css/flag-icons.min.css'
 
 // Map language codes to country codes (ISO 3166-1-alpha-2)

@@ -539,7 +539,7 @@ export function getLearningMethodByPromptKey(promptKey: string): LearningMethod 
  *
  * @example
  * // In Vue Komponenten:
- * import { useGroupTier } from '@/application/composables/useGroupTier'
+ * import { useGroupTier } from '@/application/composables/learning/useGroupTier'
  * const { getTierFromGroup, loadGroups } = useGroupTier()
  * onMounted(async () => await loadGroups())
  *

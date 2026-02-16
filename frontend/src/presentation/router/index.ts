@@ -14,17 +14,17 @@
  */
 
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { useAuthStore } from '@/application/stores/auth.store'
-import { useAppStore } from '@/application/stores/app.store'
-import { panelRoutes } from '@/presentation/features/panel/routes'
-import { editorRoutes } from '@/presentation/features/editor/routes'
+import { useAuthStore } from '@/application/stores/modules/core/auth.store'
+import { useAppStore } from '@/application/stores/modules/core/app.store'
+import { panelRoutes } from '@/presentation/pages/panel/admin/routes'
+import { editorRoutes } from '@/presentation/pages/panel/editor/routes'
 
 const routes: RouteRecordRaw[] = [
   // Setup Wizard Routes
   {
     path: '/setup',
     name: 'Setup',
-    component: () => import('@/presentation/pages/setup/SetupWizardPage.vue'),
+    component: () => import('@/presentation/pages/public/setup/SetupWizardPage.vue'),
     // Access controlled by navigation guard - redirects to login if setup not required
   },
 
@@ -41,13 +41,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/presentation/pages/auth/LoginPage.vue'),
+    component: () => import('@/presentation/pages/public/auth/LoginPage.vue'),
     meta: { requiresGuest: true }, // Only accessible when NOT logged in
   },
   {
     path: '/register',
     name: 'Register',
-    component: () => import('@/presentation/pages/auth/RegisterPage.vue'),
+    component: () => import('@/presentation/pages/public/auth/RegisterPage.vue'),
     meta: { requiresGuest: true },
   },
 
@@ -55,19 +55,19 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/presentation/pages/dashboard/DashboardPage.vue'),
+    component: () => import('@/presentation/pages/panel/user/dashboard/DashboardPage.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/profile',
     name: 'Profile',
-    component: () => import('@/presentation/pages/ProfilePage.vue'),
+    component: () => import('@/presentation/pages/panel/user/profile/ProfilePage.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/settings',
     name: 'Settings',
-    component: () => import('@/presentation/pages/SettingsPage.vue'),
+    component: () => import('@/presentation/pages/panel/user/profile/SettingsPage.vue'),
     meta: { requiresAuth: true },
   },
 
@@ -75,34 +75,34 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/courses',
     name: 'Courses',
-    component: () => import('@/presentation/pages/CoursesPage.vue'),
+    component: () => import('@/presentation/pages/panel/user/courses/CoursesPage.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/course/:courseId',
     name: 'CourseOverview',
-    component: () => import('@/presentation/pages/CourseOverviewPage.vue'),
+    component: () => import('@/presentation/pages/panel/user/courses/CourseOverviewPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
   {
     path: '/course/:courseId/chapter/:chapterId',
     name: 'ChapterDetail',
-    component: () => import('@/presentation/pages/ChapterDetailPage.vue'),
+    component: () => import('@/presentation/pages/panel/user/courses/ChapterDetailPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
   {
     path: '/course/:courseId/chapter/:chapterId/lesson/:lessonId',
     name: 'LessonPlayer',
-    component: () => import('@/presentation/pages/LessonPlayerPage.vue'),
+    component: () => import('@/presentation/pages/panel/user/learning/LessonPlayerPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
   {
     path: '/course/:courseId/exam-simulation',
     name: 'ExamSimulation',
-    component: () => import('@/presentation/pages/ExamSimulationPage.vue'),
+    component: () => import('@/presentation/pages/panel/user/learning/ExamSimulationPage.vue'),
     meta: { requiresAuth: true },
     props: true,
   },
@@ -111,7 +111,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/ai-editor',
     name: 'AIEditor',
-    component: () => import('@/presentation/pages/ai/AIEditorPage.vue'),
+    component: () => import('@/presentation/pages/panel/admin/ai/AIEditorPage.vue'),
     meta: { requiresAuth: true },
     // GBA handles feature visibility inside component
   },
@@ -130,18 +130,18 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'courses',
         name: 'CreatorCourses',
-        component: () => import('@/presentation/pages/creator/CreatorCoursesPage.vue'),
+        component: () => import('@/presentation/pages/panel/editor/CreatorCoursesPage.vue'),
       },
       {
         path: 'courses/new',
         name: 'CreateCourse',
-        component: () => import('@/presentation/pages/creator/CourseEditorPage.vue'),
+        component: () => import('@/presentation/pages/panel/editor/CourseEditorPage.vue'),
         props: { mode: 'create' },
       },
       {
         path: 'courses/:courseId/edit',
         name: 'EditCourse',
-        component: () => import('@/presentation/pages/creator/CourseEditorPage.vue'),
+        component: () => import('@/presentation/pages/panel/editor/CourseEditorPage.vue'),
         props: (route) => ({ courseId: Number(route.params.courseId), mode: 'edit' }),
       },
     ],
@@ -151,31 +151,31 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/legal/imprint',
     name: 'Imprint',
-    component: () => import('@/presentation/pages/legal/ImprintPage.vue'),
+    component: () => import('@/presentation/pages/public/legal/ImprintPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/privacy',
     name: 'Privacy',
-    component: () => import('@/presentation/pages/legal/PrivacyPage.vue'),
+    component: () => import('@/presentation/pages/public/legal/PrivacyPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/terms',
     name: 'Terms',
-    component: () => import('@/presentation/pages/legal/TermsPage.vue'),
+    component: () => import('@/presentation/pages/public/legal/TermsPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/cookies',
     name: 'Cookies',
-    component: () => import('@/presentation/pages/legal/CookiesPage.vue'),
+    component: () => import('@/presentation/pages/public/legal/CookiesPage.vue'),
     meta: { isPublic: true },
   },
   {
     path: '/legal/content-usage',
     name: 'ContentUsage',
-    component: () => import('@/presentation/pages/legal/ContentUsagePage.vue'),
+    component: () => import('@/presentation/pages/public/legal/ContentUsagePage.vue'),
     meta: { isPublic: true },
   },
   {

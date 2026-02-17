@@ -1,0 +1,103 @@
+{
+  "manualEditor": {
+    "tabs": {
+      "content": "Inhalt",
+      "courseInfo": "Kurs-Info",
+      "media": "Medien",
+      "preview": "Vorschau",
+      "lessonSettings": "Lektion"
+    },
+    "mode": {
+      "label": "Modus",
+      "beginner": "Einsteiger",
+      "advanced": "Fortgeschritten",
+      "expert": "Experte"
+    },
+    "structure": {
+      "title": "Struktur",
+      "addChapter": "Kapitel hinzufügen",
+      "addLesson": "Lektion hinzufügen",
+      "chapterName": "Kapitelname",
+      "lessonName": "Lektionsname",
+      "deleteChapter": "Kapitel löschen",
+      "deleteLesson": "Lektion löschen",
+      "confirmDeleteChapter": "Kapitel \"{name}\" und alle Lektionen löschen?",
+      "confirmDeleteLesson": "Lektion \"{name}\" wirklich löschen?",
+      "emptyState": "Erstelle dein erstes Kapitel",
+      "chapters": "{count} Kapitel",
+      "lessons": "{count} Lektionen"
+    },
+    "content": {
+      "title": "Inhalt bearbeiten",
+      "placeholder": "Beginne hier zu schreiben...",
+      "noLessonSelected": "Wähle eine Lektion aus der Struktur",
+      "videoUrl": "Video-URL",
+      "videoPlatform": "Plattform",
+      "quizQuestion": "Frage",
+      "quizAnswer": "Antwort",
+      "quizAddAnswer": "Antwort hinzufügen",
+      "quizCorrect": "Richtige Antwort",
+      "aiPrompt": "KI-Prompt",
+      "aiGenerate": "Generieren"
+    },
+    "courseInfo": {
+      "title": "Kurs-Informationen",
+      "courseName": "Kursname",
+      "description": "Beschreibung",
+      "descriptionHint": "Max. 500 Zeichen",
+      "difficulty": "Schwierigkeitsgrad",
+      "language": "Sprache",
+      "duration": "Geschätzte Dauer (Min.)",
+      "tags": "Schlagwörter",
+      "tagsHint": "Enter drücken zum Hinzufügen",
+      "visibility": "Sichtbarkeit",
+      "visibilityPublic": "Öffentlich",
+      "visibilityPrivate": "Privat",
+      "visibilityUnlisted": "Nicht gelistet"
+    },
+    "media": {
+      "title": "Medien-Bibliothek",
+      "upload": "Datei hochladen",
+      "dragHint": "Dateien hierher ziehen oder klicken",
+      "maxSize": "Max. {size} MB",
+      "uploading": "Wird hochgeladen...",
+      "copyEmbed": "Einbettungscode kopieren",
+      "delete": "Löschen",
+      "noFiles": "Noch keine Dateien hochgeladen",
+      "fileTypes": "Bilder, Videos, Dokumente",
+      "fileTooLarge": "Datei ist zu groß (max. {size} MB)",
+      "confirmDelete": "Datei \"{name}\" wirklich löschen?"
+    },
+    "preview": {
+      "title": "Vorschau",
+      "noContent": "Kein Inhalt zum Anzeigen",
+      "desktop": "Desktop",
+      "mobile": "Mobil"
+    },
+    "lessonSettings": {
+      "title": "Lektion-Einstellungen",
+      "lessonTitle": "Titel",
+      "lessonType": "Typ",
+      "typeText": "Text",
+      "typeVideo": "Video",
+      "typeQuiz": "Quiz",
+      "typeAi": "KI-generiert",
+      "readingTime": "Lesezeit",
+      "readingTimeAuto": "Automatisch berechnet",
+      "position": "Position",
+      "notes": "Interne Notizen",
+      "notesHint": "Nur für Autoren sichtbar"
+    },
+    "toolbar": {
+      "save": "Speichern",
+      "saving": "Speichern...",
+      "saved": "Gespeichert",
+      "unsaved": "Ungespeichert"
+    },
+    "levels": {
+      "beginner": "Anfänger",
+      "intermediate": "Fortgeschritten",
+      "advanced": "Experte"
+    }
+  }
+}

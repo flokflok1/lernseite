@@ -36,7 +36,8 @@
     },
     "launcher": {
       "title": "Kurs-Editor",
-      "description": "Klicke links auf einen Editor, um ein Fenster zu öffnen."
+      "description": "Klicke auf einen Button, um den Editor als Fenster zu öffnen.",
+      "hint": "Hinweis: Bei Nutzung des KI-Editors bitte Ergebnisse immer gegenlesen und recherchieren."
     }
   },
   "dashboard": {

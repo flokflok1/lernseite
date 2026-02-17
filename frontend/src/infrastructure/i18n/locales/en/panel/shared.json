@@ -36,7 +36,8 @@
     },
     "launcher": {
       "title": "Course Editor",
-      "description": "Click an editor on the left to open a window."
+      "description": "Click a button to open the editor as a window.",
+      "hint": "Note: When using the AI Editor, always review and verify the generated results."
     }
   },
   "dashboard": {

@@ -12,6 +12,7 @@
       <div class="launcher-icon">&#9997;&#65039;</div>
       <h2 class="launcher-title">{{ $t('panel.editor.launcher.title') }}</h2>
       <p class="launcher-description">{{ $t('panel.editor.launcher.description') }}</p>
+      <p class="launcher-hint">{{ $t('panel.editor.launcher.hint') }}</p>
 
       <div class="launcher-buttons">
         <button class="launcher-btn" @click="openManualEditor">
@@ -92,6 +93,13 @@ function openAIEditor(): void {
 
 .launcher-description {
   font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.launcher-hint {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #b0b5bd;
   margin: 0 0 2rem;
 }
 

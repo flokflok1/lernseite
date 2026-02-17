@@ -36,7 +36,8 @@
     },
     "launcher": {
       "title": "Edytor kursów",
-      "description": "Kliknij edytor po lewej, aby otworzyć okno."
+      "description": "Kliknij przycisk, aby otworzyć edytor w oknie.",
+      "hint": "Uwaga: Korzystając z edytora AI, zawsze weryfikuj i sprawdzaj wygenerowane wyniki."
     }
   },
   "dashboard": {

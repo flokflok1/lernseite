@@ -33,9 +33,9 @@ const props = defineProps<{
   courseId?: string
 }>()
 
-const { isAvailable, isLoading, checkAvailability } = useSystemFeature('speech_to_text')
+const { isAvailable, isLoading, loadConfig } = useSystemFeature('speech_to_text')
 
-onMounted(() => checkAvailability())
+onMounted(() => loadConfig(props.courseId))
 </script>
 
 <style scoped>

@@ -33,9 +33,9 @@ const props = defineProps<{
   courseId?: string
 }>()
 
-const { isAvailable, isLoading, checkAvailability } = useSystemFeature('ihk_exam_system')
+const { isAvailable, isLoading, loadConfig } = useSystemFeature('ihk_exam_system')
 
-onMounted(() => checkAvailability())
+onMounted(() => loadConfig(props.courseId))
 </script>
 
 <style scoped>

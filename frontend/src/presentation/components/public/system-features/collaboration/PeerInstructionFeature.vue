@@ -33,9 +33,9 @@ const props = defineProps<{
   courseId?: string
 }>()
 
-const { isAvailable, isLoading, checkAvailability } = useSystemFeature('peer_instruction')
+const { isAvailable, isLoading, loadConfig } = useSystemFeature('peer_instruction')
 
-onMounted(() => checkAvailability())
+onMounted(() => loadConfig(props.courseId))
 </script>
 
 <style scoped>

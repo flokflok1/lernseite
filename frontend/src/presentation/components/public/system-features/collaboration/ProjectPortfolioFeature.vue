@@ -33,9 +33,9 @@ const props = defineProps<{
   courseId?: string
 }>()
 
-const { isAvailable, isLoading, checkAvailability } = useSystemFeature('project_portfolio')
+const { isAvailable, isLoading, loadConfig } = useSystemFeature('project_portfolio')
 
-onMounted(() => checkAvailability())
+onMounted(() => loadConfig(props.courseId))
 </script>
 
 <style scoped>

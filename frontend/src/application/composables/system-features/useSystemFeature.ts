@@ -11,7 +11,7 @@
  */
 
 import { ref, computed, type Ref, type ComputedRef } from 'vue'
-import { apiClient } from '@/infrastructure/api/clients/config/apiClient'
+import http from '@/infrastructure/api/http'
 import type {
   SystemFeatureCode,
   SystemFeatureCategory,
@@ -91,7 +91,7 @@ export function useSystemFeature(featureCode: SystemFeatureCode): UseSystemFeatu
     error.value = null
 
     try {
-      const response = await apiClient.get(`${BASE_URL}/registry/features`)
+      const response = await http.get(`${BASE_URL}/registry/features`)
       const features: SystemFeature[] = response.data?.features ?? []
 
       // Populate cache with all features
@@ -103,8 +103,9 @@ export function useSystemFeature(featureCode: SystemFeatureCode): UseSystemFeatu
       const thisFeature = featureCache.value.get(featureCode)
       isAvailable.value = thisFeature?.active ?? false
       featureConfig.value = thisFeature?.config ?? {}
-    } catch (e: any) {
-      error.value = e.response?.data?.error || e.message || 'Failed to check feature availability'
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { error?: string } }; message?: string }
+      error.value = err.response?.data?.error || err.message || 'Failed to check feature availability'
       isAvailable.value = false
     } finally {
       isLoading.value = false
@@ -118,12 +119,12 @@ export function useSystemFeature(featureCode: SystemFeatureCode): UseSystemFeatu
     try {
       if (courseId) {
         // Load course-level config override
-        const response = await apiClient.get(
+        const response = await http.get(
           `${BASE_URL}/registry/courses/${courseId}/features`
         )
         const courseFeatures = response.data?.features ?? []
         const match = courseFeatures.find(
-          (f: any) => f.feature_code === featureCode
+          (f: { feature_code: string; enabled?: boolean; config_override?: Record<string, unknown> }) => f.feature_code === featureCode
         )
         if (match) {
           isAvailable.value = match.enabled ?? false
@@ -136,8 +137,9 @@ export function useSystemFeature(featureCode: SystemFeatureCode): UseSystemFeatu
         // Load system-level config
         await checkAvailability()
       }
-    } catch (e: any) {
-      error.value = e.response?.data?.error || e.message || 'Failed to load feature config'
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { error?: string } }; message?: string }
+      error.value = err.response?.data?.error || err.message || 'Failed to load feature config'
     } finally {
       isLoading.value = false
     }

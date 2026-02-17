@@ -19,7 +19,7 @@
  */
 
 import type { AxiosResponse } from 'axios'
-import { apiClient } from '../config/apiClient'
+import http from '@/infrastructure/api/http'
 import type {
   WhiteboardDrawingData,
   WhiteboardRecognizeData,
@@ -59,19 +59,19 @@ export const interactiveTools = {
    */
   whiteboard: {
     createCanvas: (data: { title: string; width?: number; height?: number }): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/interactive/whiteboard/canvas`, data),
+      http.post(`${BASE_URL}/interactive/whiteboard/canvas`, data),
 
     getCanvas: (canvasId: string): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}`),
+      http.get(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}`),
 
     addDrawing: (canvasId: string, data: WhiteboardDrawingData): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}/draw`, data),
+      http.post(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}/draw`, data),
 
     recognizeDrawing: (canvasId: string, data: WhiteboardRecognizeData): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}/recognize`, data),
+      http.post(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}/recognize`, data),
 
     deleteCanvas: (canvasId: string): Promise<AxiosResponse> =>
-      apiClient.delete(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}`)
+      http.delete(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}`)
   },
 
   /**
@@ -79,13 +79,13 @@ export const interactiveTools = {
    */
   sandbox: {
     createEnvironment: (data: { type: string; os: string; resources?: SandboxResources }): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/interactive/it-sandbox/environment`, data),
+      http.post(`${BASE_URL}/interactive/it-sandbox/environment`, data),
 
     executeCode: (envId: string, data: { code: string; language: string; timeout?: number }): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/interactive/it-sandbox/environment/${envId}/execute`, data),
+      http.post(`${BASE_URL}/interactive/it-sandbox/environment/${envId}/execute`, data),
 
     deleteEnvironment: (envId: string): Promise<AxiosResponse> =>
-      apiClient.delete(`${BASE_URL}/interactive/it-sandbox/environment/${envId}`)
+      http.delete(`${BASE_URL}/interactive/it-sandbox/environment/${envId}`)
   },
 
   /**
@@ -93,12 +93,12 @@ export const interactiveTools = {
    */
   speech: {
     transcribe: (data: FormData): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/interactive/speech-to-text/transcribe`, data, {
+      http.post(`${BASE_URL}/interactive/speech-to-text/transcribe`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       }),
 
     getTranscription: (transcriptionId: string): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/interactive/speech-to-text/transcription/${transcriptionId}`)
+      http.get(`${BASE_URL}/interactive/speech-to-text/transcription/${transcriptionId}`)
   }
 }
 
@@ -112,7 +112,7 @@ export const exam = {
    */
   ihk: {
     simulate: (data: IHKSimulateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/exam/ihk/simulate`, data)
+      http.post(`${BASE_URL}/exam/ihk/simulate`, data)
   },
 
   /**
@@ -120,7 +120,7 @@ export const exam = {
    */
   practical: {
     create: (data: PracticalExamCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/exam/practical/create`, data)
+      http.post(`${BASE_URL}/exam/practical/create`, data)
   },
 
   /**
@@ -128,7 +128,7 @@ export const exam = {
    */
   comprehension: {
     check: (data: ComprehensionCheckRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/exam/comprehension/check`, data)
+      http.post(`${BASE_URL}/exam/comprehension/check`, data)
   },
 
   /**
@@ -136,7 +136,7 @@ export const exam = {
    */
   chapterCompletion: {
     getStatus: (chapterId: string): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/exam/chapter-completion/status/${chapterId}`)
+      http.get(`${BASE_URL}/exam/chapter-completion/status/${chapterId}`)
   },
 
   /**
@@ -144,10 +144,10 @@ export const exam = {
    */
   simulations: {
     getAttempts: (): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/exam/simulations/attempts`),
+      http.get(`${BASE_URL}/exam/simulations/attempts`),
 
     startSimulation: (data: ExamSimulationStartRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/exam/simulations/start`, data)
+      http.post(`${BASE_URL}/exam/simulations/start`, data)
   }
 }
 
@@ -161,7 +161,7 @@ export const mathToolkit = {
    */
   practice: {
     getPractice: (): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/math/toolkit/practice`)
+      http.get(`${BASE_URL}/math/toolkit/practice`)
   },
 
   /**
@@ -169,7 +169,7 @@ export const mathToolkit = {
    */
   reference: {
     getReference: (): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/math/toolkit/reference`)
+      http.get(`${BASE_URL}/math/toolkit/reference`)
   },
 
   /**
@@ -177,7 +177,7 @@ export const mathToolkit = {
    */
   tasks: {
     getTasks: (): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/math/toolkit/tasks`)
+      http.get(`${BASE_URL}/math/toolkit/tasks`)
   },
 
   /**
@@ -185,10 +185,10 @@ export const mathToolkit = {
    */
   admin: {
     createPattern: (data: MathPatternCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/math/toolkit/admin/patterns`, data),
+      http.post(`${BASE_URL}/math/toolkit/admin/patterns`, data),
 
     createFormula: (data: MathFormulaCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/math/toolkit/admin/formulas`, data)
+      http.post(`${BASE_URL}/math/toolkit/admin/formulas`, data)
   }
 }
 
@@ -202,7 +202,7 @@ export const gamification = {
    */
   adaptiveDifficulty: {
     adjust: (data: AdaptiveDifficultyAdjustRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/gamification/adaptive-difficulty/adjust`, data)
+      http.post(`${BASE_URL}/gamification/adaptive-difficulty/adjust`, data)
   },
 
   /**
@@ -210,7 +210,7 @@ export const gamification = {
    */
   xpQuest: {
     getStatus: (): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/gamification/xp-quest/status`)
+      http.get(`${BASE_URL}/gamification/xp-quest/status`)
   },
 
   /**
@@ -218,7 +218,7 @@ export const gamification = {
    */
   dailyRecall: {
     getQuestions: (): Promise<AxiosResponse> =>
-      apiClient.get(`${BASE_URL}/gamification/daily-recall/questions`)
+      http.get(`${BASE_URL}/gamification/daily-recall/questions`)
   }
 }
 
@@ -232,7 +232,7 @@ export const tutor = {
    */
   npc: {
     chat: (data: { message: string }): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/tutor/npc/chat`, data)
+      http.post(`${BASE_URL}/tutor/npc/chat`, data)
   },
 
   /**
@@ -240,7 +240,7 @@ export const tutor = {
    */
   socratic: {
     start: (data: SocraticDialogStartRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/tutor/socratic/start`, data)
+      http.post(`${BASE_URL}/tutor/socratic/start`, data)
   }
 }
 
@@ -254,7 +254,7 @@ export const collaboration = {
    */
   peerInstruction: {
     createSession: (data: PeerInstructionSessionRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/collaboration/peer-instruction/session`, data)
+      http.post(`${BASE_URL}/collaboration/peer-instruction/session`, data)
   },
 
   /**
@@ -262,7 +262,7 @@ export const collaboration = {
    */
   teamCase: {
     create: (data: TeamCaseCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/collaboration/team-case/create`, data)
+      http.post(`${BASE_URL}/collaboration/team-case/create`, data)
   },
 
   /**
@@ -270,7 +270,7 @@ export const collaboration = {
    */
   peerReview: {
     submit: (data: PeerReviewSubmitRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/collaboration/peer-review/submit`, data)
+      http.post(`${BASE_URL}/collaboration/peer-review/submit`, data)
   },
 
   /**
@@ -278,7 +278,7 @@ export const collaboration = {
    */
   learningJournal: {
     createEntry: (data: LearningJournalEntryRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/collaboration/learning-journal/entry`, data)
+      http.post(`${BASE_URL}/collaboration/learning-journal/entry`, data)
   },
 
   /**
@@ -286,7 +286,7 @@ export const collaboration = {
    */
   projectPortfolio: {
     create: (data: ProjectPortfolioCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/collaboration/project-portfolio/create`, data)
+      http.post(`${BASE_URL}/collaboration/project-portfolio/create`, data)
   },
 
   /**
@@ -294,7 +294,7 @@ export const collaboration = {
    */
   projectBased: {
     createProject: (data: ProjectBasedCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/collaboration/project-based/project`, data)
+      http.post(`${BASE_URL}/collaboration/project-based/project`, data)
   },
 
   /**
@@ -302,7 +302,7 @@ export const collaboration = {
    */
   invertedClassroom: {
     createSession: (data: InvertedClassroomSessionRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/collaboration/inverted-classroom/session`, data)
+      http.post(`${BASE_URL}/collaboration/inverted-classroom/session`, data)
   }
 }
 
@@ -316,7 +316,7 @@ export const itEnvironments = {
    */
   codeSandbox: {
     create: (data: CodeSandboxCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/it-environments/code-sandbox/create`, data)
+      http.post(`${BASE_URL}/it-environments/code-sandbox/create`, data)
   },
 
   /**
@@ -324,7 +324,7 @@ export const itEnvironments = {
    */
   networkSimulation: {
     start: (data: NetworkSimulationStartRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/it-environments/network-simulation/simulate`, data)
+      http.post(`${BASE_URL}/it-environments/network-simulation/simulate`, data)
   },
 
   /**
@@ -332,7 +332,7 @@ export const itEnvironments = {
    */
   terminalAccess: {
     createSession: (data: TerminalSessionCreateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/it-environments/terminal-access/session`, data)
+      http.post(`${BASE_URL}/it-environments/terminal-access/session`, data)
   }
 }
 
@@ -346,7 +346,7 @@ export const meta = {
    */
   timer: {
     start: (data: TimerStartRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/meta/timer-wrapper/start`, data)
+      http.post(`${BASE_URL}/meta/timer-wrapper/start`, data)
   }
 }
 
@@ -360,7 +360,7 @@ export const visualization = {
    */
   mindmap: {
     generate: (data: MindmapGenerateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/visualization/mindmap-generator/generate`, data)
+      http.post(`${BASE_URL}/visualization/mindmap-generator/generate`, data)
   }
 }
 
@@ -374,7 +374,7 @@ export const learningPaths = {
    */
   pathGenerator: {
     generate: (data: LearningPathGenerateRequest): Promise<AxiosResponse> =>
-      apiClient.post(`${BASE_URL}/learning-paths/path-generator/generate`, data)
+      http.post(`${BASE_URL}/learning-paths/path-generator/generate`, data)
   }
 }
 

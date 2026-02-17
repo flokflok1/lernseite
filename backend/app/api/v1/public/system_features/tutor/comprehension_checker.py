@@ -11,7 +11,7 @@ from flask import Blueprint
 from app.api.middleware.auth import token_required, permission_required
 from app.api.utils.responses import success_response
 
-comprehension_bp = Blueprint('comprehension_checker', __name__, url_prefix='/exam/comprehension')
+comprehension_bp = Blueprint('comprehension_checker', __name__, url_prefix='/tutor/comprehension')
 
 
 @comprehension_bp.route('/check', methods=['POST'])

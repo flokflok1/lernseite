@@ -61,10 +61,10 @@ from flask import Blueprint
 # =============================================================================
 
 # Exam Features (existing: simulations)
-from app.api.v1.system_features.exam import exams_bp
+from app.api.v1.public.system_features.exam import exams_bp
 
 # Math Features (existing: toolkit)
-from app.api.v1.system_features.math import (
+from app.api.v1.public.system_features.math import (
     math_admin_bp,
     math_practice_bp,
     math_reference_bp,
@@ -72,26 +72,26 @@ from app.api.v1.system_features.math import (
 )
 
 # Feature Registry (Panel API - existing)
-from app.api.v1.system_features.registry import bp as registry_bp
+from app.api.v1.public.system_features.registry import bp as registry_bp
 
 # =============================================================================
 # NEW FEATURES (Stubs - TODO: Implementation)
 # =============================================================================
 
 # TODO: Import blueprints from feature modules when implemented
-# from app.api.v1.system_features.interactive import whiteboard_bp
-# from app.api.v1.system_features.audio import speech_bp
-# from app.api.v1.system_features.exam import ihk_exam_bp, practical_exam_bp, chapter_completion_bp
-# from app.api.v1.system_features.gamification import adaptive_difficulty_bp, xp_quest_bp, daily_recall_bp
-# from app.api.v1.system_features.tutor import npc_tutor_bp, socratic_dialog_bp, comprehension_bp
-# from app.api.v1.system_features.collaboration import (
+# from app.api.v1.public.system_features.interactive import whiteboard_bp
+# from app.api.v1.public.system_features.audio import speech_bp
+# from app.api.v1.public.system_features.exam import ihk_exam_bp, practical_exam_bp, chapter_completion_bp
+# from app.api.v1.public.system_features.gamification import adaptive_difficulty_bp, xp_quest_bp, daily_recall_bp
+# from app.api.v1.public.system_features.tutor import npc_tutor_bp, socratic_dialog_bp, comprehension_bp
+# from app.api.v1.public.system_features.collaboration import (
 #     peer_instruction_bp, team_case_bp, peer_review_bp, learning_journal_bp,
 #     project_portfolio_bp, project_based_learning_bp, inverted_classroom_bp
 # )
-# from app.api.v1.system_features.it_environments import code_sandbox_bp, network_simulation_bp, terminal_access_bp, it_sandbox_bp
-# from app.api.v1.system_features.meta import timer_wrapper_bp
-# from app.api.v1.system_features.visualization import mindmap_generator_bp
-# from app.api.v1.system_features.learning_paths import path_generator_bp
+# from app.api.v1.public.system_features.it_environments import code_sandbox_bp, network_simulation_bp, terminal_access_bp, it_sandbox_bp
+# from app.api.v1.public.system_features.meta import timer_wrapper_bp
+# from app.api.v1.public.system_features.visualization import mindmap_generator_bp
+# from app.api.v1.public.system_features.learning_paths import path_generator_bp
 
 # =============================================================================
 # MAIN BLUEPRINT - System Features

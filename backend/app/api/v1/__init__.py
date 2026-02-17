@@ -8,7 +8,7 @@ Consolidated API structure:
 │   │   ├── editor/        # Course editor (manual + AI)
 │   │   └── user/          # User-facing panel (profile, dashboard, gamification, ...)
 │   ├── public/            # Unauthenticated endpoints (auth, business, categories, ...)
-│   ├── system_features/   # 25 System-Features (10 categories) — UNCHANGED
+│   ├── public/system_features/  # 25 System-Features (10 categories)
 │   ├── community/         # Feature-flagged
 │   ├── messaging/         # Feature-flagged
 │   └── social/            # Feature-flagged
@@ -129,9 +129,9 @@ I18N_BLUEPRINTS = [
 # SYSTEM FEATURES — 25 System-Features (Interactive, Exam, Math, etc.) — UNCHANGED
 # =============================================================================
 
-from app.api.v1.system_features.exam import exams_bp as exam_simulations_bp
-from app.api.v1.system_features.math import math_practice_bp as math_toolkit_practice_bp, math_reference_bp as math_toolkit_reference_bp, math_tasks_bp as math_toolkit_tasks_bp, math_admin_bp as math_toolkit_admin_bp
-from app.api.v1.system_features import system_features_bp, registry_bp as panel_system_features_bp
+from app.api.v1.public.system_features.exam import exams_bp as exam_simulations_bp
+from app.api.v1.public.system_features.math import math_practice_bp as math_toolkit_practice_bp, math_reference_bp as math_toolkit_reference_bp, math_tasks_bp as math_toolkit_tasks_bp, math_admin_bp as math_toolkit_admin_bp
+from app.api.v1.public.system_features import system_features_bp, registry_bp as panel_system_features_bp
 
 # =============================================================================
 # PANEL CONFIG — Runner modes, LM type compatibility

@@ -24,7 +24,7 @@ from flask import Blueprint, request, jsonify
 from app.api.middleware.auth import token_required, permission_required
 from app.api.utils.responses import success_response
 
-it_sandbox_bp = Blueprint('it_sandbox', __name__, url_prefix='/interactive/it-sandbox')
+it_sandbox_bp = Blueprint('it_sandbox', __name__, url_prefix='/it-environments/it-sandbox')
 
 
 @it_sandbox_bp.route('/environment', methods=['POST'])

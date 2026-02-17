@@ -25,9 +25,9 @@ ISO 9001:2015 compliant - Assessment & Evaluation Layer
 from flask import Blueprint
 
 # Import blueprints from user module
-from app.api.v1.system_features.exam.simulations.user.core import core_bp, course_bp
-from app.api.v1.system_features.exam.simulations.user.attempts import attempts_bp
-from app.api.v1.system_features.exam.simulations.user.settings import settings_bp
+from app.api.v1.public.system_features.exam.simulations.user.core import core_bp, course_bp
+from app.api.v1.public.system_features.exam.simulations.user.attempts import attempts_bp
+from app.api.v1.public.system_features.exam.simulations.user.settings import settings_bp
 
 # Create main blueprint (barrel export)
 exams_bp = Blueprint('exam_simulations', __name__, url_prefix='')

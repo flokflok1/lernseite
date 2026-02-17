@@ -8,10 +8,8 @@
  * - panel/user: User profile, tokens, subscriptions, gamification
  * - public: Setup, i18n (unauthenticated)
  * - learning: Learning player, authoring, editor
- * - compliance: GDPR, DSA, legal compliance
- * - moderation: Content moderation
- * - social: Social network (posts, comments, follows)
  * - shared: Common utilities and types
+ * - systemFeatures: 25 system features (10 categories)
  */
 
 export * from './panel/admin'
@@ -20,3 +18,5 @@ export * from './panel/user'
 export * from './public'
 export * from './learning'
 export * from './shared'
+export { systemFeaturesClient } from './systemFeatures.client'
+export type * from './systemFeatures.types'

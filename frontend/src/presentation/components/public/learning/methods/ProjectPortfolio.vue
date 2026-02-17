@@ -199,7 +199,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LsxWindow } from '@/application/stores/modules/workspace'
+import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
 import { BaseLearningMethodForm } from '@/presentation/components/panel/admin/learning-methods/editor/forms'
 
 const METHOD_CODE = 30

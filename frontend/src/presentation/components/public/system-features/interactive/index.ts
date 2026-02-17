@@ -1,10 +1,7 @@
 /**
- * Interactive System Features - Barrel Export
+ * Interactive Tools System Features - Barrel Export
  *
- * Note: Components are currently in parent directory.
- * TODO: Move components to this folder in future refactoring.
+ * 1 Feature: whiteboard_engine
+ *
+ * Real SF components will be created in Phase 5.
  */
-
-export { default as WhiteboardEngine } from '../WhiteboardEngine.vue'
-export { default as ITSandbox } from '../ITSandbox.vue'
-export { default as SpeechToText } from '../SpeechToText.vue'

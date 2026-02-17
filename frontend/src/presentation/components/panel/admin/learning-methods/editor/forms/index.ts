@@ -21,7 +21,7 @@ export { default as DiagramVisualizationForm } from './DiagramVisualizationForm.
 export { default as StepByStepGuideForm } from './StepByStepGuideForm.vue'
 export { default as FillInTheBlanksForm } from './FillInTheBlanksForm.vue'
 export { default as DragAndDropForm } from './DragAndDropForm.vue'
-export { default as FlashcardsForm } from './FlashcardsForm.vue'
+export { default as FlashcardsForm } from './Flashcards.vue'
 export { default as ExampleScenarioForm } from './ExampleScenario.vue'
 export { default as MultipleChoiceQuizForm } from './MultipleChoiceQuiz.vue'
 export { default as TrueFalseForm } from './TrueFalse.vue'

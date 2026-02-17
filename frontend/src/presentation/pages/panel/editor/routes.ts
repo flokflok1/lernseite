@@ -6,9 +6,12 @@
  */
 
 import type { RouteRecordRaw } from 'vue-router'
+import { h } from 'vue'
+import { RouterView } from 'vue-router'
 
 export const editorRoutes: RouteRecordRaw = {
   path: '/editor',
+  component: { render: () => h(RouterView) },
   meta: { requiresAuth: true, requiresCreatorOrTeacher: true },
   children: [
     {

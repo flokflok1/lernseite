@@ -155,7 +155,6 @@ export {
   deleteAction,
   executeAction,
   getActionStats,
-  getPopularActions,
   getLMSuggestions,
   getAllLearningMethods,
   getLMGroups

@@ -20,6 +20,32 @@
 
 import type { AxiosResponse } from 'axios'
 import { apiClient } from '../config/apiClient'
+import type {
+  WhiteboardDrawingData,
+  WhiteboardRecognizeData,
+  SandboxResources,
+  IHKSimulateRequest,
+  PracticalExamCreateRequest,
+  ComprehensionCheckRequest,
+  ExamSimulationStartRequest,
+  MathPatternCreateRequest,
+  MathFormulaCreateRequest,
+  AdaptiveDifficultyAdjustRequest,
+  SocraticDialogStartRequest,
+  PeerInstructionSessionRequest,
+  TeamCaseCreateRequest,
+  PeerReviewSubmitRequest,
+  LearningJournalEntryRequest,
+  ProjectPortfolioCreateRequest,
+  ProjectBasedCreateRequest,
+  InvertedClassroomSessionRequest,
+  CodeSandboxCreateRequest,
+  NetworkSimulationStartRequest,
+  TerminalSessionCreateRequest,
+  TimerStartRequest,
+  MindmapGenerateRequest,
+  LearningPathGenerateRequest
+} from './systemFeatures.types'
 
 const BASE_URL = '/api/v1/system-features'
 
@@ -38,10 +64,10 @@ export const interactiveTools = {
     getCanvas: (canvasId: string): Promise<AxiosResponse> =>
       apiClient.get(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}`),
 
-    addDrawing: (canvasId: string, data: any): Promise<AxiosResponse> =>
+    addDrawing: (canvasId: string, data: WhiteboardDrawingData): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}/draw`, data),
 
-    recognizeDrawing: (canvasId: string, data: any): Promise<AxiosResponse> =>
+    recognizeDrawing: (canvasId: string, data: WhiteboardRecognizeData): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}/recognize`, data),
 
     deleteCanvas: (canvasId: string): Promise<AxiosResponse> =>
@@ -52,7 +78,7 @@ export const interactiveTools = {
    * IT Sandbox
    */
   sandbox: {
-    createEnvironment: (data: { type: string; os: string; resources?: any }): Promise<AxiosResponse> =>
+    createEnvironment: (data: { type: string; os: string; resources?: SandboxResources }): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/interactive/it-sandbox/environment`, data),
 
     executeCode: (envId: string, data: { code: string; language: string; timeout?: number }): Promise<AxiosResponse> =>
@@ -85,7 +111,7 @@ export const exam = {
    * IHK Exam System
    */
   ihk: {
-    simulate: (data: any): Promise<AxiosResponse> =>
+    simulate: (data: IHKSimulateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/exam/ihk/simulate`, data)
   },
 
@@ -93,7 +119,7 @@ export const exam = {
    * Practical Exam Engine
    */
   practical: {
-    create: (data: any): Promise<AxiosResponse> =>
+    create: (data: PracticalExamCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/exam/practical/create`, data)
   },
 
@@ -101,7 +127,7 @@ export const exam = {
    * Comprehension Checker
    */
   comprehension: {
-    check: (data: any): Promise<AxiosResponse> =>
+    check: (data: ComprehensionCheckRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/exam/comprehension/check`, data)
   },
 
@@ -120,7 +146,7 @@ export const exam = {
     getAttempts: (): Promise<AxiosResponse> =>
       apiClient.get(`${BASE_URL}/exam/simulations/attempts`),
 
-    startSimulation: (data: any): Promise<AxiosResponse> =>
+    startSimulation: (data: ExamSimulationStartRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/exam/simulations/start`, data)
   }
 }
@@ -158,10 +184,10 @@ export const mathToolkit = {
    * Admin Functions
    */
   admin: {
-    createPattern: (data: any): Promise<AxiosResponse> =>
+    createPattern: (data: MathPatternCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/math/toolkit/admin/patterns`, data),
 
-    createFormula: (data: any): Promise<AxiosResponse> =>
+    createFormula: (data: MathFormulaCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/math/toolkit/admin/formulas`, data)
   }
 }
@@ -175,7 +201,7 @@ export const gamification = {
    * Adaptive Difficulty
    */
   adaptiveDifficulty: {
-    adjust: (data: any): Promise<AxiosResponse> =>
+    adjust: (data: AdaptiveDifficultyAdjustRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/gamification/adaptive-difficulty/adjust`, data)
   },
 
@@ -213,7 +239,7 @@ export const tutor = {
    * Socratic Dialog
    */
   socratic: {
-    start: (data: any): Promise<AxiosResponse> =>
+    start: (data: SocraticDialogStartRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/tutor/socratic/start`, data)
   }
 }
@@ -227,7 +253,7 @@ export const collaboration = {
    * Peer Instruction
    */
   peerInstruction: {
-    createSession: (data: any): Promise<AxiosResponse> =>
+    createSession: (data: PeerInstructionSessionRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/collaboration/peer-instruction/session`, data)
   },
 
@@ -235,7 +261,7 @@ export const collaboration = {
    * Team Case
    */
   teamCase: {
-    create: (data: any): Promise<AxiosResponse> =>
+    create: (data: TeamCaseCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/collaboration/team-case/create`, data)
   },
 
@@ -243,7 +269,7 @@ export const collaboration = {
    * Peer Review
    */
   peerReview: {
-    submit: (data: any): Promise<AxiosResponse> =>
+    submit: (data: PeerReviewSubmitRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/collaboration/peer-review/submit`, data)
   },
 
@@ -251,7 +277,7 @@ export const collaboration = {
    * Learning Journal
    */
   learningJournal: {
-    createEntry: (data: any): Promise<AxiosResponse> =>
+    createEntry: (data: LearningJournalEntryRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/collaboration/learning-journal/entry`, data)
   },
 
@@ -259,7 +285,7 @@ export const collaboration = {
    * Project Portfolio
    */
   projectPortfolio: {
-    create: (data: any): Promise<AxiosResponse> =>
+    create: (data: ProjectPortfolioCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/collaboration/project-portfolio/create`, data)
   },
 
@@ -267,7 +293,7 @@ export const collaboration = {
    * Project-Based Learning
    */
   projectBased: {
-    createProject: (data: any): Promise<AxiosResponse> =>
+    createProject: (data: ProjectBasedCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/collaboration/project-based/project`, data)
   },
 
@@ -275,7 +301,7 @@ export const collaboration = {
    * Inverted Classroom
    */
   invertedClassroom: {
-    createSession: (data: any): Promise<AxiosResponse> =>
+    createSession: (data: InvertedClassroomSessionRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/collaboration/inverted-classroom/session`, data)
   }
 }
@@ -289,7 +315,7 @@ export const itEnvironments = {
    * Code Sandbox
    */
   codeSandbox: {
-    create: (data: any): Promise<AxiosResponse> =>
+    create: (data: CodeSandboxCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/it-environments/code-sandbox/create`, data)
   },
 
@@ -297,7 +323,7 @@ export const itEnvironments = {
    * Network Simulation
    */
   networkSimulation: {
-    start: (data: any): Promise<AxiosResponse> =>
+    start: (data: NetworkSimulationStartRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/it-environments/network-simulation/simulate`, data)
   },
 
@@ -305,7 +331,7 @@ export const itEnvironments = {
    * Terminal Access
    */
   terminalAccess: {
-    createSession: (data: any): Promise<AxiosResponse> =>
+    createSession: (data: TerminalSessionCreateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/it-environments/terminal-access/session`, data)
   }
 }
@@ -319,7 +345,7 @@ export const meta = {
    * Timer Wrapper
    */
   timer: {
-    start: (data: any): Promise<AxiosResponse> =>
+    start: (data: TimerStartRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/meta/timer-wrapper/start`, data)
   }
 }
@@ -333,7 +359,7 @@ export const visualization = {
    * Mindmap Generator
    */
   mindmap: {
-    generate: (data: any): Promise<AxiosResponse> =>
+    generate: (data: MindmapGenerateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/visualization/mindmap-generator/generate`, data)
   }
 }
@@ -347,7 +373,7 @@ export const learningPaths = {
    * Learning Path Generator
    */
   pathGenerator: {
-    generate: (data: any): Promise<AxiosResponse> =>
+    generate: (data: LearningPathGenerateRequest): Promise<AxiosResponse> =>
       apiClient.post(`${BASE_URL}/learning-paths/path-generator/generate`, data)
   }
 }

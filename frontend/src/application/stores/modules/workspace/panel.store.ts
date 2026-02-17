@@ -37,6 +37,9 @@ export type PanelType =
   | 'admin-system-settings'  // Phase D4: System Settings Panel with Tabs
   | 'admin-user-group-management'  // Phase D4: User & Group Management Panel with Tabs
   | 'admin-kurs-editor-select'  // Phase D4: Kurs-Editor Mode Selector Modal
+  // Editor Windows (Course Authoring - /editor route)
+  | 'editor-manual'        // Manual Course Editor
+  | 'editor-ai-studio'     // AI-Assisted Course Editor
   // Lernmethoden-Formulare (Legacy: 00-31, aktiv: 19 Content-LMs) - Phase D3.5
   | 'learning-method-0-form'
   | 'learning-method-1-form'

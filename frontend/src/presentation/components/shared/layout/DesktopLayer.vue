@@ -77,6 +77,10 @@ const AdminExamManagerWindow = defineAsyncComponent(() => import('@/presentation
 const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/system/views/FilePreviewWindow.vue'))
 const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/system/views/WindowManagerWindow.vue'))
 
+// Editor Windows (Course Authoring - /editor route)
+const EditorManualWindow = defineAsyncComponent(() => import('@/presentation/pages/panel/editor/manual/ManualEditorWindow.vue'))
+const EditorAIStudioWindow = defineAsyncComponent(() => import('@/presentation/pages/panel/editor/ai/AIEditorWindow.vue'))
+
 const windowStore = useWindowStore()
 
 const visibleWindows = computed(() => windowStore.visibleWindows)
@@ -152,6 +156,11 @@ function resolveWindowComponent(type: WindowType) {
       return AdminLessonPreviewWindow
     case 'admin-chapter-preview':
       return AdminChapterPreviewWindow
+    // Editor Windows (Course Authoring)
+    case 'editor-manual':
+      return EditorManualWindow
+    case 'editor-ai-studio':
+      return EditorAIStudioWindow
     default:
       // Fallback: simple placeholder
       return {

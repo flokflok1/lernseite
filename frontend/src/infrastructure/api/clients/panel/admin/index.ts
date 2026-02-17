@@ -5,7 +5,7 @@
  * - types.ts: All TypeScript interfaces (850 lines)
  * - users.api.ts: User management (110 lines)
  * - organisations.api.ts: Organisation management (55 lines)
- * - courses.api.ts: Course CRUD (105 lines)
+ * - courses.api.ts: Admin course CRUD (105 lines)
  * - analytics.api.ts: System analytics, billing, tokens (130 lines)
  * - chapters.api.ts: Chapter & category management (100 lines)
  * - lessons.api.ts: Lesson management (55 lines)

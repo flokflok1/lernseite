@@ -12,7 +12,7 @@ Service layer for business logic and external integrations:
 - Feature Flags: Enterprise feature management (feature_flags/)
 - Internationalization: Legacy i18n services (i18n/legacy)
 - Utilities: Analytics, billing, cache (root level)
-- Course Publishing: Publishing workflow state machine (root - special handling)
+
 
 ISO 9001:2015 compliant - Service layer architecture
 
@@ -93,14 +93,6 @@ from app.application.services.ai.models import (
 )
 from app.application.services.ai.prompts import PromptResolver
 from app.application.services.ai.context import ExamContextDetector
-
-# ============================================
-# PUBLISHING SERVICE (Handled separately)
-# ============================================
-# NOTE: CoursePublishingService moved to content/publishing/service.py
-# Import directly: from app.application.services.content.publishing.service import CoursePublishingService
-# NOT imported here to avoid circular dependency:
-# repositories.courses -> cache_service -> services.__init__ -> course_publishing_service -> repositories.courses
 
 # ============================================
 # EXPORTS FOR BACKWARD COMPATIBILITY

@@ -125,16 +125,6 @@ export {
 } from './authoring.api'
 
 // ============================================================================
-// AI Studio API Export (namespace — avoids naming conflicts with courseEditor/courseAuthoring)
-// ============================================================================
-export * as aiStudioApi from './ai-studio.api'
-
-// ============================================================================
-// Course Editor Client Export (namespace — avoids naming conflicts with aiStudio/courseAuthoring)
-// ============================================================================
-export * as courseEditorApi from './courseEditor.client'
-
-// ============================================================================
-// Course Authoring API Export (namespace — avoids naming conflicts with aiStudio/courseEditor)
+// Course Authoring API Export (KI-Kurs-Builder chat-based authoring)
 // ============================================================================
 export * as courseAuthoringApi from './courseAuthoring.api'

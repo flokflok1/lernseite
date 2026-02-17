@@ -1,14 +1,21 @@
 /**
  * ManualEditorContainer.vue
  *
- * Main container for manual course editing.
- * Manages layout and coordination of manual editor components.
- * Includes theory and explanation generation integration.
+ * Main orchestrator for the manual course editor.
+ * Left sidebar: always-visible structure tree.
+ * Right area: tab-based panels (content, course info, AI theory/explanation).
+ * Top bar: editor mode selector, auto-save status, save button.
  */
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { StructurePanel, ContentEditor, PreviewPanel, ToolbarActions } from '../shared'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
+import { useEditorMode, useAutoSave, useEditorKeyboard } from './composables'
+import type { EditorTab } from './types'
+import StructureTreePanel from './panels/StructureTreePanel.vue'
+import ContentEditPanel from './panels/ContentEditPanel.vue'
+import CourseInfoPanel from './panels/CourseInfoPanel.vue'
 import { TheoryGenerationContainer } from '../content-generation'
 import { ExplanationGenerationContainer } from '../explanation-generation'
 
@@ -17,113 +24,156 @@ interface Props {
   courseId?: string | null
 }
 
-interface Emits {
-  (e: 'save'): void
-}
+const props = defineProps<Props>()
 
-defineProps<Props>()
-defineEmits<Emits>()
+const { t } = useI18n()
+const store = useCourseEditorStore()
+const { currentMode, modeConfig, setMode } = useEditorMode()
+const { saveStatus, lastSaved, triggerSave } = useAutoSave()
 
-const selectedChapterId = ref<string | null>(null)
-const selectedLessonId = ref<string | null>(null)
-const isDirty = ref(false)
-const activeTab = ref<'content' | 'theory' | 'explanation'>('content')
+const activeTab = ref<EditorTab>('content')
+const isInitialized = ref(false)
 
-const handleStructureSelect = (type: 'chapter' | 'lesson', id: string) => {
-  if (type === 'chapter') {
-    selectedChapterId.value = id
-    selectedLessonId.value = null
+// Keyboard shortcuts
+useEditorKeyboard({
+  onSave: () => triggerSave(),
+})
+
+// Available tabs based on editor mode
+const tabs = computed(() => {
+  const base: Array<{ key: EditorTab; label: string }> = [
+    { key: 'content', label: t('panel.manualEditor.tabs.content') },
+    { key: 'course-info', label: t('panel.manualEditor.tabs.courseInfo') },
+  ]
+
+  // AI tabs always available
+  base.push(
+    { key: 'theory', label: t('course-editor.theory.container.title') },
+    { key: 'explanation', label: t('course-editor.explanation.container.title') },
+  )
+
+  return base
+})
+
+// Initialize store with course data
+onMounted(async () => {
+  if (props.courseId) {
+    const numericId = Number(props.courseId)
+    if (!isNaN(numericId)) {
+      await store.loadCourseForEdit(numericId)
+    }
   } else {
-    selectedLessonId.value = id
+    await store.createNewCourse()
   }
+  isInitialized.value = true
+})
+
+onBeforeUnmount(() => {
+  store.clearEditor()
+})
+
+const handleSave = async (): Promise<void> => {
+  await store.saveAllChanges()
 }
 
-const handleContentChange = () => {
-  isDirty.value = true
-}
-
-const handleTheoryGenerated = () => {
-  isDirty.value = true
-  $emit('save')
-}
-
-const handleExplanationGenerated = () => {
-  isDirty.value = true
-  $emit('save')
+const formatSaveTime = (date: Date | null): string => {
+  if (!date) return ''
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 </script>
 
 <template>
   <div class="manual-editor-container">
-    <!-- Toolbar -->
-    <ToolbarActions
-      :is-dirty="isDirty"
-      @save="$emit('save')"
-    />
+    <!-- Top Bar -->
+    <div class="editor-topbar">
+      <!-- Mode selector -->
+      <div class="mode-selector">
+        <span class="mode-label">{{ $t('panel.manualEditor.mode.label') }}:</span>
+        <button
+          v-for="mode in (['beginner', 'advanced', 'expert'] as const)"
+          :key="mode"
+          :class="['mode-btn', { active: currentMode === mode }]"
+          @click="setMode(mode)"
+        >
+          {{ $t(`panel.manualEditor.mode.${mode}`) }}
+        </button>
+      </div>
 
-    <!-- Tab Navigation -->
-    <div class="editor-tabs">
-      <button
-        :class="['tab-btn', { active: activeTab === 'content' }]"
-        @click="activeTab = 'content'"
-      >
-        ✏️ {{ $t('courses.editor.content') }}
-      </button>
-      <button
-        :class="['tab-btn', { active: activeTab === 'theory' }]"
-        @click="activeTab = 'theory'"
-      >
-        📚 {{ $t('course-editor.theory.container.title') }}
-      </button>
-      <button
-        :class="['tab-btn', { active: activeTab === 'explanation' }]"
-        @click="activeTab = 'explanation'"
-      >
-        💡 {{ $t('course-editor.explanation.container.title') }}
-      </button>
+      <!-- Save status -->
+      <div class="save-area">
+        <span class="save-status" :class="saveStatus">
+          {{ $t(`panel.manualEditor.toolbar.${saveStatus}`) }}
+          <span v-if="lastSaved" class="save-time">
+            {{ formatSaveTime(lastSaved) }}
+          </span>
+        </span>
+        <button class="save-btn" @click="handleSave" :disabled="store.saving">
+          {{ store.saving ? $t('panel.manualEditor.toolbar.saving') : $t('panel.manualEditor.toolbar.save') }}
+        </button>
+      </div>
     </div>
 
-    <!-- Content Tab -->
-    <div v-if="activeTab === 'content'" class="editor-layout">
-      <!-- Structure Panel (Left) -->
-      <StructurePanel
-        :selected-chapter="selectedChapterId"
-        :selected-lesson="selectedLessonId"
-        @select="handleStructureSelect"
-      />
-
-      <!-- Content Editor (Center) -->
-      <ContentEditor
-        :chapter-id="selectedChapterId"
-        :lesson-id="selectedLessonId"
-        @change="handleContentChange"
-      />
-
-      <!-- Preview Panel (Right) -->
-      <PreviewPanel
-        :chapter-id="selectedChapterId"
-        :lesson-id="selectedLessonId"
-      />
+    <!-- Loading state -->
+    <div v-if="!isInitialized" class="loading-state">
+      <p>{{ $t('common.loading') }}...</p>
     </div>
 
-    <!-- Theory Tab -->
-    <div v-else-if="activeTab === 'theory'" class="theory-content">
-      <TheoryGenerationContainer
-        :chapter="selectedChapterId ? { chapter_id: selectedChapterId } : null"
-        :course="courseId ? { course_id: courseId } : null"
-        @generated="handleTheoryGenerated"
-        @deleted="handleTheoryGenerated"
-      />
-    </div>
+    <!-- Main layout -->
+    <div v-else class="editor-body">
+      <!-- Left sidebar: Structure tree -->
+      <div class="sidebar">
+        <StructureTreePanel />
+      </div>
 
-    <!-- Explanation Tab -->
-    <div v-else-if="activeTab === 'explanation'" class="explanation-content">
-      <ExplanationGenerationContainer
-        :lesson="selectedLessonId ? { lesson_id: selectedLessonId, title: '' } : null"
-        :course="courseId ? { course_id: courseId, title: '' } : null"
-        @generated="handleExplanationGenerated"
-        @deleted="handleExplanationGenerated"
-      />
+      <!-- Right area: Tabs + content -->
+      <div class="main-area">
+        <!-- Tab navigation -->
+        <div class="tab-bar">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            :class="['tab-btn', { active: activeTab === tab.key }]"
+            @click="activeTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+          <!-- Content editor -->
+          <ContentEditPanel
+            v-if="activeTab === 'content'"
+            :mode-config="modeConfig"
+          />
+
+          <!-- Course info -->
+          <CourseInfoPanel
+            v-else-if="activeTab === 'course-info'"
+            :mode-config="modeConfig"
+          />
+
+          <!-- Theory generation (AI) -->
+          <div v-else-if="activeTab === 'theory'" class="ai-tab-content">
+            <TheoryGenerationContainer
+              :chapter="store.selectedChapterId ? { chapter_id: store.selectedChapterId } : null"
+              :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id) } : null"
+              @generated="store.markDirty()"
+              @deleted="store.markDirty()"
+            />
+          </div>
+
+          <!-- Explanation generation (AI) -->
+          <div v-else-if="activeTab === 'explanation'" class="ai-tab-content">
+            <ExplanationGenerationContainer
+              :lesson="store.currentLesson ? { lesson_id: store.currentLesson.lesson_id, title: store.currentLesson.title } : null"
+              :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id), title: store.currentCourse.title } : null"
+              @generated="store.markDirty()"
+              @deleted="store.markDirty()"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -133,68 +183,185 @@ const handleExplanationGenerated = () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: 10px;
+  background: #f8f9fa;
+  overflow: hidden;
 }
 
-.editor-tabs {
+/* Top Bar */
+.editor-topbar {
   display: flex;
-  gap: 8px;
-  padding: 12px;
-  background: #f5f5f5;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: white;
   border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
-.tab-btn {
-  padding: 8px 16px;
+.mode-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mode-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.mode-btn {
+  padding: 4px 10px;
   border: 1px solid #ddd;
   background: white;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: 12px;
+  transition: all 0.15s;
 }
 
-.tab-btn:hover {
-  background: #e8e8e8;
+.mode-btn:hover {
+  background: #f0f0f0;
 }
 
-.tab-btn.active {
+.mode-btn.active {
   background: #2196f3;
   color: white;
   border-color: #1976d2;
 }
 
-.editor-layout {
-  display: grid;
-  grid-template-columns: 250px 1fr 300px;
+.save-area {
+  display: flex;
+  align-items: center;
   gap: 10px;
+}
+
+.save-status {
+  font-size: 12px;
+  color: #999;
+}
+
+.save-status.saved {
+  color: #4caf50;
+}
+
+.save-status.saving {
+  color: #ff9800;
+}
+
+.save-status.unsaved {
+  color: #f44336;
+}
+
+.save-time {
+  margin-left: 4px;
+  color: #bbb;
+}
+
+.save-btn {
+  padding: 6px 14px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.save-btn:hover {
+  background: #1976d2;
+}
+
+.save-btn:disabled {
+  background: #90caf9;
+  cursor: not-allowed;
+}
+
+/* Loading */
+.loading-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+/* Main layout */
+.editor-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 1px;
+  background: #e0e0e0;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: white;
+  overflow: hidden;
+  position: relative;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+}
+
+/* Tab bar */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  padding: 10px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: #333;
+  background: #f0f0f0;
+}
+
+.tab-btn.active {
+  color: #2196f3;
+  border-bottom-color: #2196f3;
+  font-weight: 500;
+}
+
+/* Tab content */
+.tab-content {
   flex: 1;
   overflow: hidden;
 }
 
-.theory-content,
-.explanation-content {
-  flex: 1;
+.ai-tab-content {
+  height: 100%;
   overflow: auto;
 }
 
-@media (max-width: 1400px) {
-  .editor-layout {
-    grid-template-columns: 200px 1fr;
-  }
-
-  .preview-panel {
-    display: none;
-  }
-}
-
+/* Responsive */
 @media (max-width: 900px) {
-  .editor-layout {
-    grid-template-columns: 1fr;
+  .sidebar {
+    width: 180px;
   }
 
-  .structure-panel,
-  .preview-panel {
+  .mode-selector {
     display: none;
   }
 }

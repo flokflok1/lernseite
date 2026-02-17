@@ -72,7 +72,7 @@ export interface MethodType {
  * Create a new course authoring session
  */
 export async function createSession(courseId: string, modelProfile?: string) {
-  const response = await http.post('/admin/course-authoring/sessions', {
+  const response = await http.post('/course-editor/ai/sessions', {
     course_id: courseId,
     model_profile: modelProfile || 'anthropic-claude-sonnet'
   })
@@ -83,7 +83,7 @@ export async function createSession(courseId: string, modelProfile?: string) {
  * Get session details
  */
 export async function getSession(sessionId: string) {
-  const response = await http.get(`/admin/course-authoring/sessions/${sessionId}`)
+  const response = await http.get(`/course-editor/ai/sessions/${sessionId}`)
   return response.data
 }
 
@@ -98,7 +98,7 @@ export async function sendChatMessage(
     file_ids?: string[]
   }
 ) {
-  const response = await http.post(`/admin/course-authoring/sessions/${sessionId}/chat`, {
+  const response = await http.post(`/course-editor/ai/sessions/${sessionId}/chat`, {
     message,
     mode: options?.mode,
     file_ids: options?.file_ids || []
@@ -110,7 +110,7 @@ export async function sendChatMessage(
  * Finalize session and create real course content
  */
 export async function finalizeSession(sessionId: string) {
-  const response = await http.post(`/admin/course-authoring/sessions/${sessionId}/finalize`)
+  const response = await http.post(`/course-editor/ai/sessions/${sessionId}/finalize`)
   return response.data
 }
 
@@ -118,7 +118,7 @@ export async function finalizeSession(sessionId: string) {
  * Archive (soft delete) session
  */
 export async function archiveSession(sessionId: string) {
-  const response = await http.delete(`/admin/course-authoring/sessions/${sessionId}`)
+  const response = await http.delete(`/course-editor/ai/sessions/${sessionId}`)
   return response.data
 }
 
@@ -129,7 +129,7 @@ export async function listSessions(courseId: string, status?: string) {
   const params = new URLSearchParams()
   if (status) params.append('status', status)
 
-  const url = `/admin/course-authoring/courses/${courseId}/sessions` +
+  const url = `/course-editor/ai/courses/${courseId}/sessions` +
     (params.toString() ? `?${params.toString()}` : '')
 
   const response = await http.get(url)
@@ -140,7 +140,7 @@ export async function listSessions(courseId: string, status?: string) {
  * Get available method types
  */
 export async function getMethodTypes() {
-  const response = await http.get('/admin/course-authoring/method-types')
+  const response = await http.get('/course-editor/ai/method-types')
   return response.data
 }
 

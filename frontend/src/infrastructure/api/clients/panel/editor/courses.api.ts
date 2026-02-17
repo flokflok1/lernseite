@@ -1,6 +1,12 @@
 import http from '@/infrastructure/api/http'
 
 // ============================================================================
+// URL Prefix for Manual Editor Backend Routes
+// Backend blueprint: /api/v1/course-editor/manual/*
+// ============================================================================
+const EDITOR_PREFIX = '/course-editor/manual'
+
+// ============================================================================
 // Types & Interfaces
 // ============================================================================
 
@@ -284,7 +290,7 @@ export const createCourse = async (payload: CreateCoursePayload): Promise<Editab
   const response = await http.post<{
     success: boolean
     course: EditableCourse
-  }>('/courses', payload)
+  }>(`${EDITOR_PREFIX}/courses`, payload)
 
   return response.data.course
 }
@@ -299,7 +305,7 @@ export const updateCourse = async (
   const response = await http.patch<{
     success: boolean
     course: EditableCourse
-  }>(`/courses/${courseId}`, payload)
+  }>(`${EDITOR_PREFIX}/courses/${courseId}`, payload)
 
   return response.data.course
 }
@@ -308,17 +314,17 @@ export const updateCourse = async (
  * Delete course (Creator/Teacher/Admin)
  */
 export const deleteCourse = async (courseId: number): Promise<void> => {
-  await http.delete(`/courses/${courseId}`)
+  await http.delete(`${EDITOR_PREFIX}/courses/${courseId}`)
 }
 
 /**
- * Get editable course data (includes modules & lessons)
+ * Get editable course data (includes chapters & lessons)
  */
 export const getCourseForEdit = async (courseId: number): Promise<EditableCourse> => {
   const response = await http.get<{
     success: boolean
     course: EditableCourse
-  }>(`/courses/${courseId}/edit`)
+  }>(`${EDITOR_PREFIX}/courses/${courseId}`)
 
   return response.data.course
 }
@@ -331,7 +337,7 @@ export const createChapter = async (payload: ChapterPayload): Promise<EditableCh
   const response = await http.post<{
     success: boolean
     chapter: EditableChapter
-  }>('/chapters', payload)
+  }>(`${EDITOR_PREFIX}/courses/${payload.course_id}/chapters`, payload)
 
   return response.data.chapter
 }
@@ -347,7 +353,7 @@ export const updateChapter = async (
   const response = await http.patch<{
     success: boolean
     chapter: EditableChapter
-  }>(`/chapters/${chapterId}`, payload)
+  }>(`${EDITOR_PREFIX}/chapters/${chapterId}`, payload)
 
   return response.data.chapter
 }
@@ -357,7 +363,7 @@ export const updateChapter = async (
  * Refactored: modules → chapters (2025-11-27)
  */
 export const deleteChapter = async (chapterId: string): Promise<void> => {
-  await http.delete(`/chapters/${chapterId}`)
+  await http.delete(`${EDITOR_PREFIX}/chapters/${chapterId}`)
 }
 
 /**
@@ -368,7 +374,7 @@ export const reorderChapters = async (
   courseId: number,
   payload: ReorderPayload
 ): Promise<void> => {
-  await http.post(`/courses/${courseId}/chapters/reorder`, payload)
+  await http.post(`${EDITOR_PREFIX}/courses/${courseId}/chapters/reorder`, payload)
 }
 
 /**
@@ -379,7 +385,7 @@ export const getChaptersForEdit = async (courseId: number): Promise<EditableChap
   const response = await http.get<{
     success: boolean
     chapters: EditableChapter[]
-  }>(`/courses/${courseId}/chapters/edit`)
+  }>(`${EDITOR_PREFIX}/courses/${courseId}/chapters`)
 
   return response.data.chapters
 }
@@ -392,7 +398,7 @@ export const createLesson = async (payload: LessonPayload): Promise<EditableLess
   const response = await http.post<{
     success: boolean
     lesson: EditableLesson
-  }>('/lessons', payload)
+  }>(`${EDITOR_PREFIX}/chapters/${payload.chapter_id}/lessons`, payload)
 
   return response.data.lesson
 }
@@ -407,7 +413,7 @@ export const updateLesson = async (
   const response = await http.patch<{
     success: boolean
     lesson: EditableLesson
-  }>(`/lessons/${lessonId}`, payload)
+  }>(`${EDITOR_PREFIX}/lessons/${lessonId}`, payload)
 
   return response.data.lesson
 }
@@ -416,7 +422,7 @@ export const updateLesson = async (
  * Delete lesson
  */
 export const deleteLesson = async (lessonId: number): Promise<void> => {
-  await http.delete(`/lessons/${lessonId}`)
+  await http.delete(`${EDITOR_PREFIX}/lessons/${lessonId}`)
 }
 
 /**
@@ -427,7 +433,7 @@ export const reorderLessons = async (
   chapterId: string,
   payload: ReorderPayload
 ): Promise<void> => {
-  await http.post(`/chapters/${chapterId}/lessons/reorder`, payload)
+  await http.post(`${EDITOR_PREFIX}/chapters/${chapterId}/lessons/reorder`, payload)
 }
 
 /**
@@ -438,7 +444,7 @@ export const getLessonsForEdit = async (chapterId: string): Promise<EditableLess
   const response = await http.get<{
     success: boolean
     lessons: EditableLesson[]
-  }>(`/chapters/${chapterId}/lessons/edit`)
+  }>(`${EDITOR_PREFIX}/chapters/${chapterId}/lessons`)
 
   return response.data.lessons
 }

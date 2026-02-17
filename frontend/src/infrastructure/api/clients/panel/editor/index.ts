@@ -2,7 +2,7 @@
  * Panel Editor Domain - Barrel Export
  *
  * This file provides a clean interface for importing all editor APIs and types.
- * Use: import { getMyEnrolledCourses, aiStudioApi } from '@/infrastructure/api/clients/panel/editor'
+ * Use: import { getMyEnrolledCourses, courseAuthoringApi } from '@/infrastructure/api/clients/panel/editor'
  */
 
 // ============================================================================

@@ -36,6 +36,7 @@ import dePanel from '@/infrastructure/i18n/locales/de/panel'
 import deAiEditor from '@/infrastructure/i18n/locales/de/aiEditor'
 import deCourses from '@/infrastructure/i18n/locales/de/courses'
 import deFeatures from '@/infrastructure/i18n/locales/de/features'
+import deSystemFeatures from '@/infrastructure/i18n/locales/de/systemFeatures'
 
 // English (en)
 import enCommon from '@/infrastructure/i18n/locales/en/common'
@@ -49,6 +50,7 @@ import enPanel from '@/infrastructure/i18n/locales/en/panel'
 import enAiEditor from '@/infrastructure/i18n/locales/en/aiEditor'
 import enCourses from '@/infrastructure/i18n/locales/en/courses'
 import enFeatures from '@/infrastructure/i18n/locales/en/features'
+import enSystemFeatures from '@/infrastructure/i18n/locales/en/systemFeatures'
 
 // Polish (pl)
 import plCommon from '@/infrastructure/i18n/locales/pl/common'
@@ -62,6 +64,7 @@ import plPanel from '@/infrastructure/i18n/locales/pl/panel'
 import plAiEditor from '@/infrastructure/i18n/locales/pl/aiEditor'
 import plCourses from '@/infrastructure/i18n/locales/pl/courses'
 import plFeatures from '@/infrastructure/i18n/locales/pl/features'
+import plSystemFeatures from '@/infrastructure/i18n/locales/pl/systemFeatures'
 
 // Merge all modules into single language objects
 const de = {
@@ -74,7 +77,8 @@ const de = {
   ...dePanel,
   ...deAiEditor,
   ...deCourses,
-  ...deFeatures
+  ...deFeatures,
+  ...deSystemFeatures
 }
 
 const en = {
@@ -87,7 +91,8 @@ const en = {
   ...enPanel,
   ...enAiEditor,
   ...enCourses,
-  ...enFeatures
+  ...enFeatures,
+  ...enSystemFeatures
 }
 
 const pl = {
@@ -100,7 +105,8 @@ const pl = {
   ...plPanel,
   ...plAiEditor,
   ...plCourses,
-  ...plFeatures
+  ...plFeatures,
+  ...plSystemFeatures
 }
 
 // Type for nested message objects

@@ -1,0 +1,109 @@
+{
+  "systemFeatures": {
+    "loading": "Wird geladen...",
+    "locked": "Dieses Feature ist nicht verfügbar",
+    "comingSoon": "Dieses Feature wird bald verfügbar sein",
+    "unavailable": "Nicht aktiviert",
+
+    "whiteboardEngine": {
+      "title": "Whiteboard-Engine",
+      "description": "Interaktives Whiteboard für Zeichnungen und Skizzen"
+    },
+    "itSandbox": {
+      "title": "IT-Sandbox",
+      "description": "Sichere Umgebung zum Experimentieren mit IT-Systemen"
+    },
+    "speechToText": {
+      "title": "Sprache-zu-Text",
+      "description": "Automatische Spracherkennung und Transkription"
+    },
+    "ihkExamSystem": {
+      "title": "IHK-Prüfungssystem",
+      "description": "Simulation und Vorbereitung auf IHK-Prüfungen"
+    },
+    "practicalExamEngine": {
+      "title": "Praktische Prüfungs-Engine",
+      "description": "Engine für praxisnahe Prüfungsaufgaben"
+    },
+    "comprehensionChecker": {
+      "title": "Verständniskontrolle",
+      "description": "Automatische Überprüfung des Lernfortschritts"
+    },
+    "chapterCompletionSystem": {
+      "title": "Kapitelabschluss-System",
+      "description": "Tracking und Überprüfung von Kapitelabschlüssen"
+    },
+    "adaptiveDifficulty": {
+      "title": "Adaptive Schwierigkeit",
+      "description": "Automatische Anpassung des Schwierigkeitsgrads"
+    },
+    "dailyRecall": {
+      "title": "Tägliche Wiederholung",
+      "description": "Spaced-Repetition-basierte Lernwiederholungen"
+    },
+    "xpQuestSystem": {
+      "title": "XP-Quest-System",
+      "description": "Erfahrungspunkte und Quests für Gamification"
+    },
+    "npcTutor": {
+      "title": "NPC-Tutor",
+      "description": "KI-gestützter Tutor-Begleiter für personalisiertes Lernen"
+    },
+    "socraticDialog": {
+      "title": "Sokratischer Dialog",
+      "description": "Interaktive Fragetechnik zur Förderung des Denkens"
+    },
+    "peerInstruction": {
+      "title": "Peer Instruction",
+      "description": "Lernen durch gegenseitigen Austausch mit Kommilitonen"
+    },
+    "teamCase": {
+      "title": "Team-Fallstudie",
+      "description": "Kollaborative Bearbeitung von Fallstudien im Team"
+    },
+    "peerReview": {
+      "title": "Peer Review",
+      "description": "Gegenseitige Bewertung und Feedback unter Lernenden"
+    },
+    "learningJournal": {
+      "title": "Lerntagebuch",
+      "description": "Reflexives Tagebuch zur Dokumentation des Lernprozesses"
+    },
+    "projectPortfolio": {
+      "title": "Projekt-Portfolio",
+      "description": "Sammlung und Präsentation von Projektarbeiten"
+    },
+    "projectBasedLearning": {
+      "title": "Projektbasiertes Lernen",
+      "description": "Lernen durch praktische Projektarbeit"
+    },
+    "invertedClassroom": {
+      "title": "Inverted Classroom",
+      "description": "Umgedrehtes Klassenzimmer - Vorbereitung vor dem Unterricht"
+    },
+    "codeSandbox": {
+      "title": "Code-Sandbox",
+      "description": "Geschützte Programmierumgebung zum Üben und Experimentieren"
+    },
+    "networkSimulation": {
+      "title": "Netzwerksimulation",
+      "description": "Simulation von Netzwerkumgebungen und -topologien"
+    },
+    "terminalAccess": {
+      "title": "Terminal-Zugang",
+      "description": "Zugang zu einem virtuellen Terminal für Kommandozeilen-Übungen"
+    },
+    "timerWrapper": {
+      "title": "Timer",
+      "description": "Zeitmanagement-Tool für Lerneinheiten und Prüfungen"
+    },
+    "mindmapGenerator": {
+      "title": "Mindmap-Generator",
+      "description": "Automatische Erstellung von Mindmaps aus Lerninhalten"
+    },
+    "learningPathGenerator": {
+      "title": "Lernpfad-Generator",
+      "description": "Automatisierte Erstellung personalisierter Lernpfade"
+    }
+  }
+}

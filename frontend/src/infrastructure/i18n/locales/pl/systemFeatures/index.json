@@ -1,0 +1,109 @@
+{
+  "systemFeatures": {
+    "loading": "Ładowanie...",
+    "locked": "Ta funkcja nie jest dostępna",
+    "comingSoon": "Ta funkcja będzie wkrótce dostępna",
+    "unavailable": "Nie aktywowano",
+
+    "whiteboardEngine": {
+      "title": "Silnik tablicy",
+      "description": "Interaktywna tablica do rysunków i szkiców"
+    },
+    "itSandbox": {
+      "title": "Piaskownica IT",
+      "description": "Bezpieczne środowisko do eksperymentowania z systemami IT"
+    },
+    "speechToText": {
+      "title": "Mowa na tekst",
+      "description": "Automatyczne rozpoznawanie mowy i transkrypcja"
+    },
+    "ihkExamSystem": {
+      "title": "System egzaminów IHK",
+      "description": "Symulacja i przygotowanie do egzaminów IHK"
+    },
+    "practicalExamEngine": {
+      "title": "Silnik egzaminów praktycznych",
+      "description": "Silnik do praktycznych zadań egzaminacyjnych"
+    },
+    "comprehensionChecker": {
+      "title": "Sprawdzanie zrozumienia",
+      "description": "Automatyczna weryfikacja postępów w nauce"
+    },
+    "chapterCompletionSystem": {
+      "title": "System ukończenia rozdziałów",
+      "description": "Śledzenie i weryfikacja ukończenia rozdziałów"
+    },
+    "adaptiveDifficulty": {
+      "title": "Adaptacyjny poziom trudności",
+      "description": "Automatyczne dostosowanie poziomu trudności"
+    },
+    "dailyRecall": {
+      "title": "Codzienne powtórki",
+      "description": "Powtórki oparte na powtórkach rozłożonych w czasie"
+    },
+    "xpQuestSystem": {
+      "title": "System XP i questów",
+      "description": "Punkty doświadczenia i questy do grywalizacji"
+    },
+    "npcTutor": {
+      "title": "Tutor NPC",
+      "description": "Tutor wspierany przez AI do spersonalizowanej nauki"
+    },
+    "socraticDialog": {
+      "title": "Dialog sokratejski",
+      "description": "Interaktywna technika pytań promująca myślenie"
+    },
+    "peerInstruction": {
+      "title": "Peer Instruction",
+      "description": "Nauka przez wzajemną wymianę z innymi studentami"
+    },
+    "teamCase": {
+      "title": "Studium przypadku zespołowe",
+      "description": "Zespołowa praca nad studiami przypadków"
+    },
+    "peerReview": {
+      "title": "Peer Review",
+      "description": "Wzajemna ocena i informacja zwrotna między uczącymi się"
+    },
+    "learningJournal": {
+      "title": "Dziennik nauki",
+      "description": "Refleksyjny dziennik do dokumentowania procesu uczenia się"
+    },
+    "projectPortfolio": {
+      "title": "Portfolio projektowe",
+      "description": "Kolekcja i prezentacja prac projektowych"
+    },
+    "projectBasedLearning": {
+      "title": "Nauka oparta na projektach",
+      "description": "Nauka poprzez praktyczną pracę projektową"
+    },
+    "invertedClassroom": {
+      "title": "Odwrócona klasa",
+      "description": "Odwrócona klasa - przygotowanie przed zajęciami"
+    },
+    "codeSandbox": {
+      "title": "Piaskownica kodu",
+      "description": "Chronione środowisko programistyczne do ćwiczeń"
+    },
+    "networkSimulation": {
+      "title": "Symulacja sieci",
+      "description": "Symulacja środowisk sieciowych i topologii"
+    },
+    "terminalAccess": {
+      "title": "Dostęp do terminala",
+      "description": "Dostęp do wirtualnego terminala do ćwiczeń wiersza poleceń"
+    },
+    "timerWrapper": {
+      "title": "Timer",
+      "description": "Narzędzie do zarządzania czasem dla sesji nauki i egzaminów"
+    },
+    "mindmapGenerator": {
+      "title": "Generator map myśli",
+      "description": "Automatyczne tworzenie map myśli z treści edukacyjnych"
+    },
+    "learningPathGenerator": {
+      "title": "Generator ścieżek nauki",
+      "description": "Automatyczne tworzenie spersonalizowanych ścieżek nauki"
+    }
+  }
+}

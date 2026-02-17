@@ -1,0 +1,109 @@
+{
+  "systemFeatures": {
+    "loading": "Loading...",
+    "locked": "This feature is not available",
+    "comingSoon": "This feature will be available soon",
+    "unavailable": "Not activated",
+
+    "whiteboardEngine": {
+      "title": "Whiteboard Engine",
+      "description": "Interactive whiteboard for drawings and sketches"
+    },
+    "itSandbox": {
+      "title": "IT Sandbox",
+      "description": "Safe environment for experimenting with IT systems"
+    },
+    "speechToText": {
+      "title": "Speech to Text",
+      "description": "Automatic speech recognition and transcription"
+    },
+    "ihkExamSystem": {
+      "title": "IHK Exam System",
+      "description": "Simulation and preparation for IHK exams"
+    },
+    "practicalExamEngine": {
+      "title": "Practical Exam Engine",
+      "description": "Engine for hands-on exam assignments"
+    },
+    "comprehensionChecker": {
+      "title": "Comprehension Checker",
+      "description": "Automatic verification of learning progress"
+    },
+    "chapterCompletionSystem": {
+      "title": "Chapter Completion System",
+      "description": "Tracking and verification of chapter completions"
+    },
+    "adaptiveDifficulty": {
+      "title": "Adaptive Difficulty",
+      "description": "Automatic adjustment of difficulty level"
+    },
+    "dailyRecall": {
+      "title": "Daily Recall",
+      "description": "Spaced-repetition based learning reviews"
+    },
+    "xpQuestSystem": {
+      "title": "XP Quest System",
+      "description": "Experience points and quests for gamification"
+    },
+    "npcTutor": {
+      "title": "NPC Tutor",
+      "description": "AI-powered tutor companion for personalized learning"
+    },
+    "socraticDialog": {
+      "title": "Socratic Dialog",
+      "description": "Interactive questioning technique to promote thinking"
+    },
+    "peerInstruction": {
+      "title": "Peer Instruction",
+      "description": "Learning through mutual exchange with fellow students"
+    },
+    "teamCase": {
+      "title": "Team Case Study",
+      "description": "Collaborative case study work in teams"
+    },
+    "peerReview": {
+      "title": "Peer Review",
+      "description": "Mutual assessment and feedback among learners"
+    },
+    "learningJournal": {
+      "title": "Learning Journal",
+      "description": "Reflective journal for documenting the learning process"
+    },
+    "projectPortfolio": {
+      "title": "Project Portfolio",
+      "description": "Collection and presentation of project work"
+    },
+    "projectBasedLearning": {
+      "title": "Project-Based Learning",
+      "description": "Learning through practical project work"
+    },
+    "invertedClassroom": {
+      "title": "Inverted Classroom",
+      "description": "Flipped classroom - preparation before class"
+    },
+    "codeSandbox": {
+      "title": "Code Sandbox",
+      "description": "Protected programming environment for practice and experimentation"
+    },
+    "networkSimulation": {
+      "title": "Network Simulation",
+      "description": "Simulation of network environments and topologies"
+    },
+    "terminalAccess": {
+      "title": "Terminal Access",
+      "description": "Access to a virtual terminal for command-line exercises"
+    },
+    "timerWrapper": {
+      "title": "Timer",
+      "description": "Time management tool for learning sessions and exams"
+    },
+    "mindmapGenerator": {
+      "title": "Mindmap Generator",
+      "description": "Automatic creation of mind maps from learning content"
+    },
+    "learningPathGenerator": {
+      "title": "Learning Path Generator",
+      "description": "Automated creation of personalized learning paths"
+    }
+  }
+}

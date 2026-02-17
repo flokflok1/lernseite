@@ -4,6 +4,9 @@
 // These are infrastructure-level features (NOT content learning methods).
 // Content LMs live in ../learning/methods/
 
+// Audio (1 feature: speech_to_text)
+export * from './audio'
+
 // Interactive Tools (1 feature: whiteboard_engine)
 export * from './interactive'
 

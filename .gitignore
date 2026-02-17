@@ -136,7 +136,7 @@ gap_analyse_*.txt
 
 # Uploaded files
 uploads/
-storage/
+/storage/
 media_cache/
 
 # Test media files

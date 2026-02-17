@@ -25,6 +25,20 @@
     "title": "Kategorie",
     "updateError": "Błąd aktualizacji"
   },
+  "editor": {
+    "title": "Edytor kursów",
+    "subtitle": "Tworzenie i edycja kursów",
+    "manual": {
+      "title": "Edytor ręczny"
+    },
+    "ai": {
+      "title": "Edytor AI"
+    },
+    "launcher": {
+      "title": "Edytor kursów",
+      "description": "Kliknij edytor po lewej, aby otworzyć okno."
+    }
+  },
   "dashboard": {
     "activeUsers": "Aktywni użytkownicy",
     "activeUsersDesc": "Aktywni w ciągu ostatnich 7 dni",
@@ -62,6 +76,7 @@
     "billing": "Rozliczenia",
     "categories": "Kategorie",
     "contentManagement": "Zarządzanie treścią",
+    "back_to_panel": "Powrót do panelu",
     "courseEditor": "Edytor kursów",
     "courses": "Kursy",
     "dashboard": "Panel",

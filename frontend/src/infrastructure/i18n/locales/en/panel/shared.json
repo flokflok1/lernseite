@@ -25,6 +25,20 @@
     "title": "Categories",
     "updateError": "Error updating"
   },
+  "editor": {
+    "title": "Course Editor",
+    "subtitle": "Create & edit courses",
+    "manual": {
+      "title": "Manual Editor"
+    },
+    "ai": {
+      "title": "AI Editor"
+    },
+    "launcher": {
+      "title": "Course Editor",
+      "description": "Click an editor on the left to open a window."
+    }
+  },
   "dashboard": {
     "activeUsers": "Active Users",
     "activeUsersDesc": "Active in the last 7 days",
@@ -62,6 +76,7 @@
     "billing": "Billing",
     "categories": "Categories",
     "contentManagement": "Content Management",
+    "back_to_panel": "Back to Panel",
     "courseEditor": "Course Editor",
     "courses": "Courses",
     "dashboard": "Dashboard",

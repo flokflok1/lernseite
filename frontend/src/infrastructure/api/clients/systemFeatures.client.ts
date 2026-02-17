@@ -5,14 +5,15 @@
  *
  * Base URL: /api/v1/system-features
  *
- * Categories:
- * - interactive       # Interactive Tools (3 features)
- * - exam              # Exam & Assessment (4 features + simulations)
- * - math/toolkit      # Math Toolkit (4 features)
+ * Categories (1:1 with DB support_systems.system_features):
+ * - interactive       # Interactive Tools (1 feature: whiteboard_engine)
+ * - audio             # Audio (1 feature: speech_to_text)
+ * - exam              # Exam & Assessment (3 features + simulations)
+ * - math/toolkit      # Math Toolkit (4 features, no DB category)
  * - gamification      # Gamification (3 features)
- * - tutor             # Tutor & Coaching (2 features)
+ * - tutor             # Tutor & Coaching (3 features: npc, socratic, comprehension)
  * - collaboration     # Collaboration (7 features)
- * - it-environments   # IT Environments (3 features)
+ * - it-environments   # IT Environments (4 features: code, network, terminal, it_sandbox)
  * - meta              # Meta Features (1 feature)
  * - visualization     # Visualization (1 feature)
  * - learning-paths    # Learning Paths (1 feature)
@@ -72,33 +73,25 @@ export const interactiveTools = {
 
     deleteCanvas: (canvasId: string): Promise<AxiosResponse> =>
       http.delete(`${BASE_URL}/interactive/whiteboard/canvas/${canvasId}`)
-  },
+  }
+}
 
-  /**
-   * IT Sandbox
-   */
-  sandbox: {
-    createEnvironment: (data: { type: string; os: string; resources?: SandboxResources }): Promise<AxiosResponse> =>
-      http.post(`${BASE_URL}/interactive/it-sandbox/environment`, data),
+// =============================================================================
+// AUDIO
+// =============================================================================
 
-    executeCode: (envId: string, data: { code: string; language: string; timeout?: number }): Promise<AxiosResponse> =>
-      http.post(`${BASE_URL}/interactive/it-sandbox/environment/${envId}/execute`, data),
-
-    deleteEnvironment: (envId: string): Promise<AxiosResponse> =>
-      http.delete(`${BASE_URL}/interactive/it-sandbox/environment/${envId}`)
-  },
-
+export const audio = {
   /**
    * Speech-to-Text
    */
   speech: {
     transcribe: (data: FormData): Promise<AxiosResponse> =>
-      http.post(`${BASE_URL}/interactive/speech-to-text/transcribe`, data, {
+      http.post(`${BASE_URL}/audio/speech-to-text/transcribe`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       }),
 
     getTranscription: (transcriptionId: string): Promise<AxiosResponse> =>
-      http.get(`${BASE_URL}/interactive/speech-to-text/transcription/${transcriptionId}`)
+      http.get(`${BASE_URL}/audio/speech-to-text/transcription/${transcriptionId}`)
   }
 }
 
@@ -121,14 +114,6 @@ export const exam = {
   practical: {
     create: (data: PracticalExamCreateRequest): Promise<AxiosResponse> =>
       http.post(`${BASE_URL}/exam/practical/create`, data)
-  },
-
-  /**
-   * Comprehension Checker
-   */
-  comprehension: {
-    check: (data: ComprehensionCheckRequest): Promise<AxiosResponse> =>
-      http.post(`${BASE_URL}/exam/comprehension/check`, data)
   },
 
   /**
@@ -241,6 +226,14 @@ export const tutor = {
   socratic: {
     start: (data: SocraticDialogStartRequest): Promise<AxiosResponse> =>
       http.post(`${BASE_URL}/tutor/socratic/start`, data)
+  },
+
+  /**
+   * Comprehension Checker
+   */
+  comprehension: {
+    check: (data: ComprehensionCheckRequest): Promise<AxiosResponse> =>
+      http.post(`${BASE_URL}/tutor/comprehension/check`, data)
   }
 }
 
@@ -333,6 +326,20 @@ export const itEnvironments = {
   terminalAccess: {
     createSession: (data: TerminalSessionCreateRequest): Promise<AxiosResponse> =>
       http.post(`${BASE_URL}/it-environments/terminal-access/session`, data)
+  },
+
+  /**
+   * IT Sandbox
+   */
+  itSandbox: {
+    createEnvironment: (data: { language: string; template?: string }): Promise<AxiosResponse> =>
+      http.post(`${BASE_URL}/it-environments/it-sandbox/environment`, data),
+
+    executeCode: (envId: string, data: { code: string; language: string }): Promise<AxiosResponse> =>
+      http.post(`${BASE_URL}/it-environments/it-sandbox/environment/${envId}/execute`, data),
+
+    deleteEnvironment: (envId: string): Promise<AxiosResponse> =>
+      http.delete(`${BASE_URL}/it-environments/it-sandbox/environment/${envId}`)
   }
 }
 
@@ -384,6 +391,7 @@ export const learningPaths = {
 
 export const systemFeaturesClient = {
   interactive: interactiveTools,
+  audio,
   exam,
   math: mathToolkit,
   gamification,

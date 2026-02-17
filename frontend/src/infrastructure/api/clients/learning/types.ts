@@ -94,17 +94,11 @@ export interface CourseProgress {
   completed_at?: string
 }
 
-export interface LearningMethod {
-  method_id: number
-  method_name: string
-  category: 'basis' | 'premium' | 'pro'
-  description: string
-  requires_ai: boolean
-  token_cost: number
-  is_premium: boolean
-  icon?: string
-  config?: any
-}
+/**
+ * LearningMethod re-exported from domain.
+ * Canonical definition lives in domain/models/learning/types.ts
+ */
+export type { LearningMethod } from '@/domain/models/learning/types'
 
 export interface ExecuteMethodRequest {
   lesson_id: string | number

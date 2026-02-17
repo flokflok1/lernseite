@@ -6,14 +6,13 @@ System-Features differ from Content-Lernmethoden (12 LMs) by providing
 infrastructure-level functionality (tools & services) rather than content formats.
 
 Structure:
-├── interactive/       # Interactive Tools (3 features)
-│   ├── whiteboard.py         # Whiteboard Engine
-│   ├── it_sandbox.py         # IT Sandbox
+├── interactive/       # Interactive Tools (1 feature)
+│   └── whiteboard.py         # Whiteboard Engine
+├── audio/             # Audio (1 feature)
 │   └── speech_to_text.py     # Speech-to-Text
-├── exam/              # Exam & Assessment (6 features)
+├── exam/              # Exam & Assessment (3 features + simulations)
 │   ├── ihk_exam.py           # IHK Exam System
 │   ├── practical_exam.py     # Practical Exam Engine
-│   ├── comprehension_checker.py # Comprehension Checker
 │   ├── chapter_completion.py # Chapter Completion System
 │   └── simulations/          # Exam Simulations (existing)
 ├── math_toolkit/      # Math Tools (1 feature + toolkit)
@@ -23,9 +22,10 @@ Structure:
 │   ├── adaptive_difficulty.py
 │   ├── xp_quest_system.py
 │   └── daily_recall.py
-├── tutor/             # Tutor & Coaching (2 features)
+├── tutor/             # Tutor & Coaching (3 features)
 │   ├── npc_tutor.py
-│   └── socratic_dialog.py
+│   ├── socratic_dialog.py
+│   └── comprehension_checker.py # Comprehension Checker
 ├── collaboration/     # Collaboration (7 features)
 │   ├── peer_instruction.py
 │   ├── team_case.py
@@ -34,10 +34,11 @@ Structure:
 │   ├── project_portfolio.py
 │   ├── project_based_learning.py
 │   └── inverted_classroom.py
-├── it_environments/   # IT Environments (3 features)
+├── it_environments/   # IT Environments (4 features)
 │   ├── code_sandbox.py
 │   ├── network_simulation.py
-│   └── terminal_access.py
+│   ├── terminal_access.py
+│   └── it_sandbox.py         # IT Sandbox
 ├── meta/              # Meta Features (1 feature)
 │   └── timer_wrapper.py
 ├── visualization/     # Visualization (1 feature)
@@ -78,15 +79,16 @@ from app.api.v1.system_features.registry import bp as registry_bp
 # =============================================================================
 
 # TODO: Import blueprints from feature modules when implemented
-# from app.api.v1.system_features.interactive import whiteboard_bp, it_sandbox_bp, speech_bp
-# from app.api.v1.system_features.exam import ihk_exam_bp, practical_exam_bp, comprehension_bp, chapter_completion_bp
+# from app.api.v1.system_features.interactive import whiteboard_bp
+# from app.api.v1.system_features.audio import speech_bp
+# from app.api.v1.system_features.exam import ihk_exam_bp, practical_exam_bp, chapter_completion_bp
 # from app.api.v1.system_features.gamification import adaptive_difficulty_bp, xp_quest_bp, daily_recall_bp
-# from app.api.v1.system_features.tutor import npc_tutor_bp, socratic_dialog_bp
+# from app.api.v1.system_features.tutor import npc_tutor_bp, socratic_dialog_bp, comprehension_bp
 # from app.api.v1.system_features.collaboration import (
 #     peer_instruction_bp, team_case_bp, peer_review_bp, learning_journal_bp,
 #     project_portfolio_bp, project_based_learning_bp, inverted_classroom_bp
 # )
-# from app.api.v1.system_features.it_environments import code_sandbox_bp, network_simulation_bp, terminal_access_bp
+# from app.api.v1.system_features.it_environments import code_sandbox_bp, network_simulation_bp, terminal_access_bp, it_sandbox_bp
 # from app.api.v1.system_features.meta import timer_wrapper_bp
 # from app.api.v1.system_features.visualization import mindmap_generator_bp
 # from app.api.v1.system_features.learning_paths import path_generator_bp
@@ -117,27 +119,28 @@ system_features_bp.register_blueprint(math_admin_bp, url_prefix='/math/toolkit/a
 # REGISTER NEW FEATURES (TODO: Uncomment when implemented)
 # =============================================================================
 
-# Interactive Tools
+# Interactive Tools (1 feature)
 # system_features_bp.register_blueprint(whiteboard_bp, url_prefix='/interactive/whiteboard')
-# system_features_bp.register_blueprint(it_sandbox_bp, url_prefix='/interactive/it-sandbox')
-# system_features_bp.register_blueprint(speech_bp, url_prefix='/interactive/speech-to-text')
 
-# Exam & Assessment (additional)
+# Audio (1 feature)
+# system_features_bp.register_blueprint(speech_bp, url_prefix='/audio/speech-to-text')
+
+# Exam & Assessment (3 features)
 # system_features_bp.register_blueprint(ihk_exam_bp, url_prefix='/exam/ihk')
 # system_features_bp.register_blueprint(practical_exam_bp, url_prefix='/exam/practical')
-# system_features_bp.register_blueprint(comprehension_bp, url_prefix='/exam/comprehension')
 # system_features_bp.register_blueprint(chapter_completion_bp, url_prefix='/exam/chapter-completion')
 
-# Gamification
+# Gamification (3 features)
 # system_features_bp.register_blueprint(adaptive_difficulty_bp, url_prefix='/gamification/adaptive-difficulty')
 # system_features_bp.register_blueprint(xp_quest_bp, url_prefix='/gamification/xp-quest')
 # system_features_bp.register_blueprint(daily_recall_bp, url_prefix='/gamification/daily-recall')
 
-# Tutor & Coaching
+# Tutor & Coaching (3 features)
 # system_features_bp.register_blueprint(npc_tutor_bp, url_prefix='/tutor/npc')
 # system_features_bp.register_blueprint(socratic_dialog_bp, url_prefix='/tutor/socratic')
+# system_features_bp.register_blueprint(comprehension_bp, url_prefix='/tutor/comprehension')
 
-# Collaboration
+# Collaboration (7 features)
 # system_features_bp.register_blueprint(peer_instruction_bp, url_prefix='/collaboration/peer-instruction')
 # system_features_bp.register_blueprint(team_case_bp, url_prefix='/collaboration/team-case')
 # system_features_bp.register_blueprint(peer_review_bp, url_prefix='/collaboration/peer-review')
@@ -146,18 +149,19 @@ system_features_bp.register_blueprint(math_admin_bp, url_prefix='/math/toolkit/a
 # system_features_bp.register_blueprint(project_based_learning_bp, url_prefix='/collaboration/project-based')
 # system_features_bp.register_blueprint(inverted_classroom_bp, url_prefix='/collaboration/inverted-classroom')
 
-# IT Environments
+# IT Environments (4 features)
 # system_features_bp.register_blueprint(code_sandbox_bp, url_prefix='/it-environments/code-sandbox')
 # system_features_bp.register_blueprint(network_simulation_bp, url_prefix='/it-environments/network-simulation')
 # system_features_bp.register_blueprint(terminal_access_bp, url_prefix='/it-environments/terminal-access')
+# system_features_bp.register_blueprint(it_sandbox_bp, url_prefix='/it-environments/it-sandbox')
 
-# Meta
+# Meta (1 feature)
 # system_features_bp.register_blueprint(timer_wrapper_bp, url_prefix='/meta/timer-wrapper')
 
-# Visualization
+# Visualization (1 feature)
 # system_features_bp.register_blueprint(mindmap_generator_bp, url_prefix='/visualization/mindmap-generator')
 
-# Learning Paths
+# Learning Paths (1 feature)
 # system_features_bp.register_blueprint(path_generator_bp, url_prefix='/learning-paths/path-generator')
 
 # =============================================================================

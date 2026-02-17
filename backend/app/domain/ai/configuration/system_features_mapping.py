@@ -3,15 +3,17 @@ System Features Mapping
 
 Defines all System-Features (Tools/Services separate from Content-LMs).
 
-Categories:
-- Interactive Tools: whiteboard_engine, it_sandbox, speech_to_text
+Categories (10 — 1:1 with DB support_systems.system_features):
+- Interactive Tools: whiteboard_engine
+- Audio: speech_to_text
 - Meta Features: timer_wrapper
-- Tutor & Coaching: npc_tutor, socratic_dialog
+- Tutor & Coaching: npc_tutor, socratic_dialog, comprehension_checker
 - Gamification: adaptive_difficulty, xp_quest_system, daily_recall
 - Learning Paths: learning_path_generator
-- Collaboration: peer_review, team_case, learning_journal, project_portfolio, inverted_classroom
+- Collaboration: peer_review, team_case, learning_journal, project_portfolio, inverted_classroom, peer_instruction, project_based_learning
+- Exam Systems: ihk_exam_system, practical_exam_engine, chapter_completion_system
 - Visualization: mindmap_generator
-- IT Environments: code_sandbox, network_simulation, terminal_access
+- IT Environments: code_sandbox, network_simulation, terminal_access, it_sandbox
 
 FORMERLY Content-LMs (now System-Features):
 - Whiteboard-Aufgabe (old lm05) → whiteboard_engine
@@ -464,7 +466,11 @@ def get_feature_default_config(feature_code: str) -> Optional[dict]:
 # Categories
 # ============================================================================
 FEATURE_CATEGORIES = {
-    "interactive_tools": ["whiteboard_engine", "it_sandbox", "speech_to_text"],
+    # 10 DB categories with 25 features (source: support_systems.system_features)
+    # Note: math_toolkit is NOT listed here — it has no DB category entry
+    # and is managed separately via /system-features/math/toolkit/ endpoints.
+    "interactive_tools": ["whiteboard_engine"],
+    "audio": ["speech_to_text"],
     "meta_features": ["timer_wrapper"],
     "visualization": ["mindmap_generator"],
     "tutor": ["npc_tutor", "socratic_dialog", "comprehension_checker"],
@@ -472,6 +478,5 @@ FEATURE_CATEGORIES = {
     "learning_paths": ["learning_path_generator"],
     "collaboration": ["peer_review", "team_case", "learning_journal", "project_portfolio", "inverted_classroom", "peer_instruction", "project_based_learning"],
     "exam_systems": ["ihk_exam_system", "practical_exam_engine", "chapter_completion_system"],
-    "it_environments": ["code_sandbox", "network_simulation", "terminal_access"],
-    "audio": ["speech_to_text"]
+    "it_environments": ["code_sandbox", "network_simulation", "terminal_access", "it_sandbox"],
 }

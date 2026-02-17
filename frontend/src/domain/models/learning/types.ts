@@ -5,6 +5,20 @@
  * Infrastructure layer re-exports these for API response typing.
  */
 
+export interface LearningMethod {
+  method_id: number
+  method_type: number
+  method_name: string
+  category: 'basis' | 'premium' | 'pro'
+  description: string
+  requires_ai: boolean
+  token_cost: number
+  estimated_tokens?: number
+  is_premium: boolean
+  icon?: string
+  config?: Record<string, unknown>
+}
+
 export interface QuizQuestionResult {
   question_id: number
   is_correct: boolean

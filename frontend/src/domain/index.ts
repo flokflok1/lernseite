@@ -7,7 +7,6 @@
  * - value-objects/: Immutable value objects (initialized)
  * - repositories/: Repository interfaces (initialized)
  * - events/: Domain events (initialized)
- * - learning-methods/: Learning method domain models
  * - plugins/: Domain plugins and utilities
  */
 
@@ -16,6 +15,5 @@ export * from './factories'
 export * from './value-objects'
 export * from './repositories'
 export * from './events'
-export * from './learning-methods'
 export * from './plugins'
 export * from './widgets'

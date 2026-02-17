@@ -3,17 +3,20 @@ LernsystemX Setup - Seed Data - System Configuration
 
 Seeds initial data for:
 - System features (25 features across 10 categories)
-  - Audio (2): tts_engine, audio_recording
-  - Collaboration (3): liveroom_collaboration, screen_sharing, collaborative_whiteboard
-  - Exam Systems (3): ihk_exam_system, multi_step_practice_exam, certification_exam
-  - Gamification (2): xp_system, badge_system
-  - Interactive Tools (3): whiteboard_engine, code_sandbox, math_equation_solver
-  - IT Environments (2): virtual_lab, terminal_emulator
-  - Learning Paths (2): learning_path_engine, adaptive_learning
-  - Meta Features (2): feature_flags, usage_analytics
-  - Tutor (2): npc_tutor, ai_tutor_companion
-  - Visualization (2): 3d_visualization, interactive_diagrams
+  - Audio (1): speech_to_text
+  - Collaboration (7): peer_instruction, peer_review, team_case, learning_journal,
+      project_portfolio, project_based_learning, inverted_classroom
+  - Exam Systems (3): ihk_exam_system, practical_exam_engine, chapter_completion_system
+  - Gamification (3): adaptive_difficulty, xp_quest_system, daily_recall
+  - Interactive Tools (1): whiteboard_engine
+  - IT Environments (4): it_sandbox, code_sandbox, network_simulation, terminal_access
+  - Learning Paths (1): learning_path_generator
+  - Meta Features (1): timer_wrapper
+  - Tutor (3): npc_tutor, socratic_dialog, comprehension_checker
+  - Visualization (1): mindmap_generator
 - Course categories (8 categories)
+
+Source of Truth: backend/migrations/11_System/038_system_features.sql
 
 For learning methods and user roles, see:
 - seeds.py: Core seeding functions
@@ -33,6 +36,7 @@ class SeedDataConfig:
     Seed system configuration data
 
     Provides predefined data for 25 system features and 8 course categories.
+    Source of Truth: backend/migrations/11_System/038_system_features.sql
     """
 
     @classmethod
@@ -41,16 +45,19 @@ class SeedDataConfig:
         Seed 25 system features across 10 categories
 
         Categories:
-        - Audio (2 features)
-        - Collaboration (3 features)
-        - Exam Systems (3 features)
-        - Gamification (2 features)
-        - Interactive Tools (3 features)
-        - IT Environments (2 features)
-        - Learning Paths (2 features)
-        - Meta Features (2 features)
-        - Tutor (2 features)
-        - Visualization (2 features)
+        - Audio (1 feature): speech_to_text
+        - Collaboration (7 features): peer_instruction, peer_review, team_case,
+          learning_journal, project_portfolio, project_based_learning, inverted_classroom
+        - Exam Systems (3 features): ihk_exam_system, practical_exam_engine,
+          chapter_completion_system
+        - Gamification (3 features): adaptive_difficulty, xp_quest_system, daily_recall
+        - Interactive Tools (1 feature): whiteboard_engine
+        - IT Environments (4 features): it_sandbox, code_sandbox, network_simulation,
+          terminal_access
+        - Learning Paths (1 feature): learning_path_generator
+        - Meta Features (1 feature): timer_wrapper
+        - Tutor (3 features): npc_tutor, socratic_dialog, comprehension_checker
+        - Visualization (1 feature): mindmap_generator
 
         Args:
             skip_existing: Skip if features already exist
@@ -69,161 +76,201 @@ class SeedDataConfig:
                 return 0
 
         system_features = [
-            # Audio (2)
+            # Audio (1)
             {
-                'feature_code': 'tts_engine',
-                'feature_name': 'Text-to-Speech Engine',
-                'description': 'Converts text content to speech in multiple languages',
+                'feature_code': 'speech_to_text',
+                'feature_name': 'Speech-to-Text Engine',
+                'description': 'Sprachaufnahme mit KI-Transkription & Bewertung',
                 'category': 'audio',
                 'requires_infrastructure': True,
                 'requires_external_service': True,
-                'icon': 'volume-2',
-                'former_lm_id': None
-            },
-            {
-                'feature_code': 'audio_recording',
-                'feature_name': 'Audio Recording',
-                'description': 'Record and playback audio annotations',
-                'category': 'audio',
-                'requires_infrastructure': True,
-                'requires_external_service': False,
-                'icon': 'mic',
-                'former_lm_id': None
+                'icon': 'microphone',
+                'former_lm_id': 17
             },
 
-            # Collaboration (3)
+            # Collaboration (7)
             {
-                'feature_code': 'liveroom_collaboration',
-                'feature_name': 'LiveRoom Collaboration',
-                'description': 'Real-time collaborative learning environment with video/audio',
+                'feature_code': 'peer_instruction',
+                'feature_name': 'Peer Instruction',
+                'description': 'Peer Instruction Methode (Think-Pair-Share)',
                 'category': 'collaboration',
-                'requires_infrastructure': True,
-                'requires_external_service': True,
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'icon': 'users',
+                'former_lm_id': 26
+            },
+            {
+                'feature_code': 'peer_review',
+                'feature_name': 'Peer Review',
+                'description': 'Gegenseitige Bewertung von Lösungen',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
                 'icon': 'users',
                 'former_lm_id': None
             },
             {
-                'feature_code': 'screen_sharing',
-                'feature_name': 'Screen Sharing',
-                'description': 'Share screens during collaborative sessions',
+                'feature_code': 'team_case',
+                'feature_name': 'Team-Case',
+                'description': 'Kollaborative Fallbearbeitung',
                 'category': 'collaboration',
-                'requires_infrastructure': True,
+                'requires_infrastructure': False,
                 'requires_external_service': False,
-                'icon': 'share-2',
+                'icon': 'people-carry',
                 'former_lm_id': None
             },
             {
-                'feature_code': 'collaborative_whiteboard',
-                'feature_name': 'Collaborative Whiteboard',
-                'description': 'Shared digital whiteboard for real-time drawing and annotation',
+                'feature_code': 'learning_journal',
+                'feature_name': 'Lerntagebuch',
+                'description': 'Persönliche Reflexion und Dokumentation',
                 'category': 'collaboration',
-                'requires_infrastructure': True,
+                'requires_infrastructure': False,
                 'requires_external_service': False,
-                'icon': 'edit-3',
+                'icon': 'book',
+                'former_lm_id': None
+            },
+            {
+                'feature_code': 'project_portfolio',
+                'feature_name': 'Projekt-Portfolio',
+                'description': 'Sammlung eigener Projekte',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'icon': 'folder-open',
+                'former_lm_id': None
+            },
+            {
+                'feature_code': 'project_based_learning',
+                'feature_name': 'Projektbasiertes Lernen',
+                'description': 'Project-Based Learning Workflows',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'icon': 'tasks',
+                'former_lm_id': 31
+            },
+            {
+                'feature_code': 'inverted_classroom',
+                'feature_name': 'Inverted Classroom',
+                'description': 'Flipped Classroom Unterstützung',
+                'category': 'collaboration',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'icon': 'chalkboard-teacher',
                 'former_lm_id': None
             },
 
             # Exam Systems (3)
             {
                 'feature_code': 'ihk_exam_system',
-                'feature_name': 'IHK Exam System',
-                'description': 'Professional certification exams in IHK format',
+                'feature_name': 'IHK-Prüfungssystem',
+                'description': 'Prüfungsaufgaben im IHK/Kammer-Format',
                 'category': 'exam_systems',
-                'requires_infrastructure': False,
-                'requires_external_service': False,
-                'icon': 'award',
-                'former_lm_id': None
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'icon': 'certificate',
+                'former_lm_id': 10
             },
             {
-                'feature_code': 'multi_step_practice_exam',
-                'feature_name': 'Multi-Step Practice Exam',
-                'description': 'Progressive practical exams with multiple steps',
-                'category': 'exam_systems',
-                'requires_infrastructure': False,
-                'requires_external_service': False,
-                'icon': 'checklist',
-                'former_lm_id': None
-            },
-            {
-                'feature_code': 'certification_exam',
-                'feature_name': 'Certification Exam',
-                'description': 'Official certification exams with credentials',
+                'feature_code': 'practical_exam_engine',
+                'feature_name': 'Praxisprüfungs-Engine',
+                'description': 'Mehrstufige praktische Prüfungsaufgaben',
                 'category': 'exam_systems',
                 'requires_infrastructure': True,
                 'requires_external_service': False,
-                'icon': 'certificate',
-                'former_lm_id': None
+                'icon': 'clipboard-check',
+                'former_lm_id': 11
+            },
+            {
+                'feature_code': 'chapter_completion_system',
+                'feature_name': 'Kapitelabschluss-System',
+                'description': 'Umfassende Kapitelabschluss-Prüfung',
+                'category': 'exam_systems',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'icon': 'trophy',
+                'former_lm_id': 14
             },
 
-            # Gamification (2)
+            # Gamification (3)
             {
-                'feature_code': 'xp_system',
-                'feature_name': 'Experience Points System',
-                'description': 'Track user progress through XP and level progression',
+                'feature_code': 'adaptive_difficulty',
+                'feature_name': 'Adaptive Schwierigkeit',
+                'description': 'Passt Aufgabenschwierigkeit automatisch an Leistungsstand an',
                 'category': 'gamification',
                 'requires_infrastructure': False,
                 'requires_external_service': False,
-                'icon': 'trending-up',
+                'icon': 'chart-line',
                 'former_lm_id': None
             },
             {
-                'feature_code': 'badge_system',
-                'feature_name': 'Badge & Achievement System',
-                'description': 'Earn badges and achievements for milestones',
+                'feature_code': 'xp_quest_system',
+                'feature_name': 'XP & Quest System',
+                'description': 'Erfahrungspunkte, Level, Achievements, Daily Quests',
                 'category': 'gamification',
                 'requires_infrastructure': False,
                 'requires_external_service': False,
-                'icon': 'star',
+                'icon': 'trophy',
+                'former_lm_id': None
+            },
+            {
+                'feature_code': 'daily_recall',
+                'feature_name': 'Daily Recall',
+                'description': 'Tägliche Wiederholungslogik (Spaced Repetition)',
+                'category': 'gamification',
+                'requires_infrastructure': False,
+                'requires_external_service': False,
+                'icon': 'calendar-check',
                 'former_lm_id': None
             },
 
-            # Interactive Tools (3)
+            # Interactive Tools (1)
             {
                 'feature_code': 'whiteboard_engine',
-                'feature_name': 'AI Whiteboard Engine',
-                'description': 'Interactive whiteboard with formula recognition and diagram support',
+                'feature_name': 'Whiteboard-Engine',
+                'description': 'Interaktive Whiteboard-Aufgaben mit KI-Erkennung (Formeln, Diagramme, Keywords)',
                 'category': 'interactive_tools',
                 'requires_infrastructure': True,
                 'requires_external_service': True,
-                'icon': 'layers',
-                'former_lm_id': None
+                'icon': 'pencil-ruler',
+                'former_lm_id': 5
+            },
+
+            # IT Environments (4)
+            {
+                'feature_code': 'it_sandbox',
+                'feature_name': 'IT-Sandbox',
+                'description': 'Praktische Übungen in simulierten IT-Umgebungen (Code, Config, Netzwerk, Terminal)',
+                'category': 'it_environments',
+                'requires_infrastructure': True,
+                'requires_external_service': True,
+                'icon': 'laptop-code',
+                'former_lm_id': 10
             },
             {
                 'feature_code': 'code_sandbox',
-                'feature_name': 'Code Sandbox Environment',
-                'description': 'Safe isolated environment for code execution and testing',
-                'category': 'interactive_tools',
-                'requires_infrastructure': True,
-                'requires_external_service': False,
-                'icon': 'terminal',
-                'former_lm_id': None
-            },
-            {
-                'feature_code': 'math_equation_solver',
-                'feature_name': 'Math Equation Solver',
-                'description': 'Step-by-step mathematical equation solving',
-                'category': 'interactive_tools',
-                'requires_infrastructure': True,
-                'requires_external_service': True,
-                'icon': 'equal',
-                'former_lm_id': None
-            },
-
-            # IT Environments (2)
-            {
-                'feature_code': 'virtual_lab',
-                'feature_name': 'Virtual Lab Environment',
-                'description': 'Simulated IT laboratory for hands-on practice',
+                'feature_name': 'Code-Sandbox',
+                'description': 'Isolierte Code-Ausführungsumgebung',
                 'category': 'it_environments',
                 'requires_infrastructure': True,
                 'requires_external_service': False,
-                'icon': 'flask',
+                'icon': 'code',
                 'former_lm_id': None
             },
             {
-                'feature_code': 'terminal_emulator',
-                'feature_name': 'Terminal Emulator',
-                'description': 'Web-based terminal for command-line learning',
+                'feature_code': 'network_simulation',
+                'feature_name': 'Netzwerk-Simulation',
+                'description': 'Virtuelle Netzwerk-Topologien',
+                'category': 'it_environments',
+                'requires_infrastructure': True,
+                'requires_external_service': False,
+                'icon': 'network-wired',
+                'former_lm_id': None
+            },
+            {
+                'feature_code': 'terminal_access',
+                'feature_name': 'Terminal-Zugriff',
+                'description': 'Web-basierter Terminal-Zugang',
                 'category': 'it_environments',
                 'requires_infrastructure': True,
                 'requires_external_service': False,
@@ -231,91 +278,71 @@ class SeedDataConfig:
                 'former_lm_id': None
             },
 
-            # Learning Paths (2)
+            # Learning Paths (1)
             {
-                'feature_code': 'learning_path_engine',
-                'feature_name': 'Learning Path Engine',
-                'description': 'Structured learning paths with prerequisites and progression',
+                'feature_code': 'learning_path_generator',
+                'feature_name': 'Lernpfad-Generator',
+                'description': 'KI-gestützte Lernpfad-Erstellung und -Optimierung',
                 'category': 'learning_paths',
                 'requires_infrastructure': False,
-                'requires_external_service': False,
-                'icon': 'map',
-                'former_lm_id': None
-            },
-            {
-                'feature_code': 'adaptive_learning',
-                'feature_name': 'Adaptive Learning System',
-                'description': 'AI-powered content adaptation based on learner progress',
-                'category': 'learning_paths',
-                'requires_infrastructure': True,
                 'requires_external_service': True,
-                'icon': 'zap',
+                'icon': 'route',
                 'former_lm_id': None
             },
 
-            # Meta Features (2)
+            # Meta Features (1)
             {
-                'feature_code': 'feature_flags',
-                'feature_name': 'Feature Flags System',
-                'description': 'Progressive feature rollout and A/B testing',
+                'feature_code': 'timer_wrapper',
+                'feature_name': 'Timer/Zeitlimit-Feature',
+                'description': 'Zeitbegrenzung für beliebige Aufgaben (Meta-Feature)',
                 'category': 'meta_features',
                 'requires_infrastructure': False,
                 'requires_external_service': False,
-                'icon': 'flag',
-                'former_lm_id': None
-            },
-            {
-                'feature_code': 'usage_analytics',
-                'feature_name': 'Usage Analytics',
-                'description': 'Comprehensive analytics on user engagement and learning patterns',
-                'category': 'meta_features',
-                'requires_infrastructure': True,
-                'requires_external_service': False,
-                'icon': 'bar-chart-2',
-                'former_lm_id': None
+                'icon': 'clock',
+                'former_lm_id': 14
             },
 
-            # Tutor (2)
+            # Tutor (3)
             {
                 'feature_code': 'npc_tutor',
-                'feature_name': 'NPC Tutor Companion',
-                'description': 'AI-powered NPC tutor for personalized learning assistance',
+                'feature_name': 'NPC-/Persona-Tutor',
+                'description': 'KI-basierter Tutor mit verschiedenen Rollen/Personas',
                 'category': 'tutor',
-                'requires_infrastructure': True,
+                'requires_infrastructure': False,
                 'requires_external_service': True,
-                'icon': 'user',
+                'icon': 'user-graduate',
                 'former_lm_id': None
             },
             {
-                'feature_code': 'ai_tutor_companion',
-                'feature_name': 'AI Tutor Companion',
-                'description': '1:1 AI tutoring with real-time assistance and feedback',
+                'feature_code': 'socratic_dialog',
+                'feature_name': 'Sokratischer Dialog',
+                'description': 'KI-geführter Dialog zur Wissensvermittlung',
                 'category': 'tutor',
-                'requires_infrastructure': True,
+                'requires_infrastructure': False,
                 'requires_external_service': True,
-                'icon': 'user-check',
+                'icon': 'comments',
                 'former_lm_id': None
+            },
+            {
+                'feature_code': 'comprehension_checker',
+                'feature_name': 'Verständnis-Checker',
+                'description': 'Mikro-Checks basierend auf Bloom-Taxonomie',
+                'category': 'tutor',
+                'requires_infrastructure': False,
+                'requires_external_service': True,
+                'icon': 'check-circle',
+                'former_lm_id': 13
             },
 
-            # Visualization (2)
+            # Visualization (1)
             {
-                'feature_code': '3d_visualization',
-                'feature_name': '3D Visualization',
-                'description': 'Interactive 3D models and visualizations for spatial learning',
-                'category': 'visualization',
-                'requires_infrastructure': True,
-                'requires_external_service': False,
-                'icon': 'cube',
-                'former_lm_id': None
-            },
-            {
-                'feature_code': 'interactive_diagrams',
-                'feature_name': 'Interactive Diagrams',
-                'description': 'Interactive and animated diagrams for concept visualization',
+                'feature_code': 'mindmap_generator',
+                'feature_name': 'Mindmap-Generator',
+                'description': 'Generiert kursweite Mindmaps aus Theorie-Inhalten',
                 'category': 'visualization',
                 'requires_infrastructure': False,
                 'requires_external_service': False,
-                'icon': 'gitgraph',
+                'icon': 'sitemap',
                 'former_lm_id': None
             }
         ]

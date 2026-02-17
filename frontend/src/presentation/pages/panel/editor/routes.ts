@@ -1,17 +1,15 @@
 /**
  * Editor Routes - Course Authoring
  *
- * Feature-first routing for course editor
- * Separate from Panel (administration) - Editor is for authoring
+ * Feature-first routing for course editor.
+ * Uses EditorLayout with DesktopLayer for windowed editing interface.
  */
 
 import type { RouteRecordRaw } from 'vue-router'
-import { h } from 'vue'
-import { RouterView } from 'vue-router'
 
 export const editorRoutes: RouteRecordRaw = {
   path: '/editor',
-  component: { render: () => h(RouterView) },
+  component: () => import('@/presentation/layouts/EditorLayout.vue'),
   meta: { requiresAuth: true, requiresCreatorOrTeacher: true },
   children: [
     {

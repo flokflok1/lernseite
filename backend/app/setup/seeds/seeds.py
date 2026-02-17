@@ -55,18 +55,19 @@ class SeedData:
             # Attempt to seed learning methods
             cls.seed_learning_methods(skip_existing)
 
-            # Attempt to seed system features (from seeds_config)
-            from app.setup.seeds_config import SeedDataConfig
+            # Attempt to seed system features
+            from app.setup.seeds.config import SeedDataConfig
             SeedDataConfig.seed_system_features(skip_existing)
 
             # Note: Roles have been replaced by Groups (PHASE B migration)
             # Groups are seeded in migrations: 020_groups_table.sql onwards
 
-            # Attempt to seed categories (from seeds_config)
-            SeedDataConfig.seed_categories(skip_existing)
+            # Attempt to seed categories
+            from app.setup.seeds.config_part2 import SeedDataConfigCategories
+            SeedDataConfigCategories.seed_categories(skip_existing)
 
             # Seed UI schemas for learning methods and system features (NEW - Phase 5)
-            from app.setup.seeds_ui_schemas import SeedDataUISchemas
+            from app.setup.seeds.ui_schemas import SeedDataUISchemas
             SeedDataUISchemas.seed_learning_methods_ui_schemas(skip_existing)
             SeedDataUISchemas.seed_system_features_ui_schemas(skip_existing)
 

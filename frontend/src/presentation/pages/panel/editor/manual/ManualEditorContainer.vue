@@ -8,7 +8,7 @@
  */
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
 import { useEditorMode, useAutoSave, useEditorKeyboard } from './composables'
@@ -16,6 +16,9 @@ import type { EditorTab } from './types'
 import StructureTreePanel from './panels/StructureTreePanel.vue'
 import ContentEditPanel from './panels/ContentEditPanel.vue'
 import CourseInfoPanel from './panels/CourseInfoPanel.vue'
+import MediaUploadPanel from './panels/MediaUploadPanel.vue'
+import LessonSettingsPanel from './panels/LessonSettingsPanel.vue'
+import PreviewPanel from './panels/PreviewPanel.vue'
 import { TheoryGenerationContainer } from '../content-generation'
 import { ExplanationGenerationContainer } from '../explanation-generation'
 
@@ -46,6 +49,16 @@ const tabs = computed(() => {
     { key: 'course-info', label: t('panel.manualEditor.tabs.courseInfo') },
   ]
 
+  if (modeConfig.value.showMediaUpload) {
+    base.push({ key: 'media', label: t('panel.manualEditor.tabs.media') })
+  }
+  if (modeConfig.value.showPreview) {
+    base.push({ key: 'preview', label: t('panel.manualEditor.tabs.preview') })
+  }
+  if (modeConfig.value.showLessonSettings) {
+    base.push({ key: 'lesson-settings', label: t('panel.manualEditor.tabs.lessonSettings') })
+  }
+
   // AI tabs always available
   base.push(
     { key: 'theory', label: t('course-editor.theory.container.title') },
@@ -53,6 +66,14 @@ const tabs = computed(() => {
   )
 
   return base
+})
+
+// Reset active tab when switching to a mode that hides current tab
+watch(tabs, (newTabs) => {
+  const tabKeys = newTabs.map(t => t.key)
+  if (!tabKeys.includes(activeTab.value)) {
+    activeTab.value = 'content'
+  }
 })
 
 // Initialize store with course data
@@ -151,6 +172,21 @@ const formatSaveTime = (date: Date | null): string => {
           <CourseInfoPanel
             v-else-if="activeTab === 'course-info'"
             :mode-config="modeConfig"
+          />
+
+          <!-- Media upload (advanced/expert) -->
+          <MediaUploadPanel
+            v-else-if="activeTab === 'media'"
+          />
+
+          <!-- Preview (advanced/expert) -->
+          <PreviewPanel
+            v-else-if="activeTab === 'preview'"
+          />
+
+          <!-- Lesson settings (advanced/expert) -->
+          <LessonSettingsPanel
+            v-else-if="activeTab === 'lesson-settings'"
           />
 
           <!-- Theory generation (AI) -->

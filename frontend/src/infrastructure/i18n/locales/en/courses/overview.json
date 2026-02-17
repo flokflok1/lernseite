@@ -10,7 +10,24 @@
     "saving": "Saving...",
     "unsaved": "Unsaved"
   },
+  "course-editor": {
+    "theory": {
+      "container": {
+        "title": "Theory"
+      }
+    },
+    "explanation": {
+      "container": {
+        "title": "Explanations"
+      }
+    }
+  },
   "courses": {
+    "editor": {
+      "content": "Content",
+      "publish": "Publish",
+      "saveDraft": "Save Draft"
+    },
     "all_courses": "All Courses",
     "all_in_category": "All in {category}",
     "average_grade": "Average Grade",

@@ -10,7 +10,24 @@
     "saving": "Zapisywanie...",
     "unsaved": "Niezapisane"
   },
+  "course-editor": {
+    "theory": {
+      "container": {
+        "title": "Teoria"
+      }
+    },
+    "explanation": {
+      "container": {
+        "title": "Wyjaśnienia"
+      }
+    }
+  },
   "courses": {
+    "editor": {
+      "content": "Treść",
+      "publish": "Opublikuj",
+      "saveDraft": "Zapisz szkic"
+    },
     "all_courses": "Wszystkie kursy",
     "all_in_category": "Wszystkie w {category}",
     "average_grade": "Średnia ocena",

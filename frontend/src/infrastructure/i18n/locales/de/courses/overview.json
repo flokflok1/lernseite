@@ -10,7 +10,24 @@
     "saving": "Speichern...",
     "unsaved": "Nicht gespeichert"
   },
+  "course-editor": {
+    "theory": {
+      "container": {
+        "title": "Theorie"
+      }
+    },
+    "explanation": {
+      "container": {
+        "title": "Erklärungen"
+      }
+    }
+  },
   "courses": {
+    "editor": {
+      "content": "Inhalt",
+      "publish": "Veröffentlichen",
+      "saveDraft": "Entwurf speichern"
+    },
     "all_courses": "Alle Kurse",
     "all_in_category": "Alle in {category}",
     "average_grade": "Durchschnittliche Note",

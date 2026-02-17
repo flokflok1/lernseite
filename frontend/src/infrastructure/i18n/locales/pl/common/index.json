@@ -80,7 +80,12 @@
     "unknownError": "Nieznany błąd",
     "view": "Zobacz",
     "workInProgress": "Implementacja w toku",
-    "yes": "Tak"
+    "yes": "Tak",
+    "undo": "Cofnij",
+    "redo": "Ponów",
+    "minimize": "Minimalizuj",
+    "maximize": "Maksymalizuj",
+    "restore": "Przywróć"
   },
   "i18n": {
     "completion": "{percent}% przetłumaczone",

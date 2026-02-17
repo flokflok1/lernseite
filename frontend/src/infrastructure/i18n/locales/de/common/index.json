@@ -80,7 +80,12 @@
     "unknownError": "Unbekannter Fehler",
     "view": "Ansehen",
     "workInProgress": "Implementierung in Arbeit",
-    "yes": "Ja"
+    "yes": "Ja",
+    "undo": "Rückgängig",
+    "redo": "Wiederherstellen",
+    "minimize": "Minimieren",
+    "maximize": "Maximieren",
+    "restore": "Wiederherstellen"
   },
   "i18n": {
     "completion": "{percent}% übersetzt",

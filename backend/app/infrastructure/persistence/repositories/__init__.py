@@ -13,12 +13,4 @@ from app.infrastructure.persistence.repositories.user import UserRepository
 __all__ = [
     'BaseRepository',
     'UserRepository',
-    'SyncResolutionsRepository',
-    'SyncMode',
-    'SyncStatus',
-    'SyncOperation',
-    'ChangeType',
-    'SyncChange',
-    'Resolution',
-    'SyncResolution'
 ]

@@ -28,7 +28,7 @@
             @click="selectLanguage(lang.language_code)"
           >
             <span :class="['fi', `fi-${getCountryCode(lang.language_code)}`]"></span>
-            <span class="name">{{ t(`common.languages.${lang.language_code}`) }}</span>
+            <span class="name">{{ t(`languages.${lang.language_code}`) }}</span>
             <span v-if="Number(lang.completion_percent) < 100" class="completion">
               {{ Math.round(Number(lang.completion_percent)) }}%
             </span>
@@ -49,7 +49,7 @@
             @click="selectLanguage(lang.language_code)"
           >
             <span :class="['fi', `fi-${getCountryCode(lang.language_code)}`]"></span>
-            <span class="name">{{ t(`common.languages.${lang.language_code}`) }}</span>
+            <span class="name">{{ t(`languages.${lang.language_code}`) }}</span>
             <span v-if="Number(lang.completion_percent) < 100" class="completion">
               {{ Math.round(Number(lang.completion_percent)) }}%
             </span>
@@ -132,7 +132,7 @@ const _currentLang = computed(() =>
   languages.value.find(l => l.language_code === currentLanguage.value)
 )
 
-const currentLabel = computed(() => t(`common.languages.${currentLanguage.value}`) || currentLanguage.value.toUpperCase())
+const currentLabel = computed(() => t(`languages.${currentLanguage.value}`) || currentLanguage.value.toUpperCase())
 
 // Methods
 function toggleDropdown() {

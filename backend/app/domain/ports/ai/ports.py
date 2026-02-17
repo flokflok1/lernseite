@@ -49,3 +49,48 @@ class LearningMethodGroupPort(ABC):
     @staticmethod
     @abstractmethod
     def find_by_code(code: str) -> Optional[Dict[str, Any]]: ...
+
+
+class AIAdapterPort(ABC):
+    """Port for AI provider communication.
+
+    Domain code uses this interface to send prompts to AI providers
+    without depending on specific provider implementations.
+    """
+
+    @abstractmethod
+    def send_request(
+        self,
+        prompt: str,
+        context: Optional[str] = None,
+        language: str = 'de',
+        temperature: float = 0.7,
+        max_tokens: int = 2000,
+        conversation_history: Optional[list] = None
+    ) -> Dict[str, Any]: ...
+
+
+class AIJobServicePort(ABC):
+    """Port for AI job lifecycle management.
+
+    Domain code uses this interface to track job progress
+    without depending on the application-layer job service.
+    """
+
+    @abstractmethod
+    def get_job(self, job_id: str) -> Optional[Dict[str, Any]]: ...
+
+    @abstractmethod
+    def start_processing(self, job_id: str) -> None: ...
+
+    @abstractmethod
+    def update_progress(self, job_id: str, progress: int) -> None: ...
+
+    @abstractmethod
+    def update_output(self, job_id: str, output_data: Dict[str, Any]) -> None: ...
+
+    @abstractmethod
+    def fail_job(self, job_id: str, error_message: str) -> None: ...
+
+    @abstractmethod
+    def complete_job(self, job_id: str) -> None: ...

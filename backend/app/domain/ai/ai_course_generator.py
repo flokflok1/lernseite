@@ -18,8 +18,8 @@ import logging
 import json
 from typing import Dict, Any, Optional
 
-from app.application.services.ai.adapter import AIAdapter, AIProviderError, AITimeoutError
-from app.application.services.ai.job_service import AIJobService
+from app.domain.ai.exceptions import AIProviderError, AITimeoutError
+from app.domain.ports.ai.ports import AIAdapterPort, AIJobServicePort
 from app.domain.ports.core.registry import repos
 
 # Setup logger
@@ -40,19 +40,23 @@ class AICourseGenerator:
     7. Save to job.output_data
     """
 
-    def __init__(self, job_id: str, ai_provider: str = 'openai', ai_model: str = 'gpt-4o-mini'):
+    def __init__(
+        self,
+        job_id: str,
+        ai_adapter: AIAdapterPort,
+        job_service: AIJobServicePort
+    ):
         """
         Initialize generator
 
         Args:
             job_id: AI job UUID
-            ai_provider: AI provider (openai, anthropic, etc.)
-            ai_model: AI model name
+            ai_adapter: AI adapter port for sending prompts
+            job_service: Job service port for lifecycle management
         """
         self.job_id = job_id
-        self.ai_provider = ai_provider
-        self.ai_model = ai_model
-        self.ai_adapter = None
+        self.ai_adapter = ai_adapter
+        self.job_service = job_service
 
     def run(self) -> bool:
         """
@@ -63,22 +67,13 @@ class AICourseGenerator:
         """
         try:
             # Mark job as processing
-            AIJobService.start_processing(self.job_id)
-            AIJobService.update_progress(self.job_id, 10)
+            self.job_service.start_processing(self.job_id)
+            self.job_service.update_progress(self.job_id, 10)
 
             # Get job
-            job = AIJobService.get_job(self.job_id)
+            job = self.job_service.get_job(self.job_id)
             if not job:
                 logger.error(f'Job not found: {self.job_id}')
-                return False
-
-            # Initialize AI adapter
-            try:
-                self.ai_adapter = AIAdapter(provider=self.ai_provider, model=self.ai_model)
-            except Exception as e:
-                error_msg = f'Failed to initialize AI adapter: {str(e)}'
-                logger.error(error_msg)
-                AIJobService.fail_job(self.job_id, error_msg)
                 return False
 
             # Step 1: Extract PDF text
@@ -95,32 +90,32 @@ class AICourseGenerator:
             logger.info(f'Job data: storage_path={file_path}, input_data={input_data}')
 
             pdf_text = self._extract_pdf_text(file_path)
-            AIJobService.update_progress(self.job_id, 20)
+            self.job_service.update_progress(self.job_id, 20)
 
             # Step 2: Generate course title
             course_title = self._generate_course_title(pdf_text, user_prompt)
-            AIJobService.update_progress(self.job_id, 30)
+            self.job_service.update_progress(self.job_id, 30)
 
             # Step 3: Suggest category
             category = self._suggest_category(pdf_text, course_title)
-            AIJobService.update_progress(self.job_id, 40)
+            self.job_service.update_progress(self.job_id, 40)
 
             # Step 4: Generate course description
             description = self._generate_description(pdf_text, course_title)
-            AIJobService.update_progress(self.job_id, 50)
+            self.job_service.update_progress(self.job_id, 50)
 
             # Step 5: Generate module structure
             modules = self._generate_modules(pdf_text, course_title)
-            AIJobService.update_progress(self.job_id, 70)
+            self.job_service.update_progress(self.job_id, 70)
 
             # Step 6: Generate lessons per module
             for i, module in enumerate(modules):
                 lessons = self._generate_lessons(pdf_text, module)
                 module['lessons'] = lessons
                 progress = 70 + int((i + 1) / len(modules) * 20)
-                AIJobService.update_progress(self.job_id, progress)
+                self.job_service.update_progress(self.job_id, progress)
 
-            AIJobService.update_progress(self.job_id, 95)
+            self.job_service.update_progress(self.job_id, 95)
 
             # Step 7: Save output data
             output_data = {
@@ -134,8 +129,8 @@ class AICourseGenerator:
                 'modules': modules
             }
 
-            AIJobService.update_output(self.job_id, output_data)
-            AIJobService.complete_job(self.job_id)
+            self.job_service.update_output(self.job_id, output_data)
+            self.job_service.complete_job(self.job_id)
 
             logger.info(f'AI course generation completed: {self.job_id}')
             return True
@@ -143,13 +138,13 @@ class AICourseGenerator:
         except (AIProviderError, AITimeoutError) as e:
             error_msg = f'AI provider error: {str(e)}'
             logger.error(error_msg)
-            AIJobService.fail_job(self.job_id, error_msg)
+            self.job_service.fail_job(self.job_id, error_msg)
             return False
 
         except Exception as e:
             error_msg = f'Unexpected error: {str(e)}'
             logger.exception(error_msg)
-            AIJobService.fail_job(self.job_id, error_msg)
+            self.job_service.fail_job(self.job_id, error_msg)
             return False
 
     def _extract_pdf_text(self, file_path: Optional[str]) -> str:
@@ -478,23 +473,21 @@ Respond with ONLY valid JSON, nothing else."""
         ]
 
 
-def run_ai_course_generation(job_id: str, ai_provider: str = 'openai', ai_model: str = 'gpt-4o-mini') -> bool:
+def run_ai_course_generation(
+    job_id: str,
+    ai_adapter: AIAdapterPort,
+    job_service: AIJobServicePort
+) -> bool:
     """
     Main entry point for AI course generation
 
     Args:
         job_id: AI job UUID
-        ai_provider: AI provider
-        ai_model: AI model name (default, may be overridden by job.model)
+        ai_adapter: AI adapter port for sending prompts
+        job_service: Job service port for lifecycle management
 
     Returns:
         True if successful, False otherwise
     """
-    # Phase C3.4: Check if job has a model override
-    job = repos.ai_jobs.find_by_id(job_id)
-    if job and job.get('model'):
-        ai_model = job['model']
-        logger.info(f'Using job model override: {ai_model}')
-
-    generator = AICourseGenerator(job_id, ai_provider, ai_model)
+    generator = AICourseGenerator(job_id, ai_adapter, job_service)
     return generator.run()

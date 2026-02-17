@@ -6,7 +6,6 @@ Database override logic for prompt templates.
 
 from typing import Dict
 import json
-from flask import current_app
 
 from app.domain.ai.configuration.prompt_models import PromptTemplate, PromptMessage, PromptVariable
 

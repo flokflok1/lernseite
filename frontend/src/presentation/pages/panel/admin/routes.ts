@@ -35,20 +35,20 @@ export const panelRoutes: RouteRecordRaw = {
     // Redirects for renamed routes (Wave 6)
     {
       path: 'kurse',
-      redirect: '/editor',
+      redirect: '/panel/editor',
     },
     {
       path: 'roles',
       redirect: '/panel/groups',
     },
-    // Course Editor now at /editor (separate feature)
+    // Course Editor now at /panel/editor (within panel)
     {
       path: 'kurs-editor',
-      redirect: '/editor',
+      redirect: '/panel/editor',
     },
     {
       path: 'kurs-editor/:id',
-      redirect: (to) => `/editor/${to.params.id}`,
+      redirect: (to) => `/panel/editor/${to.params.id}`,
     },
     {
       path: 'ai-studio',
@@ -57,11 +57,11 @@ export const panelRoutes: RouteRecordRaw = {
     // Legacy route (old name)
     {
       path: 'courses',
-      redirect: '/editor',
+      redirect: '/panel/editor',
     },
     {
       path: 'courses/:id',
-      redirect: (to) => `/editor/${to.params.id}`,
+      redirect: (to) => `/panel/editor/${to.params.id}`,
     },
     {
       path: 'categories',
@@ -112,6 +112,18 @@ export const panelRoutes: RouteRecordRaw = {
       path: 'system-settings',
       name: 'PanelSystemSettings',
       component: () => import('@/presentation/pages/panel/admin/PanelSystemSettingsPage.vue'),
+    },
+    // Course Editor (windowed interface within panel)
+    {
+      path: 'editor',
+      name: 'PanelEditor',
+      component: () => import('@/presentation/pages/panel/editor/CourseEditorMain.vue'),
+    },
+    {
+      path: 'editor/:id',
+      name: 'PanelEditorDetail',
+      component: () => import('@/presentation/pages/panel/admin/PanelCourseDetailPage.vue'),
+      props: true,
     },
   ],
 }

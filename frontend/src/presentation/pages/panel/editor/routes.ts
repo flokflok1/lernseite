@@ -1,27 +1,19 @@
 /**
- * Editor Routes - Course Authoring
+ * Editor Routes - Redirects to Panel Editor
  *
- * Feature-first routing for course editor.
- * Uses EditorLayout with DesktopLayer for windowed editing interface.
+ * The course editor lives within PanelLayout at /panel/editor.
+ * These routes provide backward-compatible redirects from the old /editor path.
  */
 
 import type { RouteRecordRaw } from 'vue-router'
 
 export const editorRoutes: RouteRecordRaw = {
   path: '/editor',
-  component: () => import('@/presentation/layouts/EditorLayout.vue'),
-  meta: { requiresAuth: true, requiresCreatorOrTeacher: true },
+  redirect: '/panel/editor',
   children: [
     {
-      path: '',
-      name: 'CourseEditor',
-      component: () => import('@/presentation/pages/panel/editor/CourseEditorMain.vue'),
-    },
-    {
       path: ':id',
-      name: 'CourseEditorDetail',
-      component: () => import('@/presentation/pages/panel/admin/PanelCourseDetailPage.vue'),
-      props: true,
+      redirect: (to) => `/panel/editor/${to.params.id}`,
     },
   ],
 }

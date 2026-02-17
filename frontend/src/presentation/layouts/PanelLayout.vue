@@ -162,7 +162,7 @@ const menuItems = computed(() => {
     { path: '/panel/users', label: t('panel.nav.users'), icon: '👥' },
     { path: '/panel/groups', label: t('panel.nav.groups'), icon: '👥' },
     { path: '/panel/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
-    { path: '/editor', label: t('panel.nav.courseEditor'), icon: '📝' },
+    { path: '/panel/editor', label: t('panel.nav.courseEditor'), icon: '📝' },
     { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
     { path: '/panel/lm-routing', label: t('panel.nav.lmRouting'), icon: '📚' },
     { path: '/panel/languages', label: t('panel.nav.languages'), icon: '🌐' },

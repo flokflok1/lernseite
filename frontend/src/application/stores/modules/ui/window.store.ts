@@ -16,7 +16,7 @@ export type { PanelLivePreview } from '../workspace/panel.store'
 
 /**
  * Window store composable providing window-named aliases for the panel store.
- * Used by DesktopLayer, Taskbar, PanelLayout, and EditorLayout.
+ * Used by DesktopLayer, Taskbar, and PanelLayout.
  */
 export function useWindowStore() {
   const store = usePanelStore()

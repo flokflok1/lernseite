@@ -14,10 +14,8 @@
     "test:watch": "vitest --config config/vitest.config.ts --watch",
     "test:coverage": "vitest --config config/vitest.config.ts --coverage",
     "test:ui": "vitest --config config/vitest.config.ts --ui",
-
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-
     "migrate:baseline": "node scripts/compare-bundle-size.js --baseline",
     "migrate:check": "node scripts/compare-bundle-size.js --check",
     "migrate:report": "node scripts/compare-bundle-size.js --report",
@@ -35,6 +33,16 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@pixiv/three-vrm": "^3.4.4",
+    "@tiptap/extension-color": "^3.19.0",
+    "@tiptap/extension-highlight": "^3.19.0",
+    "@tiptap/extension-image": "^3.19.0",
+    "@tiptap/extension-link": "^3.19.0",
+    "@tiptap/extension-placeholder": "^3.19.0",
+    "@tiptap/extension-text-align": "^3.19.0",
+    "@tiptap/extension-text-style": "^3.19.0",
+    "@tiptap/extension-underline": "^3.19.0",
+    "@tiptap/starter-kit": "^3.19.0",
+    "@tiptap/vue-3": "^3.19.0",
     "@types/three": "^0.181.0",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",

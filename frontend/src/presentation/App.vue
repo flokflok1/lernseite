@@ -239,6 +239,11 @@ const layout = computed(() => {
     return 'div'
   }
 
+  // Editor routes have their own layout
+  if (route.path.startsWith('/editor')) {
+    return 'div'
+  }
+
   // Legal pages have their own layout with Footer
   if (route.path.startsWith('/legal')) {
     return 'div'

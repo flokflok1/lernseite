@@ -25,6 +25,20 @@
     "title": "Kategorien",
     "updateError": "Fehler beim Aktualisieren"
   },
+  "editor": {
+    "title": "Kurs-Editor",
+    "subtitle": "Kurse erstellen & bearbeiten",
+    "manual": {
+      "title": "Manueller Editor"
+    },
+    "ai": {
+      "title": "KI-Editor"
+    },
+    "launcher": {
+      "title": "Kurs-Editor",
+      "description": "Klicke links auf einen Editor, um ein Fenster zu öffnen."
+    }
+  },
   "dashboard": {
     "activeUsers": "Aktive Benutzer",
     "activeUsersDesc": "Aktiv in den letzten 7 Tagen",
@@ -62,6 +76,7 @@
     "billing": "Billing",
     "categories": "Kategorien",
     "contentManagement": "Inhaltsverwaltung",
+    "back_to_panel": "Zurück zum Panel",
     "courseEditor": "Kurs-Editor",
     "courses": "Kurse",
     "dashboard": "Dashboard",

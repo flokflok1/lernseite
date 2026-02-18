@@ -9,16 +9,8 @@ Phase 5.3 - Owner-Admin & Dynamic Groups System
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from enum import Enum
 
-
-class GroupTemplate(str, Enum):
-    """Predefined group templates"""
-    PARENT = 'parent'
-    ENTERPRISE_ADMIN = 'enterprise_admin'
-    AUDITOR = 'auditor'
-    LIBRARIAN = 'librarian'
-    COURSE_MANAGER = 'course_manager'
+from app.domain.models.enums import GroupTemplate
 
 
 # ============================================================================

@@ -9,28 +9,8 @@ Phase B24 - Admin System
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from enum import Enum
 
-
-class UserRole(str, Enum):
-    """Valid user roles"""
-    FREE = 'free'
-    PREMIUM = 'premium'
-    CREATOR = 'creator'
-    TEACHER = 'teacher'
-    SCHOOL = 'school'
-    COMPANY = 'company'
-    SUPPORT = 'support'
-    MODERATOR = 'moderator'
-    ADMIN = 'admin'
-
-
-class UserStatus(str, Enum):
-    """Valid user statuses"""
-    ACTIVE = 'active'
-    SUSPENDED = 'suspended'
-    BANNED = 'banned'
-    DELETED = 'deleted'
+from app.domain.models.enums import UserRole, UserStatus
 
 
 # ============================================================================

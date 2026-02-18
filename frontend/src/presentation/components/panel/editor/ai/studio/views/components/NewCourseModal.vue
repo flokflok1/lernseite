@@ -10,137 +10,21 @@
 
       <div class="modal-body">
         <!-- Step 1: File Upload -->
-        <div class="upload-section">
-          <label class="section-label">
-            📄 {{ $t('panel.aiStudio.step1UploadMaterial') }}
-          </label>
-          <div
-            class="upload-area"
-            :class="{ 'has-files': files.length > 0 }"
-            @click="fileInput?.click()"
-            @dragover.prevent
-            @drop.prevent="handleFileDrop"
-          >
-            <input
-              ref="fileInput"
-              type="file"
-              class="hidden"
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.md"
-              @change="handleFileSelect"
-              multiple
-            />
-
-            <!-- Empty State -->
-            <div v-if="files.length === 0" class="upload-empty">
-              <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p class="upload-text">{{ $t('panel.aiStudio.uploadText') }}</p>
-              <p class="upload-hint">{{ $t('panel.aiStudio.uploadHint') }}</p>
-            </div>
-
-            <!-- Files List -->
-            <div v-else class="files-list">
-              <div v-for="(file, index) in files" :key="index" class="file-item">
-                <span>📄</span>
-                <span class="file-name">{{ file.name }}</span>
-                <span class="file-size">{{ formatFileSize(file.size) }}</span>
-                <button @click.stop="removeFile(index)" class="file-remove">
-                  ✕
-                </button>
-              </div>
-              <p class="add-more">{{ $t('panel.aiStudio.addMoreFiles') }}</p>
-            </div>
-          </div>
-
-          <!-- AI Analyze Button -->
-          <button
-            v-if="files.length > 0 && !aiAnalyzed"
-            @click="handleAnalyze"
-            :disabled="isAnalyzing"
-            class="analyze-btn"
-          >
-            <span v-if="isAnalyzing" class="animate-spin">⏳</span>
-            <span v-else>🤖</span>
-            {{ isAnalyzing ? $t('panel.aiStudio.analyzing') : $t('panel.aiStudio.analyzeWithAI') }}
-          </button>
-          <p v-if="files.length > 0 && !aiAnalyzed" class="analyze-hint">
-            {{ $t('panel.aiStudio.analyzeHint') }}
-          </p>
-        </div>
+        <CourseFileUpload
+          ref="fileUploadRef"
+          :is-analyzing="isAnalyzing"
+          :ai-analyzed="aiAnalyzed"
+          @analyze="handleAnalyze"
+        />
 
         <!-- Step 2: Course Details -->
-        <div class="details-section" :class="{ faded: files.length > 0 && !aiAnalyzed && !courseData.title }">
-          <div class="section-header">
-            <span>📝</span>
-            <span>{{ $t('panel.aiStudio.step2CourseDetails') }}</span>
-            <span v-if="aiAnalyzed" class="ai-badge">✓ {{ $t('panel.aiStudio.aiSuggestion') }}</span>
-          </div>
-
-          <!-- Title -->
-          <div class="form-field">
-            <label class="field-label">{{ $t('panel.aiStudio.courseTitle') }} *</label>
-            <input
-              v-model="courseData.title"
-              type="text"
-              :placeholder="$t('panel.aiStudio.courseTitlePlaceholder')"
-              class="field-input"
-            />
-          </div>
-
-          <!-- Description -->
-          <div class="form-field">
-            <label class="field-label">{{ $t('panel.aiStudio.courseDescription') }}</label>
-            <textarea
-              v-model="courseData.description"
-              rows="3"
-              :placeholder="$t('panel.aiStudio.courseDescriptionPlaceholder')"
-              class="field-textarea"
-            ></textarea>
-          </div>
-
-          <!-- Category & Profile -->
-          <div class="form-row">
-            <div class="form-field">
-              <label class="field-label">{{ $t('panel.aiStudio.category') }}</label>
-              <select v-model="courseData.categoryId" class="field-select">
-                <option :value="null">{{ $t('panel.aiStudio.noCategory') }}</option>
-                <option v-for="cat in availableCategories" :key="cat.category_id" :value="cat.category_id">
-                  {{ cat.name }}
-                </option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label class="field-label">🤖 {{ $t('panel.aiStudio.aiProfile') }}</label>
-              <select v-model="courseData.profileKey" class="field-select">
-                <option v-for="profile in availableProfiles" :key="profile.key" :value="profile.key">
-                  {{ profile.name }}{{ profile.is_default ? ` (${$t('panel.aiStudio.default')})` : '' }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Language & Level -->
-          <div class="form-row">
-            <div class="form-field">
-              <label class="field-label">{{ $t('panel.aiStudio.language') }}</label>
-              <select v-model="courseData.language" class="field-select">
-                <option value="de">{{ $t('panel.aiStudio.languageDe') }}</option>
-                <option value="en">{{ $t('panel.aiStudio.languageEn') }}</option>
-                <option value="es">{{ $t('panel.aiStudio.languageEs') }}</option>
-                <option value="fr">{{ $t('panel.aiStudio.languageFr') }}</option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label class="field-label">{{ $t('panel.aiStudio.level') }}</label>
-              <select v-model="courseData.level" class="field-select">
-                <option value="beginner">{{ $t('panel.aiStudio.levelBeginner') }}</option>
-                <option value="intermediate">{{ $t('panel.aiStudio.levelIntermediate') }}</option>
-                <option value="advanced">{{ $t('panel.aiStudio.levelAdvanced') }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
+        <CourseDetailsForm
+          v-model="courseData"
+          :available-categories="availableCategories"
+          :available-profiles="availableProfiles"
+          :ai-analyzed="aiAnalyzed"
+          :is-faded="hasUploadedFiles && !aiAnalyzed && !courseData.title"
+        />
       </div>
 
       <!-- Footer -->
@@ -157,7 +41,7 @@
             :disabled="!canCreate || isCreating"
             class="btn-create"
           >
-            <span v-if="isCreating" class="animate-spin">⏳</span>
+            <span v-if="isCreating" class="animate-spin">&#x23F3;</span>
             {{ $t('panel.aiStudio.createCourse') }}
           </button>
         </div>
@@ -168,13 +52,13 @@
 
 <script setup lang="ts">
 /**
- * NewCourseModal - Multi-step course creation with AI analysis
+ * NewCourseModal - Multi-step course creation with AI analysis.
+ * Delegates file upload to CourseFileUpload and form fields to CourseDetailsForm.
  */
 import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import type { Category, Profile, NewCourseData } from '../composables/useCourseManagement'
-
-const { t } = useI18n()
+import CourseFileUpload from './CourseFileUpload.vue'
+import CourseDetailsForm from './CourseDetailsForm.vue'
 
 // =============================================================================
 // Props
@@ -185,7 +69,7 @@ interface Props {
   availableProfiles: Profile[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 // =============================================================================
 // Emits
@@ -201,8 +85,7 @@ const emit = defineEmits<{
 // State
 // =============================================================================
 
-const fileInput = ref<HTMLInputElement | null>(null)
-const files = ref<File[]>([])
+const fileUploadRef = ref<InstanceType<typeof CourseFileUpload> | null>(null)
 const isAnalyzing = ref(false)
 const isCreating = ref(false)
 const aiAnalyzed = ref(false)
@@ -220,78 +103,25 @@ const courseData = ref({
 // Computed
 // =============================================================================
 
-const canCreate = computed(() => {
+const canCreate = computed((): boolean => {
   return courseData.value.title.trim().length > 0
 })
 
-// =============================================================================
-// Methods - File Handling
-// =============================================================================
-
-function handleFileSelect(event: Event): void {
-  const target = event.target as HTMLInputElement
-  if (target.files) {
-    addFiles(Array.from(target.files))
-  }
-}
-
-function handleFileDrop(event: DragEvent): void {
-  if (event.dataTransfer?.files) {
-    addFiles(Array.from(event.dataTransfer.files))
-  }
-}
-
-function addFiles(newFiles: File[]): void {
-  // Filter for accepted file types
-  const acceptedTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'text/plain',
-    'text/markdown'
-  ]
-
-  const validFiles = newFiles.filter(file =>
-    acceptedTypes.includes(file.type) ||
-    file.name.endsWith('.md') ||
-    file.name.endsWith('.txt')
-  )
-
-  files.value.push(...validFiles)
-
-  // Reset AI analyzed flag when files change
-  aiAnalyzed.value = false
-}
-
-function removeFile(index: number): void {
-  files.value.splice(index, 1)
-  aiAnalyzed.value = false
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
-}
+const hasUploadedFiles = computed((): boolean => {
+  return fileUploadRef.value?.hasFiles() ?? false
+})
 
 // =============================================================================
-// Methods - AI Analysis
+// Methods
 // =============================================================================
 
-async function handleAnalyze(): Promise<void> {
-  if (files.value.length === 0) return
+async function handleAnalyze(files: File[]): Promise<void> {
+  if (files.length === 0) return
 
   isAnalyzing.value = true
 
   try {
-    emit('analyze', files.value)
-
-    // Parent component should handle the actual API call and update courseData
-    // For now, just mark as analyzed
+    emit('analyze', files)
     aiAnalyzed.value = true
   } catch (error) {
     console.error('AI analysis failed:', error)
@@ -300,7 +130,6 @@ async function handleAnalyze(): Promise<void> {
   }
 }
 
-// Allow parent to update course data from AI analysis
 function updateFromAIAnalysis(data: {
   title: string
   description: string
@@ -314,16 +143,14 @@ function updateFromAIAnalysis(data: {
   aiAnalyzed.value = true
 }
 
-// =============================================================================
-// Methods - Create
-// =============================================================================
-
 async function handleCreate(): Promise<void> {
   if (!canCreate.value) return
 
   isCreating.value = true
 
   try {
+    const files = fileUploadRef.value?.getFiles() ?? []
+
     const data: NewCourseData = {
       title: courseData.value.title.trim(),
       description: courseData.value.description?.trim(),
@@ -331,7 +158,7 @@ async function handleCreate(): Promise<void> {
       level: courseData.value.level,
       categoryId: courseData.value.categoryId,
       profileKey: courseData.value.profileKey,
-      files: files.value
+      files
     }
 
     emit('create', data)
@@ -383,219 +210,6 @@ defineExpose({
 .modal-body {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-/* Upload Section */
-.upload-section {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.section-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.upload-area {
-  border: 2px dashed var(--color-border);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.upload-area:hover {
-  border-color: var(--color-primary);
-}
-
-.upload-area.has-files {
-  border-color: var(--color-primary);
-  background: var(--color-primary-subtle);
-}
-
-.hidden {
-  display: none;
-}
-
-.upload-empty {
-  color: var(--color-text-tertiary);
-}
-
-.upload-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  margin: 0 auto 0.75rem;
-  opacity: 0.5;
-}
-
-.upload-text {
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin: 0 0 0.25rem;
-}
-
-.upload-hint {
-  font-size: 0.75rem;
-  margin: 0;
-}
-
-.files-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  text-align: left;
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--color-surface);
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
-}
-
-.file-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-size {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-}
-
-.file-remove {
-  padding: 0.25rem;
-  background: none;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.file-remove:hover {
-  color: #dc2626;
-}
-
-.add-more {
-  font-size: 0.75rem;
-  color: var(--color-primary);
-  text-align: center;
-  margin: 0.5rem 0 0;
-}
-
-.analyze-btn {
-  width: 100%;
-  margin-top: 0.75rem;
-  padding: 0.625rem 1rem;
-  background: linear-gradient(to right, #8b5cf6, #a855f7);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.15s;
-}
-
-.analyze-btn:hover:not(:disabled) {
-  background: linear-gradient(to right, #7c3aed, #9333ea);
-}
-
-.analyze-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.analyze-hint {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  text-align: center;
-  margin: 0.5rem 0 0;
-}
-
-/* Details Section */
-.details-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  transition: opacity 0.15s;
-}
-
-.details-section.faded {
-  opacity: 0.5;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
-.ai-badge {
-  padding: 0.125rem 0.5rem;
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.field-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.field-input,
-.field-textarea,
-.field-select {
-  padding: 0.5rem 0.75rem;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
-}
-
-.field-input:focus,
-.field-textarea:focus,
-.field-select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.field-textarea {
-  resize: none;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 

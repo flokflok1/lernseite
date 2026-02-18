@@ -3,7 +3,7 @@
 
   Features:
   - Animierter Avatar der "spricht"
-  - Edge TTS (kostenlos, Premium-Qualität) mit Caching
+  - Edge TTS (kostenlos, Premium-Qualitaet) mit Caching
   - Fallback zu OpenAI TTS und Browser TTS
   - Verschiedene Stimmungen/Emotionen
   - Positionierbar (floating, inline, corner)
@@ -13,7 +13,7 @@
   Usage:
   <TutorAvatar
     :visible="true"
-    :text="'Hallo! Ich erkläre dir jetzt...'"
+    :text="'Hallo! Ich erklaere dir jetzt...'"
     :auto-play="true"
     position="floating"
     mood="friendly"
@@ -23,7 +23,7 @@
   />
 
   Available Piper TTS Voice (kostenlos, offline, hochwertig):
-  - thorsten: Natürliche deutsche männliche Stimme (Standard)
+  - thorsten: Natuerliche deutsche maennliche Stimme (Standard)
 
   OpenAI Voices (kostenpflichtig, Fallback):
   - nova, alloy, echo, fable, onyx, shimmer
@@ -37,26 +37,22 @@
       :class="[
         `position-${position}`,
         `mood-${currentMood}`,
-        { 'is-speaking': isSpeaking, 'is-thinking': isThinking }
+        { 'is-speaking': audio.isSpeaking.value, 'is-thinking': audio.isThinking.value }
       ]"
       @click="handleClick"
     >
       <!-- Avatar Container -->
       <div class="avatar-container">
-        <!-- Avatar Image/Animation -->
         <div class="avatar-visual">
-          <!-- Animated glow ring behind avatar when speaking -->
-          <div class="avatar-glow" :class="{ active: isSpeaking }"></div>
+          <div class="avatar-glow" :class="{ active: audio.isSpeaking.value }"></div>
 
-          <!-- Main Avatar - Realistic SVG -->
-          <div class="avatar-image-wrapper" :class="{ speaking: isSpeaking }">
+          <div class="avatar-image-wrapper" :class="{ speaking: audio.isSpeaking.value }">
             <img
               :src="tutorAvatarSvg"
               alt="Tutor Lumi"
               class="avatar-image"
             />
-            <!-- Speaking indicator overlay -->
-            <div v-if="isSpeaking" class="speaking-indicator">
+            <div v-if="audio.isSpeaking.value" class="speaking-indicator">
               <span class="sound-wave"></span>
               <span class="sound-wave"></span>
               <span class="sound-wave"></span>
@@ -64,60 +60,26 @@
           </div>
         </div>
 
-        <!-- Status indicator -->
         <div class="avatar-status" v-if="showStatus">
-          <span v-if="isThinking" class="status-dot thinking"></span>
-          <span v-else-if="isSpeaking" class="status-dot speaking"></span>
+          <span v-if="audio.isThinking.value" class="status-dot thinking"></span>
+          <span v-else-if="audio.isSpeaking.value" class="status-dot speaking"></span>
           <span v-else class="status-dot idle"></span>
         </div>
       </div>
 
       <!-- Speech Bubble -->
-      <Transition name="bubble-pop">
-        <div v-if="showBubble && displayText" class="speech-bubble">
-          <div class="bubble-content">
-            <p class="bubble-text">{{ displayText }}</p>
-
-            <!-- Progress bar for audio -->
-            <div v-if="isSpeaking && audioDuration > 0" class="audio-progress">
-              <div
-                class="audio-progress-fill"
-                :style="{ width: `${audioProgress}%` }"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Bubble actions -->
-          <div class="bubble-actions" v-if="showControls">
-            <button
-              v-if="isSpeaking"
-              @click.stop="pauseAudio"
-              class="bubble-btn"
-              title="Pause"
-            >
-              ⏸️
-            </button>
-            <button
-              v-else-if="audioReady && !isSpeaking"
-              @click.stop="playAudio"
-              class="bubble-btn"
-              title="Abspielen"
-            >
-              ▶️
-            </button>
-            <button
-              @click.stop="skipToEnd"
-              class="bubble-btn skip"
-              title="Überspringen"
-            >
-              ⏭️
-            </button>
-          </div>
-
-          <!-- Bubble pointer -->
-          <div class="bubble-pointer"></div>
-        </div>
-      </Transition>
+      <TutorSpeechBubble
+        :visible="showBubble"
+        :display-text="audio.displayText.value"
+        :is-speaking="audio.isSpeaking.value"
+        :audio-ready="audio.audioReady.value"
+        :audio-progress="audio.audioProgress.value"
+        :audio-duration="audio.audioDuration.value"
+        :show-controls="showControls"
+        @pause="audio.pauseAudio"
+        @play="audio.playAudio"
+        @skip="audio.skipToEnd"
+      />
 
       <!-- Name tag -->
       <div v-if="showName" class="avatar-name">
@@ -128,9 +90,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
-import { ttsApi, DEFAULT_TUTOR_VOICE } from '@/application/services/api/panel-user'
+import { ref, computed, watch, toRef } from 'vue'
 import tutorAvatarSvg from '@/shared/assets/tutor-avatar.svg'
+import { useTutorAudio, DEFAULT_TUTOR_VOICE } from './composables/useTutorAudio'
+import TutorSpeechBubble from './TutorSpeechBubble.vue'
 
 // ============================================================================
 // Props
@@ -141,7 +104,7 @@ interface Props {
   autoPlay?: boolean
   position?: 'floating' | 'inline' | 'corner-br' | 'corner-bl' | 'corner-tr' | 'corner-tl'
   mood?: 'friendly' | 'excited' | 'thinking' | 'encouraging' | 'neutral'
-  voice?: string  // Piper TTS (thorsten) or OpenAI fallback (nova, alloy, etc.)
+  voice?: string
   speed?: number
   showBubble?: boolean
   showControls?: boolean
@@ -158,7 +121,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoPlay: true,
   position: 'floating',
   mood: 'friendly',
-  voice: DEFAULT_TUTOR_VOICE,  // thorsten (Piper TTS - kostenlos, offline, hochwertig!)
+  voice: DEFAULT_TUTOR_VOICE,
   speed: 1.0,
   showBubble: true,
   showControls: true,
@@ -183,242 +146,51 @@ const emit = defineEmits<{
 // ============================================================================
 // State
 // ============================================================================
-const isSpeaking = ref(false)
-const isThinking = ref(false)
-const audioReady = ref(false)
-const audioProgress = ref(0)
-const audioDuration = ref(0)
 const currentMood = ref(props.mood)
 
-// Typewriter effect
-const displayText = ref('')
-const typewriterIndex = ref(0)
-
-// Audio
-let audioElement: HTMLAudioElement | null = null
-let audioProgressInterval: number | null = null
-
 // ============================================================================
-// Computed
+// Composable
 // ============================================================================
-const _shouldSpeak = computed(() => props.text && props.text.length > 0)
+const audio = useTutorAudio(
+  {
+    text: toRef(props, 'text'),
+    autoPlay: toRef(props, 'autoPlay'),
+    voice: toRef(props, 'voice'),
+    speed: toRef(props, 'speed'),
+    typewriter: toRef(props, 'typewriter'),
+    typewriterSpeed: toRef(props, 'typewriterSpeed')
+  },
+  {
+    onSpeechStart: () => emit('speech-start'),
+    onSpeechEnd: () => emit('speech-end'),
+    onSpeechError: (error: Error) => emit('speech-error', error),
+    onSkip: () => emit('skip')
+  }
+)
 
 // ============================================================================
 // Methods
 // ============================================================================
-async function generateAndPlayAudio() {
-  if (!props.text || props.text.length === 0) return
-
-  isThinking.value = true
-
-  try {
-    // Generate TTS
-    const response = await ttsApi.speak({
-      text: props.text,
-      voice: props.voice,
-      speed: props.speed
-    })
-
-    if (response.success && response.data) {
-      // Create audio element - use the API URL, not local path
-      // Extract base URL from VITE_API_BASE_URL (remove /api/v1 suffix)
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
-      const baseUrl = apiBaseUrl.replace(/\/api\/v1$/, '')
-      const audioUrl = `${baseUrl}${response.data.audio_url}`
-
-      if (audioElement) {
-        audioElement.pause()
-        audioElement = null
-      }
-
-      audioElement = new Audio(audioUrl)
-      audioDuration.value = response.data.duration_ms || 0
-      audioReady.value = true
-
-      // Audio events
-      audioElement.onplay = () => {
-        isSpeaking.value = true
-        isThinking.value = false
-        emit('speech-start')
-        startProgressTracking()
-      }
-
-      audioElement.onended = () => {
-        isSpeaking.value = false
-        audioProgress.value = 100
-        stopProgressTracking()
-        emit('speech-end')
-      }
-
-      audioElement.onerror = (_e) => {
-        isSpeaking.value = false
-        isThinking.value = false
-        stopProgressTracking()
-        // Fallback to browser TTS on audio error
-        console.warn('Audio playback failed, using browser TTS fallback')
-        fallbackBrowserTTS()
-      }
-
-      // Auto-play if enabled
-      if (props.autoPlay) {
-        await audioElement.play()
-      }
-    } else {
-      // API returned error, use browser TTS fallback
-      console.warn('TTS API failed, using browser TTS fallback:', response.error)
-      isThinking.value = false
-      fallbackBrowserTTS()
-    }
-  } catch (error) {
-    console.warn('TTS generation error, using browser TTS fallback:', error)
-    isThinking.value = false
-
-    // Fallback: Use browser TTS
-    fallbackBrowserTTS()
-  }
-}
-
-function fallbackBrowserTTS() {
-  if (!props.text || !('speechSynthesis' in window)) return
-
-  const utterance = new SpeechSynthesisUtterance(props.text)
-  utterance.lang = 'de-DE'
-  utterance.rate = props.speed
-
-  utterance.onstart = () => {
-    isSpeaking.value = true
-    emit('speech-start')
-  }
-
-  utterance.onend = () => {
-    isSpeaking.value = false
-    emit('speech-end')
-  }
-
-  window.speechSynthesis.speak(utterance)
-}
-
-function playAudio() {
-  if (audioElement && audioReady.value) {
-    audioElement.play()
-  }
-}
-
-function pauseAudio() {
-  if (audioElement) {
-    audioElement.pause()
-    isSpeaking.value = false
-    stopProgressTracking()
-  }
-
-  // Also stop browser TTS
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.pause()
-  }
-}
-
-function skipToEnd() {
-  pauseAudio()
-
-  if (audioElement) {
-    audioElement.currentTime = audioElement.duration
-  }
-
-  // Show full text immediately
-  displayText.value = props.text
-  isSpeaking.value = false
-  audioProgress.value = 100
-
-  emit('skip')
-  emit('speech-end')
-}
-
-function startProgressTracking() {
-  stopProgressTracking()
-
-  audioProgressInterval = window.setInterval(() => {
-    if (audioElement && audioDuration.value > 0) {
-      audioProgress.value = (audioElement.currentTime / audioElement.duration) * 100
-    }
-  }, 100)
-}
-
-function stopProgressTracking() {
-  if (audioProgressInterval) {
-    clearInterval(audioProgressInterval)
-    audioProgressInterval = null
-  }
-}
-
-// Typewriter effect
-function startTypewriter() {
-  if (!props.typewriter) {
-    displayText.value = props.text
-    return
-  }
-
-  displayText.value = ''
-  typewriterIndex.value = 0
-
-  const typeNext = () => {
-    if (typewriterIndex.value < props.text.length) {
-      displayText.value += props.text[typewriterIndex.value]
-      typewriterIndex.value++
-      setTimeout(typeNext, props.typewriterSpeed)
-    }
-  }
-
-  typeNext()
-}
-
-function handleClick() {
+function handleClick(): void {
   emit('click')
 }
 
 // ============================================================================
 // Watchers
 // ============================================================================
-watch(() => props.text, (newText) => {
-  if (newText) {
-    audioProgress.value = 0
-    audioReady.value = false
-    startTypewriter()
-
-    if (props.autoPlay) {
-      generateAndPlayAudio()
-    }
-  }
-}, { immediate: true })
-
 watch(() => props.mood, (newMood) => {
   currentMood.value = newMood
-})
-
-// ============================================================================
-// Lifecycle
-// ============================================================================
-onUnmounted(() => {
-  stopProgressTracking()
-
-  if (audioElement) {
-    audioElement.pause()
-    audioElement = null
-  }
-
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel()
-  }
 })
 
 // ============================================================================
 // Expose for parent components
 // ============================================================================
 defineExpose({
-  speak: generateAndPlayAudio,
-  pause: pauseAudio,
-  skip: skipToEnd,
-  isSpeaking,
-  isThinking
+  speak: audio.generateAndPlayAudio,
+  pause: audio.pauseAudio,
+  skip: audio.skipToEnd,
+  isSpeaking: audio.isSpeaking,
+  isThinking: audio.isThinking
 })
 </script>
 
@@ -499,7 +271,6 @@ defineExpose({
   position: relative;
 }
 
-/* Glow effect */
 .avatar-glow {
   position: absolute;
   inset: -8px;
@@ -519,7 +290,6 @@ defineExpose({
   50% { transform: scale(1.1); opacity: 1; }
 }
 
-/* Avatar Image Wrapper */
 .avatar-image-wrapper {
   width: 100%;
   height: 100%;
@@ -543,7 +313,6 @@ defineExpose({
   50% { transform: scale(1.02); }
 }
 
-/* Avatar Image */
 .avatar-image {
   width: 100%;
   height: 100%;
@@ -572,18 +341,9 @@ defineExpose({
   animation: sound-wave 0.4s ease-in-out infinite;
 }
 
-.sound-wave:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.sound-wave:nth-child(2) {
-  animation-delay: 0.1s;
-  height: 12px;
-}
-
-.sound-wave:nth-child(3) {
-  animation-delay: 0.2s;
-}
+.sound-wave:nth-child(1) { animation-delay: 0s; }
+.sound-wave:nth-child(2) { animation-delay: 0.1s; height: 12px; }
+.sound-wave:nth-child(3) { animation-delay: 0.2s; }
 
 @keyframes sound-wave {
   0%, 100% { transform: scaleY(0.5); }
@@ -605,15 +365,11 @@ defineExpose({
   border: 2px solid white;
 }
 
-.status-dot.idle {
-  background: #9ca3af;
-}
-
+.status-dot.idle { background: #9ca3af; }
 .status-dot.speaking {
   background: #10b981;
   animation: pulse-status 1s ease-in-out infinite;
 }
-
 .status-dot.thinking {
   background: #f59e0b;
   animation: pulse-status 0.5s ease-in-out infinite;
@@ -622,96 +378,6 @@ defineExpose({
 @keyframes pulse-status {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.2); }
-}
-
-/* ============================================================================
-   Speech Bubble
-   ============================================================================ */
-.speech-bubble {
-  background: white;
-  border-radius: 16px;
-  padding: 1rem;
-  max-width: var(--bubble-max-width);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.bubble-content {
-  margin-bottom: 0.5rem;
-}
-
-.bubble-text {
-  margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: #1f2937;
-}
-
-/* Audio progress */
-.audio-progress {
-  height: 3px;
-  background: #e5e7eb;
-  border-radius: 2px;
-  margin-top: 0.75rem;
-  overflow: hidden;
-}
-
-.audio-progress-fill {
-  height: 100%;
-  background: var(--primary-color);
-  transition: width 0.1s linear;
-}
-
-/* Bubble actions */
-.bubble-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-}
-
-.bubble-btn {
-  background: none;
-  border: none;
-  padding: 0.25rem;
-  cursor: pointer;
-  font-size: 1rem;
-  opacity: 0.6;
-  transition: opacity 0.2s ease;
-}
-
-.bubble-btn:hover {
-  opacity: 1;
-}
-
-/* Bubble pointer */
-.bubble-pointer {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: white;
-  transform: rotate(45deg);
-}
-
-.position-floating .bubble-pointer {
-  right: -6px;
-  top: 20px;
-}
-
-.position-inline .bubble-pointer {
-  left: -6px;
-  top: 20px;
-}
-
-.position-corner-br .bubble-pointer,
-.position-corner-tr .bubble-pointer {
-  right: 20px;
-  bottom: -6px;
-}
-
-.position-corner-bl .bubble-pointer,
-.position-corner-tl .bubble-pointer {
-  left: 20px;
-  bottom: -6px;
 }
 
 /* ============================================================================
@@ -729,27 +395,13 @@ defineExpose({
 }
 
 /* ============================================================================
-   Mood Variants - Glow colors for different moods
+   Mood Variants
    ============================================================================ */
-.mood-friendly .avatar-glow {
-  --glow-color: rgba(99, 102, 241, 0.4);
-}
-
-.mood-excited .avatar-glow {
-  --glow-color: rgba(245, 87, 108, 0.4);
-}
-
-.mood-thinking .avatar-glow {
-  --glow-color: rgba(79, 172, 254, 0.4);
-}
-
-.mood-encouraging .avatar-glow {
-  --glow-color: rgba(67, 233, 123, 0.4);
-}
-
-.mood-neutral .avatar-glow {
-  --glow-color: rgba(156, 163, 175, 0.4);
-}
+.mood-friendly .avatar-glow { --glow-color: rgba(99, 102, 241, 0.4); }
+.mood-excited .avatar-glow { --glow-color: rgba(245, 87, 108, 0.4); }
+.mood-thinking .avatar-glow { --glow-color: rgba(79, 172, 254, 0.4); }
+.mood-encouraging .avatar-glow { --glow-color: rgba(67, 233, 123, 0.4); }
+.mood-neutral .avatar-glow { --glow-color: rgba(156, 163, 175, 0.4); }
 
 /* ============================================================================
    Transitions
@@ -765,41 +417,6 @@ defineExpose({
   transform: scale(0.8) translateY(20px);
 }
 
-.bubble-pop-enter-active,
-.bubble-pop-leave-active {
-  transition: all 0.2s ease;
-}
-
-.bubble-pop-enter-from,
-.bubble-pop-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-/* ============================================================================
-   Dark Mode
-   ============================================================================ */
-:root.dark .speech-bubble,
-.dark .speech-bubble {
-  background: #1f2937;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-:root.dark .bubble-text,
-.dark .bubble-text {
-  color: #f3f4f6;
-}
-
-:root.dark .bubble-pointer,
-.dark .bubble-pointer {
-  background: #1f2937;
-}
-
-:root.dark .audio-progress,
-.dark .audio-progress {
-  background: #374151;
-}
-
 /* ============================================================================
    Responsive
    ============================================================================ */
@@ -812,10 +429,6 @@ defineExpose({
   .position-floating {
     bottom: 1rem;
     right: 1rem;
-  }
-
-  .bubble-text {
-    font-size: 0.875rem;
   }
 }
 </style>

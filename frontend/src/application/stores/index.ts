@@ -3,7 +3,12 @@ export { useAuthStore } from './modules/core/auth.store'
 export { useAppStore } from './modules/core/app.store'
 
 // Admin
-export { useAdminPanelStore } from './modules/admin/panel.store'
+export { usePanelStore, useAdminPanelStore } from './modules/admin/panel.store'
+export { usePanelUsersStore } from './modules/admin/panel-users.store'
+export { usePanelOrganisationsStore } from './modules/admin/panel-organisations.store'
+export { usePanelCoursesStore } from './modules/admin/panel-courses.store'
+export { usePanelAnalyticsStore } from './modules/admin/panel-analytics.store'
+export { usePanelAIJobsStore } from './modules/admin/panel-ai-jobs.store'
 export { useAdminStore } from './modules/admin/admin.store'
 
 // Content

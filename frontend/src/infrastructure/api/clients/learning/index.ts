@@ -145,20 +145,27 @@ export {
 } from './tutor.api'
 
 // ============================================================================
-// Authoring API Export
+// Authoring Actions API Export
 // ============================================================================
 export {
   getActions,
   getActionsByCategory,
+  getActionsForEntity,
   createAction,
   updateAction,
   deleteAction,
   executeAction,
-  getActionStats,
+  getActionStats
+} from './authoring.api'
+
+// ============================================================================
+// LM Suggestions API Export
+// ============================================================================
+export {
   getLMSuggestions,
   getAllLearningMethods,
   getLMGroups
-} from './authoring.api'
+} from './authoring.lm.api'
 
 // ============================================================================
 // Exam Simulation API Export
@@ -185,4 +192,3 @@ export {
   type AttemptResult,
   type UserExamProfile
 } from './examSimulation.api'
-export { getActionsForEntity } from './authoring.api'

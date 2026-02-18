@@ -1,3 +1,10 @@
+<!--
+  Instances Tab - Learning Method Instances List
+
+  Displays the list of learning method instances for a chapter.
+  Supports drag & drop reordering, edit, publish toggle, and delete actions.
+-->
+
 <template>
   <div class="h-full overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-4">
@@ -17,10 +24,10 @@
 
     <!-- Empty State -->
     <div v-if="methods.length === 0" class="text-center py-12">
-      <div class="text-5xl mb-3">🎯</div>
-      <p class="text-[var(--color-text-secondary)] mb-2">Keine Lernmethoden vorhanden</p>
+      <div class="text-5xl mb-3">&#127919;</div>
+      <p class="text-[var(--color-text-secondary)] mb-2">{{ $t('features.learningMethodEditor.noMethods') }}</p>
       <p class="text-sm text-[var(--color-text-tertiary)]">
-        Fügen Sie eine Lernmethode hinzu, um zu beginnen
+        {{ $t('features.learningMethodEditor.noMethodsHint') }}
       </p>
     </div>
 
@@ -84,7 +91,7 @@
               @click="$emit('edit', method)"
               class="p-1.5 rounded transition-colors"
               style="color: var(--color-text-secondary);"
-              title="Bearbeiten"
+              :title="$t('panel.actions.edit')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -108,7 +115,7 @@
               @click="deleteMethod(method.method_id)"
               class="p-1.5 rounded transition-colors"
               style="color: var(--color-error, #dc2626);"
-              title="Löschen"
+              :title="$t('panel.actions.delete')"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -122,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AdminLearningMethod } from '@/application/services/api/panel-admin'
+import type { AdminLearningMethod, LearningMethodGroup } from '@/application/services/api/panel-admin'
 
 interface Props {
   methods: AdminLearningMethod[]
@@ -131,8 +138,8 @@ interface Props {
     draggedIndex: number | null
     targetIndex: number | null
   }
-  getGroupStyle: (group: string) => string
-  getMethodGroup: (methodType: number) => string
+  getGroupStyle: (group: LearningMethodGroup) => string
+  getMethodGroup: (methodType: number) => LearningMethodGroup
   getGroupPositionById: (methodTypeId: number) => string
   getMethodTypeName: (methodType: number) => string
   getTierStyle: (tier: string) => string

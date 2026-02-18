@@ -7,6 +7,7 @@
   3. Keine Module-Generierung hier - das passiert auf der Detail-Seite
 
   Phase: C2.1 - Kurs-Erstellen
+  Refactored: extracted file upload into sub-component (2026-02-18)
 -->
 
 <template>
@@ -25,86 +26,16 @@
     <div class="flex-1 p-6 overflow-y-auto">
       <div class="space-y-5 max-w-2xl">
 
-        <!-- Datei Upload - Kompakt oben -->
-        <div class="p-4 bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)]">
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-medium text-[var(--color-text-primary)]">
-              Dokument hochladen
-            </label>
-            <span class="text-xs text-[var(--color-text-secondary)]">optional</span>
-          </div>
-
-          <!-- Kein File -->
-          <div v-if="!selectedFile" class="flex items-center gap-3">
-            <button
-              type="button"
-              @click="fileInput?.click()"
-              :disabled="isProcessing"
-              class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:border-[var(--color-primary)] transition-colors disabled:opacity-50 flex items-center gap-2"
-            >
-              <span>📄</span>
-              <span>Datei auswählen</span>
-            </button>
-            <span class="text-xs text-[var(--color-text-secondary)]">
-              PDF, Word, PowerPoint, Text (max. 50 MB)
-            </span>
-            <input
-              ref="fileInput"
-              type="file"
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
-              @change="handleFileSelect"
-              class="hidden"
-            />
-          </div>
-
-          <!-- File ausgewählt -->
-          <div v-else>
-            <div class="flex items-center gap-3 p-3 bg-[var(--color-bg)] border border-[var(--color-success,#22c55e)]/30 rounded-lg">
-              <span class="text-2xl">{{ getFileIcon(selectedFile.name) }}</span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-[var(--color-text-primary)] truncate">{{ selectedFile.name }}</p>
-                <p class="text-xs text-[var(--color-text-secondary)]">{{ formatFileSize(selectedFile.size) }}</p>
-              </div>
-              <button
-                type="button"
-                @click="clearFile"
-                :disabled="isProcessing"
-                class="p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-error,#dc2626)] rounded transition-colors"
-                :title="$t('panel.actions.removeFile')"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- KI Felder ausfüllen Button -->
-            <button
-              v-if="aiStatus === 'idle'"
-              type="button"
-              @click="fillFieldsWithAI"
-              :disabled="isProcessing"
-              class="mt-3 w-full px-4 py-2 text-sm bg-gradient-to-r from-[var(--color-magic-start,#8B5CF6)] to-[var(--color-magic-end,#EC4899)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-            >
-              <span>✨</span>
-              <span>Mit KI ausfüllen</span>
-            </button>
-
-            <!-- KI läuft -->
-            <div v-else-if="aiStatus === 'processing'" class="mt-3 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
-              <span class="animate-pulse">✨</span>
-              <span>KI analysiert Dokument...</span>
-            </div>
-
-            <!-- KI fertig -->
-            <div v-else-if="aiStatus === 'completed'" class="mt-3 flex items-center gap-2 text-sm text-[var(--color-success,#22c55e)]">
-              <span>✅</span>
-              <span>Felder wurden ausgefüllt</span>
-            </div>
-          </div>
-
-          <p v-if="fileError" class="mt-2 text-sm text-[var(--color-error,#dc2626)]">{{ fileError }}</p>
-        </div>
+        <!-- File Upload -->
+        <CourseFileUpload
+          :selected-file="selectedFile"
+          :ai-status="aiStatus"
+          :error="fileError"
+          :disabled="isProcessing"
+          @select-file="validateAndSetFile"
+          @clear-file="clearFile"
+          @fill-with-ai="fillFieldsWithAI"
+        />
 
         <!-- Kurstitel -->
         <div>
@@ -201,7 +132,7 @@
               :disabled="isProcessing"
               class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:border-[var(--color-primary)] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              <span>🤖</span>
+              <span>{{ robotIcon }}</span>
               <span>{{ form.ai_model_override || 'Modell auswählen' }}</span>
             </button>
             <button
@@ -252,10 +183,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { usePanelStore } from '@/application/stores/modules/admin'
 import { useAuthStore } from '@/application/stores/modules/core'
 import { usePanelStore } from '@/application/stores/modules/workspace'
 import type { LsxPanel } from '@/application/stores/modules/workspace'
+import CourseFileUpload from './components/CourseFileUpload.vue'
 
 const { t } = useI18n()
 
@@ -273,12 +204,10 @@ const emit = defineEmits<Emits>()
 const router = useRouter()
 const panelStore = usePanelStore()
 const authStore = useAuthStore()
-const panelStore = usePanelStore()
 
-// ============================================================================
+const robotIcon = '\uD83E\uDD16'
+
 // State
-// ============================================================================
-
 const form = ref({
   title: '',
   description: '',
@@ -288,25 +217,17 @@ const form = ref({
   ai_model_override: ''
 })
 
-// Model selector callback ID for cross-panel communication
 const modelSelectorCallbackId = ref<string | null>(null)
-
 const categories = ref<Array<{ category_id: string; name: string }>>([])
-
 const selectedFile = ref<File | null>(null)
-const fileInput = ref<HTMLInputElement | null>(null)
 const fileError = ref<string | null>(null)
-
 const isCreating = ref(false)
 const aiStatus = ref<'idle' | 'processing' | 'completed' | 'failed'>('idle')
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024
 const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt']
 
-// ============================================================================
 // Computed
-// ============================================================================
-
 const isProcessing = computed(() => isCreating.value || aiStatus.value === 'processing')
 
 const canCreate = computed(() =>
@@ -315,18 +236,8 @@ const canCreate = computed(() =>
   authStore.user?.user_id
 )
 
-// ============================================================================
-// Methods
-// ============================================================================
-
-const handleFileSelect = (event: Event): void => {
-  const target = event.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
-    validateAndSetFile(target.files[0])
-  }
-}
-
-const validateAndSetFile = (file: File): void => {
+// File handling
+function validateAndSetFile(file: File): void {
   fileError.value = null
   aiStatus.value = 'idle'
 
@@ -344,53 +255,28 @@ const validateAndSetFile = (file: File): void => {
   selectedFile.value = file
 }
 
-const clearFile = (): void => {
+function clearFile(): void {
   selectedFile.value = null
   fileError.value = null
   aiStatus.value = 'idle'
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
 }
 
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
-}
-
-const getFileIcon = (filename: string): string => {
-  const ext = filename.split('.').pop()?.toLowerCase() || ''
-  const icons: Record<string, string> = {
-    pdf: '📕',
-    doc: '📘',
-    docx: '📘',
-    ppt: '📙',
-    pptx: '📙',
-    txt: '📄'
-  }
-  return icons[ext] || '📄'
-}
-
-const fillFieldsWithAI = async (): Promise<void> => {
+// AI field filling
+async function fillFieldsWithAI(): Promise<void> {
   if (!selectedFile.value) return
 
   aiStatus.value = 'processing'
 
   try {
-    // Start AI job to analyze document and extract course metadata
     const job = await panelStore.startAIJob(
       selectedFile.value,
       'Analysiere dieses Dokument und extrahiere: 1) Einen passenden Kurstitel, 2) Eine kurze Beschreibung, 3) Das Schwierigkeitslevel (beginner/intermediate/advanced), 4) Die Sprache (de/en/fr/es). Antworte im JSON-Format.'
     )
 
-    // Poll for result - use longer interval to avoid rate limiting
     let pollCount = 0
-    const maxPolls = 60 // Max 2 minutes (60 * 3 seconds)
+    const maxPolls = 60
 
-    const pollResult = async (): Promise<void> => {
+    async function pollResult(): Promise<void> {
       pollCount++
 
       if (pollCount > maxPolls) {
@@ -400,43 +286,31 @@ const fillFieldsWithAI = async (): Promise<void> => {
       }
 
       try {
-        // Use direct API call to avoid store's automatic polling
         const { adminGetAIJob } = await import('@/application/services/api/panel-admin')
         const result = await adminGetAIJob(job.id)
 
         if (result.status === 'completed' && result.output_data) {
-          // Fill form with AI results - data is nested under 'course' key
           const courseData = result.output_data.course || result.output_data
-          console.log('[AI] Received output_data:', result.output_data)
-          console.log('[AI] Course data to fill:', courseData)
-
           if (courseData.title) form.value.title = courseData.title
           if (courseData.description) form.value.description = courseData.description
           if (courseData.level) form.value.level = courseData.level
           if (courseData.language) form.value.language = courseData.language
-
           aiStatus.value = 'completed'
         } else if (result.status === 'failed') {
           aiStatus.value = 'failed'
           fileError.value = result.error_message || 'KI-Analyse fehlgeschlagen'
         } else if (result.status === 'queued' || result.status === 'processing') {
-          // Still processing, poll again with 3 second interval
           setTimeout(pollResult, 3000)
         }
       } catch (pollError: any) {
-        // On rate limit (429), wait longer and retry
         if (pollError.status === 429) {
-          console.warn('[AI] Rate limited, waiting 5 seconds...')
           setTimeout(pollResult, 5000)
         } else {
-          console.error('[AI] Poll error:', pollError)
-          // On other errors, still try again but with longer delay
           setTimeout(pollResult, 4000)
         }
       }
     }
 
-    // Start polling after 3 seconds
     setTimeout(pollResult, 3000)
   } catch (error: any) {
     aiStatus.value = 'failed'
@@ -444,7 +318,8 @@ const fillFieldsWithAI = async (): Promise<void> => {
   }
 }
 
-const createCourse = async (): Promise<void> => {
+// Course creation
+async function createCourse(): Promise<void> {
   if (!canCreate.value) return
 
   isCreating.value = true
@@ -461,7 +336,6 @@ const createCourse = async (): Promise<void> => {
       is_public: false
     }
 
-    // Add AI model override if selected (Phase C3.3)
     if (form.value.ai_model_override) {
       courseData.ai_model_override = form.value.ai_model_override
     }
@@ -469,7 +343,6 @@ const createCourse = async (): Promise<void> => {
     const createdCourse = await panelStore.createCourse(courseData)
     const courseId = createdCourse.course_id
 
-    // If file was selected, upload it as course file
     if (selectedFile.value && courseId) {
       try {
         const { adminUploadCourseFile } = await import('@/application/services/api/panel-admin')
@@ -484,7 +357,6 @@ const createCourse = async (): Promise<void> => {
 
     emit('close')
 
-    // Navigate to course detail page
     if (courseId) {
       router.push(`/panel/courses/${courseId}`)
     }
@@ -496,18 +368,18 @@ const createCourse = async (): Promise<void> => {
   }
 }
 
-const loadCategories = async (): Promise<void> => {
+// Categories
+async function loadCategories(): Promise<void> {
   try {
     await panelStore.loadCategoryTree()
     const tree = panelStore.categoryTree
 
-    // Check if tree is valid and iterable
     if (!tree || !Array.isArray(tree) || tree.length === 0) {
       categories.value = []
       return
     }
 
-    const flatten = (nodes: any[]): Array<{ category_id: string; name: string }> => {
+    function flatten(nodes: any[]): Array<{ category_id: string; name: string }> {
       const result: Array<{ category_id: string; name: string }> = []
       for (const node of nodes) {
         if (node && node.category_id) {
@@ -526,15 +398,14 @@ const loadCategories = async (): Promise<void> => {
   }
 }
 
-// Phase C3.3: Model Selector Panel
-const openModelSelector = (): void => {
-  // Generate unique callback ID
+// Model selector
+function openModelSelector(): void {
   modelSelectorCallbackId.value = `model-select-${Date.now()}`
 
   panelStore.openPanel({
     type: 'admin-model-selector',
     title: 'KI-Modell auswählen',
-    icon: '🤖',
+    icon: '\uD83E\uDD16',
     payload: {
       scope: 'course',
       callbackId: modelSelectorCallbackId.value,
@@ -546,8 +417,7 @@ const openModelSelector = (): void => {
   })
 }
 
-// Handle model selection from cross-panel event
-const handleModelSelected = (event: CustomEvent): void => {
+function handleModelSelected(event: CustomEvent): void {
   if (event.detail?.callbackId === modelSelectorCallbackId.value) {
     const model = event.detail.model
     if (model?.model_name) {
@@ -556,33 +426,13 @@ const handleModelSelected = (event: CustomEvent): void => {
   }
 }
 
-// ============================================================================
 // Lifecycle
-// ============================================================================
-
 onMounted(() => {
   loadCategories()
-  // Listen for model selection events from Model Selector Panel
   window.addEventListener('model-selected', handleModelSelected as EventListener)
 })
 
 onUnmounted(() => {
-  // Clean up event listener
   window.removeEventListener('model-selected', handleModelSelected as EventListener)
 })
 </script>
-
-<style scoped>
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-</style>

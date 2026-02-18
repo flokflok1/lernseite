@@ -1,5 +1,5 @@
 <!--
-  Admin Lesson Preview Window
+  Admin Lesson Preview
 
   Loads and displays REAL lesson data from the database.
   Shows theory content and actual learning method exercises.
@@ -11,22 +11,22 @@
   <div class="lesson-preview-window">
     <!-- Header -->
     <div class="preview-header">
-      <div class="lesson-badge">{{ $t('lessonPreview.lessonN', { n: lessonPosition }) }}</div>
-      <h1 class="lesson-title">{{ lessonData?.title || $t('lessonPreview.loading') }}</h1>
+      <div class="lesson-badge">{{ $t('panel.lessons.preview.lessonN', { n: lessonPosition }) }}</div>
+      <h1 class="lesson-title">{{ lessonData?.title || $t('panel.lessons.preview.loading') }}</h1>
       <button class="close-btn" @click="$emit('close')">×</button>
     </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>{{ $t('lessonPreview.loadingData') }}</p>
+      <p>{{ $t('panel.lessons.preview.loadingData') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="error-state">
       <span class="error-icon">⚠️</span>
       <p>{{ error }}</p>
-      <button @click="loadLessonData" class="retry-btn">{{ $t('lessonPreview.retry') }}</button>
+      <button @click="loadLessonData" class="retry-btn">{{ $t('panel.lessons.preview.retry') }}</button>
     </div>
 
     <!-- Content -->
@@ -51,7 +51,7 @@
         <!-- Theorie Tab -->
         <div v-if="activeTab === 'theory'" class="tab-content">
           <div v-if="lessonData?.content?.theory" class="theory-content">
-            <div class="content-block" v-html="formatContent(lessonData.content.theory)"></div>
+            <div class="content-block" v-html="formatTheoryContent(lessonData.content.theory)"></div>
           </div>
           <div v-else-if="lessonData?.description" class="theory-content">
             <div class="content-block">
@@ -60,8 +60,8 @@
           </div>
           <div v-else class="empty-state">
             <span class="empty-icon">📝</span>
-            <p>{{ $t('lessonPreview.noTheory') }}</p>
-            <p class="empty-hint">{{ $t('lessonPreview.theoryHint') }}</p>
+            <p>{{ $t('panel.lessons.preview.noTheory') }}</p>
+            <p class="empty-hint">{{ $t('panel.lessons.preview.theoryHint') }}</p>
           </div>
         </div>
 
@@ -78,7 +78,7 @@
                 <span class="exercise-number">{{ index + 1 }}</span>
                 <span class="exercise-icon">{{ getMethodIcon(method.method_type) }}</span>
                 <div class="exercise-info">
-                  <span class="exercise-type">{{ getMethodName(method.method_type) }}</span>
+                  <span class="exercise-type">{{ getMethodName(method.method_type, t) }}</span>
                   <span class="exercise-title">{{ cleanMethodTitle(method.method_name, method.method_type) }}</span>
                 </div>
                 <span class="method-badge">LM{{ String(method.method_type).padStart(2, '0') }}</span>
@@ -87,19 +87,17 @@
 
               <!-- Expanded Content -->
               <div v-if="expandedMethod === method.method_id" class="exercise-content">
-                <!-- Render based on method type (description is AI-prompt, skip it) -->
-                <component
-                  :is="getMethodRenderer(method.method_type)"
+                <LessonMethodRenderer
+                  :method-type="method.method_type"
                   :config="method.config"
-                  :method="method"
                 />
               </div>
             </div>
           </div>
           <div v-else class="empty-state">
             <span class="empty-icon">📭</span>
-            <p>{{ $t('lessonPreview.noMethods') }}</p>
-            <p class="empty-hint">{{ $t('lessonPreview.methodsCreatedInStudio') }}</p>
+            <p>{{ $t('panel.lessons.preview.noMethods') }}</p>
+            <p class="empty-hint">{{ $t('panel.lessons.preview.methodsCreatedInStudio') }}</p>
           </div>
         </div>
 
@@ -107,28 +105,28 @@
         <div v-if="activeTab === 'info'" class="tab-content">
           <div class="info-grid">
             <div class="info-card">
-              <span class="info-label">{{ $t('lessonPreview.lesson') }}</span>
+              <span class="info-label">{{ $t('panel.lessons.preview.lesson') }}</span>
               <span class="info-value">{{ lessonData?.title }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">{{ $t('lessonPreview.type') }}</span>
+              <span class="info-label">{{ $t('panel.lessons.preview.type') }}</span>
               <span class="info-value">{{ lessonData?.lesson_type || 'text' }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">{{ $t('lessonPreview.duration') }}</span>
-              <span class="info-value">{{ lessonData?.duration_minutes || 0 }} {{ $t('lessonPreview.min') }}</span>
+              <span class="info-label">{{ $t('panel.lessons.preview.duration') }}</span>
+              <span class="info-value">{{ lessonData?.duration_minutes || 0 }} {{ $t('panel.lessons.preview.min') }}</span>
             </div>
             <div class="info-card">
-              <span class="info-label">{{ $t('lessonPreview.learningMethods') }}</span>
+              <span class="info-label">{{ $t('panel.lessons.preview.learningMethods') }}</span>
               <span class="info-value">{{ methods.length }}</span>
             </div>
             <div v-if="lessonData?.chapter_id" class="info-card full-width">
-              <span class="info-label">{{ $t('lessonPreview.chapter') }}</span>
+              <span class="info-label">{{ $t('panel.lessons.preview.chapter') }}</span>
               <span class="info-value">{{ chapterTitle }}</span>
             </div>
             <div v-if="lessonData?.created_at" class="info-card">
-              <span class="info-label">{{ $t('lessonPreview.created') }}</span>
-              <span class="info-value">{{ formatDate(lessonData.created_at) }}</span>
+              <span class="info-label">{{ $t('panel.lessons.preview.created') }}</span>
+              <span class="info-value">{{ formatDate(lessonData.created_at, dateLocale) }}</span>
             </div>
           </div>
         </div>
@@ -141,17 +139,26 @@
         <span v-if="chapterTitle">📖 {{ chapterTitle }}</span>
       </div>
       <div class="footer-actions">
-        <button class="action-btn secondary" @click="$emit('close')">{{ $t('lessonPreview.close') }}</button>
+        <button class="action-btn secondary" @click="$emit('close')">{{ $t('panel.lessons.preview.close') }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, h } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import http from '@/infrastructure/api/http'
+import LessonMethodRenderer from './views/LessonMethodRenderer.vue'
+import {
+  useLessonPreview,
+  getMethodIcon,
+  getMethodName,
+  cleanMethodTitle,
+  formatTheoryContent,
+  formatDate,
+  buildPreviewTabs
+} from './composables'
 
 const { t, locale } = useI18n()
 
@@ -162,256 +169,20 @@ interface Props {
 const props = defineProps<Props>()
 defineEmits<{ (e: 'close'): void }>()
 
-// State
-const loading = ref(true)
-const error = ref<string | null>(null)
-const lessonData = ref<any>(null)
-const methods = ref<any[]>([])
-const activeTab = ref('exercises')
-const expandedMethod = ref<string | null>(null)
+const payload = computed(() => props.window.payload)
 
-// Get lesson ID from payload
-const lessonId = computed(() => {
-  const payload = props.window.payload
-  return payload?.lesson?.lesson_id || payload?.lesson?.id || payload?.lessonId
-})
+const {
+  loading, error, lessonData, methods,
+  activeTab, expandedMethod, lessonPosition,
+  chapterTitle, loadLessonData, toggleMethod
+} = useLessonPreview(payload)
 
-const lessonPosition = computed(() => props.window.payload?.position || '1')
-const chapterTitle = computed(() => props.window.payload?.chapter?.title || lessonData.value?.chapter_title || '')
+const tabs = computed(() => buildPreviewTabs(methods.value.length, t))
 
-// Tabs
-const tabs = computed(() => [
-  { id: 'exercises', label: t('lessonPreview.exercises'), icon: '📝', count: methods.value.length },
-  { id: 'theory', label: t('lessonPreview.theory'), icon: '📖' },
-  { id: 'info', label: t('lessonPreview.info'), icon: 'ℹ️' }
-])
+const LOCALE_MAP: Record<string, string> = { de: 'de-DE', en: 'en-US', pl: 'pl-PL' }
+const dateLocale = computed(() => LOCALE_MAP[locale.value] || 'de-DE')
 
-// Load data on mount
-onMounted(() => {
-  loadLessonData()
-})
-
-async function loadLessonData() {
-  loading.value = true
-  error.value = null
-
-  try {
-    // If we have a real lesson ID, load from API
-    if (lessonId.value && !lessonId.value.startsWith('draft-')) {
-      // Load lesson details
-      const lessonResponse = await http.get(`/lessons/${lessonId.value}`)
-      if (lessonResponse.data.success) {
-        lessonData.value = lessonResponse.data.lesson
-      }
-
-      // Load learning methods
-      const methodsResponse = await http.get(`/lessons/${lessonId.value}/methods`)
-      if (methodsResponse.data.success) {
-        methods.value = methodsResponse.data.methods || []
-      }
-    } else {
-      // Use data from payload (draft mode)
-      const payload = props.window.payload?.lesson
-      if (payload) {
-        lessonData.value = {
-          title: payload.title,
-          description: payload.description,
-          content: payload.content,
-          duration_minutes: payload.duration_minutes,
-          lesson_type: payload.lesson_type || 'text'
-        }
-        methods.value = payload.methods?.map((m: any) => ({
-          method_id: m.id || `draft-${Math.random()}`,
-          method_type: m.type,
-          method_name: m.title,
-          description: m.description,
-          config: m.config || m.data || {}
-        })) || []
-      }
-    }
-  } catch (err: any) {
-    console.error('Failed to load lesson:', err)
-    error.value = err.response?.data?.error || t('lessonPreview.loadError')
-  } finally {
-    loading.value = false
-  }
-}
-
-function toggleMethod(methodId: string) {
-  expandedMethod.value = expandedMethod.value === methodId ? null : methodId
-}
-
-// Method Icons & Names
-const methodIcons: Record<number, string> = {
-  0: '📖', 1: '📝', 2: '🔄', 3: '📊', 4: '💭', 6: '🎯',
-  8: '✏️', 9: '💻', 10: '🌐', 11: '🔧', 12: '🔢', 13: '🃏',
-  14: '🎯', 15: '📝', 16: '🔍', 17: '🛠️', 18: '✍️', 19: '📋',
-  20: '📑', 21: '⏱️', 22: '❓', 23: '✅', 24: '🎤', 25: '🏆',
-  26: '👥', 27: '🤝', 28: '📊', 29: '📓', 30: '📁', 31: '🎓', 32: '🔄'
-}
-
-// Method names are loaded from i18n: windows.lessonPreview.methodNames.lmN
-
-function getMethodIcon(type: number | string | undefined): string {
-  if (type === undefined || type === null) return '📚'
-  const numType = typeof type === 'string' ? parseInt(type, 10) : type
-  return isNaN(numType) ? '📚' : (methodIcons[numType] || '📚')
-}
-
-function getMethodName(type: number | string | undefined): string {
-  if (type === undefined || type === null) return t('lessonPreview.methodDefault')
-  const numType = typeof type === 'string' ? parseInt(type, 10) : type
-  if (isNaN(numType)) return t('lessonPreview.methodDefault')
-  const key = `lessonPreview.methodNames.lm${numType}`
-  const name = t(key)
-  // If key not found (returns the key itself), use fallback with ID
-  return name === key ? t('lessonPreview.methodWithId', { id: numType }) : name
-}
-
-function cleanMethodTitle(title: string | undefined, methodType: number | string | undefined): string {
-  if (!title) return t('lessonPreview.task')
-  // Remove "LM12:", "LM22:", etc. prefix from title
-  const numType = typeof methodType === 'string' ? parseInt(methodType, 10) : methodType
-  if (numType !== undefined && !isNaN(numType)) {
-    const prefix = `LM${String(numType).padStart(2, '0')}:`
-    if (title.startsWith(prefix)) {
-      return title.substring(prefix.length).trim()
-    }
-  }
-  return title
-}
-
-function formatContent(content: string): string {
-  if (!content) return ''
-  // Basic markdown-like formatting
-  return content
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-}
-
-function formatDate(dateStr: string): string {
-  const localeMap: Record<string, string> = { de: 'de-DE', en: 'en-US', pl: 'pl-PL' }
-  return new Date(dateStr).toLocaleDateString(localeMap[locale.value] || 'de-DE', {
-    day: '2-digit', month: '2-digit', year: 'numeric'
-  })
-}
-
-// Dynamic method renderer component
-function getMethodRenderer(methodType: number | string) {
-  const type = typeof methodType === 'string' ? parseInt(methodType, 10) : methodType
-
-  // Return a simple renderer based on method type
-  return {
-    props: ['config', 'method'],
-    setup(props: any) {
-      let config = props.config || {}
-
-      // Handle raw_content (sometimes data is nested as string)
-      if (config.raw_content && typeof config.raw_content === 'string') {
-        try {
-          config = { ...config, ...JSON.parse(config.raw_content) }
-        } catch { /* ignore parse errors */ }
-      }
-
-      // LM12 - Mathe-Interaktiv (uses "steps" in DB, not "exercises")
-      if (type === 12) {
-        const items = config.steps || config.exercises || []
-        return () => h('div', { class: 'method-preview' }, [
-          items.length > 0 ? [
-            h('h4', t('lessonPreview.stepCount', { count: items.length })),
-            h('div', { class: 'exercises-preview' },
-              items.slice(0, 3).map((step: any, i: number) =>
-                h('div', { class: 'exercise-item' }, [
-                  h('span', { class: 'exercise-label' }, t('lessonPreview.stepLabel', { n: step.id || i + 1 })),
-                  h('span', { class: 'exercise-text' },
-                    step.prompt?.substring(0, 150) + (step.prompt?.length > 150 ? '...' : '') ||
-                    step.question || step.text || t('lessonPreview.task')
-                  )
-                ])
-              )
-            ),
-            items.length > 3 ?
-              h('p', { class: 'more-hint' }, t('lessonPreview.moreSteps', { count: items.length - 3 })) : null
-          ] : h('p', { class: 'no-content' }, t('lessonPreview.noStepsConfigured'))
-        ])
-      }
-
-      // LM22 - Quiz (data can be array directly or {questions: [...]})
-      if (type === 22) {
-        const questions = Array.isArray(config) ? config : (config.questions || [])
-        return () => h('div', { class: 'method-preview' }, [
-          questions.length > 0 ? [
-            h('h4', t('lessonPreview.questionCount', { count: questions.length })),
-            h('div', { class: 'questions-preview' },
-              questions.slice(0, 3).map((q: any, i: number) =>
-                h('div', { class: 'question-item' }, [
-                  h('span', { class: 'question-label' }, t('lessonPreview.questionLabel', { n: i + 1 })),
-                  h('span', { class: 'question-text' }, q.question || q.text),
-                  q.options ? h('div', { class: 'answers' },
-                    q.options.map((opt: string, idx: number) => h('div', {
-                      class: ['answer', q.correct_index === idx ? 'correct' : '']
-                    }, opt))
-                  ) : q.answers ? h('div', { class: 'answers' },
-                    q.answers.map((a: any) => h('div', {
-                      class: ['answer', a.correct ? 'correct' : '']
-                    }, a.text || a))
-                  ) : null
-                ])
-              )
-            ),
-            questions.length > 3 ?
-              h('p', { class: 'more-hint' }, t('lessonPreview.moreQuestions', { count: questions.length - 3 })) : null
-          ] : h('p', { class: 'no-content' }, t('lessonPreview.noQuestionsConfigured'))
-        ])
-      }
-
-      // LM13 - Flashcards (data can be array directly or {cards: [...]})
-      if (type === 13) {
-        const cards = Array.isArray(config) ? config : (config.cards || [])
-        return () => h('div', { class: 'method-preview' }, [
-          cards.length > 0 ? [
-            h('h4', t('lessonPreview.cardCount', { count: cards.length })),
-            h('div', { class: 'cards-preview' },
-              cards.slice(0, 3).map((card: any, i: number) =>
-                h('div', { class: 'card-item' }, [
-                  h('div', { class: 'card-front' }, [t('lessonPreview.cardFront') + ' ', (card.front || card.question || t('lessonPreview.cardN', { n: i + 1 }))?.substring(0, 80)]),
-                  h('div', { class: 'card-back' }, [t('lessonPreview.cardBack') + ' ', (card.back || card.answer || '')?.substring(0, 100) + '...'])
-                ])
-              )
-            ),
-            cards.length > 3 ?
-              h('p', { class: 'more-hint' }, t('lessonPreview.moreCards', { count: cards.length - 3 })) : null
-          ] : h('p', { class: 'no-content' }, t('lessonPreview.noCardsConfigured'))
-        ])
-      }
-
-      // Default renderer - show data summary
-      const dataKeys = Array.isArray(config) ? ['items'] : Object.keys(config)
-      const itemCount = Array.isArray(config) ? config.length :
-        (config.steps?.length || config.questions?.length || config.cards?.length || config.items?.length || 0)
-
-      return () => h('div', { class: 'method-preview' }, [
-        itemCount > 0 ? [
-          h('h4', t('lessonPreview.elementCount', { count: itemCount })),
-          h('p', { class: 'data-hint' }, t('lessonPreview.dataFields', { fields: dataKeys.join(', ') })),
-          h('details', { class: 'config-details' }, [
-            h('summary', t('lessonPreview.showJsonData')),
-            h('pre', { class: 'config-json' }, JSON.stringify(config, null, 2).substring(0, 1000))
-          ])
-        ] : dataKeys.length > 0 && !Array.isArray(config) ? [
-          h('h4', t('lessonPreview.configuration')),
-          h('p', { class: 'data-hint' }, t('lessonPreview.fields', { fields: dataKeys.join(', ') })),
-          h('details', { class: 'config-details' }, [
-            h('summary', t('lessonPreview.showJsonData')),
-            h('pre', { class: 'config-json' }, JSON.stringify(config, null, 2).substring(0, 1000))
-          ])
-        ] : h('p', { class: 'no-content' }, t('lessonPreview.noConfiguration'))
-      ])
-    }
-  }
-}
+onMounted(() => { loadLessonData() })
 </script>
 
 <style scoped>
@@ -478,9 +249,7 @@ function getMethodRenderer(methodType: number | string) {
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .error-icon { font-size: 2rem; }
 .retry-btn {
@@ -533,15 +302,8 @@ function getMethodRenderer(methodType: number | string) {
 }
 
 /* Content */
-.preview-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-}
-
-.tab-content {
-  height: 100%;
-}
+.preview-content { flex: 1; overflow-y: auto; padding: 1rem; }
+.tab-content { height: 100%; }
 
 /* Empty State */
 .empty-state {
@@ -565,21 +327,12 @@ function getMethodRenderer(methodType: number | string) {
   border: 1px solid var(--color-border);
 }
 
-.content-block {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--color-text-primary);
-}
-
+.content-block { font-size: 0.875rem; line-height: 1.6; color: var(--color-text-primary); }
 .content-block p { margin: 0 0 1rem 0; }
 .content-block p:last-child { margin-bottom: 0; }
 
 /* Exercises List */
-.exercises-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
+.exercises-list { display: flex; flex-direction: column; gap: 0.75rem; }
 
 .exercise-card {
   background: var(--color-surface);
@@ -589,9 +342,7 @@ function getMethodRenderer(methodType: number | string) {
   transition: all 0.15s;
 }
 
-.exercise-card.expanded {
-  border-color: var(--color-primary);
-}
+.exercise-card.expanded { border-color: var(--color-primary); }
 
 .exercise-header {
   display: flex;
@@ -602,9 +353,7 @@ function getMethodRenderer(methodType: number | string) {
   transition: background 0.15s;
 }
 
-.exercise-header:hover {
-  background: var(--color-surface-secondary);
-}
+.exercise-header:hover { background: var(--color-surface-secondary); }
 
 .exercise-number {
   width: 1.75rem;
@@ -619,14 +368,8 @@ function getMethodRenderer(methodType: number | string) {
   font-weight: 600;
 }
 
-.exercise-icon {
-  font-size: 1.25rem;
-}
-
-.exercise-info {
-  flex: 1;
-  min-width: 0;
-}
+.exercise-icon { font-size: 1.25rem; }
+.exercise-info { flex: 1; min-width: 0; }
 
 .exercise-type {
   display: block;
@@ -651,156 +394,13 @@ function getMethodRenderer(methodType: number | string) {
   font-weight: 600;
 }
 
-.expand-icon {
-  font-size: 0.625rem;
-  color: var(--color-text-tertiary);
-}
+.expand-icon { font-size: 0.625rem; color: var(--color-text-tertiary); }
 
 /* Exercise Content */
 .exercise-content {
   padding: 1rem;
   border-top: 1px solid var(--color-border);
   background: var(--color-surface-secondary);
-}
-
-.content-section {
-  margin-bottom: 1rem;
-}
-
-.content-section h4 {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin: 0 0 0.5rem 0;
-  text-transform: uppercase;
-}
-
-.content-section p {
-  font-size: 0.8125rem;
-  margin: 0;
-  color: var(--color-text-primary);
-}
-
-/* Method Preview Styles */
-:deep(.method-preview) {
-  font-size: 0.8125rem;
-}
-
-:deep(.method-preview h4) {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin: 0 0 0.5rem 0;
-  text-transform: uppercase;
-}
-
-:deep(.exercises-preview),
-:deep(.questions-preview),
-:deep(.cards-preview) {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-:deep(.exercise-item),
-:deep(.question-item),
-:deep(.card-item) {
-  padding: 0.75rem;
-  background: var(--color-surface);
-  border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
-}
-
-:deep(.exercise-label),
-:deep(.question-label) {
-  display: block;
-  font-size: 0.6875rem;
-  color: var(--color-text-tertiary);
-  margin-bottom: 0.25rem;
-}
-
-:deep(.exercise-text),
-:deep(.question-text) {
-  display: block;
-  color: var(--color-text-primary);
-}
-
-:deep(.answers) {
-  margin-top: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-:deep(.answer) {
-  padding: 0.375rem 0.5rem;
-  background: var(--color-surface-secondary);
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-}
-
-:deep(.answer.correct) {
-  background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
-}
-
-:deep(.card-front),
-:deep(.card-back) {
-  padding: 0.25rem 0;
-  font-size: 0.75rem;
-}
-
-:deep(.card-front) {
-  color: var(--color-text-primary);
-  font-weight: 500;
-}
-
-:deep(.card-back) {
-  color: var(--color-text-secondary);
-}
-
-:deep(.more-hint) {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  text-align: center;
-  margin-top: 0.5rem;
-}
-
-:deep(.no-content) {
-  color: var(--color-text-tertiary);
-  font-style: italic;
-}
-
-:deep(.config-json) {
-  padding: 0.75rem;
-  background: var(--color-surface);
-  border-radius: 0.5rem;
-  font-size: 0.6875rem;
-  font-family: monospace;
-  overflow-x: auto;
-  max-height: 200px;
-  color: var(--color-text-secondary);
-}
-
-:deep(.data-hint) {
-  font-size: 0.6875rem;
-  color: var(--color-text-tertiary);
-  margin: 0.25rem 0;
-}
-
-:deep(.config-details) {
-  margin-top: 0.5rem;
-}
-
-:deep(.config-details summary) {
-  font-size: 0.75rem;
-  color: var(--color-primary);
-  cursor: pointer;
-  user-select: none;
-}
-
-:deep(.config-details summary:hover) {
-  text-decoration: underline;
 }
 
 /* Info Grid */
@@ -817,9 +417,7 @@ function getMethodRenderer(methodType: number | string) {
   padding: 0.75rem;
 }
 
-.info-card.full-width {
-  grid-column: span 2;
-}
+.info-card.full-width { grid-column: span 2; }
 
 .info-label {
   display: block;
@@ -829,11 +427,7 @@ function getMethodRenderer(methodType: number | string) {
   text-transform: uppercase;
 }
 
-.info-value {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
+.info-value { font-size: 0.875rem; font-weight: 500; color: var(--color-text-primary); }
 
 /* Footer */
 .preview-footer {
@@ -845,15 +439,8 @@ function getMethodRenderer(methodType: number | string) {
   border-top: 1px solid var(--color-border);
 }
 
-.footer-info {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-}
-
-.footer-actions {
-  display: flex;
-  gap: 0.5rem;
-}
+.footer-info { font-size: 0.75rem; color: var(--color-text-secondary); }
+.footer-actions { display: flex; gap: 0.5rem; }
 
 .action-btn {
   padding: 0.5rem 1rem;
@@ -870,7 +457,5 @@ function getMethodRenderer(methodType: number | string) {
   color: var(--color-text-primary);
 }
 
-.action-btn.secondary:hover {
-  background: var(--color-surface);
-}
+.action-btn.secondary:hover { background: var(--color-surface); }
 </style>

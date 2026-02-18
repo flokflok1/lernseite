@@ -10,6 +10,8 @@ export { default as LessonExplanationView } from './LessonExplanationView.vue'
 // Sub-Components
 export { default as ExplanationList } from './ExplanationList.vue'
 export { default as ExplanationViewer } from './ExplanationViewer.vue'
+export { default as ExplanationCreateForm } from './ExplanationCreateForm.vue'
+export { default as ExplanationStepCard } from './ExplanationStepCard.vue'
 export { default as ExplanationSettings } from './ExplanationSettings.vue'
 
 // Composables

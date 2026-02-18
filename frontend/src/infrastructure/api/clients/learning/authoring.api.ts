@@ -11,207 +11,52 @@
  */
 
 import http from '@/infrastructure/api/http'
-import type { LMGroupAPIInfo, LMGroupsAPIResponse } from './types'
+import type {
+  ActionCategory,
+  ActionType,
+  AuthoringAction,
+  ActionContext,
+  ActionVariables,
+  EntityType,
+  OutputFormat,
+  ExecuteActionRequest,
+  ExecuteActionResponse,
+  CreateActionRequest,
+  UpdateActionRequest,
+  ActionUsageStats,
+  PopularAction,
+  LMGroupAPIInfo,
+  LMGroupsAPIResponse
+} from './types'
 
 // ============================================================================
-// Types & Interfaces
+// Re-export types for backwards compatibility
 // ============================================================================
 
-export type ActionCategory = 'course_builder' | 'chat' | 'chapter' | 'lesson' | 'method' | 'content'
-export type ActionType = 'chat' | 'generate' | 'edit' | 'delete' | 'preview'
-export type OutputFormat = 'text' | 'json' | 'markdown' | 'html'
-export type EntityType = 'course' | 'chapter' | 'lesson' | 'method'
-
-export interface AuthoringAction {
-  action_id: string
-  action_key: string
-  category: ActionCategory
-  label: string
-  description?: string
-  icon?: string
-  color?: string
-  prompt_template: string
-  mode?: string
-  context_entity?: EntityType
-  requires_context?: Record<string, boolean>
-  action_type: ActionType
-  requires_confirmation: boolean
-  confirmation_label?: string
-  output_format?: OutputFormat
-  output_entity?: string
-  lm_types?: number[]
-  is_premium: boolean
-  order_index: number
-  is_system: boolean
+export type {
+  ActionCategory,
+  ActionType,
+  OutputFormat,
+  EntityType,
+  AuthoringAction,
+  ActionContext,
+  ActionVariables,
+  ExecuteActionRequest,
+  ExecuteActionResponse,
+  CreateActionRequest,
+  UpdateActionRequest,
+  ActionUsageStats,
+  PopularAction,
+  LMGroupAPIInfo,
+  LMGroupsAPIResponse
 }
 
-export interface ActionCategory {
-  category: string
-  action_count: number
-  system_count?: number
-}
-
-export interface ActionContext {
-  course_id?: string
-  chapter_id?: string
-  lesson_id?: string
-  method_id?: string
-  selected_content?: string
-  chapter_title?: string
-  lesson_title?: string
-  method_title?: string
-  [key: string]: unknown
-}
-
-export interface ActionVariables {
-  topic?: string
-  difficulty?: string
-  target_audience?: string
-  [key: string]: unknown
-}
-
-export interface ExecuteActionRequest {
-  action_id?: string
-  action_key?: string
-  course_id?: string
-  context?: ActionContext
-  variables?: ActionVariables
-  session_id?: string
-}
-
-export interface ExecuteActionResponse {
-  session_id: string
-  response: string
-  generated_content?: Record<string, unknown>
-  has_content: boolean
-  requires_confirmation: boolean
-  output_entity?: string
-  action_id: string
-  action_key: string
-  tokens_used?: number
-  cost_eur?: number
-}
-
-export interface CreateActionRequest {
-  action_key: string
-  category: ActionCategory
-  label: string
-  description?: string
-  icon?: string
-  color?: string
-  prompt_template: string
-  mode?: string
-  context_entity?: EntityType
-  requires_context?: Record<string, boolean>
-  action_type?: ActionType
-  requires_confirmation?: boolean
-  confirmation_label?: string
-  output_format?: OutputFormat
-  output_entity?: string
-  lm_types?: number[]
-  roles_allowed?: string[]
-  is_premium?: boolean
-  order_index?: number
-}
-
-export interface UpdateActionRequest {
-  category?: ActionCategory
-  label?: string
-  description?: string
-  icon?: string
-  color?: string
-  prompt_template?: string
-  mode?: string
-  context_entity?: EntityType
-  requires_context?: Record<string, boolean>
-  action_type?: ActionType
-  requires_confirmation?: boolean
-  confirmation_label?: string
-  output_format?: OutputFormat
-  output_entity?: string
-  lm_types?: number[]
-  roles_allowed?: string[]
-  is_premium?: boolean
-  order_index?: number
-  is_active?: boolean
-}
-
-export interface ActionUsageStats {
-  total_uses: number
-  successful_uses: number
-  confirmed_uses?: number
-  total_tokens?: number
-  total_cost?: number
-  avg_response_time?: number
-  actions_used?: number
-  unique_users?: number
-  popular_actions?: PopularAction[]
-}
-
-export interface PopularAction {
-  action_id: string
-  action_key: string
-  category: string
-  label: string
-  icon?: string
-  usage_count: number
-  success_count: number
-}
+// Re-export ActionCategory interface under a distinct name to avoid collision
+// with the ActionCategory type alias
+export type { ActionCategoryInfo as ActionCategory_Info } from './types'
 
 // ============================================================================
-// LM Suggestions Types
-// ============================================================================
-
-export type LMGroup = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
-export type LMMethodType = 'explanatory' | 'practice' | 'exam' | 'pro' | 'it' | 'collaborative'
-export type KIUsage = 'intensive' | 'medium' | 'optional'
-
-export interface LMSuggestion {
-  lm_id: number
-  name: string
-  group: LMGroup
-  method_type: LMMethodType
-  description: string
-  reason: string  // KI-generierte Begründung
-  priority: number
-  icon: string
-  ki_usage: KIUsage
-}
-
-export interface LMSuggestionsRequest {
-  lesson_title: string
-  lesson_content?: string
-  chapter_title?: string
-  course_title?: string
-  existing_lm_ids?: number[]
-  max_suggestions?: number
-}
-
-export interface LMSuggestionsResponse {
-  suggestions: LMSuggestion[]
-  lesson_title: string
-  existing_count: number
-  ai_generated?: boolean
-}
-
-export interface LMMethod {
-  lm_id: number
-  name: string
-  description: string
-  icon: string
-  ki_usage: KIUsage
-}
-
-export interface LMGroup {
-  name: string
-  icon: string
-  methods: LMMethod[]
-}
-
-export type LMGroupsResponse = Record<string, LMGroup>
-
-// ============================================================================
-// API Functions
+// Actions API Functions
 // ============================================================================
 
 /**
@@ -294,131 +139,6 @@ export async function getActionStats(actionId?: string, days: number = 30): Prom
 }
 
 // ============================================================================
-// LM Suggestions API Functions
-// ============================================================================
-
-/**
- * Get AI-powered learning method suggestions for a lesson.
- *
- * The AI analyzes the lesson context and suggests appropriate
- * learning methods from the 31 available types.
- */
-export async function getLMSuggestions(request: LMSuggestionsRequest): Promise<LMSuggestionsResponse> {
-  const response = await http.post('/course-editor/ai/lm-suggestions', request)
-  return response.data.data
-}
-
-/**
- * Get AI-powered learning method suggestions (async version).
- * Uses the AI to analyze context - may take longer but provides intelligent suggestions.
- */
-export async function getLMSuggestionsAI(request: LMSuggestionsRequest): Promise<LMSuggestionsResponse> {
-  const response = await http.post('/course-editor/ai/lm-suggestions/async', request)
-  return response.data.data
-}
-
-/**
- * Get all 31 learning methods grouped by category.
- * For manual selection when user wants to choose themselves.
- */
-export async function getAllLearningMethods(): Promise<LMGroupsResponse> {
-  const response = await http.get('/course-editor/ai/learning-methods')
-  return response.data.data
-}
-
-/**
- * Get all learning method groups with tier information from database.
- *
- * This is the database-driven endpoint that returns:
- * - group_code (A, B, C, ...)
- * - name (Erklärend, Praxis, Prüfung, ...)
- * - description
- * - icon/emoji
- * - tier (basic, premium, enterprise)
- * - sort_order
- * - is_active
- *
- * REPLACES hardcoded getLMGroupName() and getLMGroupIcon() helper functions.
- * This endpoint serves as the single source of truth for group metadata.
- *
- * @returns LMGroupInfo[] - Array of all active learning method groups with tier info
- *
- * @example
- * const groups = await getLMGroups()
- * // Returns:
- * // [
- * //   {
- * //     group_code: 'A',
- * //     name: 'Erklärend',
- * //     description: 'Explanatory methods...',
- * //     icon: '📖',
- * //     tier: 'basic',
- * //     sort_order: 0,
- * //     is_active: true
- * //   },
- * //   ...
- * // ]
- */
-export async function getLMGroups(): Promise<LMGroupAPIInfo[]> {
-  const response = await http.get('/learning-methods/groups')
-  return response.data.data
-}
-
-/**
- * Get display name for LM group
- */
-export function getLMGroupName(group: string): string {
-  const names: Record<string, string> = {
-    'A': 'Erklärend',
-    'B': 'Praxis',
-    'C': 'Prüfung',
-    'D': 'Pro',
-    'E': 'IT',
-    'F': 'Kollaborativ'
-  }
-  return names[group] || group
-}
-
-/**
- * Get icon for LM group
- */
-export function getLMGroupIcon(group: string): string {
-  const icons: Record<string, string> = {
-    'A': '📖',
-    'B': '✏️',
-    'C': '📝',
-    'D': '🎓',
-    'E': '💻',
-    'F': '👥'
-  }
-  return icons[group] || '📋'
-}
-
-/**
- * Get color class for KI usage intensity
- */
-export function getKIUsageColor(usage: KIUsage): string {
-  const colors: Record<KIUsage, string> = {
-    'intensive': 'text-purple-600',
-    'medium': 'text-blue-600',
-    'optional': 'text-gray-600'
-  }
-  return colors[usage] || 'text-gray-600'
-}
-
-/**
- * Get label for KI usage intensity
- */
-export function getKIUsageLabel(usage: KIUsage): string {
-  const labels: Record<KIUsage, string> = {
-    'intensive': 'KI-intensiv',
-    'medium': 'Mittlere KI',
-    'optional': 'KI optional'
-  }
-  return labels[usage] || usage
-}
-
-// ============================================================================
 // Helper Functions
 // ============================================================================
 
@@ -477,11 +197,6 @@ export function getActionTypeColor(actionType: ActionType): string {
   return colors[actionType] || 'gray'
 }
 
-// ============================================================================
-// Type Re-exports
-// ============================================================================
-export type { LMGroupAPIInfo, LMGroupsAPIResponse }
-
 // Export all functions as default
 export default {
   // Actions API
@@ -494,19 +209,9 @@ export default {
   updateAction,
   deleteAction,
   getActionStats,
-  // LM Suggestions API
-  getLMSuggestions,
-  getLMSuggestionsAI,
-  getAllLearningMethods,
-  // LM Groups API (Database-Driven)
-  getLMGroups,
-  // Helper functions (DEPRECATED - use getLMGroups() instead)
+  // Helper functions
   groupActionsByCategory,
   filterActionsByLmType,
   getCategoryIcon,
-  getActionTypeColor,
-  getLMGroupName,
-  getLMGroupIcon,
-  getKIUsageColor,
-  getKIUsageLabel
+  getActionTypeColor
 }

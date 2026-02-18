@@ -5,60 +5,23 @@
 <template>
   <div class="explanation-viewer">
     <!-- Create Form -->
-    <div v-if="showCreateForm" class="create-form">
-      <div class="panel-header">
-        <span class="panel-icon">✨</span>
-        <span class="panel-title">{{ $t('lessonExplanationView.newExplanation') }}</span>
-      </div>
-
-      <div class="form-content">
-        <div class="form-section">
-          <label>{{ $t('lessonExplanationView.styleLabel') }}</label>
-          <select v-model="localStyle" class="form-select">
-            <option value="adhs">{{ $t('lessonExplanationView.styles.adhs') }}</option>
-            <option value="detailed">{{ $t('lessonExplanationView.styles.detailed') }}</option>
-            <option value="short">{{ $t('lessonExplanationView.styles.short') }}</option>
-            <option value="exam_focus">{{ $t('lessonExplanationView.styles.examFocus') }}</option>
-          </select>
-        </div>
-
-        <div class="form-section">
-          <label>{{ $t('lessonExplanationView.voiceLabel') }}</label>
-          <select v-model="localVoice" class="form-select">
-            <option v-for="voice in voices" :key="voice.id" :value="voice.id">
-              {{ voice.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-section">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="localGenerateWithAudio" />
-            {{ $t('lessonExplanationView.generateWithAudio') }}
-          </label>
-        </div>
-
-        <button
-          @click="handleGenerate"
-          class="generate-btn"
-          :disabled="isGenerating"
-        >
-          <span v-if="isGenerating">{{ $t('lessonExplanationView.generating') }}</span>
-          <span v-else>{{ $t('lessonExplanationView.generate') }}</span>
-        </button>
-
-        <button @click="$emit('cancel-create')" class="cancel-btn">
-          {{ $t('lessonExplanationView.cancel') }}
-        </button>
-      </div>
-    </div>
+    <ExplanationCreateForm
+      v-if="showCreateForm"
+      :is-generating="isGenerating"
+      :voices="voices"
+      :selected-voice="selectedVoice"
+      :style="style"
+      :generate-with-audio="generateWithAudio"
+      @generate="$emit('generate', $event)"
+      @cancel-create="$emit('cancel-create')"
+    />
 
     <!-- Explanation View -->
     <div v-else-if="hasExplanation && hasSteps" class="explanation-view">
       <!-- Tutor Header -->
       <div class="tutor-header">
         <div class="tutor-avatar">
-          <span class="avatar-emoji">👨‍🏫</span>
+          <span class="avatar-emoji">&#x1F468;&#x200D;&#x1F3EB;</span>
         </div>
         <div class="tutor-info">
           <span class="tutor-name">
@@ -83,7 +46,7 @@
             <option value="tts-1-hd">TTS-1-HD</option>
           </select>
           <button @click="$emit('toggle-tts', currentStepData?.speech)" class="tts-btn" :class="{ active: ttsEnabled }">
-            {{ ttsEnabled ? '🔊' : '🔇' }}
+            {{ ttsEnabled ? '&#x1F50A;' : '&#x1F507;' }}
           </button>
         </div>
       </div>
@@ -117,47 +80,10 @@
         </div>
 
         <!-- Step Card -->
-        <div class="step-card" v-if="currentStepData">
-          <div class="step-header">
-            <span class="step-badge">
-              {{ $t('lessonExplanationView.stepBadge', { n: currentStep + 1 }) }}
-            </span>
-            <h3 class="step-title">
-              {{ currentStepData.title || $t('lessonExplanationView.stepTitle', { n: currentStep + 1 }) }}
-            </h3>
-          </div>
-
-          <!-- Speech Bubble -->
-          <div class="speech-bubble">
-            <p>{{ currentStepData.speech }}</p>
-          </div>
-
-          <!-- Calculator Hint -->
-          <div v-if="currentStepData.calculator" class="calculator-box">
-            <div class="calc-header">
-              <span class="calc-icon">🔢</span>
-              <span class="calc-label">{{ $t('lessonExplanationView.calculatorInput') }}</span>
-            </div>
-            <div class="calc-input">
-              <code>{{ currentStepData.calculator }}</code>
-            </div>
-            <div v-if="currentStepData.result" class="calc-result">
-              <span class="equals">{{ $t('lessonExplanationView.equals') }}</span>
-              <span class="result-value">{{ currentStepData.result }}</span>
-            </div>
-          </div>
-
-          <!-- Schema Preview (fallback) -->
-          <div v-if="currentStepData.schema && !currentStepData.whiteboardActions?.length" class="schema-preview">
-            <table>
-              <tr v-for="(row, idx) in currentStepData.schema" :key="idx" :class="{ highlighted: row.highlight }">
-                <td class="schema-name">{{ row.name }}</td>
-                <td class="schema-op">{{ row.operator }}</td>
-                <td class="schema-value">{{ row.value }}</td>
-              </tr>
-            </table>
-          </div>
-        </div>
+        <ExplanationStepCard
+          :step="currentStepData"
+          :step-number="currentStep + 1"
+        />
       </div>
 
       <!-- Navigation -->
@@ -182,7 +108,7 @@
 
     <!-- No Selection -->
     <div v-else class="no-selection">
-      <span class="empty-icon">📝</span>
+      <span class="empty-icon">&#x1F4DD;</span>
       <p>{{ $t('lessonExplanationView.noSelection') }}</p>
     </div>
   </div>
@@ -190,12 +116,14 @@
 
 <script setup lang="ts">
 /**
- * ExplanationViewer - Main view for explanation steps
+ * ExplanationViewer - Main view for explanation steps.
+ * Orchestrates create form, step display, and navigation.
  */
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { LessonExplanation, TeachingStep } from '@/application/composables/learning/useTheoryManagement'
+import ExplanationCreateForm from './ExplanationCreateForm.vue'
+import ExplanationStepCard from './ExplanationStepCard.vue'
 
-// Props
 interface Voice {
   id: string
   name: string
@@ -238,7 +166,6 @@ const props = withDefaults(defineProps<Props>(), {
   generateWithAudio: false
 })
 
-// Emits
 const emit = defineEmits<{
   (e: 'generate', options: { style: string; voice: string; generateWithAudio: boolean }): void
   (e: 'cancel-create'): void
@@ -251,11 +178,6 @@ const emit = defineEmits<{
   (e: 'update:selectedModel', value: string): void
 }>()
 
-// Local state for create form
-const localStyle = ref(props.style)
-const localVoice = ref(props.selectedVoice)
-const localGenerateWithAudio = ref(props.generateWithAudio)
-
 // Local state for TTS controls
 const localSelectedVoice = ref(props.selectedVoice)
 const localSelectedModel = ref(props.selectedModel)
@@ -264,18 +186,8 @@ const localSelectedModel = ref(props.selectedModel)
 const hasExplanation = computed(() => props.explanation !== null)
 const hasSteps = computed(() => props.stepsCount > 0)
 
-// Methods
-function handleGenerate(): void {
-  emit('generate', {
-    style: localStyle.value,
-    voice: localVoice.value,
-    generateWithAudio: localGenerateWithAudio.value
-  })
-}
-
-// Watchers
+// Watchers - sync props to local state
 watch(() => props.selectedVoice, (val) => {
-  localVoice.value = val
   localSelectedVoice.value = val
 })
 
@@ -283,6 +195,7 @@ watch(() => props.selectedModel, (val) => {
   localSelectedModel.value = val
 })
 
+// Watchers - emit changes from local state
 watch(localSelectedVoice, (val) => {
   emit('update:selectedVoice', val)
 })
@@ -292,114 +205,12 @@ watch(localSelectedModel, (val) => {
 })
 </script>
 
-<script lang="ts">
-import { computed } from 'vue'
-</script>
-
 <style scoped>
 .explanation-viewer {
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
   min-height: 0;
-}
-
-/* Create Form */
-.create-form {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface-secondary);
-}
-
-.panel-icon {
-  font-size: 1rem;
-}
-
-.panel-title {
-  font-weight: 600;
-  font-size: 0.875rem;
-  flex: 1;
-}
-
-.form-content {
-  flex: 1;
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-
-.form-section {
-  margin-bottom: 1.25rem;
-}
-
-.form-section label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.form-select {
-  width: 100%;
-  padding: 0.625rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background: var(--color-surface);
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.checkbox-label input {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.generate-btn {
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.generate-btn:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.generate-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.cancel-btn {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--color-surface-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  cursor: pointer;
 }
 
 /* Explanation View */
@@ -561,121 +372,6 @@ import { computed } from 'vue'
 
 .whiteboard-container.animating {
   border: 2px solid var(--color-primary);
-}
-
-/* Step Card */
-.step-card {
-  background: var(--color-surface-secondary);
-  border-radius: 0.5rem;
-  padding: 1.25rem;
-}
-
-.step-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.step-badge {
-  padding: 0.25rem 0.625rem;
-  background: var(--color-primary);
-  color: white;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.step-title {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.speech-bubble {
-  background: white;
-  color: #1a202c;
-  padding: 1rem 1.25rem;
-  border-radius: 1rem;
-  position: relative;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.speech-bubble p {
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* Calculator */
-.calculator-box {
-  background: rgba(59, 130, 246, 0.1);
-  border-left: 3px solid #3b82f6;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
-}
-
-.calc-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #3b82f6;
-}
-
-.calc-input code {
-  display: block;
-  background: rgba(0,0,0,0.05);
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
-  font-family: 'Courier New', monospace;
-  margin-bottom: 0.5rem;
-}
-
-.calc-result {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-}
-
-.equals {
-  color: #3b82f6;
-}
-
-.result-value {
-  font-size: 1.125rem;
-}
-
-/* Schema */
-.schema-preview table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.schema-preview tr {
-  border-bottom: 1px solid var(--color-border);
-}
-
-.schema-preview tr.highlighted {
-  background: rgba(var(--color-primary-rgb), 0.1);
-}
-
-.schema-preview td {
-  padding: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.schema-op {
-  text-align: center;
-  color: var(--color-text-tertiary);
-}
-
-.schema-value {
-  text-align: right;
-  font-weight: 500;
 }
 
 /* Navigation */

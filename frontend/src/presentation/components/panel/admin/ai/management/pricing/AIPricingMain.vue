@@ -1,7 +1,7 @@
 <!--
-  AdminAIPricingWindow.vue
+  AIPricingMain.vue
 
-  Desktop window for AI model pricing management
+  Main component for AI model pricing management.
   Features:
   - Table of all AI models with pricing columns
   - Edit both Einkaufspreis (cost) AND Verkaufspreis (price)
@@ -35,7 +35,7 @@
           {{ $t('aiPricing.applyMargin') }} ({{ selectedIds.length }})
         </button>
         <button @click="loadPricing" class="action-btn" :disabled="loading">
-          🔄 {{ $t('common.refresh') }}
+          {{ $t('common.refresh') }}
         </button>
       </div>
     </div>
@@ -92,71 +92,13 @@
     />
 
     <!-- Margin Modal -->
-    <div v-if="showMarginModal" class="modal-overlay" @click.self="showMarginModal = false">
-      <div class="modal-content margin-modal">
-        <div class="modal-header">
-          <h3>{{ $t('aiPricing.applyMarginTitle') }}</h3>
-          <button @click="showMarginModal = false" class="close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p class="modal-description">
-            {{ $t('aiPricing.marginDescription', { count: selectedIds.length }) }}
-          </p>
-
-          <div class="form-group">
-            <label>{{ $t('aiPricing.marginPercent') }}</label>
-            <div class="margin-input-row">
-              <input
-                v-model.number="marginPercent"
-                type="number"
-                step="0.1"
-                min="0"
-                max="1000"
-                class="form-input"
-              />
-              <span class="unit">%</span>
-            </div>
-            <p class="form-hint">
-              {{ $t('aiPricing.marginFormula') }}: price = cost × (1 + {{ marginPercent }}%)
-            </p>
-          </div>
-
-          <div class="form-group">
-            <label>{{ $t('aiPricing.applyTo') }}</label>
-            <div class="radio-group">
-              <label class="radio-option">
-                <input type="radio" v-model="marginApplyTo" value="both" />
-                {{ $t('aiPricing.both') }}
-              </label>
-              <label class="radio-option">
-                <input type="radio" v-model="marginApplyTo" value="input" />
-                {{ $t('aiPricing.inputOnly') }}
-              </label>
-              <label class="radio-option">
-                <input type="radio" v-model="marginApplyTo" value="output" />
-                {{ $t('aiPricing.outputOnly') }}
-              </label>
-            </div>
-          </div>
-
-          <div class="preview-box">
-            <h4>{{ $t('aiPricing.preview') }}</h4>
-            <p>
-              {{ $t('aiPricing.example') }}: $0.01 × 1.{{ marginPercent.toString().padStart(2, '0') }}
-              = ${{ (0.01 * (1 + marginPercent / 100)).toFixed(4) }}
-            </p>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button @click="showMarginModal = false" class="btn-secondary">
-            {{ $t('common.cancel') }}
-          </button>
-          <button @click="handleApplyMargin" :disabled="applyingMargin" class="btn-primary">
-            {{ applyingMargin ? $t('aiPricing.applying') : $t('aiPricing.apply') }}
-          </button>
-        </div>
-      </div>
-    </div>
+    <PricingMarginModal
+      v-if="showMarginModal"
+      :selected-count="selectedIds.length"
+      :applying="applyingMargin"
+      @close="showMarginModal = false"
+      @apply="handleApplyMargin"
+    />
 
     <!-- Toast -->
     <div v-if="toast" class="toast" :class="toast.type">
@@ -176,6 +118,7 @@ import {
 } from '@/application/services/api/panel-admin'
 import PricingTable from './PricingTable.vue'
 import PricingEditModal from './PricingEditModal.vue'
+import PricingMarginModal from './PricingMarginModal.vue'
 
 const { t } = useI18n()
 
@@ -195,8 +138,6 @@ const searchQuery = ref('')
 
 // Margin Modal
 const showMarginModal = ref(false)
-const marginPercent = ref(20)
-const marginApplyTo = ref<'input' | 'output' | 'both'>('both')
 const applyingMargin = ref(false)
 
 // Toast
@@ -227,7 +168,7 @@ const filteredModels = computed(() => {
 })
 
 // Methods
-async function loadPricing() {
+async function loadPricing(): Promise<void> {
   loading.value = true
   try {
     const response = await adminGetAIPricing({
@@ -244,11 +185,11 @@ async function loadPricing() {
   }
 }
 
-function applyFilters() {
+function applyFilters(): void {
   // Filters are applied via computed, no need to reload
 }
 
-function toggleModelSelect(modelId: number) {
+function toggleModelSelect(modelId: number): void {
   const idx = selectedIds.value.indexOf(modelId)
   if (idx === -1) {
     selectedIds.value.push(modelId)
@@ -257,7 +198,7 @@ function toggleModelSelect(modelId: number) {
   }
 }
 
-function toggleAllModels() {
+function toggleAllModels(): void {
   if (selectedIds.value.length === filteredModels.value.length) {
     selectedIds.value = []
   } else {
@@ -265,17 +206,16 @@ function toggleAllModels() {
   }
 }
 
-function openEditModal(model: AIModelPricing) {
+function openEditModal(model: AIModelPricing): void {
   editingModel.value = model
 }
 
-async function handleSavePricing(data: AIModelPricingUpdateRequest) {
+async function handleSavePricing(data: AIModelPricingUpdateRequest): Promise<void> {
   if (!editingModel.value) return
 
   try {
     await adminUpdateAIPricing(editingModel.value.model_id, data)
 
-    // Update local state
     const idx = models.value.findIndex(m => m.model_id === editingModel.value!.model_id)
     if (idx !== -1) {
       models.value[idx] = {
@@ -298,20 +238,19 @@ async function handleSavePricing(data: AIModelPricingUpdateRequest) {
   }
 }
 
-async function handleApplyMargin() {
+async function handleApplyMargin(data: { marginPercent: number; applyTo: 'input' | 'output' | 'both' }): Promise<void> {
   applyingMargin.value = true
   try {
     const result = await adminApplyPricingMargin({
       model_ids: selectedIds.value,
-      margin_percent: marginPercent.value,
-      apply_to: marginApplyTo.value
+      margin_percent: data.marginPercent,
+      apply_to: data.applyTo
     })
 
     showToast(t('aiPricing.successMargin', { count: result.data.updated_count }), 'success')
     showMarginModal.value = false
     selectedIds.value = []
 
-    // Reload to get updated prices
     await loadPricing()
   } catch (error) {
     showToast(t('aiPricing.errorMargin'), 'error')
@@ -321,7 +260,7 @@ async function handleApplyMargin() {
   }
 }
 
-function showToast(message: string, type: 'success' | 'error') {
+function showToast(message: string, type: 'success' | 'error'): void {
   toast.value = { message, type }
   setTimeout(() => {
     toast.value = null
@@ -467,150 +406,6 @@ onMounted(() => {
   flex: 1;
   overflow: auto;
   padding: 1rem 1.5rem;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: var(--color-surface);
-  border-radius: 0.5rem;
-  max-width: 450px;
-  width: 100%;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.modal-header h3 {
-  margin: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-description {
-  margin: 0 0 1.5rem 0;
-  color: var(--color-text-secondary);
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.margin-input-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.form-input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  width: 120px;
-}
-
-.unit {
-  color: var(--color-text-secondary);
-}
-
-.form-hint {
-  margin: 0.5rem 0 0 0;
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-}
-
-.radio-group {
-  display: flex;
-  gap: 1rem;
-}
-
-.radio-option {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  cursor: pointer;
-}
-
-.preview-box {
-  background: var(--color-surface-secondary);
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-top: 1rem;
-}
-
-.preview-box h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.8125rem;
-}
-
-.preview-box p {
-  margin: 0;
-  font-family: monospace;
-  font-size: 0.875rem;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--color-border);
-}
-
-.btn-secondary,
-.btn-primary {
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn-secondary {
-  background: var(--color-surface-secondary);
-  border: 1px solid var(--color-border);
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  border: none;
-  color: white;
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
 }
 
 /* Toast */

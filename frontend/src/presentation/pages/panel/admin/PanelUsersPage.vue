@@ -73,65 +73,24 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="font-medium text-[var(--color-text-primary)]">{{ user.first_name }} {{ user.last_name }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">
-              {{ user.email }}
-            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">{{ user.email }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 py-1 text-xs font-medium rounded-full" :class="getRoleBadgeClass(user.role)">
-                {{ user.role }}
-              </span>
+              <span class="px-2 py-1 text-xs font-medium rounded-full" :class="getRoleBadgeClass(user.role)">{{ user.role }}</span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span :class="user.is_active ? 'text-green-600' : 'text-red-600'">
-                {{ user.is_active ? '✓ ' + $t('common.active') : '✗ ' + $t('common.inactive') }}
+                {{ user.is_active ? '\u2713 ' + $t('common.active') : '\u2717 ' + $t('common.inactive') }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">
-              {{ user.token_balance || 0 }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">
-              {{ user.organisation_name || '-' }}
-            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">{{ user.token_balance || 0 }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">{{ user.organisation_name || '-' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex justify-end gap-3">
-                <button
-                  @click="viewUserDetail(user.user_id)"
-                  class="px-3 py-1 text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 rounded transition-colors"
-                  :title="$t('common.details')"
-                >
-                  {{ $t('common.details') }}
-                </button>
-                <button
-                  v-if="user.is_active"
-                  @click="openBanModal(user)"
-                  class="px-3 py-1 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded transition-colors"
-                  :title="$t('panel.users.banUser')"
-                >
-                  {{ $t('panel.users.ban') }}
-                </button>
-                <button
-                  v-else
-                  @click="openUnbanModal(user)"
-                  class="px-3 py-1 text-green-600 hover:text-white hover:bg-green-600 border border-green-600 rounded transition-colors"
-                  :title="$t('panel.users.unbanUser')"
-                >
-                  {{ $t('panel.users.unban') }}
-                </button>
-                <button
-                  @click="openGrantTokensModal(user)"
-                  class="px-3 py-1 text-purple-600 hover:text-white hover:bg-purple-600 border border-purple-600 rounded transition-colors"
-                  :title="$t('panel.users.grantTokens')"
-                >
-                  Tokens
-                </button>
-                <button
-                  v-if="user.role === 'creator'"
-                  @click="openVerifyCreatorModal(user)"
-                  class="px-3 py-1 text-yellow-600 hover:text-white hover:bg-yellow-600 border border-yellow-600 rounded transition-colors"
-                  :title="$t('panel.users.verifyCreator')"
-                >
-                  {{ $t('panel.users.verify') }}
-                </button>
+                <button @click="viewUserDetail(user.user_id)" class="px-3 py-1 text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 rounded transition-colors" :title="$t('common.details')">{{ $t('common.details') }}</button>
+                <button v-if="user.is_active" @click="openBanModal(user)" class="px-3 py-1 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded transition-colors" :title="$t('panel.users.banUser')">{{ $t('panel.users.ban') }}</button>
+                <button v-else @click="openUnbanModal(user)" class="px-3 py-1 text-green-600 hover:text-white hover:bg-green-600 border border-green-600 rounded transition-colors" :title="$t('panel.users.unbanUser')">{{ $t('panel.users.unban') }}</button>
+                <button @click="openGrantTokensModal(user)" class="px-3 py-1 text-purple-600 hover:text-white hover:bg-purple-600 border border-purple-600 rounded transition-colors" :title="$t('panel.users.grantTokens')">Tokens</button>
+                <button v-if="user.role === 'creator'" @click="openVerifyCreatorModal(user)" class="px-3 py-1 text-yellow-600 hover:text-white hover:bg-yellow-600 border border-yellow-600 rounded transition-colors" :title="$t('panel.users.verifyCreator')">{{ $t('panel.users.verify') }}</button>
               </div>
             </td>
           </tr>
@@ -144,20 +103,8 @@
           {{ $t('panel.users.pagination', { page: panelStore.usersPage, total: panelStore.usersTotalPages, count: panelStore.usersTotal }) }}
         </p>
         <div class="flex gap-2">
-          <button
-            @click="changePage(panelStore.usersPage - 1)"
-            :disabled="panelStore.usersPage === 1"
-            class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50"
-          >
-            {{ $t('common.back') }}
-          </button>
-          <button
-            @click="changePage(panelStore.usersPage + 1)"
-            :disabled="panelStore.usersPage >= panelStore.usersTotalPages"
-            class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50"
-          >
-            {{ $t('common.next') }}
-          </button>
+          <button @click="changePage(panelStore.usersPage - 1)" :disabled="panelStore.usersPage === 1" class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50">{{ $t('common.back') }}</button>
+          <button @click="changePage(panelStore.usersPage + 1)" :disabled="panelStore.usersPage >= panelStore.usersTotalPages" class="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] disabled:opacity-50">{{ $t('common.next') }}</button>
         </div>
       </div>
     </div>
@@ -172,59 +119,28 @@
         <div class="px-6 py-4">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.banReason') }} *</label>
-            <textarea
-              v-model="banForm.reason"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              :placeholder="$t('panel.users.minChars')"
-            ></textarea>
+            <textarea v-model="banForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
           <div class="mb-4">
             <label class="flex items-center">
-              <input
-                v-model="banForm.permanent"
-                type="checkbox"
-                class="rounded border-gray-300 text-red-600 focus:ring-red-500"
-              />
+              <input v-model="banForm.permanent" type="checkbox" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
               <span class="ml-2 text-sm text-gray-700">{{ $t('panel.users.permanentBan') }}</span>
             </label>
           </div>
           <div v-if="!banForm.permanent" class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.durationDays') }}</label>
-            <input
-              v-model.number="banForm.duration_days"
-              type="number"
-              min="1"
-              max="365"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="30"
-            />
+            <input v-model.number="banForm.duration_days" type="number" min="1" max="365" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="30" />
           </div>
           <div class="mb-4">
             <label class="flex items-center">
-              <input
-                v-model="banForm.notify_user"
-                type="checkbox"
-                class="rounded border-gray-300 text-red-600 focus:ring-red-500"
-              />
+              <input v-model="banForm.notify_user" type="checkbox" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
               <span class="ml-2 text-sm text-gray-700">{{ $t('panel.users.notifyByEmail') }}</span>
             </label>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button
-            @click="closeBanModal"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            {{ $t('common.cancel') }}
-          </button>
-          <button
-            @click="confirmBan"
-            :disabled="!canSubmitBan"
-            class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ $t('panel.users.banUser') }}
-          </button>
+          <button @click="closeBanModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+          <button @click="confirmBan" :disabled="!canSubmitBan" class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('panel.users.banUser') }}</button>
         </div>
       </div>
     </div>
@@ -239,28 +155,12 @@
         <div class="px-6 py-4">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.unbanReason') }} *</label>
-            <textarea
-              v-model="unbanForm.reason"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              :placeholder="$t('panel.users.minChars')"
-            ></textarea>
+            <textarea v-model="unbanForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button
-            @click="closeUnbanModal"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            {{ $t('common.cancel') }}
-          </button>
-          <button
-            @click="confirmUnban"
-            :disabled="!canSubmitUnban"
-            class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ $t('panel.users.unbanUser') }}
-          </button>
+          <button @click="closeUnbanModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+          <button @click="confirmUnban" :disabled="!canSubmitUnban" class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('panel.users.unbanUser') }}</button>
         </div>
       </div>
     </div>
@@ -276,39 +176,16 @@
         <div class="px-6 py-4">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.tokenAmount') }} *</label>
-            <input
-              v-model.number="grantTokensForm.amount"
-              type="number"
-              min="1"
-              max="1000000"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="5000"
-            />
+            <input v-model.number="grantTokensForm.amount" type="number" min="1" max="1000000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="5000" />
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.reason') }} *</label>
-            <textarea
-              v-model="grantTokensForm.reason"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              :placeholder="$t('panel.users.minChars')"
-            ></textarea>
+            <textarea v-model="grantTokensForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button
-            @click="closeGrantTokensModal"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            {{ $t('common.cancel') }}
-          </button>
-          <button
-            @click="confirmGrantTokens"
-            :disabled="!canSubmitGrantTokens"
-            class="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ $t('panel.users.grantTokens') }}
-          </button>
+          <button @click="closeGrantTokensModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+          <button @click="confirmGrantTokens" :disabled="!canSubmitGrantTokens" class="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('panel.users.grantTokens') }}</button>
         </div>
       </div>
     </div>
@@ -323,36 +200,19 @@
         <div class="px-6 py-4">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.action') }} *</label>
-            <select
-              v-model="verifyCreatorForm.verified"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            >
+            <select v-model="verifyCreatorForm.verified" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
               <option :value="true">{{ $t('panel.users.verify') }}</option>
               <option :value="false">{{ $t('panel.users.revokeVerification') }}</option>
             </select>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.reason') }} *</label>
-            <textarea
-              v-model="verifyCreatorForm.reason"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              :placeholder="$t('panel.users.minChars')"
-            ></textarea>
+            <textarea v-model="verifyCreatorForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button
-            @click="closeVerifyCreatorModal"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            {{ $t('common.cancel') }}
-          </button>
-          <button
-            @click="confirmVerifyCreator"
-            :disabled="!canSubmitVerifyCreator"
-            class="px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="closeVerifyCreatorModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+          <button @click="confirmVerifyCreator" :disabled="!canSubmitVerifyCreator" class="px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed">
             {{ verifyCreatorForm.verified ? $t('panel.users.verify') : $t('panel.users.revoke') }}
           </button>
         </div>
@@ -362,214 +222,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
+import { onMounted } from 'vue'
 import { usePanelStore } from '@/application/stores/modules/admin/panel.store'
-
-const { t } = useI18n()
-import type { AdminUser, BanUserRequest } from '@/application/services/api/panel-admin'
+import { useUserManagement } from './users/composables/useUserManagement'
 
 const panelStore = usePanelStore()
-const router = useRouter()
 
-// Search & Filters
-const searchQuery = ref('')
-const roleFilter = ref('')
-const statusFilter = ref('')
+const {
+  // Search & Filters
+  searchQuery,
+  roleFilter,
+  statusFilter,
+  debouncedSearch,
+  loadUsers,
+  resetFilters,
+  changePage,
 
-let searchTimeout: ReturnType<typeof setTimeout> | null = null
+  // Navigation
+  viewUserDetail,
 
-const debouncedSearch = () => {
-  if (searchTimeout) clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    loadUsers()
-  }, 500)
-}
+  // Modal State
+  showBanModal,
+  showUnbanModal,
+  showGrantTokensModal,
+  showVerifyCreatorModal,
+  selectedUser,
 
-const loadUsers = async () => {
-  await panelStore.loadUsers({
-    search: searchQuery.value || undefined,
-    role: roleFilter.value || undefined,
-    status: statusFilter.value as any,
-    page: panelStore.usersPage
-  })
-}
+  // Form Data
+  banForm,
+  unbanForm,
+  grantTokensForm,
+  verifyCreatorForm,
 
-const resetFilters = () => {
-  searchQuery.value = ''
-  roleFilter.value = ''
-  statusFilter.value = ''
-  loadUsers()
-}
+  // Validations
+  canSubmitBan,
+  canSubmitUnban,
+  canSubmitGrantTokens,
+  canSubmitVerifyCreator,
 
-const changePage = (page: number) => {
-  panelStore.usersPage = page
-  loadUsers()
-}
+  // Actions
+  openBanModal,
+  closeBanModal,
+  confirmBan,
+  openUnbanModal,
+  closeUnbanModal,
+  confirmUnban,
+  openGrantTokensModal,
+  closeGrantTokensModal,
+  confirmGrantTokens,
+  openVerifyCreatorModal,
+  closeVerifyCreatorModal,
+  confirmVerifyCreator,
 
-// Modal States
-const showBanModal = ref(false)
-const showUnbanModal = ref(false)
-const showGrantTokensModal = ref(false)
-const showVerifyCreatorModal = ref(false)
-const selectedUser = ref<AdminUser | null>(null)
-
-// Form Data
-const banForm = ref<BanUserRequest>({
-  reason: '',
-  duration_days: 30,
-  permanent: false,
-  notify_user: true
-})
-
-const unbanForm = ref({
-  reason: ''
-})
-
-const grantTokensForm = ref({
-  amount: 0,
-  reason: ''
-})
-
-const verifyCreatorForm = ref({
-  verified: true,
-  reason: ''
-})
-
-// Computed Validations
-const canSubmitBan = computed(() => banForm.value.reason.length >= 10)
-const canSubmitUnban = computed(() => unbanForm.value.reason.length >= 10)
-const canSubmitGrantTokens = computed(
-  () => grantTokensForm.value.amount > 0 && grantTokensForm.value.reason.length >= 10
-)
-const canSubmitVerifyCreator = computed(() => verifyCreatorForm.value.reason.length >= 10)
-
-// Navigation
-const viewUserDetail = (userId: string) => {
-  router.push({ name: 'PanelUserDetail', params: { userId } })
-}
-
-// Ban User
-const openBanModal = (user: AdminUser) => {
-  selectedUser.value = user
-  banForm.value = {
-    reason: '',
-    duration_days: 30,
-    permanent: false,
-    notify_user: true
-  }
-  showBanModal.value = true
-}
-
-const closeBanModal = () => {
-  showBanModal.value = false
-  selectedUser.value = null
-}
-
-const confirmBan = async () => {
-  if (!selectedUser.value || !canSubmitBan.value) return
-
-  try {
-    await panelStore.banUser(selectedUser.value.user_id, banForm.value)
-    closeBanModal()
-    await loadUsers()
-  } catch (err) {
-    console.error('Failed to ban user:', err)
-  }
-}
-
-// Unban User
-const openUnbanModal = (user: AdminUser) => {
-  selectedUser.value = user
-  unbanForm.value = { reason: '' }
-  showUnbanModal.value = true
-}
-
-const closeUnbanModal = () => {
-  showUnbanModal.value = false
-  selectedUser.value = null
-}
-
-const confirmUnban = async () => {
-  if (!selectedUser.value || !canSubmitUnban.value) return
-
-  try {
-    await panelStore.unbanUser(selectedUser.value.user_id, unbanForm.value.reason)
-    closeUnbanModal()
-    await loadUsers()
-  } catch (err) {
-    console.error('Failed to unban user:', err)
-  }
-}
-
-// Grant Tokens
-const openGrantTokensModal = (user: AdminUser) => {
-  selectedUser.value = user
-  grantTokensForm.value = { amount: 0, reason: '' }
-  showGrantTokensModal.value = true
-}
-
-const closeGrantTokensModal = () => {
-  showGrantTokensModal.value = false
-  selectedUser.value = null
-}
-
-const confirmGrantTokens = async () => {
-  if (!selectedUser.value || !canSubmitGrantTokens.value) return
-
-  try {
-    await panelStore.grantTokens(
-      selectedUser.value.user_id,
-      grantTokensForm.value.amount,
-      grantTokensForm.value.reason
-    )
-    closeGrantTokensModal()
-    await loadUsers()
-  } catch (err) {
-    console.error('Failed to grant tokens:', err)
-  }
-}
-
-// Verify Creator
-const openVerifyCreatorModal = (user: AdminUser) => {
-  selectedUser.value = user
-  verifyCreatorForm.value = { verified: true, reason: '' }
-  showVerifyCreatorModal.value = true
-}
-
-const closeVerifyCreatorModal = () => {
-  showVerifyCreatorModal.value = false
-  selectedUser.value = null
-}
-
-const confirmVerifyCreator = async () => {
-  if (!selectedUser.value || !canSubmitVerifyCreator.value) return
-
-  try {
-    await panelStore.verifyCreator(
-      selectedUser.value.user_id,
-      verifyCreatorForm.value.verified,
-      verifyCreatorForm.value.reason
-    )
-    closeVerifyCreatorModal()
-    await loadUsers()
-  } catch (err) {
-    console.error('Failed to verify creator:', err)
-  }
-}
-
-// Utility
-const getRoleBadgeClass = (role: string): string => {
-  const classes: Record<string, string> = {
-    user: 'bg-gray-100 text-gray-800',
-    premium: 'bg-yellow-100 text-yellow-800',
-    creator: 'bg-blue-100 text-blue-800',
-    teacher: 'bg-green-100 text-green-800',
-    admin: 'bg-red-100 text-red-800'
-  }
-  return classes[role] || 'bg-gray-100 text-gray-800'
-}
+  // Utility
+  getRoleBadgeClass
+} = useUserManagement()
 
 onMounted(() => {
   loadUsers()

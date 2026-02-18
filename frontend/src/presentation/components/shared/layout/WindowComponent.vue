@@ -4,6 +4,8 @@
   Individual draggable, minimizable window instance.
   Provides window chrome (header, buttons) and content slot.
 
+  Drag/resize logic extracted to composables/useWindowInteraction.ts
+
   Phase: B24-06 - Admin Desktop OS
 -->
 
@@ -49,11 +51,9 @@
           :title="window.maximized ? $t('common.restore') : $t('common.maximize')"
         >
           <svg v-if="!window.maximized" width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <!-- Maximize icon: single square -->
             <rect x="2" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5" fill="none" rx="1"/>
           </svg>
           <svg v-else width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <!-- Restore icon: two cascaded squares (Windows-style) -->
             <path d="M4 2h6v6M2 4h6v6H2z" stroke="currentColor" stroke-width="1.5" fill="none"/>
           </svg>
         </button>
@@ -87,8 +87,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, toRef } from 'vue'
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
+import { useWindowInteraction } from './composables/useWindowInteraction'
 
 interface Props {
   window: LsxWindow
@@ -104,15 +105,11 @@ interface Emits {
   (e: 'resize', id: string, size: { width: number; height: number }): void
 }
 
-type ResizeDirection = 'n' | 'e' | 's' | 'w' | 'ne' | 'se' | 'sw' | 'nw'
-
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const windowRef = ref<HTMLElement | null>(null)
 const headerRef = ref<HTMLElement | null>(null)
-const isDragging = ref(false)
-const isResizing = ref(false)
 
 /**
  * Computed window style - handles both normal and maximized states
@@ -123,7 +120,7 @@ const windowStyle = computed(() => {
       left: '0px',
       top: '0px',
       width: '100vw',
-      height: 'calc(100vh - 56px)', // Leave room for taskbar
+      height: 'calc(100vh - 56px)',
       maxHeight: 'none',
       zIndex: props.window.zIndex,
       borderRadius: '0',
@@ -141,24 +138,16 @@ const windowStyle = computed(() => {
   }
 })
 
-// Drag state
-const dragState = ref<{
-  startX: number
-  startY: number
-  offsetX: number
-  offsetY: number
-} | null>(null)
-
-// Resize state
-const resizeState = ref<{
-  direction: ResizeDirection
-  startX: number
-  startY: number
-  startWidth: number
-  startHeight: number
-  startPosX: number
-  startPosY: number
-} | null>(null)
+// Drag & Resize via composable
+const { isDragging, handleDragStart, handleResizeStart } = useWindowInteraction({
+  windowRef,
+  windowId: computed(() => props.window.id) as any,
+  windowPosition: computed(() => props.window.position) as any,
+  isMaximized: computed(() => props.window.maximized) as any,
+  onFocus: (id: string) => emit('focus', id),
+  onDrag: (id: string, pos) => emit('drag', id, pos),
+  onResize: (id: string, size) => emit('resize', id, size)
+})
 
 /**
  * Handle window click (focus)
@@ -186,179 +175,6 @@ function handleClose(): void {
  */
 function handleMaximize(): void {
   emit('maximize', props.window.id)
-}
-
-/**
- * Start dragging window
- */
-function handleDragStart(e: MouseEvent): void {
-  // Only drag on left mouse button
-  if (e.button !== 0) return
-
-  // Don't allow dragging when maximized
-  if (props.window.maximized) return
-
-  // Focus window
-  emit('focus', props.window.id)
-
-  // Calculate offset from cursor to window position
-  const offsetX = e.clientX - props.window.position.x
-  const offsetY = e.clientY - props.window.position.y
-
-  dragState.value = {
-    startX: e.clientX,
-    startY: e.clientY,
-    offsetX,
-    offsetY
-  }
-
-  isDragging.value = true
-
-  // Add global listeners
-  document.addEventListener('mousemove', handleDragMove)
-  document.addEventListener('mouseup', handleDragEnd)
-
-  // Prevent text selection
-  e.preventDefault()
-}
-
-/**
- * Handle drag move
- */
-function handleDragMove(e: MouseEvent): void {
-  if (!dragState.value) return
-
-  // Calculate new position
-  let newX = e.clientX - dragState.value.offsetX
-  let newY = e.clientY - dragState.value.offsetY
-
-  // Constrain to viewport
-  const minX = 0
-  const minY = 0
-  const maxX = window.innerWidth - 200 // Keep at least 200px visible
-  const maxY = window.innerHeight - 50 // Keep header visible
-
-  newX = Math.max(minX, Math.min(newX, maxX))
-  newY = Math.max(minY, Math.min(newY, maxY))
-
-  // Emit drag event
-  emit('drag', props.window.id, { x: newX, y: newY })
-}
-
-/**
- * End dragging
- */
-function handleDragEnd(): void {
-  isDragging.value = false
-  dragState.value = null
-
-  // Remove global listeners
-  document.removeEventListener('mousemove', handleDragMove)
-  document.removeEventListener('mouseup', handleDragEnd)
-}
-
-/**
- * Start resizing window
- */
-function handleResizeStart(e: MouseEvent, direction: ResizeDirection): void {
-  if (e.button !== 0) return
-
-  // Don't allow resizing when maximized
-  if (props.window.maximized) return
-
-  emit('focus', props.window.id)
-
-  const rect = windowRef.value?.getBoundingClientRect()
-  if (!rect) return
-
-  resizeState.value = {
-    direction,
-    startX: e.clientX,
-    startY: e.clientY,
-    startWidth: rect.width,
-    startHeight: rect.height,
-    startPosX: props.window.position.x,
-    startPosY: props.window.position.y
-  }
-
-  isResizing.value = true
-
-  document.addEventListener('mousemove', handleResizeMove)
-  document.addEventListener('mouseup', handleResizeEnd)
-
-  e.preventDefault()
-  e.stopPropagation()
-}
-
-/**
- * Handle resize move
- */
-function handleResizeMove(e: MouseEvent): void {
-  if (!resizeState.value) return
-
-  const { direction, startX, startY, startWidth, startHeight, startPosX, startPosY } = resizeState.value
-  const deltaX = e.clientX - startX
-  const deltaY = e.clientY - startY
-
-  let newWidth = startWidth
-  let newHeight = startHeight
-  let newX = startPosX
-  let newY = startPosY
-
-  // Handle horizontal resizing
-  if (direction.includes('e')) {
-    newWidth = startWidth + deltaX
-  }
-  if (direction.includes('w')) {
-    newWidth = startWidth - deltaX
-    newX = startPosX + deltaX
-  }
-
-  // Handle vertical resizing
-  if (direction.includes('s')) {
-    newHeight = startHeight + deltaY
-  }
-  if (direction.includes('n')) {
-    newHeight = startHeight - deltaY
-    newY = startPosY + deltaY
-  }
-
-  // Apply minimum size
-  const minWidth = 400
-  const minHeight = 300
-
-  if (newWidth < minWidth) {
-    if (direction.includes('w')) {
-      newX = startPosX + startWidth - minWidth
-    }
-    newWidth = minWidth
-  }
-
-  if (newHeight < minHeight) {
-    if (direction.includes('n')) {
-      newY = startPosY + startHeight - minHeight
-    }
-    newHeight = minHeight
-  }
-
-  // Update position if needed (for n/w/nw/ne/sw resizing)
-  if (direction.includes('n') || direction.includes('w')) {
-    emit('drag', props.window.id, { x: newX, y: newY })
-  }
-
-  // Emit resize event
-  emit('resize', props.window.id, { width: newWidth, height: newHeight })
-}
-
-/**
- * End resizing
- */
-function handleResizeEnd(): void {
-  isResizing.value = false
-  resizeState.value = null
-
-  document.removeEventListener('mousemove', handleResizeMove)
-  document.removeEventListener('mouseup', handleResizeEnd)
 }
 </script>
 
@@ -398,7 +214,7 @@ function handleResizeEnd(): void {
 
 .lsx-desktop-window--maximized .lsx-window-content {
   position: absolute;
-  top: 57px; /* Header height */
+  top: 57px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -487,20 +303,18 @@ function handleResizeEnd(): void {
 /* Window Content */
 .lsx-window-content {
   flex: 1;
-  min-height: 0; /* Critical for nested flex scrolling */
-  min-width: 0; /* Critical for horizontal flex */
+  min-height: 0;
+  min-width: 0;
   max-width: 100%;
   overflow: hidden;
   background: var(--color-surface);
 }
 
-/* Ensure content inside doesn't force window width */
 .lsx-window-content :deep(> *) {
   max-width: 100%;
   box-sizing: border-box;
 }
 
-/* Scrollbar Styling */
 .lsx-window-content::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -525,69 +339,43 @@ function handleResizeEnd(): void {
   z-index: 10;
 }
 
-/* Edge handles - 8px wide/tall inside the window border */
 .lsx-resize-handle--n {
-  top: 0;
-  left: 16px;
-  right: 16px;
-  height: 8px;
+  top: 0; left: 16px; right: 16px; height: 8px;
   cursor: n-resize;
 }
 
 .lsx-resize-handle--e {
-  top: 16px;
-  right: 0;
-  bottom: 16px;
-  width: 8px;
+  top: 16px; right: 0; bottom: 16px; width: 8px;
   cursor: e-resize;
 }
 
 .lsx-resize-handle--s {
-  bottom: 0;
-  left: 16px;
-  right: 16px;
-  height: 8px;
+  bottom: 0; left: 16px; right: 16px; height: 8px;
   cursor: s-resize;
 }
 
 .lsx-resize-handle--w {
-  top: 16px;
-  left: 0;
-  bottom: 16px;
-  width: 8px;
+  top: 16px; left: 0; bottom: 16px; width: 8px;
   cursor: w-resize;
 }
 
-/* Corner handles - 16x16px at corners */
 .lsx-resize-handle--ne {
-  top: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
+  top: 0; right: 0; width: 16px; height: 16px;
   cursor: ne-resize;
 }
 
 .lsx-resize-handle--se {
-  bottom: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
+  bottom: 0; right: 0; width: 16px; height: 16px;
   cursor: se-resize;
 }
 
 .lsx-resize-handle--sw {
-  bottom: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
+  bottom: 0; left: 0; width: 16px; height: 16px;
   cursor: sw-resize;
 }
 
 .lsx-resize-handle--nw {
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
+  top: 0; left: 0; width: 16px; height: 16px;
   cursor: nw-resize;
 }
 </style>

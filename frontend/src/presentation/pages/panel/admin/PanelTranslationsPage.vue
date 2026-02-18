@@ -45,7 +45,7 @@
       >
         <option value="">{{ $t('panel.translations.allCategories') }}</option>
         <option v-for="ns in dbNamespaces" :key="ns.namespace_code" :value="ns.namespace_code">
-          {{ ns.icon || '📁' }} {{ ns.name }} ({{ ns.key_count }})
+          {{ ns.icon || '' }} {{ ns.name }} ({{ ns.key_count }})
         </option>
       </select>
 
@@ -93,62 +93,16 @@
           </div>
 
           <!-- Items in this namespace -->
-          <div class="divide-y divide-[var(--color-border)]">
-            <div
-              v-for="item in group"
-              :key="item.key_path"
-              class="p-3 hover:bg-[var(--color-surface-secondary)] transition-colors"
-            >
-              <!-- Key (short) -->
-              <div class="text-xs text-[var(--color-text-secondary)] mb-1 font-mono">
-                {{ getShortKey(item.key_path, item.namespace) }}
-              </div>
-
-              <!-- Values Row -->
-              <div class="flex gap-4 items-start">
-                <!-- German (Source) -->
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm text-[var(--color-text-primary)] truncate" :title="item.de_value">
-                    {{ item.de_value || '—' }}
-                  </div>
-                </div>
-
-                <!-- Arrow -->
-                <div class="text-[var(--color-text-secondary)]">→</div>
-
-                <!-- Selected Language -->
-                <div class="flex-1 min-w-0">
-                  <!-- Edit Mode -->
-                  <div v-if="editingKey === item.key_path" class="flex gap-2">
-                    <input
-                      v-model="editValue"
-                      type="text"
-                      class="flex-1 px-2 py-1 text-sm border border-primary-500 bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded"
-                      @keyup.enter="saveTranslation(item)"
-                      @keyup.escape="cancelEdit"
-                      ref="editInput"
-                    />
-                    <button @click="saveTranslation(item)" class="px-2 py-1 bg-green-600 text-white rounded text-sm">✓</button>
-                    <button @click="cancelEdit" class="px-2 py-1 bg-gray-500 text-white rounded text-sm">✕</button>
-                  </div>
-
-                  <!-- Display Mode -->
-                  <div v-else class="flex items-center gap-2 group cursor-pointer" @click="startEdit(item)">
-                    <span
-                      class="text-sm truncate"
-                      :class="item.translated_value ? 'text-[var(--color-text-primary)]' : 'text-red-500 italic'"
-                      :title="item.translated_value || $t('panel.translations.notTranslated')"
-                    >
-                      {{ item.translated_value || $t('panel.translations.notTranslated') }}
-                    </span>
-                    <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 text-primary-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <TranslationReviewPanel
+            :items="group"
+            :selected-language="selectedLanguage"
+            :editing-key="editingKey"
+            :edit-value="editValue"
+            @start-edit="startEdit"
+            @save="saveTranslation"
+            @cancel-edit="cancelEdit"
+            @update:edit-value="editValue = $event"
+          />
         </template>
       </div>
 
@@ -158,13 +112,13 @@
           @click="currentPage = Math.max(1, currentPage - 1)"
           :disabled="currentPage === 1"
           class="px-3 py-1 border border-[var(--color-border)] rounded disabled:opacity-50 text-[var(--color-text-primary)]"
-        >←</button>
+        >&#8592;</button>
         <span class="text-sm text-[var(--color-text-secondary)]">{{ currentPage }} / {{ totalPages }}</span>
         <button
           @click="currentPage = Math.min(totalPages, currentPage + 1)"
           :disabled="currentPage === totalPages"
           class="px-3 py-1 border border-[var(--color-border)] rounded disabled:opacity-50 text-[var(--color-text-primary)]"
-        >→</button>
+        >&#8594;</button>
       </div>
     </div>
   </div>
@@ -175,46 +129,10 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/infrastructure/api/http'
 import { i18n } from '@/infrastructure/plugins/i18n'
+import { flattenMessages, allFlatLocaleMessages, allLocaleMessages } from './composables/useLocaleImport'
+import TranslationReviewPanel from './components/TranslationReviewPanel.vue'
 
 const { t } = useI18n()
-
-// Locale imports for sync + fallback values
-import deCommon from '@/infrastructure/i18n/locales/de/common'
-import deErrors from '@/infrastructure/i18n/locales/de/errors'
-import deDashboard from '@/infrastructure/i18n/locales/de/dashboard'
-import deSetup from '@/infrastructure/i18n/locales/de/setup'
-import deTutor from '@/infrastructure/i18n/locales/de/tutor'
-import deLegal from '@/infrastructure/i18n/locales/de/legal'
-import dePanel from '@/infrastructure/i18n/locales/de/panel'
-import deAiEditor from '@/infrastructure/i18n/locales/de/panel/aiEditor'
-import deCourses from '@/infrastructure/i18n/locales/de/courses'
-import deFeatures from '@/infrastructure/i18n/locales/de/features'
-import enCommon from '@/infrastructure/i18n/locales/en/common'
-import enErrors from '@/infrastructure/i18n/locales/en/errors'
-import enDashboard from '@/infrastructure/i18n/locales/en/dashboard'
-import enSetup from '@/infrastructure/i18n/locales/en/setup'
-import enTutor from '@/infrastructure/i18n/locales/en/tutor'
-import enLegal from '@/infrastructure/i18n/locales/en/legal'
-import enPanel from '@/infrastructure/i18n/locales/en/panel'
-import enAiEditor from '@/infrastructure/i18n/locales/en/panel/aiEditor'
-import enCourses from '@/infrastructure/i18n/locales/en/courses'
-import enFeatures from '@/infrastructure/i18n/locales/en/features'
-import plCommon from '@/infrastructure/i18n/locales/pl/common'
-import plErrors from '@/infrastructure/i18n/locales/pl/errors'
-import plDashboard from '@/infrastructure/i18n/locales/pl/dashboard'
-import plSetup from '@/infrastructure/i18n/locales/pl/setup'
-import plTutor from '@/infrastructure/i18n/locales/pl/tutor'
-import plLegal from '@/infrastructure/i18n/locales/pl/legal'
-import plPanel from '@/infrastructure/i18n/locales/pl/panel'
-import plAiEditor from '@/infrastructure/i18n/locales/pl/panel/aiEditor'
-import plCourses from '@/infrastructure/i18n/locales/pl/courses'
-import plFeatures from '@/infrastructure/i18n/locales/pl/features'
-
-const MODULES = [deCommon, deErrors, deDashboard, deSetup, deTutor, deLegal, dePanel, deAiEditor, deCourses, deFeatures]
-const mergeAll = (...mods: Record<string, any>[]) => Object.assign({}, ...mods)
-const deMessages = mergeAll(...MODULES)
-const enMessages = mergeAll(enCommon, enErrors, enDashboard, enSetup, enTutor, enLegal, enPanel, enAiEditor, enCourses, enFeatures)
-const plMessages = mergeAll(plCommon, plErrors, plDashboard, plSetup, plTutor, plLegal, plPanel, plAiEditor, plCourses, plFeatures)
 
 interface Language {
   language_code: string; language_name: string; native_name: string
@@ -244,30 +162,8 @@ const isSyncing = ref(false)
 const statusMessage = ref<{ type: 'success' | 'error', text: string } | null>(null)
 const editingKey = ref<string | null>(null)
 const editValue = ref('')
-const editInput = ref<HTMLInputElement | null>(null)
-
-// Flatten helper
-function flattenMessages(obj: Record<string, any>, prefix = ''): Record<string, string> {
-  const result: Record<string, string> = {}
-  for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      Object.assign(result, flattenMessages(value, fullKey))
-    } else if (typeof value === 'string') {
-      result[fullKey] = value
-    }
-  }
-  return result
-}
-
-const allLocaleMessages: Record<string, Record<string, string>> = {
-  de: flattenMessages(deMessages),
-  en: flattenMessages(enMessages),
-  pl: flattenMessages(plMessages)
-}
 
 // Computed
-
 const allFilteredTranslations = computed(() => {
   let items = translations.value
 
@@ -307,22 +203,14 @@ const totalPages = computed(() => Math.ceil(filteredCount.value / pageSize))
 
 // Methods
 function getNamespaceIcon(ns: string): string {
-  return dbNamespaces.value.find(n => n.namespace_code === ns)?.icon || '📁'
+  return dbNamespaces.value.find(n => n.namespace_code === ns)?.icon || ''
 }
 
 function getNamespaceName(ns: string): string {
   return dbNamespaces.value.find(n => n.namespace_code === ns)?.name || ns
 }
 
-function getShortKey(keyPath: string, namespace: string): string {
-  // Strip the namespace prefix from the display key
-  if (keyPath.startsWith(namespace + '.')) {
-    return keyPath.slice(namespace.length + 1)
-  }
-  return keyPath
-}
-
-async function loadLanguages() {
+async function loadLanguages(): Promise<void> {
   try {
     const response = await http.get('/i18n/languages')
     languages.value = response.data.data || []
@@ -337,7 +225,7 @@ async function loadLanguages() {
   }
 }
 
-async function loadNamespaces() {
+async function loadNamespaces(): Promise<void> {
   try {
     const response = await http.get('/i18n/admin/namespaces')
     dbNamespaces.value = response.data.data || []
@@ -346,12 +234,11 @@ async function loadNamespaces() {
   }
 }
 
-async function loadTranslations() {
+async function loadTranslations(): Promise<void> {
   if (!selectedLanguage.value) return
 
   isLoading.value = true
   try {
-    // Fetch ALL keys from DB + translation bundle for selected language
     const [keysResponse, bundleResponse] = await Promise.all([
       http.get('/i18n/admin/keys', { params: { limit: 10000 } }),
       http.get(`/i18n/bundle/${selectedLanguage.value}`)
@@ -359,7 +246,6 @@ async function loadTranslations() {
     const dbKeys = keysResponse.data.data?.keys || []
     const dbBundle = flattenMessages(bundleResponse.data.data || {})
 
-    // Also fetch German bundle if viewing non-German language
     let deBundle: Record<string, string> = {}
     if (selectedLanguage.value !== 'de') {
       const deBundleResp = await http.get('/i18n/bundle/de')
@@ -370,25 +256,17 @@ async function loadTranslations() {
     for (const key of dbKeys) {
       const keyPath = key.key_path
       const namespace = key.namespace_code || 'common'
-      // Bundle keys now use key_path directly (matches $t() format)
       const deValue = (selectedLanguage.value === 'de' ? dbBundle[keyPath] : deBundle[keyPath])
-        || allLocaleMessages.de[keyPath] || key.primary_value || key.default_value || ''
+        || allFlatLocaleMessages.de[keyPath] || key.primary_value || key.default_value || ''
 
       let translatedValue = ''
       if (selectedLanguage.value === 'de') {
         translatedValue = deValue
       } else {
-        // DB bundle is primary source, local JSON as fallback
-        translatedValue = dbBundle[keyPath] || allLocaleMessages[selectedLanguage.value]?.[keyPath] || ''
+        translatedValue = dbBundle[keyPath] || allFlatLocaleMessages[selectedLanguage.value]?.[keyPath] || ''
       }
 
-      items.push({
-        key_id: key.key_id,
-        key_path: keyPath,
-        namespace,
-        de_value: deValue,
-        translated_value: translatedValue
-      })
+      items.push({ key_id: key.key_id, key_path: keyPath, namespace, de_value: deValue, translated_value: translatedValue })
     }
 
     translations.value = items
@@ -400,7 +278,7 @@ async function loadTranslations() {
   }
 }
 
-function startEdit(item: TranslationItem) {
+function startEdit(item: TranslationItem): void {
   if (!item.key_id) {
     statusMessage.value = { type: 'error', text: 'Key not synced to DB yet. Run Sync first.' }
     setTimeout(() => statusMessage.value = null, 3000)
@@ -408,22 +286,14 @@ function startEdit(item: TranslationItem) {
   }
   editingKey.value = item.key_path
   editValue.value = item.translated_value || ''
-  nextTick(() => {
-    const el = editInput.value
-    if (Array.isArray(el)) {
-      (el[0] as HTMLInputElement)?.focus()
-    } else if (el) {
-      el.focus()
-    }
-  })
 }
 
-function cancelEdit() {
+function cancelEdit(): void {
   editingKey.value = null
   editValue.value = ''
 }
 
-async function saveTranslation(item: TranslationItem) {
+async function saveTranslation(item: TranslationItem): Promise<void> {
   if (!item.key_id) return
   try {
     await http.put(`/i18n/admin/keys/${item.key_id}/translations/${selectedLanguage.value}`, {
@@ -433,7 +303,6 @@ async function saveTranslation(item: TranslationItem) {
     const idx = translations.value.findIndex(tr => tr.key_path === item.key_path)
     if (idx >= 0) translations.value[idx].translated_value = editValue.value
 
-    // Live-refresh the app-wide i18n so $t() calls update immediately
     const lang = selectedLanguage.value
     const current = i18n.global.getLocaleMessage(lang) as Record<string, string>
     current[item.key_path] = editValue.value
@@ -448,7 +317,7 @@ async function saveTranslation(item: TranslationItem) {
   }
 }
 
-async function forceResync() {
+async function forceResync(): Promise<void> {
   isSyncing.value = true
   statusMessage.value = { type: 'success', text: t('common.syncing') + '...' }
 

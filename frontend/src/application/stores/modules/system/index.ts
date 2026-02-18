@@ -4,3 +4,4 @@
  */
 
 export * from './gamification.store'
+export * from './gamification.types'

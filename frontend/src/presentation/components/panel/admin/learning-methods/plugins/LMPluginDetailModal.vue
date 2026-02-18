@@ -11,7 +11,7 @@
           </div>
         </div>
         <button @click="$emit('close')" class="close-btn" :title="$t('common.close')">
-          ✕
+          &#x2715;
         </button>
       </div>
 
@@ -52,86 +52,22 @@
 
       <!-- Modal Body -->
       <div class="modal-body">
-        <!-- Info Tab -->
-        <div v-if="activeTab === 'info'" class="info-tab">
-          <div class="info-section">
-            <h3 class="section-title">{{ $t('panel.plugins.pluginCode') }}</h3>
-            <p class="section-value code">{{ plugin.plugin_code }}</p>
-          </div>
-
-          <div class="info-section">
-            <h3 class="section-title">{{ $t('panel.plugins.description') }}</h3>
-            <p class="section-value">{{ plugin.description || $t('common.notSpecified') }}</p>
-          </div>
-
-          <div class="info-grid">
-            <div class="info-section">
-              <h3 class="section-title">{{ $t('panel.plugins.group') }}</h3>
-              <span class="badge badge-group">{{ plugin.group_code }}</span>
-            </div>
-
-            <div class="info-section">
-              <h3 class="section-title">{{ $t('panel.plugins.tier') }}</h3>
-              <span class="badge badge-tier">{{ plugin.tier }}</span>
-            </div>
-
-            <div class="info-section">
-              <h3 class="section-title">{{ $t('panel.plugins.kiUsage') }}</h3>
-              <span class="badge badge-ki">{{ plugin.ki_usage }}</span>
-            </div>
-          </div>
-
-          <div class="info-section">
-            <h3 class="section-title">{{ $t('panel.plugins.filePath') }}</h3>
-            <p class="section-value code">{{ plugin.file_path }}</p>
-          </div>
-
-          <div class="info-section">
-            <h3 class="section-title">{{ $t('panel.plugins.fileHash') }}</h3>
-            <p class="section-value code">{{ plugin.file_hash }}</p>
-          </div>
-
-          <div v-if="plugin.submitted_at" class="info-section">
-            <h3 class="section-title">{{ $t('common.createdAt') }}</h3>
-            <p class="section-value">{{ formatDate(plugin.submitted_at) }}</p>
-          </div>
-
-          <div v-if="plugin.reviewed_at" class="info-section">
-            <h3 class="section-title">{{ $t('common.reviewedAt') }}</h3>
-            <p class="section-value">{{ formatDate(plugin.reviewed_at) }}</p>
-          </div>
-        </div>
-
-        <!-- Schema Tab -->
-        <div v-if="activeTab === 'schema'" class="schema-tab">
-          <div class="schema-section">
-            <h3 class="section-title">{{ $t('panel.plugins.schema') }}</h3>
-            <pre class="schema-code">{{ JSON.stringify(plugin.config_schema, null, 2) }}</pre>
-          </div>
-
-          <div v-if="plugin.default_config" class="schema-section">
-            <h3 class="section-title">{{ $t('common.defaultConfig') }}</h3>
-            <pre class="schema-code">{{ JSON.stringify(plugin.default_config, null, 2) }}</pre>
-          </div>
-
-          <div v-if="plugin.agent_support" class="schema-section">
-            <h3 class="section-title">{{ $t('common.agentSupport') }}</h3>
-            <pre class="schema-code">{{ JSON.stringify(plugin.agent_support, null, 2) }}</pre>
-          </div>
-        </div>
-
-        <!-- Preview Tab -->
-        <div v-if="activeTab === 'preview'" class="preview-tab">
-          <div class="preview-placeholder">
-            <div class="preview-icon">👁️</div>
-            <p>{{ $t('panel.plugins.previewPlaceholder') }}</p>
-          </div>
-        </div>
+        <PluginInfoTab
+          v-if="activeTab === 'info'"
+          :plugin="plugin"
+          :format-date="formatDate"
+        />
+        <PluginSchemaTab
+          v-else-if="activeTab === 'schema'"
+          :plugin="plugin"
+        />
+        <PluginPreviewTab
+          v-else-if="activeTab === 'preview'"
+        />
       </div>
 
       <!-- Modal Footer -->
       <div class="modal-footer">
-        <!-- Pending: Show Approve + Reject -->
         <template v-if="plugin.approval_status === 'pending_review'">
           <button @click="handleReject" class="btn-reject" :disabled="isProcessing">
             {{ isProcessing ? $t('panel.plugins.rejecting') : $t('panel.plugins.reject') }}
@@ -141,14 +77,12 @@
           </button>
         </template>
 
-        <!-- Approved: Show Activate -->
         <template v-else-if="plugin.approval_status === 'approved' && !plugin.is_active">
           <button @click="handleActivate" class="btn-activate" :disabled="isProcessing">
             {{ isProcessing ? $t('panel.plugins.activating') : $t('panel.plugins.activate') }}
           </button>
         </template>
 
-        <!-- Active: Show Deactivate -->
         <template v-else-if="plugin.is_active">
           <button @click="handleDeactivate" class="btn-deactivate" :disabled="isProcessing">
             {{ isProcessing ? $t('panel.plugins.deactivating') : $t('panel.plugins.deactivate') }}
@@ -161,8 +95,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import type { LMPluginMetadata } from '@/types/plugins'
+import { usePluginActions } from './composables/usePluginActions'
+import PluginInfoTab from './PluginInfoTab.vue'
+import PluginSchemaTab from './PluginSchemaTab.vue'
+import PluginPreviewTab from './PluginPreviewTab.vue'
 
 interface Props {
   plugin: LMPluginMetadata
@@ -177,89 +114,16 @@ const emit = defineEmits<{
   deactivate: [pluginId: string]
 }>()
 
-const { t } = useI18n()
 const activeTab = ref<'info' | 'schema' | 'preview'>('info')
-const isProcessing = ref(false)
 
-function formatDate(dateString: string): string {
-  try {
-    const date = new Date(dateString)
-    return date.toLocaleString('de-DE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  } catch {
-    return dateString
-  }
-}
-
-async function handleApprove() {
-  if (isProcessing.value) return
-
-  if (!confirm(t('panel.plugins.confirmApprove', { name: props.plugin.name }))) {
-    return
-  }
-
-  isProcessing.value = true
-  try {
-    emit('approve', props.plugin.plugin_id)
-  } finally {
-    // Parent will close modal on success
-    isProcessing.value = false
-  }
-}
-
-async function handleReject() {
-  if (isProcessing.value) return
-
-  const reason = prompt(t('panel.plugins.rejectReason'))
-  if (!reason || reason.trim().length < 10) {
-    if (reason !== null) {
-      alert(t('panel.plugins.rejectReasonRequired'))
-    }
-    return
-  }
-
-  isProcessing.value = true
-  try {
-    emit('reject', props.plugin.plugin_id, reason.trim())
-  } finally {
-    isProcessing.value = false
-  }
-}
-
-async function handleActivate() {
-  if (isProcessing.value) return
-
-  if (!confirm(t('panel.plugins.confirmActivate', { name: props.plugin.name }))) {
-    return
-  }
-
-  isProcessing.value = true
-  try {
-    emit('activate', props.plugin.plugin_id)
-  } finally {
-    isProcessing.value = false
-  }
-}
-
-async function handleDeactivate() {
-  if (isProcessing.value) return
-
-  if (!confirm(t('panel.plugins.confirmDeactivate', { name: props.plugin.name }))) {
-    return
-  }
-
-  isProcessing.value = true
-  try {
-    emit('deactivate', props.plugin.plugin_id)
-  } finally {
-    isProcessing.value = false
-  }
-}
+const {
+  isProcessing,
+  handleApprove,
+  handleReject,
+  handleActivate,
+  handleDeactivate,
+  formatDate,
+} = usePluginActions(() => props.plugin, emit)
 </script>
 
 <style scoped>
@@ -421,112 +285,6 @@ async function handleDeactivate() {
   padding: 1.5rem;
 }
 
-.info-tab {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.section-title {
-  margin: 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-secondary, #6b7280);
-}
-
-.section-value {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--color-text-primary, #1f2937);
-}
-
-.section-value.code {
-  font-family: monospace;
-  font-size: 0.875rem;
-  background: var(--color-bg-secondary, #f3f4f6);
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  word-break: break-all;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.badge-group {
-  background: var(--color-bg-badge-group, #dbeafe);
-  color: var(--color-text-badge-group, #1e40af);
-}
-
-.badge-tier {
-  background: var(--color-bg-badge-tier, #fef3c7);
-  color: var(--color-text-badge-tier, #92400e);
-}
-
-.badge-ki {
-  background: var(--color-bg-badge-ki, #e0e7ff);
-  color: var(--color-text-badge-ki, #3730a3);
-}
-
-.schema-tab {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.schema-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.schema-code {
-  background: #1e293b;
-  color: #e2e8f0;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.preview-tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-}
-
-.preview-placeholder {
-  text-align: center;
-  color: var(--color-text-secondary, #6b7280);
-}
-
-.preview-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
 .modal-footer {
   padding: 1.5rem;
   border-top: 1px solid var(--color-border, #e5e7eb);
@@ -592,7 +350,6 @@ async function handleDeactivate() {
   transform: none;
 }
 
-/* Scrollbar styling */
 .modal-body::-webkit-scrollbar {
   width: 8px;
 }

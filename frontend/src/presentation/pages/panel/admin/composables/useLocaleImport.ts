@@ -85,6 +85,42 @@ const LOCALE_DATA: Record<string, Record<string, unknown>[]> = {
 
 const REFERENCE_LANGS = ['de', 'en', 'pl'] as const
 
+/**
+ * Flatten nested message objects into dot-separated key-value pairs.
+ * e.g. { common: { save: 'Save' } } -> { 'common.save': 'Save' }
+ */
+export function flattenMessages(obj: Record<string, any>, prefix = ''): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(obj)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      Object.assign(result, flattenMessages(value, fullKey))
+    } else if (typeof value === 'string') {
+      result[fullKey] = value
+    }
+  }
+  return result
+}
+
+/** Merged locale messages per language (unflattened) */
+function mergeAll(...mods: Record<string, any>[]): Record<string, any> {
+  return Object.assign({}, ...mods)
+}
+
+/** All locale messages merged per language, then flattened to dot-notation keys */
+export const allFlatLocaleMessages: Record<string, Record<string, string>> = {
+  de: flattenMessages(mergeAll(...LOCALE_DATA.de)),
+  en: flattenMessages(mergeAll(...LOCALE_DATA.en)),
+  pl: flattenMessages(mergeAll(...LOCALE_DATA.pl))
+}
+
+/** All locale messages merged per language (unflattened, for sync payloads) */
+export const allLocaleMessages: Record<string, Record<string, any>> = {
+  de: mergeAll(...LOCALE_DATA.de),
+  en: mergeAll(...LOCALE_DATA.en),
+  pl: mergeAll(...LOCALE_DATA.pl)
+}
+
 export function useLocaleImport() {
   const importing = ref(false)
   const currentLang = ref('')

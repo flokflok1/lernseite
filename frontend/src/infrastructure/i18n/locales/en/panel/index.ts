@@ -6,6 +6,7 @@ import feature_flags from './feature-flags.json'
 import groups from './groups.json'
 import languages from './languages.json'
 import manual_editor from './manual-editor.json'
+import prompts from './prompts.json'
 import shared from './shared.json'
 import system from './system.json'
 import users from './users.json'
@@ -19,6 +20,7 @@ export default {
     ...groups,
     ...languages,
     ...manual_editor,
+    ...prompts,
     ...shared,
     ...system,
     ...users

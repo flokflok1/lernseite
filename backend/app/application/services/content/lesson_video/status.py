@@ -6,8 +6,8 @@ Provides video generation status tracking and model comparison utilities.
 
 from typing import Dict, Any
 
-from app.application.services.lesson_video.models import SORA_MODELS, DEFAULT_MODEL
-from app.application.services.lesson_video.caching import VideoCache
+from app.application.services.content.lesson_video.models import SORA_MODELS, DEFAULT_MODEL
+from app.application.services.content.lesson_video.caching import VideoCache
 
 
 class StatusChecker:

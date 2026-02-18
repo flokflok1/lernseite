@@ -17,7 +17,7 @@ import logging
 from flask import Blueprint, request, jsonify
 
 from app.api.middleware.auth import token_required
-from app.api.v1.panel.user.tts.user.core import TTS_SERVICE_AVAILABLE
+from app.api.v1.panel.user.tts.core import TTS_SERVICE_AVAILABLE
 
 logger = logging.getLogger(__name__)
 

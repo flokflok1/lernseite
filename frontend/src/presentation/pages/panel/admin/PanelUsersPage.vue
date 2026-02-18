@@ -224,7 +224,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { usePanelStore } from '@/application/stores/modules/admin/panel.store'
-import { useUserManagement } from './users/composables/useUserManagement'
+import { useUserManagement } from '@/presentation/components/panel/admin/users/composables/useUserManagement'
 
 const panelStore = usePanelStore()
 

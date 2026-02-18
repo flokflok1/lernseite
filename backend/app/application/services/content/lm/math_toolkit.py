@@ -5,11 +5,11 @@ NOTICE: This module is deprecated. Use individual modules from the
 math_toolkit package instead:
 
 Old:
-  from app.application.services.math_toolkit.service import MathToolkitService
+  from app.application.services.system_features.math_toolkit.service import MathToolkitService
   MathToolkitService.evaluate_expression(expr)
 
 New:
-  from app.application.services.math_toolkit import MathSolver
+  from app.application.services.system_features.math_toolkit import MathSolver
   MathSolver.evaluate_expression(expr)
 
 This bridge maintains backward compatibility with existing code.
@@ -31,7 +31,7 @@ Structure:
 from typing import Dict, List, Optional, Any
 
 # Import all public interfaces
-from app.application.services.math_toolkit import (
+from app.application.services.system_features.math_toolkit import (
     ExpressionParser,
     MathSolver,
     PatternManager,

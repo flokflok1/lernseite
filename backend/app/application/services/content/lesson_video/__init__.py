@@ -4,7 +4,7 @@ LessonVideo Service Package
 Modular service for generating and caching lesson explanation videos using Sora 2.
 
 Usage:
-    from app.application.services.lesson_video import LessonVideoService
+    from app.application.services.content.lesson_video import LessonVideoService
 
     # Generate lesson video with sora-2 (default) or sora-2-pro
     video = await LessonVideoService.generate_lesson_video(
@@ -18,8 +18,8 @@ Usage:
     video = LessonVideoService.get_cached_video(lesson_id)
 """
 
-from app.application.services.lesson_video.orchestration import LessonVideoService
-from app.application.services.lesson_video.exceptions import VideoGenerationError
+from app.application.services.content.lesson_video.orchestration import LessonVideoService
+from app.application.services.content.lesson_video.exceptions import VideoGenerationError
 
 __all__ = [
     'LessonVideoService',

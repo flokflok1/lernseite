@@ -20,7 +20,7 @@ from typing import Dict, List, Optional
 
 from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository
 from app.infrastructure.persistence.repositories.widgets.widget_repository import WidgetRepository
-from app.domain.models.admin.dashboard import (
+from app.domain.models.schemas.dashboard import (
     DashboardLayout,
     DashboardWidgetInstance,
     get_default_layout_for_role

@@ -16,7 +16,7 @@ ISO 27001:2013 compliant - Access Control (group-based, database-driven audit tr
 """
 
 # Re-export from compatibility wrapper to maintain backward compatibility during migration
-from app.infrastructure.security.permissions_compat import (
+from app.infrastructure.security.gba.permissions_compat import (
     Permissions,
     require_permission,
     require_system_admin,

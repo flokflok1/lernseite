@@ -22,7 +22,7 @@ from datetime import datetime
 
 from app.core.bootstrap import extensions
 from app.api.middleware.auth import token_required
-from app.infrastructure.utils.exceptions import APIException
+from app.infrastructure.error_handling.exceptions import APIException
 
 logger = logging.getLogger(__name__)
 

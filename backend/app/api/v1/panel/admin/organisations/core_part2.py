@@ -15,7 +15,7 @@ ISO/IEC/IEEE 26515:2018 compliant - RESTful API design
 from flask import request, jsonify
 from pydantic import ValidationError
 
-from app.domain.models.admin.organisation_part2 import (
+from app.domain.models.schemas.organisation_part2 import (
     OrganisationAssignUserRequest,
     OrganisationUserResponse
 )

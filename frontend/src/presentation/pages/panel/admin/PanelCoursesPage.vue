@@ -182,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePanelCourses } from './composables/usePanelCourses'
+import { usePanelCourses } from '@/presentation/components/panel/admin/composables/usePanelCourses'
 
 const {
   // State

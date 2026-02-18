@@ -10,7 +10,7 @@ import json
 from typing import Dict, Any, List
 
 from app.application.services.ai.adapter import AIProviderError
-from app.application.services.lesson_video.models import AVATAR_STYLES
+from app.application.services.content.lesson_video.models import AVATAR_STYLES
 
 
 def get_api_key() -> str:

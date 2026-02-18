@@ -9,7 +9,7 @@ Siehe: 02a_System-Features.md für Feature-Beschreibung
 
 from flask import Blueprint
 from app.api.middleware.auth import token_required, permission_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 comprehension_bp = Blueprint('comprehension_checker', __name__, url_prefix='/tutor/comprehension')
 

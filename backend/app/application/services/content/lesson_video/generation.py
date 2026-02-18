@@ -10,8 +10,8 @@ from typing import Dict, Any
 import requests
 from requests.exceptions import RequestException, Timeout
 
-from app.application.services.lesson_video.models import SORA_MODELS, DEFAULT_MODEL, SORA_API_URL
-from app.application.services.lesson_video.helpers import get_api_key
+from app.application.services.content.lesson_video.models import SORA_MODELS, DEFAULT_MODEL, SORA_API_URL
+from app.application.services.content.lesson_video.helpers import get_api_key
 
 
 class SoraVideoGenerator:

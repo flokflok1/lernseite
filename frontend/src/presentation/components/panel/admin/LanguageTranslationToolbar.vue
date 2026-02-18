@@ -134,8 +134,8 @@
  */
 import { ref, computed, watch } from 'vue'
 import type { AdminLanguage } from '@/infrastructure/api/clients/panel/admin/languages.api'
-import { useLocaleImport } from '../composables/useLocaleImport'
-import { useBulkTranslate } from '../composables/useBulkTranslate'
+import { useLocaleImport } from './composables/useLocaleImport'
+import { useBulkTranslate } from './composables/useBulkTranslate'
 
 const props = defineProps<{
   languages: AdminLanguage[]

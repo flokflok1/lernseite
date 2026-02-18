@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 from app.api.v1.panel.editor.manual import manual_editor_bp
 from app.api.v1.panel.editor.shared.permissions import check_course_permission
-from app.domain.models.admin.course import (
+from app.domain.models.schemas.course import (
     AdminCourseCreateRequest,
     AdminCourseUpdateRequest,
     AdminCourseStatusUpdateRequest

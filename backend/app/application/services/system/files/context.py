@@ -24,7 +24,7 @@ try:
 except ImportError:
     DOCX_AVAILABLE = False
 
-from app.application.services.pdf import PDFService, PDFExtractionError
+from app.application.services.content.pdf import PDFService, PDFExtractionError
 
 logger = logging.getLogger(__name__)
 

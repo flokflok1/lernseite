@@ -5,7 +5,7 @@ Peer Review - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 peer_review_bp = Blueprint('peer_review', __name__, url_prefix='/collaboration/peer-review')
 

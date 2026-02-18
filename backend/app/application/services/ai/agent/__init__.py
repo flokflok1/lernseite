@@ -9,7 +9,7 @@ Modular structure:
 - media: Audio/TTS responses
 
 Public API:
-  from app.application.services.agent import AgentService
+  from app.application.services.ai.agent import AgentService
 
   AgentService.ask(course_id, user_id, question)
   AgentService.get_status(course_id)

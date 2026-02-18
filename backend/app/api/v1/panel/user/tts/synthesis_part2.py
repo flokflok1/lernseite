@@ -22,7 +22,7 @@ from flask import request, jsonify
 from flask_jwt_extended import get_jwt_identity
 
 from app.api.middleware.auth import token_required
-from app.api.v1.panel.user.tts.user.core import (
+from app.api.v1.panel.user.tts.core import (
     AVAILABLE_VOICES,
     DEFAULT_TUTOR_VOICE,
     DEFAULT_PROVIDER,
@@ -31,7 +31,7 @@ from app.api.v1.panel.user.tts.user.core import (
 )
 
 # Import the blueprint from the main module to register routes on it
-from app.api.v1.panel.user.tts.user.synthesis import synthesis_bp
+from app.api.v1.panel.user.tts.synthesis import synthesis_bp
 
 logger = logging.getLogger(__name__)
 

@@ -116,7 +116,8 @@ from app.api.v1.public.i18n import i18n_keys_bp, i18n_languages_bp, i18n_public_
 # Admin i18n
 from app.api.v1.panel.admin.i18n import i18n_admin_bp, i18n_sync_bp, admin_translations_bp
 from app.api.v1.panel.admin.i18n.moderation import i18n_moderation_bp, i18n_suggestions_bp
-from app.api.v1.panel.admin.i18n.translation import i18n_ai_translation_bp, translation_bp
+from app.api.v1.panel.admin.i18n.translations.ai_translation import i18n_ai_translation_bp
+from app.api.v1.panel.admin.i18n.translations.translation_api import bp as translation_bp
 
 I18N_BLUEPRINTS = [
     i18n_keys_bp, i18n_languages_bp, i18n_public_bp,
@@ -130,7 +131,8 @@ I18N_BLUEPRINTS = [
 # =============================================================================
 
 from app.api.v1.public.system_features.exam import exams_bp as exam_simulations_bp
-from app.api.v1.public.system_features.math import math_practice_bp as math_toolkit_practice_bp, math_reference_bp as math_toolkit_reference_bp, math_tasks_bp as math_toolkit_tasks_bp, math_admin_bp as math_toolkit_admin_bp
+from app.api.v1.public.system_features.math import math_practice_bp as math_toolkit_practice_bp, math_reference_bp as math_toolkit_reference_bp, math_tasks_bp as math_toolkit_tasks_bp
+from app.api.v1.panel.admin.math_toolkit import admin_bp as math_toolkit_admin_bp
 from app.api.v1.public.system_features import system_features_bp, registry_bp as panel_system_features_bp
 
 # =============================================================================

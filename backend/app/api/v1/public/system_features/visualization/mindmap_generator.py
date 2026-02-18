@@ -5,7 +5,7 @@ Mindmap Generator - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 mindmap_generator_bp = Blueprint('mindmap_generator', __name__, url_prefix='/visualization/mindmap-generator')
 

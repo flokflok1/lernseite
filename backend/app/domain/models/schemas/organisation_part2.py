@@ -14,7 +14,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
-from app.domain.models.admin.organisation import OrgRole
+from app.domain.models.schemas.organisation import OrgRole
 
 
 class TokenPoolCreate(BaseModel):

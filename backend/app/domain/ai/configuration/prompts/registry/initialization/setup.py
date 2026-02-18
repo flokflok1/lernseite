@@ -6,7 +6,7 @@ Default prompt templates initialization for standard learning methods.
 
 import logging
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate, PromptMessage, PromptVariable
+from app.domain.ai.configuration.prompts.models import PromptTemplate, PromptMessage, PromptVariable
 
 logger = logging.getLogger(__name__)
 from ..core.registry import PROMPT_REGISTRY, register_prompt

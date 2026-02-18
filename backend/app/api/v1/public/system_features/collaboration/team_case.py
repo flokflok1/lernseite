@@ -5,7 +5,7 @@ Team Case - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 team_case_bp = Blueprint('team_case', __name__, url_prefix='/collaboration/team-case')
 

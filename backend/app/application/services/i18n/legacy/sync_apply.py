@@ -23,7 +23,7 @@ from app.infrastructure.persistence.repositories.i18n.sync_repository import (
     I18nSyncRepository
 )
 from app.infrastructure.persistence.repositories.i18n.translations import I18nTranslationsRepository as TranslationRepository
-from app.infrastructure.utils.exceptions import NotFoundError, BusinessLogicError
+from app.infrastructure.error_handling.exceptions import NotFoundError, BusinessLogicError
 from app.infrastructure.persistence.database import get_connection
 
 logger = logging.getLogger(__name__)

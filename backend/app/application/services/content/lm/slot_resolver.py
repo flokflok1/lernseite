@@ -14,7 +14,7 @@ Date: 2025-12-04
 from typing import Optional, Dict, List, Any
 from dataclasses import dataclass
 
-from app.domain.ai.configuration.capability_slots import CapabilitySlot, get_slot_definition
+from app.domain.ai.configuration.slots.capability_slots import CapabilitySlot, get_slot_definition
 from app.infrastructure.persistence.repositories.lm_slot import (
     LMSlotAssignmentRepository,
     LMSlotResolverRepository,

@@ -5,7 +5,7 @@ Timer Wrapper - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 timer_wrapper_bp = Blueprint('timer_wrapper', __name__, url_prefix='/meta/timer-wrapper')
 

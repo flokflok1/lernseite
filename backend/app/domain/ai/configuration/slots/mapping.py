@@ -5,7 +5,7 @@ Functions for mapping between slots and LMs.
 """
 
 from typing import List
-from app.domain.ai.configuration.capability_slots import CapabilitySlot
+from app.domain.ai.configuration.slots.capability_slots import CapabilitySlot
 from .requirements import LMSlotConfig, ALL_LM_CONFIGS
 
 

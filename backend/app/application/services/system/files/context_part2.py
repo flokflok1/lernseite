@@ -22,7 +22,7 @@ try:
 except ImportError:
     DOCX_AVAILABLE = False
 
-from app.application.services.pdf import PDFService
+from app.application.services.content.pdf import PDFService
 from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
 
 from .context import FileContextService, FileContextError

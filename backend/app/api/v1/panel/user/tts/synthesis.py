@@ -24,7 +24,7 @@ from flask import Blueprint, request, jsonify, Response, send_file
 from flask_jwt_extended import get_jwt_identity
 
 from app.api.middleware.auth import token_required
-from app.api.v1.panel.user.tts.user.core import (
+from app.api.v1.panel.user.tts.core import (
     AVAILABLE_VOICES,
     DEFAULT_TUTOR_VOICE,
     DEFAULT_PROVIDER,

@@ -7,7 +7,7 @@ Functions for retrieving prompt templates from registry or database.
 import logging
 from typing import List, Optional
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate
+from app.domain.ai.configuration.prompts.models import PromptTemplate
 
 logger = logging.getLogger(__name__)
 from app.domain.ports.core.registry import repos

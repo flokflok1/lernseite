@@ -10,7 +10,7 @@ IMPORTANT: This is a TEMPORARY bridge. All code should migrate to use the new
 @permission_required() decorator from app.api.middleware.auth.
 
 Migration Path:
-  OLD: from app.infrastructure.security.permissions import require_permission, Permissions
+  OLD: from app.infrastructure.security.gba.permissions import require_permission, Permissions
        @require_permission(Permissions.ADMIN_USER_READ)
 
   NEW: from app.api.middleware.auth import permission_required
@@ -390,7 +390,7 @@ def require_org_member(fn):
 # - require_owner()
 # - require_owner_or_permission()
 
-from app.infrastructure.security.permissions_compat_part2 import (  # noqa: E402
+from app.infrastructure.security.gba.permissions_compat_part2 import (  # noqa: E402
     user_has_permission,
     get_user_permissions,
     require_owner,

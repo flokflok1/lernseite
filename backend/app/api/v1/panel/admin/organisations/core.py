@@ -18,7 +18,7 @@ from typing import Optional
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.domain.models.admin.organisation import (
+from app.domain.models.schemas.organisation import (
     OrganisationCreate,
     OrganisationUpdate,
     OrganisationResponse,

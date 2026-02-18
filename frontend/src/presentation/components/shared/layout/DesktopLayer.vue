@@ -46,7 +46,7 @@ import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import type { WindowType } from '@/application/stores/modules/ui/window.store'
 import WindowComponent from './WindowComponent.vue'
 import Taskbar from './Taskbar.vue'
-import { LEARNING_METHOD_REGISTRY as _LEARNING_METHOD_REGISTRY, getLearningMethodForm } from '@/presentation/components/panel/admin/learning-methods/learning-methods.registry'
+import { LEARNING_METHOD_REGISTRY as _LEARNING_METHOD_REGISTRY, getLearningMethodForm } from '@/presentation/components/panel/admin/learning-methods/editor/learning-methods.registry'
 
 // Import window content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations
@@ -79,7 +79,7 @@ const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentati
 
 // Editor Windows (Course Authoring - /editor route)
 const EditorManualWindow = defineAsyncComponent(() => import('@/presentation/pages/panel/editor/manual/ManualEditorWindow.vue'))
-const EditorAIStudioWindow = defineAsyncComponent(() => import('@/presentation/pages/panel/editor/ai/AIEditorWindow.vue'))
+const EditorAIStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/AIEditorWindow.vue'))
 
 const windowStore = useWindowStore()
 

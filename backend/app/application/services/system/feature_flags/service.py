@@ -24,7 +24,7 @@ import json
 import logging
 
 from app.infrastructure.persistence.database.connection import get_db_connection
-from app.infrastructure.persistence.repositories.feature_configuration import (
+from app.infrastructure.persistence.repositories.features.configuration import (
     FeatureConfigurationRepository,
     FeatureRoleMappingRepository
 )
@@ -32,7 +32,7 @@ from app.infrastructure.persistence.repositories.features.configuration_part2 im
     FeatureTierLimitRepository,
     FeatureCacheStatusRepository
 )
-from app.infrastructure.utils.exceptions import ValidationError, NotFoundError
+from app.infrastructure.error_handling.exceptions import ValidationError, NotFoundError
 
 logger = logging.getLogger(__name__)
 

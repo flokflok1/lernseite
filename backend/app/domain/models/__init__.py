@@ -16,7 +16,7 @@ Uses Pydantic for:
 ISO 9001:2015 compliant - Data modeling standards
 """
 
-from app.domain.models.admin.user import (
+from app.domain.models.schemas.user import (
     UserBase,
     UserCreate,
     UserUpdate,
@@ -40,7 +40,7 @@ from app.domain.models.content.course import (
     EnrollmentCreate
 )
 
-from app.domain.models.admin.organisation import (
+from app.domain.models.schemas.organisation import (
     OrganisationBase,
     OrganisationCreate,
     OrganisationUpdate,

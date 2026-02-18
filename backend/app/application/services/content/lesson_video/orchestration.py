@@ -6,16 +6,16 @@ Main service class that coordinates prompt generation, video synthesis, and cach
 
 from typing import Dict, Any, List
 
-from app.application.services.lesson_video.generation import SoraVideoGenerator
-from app.application.services.lesson_video.caching import VideoCache
-from app.application.services.lesson_video.status import StatusChecker
-from app.application.services.lesson_video.helpers import (
+from app.application.services.content.lesson_video.generation import SoraVideoGenerator
+from app.application.services.content.lesson_video.caching import VideoCache
+from app.application.services.content.lesson_video.status import StatusChecker
+from app.application.services.content.lesson_video.helpers import (
     generate_content_hash,
     generate_video_prompt,
     combine_teaching_steps,
     estimate_video_duration
 )
-from app.application.services.lesson_video.models import DEFAULT_MODEL, SORA_MODELS
+from app.application.services.content.lesson_video.models import DEFAULT_MODEL, SORA_MODELS
 
 
 class LessonVideoService:

@@ -14,13 +14,13 @@ from typing import Dict, Any, Optional
 import requests
 from requests.exceptions import RequestException, Timeout
 
-from .exceptions import (
+from app.infrastructure.ai.exceptions import (
     AIProviderError,
     AIQuotaExceededError,
     AIInvalidKeyError,
     AITimeoutError
 )
-from .config import PROVIDERS
+from app.infrastructure.ai.config import PROVIDERS
 
 logger = logging.getLogger(__name__)
 

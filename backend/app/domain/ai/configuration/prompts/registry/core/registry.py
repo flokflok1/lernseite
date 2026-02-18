@@ -8,7 +8,7 @@ import logging
 from typing import Dict
 from datetime import datetime
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate
+from app.domain.ai.configuration.prompts.models import PromptTemplate
 
 logger = logging.getLogger(__name__)
 

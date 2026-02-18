@@ -12,7 +12,7 @@ Modules:
     - bridge: Unified public API (PDFService class)
 
 Usage:
-    from app.application.services.pdf import PDFService, PDFExtractionError
+    from app.application.services.content.pdf import PDFService, PDFExtractionError
 
     try:
         result = PDFService.extract_text(file_bytes, "document.pdf")

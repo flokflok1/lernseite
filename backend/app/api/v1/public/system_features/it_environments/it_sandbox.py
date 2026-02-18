@@ -22,7 +22,7 @@ Siehe: 02a_System-Features.md für Feature-Beschreibung
 
 from flask import Blueprint, request, jsonify
 from app.api.middleware.auth import token_required, permission_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 it_sandbox_bp = Blueprint('it_sandbox', __name__, url_prefix='/it-environments/it-sandbox')
 

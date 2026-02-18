@@ -14,11 +14,11 @@ Integration:
 - Speichert Sessions in course_authoring_sessions Tabelle
 """
 
-from app.application.services.course_authoring.session import (
+from app.application.services.content.course_authoring.session import (
     CourseAuthoringSession,
     CourseAuthoringService,
 )
-from app.application.services.course_authoring.exceptions import CourseAuthoringError
+from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
 
 __all__ = [
     "CourseAuthoringService",

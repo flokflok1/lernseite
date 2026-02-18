@@ -9,7 +9,7 @@ All code should migrate to use:
 """
 
 # Re-export from compatibility wrapper to maintain backward compatibility
-from app.infrastructure.security.permissions_compat import (
+from app.infrastructure.security.gba.permissions_compat import (
     require_owner,
     require_owner_or_permission
 )

@@ -23,7 +23,7 @@ from typing import Dict, Any, Tuple, Optional
 import logging
 
 from app.api.middleware.auth import permission_required
-from app.infrastructure.persistence.repositories.feature_configuration import (
+from app.infrastructure.persistence.repositories.features.configuration import (
     FeatureConfigurationRepository
 )
 from app.application.services.system.audit.service import AuditService

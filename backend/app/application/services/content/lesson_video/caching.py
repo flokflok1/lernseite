@@ -9,8 +9,8 @@ import hashlib
 from typing import Dict, Any, Optional
 
 from app.infrastructure.persistence.repositories.core.base import BaseRepository
-from app.application.services.lesson_video.exceptions import VideoGenerationError
-from app.application.services.lesson_video.models import DEFAULT_MODEL
+from app.application.services.content.lesson_video.exceptions import VideoGenerationError
+from app.application.services.content.lesson_video.models import DEFAULT_MODEL
 
 
 class VideoCache:

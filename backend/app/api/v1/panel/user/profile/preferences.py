@@ -14,7 +14,7 @@ Split from: profile.py (Part 2/4 - Preferences)
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.domain.models.admin.user import (
+from app.domain.models.schemas.user import (
     ThemePreferenceResponse, ThemePreferenceUpdateRequest
 )
 from app.infrastructure.persistence.repositories.user import UserRepository

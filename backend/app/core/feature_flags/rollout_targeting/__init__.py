@@ -5,11 +5,11 @@ Provides targeting capabilities for feature rollouts based on
 organization membership and user segments.
 """
 
-from app.core.rollout.targeting.organisation import (
+from app.core.feature_flags.rollout_targeting.organisation import (
     OrganizationRolloutRepository,
     OrganizationRollout
 )
-from app.core.rollout.targeting.segments import (
+from app.core.feature_flags.rollout_targeting.segments import (
     UserSegmentsRepository,
     UserSegments
 )

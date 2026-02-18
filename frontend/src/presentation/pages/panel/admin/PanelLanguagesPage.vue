@@ -319,8 +319,8 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { languagesApi, type AdminLanguage } from '@/infrastructure/api/clients/panel/admin/languages.api'
-import LanguageTranslationToolbar from './components/LanguageTranslationToolbar.vue'
-import TranslationReviewPanel from './components/TranslationReviewPanel.vue'
+import LanguageTranslationToolbar from '@/presentation/components/panel/admin/LanguageTranslationToolbar.vue'
+import TranslationReviewPanel from '@/presentation/components/panel/admin/TranslationReviewPanel.vue'
 
 import flagDe from '@/assets/flags/de.svg'
 import flagEn from '@/assets/flags/en.svg'

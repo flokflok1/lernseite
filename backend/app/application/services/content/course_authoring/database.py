@@ -9,7 +9,7 @@ from typing import Dict, Optional, List, Any
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
-from app.application.services.course_authoring.exceptions import CourseAuthoringError
+from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
 
 logger = logging.getLogger(__name__)
 

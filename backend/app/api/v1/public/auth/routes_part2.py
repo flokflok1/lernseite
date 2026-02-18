@@ -22,7 +22,7 @@ from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
 logger = logging.getLogger(__name__)
 
-from app.domain.models.admin.user import (
+from app.domain.models.schemas.user import (
     TwoFactorSetup,
     TwoFactorDisable,
     PasswordReset

@@ -19,7 +19,7 @@ import logging
 
 from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.utils.exceptions import NotFoundError, ValidationError
+from app.infrastructure.error_handling.exceptions import NotFoundError, ValidationError
 
 logger = logging.getLogger(__name__)
 

@@ -117,13 +117,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { CATEGORY_LABELS, STYLE_LABELS } from './prompts/prompt.types.ts'
-import { usePromptTemplates } from './prompts/usePromptTemplates.ts'
-import PromptStatsCards from './prompts/PromptStatsCards.vue'
-import PromptTemplateList from './prompts/PromptTemplateList.vue'
-import PromptEditModal from './prompts/PromptEditModal.vue'
-import PromptPreviewModal from './prompts/PromptPreviewModal.vue'
-import PromptDeleteModal from './prompts/PromptDeleteModal.vue'
+import { CATEGORY_LABELS, STYLE_LABELS } from '@/presentation/components/panel/admin/prompts/prompt.types'
+import { usePromptTemplates } from '@/presentation/components/panel/admin/prompts/usePromptTemplates'
+import PromptStatsCards from '@/presentation/components/panel/admin/prompts/PromptStatsCards.vue'
+import PromptTemplateList from '@/presentation/components/panel/admin/prompts/PromptTemplateList.vue'
+import PromptEditModal from '@/presentation/components/panel/admin/prompts/PromptEditModal.vue'
+import PromptPreviewModal from '@/presentation/components/panel/admin/prompts/PromptPreviewModal.vue'
+import PromptDeleteModal from '@/presentation/components/panel/admin/prompts/PromptDeleteModal.vue'
 
 const { t } = useI18n()
 

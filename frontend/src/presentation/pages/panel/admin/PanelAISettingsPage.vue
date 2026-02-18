@@ -104,8 +104,8 @@ import { onMounted } from 'vue'
 
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 
-import { useAISettingsManager } from './ai-settings/composables'
-import { AISettingsStatsBar, AIProviderCard, AIDefaultModelSection, AIModelsOverview } from './ai-settings/components'
+import { useAISettingsManager } from '@/presentation/components/panel/admin/ai-settings/composables'
+import { AISettingsStatsBar, AIProviderCard, AIDefaultModelSection, AIModelsOverview } from '@/presentation/components/panel/admin/ai-settings/components'
 
 const windowStore = useWindowStore()
 

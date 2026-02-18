@@ -10,12 +10,12 @@ from datetime import datetime
 
 from app.infrastructure.persistence.database.connection import fetch_one, execute_query
 from app.application.services.ai.adapter import AIAdapter, AIProviderError
-from app.application.services.course_authoring.exceptions import CourseAuthoringError
-from app.application.services.course_authoring.database import DatabaseOperations
-from app.application.services.course_authoring.prompts import PromptGenerator
-from app.application.services.course_authoring.helpers import DataHelpers, ActivityLogGenerator
-from app.application.services.course_authoring.validation import OperationValidator
-from app.application.services.course_authoring.operations import StructureOperations
+from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
+from app.application.services.content.course_authoring.database import DatabaseOperations
+from app.application.services.content.course_authoring.prompts import PromptGenerator
+from app.application.services.content.course_authoring.helpers import DataHelpers, ActivityLogGenerator
+from app.application.services.content.course_authoring.validation import OperationValidator
+from app.application.services.content.course_authoring.operations import StructureOperations
 
 logger = logging.getLogger(__name__)
 

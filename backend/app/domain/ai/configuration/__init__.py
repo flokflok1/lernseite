@@ -6,7 +6,7 @@ Central prompt management system for all AI-related functionality.
 Phase 24 - Developer Guide / KI-Prompts
 """
 
-from app.domain.ai.configuration.prompt_models import (
+from app.domain.ai.configuration.prompts.models import (
     PromptMessage,
     PromptVariable,
     PromptTemplate,

@@ -18,8 +18,8 @@ Flow:
 
 from typing import Optional, Dict, Any
 from pydantic import ValidationError as PydanticValidationError
-from app.infrastructure.utils.exceptions import ValidationError
-from app.infrastructure.utils.validation_error_mapping import ValidationErrorMapping
+from app.infrastructure.error_handling.exceptions import ValidationError
+from app.infrastructure.error_handling.validation_error_mapping import ValidationErrorMapping
 from app.infrastructure.i18n.error_code_i18n_mapping import get_i18n_key
 
 

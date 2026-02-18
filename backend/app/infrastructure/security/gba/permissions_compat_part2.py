@@ -21,7 +21,7 @@ from typing import Set
 
 from flask import jsonify
 
-from app.infrastructure.security.permissions_compat import _map_permission_code
+from app.infrastructure.security.gba.permissions_compat import _map_permission_code
 
 
 # ============================================================================
@@ -212,7 +212,7 @@ def require_owner_or_permission(permission_code: str):
 # Migration Steps:
 #
 # 1. OLD CODE (Still works, via this wrapper):
-#    from app.infrastructure.security.permissions import require_permission, Permissions
+#    from app.infrastructure.security.gba.permissions import require_permission, Permissions
 #    @require_permission(Permissions.ADMIN_USER_READ)
 #    def list_users():
 #        return jsonify([...])

@@ -22,7 +22,7 @@ from flask import current_app
 from app.infrastructure.persistence.repositories.audit.moderation_audit import ModerationAuditRepository, ModerationAction
 from app.infrastructure.persistence.repositories.content.publishing import CoursePublishingRepository
 from app.application.services.system.audit.service import AuditService
-from app.infrastructure.utils.exceptions import NotFoundError, ValidationError, ConflictError
+from app.infrastructure.error_handling.exceptions import NotFoundError, ValidationError, ConflictError
 
 # NOTE: CourseRepository imported lazily (inside methods) to avoid circular imports
 # Import chain: repositories.courses -> cache_service -> services -> moderation_service -> repositories.courses

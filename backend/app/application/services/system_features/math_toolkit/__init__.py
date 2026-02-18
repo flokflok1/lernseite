@@ -33,7 +33,7 @@ __all__ = [
     'CalculatorHistory',
     'StepRecorder',
     # NOTE: MathToolkitService is available via:
-    # - Direct import: from app.application.services.lm.math_toolkit import MathToolkitService
-    # - Or bridge file: from app.application.services.math_toolkit.service import MathToolkitService
+    # - Direct import: from app.application.services.content.lm.math_toolkit import MathToolkitService
+    # - Or bridge file: from app.application.services.system_features.math_toolkit.service import MathToolkitService
     # It is not re-exported here to avoid circular import issues
 ]

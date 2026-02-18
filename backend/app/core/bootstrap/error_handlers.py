@@ -20,7 +20,7 @@ def register_error_handlers(app: Flask) -> None:
         app: Flask application instance
     """
     from pydantic import ValidationError
-    from app.infrastructure.utils.exceptions import APIException
+    from app.infrastructure.error_handling.exceptions import APIException
 
     @app.errorhandler(APIException)
     def handle_api_exception(error):

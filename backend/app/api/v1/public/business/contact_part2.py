@@ -13,7 +13,7 @@ from datetime import datetime
 import psycopg
 import logging
 
-from app.infrastructure.utils.exceptions import ValidationError, APIException
+from app.infrastructure.error_handling.exceptions import ValidationError, APIException
 
 from .contact import (
     bp,

@@ -5,7 +5,7 @@ Peer Instruction - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 peer_instruction_bp = Blueprint('peer_instruction', __name__, url_prefix='/collaboration/peer-instruction')
 

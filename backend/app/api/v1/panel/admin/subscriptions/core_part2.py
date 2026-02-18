@@ -20,7 +20,7 @@ from datetime import datetime
 from flask import request, jsonify
 from pydantic import ValidationError
 
-from app.domain.models.admin.subscription import (
+from app.domain.models.schemas.subscription import (
     SubscriptionCancelRequest,
     SubscriptionStats,
 )

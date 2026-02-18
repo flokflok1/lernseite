@@ -1,2 +1,4 @@
 """Math Toolkit Admin API Module"""
-__all__ = []
+from .routes import admin_bp
+
+__all__ = ['admin_bp']

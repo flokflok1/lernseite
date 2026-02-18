@@ -16,8 +16,8 @@ Date: 2025-01-23
 from typing import Optional, Dict, Any, List
 import logging
 from app.infrastructure.persistence.repositories.course_prompt import CoursePromptRepository
-from app.domain.ai.configuration.prompt_registry import get_prompt_template, PROMPT_REGISTRY
-from app.domain.ai.configuration.prompt_models import PromptTemplate
+from app.domain.ai.configuration.prompts.registry_bridge import get_prompt_template, PROMPT_REGISTRY
+from app.domain.ai.configuration.prompts.models import PromptTemplate
 
 # Initialize logger
 logger = logging.getLogger(__name__)

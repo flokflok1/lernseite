@@ -24,8 +24,8 @@ import json
 
 from app.infrastructure.persistence.database.connection import get_db_connection
 from app.infrastructure.persistence.repositories.features.configuration_part2 import FeatureAbTestRepository
-from app.application.services.feature_flags.cache import FeatureConfigurationCacheService
-from app.infrastructure.utils.exceptions import ValidationError, NotFoundError
+from app.application.services.system.feature_flags.cache import FeatureConfigurationCacheService
+from app.infrastructure.error_handling.exceptions import ValidationError, NotFoundError
 
 logger = logging.getLogger(__name__)
 

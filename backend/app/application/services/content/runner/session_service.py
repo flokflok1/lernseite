@@ -20,7 +20,7 @@ from app.infrastructure.persistence.repositories.runner.sessions import (
 from app.infrastructure.redis.runner_state import RunnerStateManager
 from app.infrastructure.i18n.error_codes import ErrorCode
 
-from app.application.services.runner.session_service_part2 import (
+from app.application.services.content.runner.session_service_part2 import (
     RunnerSessionHelpersMixin
 )
 

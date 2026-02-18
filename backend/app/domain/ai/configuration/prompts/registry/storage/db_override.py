@@ -7,7 +7,7 @@ Database override logic for prompt templates.
 from typing import Dict
 import json
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate, PromptMessage, PromptVariable
+from app.domain.ai.configuration.prompts.models import PromptTemplate, PromptMessage, PromptVariable
 
 
 # Enable/disable DB override lookup (can be disabled for performance in tests)

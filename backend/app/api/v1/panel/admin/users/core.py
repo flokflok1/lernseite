@@ -23,7 +23,7 @@ Refactored: 2026-01-12 - Consolidated from users/ folder into flat file
 from flask import Blueprint, request, jsonify, g
 from pydantic import ValidationError
 
-from app.domain.models.admin.user import (
+from app.domain.models.schemas.user import (
     UserCreate,
     UserUpdate,
     UserResponse,

@@ -17,7 +17,7 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 import re
 
 # Import shared validators to eliminate duplication
-from app.domain.models.admin.validators import (
+from app.domain.models.schemas.validators import (
     validate_password_strength,
     validate_role,
     validate_totp_code

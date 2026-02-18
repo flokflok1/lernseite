@@ -129,8 +129,8 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/infrastructure/api/http'
 import { i18n } from '@/infrastructure/plugins/i18n'
-import { flattenMessages, allFlatLocaleMessages, allLocaleMessages } from './composables/useLocaleImport'
-import TranslationReviewPanel from './components/TranslationReviewPanel.vue'
+import { flattenMessages, allFlatLocaleMessages, allLocaleMessages } from '@/presentation/components/panel/admin/composables/useLocaleImport'
+import TranslationReviewPanel from '@/presentation/components/panel/admin/TranslationReviewPanel.vue'
 
 const { t } = useI18n()
 

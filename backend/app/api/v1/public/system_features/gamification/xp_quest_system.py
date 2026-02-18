@@ -5,7 +5,7 @@ XP & Quest System - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 xp_quest_bp = Blueprint('xp_quest', __name__, url_prefix='/gamification/xp-quest')
 

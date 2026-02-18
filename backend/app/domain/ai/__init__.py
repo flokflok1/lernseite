@@ -1,14 +1,14 @@
 """
-LernsystemX AI Module
+LernsystemX AI Domain Module
 
-AI-powered content generation:
-- AI course generator from PDF
-- Module auto-generation
-- Lesson auto-generation
-
-Phase B24-05
+AI domain configuration and prompt definitions.
+Business logic moved to app.application.services.content.course_authoring.
 """
 
-from app.domain.ai.ai_course_generator import AICourseGenerator, run_ai_course_generation
+# Bridge import for backward compatibility
+from app.application.services.content.course_authoring.ai_generator import (
+    AICourseGenerator,
+    run_ai_course_generation,
+)
 
 __all__ = ['AICourseGenerator', 'run_ai_course_generation']

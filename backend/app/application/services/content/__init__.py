@@ -7,8 +7,8 @@ Content management and operations:
 - Content validation and processing
 """
 
-from .translation import ContentTranslationService
-from .translation_jobs import ContentTranslationJobProcessor
+from .translation.service import ContentTranslationService
+from .translation.jobs import ContentTranslationJobProcessor
 
 __all__ = [
     'ContentTranslationService',

@@ -564,10 +564,10 @@ composables/
 └── useFeatureApi.ts         # API-Calls
 ```
 
-**Beispiel: AI-Studio Refactoring (2025-12-29)**
+**Beispiel: AI-Editor Refactoring (2025-12-29)**
 
 ```
-ai-studio/                    # VORHER: 16.554 Zeilen in 14 Dateien
+ai-editor/                    # VORHER: 16.554 Zeilen in 14 Dateien
 ├── TutorTab.vue             # 3.698 → 141 Zeilen (-96%)
 │   └── tutor/
 │       ├── ChapterTheoryView.vue
@@ -713,13 +713,13 @@ frontend/src/api/admin/         # 14 files
 backend/app/api/
 ├── admin/                    # Muss in 17_Backend-Struktur.md
 │   └── courses.py
-├── admin_ai_studio.py        # Muss in 17_Backend-Struktur.md
+├── admin_ai_editor.py        # Muss in 17_Backend-Struktur.md
 └── admin_ai_tutor.py         # Muss in 17_Backend-Struktur.md
 ```
 
 **Beispiel Frontend:**
 ```
-frontend/src/components/desktop/windows/ai-studio/
+frontend/src/components/presentation/components/panel/editor/ai/
 ├── /tutor/                   # Muss in 16_Frontend-Struktur.md
 ├── /kurs-builder/            # Muss in 16_Frontend-Struktur.md
 └── TutorTab.vue              # Muss in 16_Frontend-Struktur.md
@@ -745,7 +745,7 @@ ls backend/app/api/admin*.py
 **Bei Frontend-Änderungen:**
 ```bash
 # Prüfen ob alle Unterordner in Doku sind
-ls -d frontend/src/components/desktop/windows/ai-studio/*/
+ls -d frontend/src/components/presentation/components/panel/editor/ai/*/
 # Vergleichen mit 16_Frontend-Struktur.md
 ```
 

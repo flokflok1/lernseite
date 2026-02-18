@@ -1,4 +1,4 @@
-# 36 – KI-Authoring-Studio
+# 36 – AI Editor
 
 **Version:** 1.0
 **Stand:** Dezember 2024
@@ -7,7 +7,7 @@
 
 ## Überblick
 
-Das **KI-Authoring-Studio** ist ein Desktop-basiertes Werkzeug im Admin-Bereich, das Content-Creatoren und Administratoren ermöglicht, KI-gestützt Kursinhalte zu erstellen, zu bearbeiten und zu verwalten.
+Das **AI Editor** ist ein Desktop-basiertes Werkzeug im Admin-Bereich, das Content-Creatoren und Administratoren ermöglicht, KI-gestützt Kursinhalte zu erstellen, zu bearbeiten und zu verwalten.
 
 ### Kernziele
 
@@ -23,7 +23,7 @@ Das **KI-Authoring-Studio** ist ein Desktop-basiertes Werkzeug im Admin-Bereich,
 
 ### Desktop-Window-Konzept
 
-Das KI-Authoring-Studio ist als **Desktop-Window** im LSX-Admin-System implementiert. Es öffnet sich als schwebendes Fenster mit:
+Das AI Editor ist als **Desktop-Window** im LSX-Admin-System implementiert. Es öffnet sich als schwebendes Fenster mit:
 
 - Minimieren/Schließen-Buttons
 - Verschiebbar per Drag & Drop
@@ -33,7 +33,7 @@ Das KI-Authoring-Studio ist als **Desktop-Window** im LSX-Admin-System implement
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  KI-Authoring-Studio                           [_] [X]      │
+│  AI Editor                           [_] [X]      │
 ├─────────────────────┬───────────────────────────────────────┤
 │                     │  Kontext-Leiste                       │
 │  Kurs-Auswahl       │  [Kurs] [Kapitel] [3 Dateien]         │
@@ -63,7 +63,7 @@ Das KI-Authoring-Studio ist als **Desktop-Window** im LSX-Admin-System implement
 
 ### Datei
 
-`frontend/src/components/desktop/windows/AdminAiStudioWindow.vue`
+`frontend/src/presentation/components/panel/editor/ai/AIEditorContainer.vue`
 
 ### Props
 
@@ -119,7 +119,7 @@ const selectedFileIds = ref<string[]>([])
 
 ### Endpoints
 
-#### POST `/api/v1/admin/ai-studio/chat`
+#### POST `/api/v1/admin/ai-editor/chat`
 
 Chat-Nachricht an die KI senden.
 
@@ -165,7 +165,7 @@ Chat-Nachricht an die KI senden.
 
 ### Backend-Datei
 
-`backend/app/api/admin_ai_studio.py`
+`backend/app/api/admin_ai_editor.py`
 
 ### Interne Funktionen
 
@@ -207,10 +207,10 @@ Sessions werden im LocalStorage gespeichert:
 
 ```typescript
 // Speichern
-localStorage.setItem('ai_studio_session', JSON.stringify(session.value))
+localStorage.setItem('ai_editor_session', JSON.stringify(session.value))
 
 // Laden
-const saved = localStorage.getItem('ai_studio_session')
+const saved = localStorage.getItem('ai_editor_session')
 if (saved) session.value = JSON.parse(saved)
 ```
 
@@ -292,17 +292,17 @@ const context = {
 ### Responsive Split-View
 
 ```css
-.ai-studio-split-view {
+.ai-editor-split-view {
   display: flex;
   height: 100%;
 }
 
-.ai-studio-sidebar {
+.ai-editor-sidebar {
   width: 280px;
   border-right: 1px solid var(--color-border);
 }
 
-.ai-studio-main {
+.ai-editor-main {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -320,8 +320,8 @@ import { useWindowStore } from '@/store/window.store'
 
 // Fenster öffnen
 windowStore.openWindow({
-  type: 'admin-ai-studio',
-  title: 'KI-Authoring-Studio',
+  type: 'admin-ai-editor',
+  title: 'AI Editor',
   icon: '🤖',
   payload: { courseId, courseTitle }
 })

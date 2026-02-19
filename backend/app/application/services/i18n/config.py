@@ -5,7 +5,7 @@ AI moderation configuration and moderation dashboard.
 """
 
 from typing import Dict, Any, Optional, List
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.i18n.service_queries_part2 import I18nConfigQueriesRepository
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,8 +23,7 @@ class ConfigManager:
             Dictionary of configuration key-value pairs
         """
         try:
-            query = "SELECT config_key, config_value FROM i18n_ai_config"
-            rows = fetch_all(query) or []
+            rows = I18nConfigQueriesRepository.get_ai_config()
             return {row['config_key']: row['config_value'] for row in rows}
         except Exception as e:
             logger.error(f"Error fetching AI config: {e}")
@@ -45,18 +44,9 @@ class ConfigManager:
         """
         try:
             import json
-            # Convert value to JSON string for JSONB storage
             json_value = json.dumps(config_value)
 
-            query = """
-                INSERT INTO i18n_ai_config (config_key, config_value, updated_by, updated_at)
-                VALUES (%s, %s::jsonb, %s, NOW())
-                ON CONFLICT (config_key) DO UPDATE SET
-                    config_value = EXCLUDED.config_value,
-                    updated_by = EXCLUDED.updated_by,
-                    updated_at = NOW()
-            """
-            execute_query(query, (config_key, json_value, user_id))
+            I18nConfigQueriesRepository.update_ai_config(config_key, json_value, user_id)
             logger.info(f"Updated i18n config '{config_key}' by user {user_id}")
             return True
         except Exception as e:
@@ -72,22 +62,7 @@ class ConfigManager:
             List of moderation dashboard entries by language
         """
         try:
-            query = """
-                SELECT
-                    sl.language_code,
-                    sl.language_name,
-                    sl.flag AS flag_svg_code,
-                    0 AS pending_count,
-                    0 AS ai_reviewing_count,
-                    0 AS awaiting_human_count,
-                    0 AS pending_suggestions,
-                    0 AS ai_reviews_24h,
-                    NULL AS avg_quality_7d
-                FROM translations.supported_languages sl
-                WHERE sl.is_active = TRUE
-                ORDER BY sl.priority
-            """
-            return fetch_all(query) or []
+            return I18nConfigQueriesRepository.get_moderation_dashboard()
         except Exception as e:
             logger.error(f"Error fetching moderation dashboard: {e}")
             return []

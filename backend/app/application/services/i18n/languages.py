@@ -5,7 +5,7 @@ Language metadata, progress tracking, and primary language management.
 """
 
 from typing import Optional, Dict, Any, List
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.i18n.service_queries import I18nLanguageStatsRepository
 from app.infrastructure.cache.service import CacheService
 import logging
 
@@ -30,10 +30,9 @@ class LanguageManager:
             return LanguageManager._primary_language
 
         try:
-            query = "SELECT language_code FROM translations.supported_languages WHERE is_primary = TRUE LIMIT 1"
-            result = fetch_one(query)
-            if result:
-                LanguageManager._primary_language = result['language_code']
+            code = I18nLanguageStatsRepository.get_primary_language_code()
+            if code:
+                LanguageManager._primary_language = code
                 return LanguageManager._primary_language
         except Exception as e:
             logger.warning(f"Could not fetch primary language: {e}")
@@ -61,38 +60,7 @@ class LanguageManager:
             return cached
 
         try:
-            # Get total keys count
-            key_count_query = "SELECT COUNT(*) as cnt FROM translations.i18n_keys WHERE TRUE"
-            key_count_result = fetch_one(key_count_query)
-            total_keys = key_count_result['cnt'] if key_count_result else 0
-
-            query = """
-                SELECT
-                    sl.language_code,
-                    sl.language_name,
-                    sl.native_name,
-                    sl.flag AS flag_svg_code,
-                    sl.is_primary,
-                    COALESCE(sl.priority, 100) as priority,
-                    COALESCE(sl.is_rtl, FALSE) as rtl,
-                    sl.is_active as active,
-                    %s as total_keys,
-                    COALESCE(trans_count.cnt, 0) as translated_keys,
-                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s)::int ELSE 0 END as completion_percent,
-                    0 as verified_keys,
-                    0 as pending_suggestions
-                FROM translations.supported_languages sl
-                LEFT JOIN (
-                    SELECT language_code, COUNT(*) as cnt
-                    FROM translations.i18n_translations
-                    GROUP BY language_code
-                ) trans_count ON sl.language_code = trans_count.language_code
-                WHERE sl.is_active = TRUE
-                ORDER BY sl.priority, sl.language_name
-            """
-            result = fetch_all(query, (total_keys, total_keys, total_keys))
-            languages = result if result else []
-
+            languages = I18nLanguageStatsRepository.get_languages_with_progress(active_only=True)
             CacheService.cache_set(cache_key, languages, 300)
             return languages
         except Exception as e:
@@ -114,34 +82,7 @@ class LanguageManager:
             return cached
 
         try:
-            key_count_query = "SELECT COUNT(*) as cnt FROM translations.i18n_keys WHERE TRUE"
-            key_count_result = fetch_one(key_count_query)
-            total_keys = key_count_result['cnt'] if key_count_result else 0
-
-            query = """
-                SELECT
-                    sl.language_code,
-                    sl.language_name,
-                    sl.native_name,
-                    sl.flag AS flag_svg_code,
-                    sl.is_primary,
-                    COALESCE(sl.priority, 100) as priority,
-                    COALESCE(sl.is_rtl, FALSE) as rtl,
-                    sl.is_active as active,
-                    %s as total_keys,
-                    COALESCE(trans_count.cnt, 0) as translated_keys,
-                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s)::int ELSE 0 END as completion_percent
-                FROM translations.supported_languages sl
-                LEFT JOIN (
-                    SELECT language_code, COUNT(*) as cnt
-                    FROM translations.i18n_translations
-                    GROUP BY language_code
-                ) trans_count ON sl.language_code = trans_count.language_code
-                ORDER BY sl.priority, sl.language_name
-            """
-            result = fetch_all(query, (total_keys, total_keys, total_keys))
-            languages = result if result else []
-
+            languages = I18nLanguageStatsRepository.get_languages_with_progress(active_only=False)
             CacheService.cache_set(cache_key, languages, 300)
             return languages
         except Exception as e:
@@ -152,7 +93,6 @@ class LanguageManager:
     def set_primary_language(language_code: str) -> bool:
         """
         Set a language as the primary (default) language.
-        Unsets the previous primary first (DB unique index enforces one primary).
 
         Args:
             language_code: The language code to set as primary
@@ -160,17 +100,8 @@ class LanguageManager:
         Returns:
             True if successful, False otherwise
         """
-        from app.infrastructure.persistence.database.connection import execute_query
-
         try:
-            # Unset current primary, then set new one (within same transaction)
-            execute_query(
-                "UPDATE translations.supported_languages SET is_primary = FALSE WHERE is_primary = TRUE"
-            )
-            execute_query(
-                "UPDATE translations.supported_languages SET is_primary = TRUE WHERE language_code = %s",
-                (language_code,)
-            )
+            I18nLanguageStatsRepository.set_primary_language(language_code)
             LanguageManager.invalidate_primary_language_cache()
             CacheService.cache_delete("i18n:languages")
             CacheService.cache_delete("i18n:languages:all")
@@ -191,33 +122,7 @@ class LanguageManager:
             Progress information with translation statistics
         """
         try:
-            # Get total keys count
-            key_count_query = "SELECT COUNT(*) as cnt FROM translations.i18n_keys WHERE TRUE"
-            key_count_result = fetch_one(key_count_query)
-            total_keys = key_count_result['cnt'] if key_count_result else 0
-
-            query = """
-                SELECT
-                    sl.language_code,
-                    sl.language_name,
-                    sl.native_name,
-                    sl.flag AS flag_svg_code,
-                    sl.is_primary,
-                    COALESCE(sl.priority, 100) as priority,
-                    sl.is_active as active,
-                    %s as total_keys,
-                    COALESCE(trans_count.cnt, 0) as translated_keys,
-                    CASE WHEN %s > 0 THEN ROUND(COALESCE(trans_count.cnt, 0) * 100.0 / %s)::int ELSE 0 END as completion_percent
-                FROM translations.supported_languages sl
-                LEFT JOIN (
-                    SELECT language_code, COUNT(*) as cnt
-                    FROM translations.i18n_translations
-                    WHERE language_code = %s
-                    GROUP BY language_code
-                ) trans_count ON sl.language_code = trans_count.language_code
-                WHERE sl.language_code = %s
-            """
-            progress = fetch_one(query, (total_keys, total_keys, total_keys, language_code, language_code))
+            progress = I18nLanguageStatsRepository.get_language_progress(language_code)
 
             if not progress:
                 return None

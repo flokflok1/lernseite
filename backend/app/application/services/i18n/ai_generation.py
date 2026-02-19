@@ -5,7 +5,9 @@ AI-powered translation generation using the configured default translation model
 """
 
 from typing import Optional, Dict, Any
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.i18n.service_queries_part2 import (
+    I18nAIQueriesRepository,
+)
 import logging
 
 logger = logging.getLogger(__name__)
@@ -40,33 +42,13 @@ class AITranslationGenerator:
 
         try:
             # Get key info and primary language source
-            key_query = """
-                SELECT
-                    k.key_path,
-                    k.description,
-                    k.context as context_hint,
-                    k.namespace_code,
-                    t.translated_value as source_value,
-                    sl.language_name as source_language_name
-                FROM translations.i18n_keys k
-                LEFT JOIN translations.i18n_translations t
-                    ON k.key_id = t.key_id AND t.language_code = %s
-                LEFT JOIN translations.supported_languages sl
-                    ON sl.language_code = %s
-                WHERE k.key_id = %s
-            """
-            key_info = fetch_one(key_query, (primary_language, primary_language, key_id))
+            key_info = I18nAIQueriesRepository.get_key_with_source(key_id, primary_language)
 
             if not key_info or not key_info.get('source_value'):
                 return {'success': False, 'error': f'No {primary_language.upper()} source text found'}
 
             # Get target language info
-            lang_query = """
-                SELECT language_name, native_name
-                FROM translations.supported_languages
-                WHERE language_code = %s
-            """
-            lang_info = fetch_one(lang_query, (target_language,))
+            lang_info = I18nAIQueriesRepository.get_language_info(target_language)
 
             if not lang_info:
                 return {'success': False, 'error': 'Target language not found'}
@@ -156,29 +138,12 @@ IMPORTANT:
         """
         try:
             # Find keys missing translations for target language
-            query = """
-                SELECT k.key_id, k.key_path
-                FROM translations.i18n_keys k
-                WHERE k.is_active = TRUE
-                AND NOT EXISTS (
-                    SELECT 1 FROM translations.i18n_translations t
-                    WHERE t.key_id = k.key_id AND t.language_code = %s
-                )
-                AND EXISTS (
-                    SELECT 1 FROM translations.i18n_translations t
-                    WHERE t.key_id = k.key_id AND t.language_code = %s
-                )
-            """
-            params = [target_language, primary_language]
-
-            if namespace_code:
-                query += " AND k.namespace_code = %s"
-                params.append(namespace_code)
-
-            query += " LIMIT %s"
-            params.append(limit)
-
-            missing_keys = fetch_all(query, tuple(params)) or []
+            missing_keys = I18nAIQueriesRepository.get_untranslated_keys(
+                target_language=target_language,
+                primary_language=primary_language,
+                namespace_code=namespace_code,
+                limit=limit
+            )
 
             results = {
                 'total': len(missing_keys),

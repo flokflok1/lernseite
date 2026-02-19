@@ -5,7 +5,7 @@ Core translation CRUD operations, bundle retrieval, and caching.
 """
 
 from typing import Optional, Dict, Any, List
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.i18n.service_queries_part2 import I18nTranslationQueriesRepository
 from app.infrastructure.cache.service import CacheService
 import logging
 
@@ -39,9 +39,7 @@ class TranslationManager:
             return cached
 
         try:
-            # Cast parameters to varchar for PostgreSQL function call
-            query = "SELECT get_i18n_bundle(%s::varchar, %s::varchar) AS bundle"
-            result = fetch_one(query, (language_code, namespace))
+            result = I18nTranslationQueriesRepository.get_bundle(language_code, namespace)
 
             if result and result.get('bundle'):
                 bundle = result['bundle']
@@ -112,28 +110,7 @@ class TranslationManager:
             List of translation records with language metadata
         """
         try:
-            query = """
-                SELECT
-                    t.translation_id,
-                    t.key_id,
-                    t.language_code,
-                    sl.language_name,
-                    sl.native_name,
-                    sl.flag AS flag_svg_code,
-                    t.translated_value,
-                    t.is_verified,
-                    t.translation_source,
-                    t.translator_user_id,
-                    u.full_name as translator_name,
-                    t.created_at,
-                    t.updated_at
-                FROM translations.i18n_translations t
-                JOIN translations.supported_languages sl ON t.language_code = sl.language_code
-                LEFT JOIN core.users u ON t.translator_user_id = u.user_id
-                WHERE t.key_id = %s
-                ORDER BY sl.priority, sl.language_code
-            """
-            return fetch_all(query, (key_id,)) or []
+            return I18nTranslationQueriesRepository.get_key_translations_detail(key_id)
         except Exception as e:
             logger.error(f"Error fetching key translations: {e}")
             return []
@@ -160,18 +137,9 @@ class TranslationManager:
             True if successful
         """
         try:
-            query = """
-                INSERT INTO translations.i18n_translations
-                    (key_id, language_code, translated_value, translator_user_id, translation_source)
-                VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT (key_id, language_code)
-                DO UPDATE SET
-                    translated_value = EXCLUDED.translated_value,
-                    translator_user_id = COALESCE(EXCLUDED.translator_user_id, translations.i18n_translations.translator_user_id),
-                    translation_source = EXCLUDED.translation_source,
-                    updated_at = NOW()
-            """
-            execute_query(query, (key_id, language_code, translated_value, translator_user_id, translation_source))
+            I18nTranslationQueriesRepository.set_translation(
+                key_id, language_code, translated_value, translator_user_id, translation_source
+            )
             TranslationManager.invalidate_cache(language_code)
             return True
         except Exception as e:

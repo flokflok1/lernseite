@@ -5,8 +5,7 @@ Translation key and namespace management.
 """
 
 from typing import Optional, Dict, Any, List
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
-import json
+from app.infrastructure.persistence.repositories.i18n.service_queries import I18nKeyQueriesRepository
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,20 +23,7 @@ class KeyManager:
             List of namespace definitions
         """
         try:
-            query = """
-                SELECT
-                    n.namespace_code,
-                    n.name,
-                    n.description,
-                    n.icon,
-                    n.sort_order,
-                    (SELECT COUNT(*) FROM translations.i18n_keys k
-                     WHERE k.namespace_code = n.namespace_code AND k.is_active = TRUE) as key_count
-                FROM translations.i18n_namespaces n
-                WHERE n.is_active = TRUE
-                ORDER BY n.sort_order
-            """
-            return fetch_all(query) or []
+            return I18nKeyQueriesRepository.get_namespaces_with_key_count()
         except Exception as e:
             logger.error(f"Error fetching namespaces: {e}")
             return []
@@ -64,55 +50,13 @@ class KeyManager:
             Dictionary with keys, total count, and pagination info
         """
         try:
-            # Build WHERE conditions
-            conditions = ["k.is_active = TRUE"]
-            params = []
-
-            if namespace_code:
-                conditions.append("k.namespace_code = %s")
-                params.append(namespace_code)
-
-            if search:
-                conditions.append("(k.key_path ILIKE %s OR k.context ILIKE %s)")
-                params.extend([f"%{search}%", f"%{search}%"])
-
-            where_clause = " AND ".join(conditions)
-
-            # Count total
-            count_query = f"""
-                SELECT COUNT(*) as total
-                FROM translations.i18n_keys k
-                WHERE {where_clause}
-            """
-            count_result = fetch_one(count_query, tuple(params))
-            total = count_result['total'] if count_result else 0
-
-            # Get keys with translation counts
-            query = f"""
-                SELECT
-                    k.key_id,
-                    k.namespace_code,
-                    k.key_path,
-                    k.default_value,
-                    k.description,
-                    k.context as context_hint,
-                    k.is_active,
-                    k.created_at,
-                    (SELECT translated_value FROM translations.i18n_translations
-                     WHERE key_id = k.key_id AND language_code = %s LIMIT 1) as primary_value,
-                    (SELECT COUNT(*) FROM translations.i18n_translations
-                     WHERE key_id = k.key_id) as translation_count,
-                    (SELECT COUNT(*) FROM translations.supported_languages
-                     WHERE is_active = TRUE) as total_languages
-                FROM translations.i18n_keys k
-                WHERE {where_clause}
-                ORDER BY k.namespace_code, k.key_path
-                LIMIT %s OFFSET %s
-            """
-            # Insert primary_language at the beginning of params
-            params.insert(0, primary_language)
-            params.extend([limit, offset])
-            keys = fetch_all(query, tuple(params)) or []
+            keys, total = I18nKeyQueriesRepository.get_keys_paginated(
+                primary_language=primary_language,
+                namespace_code=namespace_code,
+                search=search,
+                limit=limit,
+                offset=offset
+            )
 
             return {
                 'keys': keys,
@@ -146,16 +90,9 @@ class KeyManager:
             New key ID (UUID) or None on error
         """
         try:
-            query = """
-                INSERT INTO translations.i18n_keys
-                    (namespace_code, key_path, default_value, description, context)
-                VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT (namespace_code, key_path) DO NOTHING
-                RETURNING key_id
-            """
-            result = fetch_one(query, (
+            result = I18nKeyQueriesRepository.create_key(
                 namespace_code, key_path, default_value, description, context
-            ))
+            )
             return result['key_id'] if result else None
         except Exception as e:
             logger.error(f"Error creating key: {e}")

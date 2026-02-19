@@ -1,0 +1,33 @@
+{
+  "prompts": {
+    "pageTitle": "AI Prompt Management",
+    "pageDescription": "Manage AI prompt templates for theory sheet generation and learning methods",
+    "newTemplate": "New Template",
+    "stats": {
+      "totalTemplates": "Total Templates",
+      "categories": "Categories",
+      "usage30d": "Usage (30d)",
+      "tokensUsed": "Tokens Used"
+    },
+    "filters": {
+      "allCategories": "All Categories",
+      "allStyles": "All Styles",
+      "searchPlaceholder": "Search..."
+    },
+    "loading": "Loading templates...",
+    "errorRetry": "Try again",
+    "list": {
+      "title": "Prompt Templates",
+      "empty": "No templates found. Create a new template.",
+      "default": "Default",
+      "noDescription": "No description",
+      "used": "used"
+    },
+    "actions": {
+      "preview": "Preview",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
+    }
+  }
+}

@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import * as setupApi from '@/application/services/api/public'
+import * as setupApi from '@/infrastructure/api/clients/public'
 import Input from '@/presentation/components/shared/ui/Input.vue'
 import Button from '@/presentation/components/shared/ui/Button.vue'
 

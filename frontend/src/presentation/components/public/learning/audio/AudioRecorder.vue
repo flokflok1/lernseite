@@ -12,6 +12,7 @@
 
 import { ref, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AudioRecorderControls from './AudioRecorderControls.vue'
 
 const { t } = useI18n()
 
@@ -420,86 +421,21 @@ onUnmounted(() => {
     </div>
 
     <!-- Controls -->
-    <div class="flex items-center justify-center gap-4">
-      <!-- Record/Stop Button -->
-      <button
-        v-if="!isRecording && !audioUrl"
-        @click="startRecording"
-        class="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors shadow-lg hover:shadow-xl"
-        :title="$t('common.audio.startRecording')"
-      >
-        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="8" />
-        </svg>
-      </button>
-
-      <!-- Pause Button -->
-      <button
-        v-if="isRecording"
-        @click="togglePause"
-        class="w-12 h-12 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white flex items-center justify-center transition-colors"
-        :title="isPaused ? $t('common.audio.resume') : $t('common.audio.pause')"
-      >
-        <svg v-if="isPaused" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-        <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-        </svg>
-      </button>
-
-      <!-- Stop Button -->
-      <button
-        v-if="isRecording"
-        @click="stopRecording"
-        class="w-16 h-16 rounded-full bg-gray-700 hover:bg-gray-800 text-white flex items-center justify-center transition-colors shadow-lg"
-        :title="$t('common.audio.stopRecording')"
-      >
-        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <rect x="6" y="6" width="12" height="12" rx="2" />
-        </svg>
-      </button>
-
-      <!-- Playback Controls (after recording) -->
-      <template v-if="audioUrl && showPlayback">
-        <button
-          @click="isPlaying ? stopPlayback() : playRecording()"
-          class="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
-          :title="isPlaying ? $t('common.audio.stop') : $t('common.audio.play')"
-        >
-          <svg v-if="isPlaying" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <rect x="6" y="4" width="4" height="16" rx="1" />
-            <rect x="14" y="4" width="4" height="16" rx="1" />
-          </svg>
-          <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </button>
-
-        <!-- Download Button -->
-        <button
-          v-if="showDownload"
-          @click="downloadRecording"
-          class="w-12 h-12 rounded-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center transition-colors"
-          :title="$t('common.audio.download')"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </button>
-
-        <!-- Reset Button -->
-        <button
-          @click="reset"
-          class="w-12 h-12 rounded-full bg-gray-500 hover:bg-gray-600 text-white flex items-center justify-center transition-colors"
-          :title="$t('common.audio.newRecording')"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
-      </template>
-    </div>
+    <AudioRecorderControls
+      :is-recording="isRecording"
+      :is-paused="isPaused"
+      :is-playing="isPlaying"
+      :audio-url="audioUrl"
+      :show-playback="showPlayback"
+      :show-download="showDownload"
+      @start="startRecording"
+      @stop="stopRecording"
+      @toggle-pause="togglePause"
+      @play="playRecording"
+      @stop-playback="stopPlayback"
+      @download="downloadRecording"
+      @reset="reset"
+    />
 
     <!-- Instructions -->
     <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">

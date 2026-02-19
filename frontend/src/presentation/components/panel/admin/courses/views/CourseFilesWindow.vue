@@ -169,7 +169,7 @@ import {
   adminDeleteCourseFile,
   type CourseFile,
   type CourseFileCategory
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 // ============================================================================
 // Props

@@ -17,8 +17,8 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useGroupTier } from '@/application/composables/learning/useGroupTier'
-import { useAccessibleMethods } from '../composables/useAccessibleMethods'
-import type { LearningMethodType } from '@/application/services/api/panel-admin'
+import { useAccessibleMethods } from '@/application/composables/learning/useAccessibleMethods'
+import type { LearningMethodType } from '@/infrastructure/api/clients/panel/admin'
 
 export interface BrowserFilters {
   groupCode?: string

@@ -6,7 +6,7 @@
  * provides "window" aliases used by DesktopLayer, Taskbar, and other components.
  */
 
-import { usePanelStore } from '../workspace/panel.store'
+import { useDesktopPanelStore } from '../workspace/panel.store'
 
 // Re-export types with window-compatible aliases
 export type { LsxPanel as LsxWindow } from '../workspace/panel.store'
@@ -19,7 +19,7 @@ export type { PanelLivePreview } from '../workspace/panel.store'
  * Used by DesktopLayer, Taskbar, and PanelLayout.
  */
 export function useWindowStore() {
-  const store = usePanelStore()
+  const store = useDesktopPanelStore()
 
   return {
     // Pass through all original store properties

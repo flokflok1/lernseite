@@ -22,7 +22,7 @@ from app.api.middleware.auth import token_required, admin_required
 from app.application.services.i18n.legacy.sync_service import I18nSyncService
 from app.application.services.i18n.legacy.sync_apply import I18nSyncApplyService
 from app.application.services.i18n.legacy.sync_analytics import I18nSyncAnalyticsService
-from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
+from app.infrastructure.error_handling.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
 logger = logging.getLogger(__name__)

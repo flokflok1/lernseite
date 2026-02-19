@@ -5,7 +5,7 @@ Adaptive Difficulty - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 adaptive_difficulty_bp = Blueprint('adaptive_difficulty', __name__, url_prefix='/gamification/adaptive-difficulty')
 

@@ -1,0 +1,33 @@
+{
+  "prompts": {
+    "pageTitle": "Zarzadzanie promptami AI",
+    "pageDescription": "Zarzadzaj szablonami promptow AI do generowania arkuszy teorii i metod nauki",
+    "newTemplate": "Nowy szablon",
+    "stats": {
+      "totalTemplates": "Razem szablonow",
+      "categories": "Kategorie",
+      "usage30d": "Uzycie (30d)",
+      "tokensUsed": "Zuzyto tokenow"
+    },
+    "filters": {
+      "allCategories": "Wszystkie kategorie",
+      "allStyles": "Wszystkie style",
+      "searchPlaceholder": "Szukaj..."
+    },
+    "loading": "Ladowanie szablonow...",
+    "errorRetry": "Sprobuj ponownie",
+    "list": {
+      "title": "Szablony promptow",
+      "empty": "Nie znaleziono szablonow. Utworz nowy szablon.",
+      "default": "Domyslny",
+      "noDescription": "Brak opisu",
+      "used": "uzyto"
+    },
+    "actions": {
+      "preview": "Podglad",
+      "edit": "Edytuj",
+      "duplicate": "Duplikuj",
+      "delete": "Usun"
+    }
+  }
+}

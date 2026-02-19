@@ -1,0 +1,7 @@
+export { default as DashboardCoursesTab } from './DashboardCoursesTab.vue'
+export { default as DashboardProgressWidget } from './DashboardProgressWidget.vue'
+export { default as DashboardSkeleton } from './DashboardSkeleton.vue'
+export { default as DashboardView } from './DashboardView.vue'
+export { default as DashboardWidgetsArea } from './DashboardWidgetsArea.vue'
+export { default as UserDashboard } from './UserDashboard.vue'
+export { default as WidgetConfigPanel } from './WidgetConfigPanel.vue'

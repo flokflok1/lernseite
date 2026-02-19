@@ -13,47 +13,10 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import http from '@/infrastructure/api/http'
 import type InteractiveWhiteboard from '../../InteractiveWhiteboard.vue'
+import type { TutorialStep, ExplanationListItem } from './tutorPlayer.types'
 
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface SchemaRow {
-  name: string
-  operator: string
-  value: string
-  highlight?: boolean
-}
-
-export interface WhiteboardAction {
-  type: 'write' | 'draw' | 'highlight' | 'arrow' | 'underline' | 'box' | 'clear' | 'schema'
-  content?: string
-  position?: { x: number; y: number }
-  endPosition?: { x: number; y: number }
-  duration?: number
-  color?: string
-  fontSize?: number
-  schema?: SchemaRow[]
-}
-
-export interface TutorialStep {
-  title: string
-  speech: string
-  calculator?: string
-  result?: string
-  schema?: SchemaRow[]
-  whiteboardActions?: WhiteboardAction[]
-}
-
-export interface ExplanationListItem {
-  explanationId: string
-  title: string
-  style: string
-  hasAudio: boolean
-  tokensUsed: number
-  createdAt: string
-  updatedAt: string
-}
+// Re-export types for consumers
+export type { SchemaRow, WhiteboardAction, TutorialStep, ExplanationListItem } from './tutorPlayer.types'
 
 // ============================================================================
 // Composable

@@ -12,7 +12,7 @@ Service layer for business logic and external integrations:
 - Feature Flags: Enterprise feature management (feature_flags/)
 - Internationalization: Legacy i18n services (i18n/legacy)
 - Utilities: Analytics, billing, cache (root level)
-- Course Publishing: Publishing workflow state machine (root - special handling)
+
 
 ISO 9001:2015 compliant - Service layer architecture
 
@@ -25,11 +25,11 @@ BACKWARD COMPATIBILITY NOTES:
 # ============================================
 # ROOT-LEVEL UTILITY SERVICES (Cross-cutting concerns)
 # ============================================
-from app.application.services.ai.adapter import AIAdapter
-from app.application.services.analytics.service import AnalyticsService
+from app.infrastructure.ai.adapter import AIAdapter
+from app.application.services.system.analytics.service import AnalyticsService
 from app.application.services.system.billing.service import BillingService
 from app.infrastructure.cache.service import CacheService
-from app.application.services.dashboard.feedback.service import FeedbackService
+from app.application.services.system.dashboard.feedback.service import FeedbackService
 from app.application.services.system.features.service import FeatureService
 
 # ============================================
@@ -52,8 +52,8 @@ from app.application.services.system.audit import AuditService
 # File Management (system/files)
 from app.application.services.system.files import FileContextService
 
-# Learning Methods (lm/)
-from app.application.services.lm import (
+# Learning Methods (content/lm/)
+from app.application.services.content.lm import (
     LMModelResolver,
     LMSlotResolver,
     LMSuggestionService,
@@ -66,11 +66,11 @@ from app.application.services.content import (
     ContentTranslationJobProcessor,
 )
 
-# Moderation (moderation/)
-from app.application.services.moderation import ModerationService
+# Moderation (system/moderation/)
+from app.application.services.system.moderation import ModerationService
 
-# Feature Flags (feature_flags/)
-from app.application.services.feature_flags import (
+# Feature Flags (system/feature_flags/)
+from app.application.services.system.feature_flags import (
     FeatureConfigurationService,
     FeatureConfigurationCacheService,
     FeatureConfigurationRolloutService,
@@ -93,14 +93,6 @@ from app.application.services.ai.models import (
 )
 from app.application.services.ai.prompts import PromptResolver
 from app.application.services.ai.context import ExamContextDetector
-
-# ============================================
-# PUBLISHING SERVICE (Handled separately)
-# ============================================
-# NOTE: CoursePublishingService moved to content/publishing/service.py
-# Import directly: from app.application.services.content.publishing.service import CoursePublishingService
-# NOT imported here to avoid circular dependency:
-# repositories.courses -> cache_service -> services.__init__ -> course_publishing_service -> repositories.courses
 
 # ============================================
 # EXPORTS FOR BACKWARD COMPATIBILITY

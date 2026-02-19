@@ -10,7 +10,7 @@ import {
   createGroup as createGroupAPI,
   updateGroup as updateGroupAPI,
   deleteGroup as deleteGroupAPI
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 import type { Group } from '../types'
 
 export function useGroupManagement() {

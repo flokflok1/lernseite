@@ -1,11 +1,11 @@
 <!--
-  Math Task Modal - IHK Prüfungsstil
+  Math Task Modal - IHK Exam Style
 
   Features:
-  - Aufgabe wird angezeigt, Lösung ist versteckt
-  - User muss erst selbst rechnen und Antwort eingeben
-  - Nach Eingabe: Lösung prüfen oder aufdecken
-  - Lösungsweg zum Aufklappen (nach Antwort)
+  - Task is displayed, solution is hidden
+  - User must calculate and enter answer first
+  - After submission: check or reveal solution
+  - Solution path collapsible (after answer)
   - Dark Mode Support
 -->
 
@@ -16,7 +16,7 @@
         <!-- Header -->
         <div class="modal-header">
           <div class="flex items-center gap-3">
-            <span class="text-2xl">🧮</span>
+            <span class="text-2xl">&#x1F9EE;</span>
             <div>
               <h2 class="modal-title">
                 {{ taskData.title || $t('lesson.mathTask.defaultTitle') }}
@@ -27,7 +27,7 @@
             </div>
           </div>
           <button @click="$emit('close')" class="close-btn">
-            ✕
+            &#x2715;
           </button>
         </div>
 
@@ -40,17 +40,17 @@
 
           <!-- Question Section -->
           <div class="task-section question-section">
-            <div class="section-icon">📝</div>
+            <div class="section-icon">&#x1F4DD;</div>
             <div class="section-content">
               <h3 class="section-title">{{ $t('lesson.mathTask.question') }}</h3>
               <p class="question-text">{{ taskData.question }}</p>
             </div>
           </div>
 
-          <!-- Answer Input Section (IHK Style) -->
+          <!-- Answer Input Section -->
           <div class="answer-section">
             <div class="answer-header">
-              <span class="answer-icon">✏️</span>
+              <span class="answer-icon">&#x270F;&#xFE0F;</span>
               <label class="answer-label">{{ $t('lesson.mathTask.yourAnswer') }}</label>
             </div>
 
@@ -76,82 +76,26 @@
 
             <!-- Answer Feedback -->
             <div v-if="hasSubmitted" class="answer-feedback" :class="feedbackClass">
-              <span class="feedback-icon">{{ isCorrect ? '✅' : '❌' }}</span>
+              <span class="feedback-icon">{{ isCorrect ? '&#x2705;' : '&#x274C;' }}</span>
               <span class="feedback-text">
                 {{ isCorrect ? $t('lesson.mathTask.correct') : $t('lesson.mathTask.incorrect') }}
               </span>
             </div>
           </div>
 
-          <!-- Solution Section (Hidden until answered or revealed) -->
-          <div class="task-section solution-section" :class="{ 'locked': !canShowSolution }">
-            <button
-              @click="toggleSolution"
-              class="toggle-btn"
-              :disabled="!canShowSolution && !hasSubmitted"
-            >
-              <span class="section-icon">{{ canShowSolution ? '✅' : '🔒' }}</span>
-              <span class="section-title">{{ $t('lesson.mathTask.solution') }}</span>
-              <span v-if="!canShowSolution && !hasSubmitted" class="lock-hint">
-                {{ $t('lesson.mathTask.enterAnswerFirst') }}
-              </span>
-              <span class="toggle-icon" :class="{ rotated: showSolution }">▼</span>
-            </button>
-
-            <Transition name="slide">
-              <div v-if="showSolution && canShowSolution" class="solution-content">
-                <div class="solution-box" :class="{ 'correct': isCorrect, 'incorrect': hasSubmitted && !isCorrect }">
-                  <strong>{{ taskData.solution }}</strong>
-                </div>
-              </div>
-            </Transition>
-          </div>
-
-          <!-- Steps Section (Hidden until answered) -->
-          <div class="task-section steps-section" :class="{ 'locked': !canShowSolution }">
-            <button
-              @click="toggleSteps"
-              class="toggle-btn"
-              :disabled="!canShowSolution"
-            >
-              <span class="section-icon">📋</span>
-              <span class="section-title">{{ $t('lesson.mathTask.solutionPath', { count: taskData.steps?.length || 0 }) }}</span>
-              <span class="toggle-icon" :class="{ rotated: showSteps }">▼</span>
-            </button>
-
-            <Transition name="slide">
-              <div v-if="showSteps && canShowSolution" class="steps-content">
-                <div
-                  v-for="(step, index) in taskData.steps"
-                  :key="index"
-                  class="step-item"
-                >
-                  <div class="step-number">{{ step.step || index + 1 }}</div>
-                  <div class="step-details">
-                    <p class="step-description">{{ step.description }}</p>
-                    <code v-if="step.calculation" class="step-calculation">
-                      {{ step.calculation }}
-                    </code>
-                  </div>
-                </div>
-              </div>
-            </Transition>
-          </div>
-
-          <!-- Explanation Section -->
-          <div v-if="taskData.explanation && canShowSolution" class="task-section explanation-section">
-            <button @click="showExplanation = !showExplanation" class="toggle-btn">
-              <span class="section-icon">💡</span>
-              <span class="section-title">{{ $t('lesson.mathTask.explanation') }}</span>
-              <span class="toggle-icon" :class="{ rotated: showExplanation }">▼</span>
-            </button>
-
-            <Transition name="slide">
-              <div v-if="showExplanation" class="explanation-content">
-                <p>{{ taskData.explanation }}</p>
-              </div>
-            </Transition>
-          </div>
+          <!-- Solution, Steps, Explanation -->
+          <MathTaskSolutionPanel
+            :task-data="taskData"
+            :can-show-solution="canShowSolution"
+            :has-submitted="hasSubmitted"
+            :is-correct="isCorrect"
+            :show-solution="showSolution"
+            :show-steps="showSteps"
+            :show-explanation="showExplanation"
+            @toggle-solution="toggleSolution"
+            @toggle-steps="toggleSteps"
+            @update:show-explanation="showExplanation = $event"
+          />
         </div>
 
         <!-- Footer -->
@@ -167,10 +111,10 @@
               @click="resetTask"
               class="btn-outline"
             >
-              🔄 {{ $t('lesson.mathTask.retry') }}
+              &#x1F504; {{ $t('lesson.mathTask.retry') }}
             </button>
             <button @click="$emit('newTask')" class="btn-secondary">
-              ➡️ {{ $t('lesson.mathTask.newTask') }}
+              &#x27A1;&#xFE0F; {{ $t('lesson.mathTask.newTask') }}
             </button>
             <button @click="$emit('close')" class="btn-primary">
               {{ $t('lesson.mathTask.close') }}
@@ -183,24 +127,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
-
-interface TaskStep {
-  step?: number
-  description: string
-  calculation?: string
-}
-
-interface TaskData {
-  title?: string
-  question: string
-  steps?: TaskStep[]
-  solution: string
-  explanation?: string
-}
+/**
+ * MathTaskModal - IHK-style math task with answer checking.
+ * Uses useMathTaskChecker composable for answer logic
+ * and MathTaskSolutionPanel for collapsible solution display.
+ */
+import type { TaskData } from '@/application/composables/learning/useMathTaskChecker'
+import { useMathTaskChecker } from '@/application/composables/learning/useMathTaskChecker'
+import MathTaskSolutionPanel from './MathTaskSolutionPanel.vue'
 
 interface Props {
   taskData: TaskData
@@ -220,93 +154,21 @@ const props = withDefaults(defineProps<Props>(), {
 
 defineEmits(['close', 'newTask'])
 
-// State
-const showSteps = ref(false)
-const showSolution = ref(false)
-const showExplanation = ref(false)
-const userAnswer = ref('')
-const hasSubmitted = ref(false)
-const isCorrect = ref(false)
-
-// Computed
-const canShowSolution = computed(() => hasSubmitted.value)
-
-const feedbackClass = computed(() => ({
-  'feedback-correct': isCorrect.value,
-  'feedback-incorrect': !isCorrect.value
-}))
-
-// Methods
-const getPlaceholder = () => {
-  // Analyze solution to suggest format
-  const solution = props.taskData.solution?.toLowerCase() || ''
-  if (solution.includes('euro') || solution.includes('€')) {
-    return t('lesson.mathTask.placeholderEuro')
-  }
-  if (solution.includes('%')) {
-    return t('lesson.mathTask.placeholderPercent')
-  }
-  return t('lesson.mathTask.placeholderDefault')
-}
-
-const normalizeAnswer = (answer: string): string => {
-  return answer
-    .toLowerCase()
-    .replace(/\s+/g, '')
-    .replace(/euro/g, '€')
-    .replace(/prozent/g, '%')
-    .replace(/,/g, '.')
-    .replace(/[^\d.€%]/g, '')
-}
-
-const checkAnswer = () => {
-  if (!userAnswer.value.trim()) return
-
-  hasSubmitted.value = true
-
-  // Normalize both answers for comparison
-  const userNormalized = normalizeAnswer(userAnswer.value)
-  const solutionNormalized = normalizeAnswer(props.taskData.solution)
-
-  // Extract numbers for comparison
-  const userNumbers = userNormalized.match(/[\d.]+/g) || []
-  const solutionNumbers = solutionNormalized.match(/[\d.]+/g) || []
-
-  // Check if main number matches
-  if (userNumbers.length > 0 && solutionNumbers.length > 0) {
-    const userNum = parseFloat(userNumbers[0])
-    const solutionNum = parseFloat(solutionNumbers[0])
-    // Allow small tolerance for rounding
-    isCorrect.value = Math.abs(userNum - solutionNum) < 0.01
-  } else {
-    // Fallback to string comparison
-    isCorrect.value = userNormalized === solutionNormalized
-  }
-
-  // Auto-show solution after submission
-  showSolution.value = true
-}
-
-const toggleSolution = () => {
-  if (canShowSolution.value) {
-    showSolution.value = !showSolution.value
-  }
-}
-
-const toggleSteps = () => {
-  if (canShowSolution.value) {
-    showSteps.value = !showSteps.value
-  }
-}
-
-const resetTask = () => {
-  userAnswer.value = ''
-  hasSubmitted.value = false
-  isCorrect.value = false
-  showSolution.value = false
-  showSteps.value = false
-  showExplanation.value = false
-}
+const {
+  userAnswer,
+  hasSubmitted,
+  isCorrect,
+  showSteps,
+  showSolution,
+  showExplanation,
+  canShowSolution,
+  feedbackClass,
+  getPlaceholder,
+  checkAnswer,
+  toggleSolution,
+  toggleSteps,
+  resetTask
+} = useMathTaskChecker(() => props.taskData)
 </script>
 
 <style scoped>
@@ -397,10 +259,6 @@ const resetTask = () => {
   border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 0.75rem;
   overflow: hidden;
-}
-
-.task-section.locked {
-  opacity: 0.6;
 }
 
 .question-section {
@@ -540,127 +398,6 @@ const resetTask = () => {
   font-size: 1.25rem;
 }
 
-/* Toggle Buttons */
-.toggle-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  background-color: var(--color-background, #f9fafb);
-  text-align: left;
-  transition: background-color 0.2s;
-  color: var(--color-text-primary, #111827);
-}
-
-.toggle-btn:hover:not(:disabled) {
-  background-color: var(--color-surface-hover, rgba(0, 0, 0, 0.05));
-}
-
-.toggle-btn:disabled {
-  cursor: not-allowed;
-}
-
-:root.dark .toggle-btn:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.lock-hint {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary, #9ca3af);
-  font-style: italic;
-}
-
-.toggle-icon {
-  margin-left: auto;
-  font-size: 0.75rem;
-  color: var(--color-text-secondary, #6b7280);
-  transition: transform 0.3s;
-}
-
-.toggle-icon.rotated {
-  transform: rotate(180deg);
-}
-
-/* Solution Box */
-.solution-content,
-.steps-content,
-.explanation-content {
-  padding: 1.25rem;
-  border-top: 1px solid var(--color-border, #e5e7eb);
-  background-color: var(--color-surface, #ffffff);
-}
-
-.solution-box {
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border-radius: 0.5rem;
-  font-size: 1.25rem;
-  text-align: center;
-  font-weight: 600;
-}
-
-.solution-box.correct {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.solution-box.incorrect {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-/* Steps */
-.step-item {
-  display: flex;
-  gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px dashed var(--color-border, #e5e7eb);
-}
-
-.step-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.step-number {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--color-primary, #3b82f6), #2563eb);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-}
-
-.step-details {
-  flex: 1;
-}
-
-.step-description {
-  color: var(--color-text-primary, #111827);
-  margin-bottom: 0.5rem;
-}
-
-.step-calculation {
-  display: block;
-  padding: 0.5rem 0.75rem;
-  background-color: var(--color-background, #f3f4f6);
-  border-radius: 0.5rem;
-  font-family: 'Fira Code', 'Monaco', monospace;
-  font-size: 0.875rem;
-  color: var(--color-primary, #3b82f6);
-  border: 1px solid var(--color-border, #e5e7eb);
-}
-
-.explanation-content p {
-  color: var(--color-text-secondary, #6b7280);
-  line-height: 1.7;
-}
-
 /* Footer */
 .modal-footer {
   display: flex;
@@ -726,26 +463,5 @@ const resetTask = () => {
 .btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-/* Slide Transition */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  max-height: 0;
-  opacity: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.slide-enter-to,
-.slide-leave-from {
-  max-height: 500px;
-  opacity: 1;
 }
 </style>

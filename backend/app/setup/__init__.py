@@ -117,7 +117,7 @@ from app.setup.initialization.admin import AdminSetup
 from app.setup.initialization.groups import GroupSetup
 from app.setup.initialization.organisations import OrganisationSetup
 from app.setup.seeds.seeds import SeedData
-from app.setup.initialization.ai import KISetup
+from app.setup.initialization.ai_part2 import KISetup
 from app.setup.diagnostics.verify import VerificationChecks as SetupVerification  # Fixed class name (2026-02-12)
 
 __all__ = [

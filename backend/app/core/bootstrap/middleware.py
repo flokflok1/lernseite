@@ -73,10 +73,10 @@ def setup_prompt_system(app: Flask) -> None:
     """
     with app.app_context():
         try:
-            from app.domain.ai.configuration.prompt_registry import init_default_prompts
+            from app.domain.ai.configuration.prompts.registry_bridge import init_default_prompts
             init_default_prompts()
 
-            from app.domain.ai.configuration.ai_editor_prompts import init_ai_editor_prompts
+            from app.domain.ai.configuration.prompts.ai_editor_prompts import init_ai_editor_prompts
             init_ai_editor_prompts()
 
             app.logger.info('KI Prompt System initialized successfully')

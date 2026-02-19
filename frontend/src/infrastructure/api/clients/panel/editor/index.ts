@@ -1,13 +1,11 @@
 /**
  * Panel Editor Domain - Barrel Export
  *
- * This file provides a clean interface for importing all editor APIs and types.
- * Use: import { getMyEnrolledCourses, aiStudioApi } from '@/infrastructure/api/clients/panel/editor'
+ * Domain-organized API clients for editor panel operations.
+ * Use: import { getMyEnrolledCourses, courseAuthoringApi } from '@/infrastructure/api/clients/panel/editor'
  */
 
-// ============================================================================
-// Types Export
-// ============================================================================
+// Types
 export type {
   CourseListItem,
   EnrolledCourse,
@@ -25,9 +23,7 @@ export type {
   ChatMessage
 } from './types'
 
-// ============================================================================
-// Courses API Export
-// ============================================================================
+// Courses
 export {
   getMyEnrolledCourses,
   getMyCourses,
@@ -50,10 +46,6 @@ export {
   getLessonsForEdit,
   publishCourse,
   unpublishCourse,
-  type CourseListItem,
-  type EnrolledCourse,
-  type PaginationParams,
-  type PaginatedResponse,
   type CreateCoursePayload,
   type UpdateCoursePayload,
   type EditableCourse,
@@ -64,24 +56,16 @@ export {
   type UpdateLessonPayload,
   type EditableLesson,
   type ReorderPayload
-} from './courses.api'
+} from './courses/courses.api'
 
-// ============================================================================
-// Categories API Export
-// ============================================================================
+// Categories
 export {
   getCategories,
   getCategoryTree,
   searchCategories,
-  type Category,
-  type CategoryTreeNode,
-  type CategoryTreeResponse,
-  type PaginatedCategoryResponse
-} from './categories.api'
+} from './courses/categories.api'
 
-// ============================================================================
-// Course Authoring API Export
-// ============================================================================
+// Authoring Actions
 export {
   getActions,
   getActionsByCategory,
@@ -95,6 +79,7 @@ export {
   getLMSuggestions,
   getLMSuggestionsAI,
   getAllLearningMethods,
+  getLMGroups,
   groupActionsByCategory,
   filterActionsByLmType,
   getCategoryIcon,
@@ -121,20 +106,25 @@ export {
   type KIUsage,
   type EntityType,
   type ActionType,
-  type OutputFormat
-} from './authoring.api'
+  type OutputFormat,
+  type LMGroupAPIInfo,
+  type LMGroupsAPIResponse
+} from './authoring/authoring.api'
 
-// ============================================================================
-// AI Studio API Export (namespace — avoids naming conflicts with courseEditor/courseAuthoring)
-// ============================================================================
-export * as aiStudioApi from './ai-studio.api'
+// Course Authoring (KI-Kurs-Builder)
+export * as courseAuthoringApi from './authoring/courseAuthoring.api'
 
-// ============================================================================
-// Course Editor Client Export (namespace — avoids naming conflicts with aiStudio/courseAuthoring)
-// ============================================================================
-export * as courseEditorApi from './courseEditor.client'
-
-// ============================================================================
-// Course Authoring API Export (namespace — avoids naming conflicts with aiStudio/courseEditor)
-// ============================================================================
-export * as courseAuthoringApi from './courseAuthoring.api'
+// AI Editor
+export {
+  createSession,
+  getSession,
+  listSessions,
+  updateSession,
+  deleteSession,
+  getTemplates,
+  uploadPDF,
+  setSourceData,
+  generateContent,
+  getStats,
+  finalizeSession
+} from './ai-editor/editor.api'

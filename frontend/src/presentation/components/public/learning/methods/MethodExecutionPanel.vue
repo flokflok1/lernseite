@@ -109,7 +109,7 @@ import {
   MethodCardList,
   // ... other removed components
 } from '@/presentation/components/public/learning/methods/method-execution'
-import { TaskManagerModal } from '@/presentation/components/shared/dialogs'
+import TaskManagerModal from './TaskManagerModal.vue'
 
 const { t } = useI18n()
 

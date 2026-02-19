@@ -149,13 +149,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { usePanelStore } from '@/application/stores/modules/workspace'
+import { useDesktopPanelStore } from '@/application/stores/modules/workspace'
 import type { LsxPanel, PanelType } from '@/application/stores/modules/workspace'
-import PreviewCourseCreate from '@/presentation/components/shared/previews/PreviewCourseCreate.vue'
-import PreviewCourseEditor from '@/presentation/components/shared/previews/PreviewCourseEditor.vue'
-import PreviewKapitelEditor from '@/presentation/components/shared/previews/PreviewKapitelEditor.vue'
-import PreviewLessonEditor from '@/presentation/components/shared/previews/PreviewLessonEditor.vue'
-import PreviewAIJob from '@/presentation/components/shared/previews/PreviewAIJob.vue'
+import PreviewCourseCreate from '@/presentation/components/shared/previews/window-preview/PreviewCourseCreate.vue'
+import PreviewCourseEditor from '@/presentation/components/shared/previews/window-preview/PreviewCourseEditor.vue'
+import PreviewKapitelEditor from '@/presentation/components/shared/previews/window-preview/PreviewKapitelEditor.vue'
+import PreviewLessonEditor from '@/presentation/components/shared/previews/window-preview/PreviewLessonEditor.vue'
+import PreviewAIJob from '@/presentation/components/shared/previews/window-preview/PreviewAIJob.vue'
 
 const { t } = useI18n()
 
@@ -170,7 +170,7 @@ interface Emits {
 defineProps<Props>()
 defineEmits<Emits>()
 
-const panelStore = usePanelStore()
+const panelStore = useDesktopPanelStore()
 
 const minimizedPanels = computed(() => panelStore.minimizedPanels)
 

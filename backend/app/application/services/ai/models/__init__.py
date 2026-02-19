@@ -8,8 +8,10 @@ AI model management and synchronization:
 
 from .profiles import *
 from .sync import *
+from .sync_part2 import *
 
 __all__ = [
     'AIModelProfilesService',
     'AIModelSyncService',
+    'AIModelSyncHelpers',
 ]

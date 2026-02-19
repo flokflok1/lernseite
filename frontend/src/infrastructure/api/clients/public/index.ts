@@ -1,45 +1,11 @@
 /**
  * Public Domain - Barrel Export
  *
- * This file provides a clean interface for importing all public (unauthenticated) APIs and types.
+ * Clean interface for importing all public (unauthenticated) APIs and types.
  * Use: import { getSetupStatus, getBundle } from '@/infrastructure/api/clients/public'
  */
 
-// ============================================================================
-// Types Export
-// ============================================================================
-export type {
-  // Setup types
-  SetupStatusResponse,
-  InstallInfo,
-  SystemCheckResult,
-  SystemCheckResponse,
-  DatabaseInitResponse,
-  AdminCreateRequest,
-  AdminCreateResponse,
-  OrganisationCreateRequest,
-  OrganisationCreateResponse,
-  AIConfigRequest,
-  AIConfigResponse,
-  SeedDataRequest,
-  SeedDataResponse,
-  SeedStatusResponse,
-  VerificationResponse,
-  CompleteInstallationResponse,
-  EnvironmentInfoResponse,
-  EnvironmentConfigRequest,
-  EnvironmentConfigResponse,
-  // i18n types
-  LanguageProgress,
-  TranslationSuggestion,
-  ModerationQueueItem,
-  I18nNamespace,
-  I18nKey,
-} from './types'
-
-// ============================================================================
-// Setup API Export
-// ============================================================================
+// Setup
 export {
   getSetupStatus,
   getEnvironmentInfo,
@@ -53,31 +19,10 @@ export {
   getSeedStatus,
   verifyInstallation,
   completeInstallation,
-  getSystemInfo,
-  type SetupStatusResponse,
-  type InstallInfo,
-  type SystemCheckResult,
-  type SystemCheckResponse,
-  type DatabaseInitResponse,
-  type AdminCreateRequest,
-  type AdminCreateResponse,
-  type OrganisationCreateRequest,
-  type OrganisationCreateResponse,
-  type AIConfigRequest,
-  type AIConfigResponse,
-  type SeedDataRequest,
-  type SeedDataResponse,
-  type SeedStatusResponse,
-  type VerificationResponse,
-  type CompleteInstallationResponse,
-  type EnvironmentInfoResponse,
-  type EnvironmentConfigRequest,
-  type EnvironmentConfigResponse
-} from './setup.api'
+  getSystemInfo
+} from './setup/setup.api'
 
-// ============================================================================
-// i18n API Export
-// ============================================================================
+// i18n
 export {
   getBundle,
   getLanguages,
@@ -103,10 +48,41 @@ export {
   seedKeys,
   createLanguage,
   updateLanguage,
-  deleteLanguage,
-  type LanguageProgress,
-  type TranslationSuggestion,
-  type ModerationQueueItem,
-  type I18nNamespace,
-  type I18nKey
-} from './i18n.api'
+  deleteLanguage
+} from './i18n/i18n.api'
+
+// Learning (Player, Tutor)
+export {
+  getCourse,
+  getCourseChapters,
+  getChapter,
+  getLesson,
+  getCourseProgress,
+  getChapterProgress,
+  getLessonProgress,
+  markLessonStarted,
+  markLessonCompleted,
+  updateLessonProgress,
+  getLessonMethods,
+  executeMethod,
+  getLessonQuiz,
+  getQuizAttempts,
+  submitQuizAnswers,
+  startExam,
+  sendAnalyticsEvent
+} from './learning/player/player.api'
+
+export {
+  tutorChat,
+  tutorTTS,
+  getTTSVoices,
+  type TutorChatRequest,
+  type TutorChatResponse,
+  type TutorTTSRequest
+} from './learning/tutor/tutor.api'
+
+// Learning Types
+export type * from './learning/types/types'
+
+// Types
+export type * from './types'

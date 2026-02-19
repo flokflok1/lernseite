@@ -4,6 +4,7 @@ Learning Method Repository Package
 Modular repository for learning method operations, split into:
 - base: Core CRUD operations (get_all, find_by_id, create, update, delete)
 - ai_execution: AI execution with token tracking (execute_ai_method, log_token_usage)
+- ai_execution_part2: AI prompt building (method-specific prompt templates)
 - feedback: Feedback collection and analysis (create_feedback, get_feedback_stats)
 - statistics: Usage statistics and reporting (get_user_token_usage, get_statistics)
 - instances: Learning method instance management (user progress, completions)
@@ -14,9 +15,11 @@ Original learning_method_repository.py imports still work via bridge module.
 
 from .base import LearningMethodBaseRepository
 from .ai_execution import LearningMethodAIRepository
+from .ai_execution_part2 import LearningMethodAIPromptsMixin
 from .feedback import LearningMethodFeedbackRepository
 from .statistics import LearningMethodStatisticsRepository
 from .instances import LearningMethodInstanceRepository
+from .instances_part2 import LearningMethodInstanceStatisticsRepository
 from .progress import LearningMethodProgressRepository
 from .types import (
     LearningMethodBase,
@@ -46,9 +49,11 @@ __all__ = [
     # Repositories
     'LearningMethodBaseRepository',
     'LearningMethodAIRepository',
+    'LearningMethodAIPromptsMixin',
     'LearningMethodFeedbackRepository',
     'LearningMethodStatisticsRepository',
     'LearningMethodInstanceRepository',
+    'LearningMethodInstanceStatisticsRepository',
     'LearningMethodProgressRepository',
     # Types
     'LearningMethodBase',

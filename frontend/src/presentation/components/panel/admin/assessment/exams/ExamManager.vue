@@ -370,17 +370,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  adminListExams,
-  adminCreateExam,
-  adminDeleteExam,
-  adminGenerateExam,
-  type Exam,
-  type ExamCreateRequest,
-  type ExamGenerateRequest
-} from '@/application/services/api/panel-admin'
+import { useExamManager } from '../composables/useExamManager'
+import type { Exam } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   courseId: string
@@ -390,139 +382,18 @@ interface Props {
 const props = defineProps<Props>()
 const { t } = useI18n()
 
-// State
-const exams = ref<Exam[]>([])
-const loading = ref(true)
-const error = ref<string | null>(null)
-const showCreateDialog = ref(false)
-const showGenerateDialog = ref(false)
-
-// Create Form
-const createForm = ref<ExamCreateRequest>({
-  title: '',
-  description: '',
-  exam_type: 'practice',
-  duration_minutes: 60,
-  passing_score: 50,
-  total_points: 100,
-  published: false
-})
-
-// Generate Form
-const generateForm = ref<ExamGenerateRequest>({
-  title: '',
-  description: '',
-  exam_standard: 'IHK_FISI_AP1',
-  difficulty: 'intermediate',
-  duration_minutes: 90,
-  passing_score: 50,
-  total_points: 100,
-  question_distribution: {
-    mcq: 20,
-    fill_blanks: 8,
-    short_answer: 2,
-    case_study: 0
-  }
-})
-
-// Computed
-const totalQuestions = computed(() => {
-  return Object.values(generateForm.value.question_distribution).reduce((a, b) => a + b, 0)
-})
-
-// Methods
-const loadExams = async () => {
-  loading.value = true
-  error.value = null
-
-  try {
-    exams.value = await adminListExams(props.courseId)
-  } catch (err: any) {
-    console.error('Error loading exams:', err)
-    error.value = err.response?.data?.message || t('examManager.errors.loadError')
-  } finally {
-    loading.value = false
-  }
-}
-
-const createExam = async () => {
-  if (!createForm.value.title) return
-
-  try {
-    await adminCreateExam(props.courseId, createForm.value)
-    showCreateDialog.value = false
-
-    // Reset form
-    createForm.value = {
-      title: '',
-      description: '',
-      exam_type: 'practice',
-      duration_minutes: 60,
-      passing_score: 50,
-      total_points: 100,
-      published: false
-    }
-
-    await loadExams()
-  } catch (err: any) {
-    console.error('Error creating exam:', err)
-    alert(t('examManager.errors.createError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-const generateExam = async () => {
-  if (!generateForm.value.title || totalQuestions.value < 5) return
-
-  try {
-    const result = await adminGenerateExam(props.courseId, generateForm.value)
-    showGenerateDialog.value = false
-
-    alert(
-      `✅ ${t('examManager.alerts.generationStarted')}\n\n` +
-      `${t('examManager.alerts.generationJobId', { jobId: result.job_id })}\n` +
-      `${t('examManager.alerts.generationExamId', { examId: result.exam_id })}\n\n` +
-      t('examManager.alerts.generationNote')
-    )
-
-    // Reset form
-    generateForm.value = {
-      title: '',
-      description: '',
-      exam_standard: 'IHK_FISI_AP1',
-      difficulty: 'intermediate',
-      duration_minutes: 90,
-      passing_score: 50,
-      total_points: 100,
-      question_distribution: {
-        mcq: 20,
-        fill_blanks: 8,
-        short_answer: 2,
-        case_study: 0
-      }
-    }
-
-    // Reload in 5 seconds to show placeholder
-    setTimeout(() => loadExams(), 5000)
-  } catch (err: any) {
-    console.error('Error generating exam:', err)
-    alert(t('examManager.errors.generateError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-const deleteExam = async (exam: Exam) => {
-  if (!confirm(t('examManager.alerts.deleteConfirm', { title: exam.title }))) return
-
-  try {
-    await adminDeleteExam(exam.exam_id)
-    await loadExams()
-  } catch (err: any) {
-    console.error('Error deleting exam:', err)
-    alert(t('examManager.errors.deleteError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  loadExams()
-})
+const {
+  exams,
+  loading,
+  error,
+  showCreateDialog,
+  showGenerateDialog,
+  createForm,
+  generateForm,
+  totalQuestions,
+  loadExams,
+  createExam,
+  generateExam,
+  deleteExam
+} = useExamManager({ courseId: props.courseId })
 </script>

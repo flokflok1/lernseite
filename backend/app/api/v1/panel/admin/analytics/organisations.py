@@ -10,7 +10,7 @@ Organisation Reports:
 - GET /organisations/:id/analytics/top-courses - Top courses for organisation
 - GET /organisations/:id/analytics/top-modules - Top modules for organisation
 
-Organisation Time Series:
+Organisation Time Series (see organisations_part2.py):
 - GET /organisations/:id/analytics/events/time-series - Organisation events time series
 - GET /organisations/:id/analytics/active-members/time-series - Active members time series
 
@@ -24,14 +24,12 @@ from typing import Tuple, Optional, List
 
 from app.api.middleware.auth import token_required, get_current_user, permission_required
 from app.domain.models.analytics import (
-    TimeSeriesResponse,
-    TimeSeriesDataPoint,
     OrgTopCoursesResponse,
     OrgTopCourseAnalytics,
     OrgTopModulesResponse,
     OrgTopModuleAnalytics
 )
-from app.domain.models.admin.organisation import OrganisationStatsResponse
+from app.domain.models.schemas.organisation_part2 import OrganisationStatsResponse
 from app.infrastructure.persistence.repositories.analytics import AnalyticsRepository
 from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
 from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
@@ -408,196 +406,8 @@ def org_get_top_modules(org_id: int):
         }), 500
 
 
-# =============================================================================
-# ORGANISATION TIME SERIES
-# =============================================================================
-
-@org_analytics_bp.route('/<int:org_id>/analytics/events/time-series', methods=['GET'])
-@permission_required('org.analytics:read')
-def org_get_events_time_series(org_id: int):
-    """
-    Get organisation events time series.
-
-    Path Parameters:
-        org_id: Organisation ID
-
-    Query Parameters:
-        range: Time range - '7d', '30d', '90d' (default: 7d)
-        from: Start date (YYYY-MM-DD)
-        to: End date (YYYY-MM-DD)
-
-    Response:
-        200: Time series data
-        {
-            "success": true,
-            "data": [
-                {"date": "2025-01-15", "value": 42},
-                {"date": "2025-01-16", "value": 58}
-            ],
-            "total": 100
-        }
-
-    Security:
-        Requires: VIEW_ORG_ANALYTICS permission
-        Multi-tenancy: User must belong to organisation
-    """
-    try:
-        user = get_current_user()
-
-        # Check org access (multi-tenancy)
-        check_org_access(user, org_id)
-
-        # Parse query parameters
-        range_param = request.args.get('range', '7d')
-        from_str = request.args.get('from')
-        to_str = request.args.get('to')
-
-        # Determine date range
-        if from_str and to_str:
-            from_date = datetime.strptime(from_str, '%Y-%m-%d')
-            to_date = datetime.strptime(to_str, '%Y-%m-%d')
-        else:
-            from_date, to_date = parse_date_range(range_param)
-
-        # Fetch time series from repository
-        raw_data = AnalyticsRepository.get_events_time_series(
-            from_date,
-            to_date,
-            organisation_id=org_id
-        )
-
-        # Transform to response model
-        data_points = [
-            TimeSeriesDataPoint(
-                date=str(row['date']),
-                value=row['count']
-            )
-            for row in raw_data
-        ]
-
-        total = sum(point.value for point in data_points)
-
-        response = TimeSeriesResponse(
-            success=True,
-            data=data_points,
-            total=total
-        )
-
-        return jsonify(response.model_dump()), 200
-
-    except PermissionError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Forbidden',
-            'message': str(e)
-        }), 403
-
-    except ValueError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Invalid date format',
-            'message': str(e)
-        }), 400
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to fetch events time series',
-            'details': str(e)
-        }), 500
-
-
-@org_analytics_bp.route('/<int:org_id>/analytics/active-members/time-series', methods=['GET'])
-@permission_required('org.analytics:read')
-def org_get_active_members_time_series(org_id: int):
-    """
-    Get organisation active members time series.
-
-    Path Parameters:
-        org_id: Organisation ID
-
-    Query Parameters:
-        range: Time range - '7d', '30d', '90d' (default: 7d)
-        from: Start date (YYYY-MM-DD)
-        to: End date (YYYY-MM-DD)
-
-    Response:
-        200: Time series data
-        {
-            "success": true,
-            "data": [
-                {"date": "2025-01-15", "value": 12},
-                {"date": "2025-01-16", "value": 15}
-            ],
-            "total": 27
-        }
-
-    Security:
-        Requires: VIEW_ORG_ANALYTICS permission
-        Multi-tenancy: User must belong to organisation
-    """
-    try:
-        user = get_current_user()
-
-        # Check org access
-        check_org_access(user, org_id)
-
-        # Parse query parameters
-        range_param = request.args.get('range', '7d')
-        from_str = request.args.get('from')
-        to_str = request.args.get('to')
-
-        # Determine date range
-        if from_str and to_str:
-            from_date = datetime.strptime(from_str, '%Y-%m-%d')
-            to_date = datetime.strptime(to_str, '%Y-%m-%d')
-        else:
-            from_date, to_date = parse_date_range(range_param)
-
-        # Fetch time series from repository
-        raw_data = AnalyticsRepository.get_active_users_time_series(
-            from_date,
-            to_date,
-            organisation_id=org_id
-        )
-
-        # Transform to response model
-        data_points = [
-            TimeSeriesDataPoint(
-                date=str(row['date']),
-                value=row['count']
-            )
-            for row in raw_data
-        ]
-
-        # Total unique members (max of daily counts)
-        total = max((point.value for point in data_points), default=0)
-
-        response = TimeSeriesResponse(
-            success=True,
-            data=data_points,
-            total=total
-        )
-
-        return jsonify(response.model_dump()), 200
-
-    except PermissionError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Forbidden',
-            'message': str(e)
-        }), 403
-
-    except ValueError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Invalid date format',
-            'message': str(e)
-        }), 400
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to fetch active members time series',
-            'details': str(e)
-        }), 500
+# Time series routes are in organisations_part2.py
+# They are registered on the same blueprint via:
+#   from .organisations_part2 import *  (in __init__.py)
+# Import part2 to register its routes on org_analytics_bp
+from . import organisations_part2  # noqa: E402, F401

@@ -166,7 +166,7 @@
  * ============================
  * Hero section with course info and stats cards
  */
-import type { AdminCourseDetail } from '@/application/services/api/panel-admin'
+import type { AdminCourseDetail } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   course: AdminCourseDetail

@@ -10,4 +10,4 @@ export type {
   GroupMember,
   GroupPermission,
   RegistryPermission
-} from '@/infrastructure/api/clients/panel/admin/groups.types'
+} from '@/infrastructure/api/clients/panel/admin'

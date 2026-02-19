@@ -1,35 +1,14 @@
 """
-LernsystemX KI - Slot Requirements Package
+LernsystemX KI - Slot Configuration Package
 
-Defines capability slot requirements for all Learning Methods.
+Defines capability slot definitions and system feature mappings.
 
-Exports:
-- SlotRequirement: Individual slot requirement
-- LMSlotConfig: Complete LM configuration
-- ALL_LM_CONFIGS: Registry of all LM configurations
-- GROUP_NAMES: Mapping of group codes to names
-- Utility functions for slot queries
+NOTE: mapping.py and validation.py reference removed LMSlotConfig/ALL_LM_CONFIGS
+(deleted in hardcoding-removal commit). They are not imported to avoid errors.
 """
 
-from .requirements import (
-    SlotRequirement,
-    LMSlotConfig,
-    ALL_LM_CONFIGS,
-    GROUP_NAMES
-)
-from .validation import (
-    get_lm_config,
-    get_lm_required_slots,
-    get_lm_all_slots
-)
-from .mapping import (
-    get_lms_by_slot,
-    get_lms_requiring_slot,
-    get_lms_by_group,
-    get_all_active_lm_ids
-)
+from .capability_slots import CapabilitySlot, get_slot_definition
 from .capabilities import (
-    get_slot_usage_summary,
     LMS_NEEDING_REALTIME,
     LMS_NEEDING_VISION,
     LMS_NEEDING_STT,
@@ -39,22 +18,8 @@ from .capabilities import (
 )
 
 __all__ = [
-    # Core classes
-    'SlotRequirement',
-    'LMSlotConfig',
-    'ALL_LM_CONFIGS',
-    'GROUP_NAMES',
-    # Validation
-    'get_lm_config',
-    'get_lm_required_slots',
-    'get_lm_all_slots',
-    # Mapping
-    'get_lms_by_slot',
-    'get_lms_requiring_slot',
-    'get_lms_by_group',
-    'get_all_active_lm_ids',
-    # Capabilities
-    'get_slot_usage_summary',
+    'CapabilitySlot',
+    'get_slot_definition',
     'LMS_NEEDING_REALTIME',
     'LMS_NEEDING_VISION',
     'LMS_NEEDING_STT',

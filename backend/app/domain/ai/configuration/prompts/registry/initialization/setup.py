@@ -4,9 +4,11 @@ LernsystemX KI - Prompt Registry Initialization
 Default prompt templates initialization for standard learning methods.
 """
 
-from flask import current_app
+import logging
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate, PromptMessage, PromptVariable
+from app.domain.ai.configuration.prompts.models import PromptTemplate, PromptMessage, PromptVariable
+
+logger = logging.getLogger(__name__)
 from ..core.registry import PROMPT_REGISTRY, register_prompt
 
 
@@ -24,7 +26,7 @@ def init_default_prompts() -> None:
 
     Called during application initialization.
     """
-    current_app.logger.info("Initializing default prompt templates...")
+    logger.info("Initializing default prompt templates...")
 
     # ========================================================================
     # 1. EXPLAIN CONCEPT
@@ -437,7 +439,7 @@ def init_default_prompts() -> None:
     )
     register_prompt(translation_assistant)
 
-    current_app.logger.info(
+    logger.info(
         f"Registered {len(PROMPT_REGISTRY)} default prompt templates"
     )
 
@@ -449,4 +451,4 @@ def clear_registry() -> None:
     Warning: Only use in testing or during re-initialization.
     """
     PROMPT_REGISTRY.clear()
-    current_app.logger.warning("Cleared prompt registry")
+    logger.warning("Cleared prompt registry")

@@ -87,11 +87,11 @@
       <!-- Page Content with Desktop Layer -->
       <div class="flex-1 relative">
         <div class="absolute inset-0 overflow-hidden">
-          <DesktopLayer>
+          <WindowManager>
             <div class="p-2">
               <router-view></router-view>
             </div>
-          </DesktopLayer>
+          </WindowManager>
         </div>
       </div>
     </main>
@@ -104,8 +104,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
-import { DesktopLayer } from '@/presentation/components/shared/layout'
-import { LanguageSelector } from '@/presentation/components/shared/layout/i18n'
+import { WindowManager } from '@/presentation/components/shared/layout'
+import { LanguageSelector } from '@/presentation/components/shared/i18n'
 
 // ============================================================================
 // Props

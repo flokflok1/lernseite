@@ -1,2 +1,7 @@
-export { useAdminPanelStore } from './panel.store'
+export { usePanelStore, useAdminPanelStore } from './panel.store'
+export { usePanelUsersStore } from './panel-users.store'
+export { usePanelOrganisationsStore } from './panel-organisations.store'
+export { usePanelCoursesStore } from './panel-courses.store'
+export { usePanelAnalyticsStore } from './panel-analytics.store'
+export { usePanelAIJobsStore } from './panel-ai-jobs.store'
 export { useAdminStore } from './admin.store'

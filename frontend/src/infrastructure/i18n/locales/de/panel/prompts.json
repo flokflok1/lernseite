@@ -1,0 +1,33 @@
+{
+  "prompts": {
+    "pageTitle": "KI-Prompt-Verwaltung",
+    "pageDescription": "Verwalten Sie KI-Prompt-Templates fuer Theorieblatt-Generierung und Lernmethoden",
+    "newTemplate": "Neues Template",
+    "stats": {
+      "totalTemplates": "Gesamt Templates",
+      "categories": "Kategorien",
+      "usage30d": "Aufrufe (30d)",
+      "tokensUsed": "Tokens verbraucht"
+    },
+    "filters": {
+      "allCategories": "Alle Kategorien",
+      "allStyles": "Alle Stile",
+      "searchPlaceholder": "Suchen..."
+    },
+    "loading": "Lade Templates...",
+    "errorRetry": "Erneut versuchen",
+    "list": {
+      "title": "Prompt Templates",
+      "empty": "Keine Templates gefunden. Erstellen Sie ein neues Template.",
+      "default": "Standard",
+      "noDescription": "Keine Beschreibung",
+      "used": "verwendet"
+    },
+    "actions": {
+      "preview": "Vorschau",
+      "edit": "Bearbeiten",
+      "duplicate": "Duplizieren",
+      "delete": "Loeschen"
+    }
+  }
+}

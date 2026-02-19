@@ -37,7 +37,8 @@ from .jobs.creation import jobs_creation_bp
 from .jobs.management import jobs_management_bp
 from .jobs.finalization import jobs_finalization_bp
 
-from .pricing.pricing import pricing_calculator_bp, pricing_plans_bp
+from .pricing.pricing import pricing_calculator_bp
+from .pricing.pricing_part2 import pricing_plans_bp
 from .profiles.profiles import profiles_crud_bp
 
 # Register all blueprints with api_v1

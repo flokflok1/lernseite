@@ -7,12 +7,15 @@
  * - Learning methods
  * - Player navigation
  *
- * Refactored: modules → chapters (2025-11-27)
+ * Quiz-specific logic is in playerQuiz.store.ts
+ *
+ * Refactored: modules -> chapters (2025-11-27)
+ * Refactored: quiz split to playerQuiz.store.ts (2026-02-18)
  */
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as playerApi from '@/application/services/api/learning'
+import * as playerApi from '@/infrastructure/api/clients/public/learning/player/player.api'
 import type {
   Course,
   Chapter,
@@ -21,11 +24,9 @@ import type {
   ChapterProgress,
   LessonProgress,
   LearningMethod,
-  ExecuteMethodRequest,
-  QuizData,
-  QuizAnswerSubmission,
-  QuizResult
-} from '@/application/services/api/learning'
+  ExecuteMethodRequest
+} from '@/infrastructure/api/clients/public/learning/types/types'
+import { usePlayerQuizStore } from './playerQuiz.store'
 
 export const usePlayerStore = defineStore('player', () => {
   // ============================================================================
@@ -50,15 +51,11 @@ export const usePlayerStore = defineStore('player', () => {
   const methodResult = ref<any>(null)
   const methodError = ref<string | null>(null)
 
-  // Quiz State
-  const quiz = ref<QuizData | null>(null)
-  const quizAnswers = ref<Record<number, QuizAnswerSubmission>>({})
-  const quizResult = ref<QuizResult | null>(null)
-  const quizLoading = ref(false)
-  const quizSubmitting = ref(false)
-  const quizError = ref<string | null>(null)
-  const quizStartedAt = ref<Date | null>(null)
-  const quizAttempts = ref<QuizResult[]>([])
+  // ============================================================================
+  // Quiz Store (delegated)
+  // ============================================================================
+
+  const quizStore = usePlayerQuizStore()
 
   // ============================================================================
   // Getters
@@ -119,51 +116,6 @@ export const usePlayerStore = defineStore('player', () => {
     return lessonProgress.value?.status === 'completed'
   })
 
-  /**
-   * Check if quiz is loaded
-   */
-  const isQuizLoaded = computed(() => !!quiz.value)
-
-  /**
-   * Get quiz questions
-   */
-  const quizQuestions = computed(() => quiz.value?.questions || [])
-
-  /**
-   * Get quiz progress (% of answered questions)
-   */
-  const quizProgress = computed(() => {
-    if (!quiz.value || quiz.value.questions.length === 0) return 0
-    const answeredCount = Object.keys(quizAnswers.value).length
-    return (answeredCount / quiz.value.questions.length) * 100
-  })
-
-  /**
-   * Check if all required questions are answered
-   */
-  const allQuestionsAnswered = computed(() => {
-    if (!quiz.value) return false
-    return quiz.value.questions.every(q => !!quizAnswers.value[q.question_id])
-  })
-
-  /**
-   * Check if quiz is completed
-   */
-  const isQuizCompleted = computed(() => !!quizResult.value)
-
-  /**
-   * Check if lesson is exam mode
-   */
-  const isExamMode = computed(() => quiz.value?.is_exam || false)
-
-  /**
-   * Get time spent on quiz (in seconds)
-   */
-  const quizTimeSpent = computed(() => {
-    if (!quizStartedAt.value) return 0
-    return Math.floor((Date.now() - quizStartedAt.value.getTime()) / 1000)
-  })
-
   // ============================================================================
   // Actions
   // ============================================================================
@@ -176,7 +128,6 @@ export const usePlayerStore = defineStore('player', () => {
     error.value = null
 
     try {
-      // Load course details
       const [courseData, chaptersData, progressData] = await Promise.all([
         playerApi.getCourse(courseId),
         playerApi.getCourseChapters(courseId),
@@ -206,7 +157,6 @@ export const usePlayerStore = defineStore('player', () => {
 
   /**
    * Load chapter with lessons
-   * Refactored: loadModule → loadChapter (2025-11-27)
    */
   const loadChapter = async (courseId: string, chapterId: string): Promise<void> => {
     loading.value = true
@@ -225,7 +175,7 @@ export const usePlayerStore = defineStore('player', () => {
       await playerApi.sendAnalyticsEvent({
         event_type: 'chapter_start',
         resource_type: 'chapter',
-        resource_id: chapterId  // UUID string
+        resource_id: chapterId
       })
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Kapitel konnte nicht geladen werden'
@@ -242,7 +192,7 @@ export const usePlayerStore = defineStore('player', () => {
   const loadLesson = async (
     courseId: string,
     chapterId: string,
-    lessonId: string  // UUID string
+    lessonId: string
   ): Promise<void> => {
     loading.value = true
     error.value = null
@@ -289,7 +239,6 @@ export const usePlayerStore = defineStore('player', () => {
     try {
       await playerApi.markLessonStarted(courseId, chapterId, lessonId)
 
-      // Update local progress
       if (lessonProgress.value) {
         lessonProgress.value.status = 'in_progress'
         lessonProgress.value.started_at = new Date().toISOString()
@@ -310,7 +259,6 @@ export const usePlayerStore = defineStore('player', () => {
     try {
       await playerApi.markLessonCompleted(courseId, chapterId, lessonId)
 
-      // Update local progress
       if (lessonProgress.value) {
         lessonProgress.value.status = 'completed'
         lessonProgress.value.progress_percentage = 100
@@ -380,7 +328,6 @@ export const usePlayerStore = defineStore('player', () => {
     try {
       await playerApi.updateLessonProgress(courseId, chapterId, lessonId, percentage, timeSpent)
 
-      // Update local progress
       if (lessonProgress.value) {
         lessonProgress.value.progress_percentage = percentage
         if (timeSpent) {
@@ -393,134 +340,17 @@ export const usePlayerStore = defineStore('player', () => {
   }
 
   /**
-   * Load quiz for a lesson
-   */
-  const loadQuizForLesson = async (lessonId: string): Promise<void> => {
-    quizLoading.value = true
-    quizError.value = null
-
-    try {
-      const quizData = await playerApi.getLessonQuiz(lessonId)
-
-      quiz.value = quizData
-      quizAnswers.value = {}
-      quizResult.value = null
-      quizStartedAt.value = new Date()
-
-      // Load attempt history
-      try {
-        const attempts = await playerApi.getQuizAttempts(lessonId)
-        quizAttempts.value = attempts
-      } catch (_err) {
-        // Attempt history not critical
-        quizAttempts.value = []
-      }
-
-      // Send analytics event for exam start
-      if (quizData.is_exam) {
-        await playerApi.startExam(lessonId, quizData.quiz_id)
-        await playerApi.sendAnalyticsEvent({
-          event_type: 'exam_start',
-          resource_type: 'lesson',
-          resource_id: lessonId,
-          metadata: {
-            quiz_id: quizData.quiz_id,
-            time_limit_seconds: quizData.time_limit_seconds
-          }
-        })
-      }
-    } catch (err: any) {
-      quizError.value = err.response?.data?.message || 'Quiz konnte nicht geladen werden'
-      console.error('Failed to load quiz:', err)
-      throw err
-    } finally {
-      quizLoading.value = false
-    }
-  }
-
-  /**
-   * Update answer for a question
-   */
-  const updateQuizAnswer = (questionId: number, answer: QuizAnswerSubmission): void => {
-    quizAnswers.value[questionId] = answer
-  }
-
-  /**
-   * Submit quiz answers
+   * Submit quiz (delegates to quiz store, passes lesson completion callback)
    */
   const submitQuiz = async (
     courseId: string,
     chapterId: string,
     lessonId: string
-  ): Promise<QuizResult> => {
-    if (!quiz.value) {
-      throw new Error('Kein Quiz geladen')
-    }
-
-    // Validate all questions are answered
-    if (!allQuestionsAnswered.value) {
-      throw new Error('Bitte beantworte alle Fragen')
-    }
-
-    quizSubmitting.value = true
-    quizError.value = null
-
-    try {
-      const answersArray = Object.values(quizAnswers.value)
-
-      const result = await playerApi.submitQuizAnswers({
-        lesson_id: lessonId,
-        quiz_id: quiz.value.quiz_id,
-        answers: answersArray,
-        time_spent_seconds: quizTimeSpent.value
-      })
-
-      quizResult.value = result
-
-      // Send exam_complete analytics event
-      if (quiz.value.is_exam) {
-        await playerApi.sendAnalyticsEvent({
-          event_type: 'exam_complete',
-          resource_type: 'lesson',
-          resource_id: lessonId,
-          metadata: {
-            quiz_id: quiz.value.quiz_id,
-            score_percentage: result.score_percentage,
-            passed: result.passed,
-            total_points: result.total_points,
-            max_points: result.max_points,
-            time_spent_seconds: result.time_spent_seconds
-          }
-        })
-      }
-
-      // Mark lesson as completed if quiz passed
-      if (result.passed) {
-        await markLessonCompleted(courseId, chapterId, lessonId)
-      }
-
-      return result
-    } catch (err: any) {
-      quizError.value = err.response?.data?.message || 'Quiz konnte nicht abgesendet werden'
-      console.error('Failed to submit quiz:', err)
-      throw err
-    } finally {
-      quizSubmitting.value = false
-    }
-  }
-
-  /**
-   * Reset quiz state
-   */
-  const resetQuizState = (): void => {
-    quiz.value = null
-    quizAnswers.value = {}
-    quizResult.value = null
-    quizLoading.value = false
-    quizSubmitting.value = false
-    quizError.value = null
-    quizStartedAt.value = null
-    quizAttempts.value = []
+  ): Promise<any> => {
+    return quizStore.submitQuiz(
+      lessonId,
+      async (id: string) => markLessonCompleted(courseId, chapterId, id)
+    )
   }
 
   /**
@@ -537,7 +367,7 @@ export const usePlayerStore = defineStore('player', () => {
     availableMethods.value = []
     methodResult.value = null
     error.value = null
-    resetQuizState()
+    quizStore.resetQuizState()
   }
 
   // ============================================================================
@@ -560,15 +390,15 @@ export const usePlayerStore = defineStore('player', () => {
     methodResult,
     methodError,
 
-    // Quiz State
-    quiz,
-    quizAnswers,
-    quizResult,
-    quizLoading,
-    quizSubmitting,
-    quizError,
-    quizStartedAt,
-    quizAttempts,
+    // Quiz State (re-exported from quiz store for backward compatibility)
+    quiz: quizStore.quiz,
+    quizAnswers: quizStore.quizAnswers,
+    quizResult: quizStore.quizResult,
+    quizLoading: quizStore.quizLoading,
+    quizSubmitting: quizStore.quizSubmitting,
+    quizError: quizStore.quizError,
+    quizStartedAt: quizStore.quizStartedAt,
+    quizAttempts: quizStore.quizAttempts,
 
     // Getters
     hasCourse,
@@ -579,14 +409,14 @@ export const usePlayerStore = defineStore('player', () => {
     previousLesson,
     isLessonCompleted,
 
-    // Quiz Getters
-    isQuizLoaded,
-    quizQuestions,
-    quizProgress,
-    allQuestionsAnswered,
-    isQuizCompleted,
-    isExamMode,
-    quizTimeSpent,
+    // Quiz Getters (re-exported)
+    isQuizLoaded: quizStore.isQuizLoaded,
+    quizQuestions: quizStore.quizQuestions,
+    quizProgress: quizStore.quizProgress,
+    allQuestionsAnswered: quizStore.allQuestionsAnswered,
+    isQuizCompleted: quizStore.isQuizCompleted,
+    isExamMode: quizStore.isExamMode,
+    quizTimeSpent: quizStore.quizTimeSpent,
 
     // Actions
     loadCourse,
@@ -598,10 +428,10 @@ export const usePlayerStore = defineStore('player', () => {
     syncProgress,
     clearPlayer,
 
-    // Quiz Actions
-    loadQuizForLesson,
-    updateQuizAnswer,
+    // Quiz Actions (re-exported)
+    loadQuizForLesson: quizStore.loadQuizForLesson,
+    updateQuizAnswer: quizStore.updateQuizAnswer,
     submitQuiz,
-    resetQuizState
+    resetQuizState: quizStore.resetQuizState
   }
 })

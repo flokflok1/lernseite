@@ -22,7 +22,7 @@ Siehe: 02a_System-Features.md für Feature-Beschreibung
 
 from flask import Blueprint, request, jsonify
 from app.api.middleware.auth import token_required, permission_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 speech_bp = Blueprint('speech_to_text', __name__, url_prefix='/audio/speech-to-text')
 

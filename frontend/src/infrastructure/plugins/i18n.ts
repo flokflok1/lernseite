@@ -33,7 +33,7 @@ import deTutor from '@/infrastructure/i18n/locales/de/tutor'
 import deLegal from '@/infrastructure/i18n/locales/de/legal'
 
 import dePanel from '@/infrastructure/i18n/locales/de/panel'
-import deAiEditor from '@/infrastructure/i18n/locales/de/aiEditor'
+import deAiEditor from '@/infrastructure/i18n/locales/de/panel/aiEditor'
 import deCourses from '@/infrastructure/i18n/locales/de/courses'
 import deFeatures from '@/infrastructure/i18n/locales/de/features'
 import deSystemFeatures from '@/infrastructure/i18n/locales/de/systemFeatures'
@@ -47,7 +47,7 @@ import enTutor from '@/infrastructure/i18n/locales/en/tutor'
 import enLegal from '@/infrastructure/i18n/locales/en/legal'
 
 import enPanel from '@/infrastructure/i18n/locales/en/panel'
-import enAiEditor from '@/infrastructure/i18n/locales/en/aiEditor'
+import enAiEditor from '@/infrastructure/i18n/locales/en/panel/aiEditor'
 import enCourses from '@/infrastructure/i18n/locales/en/courses'
 import enFeatures from '@/infrastructure/i18n/locales/en/features'
 import enSystemFeatures from '@/infrastructure/i18n/locales/en/systemFeatures'
@@ -61,7 +61,7 @@ import plTutor from '@/infrastructure/i18n/locales/pl/tutor'
 import plLegal from '@/infrastructure/i18n/locales/pl/legal'
 
 import plPanel from '@/infrastructure/i18n/locales/pl/panel'
-import plAiEditor from '@/infrastructure/i18n/locales/pl/aiEditor'
+import plAiEditor from '@/infrastructure/i18n/locales/pl/panel/aiEditor'
 import plCourses from '@/infrastructure/i18n/locales/pl/courses'
 import plFeatures from '@/infrastructure/i18n/locales/pl/features'
 import plSystemFeatures from '@/infrastructure/i18n/locales/pl/systemFeatures'
@@ -179,7 +179,7 @@ export async function initializeI18n(): Promise<void> {
     if (isInstalled) {
       try {
         // Import API dynamically to avoid circular dependencies
-        const { getBundle } = await import('@/infrastructure/api/clients/public/i18n.api')
+        const { getBundle } = await import('@/infrastructure/api/clients/public/i18n/i18n.api')
 
         // Load German (base language) from API and merge with file translations
         try {
@@ -242,7 +242,7 @@ export async function setLanguage(lang: string): Promise<void> {
     // If we don't have this language in memory yet, try loading from API
     const currentMessages = i18n.global.getLocaleMessage(lang)
     if (!currentMessages || Object.keys(currentMessages).length === 0) {
-      const { getBundle } = await import('@/infrastructure/api/clients/public/i18n.api')
+      const { getBundle } = await import('@/infrastructure/api/clients/public/i18n/i18n.api')
       const bundle = await getBundle(lang)
       if (bundle && Object.keys(bundle).length > 0) {
         i18n.global.setLocaleMessage(lang, bundle)

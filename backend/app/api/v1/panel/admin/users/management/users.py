@@ -1,31 +1,28 @@
 """
-LernsystemX Admin API - User Management
+LernsystemX Admin API - User Management (Part 1: CRUD & Group Operations)
 
-Admin endpoints for user CRUD operations, role management, and moderation actions.
+Admin endpoints for user listing, creation, details, and group management.
 
 Endpoints:
 - GET /api/v1/admin/users - List users with filtering and pagination
+- POST /api/v1/admin/users - Create a new user
 - GET /api/v1/admin/users/{id} - Get detailed user information
-- PATCH /api/v1/admin/users/{id}/role - Change user role
-- POST /api/v1/admin/users/{id}/ban - Ban user
-- POST /api/v1/admin/users/{id}/unban - Unban user
-- DELETE /api/v1/admin/users/{id} - Delete user (soft or hard)
-- POST /api/v1/admin/users/{id}/verify - Verify creator status
+- PATCH /api/v1/admin/users/{id}/role - [DEPRECATED] Change user role
+- PATCH /api/v1/admin/users/{id}/groups - Update user group memberships
+
+See users_part2.py for moderation actions (ban, unban, delete, verify).
 
 Phase B24 - Admin User Management Implementation
 """
 
 from flask import jsonify, request, g
-from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, ValidationError
 
 from app.api.v1 import api_v1
 from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.user.admin import UserAdminRepository
 from app.infrastructure.persistence.repositories.user.auth import UserAuthRepository
-from app.application.services.system.audit.service import AuditService, Severity
-from app.api.middleware.auth import get_current_user
+from app.application.services.system.audit.service import AuditService
 
 
 # ==========================================
@@ -33,12 +30,16 @@ from app.api.middleware.auth import get_current_user
 # ==========================================
 
 class CreateUserRequest(BaseModel):
-    """Request body for creating a new user"""
+    """Request body for creating a new user."""
+
     email: EmailStr
     password: str = Field(..., min_length=8)
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
-    role: str = Field(default='free', description='Role name: free, premium, creator, teacher, admin, owner')
+    role: str = Field(
+        default='free',
+        description='Role name: free, premium, creator, teacher, admin, owner'
+    )
 
     class Config:
         json_schema_extra = {
@@ -51,6 +52,10 @@ class CreateUserRequest(BaseModel):
             }
         }
 
+
+# ==========================================
+# CRUD & GROUP ENDPOINTS
+# ==========================================
 
 @api_v1.route('/admin/users', methods=['GET'])
 @permission_required('admin.users:read')
@@ -73,7 +78,6 @@ def admin_list_users():
         500: Server error
     """
     try:
-        # Parse query parameters
         page = int(request.args.get('page', 1))
         per_page = min(int(request.args.get('per_page', 20)), 100)
         status = request.args.get('status', '')
@@ -82,18 +86,16 @@ def admin_list_users():
         sort_by = request.args.get('sort_by', 'created_at')
         sort_order = request.args.get('sort_order', 'desc')
 
-        # Get users from repository
         result = UserAdminRepository.admin_list_users(
             page=page,
             per_page=per_page,
             status=status,
             role=role,
             search=search,
-            sort=sort_by,      # Repository expects 'sort', not 'sort_by'
-            order=sort_order   # Repository expects 'order', not 'sort_order'
+            sort=sort_by,
+            order=sort_order
         )
 
-        # Audit log
         AuditService.log_action(
             user_id=g.current_user['user_id'],
             action='list_users',
@@ -161,7 +163,6 @@ def admin_create_user():
 
         user_data = CreateUserRequest(**data)
 
-        # Create user via repository
         user = UserAuthRepository.create_user(
             email=user_data.email,
             password=user_data.password,
@@ -177,7 +178,6 @@ def admin_create_user():
                 'message': 'User creation failed'
             }), 500
 
-        # Audit log
         AuditService.log_action(
             user_id=g.current_user['user_id'],
             action='create_user',
@@ -194,7 +194,6 @@ def admin_create_user():
         }), 201
 
     except ValidationError as e:
-        # Pydantic validation error - extract field errors
         error_details = []
         for error in e.errors():
             field = error['loc'][0]
@@ -236,7 +235,6 @@ def admin_get_user_details(user_id: str):
         500: Server error
     """
     try:
-        # Get user details from repository
         user_details = UserAdminRepository.admin_get_user_details(user_id)
 
         if not user_details:
@@ -246,7 +244,6 @@ def admin_get_user_details(user_id: str):
                 'message': f'No user found with ID: {user_id}'
             }), 404
 
-        # Audit log
         AuditService.log_action(
             user_id=g.current_user['user_id'],
             action='view_user_details',
@@ -287,7 +284,7 @@ def admin_change_user_role_deprecated(user_id: str):
             'new_body': '{"group_ids": [1, 2, 3], "replace": true}',
             'removal_date': '2027-01-20'
         }
-    }), 410  # 410 Gone
+    }), 410
 
 
 @api_v1.route('/admin/users/<string:user_id>/groups', methods=['PATCH'])
@@ -324,12 +321,9 @@ def admin_update_user_groups(user_id: str):
                 'message': 'group_ids must be a non-empty array'
             }), 400
 
-        # Convert group IDs to group slugs (fetch from DB)
-        # Note: In production, pass group IDs directly or convert them
-        # For now, we call admin_update_groups with the IDs as slugs
         success = UserAdminRepository.admin_update_groups(
             user_id=user_id,
-            group_slugs=[str(gid) for gid in group_ids],  # Convert IDs to strings
+            group_slugs=[str(gid) for gid in group_ids],
             changed_by=g.current_user['user_id'],
             replace=replace
         )
@@ -341,7 +335,6 @@ def admin_update_user_groups(user_id: str):
                 'message': 'User not found or invalid group IDs'
             }), 404
 
-        # Audit log
         AuditService.log_action(
             user_id=g.current_user['user_id'],
             action='update_user_groups',
@@ -364,245 +357,11 @@ def admin_update_user_groups(user_id: str):
         }), 500
 
 
-@api_v1.route('/admin/users/<string:user_id>/ban', methods=['POST'])
-@permission_required('admin.users:write')
-def admin_ban_user(user_id: str):
-    """
-    Ban user with reason and optional duration.
-
-    Path Parameters:
-        user_id (str): User ID
-
-    Request Body:
-        {
-            "reason": "Violation of terms",  // Required
-            "duration_days": 7               // Optional (null = permanent)
-        }
-
-    Response:
-        200: User banned successfully
-        400: Missing reason
-        403: Forbidden (insufficient permissions)
-        404: User not found
-        500: Server error
-    """
-    try:
-        data = request.get_json()
-        reason = data.get('reason')
-        duration_days = data.get('duration_days')
-
-        if not reason:
-            return jsonify({
-                'success': False,
-                'error': 'Missing required field',
-                'message': 'reason is required'
-            }), 400
-
-        # Ban user via repository
-        success = UserAdminRepository.admin_ban_user(
-            user_id=user_id,
-            reason=reason,
-            banned_by_user_id=g.current_user['user_id'],
-            duration_days=duration_days
-        )
-
-        if not success:
-            return jsonify({
-                'success': False,
-                'error': 'Failed to ban user',
-                'message': 'User not found or already banned'
-            }), 404
-
-        # Audit log
-        AuditService.log_action(
-            user_id=g.current_user['user_id'],
-            action='ban_user',
-            resource_type='admin_users',
-            resource_id=user_id,
-            severity='high',
-            details={'reason': reason, 'duration_days': duration_days}
-        )
-
-        return jsonify({
-            'success': True,
-            'message': 'User banned successfully'
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to ban user',
-            'message': str(e)
-        }), 500
-
-
-@api_v1.route('/admin/users/<string:user_id>/unban', methods=['POST'])
-@permission_required('admin.users:write')
-def admin_unban_user(user_id: str):
-    """
-    Unban user.
-
-    Path Parameters:
-        user_id (str): User ID
-
-    Response:
-        200: User unbanned successfully
-        403: Forbidden (insufficient permissions)
-        404: User not found or not banned
-        500: Server error
-    """
-    try:
-        # Unban user via repository
-        success = UserAdminRepository.admin_unban_user(
-            user_id=user_id,
-            unbanned_by_user_id=g.current_user['user_id']
-        )
-
-        if not success:
-            return jsonify({
-                'success': False,
-                'error': 'Failed to unban user',
-                'message': 'User not found or not currently banned'
-            }), 404
-
-        # Audit log
-        AuditService.log_action(
-            user_id=g.current_user['user_id'],
-            action='unban_user',
-            resource_type='admin_users',
-            resource_id=user_id,
-            severity='medium'
-        )
-
-        return jsonify({
-            'success': True,
-            'message': 'User unbanned successfully'
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to unban user',
-            'message': str(e)
-        }), 500
-
-
-@api_v1.route('/admin/users/<string:user_id>', methods=['DELETE'])
-@permission_required('admin.users:delete')
-def admin_delete_user(user_id: str):
-    """
-    Delete user (soft or hard delete).
-
-    Path Parameters:
-        user_id (str): User ID
-
-    Query Parameters:
-        hard (bool): If true, permanently delete (default: false = soft delete)
-
-    Response:
-        200: User deleted successfully
-        403: Forbidden (insufficient permissions)
-        404: User not found
-        500: Server error
-    """
-    try:
-        hard_delete = request.args.get('hard', 'false').lower() == 'true'
-
-        # Delete user via repository
-        success = UserAdminRepository.admin_delete_user(
-            user_id=user_id,
-            deleted_by_user_id=g.current_user['user_id'],
-            hard_delete=hard_delete
-        )
-
-        if not success:
-            return jsonify({
-                'success': False,
-                'error': 'Failed to delete user',
-                'message': 'User not found'
-            }), 404
-
-        # Audit log
-        AuditService.log_action(
-            user_id=g.current_user['user_id'],
-            action='delete_user',
-            resource_type='admin_users',
-            resource_id=user_id,
-            severity='critical',
-            details={'hard_delete': hard_delete}
-        )
-
-        return jsonify({
-            'success': True,
-            'message': f'User {"permanently deleted" if hard_delete else "soft deleted"} successfully'
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to delete user',
-            'message': str(e)
-        }), 500
-
-
-@api_v1.route('/admin/users/<string:user_id>/verify', methods=['POST'])
-@permission_required('admin.users:write')
-def admin_verify_creator(user_id: str):
-    """
-    Verify creator status for user.
-
-    Path Parameters:
-        user_id (str): User ID
-
-    Response:
-        200: Creator verified successfully
-        403: Forbidden (insufficient permissions)
-        404: User not found or not a creator
-        500: Server error
-    """
-    try:
-        # Verify creator via repository
-        success = UserAdminRepository.admin_verify_creator(
-            user_id=user_id,
-            verified_by_user_id=g.current_user['user_id']
-        )
-
-        if not success:
-            return jsonify({
-                'success': False,
-                'error': 'Failed to verify creator',
-                'message': 'User not found or not a creator'
-            }), 404
-
-        # Audit log
-        AuditService.log_action(
-            user_id=g.current_user['user_id'],
-            action='verify_creator',
-            resource_type='admin_users',
-            resource_id=user_id,
-            severity='medium'
-        )
-
-        return jsonify({
-            'success': True,
-            'message': 'Creator verified successfully'
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': 'Failed to verify creator',
-            'message': str(e)
-        }), 500
-
-
 __all__ = [
+    'CreateUserRequest',
     'admin_list_users',
     'admin_create_user',
     'admin_get_user_details',
-    'admin_change_user_role',
-    'admin_ban_user',
-    'admin_unban_user',
-    'admin_delete_user',
-    'admin_verify_creator',
+    'admin_change_user_role_deprecated',
+    'admin_update_user_groups',
 ]

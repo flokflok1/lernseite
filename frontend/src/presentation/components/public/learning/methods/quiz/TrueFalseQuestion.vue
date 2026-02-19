@@ -53,7 +53,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-import type { QuizQuestion, QuizAnswerSubmission } from '@/application/services/api/learning'
+import type { QuizQuestion, QuizAnswerSubmission } from '@/infrastructure/api/clients/public/learning/types/types'
 
 // ============================================================================
 // Props & Emits

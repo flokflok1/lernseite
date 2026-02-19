@@ -8,11 +8,11 @@ Panel API - Configuration ONLY, NO execution logic.
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.application.services.panel import PanelRunnerModeService
-from app.domain.models.panel.system_features import SystemFeatureUpdate
+from app.application.services.content.runner.mode_service import PanelRunnerModeService
+from app.domain.models.features.system_features import SystemFeatureUpdate
 from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
-from app.api.utils.responses import success_response, error_response
+from app.api.responses.responses import success_response, error_response
 
 bp = Blueprint('panel_system_features', __name__, url_prefix='/panel/system-features')
 

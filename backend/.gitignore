@@ -123,13 +123,13 @@ Thumbs.db
 # User uploads (AI jobs, course materials)
 app/uploads/
 uploads/
-storage/
+/storage/
 
 # Media cache (TTS audio, generated content)
 media_cache/
 
 # Runtime directories
-cache/
+/cache/
 temp/
 
 # Archive backups (old code structures)

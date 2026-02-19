@@ -186,7 +186,7 @@ import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/application/stores/modules/content/player.store'
 
 const { t } = useI18n()
-import type { Lesson, QuizAnswerSubmission } from '@/application/services/api/learning'
+import type { Lesson, QuizAnswerSubmission } from '@/infrastructure/api/clients/public/learning/types/types'
 import Button from '@/presentation/components/shared/ui/Button.vue'
 import QuizResult from './QuizResult.vue'
 import SingleChoiceQuestion from './SingleChoiceQuestion.vue'

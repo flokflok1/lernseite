@@ -15,7 +15,7 @@ import logging
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
-from app.application.services.lm.math_toolkit import MathToolkitService
+from app.application.services.content.lm.math_toolkit import MathToolkitService
 
 logger = logging.getLogger(__name__)
 

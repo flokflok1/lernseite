@@ -17,9 +17,9 @@ from datetime import datetime
 
 from app.infrastructure.persistence.database import get_db_connection
 from app.infrastructure.persistence.repositories.features.configuration_part2 import FeatureRolloutPlanRepository
-from app.application.services.feature_flags.rollout import FeatureConfigurationRolloutService
-from app.application.services.feature_flags.cache import FeatureConfigurationCacheService
-from app.infrastructure.utils.exceptions import (
+from app.application.services.system.feature_flags.rollout import FeatureConfigurationRolloutService
+from app.application.services.system.feature_flags.cache import FeatureConfigurationCacheService
+from app.infrastructure.error_handling.exceptions import (
     ValidationError,
     NotFoundError,
     ForbiddenError

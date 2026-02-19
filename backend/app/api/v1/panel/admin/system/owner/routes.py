@@ -6,7 +6,7 @@ These are system-critical settings that should not be accessible to regular admi
 """
 
 from flask import Blueprint, jsonify, request
-from app.infrastructure.security.rbac import require_owner
+from app.infrastructure.security.gba import require_owner
 from app.api.middleware.auth import token_required
 
 # Create blueprint

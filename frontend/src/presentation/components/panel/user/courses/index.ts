@@ -1,0 +1,5 @@
+export { default as CourseCard } from './CourseCard.vue'
+export { default as CourseOverviewView } from './CourseOverviewView.vue'
+export { default as CoursesListView } from './CoursesListView.vue'
+export { default as EnrolledCourseCard } from './EnrolledCourseCard.vue'
+export { default as UserCourses } from './UserCourses.vue'

@@ -7,7 +7,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePlayerStore } from '@/application/stores/modules/content/player.store'
 import { useTutorStore } from '@/application/stores/modules/learning/tutor.store'
-import type { Chapter } from '@/application/services/api/learning'
+import type { Chapter } from '@/infrastructure/api/clients/public/learning/types/types'
 
 export function useCourseOverview(courseId: string) {
   const router = useRouter()

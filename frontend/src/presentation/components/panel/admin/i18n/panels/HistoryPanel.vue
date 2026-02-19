@@ -10,12 +10,12 @@ import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { SyncHistorySummary } from '../types/sync.types'
 import { useSyncManager } from '@/features/panel/useSyncManager'
+import HistoryTableRow from './HistoryTableRow.vue'
+import RollbackConfirmModal from './RollbackConfirmModal.vue'
 
 const { t } = useI18n()
 const {
-  syncHistory: _syncHistory,
   historyPage,
-  historyPageSize: _historyPageSize,
   isLoadingHistory,
   paginatedHistory,
   historyTotalPages,
@@ -42,124 +42,58 @@ onMounted(async () => {
 // COMPUTED
 // ============================================================================
 
-/**
- * Available status filters
- */
 const statusOptions = computed(() => [
   { value: 'COMPLETED', label: t('panel.i18n.status_completed') },
   { value: 'FAILED', label: t('panel.i18n.status_failed') },
   { value: 'ROLLED_BACK', label: t('panel.i18n.status_rolled_back') }
 ])
 
-/**
- * Available mode filters
- */
 const modeOptions = computed(() => [
   { value: 'MANUAL', label: t('panel.i18n.mode_manual') },
   { value: 'AUTO', label: t('panel.i18n.mode_auto') }
 ])
 
-/**
- * Get status badge class
- */
-const getStatusClass = (status: string): string => {
-  const statusMap: Record<string, string> = {
-    'COMPLETED': 'status-completed',
-    'FAILED': 'status-failed',
-    'ROLLED_BACK': 'status-rolled_back'
-  }
-  return statusMap[status] || 'status-pending'
-}
-
-/**
- * Get status icon
- */
-const getStatusIcon = (status: string): string => {
-  const iconMap: Record<string, string> = {
-    'COMPLETED': '✅',
-    'FAILED': '❌',
-    'ROLLED_BACK': '⏮️',
-    'PENDING': '⏳'
-  }
-  return iconMap[status] || '❓'
-}
-
-/**
- * Format date time for display
- */
-const formatDateTime = (dateStr: string | null): string => {
-  if (!dateStr) return t('panel.i18n.not_applicable')
-  const date = new Date(dateStr)
-  return date.toLocaleString()
-}
-
-/**
- * Can this sync be rolled back?
- */
-const canRollback = (sync: SyncHistorySummary): boolean => {
-  return sync.sync_status === 'COMPLETED' && !sync.is_rolled_back
-}
-
 // ============================================================================
 // METHODS
 // ============================================================================
 
-/**
- * Apply status filter
- */
-async function applyStatusFilter(status: string | null) {
+async function applyStatusFilter(status: string | null): Promise<void> {
   statusFilter.value = status
   historyPage.value = 0
   await loadHistory(status || undefined, modeFilter.value || undefined)
 }
 
-/**
- * Apply mode filter
- */
-async function applyModeFilter(mode: string | null) {
+async function applyModeFilter(mode: string | null): Promise<void> {
   modeFilter.value = mode
   historyPage.value = 0
   await loadHistory(statusFilter.value || undefined, mode || undefined)
 }
 
-/**
- * Change page
- */
-async function changePage(newPage: number) {
+async function changePage(newPage: number): Promise<void> {
   if (newPage >= 0 && newPage < historyTotalPages.value) {
     historyPage.value = newPage
     await loadHistory(statusFilter.value || undefined, modeFilter.value || undefined)
   }
 }
 
-/**
- * Open rollback confirmation
- */
-function openRollbackConfirm(sync: SyncHistorySummary) {
+function openRollbackConfirm(sync: SyncHistorySummary): void {
   selectedSyncForRollback.value = sync
   rollbackReason.value = ''
   showRollbackConfirm.value = true
 }
 
-/**
- * Close rollback confirmation
- */
-function closeRollbackConfirm() {
+function closeRollbackConfirm(): void {
   showRollbackConfirm.value = false
   selectedSyncForRollback.value = null
   rollbackReason.value = ''
 }
 
-/**
- * Confirm rollback
- */
-async function confirmRollback() {
+async function confirmRollback(): Promise<void> {
   if (!selectedSyncForRollback.value) return
 
   try {
     await rollbackSync(rollbackReason.value)
     closeRollbackConfirm()
-    // Reload history after successful rollback
     await loadHistory(statusFilter.value || undefined, modeFilter.value || undefined)
   } catch (err) {
     console.error('Rollback failed:', err)
@@ -240,54 +174,12 @@ async function confirmRollback() {
         <div class="col-actions">{{ $t('panel.i18n.actions') }}</div>
       </div>
 
-      <div
+      <HistoryTableRow
         v-for="sync in paginatedHistory"
         :key="sync.sync_id"
-        class="table-row"
-      >
-        <div class="col-syncid">
-          <code class="sync-id">{{ sync.sync_id }}</code>
-        </div>
-
-        <div class="col-mode">
-          <span class="badge badge-mode" :class="`mode-${sync.sync_mode.toLowerCase()}`">
-            {{ sync.sync_mode }}
-          </span>
-        </div>
-
-        <div class="col-status">
-          <span class="status-badge" :class="getStatusClass(sync.sync_status)">
-            {{ getStatusIcon(sync.sync_status) }} {{ $t(`panel.i18n.status_${sync.sync_status.toLowerCase()}`) }}
-          </span>
-        </div>
-
-        <div class="col-changes">
-          <span class="changes-count">{{ sync.total_changes }}</span>
-        </div>
-
-        <div class="col-conflicts">
-          <span v-if="sync.conflicts_count > 0" class="conflicts-badge">
-            {{ sync.conflicts_count }}
-          </span>
-          <span v-else class="conflicts-none">—</span>
-        </div>
-
-        <div class="col-timestamp">
-          <span class="timestamp">{{ formatDateTime(sync.created_at) }}</span>
-        </div>
-
-        <div class="col-actions">
-          <button
-            v-if="canRollback(sync)"
-            class="btn btn-rollback"
-            :title="$t('panel.i18n.rollback_tooltip')"
-            @click="openRollbackConfirm(sync)"
-          >
-            ⏮️ {{ $t('panel.i18n.rollback') }}
-          </button>
-          <span v-else class="no-action">—</span>
-        </div>
-      </div>
+        :sync="sync"
+        @rollback="openRollbackConfirm"
+      />
     </div>
 
     <!-- Empty State -->
@@ -322,53 +214,13 @@ async function confirmRollback() {
     </div>
 
     <!-- Rollback Confirmation Modal -->
-    <div v-if="showRollbackConfirm" class="modal-overlay" @click="closeRollbackConfirm">
-      <div class="modal" @click.stop>
-        <div class="modal-header">
-          <h3>{{ $t('panel.i18n.confirm_rollback') }}</h3>
-        </div>
-
-        <div class="modal-content">
-          <p class="warning-text">
-            ⚠️ {{ $t('panel.i18n.rollback_warning') }}
-          </p>
-
-          <div class="sync-info">
-            <div class="info-row">
-              <span class="label">{{ $t('panel.i18n.sync_id') }}:</span>
-              <code>{{ selectedSyncForRollback?.sync_id }}</code>
-            </div>
-            <div class="info-row">
-              <span class="label">{{ $t('panel.i18n.mode') }}:</span>
-              <span>{{ selectedSyncForRollback?.sync_mode }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">{{ $t('panel.i18n.total_changes') }}:</span>
-              <span>{{ selectedSyncForRollback?.total_changes }}</span>
-            </div>
-          </div>
-
-          <div class="reason-input">
-            <label for="rollback-reason">{{ $t('panel.i18n.rollback_reason') }}</label>
-            <textarea
-              id="rollback-reason"
-              v-model="rollbackReason"
-              :placeholder="$t('panel.i18n.rollback_reason_placeholder')"
-              rows="4"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeRollbackConfirm">
-            {{ $t('panel.i18n.cancel') }}
-          </button>
-          <button class="btn btn-danger" @click="confirmRollback">
-            {{ $t('panel.i18n.confirm_rollback') }}
-          </button>
-        </div>
-      </div>
-    </div>
+    <RollbackConfirmModal
+      v-if="showRollbackConfirm && selectedSyncForRollback"
+      :sync="selectedSyncForRollback"
+      v-model:reason="rollbackReason"
+      @confirm="confirmRollback"
+      @cancel="closeRollbackConfirm"
+    />
   </div>
 </template>
 
@@ -491,139 +343,6 @@ async function confirmRollback() {
   color: #374151;
 }
 
-.table-row {
-  display: grid;
-  grid-template-columns: 150px 100px 120px 100px 100px 150px 120px;
-  gap: 16px;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  align-items: center;
-  font-size: 13px;
-}
-
-.table-row:hover {
-  background: #f9fafb;
-}
-
-.sync-id {
-  font-family: monospace;
-  font-size: 11px;
-  color: #6b7280;
-  word-break: break-all;
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.badge-mode {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.badge-mode.mode-auto {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.status-completed {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.status-failed {
-  background: #fee2e2;
-  color: #7f1d1d;
-}
-
-.status-rolled_back {
-  background: #e0e7ff;
-  color: #3730a3;
-}
-
-.status-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.changes-count {
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.conflicts-badge {
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: #fee2e2;
-  color: #7f1d1d;
-  font-weight: 600;
-}
-
-.conflicts-none {
-  color: #9ca3af;
-}
-
-.timestamp {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-.btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 12px;
-  transition: all 0.3s;
-}
-
-.btn-rollback {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
-}
-
-.btn-rollback:hover {
-  background: #fde68a;
-}
-
-.btn-secondary {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.btn-secondary:hover {
-  background: #d1d5db;
-}
-
-.btn-danger {
-  background: #ef4444;
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #dc2626;
-}
-
-.no-action {
-  color: #9ca3af;
-}
-
 .empty-state {
   display: flex;
   align-items: center;
@@ -670,116 +389,5 @@ async function confirmRollback() {
   color: #6b7280;
   min-width: 150px;
   text-align: center;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.modal-content {
-  padding: 24px;
-}
-
-.warning-text {
-  margin: 0 0 16px;
-  padding: 12px;
-  background: #fef3c7;
-  border-left: 4px solid #f59e0b;
-  border-radius: 4px;
-  color: #92400e;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.sync-info {
-  margin-bottom: 20px;
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 4px;
-}
-
-.info-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-
-.info-row:last-child {
-  margin-bottom: 0;
-}
-
-.info-row .label {
-  font-weight: 600;
-  color: #374151;
-  min-width: 100px;
-}
-
-.reason-input {
-  margin-bottom: 20px;
-}
-
-.reason-input label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  font-size: 13px;
-  color: #374151;
-}
-
-.reason-input textarea {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 13px;
-  resize: vertical;
-}
-
-.reason-input textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
 }
 </style>

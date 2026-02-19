@@ -5,7 +5,7 @@ Learning Path Generator - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 path_generator_bp = Blueprint('path_generator', __name__, url_prefix='/learning-paths/path-generator')
 

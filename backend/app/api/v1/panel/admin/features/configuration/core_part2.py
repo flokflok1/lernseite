@@ -15,9 +15,9 @@ import logging
 from datetime import datetime
 
 from app.infrastructure.persistence.database import get_db_connection
-from app.infrastructure.persistence.repositories.feature_configuration import FeatureConfigurationRepository
-from app.application.services.feature_flags.cache import FeatureConfigurationCacheService
-from app.infrastructure.utils.exceptions import NotFoundError
+from app.infrastructure.persistence.repositories.features.configuration import FeatureConfigurationRepository
+from app.application.services.system.feature_flags.cache import FeatureConfigurationCacheService
+from app.infrastructure.error_handling.exceptions import NotFoundError
 from app.api.middleware.auth import token_required, admin_required
 
 logger = logging.getLogger(__name__)

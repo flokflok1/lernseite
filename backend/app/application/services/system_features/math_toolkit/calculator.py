@@ -8,7 +8,9 @@ from typing import Dict, List, Optional
 import json
 import logging
 
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.repositories.math_toolkit import (
+    MathSessionsStepsRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,17 +45,10 @@ class CalculatorHistory:
         Returns:
             New history_id or None if failed
         """
-        query = """
-            INSERT INTO math_calculator_history
-                (user_id, session_id, expression, result, result_display,
-                 keystrokes, memory_used, memory_value)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING history_id
-        """
-        result_row = BaseRepository.fetch_one(query, (
+        result_row = MathSessionsStepsRepository.insert_calculator_entry(
             user_id, session_id, expression, result, result_display,
             json.dumps(keystrokes or []), memory_used, memory_value
-        ))
+        )
         return str(result_row['history_id']) if result_row else None
 
     @staticmethod
@@ -68,12 +63,4 @@ class CalculatorHistory:
         Returns:
             List of history entries
         """
-        query = """
-            SELECT history_id, expression, result, result_display, keystrokes,
-                   memory_used, memory_value, created_at
-            FROM math_calculator_history
-            WHERE user_id = %s
-            ORDER BY created_at DESC
-            LIMIT %s
-        """
-        return BaseRepository.fetch_all(query, (user_id, limit)) or []
+        return MathSessionsStepsRepository.get_calculator_history(user_id, limit)

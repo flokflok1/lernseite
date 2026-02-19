@@ -8,7 +8,9 @@ from typing import Dict, List, Optional
 import json
 import logging
 
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.repositories.math_toolkit import (
+    MathPatternsProgressRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,13 +29,7 @@ class PatternManager:
         Returns:
             List of category dictionaries
         """
-        query = """
-            SELECT category_id, category_code, name, description, icon, color, sort_order
-            FROM math_pattern_categories
-            WHERE ($1 = FALSE OR is_active = TRUE)
-            ORDER BY sort_order, name
-        """
-        return BaseRepository.fetch_all(query, (active_only,)) or []
+        return MathPatternsProgressRepository.get_categories(active_only)
 
     @staticmethod
     def get_category_by_code(code: str) -> Optional[Dict]:
@@ -46,12 +42,7 @@ class PatternManager:
         Returns:
             Category dictionary or None
         """
-        query = """
-            SELECT category_id, category_code, name, description, icon, color
-            FROM math_pattern_categories
-            WHERE category_code = %s AND is_active = TRUE
-        """
-        return BaseRepository.fetch_one(query, (code,))
+        return MathPatternsProgressRepository.get_category_by_code(code)
 
     @staticmethod
     def get_patterns(
@@ -72,24 +63,9 @@ class PatternManager:
         Returns:
             List of pattern dictionaries
         """
-        query = """
-            SELECT
-                p.pattern_id, p.pattern_code, p.name, p.description,
-                p.formula_template, p.formula_latex,
-                p.variables, p.steps_template, p.example_values,
-                p.difficulty, p.ihk_relevant, p.tags,
-                c.category_code, c.name as category_name, c.icon as category_icon
-            FROM math_patterns p
-            LEFT JOIN math_pattern_categories c ON p.category_id = c.category_id
-            WHERE ($1 = FALSE OR p.is_active = TRUE)
-              AND ($2::text IS NULL OR c.category_code = $2)
-              AND ($3 = FALSE OR p.ihk_relevant = TRUE)
-              AND ($4::int IS NULL OR p.difficulty = $4)
-            ORDER BY c.sort_order, p.sort_order, p.name
-        """
-        return BaseRepository.fetch_all(
-            query, (active_only, category_code, ihk_only, difficulty)
-        ) or []
+        return MathPatternsProgressRepository.get_patterns(
+            active_only, category_code, ihk_only, difficulty
+        )
 
     @staticmethod
     def get_pattern_by_id(pattern_id: str) -> Optional[Dict]:
@@ -102,18 +78,7 @@ class PatternManager:
         Returns:
             Pattern dictionary or None
         """
-        query = """
-            SELECT
-                p.pattern_id, p.pattern_code, p.name, p.description,
-                p.formula_template, p.formula_latex,
-                p.variables, p.steps_template, p.example_values,
-                p.difficulty, p.ihk_relevant, p.tags,
-                c.category_code, c.name as category_name, c.icon as category_icon
-            FROM math_patterns p
-            LEFT JOIN math_pattern_categories c ON p.category_id = c.category_id
-            WHERE p.pattern_id = %s
-        """
-        return BaseRepository.fetch_one(query, (pattern_id,))
+        return MathPatternsProgressRepository.get_pattern_by_id(pattern_id)
 
     @staticmethod
     def get_pattern_by_code(pattern_code: str) -> Optional[Dict]:
@@ -126,18 +91,7 @@ class PatternManager:
         Returns:
             Pattern dictionary or None
         """
-        query = """
-            SELECT
-                p.pattern_id, p.pattern_code, p.name, p.description,
-                p.formula_template, p.formula_latex,
-                p.variables, p.steps_template, p.example_values,
-                p.difficulty, p.ihk_relevant, p.tags,
-                c.category_code, c.name as category_name
-            FROM math_patterns p
-            LEFT JOIN math_pattern_categories c ON p.category_id = c.category_id
-            WHERE p.pattern_code = %s AND p.is_active = TRUE
-        """
-        return BaseRepository.fetch_one(query, (pattern_code,))
+        return MathPatternsProgressRepository.get_pattern_by_code(pattern_code)
 
     @staticmethod
     def get_formulas(
@@ -154,21 +108,9 @@ class PatternManager:
         Returns:
             List of formula dictionaries
         """
-        query = """
-            SELECT
-                f.formula_id, f.name, f.description,
-                f.formula_text, f.formula_latex, f.formula_display,
-                f.variables, f.example_input, f.example_output,
-                f.is_favorite, f.usage_count,
-                c.category_code, c.name as category_name, c.icon as category_icon
-            FROM math_formulas f
-            LEFT JOIN math_pattern_categories c ON f.category_id = c.category_id
-            WHERE f.is_active = TRUE
-              AND ($1::text IS NULL OR c.category_code = $1)
-              AND ($2 = FALSE OR f.is_favorite = TRUE)
-            ORDER BY f.is_favorite DESC, f.usage_count DESC, f.name
-        """
-        return BaseRepository.fetch_all(query, (category_code, favorites_only)) or []
+        return MathPatternsProgressRepository.get_formulas(
+            category_code, favorites_only
+        )
 
     @staticmethod
     def increment_formula_usage(formula_id: str) -> bool:
@@ -181,12 +123,7 @@ class PatternManager:
         Returns:
             Success status
         """
-        query = """
-            UPDATE math_formulas
-            SET usage_count = usage_count + 1
-            WHERE formula_id = %s
-        """
-        return BaseRepository.execute(query, (formula_id,))
+        return MathPatternsProgressRepository.increment_formula_usage(formula_id)
 
     @staticmethod
     def toggle_formula_favorite(formula_id: str) -> Optional[bool]:
@@ -199,13 +136,7 @@ class PatternManager:
         Returns:
             New favorite status or None if failed
         """
-        query = """
-            UPDATE math_formulas
-            SET is_favorite = NOT is_favorite
-            WHERE formula_id = %s
-            RETURNING is_favorite
-        """
-        result = BaseRepository.fetch_one(query, (formula_id,))
+        result = MathPatternsProgressRepository.toggle_formula_favorite(formula_id)
         return result.get('is_favorite') if result else None
 
     @staticmethod
@@ -233,19 +164,11 @@ class PatternManager:
         Returns:
             New pattern_id or None if failed
         """
-        cat = PatternManager.get_category_by_code(category_code)
+        cat = MathPatternsProgressRepository.get_category_by_code(category_code)
         if not cat:
             return None
 
-        query = """
-            INSERT INTO math_patterns
-                (pattern_code, name, category_id, description,
-                 formula_template, formula_latex, variables, steps_template,
-                 example_values, difficulty, ihk_relevant, tags)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING pattern_id
-        """
-        result = BaseRepository.fetch_one(query, (
+        result = MathPatternsProgressRepository.insert_pattern(
             pattern_code, name, cat['category_id'],
             kwargs.get('description'),
             formula_template,
@@ -256,7 +179,7 @@ class PatternManager:
             kwargs.get('difficulty', 1),
             kwargs.get('ihk_relevant', False),
             json.dumps(kwargs.get('tags', []))
-        ))
+        )
         return str(result['pattern_id']) if result else None
 
     @staticmethod
@@ -280,18 +203,10 @@ class PatternManager:
         """
         category_id = None
         if category_code:
-            cat = PatternManager.get_category_by_code(category_code)
+            cat = MathPatternsProgressRepository.get_category_by_code(category_code)
             category_id = cat['category_id'] if cat else None
 
-        query = """
-            INSERT INTO math_formulas
-                (name, formula_text, category_id, description,
-                 formula_latex, formula_display, variables,
-                 example_input, example_output, tags)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING formula_id
-        """
-        result = BaseRepository.fetch_one(query, (
+        result = MathPatternsProgressRepository.insert_formula(
             name, formula_text, category_id,
             kwargs.get('description'),
             kwargs.get('formula_latex'),
@@ -300,5 +215,5 @@ class PatternManager:
             json.dumps(kwargs.get('example_input', {})),
             kwargs.get('example_output'),
             json.dumps(kwargs.get('tags', []))
-        ))
+        )
         return str(result['formula_id']) if result else None

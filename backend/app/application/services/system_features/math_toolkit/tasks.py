@@ -7,7 +7,9 @@ Handles pattern recognition exercises and answer validation.
 from typing import Dict, Any, List, Optional
 import logging
 
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.repositories.math_toolkit import (
+    MathPatternsProgressRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -34,23 +36,9 @@ class TaskManager:
         Returns:
             List of task dictionaries
         """
-        query = """
-            SELECT
-                t.task_id, t.task_type, t.task_text, t.task_data,
-                t.solution, t.difficulty,
-                p.pattern_code, p.name as pattern_name
-            FROM math_pattern_recognition_tasks t
-            JOIN math_patterns p ON t.pattern_id = p.pattern_id
-            WHERE t.is_active = TRUE
-              AND ($1::uuid IS NULL OR t.pattern_id = $1)
-              AND ($2::text IS NULL OR t.task_type = $2)
-              AND ($3::int IS NULL OR t.difficulty = $3)
-            ORDER BY RANDOM()
-            LIMIT %s
-        """
-        return BaseRepository.fetch_all(
-            query, (pattern_id, task_type, difficulty, limit)
-        ) or []
+        return MathPatternsProgressRepository.get_pattern_tasks(
+            pattern_id, task_type, difficulty, limit
+        )
 
     @staticmethod
     def check_pattern_task_answer(task_id: str, user_answer: Any) -> Dict:
@@ -64,12 +52,7 @@ class TaskManager:
         Returns:
             Dict with validation result and feedback
         """
-        query = """
-            SELECT task_type, solution
-            FROM math_pattern_recognition_tasks
-            WHERE task_id = %s
-        """
-        task = BaseRepository.fetch_one(query, (task_id,))
+        task = MathPatternsProgressRepository.get_task_solution(task_id)
 
         if not task:
             return {'success': False, 'error': 'Aufgabe nicht gefunden'}

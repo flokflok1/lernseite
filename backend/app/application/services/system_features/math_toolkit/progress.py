@@ -7,7 +7,9 @@ Tracks user learning progress, mastery scores, streaks, and adaptive leveling.
 from typing import Dict, List, Optional
 import logging
 
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.repositories.math_toolkit import (
+    MathPatternsProgressRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,22 +39,7 @@ class ProgressTracker:
         Returns:
             List of progress dictionaries
         """
-        query = """
-            SELECT
-                up.progress_id, up.current_level, up.total_attempts,
-                up.correct_attempts, up.mastery_score,
-                up.current_streak, up.best_streak,
-                up.last_practiced_at, up.next_review_at,
-                p.pattern_code, p.name as pattern_name,
-                c.category_code, c.name as category_name
-            FROM math_user_progress up
-            JOIN math_patterns p ON up.pattern_id = p.pattern_id
-            LEFT JOIN math_pattern_categories c ON p.category_id = c.category_id
-            WHERE up.user_id = %s
-              AND ($2::uuid IS NULL OR up.pattern_id = $2)
-            ORDER BY up.mastery_score DESC, up.last_practiced_at DESC
-        """
-        return BaseRepository.fetch_all(query, (user_id, pattern_id)) or []
+        return MathPatternsProgressRepository.get_user_progress(user_id, pattern_id)
 
     @staticmethod
     def update_user_progress(
@@ -77,24 +64,14 @@ class ProgressTracker:
             Updated progress dictionary with new scores
         """
         # Get or create progress
-        query_get = """
-            SELECT progress_id, current_level, total_attempts, correct_attempts,
-                   mastery_score, current_streak, best_streak
-            FROM math_user_progress
-            WHERE user_id = %s AND pattern_id = %s
-        """
-        progress = BaseRepository.fetch_one(query_get, (user_id, pattern_id))
+        progress = MathPatternsProgressRepository.get_progress_record(
+            user_id, pattern_id
+        )
 
         if not progress:
-            # Create new progress record
-            query_insert = """
-                INSERT INTO math_user_progress (user_id, pattern_id)
-                VALUES (%s, %s)
-                RETURNING progress_id, current_level, total_attempts,
-                          correct_attempts, mastery_score, current_streak,
-                          best_streak
-            """
-            progress = BaseRepository.fetch_one(query_insert, (user_id, pattern_id))
+            progress = MathPatternsProgressRepository.insert_progress_record(
+                user_id, pattern_id
+            )
 
         # Calculate new metrics
         total = progress['total_attempts'] + 1
@@ -119,22 +96,10 @@ class ProgressTracker:
         review_days = int(1 + (mastery / 20))
 
         # Update database
-        query_update = """
-            UPDATE math_user_progress
-            SET current_level = %s,
-                total_attempts = %s,
-                correct_attempts = %s,
-                mastery_score = %s,
-                current_streak = %s,
-                best_streak = %s,
-                last_practiced_at = NOW(),
-                next_review_at = NOW() + INTERVAL '1 day' * %s
-            WHERE user_id = %s AND pattern_id = %s
-        """
-        BaseRepository.execute(query_update, (
-            new_level, total, correct, mastery, streak, best_streak,
-            review_days, user_id, pattern_id
-        ))
+        MathPatternsProgressRepository.update_progress(
+            user_id, pattern_id, new_level, total, correct,
+            mastery, streak, best_streak, review_days
+        )
 
         return {
             'current_level': new_level,

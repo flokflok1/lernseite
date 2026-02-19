@@ -1,18 +1,20 @@
 """
-Method Loader - Lernmethoden-Daten für den Tutor
+Method Loader - Lernmethoden-Daten fuer den Tutor
 """
 
 from typing import Dict, Any, Optional
 import logging
 
-from app.infrastructure.persistence.database.connection import fetch_one
+from app.infrastructure.persistence.repositories.tutor_knowledge import (
+    TutorKnowledgeRepository
+)
 
 logger = logging.getLogger(__name__)
 
 
 def get_learning_method_data(method_id: str) -> Optional[Dict[str, Any]]:
     """
-    Lädt die vollständigen Daten einer Lernmethode.
+    Laedt die vollstaendigen Daten einer Lernmethode.
 
     Args:
         method_id: UUID der Lernmethode
@@ -21,17 +23,7 @@ def get_learning_method_data(method_id: str) -> Optional[Dict[str, Any]]:
         Dict mit Lernmethoden-Daten inkl. JSONB-Content
     """
     try:
-        method = fetch_one("""
-            SELECT
-                lm.*,
-                ch.title as chapter_title,
-                ch.course_id,
-                c.title as course_title
-            FROM learning_methods lm
-            LEFT JOIN chapters ch ON lm.chapter_id = ch.chapter_id
-            LEFT JOIN courses c ON ch.course_id = c.course_id
-            WHERE lm.method_id = %s
-        """, (method_id,))
+        method = TutorKnowledgeRepository.get_learning_method(method_id)
 
         if not method:
             return None

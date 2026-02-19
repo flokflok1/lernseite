@@ -7,7 +7,9 @@ Handles toolkit sessions: creation, lifecycle, and statistics tracking.
 from typing import Dict, Optional, List
 import logging
 
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.repositories.math_toolkit import (
+    MathSessionsStepsRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -38,17 +40,10 @@ class SessionManager:
         Returns:
             New session_id or None if failed
         """
-        query = """
-            INSERT INTO math_toolkit_sessions
-                (user_id, session_type, pattern_id, scaffolding_level,
-                 course_id, lesson_id)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING session_id
-        """
-        result = BaseRepository.fetch_one(query, (
+        result = MathSessionsStepsRepository.insert_session(
             user_id, session_type, pattern_id, scaffolding_level,
             course_id, lesson_id
-        ))
+        )
         return str(result['session_id']) if result else None
 
     @staticmethod
@@ -62,12 +57,7 @@ class SessionManager:
         Returns:
             Success status
         """
-        query = """
-            UPDATE math_toolkit_sessions
-            SET ended_at = NOW()
-            WHERE session_id = %s AND ended_at IS NULL
-        """
-        return BaseRepository.execute(query, (session_id,))
+        return MathSessionsStepsRepository.end_session(session_id)
 
     @staticmethod
     def get_session(session_id: str) -> Optional[Dict]:
@@ -80,17 +70,7 @@ class SessionManager:
         Returns:
             Session dictionary or None
         """
-        query = """
-            SELECT
-                s.session_id, s.user_id, s.session_type,
-                s.scaffolding_level, s.started_at, s.ended_at,
-                s.tasks_completed, s.tasks_correct, s.hints_used,
-                p.pattern_code, p.name as pattern_name
-            FROM math_toolkit_sessions s
-            LEFT JOIN math_patterns p ON s.pattern_id = p.pattern_id
-            WHERE s.session_id = %s
-        """
-        return BaseRepository.fetch_one(query, (session_id,))
+        return MathSessionsStepsRepository.get_session(session_id)
 
     @staticmethod
     def update_session_stats(
@@ -127,10 +107,6 @@ class SessionManager:
         if not updates:
             return False
 
-        params.append(session_id)
-        query = f"""
-            UPDATE math_toolkit_sessions
-            SET {', '.join(updates)}
-            WHERE session_id = %s
-        """
-        return BaseRepository.execute(query, tuple(params))
+        return MathSessionsStepsRepository.update_session_stats(
+            session_id, updates, params
+        )

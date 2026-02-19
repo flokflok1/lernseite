@@ -1,24 +1,26 @@
 """
-Context Loader - Kurs-, Kapitel-, und Lektions-Kontext für den Tutor
+Context Loader - Kurs-, Kapitel-, und Lektions-Kontext fuer den Tutor
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 import logging
 
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.tutor_knowledge import (
+    TutorKnowledgeRepository
+)
 
 logger = logging.getLogger(__name__)
 
 
 def get_course_context(course_id: str) -> Optional[Dict[str, Any]]:
     """
-    Lädt den vollständigen Kurs-Kontext für den Tutor.
+    Laedt den vollstaendigen Kurs-Kontext fuer den Tutor.
 
     Args:
         course_id: UUID des Kurses
 
     Returns:
-        Dict mit Kurs-Informationen für den Tutor:
+        Dict mit Kurs-Informationen fuer den Tutor:
         {
             'course': {...},
             'chapters': [...],
@@ -28,46 +30,20 @@ def get_course_context(course_id: str) -> Optional[Dict[str, Any]]:
     """
     try:
         # Kurs-Grunddaten
-        course = fetch_one("""
-            SELECT
-                course_id,
-                title,
-                subtitle,
-                description,
-                learning_objectives,
-                target_audience,
-                prerequisites,
-                difficulty_level,
-                language,
-                duration_hours,
-                category_id
-            FROM courses
-            WHERE course_id = %s
-        """, (course_id,))
+        course = TutorKnowledgeRepository.get_course(course_id)
 
         if not course:
             return None
 
         # Kapitel mit Lektionen
-        chapters = fetch_all("""
-            SELECT
-                ch.chapter_id,
-                ch.title,
-                ch.description,
-                ch.order_index,
-                (SELECT COUNT(*) FROM lessons l WHERE l.chapter_id = ch.chapter_id) as lesson_count,
-                (SELECT COUNT(*) FROM learning_methods lm WHERE lm.chapter_id = ch.chapter_id) as method_count
-            FROM chapters ch
-            WHERE ch.course_id = %s
-            ORDER BY ch.order_index
-        """, (course_id,))
+        chapters = TutorKnowledgeRepository.get_course_chapters(course_id)
 
         # Kategorie-Name (falls vorhanden)
         category_name = None
         if course.get('category_id'):
-            cat = fetch_one("""
-                SELECT name FROM course_categories WHERE category_id = %s
-            """, (course['category_id'],))
+            cat = TutorKnowledgeRepository.get_category_name(
+                course['category_id']
+            )
             if cat:
                 category_name = cat['name']
 
@@ -107,60 +83,26 @@ def get_course_context(course_id: str) -> Optional[Dict[str, Any]]:
 
 def get_chapter_context(chapter_id: str) -> Optional[Dict[str, Any]]:
     """
-    Lädt den Kapitel-Kontext mit allen Lektionen und Lernmethoden.
+    Laedt den Kapitel-Kontext mit allen Lektionen und Lernmethoden.
 
     Args:
         chapter_id: UUID des Kapitels
 
     Returns:
-        Dict mit Kapitel-Details für den Tutor
+        Dict mit Kapitel-Details fuer den Tutor
     """
     try:
         # Kapitel-Grunddaten
-        chapter = fetch_one("""
-            SELECT
-                ch.chapter_id,
-                ch.course_id,
-                ch.title,
-                ch.description,
-                ch.order_index,
-                c.title as course_title
-            FROM chapters ch
-            LEFT JOIN courses c ON ch.course_id = c.course_id
-            WHERE ch.chapter_id = %s
-        """, (chapter_id,))
+        chapter = TutorKnowledgeRepository.get_chapter(chapter_id)
 
         if not chapter:
             return None
 
         # Lektionen des Kapitels
-        lessons = fetch_all("""
-            SELECT
-                lesson_id,
-                title,
-                lesson_type,
-                content,
-                order_index,
-                duration_minutes
-            FROM lessons
-            WHERE chapter_id = %s
-            ORDER BY order_index
-        """, (chapter_id,))
+        lessons = TutorKnowledgeRepository.get_chapter_lessons(chapter_id)
 
         # Lernmethoden des Kapitels
-        methods = fetch_all("""
-            SELECT
-                method_id,
-                method_type,
-                title,
-                instructions,
-                data,
-                difficulty,
-                order_index
-            FROM learning_methods
-            WHERE chapter_id = %s AND published = TRUE
-            ORDER BY order_index
-        """, (chapter_id,))
+        methods = TutorKnowledgeRepository.get_chapter_methods(chapter_id)
 
         return {
             'chapter': {
@@ -202,7 +144,7 @@ def get_chapter_context(chapter_id: str) -> Optional[Dict[str, Any]]:
 
 def get_lesson_content(lesson_id: int) -> Optional[Dict[str, Any]]:
     """
-    Lädt den vollständigen Inhalt einer Lektion für den Tutor.
+    Laedt den vollstaendigen Inhalt einer Lektion fuer den Tutor.
 
     Args:
         lesson_id: ID der Lektion
@@ -211,17 +153,7 @@ def get_lesson_content(lesson_id: int) -> Optional[Dict[str, Any]]:
         Dict mit Lektions-Inhalt
     """
     try:
-        lesson = fetch_one("""
-            SELECT
-                l.*,
-                ch.title as chapter_title,
-                ch.course_id,
-                c.title as course_title
-            FROM lessons l
-            LEFT JOIN chapters ch ON l.chapter_id = ch.chapter_id
-            LEFT JOIN courses c ON ch.course_id = c.course_id
-            WHERE l.lesson_id = %s
-        """, (lesson_id,))
+        lesson = TutorKnowledgeRepository.get_lesson(lesson_id)
 
         if not lesson:
             return None

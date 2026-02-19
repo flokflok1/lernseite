@@ -1,11 +1,13 @@
 """
-File Loader - Kurs-Dateien (Skripte, Materialien) für den Tutor
+File Loader - Kurs-Dateien (Skripte, Materialien) fuer den Tutor
 """
 
 from typing import Dict, Any, Optional, List
 import logging
 
-from app.infrastructure.persistence.database.connection import fetch_all
+from app.infrastructure.persistence.repositories.tutor_knowledge import (
+    TutorKnowledgeRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +17,7 @@ def get_course_files(
     category: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
-    Lädt Kurs-Dateien (PDFs, Skripte, Materialien).
+    Laedt Kurs-Dateien (PDFs, Skripte, Materialien).
 
     Args:
         course_id: UUID des Kurses
@@ -25,32 +27,7 @@ def get_course_files(
         Liste der Dateien mit Metadaten
     """
     try:
-        query = """
-            SELECT
-                cf.course_file_id,
-                cf.file_name,
-                cf.display_name,
-                cf.description,
-                cf.file_category,
-                cf.file_type,
-                cf.ai_summary,
-                cf.ai_keywords,
-                cf.ai_processed,
-                mf.public_url,
-                mf.cdn_url
-            FROM course_files cf
-            LEFT JOIN media_files mf ON cf.file_id = mf.file_id
-            WHERE cf.course_id = %s
-        """
-        params: List[Any] = [course_id]
-
-        if category:
-            query += " AND cf.file_category = %s"
-            params.append(category)
-
-        query += " ORDER BY cf.order_index"
-
-        files = fetch_all(query, tuple(params))
+        files = TutorKnowledgeRepository.get_course_files(course_id, category)
 
         return [
             {

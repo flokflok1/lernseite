@@ -8,7 +8,9 @@ from typing import Dict, List, Optional
 import json
 import logging
 
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.repositories.math_toolkit import (
+    MathSessionsStepsRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,21 +51,13 @@ class StepRecorder:
         Returns:
             New step_id or None if failed
         """
-        query = """
-            INSERT INTO math_calculation_steps
-                (session_id, step_number, input_expression, input_values,
-                 result_value, result_display, calculator_keystrokes,
-                 is_correct, expected_value, error_type, hint_shown)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING step_id
-        """
-        result = BaseRepository.fetch_one(query, (
+        result = MathSessionsStepsRepository.insert_calculation_step(
             session_id, step_number, input_expression,
             json.dumps(input_values or {}),
             result_value, result_display,
             json.dumps(calculator_keystrokes or []),
             is_correct, expected_value, error_type, hint_shown
-        ))
+        )
         return str(result['step_id']) if result else None
 
     @staticmethod
@@ -77,14 +71,4 @@ class StepRecorder:
         Returns:
             List of step dictionaries ordered by sequence
         """
-        query = """
-            SELECT
-                step_id, step_number, input_expression, input_values,
-                result_value, result_display, calculator_keystrokes,
-                is_correct, expected_value, error_type, hint_shown,
-                created_at
-            FROM math_calculation_steps
-            WHERE session_id = %s
-            ORDER BY step_number
-        """
-        return BaseRepository.fetch_all(query, (session_id,)) or []
+        return MathSessionsStepsRepository.get_session_steps(session_id)

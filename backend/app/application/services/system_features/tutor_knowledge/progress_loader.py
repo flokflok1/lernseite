@@ -1,11 +1,13 @@
 """
-Progress Loader - Lernfortschritt für den Tutor
+Progress Loader - Lernfortschritt fuer den Tutor
 """
 
 from typing import Dict, Any, Optional
 import logging
 
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.tutor_knowledge import (
+    TutorKnowledgeRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +17,7 @@ def get_user_progress(
     course_id: str
 ) -> Optional[Dict[str, Any]]:
     """
-    Lädt den Lernfortschritt eines Users in einem Kurs.
+    Laedt den Lernfortschritt eines Users in einem Kurs.
 
     Args:
         user_id: UUID des Users
@@ -26,48 +28,22 @@ def get_user_progress(
     """
     try:
         # Enrollment-Status
-        enrollment = fetch_one("""
-            SELECT
-                enrollment_id,
-                enrollment_type,
-                progress_percentage,
-                last_accessed_at,
-                completed_at
-            FROM enrollments
-            WHERE user_id = %s AND course_id = %s
-        """, (user_id, course_id))
+        enrollment = TutorKnowledgeRepository.get_enrollment(
+            user_id, course_id
+        )
 
         if not enrollment:
             return None
 
         # Abgeschlossene Lektionen
-        completed_lessons = fetch_all("""
-            SELECT
-                lp.lesson_id,
-                l.title,
-                lp.completed_at
-            FROM lesson_progress lp
-            JOIN lessons l ON lp.lesson_id = l.lesson_id
-            JOIN chapters ch ON l.chapter_id = ch.chapter_id
-            WHERE lp.user_id = %s AND ch.course_id = %s AND lp.completed = TRUE
-            ORDER BY lp.completed_at DESC
-        """, (user_id, course_id))
+        completed_lessons = TutorKnowledgeRepository.get_completed_lessons(
+            user_id, course_id
+        )
 
         # Lernmethoden-Fortschritt
-        method_progress = fetch_all("""
-            SELECT
-                lmp.method_id,
-                lm.title,
-                lm.method_type,
-                lmp.attempts,
-                lmp.best_score,
-                lmp.completed
-            FROM learning_method_progress lmp
-            JOIN learning_methods lm ON lmp.method_id = lm.method_id
-            JOIN chapters ch ON lm.chapter_id = ch.chapter_id
-            WHERE lmp.user_id = %s AND ch.course_id = %s
-            ORDER BY lmp.updated_at DESC
-        """, (user_id, course_id))
+        method_progress = TutorKnowledgeRepository.get_method_progress(
+            user_id, course_id
+        )
 
         return {
             'enrollment': {

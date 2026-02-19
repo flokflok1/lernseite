@@ -11,7 +11,7 @@ import type {
   FeatureFlagCreateRequest,
   FeatureFlagUpdateRequest,
   RolloutPlan
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 import {
   adminGetFeatureFlags,
   adminGetFeatureFlag,
@@ -28,7 +28,7 @@ import {
   adminRollbackFeature,
   adminGetEnabledFeatures,
   adminGetFeaturesByCategory
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export const useFeatureFlagsStore = defineStore('feature-flags', () => {
   // =============================================================================

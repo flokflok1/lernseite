@@ -80,7 +80,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Card from '@/presentation/components/shared/ui/Card.vue'
 import Input from '@/presentation/components/shared/ui/Input.vue'
-import { fetchPermissionsRegistry } from '@/infrastructure/api/clients/panel/admin/groups.api'
+import { fetchPermissionsRegistry } from '@/infrastructure/api/clients/panel/admin'
 import type { RegistryPermission } from '@/presentation/components/panel/admin/groups/types'
 
 const { t } = useI18n()

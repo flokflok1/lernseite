@@ -127,7 +127,7 @@ export function useCourseFileUpload(form: { value: CourseFormData }) {
         }
 
         try {
-          const { adminGetAIJob } = await import('@/application/services/api/panel-admin')
+          const { adminGetAIJob } = await import('@/infrastructure/api/clients/panel/admin')
           const result = await adminGetAIJob(job.id)
 
           if (result.status === 'completed' && result.output_data) {

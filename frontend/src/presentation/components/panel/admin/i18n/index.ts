@@ -1,0 +1,5 @@
+export { default as I18nSyncDashboard } from './I18nSyncDashboard.vue'
+export { default as LanguagesView } from './LanguagesView.vue'
+export { default as LanguageTranslationToolbar } from './LanguageTranslationToolbar.vue'
+export { default as TranslationReviewPanel } from './TranslationReviewPanel.vue'
+export { default as TranslationsView } from './TranslationsView.vue'

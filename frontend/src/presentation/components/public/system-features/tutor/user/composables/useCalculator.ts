@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import { mathToolkitApi } from '@/application/services/api/panel-user'
+import { mathToolkitApi } from '@/infrastructure/api/clients/panel/user'
 
 export interface CalculatorChallenge {
   prompt: string

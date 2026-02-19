@@ -115,7 +115,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import Modal from '@/presentation/components/shared/ui/Modal.vue'
-import * as courseApi from '@/application/services/api/panel-editor'
+import * as courseApi from '@/infrastructure/api/clients/panel/editor'
 
 interface Course {
   course_id: number | string

@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { QuizQuestion, QuizAnswerSubmission } from '@/application/services/api/learning'
+import type { QuizQuestion, QuizAnswerSubmission } from '@/infrastructure/api/clients/public/learning/types/types'
 
 // ============================================================================
 // Props & Emits

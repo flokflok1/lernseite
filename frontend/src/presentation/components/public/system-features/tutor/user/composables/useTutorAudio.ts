@@ -5,7 +5,7 @@
  * controls, progress tracking, and typewriter text effect.
  */
 import { ref, watch, onUnmounted, type Ref } from 'vue'
-import { ttsApi, DEFAULT_TUTOR_VOICE } from '@/application/services/api/panel-user'
+import { ttsApi, DEFAULT_TUTOR_VOICE } from '@/infrastructure/api/clients/panel/user'
 
 interface TutorAudioOptions {
   text: Ref<string>

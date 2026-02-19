@@ -1,7 +1,7 @@
 /**
  * Composable for exam management business logic.
  *
- * Shared across ExamManager, ExamManagerWindow, and ExamManagerPanel.
+ * Shared composable for ExamManager component.
  * Provides state management, form handling, and API operations for exams.
  */
 
@@ -14,7 +14,7 @@ import {
   type Exam,
   type ExamCreateRequest,
   type ExamGenerateRequest
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 interface ExamManagerOptions {
   courseId: string

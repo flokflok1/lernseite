@@ -15,7 +15,7 @@ export function usePermissions() {
   return {
     hasPermission,
     hasAnyPermission,
-    
+
     // Domain helpers
     canManageUsers: computed(() => hasPermission('admin.users:read')),
     canManageGroups: computed(() => hasPermission('admin.groups:read')),

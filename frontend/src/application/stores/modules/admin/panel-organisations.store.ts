@@ -8,12 +8,12 @@
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as adminApi from '@/application/services/api/panel-admin'
+import * as adminApi from '@/infrastructure/api/clients/panel/admin'
 import type {
   AdminOrganisation,
   OrganisationsFilterParams,
   PaginatedResponse
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export const usePanelOrganisationsStore = defineStore('panel-organisations', () => {
   // State

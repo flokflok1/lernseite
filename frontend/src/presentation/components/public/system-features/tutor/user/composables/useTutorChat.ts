@@ -8,7 +8,7 @@
 import { ref, nextTick, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTutorStore } from '@/application/stores/modules/learning/tutor.store'
-import { tutorChat, tutorTTS } from '@/application/services/api/learning'
+import { tutorChat, tutorTTS } from '@/infrastructure/api/clients/public/learning/tutor/tutor.api'
 
 interface UseTutorChatOptions {
   chatContainer: Ref<HTMLDivElement | null>

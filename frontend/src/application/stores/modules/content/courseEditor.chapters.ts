@@ -14,8 +14,8 @@ import type {
   UpdateChapterPayload,
   LessonPayload,
   UpdateLessonPayload,
-} from '@/application/services/api/panel-editor'
-import * as coursesApi from '@/application/services/api/panel-editor'
+} from '@/infrastructure/api/clients/panel/editor'
+import * as coursesApi from '@/infrastructure/api/clients/panel/editor'
 
 interface EditorRefs {
   currentCourse: Ref<EditableCourse | null>

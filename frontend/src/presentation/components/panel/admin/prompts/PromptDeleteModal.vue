@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PromptTemplate } from './prompt.types.ts'
+import type { PromptTemplate } from './types/prompt.types.ts'
 
 defineProps<{
   deleteTarget: PromptTemplate | null

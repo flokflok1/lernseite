@@ -43,12 +43,12 @@
 
 <script setup lang="ts">
 import type { LsxPanel } from '@/application/stores/modules/workspace'
-import { usePanelStore } from '@/application/stores/modules/workspace'
+import { useDesktopPanelStore } from '@/application/stores/modules/workspace'
 import { useI18n } from 'vue-i18n'
-import { useFilePreview } from '@/application/composables/useFilePreview'
-import type { LessonPayload } from '@/application/composables/useFilePreview'
-import FilePreviewHeader from '@/presentation/components/shared/previews/FilePreviewHeader.vue'
-import FilePreviewContent from '@/presentation/components/shared/previews/FilePreviewContent.vue'
+import { useFilePreview } from '@/application/composables/content/useFilePreview'
+import type { LessonPayload } from '@/application/composables/content/useFilePreview'
+import FilePreviewHeader from '@/presentation/components/shared/previews/file-preview/FilePreviewHeader.vue'
+import FilePreviewContent from '@/presentation/components/shared/previews/file-preview/FilePreviewContent.vue'
 
 const { t } = useI18n()
 
@@ -56,7 +56,7 @@ const props = defineProps<{
   panel: LsxPanel
 }>()
 
-const panelStore = usePanelStore()
+const panelStore = useDesktopPanelStore()
 
 const {
   fileUrl,

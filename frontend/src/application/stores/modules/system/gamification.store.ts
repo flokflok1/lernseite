@@ -134,7 +134,7 @@ export const useGamificationStore = defineStore('gamification', () => {
     progress?: Record<string, number>
   }): Promise<void> {
     try {
-      const { getMyGamificationData } = await import('@/application/services/api/panel-user')
+      const { getMyGamificationData } = await import('@/infrastructure/api/clients/panel/user')
       const apiData = await getMyGamificationData()
 
       stats.value = {

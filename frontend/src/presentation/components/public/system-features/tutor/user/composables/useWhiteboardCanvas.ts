@@ -14,7 +14,7 @@
 
 import { ref } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
-import type { WhiteboardAction, ActionHistoryEntry } from '../whiteboard.types.ts'
+import type { WhiteboardAction, ActionHistoryEntry } from '../types/whiteboard.types.ts'
 
 interface UseWhiteboardCanvasOptions {
   canvasRef: Ref<HTMLCanvasElement | null>

@@ -45,10 +45,10 @@
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import { useI18n } from 'vue-i18n'
-import { useFilePreview } from '@/application/composables/useFilePreview'
-import type { LessonPayload } from '@/application/composables/useFilePreview'
-import FilePreviewHeader from '@/presentation/components/shared/previews/FilePreviewHeader.vue'
-import FilePreviewContent from '@/presentation/components/shared/previews/FilePreviewContent.vue'
+import { useFilePreview } from '@/application/composables/content/useFilePreview'
+import type { LessonPayload } from '@/application/composables/content/useFilePreview'
+import FilePreviewHeader from '@/presentation/components/shared/previews/file-preview/FilePreviewHeader.vue'
+import FilePreviewContent from '@/presentation/components/shared/previews/file-preview/FilePreviewContent.vue'
 
 const { t } = useI18n()
 

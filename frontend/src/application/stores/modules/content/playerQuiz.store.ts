@@ -12,12 +12,12 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as playerApi from '@/application/services/api/learning'
+import * as playerApi from '@/infrastructure/api/clients/public/learning/player/player.api'
 import type {
   QuizData,
   QuizAnswerSubmission,
   QuizResult
-} from '@/application/services/api/learning'
+} from '@/infrastructure/api/clients/public/learning/types/types'
 
 export const usePlayerQuizStore = defineStore('playerQuiz', () => {
   // ============================================================================

@@ -5,8 +5,7 @@
  * arrays from learningMethods.data.ts.
  */
 
-import type { LearningMethodGroup, LearningMethod } from './learningMethods.types.js'
-import type { LearningMethodCategory } from './learningMethods.js'
+import type { LearningMethodGroup, LearningMethod, LearningMethodCategory } from './learningMethods.types.js'
 import { LEARNING_METHODS, ACTIVE_LEARNING_METHODS } from './learningMethods.data.js'
 
 // ==========================================================================

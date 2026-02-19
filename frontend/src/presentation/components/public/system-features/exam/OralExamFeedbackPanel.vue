@@ -94,7 +94,7 @@
  * including score, covered/missing points, suggestions, and navigation.
  */
 import { computed } from 'vue'
-import type { FeedbackResult } from './composables/useOralExamination'
+import type { FeedbackResult } from '@/application/composables/system-features/useOralExamination'
 
 interface Props {
   feedback: FeedbackResult | null

@@ -9,7 +9,7 @@
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as adminApi from '@/application/services/api/panel-admin'
+import * as adminApi from '@/infrastructure/api/clients/panel/admin'
 
 export const usePanelAIJobsStore = defineStore('panel-ai-jobs', () => {
   // State

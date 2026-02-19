@@ -9,13 +9,13 @@
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as adminApi from '@/application/services/api/panel-admin'
+import * as adminApi from '@/infrastructure/api/clients/panel/admin'
 import type {
   AdminUser,
   UsersFilterParams,
   PaginatedResponse,
   BanUserRequest
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export const usePanelUsersStore = defineStore('panel-users', () => {
   // State

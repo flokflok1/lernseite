@@ -1,3 +1,5 @@
+export { useAccessibleMethods } from './useAccessibleMethods'
 export { useGroupTier } from './useGroupTier'
 export { useLMPlugins } from './useLMPlugins'
+export { useMathTaskChecker } from './useMathTaskChecker'
 export { useTheoryManagement } from './useTheoryManagement'

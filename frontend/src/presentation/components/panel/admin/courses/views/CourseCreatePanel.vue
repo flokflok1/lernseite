@@ -184,7 +184,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/application/stores/modules/core'
-import { usePanelStore } from '@/application/stores/modules/workspace'
+import { useDesktopPanelStore } from '@/application/stores/modules/workspace'
 import type { LsxPanel } from '@/application/stores/modules/workspace'
 import CourseFileUpload from './components/CourseFileUpload.vue'
 
@@ -202,7 +202,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const router = useRouter()
-const panelStore = usePanelStore()
+const panelStore = useDesktopPanelStore()
 const authStore = useAuthStore()
 
 const robotIcon = '\uD83E\uDD16'
@@ -286,7 +286,7 @@ async function fillFieldsWithAI(): Promise<void> {
       }
 
       try {
-        const { adminGetAIJob } = await import('@/application/services/api/panel-admin')
+        const { adminGetAIJob } = await import('@/infrastructure/api/clients/panel/admin')
         const result = await adminGetAIJob(job.id)
 
         if (result.status === 'completed' && result.output_data) {
@@ -345,7 +345,7 @@ async function createCourse(): Promise<void> {
 
     if (selectedFile.value && courseId) {
       try {
-        const { adminUploadCourseFile } = await import('@/application/services/api/panel-admin')
+        const { adminUploadCourseFile } = await import('@/infrastructure/api/clients/panel/admin')
         await adminUploadCourseFile(courseId, selectedFile.value, {
           file_category: 'script',
           display_name: selectedFile.value.name

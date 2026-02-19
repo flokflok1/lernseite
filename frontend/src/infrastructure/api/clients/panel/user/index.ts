@@ -1,27 +1,15 @@
 /**
  * User Domain - Barrel Export
- * ===========================
  *
- * This file provides a clean interface for importing all user-related APIs and types.
- * Part of the DDD Architecture - User Domain consolidating authentication, profile,
- * dashboard, tokens, subscriptions, gamification, TTS, audio, and math toolkit.
- *
- * GBA (Group-Based Authorization):
- * - NO role field - authorization via groups with hierarchy_level (0-1000)
- * - full_name (not first_name/last_name)
- * - groups[] and permissions[] from login response
+ * Domain-organized API clients for user panel operations.
  *
  * Usage:
  * import { login, getProfile, getMyTokens } from '@/infrastructure/api/clients/panel/user'
  * import type { User, UserGroup, TokenBalanceResponse } from '@/infrastructure/api/clients/panel/user'
  */
 
-// ============================================================================
-// Types Export (Single Source of Truth - types.ts + types_part2.ts)
-// ============================================================================
-
+// Types (types.ts + types_part2.ts)
 export type {
-  // Authentication Types (GBA)
   ChangePasswordRequest,
   LoginRequest,
   LoginResponse,
@@ -30,7 +18,6 @@ export type {
   User,
   UserGroup,
   UserProfileResponse,
-  // Profile Types
   PanelSize,
   PanelSizesMap,
   PanelSizesResponse,
@@ -44,18 +31,14 @@ export type {
 } from './types'
 
 export type {
-  // Token types
   TokenBalanceResponse,
   TokenTransactionItem,
   TokenUsageResponse,
-  // Subscription types
   SubscriptionPlan,
   SubscriptionResponse,
-  // Audio types
   TranscriptionResult,
   OralAnalysisResult,
   AudioFormatsResponse,
-  // TTS types
   TTSSpeakRequest,
   TTSSpeakResponse,
   VoiceInfo,
@@ -70,15 +53,12 @@ export type {
   CourseContext,
   ChapterContext,
   TutorKnowledgeResponse,
-  // Tutor types
   TutorChatRequest,
   TutorChatResponse,
   TutorTTSRequest,
-  // Gamification types
   BaseStats,
   GamificationData,
   GamificationApiResponse,
-  // Exam Simulation types
   TopicScore,
   ExamContext,
   ExamSimulationConfig,
@@ -88,7 +68,6 @@ export type {
   SubmitAnswers,
   AttemptResult,
   UserExamProfile,
-  // Math Toolkit types
   MathCategory,
   MathPattern,
   PatternVariable,
@@ -99,24 +78,18 @@ export type {
   UserProgress,
   PatternTask,
   CalculatorEntry,
-} from './types_part2'
+} from './types/types_part2'
 
-// ============================================================================
-// Authentication API Export
-// ============================================================================
-
+// Auth
 export {
   login,
   register,
   logout,
   refreshToken,
   getUserProfile,
-} from './auth.api'
+} from './auth/auth.api'
 
-// ============================================================================
-// Profile API Export
-// ============================================================================
-
+// Profile
 export {
   getProfile,
   updateProfile,
@@ -130,22 +103,21 @@ export {
   updateWindowSize,
   deleteWindowSize,
   resetUserPreferences,
-} from './profile.api'
+} from './profile/profile.api'
 
-// ============================================================================
-// Tokens API Export
-// ============================================================================
+// Dashboard
+export {
+  getDashboardLayout,
+  saveDashboardLayout,
+} from './dashboard/dashboard.api'
 
+// Gamification (tokens, subscriptions)
 export {
   getMyTokens,
   getTokenTransactions,
   getTokenUsage,
   estimateAICost,
-} from './tokens.api'
-
-// ============================================================================
-// Subscriptions API Export
-// ============================================================================
+} from './gamification/tokens.api'
 
 export {
   getPlans,
@@ -153,63 +125,37 @@ export {
   changeSubscription,
   cancelSubscription,
   reactivateSubscription,
-} from './subscriptions.api'
-
-// ============================================================================
-// Gamification API Export
-// ============================================================================
+} from './gamification/subscriptions.api'
 
 export {
   getMyGamificationData,
   getMyStats,
   getMySkills,
   getMyAchievements,
-} from './gamification.api'
+} from './gamification/gamification.api'
 
-// ============================================================================
-// TTS API Export
-// ============================================================================
-
+// Audio (TTS, transcription)
 export {
   ttsApi,
   DEFAULT_TUTOR_VOICE,
   PIPER_VOICES,
   OPENAI_VOICES,
   browserTTS,
-} from './tts.api'
-
-// ============================================================================
-// Audio API Export
-// ============================================================================
+} from './audio/tts.api'
 
 export {
   transcribeAudio,
   transcribeAudioBase64,
   analyzeOralExplanation,
   getSupportedAudioFormats,
-} from './audio.api'
+} from './audio/audio.api'
 
-// ============================================================================
-// Math Toolkit API Export
-// ============================================================================
-
+// Math
 export {
   mathToolkitApi,
-} from './mathToolkit.api'
+} from './math/mathToolkit.api'
 
-// ============================================================================
-// Dashboard API Export
-// ============================================================================
-
-export {
-  getDashboardLayout,
-  saveDashboardLayout,
-} from './dashboard.api'
-
-// ============================================================================
-// Feedback API Export
-// ============================================================================
-
+// Feedback
 export {
   submitFeedback,
   getMyFeedback,
@@ -222,7 +168,7 @@ export {
   getFeedbackDashboard,
   generateFeedbackSummary,
   getFeedbackSummaries,
-} from './feedback.api'
+} from './profile/feedback.api'
 
 export type {
   FeedbackContext,
@@ -231,4 +177,28 @@ export type {
   FeedbackListResponse,
   FeedbackDashboardStats,
   FeedbackDashboardResponse,
-} from './feedback.api'
+} from './profile/feedback.api'
+
+// Exam Simulation
+export {
+  getExamContext,
+  createExamSimulation,
+  listExamSimulations,
+  getExamSimulation,
+  deleteExamSimulation,
+  generateExamSimulation,
+  startExamAttempt,
+  listExamAttempts,
+  submitExamAttempt,
+  getUserExamProfile,
+  updateUserExamProfile,
+  type TopicScore,
+  type ExamContext,
+  type ExamSimulationConfig,
+  type ExamQuestion,
+  type ExamSimulation,
+  type ExamAttempt,
+  type SubmitAnswers,
+  type AttemptResult,
+  type UserExamProfile
+} from './exam/examSimulation.api'

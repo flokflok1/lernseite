@@ -178,11 +178,11 @@ import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useGroupTier } from '@/application/composables/learning/useGroupTier'
 import type { LsxPanel } from '@/application/stores/modules/workspace'
-import type { LearningMethodGroup } from '@/application/services/api/panel-admin'
-import { useLearningMethodsPanel } from './LearningMethodEditorPanel/composables/useLearningMethodsPanel'
-import { InstancesTab, CatalogTab, StatsTab } from './LearningMethodEditorPanel/tabs'
-import MethodTypeSelectorModal from './LearningMethodEditorPanel/MethodTypeSelectorModal.vue'
-import LearningMethodEditModal from './LearningMethodEditorPanel/LearningMethodEditModal.vue'
+import type { LearningMethodGroup } from '@/infrastructure/api/clients/panel/admin'
+import { useLearningMethodsPanel } from './learning-method-editor-panel/composables/useLearningMethodsPanel'
+import { InstancesTab, CatalogTab, StatsTab } from './learning-method-editor-panel/tabs'
+import MethodTypeSelectorModal from './learning-method-editor-panel/MethodTypeSelectorModal.vue'
+import LearningMethodEditModal from './learning-method-editor-panel/LearningMethodEditModal.vue'
 
 interface Props {
   panel: LsxPanel

@@ -169,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ExamGenerateRequest } from '@/application/services/api/panel-admin'
+import type { ExamGenerateRequest } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   localForm: ExamGenerateRequest

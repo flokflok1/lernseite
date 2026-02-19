@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AIModelRegistryItem } from '@/application/services/api/panel-admin'
+import type { AIModelRegistryItem } from '@/infrastructure/api/clients/panel/admin'
 import { useModelFormatters } from './composables/useModelFormatters'
 
 defineProps<{

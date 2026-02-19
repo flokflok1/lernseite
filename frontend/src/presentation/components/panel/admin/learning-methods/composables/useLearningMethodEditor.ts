@@ -14,7 +14,7 @@ import {
   type AdminLearningMethod,
   type LearningMethodType,
   type LearningMethodGroup
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export interface LearningMethodStats {
   total_methods: number

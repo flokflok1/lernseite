@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { AdminCourseCreateRequest, Category } from '@/application/services/api/panel-admin'
+import type { AdminCourseCreateRequest, Category } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   modelValue: AdminCourseCreateRequest

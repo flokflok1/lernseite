@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Exam } from '@/application/services/api/panel-admin'
+import type { Exam } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   exam: Exam

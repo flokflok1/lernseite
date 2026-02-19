@@ -14,9 +14,9 @@ export { default as DetailedSteps } from './DetailedSteps.vue'
 export { default as MathTaskModal } from './MathTaskModal.vue'
 export { default as MathTaskSolutionPanel } from './MathTaskSolutionPanel.vue'
 
-// Composables (moved to system-features/math/)
-export { useMathTaskChecker } from '@/presentation/components/public/system-features/math/useMathTaskChecker'
-export type { TaskData, TaskStep } from '@/presentation/components/public/system-features/math/useMathTaskChecker'
+// Composables (moved to application/composables/learning/)
+export { useMathTaskChecker } from '@/application/composables/learning/useMathTaskChecker'
+export type { TaskData, TaskStep } from '@/application/composables/learning/useMathTaskChecker'
 
 // Method Execution Sub-Components
 export * from './method-execution'

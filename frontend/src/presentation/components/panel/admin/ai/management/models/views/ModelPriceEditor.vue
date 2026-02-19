@@ -97,8 +97,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { AIModelRegistryItem, AIModelUpdateRequest } from '@/application/services/api/panel-admin'
-import * as adminApi from '@/application/services/api/panel-admin'
+import type { AIModelRegistryItem, AIModelUpdateRequest } from '@/infrastructure/api/clients/panel/admin'
+import * as adminApi from '@/infrastructure/api/clients/panel/admin'
 import { useModelFormatters } from './composables/useModelFormatters'
 
 const props = defineProps<{

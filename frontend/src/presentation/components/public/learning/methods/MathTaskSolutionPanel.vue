@@ -81,7 +81,7 @@
  * MathTaskSolutionPanel - Renders the collapsible solution,
  * step-by-step breakdown, and explanation sections.
  */
-import type { TaskData } from '@/presentation/components/public/system-features/math/useMathTaskChecker'
+import type { TaskData } from '@/application/composables/learning/useMathTaskChecker'
 
 interface Props {
   taskData: TaskData

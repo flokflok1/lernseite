@@ -225,7 +225,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Button from '@/presentation/components/shared/ui/Button.vue'
-import * as setupApi from '@/application/services/api/public'
+import * as setupApi from '@/infrastructure/api/clients/public'
 
 const { t } = useI18n()
 

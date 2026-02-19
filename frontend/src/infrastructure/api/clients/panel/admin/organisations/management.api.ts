@@ -12,8 +12,8 @@
  * - Course assignments
  *
  * Usage:
- * import { getOrganisationDetail, updateOrganisationSettings } from '@/application/services/api/panel-admin'
- * import type { OrgDetail, OrgMember } from '@/application/services/api/panel-admin'
+ * import { getOrganisationDetail, updateOrganisationSettings } from '@/infrastructure/api/clients/panel/admin'
+ * import type { OrgDetail, OrgMember } from '@/infrastructure/api/clients/panel/admin'
  */
 
 import http from '@/infrastructure/api/http'

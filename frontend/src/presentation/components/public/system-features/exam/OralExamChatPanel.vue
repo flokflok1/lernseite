@@ -111,7 +111,7 @@
  */
 import { ref } from 'vue'
 import { AudioRecorder } from '@/presentation/components/public/learning/audio'
-import type { ExaminerMessage } from './composables/useOralExamination'
+import type { ExaminerMessage } from '@/application/composables/system-features/useOralExamination'
 
 interface Props {
   messages: ExaminerMessage[]

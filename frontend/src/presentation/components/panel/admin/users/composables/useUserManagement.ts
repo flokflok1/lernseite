@@ -8,7 +8,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePanelStore } from '@/application/stores/modules/admin/panel.store'
-import type { AdminUser, BanUserRequest } from '@/application/services/api/panel-admin'
+import type { AdminUser, BanUserRequest } from '@/infrastructure/api/clients/panel/admin'
 
 export function useUserManagement() {
   const panelStore = usePanelStore()

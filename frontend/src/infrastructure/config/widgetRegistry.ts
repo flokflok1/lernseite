@@ -5,7 +5,7 @@
  * Defines which widgets exist and their properties
  */
 
-import type { WidgetDefinition } from '@/domain/widgets'
+import type { WidgetDefinition } from '@/domain/models/dashboard/widgets.types'
 
 // ============================================================================
 // Widget Definitions

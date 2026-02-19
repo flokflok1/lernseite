@@ -1,0 +1,7 @@
+export { default as ProfileView } from './ProfileView.vue'
+export { default as SettingsNotificationsTab } from './SettingsNotificationsTab.vue'
+export { default as SettingsProfileTab } from './SettingsProfileTab.vue'
+export { default as SettingsSecurityTab } from './SettingsSecurityTab.vue'
+export { default as SettingsSubscriptionTab } from './SettingsSubscriptionTab.vue'
+export { default as SettingsView } from './SettingsView.vue'
+export { default as UserSettings } from './UserSettings.vue'

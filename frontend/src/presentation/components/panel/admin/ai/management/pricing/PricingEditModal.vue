@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { AIModelPricing, AIModelPricingUpdateRequest } from '@/application/services/api/panel-admin'
+import type { AIModelPricing, AIModelPricingUpdateRequest } from '@/infrastructure/api/clients/panel/admin'
 import MarginCalculator from './MarginCalculator.vue'
 
 const { t } = useI18n()

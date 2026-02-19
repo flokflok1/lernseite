@@ -200,12 +200,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import * as adminApi from '@/application/services/api/panel-admin'
+import * as adminApi from '@/infrastructure/api/clients/panel/admin'
 import type {
   AIModelRegistryItem,
   AIModelRegistryCategory,
   AIProviderInfo
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 import { useModelFormatters } from './composables/useModelFormatters'
 import ModelCardItem from './ModelCardItem.vue'
 import ModelPriceEditor from './ModelPriceEditor.vue'

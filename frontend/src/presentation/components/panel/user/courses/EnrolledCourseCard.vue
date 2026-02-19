@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import type { EnrolledCourse } from '@/application/services/api/panel-editor'
+import type { EnrolledCourse } from '@/infrastructure/api/clients/panel/editor'
 
 // ============================================================================
 // Props & Emits

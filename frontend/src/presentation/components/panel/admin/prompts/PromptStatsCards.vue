@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { PromptStats } from './prompt.types.ts'
+import type { PromptStats } from './types/prompt.types.ts'
 
 const { t } = useI18n()
 

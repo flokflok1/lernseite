@@ -24,3 +24,6 @@ export interface LearningMethod {
   promptKey: string   // Backend prompt_key
   active: boolean     // true = Content-LM, false = System-Feature
 }
+
+/** Category keys derived from LEARNING_METHOD_CATEGORIES */
+export type LearningMethodCategory = 'erklaerend' | 'praxis' | 'pruefung'

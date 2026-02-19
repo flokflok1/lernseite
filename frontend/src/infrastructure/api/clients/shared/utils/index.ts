@@ -150,6 +150,11 @@ export {
   getDuration,
   getDurationBreakdown,
   formatDuration,
+  // Constants
+  TIME_UNITS
+} from './time'
+
+export {
   // SLA
   calculateSLADeadline,
   isDeadlineOverdue,
@@ -157,10 +162,8 @@ export {
   formatTimeRemaining,
   // Date checks
   isToday,
-  isSameDay,
-  // Constants
-  TIME_UNITS
-} from './time'
+  isSameDay
+} from './time_part2'
 
 // ============================================
 // Pagination Utilities
@@ -181,7 +184,10 @@ export {
   shouldFetchMore,
   getScrollProgress,
   isAtScrollEnd,
-  getDistanceFromBottom,
+  getDistanceFromBottom
+} from './pagination'
+
+export {
   // Batch Processing
   batchArray,
   processBatchesAsync,
@@ -193,7 +199,7 @@ export {
   nextPage,
   previousPage,
   type PaginationState
-} from './pagination'
+} from './pagination_part2'
 
 // ============================================
 // Response Adapters
@@ -213,11 +219,14 @@ export {
   extractField,
   filterByField,
   mergeArraysByKey,
-  sortByField,
+  sortByField
+} from './adapters'
+
+export {
   // Generic mapping
   mapApiResponse,
   transformResponse,
   // Caching
   memoizeAdapter,
   cacheAdapter
-} from './adapters'
+} from './adapters_part2'

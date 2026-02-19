@@ -348,7 +348,7 @@ const createCourse = async (): Promise<void> => {
     // If file was selected, upload it as course file
     if (selectedFile.value && courseId) {
       try {
-        const { adminUploadCourseFile } = await import('@/application/services/api/panel-admin')
+        const { adminUploadCourseFile } = await import('@/infrastructure/api/clients/panel/admin')
         await adminUploadCourseFile(courseId, selectedFile.value, {
           file_category: 'script',
           display_name: selectedFile.value.name

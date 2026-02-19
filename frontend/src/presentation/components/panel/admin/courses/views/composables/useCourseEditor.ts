@@ -17,8 +17,8 @@ import {
   adminDeleteChapter,
   type AdminCourseDetail,
   type AdminChapter
-} from '@/application/services/api/panel-admin'
-import { getCategoryTree, type Category, type CategoryTreeNode } from '@/application/services/api/panel-editor'
+} from '@/infrastructure/api/clients/panel/admin'
+import { getCategoryTree, type Category, type CategoryTreeNode } from '@/infrastructure/api/clients/panel/editor'
 
 interface CourseForm {
   title: string

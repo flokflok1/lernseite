@@ -165,7 +165,7 @@ export function useCourseCreate(emitClose: () => void) {
         }
 
         try {
-          const { adminGetAIJob } = await import('@/application/services/api/panel-admin')
+          const { adminGetAIJob } = await import('@/infrastructure/api/clients/panel/admin')
           const result = await adminGetAIJob(job.id)
 
           if (result.status === 'completed' && result.output_data) {
@@ -231,7 +231,7 @@ export function useCourseCreate(emitClose: () => void) {
 
       if (selectedFile.value && courseId) {
         try {
-          const { adminUploadCourseFile } = await import('@/application/services/api/panel-admin')
+          const { adminUploadCourseFile } = await import('@/infrastructure/api/clients/panel/admin')
           await adminUploadCourseFile(courseId, selectedFile.value, {
             file_category: 'script',
             display_name: selectedFile.value.name

@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import { useTheoryManagement } from '@/application/composables/learning/useTheoryManagement'
 import http from '@/infrastructure/api/http'
-import { getActionsForEntity, getLMSuggestions, type LMSuggestion } from '@/application/services/api/learning'
+import { getActionsForEntity, getLMSuggestions, type LMSuggestion } from '@/infrastructure/api/clients/panel/editor/authoring/authoring.api'
 import type {
   Course, ChatMessage, CourseFile, Chapter, Lesson,
   QuickAction, SelectedContext, PendingAction, DraftStructure, Session

@@ -21,8 +21,8 @@ import type {
   CreateCoursePayload,
   UpdateCoursePayload,
   UpdateLessonPayload,
-} from '@/application/services/api/panel-editor'
-import * as coursesApi from '@/application/services/api/panel-editor'
+} from '@/infrastructure/api/clients/panel/editor'
+import * as coursesApi from '@/infrastructure/api/clients/panel/editor'
 import { toCourseDomain, toChapterDomain, fromChapterDomain, fromLessonDomain } from './adapters'
 import * as chapterOps from './courseEditor.chapters'
 

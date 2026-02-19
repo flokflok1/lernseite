@@ -9,14 +9,13 @@ export { usePanelOrganisationsStore } from './modules/admin/panel-organisations.
 export { usePanelCoursesStore } from './modules/admin/panel-courses.store'
 export { usePanelAnalyticsStore } from './modules/admin/panel-analytics.store'
 export { usePanelAIJobsStore } from './modules/admin/panel-ai-jobs.store'
-export { useAdminStore } from './modules/admin/admin.store'
 
 // Content
 export { useCourseEditorStore } from './modules/content/courseEditor.store'
 export { usePlayerStore } from './modules/content/player.store'
 
 // Workspace
-export { usePanelStore as useWorkspacePanelStore } from './modules/workspace/panel.store'
+export { useDesktopPanelStore } from './modules/workspace/panel.store'
 
 // Feature Flags
 export { useFeatureFlagsStore } from './modules/feature-flags/feature-flags.store'

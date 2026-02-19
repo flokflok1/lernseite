@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PromptPreviewData } from './prompt.types.ts'
+import type { PromptPreviewData } from './types/prompt.types.ts'
 
 defineProps<{
   previewData: PromptPreviewData | null

@@ -6,8 +6,8 @@
  */
 
 import { ref, computed } from 'vue'
-import * as systemApi from '@/application/services/api/panel-admin'
-import type { SystemStatus } from '@/application/services/api/panel-admin'
+import * as systemApi from '@/infrastructure/api/clients/panel/admin'
+import type { SystemStatus } from '@/infrastructure/api/clients/panel/admin'
 
 // Shared state (singleton pattern)
 const systemStatus = ref<SystemStatus | null>(null)

@@ -136,7 +136,7 @@ import {
   MaterialsPanel,
   StructurePanel,
   WorkflowPanel
-} from '../../authoring/kurs-builder'
+} from '../../authoring/course-builder'
 import KursBuilderHeader from './KursBuilderHeader.vue'
 import { useKursBuilderTab } from './composables/useKursBuilderTab'
 import type { Course } from './composables/useKursBuilderTab'

@@ -15,7 +15,7 @@
  */
 
 import { ref, computed, readonly } from 'vue'
-import { ttsApi } from '@/application/services/api/panel-user'
+import { ttsApi } from '@/infrastructure/api/clients/panel/user'
 
 import type {
   WhiteboardAction,
@@ -24,7 +24,7 @@ import type {
   TeachingStep,
   TimelineState,
   TimelineCallbacks
-} from './teachingTimeline.types'
+} from '@/domain/models/learning/teachingTimeline.types'
 
 // Re-export types for backward compatibility
 export type {
@@ -37,7 +37,7 @@ export type {
 }
 
 // Re-export lesson generator for backward compatibility
-export { generateBezugskalkulationLesson } from './generateBezugskalkulationLesson'
+export { generateBezugskalkulationLesson } from '@/domain/factories/learning/generateBezugskalkulationLesson'
 
 // ============================================================================
 // Composable

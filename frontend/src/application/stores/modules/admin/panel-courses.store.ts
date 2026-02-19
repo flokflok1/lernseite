@@ -10,7 +10,7 @@
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as adminApi from '@/application/services/api/panel-admin'
+import * as adminApi from '@/infrastructure/api/clients/panel/admin'
 import type {
   AdminCourse,
   CoursesFilterParams,
@@ -20,7 +20,7 @@ import type {
   AdminChapterUpdateRequest,
   Category,
   CategoryTreeNode
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export const usePanelCoursesStore = defineStore('panel-courses', () => {
   // State - Courses

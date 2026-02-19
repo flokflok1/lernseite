@@ -94,8 +94,8 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { PromptTemplate } from './prompt.types.ts'
-import { CATEGORY_LABELS, STYLE_LABELS } from './prompt.types.ts'
+import type { PromptTemplate } from './types/prompt.types.ts'
+import { CATEGORY_LABELS, STYLE_LABELS } from './types/prompt.types.ts'
 
 const { t } = useI18n()
 

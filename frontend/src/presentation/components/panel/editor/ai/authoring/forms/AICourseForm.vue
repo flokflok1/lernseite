@@ -230,7 +230,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { AIJob, AICourseDraft } from '@/application/services/api/panel-admin'
+import type { AIJob, AICourseDraft } from '@/infrastructure/api/clients/panel/admin'
 
 interface JobState {
   status: 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'

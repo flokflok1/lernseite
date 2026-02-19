@@ -10,7 +10,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as adminApi from '@/application/services/api/panel-admin'
+import * as adminApi from '@/infrastructure/api/clients/panel/admin'
 import type {
   AdminSystemStats,
   AdminTokenStats,
@@ -21,7 +21,7 @@ import type {
   AuditLog,
   AuditLogsFilterParams,
   PaginatedResponse
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export const usePanelAnalyticsStore = defineStore('panel-analytics', () => {
   // State - System Stats

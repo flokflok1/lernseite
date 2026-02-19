@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ExamCreateRequest } from '@/application/services/api/panel-admin'
+import type { ExamCreateRequest } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   form: ExamCreateRequest

@@ -79,7 +79,7 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWhiteboardCanvas } from './composables/useWhiteboardCanvas.ts'
 
-export type { SchemaRow, WhiteboardAction } from './whiteboard.types.ts'
+export type { SchemaRow, WhiteboardAction } from './types/whiteboard.types.ts'
 
 const { t } = useI18n()
 

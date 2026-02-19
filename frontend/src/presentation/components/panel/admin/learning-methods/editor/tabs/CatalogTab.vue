@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LearningMethodType, LearningMethodGroup } from '@/application/services/api/panel-admin'
+import type { LearningMethodType, LearningMethodGroup } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   catalogActiveGroup: LearningMethodGroup

@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccessControl } from '@/application/composables/auth/useAccessControl'
-import type { Course } from '@/infrastructure/api/clients/learning'
+import type { Course } from '@/infrastructure/api/clients/public/learning/types/types'
 
 const { t } = useI18n()
 const { canCreateCourse, canEditCourse, canDeleteCourse } = useAccessControl()

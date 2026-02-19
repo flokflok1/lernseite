@@ -17,7 +17,7 @@ import { loadPersistedSizesFromStorage, savePersistedSizesToStorage } from './pa
 // Debounce timer for API calls
 let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-export const usePanelStore = defineStore('desktop-panel', () => {
+export const useDesktopPanelStore = defineStore('desktop-panel', () => {
   // ============================================================================
   // State
   // ============================================================================
@@ -262,7 +262,7 @@ export const usePanelStore = defineStore('desktop-panel', () => {
     }
     saveDebounceTimer = setTimeout(async () => {
       try {
-        // TODO: Implement updatePanelSize API call in @/application/services/api/user domain
+        // TODO: Implement updatePanelSize API call in @/infrastructure/api/clients/panel/user domain
         // await apiUpdatePanelSize(panel.type, constrainedSize.width, constrainedSize.height)
         // For now, localStorage fallback is already saved above
       } catch (error) {
@@ -277,7 +277,7 @@ export const usePanelStore = defineStore('desktop-panel', () => {
    */
   async function loadPanelSizesFromServer(): Promise<void> {
     try {
-      // TODO: Implement getPanelSizes API call in @/application/services/api/user domain
+      // TODO: Implement getPanelSizes API call in @/infrastructure/api/clients/panel/user domain
       // Stub response for now - using localStorage fallback
       // const serverSizes = await getPanelSizes()
       // if (serverSizes && Object.keys(serverSizes).length > 0) {

@@ -15,7 +15,7 @@ import http from '@/infrastructure/api/http'
 import {
   getActionsByCategory,
   type LMSuggestion
-} from '@/application/services/api/learning'
+} from '@/infrastructure/api/clients/panel/editor/authoring/authoring.api'
 import { useKursBuilderActions } from './useKursBuilderActions'
 import type {
   Course,

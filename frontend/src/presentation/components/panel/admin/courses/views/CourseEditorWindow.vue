@@ -97,7 +97,7 @@
 import { computed } from 'vue'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import type { AdminChapter } from '@/application/services/api/panel-admin'
+import type { AdminChapter } from '@/infrastructure/api/clients/panel/admin'
 import { useCourseEditor } from './composables/useCourseEditor'
 import CourseMetadataTab from './components/CourseMetadataTab.vue'
 import CourseChaptersTab from './components/CourseChaptersTab.vue'

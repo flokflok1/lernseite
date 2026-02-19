@@ -1,8 +1,3 @@
 /**
- * User Panel Composables
- *
- * Barrel export for user panel composables.
- * Manages state and operations for user panel features.
+ * User Panel Components
  */
-
-export { useUserPanel, type UserStats } from './useUserPanel'

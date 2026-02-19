@@ -98,9 +98,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { usePanelStore } from '@/application/stores/modules/workspace'
+import { useDesktopPanelStore } from '@/application/stores/modules/workspace'
 import type { LsxPanel } from '@/application/stores/modules/workspace'
-import type { AdminChapter } from '@/application/services/api/panel-admin'
+import type { AdminChapter } from '@/infrastructure/api/clients/panel/admin'
 import { useCourseEditor } from './composables/useCourseEditor'
 import CourseMetadataTab from './components/CourseMetadataTab.vue'
 import CourseChaptersTab from './components/CourseChaptersTab.vue'
@@ -118,7 +118,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const panelStore = usePanelStore()
+const panelStore = useDesktopPanelStore()
 
 const courseId = computed(() => props.panel.payload?.courseId as string)
 

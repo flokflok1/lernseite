@@ -36,7 +36,7 @@
     <!-- XP Bar -->
     <div class="xp-section">
       <div class="xp-header">
-        <span class="xp-label">Erfahrung</span>
+        <span class="xp-label">{{ $t('dashboard.gamification.experience') }}</span>
         <span class="xp-value">{{ stats.xp }} / {{ stats.xpToNext }} XP</span>
       </div>
       <div class="xp-bar-container">
@@ -51,66 +51,31 @@
       <div class="resource gold">
         <span class="resource-icon">💰</span>
         <span class="resource-value">{{ stats.gold }}</span>
-        <span class="resource-label">Gold</span>
+        <span class="resource-label">{{ $t('dashboard.gamification.gold') }}</span>
       </div>
       <div class="resource skill-points">
         <span class="resource-icon">⭐</span>
         <span class="resource-value">{{ stats.skillPoints }}</span>
-        <span class="resource-label">Skillpunkte</span>
+        <span class="resource-label">{{ $t('dashboard.gamification.skillPoints') }}</span>
       </div>
     </div>
 
-    <!-- Base Stats -->
-    <div class="stats-section">
-      <h4 class="stats-title">Attribute</h4>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-icon strength">⚔️</div>
-          <div class="stat-info">
-            <span class="stat-name">Staerke</span>
-            <div class="stat-bar-container">
-              <div class="stat-bar strength" :style="{ width: `${getStatPercent('strength')}%` }"></div>
-            </div>
-            <span class="stat-value">{{ stats.baseStats.strength }}</span>
-          </div>
-        </div>
-
-        <div class="stat-item">
-          <div class="stat-icon intelligence">🧠</div>
-          <div class="stat-info">
-            <span class="stat-name">Intelligenz</span>
-            <div class="stat-bar-container">
-              <div class="stat-bar intelligence" :style="{ width: `${getStatPercent('intelligence')}%` }"></div>
-            </div>
-            <span class="stat-value">{{ stats.baseStats.intelligence }}</span>
-          </div>
-        </div>
-
-        <div class="stat-item">
-          <div class="stat-icon stamina">💪</div>
-          <div class="stat-info">
-            <span class="stat-name">Ausdauer</span>
-            <div class="stat-bar-container">
-              <div class="stat-bar stamina" :style="{ width: `${getStatPercent('stamina')}%` }"></div>
-            </div>
-            <span class="stat-value">{{ stats.baseStats.stamina }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Total Stats -->
-    <div class="total-stats">
-      <span class="total-label">Gesamtstaerke</span>
-      <span class="total-value">{{ totalStats }}</span>
-    </div>
+    <!-- Stats (extracted sub-component) -->
+    <RpgCharacterStats
+      :baseStats="stats.baseStats"
+      :totalStats="totalStats"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useGamificationStore } from '@/application/stores/modules/system/gamification.store'
-import type { GamificationStats, BaseStats } from '@/application/stores/modules/system/gamification.store'
+import type { GamificationStats } from '@/application/stores/modules/system/gamification.store'
+import RpgCharacterStats from './RpgCharacterStats.vue'
+
+const { t } = useI18n()
 
 // ============================================================================
 // Props
@@ -168,27 +133,19 @@ const avatarStyle = computed(() => {
 
 const roleLabel = computed(() => {
   const roleMap: Record<string, string> = {
-    admin: 'Administrator',
-    teacher: 'Lehrer',
-    creator: 'Creator',
-    premium: 'Premium',
-    user: 'Lernender',
-    free: 'Lernender',
-    school: 'Schul-Admin',
-    company: 'Firmen-Admin'
+    admin: 'roleAdmin',
+    teacher: 'roleTeacher',
+    creator: 'roleCreator',
+    premium: 'rolePremium',
+    user: 'roleUser',
+    free: 'roleUser',
+    school: 'roleSchool',
+    company: 'roleCompany'
   }
-  return roleMap[props.role] || 'Lernender'
+  const key = roleMap[props.role] || 'roleUser'
+  return t(`dashboard.gamification.${key}`)
 })
 
-// ============================================================================
-// Methods
-// ============================================================================
-
-const getStatPercent = (stat: keyof BaseStats): number => {
-  const value = stats.value.baseStats[stat]
-  // Max stat assumed to be 50 for visualization
-  return Math.min((value / 50) * 100, 100)
-}
 </script>
 
 <style scoped>
@@ -387,130 +344,6 @@ const getStatPercent = (stat: keyof BaseStats): number => {
   border-color: rgba(139, 92, 246, 0.3);
 }
 
-/* Stats Section */
-.stats-section {
-  margin-bottom: 16px;
-}
-
-.stats-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0 0 12px 0;
-}
-
-.stats-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.stat-icon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-background);
-  border-radius: 8px;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.stat-icon.strength {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, var(--color-background) 100%);
-}
-
-.stat-icon.intelligence {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, var(--color-background) 100%);
-}
-
-.stat-icon.stamina {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, var(--color-background) 100%);
-}
-
-.stat-info {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 80px 1fr 30px;
-  align-items: center;
-  gap: 8px;
-}
-
-.stat-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.stat-bar-container {
-  height: 8px;
-  background: var(--color-background);
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-}
-
-.stat-bar {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.stat-bar.strength {
-  background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
-}
-
-.stat-bar.intelligence {
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-}
-
-.stat-bar.stamina {
-  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
-}
-
-.stat-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  text-align: right;
-}
-
-/* Total Stats */
-.total-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: linear-gradient(
-    145deg,
-    var(--color-primary-light, rgba(99, 102, 241, 0.1)) 0%,
-    var(--color-background) 100%
-  );
-  border-radius: 10px;
-  border: 1px solid var(--color-primary);
-}
-
-.total-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
-.total-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--color-primary);
-}
-
 /* Responsive */
 @media (max-width: 640px) {
   .rpg-character-card {
@@ -534,14 +367,6 @@ const getStatPercent = (stat: keyof BaseStats): number => {
 
   .character-name {
     font-size: 16px;
-  }
-
-  .stat-info {
-    grid-template-columns: 70px 1fr 25px;
-  }
-
-  .stat-name {
-    font-size: 12px;
   }
 }
 </style>

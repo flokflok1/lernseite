@@ -204,7 +204,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { AdminUser, BanUserRequest } from '@/application/services/api/panel-admin'
+import type { AdminUser, BanUserRequest } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   showBanModal: boolean

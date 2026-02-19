@@ -14,10 +14,10 @@
 
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import OralExamChatPanel from './OralExamChatPanel.vue'
-import OralExamFeedbackPanel from './OralExamFeedbackPanel.vue'
-import { useOralExamination } from './composables/useOralExamination'
-import type { OralMethodData } from './composables/useOralExamination'
+import OralExamChatPanel from '@/presentation/components/public/system-features/exam/OralExamChatPanel.vue'
+import OralExamFeedbackPanel from '@/presentation/components/public/system-features/exam/OralExamFeedbackPanel.vue'
+import { useOralExamination } from '@/application/composables/system-features/useOralExamination'
+import type { OralMethodData } from '@/application/composables/system-features/useOralExamination'
 
 const { t } = useI18n()
 

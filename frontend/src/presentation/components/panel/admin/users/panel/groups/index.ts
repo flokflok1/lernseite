@@ -5,4 +5,4 @@ export { default as GroupEditModal } from './GroupEditModal.vue'
 export { default as PermissionsOverview } from './PermissionsOverview.vue'
 
 // Composables (GBA)
-export { useGroupsManagement } from '@/application/composables/useGroupsManagement'
+export { useGroupsManagement } from '@/application/composables/auth/useGroupsManagement'

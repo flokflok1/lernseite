@@ -132,8 +132,8 @@
  * Uses useMathTaskChecker composable for answer logic
  * and MathTaskSolutionPanel for collapsible solution display.
  */
-import type { TaskData } from '@/presentation/components/public/system-features/math/useMathTaskChecker'
-import { useMathTaskChecker } from '@/presentation/components/public/system-features/math/useMathTaskChecker'
+import type { TaskData } from '@/application/composables/learning/useMathTaskChecker'
+import { useMathTaskChecker } from '@/application/composables/learning/useMathTaskChecker'
 import MathTaskSolutionPanel from './MathTaskSolutionPanel.vue'
 
 interface Props {

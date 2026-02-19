@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Lesson } from '@/application/services/api/learning'
+import type { Lesson } from '@/infrastructure/api/clients/public/learning/types/types'
 import DOMPurify from 'dompurify'
 import DetailedSteps from './DetailedSteps.vue'
 

@@ -40,3 +40,19 @@ class UserPort(ABC):
     @staticmethod
     @abstractmethod
     def execute(query: str, params: Tuple = ()) -> int: ...
+
+    @staticmethod
+    @abstractmethod
+    def update_bio(user_id: str, bio: str) -> bool: ...
+
+    @staticmethod
+    @abstractmethod
+    def update_avatar(user_id: str, avatar_url: str) -> bool: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_portfolio(user_id: str) -> Dict[str, Any]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_achievements(user_id: str) -> List[Dict[str, Any]]: ...

@@ -41,6 +41,13 @@ def wire_repositories() -> None:
     repos.social_comments = SocialCommentsRepository
     repos.social_follows = SocialFollowsRepository
 
+    # -- social notifications --
+    from app.infrastructure.persistence.repositories.social_notifications import (
+        SocialNotificationsRepository,
+    )
+
+    repos.social_notifications = SocialNotificationsRepository
+
     # -- ai --
     from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
     from app.infrastructure.persistence.repositories.prompts.templates import (

@@ -56,6 +56,83 @@ class SocialPostsPort(ABC):
     @abstractmethod
     def add_hashtag(post_id: str, hashtag: str) -> None: ...
 
+    # -- Feed queries --
+    @staticmethod
+    @abstractmethod
+    def get_personalized_feed(
+        following_ids: List[str], limit: int = 20, offset: int = 0
+    ) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_chronological_feed(
+        following_ids: List[str], limit: int = 20, offset: int = 0
+    ) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_trending_feed(
+        limit: int = 20, offset: int = 0
+    ) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_explore_feed(
+        excluded_user_ids: List[str], limit: int = 20, offset: int = 0,
+        category: Optional[str] = None
+    ) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_hashtag_feed(
+        hashtag: str, limit: int = 20, offset: int = 0
+    ) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_trending_hashtags(limit: int = 10) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_trending_posts(limit: int = 20) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_explore_posts(
+        user_id: str, limit: int = 20
+    ) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def search_posts_by_content(
+        query_text: str, limit: int = 20
+    ) -> List[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_post_metrics(post_id: str) -> Dict[str, Any]: ...
+
+
+# ---------------------------------------------------------------------------
+# SocialNotificationsPort
+# ---------------------------------------------------------------------------
+
+class SocialNotificationsPort(ABC):
+    """Port for notifications persistence."""
+
+    @staticmethod
+    @abstractmethod
+    def create_notification(
+        user_id: str, notification_type: str, content: str,
+        reference_id: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_notifications(
+        user_id: str, limit: int = 20
+    ) -> List[Dict[str, Any]]: ...
+
 
 # ---------------------------------------------------------------------------
 # SocialLikesPort

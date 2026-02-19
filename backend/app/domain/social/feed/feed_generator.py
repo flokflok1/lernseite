@@ -67,40 +67,14 @@ class FeedGenerator:
         - Recency decay (exponential decay over 7 days)
         - User interaction history
         """
-        # Get users that current user follows
         following = repos.social_follows.get_following(user_id, limit=1000, offset=0)
         following_ids = [f['following_id'] for f in following]
 
         if not following_ids:
-            # New user: show trending posts
             return FeedGenerator._trending_feed(user_id, limit, offset)
 
-        # Get posts from followed users (last 7 days)
-        query = """
-            SELECT p.*,
-                   u.username, u.profile_picture_url,
-                   -- Engagement score
-                   (p.likes_count + 2 * p.comments_count + 3 * p.shares_count) as engagement_score,
-                   -- Recency score (exponential decay)
-                   EXP(-EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - p.created_at)) / 86400.0) as recency_score,
-                   -- Final score
-                   (
-                       (p.likes_count + 2 * p.comments_count + 3 * p.shares_count) *
-                       EXP(-EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - p.created_at)) / 604800.0)
-                   ) as final_score
-            FROM social.social_posts p
-            JOIN users u ON p.user_id = u.user_id
-            WHERE p.user_id = ANY(%s)
-              AND p.is_deleted = FALSE
-              AND p.moderation_status IN ('ai_approved', 'human_approved')
-              AND p.visibility IN ('public', 'followers')
-              AND p.created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days'
-            ORDER BY final_score DESC, p.created_at DESC
-            LIMIT %s OFFSET %s
-        """
-        posts = repos.social_posts.fetch_all(query, (following_ids, limit, offset))
+        posts = repos.social_posts.get_personalized_feed(following_ids, limit, offset)
 
-        # Add user interaction context
         for post in posts:
             post['user_has_liked'] = FeedGenerator._check_user_liked(user_id, post['post_id'])
             post['user_has_bookmarked'] = FeedGenerator._check_user_bookmarked(
@@ -121,18 +95,7 @@ class FeedGenerator:
         if not following_ids:
             return []
 
-        query = """
-            SELECT p.*, u.username, u.profile_picture_url
-            FROM social.social_posts p
-            JOIN users u ON p.user_id = u.user_id
-            WHERE p.user_id = ANY(%s)
-              AND p.is_deleted = FALSE
-              AND p.moderation_status IN ('ai_approved', 'human_approved')
-              AND p.visibility IN ('public', 'followers')
-            ORDER BY p.created_at DESC
-            LIMIT %s OFFSET %s
-        """
-        posts = repos.social_posts.fetch_all(query, (following_ids, limit, offset))
+        posts = repos.social_posts.get_chronological_feed(following_ids, limit, offset)
 
         for post in posts:
             post['user_has_liked'] = FeedGenerator._check_user_liked(user_id, post['post_id'])
@@ -150,26 +113,7 @@ class FeedGenerator:
         Trending score = (engagement_score / time_penalty)
         time_penalty = (hours_since_post + 2) ^ 1.5
         """
-        query = """
-            SELECT p.*,
-                   u.username, u.profile_picture_url,
-                   (p.likes_count + 2 * p.comments_count + 3 * p.shares_count) as engagement_score,
-                   -- Trending score (HackerNews-style)
-                   (p.likes_count + 2 * p.comments_count + 3 * p.shares_count) /
-                   POWER(
-                       (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - p.created_at)) / 3600.0) + 2,
-                       1.5
-                   ) as trending_score
-            FROM social.social_posts p
-            JOIN users u ON p.user_id = u.user_id
-            WHERE p.is_deleted = FALSE
-              AND p.moderation_status IN ('ai_approved', 'human_approved')
-              AND p.visibility = 'public'
-              AND p.created_at >= CURRENT_TIMESTAMP - INTERVAL '24 hours'
-            ORDER BY trending_score DESC, p.created_at DESC
-            LIMIT %s OFFSET %s
-        """
-        posts = repos.social_posts.fetch_all(query, (limit, offset))
+        posts = repos.social_posts.get_trending_feed(limit, offset)
 
         for post in posts:
             post['user_has_liked'] = FeedGenerator._check_user_liked(user_id, post['post_id'])
@@ -198,39 +142,9 @@ class FeedGenerator:
         following_ids = [f['following_id'] for f in following]
         following_ids.append(user_id)  # Exclude own posts
 
-        if category:
-            query = """
-                SELECT p.*, u.username, u.profile_picture_url,
-                       (p.likes_count + 2 * p.comments_count + 3 * p.shares_count) as engagement_score
-                FROM social.social_posts p
-                JOIN users u ON p.user_id = u.user_id
-                WHERE p.user_id != ALL(%s)
-                  AND p.is_deleted = FALSE
-                  AND p.moderation_status IN ('ai_approved', 'human_approved')
-                  AND p.visibility = 'public'
-                  AND p.content_type = %s
-                  AND p.created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days'
-                ORDER BY engagement_score DESC, p.created_at DESC
-                LIMIT %s OFFSET %s
-            """
-            posts = repos.social_posts.fetch_all(
-                query, (following_ids, category, limit, offset)
-            )
-        else:
-            query = """
-                SELECT p.*, u.username, u.profile_picture_url,
-                       (p.likes_count + 2 * p.comments_count + 3 * p.shares_count) as engagement_score
-                FROM social.social_posts p
-                JOIN users u ON p.user_id = u.user_id
-                WHERE p.user_id != ALL(%s)
-                  AND p.is_deleted = FALSE
-                  AND p.moderation_status IN ('ai_approved', 'human_approved')
-                  AND p.visibility = 'public'
-                  AND p.created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days'
-                ORDER BY engagement_score DESC, p.created_at DESC
-                LIMIT %s OFFSET %s
-            """
-            posts = repos.social_posts.fetch_all(query, (following_ids, limit, offset))
+        posts = repos.social_posts.get_explore_feed(
+            following_ids, limit, offset, category=category
+        )
 
         for post in posts:
             post['user_has_liked'] = FeedGenerator._check_user_liked(user_id, post['post_id'])
@@ -243,19 +157,7 @@ class FeedGenerator:
     @staticmethod
     def get_hashtag_feed(hashtag: str, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
         """Get posts with a specific hashtag."""
-        query = """
-            SELECT DISTINCT p.*, u.username, u.profile_picture_url
-            FROM social.social_posts p
-            JOIN users u ON p.user_id = u.user_id
-            JOIN social.social_post_hashtags h ON p.post_id = h.post_id
-            WHERE h.hashtag = %s
-              AND p.is_deleted = FALSE
-              AND p.moderation_status IN ('ai_approved', 'human_approved')
-              AND p.visibility = 'public'
-            ORDER BY p.created_at DESC
-            LIMIT %s OFFSET %s
-        """
-        return repos.social_posts.fetch_all(query, (hashtag.lower(), limit, offset))
+        return repos.social_posts.get_hashtag_feed(hashtag, limit, offset)
 
     # =====================
     # HELPER METHODS

@@ -1,10 +1,11 @@
 """
 User Profile Preferences
 
-Handles user profile settings like theme preferences.
+Handles user profile settings like theme preferences, bio, avatar,
+portfolio, and achievements.
 """
 
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import logging
 
 from app.infrastructure.persistence.repositories.core.base import BaseRepository
@@ -86,3 +87,41 @@ class UserProfileRepository(BaseRepository):
             raise ValueError(f'User with ID {user_id} not found')
 
         return result['theme']
+
+    @classmethod
+    def update_bio(cls, user_id: str, bio: str) -> bool:
+        """Update user bio."""
+        result = execute_query(
+            "UPDATE users SET bio = %s WHERE user_id = %s",
+            (bio, user_id)
+        )
+        return result is not None
+
+    @classmethod
+    def update_avatar(cls, user_id: str, avatar_url: str) -> bool:
+        """Update user profile picture URL."""
+        result = execute_query(
+            "UPDATE users SET profile_picture_url = %s WHERE user_id = %s",
+            (avatar_url, user_id)
+        )
+        return result is not None
+
+    @classmethod
+    def get_portfolio(cls, user_id: str) -> Dict[str, Any]:
+        """Get user's learning portfolio stats."""
+        query = """
+            SELECT
+                COUNT(DISTINCT e.course_id) as courses_count,
+                COUNT(DISTINCT c.certificate_id) as certificates_count
+            FROM enrollments e
+            LEFT JOIN certificates c ON e.enrollment_id = c.enrollment_id
+            WHERE e.user_id = %s
+        """
+        return fetch_one(query, (user_id,)) or {}
+
+    @classmethod
+    def get_achievements(cls, user_id: str) -> List[Dict[str, Any]]:
+        """Get user achievements ordered by recency."""
+        query = "SELECT * FROM achievements WHERE user_id = %s ORDER BY earned_at DESC"
+        from app.infrastructure.persistence.database.connection import fetch_all
+        return fetch_all(query, (user_id,))

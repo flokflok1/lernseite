@@ -23,6 +23,7 @@ from app.domain.ports.social import (
     SocialLikesPort,
     SocialCommentsPort,
     SocialFollowsPort,
+    SocialNotificationsPort,
 )
 
 
@@ -38,6 +39,7 @@ class _RepositoryRegistry:
     social_likes: Optional[Type[SocialLikesPort]] = None
     social_comments: Optional[Type[SocialCommentsPort]] = None
     social_follows: Optional[Type[SocialFollowsPort]] = None
+    social_notifications: Optional[Type[SocialNotificationsPort]] = None
 
     # -- ai --
     ai_jobs: Optional[Type[AIJobPort]] = None

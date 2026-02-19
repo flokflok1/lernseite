@@ -8,8 +8,8 @@ from typing import Optional, Dict, List
 from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 
-class SocialPostsRepository(BaseRepository):
-    """Repository for social_posts table"""
+class SocialPostsCoreRepository(BaseRepository):
+    """Repository for social_posts CRUD operations"""
 
     @staticmethod
     def create(data: Dict) -> Dict:
@@ -19,7 +19,7 @@ class SocialPostsRepository(BaseRepository):
         VALUES (%s, %s, %s, %s, %s)
         RETURNING post_id, user_id, content, content_type, visibility, created_at
         """
-        return SocialPostsRepository.fetch_one(query, (
+        return SocialPostsCoreRepository.fetch_one(query, (
             data['user_id'],
             data['content'],
             data['content_type'],
@@ -34,7 +34,7 @@ class SocialPostsRepository(BaseRepository):
         SELECT * FROM social_posts
         WHERE post_id = %s AND deleted_at IS NULL
         """
-        return SocialPostsRepository.fetch_one(query, (post_id,))
+        return SocialPostsCoreRepository.fetch_one(query, (post_id,))
 
     @staticmethod
     def update(post_id: str, data: Dict) -> Optional[Dict]:
@@ -51,7 +51,7 @@ class SocialPostsRepository(BaseRepository):
         WHERE post_id = %s
         RETURNING *
         """
-        return SocialPostsRepository.fetch_one(query, tuple(params))
+        return SocialPostsCoreRepository.fetch_one(query, tuple(params))
 
     @staticmethod
     def soft_delete(post_id: str) -> bool:
@@ -60,7 +60,7 @@ class SocialPostsRepository(BaseRepository):
         UPDATE social_posts SET deleted_at = CURRENT_TIMESTAMP
         WHERE post_id = %s
         """
-        SocialPostsRepository.execute(query, (post_id,))
+        SocialPostsCoreRepository.execute(query, (post_id,))
         return True
 
     @staticmethod
@@ -73,21 +73,21 @@ class SocialPostsRepository(BaseRepository):
         ORDER BY created_at DESC
         LIMIT %s OFFSET %s
         """
-        posts = SocialPostsRepository.fetch_all(query, (user_id, per_page, offset))
+        posts = SocialPostsCoreRepository.fetch_all(query, (user_id, per_page, offset))
         return {'posts': posts, 'page': page, 'per_page': per_page}
 
     @staticmethod
     def pin(post_id: str) -> bool:
         """Pin post"""
         query = "UPDATE social_posts SET is_pinned = TRUE WHERE post_id = %s"
-        SocialPostsRepository.execute(query, (post_id,))
+        SocialPostsCoreRepository.execute(query, (post_id,))
         return True
 
     @staticmethod
     def unpin_all_for_user(user_id: str):
         """Unpin all posts for user"""
         query = "UPDATE social_posts SET is_pinned = FALSE WHERE user_id = %s"
-        SocialPostsRepository.execute(query, (user_id,))
+        SocialPostsCoreRepository.execute(query, (user_id,))
 
     @staticmethod
     def add_mention(post_id: str, mentioned_user_id: str):
@@ -97,7 +97,7 @@ class SocialPostsRepository(BaseRepository):
         VALUES (%s, %s)
         ON CONFLICT DO NOTHING
         """
-        SocialPostsRepository.execute(query, (post_id, mentioned_user_id))
+        SocialPostsCoreRepository.execute(query, (post_id, mentioned_user_id))
 
     @staticmethod
     def add_hashtag(post_id: str, hashtag: str):
@@ -107,4 +107,4 @@ class SocialPostsRepository(BaseRepository):
         VALUES (%s, %s)
         ON CONFLICT DO NOTHING
         """
-        SocialPostsRepository.execute(query, (post_id, hashtag))
+        SocialPostsCoreRepository.execute(query, (post_id, hashtag))

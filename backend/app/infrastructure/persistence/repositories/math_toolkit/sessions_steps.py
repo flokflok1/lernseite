@@ -183,14 +183,14 @@ class MathSessionsStepsRepository:
             FROM math_scaffolding_hints
             WHERE pattern_id = %s
               AND hint_type = %s
-              AND ($3::int IS NULL OR step_number = $3 OR step_number IS NULL)
-              AND ($4::text IS NULL OR error_type = $4 OR error_type IS NULL)
+              AND (%s::int IS NULL OR step_number = %s OR step_number IS NULL)
+              AND (%s::text IS NULL OR error_type = %s OR error_type IS NULL)
               AND is_active = TRUE
             ORDER BY
-                CASE WHEN step_number = $3 THEN 0 ELSE 1 END,
-                CASE WHEN error_type = $4 THEN 0 ELSE 1 END
+                CASE WHEN step_number = %s THEN 0 ELSE 1 END,
+                CASE WHEN error_type = %s THEN 0 ELSE 1 END
             LIMIT 1
         """
         return fetch_one(
-            query, (pattern_id, hint_type, step_number, error_type)
+            query, (pattern_id, hint_type, step_number, step_number, error_type, error_type, step_number, error_type)
         )

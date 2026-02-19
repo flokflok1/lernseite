@@ -156,7 +156,7 @@ class AuditQueryRepository:
             FROM audit_logs
             WHERE event_type = %s
               AND success = false
-              AND created_at > NOW() - INTERVAL '%s hours'
+              AND created_at > NOW() - (%s * INTERVAL '1 hour')
             ORDER BY created_at DESC
             """,
             (event_type, hours)
@@ -183,7 +183,7 @@ class AuditQueryRepository:
                 ARRAY_AGG(DISTINCT user_email) as attempted_emails
             FROM audit_logs
             WHERE success = false
-              AND created_at > NOW() - INTERVAL '%s hours'
+              AND created_at > NOW() - (%s * INTERVAL '1 hour')
             GROUP BY ip_address
             HAVING COUNT(*) >= %s
             ORDER BY failure_count DESC

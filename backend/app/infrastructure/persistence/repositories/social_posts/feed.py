@@ -6,10 +6,11 @@ Extracted from domain/social/ to comply with DDD repository rules.
 """
 
 from typing import Optional, List, Dict, Any
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 
 
-class SocialPostsFeedRepository(BaseRepository):
+class SocialPostsFeedRepository:
     """Repository for social feed queries"""
 
     @staticmethod
@@ -35,7 +36,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY final_score DESC, p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (following_ids, limit, offset))
+        return fetch_all(query, (following_ids, limit, offset))
 
     @staticmethod
     def get_chronological_feed(following_ids: List[str], limit: int = 20,
@@ -52,7 +53,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (following_ids, limit, offset))
+        return fetch_all(query, (following_ids, limit, offset))
 
     @staticmethod
     def get_trending_feed(limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
@@ -75,7 +76,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY trending_score DESC, p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (limit, offset))
+        return fetch_all(query, (limit, offset))
 
     @staticmethod
     def get_explore_feed(excluded_user_ids: List[str], limit: int = 20,
@@ -97,7 +98,7 @@ class SocialPostsFeedRepository(BaseRepository):
                 ORDER BY engagement_score DESC, p.created_at DESC
                 LIMIT %s OFFSET %s
             """
-            return SocialPostsFeedRepository.fetch_all(
+            return fetch_all(
                 query, (excluded_user_ids, category, limit, offset)
             )
         else:
@@ -114,7 +115,7 @@ class SocialPostsFeedRepository(BaseRepository):
                 ORDER BY engagement_score DESC, p.created_at DESC
                 LIMIT %s OFFSET %s
             """
-            return SocialPostsFeedRepository.fetch_all(
+            return fetch_all(
                 query, (excluded_user_ids, limit, offset)
             )
 
@@ -134,7 +135,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY p.created_at DESC
             LIMIT %s OFFSET %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (hashtag.lower(), limit, offset))
+        return fetch_all(query, (hashtag.lower(), limit, offset))
 
     @staticmethod
     def get_trending_hashtags(limit: int = 10) -> List[Dict[str, Any]]:
@@ -147,7 +148,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY post_count DESC
             LIMIT %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (limit,))
+        return fetch_all(query, (limit,))
 
     @staticmethod
     def get_trending_posts(limit: int = 20) -> List[Dict[str, Any]]:
@@ -163,7 +164,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY engagement_score DESC, p.created_at DESC
             LIMIT %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (limit,))
+        return fetch_all(query, (limit,))
 
     @staticmethod
     def get_explore_posts(user_id: str, limit: int = 20) -> List[Dict[str, Any]]:
@@ -180,7 +181,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY p.created_at DESC
             LIMIT %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (user_id, limit))
+        return fetch_all(query, (user_id, limit))
 
     @staticmethod
     def search_posts_by_content(query_text: str,
@@ -195,7 +196,7 @@ class SocialPostsFeedRepository(BaseRepository):
             ORDER BY p.created_at DESC
             LIMIT %s
         """
-        return SocialPostsFeedRepository.fetch_all(query, (f'%{query_text}%', limit))
+        return fetch_all(query, (f'%{query_text}%', limit))
 
     @staticmethod
     def get_post_metrics(post_id: str) -> Dict[str, Any]:
@@ -209,4 +210,4 @@ class SocialPostsFeedRepository(BaseRepository):
             FROM social.social_posts
             WHERE post_id = %s
         """
-        return SocialPostsFeedRepository.fetch_one(query, (post_id,)) or {}
+        return fetch_one(query, (post_id,)) or {}

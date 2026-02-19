@@ -6,13 +6,12 @@ Extracted from domain/social/notifications/ to comply with DDD repository rules.
 """
 
 from typing import Optional, List, Dict, Any
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
 
 
-class SocialNotificationsRepository(BaseRepository):
+class SocialNotificationsRepository:
     """Repository for notifications table"""
-
-    table_name = 'notifications'
 
     @staticmethod
     def create_notification(user_id: str, notification_type: str,
@@ -24,7 +23,7 @@ class SocialNotificationsRepository(BaseRepository):
             VALUES (%s, %s, %s, %s)
             RETURNING *
         """
-        return SocialNotificationsRepository.fetch_one(
+        return fetch_one(
             query, (user_id, notification_type, content, reference_id)
         )
 
@@ -38,4 +37,4 @@ class SocialNotificationsRepository(BaseRepository):
             ORDER BY created_at DESC
             LIMIT %s
         """
-        return SocialNotificationsRepository.fetch_all(query, (user_id, limit))
+        return fetch_all(query, (user_id, limit))

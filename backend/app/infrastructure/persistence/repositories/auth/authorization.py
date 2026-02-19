@@ -11,7 +11,7 @@ Provides database access for:
 
 from typing import List, Dict, Any, Optional
 
-from app.infrastructure.persistence.database.connection import execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 
 class AuthorizationRepository:
@@ -28,7 +28,7 @@ class AuthorizationRepository:
         Returns:
             List with single dict containing 'max_level', or empty list
         """
-        result = execute_query(
+        return fetch_all(
             """
             SELECT COALESCE(MAX(COALESCE(ug.hierarchy_level, g.hierarchy_level)), 0) as max_level
             FROM core.users_groups ug
@@ -37,10 +37,8 @@ class AuthorizationRepository:
                 AND ug.is_active = TRUE
                 AND ug.left_at IS NULL
             """,
-            (user_id,),
-            fetch=True
-        )
-        return result if result else []
+            (user_id,)
+        ) or []
 
     @staticmethod
     def get_user_groups_with_levels(user_id: str) -> List[Dict[str, Any]]:
@@ -55,7 +53,7 @@ class AuthorizationRepository:
             hierarchy_level, access_level, joined_at.
             Sorted by hierarchy_level DESC.
         """
-        result = execute_query(
+        return fetch_all(
             """
             SELECT
                 g.id,
@@ -73,10 +71,8 @@ class AuthorizationRepository:
                 AND ug.left_at IS NULL
             ORDER BY g.hierarchy_level DESC
             """,
-            (user_id,),
-            fetch=True
-        )
-        return result if result else []
+            (user_id,)
+        ) or []
 
     @staticmethod
     def get_user_effective_permissions(user_id: str) -> List[Dict[str, Any]]:
@@ -89,12 +85,10 @@ class AuthorizationRepository:
         Returns:
             List of dicts with 'permission_code' key
         """
-        result = execute_query(
+        return fetch_all(
             "SELECT * FROM get_user_effective_permissions(%s)",
-            (user_id,),
-            fetch=True
-        )
-        return result if result else []
+            (user_id,)
+        ) or []
 
     @staticmethod
     def get_user_active_groups(user_id: str) -> List[Dict[str, Any]]:
@@ -108,7 +102,7 @@ class AuthorizationRepository:
             List of groups with id, name, slug, group_type, frontend_role,
             access_level, joined_at. Sorted by joined_at ASC.
         """
-        result = execute_query(
+        return fetch_all(
             """
             SELECT
                 g.id,
@@ -125,10 +119,8 @@ class AuthorizationRepository:
                 AND ug.left_at IS NULL
             ORDER BY ug.joined_at ASC
             """,
-            (user_id,),
-            fetch=True
-        )
-        return result if result else []
+            (user_id,)
+        ) or []
 
     @staticmethod
     def set_two_factor_secret(user_id: str, totp_secret: str) -> None:

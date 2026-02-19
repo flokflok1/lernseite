@@ -25,7 +25,7 @@ class MathPatternsProgressRepository:
         query = """
             SELECT category_id, category_code, name, description, icon, color, sort_order
             FROM math_pattern_categories
-            WHERE ($1 = FALSE OR is_active = TRUE)
+            WHERE (%s = FALSE OR is_active = TRUE)
             ORDER BY sort_order, name
         """
         return fetch_all(query, (active_only,)) or []
@@ -59,14 +59,14 @@ class MathPatternsProgressRepository:
                 c.category_code, c.name as category_name, c.icon as category_icon
             FROM math_patterns p
             LEFT JOIN math_pattern_categories c ON p.category_id = c.category_id
-            WHERE ($1 = FALSE OR p.is_active = TRUE)
-              AND ($2::text IS NULL OR c.category_code = $2)
-              AND ($3 = FALSE OR p.ihk_relevant = TRUE)
-              AND ($4::int IS NULL OR p.difficulty = $4)
+            WHERE (%s = FALSE OR p.is_active = TRUE)
+              AND (%s::text IS NULL OR c.category_code = %s)
+              AND (%s = FALSE OR p.ihk_relevant = TRUE)
+              AND (%s::int IS NULL OR p.difficulty = %s)
             ORDER BY c.sort_order, p.sort_order, p.name
         """
         return fetch_all(
-            query, (active_only, category_code, ihk_only, difficulty)
+            query, (active_only, category_code, category_code, ihk_only, difficulty, difficulty)
         ) or []
 
     @staticmethod
@@ -150,11 +150,11 @@ class MathPatternsProgressRepository:
             FROM math_formulas f
             LEFT JOIN math_pattern_categories c ON f.category_id = c.category_id
             WHERE f.is_active = TRUE
-              AND ($1::text IS NULL OR c.category_code = $1)
-              AND ($2 = FALSE OR f.is_favorite = TRUE)
+              AND (%s::text IS NULL OR c.category_code = %s)
+              AND (%s = FALSE OR f.is_favorite = TRUE)
             ORDER BY f.is_favorite DESC, f.usage_count DESC, f.name
         """
-        return fetch_all(query, (category_code, favorites_only)) or []
+        return fetch_all(query, (category_code, category_code, favorites_only)) or []
 
     @staticmethod
     def increment_formula_usage(formula_id: str) -> bool:
@@ -225,10 +225,10 @@ class MathPatternsProgressRepository:
             JOIN math_patterns p ON up.pattern_id = p.pattern_id
             LEFT JOIN math_pattern_categories c ON p.category_id = c.category_id
             WHERE up.user_id = %s
-              AND ($2::uuid IS NULL OR up.pattern_id = $2)
+              AND (%s::uuid IS NULL OR up.pattern_id = %s)
             ORDER BY up.mastery_score DESC, up.last_practiced_at DESC
         """
-        return fetch_all(query, (user_id, pattern_id)) or []
+        return fetch_all(query, (user_id, pattern_id, pattern_id)) or []
 
     @staticmethod
     def get_progress_record(user_id: str, pattern_id: str) -> Optional[Dict]:
@@ -303,14 +303,14 @@ class MathPatternsProgressRepository:
             FROM math_pattern_recognition_tasks t
             JOIN math_patterns p ON t.pattern_id = p.pattern_id
             WHERE t.is_active = TRUE
-              AND ($1::uuid IS NULL OR t.pattern_id = $1)
-              AND ($2::text IS NULL OR t.task_type = $2)
-              AND ($3::int IS NULL OR t.difficulty = $3)
+              AND (%s::uuid IS NULL OR t.pattern_id = %s)
+              AND (%s::text IS NULL OR t.task_type = %s)
+              AND (%s::int IS NULL OR t.difficulty = %s)
             ORDER BY RANDOM()
             LIMIT %s
         """
         return fetch_all(
-            query, (pattern_id, task_type, difficulty, limit)
+            query, (pattern_id, pattern_id, task_type, task_type, difficulty, difficulty, limit)
         ) or []
 
     @staticmethod

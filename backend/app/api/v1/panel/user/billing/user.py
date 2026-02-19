@@ -16,7 +16,7 @@ ISO/IEC/IEEE 26515:2018 compliant - RESTful API design
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from app.domain.models.admin.token import (
+from app.domain.models.schemas.token import (
     TokenWalletResponse,
     TokenBalanceResponse,
     TokenTransactionResponse,

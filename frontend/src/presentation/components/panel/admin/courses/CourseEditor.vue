@@ -7,7 +7,7 @@
   - Chapter management overview
   - Quick actions (publish, archive, delete)
   Phase: B24-06 - Admin Desktop OS
-  Refactored: modules → chapters (2025-11-27)
+  Refactored: modules -> chapters (2025-11-27)
 -->
 
 <template>
@@ -58,311 +58,50 @@
       <!-- Tab Content -->
       <div class="flex-1 overflow-y-auto">
         <!-- Metadata Tab -->
-        <div v-if="activeTab === 'metadata'" class="p-6">
-          <form @submit.prevent="saveCourse" class="space-y-6">
-            <!-- Title -->
-            <div>
-              <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('courseEditor.metadata.title') }}
-              </label>
-              <input
-                v-model="form.title"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('courseEditor.metadata.titlePlaceholder')"
-              />
-            </div>
-
-            <!-- Description -->
-            <div>
-              <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('courseEditor.metadata.description') }}
-              </label>
-              <textarea
-                v-model="form.description"
-                rows="4"
-                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('courseEditor.metadata.descriptionPlaceholder')"
-              ></textarea>
-            </div>
-
-            <!-- Category & Level -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('courseEditor.metadata.category') }}
-                </label>
-                <select
-                  v-model="form.category_id"
-                  class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                >
-                  <option :value="null">{{ $t('courseEditor.metadata.noCategory') }}</option>
-                  <option
-                    v-for="cat in flatCategories"
-                    :key="cat.category_id"
-                    :value="cat.category_id"
-                  >
-                    {{ cat.indent }}{{ cat.name }}
-                  </option>
-                </select>
-                <p v-if="loadingCategories" class="mt-1 text-xs text-[var(--color-text-secondary)]">{{ $t('courseEditor.metadata.loadingCategories') }}</p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('courseEditor.metadata.level') }}
-                </label>
-                <select
-                  v-model="form.level"
-                  class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                >
-                  <option value="beginner">{{ $t('courseEditor.metadata.levelBeginner') }}</option>
-                  <option value="intermediate">{{ $t('courseEditor.metadata.levelIntermediate') }}</option>
-                  <option value="advanced">{{ $t('courseEditor.metadata.levelAdvanced') }}</option>
-                  <option value="expert">{{ $t('courseEditor.metadata.levelExpert') }}</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Language & Price -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('courseEditor.metadata.language') }}
-                </label>
-                <select
-                  v-model="form.language"
-                  class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                >
-                  <option value="de">Deutsch</option>
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                  <option value="es">Español</option>
-                  <option value="it">Italiano</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                  {{ $t('courseEditor.metadata.price') }}
-                </label>
-                <input
-                  v-model.number="form.price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-
-            <!-- Tags -->
-            <div>
-              <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                {{ $t('courseEditor.metadata.tags') }}
-              </label>
-              <input
-                v-model="tagsInput"
-                type="text"
-                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                :placeholder="$t('courseEditor.metadata.tagsPlaceholder')"
-              />
-              <div v-if="form.tags && form.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
-                <span
-                  v-for="tag in form.tags"
-                  :key="tag"
-                  class="px-2 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded text-xs"
-                >
-                  {{ tag }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Visibility -->
-            <div class="flex items-center gap-3">
-              <input
-                v-model="form.is_public"
-                type="checkbox"
-                id="is_public"
-                class="w-4 h-4 text-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]"
-              />
-              <label for="is_public" class="text-sm font-medium text-[var(--color-text-primary)]">
-                {{ $t('courseEditor.metadata.isPublic') }}
-              </label>
-            </div>
-
-            <!-- Save Button -->
-            <div class="flex gap-3 pt-4">
-              <button
-                type="submit"
-                :disabled="saving"
-                class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {{ saving ? $t('courseEditor.metadata.saving') : $t('courseEditor.metadata.saveChanges') }}
-              </button>
-              <button
-                type="button"
-                @click="resetForm"
-                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                {{ $t('courseEditor.metadata.reset') }}
-              </button>
-            </div>
-          </form>
-        </div>
+        <CourseMetadataForm
+          v-if="activeTab === 'metadata'"
+          :form="form"
+          :tags-input="tagsInput"
+          :flat-categories="flatCategories"
+          :loading-categories="loadingCategories"
+          :saving="saving"
+          @update:form="form = $event"
+          @update:tags-input="tagsInput = $event"
+          @save="saveCourse"
+          @reset="resetForm"
+        />
 
         <!-- Chapters Tab -->
-        <div v-else-if="activeTab === 'chapters'" class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">
-              {{ $t('courseEditor.chapters.title', { count: chapters.length }) }}
-            </h3>
-            <button
-              @click="openChapterEditor(null)"
-              class="px-3 py-1.5 bg-[var(--color-primary)] text-white text-sm rounded-lg hover:bg-[var(--color-primary-hover)]"
-            >
-              {{ $t('courseEditor.chapters.addNew') }}
-            </button>
-          </div>
-
-          <!-- Chapters List -->
-          <div v-if="loadingChapters" class="text-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)] mx-auto"></div>
-          </div>
-
-          <div v-else-if="chapters.length === 0" class="text-center py-8">
-            <p class="text-[var(--color-text-secondary)]">{{ $t('courseEditor.chapters.noChapters') }}</p>
-          </div>
-
-          <div v-else class="space-y-3">
-            <div
-              v-for="chapter in chapters"
-              :key="chapter.chapter_id"
-              class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 hover:border-[var(--color-primary)] transition-colors"
-            >
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <h4 class="font-semibold text-[var(--color-text-primary)] mb-1">
-                    {{ chapter.order_index }}. {{ chapter.title }}
-                  </h4>
-                  <p v-if="chapter.description" class="text-sm text-[var(--color-text-secondary)] mb-2">
-                    {{ chapter.description }}
-                  </p>
-                  <div class="flex gap-4 text-xs text-[var(--color-text-secondary)]">
-                    <span>📚 {{ $t('courseEditor.chapters.lessons', { count: chapter.lesson_count || 0 }) }}</span>
-                    <span>⏱️ {{ $t('courseEditor.chapters.duration', { minutes: chapter.duration_minutes }) }}</span>
-                  </div>
-                </div>
-                <div class="flex gap-2">
-                  <button
-                    @click="openChapterEditor(chapter)"
-                    class="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    {{ $t('courseEditor.chapters.edit') }}
-                  </button>
-                  <button
-                    @click="deleteChapter(chapter.chapter_id)"
-                    class="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    {{ $t('courseEditor.chapters.delete') }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CourseChaptersTab
+          v-else-if="activeTab === 'chapters'"
+          :chapters="chapters"
+          :loading-chapters="loadingChapters"
+          @add-chapter="openChapterEditor(null)"
+          @edit-chapter="openChapterEditor($event)"
+          @delete-chapter="deleteChapter($event)"
+        />
 
         <!-- Actions Tab -->
-        <div v-else-if="activeTab === 'actions'" class="p-6">
-          <div class="space-y-6">
-            <!-- Status Actions -->
-            <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
-              <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('courseEditor.actions.title') }}</h3>
-              <div class="space-y-3">
-                <div v-if="course.status === 'draft'" class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('courseEditor.actions.publishCourse') }}</p>
-                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('courseEditor.actions.publishHint') }}</p>
-                  </div>
-                  <button
-                    @click="publishCourse"
-                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    {{ $t('courseEditor.actions.publishButton') }}
-                  </button>
-                </div>
-
-                <div v-if="course.status === 'published'" class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('courseEditor.actions.unpublishCourse') }}</p>
-                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('courseEditor.actions.unpublishHint') }}</p>
-                  </div>
-                  <button
-                    @click="unpublishCourse"
-                    class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
-                  >
-                    {{ $t('courseEditor.actions.unpublishButton') }}
-                  </button>
-                </div>
-
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-[var(--color-text-primary)]">{{ $t('courseEditor.actions.archiveCourse') }}</p>
-                    <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('courseEditor.actions.archiveHint') }}</p>
-                  </div>
-                  <button
-                    @click="archiveCourse"
-                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                  >
-                    {{ $t('courseEditor.actions.archiveButton') }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Danger Zone -->
-            <div class="rounded-lg p-4 border" style="background-color: var(--color-error-bg, #fef2f2); border-color: var(--color-error-border, #fecaca);">
-              <h3 class="text-lg font-semibold mb-4" style="color: var(--color-error-text, #b91c1c);">{{ $t('courseEditor.actions.dangerZone') }}</h3>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="font-medium" style="color: var(--color-error-text, #b91c1c);">{{ $t('courseEditor.actions.deleteCourse') }}</p>
-                  <p class="text-sm" style="color: var(--color-error, #dc2626);">{{ $t('courseEditor.actions.deleteHint') }}</p>
-                </div>
-                <button
-                  @click="deleteCourse"
-                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  {{ $t('courseEditor.actions.deleteButton') }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CourseActionsTab
+          v-else-if="activeTab === 'actions'"
+          :course="course"
+          @publish="publishCourse"
+          @unpublish="unpublishCourse"
+          @archive="archiveCourse"
+          @delete="deleteCourse"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useWindowStore } from '@/application/stores/modules/ui/window.store'
+import { onMounted } from 'vue'
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import {
-  adminGetCourseDetail,
-  adminUpdateCourse,
-  adminGetCourseChapters,
-  adminPublishCourse,
-  adminUnpublishCourse,
-  adminArchiveCourse,
-  adminDeleteCourse,
-  adminDeleteChapter,
-  type AdminCourseDetail,
-  type AdminChapter
-} from '@/application/services/api/panel-admin'
-import { getCategoryTree, type Category, type CategoryTreeNode } from '@/application/services/api/panel-editor'
+import { useCourseEditor } from './composables/useCourseEditor'
+import CourseMetadataForm from './CourseMetadataForm.vue'
+import CourseChaptersTab from './CourseChaptersTab.vue'
+import CourseActionsTab from './CourseActionsTab.vue'
 
 interface Props {
   window: LsxWindow
@@ -374,265 +113,31 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const windowStore = useWindowStore()
-const { t } = useI18n()
 
-// State
-const course = ref<AdminCourseDetail | null>(null)
-const chapters = ref<AdminChapter[]>([])
-const categories = ref<CategoryTreeNode[]>([])
-const loading = ref(true)
-const loadingChapters = ref(false)
-const loadingCategories = ref(false)
-const error = ref<string | null>(null)
-const saving = ref(false)
-const activeTab = ref<'metadata' | 'chapters' | 'actions'>('metadata')
+const {
+  course,
+  chapters,
+  loading,
+  loadingChapters,
+  loadingCategories,
+  error,
+  saving,
+  activeTab,
+  form,
+  tagsInput,
+  tabs,
+  flatCategories,
+  loadCourse,
+  resetForm,
+  saveCourse,
+  publishCourse,
+  unpublishCourse,
+  archiveCourse,
+  deleteCourse,
+  openChapterEditor,
+  deleteChapter
+} = useCourseEditor(() => props.window, () => emit('close'))
 
-// Form
-const form = ref({
-  title: '',
-  description: '',
-  category_id: null as number | null,
-  level: 'beginner',
-  language: 'de',
-  price: 0,
-  is_public: true,
-  tags: [] as string[]
-})
-
-const tagsInput = ref('')
-
-// Flatten categories with indentation for hierarchical display
-const flatCategories = computed(() => {
-  const result: Array<Category & { indent: string }> = []
-
-  const flatten = (cats: CategoryTreeNode[], level: number) => {
-    for (const cat of cats) {
-      result.push({
-        ...cat,
-        indent: '\u2014'.repeat(level) + (level > 0 ? ' ' : '')
-      })
-      if (cat.children && cat.children.length > 0) {
-        flatten(cat.children, level + 1)
-      }
-    }
-  }
-
-  flatten(categories.value, 0)
-  return result
-})
-
-// Computed
-const tabs = computed(() => [
-  { id: 'metadata', label: t('courseEditor.tabs.metadata'), icon: '📝' },
-  { id: 'chapters', label: t('courseEditor.tabs.chapters'), icon: '📚' },
-  { id: 'actions', label: t('courseEditor.tabs.actions'), icon: '⚡' }
-])
-
-const courseId = computed(() => props.window.payload?.courseId as string)
-
-// Methods
-const loadCategories = async () => {
-  loadingCategories.value = true
-  try {
-    const tree = await getCategoryTree(false)
-    categories.value = tree.categories || []
-  } catch (err) {
-    console.error('Failed to load categories:', err)
-    categories.value = []
-  } finally {
-    loadingCategories.value = false
-  }
-}
-
-const loadCourse = async () => {
-  if (!courseId.value) {
-    error.value = t('courseEditor.errors.noCourseId')
-    loading.value = false
-    return
-  }
-
-  loading.value = true
-  error.value = null
-
-  try {
-    // Load categories in parallel
-    loadCategories()
-
-    course.value = await adminGetCourseDetail(courseId.value)
-    populateForm()
-  } catch (err: any) {
-    console.error('Error loading course:', err)
-    error.value = err.response?.data?.message || t('courseEditor.errors.loadError')
-  } finally {
-    loading.value = false
-  }
-}
-
-const loadChapters = async () => {
-  if (!courseId.value) return
-
-  loadingChapters.value = true
-  try {
-    chapters.value = await adminGetCourseChapters(courseId.value)
-  } catch (err: any) {
-    console.error('Error loading chapters:', err)
-  } finally {
-    loadingChapters.value = false
-  }
-}
-
-const populateForm = () => {
-  if (!course.value) return
-
-  form.value = {
-    title: course.value.title,
-    description: course.value.description || '',
-    category_id: course.value.category_id || null,
-    level: course.value.level || 'beginner',
-    language: course.value.language || 'de',
-    price: course.value.price || 0,
-    is_public: course.value.is_public,
-    tags: course.value.tags || []
-  }
-
-  tagsInput.value = (course.value.tags || []).join(', ')
-}
-
-const resetForm = () => {
-  populateForm()
-}
-
-const saveCourse = async () => {
-  if (!courseId.value || !form.value.title.trim()) return
-
-  saving.value = true
-  try {
-    // Parse tags from input
-    const tags = tagsInput.value
-      .split(',')
-      .map(t => t.trim())
-      .filter(t => t.length > 0)
-
-    const updateData = {
-      title: form.value.title,
-      description: form.value.description || undefined,
-      category_id: form.value.category_id,
-      level: form.value.level,
-      language: form.value.language,
-      price: form.value.price,
-      is_public: form.value.is_public,
-      tags: tags.length > 0 ? tags : undefined
-    }
-
-    course.value = await adminUpdateCourse(courseId.value, updateData)
-    populateForm()
-
-    // Update window title
-    windowStore.updateWindowPayload(props.window.id, {
-      course: course.value
-    })
-
-    alert(t('courseEditor.alerts.changesSaved'))
-  } catch (err: any) {
-    console.error('Error saving course:', err)
-    alert(t('courseEditor.errors.saveError') + ': ' + (err.response?.data?.message || err.message))
-  } finally {
-    saving.value = false
-  }
-}
-
-const publishCourse = async () => {
-  if (!courseId.value || !confirm(t('courseEditor.alerts.publishConfirm'))) return
-
-  try {
-    await adminPublishCourse(courseId.value)
-    await loadCourse()
-    alert(t('courseEditor.alerts.coursePublished'))
-  } catch (err: any) {
-    console.error('Error publishing course:', err)
-    alert(t('courseEditor.errors.publishError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-const unpublishCourse = async () => {
-  if (!courseId.value || !confirm(t('courseEditor.alerts.unpublishConfirm'))) return
-
-  try {
-    await adminUnpublishCourse(courseId.value)
-    await loadCourse()
-    alert(t('courseEditor.alerts.courseUnpublished'))
-  } catch (err: any) {
-    console.error('Error unpublishing course:', err)
-    alert(t('courseEditor.errors.unpublishError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-const archiveCourse = async () => {
-  if (!courseId.value || !confirm(t('courseEditor.alerts.archiveConfirm'))) return
-
-  try {
-    await adminArchiveCourse(courseId.value)
-    await loadCourse()
-    alert(t('courseEditor.alerts.courseArchived'))
-  } catch (err: any) {
-    console.error('Error archiving course:', err)
-    alert(t('courseEditor.errors.archiveError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-const deleteCourse = async () => {
-  if (!courseId.value) return
-
-  const confirmed = confirm(t('courseEditor.alerts.deleteConfirm'))
-
-  if (!confirmed) return
-
-  try {
-    await adminDeleteCourse(courseId.value, t('courseEditor.alerts.deleteReason'))
-    alert(t('courseEditor.alerts.courseDeleted'))
-    emit('close')
-  } catch (err: any) {
-    console.error('Error deleting course:', err)
-    alert(t('courseEditor.errors.deleteError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-const openChapterEditor = (chapter: AdminChapter | null) => {
-  windowStore.openWindow({
-    type: 'admin-kapitel-editor',
-    title: chapter ? t('courseEditor.chapters.editTitle', { title: chapter.title }) : t('courseEditor.chapters.newTitle'),
-    icon: '📚',
-    payload: {
-      courseId: courseId.value,
-      courseTitle: course.value?.title,
-      chapterId: chapter?.chapter_id,
-      chapter: chapter
-    }
-  })
-}
-
-const deleteChapter = async (chapterId: string) => {
-  if (!confirm(t('courseEditor.alerts.chapterDeleteConfirm'))) return
-
-  try {
-    await adminDeleteChapter(chapterId, t('courseEditor.alerts.chapterDeleteReason'))
-    await loadChapters()
-    alert(t('courseEditor.alerts.chapterDeleted'))
-  } catch (err: any) {
-    console.error('Error deleting chapter:', err)
-    alert(t('courseEditor.errors.chapterDeleteError') + ': ' + (err.response?.data?.message || err.message))
-  }
-}
-
-// Watch for tab changes
-watch(activeTab, (newTab) => {
-  if (newTab === 'chapters' && chapters.value.length === 0) {
-    loadChapters()
-  }
-})
-
-// Lifecycle
 onMounted(() => {
   loadCourse()
 })

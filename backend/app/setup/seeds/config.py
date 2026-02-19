@@ -1,23 +1,22 @@
 """
-LernsystemX Setup - Seed Data - System Configuration
+LernsystemX Setup - Seed Data - System Features
 
-Seeds initial data for:
-- System features (25 features across 10 categories)
-  - Audio (1): speech_to_text
-  - Collaboration (7): peer_instruction, peer_review, team_case, learning_journal,
-      project_portfolio, project_based_learning, inverted_classroom
-  - Exam Systems (3): ihk_exam_system, practical_exam_engine, chapter_completion_system
-  - Gamification (3): adaptive_difficulty, xp_quest_system, daily_recall
-  - Interactive Tools (1): whiteboard_engine
-  - IT Environments (4): it_sandbox, code_sandbox, network_simulation, terminal_access
-  - Learning Paths (1): learning_path_generator
-  - Meta Features (1): timer_wrapper
-  - Tutor (3): npc_tutor, socratic_dialog, comprehension_checker
-  - Visualization (1): mindmap_generator
-- Course categories (8 categories)
+Seeds initial data for 25 system features across 10 categories:
+- Audio (1): speech_to_text
+- Collaboration (7): peer_instruction, peer_review, team_case, learning_journal,
+    project_portfolio, project_based_learning, inverted_classroom
+- Exam Systems (3): ihk_exam_system, practical_exam_engine, chapter_completion_system
+- Gamification (3): adaptive_difficulty, xp_quest_system, daily_recall
+- Interactive Tools (1): whiteboard_engine
+- IT Environments (4): it_sandbox, code_sandbox, network_simulation, terminal_access
+- Learning Paths (1): learning_path_generator
+- Meta Features (1): timer_wrapper
+- Tutor (3): npc_tutor, socratic_dialog, comprehension_checker
+- Visualization (1): mindmap_generator
 
 Source of Truth: backend/migrations/11_System/038_system_features.sql
 
+For course categories, see: config_part2.py
 For learning methods and user roles, see:
 - seeds.py: Core seeding functions
 - seeds_roles.py: User roles
@@ -33,10 +32,12 @@ from app.infrastructure.persistence.database.connection import fetch_one, execut
 
 class SeedDataConfig:
     """
-    Seed system configuration data
+    Seed system configuration data - System Features
 
-    Provides predefined data for 25 system features and 8 course categories.
+    Provides predefined data for 25 system features.
     Source of Truth: backend/migrations/11_System/038_system_features.sql
+
+    For course categories, see SeedDataConfigCategories in config_part2.py.
     """
 
     @classmethod
@@ -380,141 +381,8 @@ class SeedDataConfig:
 
         return created
 
-    @classmethod
-    def seed_categories(cls, skip_existing: bool = True) -> int:
-        """
-        Seed 8 course categories
 
-        Categories:
-        - Programming
-        - Languages
-        - Business
-        - Science
-        - Mathematics
-        - History
-        - Art & Design
-        - Technology
-
-        Args:
-            skip_existing: Skip if categories already exist
-
-        Returns:
-            Number of categories created
-
-        Example:
-            >>> count = SeedDataConfig.seed_categories()
-            >>> print(f"Created {count} course categories")
-        """
-        # Check if categories already exist
-        if skip_existing:
-            existing = fetch_one("SELECT COUNT(*) FROM courses.course_categories")
-            if existing and existing['count'] > 0:
-                return 0
-
-        categories = [
-            {
-                'category_name': 'Programming',
-                'description': 'Software development and programming languages',
-                'icon': 'code',
-                'color': '#FF6B6B',
-                'display_order': 1,
-                'is_active': True
-            },
-            {
-                'category_name': 'Languages',
-                'description': 'Foreign language learning and linguistics',
-                'icon': 'globe',
-                'color': '#4ECDC4',
-                'display_order': 2,
-                'is_active': True
-            },
-            {
-                'category_name': 'Business',
-                'description': 'Business management, economics, and entrepreneurship',
-                'icon': 'briefcase',
-                'color': '#45B7D1',
-                'display_order': 3,
-                'is_active': True
-            },
-            {
-                'category_name': 'Science',
-                'description': 'Natural sciences, physics, chemistry, and biology',
-                'icon': 'flask',
-                'color': '#96CEB4',
-                'display_order': 4,
-                'is_active': True
-            },
-            {
-                'category_name': 'Mathematics',
-                'description': 'Mathematics, calculus, algebra, and statistics',
-                'icon': 'calculator',
-                'color': '#FFEAA7',
-                'display_order': 5,
-                'is_active': True
-            },
-            {
-                'category_name': 'History',
-                'description': 'Historical events, cultures, and world history',
-                'icon': 'book',
-                'color': '#DDA15E',
-                'display_order': 6,
-                'is_active': True
-            },
-            {
-                'category_name': 'Art & Design',
-                'description': 'Visual arts, graphic design, and creative skills',
-                'icon': 'palette',
-                'color': '#BC6C25',
-                'display_order': 7,
-                'is_active': True
-            },
-            {
-                'category_name': 'Technology',
-                'description': 'IT infrastructure, networks, and emerging technologies',
-                'icon': 'cpu',
-                'color': '#6C63FF',
-                'display_order': 8,
-                'is_active': True
-            }
-        ]
-
-        created = 0
-        for category in categories:
-            try:
-                result = execute_query(
-                    """
-                    INSERT INTO courses.course_categories (
-                        category_name, description, icon, color, display_order,
-                        is_active, created_at
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s, NOW())
-                    ON CONFLICT (category_name) DO NOTHING
-                    RETURNING *
-                    """,
-                    (
-                        category['category_name'],
-                        category['description'],
-                        category['icon'],
-                        category['color'],
-                        category['display_order'],
-                        category['is_active']
-                    ),
-                    fetch_one=True
-                )
-                if result:
-                    created += 1
-            except Exception as e:
-                print(f"Error creating category '{category['category_name']}': {str(e)}")
-
-        return created
-
-
-# Convenience functions
+# Convenience function
 def seed_system_features(**kwargs) -> int:
     """Quick function to seed system features"""
     return SeedDataConfig.seed_system_features(**kwargs)
-
-
-def seed_categories(**kwargs) -> int:
-    """Quick function to seed course categories"""
-    return SeedDataConfig.seed_categories(**kwargs)

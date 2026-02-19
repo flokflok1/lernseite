@@ -8,12 +8,16 @@ from app.domain.ports.ai.ports import (
     AIJobPort,
     PromptTemplatePort,
     LearningMethodCatalogPort,
-    LearningMethodGroupPort
+    LearningMethodGroupPort,
+    AIAdapterPort,
+    AIJobServicePort
 )
 
 __all__ = [
     'AIJobPort',
     'PromptTemplatePort',
     'LearningMethodCatalogPort',
-    'LearningMethodGroupPort'
+    'LearningMethodGroupPort',
+    'AIAdapterPort',
+    'AIJobServicePort'
 ]

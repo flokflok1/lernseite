@@ -330,7 +330,7 @@ Das **Admin Panel** ist eine **System Administration Interface** unter `/admin` 
 
 **Wichtige Eigenschaften:**
 - ✅ **GBA-Guard**: Nur Benutzer mit `admin:system` Permission
-- ✅ **12 Main Sections**: Users, Groups, Organisations, Courses, Categories, AI Studio, Translations, Billing, Analytics, Audit Logs, LM Routing, System Settings
+- ✅ **12 Main Sections**: Users, Groups, Organisations, Courses, Categories, AI Editor, Translations, Billing, Analytics, Audit Logs, LM Routing, System Settings
 - ✅ **Backend Aligned**: Mirrors Backend API structure (`/api/v1/admin-panel/*`)
 - ✅ **Groups Management**: Verwaltung von Gruppen, Permissions, Member Assignment
 
@@ -384,7 +384,7 @@ Das **Admin Panel** ist eine **System Administration Interface** unter `/admin` 
       component: () => import('@/presentation/features/panel/pages/PanelCategoriesPage.vue'),
     },
     {
-      path: 'ai-studio',
+      path: 'ai-editor',
       name: 'PanelAIStudio',
       component: () => import('@/presentation/features/panel/pages/PanelKIStudioPage.vue'),
     },
@@ -617,7 +617,7 @@ const menuItems = computed(() => [
   { path: '/panel/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
   { path: '/panel/kurs-editor', label: t('panel.nav.courseEditor'), icon: '📝' },
   { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
-  { path: '/panel/ai-studio', label: t('panel.nav.aiStudio'), icon: '🤖' },
+  { path: '/panel/ai-editor', label: t('panel.nav.aiStudio'), icon: '🤖' },
   { path: '/panel/translations', label: t('panel.nav.translations'), icon: '🌐' },
   { path: '/panel/billing', label: t('panel.nav.billing'), icon: '💰' },
   { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },

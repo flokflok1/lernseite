@@ -16,10 +16,10 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User as UserAPIDTO, LoginRequest, RegisterRequest } from '@/application/services/api/panel-user'
-import type { ProfileResponse } from '@/application/services/api/panel-user'
-import * as authApi from '@/application/services/api/panel-user'
-import * as profileApi from '@/application/services/api/panel-user'
+import type { User as UserAPIDTO, LoginRequest, RegisterRequest } from '@/infrastructure/api/clients/panel/user'
+import type { ProfileResponse } from '@/infrastructure/api/clients/panel/user'
+import * as authApi from '@/infrastructure/api/clients/panel/user'
+import * as profileApi from '@/infrastructure/api/clients/panel/user'
 
 export const useAuthStore = defineStore('auth', () => {
   // State

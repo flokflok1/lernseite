@@ -1,30 +1,34 @@
 """
 LernsystemX Setup - Verification Check Methods
 
-Contains all individual verification check methods for:
+Contains individual verification check methods for:
 - Database schema validation
-- Seed data verification
-- System configuration validation
-- Infrastructure checks (files, dependencies, environment)
+- Seed data verification (learning methods, groups, categories)
+- Account and organisation checks
 
-This module is imported by verify.py for verification orchestration.
+Infrastructure checks (file permissions, dependencies, environment)
+are defined in verify_part2.py and inherited via InfrastructureVerificationChecks.
+
+This module is imported by verify_final.py for verification orchestration.
 
 ISO 9001:2015 compliant - Installation quality assurance
 """
 
-from typing import Dict, List, Tuple
-import os
-import sys
+from typing import Dict
 
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.setup.diagnostics.verify_part2 import InfrastructureVerificationChecks
 
 
-class VerificationChecks:
+class VerificationChecks(InfrastructureVerificationChecks):
     """
     Verification check methods.
 
     Contains all individual verification checks.
     Called by SetupVerification.verify_all() orchestrator.
+
+    Database and seed data checks are defined here.
+    Infrastructure checks are inherited from InfrastructureVerificationChecks.
     """
 
     # Tables with schema prefixes (schema.table format)
@@ -44,15 +48,6 @@ class VerificationChecks:
         ('core', 'audit_logs'),
         ('core', 'migration_history'),
         ('support_systems', 'system_features')
-    ]
-
-    REQUIRED_DIRECTORIES = [
-        'uploads',
-        'uploads/courses',
-        'uploads/profiles',
-        'logs',
-        'cache',
-        'temp'
     ]
 
     @staticmethod
@@ -365,143 +360,4 @@ class VerificationChecks:
             return {
                 'passed': False,
                 'message': f'Organisation check failed: {str(e)}'
-            }
-
-    @classmethod
-    def check_file_permissions(cls) -> Dict:
-        """Check required directories exist and are writable"""
-        missing_dirs = []
-        unwritable_dirs = []
-
-        for directory in cls.REQUIRED_DIRECTORIES:
-            dir_path = os.path.join(os.getcwd(), directory)
-
-            if not os.path.exists(dir_path):
-                missing_dirs.append(directory)
-            elif not os.access(dir_path, os.W_OK):
-                unwritable_dirs.append(directory)
-
-        if missing_dirs or unwritable_dirs:
-            errors = []
-            if missing_dirs:
-                errors.append(f"Missing: {', '.join(missing_dirs)}")
-            if unwritable_dirs:
-                errors.append(f"Not writable: {', '.join(unwritable_dirs)}")
-
-            return {
-                'passed': False,
-                'message': '; '.join(errors),
-                'details': {
-                    'missing': missing_dirs,
-                    'unwritable': unwritable_dirs
-                }
-            }
-
-        return {
-            'passed': True,
-            'message': f'All {len(cls.REQUIRED_DIRECTORIES)} required directories exist and are writable'
-        }
-
-    @staticmethod
-    def check_dependencies() -> Dict:
-        """Check critical Python dependencies are installed"""
-        critical_packages = [
-            'flask',
-            'psycopg',
-            'bcrypt',
-            'jwt',
-            'redis',
-            'celery',
-            'cryptography'
-        ]
-
-        missing_packages = []
-
-        for package in critical_packages:
-            try:
-                __import__(package)
-            except ImportError:
-                missing_packages.append(package)
-
-        if missing_packages:
-            return {
-                'passed': False,
-                'message': f'Missing packages: {", ".join(missing_packages)}',
-                'details': {'missing': missing_packages}
-            }
-
-        return {
-            'passed': True,
-            'message': 'All critical dependencies installed',
-            'details': {
-                'checked': len(critical_packages),
-                'packages': critical_packages
-            }
-        }
-
-    @staticmethod
-    def check_environment() -> Dict:
-        """Check critical environment variables"""
-        critical_env_vars = [
-            'DATABASE_URL',
-            'SECRET_KEY',
-            'FLASK_ENV'
-        ]
-
-        missing_vars = []
-        empty_vars = []
-
-        for var in critical_env_vars:
-            value = os.getenv(var)
-            if value is None:
-                missing_vars.append(var)
-            elif not value.strip():
-                empty_vars.append(var)
-
-        if missing_vars or empty_vars:
-            errors = []
-            if missing_vars:
-                errors.append(f"Missing: {', '.join(missing_vars)}")
-            if empty_vars:
-                errors.append(f"Empty: {', '.join(empty_vars)}")
-
-            return {
-                'passed': False,
-                'message': '; '.join(errors),
-                'details': {
-                    'missing': missing_vars,
-                    'empty': empty_vars
-                }
-            }
-
-        return {
-            'passed': True,
-            'message': 'All critical environment variables are set'
-        }
-
-    @staticmethod
-    def check_installation_marker() -> Dict:
-        """Check .lsx-installed marker file exists"""
-        marker_file = '.lsx-installed'
-
-        if not os.path.exists(marker_file):
-            return {
-                'passed': False,
-                'message': 'Installation marker file not found'
-            }
-
-        try:
-            with open(marker_file, 'r') as f:
-                content = f.read()
-
-            return {
-                'passed': True,
-                'message': 'Installation marker file exists',
-                'details': {'content': content[:100]}
-            }
-
-        except Exception as e:
-            return {
-                'passed': False,
-                'message': f'Could not read installation marker: {str(e)}'
             }

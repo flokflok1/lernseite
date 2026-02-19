@@ -33,7 +33,7 @@ if False:
     SyncOperation, SyncChange, SyncResolution
 )
 from app.infrastructure.persistence.repositories.i18n.translations import I18nTranslationsRepository as TranslationRepository
-from app.infrastructure.utils.exceptions import ValidationError, NotFoundError, BusinessLogicError
+from app.infrastructure.error_handling.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.infrastructure.persistence.database import get_connection
 
 logger = logging.getLogger(__name__)

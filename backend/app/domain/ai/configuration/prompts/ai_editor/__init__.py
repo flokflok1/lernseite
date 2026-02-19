@@ -9,6 +9,8 @@ Exports:
 - init_ai_editor_prompts: Initialize all 6 wizard step prompts
 """
 
+import logging
+
 from ._base import AI_EDITOR_SYSTEM_BASE
 from .source import init_source_prompt
 from .theory import init_theory_prompt
@@ -16,6 +18,8 @@ from .lessons import init_lessons_prompt
 from .methods import init_methods_prompt
 from .review import init_review_prompt
 from .finalize import init_finalize_prompt
+
+logger = logging.getLogger(__name__)
 
 
 # List of all AI Editor prompt codes
@@ -43,8 +47,7 @@ def init_ai_editor_prompts() -> None:
 
     Called during application initialization.
     """
-    from flask import current_app
-    current_app.logger.info("Initializing AI Editor prompt templates...")
+    logger.info("Initializing AI Editor prompt templates...")
 
     init_source_prompt()
     init_theory_prompt()
@@ -53,7 +56,7 @@ def init_ai_editor_prompts() -> None:
     init_review_prompt()
     init_finalize_prompt()
 
-    current_app.logger.info("Registered 6 AI Editor prompt templates")
+    logger.info("Registered 6 AI Editor prompt templates")
 
 
 __all__ = [

@@ -2,9 +2,11 @@
   Admin Course Create Window - Einfach
 
   Flow:
-  1. Ohne Datei: Manuell alle Felder ausfüllen
-  2. Mit Datei: KI füllt die Felder aus (Titel, Beschreibung, Kategorie, Level, Sprache)
+  1. Ohne Datei: Manuell alle Felder ausfuellen
+  2. Mit Datei: KI fuellt die Felder aus (Titel, Beschreibung, Kategorie, Level, Sprache)
   3. Keine Module-Generierung hier - das passiert auf der Detail-Seite
+
+  File upload/AI logic extracted to composables/useCourseFileUpload.ts
 
   Phase: C2.1 - Kurs-Erstellen
 -->
@@ -16,7 +18,7 @@
       <div>
         <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">Neuen Kurs erstellen</h3>
         <p class="text-sm text-[var(--color-text-secondary)]">
-          {{ selectedFile ? 'KI kann die Felder ausfüllen' : 'Felder manuell ausfüllen' }}
+          {{ selectedFile ? 'KI kann die Felder ausfuellen' : 'Felder manuell ausfuellen' }}
         </p>
       </div>
     </div>
@@ -43,7 +45,7 @@
               class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:border-[var(--color-primary)] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <span>📄</span>
-              <span>Datei auswählen</span>
+              <span>Datei auswaehlen</span>
             </button>
             <span class="text-xs text-[var(--color-text-secondary)]">
               PDF, Word, PowerPoint, Text (max. 50 MB)
@@ -57,7 +59,7 @@
             />
           </div>
 
-          <!-- File ausgewählt -->
+          <!-- File ausgewaehlt -->
           <div v-else>
             <div class="flex items-center gap-3 p-3 bg-[var(--color-bg)] border border-[var(--color-success,#22c55e)]/30 rounded-lg">
               <span class="text-2xl">{{ getFileIcon(selectedFile.name) }}</span>
@@ -78,7 +80,7 @@
               </button>
             </div>
 
-            <!-- KI Felder ausfüllen Button -->
+            <!-- KI Felder ausfuellen Button -->
             <button
               v-if="aiStatus === 'idle'"
               type="button"
@@ -87,10 +89,10 @@
               class="mt-3 w-full px-4 py-2 text-sm bg-gradient-to-r from-[var(--color-magic-start,#8B5CF6)] to-[var(--color-magic-end,#EC4899)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
             >
               <span>✨</span>
-              <span>Mit KI ausfüllen</span>
+              <span>Mit KI ausfuellen</span>
             </button>
 
-            <!-- KI läuft -->
+            <!-- KI laeuft -->
             <div v-else-if="aiStatus === 'processing'" class="mt-3 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
               <span class="animate-pulse">✨</span>
               <span>KI analysiert Dokument...</span>
@@ -99,7 +101,7 @@
             <!-- KI fertig -->
             <div v-else-if="aiStatus === 'completed'" class="mt-3 flex items-center gap-2 text-sm text-[var(--color-success,#22c55e)]">
               <span>✅</span>
-              <span>Felder wurden ausgefüllt</span>
+              <span>Felder wurden ausgefuellt</span>
             </div>
           </div>
 
@@ -117,7 +119,7 @@
             required
             :disabled="isProcessing"
             class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent disabled:opacity-50"
-            placeholder="z.B. Einführung in Python"
+            placeholder="z.B. Einfuehrung in Python"
           />
         </div>
 
@@ -162,7 +164,7 @@
               :disabled="isProcessing"
               class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent disabled:opacity-50"
             >
-              <option value="beginner">Anfänger</option>
+              <option value="beginner">Anfaenger</option>
               <option value="intermediate">Fortgeschritten</option>
               <option value="advanced">Experte</option>
             </select>
@@ -181,7 +183,7 @@
           >
             <option value="de">Deutsch</option>
             <option value="en">Englisch</option>
-            <option value="fr">Französisch</option>
+            <option value="fr">Franzoesisch</option>
             <option value="es">Spanisch</option>
           </select>
         </div>
@@ -202,7 +204,7 @@
               class="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:border-[var(--color-primary)] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <span>🤖</span>
-              <span>{{ form.ai_model_override || 'Modell auswählen' }}</span>
+              <span>{{ form.ai_model_override || 'Modell auswaehlen' }}</span>
             </button>
             <button
               v-if="form.ai_model_override"
@@ -255,6 +257,7 @@ import { usePanelStore } from '@/application/stores/modules/admin/panel.store'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
+import { useCourseFileUpload } from './composables/useCourseFileUpload'
 
 interface Props {
   window: LsxWindow
@@ -285,20 +288,22 @@ const form = ref({
   ai_model_override: ''
 })
 
-// Model selector callback ID for cross-window communication
 const modelSelectorCallbackId = ref<string | null>(null)
-
 const categories = ref<Array<{ category_id: string; name: string }>>([])
-
-const selectedFile = ref<File | null>(null)
-const fileInput = ref<HTMLInputElement | null>(null)
-const fileError = ref<string | null>(null)
-
 const isCreating = ref(false)
-const aiStatus = ref<'idle' | 'processing' | 'completed' | 'failed'>('idle')
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
-const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt']
+// File upload composable
+const {
+  selectedFile,
+  fileInput,
+  fileError,
+  aiStatus,
+  handleFileSelect,
+  clearFile,
+  formatFileSize,
+  getFileIcon,
+  fillFieldsWithAI
+} = useCourseFileUpload(form)
 
 // ============================================================================
 // Computed
@@ -315,131 +320,6 @@ const canCreate = computed(() =>
 // ============================================================================
 // Methods
 // ============================================================================
-
-const handleFileSelect = (event: Event): void => {
-  const target = event.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
-    validateAndSetFile(target.files[0])
-  }
-}
-
-const validateAndSetFile = (file: File): void => {
-  fileError.value = null
-  aiStatus.value = 'idle'
-
-  const ext = file.name.split('.').pop()?.toLowerCase() || ''
-  if (!ALLOWED_EXTENSIONS.includes(ext)) {
-    fileError.value = 'Nur PDF, Word, PowerPoint und Text-Dateien sind erlaubt'
-    return
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    fileError.value = 'Datei ist zu groß (max. 50 MB)'
-    return
-  }
-
-  selectedFile.value = file
-}
-
-const clearFile = (): void => {
-  selectedFile.value = null
-  fileError.value = null
-  aiStatus.value = 'idle'
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
-}
-
-const getFileIcon = (filename: string): string => {
-  const ext = filename.split('.').pop()?.toLowerCase() || ''
-  const icons: Record<string, string> = {
-    pdf: '📕',
-    doc: '📘',
-    docx: '📘',
-    ppt: '📙',
-    pptx: '📙',
-    txt: '📄'
-  }
-  return icons[ext] || '📄'
-}
-
-const fillFieldsWithAI = async (): Promise<void> => {
-  if (!selectedFile.value) return
-
-  aiStatus.value = 'processing'
-
-  try {
-    // Start AI job to analyze document and extract course metadata
-    const job = await panelStore.startAIJob(
-      selectedFile.value,
-      'Analysiere dieses Dokument und extrahiere: 1) Einen passenden Kurstitel, 2) Eine kurze Beschreibung, 3) Das Schwierigkeitslevel (beginner/intermediate/advanced), 4) Die Sprache (de/en/fr/es). Antworte im JSON-Format.'
-    )
-
-    // Poll for result - use longer interval to avoid rate limiting
-    let pollCount = 0
-    const maxPolls = 60 // Max 2 minutes (60 * 3 seconds)
-
-    const pollResult = async (): Promise<void> => {
-      pollCount++
-
-      if (pollCount > maxPolls) {
-        aiStatus.value = 'failed'
-        fileError.value = 'Timeout: KI-Analyse dauert zu lange'
-        return
-      }
-
-      try {
-        // Use direct API call to avoid store's automatic polling
-        const { adminGetAIJob } = await import('@/application/services/api/panel-admin')
-        const result = await adminGetAIJob(job.id)
-
-        if (result.status === 'completed' && result.output_data) {
-          // Fill form with AI results - data is nested under 'course' key
-          const courseData = result.output_data.course || result.output_data
-          console.log('[AI] Received output_data:', result.output_data)
-          console.log('[AI] Course data to fill:', courseData)
-
-          if (courseData.title) form.value.title = courseData.title
-          if (courseData.description) form.value.description = courseData.description
-          if (courseData.level) form.value.level = courseData.level
-          if (courseData.language) form.value.language = courseData.language
-
-          aiStatus.value = 'completed'
-        } else if (result.status === 'failed') {
-          aiStatus.value = 'failed'
-          fileError.value = result.error_message || 'KI-Analyse fehlgeschlagen'
-        } else if (result.status === 'queued' || result.status === 'processing') {
-          // Still processing, poll again with 3 second interval
-          setTimeout(pollResult, 3000)
-        }
-      } catch (pollError: any) {
-        // On rate limit (429), wait longer and retry
-        if (pollError.status === 429) {
-          console.warn('[AI] Rate limited, waiting 5 seconds...')
-          setTimeout(pollResult, 5000)
-        } else {
-          console.error('[AI] Poll error:', pollError)
-          // On other errors, still try again but with longer delay
-          setTimeout(pollResult, 4000)
-        }
-      }
-    }
-
-    // Start polling after 3 seconds
-    setTimeout(pollResult, 3000)
-  } catch (error: any) {
-    aiStatus.value = 'failed'
-    fileError.value = error.message || 'Fehler bei der KI-Analyse'
-  }
-}
 
 const createCourse = async (): Promise<void> => {
   if (!canCreate.value) return
@@ -458,7 +338,6 @@ const createCourse = async (): Promise<void> => {
       is_public: false
     }
 
-    // Add AI model override if selected (Phase C3.3)
     if (form.value.ai_model_override) {
       courseData.ai_model_override = form.value.ai_model_override
     }
@@ -469,7 +348,7 @@ const createCourse = async (): Promise<void> => {
     // If file was selected, upload it as course file
     if (selectedFile.value && courseId) {
       try {
-        const { adminUploadCourseFile } = await import('@/application/services/api/panel-admin')
+        const { adminUploadCourseFile } = await import('@/infrastructure/api/clients/panel/admin')
         await adminUploadCourseFile(courseId, selectedFile.value, {
           file_category: 'script',
           display_name: selectedFile.value.name
@@ -481,7 +360,6 @@ const createCourse = async (): Promise<void> => {
 
     emit('close')
 
-    // Navigate to course detail page
     if (courseId) {
       router.push(`/panel/courses/${courseId}`)
     }
@@ -498,7 +376,6 @@ const loadCategories = async (): Promise<void> => {
     await panelStore.loadCategoryTree()
     const tree = panelStore.categoryTree
 
-    // Check if tree is valid and iterable
     if (!tree || !Array.isArray(tree) || tree.length === 0) {
       categories.value = []
       return
@@ -525,12 +402,11 @@ const loadCategories = async (): Promise<void> => {
 
 // Phase C3.3: Model Selector Window
 const openModelSelector = (): void => {
-  // Generate unique callback ID
   modelSelectorCallbackId.value = `model-select-${Date.now()}`
 
   windowStore.openWindow({
     type: 'admin-model-selector',
-    title: 'KI-Modell auswählen',
+    title: 'KI-Modell auswaehlen',
     icon: '🤖',
     payload: {
       scope: 'course',
@@ -543,7 +419,6 @@ const openModelSelector = (): void => {
   })
 }
 
-// Handle model selection from cross-window event
 const handleModelSelected = (event: CustomEvent): void => {
   if (event.detail?.callbackId === modelSelectorCallbackId.value) {
     const model = event.detail.model
@@ -559,12 +434,10 @@ const handleModelSelected = (event: CustomEvent): void => {
 
 onMounted(() => {
   loadCategories()
-  // Listen for model selection events from Model Selector Window
   window.addEventListener('model-selected', handleModelSelected as EventListener)
 })
 
 onUnmounted(() => {
-  // Clean up event listener
   window.removeEventListener('model-selected', handleModelSelected as EventListener)
 })
 </script>

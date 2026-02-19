@@ -15,7 +15,7 @@ import logging
 import uuid
 import json
 
-from app.application.services.tutor_knowledge import TutorKnowledgeService as BaseTutorKnowledgeService
+from app.application.services.system_features.tutor_knowledge import TutorKnowledgeService as BaseTutorKnowledgeService
 
 logger = logging.getLogger(__name__)
 

@@ -5,25 +5,11 @@
  * Includes pagination types, response formatting, validation, and utility functions.
  */
 
-// Types
-export * from './types/index'
-export * from './types/pagination'
-export * from './types/responses'
-export * from './types/entities'
-export * from './types/filters'
-export * from './types/statuses'
+// Types (re-exported via types/index.ts barrel)
+export * from './types'
 
-// Constants
-export * from './constants/index'
-export * from './constants/statuses'
-export * from './constants/priorities'
-export * from './constants/violations'
+// Constants (re-exported via constants/index.ts barrel)
+export * from './constants'
 
-// Utils
-export * from './utils/index'
-export * from './utils/pagination'
-export * from './utils/adapters'
-export * from './utils/errors'
-export * from './utils/time'
-export * from './utils/formatters'
-export * from './utils/validators'
+// Utils (re-exported via utils/index.ts barrel)
+export * from './utils'

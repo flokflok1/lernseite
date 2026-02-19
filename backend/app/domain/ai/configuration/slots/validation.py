@@ -5,7 +5,7 @@ Functions for validating and retrieving LM configurations.
 """
 
 from typing import List, Optional
-from app.domain.ai.configuration.capability_slots import CapabilitySlot
+from app.domain.ai.configuration.slots.capability_slots import CapabilitySlot
 from .requirements import LMSlotConfig, ALL_LM_CONFIGS
 
 

@@ -8,7 +8,7 @@ Runner API - Execution ONLY, NO configuration logic.
 from flask import Blueprint, request, jsonify, g
 from pydantic import ValidationError
 
-from app.application.services.runner import RunnerSessionService
+from app.application.services.content.runner import RunnerSessionService
 from app.domain.models.runner.sessions import (
     SessionStartRequest,
     SessionStateUpdate,
@@ -16,7 +16,7 @@ from app.domain.models.runner.sessions import (
 )
 from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
-from app.api.utils.responses import success_response, error_response
+from app.api.responses.responses import success_response, error_response
 
 bp = Blueprint('runner_sessions', __name__, url_prefix='/runner/sessions')
 

@@ -8,7 +8,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as profileApi from '@/application/services/api/panel-user'
+import * as profileApi from '@/infrastructure/api/clients/panel/user'
 import { useAuthStore } from '../core'
 
 export type ThemePreference = 'system' | 'light' | 'dark'

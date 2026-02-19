@@ -15,7 +15,7 @@ from datetime import datetime
 from .system_operations import api_v1
 from app.api.middleware.auth import permission_required
 from app.infrastructure.persistence.repositories.admin.core import AdminRepository
-from app.domain.models.admin import UserStatsResponse, CourseStatsResponse, SystemStatsResponse
+from app.domain.models.schemas import UserStatsResponse, CourseStatsResponse, SystemStatsResponse
 from app.application.services.system.audit.service import AuditService
 
 

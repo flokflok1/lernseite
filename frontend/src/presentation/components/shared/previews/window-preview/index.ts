@@ -1,0 +1,5 @@
+export { default as PreviewAIJob } from './PreviewAIJob.vue'
+export { default as PreviewCourseCreate } from './PreviewCourseCreate.vue'
+export { default as PreviewCourseEditor } from './PreviewCourseEditor.vue'
+export { default as PreviewKapitelEditor } from './PreviewKapitelEditor.vue'
+export { default as PreviewLessonEditor } from './PreviewLessonEditor.vue'

@@ -30,7 +30,7 @@ def maintenance_mode_check():
     - /static/* (static files)
     """
     # Import here to avoid circular dependency
-    from app.application.services.system.system_mode_service import SystemModeService
+    from app.application.services.system.mode.service import SystemModeService
 
     # Excluded paths that should work even in maintenance mode
     excluded_paths = [
@@ -101,7 +101,7 @@ def get_maintenance_status() -> dict:
     Returns:
         Dict with maintenance mode info
     """
-    from app.application.services.system.system_mode_service import SystemModeService
+    from app.application.services.system.mode.service import SystemModeService
 
     is_maintenance = SystemModeService.is_maintenance_mode()
 

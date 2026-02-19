@@ -6,7 +6,7 @@
  * while maintaining API type compatibility for store state
  */
 
-import type { EditableCourse, EditableChapter, EditableLesson } from '@/application/services/api/panel-editor'
+import type { EditableCourse, EditableChapter, EditableLesson } from '@/infrastructure/api/clients/panel/editor'
 import { Course } from '@/domain/models/content/course/Course.model'
 import { Chapter } from '@/domain/models/content/course/Chapter.model'
 import { Lesson } from '@/domain/models/content/course/Lesson.model'

@@ -72,7 +72,7 @@ Künstliche Intelligenz und Automatisierung.
 |-------|--------------|
 | `01_KI-Pipeline` | 13 KI-Module: Import, Generierung, Validierung |
 | `01a_KI-Pipeline-Implementierung` | Technische Details: Worker, Queue, Cache, Prompts |
-| `02_KI-Authoring-Studio` | Desktop-Tool für KI-gestützte Kurserstellung |
+| `02_AI Editor` | Desktop-Tool für KI-gestützte Kurserstellung |
 | `03_Smart-Agent-System` | Wissens-Caching, Token-Ersparnis (50-70%) |
 | `04_3D-Avatar-Feedback` | VRM-Avatare, Lip-Sync, Tutor-Visualisierung |
 

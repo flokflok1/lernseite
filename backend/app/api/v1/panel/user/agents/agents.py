@@ -24,7 +24,7 @@ from app.domain.models.ai.agent import (
     AgentConfigUpdate,
     AgentStatusResponse
 )
-from app.application.services.agent import AgentService
+from app.application.services.ai.agent import AgentService
 from app.infrastructure.persistence.repositories.agent import AgentRepository
 from app.infrastructure.persistence.repositories.courses import CourseRepositoryCRUD as CourseRepository
 from app.api.middleware.auth import token_required, permission_required, get_current_user

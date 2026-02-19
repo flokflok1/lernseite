@@ -4,7 +4,7 @@ LernsystemX Security Module
 Centralized security, permissions, and RBAC management.
 """
 
-from .permissions import (
+from .gba.permissions import (
     Permissions,
     user_has_permission,
     get_user_permissions,

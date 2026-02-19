@@ -32,19 +32,19 @@ Usage:
     >>> result = chat_completion(messages=[...], model='gpt-4o-mini')
 """
 
-# Core adapter class
+# Core adapter class (moved to infrastructure layer, bridge in ./adapter.py)
 from .adapter import AIAdapter
 
-# Exception classes
-from .exceptions import (
+# Exception classes (moved to infrastructure layer)
+from app.infrastructure.ai.exceptions import (
     AIProviderError,
     AIQuotaExceededError,
     AIInvalidKeyError,
     AITimeoutError
 )
 
-# Configuration
-from .config import PROVIDERS, MODELS_USING_COMPLETION_TOKENS
+# Configuration (moved to infrastructure layer)
+from app.infrastructure.ai.config import PROVIDERS, MODELS_USING_COMPLETION_TOKENS
 
 # Static convenience methods
 from .static import (
@@ -58,8 +58,8 @@ from .context.detector import (
     get_exam_context_sync
 )
 
-# Provider implementations (for advanced usage)
-from .providers import (
+# Provider implementations (moved to infrastructure layer)
+from app.infrastructure.ai.providers import (  # noqa: F401
     OpenAIProvider,
     AnthropicProvider,
     GoogleProvider,

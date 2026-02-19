@@ -109,11 +109,11 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import { getLearningMethodByCode, getTierFromCode } from '@/infrastructure/config/learningMethods'
+import { getLearningMethodByCode, getTierFromCode } from '@/infrastructure/config/learningMethods.helpers'
 import {
   adminCreateLearningMethod,
   adminUpdateLearningMethod
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   window: LsxWindow

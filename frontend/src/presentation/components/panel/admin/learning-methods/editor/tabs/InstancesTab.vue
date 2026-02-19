@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AdminLearningMethod } from '@/application/services/api/panel-admin'
+import type { AdminLearningMethod } from '@/infrastructure/api/clients/panel/admin'
 
 interface Props {
   methods: AdminLearningMethod[]

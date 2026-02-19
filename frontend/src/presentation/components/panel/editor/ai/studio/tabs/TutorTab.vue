@@ -37,8 +37,8 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import { ChapterTheoryView } from '@/presentation/components/public/system-features/tutor/panel/chapter-theory'
-import { LessonExplanationView } from '@/presentation/components/public/system-features/tutor/panel/lesson-explanation'
+import { ChapterTheoryView } from '@/presentation/components/panel/editor/ai/tutor/chapter-theory'
+import { LessonExplanationView } from '@/presentation/components/panel/editor/ai/tutor/lesson-explanation'
 
 // ============================================================================
 // Props

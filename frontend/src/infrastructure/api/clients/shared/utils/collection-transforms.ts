@@ -1,0 +1,269 @@
+/**
+ * Collection Transformation Utilities
+ *
+ * Functions for transforming, normalizing, grouping, filtering,
+ * and sorting collections of data.
+ *
+ * Usage:
+ * import {
+ *   flattenNestedArray,
+ *   normalizeCollection,
+ *   groupByField,
+ *   sortByField
+ * } from '@/infrastructure/api/shared/utils/collection-transforms'
+ */
+
+/**
+ * Flatten nested array (one level deep).
+ *
+ * @param items - Array of items with nested arrays
+ * @param nestedField - Field name containing nested items
+ * @returns Flattened array
+ *
+ * @example
+ * const posts = [
+ *   { id: 1, comments: [{ id: 'c1' }, { id: 'c2' }] },
+ *   { id: 2, comments: [{ id: 'c3' }] }
+ * ]
+ *
+ * const allComments = flattenNestedArray(posts, 'comments')
+ * // Returns: [{ id: 'c1' }, { id: 'c2' }, { id: 'c3' }]
+ */
+export function flattenNestedArray<T, N>(
+  items: T[],
+  nestedField: keyof T
+): N[] {
+  return items.reduce((flattened: N[], item) => {
+    const nested = item[nestedField]
+
+    if (Array.isArray(nested)) {
+      return flattened.concat(nested as N[])
+    }
+
+    return flattened
+  }, [])
+}
+
+/**
+ * Normalize collection into object indexed by key.
+ *
+ * @param items - Array of items to normalize
+ * @param keyField - Field to use as key (default: 'id')
+ * @returns Object with items indexed by key
+ *
+ * @example
+ * const users = [
+ *   { id: '1', name: 'Alice' },
+ *   { id: '2', name: 'Bob' }
+ * ]
+ *
+ * const normalized = normalizeCollection(users, 'id')
+ * // Returns: { '1': { id: '1', name: 'Alice' }, '2': { id: '2', name: 'Bob' } }
+ */
+export function normalizeCollection<T extends Record<string, any>>(
+  items: T[],
+  keyField: keyof T = 'id' as keyof T
+): Record<string | number, T> {
+  return items.reduce((normalized, item) => {
+    const key = item[keyField]
+
+    if (key !== undefined && key !== null) {
+      normalized[key] = item
+    }
+
+    return normalized
+  }, {} as Record<string | number, T>)
+}
+
+/**
+ * Denormalize collection from object to array.
+ *
+ * @param normalized - Object with items indexed by key
+ * @returns Array of items
+ *
+ * @example
+ * const normalized = { '1': { id: '1', name: 'Alice' }, '2': { id: '2', name: 'Bob' } }
+ *
+ * const items = denormalizeCollection(normalized)
+ * // Returns: [{ id: '1', name: 'Alice' }, { id: '2', name: 'Bob' }]
+ */
+export function denormalizeCollection<T>(normalized: Record<string | number, T>): T[] {
+  return Object.values(normalized)
+}
+
+/**
+ * Group array items by field value.
+ *
+ * @param items - Array of items to group
+ * @param groupField - Field to group by
+ * @returns Object with arrays grouped by field value
+ *
+ * @example
+ * const posts = [
+ *   { id: 1, status: 'draft' },
+ *   { id: 2, status: 'published' },
+ *   { id: 3, status: 'draft' }
+ * ]
+ *
+ * const grouped = groupByField(posts, 'status')
+ * // Returns: {
+ * //   draft: [{ id: 1, status: 'draft' }, { id: 3, status: 'draft' }],
+ * //   published: [{ id: 2, status: 'published' }]
+ * // }
+ */
+export function groupByField<T extends Record<string, any>>(
+  items: T[],
+  groupField: keyof T
+): Record<string | number, T[]> {
+  return items.reduce((grouped, item) => {
+    const key = item[groupField]
+
+    if (key !== undefined && key !== null) {
+      if (!grouped[key]) {
+        grouped[key] = []
+      }
+
+      grouped[key].push(item)
+    }
+
+    return grouped
+  }, {} as Record<string | number, T[]>)
+}
+
+/**
+ * Map array with field extraction or transformation.
+ *
+ * @param items - Array of items
+ * @param field - Field to extract or mapping function
+ * @returns Array of extracted values or transformed items
+ *
+ * @example
+ * const users = [{ id: '1', name: 'Alice' }, { id: '2', name: 'Bob' }]
+ *
+ * const names = extractField(users, 'name')
+ * // Returns: ['Alice', 'Bob']
+ *
+ * const display = extractField(users, (user) => `${user.id}: ${user.name}`)
+ * // Returns: ['1: Alice', '2: Bob']
+ */
+export function extractField<T extends Record<string, any>, R>(
+  items: T[],
+  field: keyof T | ((item: T) => R)
+): R[] {
+  return items.map((item) => {
+    if (typeof field === 'function') {
+      return field(item) as R
+    }
+
+    return item[field] as R
+  })
+}
+
+/**
+ * Filter items by field value.
+ *
+ * @param items - Array of items to filter
+ * @param field - Field to filter by
+ * @param values - Value or array of values to match
+ * @returns Filtered array
+ *
+ * @example
+ * const posts = [
+ *   { id: 1, status: 'draft' },
+ *   { id: 2, status: 'published' }
+ * ]
+ *
+ * const published = filterByField(posts, 'status', 'published')
+ * // Returns: [{ id: 2, status: 'published' }]
+ *
+ * const multiple = filterByField(posts, 'status', ['draft', 'published'])
+ * // Returns: all posts
+ */
+export function filterByField<T extends Record<string, any>>(
+  items: T[],
+  field: keyof T,
+  values: any | any[]
+): T[] {
+  const valueArray = Array.isArray(values) ? values : [values]
+
+  return items.filter((item) => valueArray.includes(item[field]))
+}
+
+/**
+ * Merge two arrays by field, keeping items from first array unique.
+ *
+ * @param items1 - Primary array
+ * @param items2 - Secondary array to merge
+ * @param keyField - Field to use for uniqueness (default: 'id')
+ * @returns Merged array with unique items
+ *
+ * @example
+ * const oldPosts = [{ id: 1, name: 'Post 1' }]
+ * const newPosts = [{ id: 2, name: 'Post 2' }]
+ *
+ * const merged = mergeArraysByKey(oldPosts, newPosts, 'id')
+ * // Returns: [{ id: 1, name: 'Post 1' }, { id: 2, name: 'Post 2' }]
+ *
+ * // With duplicate ID
+ * const newPosts2 = [{ id: 1, name: 'Updated Post 1' }]
+ * const merged2 = mergeArraysByKey(oldPosts, newPosts2, 'id')
+ * // Returns: [{ id: 1, name: 'Post 1' }] (old item kept)
+ */
+export function mergeArraysByKey<T extends Record<string, any>>(
+  items1: T[],
+  items2: T[],
+  keyField: keyof T = 'id' as keyof T
+): T[] {
+  const keys = new Set(items1.map((item) => item[keyField]))
+
+  const merged = [...items1]
+
+  for (const item of items2) {
+    if (!keys.has(item[keyField])) {
+      merged.push(item)
+      keys.add(item[keyField])
+    }
+  }
+
+  return merged
+}
+
+/**
+ * Sort array by field value.
+ *
+ * @param items - Array to sort
+ * @param field - Field to sort by
+ * @param order - Sort order ('asc' or 'desc', default: 'asc')
+ * @returns Sorted array
+ *
+ * @example
+ * const users = [
+ *   { id: 3, name: 'Charlie' },
+ *   { id: 1, name: 'Alice' },
+ *   { id: 2, name: 'Bob' }
+ * ]
+ *
+ * const sorted = sortByField(users, 'name', 'asc')
+ * // Returns: [{ id: 1, ... }, { id: 2, ... }, { id: 3, ... }]
+ *
+ * const descending = sortByField(users, 'id', 'desc')
+ * // Returns: [{ id: 3, ... }, { id: 2, ... }, { id: 1, ... }]
+ */
+export function sortByField<T extends Record<string, any>>(
+  items: T[],
+  field: keyof T,
+  order: 'asc' | 'desc' = 'asc'
+): T[] {
+  const sorted = [...items].sort((a, b) => {
+    const valueA = a[field]
+    const valueB = b[field]
+
+    if (valueA === valueB) return 0
+
+    const comparison = valueA > valueB ? 1 : -1
+
+    return order === 'asc' ? comparison : -comparison
+  })
+
+  return sorted
+}

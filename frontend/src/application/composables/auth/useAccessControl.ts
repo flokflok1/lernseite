@@ -22,7 +22,7 @@
 import { computed, type ComputedRef } from 'vue'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import { UserModel } from '@/domain/models/user/User.model'
-import type { Course } from '@/infrastructure/api/clients/learning'
+import type { Course } from '@/infrastructure/api/clients/public/learning/types/types'
 
 export interface AccessControl {
   // User role checks

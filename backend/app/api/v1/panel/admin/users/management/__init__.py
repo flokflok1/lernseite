@@ -4,14 +4,16 @@ Admin User Management
 Admin endpoints for user CRUD operations, role management, and moderation actions.
 
 Struktur:
-- users.py - User CRUD, Roles, Ban/Unban, Delete, Verify (7 endpoints) ✅
-- organisations/ - Organisation Management (handled by /api/v1/organisations/)
-- roles/ - Role Management (handled by /api/v1/admin/roles/)
+- users.py - User CRUD, Groups (5 endpoints)
+- users_part2.py - Moderation: Ban/Unban, Delete, Verify (4 endpoints)
 
 Phase B24 - Admin User Management Implementation
 """
 
-# Import user management endpoints
-from .user_management import users
+# Import user management endpoints (CRUD & groups)
+from . import users
 
-__all__ = ['users']
+# Import moderation endpoints (ban, unban, delete, verify)
+from . import users_part2
+
+__all__ = ['users', 'users_part2']

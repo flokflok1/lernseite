@@ -12,7 +12,7 @@ export {
   ResolutionAction,
   ResolutionStatus,
   ChangeMagnitude
-} from '@/infrastructure/api/clients/panel/admin/i18n-sync.types'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export type {
   ScanSummary,
@@ -32,13 +32,13 @@ export type {
   DashboardResponse,
   HistoryListResponse,
   ErrorResponse
-} from '@/infrastructure/api/clients/panel/admin/i18n-sync.types'
+} from '@/infrastructure/api/clients/panel/admin'
 
 // ============================================================================
 // UI STATE (Presentation-only, not an API type)
 // ============================================================================
 
-import type { SyncMode, SyncStatus, ResolutionUpdate } from '@/infrastructure/api/clients/panel/admin/i18n-sync.types'
+import type { SyncMode, SyncStatus, ResolutionUpdate } from '@/infrastructure/api/clients/panel/admin'
 
 export interface SyncUIState {
   selectedMode: SyncMode

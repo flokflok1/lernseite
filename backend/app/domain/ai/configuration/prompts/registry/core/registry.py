@@ -4,11 +4,13 @@ LernsystemX KI - Prompt Registry Core
 Core registry functionality: PROMPT_REGISTRY dict and register_prompt().
 """
 
+import logging
 from typing import Dict
 from datetime import datetime
-from flask import current_app
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate
+from app.domain.ai.configuration.prompts.models import PromptTemplate
+
+logger = logging.getLogger(__name__)
 
 
 # Global prompt registry (code-based defaults)
@@ -52,6 +54,6 @@ def register_prompt(template: PromptTemplate, overwrite: bool = False) -> None:
 
     PROMPT_REGISTRY[template.code] = template
 
-    current_app.logger.info(
+    logger.info(
         f"Registered prompt template: {template.code} (v{template.version})"
     )

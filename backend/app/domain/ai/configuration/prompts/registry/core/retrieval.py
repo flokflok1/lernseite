@@ -4,10 +4,12 @@ LernsystemX KI - Prompt Registry Retrieval
 Functions for retrieving prompt templates from registry or database.
 """
 
+import logging
 from typing import List, Optional
-from flask import current_app
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate
+from app.domain.ai.configuration.prompts.models import PromptTemplate
+
+logger = logging.getLogger(__name__)
 from app.domain.ports.core.registry import repos
 from .registry import PROMPT_REGISTRY, PromptRegistryError
 from ..storage.db_override import DB_OVERRIDE_ENABLED, db_record_to_template
@@ -45,7 +47,7 @@ def get_prompt_template(code: str, check_db: bool = True) -> PromptTemplate:
                 return db_record_to_template(db_template)
         except Exception as e:
             # DB lookup failed, fall back to code registry
-            current_app.logger.debug(f"DB lookup failed for prompt '{code}': {e}")
+            logger.debug(f"DB lookup failed for prompt '{code}': {e}")
 
     # Fall back to code-based registry
     if code not in PROMPT_REGISTRY:
@@ -86,7 +88,7 @@ def get_prompt_with_style(category: str, style: str = 'standard') -> Optional[Pr
             if db_template:
                 return db_record_to_template(db_template)
         except Exception as e:
-            current_app.logger.debug(f"DB lookup failed for {category}/{style}: {e}")
+            logger.debug(f"DB lookup failed for {category}/{style}: {e}")
 
     # Fall back to code - try to find matching template
     # Convention: code = f"{category}_{style}" or f"{category}_sheet_{style}"
@@ -177,12 +179,12 @@ def get_prompt_for_lm_id(lm_id: int) -> Optional[PromptTemplate]:
             if prompt_key in PROMPT_REGISTRY:
                 return PROMPT_REGISTRY[prompt_key]
             else:
-                current_app.logger.debug(
+                logger.debug(
                     f"Prompt template '{prompt_key}' for LM{lm_id:02d} not in registry"
                 )
                 return None
     except Exception as e:
-        current_app.logger.debug(f"DB lookup failed for LM{lm_id:02d}: {e}")
+        logger.debug(f"DB lookup failed for LM{lm_id:02d}: {e}")
 
     # Fallback: No prompt defined for this LM
     return None
@@ -209,7 +211,7 @@ def get_prompts_by_group(group: str) -> List[PromptTemplate]:
     group_upper = group.upper()
     group_data = repos.lm_groups.find_by_code(group_upper)
     if not group_data:
-        current_app.logger.warning(f"Invalid learning method group: {group} (not found in database)")
+        logger.warning(f"Invalid learning method group: {group} (not found in database)")
         return []
 
     try:
@@ -232,5 +234,5 @@ def get_prompts_by_group(group: str) -> List[PromptTemplate]:
         return templates
 
     except Exception as e:
-        current_app.logger.error(f"Error fetching prompts for group {group}: {e}")
+        logger.error(f"Error fetching prompts for group {group}: {e}")
         return []

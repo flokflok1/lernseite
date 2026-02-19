@@ -119,80 +119,13 @@
         </StatsCard>
 
         <!-- Method Distribution Card -->
-        <div class="stats-card">
-          <div class="card-header">
-            <span class="card-icon">🧩</span>
-            <span class="card-title">{{ $t('aiEditorAnalytics.methodDistribution') }}</span>
-          </div>
-          <div class="method-list">
-            <div
-              v-for="method in (analytics.method_distribution || []).slice(0, 8)"
-              :key="method.method_type"
-              class="method-item"
-            >
-              <div class="method-info">
-                <span class="method-badge">LM{{ String(method.method_type).padStart(2, '0') }}</span>
-                <span class="method-name">{{ method.method_name }}</span>
-              </div>
-              <div class="method-bar-container">
-                <div
-                  class="method-bar"
-                  :style="{ width: getMethodBarWidth(method.count) }"
-                ></div>
-                <span class="method-count">{{ method.count }}</span>
-              </div>
-            </div>
-            <div v-if="!analytics.method_distribution?.length" class="text-sm text-[var(--color-text-tertiary)] text-center py-4">
-              {{ $t('aiEditorAnalytics.noMethods') }}
-            </div>
-          </div>
-        </div>
+        <MethodDistributionCard :methods="analytics.method_distribution || []" />
 
         <!-- Recent Sessions Card -->
-        <div class="stats-card lg:col-span-2">
-          <div class="card-header">
-            <span class="card-icon">📋</span>
-            <span class="card-title">{{ $t('aiEditorAnalytics.recentSessions') }}</span>
-          </div>
-          <div class="sessions-list">
-            <div
-              v-for="session in analytics.recent_sessions || []"
-              :key="session.session_id"
-              class="session-item"
-            >
-              <div class="session-status" :class="session.status"></div>
-              <div class="session-info">
-                <span class="session-id">{{ session.session_id.slice(0, 8) }}...</span>
-                <span class="session-meta">{{ session.model_profile }} • {{ formatTokens(session.tokens_used) }} {{ $t('aiEditorAnalytics.tokens') }}</span>
-              </div>
-              <div class="session-time">
-                {{ formatDate(session.updated_at) }}
-              </div>
-            </div>
-            <div v-if="!analytics.recent_sessions?.length" class="text-sm text-[var(--color-text-tertiary)] text-center py-4">
-              {{ $t('aiEditorAnalytics.noSessions') }}
-            </div>
-          </div>
-        </div>
+        <RecentSessionsCard :sessions="analytics.recent_sessions || []" />
 
         <!-- AI Request Types Breakdown -->
-        <div v-if="analytics.ai_usage?.by_type?.length" class="stats-card lg:col-span-2">
-          <div class="card-header">
-            <span class="card-icon">📈</span>
-            <span class="card-title">{{ $t('aiEditorAnalytics.aiRequestsByType') }}</span>
-          </div>
-          <div class="request-types-grid">
-            <div
-              v-for="typeInfo in analytics.ai_usage.by_type"
-              :key="typeInfo.type"
-              class="request-type-item"
-            >
-              <span class="type-name">{{ formatRequestType(typeInfo.type) }}</span>
-              <span class="type-count">{{ typeInfo.count }} {{ $t('aiEditorAnalytics.requests') }}</span>
-              <span class="type-tokens">{{ formatTokens(typeInfo.tokens) }} {{ $t('aiEditorAnalytics.tokens') }}</span>
-            </div>
-          </div>
-        </div>
+        <AiRequestTypesCard :request-types="analytics.ai_usage?.by_type || []" />
       </div>
 
       <!-- Last Updated -->
@@ -207,57 +140,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/http'
+import { watch, onMounted } from 'vue'
 import { StatsCard } from '@/presentation/components/panel/admin/assessment/settings/exams'
-
-const { t } = useI18n()
+import MethodDistributionCard from './analytics/MethodDistributionCard.vue'
+import RecentSessionsCard from './analytics/RecentSessionsCard.vue'
+import AiRequestTypesCard from './analytics/AiRequestTypesCard.vue'
+import { useAnalyticsData, formatTokens, formatDate } from './composables/useAnalyticsData'
 
 interface Course {
   course_id: string
   title: string
-}
-
-interface Analytics {
-  content?: {
-    chapter_count: number
-    published_chapters: number
-    lesson_count: number
-    published_lessons: number
-    method_count: number
-    unique_methods: number
-  }
-  ai_usage?: {
-    total_requests: number
-    total_tokens: number
-    total_cost_usd: number
-    request_types: number
-    unique_users: number
-    period_days: number
-    by_type: Array<{ type: string; count: number; tokens: number }>
-  }
-  enrollments?: {
-    total_enrollments: number
-    active_enrollments: number
-    completed_enrollments: number
-    avg_progress: number
-  }
-  method_distribution?: Array<{
-    method_type: number
-    method_name: string
-    count: number
-  }>
-  recent_sessions?: Array<{
-    session_id: string
-    status: string
-    model_profile: string
-    tokens_used: number
-    operations: number
-    created_at: string
-    updated_at: string
-  }>
-  generated_at?: string
 }
 
 interface Stats {
@@ -272,63 +164,15 @@ const props = defineProps<{
   stats?: Stats
 }>()
 
-const loading = ref(false)
-const analytics = ref<Analytics>({})
+const { loading, analytics, loadAnalytics, resetAnalytics } = useAnalyticsData(
+  () => props.course?.course_id
+)
 
-// Methods
-async function loadAnalytics() {
-  if (!props.course?.course_id) return
-
-  loading.value = true
-  try {
-    const response = await http.get(`/admin/course-analytics/${props.course.course_id}`)
-    analytics.value = response.data.data || {}
-  } catch (error) {
-    console.error('Failed to load analytics:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-function formatTokens(tokens: number): string {
-  if (tokens >= 1000000) return (tokens / 1000000).toFixed(1) + 'M'
-  if (tokens >= 1000) return (tokens / 1000).toFixed(1) + 'K'
-  return tokens.toString()
-}
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return '-'
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  } catch {
-    return '-'
-  }
-}
-
-function formatRequestType(type: string): string {
-  const key = `aiEditorAnalytics.requestTypeLabels.${type}`
-  const translated = t(key)
-  // Falls keine Übersetzung gefunden, Fallback auf original
-  return translated !== key ? translated : type
-}
-
-function getMethodBarWidth(count: number): string {
-  const max = Math.max(...(analytics.value.method_distribution?.map(m => m.count) || [1]))
-  return `${(count / max) * 100}%`
-}
-
-// Watch for course changes
 watch(() => props.course?.course_id, (newId) => {
   if (newId) {
     loadAnalytics()
   } else {
-    analytics.value = {}
+    resetAnalytics()
   }
 }, { immediate: true })
 
@@ -417,144 +261,5 @@ onMounted(() => {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
   margin-top: 0.25rem;
-}
-
-/* Method Distribution */
-.method-list {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.method-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.method-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 150px;
-}
-
-.method-badge {
-  padding: 0.125rem 0.375rem;
-  background: var(--color-primary-subtle);
-  color: var(--color-primary);
-  border-radius: 0.25rem;
-  font-size: 0.625rem;
-  font-weight: 600;
-  font-family: ui-monospace, monospace;
-}
-
-.method-name {
-  font-size: 0.8125rem;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.method-bar-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.method-bar {
-  height: 0.5rem;
-  background: var(--color-primary);
-  border-radius: 0.25rem;
-  min-width: 4px;
-}
-
-.method-count {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-  min-width: 2rem;
-  text-align: right;
-}
-
-/* Sessions List */
-.sessions-list {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.session-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: var(--color-surface-secondary);
-  border-radius: 0.5rem;
-}
-
-.session-status {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.session-status.active { background: #22c55e; }
-.session-status.finalized { background: #3b82f6; }
-.session-status.archived { background: #9ca3af; }
-
-.session-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.session-id {
-  font-family: ui-monospace, monospace;
-  font-size: 0.8125rem;
-  color: var(--color-text-primary);
-}
-
-.session-meta {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-}
-
-.session-time {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-}
-
-/* Request Types Grid */
-.request-types-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.75rem;
-  padding: 1rem;
-}
-
-.request-type-item {
-  display: flex;
-  flex-direction: column;
-  padding: 0.75rem;
-  background: var(--color-surface-secondary);
-  border-radius: 0.5rem;
-}
-
-.type-name {
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.type-count,
-.type-tokens {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
 }
 </style>

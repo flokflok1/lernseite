@@ -1,12 +1,12 @@
 /**
  * ManualEditorWindow.vue
  *
- * Thin window wrapper for ManualEditorContainer.
+ * Thin window wrapper for ManualEditorContainerView.
  * Receives window prop from DesktopLayer and extracts payload data.
  */
 
 <template>
-  <ManualEditorContainer
+  <ManualEditorContainerView
     :project-id="(window?.payload?.projectId as string) || ''"
     :course-id="(window?.payload?.courseId as string) || null"
   />
@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import ManualEditorContainer from './ManualEditorContainer.vue'
+import ManualEditorContainerView from '@/presentation/components/panel/editor/manual/ManualEditorContainerView.vue'
 
 defineProps<{ window: LsxWindow }>()
 </script>

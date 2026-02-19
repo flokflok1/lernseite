@@ -8,7 +8,7 @@
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as setupApi from '@/application/services/api/public'
+import * as setupApi from '@/infrastructure/api/clients/public'
 
 export const useAppStore = defineStore('app', () => {
   // State

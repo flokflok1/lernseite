@@ -5,7 +5,7 @@ Project Portfolio - System Feature
 """
 from flask import Blueprint
 from app.api.middleware.auth import token_required
-from app.api.utils.responses import success_response
+from app.api.responses.responses import success_response
 
 project_portfolio_bp = Blueprint('project_portfolio', __name__, url_prefix='/collaboration/project-portfolio')
 

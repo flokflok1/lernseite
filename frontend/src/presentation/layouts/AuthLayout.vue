@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { LanguageSelector } from '@/presentation/components/shared/layout/i18n'
+import { LanguageSelector } from '@/presentation/components/shared/i18n'
 
 const currentYear = computed(() => new Date().getFullYear())
 </script>

@@ -13,8 +13,7 @@
  */
 
 import { ref, computed, type Ref, type ComputedRef } from 'vue'
-import { getLMGroups } from '@/infrastructure/api/clients/learning'
-import type { LMGroupAPIInfo } from '@/infrastructure/api/clients/learning'
+import { getLMGroups, type LMGroupAPIInfo } from '@/infrastructure/api/clients/panel/editor/authoring/authoring.api'
 
 // ============================================================================
 // Singleton State (Shared Across All Components)

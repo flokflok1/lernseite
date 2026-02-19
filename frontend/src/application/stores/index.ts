@@ -3,15 +3,19 @@ export { useAuthStore } from './modules/core/auth.store'
 export { useAppStore } from './modules/core/app.store'
 
 // Admin
-export { useAdminPanelStore } from './modules/admin/panel.store'
-export { useAdminStore } from './modules/admin/admin.store'
+export { usePanelStore, useAdminPanelStore } from './modules/admin/panel.store'
+export { usePanelUsersStore } from './modules/admin/panel-users.store'
+export { usePanelOrganisationsStore } from './modules/admin/panel-organisations.store'
+export { usePanelCoursesStore } from './modules/admin/panel-courses.store'
+export { usePanelAnalyticsStore } from './modules/admin/panel-analytics.store'
+export { usePanelAIJobsStore } from './modules/admin/panel-ai-jobs.store'
 
 // Content
 export { useCourseEditorStore } from './modules/content/courseEditor.store'
 export { usePlayerStore } from './modules/content/player.store'
 
 // Workspace
-export { usePanelStore as useWorkspacePanelStore } from './modules/workspace/panel.store'
+export { useDesktopPanelStore } from './modules/workspace/panel.store'
 
 // Feature Flags
 export { useFeatureFlagsStore } from './modules/feature-flags/feature-flags.store'

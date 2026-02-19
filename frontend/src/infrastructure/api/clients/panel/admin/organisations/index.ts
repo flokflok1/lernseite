@@ -6,8 +6,8 @@
  * Consolidates management, courses, and analytics endpoints.
  *
  * Usage:
- * import { getOrganisationDetail, getOrganisationMembers } from '@/application/services/api/panel-admin'
- * import type { OrgDetail, OrgMember } from '@/application/services/api/panel-admin'
+ * import { getOrganisationDetail, getOrganisationMembers } from '@/infrastructure/api/clients/panel/admin'
+ * import type { OrgDetail, OrgMember } from '@/infrastructure/api/clients/panel/admin'
  */
 
 // ============================================================================

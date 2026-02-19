@@ -4,7 +4,7 @@ LernsystemX KI - AI Editor Lessons Step Prompt
 Lesson structure generation based on selected theory variant.
 """
 
-from app.domain.ai.configuration.prompt_models import PromptTemplate, PromptMessage, PromptVariable
+from app.domain.ai.configuration.prompts.models import PromptTemplate, PromptMessage, PromptVariable
 from app.domain.ai.configuration.prompts.registry import register_prompt
 from ._base import AI_EDITOR_SYSTEM_BASE
 

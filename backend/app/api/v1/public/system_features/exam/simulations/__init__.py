@@ -26,6 +26,7 @@ from flask import Blueprint
 
 # Import blueprints from user module
 from app.api.v1.public.system_features.exam.simulations.user.core import core_bp, course_bp
+import app.api.v1.public.system_features.exam.simulations.user.core_part2  # noqa: F401 - registers routes on blueprints
 from app.api.v1.public.system_features.exam.simulations.user.attempts import attempts_bp
 from app.api.v1.public.system_features.exam.simulations.user.settings import settings_bp
 

@@ -48,7 +48,7 @@ def get_tutor_knowledge():
     }
     """
     try:
-        from app.application.services.tutor_knowledge import TutorKnowledgeService
+        from app.application.services.system_features.tutor_knowledge import TutorKnowledgeService
 
         user_id = get_jwt_identity()
         data = request.get_json() or {}
@@ -121,7 +121,7 @@ def get_course_tutor_context(course_id: str):
     }
     """
     try:
-        from app.application.services.tutor_knowledge import TutorKnowledgeService
+        from app.application.services.system_features.tutor_knowledge import TutorKnowledgeService
 
         context = TutorKnowledgeService.get_course_context(course_id)
 
@@ -164,7 +164,7 @@ def get_chapter_tutor_context(chapter_id: str):
     }
     """
     try:
-        from app.application.services.tutor_knowledge import TutorKnowledgeService
+        from app.application.services.system_features.tutor_knowledge import TutorKnowledgeService
 
         context = TutorKnowledgeService.get_chapter_context(chapter_id)
 

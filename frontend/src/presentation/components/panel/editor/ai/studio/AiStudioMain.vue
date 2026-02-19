@@ -219,7 +219,7 @@ import AnalyticsTab from './tabs/AnalyticsTab.vue'
 import SettingsTab from './tabs/SettingsTab.vue'
 import GlobalSettingsTab from './tabs/GlobalSettingsTab.vue'
 import ChatPanel from './tabs/ChatPanel.vue'
-import CourseAuthoringSidebar from '../authoring/kurs-builder/CourseAuthoringSidebar.vue'
+import CourseAuthoringSidebar from '../authoring/course-builder/CourseAuthoringSidebar.vue'
 
 const { t } = useI18n()
 

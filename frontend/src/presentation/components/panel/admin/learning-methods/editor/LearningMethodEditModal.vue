@@ -117,7 +117,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { AdminLearningMethod } from '@/application/services/api/panel-admin'
+import type { AdminLearningMethod } from '@/infrastructure/api/clients/panel/admin'
 
 interface EditFormData {
   title: string

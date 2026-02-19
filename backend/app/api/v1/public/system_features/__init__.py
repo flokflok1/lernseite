@@ -65,7 +65,6 @@ from app.api.v1.public.system_features.exam import exams_bp
 
 # Math Features (existing: toolkit)
 from app.api.v1.public.system_features.math import (
-    math_admin_bp,
     math_practice_bp,
     math_reference_bp,
     math_tasks_bp
@@ -110,7 +109,7 @@ system_features_bp.register_blueprint(exams_bp, url_prefix='/exam/simulations')
 system_features_bp.register_blueprint(math_practice_bp, url_prefix='/math/toolkit')
 system_features_bp.register_blueprint(math_reference_bp, url_prefix='/math/toolkit')
 system_features_bp.register_blueprint(math_tasks_bp, url_prefix='/math/toolkit')
-system_features_bp.register_blueprint(math_admin_bp, url_prefix='/math/toolkit/admin')
+
 
 # Feature Registry (Panel API) - Registered separately in api/v1/__init__.py
 # (Not under /system-features because it's a panel endpoint)
@@ -172,7 +171,7 @@ __all__ = [
     'system_features_bp',  # Main blueprint (register this in api/v1/__init__.py)
     'registry_bp',         # Panel API (register separately)
     'exams_bp',           # Exam Simulations (for backward compatibility)
-    'math_admin_bp',      # Math Toolkit Admin (for backward compatibility)
+    # math_admin_bp moved to panel/admin/math_toolkit (Phase 1 Task 2)
     'math_practice_bp',   # Math Toolkit Practice (for backward compatibility)
     'math_reference_bp',  # Math Toolkit Reference (for backward compatibility)
     'math_tasks_bp',      # Math Toolkit Tasks (for backward compatibility)

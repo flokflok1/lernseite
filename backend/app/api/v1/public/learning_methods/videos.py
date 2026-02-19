@@ -57,7 +57,7 @@ def get_lesson_video(lesson_id: str):
         Video file if cached, or JSON with status
     """
     try:
-        from app.application.services.lesson_video import LessonVideoService
+        from app.application.services.content.lesson_video import LessonVideoService
 
         # Check for cached video
         cached = LessonVideoService.get_cached_video(lesson_id)
@@ -143,7 +143,7 @@ def generate_lesson_video(lesson_id: str):
         }
     """
     try:
-        from app.application.services.lesson_video import LessonVideoService
+        from app.application.services.content.lesson_video import LessonVideoService
 
         data = request.get_json() or {}
 
@@ -230,7 +230,7 @@ def get_video_generation_status(lesson_id: str):
         }
     """
     try:
-        from app.application.services.lesson_video import LessonVideoService
+        from app.application.services.content.lesson_video import LessonVideoService
 
         status = LessonVideoService.get_generation_status(lesson_id)
 
@@ -265,7 +265,7 @@ def delete_lesson_video(lesson_id: str):
         500: Server error
     """
     try:
-        from app.application.services.lesson_video import LessonVideoService
+        from app.application.services.content.lesson_video import LessonVideoService
 
         deleted = LessonVideoService.delete_cached_video(lesson_id)
 
@@ -382,7 +382,7 @@ def get_avatar_styles():
             }
         }
     """
-    from app.application.services.lesson_video import LessonVideoService
+    from app.application.services.content.lesson_video import LessonVideoService
 
     styles = {}
     for style_key, style_info in LessonVideoService.AVATAR_STYLES.items():
@@ -425,7 +425,7 @@ def get_sora_status():
             }
         }
     """
-    from app.application.services.lesson_video import LessonVideoService
+    from app.application.services.content.lesson_video import LessonVideoService
 
     models = LessonVideoService.get_available_models()
     comparison = LessonVideoService.compare_models()
@@ -485,7 +485,7 @@ def get_video_models():
             }
         }
     """
-    from app.application.services.lesson_video import LessonVideoService
+    from app.application.services.content.lesson_video import LessonVideoService
 
     return jsonify({
         'success': True,

@@ -13,7 +13,7 @@ import {
   type AdminLearningMethod,
   type LearningMethodType,
   type LearningMethodGroup
-} from '@/application/services/api/panel-admin'
+} from '@/infrastructure/api/clients/panel/admin'
 
 export function useLearningMethods(props: any) {
   const { t } = useI18n()

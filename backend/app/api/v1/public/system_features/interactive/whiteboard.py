@@ -22,7 +22,7 @@ Siehe: 02a_System-Features.md für Feature-Beschreibung
 
 from flask import Blueprint, request, jsonify
 from app.api.middleware.auth import token_required, permission_required
-from app.api.utils.responses import success_response, error_response
+from app.api.responses.responses import success_response, error_response
 
 whiteboard_bp = Blueprint('whiteboard', __name__, url_prefix='/interactive/whiteboard')
 

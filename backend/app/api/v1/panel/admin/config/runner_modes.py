@@ -8,8 +8,8 @@ Panel API - Configuration ONLY, NO execution logic.
 from flask import Blueprint, request, jsonify, g
 from pydantic import ValidationError
 
-from app.application.services.panel import PanelRunnerModeService
-from app.domain.models.panel.runner_modes import (
+from app.application.services.content.runner.mode_service import PanelRunnerModeService
+from app.domain.models.runner.modes import (
     RunnerModeCreate,
     RunnerModeUpdate,
     FeatureMappingSet,
@@ -17,7 +17,7 @@ from app.domain.models.panel.runner_modes import (
 )
 from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.i18n.error_codes import ErrorCode
-from app.api.utils.responses import success_response, error_response
+from app.api.responses.responses import success_response, error_response
 
 bp = Blueprint('panel_runner_modes', __name__, url_prefix='/panel/runner-modes')
 

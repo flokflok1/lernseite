@@ -12,7 +12,7 @@ ISO 27001:2013 compliant
 from flask import Blueprint, jsonify
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.persistence.database import get_db_connection
-from app.infrastructure.persistence.repositories.gamification_repository import GamificationRepository
+from app.infrastructure.persistence.repositories.gamification.repository import GamificationRepository
 
 gamification_bp = Blueprint('gamification', __name__, url_prefix='/gamification')
 

@@ -23,7 +23,7 @@ export * from './gamification'
 export * from './collaboration'
 
 // IT Environments (4 features: it_sandbox, code_sandbox, network_simulation, terminal_access)
-export * from './it_environments'
+export * from './it-environments'
 
 // Meta Features (1 feature: timer_wrapper)
 export * from './meta'
@@ -32,7 +32,7 @@ export * from './meta'
 export * from './visualization'
 
 // Learning Paths (1 feature: learning_path_generator)
-export * from './learning_paths'
+export * from './learning-paths'
 
 // Tutor & Coaching (3 features: npc_tutor, socratic_dialog, comprehension_checker)
 export * from './tutor'

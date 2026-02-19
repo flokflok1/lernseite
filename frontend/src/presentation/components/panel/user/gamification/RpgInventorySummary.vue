@@ -15,13 +15,13 @@
     <div class="inventory-header">
       <h3 class="inventory-title">
         <span class="inventory-icon">🎒</span>
-        Inventar
+        {{ $t('dashboard.gamification.inventory') }}
       </h3>
     </div>
 
     <!-- Membership Card -->
     <div class="inventory-section">
-      <h4 class="section-title">Mitgliedschaft</h4>
+      <h4 class="section-title">{{ $t('dashboard.gamification.membership') }}</h4>
       <div class="membership-card" :class="planTier">
         <div class="membership-badge">
           <span class="badge-icon">{{ planIcon }}</span>
@@ -31,14 +31,14 @@
           <span class="plan-tier">{{ planTierLabel }}</span>
         </div>
         <div class="membership-status" :class="{ active: isPremium }">
-          {{ isPremium ? 'Aktiv' : 'Free' }}
+          {{ isPremium ? $t('dashboard.gamification.active') : $t('dashboard.gamification.free') }}
         </div>
       </div>
     </div>
 
     <!-- Token Wallet -->
     <div class="inventory-section">
-      <h4 class="section-title">Ressourcen</h4>
+      <h4 class="section-title">{{ $t('dashboard.gamification.resources') }}</h4>
       <div class="resource-cards">
         <!-- AI Tokens -->
         <div class="resource-card tokens">
@@ -46,7 +46,7 @@
             <span class="resource-icon">🔮</span>
           </div>
           <div class="resource-info">
-            <span class="resource-name">KI-Tokens</span>
+            <span class="resource-name">{{ $t('dashboard.gamification.aiTokens') }}</span>
             <span class="resource-value">{{ formattedTokens }}</span>
           </div>
           <div class="resource-bar-container">
@@ -63,8 +63,8 @@
             <span class="resource-icon">📦</span>
           </div>
           <div class="resource-info">
-            <span class="resource-name">Speicher</span>
-            <span class="resource-value">{{ coursesCount }} Kurse</span>
+            <span class="resource-name">{{ $t('dashboard.gamification.storage') }}</span>
+            <span class="resource-value">{{ $t('dashboard.gamification.coursesCount', { count: coursesCount }) }}</span>
           </div>
           <div class="resource-bar-container">
             <div
@@ -76,70 +76,22 @@
       </div>
     </div>
 
-    <!-- Premium Features as Items -->
-    <div v-if="isPremium" class="inventory-section">
-      <h4 class="section-title">Premium-Items</h4>
-      <div class="items-grid">
-        <div class="item-card epic">
-          <span class="item-icon">⚡</span>
-          <span class="item-name">Priority Support</span>
-        </div>
-        <div class="item-card rare">
-          <span class="item-icon">🎨</span>
-          <span class="item-name">Custom Themes</span>
-        </div>
-        <div class="item-card rare">
-          <span class="item-icon">📊</span>
-          <span class="item-name">Analytics</span>
-        </div>
-        <div class="item-card legendary">
-          <span class="item-icon">🤖</span>
-          <span class="item-name">KI-Tutor</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Free Features -->
-    <div v-else class="inventory-section">
-      <h4 class="section-title">Basis-Items</h4>
-      <div class="items-grid">
-        <div class="item-card common">
-          <span class="item-icon">📚</span>
-          <span class="item-name">Basis-Kurse</span>
-        </div>
-        <div class="item-card common">
-          <span class="item-icon">📝</span>
-          <span class="item-name">Quiz-System</span>
-        </div>
-      </div>
-
-      <!-- Upgrade Hint -->
-      <div class="upgrade-hint">
-        <span class="hint-icon">💎</span>
-        <span class="hint-text">Upgrade auf Premium fuer mehr Items!</span>
-      </div>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="quick-stats">
-      <div class="stat-item">
-        <span class="stat-value">{{ completedLessons }}</span>
-        <span class="stat-label">Lektionen</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value">{{ achievements }}</span>
-        <span class="stat-label">Erfolge</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value">{{ streak }}</span>
-        <span class="stat-label">Streak</span>
-      </div>
-    </div>
+    <!-- Items + Quick Stats (extracted sub-component) -->
+    <RpgInventoryItems
+      :isPremium="isPremium"
+      :completedLessons="completedLessons"
+      :achievements="achievements"
+      :streak="streak"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import RpgInventoryItems from './RpgInventoryItems.vue'
+
+const { t } = useI18n()
 
 // ============================================================================
 // Props
@@ -192,21 +144,14 @@ const planIcon = computed(() => {
 })
 
 const planName = computed(() => {
-  switch (planTier.value) {
-    case 'premium': return 'Premium'
-    case 'creator': return 'Creator'
-    case 'teacher': return 'Teacher'
-    case 'pro': return 'Pro'
-    case 'enterprise': return 'Enterprise'
-    default: return 'Free'
-  }
+  const key = `dashboard.gamification.plan${planTier.value.charAt(0).toUpperCase() + planTier.value.slice(1)}`
+  return t(key)
 })
 
 const planTierLabel = computed(() => {
-  if (isPremium.value) {
-    return 'Vollzugriff'
-  }
-  return 'Basis-Zugang'
+  return isPremium.value
+    ? t('dashboard.gamification.fullAccess')
+    : t('dashboard.gamification.basicAccess')
 })
 
 const formattedTokens = computed(() => {
@@ -430,117 +375,8 @@ const streak = computed(() => {
   background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
 }
 
-/* Items Grid */
-.items-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.item-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 12px 8px;
-  background: var(--color-background);
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  transition: all 0.2s ease;
-}
-
-.item-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.item-icon {
-  font-size: 24px;
-}
-
-.item-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  text-align: center;
-}
-
-/* Item Rarity */
-.item-card.common {
-  border-color: var(--color-border);
-}
-
-.item-card.rare {
-  border-color: #3b82f6;
-  background: linear-gradient(145deg, rgba(59, 130, 246, 0.05) 0%, var(--color-background) 100%);
-}
-
-.item-card.epic {
-  border-color: #8b5cf6;
-  background: linear-gradient(145deg, rgba(139, 92, 246, 0.05) 0%, var(--color-background) 100%);
-}
-
-.item-card.legendary {
-  border-color: #f59e0b;
-  background: linear-gradient(145deg, rgba(245, 158, 11, 0.05) 0%, var(--color-background) 100%);
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
-}
-
-/* Upgrade Hint */
-.upgrade-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 10px;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, var(--color-background) 100%);
-  border: 1px dashed rgba(139, 92, 246, 0.3);
-  border-radius: 8px;
-}
-
-.hint-icon {
-  font-size: 18px;
-}
-
-.hint-text {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-/* Quick Stats */
-.quick-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--color-border);
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 12px;
-  background: var(--color-surface);
-}
-
-.stat-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.stat-label {
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
-
 /* Responsive */
 @media (max-width: 640px) {
-  .items-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .membership-card {
     flex-wrap: wrap;
   }

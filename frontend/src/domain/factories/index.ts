@@ -2,7 +2,7 @@
  * Domain Factories (DDD Domain Layer)
  * ===================================
  * Factory methods for creating domain objects:
- * - user/: User, Role factories
+ * - learning/: Lesson content generators
  */
 
-export * from './user'
+export * from './learning'

@@ -108,7 +108,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CourseListItem } from '@/application/services/api/panel-editor'
+import type { CourseListItem } from '@/infrastructure/api/clients/panel/editor'
 
 // ============================================================================
 // Props & Emits

@@ -7,6 +7,8 @@
  * - Track model availability and status
  * - Manage default provider selection
  *
+ * Profile management is delegated to useAIProfileManager.
+ *
  * Architecture:
  * - Uses Pinia stores for persistence
  * - API service for backend communication
@@ -15,6 +17,7 @@
 
 import { ref, computed } from 'vue'
 import { categorizeModel } from './modelCategorizer'
+import { useAIProfileManager } from './useAIProfileManager'
 
 export interface AIProvider {
   id: string
@@ -73,6 +76,14 @@ export function useAISettings() {
   const syncProgress = ref(0)
   const profilesLoading = ref(false)
 
+  // Profile management (delegated)
+  const profileManager = useAIProfileManager({
+    settings,
+    isLoading,
+    error,
+    profilesLoading
+  })
+
   // Providers
   const providers = computed(() => [
     {
@@ -105,9 +116,18 @@ export function useAISettings() {
   // Methods
 
   /**
+   * Auto-categorize all models
+   */
+  function categorizeAllModels(): void {
+    settings.value.models.forEach(model => {
+      model.category = categorizeModel(model)
+    })
+  }
+
+  /**
    * Load current AI settings
    */
-  const loadSettings = async () => {
+  async function loadSettings(): Promise<void> {
     isLoading.value = true
     error.value = null
 
@@ -119,7 +139,7 @@ export function useAISettings() {
       console.log('Loading AI settings...')
 
       // Mock data for development
-      const mockModels = [
+      const mockModels: AIModel[] = [
         {
           id: 'claude-opus',
           name: 'Claude 3.5 Opus',
@@ -195,9 +215,7 @@ export function useAISettings() {
         lastSyncTime: new Date()
       }
 
-      // Auto-categorize all models
       categorizeAllModels()
-
       console.log('Models loaded and auto-categorized')
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load AI settings'
@@ -210,7 +228,7 @@ export function useAISettings() {
   /**
    * Update API key for provider
    */
-  const updateApiKey = (provider: 'claude' | 'openai', apiKey: string) => {
+  function updateApiKey(provider: 'claude' | 'openai', apiKey: string): void {
     if (provider === 'claude') {
       settings.value.claudeApiKey = apiKey
     } else {
@@ -221,14 +239,12 @@ export function useAISettings() {
   /**
    * Save API key to backend
    */
-  const saveApiKey = async (provider: 'claude' | 'openai', apiKey: string) => {
+  async function saveApiKey(provider: 'claude' | 'openai', apiKey: string): Promise<boolean> {
     isLoading.value = true
     error.value = null
 
     try {
       // TODO: Replace with actual API call
-      // await aiSettingsService.updateApiKey(provider, apiKey)
-
       updateApiKey(provider, apiKey)
       console.log(`API key saved for ${provider}`)
       return true
@@ -242,45 +258,25 @@ export function useAISettings() {
   }
 
   /**
-   * Auto-categorize all models
-   */
-  const categorizeAllModels = () => {
-    settings.value.models.forEach(model => {
-      model.category = categorizeModel(model)
-    })
-  }
-
-  /**
    * Sync available models from providers
    */
-  const syncModels = async () => {
+  async function syncModels(): Promise<void> {
     settings.value.isSyncing = true
     syncProgress.value = 0
     error.value = null
 
     try {
       // TODO: Replace with actual API calls to provider endpoints
-      // 1. Fetch Claude models
       if (settings.value.claudeApiKey) {
         syncProgress.value = 25
         console.log('Syncing Claude models...')
-        // const claudeModels = await claudeApi.listModels(settings.value.claudeApiKey)
-        // Update settings.value.models with Claude models
-        // Then categorize them:
-        // settings.value.models = categorizeModels(claudeModels)
       }
 
-      // 2. Fetch OpenAI models
       if (settings.value.openaiApiKey) {
         syncProgress.value = 50
         console.log('Syncing OpenAI models...')
-        // const openaiModels = await openaiApi.listModels(settings.value.openaiApiKey)
-        // Update settings.value.models with OpenAI models
-        // Then categorize them:
-        // settings.value.models = categorizeModels(openaiModels)
       }
 
-      // Auto-categorize all models (locally)
       categorizeAllModels()
 
       syncProgress.value = 100
@@ -298,7 +294,7 @@ export function useAISettings() {
   /**
    * Toggle model availability
    */
-  const toggleModel = (modelId: string) => {
+  function toggleModel(modelId: string): void {
     const model = settings.value.models.find(m => m.id === modelId)
     if (model) {
       model.isAvailable = !model.isAvailable
@@ -308,11 +304,9 @@ export function useAISettings() {
   /**
    * Set default provider
    */
-  const setDefaultProvider = async (providerId: string) => {
+  async function setDefaultProvider(providerId: string): Promise<boolean> {
     try {
       // TODO: Replace with actual API call
-      // await aiSettingsService.setDefaultProvider(providerId)
-
       settings.value.defaultProvider = providerId
       console.log(`Default provider set to ${providerId}`)
       return true
@@ -326,20 +320,20 @@ export function useAISettings() {
   /**
    * Test API connection
    */
-  const testConnection = async (provider: 'claude' | 'openai') => {
+  async function testConnection(provider: 'claude' | 'openai'): Promise<boolean> {
     isLoading.value = true
     error.value = null
 
     try {
-      const apiKey = provider === 'claude' ? settings.value.claudeApiKey : settings.value.openaiApiKey
+      const apiKey = provider === 'claude'
+        ? settings.value.claudeApiKey
+        : settings.value.openaiApiKey
 
       if (!apiKey) {
         throw new Error(`${provider} API key not configured`)
       }
 
       // TODO: Replace with actual API call to test connection
-      // await aiSettingsService.testConnection(provider, apiKey)
-
       console.log(`Connection test passed for ${provider}`)
       return true
     } catch (err) {
@@ -349,155 +343,6 @@ export function useAISettings() {
     } finally {
       isLoading.value = false
     }
-  }
-
-  // ============================================
-  // PROFILE MANAGEMENT
-  // ============================================
-
-  /**
-   * Load all AI profiles from API
-   */
-  const loadProfiles = async () => {
-    profilesLoading.value = true
-    error.value = null
-
-    try {
-      // TODO: Replace with actual API call
-      // const response = await aiSettingsService.getProfiles()
-      // settings.value.profiles = response.data
-
-      console.log('Loading AI profiles...')
-      // Start with empty profiles - API will populate
-      settings.value.profiles = []
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load profiles'
-      console.error('Error loading profiles:', err)
-    } finally {
-      profilesLoading.value = false
-    }
-  }
-
-  /**
-   * Create new AI profile
-   */
-  const createProfile = async (profile: Omit<AIProfile, 'id' | 'createdAt' | 'updatedAt'>) => {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      // TODO: Replace with actual API call
-      // const response = await aiSettingsService.createProfile(profile)
-      // settings.value.profiles.push(response.data)
-
-      const newProfile: AIProfile = {
-        id: `profile_${Date.now()}`,
-        ...profile,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-
-      settings.value.profiles.push(newProfile)
-      console.log('Profile created:', newProfile)
-      return newProfile
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create profile'
-      console.error('Error creating profile:', err)
-      return null
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  /**
-   * Update existing AI profile
-   */
-  const updateProfile = async (id: string, updates: Partial<AIProfile>) => {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      // TODO: Replace with actual API call
-      // const response = await aiSettingsService.updateProfile(id, updates)
-      // Find and update in local state
-      // const index = settings.value.profiles.findIndex(p => p.id === id)
-      // if (index >= 0) {
-      //   settings.value.profiles[index] = response.data
-      // }
-
-      const index = settings.value.profiles.findIndex(p => p.id === id)
-      if (index >= 0) {
-        settings.value.profiles[index] = {
-          ...settings.value.profiles[index],
-          ...updates,
-          updatedAt: new Date()
-        }
-        console.log('Profile updated:', settings.value.profiles[index])
-        return settings.value.profiles[index]
-      }
-
-      throw new Error('Profile not found')
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update profile'
-      console.error('Error updating profile:', err)
-      return null
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  /**
-   * Delete AI profile
-   */
-  const deleteProfile = async (id: string) => {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      // TODO: Replace with actual API call
-      // await aiSettingsService.deleteProfile(id)
-      // Remove from local state
-
-      const index = settings.value.profiles.findIndex(p => p.id === id)
-      if (index >= 0) {
-        settings.value.profiles.splice(index, 1)
-        console.log('Profile deleted:', id)
-        return true
-      }
-
-      throw new Error('Profile not found')
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete profile'
-      console.error('Error deleting profile:', err)
-      return false
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  /**
-   * Get models for specific category
-   */
-  const getModelsByCategory = (category: string) => {
-    return settings.value.models.filter(m => m.category === category && m.isAvailable)
-  }
-
-  /**
-   * Get all unique model categories
-   */
-  const getModelCategories = () => {
-    const categories = new Set<string>()
-    settings.value.models.forEach(m => {
-      if (m.category) categories.add(m.category)
-    })
-    return Array.from(categories).sort()
-  }
-
-  /**
-   * Get models for specific provider
-   */
-  const getModelsByProvider = (provider: string) => {
-    return settings.value.models.filter(m => m.provider === provider && m.isAvailable)
   }
 
   return {
@@ -524,13 +369,13 @@ export function useAISettings() {
     testConnection,
     categorizeAllModels,
 
-    // Profile Methods
-    loadProfiles,
-    createProfile,
-    updateProfile,
-    deleteProfile,
-    getModelsByCategory,
-    getModelCategories,
-    getModelsByProvider
+    // Profile Methods (delegated)
+    loadProfiles: profileManager.loadProfiles,
+    createProfile: profileManager.createProfile,
+    updateProfile: profileManager.updateProfile,
+    deleteProfile: profileManager.deleteProfile,
+    getModelsByCategory: profileManager.getModelsByCategory,
+    getModelCategories: profileManager.getModelCategories,
+    getModelsByProvider: profileManager.getModelsByProvider
   }
 }

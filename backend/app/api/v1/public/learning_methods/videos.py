@@ -27,7 +27,7 @@ import logging
 import asyncio
 
 from app.api.middleware.auth import token_required
-from app.infrastructure.persistence.database.connection import fetch_one
+from app.infrastructure.persistence.repositories.content.lesson_content import LessonContentRepository
 
 # Blueprint
 lesson_videos_bp = Blueprint('lesson_videos', __name__, url_prefix='')
@@ -311,21 +311,7 @@ def get_lesson_audio(lesson_id: str):
     """
     try:
         # Look for cached audio
-        query = """
-            SELECT
-                t.tts_id,
-                m.storage_path,
-                m.file_size_bytes,
-                m.duration_ms
-            FROM agent_tts_cache t
-            JOIN agent_media_cache m ON t.media_id = m.media_id
-            WHERE m.source_id = %s
-              AND m.status = 'ready'
-            ORDER BY m.created_at DESC
-            LIMIT 1
-        """
-
-        result = fetch_one(query, (lesson_id,))
+        result = LessonContentRepository.get_cached_audio(lesson_id)
 
         if result and result.get('storage_path'):
             audio_path = result['storage_path']

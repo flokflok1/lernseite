@@ -8,7 +8,7 @@ Routes registered on the blueprint from translations.py.
 
 from flask import request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
 from app.api.v1.panel.admin.i18n.translations.translations import bp
 import logging
 
@@ -67,40 +67,12 @@ def get_review_translations():
     where_sql = " AND ".join(conditions)
 
     # Count total matching rows
-    count_query = f"""
-        SELECT COUNT(*) AS total
-        FROM translations.i18n_keys k
-        JOIN translations.i18n_translations t
-            ON t.key_id = k.key_id AND t.language_code = %s
-        WHERE {where_sql}
-    """
-    count_result = fetch_one(count_query, tuple([language] + params))
-    total = count_result['total'] if count_result else 0
+    total = I18nAdminQueryRepository.count_review_translations(language, where_sql, params)
 
     # Fetch page with source-language value for side-by-side comparison
-    main_query = f"""
-        SELECT
-            t.translation_id,
-            k.key_id,
-            k.key_path,
-            k.namespace_code,
-            src.translated_value  AS source_value,
-            t.translated_value,
-            t.translation_source,
-            t.is_verified,
-            t.quality_score,
-            t.updated_at
-        FROM translations.i18n_keys k
-        JOIN translations.i18n_translations t
-            ON t.key_id = k.key_id AND t.language_code = %s
-        LEFT JOIN translations.i18n_translations src
-            ON src.key_id = k.key_id AND src.language_code = %s
-        WHERE {where_sql}
-        ORDER BY k.namespace_code, k.key_path
-        LIMIT %s OFFSET %s
-    """
-    main_params = [language, source_language] + params + [per_page, offset]
-    rows = fetch_all(main_query, tuple(main_params)) or []
+    rows = I18nAdminQueryRepository.fetch_review_translations(
+        language, source_language, where_sql, params, per_page, offset
+    )
 
     items = []
     for r in rows:
@@ -149,16 +121,7 @@ def edit_translation(translation_id: str):
     if new_value is None:
         return jsonify({'success': False, 'error': 'translated_value required'}), 400
 
-    result = execute_query("""
-        UPDATE translations.i18n_translations
-        SET translated_value  = %s,
-            translation_source = 'manual',
-            is_verified        = TRUE,
-            translator_user_id = %s,
-            updated_at         = NOW()
-        WHERE translation_id = %s
-        RETURNING translation_id
-    """, (new_value, g.user_id, translation_id))
+    result = I18nAdminQueryRepository.edit_translation(translation_id, new_value, g.user_id)
 
     if not result:
         return jsonify({'success': False, 'error': 'Translation not found'}), 404
@@ -175,12 +138,7 @@ def edit_translation(translation_id: str):
 @admin_required
 def verify_translation(translation_id: str):
     """Mark a single translation as verified."""
-    result = execute_query("""
-        UPDATE translations.i18n_translations
-        SET is_verified = TRUE, updated_at = NOW()
-        WHERE translation_id = %s
-        RETURNING translation_id
-    """, (translation_id,))
+    result = I18nAdminQueryRepository.verify_translation(translation_id)
 
     if not result:
         return jsonify({'success': False, 'error': 'Translation not found'}), 404
@@ -211,10 +169,6 @@ def bulk_verify_translations():
     if len(ids) > 500:
         return jsonify({'success': False, 'error': 'Max 500 translations per request'}), 400
 
-    execute_query("""
-        UPDATE translations.i18n_translations
-        SET is_verified = TRUE, updated_at = NOW()
-        WHERE translation_id = ANY(%s)
-    """, (ids,))
+    I18nAdminQueryRepository.bulk_verify_translations(ids)
 
     return jsonify({'success': True, 'verified_count': len(ids)}), 200

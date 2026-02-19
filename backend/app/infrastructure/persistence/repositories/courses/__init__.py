@@ -28,6 +28,7 @@ from app.infrastructure.persistence.repositories.courses.chapters import Chapter
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.infrastructure.persistence.repositories.courses.ai_settings import CourseAiSettingsRepository
 from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
+from app.infrastructure.persistence.repositories.courses.analytics import CourseAnalyticsRepository
 
 # Alias for backward compatibility (AI vs Ai naming)
 CourseAISettingsRepository = CourseAiSettingsRepository
@@ -71,4 +72,5 @@ __all__ = [
     'CourseAiSettingsRepository',
     'CourseAISettingsRepository',  # Alias
     'CourseFileRepository',
+    'CourseAnalyticsRepository',
 ]

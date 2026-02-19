@@ -279,3 +279,62 @@ class CourseAuthoringSessionRepository:
             WHERE session_id = %s
         """
         execute_query(query, (session_id,))
+
+    @staticmethod
+    def archive_session(session_id: str, user_id: str) -> None:
+        """
+        Archive a session (soft delete) if user is creator or admin.
+
+        Args:
+            session_id: Session UUID
+            user_id: User UUID (must be creator or admin)
+        """
+        query = """
+            UPDATE course_authoring_sessions
+            SET status = 'archived'
+            WHERE session_id = %s
+            AND (created_by = %s OR EXISTS (
+                SELECT 1 FROM users u
+                JOIN core.users_groups ug ON u.user_id = ug.user_id
+                JOIN core.groups g ON ug.group_id = g.id
+                JOIN core.group_permissions gp ON g.id = gp.group_id
+                JOIN core.permissions p ON gp.permission_id = p.id
+                WHERE u.user_id = %s
+                    AND ug.is_active = TRUE
+                    AND ug.left_at IS NULL
+                    AND p.permission_code LIKE 'admin.%%'
+            ))
+        """
+        execute_query(query, (session_id, user_id, user_id))
+
+    @staticmethod
+    def list_sessions_for_course(
+        course_id: str,
+        status_filter: str = None
+    ) -> List[Dict]:
+        """
+        List all authoring sessions for a course.
+
+        Args:
+            course_id: Course UUID
+            status_filter: Optional status filter
+
+        Returns:
+            List of session records ordered by created_at DESC
+        """
+        query = """
+            SELECT session_id, status, model_profile,
+                   total_tokens_used, total_operations,
+                   created_at, updated_at, finalized_at
+            FROM course_authoring_sessions
+            WHERE course_id = %s
+        """
+        params = [course_id]
+
+        if status_filter:
+            query += " AND status = %s"
+            params.append(status_filter)
+
+        query += " ORDER BY created_at DESC"
+
+        return fetch_all(query, tuple(params))

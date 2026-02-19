@@ -11,7 +11,7 @@ Translation management endpoints:
 
 from flask import Blueprint, request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
 from app.application.services.i18n.keys import KeyManager
 from app.application.services.i18n.translations import TranslationManager
 import json
@@ -214,10 +214,7 @@ def import_locales():
         return jsonify({'success': False, 'error': 'language_code and namespaces required'}), 400
 
     # Verify language exists in supported_languages
-    lang = fetch_one(
-        "SELECT language_code FROM translations.supported_languages WHERE language_code = %s",
-        (language_code,)
-    )
+    lang = I18nAdminQueryRepository.language_exists(language_code)
     if not lang:
         return jsonify({'success': False, 'error': f'Language {language_code} not found in supported_languages'}), 404
 
@@ -233,12 +230,9 @@ def import_locales():
 
         for key_path, value in flat.items():
             # UPSERT key
-            key_result = fetch_one("""
-                INSERT INTO translations.i18n_keys (namespace_code, key_path, default_value)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (namespace_code, key_path) DO UPDATE SET updated_at = NOW()
-                RETURNING key_id, (xmax = 0) AS was_inserted
-            """, (namespace_code, key_path, value if language_code == 'de' else ''))
+            key_result = I18nAdminQueryRepository.upsert_key(
+                namespace_code, key_path, value if language_code == 'de' else ''
+            )
 
             if not key_result:
                 continue

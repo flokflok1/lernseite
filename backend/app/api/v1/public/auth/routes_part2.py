@@ -28,10 +28,10 @@ from app.domain.models.schemas.user import (
     PasswordReset
 )
 from app.infrastructure.persistence.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.auth.authorization import AuthorizationRepository
 from app.api.middleware.auth import token_required, get_current_user
 from app.application.services.system.audit.service import AuditService
 from app.setup.initialization.admin import AdminSetup
-from app.infrastructure.persistence.database.connection import execute_query
 
 from app.api.v1.public.auth.routes import auth_bp
 
@@ -134,7 +134,7 @@ def setup_2fa():
         qr_code = AdminSetup.generate_qr_code(user['email'], totp_secret)
         recovery_codes = AdminSetup._generate_recovery_codes(count=10)
 
-        execute_query("UPDATE users SET two_factor_secret = %s WHERE user_id = %s", (totp_secret, user['user_id']))
+        AuthorizationRepository.set_two_factor_secret(user['user_id'], totp_secret)
         AdminSetup._store_recovery_codes(user['user_id'], recovery_codes)
 
         return jsonify({
@@ -180,7 +180,7 @@ def verify_2fa():
         if not is_valid:
             return error_response(ErrorCode.AUTH_2FA_INVALID, 400)
 
-        execute_query("UPDATE users SET two_factor_enabled = true WHERE user_id = %s", (user['user_id'],))
+        AuthorizationRepository.enable_two_factor(user['user_id'])
         AuditService.log_2fa_enabled(user_id=user['user_id'], user_email=user['email'])
 
         return jsonify({
@@ -232,7 +232,7 @@ def disable_2fa():
         if not is_valid:
             return error_response(ErrorCode.AUTH_2FA_INVALID, 400)
 
-        execute_query("UPDATE users SET two_factor_enabled = false, two_factor_secret = NULL WHERE user_id = %s", (user['user_id'],))
+        AuthorizationRepository.disable_two_factor(user['user_id'])
         AuditService.log_2fa_disabled(user_id=user['user_id'], user_email=user['email'])
 
         return jsonify({

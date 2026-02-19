@@ -122,12 +122,12 @@ def seed_keys():
         }), 400
 
     try:
-        from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+        from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
 
         results = {'created': 0, 'updated': 0, 'errors': []}
 
         # Get existing namespaces
-        ns_rows = fetch_all("SELECT namespace_code FROM translations.i18n_namespaces") or []
+        ns_rows = I18nAdminQueryRepository.get_all_namespaces()
         existing_ns = {r['namespace_code'] for r in ns_rows}
 
         for key_path, value in messages.items():
@@ -136,21 +136,14 @@ def seed_keys():
 
             # Auto-create namespace if missing
             if ns_code not in existing_ns:
-                execute_query(
-                    "INSERT INTO translations.i18n_namespaces (namespace_code, name) "
-                    "VALUES (%s, %s) ON CONFLICT DO NOTHING",
-                    (ns_code, ns_code.replace('.', ' > ').title())
+                I18nAdminQueryRepository.create_namespace(
+                    ns_code, ns_code.replace('.', ' > ').title()
                 )
                 existing_ns.add(ns_code)
 
             # Upsert key
-            result = fetch_one(
-                "INSERT INTO translations.i18n_keys (namespace_code, key_path, default_value) "
-                "VALUES (%s, %s, %s) "
-                "ON CONFLICT (namespace_code, key_path) DO UPDATE SET "
-                "default_value = EXCLUDED.default_value, updated_at = NOW() "
-                "RETURNING key_id, (xmax = 0) AS is_new",
-                (ns_code, key_path, value)
+            result = I18nAdminQueryRepository.upsert_key_with_default(
+                ns_code, key_path, value
             )
 
             if result:
@@ -161,13 +154,8 @@ def seed_keys():
                     results['updated'] += 1
 
                 # Set German translation
-                execute_query(
-                    "INSERT INTO translations.i18n_translations "
-                    "(key_id, language_code, translated_value, translator_user_id, translation_source) "
-                    "VALUES (%s, %s, %s, %s, 'imported') "
-                    "ON CONFLICT (key_id, language_code) DO UPDATE SET "
-                    "translated_value = EXCLUDED.translated_value, updated_at = NOW()",
-                    (key_id, 'de', value, user_id)
+                I18nAdminQueryRepository.upsert_translation(
+                    key_id, 'de', value, user_id
                 )
 
         return jsonify({

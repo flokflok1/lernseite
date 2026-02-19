@@ -4,9 +4,12 @@ Authorization Repository - Hierarchy level and group queries.
 Provides database access for:
 - User hierarchy level calculation
 - User group membership with levels
+- User effective permissions (via SQL function)
+- User active groups for token refresh
+- Two-factor authentication updates
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from app.infrastructure.persistence.database.connection import execute_query
 
@@ -74,3 +77,95 @@ class AuthorizationRepository:
             fetch=True
         )
         return result if result else []
+
+    @staticmethod
+    def get_user_effective_permissions(user_id: str) -> List[Dict[str, Any]]:
+        """
+        Get user's effective permissions using SQL function.
+
+        Args:
+            user_id: User UUID
+
+        Returns:
+            List of dicts with 'permission_code' key
+        """
+        result = execute_query(
+            "SELECT * FROM get_user_effective_permissions(%s)",
+            (user_id,),
+            fetch=True
+        )
+        return result if result else []
+
+    @staticmethod
+    def get_user_active_groups(user_id: str) -> List[Dict[str, Any]]:
+        """
+        Get user's active groups for token refresh.
+
+        Args:
+            user_id: User UUID
+
+        Returns:
+            List of groups with id, name, slug, group_type, frontend_role,
+            access_level, joined_at. Sorted by joined_at ASC.
+        """
+        result = execute_query(
+            """
+            SELECT
+                g.id,
+                g.name,
+                g.slug,
+                g.group_type,
+                g.frontend_role,
+                ug.access_level,
+                ug.joined_at
+            FROM core.users_groups ug
+            JOIN core.groups g ON ug.group_id = g.id
+            WHERE ug.user_id = %s
+                AND ug.is_active = TRUE
+                AND ug.left_at IS NULL
+            ORDER BY ug.joined_at ASC
+            """,
+            (user_id,),
+            fetch=True
+        )
+        return result if result else []
+
+    @staticmethod
+    def set_two_factor_secret(user_id: str, totp_secret: str) -> None:
+        """
+        Store TOTP secret for 2FA setup.
+
+        Args:
+            user_id: User UUID
+            totp_secret: TOTP secret string
+        """
+        execute_query(
+            "UPDATE users SET two_factor_secret = %s WHERE user_id = %s",
+            (totp_secret, user_id)
+        )
+
+    @staticmethod
+    def enable_two_factor(user_id: str) -> None:
+        """
+        Enable two-factor authentication for user.
+
+        Args:
+            user_id: User UUID
+        """
+        execute_query(
+            "UPDATE users SET two_factor_enabled = true WHERE user_id = %s",
+            (user_id,)
+        )
+
+    @staticmethod
+    def disable_two_factor(user_id: str) -> None:
+        """
+        Disable two-factor authentication and clear secret.
+
+        Args:
+            user_id: User UUID
+        """
+        execute_query(
+            "UPDATE users SET two_factor_enabled = false, two_factor_secret = NULL WHERE user_id = %s",
+            (user_id,)
+        )

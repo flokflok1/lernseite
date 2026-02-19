@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 
 from app.api.v1 import api_v1
 from app.api.middleware.auth import admin_required
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.courses.analytics import CourseAnalyticsRepository
 
 
 # ============================================================================
@@ -28,78 +28,15 @@ from app.infrastructure.persistence.database.connection import fetch_one, fetch_
 
 def _get_course_content_stats(course_id: str) -> dict:
     """Get content statistics for a course"""
-    query = """
-        WITH chapter_stats AS (
-            SELECT
-                COUNT(*) as chapter_count,
-                SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) as published_chapters
-            FROM chapters
-            WHERE course_id = %s
-        ),
-        lesson_stats AS (
-            SELECT
-                COUNT(*) as lesson_count,
-                SUM(CASE WHEN l.status = 'published' THEN 1 ELSE 0 END) as published_lessons
-            FROM lessons l
-            JOIN chapters ch ON ch.chapter_id = l.chapter_id
-            WHERE ch.course_id = %s
-        ),
-        method_stats AS (
-            SELECT
-                COUNT(*) as method_count,
-                COUNT(DISTINCT lmi.method_type) as unique_methods
-            FROM learning_method_instances lmi
-            JOIN lessons l ON l.lesson_id = lmi.lesson_id
-            JOIN chapters ch ON ch.chapter_id = l.chapter_id
-            WHERE ch.course_id = %s
-        )
-        SELECT
-            cs.chapter_count,
-            cs.published_chapters,
-            ls.lesson_count,
-            ls.published_lessons,
-            ms.method_count,
-            ms.unique_methods
-        FROM chapter_stats cs, lesson_stats ls, method_stats ms
-    """
-    return fetch_one(query, (course_id, course_id, course_id)) or {
-        'chapter_count': 0,
-        'published_chapters': 0,
-        'lesson_count': 0,
-        'published_lessons': 0,
-        'method_count': 0,
-        'unique_methods': 0
-    }
+    return CourseAnalyticsRepository.get_content_stats(course_id)
 
 
 def _get_ai_usage_stats(course_id: str, days: int = 30) -> dict:
     """Get AI usage statistics for a course"""
     since = datetime.utcnow() - timedelta(days=days)
 
-    query = """
-        SELECT
-            COUNT(*) as total_requests,
-            COALESCE(SUM(tokens_used), 0) as total_tokens,
-            COALESCE(SUM(cost_usd), 0) as total_cost_usd,
-            COUNT(DISTINCT request_type) as request_types,
-            COUNT(DISTINCT user_id) as unique_users
-        FROM ki_requests
-        WHERE course_id = %s AND created_at >= %s
-    """
-    stats = fetch_one(query, (course_id, since)) or {}
-
-    # Get breakdown by request type
-    type_query = """
-        SELECT
-            request_type,
-            COUNT(*) as count,
-            COALESCE(SUM(tokens_used), 0) as tokens
-        FROM ki_requests
-        WHERE course_id = %s AND created_at >= %s
-        GROUP BY request_type
-        ORDER BY count DESC
-    """
-    by_type = fetch_all(type_query, (course_id, since)) or []
+    stats = CourseAnalyticsRepository.get_ai_usage_stats(course_id, since)
+    by_type = CourseAnalyticsRepository.get_ai_usage_by_type(course_id, since)
 
     return {
         'total_requests': stats.get('total_requests', 0),
@@ -117,39 +54,12 @@ def _get_ai_usage_stats(course_id: str, days: int = 30) -> dict:
 
 def _get_enrollment_stats(course_id: str) -> dict:
     """Get enrollment statistics for a course"""
-    query = """
-        SELECT
-            COUNT(*) as total_enrollments,
-            COUNT(CASE WHEN status = 'active' THEN 1 END) as active_enrollments,
-            COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_enrollments,
-            COALESCE(AVG(progress_percent), 0) as avg_progress
-        FROM enrollments
-        WHERE course_id = %s
-    """
-    return fetch_one(query, (course_id,)) or {
-        'total_enrollments': 0,
-        'active_enrollments': 0,
-        'completed_enrollments': 0,
-        'avg_progress': 0
-    }
+    return CourseAnalyticsRepository.get_enrollment_stats(course_id)
 
 
 def _get_method_distribution(course_id: str) -> list:
     """Get learning method distribution for a course"""
-    query = """
-        SELECT
-            lmi.method_type,
-            lmt.name as method_name,
-            COUNT(*) as count
-        FROM learning_method_instances lmi
-        JOIN lessons l ON l.lesson_id = lmi.lesson_id
-        JOIN chapters ch ON ch.chapter_id = l.chapter_id
-        LEFT JOIN learning_method_types lmt ON lmt.method_number = lmi.method_type
-        WHERE ch.course_id = %s
-        GROUP BY lmi.method_type, lmt.name
-        ORDER BY count DESC
-    """
-    result = fetch_all(query, (course_id,)) or []
+    result = CourseAnalyticsRepository.get_method_distribution(course_id)
     return [
         {
             'method_type': r['method_type'],
@@ -162,21 +72,7 @@ def _get_method_distribution(course_id: str) -> list:
 
 def _get_recent_sessions(course_id: str, limit: int = 10) -> list:
     """Get recent authoring sessions for a course"""
-    query = """
-        SELECT
-            session_id,
-            status,
-            model_profile,
-            total_tokens_used,
-            total_operations,
-            created_at,
-            updated_at
-        FROM course_authoring_sessions
-        WHERE course_id = %s
-        ORDER BY updated_at DESC
-        LIMIT %s
-    """
-    result = fetch_all(query, (course_id, limit)) or []
+    result = CourseAnalyticsRepository.get_recent_sessions(course_id, limit)
     return [
         {
             'session_id': str(r['session_id']),

@@ -8,7 +8,7 @@ Routes registered on the blueprint from translations.py.
 
 from flask import request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
 from app.application.services.i18n.translations import TranslationManager
 from app.api.v1.panel.admin.i18n.translations.translations import bp
 import json
@@ -86,26 +86,9 @@ def create_bulk_translate_job():
     namespace_code = data.get('namespace_code')
 
     # Count keys needing translation
-    count_query = """
-        SELECT COUNT(*) AS total
-        FROM translations.i18n_keys k
-        WHERE k.is_active = TRUE
-        AND EXISTS (
-            SELECT 1 FROM translations.i18n_translations t
-            WHERE t.key_id = k.key_id AND t.language_code = %s
-        )
-        AND NOT EXISTS (
-            SELECT 1 FROM translations.i18n_translations t
-            WHERE t.key_id = k.key_id AND t.language_code = %s
-        )
-    """
-    params = [source_language, target_language]
-    if namespace_code:
-        count_query += " AND k.namespace_code = %s"
-        params.append(namespace_code)
-
-    count_result = fetch_one(count_query, tuple(params))
-    total = count_result['total'] if count_result else 0
+    total = I18nAdminQueryRepository.count_keys_needing_translation(
+        source_language, target_language, namespace_code
+    )
 
     if total == 0:
         return jsonify({'success': True, 'job_id': None, 'status': 'completed', 'total': 0}), 200
@@ -203,26 +186,9 @@ def run_bulk_translate_step(job_id: str):
     BATCH_SIZE = 50
 
     # Fetch next batch of keys needing translation
-    batch_query = """
-        SELECT k.key_id, k.key_path, k.namespace_code,
-               t.translated_value AS source_value
-        FROM translations.i18n_keys k
-        JOIN translations.i18n_translations t
-            ON t.key_id = k.key_id AND t.language_code = %s
-        WHERE k.is_active = TRUE
-        AND NOT EXISTS (
-            SELECT 1 FROM translations.i18n_translations t2
-            WHERE t2.key_id = k.key_id AND t2.language_code = %s
-        )
-    """
-    batch_params = [source_lang, target_lang]
-    if ns_filter:
-        batch_query += " AND k.namespace_code = %s"
-        batch_params.append(ns_filter)
-    batch_query += " ORDER BY k.namespace_code, k.key_path LIMIT %s"
-    batch_params.append(BATCH_SIZE)
-
-    keys = fetch_all(batch_query, tuple(batch_params)) or []
+    keys = I18nAdminQueryRepository.fetch_keys_needing_translation(
+        source_lang, target_lang, ns_filter, BATCH_SIZE
+    )
 
     if not keys:
         # No more keys → mark completed
@@ -234,11 +200,7 @@ def run_bulk_translate_step(job_id: str):
         }), 200
 
     # Get target language name for prompt
-    lang_info = fetch_one(
-        "SELECT language_name FROM translations.supported_languages WHERE language_code = %s",
-        (target_lang,)
-    )
-    target_lang_name = lang_info['language_name'] if lang_info else target_lang
+    target_lang_name = I18nAdminQueryRepository.get_language_name(target_lang) or target_lang
 
     # Translate each key individually
     try:

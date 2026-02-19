@@ -14,7 +14,7 @@ Split from: exam_simulations.py (Part 3/3 - User Exam Profile)
 from flask import Blueprint, request, jsonify
 
 from app.api.middleware.auth import token_required, get_current_user
-from app.infrastructure.persistence.database.connection import fetch_one, execute_query
+from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
 
 settings_bp = Blueprint('exam_user_profile', __name__, url_prefix='/user-profile')
 
@@ -55,18 +55,7 @@ def get_user_exam_settings():
         user = get_current_user()
         user_id = user['user_id']
 
-        profile = fetch_one(
-            """
-            SELECT
-                profession, profession_detail, training_year,
-                target_exam, exam_date, region, ihk,
-                detected_profession, detected_level, detection_confidence,
-                preferred_difficulty, preferred_question_types
-            FROM user_profiles
-            WHERE user_id = %s
-            """,
-            (user_id,)
-        )
+        profile = ExamSimulationRepository.get_user_exam_profile(user_id)
 
         if not profile:
             return jsonify({
@@ -127,10 +116,7 @@ def update_user_exam_settings():
         data = request.get_json()
 
         # Check if profile exists
-        existing = fetch_one(
-            "SELECT profile_id FROM user_profiles WHERE user_id = %s",
-            (user_id,)
-        )
+        existing = ExamSimulationRepository.get_user_profile_id(user_id)
 
         allowed_fields = [
             'profession', 'profession_detail', 'training_year',
@@ -153,14 +139,9 @@ def update_user_exam_settings():
                     values.append(value)
 
             if set_parts:
-                query = f"""
-                    UPDATE user_profiles
-                    SET {', '.join(set_parts)}
-                    WHERE user_id = %s
-                    RETURNING *
-                """
-                values.append(user_id)
-                result = fetch_one(query, tuple(values))
+                result = ExamSimulationRepository.update_user_profile(
+                    user_id, set_parts, values
+                )
             else:
                 result = existing
         else:
@@ -175,12 +156,9 @@ def update_user_exam_settings():
                     placeholders.append('%s')
                     values.append(data[field])
 
-            query = f"""
-                INSERT INTO user_profiles ({', '.join(fields)})
-                VALUES ({', '.join(placeholders)})
-                RETURNING *
-            """
-            result = fetch_one(query, tuple(values))
+            result = ExamSimulationRepository.insert_user_profile(
+                fields, placeholders, values
+            )
 
         return jsonify({
             'success': True,

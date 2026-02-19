@@ -25,7 +25,7 @@ from flask_jwt_extended import (
 
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
-from app.infrastructure.persistence.database.connection import execute_query
+from app.infrastructure.persistence.repositories.auth.permission_queries import PermissionQueryRepository
 
 
 def get_current_user_id() -> Optional[int]:
@@ -456,16 +456,7 @@ def get_accessible_groups(current_user: dict) -> List[dict]:
     # System admins can assign any group
     if PermissionService.check_permission(current_user, 'groups.manage'):
         try:
-            result = execute_query(
-                """
-                SELECT id, name, slug, group_type, frontend_role
-                FROM core.groups
-                WHERE deleted_at IS NULL
-                ORDER BY name ASC
-                """,
-                fetch=True
-            )
-            return result if result else []
+            return PermissionQueryRepository.get_all_groups()
         except Exception:
             return []
 
@@ -474,19 +465,7 @@ def get_accessible_groups(current_user: dict) -> List[dict]:
         org_id = current_user.get('organisation_id')
         if org_id:
             try:
-                result = execute_query(
-                    """
-                    SELECT id, name, slug, group_type, frontend_role
-                    FROM core.groups
-                    WHERE organisation_id = %s
-                        AND group_type != 'role'
-                        AND deleted_at IS NULL
-                    ORDER BY name ASC
-                    """,
-                    (org_id,),
-                    fetch=True
-                )
-                return result if result else []
+                return PermissionQueryRepository.get_org_non_role_groups(org_id)
             except Exception:
                 return []
 

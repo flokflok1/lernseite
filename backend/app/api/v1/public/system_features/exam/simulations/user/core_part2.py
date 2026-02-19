@@ -19,7 +19,7 @@ from uuid import UUID
 
 from app.api.middleware.auth import token_required, get_current_user
 from app.application.services.ai import get_exam_context_sync
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
 
 from app.api.v1.public.system_features.exam.simulations.user.core import (
     core_bp,
@@ -66,10 +66,7 @@ def create_exam_simulation(course_id: str):
         sim_data = ExamSimulationCreate(**data)
 
         # Verify course exists
-        course = fetch_one(
-            "SELECT course_id, title FROM courses WHERE course_id = %s",
-            (course_id,)
-        )
+        course = ExamSimulationRepository.get_course(course_id)
 
         if not course:
             return jsonify({
@@ -157,41 +154,16 @@ def list_exam_simulations():
         per_page = min(int(request.args.get('per_page', 20)), 100)
         offset = (page - 1) * per_page
 
-        # Build query
-        conditions = ["user_id = %s"]
-        params = [user_id]
-
-        if course_id:
-            conditions.append("course_id = %s")
-            params.append(course_id)
-
-        if status:
-            conditions.append("status = %s")
-            params.append(status)
-
-        where_clause = " AND ".join(conditions)
-
         # Count total
-        count_query = f"SELECT COUNT(*) as total FROM exam_simulations WHERE {where_clause}"
-        count_result = fetch_one(count_query, tuple(params))
-        total = count_result['total'] if count_result else 0
+        total = ExamSimulationRepository.count_simulations(
+            user_id, course_id=course_id, status=status
+        )
 
         # Get simulations
-        query = f"""
-            SELECT
-                es.simulation_id, es.course_id, es.user_id, es.title,
-                es.context_json, es.config_json, es.status, es.error_message,
-                es.attempt_count, es.best_score, es.avg_score,
-                es.created_at, es.updated_at,
-                c.title as course_title
-            FROM exam_simulations es
-            JOIN courses c ON c.course_id = es.course_id
-            WHERE {where_clause}
-            ORDER BY es.created_at DESC
-            LIMIT %s OFFSET %s
-        """
-        params.extend([per_page, offset])
-        results = fetch_all(query, tuple(params))
+        results = ExamSimulationRepository.list_simulations(
+            user_id, course_id=course_id, status=status,
+            per_page=per_page, offset=offset
+        )
 
         simulations = []
         for r in results:
@@ -247,14 +219,7 @@ def get_exam_simulation(simulation_id: str):
         user = get_current_user()
         user_id = user['user_id']
 
-        query = """
-            SELECT
-                es.*, c.title as course_title
-            FROM exam_simulations es
-            JOIN courses c ON c.course_id = es.course_id
-            WHERE es.simulation_id = %s
-        """
-        result = fetch_one(query, (simulation_id,))
+        result = ExamSimulationRepository.get_simulation(simulation_id)
 
         if not result:
             return jsonify({
@@ -322,10 +287,7 @@ def delete_exam_simulation(simulation_id: str):
         user_id = user['user_id']
 
         # Check exists and ownership
-        result = fetch_one(
-            "SELECT user_id FROM exam_simulations WHERE simulation_id = %s",
-            (simulation_id,)
-        )
+        result = ExamSimulationRepository.get_simulation_owner(simulation_id)
 
         if not result:
             return jsonify({
@@ -342,10 +304,7 @@ def delete_exam_simulation(simulation_id: str):
             }), 403
 
         # Delete
-        execute_query(
-            "DELETE FROM exam_simulations WHERE simulation_id = %s",
-            (simulation_id,)
-        )
+        ExamSimulationRepository.delete_simulation(simulation_id)
 
         return jsonify({
             'success': True,

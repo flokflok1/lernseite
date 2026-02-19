@@ -25,7 +25,7 @@ from app.domain.models.schemas.organisation import (
     OrganisationListResponse
 )
 from app.infrastructure.persistence.repositories.organisations.core import OrganisationRepository
-from app.infrastructure.persistence.database.connection import fetch_one
+from app.infrastructure.persistence.repositories.organisations.core_part2 import OrganisationUsersMixin
 from app.api.middleware.auth import (
     token_required,
     admin_required,
@@ -60,11 +60,7 @@ def can_manage_organisation(user: dict, org_id: int) -> bool:
     # Organisation admins can only manage their own organisation
     if user.get('organisation_id') == org_id:
         # Check if user has org_admin role
-        org_user_query = """
-            SELECT org_role FROM organisation_users
-            WHERE org_id = %s AND user_id = %s AND status = 'active'
-        """
-        org_user = fetch_one(org_user_query, (org_id, user['user_id']))
+        org_user = OrganisationUsersMixin.get_org_user_role(org_id, user['user_id'])
 
         if org_user and org_user['org_role'] == 'org_admin':
             return True
@@ -98,11 +94,7 @@ def check_org_membership(user: dict, org_id: int, required_roles: Optional[list]
         return True
 
     # Check org role
-    org_user_query = """
-        SELECT org_role FROM organisation_users
-        WHERE org_id = %s AND user_id = %s AND status = 'active'
-    """
-    org_user = fetch_one(org_user_query, (org_id, user['user_id']))
+    org_user = OrganisationUsersMixin.get_org_user_role(org_id, user['user_id'])
 
     if org_user and org_user['org_role'] in required_roles:
         return True

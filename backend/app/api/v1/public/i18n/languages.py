@@ -14,6 +14,7 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify
 from app.application.services.i18n.bridge import I18nService
+from app.infrastructure.persistence.repositories.i18n.admin_languages import I18nAdminLanguageRepository
 from app.api.middleware.auth import permission_required
 import logging
 
@@ -58,8 +59,6 @@ def create_language():
     Returns:
         language_code of created language
     """
-    from app.infrastructure.persistence.database.connection import execute_query, fetch_one
-
     data = request.get_json()
 
     required = ['language_code', 'language_name', 'native_name', 'flag_svg_code']
@@ -72,33 +71,23 @@ def create_language():
 
     try:
         # Check if language already exists
-        check = fetch_one(
-            "SELECT 1 FROM translations.supported_languages WHERE language_code = %s",
-            (data['language_code'],)
-        )
-        if check:
+        if I18nAdminLanguageRepository.language_exists(data['language_code']):
             return jsonify({
                 'success': False,
                 'error': {'code': 'DUPLICATE', 'message': 'Language already exists'}
             }), 409
 
         # Insert new language
-        execute_query("""
-            INSERT INTO translations.supported_languages (
-                language_code, language_name, native_name, flag,
-                is_active, is_rtl, is_primary, priority
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (
-            data['language_code'],
-            data['language_name'],
-            data['native_name'],
-            data['flag_svg_code'],
-            data.get('active', True),
-            data.get('rtl', False),
-            data.get('is_primary', False),
-            data.get('priority', 100)
-        ))
+        I18nAdminLanguageRepository.create_language(
+            language_code=data['language_code'],
+            language_name=data['language_name'],
+            native_name=data['native_name'],
+            flag_svg_code=data['flag_svg_code'],
+            active=data.get('active', True),
+            rtl=data.get('rtl', False),
+            is_primary=data.get('is_primary', False),
+            priority=data.get('priority', 100)
+        )
 
         I18nService.invalidate_cache()
 
@@ -136,17 +125,11 @@ def update_language(language_code: str):
     Returns:
         Success status
     """
-    from app.infrastructure.persistence.database.connection import execute_query, fetch_one
-
     data = request.get_json()
 
     try:
         # Check if language exists
-        check = fetch_one(
-            "SELECT 1 FROM translations.supported_languages WHERE language_code = %s",
-            (language_code,)
-        )
-        if not check:
+        if not I18nAdminLanguageRepository.language_exists(language_code):
             return jsonify({
                 'success': False,
                 'error': {'code': 'NOT_FOUND', 'message': 'Language not found'}
@@ -187,14 +170,7 @@ def update_language(language_code: str):
             }), 400
 
         if updates:
-            params.append(language_code)
-
-            execute_query(f"""
-                UPDATE translations.supported_languages
-                SET {', '.join(updates)}
-                WHERE language_code = %s
-            """, tuple(params))
-
+            I18nAdminLanguageRepository.update_language(language_code, updates, params)
             I18nService.invalidate_cache(language_code)
 
         return jsonify({'success': True})
@@ -219,8 +195,6 @@ def delete_language(language_code: str):
     Returns:
         Success status
     """
-    from app.infrastructure.persistence.database.connection import execute_query, fetch_one
-
     # Don't allow deleting the primary language (dynamic check)
     from app.application.services.i18n.languages import LanguageManager
     if language_code == LanguageManager.get_primary_language():
@@ -231,27 +205,17 @@ def delete_language(language_code: str):
 
     try:
         # Check if language exists
-        check = fetch_one(
-            "SELECT 1 FROM translations.supported_languages WHERE language_code = %s",
-            (language_code,)
-        )
-        if not check:
+        if not I18nAdminLanguageRepository.language_exists(language_code):
             return jsonify({
                 'success': False,
                 'error': {'code': 'NOT_FOUND', 'message': 'Language not found'}
             }), 404
 
         # Delete translations first (cascade)
-        execute_query(
-            "DELETE FROM translations.i18n_translations WHERE language_code = %s",
-            (language_code,)
-        )
+        I18nAdminLanguageRepository.delete_translations_for_language(language_code)
 
         # Delete the language
-        execute_query(
-            "DELETE FROM translations.supported_languages WHERE language_code = %s",
-            (language_code,)
-        )
+        I18nAdminLanguageRepository.delete_language(language_code)
 
         I18nService.invalidate_cache()
 
@@ -278,8 +242,6 @@ def export_locales():
     Returns:
         Translations organized by language code
     """
-    from app.infrastructure.persistence.database.connection import fetch_all
-
     output_format = request.args.get('format', 'nested')
     languages_param = request.args.get('languages')
 
@@ -288,23 +250,10 @@ def export_locales():
         if languages_param:
             lang_codes = [l.strip() for l in languages_param.split(',')]
         else:
-            lang_rows = fetch_all(
-                "SELECT language_code FROM translations.supported_languages WHERE is_active = TRUE ORDER BY priority"
-            ) or []
-            lang_codes = [r['language_code'] for r in lang_rows]
+            lang_codes = I18nAdminLanguageRepository.get_active_language_codes()
 
         # Get all keys with translations
-        query = """
-            SELECT
-                k.key_path,
-                t.language_code,
-                t.value
-            FROM translations.i18n_keys k
-            LEFT JOIN translations.i18n_translations t ON k.key_id = t.key_id
-            WHERE t.language_code = ANY(%s)
-            ORDER BY k.key_path, t.language_code
-        """
-        rows = fetch_all(query, (lang_codes,)) or []
+        rows = I18nAdminLanguageRepository.export_translations(lang_codes)
 
         # Build result structure
         result = {lang: {} for lang in lang_codes}

@@ -20,7 +20,7 @@ import logging
 
 from app.setup.initialization.groups import GroupSetup
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.database.connection import execute_query, fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.group.admin_queries import GroupAdminQueryRepository
 from app.api.v1.panel.admin.groups.routes import bp, _get_group_by_id
 
 logger = logging.getLogger(__name__)
@@ -36,28 +36,8 @@ def _get_group_members(
     offset: int = 0
 ) -> Tuple[List[Dict], int]:
     """Get members of a group with pagination."""
-    members = fetch_all(
-        """
-        SELECT ug.user_id, ug.access_level, ug.joined_at, ug.is_active,
-               u.email, u.full_name, u.username
-        FROM core.users_groups ug
-        JOIN core.users u ON ug.user_id = u.user_id
-        WHERE ug.group_id = %s AND ug.is_active = TRUE
-        ORDER BY ug.joined_at DESC
-        LIMIT %s OFFSET %s
-        """,
-        (group_id, limit, offset)
-    )
-
-    count_result = fetch_one(
-        """
-        SELECT COUNT(*) as total
-        FROM core.users_groups
-        WHERE group_id = %s AND is_active = TRUE
-        """,
-        (group_id,)
-    )
-    total = count_result['total'] if count_result else 0
+    members = GroupAdminQueryRepository.get_group_members(group_id, limit, offset)
+    total = GroupAdminQueryRepository.count_group_members(group_id)
 
     return [
         {
@@ -75,17 +55,7 @@ def _get_group_members(
 
 def _remove_member(group_id: str, user_id: str) -> bool:
     """Remove a member from a group."""
-    result = execute_query(
-        """
-        UPDATE core.users_groups
-        SET is_active = FALSE, left_at = NOW()
-        WHERE group_id = %s AND user_id = %s
-        RETURNING user_id
-        """,
-        (group_id, user_id),
-        fetch_one=True
-    )
-    return result is not None
+    return GroupAdminQueryRepository.remove_member(group_id, user_id)
 
 
 def _get_group_permissions_paginated(
@@ -94,27 +64,8 @@ def _get_group_permissions_paginated(
     offset: int = 0
 ) -> Tuple[List[Dict], int]:
     """Get permissions of a group with pagination."""
-    permissions = fetch_all(
-        """
-        SELECT p.id, p.code, p.display_name, p.category, p.description, gp.created_at
-        FROM core.group_permissions gp
-        JOIN core.permissions p ON gp.permission_id = p.id
-        WHERE gp.group_id = %s
-        ORDER BY p.code ASC
-        LIMIT %s OFFSET %s
-        """,
-        (group_id, limit, offset)
-    )
-
-    count_result = fetch_one(
-        """
-        SELECT COUNT(*) as total
-        FROM core.group_permissions
-        WHERE group_id = %s
-        """,
-        (group_id,)
-    )
-    total = count_result['total'] if count_result else 0
+    permissions = GroupAdminQueryRepository.get_group_permissions_paginated(group_id, limit, offset)
+    total = GroupAdminQueryRepository.count_group_permissions(group_id)
 
     return [
         {
@@ -131,16 +82,7 @@ def _get_group_permissions_paginated(
 
 def _revoke_permission(group_id: str, permission_id: str) -> bool:
     """Revoke a permission from a group."""
-    result = execute_query(
-        """
-        DELETE FROM core.group_permissions
-        WHERE group_id = %s AND permission_id = %s
-        RETURNING permission_id
-        """,
-        (group_id, permission_id),
-        fetch_one=True
-    )
-    return result is not None
+    return GroupAdminQueryRepository.revoke_permission(group_id, permission_id)
 
 
 # ============================================================================

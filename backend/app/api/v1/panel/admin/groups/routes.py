@@ -24,7 +24,7 @@ import logging
 
 from app.setup.initialization.groups import GroupSetup
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.database.connection import execute_query, fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.group.admin_queries import GroupAdminQueryRepository
 
 logger = logging.getLogger(__name__)
 
@@ -42,15 +42,7 @@ bp = Blueprint(
 
 def _get_group_by_id(group_id: str) -> Optional[Dict]:
     """Get a single group by ID."""
-    result = fetch_one(
-        """
-        SELECT id, name, slug, description, hierarchy_level, group_type,
-               organisation_id, is_system_group, is_protected, created_at, updated_at
-        FROM core.groups
-        WHERE id = %s
-        """,
-        (group_id,)
-    )
+    result = GroupAdminQueryRepository.get_group_by_id(group_id)
     if result:
         return {
             'id': result['id'],
@@ -83,19 +75,7 @@ def _update_group(group_id: str, data: Dict) -> Optional[Dict]:
     if not updates:
         return _get_group_by_id(group_id)
 
-    params.append(group_id)
-
-    result = execute_query(
-        f"""
-        UPDATE core.groups
-        SET {', '.join(updates)}, updated_at = NOW()
-        WHERE id = %s AND is_protected = FALSE
-        RETURNING id, name, slug, description, hierarchy_level, group_type,
-                  is_system_group, is_protected, created_at, updated_at
-        """,
-        tuple(params),
-        fetch_one=True
-    )
+    result = GroupAdminQueryRepository.update_group(group_id, updates, params)
 
     if result:
         return {
@@ -115,16 +95,7 @@ def _update_group(group_id: str, data: Dict) -> Optional[Dict]:
 
 def _delete_group(group_id: str) -> bool:
     """Delete a group (only if not protected)."""
-    result = execute_query(
-        """
-        DELETE FROM core.groups
-        WHERE id = %s AND is_protected = FALSE
-        RETURNING id
-        """,
-        (group_id,),
-        fetch_one=True
-    )
-    return result is not None
+    return GroupAdminQueryRepository.delete_group(group_id) is not None
 
 
 # ============================================================================
@@ -200,34 +171,8 @@ def list_all_permissions() -> Tuple[Dict[str, Any], int]:
     try:
         category = request.args.get('category')
 
-        if category:
-            permissions = fetch_all(
-                """
-                SELECT id, code, display_name, category, description
-                FROM core.permissions
-                WHERE category = %s
-                ORDER BY category, code ASC
-                """,
-                (category,)
-            )
-        else:
-            permissions = fetch_all(
-                """
-                SELECT id, code, display_name, category, description
-                FROM core.permissions
-                ORDER BY category, code ASC
-                """
-            )
-
-        # Get distinct categories
-        categories_result = fetch_all(
-            """
-            SELECT DISTINCT category
-            FROM core.permissions
-            ORDER BY category ASC
-            """
-        )
-        categories = [c['category'] for c in categories_result] if categories_result else []
+        permissions = GroupAdminQueryRepository.get_all_permissions(category)
+        categories = GroupAdminQueryRepository.get_permission_categories()
 
         data = [
             {

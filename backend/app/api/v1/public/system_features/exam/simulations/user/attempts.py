@@ -15,7 +15,7 @@ Split from: exam_simulations.py (Part 2/3 - Exam Attempts)
 from flask import Blueprint, request, jsonify
 
 from app.api.middleware.auth import token_required, get_current_user
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
 from app.api.v1.public.system_features.exam.simulations.user.core import ExamService
 
 attempts_bp = Blueprint('exam_simulations_attempts', __name__, url_prefix='')
@@ -68,10 +68,7 @@ def start_exam_attempt(simulation_id: str):
             }), 500
 
         # Get config for time limit
-        sim = fetch_one(
-            "SELECT config_json FROM exam_simulations WHERE simulation_id = %s",
-            (simulation_id,)
-        )
+        sim = ExamSimulationRepository.get_simulation_config(simulation_id)
         config = sim['config_json'] if sim else {}
 
         return jsonify({
@@ -137,10 +134,7 @@ def list_exam_attempts(simulation_id: str):
         user_id = user['user_id']
 
         # Verify access
-        sim = fetch_one(
-            "SELECT user_id FROM exam_simulations WHERE simulation_id = %s",
-            (simulation_id,)
-        )
+        sim = ExamSimulationRepository.get_simulation_owner(simulation_id)
 
         if not sim:
             return jsonify({
@@ -157,17 +151,7 @@ def list_exam_attempts(simulation_id: str):
             }), 403
 
         # Get attempts
-        query = """
-            SELECT
-                attempt_id, simulation_id, user_id,
-                started_at, completed_at, time_spent_seconds,
-                score, max_score, percentage, passed,
-                results_by_topic, status, created_at
-            FROM exam_simulation_attempts
-            WHERE simulation_id = %s
-            ORDER BY created_at DESC
-        """
-        results = fetch_all(query, (simulation_id,))
+        results = ExamSimulationRepository.list_attempts(simulation_id)
 
         attempts = []
         for r in results:

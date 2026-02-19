@@ -243,6 +243,26 @@ class OrganisationUsersMixin:
         result = execute_query(query, (amount, datetime.utcnow(), org_id))
         return result > 0
 
+    @staticmethod
+    def get_org_user_role(org_id: int, user_id) -> Optional[Dict]:
+        """
+        Get user's role within an organisation.
+
+        Args:
+            org_id: Organisation ID
+            user_id: User ID
+
+        Returns:
+            Dict with 'org_role' key if found, None otherwise
+        """
+        return fetch_one(
+            """
+            SELECT org_role FROM organisation_users
+            WHERE org_id = %s AND user_id = %s AND status = 'active'
+            """,
+            (org_id, user_id)
+        )
+
     @classmethod
     def add_tokens(cls, org_id: int, amount: int) -> Optional[Dict]:
         """

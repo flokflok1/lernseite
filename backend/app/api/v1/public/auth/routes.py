@@ -42,12 +42,12 @@ from app.domain.models.schemas.user import (
     EmailVerification
 )
 from app.infrastructure.persistence.repositories.user import UserRepository
+from app.infrastructure.persistence.repositories.auth.authorization import AuthorizationRepository
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.security import BruteForceProtection
 from app.application.services.system.audit.service import AuditService
 from app.application.services.system.auth.authorization import AuthorizationService
 from app.setup.initialization.admin import AdminSetup
-from app.infrastructure.persistence.database.connection import execute_query
 
 
 # Create auth blueprint
@@ -193,11 +193,7 @@ def login():
         user_groups = AuthorizationService.get_user_groups_with_levels(user['user_id'])
 
         # Query user's effective permissions using SQL function
-        user_permissions_result = execute_query(
-            "SELECT * FROM get_user_effective_permissions(%s)",
-            (user['user_id'],),
-            fetch=True  # IMPORTANT: Fetch all results
-        )
+        user_permissions_result = AuthorizationRepository.get_user_effective_permissions(user['user_id'])
         permission_codes = [p['permission_code'] for p in user_permissions_result] if user_permissions_result else []
 
         # Successful login
@@ -299,34 +295,10 @@ def refresh():
 
         # Query user's active groups (Group-Based RBAC 3.0)
         # Consistent with login endpoint for token refresh
-        user_groups_result = execute_query(
-            """
-            SELECT
-                g.id,
-                g.name,
-                g.slug,
-                g.group_type,
-                g.frontend_role,
-                ug.access_level,
-                ug.joined_at
-            FROM core.users_groups ug
-            JOIN core.groups g ON ug.group_id = g.id
-            WHERE ug.user_id = %s
-                AND ug.is_active = TRUE
-                AND ug.left_at IS NULL
-            ORDER BY ug.joined_at ASC
-            """,
-            (user_id,),
-            fetch=True
-        )
-        user_groups = user_groups_result if user_groups_result else []
+        user_groups = AuthorizationRepository.get_user_active_groups(user_id)
 
         # Query user's effective permissions using SQL function
-        user_permissions_result = execute_query(
-            "SELECT * FROM get_user_effective_permissions(%s)",
-            (user_id,),
-            fetch=True
-        )
+        user_permissions_result = AuthorizationRepository.get_user_effective_permissions(user_id)
         permission_codes = [p['permission_code'] for p in user_permissions_result] if user_permissions_result else []
 
         # Create new access token with GBA claims

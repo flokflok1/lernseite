@@ -21,7 +21,7 @@ from typing import Optional, Dict, List
 from uuid import uuid4
 from datetime import datetime
 
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
 
 core_bp = Blueprint('exam_simulations_core', __name__, url_prefix='')
 course_bp = Blueprint('exam_simulations_course', __name__, url_prefix='/courses')
@@ -85,17 +85,14 @@ class ExamService:
             difficulty = config_data.get('difficulty', 'realistic')
             title = f"Prüfungssimulation ({difficulty})"
 
-        query = """
-            INSERT INTO exam_simulations
-            (simulation_id, course_id, user_id, title, context_json, config_json, status, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, 'pending', %s)
-            RETURNING *
-        """
-        return fetch_one(query, (
-            simulation_id, course_id, user_id, title,
-            json.dumps(context_data), json.dumps(config_data),
-            datetime.utcnow()
-        ))
+        return ExamSimulationRepository.create_simulation(
+            simulation_id=simulation_id,
+            course_id=course_id,
+            user_id=user_id,
+            title=title,
+            context_json=json.dumps(context_data),
+            config_json=json.dumps(config_data)
+        )
 
     @staticmethod
     def start_attempt(simulation_id: str, user_id: str) -> tuple[Optional[Dict], List[Dict]]:
@@ -113,10 +110,7 @@ class ExamService:
             ValueError: If simulation not found, not ready, or access denied
         """
         # Verify simulation is ready
-        sim = fetch_one(
-            "SELECT * FROM exam_simulations WHERE simulation_id = %s",
-            (simulation_id,)
-        )
+        sim = ExamSimulationRepository.get_simulation_full(simulation_id)
 
         if not sim:
             raise ValueError("Simulation not found")
@@ -134,16 +128,12 @@ class ExamService:
 
         max_score = sum(q.get('points', 1) for q in questions)
 
-        query = """
-            INSERT INTO exam_simulation_attempts
-            (attempt_id, simulation_id, user_id, started_at, max_score, status, created_at)
-            VALUES (%s, %s, %s, %s, %s, 'in_progress', %s)
-            RETURNING *
-        """
-        attempt = fetch_one(query, (
-            attempt_id, simulation_id, user_id,
-            datetime.utcnow(), max_score, datetime.utcnow()
-        ))
+        attempt = ExamSimulationRepository.create_attempt(
+            attempt_id=attempt_id,
+            simulation_id=simulation_id,
+            user_id=user_id,
+            max_score=max_score
+        )
 
         # Strip correct answers from questions (for security)
         safe_questions = []
@@ -173,10 +163,7 @@ class ExamService:
             Result dict with score, percentage, passed status, feedback
         """
         # Get attempt
-        attempt = fetch_one(
-            "SELECT * FROM exam_simulation_attempts WHERE attempt_id = %s",
-            (attempt_id,)
-        )
+        attempt = ExamSimulationRepository.get_attempt(attempt_id)
 
         if not attempt:
             raise ValueError("Attempt not found")
@@ -185,10 +172,7 @@ class ExamService:
             raise ValueError("Access denied")
 
         # Get simulation with questions and correct answers
-        sim = fetch_one(
-            "SELECT result_json FROM exam_simulations WHERE simulation_id = %s",
-            (attempt['simulation_id'],)
-        )
+        sim = ExamSimulationRepository.get_simulation_result(attempt['simulation_id'])
 
         result_json = sim['result_json'] if sim and sim.get('result_json') else {}
         questions = result_json.get('questions', []) if isinstance(result_json, dict) else []
@@ -233,41 +217,18 @@ class ExamService:
         passed = percentage >= 60  # 60% pass threshold
 
         # Update attempt
-        query = """
-            UPDATE exam_simulation_attempts
-            SET
-                completed_at = %s,
-                time_spent_seconds = %s,
-                score = %s,
-                percentage = %s,
-                passed = %s,
-                results_by_topic = %s,
-                status = 'completed'
-            WHERE attempt_id = %s
-            RETURNING *
-        """
-        fetch_one(query, (
-            datetime.utcnow(),
-            time_spent_seconds,
-            score,
-            percentage,
-            passed,
-            json.dumps(results_by_topic),
-            attempt_id
-        ))
+        ExamSimulationRepository.complete_attempt(
+            attempt_id=attempt_id,
+            time_spent_seconds=time_spent_seconds,
+            score=score,
+            percentage=percentage,
+            passed=passed,
+            results_by_topic=results_by_topic
+        )
 
         # Update simulation stats
-        query = """
-            UPDATE exam_simulations
-            SET
-                attempt_count = attempt_count + 1,
-                best_score = GREATEST(best_score, %s),
-                avg_score = (SELECT AVG(score) FROM exam_simulation_attempts WHERE simulation_id = %s)
-            WHERE simulation_id = %s
-        """
-        execute_query(
-            query,
-            (score, str(attempt['simulation_id']), str(attempt['simulation_id']))
+        ExamSimulationRepository.update_simulation_stats(
+            str(attempt['simulation_id']), score
         )
 
         return {

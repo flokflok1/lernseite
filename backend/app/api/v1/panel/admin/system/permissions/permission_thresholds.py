@@ -15,7 +15,7 @@ from typing import Dict, Any
 
 from app.api.middleware.auth import admin_required
 from app.application.services.system.auth.permission import PermissionService
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.auth.permission_queries import PermissionQueryRepository
 
 # Create blueprint
 permission_thresholds_bp = Blueprint('permission_thresholds', __name__, url_prefix='/panel/settings/permissions')
@@ -78,21 +78,7 @@ def get_threshold(permission_key: str):
         500: Server error
     """
     try:
-        result = fetch_one(
-            """
-            SELECT
-                threshold_id,
-                permission_key,
-                min_hierarchy_level,
-                description,
-                is_active,
-                created_at,
-                updated_at
-            FROM core.permission_thresholds
-            WHERE permission_key = %s
-            """,
-            (permission_key,)
-        )
+        result = PermissionQueryRepository.get_threshold_by_key(permission_key)
 
         if not result:
             return jsonify({
@@ -163,10 +149,7 @@ def update_threshold(permission_key: str):
             }), 400
 
         # Check if threshold exists
-        existing = fetch_one(
-            "SELECT threshold_id, min_hierarchy_level FROM core.permission_thresholds WHERE permission_key = %s",
-            (permission_key,)
-        )
+        existing = PermissionQueryRepository.get_threshold_level(permission_key)
 
         if not existing:
             return jsonify({
@@ -230,10 +213,7 @@ def toggle_threshold(permission_key: str):
     """
     try:
         # Get current status
-        result = fetch_one(
-            "SELECT threshold_id, is_active FROM core.permission_thresholds WHERE permission_key = %s",
-            (permission_key,)
-        )
+        result = PermissionQueryRepository.get_threshold_status(permission_key)
 
         if not result:
             return jsonify({
@@ -245,14 +225,7 @@ def toggle_threshold(permission_key: str):
         new_status = not result['is_active']
 
         # Update status
-        execute_query(
-            """
-            UPDATE core.permission_thresholds
-            SET is_active = %s, updated_at = NOW()
-            WHERE permission_key = %s
-            """,
-            (new_status, permission_key)
-        )
+        PermissionQueryRepository.toggle_threshold_active(permission_key, new_status)
 
         # Invalidate cache
         PermissionService.invalidate_threshold_cache(permission_key)
@@ -307,35 +280,12 @@ def get_audit_log():
         limit = request.args.get('limit', 50, type=int)
         permission_key = request.args.get('permission_key')
 
-        # Build query
-        query = """
-            SELECT
-                a.audit_id,
-                a.threshold_id,
-                a.permission_key,
-                a.old_min_level,
-                a.new_min_level,
-                a.action,
-                a.changed_at,
-                u.email as changed_by
-            FROM core.permission_threshold_audit a
-            LEFT JOIN core.users u ON a.changed_by_user_id = u.user_id
-        """
-        params = []
-
-        if permission_key:
-            query += " WHERE a.permission_key = %s"
-            params.append(permission_key)
-
-        query += " ORDER BY a.changed_at DESC LIMIT %s"
-        params.append(limit)
-
-        results = fetch_all(query, tuple(params))
+        results = PermissionQueryRepository.get_threshold_audit_log(permission_key, limit)
 
         return jsonify({
             'success': True,
-            'audit_log': results or [],
-            'count': len(results) if results else 0
+            'audit_log': results,
+            'count': len(results)
         }), 200
 
     except Exception as e:

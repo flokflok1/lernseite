@@ -265,28 +265,12 @@ def archive_course_authoring_session(session_id):
         }
     """
     try:
-        from app.infrastructure.persistence.database.connection import execute_query
+        from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
 
         user_id = g.current_user['user_id']
 
         # Update status to archived
-        query = """
-            UPDATE course_authoring_sessions
-            SET status = 'archived'
-            WHERE session_id = %s
-            AND (created_by = %s OR EXISTS (
-                SELECT 1 FROM users u
-                JOIN core.users_groups ug ON u.user_id = ug.user_id
-                JOIN core.groups g ON ug.group_id = g.id
-                JOIN core.group_permissions gp ON g.id = gp.group_id
-                JOIN core.permissions p ON gp.permission_id = p.id
-                WHERE u.user_id = %s
-                    AND ug.is_active = TRUE
-                    AND ug.left_at IS NULL
-                    AND p.permission_code LIKE 'admin.%'
-            ))
-        """
-        execute_query(query, (session_id, user_id, user_id))
+        CourseAuthoringSessionRepository.archive_session(session_id, user_id)
 
         logger.info(f"Archived session {session_id} by user {user_id}")
 
@@ -325,26 +309,13 @@ def list_course_authoring_sessions(course_id):
         }
     """
     try:
-        from app.infrastructure.persistence.database.connection import fetch_all
+        from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
 
         status_filter = request.args.get('status')
 
-        query = """
-            SELECT session_id, status, model_profile,
-                   total_tokens_used, total_operations,
-                   created_at, updated_at, finalized_at
-            FROM course_authoring_sessions
-            WHERE course_id = %s
-        """
-        params = [course_id]
-
-        if status_filter:
-            query += " AND status = %s"
-            params.append(status_filter)
-
-        query += " ORDER BY created_at DESC"
-
-        results = fetch_all(query, tuple(params))
+        results = CourseAuthoringSessionRepository.list_sessions_for_course(
+            course_id, status_filter=status_filter
+        )
 
         sessions = []
         for row in results:

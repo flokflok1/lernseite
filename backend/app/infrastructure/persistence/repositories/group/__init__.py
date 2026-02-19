@@ -12,9 +12,11 @@ Classes:
 from app.infrastructure.persistence.repositories.group.core import GroupRepository
 from app.infrastructure.persistence.repositories.group.management import GroupManagementRepository
 from app.infrastructure.persistence.repositories.group.service_queries import GroupServiceQueryRepository
+from app.infrastructure.persistence.repositories.group.admin_queries import GroupAdminQueryRepository
 
 __all__ = [
     'GroupRepository',
     'GroupManagementRepository',
     'GroupServiceQueryRepository',
+    'GroupAdminQueryRepository',
 ]

@@ -24,7 +24,7 @@ from typing import Optional, Dict, Any
 
 from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.content.lesson_content import LessonContentRepository
 
 # Blueprint
 lesson_explanations_bp = Blueprint('lesson_explanations', __name__, url_prefix='')
@@ -50,20 +50,7 @@ def list_lesson_explanations(lesson_id: str):
         500: Server error
     """
     try:
-        query = """
-            SELECT
-                explanation_id,
-                title,
-                style,
-                audio_url,
-                tokens_used,
-                created_at,
-                updated_at
-            FROM lesson_explanations
-            WHERE lesson_id = %s
-            ORDER BY created_at DESC
-        """
-        rows = fetch_all(query, (lesson_id,))
+        rows = LessonContentRepository.list_explanations(lesson_id)
 
         explanations = []
         for row in rows:
@@ -106,23 +93,7 @@ def get_lesson_explanation(explanation_id: str):
         500: Server error
     """
     try:
-        query = """
-            SELECT
-                explanation_id,
-                lesson_id,
-                title,
-                style,
-                explanation_data,
-                audio_url,
-                audio_duration_seconds,
-                tokens_used,
-                model_used,
-                created_at,
-                updated_at
-            FROM lesson_explanations
-            WHERE explanation_id = %s
-        """
-        row = fetch_one(query, (explanation_id,))
+        row = LessonContentRepository.get_explanation(explanation_id)
 
         if not row:
             return jsonify({
@@ -200,13 +171,7 @@ def update_lesson_explanation(explanation_id: str):
                 'error': {'message': 'Title cannot be empty'}
             }), 400
 
-        query = """
-            UPDATE lesson_explanations
-            SET title = %s
-            WHERE explanation_id = %s
-            RETURNING explanation_id, title
-        """
-        result = fetch_one(query, (new_title, explanation_id))
+        result = LessonContentRepository.update_explanation_title(explanation_id, new_title)
 
         if not result:
             return jsonify({
@@ -243,12 +208,7 @@ def delete_lesson_explanation(explanation_id: str):
         500: Server error
     """
     try:
-        query = """
-            DELETE FROM lesson_explanations
-            WHERE explanation_id = %s
-            RETURNING explanation_id
-        """
-        result = fetch_one(query, (explanation_id,))
+        result = LessonContentRepository.delete_explanation(explanation_id)
 
         if not result:
             return jsonify({

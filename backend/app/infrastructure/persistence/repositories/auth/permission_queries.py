@@ -8,9 +8,9 @@ Provides database access for:
 - Group permission listing
 """
 
-from typing import List, Dict, Any
+from typing import Optional, List, Dict, Any
 
-from app.infrastructure.persistence.database.connection import fetch_all
+from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
 
 
 class PermissionQueryRepository:
@@ -100,4 +100,115 @@ class PermissionQueryRepository:
             WHERE gp.group_id = %s
             """,
             (group_id,)
+        ) or []
+
+    # =====================================================
+    # Permission Threshold Queries
+    # =====================================================
+
+    @staticmethod
+    def get_threshold_by_key(permission_key: str) -> Optional[Dict]:
+        """Get a specific permission threshold by key."""
+        return fetch_one(
+            """
+            SELECT
+                threshold_id,
+                permission_key,
+                min_hierarchy_level,
+                description,
+                is_active,
+                created_at,
+                updated_at
+            FROM core.permission_thresholds
+            WHERE permission_key = %s
+            """,
+            (permission_key,)
+        )
+
+    @staticmethod
+    def get_threshold_status(permission_key: str) -> Optional[Dict]:
+        """Get threshold_id and is_active status for a permission key."""
+        return fetch_one(
+            "SELECT threshold_id, is_active FROM core.permission_thresholds WHERE permission_key = %s",
+            (permission_key,)
+        )
+
+    @staticmethod
+    def get_threshold_level(permission_key: str) -> Optional[Dict]:
+        """Get threshold_id and min_hierarchy_level for a permission key."""
+        return fetch_one(
+            "SELECT threshold_id, min_hierarchy_level FROM core.permission_thresholds WHERE permission_key = %s",
+            (permission_key,)
+        )
+
+    @staticmethod
+    def toggle_threshold_active(permission_key: str, new_status: bool) -> None:
+        """Toggle the is_active status of a permission threshold."""
+        execute_query(
+            """
+            UPDATE core.permission_thresholds
+            SET is_active = %s, updated_at = NOW()
+            WHERE permission_key = %s
+            """,
+            (new_status, permission_key)
+        )
+
+    @staticmethod
+    def get_threshold_audit_log(
+        permission_key: Optional[str] = None, limit: int = 50
+    ) -> List[Dict]:
+        """Get permission threshold audit log entries."""
+        query = """
+            SELECT
+                a.audit_id,
+                a.threshold_id,
+                a.permission_key,
+                a.old_min_level,
+                a.new_min_level,
+                a.action,
+                a.changed_at,
+                u.email as changed_by
+            FROM core.permission_threshold_audit a
+            LEFT JOIN core.users u ON a.changed_by_user_id = u.user_id
+        """
+        params = []
+
+        if permission_key:
+            query += " WHERE a.permission_key = %s"
+            params.append(permission_key)
+
+        query += " ORDER BY a.changed_at DESC LIMIT %s"
+        params.append(limit)
+
+        return fetch_all(query, tuple(params)) or []
+
+    # =====================================================
+    # Group Listing Queries (for auth middleware)
+    # =====================================================
+
+    @staticmethod
+    def get_all_groups() -> List[Dict]:
+        """Get all non-deleted groups (for admin group assignment)."""
+        return fetch_all(
+            """
+            SELECT id, name, slug, group_type, frontend_role
+            FROM core.groups
+            WHERE deleted_at IS NULL
+            ORDER BY name ASC
+            """
+        ) or []
+
+    @staticmethod
+    def get_org_non_role_groups(org_id) -> List[Dict]:
+        """Get non-role groups for a specific organisation."""
+        return fetch_all(
+            """
+            SELECT id, name, slug, group_type, frontend_role
+            FROM core.groups
+            WHERE organisation_id = %s
+                AND group_type != 'role'
+                AND deleted_at IS NULL
+            ORDER BY name ASC
+            """,
+            (org_id,)
         ) or []

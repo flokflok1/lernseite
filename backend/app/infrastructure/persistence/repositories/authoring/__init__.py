@@ -34,6 +34,7 @@ from app.infrastructure.persistence.repositories.authoring.milestones import Aut
 from app.infrastructure.persistence.repositories.authoring.plan_versions import AuthoringPlanVersionsRepository
 from app.infrastructure.persistence.repositories.authoring.refinements import AuthoringRefinementsRepository
 from app.infrastructure.persistence.repositories.authoring.user_journey import AuthoringUserJourneyRepository
+from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
 
 __all__ = [
     'AuthoringAnalysisRepository',
@@ -47,4 +48,5 @@ __all__ = [
     'AuthoringPlanVersionsRepository',
     'AuthoringRefinementsRepository',
     'AuthoringUserJourneyRepository',
+    'CourseAuthoringSessionRepository',
 ]

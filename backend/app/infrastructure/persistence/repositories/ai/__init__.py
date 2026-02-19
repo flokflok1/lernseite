@@ -17,6 +17,7 @@ from app.infrastructure.persistence.repositories.ai.profiles import AiModelProfi
 from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
 from app.infrastructure.persistence.repositories.ai.editor import AIEditorRepository
 from app.infrastructure.persistence.repositories.ai.usage import AIUsageRepository
+from app.infrastructure.persistence.repositories.ai.exam_context import ExamContextRepository
 
 __all__ = [
     'AIJobRepository',
@@ -24,4 +25,5 @@ __all__ = [
     'AIProviderRepository',
     'AIEditorRepository',
     'AIUsageRepository',
+    'ExamContextRepository',
 ]

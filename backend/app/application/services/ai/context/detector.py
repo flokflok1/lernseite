@@ -4,7 +4,7 @@ ExamContextDetector - Automatische Erkennung des Prüfungskontexts
 Analysiert:
 - User-Profil (Beruf, Region, Ziel-Prüfung)
 - Kurs-Metadaten (profession_tag, exam_level, region)
-- Kurs-Dateien (PDFs, TXT) → erkennt Prüfungstyp und Themen
+- Kurs-Dateien (PDFs, TXT) -> erkennt Prüfungstyp und Themen
 - Lern-Analytics (schwache/starke Themen)
 
 Liefert einen vollständigen Kontext für die KI-Prüfungssimulation.
@@ -15,7 +15,7 @@ from typing import Optional, Dict, List, Any
 from uuid import UUID
 from datetime import datetime
 
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.ai.exam_context import ExamContextRepository
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +103,9 @@ class ExamContextDetector:
         context = self._build_context(user_profile, course_data, course_files, analytics)
 
         # 6. Fokus-Verteilung berechnen
-        context['recommended_focus'] = self._calculate_focus_distribution(analytics, context.get('detected_topics', []))
+        context['recommended_focus'] = self._calculate_focus_distribution(
+            analytics, context.get('detected_topics', [])
+        )
 
         # 7. Konfidenz berechnen
         context['confidence'] = self._calculate_confidence(context)
@@ -113,100 +115,24 @@ class ExamContextDetector:
 
     async def _get_user_profile(self, user_id: UUID) -> Optional[Dict]:
         """Lade User-Profil aus der Datenbank."""
-        query = """
-            SELECT
-                up.profession,
-                up.profession_detail,
-                up.training_year,
-                up.target_exam,
-                up.exam_date,
-                up.region,
-                up.ihk,
-                up.detected_profession,
-                up.detected_level,
-                up.detection_confidence,
-                up.preferred_difficulty,
-                u.display_name,
-                u.email
-            FROM user_profiles up
-            RIGHT JOIN users u ON u.user_id = up.user_id
-            WHERE u.user_id = %s
-        """
-        result = fetch_one(query, (str(user_id),))
+        result = ExamContextRepository.get_user_profile(str(user_id))
         return dict(result) if result else {}
 
     async def _get_course_metadata(self, course_id: UUID) -> Dict:
         """Lade Kurs-Metadaten."""
-        query = """
-            SELECT
-                course_id,
-                title,
-                description,
-                profession_tag,
-                exam_level,
-                exam_region,
-                ihk_standard,
-                detected_exam_type,
-                detected_topics,
-                exam_metadata,
-                tags
-            FROM courses
-            WHERE course_id = %s
-        """
-        result = fetch_one(query, (str(course_id),))
+        result = ExamContextRepository.get_course_metadata(str(course_id))
         return dict(result) if result else {}
 
     async def _get_exam_relevant_files(self, course_id: UUID) -> List[Dict]:
         """Lade prüfungsrelevante Dateien des Kurses."""
-        query = """
-            SELECT
-                file_id,
-                original_filename,
-                file_type,
-                file_size,
-                is_exam_relevant,
-                exam_topics,
-                content_summary,
-                analyzed_at,
-                created_at
-            FROM course_files
-            WHERE course_id = %s
-              AND (
-                  is_exam_relevant = TRUE
-                  OR file_type IN ('application/pdf', 'text/plain')
-                  OR original_filename ILIKE '%prüfung%'
-                  OR original_filename ILIKE '%exam%'
-                  OR original_filename ILIKE '%ap1%'
-                  OR original_filename ILIKE '%ap2%'
-              )
-            ORDER BY is_exam_relevant DESC, created_at DESC
-            LIMIT 20
-        """
-        results = fetch_all(query, (str(course_id),))
+        results = ExamContextRepository.get_exam_relevant_files(str(course_id))
         return [dict(r) for r in results] if results else []
 
     async def _get_learning_analytics(self, user_id: UUID, course_id: UUID) -> List[Dict]:
         """Lade Lern-Analytics für den User im Kurs."""
-        query = """
-            SELECT
-                topic,
-                topic_category,
-                score_avg,
-                score_best,
-                score_trend,
-                attempts,
-                correct_count,
-                incorrect_count,
-                common_mistakes,
-                weak_subtopics,
-                strong_subtopics,
-                last_attempt
-            FROM user_learning_analytics
-            WHERE user_id = %s
-              AND (course_id = %s OR course_id IS NULL)
-            ORDER BY attempts DESC
-        """
-        results = fetch_all(query, (str(user_id), str(course_id)))
+        results = ExamContextRepository.get_learning_analytics(
+            str(user_id), str(course_id)
+        )
         return [dict(r) for r in results] if results else []
 
     def _build_context(

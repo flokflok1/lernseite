@@ -8,7 +8,7 @@ import uuid
 import hashlib
 from typing import Dict, Any, Optional
 
-from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.repositories.agent.video_cache import AgentVideoCacheRepository
 from app.application.services.content.lesson_video.exceptions import VideoGenerationError
 from app.application.services.content.lesson_video.models import DEFAULT_MODEL
 
@@ -29,50 +29,11 @@ class VideoCache:
             Cached video info or None if not cached
         """
         try:
-            query = """
-                SELECT
-                    v.video_id,
-                    v.video_type,
-                    v.resolution,
-                    v.thumbnail_path,
-                    v.render_time_ms,
-                    v.generation_cost,
-                    v.avatar_id as avatar_style,
-                    m.storage_path,
-                    m.file_size_bytes,
-                    m.duration_ms,
-                    m.status,
-                    m.access_count,
-                    m.generation_model as model,
-                    m.created_at
-                FROM agent_video_cache v
-                JOIN agent_media_cache m ON v.media_id = m.media_id
-                WHERE m.source_id = %s
-                  AND m.status = 'ready'
-            """
-
-            params = [lesson_id]
-
-            if model:
-                query += " AND m.generation_model = %s"
-                params.append(model)
-
-            query += " ORDER BY m.created_at DESC LIMIT 1"
-
-            result = BaseRepository.fetch_one(query, tuple(params))
+            result = AgentVideoCacheRepository.get_cached_video(lesson_id, model)
 
             if result:
                 # Update access count
-                update_query = """
-                    UPDATE agent_media_cache
-                    SET access_count = access_count + 1,
-                        last_accessed_at = NOW()
-                    WHERE media_id = (
-                        SELECT media_id FROM agent_video_cache WHERE video_id = %s
-                    )
-                """
-                BaseRepository.execute(update_query, (result['video_id'],))
-
+                AgentVideoCacheRepository.increment_access_count(result['video_id'])
                 return dict(result)
 
             return None
@@ -108,50 +69,28 @@ class VideoCache:
             model = metadata.get('model', DEFAULT_MODEL)
 
             # Insert into agent_media_cache
-            media_query = """
-                INSERT INTO agent_media_cache (
-                    media_id, content_hash, media_type, source_type, source_id,
-                    storage_path, file_size_bytes, duration_ms, generation_model,
-                    generation_cost, status, quality_tier, never_expire
-                ) VALUES (
-                    %s, %s, 'video_explanation', 'lesson', %s,
-                    %s, %s, %s, %s, %s, 'ready', 3, true
-                )
-            """
-
-            BaseRepository.execute(media_query, (
-                media_id,
-                content_hash,
-                lesson_id,
-                video_path,
-                metadata.get('file_size', 0),
-                metadata.get('duration_ms', 0),
-                model,
-                metadata.get('cost', 0)
-            ))
+            AgentVideoCacheRepository.insert_media_cache(
+                media_id=media_id,
+                content_hash=content_hash,
+                lesson_id=lesson_id,
+                storage_path=video_path,
+                file_size_bytes=metadata.get('file_size', 0),
+                duration_ms=metadata.get('duration_ms', 0),
+                generation_model=model,
+                generation_cost=metadata.get('cost', 0)
+            )
 
             # Insert into agent_video_cache
-            video_query = """
-                INSERT INTO agent_video_cache (
-                    video_id, media_id, video_type, source_text,
-                    avatar_id, avatar_provider, resolution, framerate,
-                    render_time_ms, generation_cost
-                ) VALUES (
-                    %s, %s, 'explanation', %s,
-                    %s, 'openai_sora', %s, %s, %s, %s
-                )
-            """
-
-            BaseRepository.execute(video_query, (
-                video_id,
-                media_id,
-                metadata.get('source_text', ''),
-                metadata.get('avatar_style', 'professional_teacher'),
-                metadata.get('resolution', '1080p'),
-                metadata.get('framerate', 30),
-                metadata.get('render_time_ms', 0),
-                metadata.get('cost', 0)
-            ))
+            AgentVideoCacheRepository.insert_video_cache(
+                video_id=video_id,
+                media_id=media_id,
+                source_text=metadata.get('source_text', ''),
+                avatar_style=metadata.get('avatar_style', 'professional_teacher'),
+                resolution=metadata.get('resolution', '1080p'),
+                framerate=metadata.get('framerate', 30),
+                render_time_ms=metadata.get('render_time_ms', 0),
+                generation_cost=metadata.get('cost', 0)
+            )
 
             return video_id
 
@@ -171,19 +110,9 @@ class VideoCache:
             True if deleted, False if not found
         """
         try:
-            query = """
-                DELETE FROM agent_media_cache
-                WHERE source_id = %s
-                  AND source_type = 'lesson'
-                  AND media_type = 'video_explanation'
-            """
-            params = [lesson_id]
-
-            if model:
-                query += " AND generation_model = %s"
-                params.append(model)
-
-            result = BaseRepository.execute(query, tuple(params))
+            result = AgentVideoCacheRepository.delete_media_cache_for_lesson(
+                lesson_id, model
+            )
             return result > 0
 
         except Exception as e:

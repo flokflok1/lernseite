@@ -6,7 +6,7 @@ import json
 import logging
 from typing import Dict, Optional, List, Any
 
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
@@ -28,8 +28,7 @@ class DatabaseOperations:
         Returns:
             Course data or None
         """
-        query = "SELECT * FROM courses WHERE course_id = %s"
-        return fetch_one(query, (course_id,))
+        return CourseAuthoringSessionRepository.get_course(course_id)
 
     @staticmethod
     def check_user_access(user_id: str, course_id: str) -> bool:
@@ -47,29 +46,12 @@ class DatabaseOperations:
             True if user has access, False otherwise
         """
         # Check via GBA: Benutzer mit write-Permissionen für Inhalte
-        query = """
-            SELECT 1
-            FROM core.users_groups ug
-            JOIN core.groups g ON ug.group_id = g.id
-            JOIN core.group_permissions gp ON g.id = gp.group_id
-            JOIN core.permissions p ON gp.permission_id = p.id
-            WHERE ug.user_id = %s
-                AND ug.is_active = TRUE
-                AND ug.left_at IS NULL
-                AND (
-                    p.permission_code LIKE 'content.%:write'
-                    OR p.permission_code LIKE 'admin.%:write'
-                )
-            LIMIT 1
-        """
-        result = fetch_one(query, (user_id,))
-        if result:
+        if CourseAuthoringSessionRepository.check_user_has_write_permission(user_id):
             return True
 
         # Oder Kurs-Owner
-        query = "SELECT created_by FROM courses WHERE course_id = %s"
-        course = fetch_one(query, (course_id,))
-        return course and str(course['created_by']) == user_id
+        creator_id = CourseAuthoringSessionRepository.get_course_creator(course_id)
+        return creator_id is not None and creator_id == user_id
 
     @staticmethod
     def get_course_info(course_id: str) -> Dict:
@@ -82,13 +64,7 @@ class DatabaseOperations:
         Returns:
             Course information dict
         """
-        query = """
-            SELECT c.*, cat.name as category_name
-            FROM courses c
-            LEFT JOIN course_categories cat ON cat.category_id = c.category_id
-            WHERE c.course_id = %s
-        """
-        result = fetch_one(query, (course_id,))
+        result = CourseAuthoringSessionRepository.get_course_info(course_id)
         if result:
             return {
                 'title': result.get('title', ''),
@@ -124,12 +100,7 @@ class DatabaseOperations:
         }
 
         # Kapitel laden
-        chapters_query = """
-            SELECT * FROM chapters
-            WHERE course_id = %s
-            ORDER BY sort_order, created_at
-        """
-        chapters = fetch_all(chapters_query, (course_id,))
+        chapters = CourseAuthoringSessionRepository.get_chapters_for_course(course_id)
 
         for chapter in chapters:
             chapter_id = str(chapter['chapter_id'])
@@ -142,12 +113,7 @@ class DatabaseOperations:
             }
 
             # Lektionen laden
-            lessons_query = """
-                SELECT * FROM lessons
-                WHERE chapter_id = %s
-                ORDER BY sort_order, created_at
-            """
-            lessons = fetch_all(lessons_query, (chapter_id,))
+            lessons = CourseAuthoringSessionRepository.get_lessons_for_chapter(chapter_id)
 
             for lesson in lessons:
                 lesson_id = str(lesson['lesson_id'])
@@ -185,23 +151,14 @@ class DatabaseOperations:
             tokens_delta: Token count delta
             operations_delta: Operations count delta
         """
-        query = """
-            UPDATE course_authoring_sessions
-            SET draft_structure = %s,
-                chat_history = %s,
-                file_context = %s,
-                total_tokens_used = total_tokens_used + %s,
-                total_operations = total_operations + %s
-            WHERE session_id = %s
-        """
-        execute_query(query, (
-            json.dumps(draft_structure),
-            json.dumps(chat_history),
-            json.dumps(file_context),
-            tokens_delta,
-            operations_delta,
-            session_id
-        ))
+        CourseAuthoringSessionRepository.update_session(
+            session_id,
+            draft_structure=draft_structure,
+            chat_history=chat_history,
+            file_context=file_context,
+            tokens_delta=tokens_delta,
+            operations_delta=operations_delta
+        )
 
     @staticmethod
     def create_or_update_chapter(
@@ -311,23 +268,15 @@ class DatabaseOperations:
 
         lm_type = type_mapping.get(method_type, 0)
 
-        query = """
-            INSERT INTO learning_method_instances (
-                lesson_id, chapter_id, method_type, title,
-                instructions, data, difficulty, tier
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING method_id
-        """
-
-        result = fetch_one(query, (
-            lesson_id,
-            chapter_id,
-            lm_type,
-            method_draft.get('title', 'Lernmethode'),
-            content.get('instructions', ''),
-            json.dumps(content),
-            content.get('difficulty', 'medium'),
-            content.get('tier', 'basic')
-        ))
+        result = CourseAuthoringSessionRepository.create_learning_method_instance(
+            lesson_id=lesson_id,
+            chapter_id=chapter_id,
+            lm_type=lm_type,
+            title=method_draft.get('title', 'Lernmethode'),
+            instructions=content.get('instructions', ''),
+            data_json=json.dumps(content),
+            difficulty=content.get('difficulty', 'medium'),
+            tier=content.get('tier', 'basic')
+        )
 
         return str(result['method_id']) if result else None

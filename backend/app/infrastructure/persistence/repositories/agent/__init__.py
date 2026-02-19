@@ -24,6 +24,7 @@ from app.infrastructure.persistence.repositories.agent.agents import AgentCRUDRe
 from app.infrastructure.persistence.repositories.agent.stats import AgentStatsRepository
 from app.infrastructure.persistence.repositories.agent.extensions import AgentExtensionRepository
 from app.infrastructure.persistence.repositories.agent.warming import AgentWarmingRepository
+from app.infrastructure.persistence.repositories.agent.video_cache import AgentVideoCacheRepository
 
 
 # Backward-compatible unified interface
@@ -166,4 +167,5 @@ __all__ = [
     'AgentStatsRepository',
     'AgentExtensionRepository',
     'AgentWarmingRepository',
+    'AgentVideoCacheRepository',
 ]

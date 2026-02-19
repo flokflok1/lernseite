@@ -8,7 +8,7 @@ import uuid
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from app.infrastructure.persistence.database.connection import fetch_one, execute_query
+from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
 from app.application.services.ai.adapter import AIAdapter, AIProviderError
 from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
 from app.application.services.content.course_authoring.database import DatabaseOperations
@@ -133,23 +133,14 @@ class CourseAuthoringService:
         # Session erstellen
         session_id = str(uuid.uuid4())
 
-        query = """
-            INSERT INTO course_authoring_sessions (
-                session_id, course_id, created_by, model_profile,
-                draft_structure, chat_history, status
-            ) VALUES (%s, %s, %s, %s, %s, %s, 'active')
-            RETURNING session_id, course_id, created_by, draft_structure,
-                      status, created_at
-        """
-
-        result = fetch_one(query, (
-            session_id,
-            course_id,
-            user_id,
-            model_profile,
-            json.dumps(draft_structure),
-            json.dumps([])
-        ))
+        result = CourseAuthoringSessionRepository.create_session(
+            session_id=session_id,
+            course_id=course_id,
+            user_id=user_id,
+            model_profile=model_profile,
+            draft_structure_json=json.dumps(draft_structure),
+            chat_history_json=json.dumps([])
+        )
 
         if not result:
             raise CourseAuthoringError("Failed to create session")
@@ -175,14 +166,7 @@ class CourseAuthoringService:
         Returns:
             Session-Daten mit draft_structure
         """
-        query = """
-            SELECT s.*, c.title as course_title
-            FROM course_authoring_sessions s
-            JOIN courses c ON c.course_id = s.course_id
-            WHERE s.session_id = %s
-        """
-
-        result = fetch_one(query, (session_id,))
+        result = CourseAuthoringSessionRepository.get_session_with_course(session_id)
 
         if not result:
             raise CourseAuthoringError(f"Session not found: {session_id}")
@@ -381,12 +365,7 @@ class CourseAuthoringService:
                         created_methods.append(method_id)
 
             # Session als finalized markieren
-            update_query = """
-                UPDATE course_authoring_sessions
-                SET status = 'finalized', finalized_at = NOW()
-                WHERE session_id = %s
-            """
-            execute_query(update_query, (session_id,))
+            CourseAuthoringSessionRepository.finalize_session(session_id)
 
             logger.info(
                 f"Finalized session {session_id}: {len(created_chapters)} chapters, "

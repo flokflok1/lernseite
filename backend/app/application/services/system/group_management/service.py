@@ -18,9 +18,10 @@ import re
 
 from app.infrastructure.persistence.repositories.group import (
     GroupRepository,
-    GroupManagementRepository
+    GroupManagementRepository,
+    GroupServiceQueryRepository
 )
-from app.infrastructure.persistence.database.connection import execute_query, fetch_one
+from app.infrastructure.persistence.repositories.audit.queries import AuditQueryRepository
 from app.application.services.system.group_management.service_part2 import MembershipAndOrgMixin
 
 logger = logging.getLogger(__name__)
@@ -152,12 +153,10 @@ class GroupManagementService(MembershipAndOrgMixin):
 
         # Log creation
         if created_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (created_by, 'admin.groups.created', f"Created group: {name}", f'{{"group_id": "{group["group_id"]}"}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                created_by, 'admin.groups.created',
+                f"Created group: {name}",
+                f'{{"group_id": "{group["group_id"]}"}}'
             )
 
         logger.info(f"Group created: {slug} (ID: {group['group_id']})")
@@ -208,12 +207,10 @@ class GroupManagementService(MembershipAndOrgMixin):
         updated = GroupRepository.update(group_id, updates)
 
         if updated and updated_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (updated_by, 'admin.groups.updated', f"Updated group: {group['name']}", f'{{"group_id": "{group_id}"}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                updated_by, 'admin.groups.updated',
+                f"Updated group: {group['name']}",
+                f'{{"group_id": "{group_id}"}}'
             )
 
         logger.info(f"Group updated: {group['slug']} (ID: {group_id})")
@@ -251,10 +248,7 @@ class GroupManagementService(MembershipAndOrgMixin):
             raise ValueError("Cannot delete system or protected groups")
 
         # Check if group has members
-        members = fetch_one(
-            "SELECT COUNT(*) as count FROM core.users_groups WHERE group_id = %s",
-            (group_id,)
-        )
+        members = GroupServiceQueryRepository.count_group_members(group_id)
 
         if members and members['count'] > 0:
             raise ValueError(
@@ -272,12 +266,10 @@ class GroupManagementService(MembershipAndOrgMixin):
         result = GroupRepository.delete(group_id)
 
         if result and deleted_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (deleted_by, 'admin.groups.deleted', f"Deleted group: {group['name']}", f'{{"group_id": "{group_id}"}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                deleted_by, 'admin.groups.deleted',
+                f"Deleted group: {group['name']}",
+                f'{{"group_id": "{group_id}"}}'
             )
 
         logger.info(f"Group deleted: {group['slug']} (ID: {group_id})")
@@ -323,13 +315,10 @@ class GroupManagementService(MembershipAndOrgMixin):
         )
 
         if result and assigned_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (assigned_by, 'admin.groups.permission_assigned', f"Permission assigned",
-                 f'{{"group_id": "{group_id}", "permission": "{permission_key}"}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                assigned_by, 'admin.groups.permission_assigned',
+                f"Permission assigned",
+                f'{{"group_id": "{group_id}", "permission": "{permission_key}"}}'
             )
 
         return result
@@ -364,13 +353,10 @@ class GroupManagementService(MembershipAndOrgMixin):
         )
 
         if result and revoked_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (revoked_by, 'admin.groups.permission_revoked', f"Permission revoked",
-                 f'{{"group_id": "{group_id}", "permission": "{permission_key}"}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                revoked_by, 'admin.groups.permission_revoked',
+                f"Permission revoked",
+                f'{{"group_id": "{group_id}", "permission": "{permission_key}"}}'
             )
 
         return result
@@ -418,4 +404,3 @@ class GroupManagementService(MembershipAndOrgMixin):
     def get_statistics(cls, organisation_id: Optional[str] = None) -> Dict:
         """Get group statistics"""
         return GroupRepository.get_statistics(organisation_id)
-

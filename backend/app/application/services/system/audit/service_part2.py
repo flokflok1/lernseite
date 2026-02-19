@@ -11,7 +11,7 @@ Provides methods for:
 
 from typing import Dict, List
 
-from app.infrastructure.persistence.database.connection import fetch_all
+from app.infrastructure.persistence.repositories.audit.queries import AuditQueryRepository
 
 from .service import AuditService, EventType
 
@@ -34,16 +34,7 @@ def get_user_audit_logs(user_id: int, limit: int = 100, offset: int = 0) -> List
     Returns:
         List of audit log entries
     """
-    return fetch_all(
-        """
-        SELECT *
-        FROM audit_logs
-        WHERE user_id = %s
-        ORDER BY created_at DESC
-        LIMIT %s OFFSET %s
-        """,
-        (user_id, limit, offset)
-    )
+    return AuditQueryRepository.get_user_audit_logs(user_id, limit, offset)
 
 
 @staticmethod
@@ -57,17 +48,7 @@ def get_failed_login_attempts(hours: int = 24) -> List[Dict]:
     Returns:
         List of failed login attempts
     """
-    return fetch_all(
-        """
-        SELECT *
-        FROM audit_logs
-        WHERE event_type = %s
-          AND success = false
-          AND created_at > NOW() - INTERVAL '%s hours'
-        ORDER BY created_at DESC
-        """,
-        (EventType.LOGIN_FAILED, hours)
-    )
+    return AuditQueryRepository.get_failed_login_attempts(EventType.LOGIN_FAILED, hours)
 
 
 @staticmethod
@@ -82,22 +63,7 @@ def get_suspicious_activity(hours: int = 24, min_failures: int = 5) -> List[Dict
     Returns:
         List of (ip_address, failure_count, last_failure)
     """
-    return fetch_all(
-        """
-        SELECT
-            ip_address,
-            COUNT(*) as failure_count,
-            MAX(created_at) as last_failure,
-            ARRAY_AGG(DISTINCT user_email) as attempted_emails
-        FROM audit_logs
-        WHERE success = false
-          AND created_at > NOW() - INTERVAL '%s hours'
-        GROUP BY ip_address
-        HAVING COUNT(*) >= %s
-        ORDER BY failure_count DESC
-        """,
-        (hours, min_failures)
-    )
+    return AuditQueryRepository.get_suspicious_activity(hours, min_failures)
 
 
 # Attach query methods to AuditService class

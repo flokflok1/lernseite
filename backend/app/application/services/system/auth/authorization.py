@@ -7,8 +7,9 @@ Database-driven, no hardcoded logic.
 ISO 27001:2013 compliant - Access Control
 """
 
-from typing import List, Dict, Any, Optional
-from app.infrastructure.persistence.database.connection import execute_query
+from typing import List, Dict, Any
+
+from app.infrastructure.persistence.repositories.auth.authorization import AuthorizationRepository
 
 
 class AuthorizationService:
@@ -38,18 +39,7 @@ class AuthorizationService:
             otherwise uses group default from groups.hierarchy_level
         """
         try:
-            result = execute_query(
-                """
-                SELECT COALESCE(MAX(COALESCE(ug.hierarchy_level, g.hierarchy_level)), 0) as max_level
-                FROM core.users_groups ug
-                JOIN core.groups g ON ug.group_id = g.id
-                WHERE ug.user_id = %s
-                    AND ug.is_active = TRUE
-                    AND ug.left_at IS NULL
-                """,
-                (user_id,),
-                fetch=True
-            )
+            result = AuthorizationRepository.get_user_max_hierarchy_level(user_id)
 
             if result and len(result) > 0:
                 level = result[0].get('max_level', 0)
@@ -75,9 +65,9 @@ class AuthorizationService:
 
         Example:
             - User has level 500
-            - has_hierarchy_level(user_id, 500) → True
-            - has_hierarchy_level(user_id, 501) → False
-            - has_hierarchy_level(user_id, 250) → True
+            - has_hierarchy_level(user_id, 500) -> True
+            - has_hierarchy_level(user_id, 501) -> False
+            - has_hierarchy_level(user_id, 250) -> True
         """
         user_level = AuthorizationService.get_user_hierarchy_level(user_id)
         return user_level >= required_level
@@ -95,29 +85,7 @@ class AuthorizationService:
             Sorted by hierarchy_level DESC
         """
         try:
-            result = execute_query(
-                """
-                SELECT
-                    g.id,
-                    g.name,
-                    g.slug,
-                    g.group_type,
-                    g.frontend_role,
-                    g.hierarchy_level,
-                    ug.access_level,
-                    ug.joined_at
-                FROM core.users_groups ug
-                JOIN core.groups g ON ug.group_id = g.id
-                WHERE ug.user_id = %s
-                    AND ug.is_active = TRUE
-                    AND ug.left_at IS NULL
-                ORDER BY g.hierarchy_level DESC
-                """,
-                (user_id,),
-                fetch=True
-            )
-
-            return result if result else []
+            return AuthorizationRepository.get_user_groups_with_levels(user_id)
 
         except Exception as e:
             print(f"Error getting user groups for {user_id}: {e}")

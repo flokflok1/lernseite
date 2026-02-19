@@ -10,7 +10,7 @@ All permission data is cached in Redis for performance.
 from typing import Optional, List, Set
 import logging
 
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all
+from app.infrastructure.persistence.repositories.auth.permission_queries import PermissionQueryRepository
 from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class PermissionService:
     Data is cached in Redis for high performance.
 
     GBA Model:
-        User → Groups (core.users_groups) → Permissions (core.group_permissions)
+        User -> Groups (core.users_groups) -> Permissions (core.group_permissions)
 
     Example:
         >>> user = {
@@ -120,15 +120,7 @@ class PermissionService:
             {'courses.edit', 'users.manage', 'analytics.view'}
         """
         # Get user's groups
-        user_groups = fetch_all(
-            """
-            SELECT g.slug, g.id
-            FROM core.users_groups ug
-            JOIN core.groups g ON ug.group_id = g.id
-            WHERE ug.user_id = %s AND ug.deleted_at IS NULL
-            """,
-            (user_id,)
-        ) or []
+        user_groups = PermissionQueryRepository.get_user_groups(user_id)
 
         if not user_groups:
             logger.debug(f"User {user_id} has no groups")
@@ -136,15 +128,7 @@ class PermissionService:
 
         # Get all permissions for these groups
         group_ids = [g['id'] for g in user_groups]
-        permissions = fetch_all(
-            """
-            SELECT DISTINCT p.code
-            FROM core.group_permissions gp
-            JOIN core.permissions p ON gp.permission_id = p.id
-            WHERE gp.group_id = ANY(%s)
-            """,
-            (group_ids,)
-        ) or []
+        permissions = PermissionQueryRepository.get_permissions_for_groups(group_ids)
 
         permission_codes = {p['code'] for p in permissions}
         logger.debug(f"User {user_id} has {len(permission_codes)} permissions")
@@ -175,19 +159,9 @@ class PermissionService:
         except Exception as e:
             logger.warning(f"Cache read error for permission {permission_code}: {e}")
 
-        # Cache miss - query database
+        # Cache miss - query database via repository
         try:
-            results = fetch_all(
-                """
-                SELECT DISTINCT g.id, g.slug, g.name
-                FROM core.group_permissions gp
-                JOIN core.permissions p ON gp.permission_id = p.id
-                JOIN core.groups g ON gp.group_id = g.id
-                WHERE p.code = %s AND g.deleted_at IS NULL
-                ORDER BY g.name
-                """,
-                (permission_code,)
-            ) or []
+            results = PermissionQueryRepository.get_groups_with_permission(permission_code)
 
             # Cache the result
             if results:
@@ -225,17 +199,9 @@ class PermissionService:
         except Exception as e:
             logger.warning(f"Cache read error for group {group_id}: {e}")
 
-        # Cache miss - query database
+        # Cache miss - query database via repository
         try:
-            results = fetch_all(
-                """
-                SELECT DISTINCT p.code
-                FROM core.group_permissions gp
-                JOIN core.permissions p ON gp.permission_id = p.id
-                WHERE gp.group_id = %s
-                """,
-                (group_id,)
-            ) or []
+            results = PermissionQueryRepository.get_group_permission_codes(group_id)
 
             permission_codes = {r['code'] for r in results}
 

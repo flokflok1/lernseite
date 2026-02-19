@@ -13,9 +13,10 @@ import logging
 
 from app.infrastructure.persistence.repositories.group import (
     GroupRepository,
-    GroupManagementRepository
+    GroupManagementRepository,
+    GroupServiceQueryRepository
 )
-from app.infrastructure.persistence.database.connection import execute_query, fetch_one
+from app.infrastructure.persistence.repositories.audit.queries import AuditQueryRepository
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class MembershipAndOrgMixin:
             raise ValueError(f"Group {group_id} not found")
 
         # Verify user exists
-        user = fetch_one("SELECT user_id FROM core.users WHERE user_id = %s", (user_id,))
+        user = GroupServiceQueryRepository.user_exists(user_id)
         if not user:
             raise ValueError(f"User {user_id} not found")
 
@@ -76,13 +77,10 @@ class MembershipAndOrgMixin:
         result = GroupRepository.add_user(group_id, user_id)
 
         if result and added_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (added_by, 'admin.groups.user_added', f"Added user to group",
-                 f'{{"group_id": "{group_id}", "user_id": "{user_id}"}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                added_by, 'admin.groups.user_added',
+                f"Added user to group",
+                f'{{"group_id": "{group_id}", "user_id": "{user_id}"}}'
             )
 
         return result
@@ -115,13 +113,10 @@ class MembershipAndOrgMixin:
         result = GroupRepository.remove_user(group_id, user_id)
 
         if result and removed_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (removed_by, 'admin.groups.user_removed', f"Removed user from group",
-                 f'{{"group_id": "{group_id}", "user_id": "{user_id}"}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                removed_by, 'admin.groups.user_removed',
+                f"Removed user from group",
+                f'{{"group_id": "{group_id}", "user_id": "{user_id}"}}'
             )
 
         return result
@@ -157,13 +152,10 @@ class MembershipAndOrgMixin:
         result = GroupManagementRepository.add_users_to_group(group_id, user_ids, added_by)
 
         if result['added'] > 0 and added_by:
-            execute_query(
-                """
-                INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (added_by, 'admin.groups.batch_users_added', f"Added {result['added']} users",
-                 f'{{"group_id": "{group_id}", "count": {result["added"]}}}')
+            AuditQueryRepository.insert_simple_audit_log(
+                added_by, 'admin.groups.batch_users_added',
+                f"Added {result['added']} users",
+                f'{{"group_id": "{group_id}", "count": {result["added"]}}}'
             )
 
         return result
@@ -205,18 +197,12 @@ class MembershipAndOrgMixin:
         """
         try:
             # Verify organisation exists
-            org_check = fetch_one(
-                "SELECT id FROM organisations.organisations WHERE organisation_id = %s",
-                (organisation_id,)
-            )
+            org_check = GroupServiceQueryRepository.organisation_exists(organisation_id)
             if not org_check:
                 raise ValueError(f"Organization {organisation_id} not found")
 
             # Verify owner user exists
-            user_check = fetch_one(
-                "SELECT id FROM core.users WHERE id = %s",
-                (owner_user_id,)
-            )
+            user_check = GroupServiceQueryRepository.user_exists_by_id(owner_user_id)
             if not user_check:
                 raise ValueError(f"User {owner_user_id} not found")
 
@@ -250,14 +236,10 @@ class MembershipAndOrgMixin:
             )
 
             if created_by:
-                execute_query(
-                    """
-                    INSERT INTO core.audit_logs (user_id, action, description, metadata)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (created_by, 'org.owner_group_created',
-                     f"Created owner group for organisation {organisation_id}",
-                     f'{{"group_id": "{owner_group["id"]}", "organisation_id": "{organisation_id}"}}')
+                AuditQueryRepository.insert_simple_audit_log(
+                    created_by, 'org.owner_group_created',
+                    f"Created owner group for organisation {organisation_id}",
+                    f'{{"group_id": "{owner_group["id"]}", "organisation_id": "{organisation_id}"}}'
                 )
 
             return owner_group
@@ -286,28 +268,14 @@ class MembershipAndOrgMixin:
         """
         try:
             # Get all admin-level permissions
-            admin_permissions = fetch_one(
-                """
-                SELECT id FROM core.permissions
-                WHERE required_hierarchy_level >= 3
-                ORDER BY code
-                """
-            )
+            admin_permissions = GroupServiceQueryRepository.admin_permissions_exist()
 
             if not admin_permissions:
                 logger.warning(f"No admin permissions found to assign to owner group {group_id}")
                 return False
 
             # Assign each permission
-            execute_query(
-                """
-                INSERT INTO core.group_permissions (group_id, permission_id, granted_by)
-                SELECT %s, id, %s FROM core.permissions
-                WHERE required_hierarchy_level >= 3
-                ON CONFLICT (group_id, permission_id) DO NOTHING
-                """,
-                (group_id, assigned_by)
-            )
+            GroupServiceQueryRepository.assign_admin_permissions_to_group(group_id, assigned_by)
 
             logger.info(f"Assigned admin permissions to owner group {group_id}")
             return True

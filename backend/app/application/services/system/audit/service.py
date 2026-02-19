@@ -14,12 +14,11 @@ ISO 27001:2013 compliant - Audit Logging & Monitoring
 DSGVO/GDPR compliant - Activity Tracking & Transparency
 """
 
-from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 from flask import request, g, current_app
 import json
 
-from app.infrastructure.persistence.database.connection import execute_query, fetch_all, fetch_one
+from app.infrastructure.persistence.repositories.audit.queries import AuditQueryRepository
 
 
 # ==========================================
@@ -170,35 +169,24 @@ class AuditService:
             if metadata:
                 metadata = AuditService._sanitize_metadata(metadata)
 
-            # Insert audit log
-            result = execute_query(
-                """
-                INSERT INTO core.audit_logs (
-                    event_type, event_category, severity,
-                    user_id, user_email, user_role,
-                    session_id, ip_address, user_agent,
-                    resource_type, resource_id,
-                    action, description, metadata,
-                    success, error_message
-                ) VALUES (
-                    %s, %s, %s,
-                    %s, %s, %s,
-                    %s, %s, %s,
-                    %s, %s,
-                    %s, %s, %s,
-                    %s, %s
-                )
-                RETURNING log_id
-                """,
-                (
-                    event_type, event_category, severity,
-                    user_id, user_email, user_role,
-                    session_id, ip_address, user_agent,
-                    resource_type, resource_id,
-                    action, description, json.dumps(metadata) if metadata else None,
-                    success, error_message
-                ),
-                fetch_one=True
+            # Insert audit log via repository
+            result = AuditQueryRepository.insert_audit_log(
+                event_type=event_type,
+                event_category=event_category,
+                severity=severity,
+                user_id=user_id,
+                user_email=user_email,
+                user_role=user_role,
+                session_id=session_id,
+                ip_address=ip_address,
+                user_agent=user_agent,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                action=action,
+                description=description,
+                metadata_json=json.dumps(metadata) if metadata else None,
+                success=success,
+                error_message=error_message
             )
 
             if result:

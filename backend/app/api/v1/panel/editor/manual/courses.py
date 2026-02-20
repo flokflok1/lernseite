@@ -22,7 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from app.api.v1.panel.editor.manual import manual_editor_bp
-from app.api.v1.panel.editor.shared.permissions import check_course_permission
+from app.api.v1.panel.editor.shared.permissions import check_course_permission, _is_admin_user
 from app.domain.models.schemas.course import (
     AdminCourseCreateRequest,
     AdminCourseUpdateRequest,
@@ -47,7 +47,7 @@ def list_courses():
     try:
         current_user = get_current_user()
         user_id = current_user['user_id']
-        is_admin = current_user.get('role') == 'admin'
+        is_admin = _is_admin_user(current_user)
 
         page = int(request.args.get('page', 1))
         per_page = min(int(request.args.get('per_page', 50)), 100)
@@ -132,6 +132,9 @@ def create_course():
     try:
         current_user = get_current_user()
         data = request.get_json()
+
+        # Inject creator_id from authenticated user
+        data['creator_id'] = current_user['user_id']
 
         course_request = AdminCourseCreateRequest(**data)
 
@@ -225,7 +228,7 @@ def update_course_status(course_id: str):
         status_request = AdminCourseStatusUpdateRequest(**data)
 
         # Admin-only check for publish/unpublish
-        is_admin = current_user.get('role') == 'admin'
+        is_admin = _is_admin_user(current_user)
         if status_request.action in ['publish', 'unpublish'] and not is_admin:
             return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403)
 
@@ -323,7 +326,7 @@ def permanent_delete_course(course_id: str):
         data = request.get_json() or {}
 
         # Admin-only check for permanent delete
-        is_admin = current_user.get('role') == 'admin'
+        is_admin = _is_admin_user(current_user)
         if not is_admin:
             return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403)
 

@@ -71,7 +71,7 @@ class LessonRepository(BaseRepository):
             lesson_data['order_index'] = result['next_order'] if result else 1
 
         query = """
-            INSERT INTO lessons (
+            INSERT INTO courses.lessons (
                 chapter_id, title, lesson_type, content,
                 order_index, duration_minutes, published, free_preview,
                 created_at, updated_at
@@ -96,7 +96,7 @@ class LessonRepository(BaseRepository):
 
         params = {**defaults, **lesson_data}
 
-        return insert_returning(query, params)
+        return fetch_one(query, params)
 
     @classmethod
     def find_by_id(cls, lesson_id: int) -> Optional[Dict[str, Any]]:

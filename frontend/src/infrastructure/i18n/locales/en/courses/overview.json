@@ -13,12 +13,107 @@
   "course-editor": {
     "theory": {
       "container": {
-        "title": "Theory"
+        "title": "Theory",
+        "available": "Available",
+        "selected": "Selected"
+      },
+      "list": {
+        "title": "Theory Content",
+        "refresh": "Refresh",
+        "search": "Search theory...",
+        "loading": "Loading theory content...",
+        "empty": "No theory content yet",
+        "playAudio": "Play audio",
+        "delete": "Delete",
+        "createNew": "Create new theory"
+      },
+      "detail": {
+        "createNew": "New Theory",
+        "preview": "Preview",
+        "titleLabel": "Title",
+        "titlePlaceholder": "Enter theory title...",
+        "styleLabel": "Style",
+        "generateWithAudio": "Generate with audio",
+        "generating": "Generating...",
+        "generate": "Generate",
+        "cancel": "Cancel",
+        "noSelection": "Select a theory from the list or create a new one.",
+        "sections": {
+          "overview": "Overview",
+          "learningGoals": "Learning Goals",
+          "concepts": "Key Concepts",
+          "terms": "Terms",
+          "examRelevance": "Exam Relevance",
+          "examTips": "Exam Tips"
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "noSelection": "Select a theory to view settings.",
+        "tts": {
+          "title": "Text-to-Speech",
+          "enabled": "Speech Output",
+          "on": "On",
+          "off": "Off",
+          "voice": "Voice",
+          "model": "Model",
+          "models": {
+            "browser": "Browser (Default)",
+            "tts1": "TTS-1",
+            "tts1hd": "TTS-1 HD"
+          }
+        },
+        "quickActions": {
+          "title": "Quick Actions",
+          "regenerate": "Regenerate",
+          "copy": "Copy",
+          "print": "Print"
+        }
       }
     },
     "explanation": {
       "container": {
-        "title": "Explanations"
+        "title": "Explanations",
+        "available": "Available",
+        "selected": "Selected"
+      },
+      "list": {
+        "title": "Explanations",
+        "search": "Search explanations...",
+        "empty": "No explanations yet",
+        "steps": "Steps",
+        "create": "Create new explanation"
+      },
+      "create": {
+        "title": "New Explanation",
+        "style": "Explanation Style",
+        "withAudio": "Generate with audio",
+        "generate": "Generate",
+        "generating": "Generating explanation..."
+      },
+      "styles": {
+        "brief": "Brief",
+        "standard": "Standard",
+        "detailed": "Detailed",
+        "visual": "Visual",
+        "interactive": "Interactive"
+      },
+      "view": {
+        "start": "Play",
+        "prev": "Previous",
+        "next": "Next",
+        "empty": "Select an explanation from the list or create a new one."
+      },
+      "settings": {
+        "playback": "Playback",
+        "autoPlay": "Auto-play",
+        "speed": "Speed",
+        "actions": "Actions",
+        "regenerate": "Regenerate",
+        "downloadPdf": "Download as PDF",
+        "share": "Share",
+        "info": "Information",
+        "empty": "Select an explanation to view settings."
       }
     }
   },

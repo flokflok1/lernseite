@@ -13,12 +13,107 @@
   "course-editor": {
     "theory": {
       "container": {
-        "title": "Theorie"
+        "title": "Theorie",
+        "available": "Verfügbar",
+        "selected": "Ausgewählt"
+      },
+      "list": {
+        "title": "Theorie-Inhalte",
+        "refresh": "Aktualisieren",
+        "search": "Theorie durchsuchen...",
+        "loading": "Lade Theorie-Inhalte...",
+        "empty": "Noch keine Theorie-Inhalte vorhanden",
+        "playAudio": "Audio abspielen",
+        "delete": "Löschen",
+        "createNew": "Neue Theorie erstellen"
+      },
+      "detail": {
+        "createNew": "Neue Theorie",
+        "preview": "Vorschau",
+        "titleLabel": "Titel",
+        "titlePlaceholder": "Theorie-Titel eingeben...",
+        "styleLabel": "Stil",
+        "generateWithAudio": "Mit Audio generieren",
+        "generating": "Wird generiert...",
+        "generate": "Generieren",
+        "cancel": "Abbrechen",
+        "noSelection": "Wähle eine Theorie aus der Liste oder erstelle eine neue.",
+        "sections": {
+          "overview": "Überblick",
+          "learningGoals": "Lernziele",
+          "concepts": "Kernkonzepte",
+          "terms": "Fachbegriffe",
+          "examRelevance": "Prüfungsrelevanz",
+          "examTips": "Prüfungstipps"
+        }
+      },
+      "settings": {
+        "title": "Einstellungen",
+        "noSelection": "Wähle eine Theorie aus, um Einstellungen anzuzeigen.",
+        "tts": {
+          "title": "Text-to-Speech",
+          "enabled": "Sprachausgabe",
+          "on": "An",
+          "off": "Aus",
+          "voice": "Stimme",
+          "model": "Modell",
+          "models": {
+            "browser": "Browser (Standard)",
+            "tts1": "TTS-1",
+            "tts1hd": "TTS-1 HD"
+          }
+        },
+        "quickActions": {
+          "title": "Schnellaktionen",
+          "regenerate": "Neu generieren",
+          "copy": "Kopieren",
+          "print": "Drucken"
+        }
       }
     },
     "explanation": {
       "container": {
-        "title": "Erklärungen"
+        "title": "Erklärungen",
+        "available": "Verfügbar",
+        "selected": "Ausgewählt"
+      },
+      "list": {
+        "title": "Erklärungen",
+        "search": "Erklärungen durchsuchen...",
+        "empty": "Noch keine Erklärungen vorhanden",
+        "steps": "Schritte",
+        "create": "Neue Erklärung erstellen"
+      },
+      "create": {
+        "title": "Neue Erklärung",
+        "style": "Erklärstil",
+        "withAudio": "Mit Audio generieren",
+        "generate": "Generieren",
+        "generating": "Erklärung wird generiert..."
+      },
+      "styles": {
+        "brief": "Kurz",
+        "standard": "Standard",
+        "detailed": "Ausführlich",
+        "visual": "Visuell",
+        "interactive": "Interaktiv"
+      },
+      "view": {
+        "start": "Abspielen",
+        "prev": "Zurück",
+        "next": "Weiter",
+        "empty": "Wähle eine Erklärung aus der Liste oder erstelle eine neue."
+      },
+      "settings": {
+        "playback": "Wiedergabe",
+        "autoPlay": "Automatisch abspielen",
+        "speed": "Geschwindigkeit",
+        "actions": "Aktionen",
+        "regenerate": "Neu generieren",
+        "downloadPdf": "Als PDF herunterladen",
+        "share": "Teilen",
+        "info": "Informationen",
+        "empty": "Wähle eine Erklärung aus, um Einstellungen anzuzeigen."
       }
     }
   },

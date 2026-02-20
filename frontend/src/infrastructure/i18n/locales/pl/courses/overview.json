@@ -13,12 +13,107 @@
   "course-editor": {
     "theory": {
       "container": {
-        "title": "Teoria"
+        "title": "Teoria",
+        "available": "Dostępne",
+        "selected": "Wybrane"
+      },
+      "list": {
+        "title": "Treści teoretyczne",
+        "refresh": "Odśwież",
+        "search": "Szukaj teorii...",
+        "loading": "Ładowanie treści teoretycznych...",
+        "empty": "Brak treści teoretycznych",
+        "playAudio": "Odtwórz audio",
+        "delete": "Usuń",
+        "createNew": "Utwórz nową teorię"
+      },
+      "detail": {
+        "createNew": "Nowa teoria",
+        "preview": "Podgląd",
+        "titleLabel": "Tytuł",
+        "titlePlaceholder": "Wpisz tytuł teorii...",
+        "styleLabel": "Styl",
+        "generateWithAudio": "Generuj z audio",
+        "generating": "Generowanie...",
+        "generate": "Generuj",
+        "cancel": "Anuluj",
+        "noSelection": "Wybierz teorię z listy lub utwórz nową.",
+        "sections": {
+          "overview": "Przegląd",
+          "learningGoals": "Cele nauki",
+          "concepts": "Kluczowe pojęcia",
+          "terms": "Terminy",
+          "examRelevance": "Znaczenie egzaminacyjne",
+          "examTips": "Wskazówki egzaminacyjne"
+        }
+      },
+      "settings": {
+        "title": "Ustawienia",
+        "noSelection": "Wybierz teorię, aby zobaczyć ustawienia.",
+        "tts": {
+          "title": "Text-to-Speech",
+          "enabled": "Wyjście głosowe",
+          "on": "Wł.",
+          "off": "Wył.",
+          "voice": "Głos",
+          "model": "Model",
+          "models": {
+            "browser": "Przeglądarka (domyślny)",
+            "tts1": "TTS-1",
+            "tts1hd": "TTS-1 HD"
+          }
+        },
+        "quickActions": {
+          "title": "Szybkie akcje",
+          "regenerate": "Generuj ponownie",
+          "copy": "Kopiuj",
+          "print": "Drukuj"
+        }
       }
     },
     "explanation": {
       "container": {
-        "title": "Wyjaśnienia"
+        "title": "Wyjaśnienia",
+        "available": "Dostępne",
+        "selected": "Wybrane"
+      },
+      "list": {
+        "title": "Wyjaśnienia",
+        "search": "Szukaj wyjaśnień...",
+        "empty": "Brak wyjaśnień",
+        "steps": "Kroki",
+        "create": "Utwórz nowe wyjaśnienie"
+      },
+      "create": {
+        "title": "Nowe wyjaśnienie",
+        "style": "Styl wyjaśnienia",
+        "withAudio": "Generuj z audio",
+        "generate": "Generuj",
+        "generating": "Generowanie wyjaśnienia..."
+      },
+      "styles": {
+        "brief": "Krótki",
+        "standard": "Standardowy",
+        "detailed": "Szczegółowy",
+        "visual": "Wizualny",
+        "interactive": "Interaktywny"
+      },
+      "view": {
+        "start": "Odtwórz",
+        "prev": "Wstecz",
+        "next": "Dalej",
+        "empty": "Wybierz wyjaśnienie z listy lub utwórz nowe."
+      },
+      "settings": {
+        "playback": "Odtwarzanie",
+        "autoPlay": "Automatyczne odtwarzanie",
+        "speed": "Prędkość",
+        "actions": "Akcje",
+        "regenerate": "Generuj ponownie",
+        "downloadPdf": "Pobierz jako PDF",
+        "share": "Udostępnij",
+        "info": "Informacje",
+        "empty": "Wybierz wyjaśnienie, aby zobaczyć ustawienia."
       }
     }
   },

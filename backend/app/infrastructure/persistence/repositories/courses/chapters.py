@@ -75,7 +75,7 @@ class ChapterRepository(BaseRepository):
         params = {**defaults, **chapter_data}
 
         return insert_returning(
-            'chapters',
+            'courses.chapters',
             params,
             'chapter_id, course_id, title, description, order_index, duration_minutes, has_video, has_quiz, has_exam, created_at, updated_at'
         )

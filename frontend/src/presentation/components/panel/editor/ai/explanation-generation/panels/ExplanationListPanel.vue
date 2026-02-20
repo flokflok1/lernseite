@@ -25,7 +25,7 @@ interface Emits {
   (e: 'create'): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Local state

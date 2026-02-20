@@ -65,7 +65,7 @@ class LearningMethodInstanceRepository:
                         lm.updated_at,
                         ch.title as chapter_title,
                         ch.course_id
-                    FROM learning_methods lm
+                    FROM learning_methods.learning_method_instances lm
                     LEFT JOIN courses.chapters ch ON lm.chapter_id = ch.chapter_id
                     WHERE lm.method_id = %s
                 """, (method_id,))
@@ -107,7 +107,7 @@ class LearningMethodInstanceRepository:
                         published,
                         created_at,
                         updated_at
-                    FROM learning_methods
+                    FROM learning_methods.learning_method_instances
                     WHERE chapter_id = %s
                 """
 
@@ -154,7 +154,7 @@ class LearningMethodInstanceRepository:
                         published,
                         created_at,
                         updated_at
-                    FROM learning_methods
+                    FROM learning_methods.learning_method_instances
                     WHERE lesson_id = %s
                 """
 
@@ -211,7 +211,7 @@ class LearningMethodInstanceRepository:
         with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
-                    INSERT INTO learning_methods (
+                    INSERT INTO learning_methods.learning_method_instances (
                         chapter_id,
                         lesson_id,
                         method_type,
@@ -299,7 +299,7 @@ class LearningMethodInstanceRepository:
         with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 query = f"""
-                    UPDATE learning_methods
+                    UPDATE learning_methods.learning_method_instances
                     SET {', '.join(update_fields)}, updated_at = CURRENT_TIMESTAMP
                     WHERE method_id = %s
                     RETURNING *
@@ -323,7 +323,7 @@ class LearningMethodInstanceRepository:
         with extensions.db_pool.connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    DELETE FROM learning_methods
+                    DELETE FROM learning_methods.learning_method_instances
                     WHERE method_id = %s
                 """, (method_id,))
 
@@ -372,7 +372,7 @@ class LearningMethodInstanceRepository:
             with conn.cursor() as cur:
                 for index, method_id in enumerate(method_ids):
                     cur.execute("""
-                        UPDATE learning_methods
+                        UPDATE learning_methods.learning_method_instances
                         SET order_index = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE method_id = %s AND chapter_id = %s
                     """, (index, method_id, chapter_id))
@@ -396,7 +396,7 @@ class LearningMethodInstanceRepository:
             with conn.cursor() as cur:
                 for index, method_id in enumerate(method_ids):
                     cur.execute("""
-                        UPDATE learning_methods
+                        UPDATE learning_methods.learning_method_instances
                         SET order_index = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE method_id = %s AND lesson_id = %s
                     """, (index, method_id, lesson_id))

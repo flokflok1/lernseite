@@ -212,6 +212,24 @@ class CourseRepositoryCRUD(BaseRepository):
         return fetch_all(query, tuple(params))
 
     @classmethod
+    def count_by_creator(
+        cls,
+        creator_id: int,
+        include_archived: bool = False,
+        course_type: str = 'creator'
+    ) -> int:
+        """Count courses by creator."""
+        query = "SELECT COUNT(*) FROM courses.courses WHERE creator_user_id = %s"
+        params: list = [creator_id]
+        if course_type:
+            query += " AND course_type = %s"
+            params.append(course_type)
+        if not include_archived:
+            query += " AND status != 'archived'"
+        result = fetch_one(query, tuple(params))
+        return result['count'] if result else 0
+
+    @classmethod
     def find_by_organisation(
         cls,
         organisation_id: int,
@@ -305,6 +323,6 @@ class CourseRepositoryCRUD(BaseRepository):
             Course dict or None
         """
         return fetch_one(
-            "SELECT * FROM courses WHERE course_id = %s",
+            "SELECT * FROM courses.courses WHERE course_id = %s",
             (course_id,)
         )

@@ -296,11 +296,8 @@ class SystemModeService:
             True if database is reachable
         """
         try:
-            from app.core.bootstrap import extensions
-            with extensions.db_pool.connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute('SELECT 1')
-                    return True
+            from app.infrastructure.persistence.repositories.core.base import BaseRepository
+            return BaseRepository.ping()
         except Exception:
             return False
 

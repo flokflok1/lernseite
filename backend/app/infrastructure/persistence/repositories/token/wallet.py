@@ -189,3 +189,24 @@ class TokenWalletRepository:
                 """, (organisation_id,))
 
                 return cur.fetchone()
+
+    @classmethod
+    def update_grant_date(cls, wallet_id: str, monthly_grant_amount: int) -> None:
+        """
+        Update wallet's last_grant_date and monthly_grant_amount.
+
+        Called after monthly token allocation.
+
+        Args:
+            wallet_id: Wallet UUID
+            monthly_grant_amount: Tokens granted this month
+        """
+        with extensions.db_pool.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE token_wallets
+                    SET last_grant_date = CURRENT_DATE,
+                        monthly_grant_amount = %s
+                    WHERE wallet_id = %s
+                """, (monthly_grant_amount, wallet_id))
+                conn.commit()

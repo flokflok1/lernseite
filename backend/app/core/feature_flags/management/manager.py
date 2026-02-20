@@ -19,7 +19,7 @@ Priority Order:
 import hashlib
 from typing import Optional, Dict
 from app.core.bootstrap.extensions import redis_client
-from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query
+from app.infrastructure.persistence.repositories.feature_flags.core import FeatureFlagRepository
 
 
 class FeatureFlagManager:
@@ -102,39 +102,22 @@ class FeatureFlagManager:
 
     def _get_global_flag(self, feature_name: str) -> bool:
         """Get global feature flag from database"""
-        query = "SELECT is_enabled FROM feature_flags WHERE name = %s"
-        flag = fetch_one(query, (feature_name,))
-
+        flag = FeatureFlagRepository.get_global_flag(feature_name)
         return flag['is_enabled'] if flag else False
 
     def _get_user_override(self, feature_name: str, user_id: str) -> Optional[bool]:
         """Check if user has specific override"""
-        query = """
-            SELECT is_enabled FROM feature_flag_user_overrides
-            WHERE feature_name = %s AND user_id = %s
-        """
-        override = fetch_one(query, (feature_name, user_id))
-
+        override = FeatureFlagRepository.get_user_override(feature_name, user_id)
         return override['is_enabled'] if override else None
 
     def _get_org_override(self, feature_name: str, org_id: str) -> Optional[bool]:
         """Check if organisation has specific override"""
-        query = """
-            SELECT is_enabled FROM feature_flag_org_overrides
-            WHERE feature_name = %s AND organisation_id = %s
-        """
-        override = fetch_one(query, (feature_name, org_id))
-
+        override = FeatureFlagRepository.get_org_override(feature_name, org_id)
         return override['is_enabled'] if override else None
 
     def _check_user_segment(self, feature_name: str, segment: str) -> Optional[bool]:
         """Check if feature is enabled for user segment (beta, premium, etc.)"""
-        query = """
-            SELECT is_enabled FROM feature_flag_segments
-            WHERE feature_name = %s AND segment = %s
-        """
-        segment_config = fetch_one(query, (feature_name, segment))
-
+        segment_config = FeatureFlagRepository.get_segment_config(feature_name, segment)
         return segment_config['is_enabled'] if segment_config else None
 
     def _check_percentage_rollout(self, feature_name: str, user_id: str) -> Optional[bool]:
@@ -143,11 +126,7 @@ class FeatureFlagManager:
 
         Example: 25% rollout means first 25% of users based on hash
         """
-        query = """
-            SELECT percentage FROM feature_flag_rollouts
-            WHERE feature_name = %s
-        """
-        rollout = fetch_one(query, (feature_name,))
+        rollout = FeatureFlagRepository.get_rollout_percentage(feature_name)
 
         if not rollout:
             return None
@@ -180,26 +159,11 @@ class FeatureFlagManager:
             organisation_id: Enable for specific organisation
         """
         if globally:
-            query = """
-                INSERT INTO feature_flags (name, is_enabled)
-                VALUES (%s, TRUE)
-                ON CONFLICT (name) DO UPDATE SET is_enabled = TRUE
-            """
-            execute_query(query, (feature_name,))
+            FeatureFlagRepository.upsert_global_flag(feature_name, True)
         elif user_id:
-            query = """
-                INSERT INTO feature_flag_user_overrides (feature_name, user_id, is_enabled)
-                VALUES (%s, %s, TRUE)
-                ON CONFLICT (feature_name, user_id) DO UPDATE SET is_enabled = TRUE
-            """
-            execute_query(query, (feature_name, user_id))
+            FeatureFlagRepository.upsert_user_override(feature_name, user_id, True)
         elif organisation_id:
-            query = """
-                INSERT INTO feature_flag_org_overrides (feature_name, organisation_id, is_enabled)
-                VALUES (%s, %s, TRUE)
-                ON CONFLICT (feature_name, organisation_id) DO UPDATE SET is_enabled = TRUE
-            """
-            execute_query(query, (feature_name, organisation_id))
+            FeatureFlagRepository.upsert_org_override(feature_name, organisation_id, True)
 
         self._clear_cache(feature_name)
 
@@ -212,23 +176,11 @@ class FeatureFlagManager:
     ):
         """Disable a feature (Admin API)"""
         if globally:
-            query = """
-                UPDATE feature_flags SET is_enabled = FALSE
-                WHERE name = %s
-            """
-            execute_query(query, (feature_name,))
+            FeatureFlagRepository.update_global_flag(feature_name, False)
         elif user_id:
-            query = """
-                UPDATE feature_flag_user_overrides SET is_enabled = FALSE
-                WHERE feature_name = %s AND user_id = %s
-            """
-            execute_query(query, (feature_name, user_id))
+            FeatureFlagRepository.update_user_override(feature_name, user_id, False)
         elif organisation_id:
-            query = """
-                UPDATE feature_flag_org_overrides SET is_enabled = FALSE
-                WHERE feature_name = %s AND organisation_id = %s
-            """
-            execute_query(query, (feature_name, organisation_id))
+            FeatureFlagRepository.update_org_override(feature_name, organisation_id, False)
 
         self._clear_cache(feature_name)
 
@@ -243,12 +195,7 @@ class FeatureFlagManager:
         if not 0 <= percentage <= 100:
             raise ValueError("Percentage must be between 0 and 100")
 
-        query = """
-            INSERT INTO feature_flag_rollouts (feature_name, percentage)
-            VALUES (%s, %s)
-            ON CONFLICT (feature_name) DO UPDATE SET percentage = %s
-        """
-        execute_query(query, (feature_name, percentage, percentage))
+        FeatureFlagRepository.upsert_rollout_percentage(feature_name, percentage)
         self._clear_cache(feature_name)
 
     def _clear_cache(self, feature_name: str):
@@ -266,12 +213,7 @@ class FeatureFlagManager:
         Returns:
             Dict with feature name as key and status dict as value
         """
-        query = """
-            SELECT name, is_enabled, created_at, updated_at
-            FROM feature_flags
-            ORDER BY name
-        """
-        results = fetch_all(query)
+        results = FeatureFlagRepository.get_all_flags()
         flags = {}
 
         for row in results:

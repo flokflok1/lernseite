@@ -306,3 +306,66 @@ class DashboardRepository(BaseRepository):
                 result['layout_json'] = json.loads(result['layout_json'])
 
         return results
+
+    # ================================================================
+    # ADMIN DASHBOARD STATISTICS
+    # ================================================================
+
+    @classmethod
+    def get_system_health_stats(cls) -> Dict:
+        """Get system health stats (DB uptime, latency)."""
+        query = """
+            SELECT
+                EXTRACT(EPOCH FROM (NOW() - pg_postmaster_start_time()))::int as uptime_seconds
+        """
+        result = fetch_one(query)
+        return {
+            'uptime_seconds': result['uptime_seconds'] if result else 0
+        }
+
+    @classmethod
+    def get_user_counts(cls) -> Dict:
+        """Get user count statistics for admin dashboard."""
+        total = fetch_one("SELECT COUNT(*) as cnt FROM core.users")
+        active = fetch_one("""
+            SELECT COUNT(*) as cnt FROM core.users
+            WHERE last_login_at IS NOT NULL
+            AND last_login_at >= NOW() - INTERVAL '7 days'
+        """)
+        banned = fetch_one("""
+            SELECT COUNT(*) as cnt FROM core.users
+            WHERE is_deleted = true OR is_active = false
+        """)
+        new = fetch_one("""
+            SELECT COUNT(*) as cnt FROM core.users
+            WHERE created_at >= NOW() - INTERVAL '30 days'
+        """)
+        return {
+            'total_users': total['cnt'] if total else 0,
+            'active_users': active['cnt'] if active else 0,
+            'banned_users': banned['cnt'] if banned else 0,
+            'new_users_30d': new['cnt'] if new else 0,
+        }
+
+    @classmethod
+    def get_course_counts(cls) -> Dict:
+        """Get course count statistics for admin dashboard."""
+        total = fetch_one("SELECT COUNT(*) as cnt FROM courses.courses")
+        published = fetch_one("""
+            SELECT COUNT(*) as cnt FROM courses.courses
+            WHERE published = true
+        """)
+        pending = fetch_one("""
+            SELECT COUNT(*) as cnt FROM courses.courses
+            WHERE status = 'pending_review'
+        """)
+        rejected = fetch_one("""
+            SELECT COUNT(*) as cnt FROM courses.courses
+            WHERE status = 'rejected'
+        """)
+        return {
+            'total_courses': total['cnt'] if total else 0,
+            'published': published['cnt'] if published else 0,
+            'pending_review': pending['cnt'] if pending else 0,
+            'rejected': rejected['cnt'] if rejected else 0,
+        }

@@ -61,15 +61,8 @@ def setup_2fa():
 
         # Store TOTP secret (but don't enable 2FA yet)
         # User must verify with a code first
-        from app.infrastructure.persistence.database.connection import execute_query
-        execute_query(
-            """
-            UPDATE users
-            SET two_factor_secret = %s
-            WHERE user_id = %s
-            """,
-            (totp_secret, user['user_id'])
-        )
+        from app.infrastructure.persistence.repositories.user.crud import UserCrudRepository
+        UserCrudRepository.set_two_factor_secret(user['user_id'], totp_secret)
 
         # Store recovery codes
         AdminSetup._store_recovery_codes(user['user_id'], recovery_codes)
@@ -136,15 +129,8 @@ def verify_2fa():
             }), 400
 
         # Enable 2FA
-        from app.infrastructure.persistence.database.connection import execute_query
-        execute_query(
-            """
-            UPDATE users
-            SET two_factor_enabled = true
-            WHERE user_id = %s
-            """,
-            (user['user_id'],)
-        )
+        from app.infrastructure.persistence.repositories.user.crud import UserCrudRepository
+        UserCrudRepository.enable_two_factor(user['user_id'])
 
         # Audit log: 2FA enabled
         AuditService.log_2fa_enabled(
@@ -232,16 +218,8 @@ def disable_2fa():
             }), 400
 
         # Disable 2FA
-        from app.infrastructure.persistence.database.connection import execute_query
-        execute_query(
-            """
-            UPDATE users
-            SET two_factor_enabled = false,
-                two_factor_secret = NULL
-            WHERE user_id = %s
-            """,
-            (user['user_id'],)
-        )
+        from app.infrastructure.persistence.repositories.user.crud import UserCrudRepository
+        UserCrudRepository.disable_two_factor(user['user_id'])
 
         # Audit log: 2FA disabled
         AuditService.log_2fa_disabled(

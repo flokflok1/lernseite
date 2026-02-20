@@ -435,3 +435,32 @@ class BaseRepository:
             'has_prev': page > 1,
             'has_next': page < total_pages
         }
+
+    # =========================================================================
+    # HEALTH CHECK
+    # =========================================================================
+
+    @staticmethod
+    def ping() -> bool:
+        """
+        Check database connectivity with SELECT 1.
+
+        Returns:
+            True if database is reachable, False otherwise
+        """
+        result = fetch_one("SELECT 1 AS ok")
+        return result is not None
+
+    @staticmethod
+    def ping_table(table_name: str) -> bool:
+        """
+        Check table accessibility with SELECT 1 FROM <table> LIMIT 1.
+
+        Args:
+            table_name: Fully qualified table name
+
+        Returns:
+            True if table is accessible, False otherwise
+        """
+        result = fetch_one(f"SELECT 1 FROM {table_name} LIMIT 1")
+        return result is not None

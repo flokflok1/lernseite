@@ -13,10 +13,9 @@ ISO 27001:2013 compliant - System monitoring
 import time
 from datetime import datetime
 from flask import jsonify
-import psycopg
 
-from app.core.bootstrap import extensions
 from app.core.bootstrap.extensions import redis_client
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 # Track application start time
 _app_start_time = time.time()
@@ -54,10 +53,7 @@ def check_database() -> dict:
     """
     try:
         start = time.time()
-        with extensions.db_pool.connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute('SELECT 1')
-                cur.fetchone()
+        BaseRepository.ping()
         latency_ms = round((time.time() - start) * 1000, 2)
 
         return {

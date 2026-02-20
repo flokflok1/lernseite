@@ -18,11 +18,10 @@ Part of: Phase 1 Dashboard Consolidation (Feature-based structure)
 from flask import Blueprint, jsonify
 from typing import Dict, Any, Tuple
 import logging
-from datetime import datetime
 
-from app.core.bootstrap import extensions
 from app.api.middleware.auth import token_required
 from app.infrastructure.error_handling.exceptions import APIException
+from app.infrastructure.persistence.repositories.dashboard.core import DashboardRepository
 
 logger = logging.getLogger(__name__)
 
@@ -67,34 +66,19 @@ def get_system_stats() -> Tuple[Dict[str, Any], int]:
         500: Server error
     """
     try:
-        with extensions.db_pool.connection() as conn:
-            with conn.cursor() as cursor:
-                # Get basic system stats from database
-                cursor.execute("""
-                    SELECT
-                        EXTRACT(EPOCH FROM (NOW() - pg_postmaster_start_time()))::int as uptime_seconds,
-                        EXTRACT(EPOCH FROM age(now(), now()))::int as db_latency_ms
-                """)
-                result = cursor.fetchone()
-                uptime = int(result[0]) if result and result[0] else 0
-                db_latency = 45  # Placeholder, would need monitoring data
+        health = DashboardRepository.get_system_health_stats()
 
-                # Get request count and error rate from logs or monitoring
-                # For now, returning placeholder values
-                request_count_24h = 15234
-                error_rate = 0.5
+        stats = {
+            'uptime': health['uptime_seconds'],
+            'db_latency': 45,  # Placeholder, would need monitoring data
+            'request_count_24h': 15234,
+            'error_rate': 0.5
+        }
 
-                stats = {
-                    'uptime': uptime,
-                    'db_latency': db_latency,
-                    'request_count_24h': request_count_24h,
-                    'error_rate': error_rate
-                }
-
-                return jsonify({
-                    'success': True,
-                    'data': stats
-                }), 200
+        return jsonify({
+            'success': True,
+            'data': stats
+        }), 200
 
     except Exception as e:
         logger.exception(f"Error fetching system stats: {str(e)}")
@@ -130,48 +114,12 @@ def get_user_stats() -> Tuple[Dict[str, Any], int]:
         500: Server error
     """
     try:
-        with extensions.db_pool.connection() as conn:
-            with conn.cursor() as cursor:
-                # Total users (using schema-prefixed table name)
-                cursor.execute("SELECT COUNT(*) as total FROM core.users")
-                total_users = cursor.fetchone()[0]
+        stats = DashboardRepository.get_user_counts()
 
-                # Active users (logged in last 7 days)
-                cursor.execute("""
-                    SELECT COUNT(*) as active
-                    FROM core.users
-                    WHERE last_login_at IS NOT NULL
-                    AND last_login_at >= NOW() - INTERVAL '7 days'
-                """)
-                active_users = cursor.fetchone()[0]
-
-                # Banned/deactivated users (using is_deleted since is_banned doesn't exist)
-                cursor.execute("""
-                    SELECT COUNT(*) as banned
-                    FROM core.users
-                    WHERE is_deleted = true OR is_active = false
-                """)
-                banned_users = cursor.fetchone()[0]
-
-                # New users in last 30 days
-                cursor.execute("""
-                    SELECT COUNT(*) as new_users
-                    FROM core.users
-                    WHERE created_at >= NOW() - INTERVAL '30 days'
-                """)
-                new_users_30d = cursor.fetchone()[0]
-
-                stats = {
-                    'total_users': total_users,
-                    'active_users': active_users,
-                    'banned_users': banned_users,
-                    'new_users_30d': new_users_30d
-                }
-
-                return jsonify({
-                    'success': True,
-                    'data': stats
-                }), 200
+        return jsonify({
+            'success': True,
+            'data': stats
+        }), 200
 
     except Exception as e:
         logger.exception(f"Error fetching user stats: {str(e)}")
@@ -207,47 +155,12 @@ def get_course_stats() -> Tuple[Dict[str, Any], int]:
         500: Server error
     """
     try:
-        with extensions.db_pool.connection() as conn:
-            with conn.cursor() as cursor:
-                # Total courses (using schema-prefixed table name)
-                cursor.execute("SELECT COUNT(*) as total FROM courses.courses")
-                total_courses = cursor.fetchone()[0]
+        stats = DashboardRepository.get_course_counts()
 
-                # Published courses
-                cursor.execute("""
-                    SELECT COUNT(*) as published
-                    FROM courses.courses
-                    WHERE published = true
-                """)
-                published = cursor.fetchone()[0]
-
-                # Pending review
-                cursor.execute("""
-                    SELECT COUNT(*) as pending
-                    FROM courses.courses
-                    WHERE status = 'pending_review'
-                """)
-                pending_review = cursor.fetchone()[0]
-
-                # Rejected courses
-                cursor.execute("""
-                    SELECT COUNT(*) as rejected
-                    FROM courses.courses
-                    WHERE status = 'rejected'
-                """)
-                rejected = cursor.fetchone()[0]
-
-                stats = {
-                    'total_courses': total_courses,
-                    'published': published,
-                    'pending_review': pending_review,
-                    'rejected': rejected
-                }
-
-                return jsonify({
-                    'success': True,
-                    'data': stats
-                }), 200
+        return jsonify({
+            'success': True,
+            'data': stats
+        }), 200
 
     except Exception as e:
         logger.exception(f"Error fetching course stats: {str(e)}")

@@ -23,7 +23,7 @@ from .contact import (
     send_customer_confirmation,
     check_duplicate_recent_submission,
 )
-from app.infrastructure.persistence.database.connection import get_db_connection
+from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
 # Logger
 logger = logging.getLogger(__name__)
@@ -213,9 +213,7 @@ def contact_health():
     """
     try:
         # Check database connectivity
-        with get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT 1 FROM b2b_contact_requests LIMIT 1")
+        BaseRepository.ping_table('b2b_contact_requests')
 
         return jsonify({
             'status': 'healthy',

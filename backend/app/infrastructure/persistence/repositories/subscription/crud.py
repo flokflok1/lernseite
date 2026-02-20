@@ -129,3 +129,24 @@ class PlanRepository:
 
                 conn.commit()
                 return cur.fetchone()
+
+    @classmethod
+    def get_subscription_with_plan(cls, subscription_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get subscription joined with its plan details.
+
+        Args:
+            subscription_id: Subscription ID
+
+        Returns:
+            Subscription dict with plan's included_tokens, or None
+        """
+        with extensions.db_pool.connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("""
+                    SELECT s.*, sp.included_tokens
+                    FROM subscriptions s
+                    JOIN subscription_plans sp ON s.plan_id = sp.plan_id
+                    WHERE s.subscription_id = %s
+                """, (subscription_id,))
+                return cur.fetchone()

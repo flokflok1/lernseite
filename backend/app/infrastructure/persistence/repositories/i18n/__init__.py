@@ -20,3 +20,6 @@ from .admin_languages import I18nAdminLanguageRepository  # noqa: F401
 
 # Admin translation management queries
 from .admin_queries import I18nAdminQueryRepository  # noqa: F401
+
+# Bulk seed operations
+from .bulk_seed import I18nBulkSeedRepository  # noqa: F401

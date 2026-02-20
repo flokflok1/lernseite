@@ -22,11 +22,10 @@ from flask import Blueprint, current_app
 from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional
 from datetime import datetime
-from psycopg.rows import dict_row
 import logging
 import re
 
-from app.infrastructure.persistence.database.connection import get_db_connection
+from app.infrastructure.persistence.repositories.business.contact import BusinessContactRepository
 
 # Initialize blueprint
 bp = Blueprint('business_contact', __name__, url_prefix='/business')
@@ -171,43 +170,17 @@ def save_contact_request(data: BusinessContactSchema) -> str:
     Raises:
         psycopg.Error: If database insert fails
     """
-    with get_db_connection() as conn:
-        with conn.cursor(row_factory=dict_row) as cursor:
-            cursor.execute(
-                """
-                INSERT INTO b2b_contact_requests (
-                    company_name,
-                    contact_person,
-                    email,
-                    phone,
-                    company_size,
-                    industry,
-                    message,
-                    source,
-                    referrer,
-                    status
-                ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, 'new'
-                )
-                RETURNING id
-                """,
-                (
-                    data.company_name,
-                    data.contact_person,
-                    data.email,
-                    data.phone,
-                    data.company_size,
-                    data.industry,
-                    data.message,
-                    data.source,
-                    data.referrer
-                )
-            )
-
-            result = cursor.fetchone()
-            conn.commit()
-
-            return result['id']
+    return BusinessContactRepository.save_contact_request({
+        'company_name': data.company_name,
+        'contact_person': data.contact_person,
+        'email': data.email,
+        'phone': data.phone,
+        'company_size': data.company_size,
+        'industry': data.industry,
+        'message': data.message,
+        'source': data.source,
+        'referrer': data.referrer,
+    })
 
 
 def send_admin_notification(data: BusinessContactSchema, request_id: str):
@@ -329,20 +302,7 @@ def check_duplicate_recent_submission(email: str, hours: int = 24) -> bool:
     Returns:
         True if duplicate found, False otherwise
     """
-    with get_db_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT COUNT(*)
-                FROM b2b_contact_requests
-                WHERE email = %s
-                AND created_at > NOW() - INTERVAL '%s hours'
-                """,
-                (email, hours)
-            )
-
-            count = cursor.fetchone()[0]
-            return count > 0
+    return BusinessContactRepository.check_duplicate_recent(email, hours)
 
 
 # Export blueprint and helpers used by contact_part2

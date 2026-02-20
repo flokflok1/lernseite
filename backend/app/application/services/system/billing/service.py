@@ -12,11 +12,11 @@ ISO 27001:2013 compliant - Billing and payment security
 
 from typing import Dict, Any, Optional
 from datetime import datetime
-from psycopg.rows import dict_row
 
-from app.core.bootstrap import extensions
 from app.infrastructure.persistence.repositories.token import TokenRepository
+from app.infrastructure.persistence.repositories.token.wallet import TokenWalletRepository
 from app.infrastructure.persistence.repositories.subscription import SubscriptionRepository
+from app.infrastructure.persistence.repositories.subscription.crud import PlanRepository
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.domain.models.content.learning_method import get_required_tier, check_tier_access
 
@@ -246,19 +246,8 @@ class BillingService:
                 'transaction': dict
             }
         """
-        # Get subscription
-        with extensions.db_pool.connection() as conn:
-            with conn.cursor(row_factory=dict_row) as cur:
-                cur.execute("""
-                    SELECT
-                        s.*,
-                        sp.included_tokens
-                    FROM subscriptions s
-                    JOIN subscription_plans sp ON s.plan_id = sp.plan_id
-                    WHERE s.subscription_id = %s
-                """, (subscription_id,))
-
-                subscription = cur.fetchone()
+        # Get subscription with plan details
+        subscription = PlanRepository.get_subscription_with_plan(subscription_id)
 
         if not subscription:
             raise ValueError(f'Subscription {subscription_id} not found')
@@ -291,15 +280,7 @@ class BillingService:
         )
 
         # Update last_grant_date
-        with extensions.db_pool.connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    UPDATE token_wallets
-                    SET last_grant_date = CURRENT_DATE,
-                        monthly_grant_amount = %s
-                    WHERE wallet_id = %s
-                """, (tokens_to_grant, wallet['wallet_id']))
-                conn.commit()
+        TokenWalletRepository.update_grant_date(wallet['wallet_id'], tokens_to_grant)
 
         return {
             'subscription_id': subscription_id,

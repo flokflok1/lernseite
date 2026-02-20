@@ -26,12 +26,6 @@ from app.infrastructure.persistence.repositories.i18n.sync_resolutions import (
 from app.infrastructure.persistence.repositories.i18n.sync_repository import (
     I18nSyncRepository
 )
-# OLD IMPORT BELOW (to be removed):
-if False:
-    from app.infrastructure.persistence.repositories.i18n.sync import (
-    SyncRepository, SyncMode, SyncStatus, ChangeType, Resolution,
-    SyncOperation, SyncChange, SyncResolution
-)
 from app.infrastructure.persistence.repositories.i18n.translations import I18nTranslationsRepository as TranslationRepository
 from app.infrastructure.error_handling.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.infrastructure.persistence.database import get_connection
@@ -58,7 +52,7 @@ class I18nSyncService:
             conn: Database connection (optional, created if not provided)
         """
         self.conn = conn or get_connection()
-        self.sync_repo = SyncRepository(self.conn)
+        self.sync_repo = I18nSyncRepository(self.conn)
         self.translation_repo = TranslationRepository(self.conn)
 
     def initiate_sync(

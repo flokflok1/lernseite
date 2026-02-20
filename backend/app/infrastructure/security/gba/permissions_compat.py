@@ -21,7 +21,13 @@ This wrapper automatically translates old permission codes to new GBA format.
 
 from functools import wraps
 from flask import jsonify, g
-from app.api.middleware.auth import token_required
+
+
+def _get_token_required():
+    """Lazy import to avoid circular import with app.api.middleware.auth."""
+    from app.api.middleware.auth import token_required
+    return token_required
+
 
 # ============================================================================
 # PERMISSION CONSTANTS (OLD RBAC 2.0 - For backward compatibility)
@@ -234,6 +240,8 @@ def require_permission(permission: str):
     gba_permission = _map_permission_code(permission)
 
     def decorator(fn):
+        token_required = _get_token_required()
+
         @wraps(fn)
         @token_required
         def wrapper(*args, **kwargs):
@@ -270,6 +278,8 @@ def require_system_admin(fn):
     Returns:
         403 Forbidden if not system admin
     """
+    token_required = _get_token_required()
+
     @wraps(fn)
     @token_required
     def wrapper(*args, **kwargs):
@@ -306,6 +316,8 @@ def require_org_admin(fn):
     Returns:
         403 Forbidden if not org admin
     """
+    token_required = _get_token_required()
+
     @wraps(fn)
     @token_required
     def wrapper(*args, **kwargs):
@@ -345,6 +357,8 @@ def require_org_member(fn):
     Returns:
         403 Forbidden if not member of organisation
     """
+    token_required = _get_token_required()
+
     @wraps(fn)
     @token_required
     def wrapper(*args, **kwargs):

@@ -8,11 +8,13 @@ Extensions are initialized here and then bound to the app in the factory pattern
 import os
 import atexit
 import logging
+from pathlib import Path
 import redis
 from dotenv import load_dotenv
 
-# Load .env file first (before any os.getenv() calls)
-load_dotenv()
+# Load app/.env explicitly (the canonical config location)
+_env_file = Path(__file__).parents[2] / '.env'
+load_dotenv(dotenv_path=_env_file)
 from psycopg_pool import ConnectionPool
 from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO

@@ -246,20 +246,20 @@ const deleteFile = (fileId: string) => {
 
 /* Upload zone */
 .upload-zone {
-  border: 2px dashed #d0d0d0;
+  border: 2px dashed var(--color-border);
   border-radius: 8px;
   transition: all 0.2s;
   flex-shrink: 0;
 }
 
 .upload-zone.dragging {
-  border-color: #2196f3;
-  background: rgba(33, 150, 243, 0.05);
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
 }
 
 .upload-zone.uploading {
-  border-color: #ff9800;
-  background: rgba(255, 152, 0, 0.05);
+  border-color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 5%, transparent);
 }
 
 .upload-label {
@@ -277,19 +277,19 @@ const deleteFile = (fileId: string) => {
 
 .upload-icon {
   font-size: 28px;
-  color: #999;
+  color: var(--color-text-tertiary);
   line-height: 1;
 }
 
 .upload-text {
   font-size: 13px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .upload-hint,
 .upload-types {
   font-size: 11px;
-  color: #aaa;
+  color: var(--color-text-tertiary);
 }
 
 .upload-progress {
@@ -303,20 +303,20 @@ const deleteFile = (fileId: string) => {
 .progress-bar {
   width: 100%;
   height: 4px;
-  background: #e0e0e0;
+  background: var(--color-border);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: #2196f3;
+  background: var(--color-accent);
   transition: width 0.1s;
 }
 
 .progress-text {
   font-size: 12px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 /* File list */
@@ -334,13 +334,13 @@ const deleteFile = (fileId: string) => {
   gap: 8px;
   padding: 6px 8px;
   border-radius: 4px;
-  background: #fafafa;
-  border: 1px solid #eee;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
 }
 
 .file-item:hover {
-  background: #f0f4ff;
-  border-color: #d0d8e8;
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 25%, var(--color-border));
 }
 
 .file-thumb {
@@ -349,7 +349,7 @@ const deleteFile = (fileId: string) => {
   flex-shrink: 0;
   border-radius: 4px;
   overflow: hidden;
-  background: #eee;
+  background: var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -378,11 +378,12 @@ const deleteFile = (fileId: string) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-text-primary);
 }
 
 .file-size {
   font-size: 11px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .file-actions {
@@ -395,33 +396,34 @@ const deleteFile = (fileId: string) => {
 .btn-delete {
   width: 26px;
   height: 26px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: white;
+  background: var(--color-surface);
   cursor: pointer;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
+  color: var(--color-text-secondary);
 }
 
 .btn-copy:hover {
-  background: #e3f2fd;
-  border-color: #2196f3;
-  color: #2196f3;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .btn-copy.copied {
-  background: #e8f5e9;
-  border-color: #4caf50;
-  color: #4caf50;
+  background: color-mix(in srgb, var(--color-success) 15%, transparent);
+  border-color: var(--color-success);
+  color: var(--color-success);
 }
 
 .btn-delete:hover {
-  background: #ffebee;
-  border-color: #f44336;
-  color: #f44336;
+  background: color-mix(in srgb, var(--color-error) 10%, transparent);
+  border-color: var(--color-error);
+  color: var(--color-error);
 }
 
 /* Empty state */
@@ -433,7 +435,7 @@ const deleteFile = (fileId: string) => {
 }
 
 .empty-state p {
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 13px;
   margin: 0;
 }

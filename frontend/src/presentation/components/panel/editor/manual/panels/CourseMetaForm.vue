@@ -122,13 +122,11 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
-import { getCategoryTree, type Category, type CategoryTreeNode } from '@/infrastructure/api/clients/panel/editor'
+import type { Category, CategoryTreeNode } from '@/infrastructure/api/clients/panel/editor'
 
 const editorStore = useCourseEditorStore()
 
 const localCourse = ref({ ...editorStore.currentCourse })
-const categories = ref<CategoryTreeNode[]>([])
-const loadingCategories = ref(false)
 
 // Flatten categories with indentation for hierarchical display
 const flatCategories = computed(() => {
@@ -146,22 +144,13 @@ const flatCategories = computed(() => {
     }
   }
 
-  flatten(categories.value, 0)
+  flatten(editorStore.categoryTree, 0)
   return result
 })
 
-const loadCategories = async () => {
-  loadingCategories.value = true
-  try {
-    const tree = await getCategoryTree(false)
-    categories.value = tree.categories || []
-  } catch (error) {
-    console.error('Failed to load categories:', error)
-    categories.value = []
-  } finally {
-    loadingCategories.value = false
-  }
-}
+const loadingCategories = computed(() => editorStore.loadingCategories)
+
+const loadCategories = () => editorStore.loadCategories()
 
 watch(
   () => editorStore.currentCourse,

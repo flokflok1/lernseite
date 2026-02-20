@@ -37,6 +37,8 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
   const saving = ref(false)
   const dirty = ref(false)
   const error = ref<string | null>(null)
+  const courseList = ref<any[]>([])
+  const courseListLoading = ref(false)
 
   // Shared refs object for chapter/lesson operations
   const editorRefs = {
@@ -309,6 +311,29 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     }
   }
 
+  /**
+   * List courses owned by current user
+   */
+  const listCourses = async (): Promise<void> => {
+    courseListLoading.value = true
+    error.value = null
+    try {
+      courseList.value = await coursesApi.getMyCourses()
+    } catch (err: any) {
+      error.value = err.response?.data?.message || err.message || 'Failed to list courses'
+    } finally {
+      courseListLoading.value = false
+    }
+  }
+
+  /**
+   * Delete a course by ID and refresh the list
+   */
+  const deleteCourseById = async (courseId: number): Promise<void> => {
+    await coursesApi.deleteCourse(courseId)
+    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
+  }
+
   // Delegated chapter/lesson actions (bound to shared refs)
   const addChapter = (title: string) => chapterOps.addChapter(editorRefs, title)
   const updateChapterMeta = (chapterId: string, payload: any) =>
@@ -325,6 +350,22 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
   const reorderLessons = (chapterId: string, reordered: EditableLesson[]) =>
     chapterOps.reorderLessons(editorRefs, chapterId, reordered)
 
+  // Categories
+  const categoryTree = ref<any[]>([])
+  const loadingCategories = ref(false)
+
+  const loadCategories = async () => {
+    loadingCategories.value = true
+    try {
+      const result = await coursesApi.getCategoryTree()
+      categoryTree.value = result
+    } catch {
+      categoryTree.value = []
+    } finally {
+      loadingCategories.value = false
+    }
+  }
+
   return {
     // State
     currentCourse,
@@ -336,6 +377,8 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     saving,
     dirty,
     error,
+    courseList,
+    courseListLoading,
 
     // Getters
     hasCourse,
@@ -368,5 +411,10 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     clearEditor,
     publishCourse,
     unpublishCourse,
+    listCourses,
+    deleteCourseById,
+    categoryTree,
+    loadingCategories,
+    loadCategories,
   }
 })

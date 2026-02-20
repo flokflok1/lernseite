@@ -8,17 +8,10 @@
 
 <script setup lang="ts">
 import { EditorContent } from '@tiptap/vue-3'
-import { useContentEditor } from './composables/useContentEditor'
+import { useContentEditor } from '../composables/useContentEditor'
 import VideoEditorSection from './content/VideoEditorSection.vue'
 import QuizEditorSection from './content/QuizEditorSection.vue'
 import AiEditorSection from './content/AiEditorSection.vue'
-import type { EditorModeConfig } from '../types'
-
-interface Props {
-  modeConfig: EditorModeConfig
-}
-
-defineProps<Props>()
 
 const {
   editor,
@@ -118,7 +111,7 @@ const {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -128,7 +121,7 @@ const {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 14px;
 }
 
@@ -138,15 +131,15 @@ const {
   flex-wrap: wrap;
   gap: 4px;
   padding: 8px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #fafafa;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-secondary);
 }
 
 .toolbar-group {
   display: flex;
   gap: 2px;
   padding-right: 8px;
-  border-right: 1px solid #e8e8e8;
+  border-right: 1px solid var(--color-border);
 }
 
 .toolbar-group:last-child {
@@ -163,17 +156,17 @@ const {
   font-size: 12px;
   min-width: 28px;
   text-align: center;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .toolbar-group button:hover {
-  background: #e8e8e8;
+  background: var(--color-border);
 }
 
 .toolbar-group button.active {
-  background: #e3f2fd;
-  border-color: #90caf9;
-  color: #1565c0;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 /* TipTap area */
@@ -188,12 +181,13 @@ const {
   min-height: 300px;
   font-size: 14px;
   line-height: 1.6;
+  color: var(--color-text-primary);
 }
 
 .tiptap-content :deep(.tiptap p.is-editor-empty:first-child::before) {
   content: attr(data-placeholder);
   float: left;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   pointer-events: none;
   height: 0;
 }
@@ -204,12 +198,12 @@ const {
 .tiptap-content :deep(.tiptap ul),
 .tiptap-content :deep(.tiptap ol) { padding-left: 24px; }
 .tiptap-content :deep(.tiptap pre) {
-  background: #f5f5f5;
+  background: var(--color-surface-secondary);
   padding: 12px;
   border-radius: 4px;
   font-family: monospace;
   font-size: 13px;
 }
-.tiptap-content :deep(.tiptap a) { color: #1976d2; text-decoration: underline; }
+.tiptap-content :deep(.tiptap a) { color: var(--color-accent); text-decoration: underline; }
 .tiptap-content :deep(.tiptap img) { max-width: 100%; border-radius: 4px; }
 </style>

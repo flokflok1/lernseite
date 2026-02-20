@@ -12,8 +12,8 @@ import VariantSelector from './VariantSelector.vue'
 import GenerationHistory from './GenerationHistory.vue'
 import SourceSelectionContainer from './SourceSelectionContainer.vue'
 import { ContentEditor, PreviewPanel, StructurePanel } from '../shared'
-import { TheoryGenerationContainer } from '../content-generation'
-import { ExplanationGenerationContainer } from '../explanation-generation'
+import { TheoryGenerationContainer } from './content-generation'
+import { ExplanationGenerationContainer } from './explanation-generation'
 
 interface Props {
   projectId: string

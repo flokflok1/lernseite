@@ -166,21 +166,21 @@ const estimatedTime = computed(() => {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #fafafa;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-secondary);
   flex-shrink: 0;
 }
 
 .toolbar-title {
   font-size: 13px;
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .mode-toggle {
   display: flex;
   gap: 2px;
-  background: #e8e8e8;
+  background: var(--color-border);
   border-radius: 4px;
   padding: 2px;
 }
@@ -192,13 +192,13 @@ const estimatedTime = computed(() => {
   border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
-  color: #666;
+  color: var(--color-text-secondary);
   transition: all 0.15s;
 }
 
 .toggle-btn.active {
-  background: white;
-  color: #333;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -207,13 +207,13 @@ const estimatedTime = computed(() => {
   flex: 1;
   overflow: auto;
   padding: 16px;
-  background: #f0f0f0;
+  background: var(--color-bg);
   display: flex;
   justify-content: center;
 }
 
 .preview-frame {
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow-y: auto;
@@ -238,7 +238,7 @@ const estimatedTime = computed(() => {
 }
 
 .no-content p {
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 13px;
   margin: 0;
 }
@@ -251,7 +251,7 @@ const estimatedTime = computed(() => {
 .lesson-header {
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .lesson-meta {
@@ -273,12 +273,12 @@ const estimatedTime = computed(() => {
 
 .reading-time {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .chapter-name {
   font-size: 12px;
-  color: #888;
+  color: var(--color-text-tertiary);
   display: block;
   margin-bottom: 4px;
 }
@@ -286,7 +286,7 @@ const estimatedTime = computed(() => {
 .lesson-title {
   font-size: 24px;
   font-weight: 700;
-  color: #222;
+  color: var(--color-text-primary);
   margin: 0;
   line-height: 1.3;
 }
@@ -295,7 +295,7 @@ const estimatedTime = computed(() => {
 .rendered-html {
   font-size: 15px;
   line-height: 1.7;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .rendered-html :deep(h1) { font-size: 1.8em; margin: 1em 0 0.5em; }
@@ -306,13 +306,13 @@ const estimatedTime = computed(() => {
 .rendered-html :deep(ol) { padding-left: 1.5em; }
 .rendered-html :deep(li) { margin: 0.3em 0; }
 .rendered-html :deep(blockquote) {
-  border-left: 3px solid #2196f3;
+  border-left: 3px solid var(--color-accent);
   padding: 0.5em 1em;
   margin: 1em 0;
-  background: #f8f9fa;
+  background: var(--color-surface-secondary);
 }
 .rendered-html :deep(code) {
-  background: #f5f5f5;
+  background: var(--color-surface-secondary);
   padding: 2px 4px;
   border-radius: 3px;
   font-size: 0.9em;
@@ -330,7 +330,7 @@ const estimatedTime = computed(() => {
   border-radius: 4px;
 }
 .rendered-html :deep(a) {
-  color: #2196f3;
+  color: var(--color-accent);
   text-decoration: underline;
 }
 
@@ -344,7 +344,7 @@ const estimatedTime = computed(() => {
 
 .video-placeholder {
   text-align: center;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .play-icon {
@@ -362,7 +362,7 @@ const estimatedTime = computed(() => {
 }
 
 .quiz-hint {
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 14px;
 }
 </style>

@@ -50,6 +50,7 @@ class LearningMethodInstanceRepository:
                     SELECT
                         lm.method_id,
                         lm.chapter_id,
+                        lm.lesson_id,
                         lm.method_type,
                         lm.title,
                         lm.instructions,
@@ -93,6 +94,7 @@ class LearningMethodInstanceRepository:
                     SELECT
                         method_id,
                         chapter_id,
+                        lesson_id,
                         method_type,
                         title,
                         instructions,
@@ -126,9 +128,6 @@ class LearningMethodInstanceRepository:
         """
         Findet alle Learning Method Instances für eine Lesson.
 
-        Hinweis: Die aktuelle Tabellenstruktur hat nur chapter_id.
-        Diese Methode ist für zukünftige Erweiterung vorbereitet.
-
         Args:
             lesson_id: UUID der Lesson
             published_only: Nur veröffentlichte Methoden
@@ -136,21 +135,36 @@ class LearningMethodInstanceRepository:
         Returns:
             Liste der Learning Method Instances
         """
-        # Aktuelle Implementierung: Suche über Lesson -> Chapter -> Learning Methods
-        # TODO: Wenn lesson_id Spalte zur learning_methods Tabelle hinzugefügt wird
         with extensions.db_pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
-                # Hole chapter_id der Lesson
-                cur.execute("""
-                    SELECT chapter_id FROM courses.lessons WHERE lesson_id = %s
-                """, (lesson_id,))
+                query = """
+                    SELECT
+                        method_id,
+                        chapter_id,
+                        lesson_id,
+                        method_type,
+                        title,
+                        instructions,
+                        data,
+                        solution,
+                        tier,
+                        duration_minutes,
+                        difficulty,
+                        order_index,
+                        published,
+                        created_at,
+                        updated_at
+                    FROM learning_methods
+                    WHERE lesson_id = %s
+                """
 
-                lesson = cur.fetchone()
-                if not lesson:
-                    return []
+                if published_only:
+                    query += " AND published = TRUE"
 
-                # Hole Learning Methods für das Kapitel
-                return cls.find_by_chapter(lesson['chapter_id'], published_only)
+                query += " ORDER BY order_index, created_at"
+
+                cur.execute(query, (lesson_id,))
+                return cur.fetchall()
 
     @classmethod
     def create(cls, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -199,6 +213,7 @@ class LearningMethodInstanceRepository:
                 cur.execute("""
                     INSERT INTO learning_methods (
                         chapter_id,
+                        lesson_id,
                         method_type,
                         title,
                         instructions,
@@ -210,11 +225,12 @@ class LearningMethodInstanceRepository:
                         order_index,
                         published
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                     RETURNING *
                 """, (
                     data.get('chapter_id'),
+                    data.get('lesson_id'),
                     method_type,
                     data.get('title', ''),
                     data.get('instructions'),
@@ -360,6 +376,30 @@ class LearningMethodInstanceRepository:
                         SET order_index = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE method_id = %s AND chapter_id = %s
                     """, (index, method_id, chapter_id))
+
+                conn.commit()
+                return True
+
+    @classmethod
+    def reorder_lesson_activities(cls, lesson_id: str, method_ids: List[str]) -> bool:
+        """
+        Sortiert Learning Methods in einer Lesson neu.
+
+        Args:
+            lesson_id: UUID der Lesson
+            method_ids: Liste der method_ids in neuer Reihenfolge
+
+        Returns:
+            True wenn erfolgreich
+        """
+        with extensions.db_pool.connection() as conn:
+            with conn.cursor() as cur:
+                for index, method_id in enumerate(method_ids):
+                    cur.execute("""
+                        UPDATE learning_methods
+                        SET order_index = %s, updated_at = CURRENT_TIMESTAMP
+                        WHERE method_id = %s AND lesson_id = %s
+                    """, (index, method_id, lesson_id))
 
                 conn.commit()
                 return True

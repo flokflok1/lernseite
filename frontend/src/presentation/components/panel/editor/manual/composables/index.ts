@@ -1,3 +1,5 @@
-export { useEditorMode } from './useEditorMode'
 export { useAutoSave } from './useAutoSave'
+export { useContentEditor } from './useContentEditor'
 export { useEditorKeyboard } from './useEditorKeyboard'
+export { useLessonActivities } from './useLessonActivities'
+export type { LessonActivity } from './useLessonActivities'

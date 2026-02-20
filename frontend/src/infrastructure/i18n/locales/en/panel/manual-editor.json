@@ -7,12 +7,6 @@
       "preview": "Preview",
       "lessonSettings": "Lesson"
     },
-    "mode": {
-      "label": "Mode",
-      "beginner": "Beginner",
-      "advanced": "Advanced",
-      "expert": "Expert"
-    },
     "structure": {
       "title": "Structure",
       "addChapter": "Add chapter",
@@ -50,6 +44,10 @@
       "duration": "Estimated duration (min.)",
       "tags": "Tags",
       "tagsHint": "Press Enter to add",
+      "thumbnail": "Thumbnail URL",
+      "thumbnailHint": "Direct link to image (e.g. https://...)",
+      "category": "Category",
+      "categoryHint": "Category ID (optional)",
       "visibility": "Visibility",
       "visibilityPublic": "Public",
       "visibilityPrivate": "Private",
@@ -98,6 +96,41 @@
       "beginner": "Beginner",
       "intermediate": "Intermediate",
       "advanced": "Advanced"
+    },
+    "publish": {
+      "draft": "Draft",
+      "published": "Published",
+      "publish": "Publish",
+      "unpublish": "Unpublish"
+    },
+    "activities": {
+      "title": "Activities",
+      "add": "Add activity",
+      "empty": "No activities yet",
+      "emptyHint": "Add learning method activities to this lesson",
+      "selectMethod": "Select learning method",
+      "activityTitle": "Activity title",
+      "confirmDelete": "Really delete activity \"{title}\"?",
+      "groupA": "Explanatory",
+      "groupB": "Practice",
+      "groupC": "Assessment"
+    },
+    "courseSelector": {
+      "title": "My Courses",
+      "createNew": "Create new course",
+      "search": "Search courses...",
+      "noCourses": "No courses yet",
+      "noCoursesHint": "Create your first course",
+      "noResults": "No courses found",
+      "confirmDelete": "Really delete course \"{title}\"?",
+      "backToList": "Back to course list",
+      "chapters": "{count} chapters",
+      "lastEdited": "Last edited",
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      }
     }
   }
 }

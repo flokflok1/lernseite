@@ -131,5 +131,19 @@ CREATE TRIGGER update_lm_instances_updated_at
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
+-- EXTENSION: Add lesson_id to learning_method_instances
+-- Date: 2026-02-20
+-- Purpose: Enable lesson-level learning activities (Multi-LM per lesson)
+-- ============================================================================
+ALTER TABLE learning_methods.learning_method_instances
+ADD COLUMN IF NOT EXISTS lesson_id UUID REFERENCES courses.lessons(lesson_id) ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS idx_lmi_lesson_id
+ON learning_methods.learning_method_instances(lesson_id);
+
+COMMENT ON COLUMN learning_methods.learning_method_instances.lesson_id IS
+  'Optional lesson assignment. NULL = chapter-level, set = lesson-level activity.';
+
+-- ============================================================================
 -- End of Migration: 011_learning_methods.sql
 -- ============================================================================

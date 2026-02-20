@@ -76,7 +76,7 @@ function openAIEditor(): void {
 
 .launcher-content {
   text-align: center;
-  color: #9ca3af;
+  color: var(--color-text-tertiary);
 }
 
 .launcher-icon {
@@ -87,7 +87,7 @@ function openAIEditor(): void {
 .launcher-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0 0 0.5rem;
 }
 
@@ -99,7 +99,7 @@ function openAIEditor(): void {
 .launcher-hint {
   font-size: 0.85rem;
   font-style: italic;
-  color: #b0b5bd;
+  color: var(--color-text-tertiary);
   margin: 0 0 2rem;
 }
 

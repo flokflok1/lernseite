@@ -472,3 +472,4 @@ export const unpublishCourse = async (courseId: number): Promise<EditableCourse>
 
   return response.data.course
 }
+

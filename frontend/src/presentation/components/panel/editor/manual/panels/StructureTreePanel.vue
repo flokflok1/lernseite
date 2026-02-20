@@ -256,7 +256,7 @@ const getDeleteLabel = (): string => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -266,8 +266,8 @@ const getDeleteLabel = (): string => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--color-surface-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .tree-title {
@@ -277,7 +277,7 @@ const getDeleteLabel = (): string => {
 
 .chapter-count {
   font-size: 11px;
-  color: #888;
+  color: var(--color-text-tertiary);
 }
 
 .tree-content {
@@ -289,7 +289,7 @@ const getDeleteLabel = (): string => {
 .empty-state {
   padding: 24px 12px;
   text-align: center;
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 13px;
 }
 
@@ -305,11 +305,11 @@ const getDeleteLabel = (): string => {
 }
 
 .chapter-row:hover {
-  background: #f0f0f0;
+  background: var(--color-surface-secondary);
 }
 
 .chapter-row.selected {
-  background: #e3f2fd;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
 .expand-btn {
@@ -318,7 +318,7 @@ const getDeleteLabel = (): string => {
   cursor: pointer;
   padding: 0 2px;
   font-size: 10px;
-  color: #666;
+  color: var(--color-text-secondary);
   line-height: 1;
 }
 
@@ -332,7 +332,7 @@ const getDeleteLabel = (): string => {
 
 .lesson-count {
   font-size: 11px;
-  color: #999;
+  color: var(--color-text-tertiary);
   flex-shrink: 0;
 }
 
@@ -340,7 +340,7 @@ const getDeleteLabel = (): string => {
   border: none;
   background: none;
   cursor: pointer;
-  color: #ccc;
+  color: var(--color-text-tertiary);
   font-size: 16px;
   padding: 0 4px;
   line-height: 1;
@@ -354,7 +354,7 @@ const getDeleteLabel = (): string => {
 }
 
 .delete-btn:hover {
-  color: #e53935;
+  color: var(--color-error);
 }
 
 .lessons-list {
@@ -372,11 +372,11 @@ const getDeleteLabel = (): string => {
 }
 
 .lesson-row:hover {
-  background: #f5f5f5;
+  background: var(--color-surface-secondary);
 }
 
 .lesson-row.selected {
-  background: #e3f2fd;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
 .lesson-icon {
@@ -399,7 +399,7 @@ const getDeleteLabel = (): string => {
 .inline-input input {
   width: 100%;
   padding: 4px 8px;
-  border: 1px solid #2196f3;
+  border: 1px solid var(--color-accent);
   border-radius: 4px;
   font-size: 12px;
   outline: none;
@@ -408,7 +408,7 @@ const getDeleteLabel = (): string => {
 .add-lesson-btn {
   border: none;
   background: none;
-  color: #2196f3;
+  color: var(--color-accent);
   cursor: pointer;
   font-size: 11px;
   padding: 4px 8px;
@@ -417,16 +417,16 @@ const getDeleteLabel = (): string => {
 }
 
 .add-lesson-btn:hover {
-  background: #f0f7ff;
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
   border-radius: 4px;
 }
 
 .add-chapter-btn {
   padding: 10px 12px;
   border: none;
-  border-top: 1px solid #e0e0e0;
-  background: #fafafa;
-  color: #2196f3;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-secondary);
+  color: var(--color-accent);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
@@ -434,7 +434,7 @@ const getDeleteLabel = (): string => {
 }
 
 .add-chapter-btn:hover {
-  background: #f0f7ff;
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
 }
 
 .confirm-overlay {
@@ -448,7 +448,7 @@ const getDeleteLabel = (): string => {
 }
 
 .confirm-dialog {
-  background: white;
+  background: var(--color-surface);
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -469,19 +469,19 @@ const getDeleteLabel = (): string => {
 .btn-cancel,
 .btn-delete {
   padding: 6px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
 }
 
 .btn-cancel {
-  background: white;
+  background: var(--color-surface);
 }
 
 .btn-delete {
-  background: #e53935;
-  color: white;
-  border-color: #c62828;
+  background: var(--color-error);
+  color: var(--color-surface);
+  border-color: var(--color-error);
 }
 </style>

@@ -7,12 +7,6 @@
       "preview": "Vorschau",
       "lessonSettings": "Lektion"
     },
-    "mode": {
-      "label": "Modus",
-      "beginner": "Einsteiger",
-      "advanced": "Fortgeschritten",
-      "expert": "Experte"
-    },
     "structure": {
       "title": "Struktur",
       "addChapter": "Kapitel hinzufügen",
@@ -50,6 +44,10 @@
       "duration": "Geschätzte Dauer (Min.)",
       "tags": "Schlagwörter",
       "tagsHint": "Enter drücken zum Hinzufügen",
+      "thumbnail": "Vorschaubild-URL",
+      "thumbnailHint": "Direktlink zum Bild (z.B. https://...)",
+      "category": "Kategorie",
+      "categoryHint": "Kategorie-ID (optional)",
       "visibility": "Sichtbarkeit",
       "visibilityPublic": "Öffentlich",
       "visibilityPrivate": "Privat",
@@ -98,6 +96,41 @@
       "beginner": "Anfänger",
       "intermediate": "Fortgeschritten",
       "advanced": "Experte"
+    },
+    "publish": {
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "publish": "Veröffentlichen",
+      "unpublish": "Zurückziehen"
+    },
+    "activities": {
+      "title": "Aufgaben",
+      "add": "Aufgabe hinzufügen",
+      "empty": "Noch keine Aufgaben",
+      "emptyHint": "Füge Lernmethoden-Aufgaben zu dieser Lektion hinzu",
+      "selectMethod": "Lernmethode wählen",
+      "activityTitle": "Aufgaben-Titel",
+      "confirmDelete": "Aufgabe \"{title}\" wirklich löschen?",
+      "groupA": "Erklärend",
+      "groupB": "Übung",
+      "groupC": "Prüfung"
+    },
+    "courseSelector": {
+      "title": "Meine Kurse",
+      "createNew": "Neuen Kurs erstellen",
+      "search": "Kurs suchen...",
+      "noCourses": "Noch keine Kurse vorhanden",
+      "noCoursesHint": "Erstelle deinen ersten Kurs",
+      "noResults": "Keine Kurse gefunden",
+      "confirmDelete": "Kurs \"{title}\" wirklich löschen?",
+      "backToList": "Zurück zur Kursliste",
+      "chapters": "{count} Kapitel",
+      "lastEdited": "Zuletzt bearbeitet",
+      "status": {
+        "draft": "Entwurf",
+        "published": "Veröffentlicht",
+        "archived": "Archiviert"
+      }
     }
   }
 }

@@ -3,15 +3,16 @@
  *
  * Main orchestrator for the manual course editor.
  * Left sidebar: always-visible structure tree.
- * Right area: tab-based panels (content, course info, AI theory/explanation).
- * Top bar: editor mode selector, auto-save status, save button.
+ * Right area: tab-based panels (content, course info, media, preview, settings, AI).
+ * Top bar: auto-save status, save button.
  */
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
-import { useEditorMode, useAutoSave, useEditorKeyboard } from '@/presentation/components/panel/editor/manual/composables'
+import { useAuthStore } from '@/application/stores/modules/core/auth.store'
+import { useAutoSave, useEditorKeyboard } from '@/presentation/components/panel/editor/manual/composables'
 import type { EditorTab } from '@/presentation/components/panel/editor/manual/types'
 import StructureTreePanel from '@/presentation/components/panel/editor/manual/panels/StructureTreePanel.vue'
 import ContentEditPanel from '@/presentation/components/panel/editor/manual/panels/ContentEditPanel.vue'
@@ -19,8 +20,9 @@ import CourseInfoPanel from '@/presentation/components/panel/editor/manual/panel
 import MediaUploadPanel from '@/presentation/components/panel/editor/manual/panels/MediaUploadPanel.vue'
 import LessonSettingsPanel from '@/presentation/components/panel/editor/manual/panels/LessonSettingsPanel.vue'
 import PreviewPanel from '@/presentation/components/panel/editor/manual/panels/PreviewPanel.vue'
-import { TheoryGenerationContainer } from '@/presentation/components/panel/editor/content-generation'
-import { ExplanationGenerationContainer } from '@/presentation/components/panel/editor/explanation-generation'
+import CourseSelector from '@/presentation/components/panel/editor/manual/panels/CourseSelector.vue'
+import { TheoryGenerationContainer } from '@/presentation/components/panel/editor/ai/content-generation'
+import { ExplanationGenerationContainer } from '@/presentation/components/panel/editor/ai/explanation-generation'
 
 interface Props {
   projectId: string
@@ -31,63 +33,64 @@ const props = defineProps<Props>()
 
 const { t } = useI18n()
 const store = useCourseEditorStore()
-const { currentMode, modeConfig, setMode } = useEditorMode()
+const authStore = useAuthStore()
 const { saveStatus, lastSaved, triggerSave } = useAutoSave()
+
+const isAdmin = computed(() => authStore.userHierarchyLevel >= 750)
 
 const activeTab = ref<EditorTab>('content')
 const isInitialized = ref(false)
+const selectedCourseId = ref<number | null>(props.courseId ? Number(props.courseId) : null)
 
 // Keyboard shortcuts
 useEditorKeyboard({
   onSave: () => triggerSave(),
 })
 
-// Available tabs based on editor mode
-const tabs = computed(() => {
-  const base: Array<{ key: EditorTab; label: string }> = [
-    { key: 'content', label: t('panel.manualEditor.tabs.content') },
-    { key: 'course-info', label: t('panel.manualEditor.tabs.courseInfo') },
-  ]
+// All tabs always visible
+const tabs = computed<Array<{ key: EditorTab; label: string }>>(() => [
+  { key: 'content', label: t('panel.manualEditor.tabs.content') },
+  { key: 'course-info', label: t('panel.manualEditor.tabs.courseInfo') },
+  { key: 'media', label: t('panel.manualEditor.tabs.media') },
+  { key: 'preview', label: t('panel.manualEditor.tabs.preview') },
+  { key: 'lesson-settings', label: t('panel.manualEditor.tabs.lessonSettings') },
+  { key: 'theory', label: t('course-editor.theory.container.title') },
+  { key: 'explanation', label: t('course-editor.explanation.container.title') },
+])
 
-  if (modeConfig.value.showMediaUpload) {
-    base.push({ key: 'media', label: t('panel.manualEditor.tabs.media') })
-  }
-  if (modeConfig.value.showPreview) {
-    base.push({ key: 'preview', label: t('panel.manualEditor.tabs.preview') })
-  }
-  if (modeConfig.value.showLessonSettings) {
-    base.push({ key: 'lesson-settings', label: t('panel.manualEditor.tabs.lessonSettings') })
-  }
-
-  // AI tabs always available
-  base.push(
-    { key: 'theory', label: t('course-editor.theory.container.title') },
-    { key: 'explanation', label: t('course-editor.explanation.container.title') },
-  )
-
-  return base
-})
-
-// Reset active tab when switching to a mode that hides current tab
-watch(tabs, (newTabs) => {
-  const tabKeys = newTabs.map(t => t.key)
-  if (!tabKeys.includes(activeTab.value)) {
-    activeTab.value = 'content'
-  }
-})
-
-// Initialize store with course data
+// Initialize: load course if ID provided, otherwise show selector
 onMounted(async () => {
-  if (props.courseId) {
-    const numericId = Number(props.courseId)
-    if (!isNaN(numericId)) {
-      await store.loadCourseForEdit(numericId)
-    }
-  } else {
-    await store.createNewCourse()
+  if (selectedCourseId.value) {
+    await store.loadCourseForEdit(selectedCourseId.value)
   }
   isInitialized.value = true
 })
+
+const handleSelectCourse = async (courseId: number) => {
+  selectedCourseId.value = courseId
+  await store.loadCourseForEdit(courseId)
+}
+
+const handleCreateCourse = async () => {
+  await store.createNewCourse()
+  if (store.currentCourse) {
+    selectedCourseId.value = store.currentCourse.course_id
+  }
+}
+
+const handleBackToList = () => {
+  selectedCourseId.value = null
+  store.clearEditor()
+}
+
+const handleTogglePublish = async () => {
+  if (!store.currentCourse) return
+  if (store.currentCourse.is_published) {
+    await store.unpublishCourse()
+  } else {
+    await store.publishCourse()
+  }
+}
 
 onBeforeUnmount(() => {
   store.clearEditor()
@@ -105,42 +108,69 @@ const formatSaveTime = (date: Date | null): string => {
 
 <template>
   <div class="manual-editor-container">
-    <!-- Top Bar -->
-    <div class="editor-topbar">
-      <!-- Mode selector -->
-      <div class="mode-selector">
-        <span class="mode-label">{{ $t('panel.manualEditor.mode.label') }}:</span>
-        <button
-          v-for="mode in (['beginner', 'advanced', 'expert'] as const)"
-          :key="mode"
-          :class="['mode-btn', { active: currentMode === mode }]"
-          @click="setMode(mode)"
-        >
-          {{ $t(`panel.manualEditor.mode.${mode}`) }}
-        </button>
-      </div>
-
-      <!-- Save status -->
-      <div class="save-area">
-        <span class="save-status" :class="saveStatus">
-          {{ $t(`panel.manualEditor.toolbar.${saveStatus}`) }}
-          <span v-if="lastSaved" class="save-time">
-            {{ formatSaveTime(lastSaved) }}
-          </span>
-        </span>
-        <button class="save-btn" @click="handleSave" :disabled="store.saving">
-          {{ store.saving ? $t('panel.manualEditor.toolbar.saving') : $t('panel.manualEditor.toolbar.save') }}
-        </button>
-      </div>
-    </div>
-
     <!-- Loading state -->
     <div v-if="!isInitialized" class="loading-state">
       <p>{{ $t('common.loading') }}...</p>
     </div>
 
-    <!-- Main layout -->
-    <div v-else class="editor-body">
+    <!-- Course selector (no course selected) -->
+    <CourseSelector
+      v-else-if="!selectedCourseId"
+      @select="handleSelectCourse"
+      @create="handleCreateCourse"
+    />
+
+    <!-- Editor layout (course selected) -->
+    <template v-else>
+      <!-- Top Bar -->
+      <div class="editor-topbar">
+        <div class="topbar-left">
+          <button class="btn-back" @click="handleBackToList" :title="$t('panel.manualEditor.courseSelector.backToList')">
+            &larr;
+          </button>
+          <div class="topbar-title">
+            {{ store.currentCourse?.title || $t('panel.manualEditor.courseInfo.courseName') }}
+          </div>
+        </div>
+
+        <!-- Publish status + action -->
+        <div class="topbar-actions">
+          <span
+            v-if="store.currentCourse"
+            class="publish-badge"
+            :class="store.currentCourse.is_published ? 'badge-published' : 'badge-draft'"
+          >
+            {{ store.currentCourse.is_published
+              ? $t('panel.manualEditor.publish.published')
+              : $t('panel.manualEditor.publish.draft') }}
+          </span>
+          <button
+            v-if="isAdmin && store.currentCourse"
+            class="btn-publish"
+            :class="store.currentCourse.is_published ? 'btn-unpublish' : ''"
+            @click="handleTogglePublish"
+            :disabled="store.saving || (!store.currentCourse.is_published && !store.canPublishCourse)"
+          >
+            {{ store.currentCourse.is_published
+              ? $t('panel.manualEditor.publish.unpublish')
+              : $t('panel.manualEditor.publish.publish') }}
+          </button>
+
+          <!-- Save status -->
+          <span class="save-status" :class="saveStatus">
+            {{ $t(`panel.manualEditor.toolbar.${saveStatus}`) }}
+            <span v-if="lastSaved" class="save-time">
+              {{ formatSaveTime(lastSaved) }}
+            </span>
+          </span>
+          <button class="save-btn" @click="handleSave" :disabled="store.saving">
+            {{ store.saving ? $t('panel.manualEditor.toolbar.saving') : $t('panel.manualEditor.toolbar.save') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Main layout -->
+      <div class="editor-body">
       <!-- Left sidebar: Structure tree -->
       <div class="sidebar">
         <StructureTreePanel />
@@ -162,32 +192,15 @@ const formatSaveTime = (date: Date | null): string => {
 
         <!-- Tab content -->
         <div class="tab-content">
-          <!-- Content editor -->
-          <ContentEditPanel
-            v-if="activeTab === 'content'"
-            :mode-config="modeConfig"
-          />
+          <ContentEditPanel v-if="activeTab === 'content'" />
 
-          <!-- Course info -->
-          <CourseInfoPanel
-            v-else-if="activeTab === 'course-info'"
-            :mode-config="modeConfig"
-          />
+          <CourseInfoPanel v-else-if="activeTab === 'course-info'" />
 
-          <!-- Media upload (advanced/expert) -->
-          <MediaUploadPanel
-            v-else-if="activeTab === 'media'"
-          />
+          <MediaUploadPanel v-else-if="activeTab === 'media'" />
 
-          <!-- Preview (advanced/expert) -->
-          <PreviewPanel
-            v-else-if="activeTab === 'preview'"
-          />
+          <PreviewPanel v-else-if="activeTab === 'preview'" />
 
-          <!-- Lesson settings (advanced/expert) -->
-          <LessonSettingsPanel
-            v-else-if="activeTab === 'lesson-settings'"
-          />
+          <LessonSettingsPanel v-else-if="activeTab === 'lesson-settings'" />
 
           <!-- Theory generation (AI) -->
           <div v-else-if="activeTab === 'theory'" class="ai-tab-content">
@@ -211,6 +224,7 @@ const formatSaveTime = (date: Date | null): string => {
         </div>
       </div>
     </div>
+    </template>
   </div>
 </template>
 
@@ -219,7 +233,7 @@ const formatSaveTime = (date: Date | null): string => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #f8f9fa;
+  background: var(--color-bg);
   overflow: hidden;
 }
 
@@ -229,74 +243,118 @@ const formatSaveTime = (date: Date | null): string => {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
-.mode-selector {
+.topbar-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
-.mode-label {
-  font-size: 12px;
-  color: #666;
-  font-weight: 500;
-}
-
-.mode-btn {
-  padding: 4px 10px;
-  border: 1px solid #ddd;
-  background: white;
+.btn-back {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
+  background: var(--color-surface);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
   transition: all 0.15s;
 }
 
-.mode-btn:hover {
-  background: #f0f0f0;
+.btn-back:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
-.mode-btn.active {
-  background: #2196f3;
-  color: white;
-  border-color: #1976d2;
+.topbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
 }
 
-.save-area {
+.topbar-actions {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+.publish-badge {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-draft {
+  background: color-mix(in srgb, var(--color-text-tertiary) 15%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.badge-published {
+  background: color-mix(in srgb, var(--color-success) 15%, transparent);
+  color: var(--color-success);
+}
+
+.btn-publish {
+  padding: 5px 12px;
+  background: var(--color-success);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: filter 0.15s;
+}
+
+.btn-publish:hover {
+  filter: brightness(0.9);
+}
+
+.btn-publish:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-unpublish {
+  background: var(--color-warning);
+}
+
 .save-status {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .save-status.saved {
-  color: #4caf50;
+  color: var(--color-success);
 }
 
 .save-status.saving {
-  color: #ff9800;
+  color: var(--color-warning);
 }
 
 .save-status.unsaved {
-  color: #f44336;
+  color: var(--color-error);
 }
 
 .save-time {
   margin-left: 4px;
-  color: #bbb;
+  color: var(--color-text-tertiary);
 }
 
 .save-btn {
   padding: 6px 14px;
-  background: #2196f3;
+  background: var(--color-accent);
   color: white;
   border: none;
   border-radius: 4px;
@@ -306,11 +364,12 @@ const formatSaveTime = (date: Date | null): string => {
 }
 
 .save-btn:hover {
-  background: #1976d2;
+  background: var(--color-accent-hover, var(--color-accent));
+  filter: brightness(0.9);
 }
 
 .save-btn:disabled {
-  background: #90caf9;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -320,7 +379,7 @@ const formatSaveTime = (date: Date | null): string => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 /* Main layout */
@@ -329,13 +388,13 @@ const formatSaveTime = (date: Date | null): string => {
   flex: 1;
   overflow: hidden;
   gap: 1px;
-  background: #e0e0e0;
+  background: var(--color-border);
 }
 
 .sidebar {
   width: 240px;
   flex-shrink: 0;
-  background: white;
+  background: var(--color-surface);
   overflow: hidden;
   position: relative;
 }
@@ -345,16 +404,17 @@ const formatSaveTime = (date: Date | null): string => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: white;
+  background: var(--color-surface);
 }
 
 /* Tab bar */
 .tab-bar {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid #e0e0e0;
-  background: #fafafa;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-secondary);
   flex-shrink: 0;
+  overflow-x: auto;
 }
 
 .tab-btn {
@@ -364,19 +424,20 @@ const formatSaveTime = (date: Date | null): string => {
   background: none;
   cursor: pointer;
   font-size: 13px;
-  color: #666;
+  color: var(--color-text-secondary);
   transition: all 0.15s;
   white-space: nowrap;
 }
 
 .tab-btn:hover {
-  color: #333;
-  background: #f0f0f0;
+  color: var(--color-text-primary);
+  background: var(--color-surface-secondary);
+  filter: brightness(0.95);
 }
 
 .tab-btn.active {
-  color: #2196f3;
-  border-bottom-color: #2196f3;
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
   font-weight: 500;
 }
 
@@ -395,10 +456,6 @@ const formatSaveTime = (date: Date | null): string => {
 @media (max-width: 900px) {
   .sidebar {
     width: 180px;
-  }
-
-  .mode-selector {
-    display: none;
   }
 }
 </style>

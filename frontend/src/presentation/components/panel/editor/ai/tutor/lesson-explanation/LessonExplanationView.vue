@@ -89,7 +89,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTTS } from '@/application/composables/system/useTTS'
-import type { Course, Lesson } from '@/presentation/components/panel/editor/explanation-generation/types/explanation.types'
+import type { Course, Lesson } from '@/presentation/components/panel/editor/ai/explanation-generation/types/explanation.types'
 import type { LessonExplanation as _LessonExplanation } from '@/application/composables/learning/useTheoryManagement'
 import InteractiveWhiteboard from '@/presentation/components/public/system-features/tutor/user/InteractiveWhiteboard.vue'
 import {

@@ -12,7 +12,7 @@ import SyncStatsGrid from './panels/SyncStatsGrid.vue'
 import ScanPanel from './panels/ScanPanel.vue'
 import ComparisonPanel from './panels/ComparisonPanel.vue'
 import HistoryPanel from './panels/HistoryPanel.vue'
-import { useSyncManager } from '@/features/panel/useSyncManager'
+import { useSyncManager } from '@/application/composables/panel/admin/i18n/useSyncManager'
 import type { SyncMode } from './types/sync.types'
 
 const {

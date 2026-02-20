@@ -11,7 +11,7 @@
 import { ref, computed, readonly } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/application/stores/modules/content/player.store'
-import type { LearningMethod } from '@/types/learning-methods'
+import type { LearningMethod } from '@/domain/models/learning/types'
 
 // ============================================================================
 // Types

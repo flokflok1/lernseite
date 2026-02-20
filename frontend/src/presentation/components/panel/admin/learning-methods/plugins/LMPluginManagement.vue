@@ -103,7 +103,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useLMPlugins } from '@/application/composables/learning/useLMPlugins'
 import { useI18n } from 'vue-i18n'
-import type { LMPluginMetadata } from '@/types/plugins'
+import type { LMPluginMetadata } from '@/domain/models/learning/plugins.types'
 import LMPluginDetailModal from './LMPluginDetailModal.vue'
 
 const { t } = useI18n()

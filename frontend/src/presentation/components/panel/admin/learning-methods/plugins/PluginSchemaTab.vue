@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LMPluginMetadata } from '@/types/plugins'
+import type { LMPluginMetadata } from '@/domain/models/learning/plugins.types'
 
 interface Props {
   plugin: LMPluginMetadata

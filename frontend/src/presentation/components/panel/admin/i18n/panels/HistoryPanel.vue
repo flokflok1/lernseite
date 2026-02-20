@@ -9,7 +9,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { SyncHistorySummary } from '../types/sync.types'
-import { useSyncManager } from '@/features/panel/useSyncManager'
+import { useSyncManager } from '@/application/composables/panel/admin/i18n/useSyncManager'
 import HistoryTableRow from './HistoryTableRow.vue'
 import RollbackConfirmModal from './RollbackConfirmModal.vue'
 

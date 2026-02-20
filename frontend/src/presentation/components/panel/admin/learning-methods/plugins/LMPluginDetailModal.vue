@@ -95,7 +95,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { LMPluginMetadata } from '@/types/plugins'
+import type { LMPluginMetadata } from '@/domain/models/learning/plugins.types'
 import { usePluginActions } from './composables/usePluginActions'
 import PluginInfoTab from './PluginInfoTab.vue'
 import PluginSchemaTab from './PluginSchemaTab.vue'

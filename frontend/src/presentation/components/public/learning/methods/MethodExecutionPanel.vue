@@ -100,7 +100,7 @@
  */
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LearningMethod } from '@/types/learning-methods'
+import type { LearningMethod } from '@/domain/models/learning/types'
 // REMOVED: import MathTaskModal (file not found)
 
 import {

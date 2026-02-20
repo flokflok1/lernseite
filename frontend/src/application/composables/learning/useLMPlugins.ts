@@ -6,7 +6,7 @@
  */
 import { ref, computed } from 'vue'
 import { lmPluginsApi } from '@/infrastructure/api/clients/panel/admin'
-import type { LMPluginMetadata } from '@/types/plugins'
+import type { LMPluginMetadata } from '@/domain/models/learning/plugins.types'
 
 // Singleton state (shared across all components)
 const plugins = ref<LMPluginMetadata[]>([])

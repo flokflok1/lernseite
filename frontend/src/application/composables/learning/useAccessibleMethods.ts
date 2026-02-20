@@ -14,7 +14,7 @@
  */
 
 import { computed, ref, type Ref } from 'vue'
-import { useUserStore } from '@/application/stores/modules/core/user.store'
+import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import { useGroupTier } from '@/application/composables/learning/useGroupTier'
 import type { AdminLearningMethod, LearningMethodType } from '@/infrastructure/api/clients/panel/admin'
 
@@ -45,7 +45,7 @@ export interface AccessibleMethod {
  * ```
  */
 export function useAccessibleMethods() {
-  const userStore = useUserStore()
+  const authStore = useAuthStore()
   const groupTier = useGroupTier()
 
   // State
@@ -59,8 +59,8 @@ export function useAccessibleMethods() {
    * Defaults to 'free' if not authenticated
    */
   const userTier = computed(() => {
-    if (!userStore.currentUser) return 'free'
-    return userStore.currentUser.subscription_tier || 'free'
+    if (!authStore.user) return 'free'
+    return (authStore.user as any).subscription_tier || 'free'
   })
 
   /**

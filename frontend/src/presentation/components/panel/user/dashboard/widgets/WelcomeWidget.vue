@@ -34,7 +34,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import Card from '@/presentation/components/shared/ui/Card.vue'
-import type { BaseWidgetProps } from '@/types/widgets'
+import type { BaseWidgetProps } from '@/domain/models/dashboard/widgets.types'
 
 const { t } = useI18n()
 

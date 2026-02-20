@@ -5,11 +5,13 @@ Environment-specific configuration for development, production, and testing.
 """
 
 import os
+from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from app/.env (the canonical config location)
+_env_file = Path(__file__).parents[2] / '.env'
+load_dotenv(dotenv_path=_env_file)
 
 
 class Config:

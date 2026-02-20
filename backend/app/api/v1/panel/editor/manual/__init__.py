@@ -28,6 +28,7 @@ from . import (
     courses,
     chapters,
     lessons,
+    lesson_activities,
     exams,
     theory_sheets,
     course_files,

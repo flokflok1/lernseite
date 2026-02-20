@@ -3,13 +3,14 @@
  *
  * Settings for the currently selected lesson.
  * Editable title, type selector, estimated reading time, internal notes.
- * Only visible in advanced/expert editor modes.
+ * Includes LessonActivitiesSection for managing learning method activities.
  */
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
+import LessonActivitiesSection from './LessonActivitiesSection.vue'
 
 const { t } = useI18n()
 const store = useCourseEditorStore()
@@ -31,10 +32,8 @@ const lessonTypes = computed(() => [
 const estimatedReadingTime = computed(() => {
   if (!lesson.value?.content) return 0
   const content = typeof lesson.value.content === 'string' ? lesson.value.content : ''
-  // Strip HTML tags for word count
   const text = content.replace(/<[^>]*>/g, '')
   const words = text.split(/\s+/).filter(w => w.length > 0).length
-  // Average reading speed: 200 words/minute
   return Math.max(1, Math.ceil(words / 200))
 })
 
@@ -129,6 +128,9 @@ const updateNotes = async () => {
           @blur="updateNotes"
         ></textarea>
       </div>
+
+      <!-- Activities / Learning Methods -->
+      <LessonActivitiesSection :lesson-id="lesson.lesson_id" />
     </div>
   </div>
 </template>
@@ -148,7 +150,7 @@ const updateNotes = async () => {
 }
 
 .empty-state p {
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 13px;
   margin: 0;
 }
@@ -168,23 +170,25 @@ const updateNotes = async () => {
 .form-label {
   font-size: 12px;
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
 .form-input {
   padding: 8px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   font-size: 14px;
   transition: border-color 0.15s;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #2196f3;
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
 
 /* Type selector */
@@ -199,21 +203,22 @@ const updateNotes = async () => {
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: white;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .type-btn:hover {
-  background: #f5f5f5;
+  background: var(--color-surface-secondary);
 }
 
 .type-btn.active {
-  background: #e3f2fd;
-  border-color: #2196f3;
-  color: #1565c0;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .type-icon {
@@ -234,36 +239,38 @@ const updateNotes = async () => {
 .time-value {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .time-hint {
   font-size: 11px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 /* Position */
 .position-display {
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
   padding: 6px 0;
 }
 
 /* Notes */
 .form-textarea {
   padding: 8px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   font-size: 13px;
   resize: vertical;
   font-family: inherit;
   min-height: 80px;
   transition: border-color 0.15s;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .form-textarea:focus {
   outline: none;
-  border-color: #2196f3;
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
 </style>

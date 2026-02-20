@@ -7,12 +7,6 @@
       "preview": "Podgląd",
       "lessonSettings": "Lekcja"
     },
-    "mode": {
-      "label": "Tryb",
-      "beginner": "Początkujący",
-      "advanced": "Zaawansowany",
-      "expert": "Ekspert"
-    },
     "structure": {
       "title": "Struktura",
       "addChapter": "Dodaj rozdział",
@@ -53,7 +47,11 @@
       "visibility": "Widoczność",
       "visibilityPublic": "Publiczny",
       "visibilityPrivate": "Prywatny",
-      "visibilityUnlisted": "Niewidoczny"
+      "visibilityUnlisted": "Niewidoczny",
+      "thumbnail": "URL miniatury",
+      "thumbnailHint": "Bezpośredni link do obrazu (np. https://...)",
+      "category": "Kategoria",
+      "categoryHint": "ID kategorii (opcjonalne)"
     },
     "media": {
       "title": "Biblioteka mediów",
@@ -98,6 +96,41 @@
       "beginner": "Początkujący",
       "intermediate": "Średniozaawansowany",
       "advanced": "Zaawansowany"
+    },
+    "publish": {
+      "draft": "Szkic",
+      "published": "Opublikowany",
+      "publish": "Opublikuj",
+      "unpublish": "Cofnij publikację"
+    },
+    "activities": {
+      "title": "Zadania",
+      "add": "Dodaj zadanie",
+      "empty": "Brak zadań",
+      "emptyHint": "Dodaj zadania metod nauki do tej lekcji",
+      "selectMethod": "Wybierz metodę nauki",
+      "activityTitle": "Tytuł zadania",
+      "confirmDelete": "Czy na pewno usunąć zadanie \"{title}\"?",
+      "groupA": "Wyjaśniające",
+      "groupB": "Ćwiczenia",
+      "groupC": "Ocena"
+    },
+    "courseSelector": {
+      "title": "Moje kursy",
+      "createNew": "Utwórz nowy kurs",
+      "search": "Szukaj kursów...",
+      "noCourses": "Brak kursów",
+      "noCoursesHint": "Utwórz swój pierwszy kurs",
+      "noResults": "Nie znaleziono kursów",
+      "confirmDelete": "Czy na pewno usunąć kurs \"{title}\"?",
+      "backToList": "Powrót do listy kursów",
+      "chapters": "{count} rozdziałów",
+      "lastEdited": "Ostatnio edytowane",
+      "status": {
+        "draft": "Szkic",
+        "published": "Opublikowany",
+        "archived": "Zarchiwizowany"
+      }
     }
   }
 }

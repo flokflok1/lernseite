@@ -67,7 +67,8 @@ def initialize_database():
             }), 400
 
         # Reload environment variables (Setup Wizard just saved them via /config/database)
-        load_dotenv(override=True)
+        env_file = Path(__file__).parents[2] / '.env'
+        load_dotenv(dotenv_path=env_file, override=True)
 
         # Initialize database (will use freshly reloaded environment variables)
         db_init = DatabaseInitializer()
@@ -330,7 +331,7 @@ def configure_database():
             }), 400
 
         # Connection successful - save to .env
-        env_file = Path(__file__).parent.parent / '.env'
+        env_file = Path(__file__).parents[2] / '.env'
 
         set_key(env_file, 'DB_HOST', host, quote_mode='never')
         set_key(env_file, 'DB_PORT', str(port), quote_mode='never')
@@ -404,7 +405,7 @@ def configure_redis():
             }), 400
 
         # Connection successful - save to .env
-        env_file = Path(__file__).parent.parent / '.env'
+        env_file = Path(__file__).parents[2] / '.env'
 
         set_key(env_file, 'REDIS_HOST', host, quote_mode='never')
         set_key(env_file, 'REDIS_PORT', str(port), quote_mode='never')

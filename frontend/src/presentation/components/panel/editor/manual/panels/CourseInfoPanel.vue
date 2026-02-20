@@ -10,13 +10,6 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
-import type { EditorModeConfig } from '../types'
-
-interface Props {
-  modeConfig: EditorModeConfig
-}
-
-defineProps<Props>()
 
 const { t } = useI18n()
 const store = useCourseEditorStore()
@@ -32,6 +25,8 @@ const estimatedDuration = ref(0)
 const visibility = ref<'public' | 'private' | 'unlisted'>('private')
 const tags = ref<string[]>([])
 const newTag = ref('')
+const thumbnailUrl = ref('')
+const categoryId = ref<number | null>(null)
 
 // Sync from store when course changes
 watch(course, (c) => {
@@ -43,6 +38,8 @@ watch(course, (c) => {
     estimatedDuration.value = c.estimated_duration || 0
     visibility.value = (c.visibility as 'public' | 'private' | 'unlisted') || 'private'
     tags.value = Array.isArray(c.tags) ? [...c.tags] : []
+    thumbnailUrl.value = c.thumbnail_url || ''
+    categoryId.value = c.category_id || null
   }
 }, { immediate: true })
 
@@ -76,6 +73,14 @@ const handleDurationBlur = (): void => {
 
 const handleVisibilityChange = (): void => {
   saveField('visibility', visibility.value)
+}
+
+const handleThumbnailBlur = (): void => {
+  saveField('thumbnail_url', thumbnailUrl.value || null)
+}
+
+const handleCategoryChange = (): void => {
+  saveField('category_id', categoryId.value)
 }
 
 const addTag = (): void => {
@@ -142,6 +147,20 @@ const languages = [
         </span>
       </div>
 
+      <!-- Thumbnail URL -->
+      <div class="field">
+        <label>{{ $t('panel.manualEditor.courseInfo.thumbnail') }}</label>
+        <input
+          v-model="thumbnailUrl"
+          type="url"
+          :placeholder="$t('panel.manualEditor.courseInfo.thumbnailHint')"
+          @blur="handleThumbnailBlur"
+        />
+        <div v-if="thumbnailUrl" class="thumbnail-preview">
+          <img :src="thumbnailUrl" alt="Thumbnail" @error="($event.target as HTMLImageElement).style.display='none'" />
+        </div>
+      </div>
+
       <!-- Difficulty -->
       <div class="field">
         <label>{{ $t('panel.manualEditor.courseInfo.difficulty') }}</label>
@@ -169,6 +188,18 @@ const languages = [
             {{ lang.label }}
           </option>
         </select>
+      </div>
+
+      <!-- Category -->
+      <div class="field">
+        <label>{{ $t('panel.manualEditor.courseInfo.category') }}</label>
+        <input
+          v-model.number="categoryId"
+          type="number"
+          min="0"
+          :placeholder="$t('panel.manualEditor.courseInfo.categoryHint')"
+          @blur="handleCategoryChange"
+        />
       </div>
 
       <!-- Duration -->
@@ -200,8 +231,8 @@ const languages = [
         </div>
       </div>
 
-      <!-- Visibility (expert mode only) -->
-      <div v-if="modeConfig.showCourseVisibility" class="field">
+      <!-- Visibility -->
+      <div class="field">
         <label>{{ $t('panel.manualEditor.courseInfo.visibility') }}</label>
         <select v-model="visibility" @change="handleVisibilityChange">
           <option value="public">{{ $t('panel.manualEditor.courseInfo.visibilityPublic') }}</option>
@@ -224,10 +255,11 @@ const languages = [
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 16px;
+  color: var(--color-text-primary);
 }
 
 .empty-state {
-  color: #999;
+  color: var(--color-text-tertiary);
   text-align: center;
   padding: 24px;
 }
@@ -247,7 +279,7 @@ const languages = [
 .field > label {
   font-size: 12px;
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -258,16 +290,18 @@ const languages = [
 .field textarea,
 .field select {
   padding: 8px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   font-size: 13px;
   transition: border-color 0.2s;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
-  border-color: #2196f3;
+  border-color: var(--color-accent);
   outline: none;
 }
 
@@ -278,12 +312,12 @@ const languages = [
 
 .char-count {
   font-size: 11px;
-  color: #999;
+  color: var(--color-text-tertiary);
   text-align: right;
 }
 
 .char-count.warn {
-  color: #ff9800;
+  color: var(--color-warning);
 }
 
 .radio-group {
@@ -297,6 +331,7 @@ const languages = [
   gap: 4px;
   font-size: 13px;
   cursor: pointer;
+  color: var(--color-text-primary);
 }
 
 /* Tags */
@@ -305,7 +340,7 @@ const languages = [
   flex-wrap: wrap;
   gap: 6px;
   padding: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   min-height: 36px;
   align-items: center;
@@ -316,8 +351,8 @@ const languages = [
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: #e3f2fd;
-  color: #1565c0;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  color: var(--color-accent);
   border-radius: 12px;
   font-size: 12px;
 }
@@ -326,7 +361,7 @@ const languages = [
   border: none;
   background: none;
   cursor: pointer;
-  color: #1565c0;
+  color: var(--color-accent);
   font-size: 14px;
   padding: 0;
   line-height: 1;
@@ -339,5 +374,22 @@ const languages = [
   min-width: 100px;
   font-size: 13px;
   padding: 2px 4px !important;
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+/* Thumbnail */
+.thumbnail-preview {
+  margin-top: 6px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  max-width: 200px;
+}
+
+.thumbnail-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 </style>

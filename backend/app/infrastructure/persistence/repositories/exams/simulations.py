@@ -377,26 +377,6 @@ class ExamSimulationRepository:
         execute_query(query, (score, simulation_id, simulation_id))
 
     # =========================================================================
-    # COURSE VERIFICATION
-    # =========================================================================
-
-    @staticmethod
-    def get_course(course_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Verify course exists and get basic info.
-
-        Args:
-            course_id: Course UUID
-
-        Returns:
-            Dict with course_id and title, or None
-        """
-        return fetch_one(
-            "SELECT course_id, title FROM courses WHERE course_id = %s",
-            (course_id,)
-        )
-
-    # =========================================================================
     # USER EXAM PROFILE
     # =========================================================================
 

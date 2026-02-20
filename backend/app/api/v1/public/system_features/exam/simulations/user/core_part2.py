@@ -20,6 +20,7 @@ from uuid import UUID
 from app.api.middleware.auth import token_required, get_current_user
 from app.application.services.ai import get_exam_context_sync
 from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
+from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
 
 from app.api.v1.public.system_features.exam.simulations.user.core import (
     core_bp,
@@ -66,7 +67,7 @@ def create_exam_simulation(course_id: str):
         sim_data = ExamSimulationCreate(**data)
 
         # Verify course exists
-        course = ExamSimulationRepository.get_course(course_id)
+        course = CourseRepositoryCRUD.get_by_id_simple(course_id)
 
         if not course:
             return jsonify({

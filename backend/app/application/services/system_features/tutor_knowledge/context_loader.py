@@ -8,6 +8,7 @@ import logging
 from app.infrastructure.persistence.repositories.tutor_knowledge import (
     TutorKnowledgeRepository
 )
+from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ def get_course_context(course_id: str) -> Optional[Dict[str, Any]]:
     """
     try:
         # Kurs-Grunddaten
-        course = TutorKnowledgeRepository.get_course(course_id)
+        course = CourseRepositoryCRUD.get_by_id_simple(course_id)
 
         if not course:
             return None

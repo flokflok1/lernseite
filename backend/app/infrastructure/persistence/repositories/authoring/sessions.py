@@ -21,20 +21,6 @@ class CourseAuthoringSessionRepository:
     """Repository for course_authoring_sessions and related authoring queries."""
 
     @staticmethod
-    def get_course(course_id: str) -> Optional[Dict]:
-        """
-        Load course by ID.
-
-        Args:
-            course_id: Course UUID
-
-        Returns:
-            Course data or None
-        """
-        query = "SELECT * FROM courses WHERE course_id = %s"
-        return fetch_one(query, (course_id,))
-
-    @staticmethod
     def check_user_has_write_permission(user_id: str) -> bool:
         """
         Check if user has content write or admin write permissions via GBA.

@@ -17,26 +17,6 @@ class TutorKnowledgeRepository:
     # ─── Course Context ────────────────────────────────────────
 
     @staticmethod
-    def get_course(course_id: str) -> Optional[Dict]:
-        """Get course base data."""
-        return fetch_one("""
-            SELECT
-                course_id,
-                title,
-                subtitle,
-                description,
-                learning_objectives,
-                target_audience,
-                prerequisites,
-                difficulty_level,
-                language,
-                duration_hours,
-                category_id
-            FROM courses
-            WHERE course_id = %s
-        """, (course_id,))
-
-    @staticmethod
     def get_course_chapters(course_id: str) -> List[Dict]:
         """Get chapters with lesson/method counts for a course."""
         return fetch_all("""

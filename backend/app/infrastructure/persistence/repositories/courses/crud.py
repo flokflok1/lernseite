@@ -287,3 +287,24 @@ class CourseRepositoryCRUD(BaseRepository):
             CacheService.invalidate_course_cache(course_id)
 
         return result
+
+    # ─── Simple lookups (no cache, no JOINs) ─────────────────
+
+    @staticmethod
+    def get_by_id_simple(course_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get course by ID without JOINs or cache.
+
+        Use this for lightweight lookups where only course table data is needed.
+        For rich lookups with creator/org info, use find_by_id() instead.
+
+        Args:
+            course_id: Course UUID
+
+        Returns:
+            Course dict or None
+        """
+        return fetch_one(
+            "SELECT * FROM courses WHERE course_id = %s",
+            (course_id,)
+        )

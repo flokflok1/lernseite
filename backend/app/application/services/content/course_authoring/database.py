@@ -7,6 +7,7 @@ import logging
 from typing import Dict, Optional, List, Any
 
 from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
+from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
 from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
@@ -28,7 +29,7 @@ class DatabaseOperations:
         Returns:
             Course data or None
         """
-        return CourseAuthoringSessionRepository.get_course(course_id)
+        return CourseRepositoryCRUD.get_by_id_simple(course_id)
 
     @staticmethod
     def check_user_access(user_id: str, course_id: str) -> bool:

@@ -469,3 +469,57 @@ class ExamSimulationRepository:
             RETURNING *
         """
         return fetch_one(query, tuple(values))
+
+    # =========================================================================
+    # TASK OPERATIONS (used by Celery exam_tasks)
+    # =========================================================================
+
+    @staticmethod
+    def get_simulation_with_course(simulation_id: str) -> Optional[Dict[str, Any]]:
+        """Load simulation with joined course data for AI generation."""
+        return fetch_one(
+            """
+            SELECT
+                es.*,
+                c.title as course_title,
+                c.description as course_description
+            FROM exam_simulations es
+            JOIN courses c ON c.course_id = es.course_id
+            WHERE es.simulation_id = %s
+            """,
+            (simulation_id,)
+        )
+
+    @staticmethod
+    def mark_simulation_ready(
+        simulation_id: str,
+        result_json: str,
+        tokens_used: int,
+        model_used: str
+    ) -> None:
+        """Mark simulation as ready with generated results."""
+        execute_query(
+            """
+            UPDATE exam_simulations
+            SET
+                result_json = %s,
+                status = 'ready',
+                generation_completed_at = NOW(),
+                tokens_used = %s,
+                model_used = %s
+            WHERE simulation_id = %s
+            """,
+            (result_json, tokens_used, model_used, simulation_id)
+        )
+
+    @staticmethod
+    def mark_simulation_failed(simulation_id: str, error_message: str) -> None:
+        """Mark simulation as failed with error message."""
+        execute_query(
+            """
+            UPDATE exam_simulations
+            SET status = 'failed', error_message = %s, generation_completed_at = NOW()
+            WHERE simulation_id = %s
+            """,
+            (error_message, simulation_id)
+        )

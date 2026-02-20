@@ -208,3 +208,35 @@ class UserCrudRepository(BaseRepository):
             'verified': verified,
             'admins': admins
         }
+
+    # =========================================================================
+    # TWO-FACTOR AUTHENTICATION
+    # =========================================================================
+
+    @classmethod
+    def set_two_factor_secret(cls, user_id: str, totp_secret: str) -> None:
+        """Store TOTP secret for 2FA setup (before verification)."""
+        execute_query(
+            "UPDATE core.users SET two_factor_secret = %s WHERE user_id = %s",
+            (totp_secret, user_id)
+        )
+
+    @classmethod
+    def enable_two_factor(cls, user_id: str) -> None:
+        """Enable 2FA after successful verification."""
+        execute_query(
+            "UPDATE core.users SET two_factor_enabled = true WHERE user_id = %s",
+            (user_id,)
+        )
+
+    @classmethod
+    def disable_two_factor(cls, user_id: str) -> None:
+        """Disable 2FA and clear secret."""
+        execute_query(
+            """
+            UPDATE core.users
+            SET two_factor_enabled = false, two_factor_secret = NULL
+            WHERE user_id = %s
+            """,
+            (user_id,)
+        )

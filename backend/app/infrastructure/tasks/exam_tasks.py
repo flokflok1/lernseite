@@ -11,7 +11,7 @@ from typing import Dict, Any
 from datetime import datetime
 
 from app.core.bootstrap.extensions import celery
-from app.infrastructure.persistence.database.connection import fetch_one, execute_query
+from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
 from app.application.services.ai.adapter import AIAdapter, AIProviderError
 
 logger = logging.getLogger(__name__)
@@ -32,18 +32,7 @@ def generate_exam_task(self, simulation_id: str) -> Dict[str, Any]:
 
     try:
         # 1. Load simulation data
-        sim = fetch_one(
-            """
-            SELECT
-                es.*,
-                c.title as course_title,
-                c.description as course_description
-            FROM exam_simulations es
-            JOIN courses c ON c.course_id = es.course_id
-            WHERE es.simulation_id = %s
-            """,
-            (simulation_id,)
-        )
+        sim = ExamSimulationRepository.get_simulation_with_course(simulation_id)
 
         if not sim:
             logger.error(f"Simulation {simulation_id} not found")
@@ -83,18 +72,8 @@ def generate_exam_task(self, simulation_id: str) -> Dict[str, Any]:
             return {'success': False, 'error': 'No questions generated'}
 
         # 5. Update simulation with result
-        execute_query(
-            """
-            UPDATE exam_simulations
-            SET
-                result_json = %s,
-                status = 'ready',
-                generation_completed_at = NOW(),
-                tokens_used = %s,
-                model_used = %s
-            WHERE simulation_id = %s
-            """,
-            (json.dumps(result_json), tokens_used, model_used, simulation_id)
+        ExamSimulationRepository.mark_simulation_ready(
+            simulation_id, json.dumps(result_json), tokens_used, model_used
         )
 
         logger.info(f"Exam generation completed for {simulation_id}: {len(result_json['questions'])} questions")
@@ -286,11 +265,4 @@ def _parse_exam_response(response_text: str, context: Dict, config: Dict) -> Dic
 
 def _mark_simulation_failed(simulation_id: str, error_message: str):
     """Mark simulation as failed in database."""
-    execute_query(
-        """
-        UPDATE exam_simulations
-        SET status = 'failed', error_message = %s, generation_completed_at = NOW()
-        WHERE simulation_id = %s
-        """,
-        (error_message, simulation_id)
-    )
+    ExamSimulationRepository.mark_simulation_failed(simulation_id, error_message)

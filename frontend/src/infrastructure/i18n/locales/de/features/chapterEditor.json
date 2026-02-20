@@ -1,0 +1,95 @@
+{
+  "features": {
+    "chapterEditor": {
+      "unknown": "Unbekannt",
+      "tabs": {
+        "info": "Info",
+        "lessons": "Lektionen",
+        "methods": "Lernmethoden",
+        "videos": "Videos",
+        "theory": "Theorie",
+        "title": "Titel",
+        "description": "Beschreibung"
+      },
+      "saveStatus": {
+        "saved": "Gespeichert",
+        "saving": "Wird gespeichert...",
+        "unsaved": "Ungespeichert"
+      },
+      "placeholders": {
+        "title": "Kapitel-Titel eingeben...",
+        "description": "Beschreibung eingeben...",
+        "theory": "Theorie-Inhalt hier eingeben...",
+        "videoTitle": "Video-Titel",
+        "videoUrl": "YouTube oder Vimeo URL"
+      },
+      "buttons": {
+        "generateTheory": "Theorie generieren",
+        "saveAndEnable": "Speichern & Aktivieren",
+        "editMethods": "Methoden bearbeiten",
+        "addLesson": "Lektion hinzufügen",
+        "editLesson": "Bearbeiten",
+        "deleteLesson": "Löschen",
+        "addVideo": "Video hinzufügen",
+        "removeVideo": "Entfernen"
+      },
+      "errors": {
+        "noChapterId": "Keine Kapitel-ID vorhanden",
+        "chapterDataUnavailable": "Kapitel-Daten nicht verfügbar",
+        "loadError": "Fehler beim Laden des Kapitels",
+        "enterTitle": "Bitte Titel eingeben",
+        "titleRequired": "Titel ist erforderlich"
+      },
+      "status": {
+        "published": "Veröffentlicht",
+        "draft": "Entwurf"
+      },
+      "empty": {
+        "lessons": "Noch keine Lektionen vorhanden",
+        "videos": "Noch keine Videos vorhanden"
+      },
+      "stats": {
+        "total": "Gesamt",
+        "active": "Aktiv",
+        "published": "Veröffentlicht"
+      },
+      "groups": {
+        "A": "Erklärend",
+        "B": "Übung",
+        "C": "Prüfung",
+        "D": "Sonstige"
+      },
+      "info": {
+        "methodsInfo": "Verfügbare Lernmethoden für dieses Kapitel",
+        "theoryTip": "Die Theorie wird als Grundlage für die KI-Generierung verwendet"
+      },
+      "fields": {
+        "title": "Titel",
+        "url": "URL"
+      },
+      "lessons": {
+        "saveFirstAlert": "Bitte zuerst das Kapitel speichern",
+        "panelNew": "Neue Lektion",
+        "panelEdit": "Lektion bearbeiten: {title}",
+        "deleteConfirm": "Diese Lektion wirklich löschen?",
+        "deleteError": "Fehler beim Löschen"
+      },
+      "lessonTypes": {
+        "theory": "Theorie",
+        "exercise": "Übung",
+        "quiz": "Quiz",
+        "video": "Video",
+        "interactive": "Interaktiv",
+        "assessment": "Prüfung",
+        "practical": "Praktisch"
+      },
+      "methods": {
+        "saveFirstAlert": "Bitte zuerst das Kapitel speichern",
+        "panelTitle": "Lernmethoden: {title}"
+      },
+      "messages": {
+        "generationStarted": "Generierung gestartet..."
+      }
+    }
+  }
+}

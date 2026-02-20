@@ -56,89 +56,6 @@
       "title": "Interaktywna tablica"
     }
   },
-  "examSimulation": {
-    "backToCourse": "Powrót do kursu",
-    "close": "Zamknij",
-    "confidence": "Pewność:",
-    "config": {
-      "difficulty": "Trudność",
-      "easy": "Łatwy",
-      "generateExam": "Generuj egzamin",
-      "generating": "Generowanie...",
-      "hard": "Trudny",
-      "manualMode": "Tryb ręczny",
-      "manualModeDesc": "Sam określasz rozkład tematów",
-      "mode": "Tryb",
-      "realistic": "Realistyczny",
-      "smartMode": "Tryb inteligentny",
-      "smartModeDesc": "AI wybiera fokus na podstawie twoich słabości",
-      "timeLimit": "Limit czasu: {minutes} minut",
-      "title": "Nowa symulacja egzaminu",
-      "topicDistribution": "Rozkład tematów"
-    },
-    "description": "Twórz realistyczne symulacje egzaminów na podstawie postępów w nauce",
-    "detectedContext": "Wykryty kontekst",
-    "errors": {
-      "createSimulation": "Błąd podczas tworzenia symulacji",
-      "generationFailed": "Generowanie nie powiodło się",
-      "loadContext": "Błąd podczas ładowania kontekstu egzaminu",
-      "startExam": "Błąd podczas rozpoczynania egzaminu",
-      "submitExam": "Błąd podczas przesyłania egzaminu"
-    },
-    "exam": {
-      "back": "Wstecz",
-      "next": "Dalej",
-      "points": "Punkty",
-      "questionOf": "Pytanie {current} z {total}",
-      "questions": "Pytania",
-      "startExam": "Rozpocznij egzamin",
-      "submit": "Zatwierdź",
-      "yourAnswer": "Twoja odpowiedź..."
-    },
-    "examLevel": "Egzamin:",
-    "history": {
-      "attempts": "{count} próba(y)",
-      "average": "Średnia:",
-      "best": "Najlepsza:",
-      "noExams": "Nie zdawano jeszcze żadnych egzaminów",
-      "title": "Historia egzaminów"
-    },
-    "noDataAvailable": "Brak danych",
-    "noExamsAvailable": "Brak dostępnych egzaminów",
-    "noExamsAvailableDesc": "Dla tego kursu nie utworzono jeszcze symulacji egzaminów. Skontaktuj się z nauczycielem lub administratorem.",
-    "overview": {
-      "attempts": "{count} próba(y)",
-      "best": "Najlepsza:",
-      "createFirst": "Utwórz pierwszą symulację",
-      "minutes": "min",
-      "noSimulations": "Nie utworzono jeszcze symulacji",
-      "title": "Twoje symulacje"
-    },
-    "profession": "Zawód:",
-    "region": "Region:",
-    "results": {
-      "backToOverview": "Powrót do przeglądu",
-      "correct": "poprawne",
-      "notPassed": "Niezdany",
-      "passed": "Zdany!",
-      "resultsByTopic": "Wyniki według tematu"
-    },
-    "status": {
-      "failed": "Niepowodzenie",
-      "generating": "Generowanie...",
-      "pending": "Oczekuje",
-      "ready": "Gotowy"
-    },
-    "strongTopics": "Mocne tematy",
-    "tabs": {
-      "exam": "Egzamin",
-      "history": "Historia",
-      "newSimulation": "Nowa symulacja",
-      "overview": "Przegląd"
-    },
-    "title": "Symulacja egzaminu AI",
-    "weakTopics": "Słabe tematy"
-  },
   "lesson": {
     "ai": {
       "examplePrompts": "Przykładowe prompty",
@@ -157,6 +74,47 @@
       "title": "Lekcja interaktywna",
       "tokenHint": "Zadania zużywają tokeny. Twoje aktualne saldo tokenów jest widoczne w panelu.",
       "topic": "Temat"
+    },
+    "oral": {
+      "title": "Egzamin ustny",
+      "examDetails": "Szczegóły egzaminu",
+      "examiner": "Egzaminator",
+      "topicBlocks": "Bloki tematyczne",
+      "duration": "Czas trwania",
+      "durationValue": "{minutes} minut",
+      "audioEnabled": "Audio włączone",
+      "startExam": "Rozpocznij egzamin",
+      "examCompleted": "Egzamin zakończony",
+      "finalEvaluation": "Ocena końcowa",
+      "yourAnswerTranscript": "Twoja odpowiedź (transkrypt)",
+      "evaluation": "Ocena",
+      "coveredPoints": "Omówione punkty",
+      "missingPoints": "Brakujące punkty",
+      "suggestions": "Sugestie",
+      "retryAnswer": "Odpowiedz ponownie",
+      "completeExam": "Zakończ egzamin",
+      "nextBlock": "Następny blok",
+      "play": "Odtwórz",
+      "orWriteAnswer": "...lub napisz swoją odpowiedź",
+      "answerPlaceholder": "Wprowadź swoją odpowiedź...",
+      "defaultTopic": "Temat ogólny",
+      "stubQuestion": "Pytanie ćwiczeniowe na temat: {topic}",
+      "stubAnalysisFeedback": "Twoje wyjaśnienie dobrze obejmuje główne punkty.",
+      "stubAnalysis": "Analiza w toku...",
+      "stubEvaluation": "Tworzenie oceny...",
+      "stubSummary": "Tworzenie podsumowania...",
+      "errors": {
+        "startFailed": "Nie udało się rozpocząć egzaminu",
+        "analysisFailed": "Analiza nie powiodła się",
+        "processingFailed": "Przetwarzanie nie powiodło się"
+      },
+      "personas": {
+        "formal": "Formalny",
+        "curious": "Ciekawy",
+        "skeptical": "Sceptyczny",
+        "supportive": "Wspierający",
+        "technical": "Techniczny"
+      }
     },
     "back_to_courses": "Powrót do kursów",
     "completed": "Ukończone",

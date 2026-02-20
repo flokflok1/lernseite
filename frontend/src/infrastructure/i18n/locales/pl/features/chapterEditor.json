@@ -1,0 +1,95 @@
+{
+  "features": {
+    "chapterEditor": {
+      "unknown": "Nieznane",
+      "tabs": {
+        "info": "Info",
+        "lessons": "Lekcje",
+        "methods": "Metody nauki",
+        "videos": "Filmy",
+        "theory": "Teoria",
+        "title": "Tytuł",
+        "description": "Opis"
+      },
+      "saveStatus": {
+        "saved": "Zapisano",
+        "saving": "Zapisywanie...",
+        "unsaved": "Niezapisano"
+      },
+      "placeholders": {
+        "title": "Wprowadź tytuł rozdziału...",
+        "description": "Wprowadź opis...",
+        "theory": "Wprowadź treść teorii...",
+        "videoTitle": "Tytuł filmu",
+        "videoUrl": "URL YouTube lub Vimeo"
+      },
+      "buttons": {
+        "generateTheory": "Generuj teorię",
+        "saveAndEnable": "Zapisz i aktywuj",
+        "editMethods": "Edytuj metody",
+        "addLesson": "Dodaj lekcję",
+        "editLesson": "Edytuj",
+        "deleteLesson": "Usuń",
+        "addVideo": "Dodaj film",
+        "removeVideo": "Usuń"
+      },
+      "errors": {
+        "noChapterId": "Brak ID rozdziału",
+        "chapterDataUnavailable": "Dane rozdziału niedostępne",
+        "loadError": "Błąd ładowania rozdziału",
+        "enterTitle": "Proszę wprowadzić tytuł",
+        "titleRequired": "Tytuł jest wymagany"
+      },
+      "status": {
+        "published": "Opublikowano",
+        "draft": "Szkic"
+      },
+      "empty": {
+        "lessons": "Brak lekcji",
+        "videos": "Brak filmów"
+      },
+      "stats": {
+        "total": "Łącznie",
+        "active": "Aktywne",
+        "published": "Opublikowane"
+      },
+      "groups": {
+        "A": "Wyjaśniające",
+        "B": "Ćwiczenia",
+        "C": "Egzamin",
+        "D": "Inne"
+      },
+      "info": {
+        "methodsInfo": "Dostępne metody nauki dla tego rozdziału",
+        "theoryTip": "Teoria jest wykorzystywana jako podstawa do generowania przez AI"
+      },
+      "fields": {
+        "title": "Tytuł",
+        "url": "URL"
+      },
+      "lessons": {
+        "saveFirstAlert": "Najpierw zapisz rozdział",
+        "panelNew": "Nowa lekcja",
+        "panelEdit": "Edytuj lekcję: {title}",
+        "deleteConfirm": "Czy na pewno usunąć tę lekcję?",
+        "deleteError": "Błąd usuwania"
+      },
+      "lessonTypes": {
+        "theory": "Teoria",
+        "exercise": "Ćwiczenie",
+        "quiz": "Quiz",
+        "video": "Film",
+        "interactive": "Interaktywne",
+        "assessment": "Egzamin",
+        "practical": "Praktyczne"
+      },
+      "methods": {
+        "saveFirstAlert": "Najpierw zapisz rozdział",
+        "panelTitle": "Metody nauki: {title}"
+      },
+      "messages": {
+        "generationStarted": "Rozpoczęto generowanie..."
+      }
+    }
+  }
+}

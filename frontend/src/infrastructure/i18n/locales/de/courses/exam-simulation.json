@@ -1,0 +1,85 @@
+{
+  "examSimulation": {
+    "backToCourse": "Zurück zum Kurs",
+    "close": "Schließen",
+    "confidence": "Konfidenz:",
+    "config": {
+      "difficulty": "Schwierigkeit",
+      "easy": "Leicht",
+      "generateExam": "Prüfung generieren",
+      "generating": "Wird generiert...",
+      "hard": "Schwer",
+      "manualMode": "Manueller Modus",
+      "manualModeDesc": "Du bestimmst die Themenverteilung selbst",
+      "mode": "Modus",
+      "realistic": "Realistisch",
+      "smartMode": "Smart Modus",
+      "smartModeDesc": "KI wählt Fokus basierend auf deinen Schwächen",
+      "timeLimit": "Zeitlimit: {minutes} Minuten",
+      "title": "Neue Prüfungssimulation",
+      "topicDistribution": "Themenverteilung"
+    },
+    "description": "Erstelle realistische Prüfungssimulationen basierend auf deinem Lernfortschritt",
+    "detectedContext": "Erkannter Kontext",
+    "errors": {
+      "createSimulation": "Fehler beim Erstellen der Simulation",
+      "generationFailed": "Generierung fehlgeschlagen",
+      "loadContext": "Fehler beim Laden des Prüfungskontexts",
+      "startExam": "Fehler beim Starten der Prüfung",
+      "submitExam": "Fehler beim Einreichen der Prüfung"
+    },
+    "exam": {
+      "back": "Zurück",
+      "next": "Weiter",
+      "points": "Punkte",
+      "questionOf": "Frage {current} von {total}",
+      "questions": "Fragen",
+      "startExam": "Prüfung starten",
+      "submit": "Abgeben",
+      "yourAnswer": "Deine Antwort..."
+    },
+    "examLevel": "Prüfung:",
+    "history": {
+      "attempts": "{count} Versuch(e)",
+      "average": "Durchschnitt:",
+      "best": "Beste:",
+      "noExams": "Noch keine Prüfungen absolviert",
+      "title": "Prüfungsverlauf"
+    },
+    "noDataAvailable": "Keine Daten vorhanden",
+    "noExamsAvailable": "Keine Prüfungen verfügbar",
+    "noExamsAvailableDesc": "Für diesen Kurs wurden noch keine Prüfungssimulationen erstellt. Wende dich an deinen Lehrer oder Administrator.",
+    "overview": {
+      "attempts": "{count} Versuch(e)",
+      "best": "Beste:",
+      "createFirst": "Erste Simulation erstellen",
+      "minutes": "Min",
+      "noSimulations": "Noch keine Simulationen erstellt",
+      "title": "Deine Simulationen"
+    },
+    "profession": "Beruf:",
+    "region": "Region:",
+    "results": {
+      "backToOverview": "Zur Übersicht",
+      "correct": "richtig",
+      "notPassed": "Nicht bestanden",
+      "passed": "Bestanden!",
+      "resultsByTopic": "Ergebnisse nach Thema"
+    },
+    "status": {
+      "failed": "Fehlgeschlagen",
+      "generating": "Wird generiert...",
+      "pending": "Ausstehend",
+      "ready": "Bereit"
+    },
+    "strongTopics": "Starke Themen",
+    "tabs": {
+      "exam": "Prüfung",
+      "history": "Verlauf",
+      "newSimulation": "Neue Simulation",
+      "overview": "Übersicht"
+    },
+    "title": "KI-Prüfungssimulation",
+    "weakTopics": "Schwache Themen"
+  }
+}

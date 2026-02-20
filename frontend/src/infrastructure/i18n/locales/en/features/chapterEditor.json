@@ -1,0 +1,95 @@
+{
+  "features": {
+    "chapterEditor": {
+      "unknown": "Unknown",
+      "tabs": {
+        "info": "Info",
+        "lessons": "Lessons",
+        "methods": "Learning Methods",
+        "videos": "Videos",
+        "theory": "Theory",
+        "title": "Title",
+        "description": "Description"
+      },
+      "saveStatus": {
+        "saved": "Saved",
+        "saving": "Saving...",
+        "unsaved": "Unsaved"
+      },
+      "placeholders": {
+        "title": "Enter chapter title...",
+        "description": "Enter description...",
+        "theory": "Enter theory content here...",
+        "videoTitle": "Video title",
+        "videoUrl": "YouTube or Vimeo URL"
+      },
+      "buttons": {
+        "generateTheory": "Generate Theory",
+        "saveAndEnable": "Save & Enable",
+        "editMethods": "Edit Methods",
+        "addLesson": "Add Lesson",
+        "editLesson": "Edit",
+        "deleteLesson": "Delete",
+        "addVideo": "Add Video",
+        "removeVideo": "Remove"
+      },
+      "errors": {
+        "noChapterId": "No chapter ID available",
+        "chapterDataUnavailable": "Chapter data unavailable",
+        "loadError": "Error loading chapter",
+        "enterTitle": "Please enter a title",
+        "titleRequired": "Title is required"
+      },
+      "status": {
+        "published": "Published",
+        "draft": "Draft"
+      },
+      "empty": {
+        "lessons": "No lessons yet",
+        "videos": "No videos yet"
+      },
+      "stats": {
+        "total": "Total",
+        "active": "Active",
+        "published": "Published"
+      },
+      "groups": {
+        "A": "Explanatory",
+        "B": "Practice",
+        "C": "Assessment",
+        "D": "Other"
+      },
+      "info": {
+        "methodsInfo": "Available learning methods for this chapter",
+        "theoryTip": "The theory is used as a basis for AI generation"
+      },
+      "fields": {
+        "title": "Title",
+        "url": "URL"
+      },
+      "lessons": {
+        "saveFirstAlert": "Please save the chapter first",
+        "panelNew": "New Lesson",
+        "panelEdit": "Edit Lesson: {title}",
+        "deleteConfirm": "Really delete this lesson?",
+        "deleteError": "Error deleting"
+      },
+      "lessonTypes": {
+        "theory": "Theory",
+        "exercise": "Exercise",
+        "quiz": "Quiz",
+        "video": "Video",
+        "interactive": "Interactive",
+        "assessment": "Assessment",
+        "practical": "Practical"
+      },
+      "methods": {
+        "saveFirstAlert": "Please save the chapter first",
+        "panelTitle": "Learning Methods: {title}"
+      },
+      "messages": {
+        "generationStarted": "Generation started..."
+      }
+    }
+  }
+}

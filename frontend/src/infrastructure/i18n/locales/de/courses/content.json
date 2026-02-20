@@ -56,89 +56,6 @@
       "title": "Interaktives Whiteboard"
     }
   },
-  "examSimulation": {
-    "backToCourse": "Zurück zum Kurs",
-    "close": "Schließen",
-    "confidence": "Konfidenz:",
-    "config": {
-      "difficulty": "Schwierigkeit",
-      "easy": "Leicht",
-      "generateExam": "Prüfung generieren",
-      "generating": "Wird generiert...",
-      "hard": "Schwer",
-      "manualMode": "Manueller Modus",
-      "manualModeDesc": "Du bestimmst die Themenverteilung selbst",
-      "mode": "Modus",
-      "realistic": "Realistisch",
-      "smartMode": "Smart Modus",
-      "smartModeDesc": "KI wählt Fokus basierend auf deinen Schwächen",
-      "timeLimit": "Zeitlimit: {minutes} Minuten",
-      "title": "Neue Prüfungssimulation",
-      "topicDistribution": "Themenverteilung"
-    },
-    "description": "Erstelle realistische Prüfungssimulationen basierend auf deinem Lernfortschritt",
-    "detectedContext": "Erkannter Kontext",
-    "errors": {
-      "createSimulation": "Fehler beim Erstellen der Simulation",
-      "generationFailed": "Generierung fehlgeschlagen",
-      "loadContext": "Fehler beim Laden des Prüfungskontexts",
-      "startExam": "Fehler beim Starten der Prüfung",
-      "submitExam": "Fehler beim Einreichen der Prüfung"
-    },
-    "exam": {
-      "back": "Zurück",
-      "next": "Weiter",
-      "points": "Punkte",
-      "questionOf": "Frage {current} von {total}",
-      "questions": "Fragen",
-      "startExam": "Prüfung starten",
-      "submit": "Abgeben",
-      "yourAnswer": "Deine Antwort..."
-    },
-    "examLevel": "Prüfung:",
-    "history": {
-      "attempts": "{count} Versuch(e)",
-      "average": "Durchschnitt:",
-      "best": "Beste:",
-      "noExams": "Noch keine Prüfungen absolviert",
-      "title": "Prüfungsverlauf"
-    },
-    "noDataAvailable": "Keine Daten vorhanden",
-    "noExamsAvailable": "Keine Prüfungen verfügbar",
-    "noExamsAvailableDesc": "Für diesen Kurs wurden noch keine Prüfungssimulationen erstellt. Wende dich an deinen Lehrer oder Administrator.",
-    "overview": {
-      "attempts": "{count} Versuch(e)",
-      "best": "Beste:",
-      "createFirst": "Erste Simulation erstellen",
-      "minutes": "Min",
-      "noSimulations": "Noch keine Simulationen erstellt",
-      "title": "Deine Simulationen"
-    },
-    "profession": "Beruf:",
-    "region": "Region:",
-    "results": {
-      "backToOverview": "Zur Übersicht",
-      "correct": "richtig",
-      "notPassed": "Nicht bestanden",
-      "passed": "Bestanden!",
-      "resultsByTopic": "Ergebnisse nach Thema"
-    },
-    "status": {
-      "failed": "Fehlgeschlagen",
-      "generating": "Wird generiert...",
-      "pending": "Ausstehend",
-      "ready": "Bereit"
-    },
-    "strongTopics": "Starke Themen",
-    "tabs": {
-      "exam": "Prüfung",
-      "history": "Verlauf",
-      "newSimulation": "Neue Simulation",
-      "overview": "Übersicht"
-    },
-    "title": "KI-Prüfungssimulation",
-    "weakTopics": "Schwache Themen"
-  },
   "lesson": {
     "ai": {
       "examplePrompts": "Beispiel-Prompts",
@@ -157,6 +74,47 @@
       "title": "Interaktive Lektion",
       "tokenHint": "Für Aufgaben werden Tokens verbraucht. Dein aktuelles Token-Guthaben wird im Panel angezeigt.",
       "topic": "Thema"
+    },
+    "oral": {
+      "title": "Mündliche Prüfung",
+      "examDetails": "Prüfungsdetails",
+      "examiner": "Prüfer",
+      "topicBlocks": "Themenblöcke",
+      "duration": "Dauer",
+      "durationValue": "{minutes} Minuten",
+      "audioEnabled": "Audio aktiviert",
+      "startExam": "Prüfung starten",
+      "examCompleted": "Prüfung abgeschlossen",
+      "finalEvaluation": "Gesamtbewertung",
+      "yourAnswerTranscript": "Deine Antwort (Transkript)",
+      "evaluation": "Bewertung",
+      "coveredPoints": "Abgedeckte Punkte",
+      "missingPoints": "Fehlende Punkte",
+      "suggestions": "Verbesserungsvorschläge",
+      "retryAnswer": "Nochmal antworten",
+      "completeExam": "Prüfung abschließen",
+      "nextBlock": "Nächster Block",
+      "play": "Abspielen",
+      "orWriteAnswer": "...oder schreibe deine Antwort",
+      "answerPlaceholder": "Deine Antwort eingeben...",
+      "defaultTopic": "Allgemeines Thema",
+      "stubQuestion": "Übungsfrage zum Thema: {topic}",
+      "stubAnalysisFeedback": "Deine Erklärung deckt die wichtigsten Punkte gut ab.",
+      "stubAnalysis": "Analyse wird durchgeführt...",
+      "stubEvaluation": "Bewertung wird erstellt...",
+      "stubSummary": "Zusammenfassung wird erstellt...",
+      "errors": {
+        "startFailed": "Prüfung konnte nicht gestartet werden",
+        "analysisFailed": "Analyse fehlgeschlagen",
+        "processingFailed": "Verarbeitung fehlgeschlagen"
+      },
+      "personas": {
+        "formal": "Formell",
+        "curious": "Neugierig",
+        "skeptical": "Skeptisch",
+        "supportive": "Unterstützend",
+        "technical": "Technisch"
+      }
     },
     "back_to_courses": "Zurück zu den Kursen",
     "completed": "Abgeschlossen",

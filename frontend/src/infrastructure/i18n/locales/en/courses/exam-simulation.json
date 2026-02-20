@@ -1,0 +1,85 @@
+{
+  "examSimulation": {
+    "backToCourse": "Back to course",
+    "close": "Close",
+    "confidence": "Confidence:",
+    "config": {
+      "difficulty": "Difficulty",
+      "easy": "Easy",
+      "generateExam": "Generate exam",
+      "generating": "Generating...",
+      "hard": "Hard",
+      "manualMode": "Manual Mode",
+      "manualModeDesc": "You determine the topic distribution yourself",
+      "mode": "Mode",
+      "realistic": "Realistic",
+      "smartMode": "Smart Mode",
+      "smartModeDesc": "AI chooses focus based on your weaknesses",
+      "timeLimit": "Time limit: {minutes} minutes",
+      "title": "New Exam Simulation",
+      "topicDistribution": "Topic Distribution"
+    },
+    "description": "Create realistic exam simulations based on your learning progress",
+    "detectedContext": "Detected Context",
+    "errors": {
+      "createSimulation": "Error creating simulation",
+      "generationFailed": "Generation failed",
+      "loadContext": "Error loading exam context",
+      "startExam": "Error starting exam",
+      "submitExam": "Error submitting exam"
+    },
+    "exam": {
+      "back": "Back",
+      "next": "Next",
+      "points": "Points",
+      "questionOf": "Question {current} of {total}",
+      "questions": "Questions",
+      "startExam": "Start exam",
+      "submit": "Submit",
+      "yourAnswer": "Your answer..."
+    },
+    "examLevel": "Exam:",
+    "history": {
+      "attempts": "{count} attempt(s)",
+      "average": "Average:",
+      "best": "Best:",
+      "noExams": "No exams taken yet",
+      "title": "Exam History"
+    },
+    "noDataAvailable": "No data available",
+    "noExamsAvailable": "No exams available",
+    "noExamsAvailableDesc": "No exam simulations have been created for this course yet. Contact your teacher or administrator.",
+    "overview": {
+      "attempts": "{count} attempt(s)",
+      "best": "Best:",
+      "createFirst": "Create first simulation",
+      "minutes": "min",
+      "noSimulations": "No simulations created yet",
+      "title": "Your Simulations"
+    },
+    "profession": "Profession:",
+    "region": "Region:",
+    "results": {
+      "backToOverview": "Back to overview",
+      "correct": "correct",
+      "notPassed": "Not passed",
+      "passed": "Passed!",
+      "resultsByTopic": "Results by Topic"
+    },
+    "status": {
+      "failed": "Failed",
+      "generating": "Generating...",
+      "pending": "Pending",
+      "ready": "Ready"
+    },
+    "strongTopics": "Strong Topics",
+    "tabs": {
+      "exam": "Exam",
+      "history": "History",
+      "newSimulation": "New Simulation",
+      "overview": "Overview"
+    },
+    "title": "AI Exam Simulation",
+    "weakTopics": "Weak Topics"
+  }
+}

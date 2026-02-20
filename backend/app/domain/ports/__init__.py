@@ -30,7 +30,8 @@ from app.domain.ports.social import (
     SocialPostsPort,
     SocialLikesPort,
     SocialCommentsPort,
-    SocialFollowsPort
+    SocialFollowsPort,
+    SocialNotificationsPort
 )
 
 # Import registry for backward compatibility
@@ -53,6 +54,7 @@ __all__ = [
     'SocialLikesPort',
     'SocialCommentsPort',
     'SocialFollowsPort',
+    'SocialNotificationsPort',
 
     # Registry
     'repos'

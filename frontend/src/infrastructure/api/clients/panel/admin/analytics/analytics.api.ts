@@ -42,7 +42,7 @@ export const adminGetSystemStats = async (): Promise<AdminSystemStats> => {
   const response = await http.get<{
     success: boolean
     data: AdminSystemStats
-  }>('/admin/stats/system')
+  }>('/dashboard/admin/stats/system')
 
   return response.data.data
 }
@@ -68,7 +68,7 @@ export const adminGetUserStats = async (): Promise<UserStatsData> => {
   const response = await http.get<{
     success: boolean
     data: UserStatsData
-  }>('/admin/stats/users')
+  }>('/dashboard/admin/stats/users')
 
   return response.data.data
 }
@@ -77,7 +77,7 @@ export const adminGetCourseStats = async (): Promise<CourseStatsData> => {
   const response = await http.get<{
     success: boolean
     data: CourseStatsData
-  }>('/admin/stats/courses')
+  }>('/dashboard/admin/stats/courses')
 
   return response.data.data
 }
@@ -86,7 +86,7 @@ export const adminGetSystemStatsData = async (): Promise<SystemStatsData> => {
   const response = await http.get<{
     success: boolean
     data: SystemStatsData
-  }>('/admin/stats/system')
+  }>('/dashboard/admin/stats/system')
 
   return response.data.data
 }

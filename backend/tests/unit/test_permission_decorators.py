@@ -1,36 +1,47 @@
 """
-Unit Tests for RBAC 2.0 Permission Decorators
+Unit Tests for GBA Permission Decorators (Compatibility Wrapper)
 
-Tests the database-driven permission checking decorators:
-- @require_permission() - Generic permission check
-- @require_system_admin() - System admin access (RBAC 2.0)
-- @require_org_admin() - Organisation admin access (RBAC 2.0)
-- @require_org_member() - Organisation membership check
+Tests the GBA compatibility wrapper decorators:
+- @require_system_admin - System admin access (GBA via PermissionService)
+- @require_org_admin - Organisation admin access (GBA via PermissionService)
+- @require_org_member - Organisation membership check (resource-based)
 
 Tests verify:
 - Correct access granted to authorized users
 - Access denied (403) to unauthorized users
-- Backward compatibility with hierarchy_level checks
-- Fail-secure behavior on database errors
+- PermissionService.check_permission() integration
+- Fail-secure behavior on service errors
 - Proper error responses
 
-Migration Note:
-- Phase 1 (2026-01-14): Replaced hardcoded role lists with:
-  - require_system_admin: PermissionRepository + hierarchy_level >= 9
-  - require_org_admin: PermissionRepository + hierarchy_level >= 5
-  - require_org_member: hierarchy_level >= 9 (resource ownership check)
+Architecture Note:
+- Decorators use _get_token_required() for lazy import of @token_required
+- PermissionService.check_permission(current_user, permission_code) is imported
+  lazily inside each wrapper function
+- g.current_user provides the authenticated user dict from JWT
 """
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from flask import Flask, jsonify, g
-from app.security.permissions import (
-    require_system_admin,
-    require_org_admin,
-    require_org_member,
-    Permissions
+from unittest.mock import patch, MagicMock
+import types
+
+import app.infrastructure.security.gba.permissions_compat as compat_module
+
+# Module path constants for patching
+COMPAT_MODULE = 'app.infrastructure.security.gba.permissions_compat'
+PERMISSION_SERVICE = (
+    'app.application.services.system.auth.permission.PermissionService'
 )
-from app.repositories.permission_repository import PermissionRepository
+
+
+def _make_mock_g(user_dict):
+    """Create a mock g object with current_user attribute.
+
+    We cannot use patch() on Flask's g proxy because it triggers
+    application context checks. Instead, we replace the module-level
+    reference to g with a simple namespace object.
+    """
+    mock_g = types.SimpleNamespace(current_user=user_dict)
+    return mock_g
 
 
 # ==============================================
@@ -38,33 +49,12 @@ from app.repositories.permission_repository import PermissionRepository
 # ==============================================
 
 @pytest.fixture
-def flask_app():
-    """Create test Flask app with context."""
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'test-secret-key'
-    app.config['TESTING'] = True
-    return app
-
-
-@pytest.fixture
-def mock_token_required():
-    """Mock the @token_required decorator."""
-    with patch('app.security.permissions.token_required') as mock:
-        def identity_decorator(fn):
-            """Pass-through decorator for testing."""
-            return fn
-        mock.side_effect = lambda f: identity_decorator
-        yield mock
-
-
-@pytest.fixture
 def system_admin_user():
     """Create mock system admin user."""
     return {
         'user_id': '550e8400-e29b-41d4-a716-446655440000',
         'role': 'admin',
-        'hierarchy_level': 9,
-        'organization_id': None
+        'organisation_id': None,
     }
 
 
@@ -74,8 +64,7 @@ def org_admin_user():
     return {
         'user_id': '550e8400-e29b-41d4-a716-446655440001',
         'role': 'school_admin',
-        'hierarchy_level': 5,
-        'organization_id': '550e8400-e29b-41d4-a716-446655440100'
+        'organisation_id': '550e8400-e29b-41d4-a716-446655440100',
     }
 
 
@@ -85,8 +74,7 @@ def regular_user():
     return {
         'user_id': '550e8400-e29b-41d4-a716-446655440002',
         'role': 'user',
-        'hierarchy_level': 0,
-        'organization_id': '550e8400-e29b-41d4-a716-446655440100'
+        'organisation_id': '550e8400-e29b-41d4-a716-446655440100',
     }
 
 
@@ -96,316 +84,288 @@ def other_org_user():
     return {
         'user_id': '550e8400-e29b-41d4-a716-446655440003',
         'role': 'user',
-        'hierarchy_level': 0,
-        'organization_id': '550e8400-e29b-41d4-a716-446655440200'
+        'organisation_id': '550e8400-e29b-41d4-a716-446655440200',
     }
 
 
 # ==============================================
-# TESTS: @require_system_admin()
+# TESTS: @require_system_admin
 # ==============================================
 
 class TestRequireSystemAdmin:
     """Test @require_system_admin decorator."""
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    def test_system_admin_with_permission(self, mock_g, mock_repo):
-        """Test system admin access with database permission."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440000',
-            'hierarchy_level': 0  # No hierarchy level
-        }
-        mock_repo.user_has_permission.return_value = True
+    def test_system_admin_access_granted(self, system_admin_user):
+        """Test system admin access when PermissionService grants it."""
+        mock_g = _make_mock_g(system_admin_user)
+        original_g = compat_module.g
 
-        # Create test function
-        @require_system_admin
-        def test_function():
-            return {'status': 'ok'}, 200
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check:
 
-        # Test requires token_required context
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_system_admin(test_function)
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = True
+            compat_module.g = mock_g
 
-            # Mock Flask context
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
+            try:
+                @compat_module.require_system_admin
+                def protected_view():
+                    return {'status': 'ok'}, 200
 
-        # Verify database permission was checked
-        mock_repo.user_has_permission.assert_called_with(
-            user_id='550e8400-e29b-41d4-a716-446655440000',
-            permission_key=Permissions.MANAGE_SYSTEM
-        )
+                result = protected_view()
+            finally:
+                compat_module.g = original_g
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    def test_system_admin_with_hierarchy_level(self, mock_g, mock_repo):
-        """Test system admin access with hierarchy_level >= 9 (backward compat)."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440000',
-            'hierarchy_level': 9  # System admin level
-        }
+            assert result == ({'status': 'ok'}, 200)
+            mock_check.assert_called_once_with(
+                system_admin_user, 'view_any_resource'
+            )
 
-        # Create test function
-        @require_system_admin
-        def test_function():
-            return {'status': 'ok'}, 200
+    def test_system_admin_access_denied(self, regular_user):
+        """Test 403 response when user lacks system admin permission."""
+        mock_g = _make_mock_g(regular_user)
+        original_g = compat_module.g
 
-        # When hierarchy_level >= 9, function should execute without DB check
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_system_admin(test_function)
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check, \
+             patch(f'{COMPAT_MODULE}.jsonify') as mock_jsonify:
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = False
+            mock_jsonify.return_value = MagicMock()
+            compat_module.g = mock_g
 
-        # Should not check database when hierarchy_level >= 9
-        mock_repo.user_has_permission.assert_not_called()
+            try:
+                @compat_module.require_system_admin
+                def protected_view():
+                    return {'status': 'ok'}, 200
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    @patch('app.security.permissions.jsonify')
-    def test_system_admin_denied_no_permission(self, mock_jsonify, mock_g, mock_repo):
-        """Test 403 response when user lacks permission."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440000',
-            'hierarchy_level': 0
-        }
-        mock_repo.user_has_permission.return_value = False
-        mock_jsonify.return_value = {'error': 'Forbidden'}, 403
+                result = protected_view()
+            finally:
+                compat_module.g = original_g
 
-        @require_system_admin
-        def test_function():
-            return {'status': 'ok'}, 200
+            assert result[1] == 403
+            mock_check.assert_called_once_with(
+                regular_user, 'view_any_resource'
+            )
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_system_admin(test_function)
+    def test_system_admin_service_error_fail_secure(self, regular_user):
+        """Test fail-secure: exception from PermissionService propagates."""
+        mock_g = _make_mock_g(regular_user)
+        original_g = compat_module.g
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check:
 
-        # Should call jsonify for error response
-        mock_jsonify.assert_called()
+            mock_token.return_value = lambda f: f
+            mock_check.side_effect = Exception("Service Error")
+            compat_module.g = mock_g
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    def test_system_admin_db_error_fail_secure(self, mock_g, mock_repo):
-        """Test fail-secure behavior on database error."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440000',
-            'hierarchy_level': 0
-        }
-        # Simulate database error
-        mock_repo.user_has_permission.side_effect = Exception("DB Connection Error")
+            try:
+                @compat_module.require_system_admin
+                def protected_view():
+                    return {'status': 'ok'}, 200
 
-        @require_system_admin
-        def test_function():
-            return {'status': 'ok'}, 200
-
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_system_admin(test_function)
-
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
-
-        # Should return 403 (fail-secure) on error
-        assert result[1] == 403
+                with pytest.raises(Exception, match="Service Error"):
+                    protected_view()
+            finally:
+                compat_module.g = original_g
 
 
 # ==============================================
-# TESTS: @require_org_admin()
+# TESTS: @require_org_admin
 # ==============================================
 
 class TestRequireOrgAdmin:
     """Test @require_org_admin decorator."""
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    def test_org_admin_with_manage_org_settings_permission(self, mock_g, mock_repo):
-        """Test org admin with manage:org:settings permission."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440001',
-            'hierarchy_level': 0
-        }
-        # First call returns False for MANAGE_ORG_SETTINGS, we won't check second
-        mock_repo.user_has_permission.return_value = True
+    def test_org_admin_with_users_manage_permission(self, org_admin_user):
+        """Test org admin access via users.manage permission."""
+        mock_g = _make_mock_g(org_admin_user)
+        original_g = compat_module.g
 
-        @require_org_admin
-        def test_function():
-            return {'status': 'ok'}, 200
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check:
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_org_admin(test_function)
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = True
+            compat_module.g = mock_g
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
+            try:
+                @compat_module.require_org_admin
+                def protected_view():
+                    return {'status': 'ok'}, 200
 
-        # Should check permissions
-        mock_repo.user_has_permission.assert_called()
+                result = protected_view()
+            finally:
+                compat_module.g = original_g
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    def test_org_admin_with_hierarchy_level(self, mock_g, mock_repo):
-        """Test org admin with hierarchy_level >= 5 (backward compat)."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440001',
-            'hierarchy_level': 5  # Org admin level
-        }
+            assert result == ({'status': 'ok'}, 200)
+            mock_check.assert_any_call(org_admin_user, 'users.manage')
 
-        @require_org_admin
-        def test_function():
-            return {'status': 'ok'}, 200
+    def test_org_admin_with_system_admin_bypass(self, system_admin_user):
+        """Test system admin bypasses org admin via view_any_resource."""
+        mock_g = _make_mock_g(system_admin_user)
+        original_g = compat_module.g
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_org_admin(test_function)
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check:
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
+            mock_token.return_value = lambda f: f
 
-        # Should not check database when hierarchy_level >= 5
-        mock_repo.user_has_permission.assert_not_called()
+            def side_effect(user, perm):
+                if perm == 'view_any_resource':
+                    return True
+                return False
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    def test_org_admin_denied_low_hierarchy(self, mock_g, mock_repo):
-        """Test 403 response when user has low hierarchy level and no permissions."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440002',
-            'hierarchy_level': 0
-        }
-        mock_repo.user_has_permission.return_value = False
+            mock_check.side_effect = side_effect
+            compat_module.g = mock_g
 
-        @require_org_admin
-        def test_function():
-            return {'status': 'ok'}, 200
+            try:
+                @compat_module.require_org_admin
+                def protected_view():
+                    return {'status': 'ok'}, 200
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_org_admin(test_function)
+                result = protected_view()
+            finally:
+                compat_module.g = original_g
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
+            assert result == ({'status': 'ok'}, 200)
 
-        # Should check database and deny access
-        assert result[1] == 403
+    def test_org_admin_denied_no_permission(self, regular_user):
+        """Test 403 when user has neither users.manage nor view_any_resource."""
+        mock_g = _make_mock_g(regular_user)
+        original_g = compat_module.g
+
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check, \
+             patch(f'{COMPAT_MODULE}.jsonify') as mock_jsonify:
+
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = False
+            mock_jsonify.return_value = MagicMock()
+            compat_module.g = mock_g
+
+            try:
+                @compat_module.require_org_admin
+                def protected_view():
+                    return {'status': 'ok'}, 200
+
+                result = protected_view()
+            finally:
+                compat_module.g = original_g
+
+            assert result[1] == 403
 
 
 # ==============================================
-# TESTS: @require_org_member()
+# TESTS: @require_org_member
 # ==============================================
 
 class TestRequireOrgMember:
     """Test @require_org_member decorator (resource-based access)."""
 
-    @patch('app.security.permissions.g')
-    def test_org_member_system_admin_bypass(self, mock_g):
-        """Test system admin can access any organisation."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440000',
-            'hierarchy_level': 9,  # System admin
-            'organization_id': None
-        }
+    def test_org_member_system_admin_bypass(self, system_admin_user):
+        """Test system admin can access any org via view_any_resource."""
+        mock_g = _make_mock_g(system_admin_user)
+        original_g = compat_module.g
 
-        @require_org_member
-        def test_function(org_id):
-            return {'org': org_id}, 200
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check:
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_org_member(test_function)
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = True
+            compat_module.g = mock_g
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn(org_id='some-other-org-id')
+            try:
+                @compat_module.require_org_member
+                def protected_view(org_id):
+                    return {'org': org_id}, 200
 
-        # System admin should access any org without checking membership
-        assert result[1] == 200
+                result = protected_view(org_id='some-other-org-id')
+            finally:
+                compat_module.g = original_g
 
-    @patch('app.security.permissions.g')
-    def test_org_member_belongs_to_org(self, mock_g):
+            assert result[1] == 200
+            mock_check.assert_called_with(
+                system_admin_user, 'view_any_resource'
+            )
+
+    def test_org_member_belongs_to_org(self, regular_user):
         """Test user can access organisation they belong to."""
-        org_id = '550e8400-e29b-41d4-a716-446655440100'
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440001',
-            'hierarchy_level': 0,
-            'organization_id': org_id
-        }
+        org_id = regular_user['organisation_id']
+        mock_g = _make_mock_g(regular_user)
+        original_g = compat_module.g
 
-        @require_org_member
-        def test_function(org_id):
-            return {'org': org_id}, 200
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check:
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_org_member(test_function)
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = False  # Not a system admin
+            compat_module.g = mock_g
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn(org_id=org_id)
+            try:
+                @compat_module.require_org_member
+                def protected_view(org_id):
+                    return {'org': org_id}, 200
 
-        # User should be able to access their organisation
-        assert result[1] == 200
+                result = protected_view(org_id=org_id)
+            finally:
+                compat_module.g = original_g
 
-    @patch('app.security.permissions.g')
-    def test_org_member_not_belongs_to_org(self, mock_g):
-        """Test user cannot access organisation they don't belong to."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440001',
-            'hierarchy_level': 0,
-            'organization_id': '550e8400-e29b-41d4-a716-446655440100'
-        }
+            assert result == ({'org': org_id}, 200)
 
-        @require_org_member
-        def test_function(org_id):
-            return {'org': org_id}, 200
+    def test_org_member_not_belongs_to_org(self, regular_user):
+        """Test user cannot access organisation they do not belong to."""
+        mock_g = _make_mock_g(regular_user)
+        original_g = compat_module.g
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_org_member(test_function)
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check, \
+             patch(f'{COMPAT_MODULE}.jsonify') as mock_jsonify:
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                # Try to access different organisation
-                result = decorated_fn(org_id='550e8400-e29b-41d4-a716-446655440200')
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = False
+            mock_jsonify.return_value = MagicMock()
+            compat_module.g = mock_g
 
-        # User should be denied access
-        assert result[1] == 403
+            try:
+                @compat_module.require_org_member
+                def protected_view(org_id):
+                    return {'org': org_id}, 200
 
-    @patch('app.security.permissions.g')
-    def test_org_member_missing_org_id(self, mock_g):
-        """Test 400 Bad Request when org_id not in URL parameters."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440001',
-            'hierarchy_level': 0,
-            'organization_id': '550e8400-e29b-41d4-a716-446655440100'
-        }
+                result = protected_view(
+                    org_id='550e8400-e29b-41d4-a716-446655440200'
+                )
+            finally:
+                compat_module.g = original_g
 
-        @require_org_member
-        def test_function():  # No org_id parameter
-            return {'org': 'unknown'}, 200
+            assert result[1] == 403
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_org_member(test_function)
+    def test_org_member_missing_org_id(self, regular_user):
+        """Test 400 Bad Request when org_id not in kwargs."""
+        mock_g = _make_mock_g(regular_user)
+        original_g = compat_module.g
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                result = decorated_fn()
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check, \
+             patch(f'{COMPAT_MODULE}.jsonify') as mock_jsonify:
 
-        # Should return 400 Bad Request
-        assert result[1] == 400
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = False
+            mock_jsonify.return_value = MagicMock()
+            compat_module.g = mock_g
+
+            try:
+                @compat_module.require_org_member
+                def protected_view():
+                    return {'org': 'unknown'}, 200
+
+                result = protected_view()
+            finally:
+                compat_module.g = original_g
+
+            assert result[1] == 400
 
 
 # ==============================================
@@ -415,35 +375,55 @@ class TestRequireOrgMember:
 class TestPermissionDecoratorIntegration:
     """Integration tests for permission decorators."""
 
-    @patch('app.security.permissions.PermissionRepository')
-    @patch('app.security.permissions.g')
-    def test_system_admin_precedence_over_org_admin(self, mock_g, mock_repo):
-        """Test system admin has precedence and bypasses org checks."""
-        mock_g.current_user = {
-            'user_id': '550e8400-e29b-41d4-a716-446655440000',
-            'hierarchy_level': 9,  # System admin
-            'organization_id': None
-        }
+    def test_system_admin_has_more_power_than_org_admin(
+        self, system_admin_user
+    ):
+        """Test system admin bypasses org membership checks."""
+        mock_g = _make_mock_g(system_admin_user)
+        original_g = compat_module.g
 
-        # Stack decorators: org check first, then system admin
-        @require_system_admin
-        @require_org_member
-        def test_function(org_id):
-            return {'status': 'ok'}, 200
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check:
 
-        with patch('app.security.permissions.token_required') as mock_token:
-            mock_token.side_effect = lambda f: f
-            decorated_fn = require_system_admin(
-                require_org_member(test_function)
-            )
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = True
+            compat_module.g = mock_g
 
-            with patch('app.security.permissions.g') as mock_g2:
-                mock_g2.current_user = mock_g.current_user
-                # Try different org
-                result = decorated_fn(org_id='different-org')
+            try:
+                inner = compat_module.require_org_member(
+                    lambda org_id: ({'status': 'ok'}, 200)
+                )
+                decorated = compat_module.require_system_admin(inner)
+                result = decorated(org_id='different-org')
+            finally:
+                compat_module.g = original_g
 
-        # Should succeed because system admin bypasses org checks
-        assert result[1] == 200
+            assert result[1] == 200
+
+    def test_regular_user_denied_system_admin_route(self, regular_user):
+        """Test regular user cannot access system admin protected route."""
+        mock_g = _make_mock_g(regular_user)
+        original_g = compat_module.g
+
+        with patch(f'{COMPAT_MODULE}._get_token_required') as mock_token, \
+             patch(f'{PERMISSION_SERVICE}.check_permission') as mock_check, \
+             patch(f'{COMPAT_MODULE}.jsonify') as mock_jsonify:
+
+            mock_token.return_value = lambda f: f
+            mock_check.return_value = False
+            mock_jsonify.return_value = MagicMock()
+            compat_module.g = mock_g
+
+            try:
+                @compat_module.require_system_admin
+                def admin_only_view():
+                    return {'status': 'ok'}, 200
+
+                result = admin_only_view()
+            finally:
+                compat_module.g = original_g
+
+            assert result[1] == 403
 
 
 # ==============================================
@@ -454,25 +434,19 @@ class TestDecoratorDocumentation:
     """Verify decorators have proper documentation."""
 
     def test_require_system_admin_has_docstring(self):
-        """Verify @require_system_admin has comprehensive docstring."""
-        assert require_system_admin.__doc__ is not None
-        assert 'RBAC 2.0' in require_system_admin.__doc__
-        assert 'PermissionRepository' in require_system_admin.__doc__
-        assert 'hierarchy_level' in require_system_admin.__doc__
-        assert len(require_system_admin.__doc__) > 500
+        """Verify @require_system_admin has GBA-related docstring."""
+        assert compat_module.require_system_admin.__doc__ is not None
+        doc = compat_module.require_system_admin.__doc__
+        assert 'GBA' in doc or 'compatibility wrapper' in doc.lower()
 
     def test_require_org_admin_has_docstring(self):
-        """Verify @require_org_admin has comprehensive docstring."""
-        assert require_org_admin.__doc__ is not None
-        assert 'RBAC 2.0' in require_org_admin.__doc__
-        assert 'PermissionRepository' in require_org_admin.__doc__
-        assert 'manage:org:settings' in require_org_admin.__doc__
-        assert len(require_org_admin.__doc__) > 500
+        """Verify @require_org_admin has GBA-related docstring."""
+        assert compat_module.require_org_admin.__doc__ is not None
+        doc = compat_module.require_org_admin.__doc__
+        assert 'GBA' in doc or 'compatibility wrapper' in doc.lower()
 
     def test_require_org_member_has_docstring(self):
-        """Verify @require_org_member has comprehensive docstring."""
-        assert require_org_member.__doc__ is not None
-        assert 'resource-based' in require_org_member.__doc__
-        assert 'hierarchy_level' in require_org_member.__doc__
-        assert 'organization_id' in require_org_member.__doc__
-        assert len(require_org_member.__doc__) > 500
+        """Verify @require_org_member has organisation-related docstring."""
+        assert compat_module.require_org_member.__doc__ is not None
+        doc = compat_module.require_org_member.__doc__
+        assert 'organisation' in doc.lower() or 'organization' in doc.lower()

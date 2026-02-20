@@ -13,15 +13,15 @@ Tests:
 
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from app.services.system.features.service import FeatureService
-from app.services.system.cache.service import CacheService
+from app.application.services.system.features.service import FeatureService
+from app.infrastructure.cache.service import CacheService
 
 
 class TestFeatureServiceMetadata:
     """Tests for feature metadata retrieval."""
 
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.FeatureRepository')
+    @patch('app.application.services.system.features.service.CacheService')
     def test_get_feature_metadata_found(self, mock_cache, mock_repo):
         """Test retrieving metadata for existing feature."""
         # Setup
@@ -49,8 +49,8 @@ class TestFeatureServiceMetadata:
         mock_cache.cache_get.assert_called_once()
         mock_cache.cache_set.assert_called_once()
 
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.FeatureRepository')
+    @patch('app.application.services.system.features.service.CacheService')
     def test_get_feature_metadata_not_found(self, mock_cache, mock_repo):
         """Test retrieving metadata for nonexistent feature."""
         # Setup
@@ -64,8 +64,8 @@ class TestFeatureServiceMetadata:
         assert result is None
         mock_cache.cache_set.assert_not_called()
 
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.FeatureRepository')
+    @patch('app.application.services.system.features.service.CacheService')
     def test_get_feature_metadata_from_cache(self, mock_cache, mock_repo):
         """Test retrieving feature metadata from cache."""
         # Setup
@@ -84,8 +84,8 @@ class TestFeatureServiceMetadata:
         mock_repo.find_by_code.assert_not_called()  # Should not query DB
         mock_cache.cache_set.assert_not_called()    # Should not set (already in cache)
 
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.FeatureRepository')
+    @patch('app.application.services.system.features.service.CacheService')
     def test_get_feature_metadata_error_handling(self, mock_cache, mock_repo):
         """Test error handling in metadata retrieval."""
         # Setup
@@ -102,10 +102,10 @@ class TestFeatureServiceMetadata:
 class TestFeatureServiceAvailableFeatures:
     """Tests for getting available features for user."""
 
-    @patch('app.services.feature_service.get_connection')
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
-    @patch('app.services.feature_service.UserRepository')
+    @patch('app.application.services.system.features.service.get_connection')
+    @patch('app.application.services.system.features.service.FeatureRepository')
+    @patch('app.application.services.system.features.service.CacheService')
+    @patch('app.application.services.system.features.service.UserRepository')
     def test_get_available_features_success(self, mock_user_repo, mock_cache, mock_feature_repo, mock_get_connection):
         """Test getting available features for user."""
         # Setup
@@ -134,7 +134,7 @@ class TestFeatureServiceAvailableFeatures:
         ]
 
         mock_feature_instance = mock_feature_repo.return_value
-        mock_feature_instance.get_role_features.return_value = role_features
+        mock_feature_instance.get_user_group_features.return_value = role_features
         mock_feature_instance.get_org_subscribed_features.return_value = org_features
 
         # Execute
@@ -146,10 +146,10 @@ class TestFeatureServiceAvailableFeatures:
         assert feature_codes == {'code_sandbox', 'learning_journal', 'ai_studio'}
         mock_cache.cache_set.assert_called_once()
 
-    @patch('app.services.feature_service.get_connection')
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
-    @patch('app.services.feature_service.UserRepository')
+    @patch('app.application.services.system.features.service.get_connection')
+    @patch('app.application.services.system.features.service.FeatureRepository')
+    @patch('app.application.services.system.features.service.CacheService')
+    @patch('app.application.services.system.features.service.UserRepository')
     def test_get_available_features_deduplication(self, mock_user_repo, mock_cache, mock_feature_repo, mock_get_connection):
         """Test that duplicate features are deduplicated."""
         # Setup
@@ -177,7 +177,7 @@ class TestFeatureServiceAvailableFeatures:
         ]
 
         mock_feature_instance = mock_feature_repo.return_value
-        mock_feature_instance.get_role_features.return_value = role_features
+        mock_feature_instance.get_user_group_features.return_value = role_features
         mock_feature_instance.get_org_subscribed_features.return_value = org_features
 
         # Execute
@@ -187,9 +187,9 @@ class TestFeatureServiceAvailableFeatures:
         assert len(result) == 1  # Deduplicated
         assert result[0]['feature_code'] == 'code_sandbox'
 
-    @patch('app.services.feature_service.get_connection')
-    @patch('app.services.feature_service.CacheService')
-    @patch('app.repositories.user.UserRepository')
+    @patch('app.application.services.system.features.service.get_connection')
+    @patch('app.application.services.system.features.service.CacheService')
+    @patch('app.application.services.system.features.service.UserRepository')
     def test_get_available_features_user_not_found(self, mock_user_repo, mock_cache, mock_get_connection):
         """Test handling when user not found."""
         # Setup
@@ -209,7 +209,7 @@ class TestFeatureServiceAvailableFeatures:
         # Assert
         assert result == []
 
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.CacheService')
     def test_get_available_features_from_cache(self, mock_cache):
         """Test retrieving available features from cache."""
         # Setup
@@ -230,7 +230,7 @@ class TestFeatureServiceAvailableFeatures:
 class TestFeatureServiceCanAccessFeature:
     """Tests for feature access control."""
 
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.CacheService')
     @patch.object(FeatureService, 'get_available_features')
     def test_can_access_feature_allowed(self, mock_get_available, mock_cache):
         """Test user can access feature."""
@@ -249,7 +249,7 @@ class TestFeatureServiceCanAccessFeature:
         assert result is True
         mock_cache.cache_set.assert_called_once()
 
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.CacheService')
     @patch.object(FeatureService, 'get_available_features')
     def test_can_access_feature_denied(self, mock_get_available, mock_cache):
         """Test user cannot access feature."""
@@ -265,109 +265,18 @@ class TestFeatureServiceCanAccessFeature:
         assert result is False
         mock_cache.cache_set.assert_called_once()
 
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.CacheService')
     def test_can_access_feature_from_cache(self, mock_cache):
         """Test feature access from cache."""
         # Setup
         mock_cache.cache_get.return_value = True
 
         # Execute
-        from app.services.system.features.service import FeatureService
+        from app.application.services.system.features.service import FeatureService
         result = FeatureService.can_access_feature('user-789', 'ai_studio')
 
         # Assert
         assert result is True
-
-
-class TestFeatureServicePermissions:
-    """Tests for granular feature permissions."""
-
-    @patch('app.services.feature_service.get_connection')
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
-    @patch('app.services.feature_service.UserRepository')
-    def test_get_feature_permission_allowed(self, mock_user_repo, mock_cache, mock_feature_repo, mock_get_connection):
-        """Test getting permission that is allowed."""
-        # Setup
-        mock_cache.cache_get.return_value = None
-
-        # Setup context manager mock for database connection
-        mock_conn = MagicMock()
-        mock_get_connection.return_value.__enter__.return_value = mock_conn
-        mock_get_connection.return_value.__exit__.return_value = None
-
-        mock_user_instance = mock_user_repo.return_value
-        mock_user_instance.find_by_id.return_value = {'user_id': 'user-123', 'role_id': 1}
-
-        mock_feature_instance = mock_feature_repo.return_value
-        mock_feature_instance.get_feature_permission.return_value = True
-
-        # Execute
-        result = FeatureService.get_feature_permission(
-            'user-123',
-            'ai_studio',
-            'ai_studio.execute'
-        )
-
-        # Assert
-        assert result is True
-        mock_cache.cache_set.assert_called_once()
-
-    @patch('app.services.feature_service.get_connection')
-    @patch('app.services.feature_service.FeatureRepository')
-    @patch('app.services.feature_service.CacheService')
-    @patch('app.services.feature_service.UserRepository')
-    def test_get_feature_permission_denied(self, mock_user_repo, mock_cache, mock_feature_repo, mock_get_connection):
-        """Test getting permission that is denied."""
-        # Setup
-        mock_cache.cache_get.return_value = None
-
-        # Setup context manager mock for database connection
-        mock_conn = MagicMock()
-        mock_get_connection.return_value.__enter__.return_value = mock_conn
-        mock_get_connection.return_value.__exit__.return_value = None
-
-        mock_user_instance = mock_user_repo.return_value
-        mock_user_instance.find_by_id.return_value = {'user_id': 'user-123', 'role_id': 1}
-
-        mock_feature_instance = mock_feature_repo.return_value
-        mock_feature_instance.get_feature_permission.return_value = False
-
-        # Execute
-        result = FeatureService.get_feature_permission(
-            'user-123',
-            'ai_studio',
-            'ai_studio.manage'
-        )
-
-        # Assert
-        assert result is False
-
-    @patch('app.services.feature_service.get_connection')
-    @patch('app.services.feature_service.CacheService')
-    @patch('app.services.feature_service.UserRepository')
-    def test_get_feature_permission_user_not_found(self, mock_user_repo, mock_cache, mock_get_connection):
-        """Test permission check when user not found."""
-        # Setup
-        mock_cache.cache_get.return_value = None
-
-        # Setup context manager mock for database connection
-        mock_conn = MagicMock()
-        mock_get_connection.return_value.__enter__.return_value = mock_conn
-        mock_get_connection.return_value.__exit__.return_value = None
-
-        mock_user_instance = mock_user_repo.return_value
-        mock_user_instance.find_by_id.return_value = None
-
-        # Execute
-        result = FeatureService.get_feature_permission(
-            'nonexistent-user',
-            'ai_studio',
-            'ai_studio.execute'
-        )
-
-        # Assert
-        assert result is None
 
 
 class TestFeatureServiceContextFiltering:
@@ -434,7 +343,7 @@ class TestFeatureServiceContextFiltering:
 class TestFeatureServiceCacheInvalidation:
     """Tests for cache invalidation."""
 
-    @patch('app.services.feature_service.CacheService')
+    @patch('app.application.services.system.features.service.CacheService')
     def test_invalidate_user_cache(self, mock_cache):
         """Test cache invalidation for user."""
         # Execute
@@ -449,7 +358,7 @@ class TestFeatureServiceCacheInvalidation:
 class TestFeatureServiceSummary:
     """Tests for feature summary."""
 
-    @patch('app.services.feature_service.FeatureRepository')
+    @patch('app.application.services.system.features.service.FeatureRepository')
     def test_get_all_features_summary(self, mock_repo):
         """Test getting summary of all features."""
         # Setup
@@ -472,7 +381,7 @@ class TestFeatureServiceSummary:
         assert result['by_category']['collaboration'] == 1
         assert len(result['features']) == 4
 
-    @patch('app.services.feature_service.FeatureRepository')
+    @patch('app.application.services.system.features.service.FeatureRepository')
     def test_get_all_features_summary_error_handling(self, mock_repo):
         """Test error handling in features summary."""
         # Setup

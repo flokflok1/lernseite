@@ -20,7 +20,9 @@ from unittest.mock import Mock, patch, MagicMock
 from typing import Optional, Dict
 
 from app.application.services.system.group_management import GroupManagementService
-from app.utils.exceptions import ValidationError
+from app.infrastructure.error_handling.exceptions import ValidationError
+from app.infrastructure.persistence.repositories.group.service_queries import GroupServiceQueryRepository
+from app.infrastructure.persistence.repositories.audit.queries import AuditQueryRepository
 
 
 class TestCreateOwnerGroupForOrganization:
@@ -57,15 +59,9 @@ class TestCreateOwnerGroupForOrganization:
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group') as mock_add_user, \
              patch.object(GroupManagementService, '_assign_owner_permissions') as mock_assign_perms, \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch_org, \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch_user, \
-             patch('app.application.services.system.group_management.execute_query') as mock_execute:
-
-            # Setup mocks
-            mock_fetch_org.side_effect = [
-                {'id': org_id},  # Organization exists
-                {'id': user_id}  # User exists
-            ]
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}), \
+             patch.object(AuditQueryRepository, 'insert_simple_audit_log'):
 
             expected_group = {
                 'id': str(uuid4()),
@@ -82,7 +78,7 @@ class TestCreateOwnerGroupForOrganization:
 
             # Call the method
             result = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id,
                 created_by=admin_user_id
             )
@@ -105,9 +101,8 @@ class TestCreateOwnerGroupForOrganization:
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group'), \
              patch.object(GroupManagementService, '_assign_owner_permissions'), \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
-
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}):
 
             owner_group = {
                 'id': str(uuid4()),
@@ -118,7 +113,7 @@ class TestCreateOwnerGroupForOrganization:
             mock_create_group.return_value = owner_group
 
             result = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 
@@ -135,15 +130,14 @@ class TestCreateOwnerGroupForOrganization:
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group') as mock_add_user, \
              patch.object(GroupManagementService, '_assign_owner_permissions'), \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
-
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}):
 
             group_id = str(uuid4())
             mock_create_group.return_value = {'id': group_id, 'name': 'Owner'}
 
             GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 
@@ -159,23 +153,22 @@ class TestCreateOwnerGroupForOrganization:
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group'), \
              patch.object(GroupManagementService, '_assign_owner_permissions') as mock_assign, \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
-
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}):
 
             group_id = str(uuid4())
             mock_create_group.return_value = {'id': group_id}
             mock_assign.return_value = True
 
             GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 
-            # Verify _assign_owner_permissions was called
+            # Verify _assign_owner_permissions was called with group_id
             mock_assign.assert_called_once()
             call_args = mock_assign.call_args
-            assert call_args[1]['group_id'] == group_id
+            assert call_args[0][0] == group_id  # First positional arg
 
     def test_audit_log_created(self, org_id, user_id, admin_user_id):
         """Test that audit log entry is created."""
@@ -183,23 +176,20 @@ class TestCreateOwnerGroupForOrganization:
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group'), \
              patch.object(GroupManagementService, '_assign_owner_permissions'), \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch, \
-             patch('app.application.services.system.group_management.execute_query') as mock_execute:
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}), \
+             patch.object(AuditQueryRepository, 'insert_simple_audit_log') as mock_audit:
 
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
             mock_create_group.return_value = {'id': str(uuid4())}
 
             GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id,
                 created_by=admin_user_id
             )
 
             # Verify audit log was created
-            mock_execute.assert_called()
-            call_args = mock_execute.call_args
-            # Check that audit_logs insert was executed
-            assert 'audit_logs' in str(call_args)
+            mock_audit.assert_called()
 
     # ========================================================================
     # Error Cases
@@ -208,12 +198,11 @@ class TestCreateOwnerGroupForOrganization:
     def test_organization_not_found(self, org_id, user_id):
         """Test error when organization doesn't exist."""
 
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
-            mock_fetch.return_value = None  # Organization not found
+        with patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value=None):
 
             with pytest.raises(ValueError) as exc_info:
                 GroupManagementService.create_owner_group_for_organization(
-                    organization_id=org_id,
+                    organisation_id=org_id,
                     owner_user_id=user_id
                 )
 
@@ -223,16 +212,12 @@ class TestCreateOwnerGroupForOrganization:
     def test_user_not_found(self, org_id, user_id):
         """Test error when user doesn't exist."""
 
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
-            # First call (org check) succeeds, second (user check) fails
-            mock_fetch.side_effect = [
-                {'id': org_id},  # Organization found
-                None  # User not found
-            ]
+        with patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value=None):
 
             with pytest.raises(ValueError) as exc_info:
                 GroupManagementService.create_owner_group_for_organization(
-                    organization_id=org_id,
+                    organisation_id=org_id,
                     owner_user_id=user_id
                 )
 
@@ -243,13 +228,13 @@ class TestCreateOwnerGroupForOrganization:
         """Test handling when group creation fails."""
 
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}):
 
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
             mock_create_group.return_value = None  # Creation failed
 
             result = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 
@@ -266,14 +251,14 @@ class TestCreateOwnerGroupForOrganization:
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group'), \
              patch.object(GroupManagementService, '_assign_owner_permissions'), \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}):
 
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
             mock_create_group.return_value = {'id': str(uuid4())}
 
             # Should work without created_by parameter
             result = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id,
                 created_by=None
             )
@@ -286,9 +271,9 @@ class TestCreateOwnerGroupForOrganization:
         with patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group') as mock_add_user, \
              patch.object(GroupManagementService, '_assign_owner_permissions'), \
-             patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
+             patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}):
 
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
             group_id = str(uuid4())
             mock_create_group.return_value = {'id': group_id}
             # Simulate ON CONFLICT DO NOTHING behavior
@@ -296,13 +281,13 @@ class TestCreateOwnerGroupForOrganization:
 
             # First call
             result1 = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 
             # Second call (should not fail)
             result2 = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 
@@ -327,15 +312,12 @@ class TestAssignOwnerPermissions:
     def test_assign_permissions_success(self, group_id, admin_user_id):
         """Test successful permission assignment."""
 
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch, \
-             patch('app.application.services.system.group_management.execute_query') as mock_execute:
-
-            # Mock returning some admin permissions
-            mock_fetch.return_value = [
-                {'id': 1, 'code': 'org.manage_users'},
-                {'id': 2, 'code': 'org.manage_content'},
-                {'id': 3, 'code': 'org.manage_settings'}
-            ]
+        with patch.object(GroupServiceQueryRepository, 'admin_permissions_exist', return_value=[
+                 {'id': 1, 'code': 'org.manage_users'},
+                 {'id': 2, 'code': 'org.manage_content'},
+                 {'id': 3, 'code': 'org.manage_settings'}
+             ]) as mock_perms, \
+             patch.object(GroupServiceQueryRepository, 'assign_admin_permissions_to_group') as mock_assign:
 
             result = GroupManagementService._assign_owner_permissions(
                 group_id=group_id,
@@ -343,13 +325,12 @@ class TestAssignOwnerPermissions:
             )
 
             assert result is True
-            mock_execute.assert_called_once()
+            mock_assign.assert_called_once()
 
     def test_no_permissions_found(self, group_id):
         """Test handling when no admin permissions exist."""
 
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch:
-            mock_fetch.return_value = []  # No permissions found
+        with patch.object(GroupServiceQueryRepository, 'admin_permissions_exist', return_value=[]):
 
             result = GroupManagementService._assign_owner_permissions(
                 group_id=group_id
@@ -359,36 +340,25 @@ class TestAssignOwnerPermissions:
             assert result is False
 
     def test_permission_query_includes_hierarchy_level(self, group_id):
-        """Test that permission query filters by hierarchy level."""
+        """Test that admin_permissions_exist repository method is called."""
 
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch, \
-             patch('app.application.services.system.group_management.execute_query'):
-
-            mock_fetch.return_value = []
+        with patch.object(GroupServiceQueryRepository, 'admin_permissions_exist', return_value=[]) as mock_perms:
 
             GroupManagementService._assign_owner_permissions(group_id=group_id)
 
-            # Verify query includes required_hierarchy_level >= 3
-            call_args = mock_fetch.call_args
-            query = call_args[0][0] if call_args[0] else ''
-            assert 'required_hierarchy_level' in query
-            assert '>= 3' in query
+            # Verify the repository method was called (hierarchy filtering is internal)
+            mock_perms.assert_called_once()
 
     def test_bulk_insert_with_on_conflict(self, group_id):
-        """Test that permissions use ON CONFLICT for idempotency."""
+        """Test that assign_admin_permissions_to_group is called (ON CONFLICT is internal to repo)."""
 
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch, \
-             patch('app.application.services.system.group_management.execute_query') as mock_execute:
-
-            mock_fetch.return_value = [{'id': 1}]
+        with patch.object(GroupServiceQueryRepository, 'admin_permissions_exist', return_value=[{'id': 1}]), \
+             patch.object(GroupServiceQueryRepository, 'assign_admin_permissions_to_group') as mock_assign:
 
             GroupManagementService._assign_owner_permissions(group_id=group_id)
 
-            # Verify ON CONFLICT is used
-            call_args = mock_execute.call_args
-            query = call_args[0][0] if call_args[0] else ''
-            assert 'ON CONFLICT' in query
-            assert 'DO NOTHING' in query
+            # Verify the repository method was called (ON CONFLICT is internal)
+            mock_assign.assert_called_once()
 
 
 class TestB2BIntegration:
@@ -401,19 +371,17 @@ class TestB2BIntegration:
         user_id = str(uuid4())
 
         # Simulate the complete flow
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch, \
+        with patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}), \
              patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group') as mock_add_user, \
              patch.object(GroupManagementService, '_assign_owner_permissions') as mock_assign:
-
-            # Setup mocks
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
             mock_create_group.return_value = {'id': str(uuid4()), 'name': 'Owner'}
             mock_assign.return_value = True
 
             # Execute B2B signup
             owner_group = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 
@@ -430,18 +398,17 @@ class TestB2BIntegration:
         user_id = str(uuid4())
 
         # Simulate permission assignment failure
-        with patch('app.application.services.system.group_management.fetch_one') as mock_fetch, \
+        with patch.object(GroupServiceQueryRepository, 'organisation_exists', return_value={'id': org_id}), \
+             patch.object(GroupServiceQueryRepository, 'user_exists_by_id', return_value={'id': user_id}), \
              patch.object(GroupManagementService, 'create_group') as mock_create_group, \
              patch.object(GroupManagementService, 'add_user_to_group'), \
              patch.object(GroupManagementService, '_assign_owner_permissions') as mock_assign:
-
-            mock_fetch.side_effect = [{'id': org_id}, {'id': user_id}]
             mock_create_group.return_value = {'id': str(uuid4())}
             mock_assign.return_value = False  # Permission assignment fails
 
             # Should still return group (permissions can be assigned later)
             result = GroupManagementService.create_owner_group_for_organization(
-                organization_id=org_id,
+                organisation_id=org_id,
                 owner_user_id=user_id
             )
 

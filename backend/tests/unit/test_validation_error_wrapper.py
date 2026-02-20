@@ -8,9 +8,9 @@ for all standardized validation patterns from Phase 2, Step 4.
 import pytest
 from pydantic import BaseModel, Field, field_validator, model_validator, ValidationInfo
 from typing import Optional
-from app.utils.validation_exception_wrapper import ValidationErrorWrapper
-from app.utils.exceptions import ValidationError
-from app.utils.validation_error_mapping import ValidationErrorMapping
+from app.infrastructure.error_handling.validation_exception_wrapper import ValidationErrorWrapper
+from app.infrastructure.error_handling.exceptions import ValidationError
+from app.infrastructure.error_handling.validation_error_mapping import ValidationErrorMapping
 
 
 # ============================================================================
@@ -320,7 +320,7 @@ class TestValidationErrorWrapper:
         custom_error = ValidationErrorWrapper.convert(pydantic_error)
 
         # Should not raise KeyError
-        from app.i18n.error_code_i18n_mapping import get_i18n_key
+        from app.infrastructure.i18n.error_code_i18n_mapping import get_i18n_key
 
         try:
             i18n_key = get_i18n_key(custom_error.error_code)

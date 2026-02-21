@@ -218,6 +218,16 @@
         "criterionText": "Criterion",
         "criterionPoints": "Points"
       },
+      "tabs": {
+        "edit": "Edit",
+        "preview": "Preview"
+      },
+      "preview": {
+        "title": "Learner Preview",
+        "noData": "No data available",
+        "emptyField": "(empty)"
+      },
+      "openEditor": "Edit",
       "lm11": {
         "steps": "Steps",
         "stepTitle": "Step title",

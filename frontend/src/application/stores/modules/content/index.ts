@@ -6,3 +6,4 @@
 export * from './courseEditor.store'
 export * from './player.store'
 export * from './playerQuiz.store'
+export * from './activitySync.store'

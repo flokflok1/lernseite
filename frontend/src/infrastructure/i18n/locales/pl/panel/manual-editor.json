@@ -218,6 +218,16 @@
         "criterionText": "Kryterium",
         "criterionPoints": "Punkty"
       },
+      "tabs": {
+        "edit": "Edytuj",
+        "preview": "Podgląd"
+      },
+      "preview": {
+        "title": "Podgląd ucznia",
+        "noData": "Brak danych",
+        "emptyField": "(puste)"
+      },
+      "openEditor": "Edytuj",
       "lm11": {
         "steps": "Kroki",
         "stepTitle": "Tytuł kroku",

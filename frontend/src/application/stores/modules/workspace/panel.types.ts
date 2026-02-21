@@ -34,6 +34,7 @@ export type PanelType =
   // Editor Windows (Course Authoring - /editor route)
   | 'editor-manual'        // Manual Course Editor
   | 'editor-ai-studio'     // AI-Assisted Course Editor
+  | 'activity-editor'      // Floating LM Activity Editor
   // Lernmethoden-Formulare (Legacy: 00-31, aktiv: 19 Content-LMs) - Phase D3.5
   | 'learning-method-0-form'
   | 'learning-method-1-form'

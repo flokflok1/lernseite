@@ -87,6 +87,7 @@ const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentati
 // Editor Windows (Course Authoring - /editor route)
 const EditorManualWindow = defineAsyncComponent(() => import('@/presentation/pages/panel/editor/manual/ManualEditorWindow.vue'))
 const EditorAIStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/AIEditorWindow.vue'))
+const ActivityEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/manual/activity-editors/ActivityEditorWindow.vue'))
 
 const windowStore = useWindowStore()
 
@@ -165,6 +166,8 @@ function resolveFloatingWindow(type: WindowType) {
       return EditorManualWindow
     case 'editor-ai-studio':
       return EditorAIStudioWindow
+    case 'activity-editor':
+      return ActivityEditorWindow
     default:
       // Fallback: simple placeholder
       return {

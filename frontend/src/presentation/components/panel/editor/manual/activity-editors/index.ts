@@ -1,2 +1,5 @@
 export { default as ActivityEditorAccordion } from './ActivityEditorAccordion.vue'
 export { default as ActivityFormSwitch } from './ActivityFormSwitch.vue'
+export { default as ActivityPreviewPanel } from './ActivityPreviewPanel.vue'
+export { default as ActivityEditorContainerView } from './ActivityEditorContainerView.vue'
+export { default as ActivityEditorWindow } from './ActivityEditorWindow.vue'

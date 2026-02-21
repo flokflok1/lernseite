@@ -3,31 +3,53 @@
  *
  * Manages learning method activities assigned to a specific lesson.
  * Shows list of activities with add/delete, grouped LM type selector.
+ * Each activity opens in a FloatingWindow for editing.
  */
 
 <script setup lang="ts">
-import { ref, computed, toRef } from 'vue'
+import { ref, computed, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLessonActivities } from '../composables'
 import type { LessonActivity } from '../composables'
-import ActivityEditorAccordion from '../activity-editors/ActivityEditorAccordion.vue'
+import { useWindowStore } from '@/application/stores/modules/ui/window.store'
+import { useActivitySyncStore } from '@/application/stores/modules/content/activitySync.store'
 
 const props = defineProps<{
   lessonId: string | null
 }>()
 
 const { t } = useI18n()
+const windowStore = useWindowStore()
+const activitySyncStore = useActivitySyncStore()
 
 const { activities, loading, addActivity: apiAddActivity, removeActivity: apiRemoveActivity, updateActivityLocal } = useLessonActivities(toRef(props, 'lessonId'))
-const expandedActivityId = ref<string | null>(null)
 
-const toggleExpand = (id: string) => {
-  expandedActivityId.value = expandedActivityId.value === id ? null : id
+// Sync saves from floating windows back to the list
+watch(() => activitySyncStore.lastSaved, (saved) => {
+  if (saved && saved.lesson_id === props.lessonId) {
+    updateActivityLocal(saved)
+  }
+})
+
+const openActivityWindow = (activity: LessonActivity) => {
+  // Check if a window for this activity is already open -> focus it
+  const existing = windowStore.panels.find(
+    (p: any) => p.type === 'activity-editor' && p.payload?.activity?.method_id === activity.method_id
+  )
+  if (existing) {
+    windowStore.focusWindow(existing.id)
+    return
+  }
+
+  const lmLabel = `LM${String(activity.method_type).padStart(2, '0')}`
+  windowStore.openWindow({
+    type: 'activity-editor',
+    title: `${lmLabel}: ${activity.title}`,
+    payload: { activity },
+    size: { width: 700, height: 560 },
+  })
 }
 
-const onActivitySaved = (updated: LessonActivity) => {
-  updateActivityLocal(updated)
-}
 const showAddForm = ref(false)
 const newActivityType = ref<number>(0)
 const newActivityTitle = ref('')
@@ -36,7 +58,6 @@ const lmName = (id: number): string => {
   return t(`lesson.methodExecution.methods.lm${String(id).padStart(2, '0')}`)
 }
 
-// 12 Content-LMs in 3 groups (architecture.md), names from DB via i18n
 const lmGroups = computed(() => [
   {
     label: t('panel.manualEditor.activities.groupA'),
@@ -87,29 +108,24 @@ const getMethodName = (methodType: number): string => lmName(methodType)
       <div
         v-for="activity in activities"
         :key="activity.method_id"
-        class="activity-wrapper"
+        class="activity-item"
       >
-        <div
-          class="activity-item"
-          :class="{ 'activity-item--expanded': expandedActivityId === activity.method_id }"
-          @click="toggleExpand(activity.method_id)"
-        >
-          <div class="activity-info">
-            <span class="activity-chevron" :class="{ 'activity-chevron--open': expandedActivityId === activity.method_id }">&#x25B6;</span>
-            <span class="activity-type-badge">LM{{ String(activity.method_type).padStart(2, '0') }}</span>
-            <span class="activity-title">{{ activity.title }}</span>
-            <span class="activity-method-name">{{ getMethodName(activity.method_type) }}</span>
-          </div>
+        <div class="activity-info" @click="openActivityWindow(activity)">
+          <span class="activity-type-badge">LM{{ String(activity.method_type).padStart(2, '0') }}</span>
+          <span class="activity-title">{{ activity.title }}</span>
+          <span class="activity-method-name">{{ getMethodName(activity.method_type) }}</span>
+        </div>
+        <div class="activity-actions">
+          <button
+            class="activity-edit-btn"
+            :title="$t('panel.manualEditor.activityEditor.openEditor')"
+            @click="openActivityWindow(activity)"
+          >&#x270E;</button>
           <button
             class="activity-delete-btn"
-            @click.stop="removeActivity(activity.method_id, activity.title)"
+            @click="removeActivity(activity.method_id, activity.title)"
           >&times;</button>
         </div>
-        <ActivityEditorAccordion
-          v-if="expandedActivityId === activity.method_id"
-          :activity="activity"
-          @saved="onActivitySaved"
-        />
       </div>
     </div>
 
@@ -175,11 +191,6 @@ const getMethodName = (methodType: number): string => lmName(methodType)
   gap: 4px;
 }
 
-.activity-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
 .activity-item {
   display: flex;
   align-items: center;
@@ -188,7 +199,6 @@ const getMethodName = (methodType: number): string => lmName(methodType)
   border: 1px solid var(--color-border);
   border-radius: 4px;
   background: var(--color-surface);
-  cursor: pointer;
   transition: background-color 0.15s;
 }
 
@@ -196,27 +206,13 @@ const getMethodName = (methodType: number): string => lmName(methodType)
   background: color-mix(in srgb, var(--color-accent) 5%, var(--color-surface));
 }
 
-.activity-item--expanded {
-  border-radius: 4px 4px 0 0;
-  border-bottom-color: transparent;
-  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
-}
-
-.activity-chevron {
-  font-size: 8px;
-  color: var(--color-text-tertiary);
-  transition: transform 0.2s;
-}
-
-.activity-chevron--open {
-  transform: rotate(90deg);
-}
-
 .activity-info {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
+  cursor: pointer;
+  flex: 1;
 }
 
 .activity-type-badge {
@@ -241,6 +237,27 @@ const getMethodName = (methodType: number): string => lmName(methodType)
   font-size: 11px;
   color: var(--color-text-tertiary);
   white-space: nowrap;
+}
+
+.activity-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.activity-edit-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.activity-edit-btn:hover {
+  color: var(--color-accent);
 }
 
 .activity-delete-btn {

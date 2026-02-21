@@ -8,5 +8,4 @@ export type EditorTab =
   | 'media'
   | 'preview'
   | 'lesson-settings'
-  | 'theory'
-  | 'explanation'
+  | 'knowledge'

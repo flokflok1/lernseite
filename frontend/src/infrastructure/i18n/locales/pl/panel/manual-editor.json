@@ -5,7 +5,12 @@
       "courseInfo": "Info o kursie",
       "media": "Media",
       "preview": "Podgląd",
-      "lessonSettings": "Lekcja"
+      "lessonSettings": "Lekcja",
+      "knowledge": "Wiedza"
+    },
+    "knowledge": {
+      "chapterTheory": "Teoria rozdziału",
+      "lessonExplanation": "Wyjaśnienia lekcji"
     },
     "structure": {
       "title": "Struktura",

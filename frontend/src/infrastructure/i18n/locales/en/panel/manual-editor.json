@@ -5,7 +5,12 @@
       "courseInfo": "Course Info",
       "media": "Media",
       "preview": "Preview",
-      "lessonSettings": "Lesson"
+      "lessonSettings": "Lesson",
+      "knowledge": "Knowledge"
+    },
+    "knowledge": {
+      "chapterTheory": "Chapter Theory",
+      "lessonExplanation": "Lesson Explanations"
     },
     "structure": {
       "title": "Structure",
@@ -114,6 +119,110 @@
       "groupA": "Explanatory",
       "groupB": "Practice",
       "groupC": "Assessment"
+    },
+    "activityEditor": {
+      "unsupported": "Form not available for this type",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "error": "Error saving",
+      "commonFields": {
+        "title": "Title",
+        "difficulty": "Difficulty",
+        "duration": "Duration (min.)",
+        "instructions": "Instructions"
+      },
+      "difficulty": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
+      "arrayEditor": {
+        "add": "Add",
+        "remove": "Remove",
+        "moveUp": "Move up",
+        "moveDown": "Move down"
+      },
+      "lm00": {
+        "content": "Content",
+        "keyConcepts": "Key Concepts",
+        "summary": "Summary"
+      },
+      "lm01": {
+        "steps": "Steps",
+        "stepTitle": "Step title",
+        "stepContent": "Step content",
+        "stepHint": "Hint (optional)"
+      },
+      "lm02": {
+        "sections": "Sections",
+        "sectionTitle": "Section title",
+        "sectionContent": "Section content",
+        "sectionQuestion": "Question (optional)",
+        "sectionAnswer": "Answer (optional)"
+      },
+      "lm03": {
+        "diagramType": "Diagram type",
+        "description": "Description",
+        "diagramCode": "Diagram code (Mermaid)",
+        "elements": "Elements",
+        "elementLabel": "Label",
+        "elementDescription": "Description (optional)"
+      },
+      "lm04": {
+        "scenarios": "Scenarios",
+        "scenarioTitle": "Scenario title",
+        "scenarioSituation": "Situation",
+        "scenarioSolution": "Solution",
+        "scenarioTakeaway": "Takeaway (optional)"
+      },
+      "lm05": {
+        "problems": "Problems",
+        "problemText": "Problem text",
+        "problemFormula": "Formula (optional)",
+        "problemSolution": "Solution",
+        "problemSteps": "Solution steps (one per line)"
+      },
+      "lm06": {
+        "cards": "Cards",
+        "cardFront": "Front",
+        "cardBack": "Back",
+        "cardHint": "Hint (optional)"
+      },
+      "lm07": {
+        "items": "Items",
+        "itemText": "Item text",
+        "groups": "Groups",
+        "groupLabel": "Group name",
+        "correctItems": "Correct items"
+      },
+      "lm08": {
+        "text": "Cloze text (use {{1}}, {{2}} for blanks)",
+        "blanks": "Blanks",
+        "blankAnswer": "Correct answer",
+        "blankAlternatives": "Alternatives"
+      },
+      "lm09": {
+        "question": "Question",
+        "minWords": "Min. words",
+        "maxWords": "Max. words",
+        "rubric": "Rubric",
+        "sampleAnswer": "Sample answer"
+      },
+      "lm10": {
+        "questionType": "Question type",
+        "questionText": "Question text",
+        "context": "Context",
+        "criteria": "Criteria",
+        "criterionText": "Criterion",
+        "criterionPoints": "Points"
+      },
+      "lm11": {
+        "steps": "Steps",
+        "stepTitle": "Step title",
+        "stepDescription": "Description",
+        "stepPoints": "Points (optional)",
+        "stepRubric": "Rubric (optional)"
+      }
     },
     "courseSelector": {
       "title": "My Courses",

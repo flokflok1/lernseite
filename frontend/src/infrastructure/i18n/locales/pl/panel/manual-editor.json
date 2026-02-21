@@ -5,7 +5,12 @@
       "courseInfo": "Info o kursie",
       "media": "Media",
       "preview": "Podgląd",
-      "lessonSettings": "Lekcja"
+      "lessonSettings": "Lekcja",
+      "knowledge": "Wiedza"
+    },
+    "knowledge": {
+      "chapterTheory": "Teoria rozdziału",
+      "lessonExplanation": "Wyjaśnienia lekcji"
     },
     "structure": {
       "title": "Struktura",
@@ -114,6 +119,110 @@
       "groupA": "Wyjaśniające",
       "groupB": "Ćwiczenia",
       "groupC": "Ocena"
+    },
+    "activityEditor": {
+      "unsupported": "Formularz niedostępny dla tego typu",
+      "saving": "Zapisywanie...",
+      "saved": "Zapisano",
+      "error": "Błąd zapisu",
+      "commonFields": {
+        "title": "Tytuł",
+        "difficulty": "Trudność",
+        "duration": "Czas trwania (min.)",
+        "instructions": "Instrukcje"
+      },
+      "difficulty": {
+        "easy": "Łatwy",
+        "medium": "Średni",
+        "hard": "Trudny"
+      },
+      "arrayEditor": {
+        "add": "Dodaj",
+        "remove": "Usuń",
+        "moveUp": "W górę",
+        "moveDown": "W dół"
+      },
+      "lm00": {
+        "content": "Treść",
+        "keyConcepts": "Kluczowe pojęcia",
+        "summary": "Podsumowanie"
+      },
+      "lm01": {
+        "steps": "Kroki",
+        "stepTitle": "Tytuł kroku",
+        "stepContent": "Treść kroku",
+        "stepHint": "Wskazówka (opcjonalnie)"
+      },
+      "lm02": {
+        "sections": "Sekcje",
+        "sectionTitle": "Tytuł sekcji",
+        "sectionContent": "Treść sekcji",
+        "sectionQuestion": "Pytanie (opcjonalnie)",
+        "sectionAnswer": "Odpowiedź (opcjonalnie)"
+      },
+      "lm03": {
+        "diagramType": "Typ diagramu",
+        "description": "Opis",
+        "diagramCode": "Kod diagramu (Mermaid)",
+        "elements": "Elementy",
+        "elementLabel": "Etykieta",
+        "elementDescription": "Opis (opcjonalnie)"
+      },
+      "lm04": {
+        "scenarios": "Scenariusze",
+        "scenarioTitle": "Tytuł scenariusza",
+        "scenarioSituation": "Sytuacja",
+        "scenarioSolution": "Rozwiązanie",
+        "scenarioTakeaway": "Wniosek (opcjonalnie)"
+      },
+      "lm05": {
+        "problems": "Zadania",
+        "problemText": "Treść zadania",
+        "problemFormula": "Wzór (opcjonalnie)",
+        "problemSolution": "Rozwiązanie",
+        "problemSteps": "Kroki rozwiązania (jeden na linię)"
+      },
+      "lm06": {
+        "cards": "Karty",
+        "cardFront": "Przód",
+        "cardBack": "Tył",
+        "cardHint": "Wskazówka (opcjonalnie)"
+      },
+      "lm07": {
+        "items": "Elementy",
+        "itemText": "Tekst elementu",
+        "groups": "Grupy",
+        "groupLabel": "Nazwa grupy",
+        "correctItems": "Prawidłowe elementy"
+      },
+      "lm08": {
+        "text": "Tekst z lukami ({{1}}, {{2}} dla luk)",
+        "blanks": "Luki",
+        "blankAnswer": "Prawidłowa odpowiedź",
+        "blankAlternatives": "Alternatywy"
+      },
+      "lm09": {
+        "question": "Pytanie",
+        "minWords": "Min. słów",
+        "maxWords": "Maks. słów",
+        "rubric": "Kryteria oceny",
+        "sampleAnswer": "Przykładowa odpowiedź"
+      },
+      "lm10": {
+        "questionType": "Typ pytania",
+        "questionText": "Treść pytania",
+        "context": "Kontekst",
+        "criteria": "Kryteria oceny",
+        "criterionText": "Kryterium",
+        "criterionPoints": "Punkty"
+      },
+      "lm11": {
+        "steps": "Kroki",
+        "stepTitle": "Tytuł kroku",
+        "stepDescription": "Opis",
+        "stepPoints": "Punkty (opcjonalnie)",
+        "stepRubric": "Ocena (opcjonalnie)"
+      }
     },
     "courseSelector": {
       "title": "Moje kursy",

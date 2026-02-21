@@ -48,6 +48,18 @@ export const createLessonActivity = async (
   return response.data.activity
 }
 
+export const updateLessonActivity = async (
+  activityId: string,
+  payload: Partial<Pick<LessonActivity, 'title' | 'instructions' | 'data' | 'difficulty' | 'duration_minutes' | 'published'>>
+): Promise<LessonActivity> => {
+  const response = await http.patch<{
+    success: boolean
+    activity: LessonActivity
+  }>(`${EDITOR_PREFIX}/activities/${activityId}`, payload)
+
+  return response.data.activity
+}
+
 export const deleteLessonActivity = async (activityId: string): Promise<void> => {
   await http.delete(`${EDITOR_PREFIX}/activities/${activityId}`)
 }

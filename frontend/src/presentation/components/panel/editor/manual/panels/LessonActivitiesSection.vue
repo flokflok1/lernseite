@@ -9,6 +9,8 @@
 import { ref, computed, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLessonActivities } from '../composables'
+import type { LessonActivity } from '../composables'
+import ActivityEditorAccordion from '../activity-editors/ActivityEditorAccordion.vue'
 
 const props = defineProps<{
   lessonId: string | null
@@ -16,7 +18,16 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const { activities, loading, addActivity: apiAddActivity, removeActivity: apiRemoveActivity } = useLessonActivities(toRef(props, 'lessonId'))
+const { activities, loading, addActivity: apiAddActivity, removeActivity: apiRemoveActivity, updateActivityLocal } = useLessonActivities(toRef(props, 'lessonId'))
+const expandedActivityId = ref<string | null>(null)
+
+const toggleExpand = (id: string) => {
+  expandedActivityId.value = expandedActivityId.value === id ? null : id
+}
+
+const onActivitySaved = (updated: LessonActivity) => {
+  updateActivityLocal(updated)
+}
 const showAddForm = ref(false)
 const newActivityType = ref<number>(0)
 const newActivityTitle = ref('')
@@ -89,17 +100,29 @@ const getMethodName = (methodType: number): string => {
       <div
         v-for="activity in activities"
         :key="activity.method_id"
-        class="activity-item"
+        class="activity-wrapper"
       >
-        <div class="activity-info">
-          <span class="activity-type-badge">LM{{ String(activity.method_type).padStart(2, '0') }}</span>
-          <span class="activity-title">{{ activity.title }}</span>
-          <span class="activity-method-name">{{ getMethodName(activity.method_type) }}</span>
+        <div
+          class="activity-item"
+          :class="{ 'activity-item--expanded': expandedActivityId === activity.method_id }"
+          @click="toggleExpand(activity.method_id)"
+        >
+          <div class="activity-info">
+            <span class="activity-chevron" :class="{ 'activity-chevron--open': expandedActivityId === activity.method_id }">&#x25B6;</span>
+            <span class="activity-type-badge">LM{{ String(activity.method_type).padStart(2, '0') }}</span>
+            <span class="activity-title">{{ activity.title }}</span>
+            <span class="activity-method-name">{{ getMethodName(activity.method_type) }}</span>
+          </div>
+          <button
+            class="activity-delete-btn"
+            @click.stop="removeActivity(activity.method_id, activity.title)"
+          >&times;</button>
         </div>
-        <button
-          class="activity-delete-btn"
-          @click="removeActivity(activity.method_id, activity.title)"
-        >&times;</button>
+        <ActivityEditorAccordion
+          v-if="expandedActivityId === activity.method_id"
+          :activity="activity"
+          @saved="onActivitySaved"
+        />
       </div>
     </div>
 
@@ -165,6 +188,11 @@ const getMethodName = (methodType: number): string => {
   gap: 4px;
 }
 
+.activity-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .activity-item {
   display: flex;
   align-items: center;
@@ -173,6 +201,28 @@ const getMethodName = (methodType: number): string => {
   border: 1px solid var(--color-border);
   border-radius: 4px;
   background: var(--color-surface);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.activity-item:hover {
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--color-surface));
+}
+
+.activity-item--expanded {
+  border-radius: 4px 4px 0 0;
+  border-bottom-color: transparent;
+  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
+}
+
+.activity-chevron {
+  font-size: 8px;
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s;
+}
+
+.activity-chevron--open {
+  transform: rotate(90deg);
 }
 
 .activity-info {

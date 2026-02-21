@@ -1,12 +1,3 @@
-/**
- * ManualEditorContainerView.vue
- *
- * Main orchestrator for the manual course editor.
- * Left sidebar: always-visible structure tree.
- * Right area: tab-based panels (content, course info, media, preview, settings, AI).
- * Top bar: auto-save status, save button.
- */
-
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -39,6 +30,7 @@ const { saveStatus, lastSaved, triggerSave } = useAutoSave()
 const isAdmin = computed(() => authStore.userHierarchyLevel >= 750)
 
 const activeTab = ref<EditorTab>('content')
+const knowledgeSubTab = ref<'chapter-theory' | 'lesson-explanation'>('chapter-theory')
 const isInitialized = ref(false)
 const selectedCourseId = ref<number | null>(props.courseId ? Number(props.courseId) : null)
 
@@ -54,8 +46,7 @@ const tabs = computed<Array<{ key: EditorTab; label: string }>>(() => [
   { key: 'media', label: t('panel.manualEditor.tabs.media') },
   { key: 'preview', label: t('panel.manualEditor.tabs.preview') },
   { key: 'lesson-settings', label: t('panel.manualEditor.tabs.lessonSettings') },
-  { key: 'theory', label: t('course-editor.theory.container.title') },
-  { key: 'explanation', label: t('course-editor.explanation.container.title') },
+  { key: 'knowledge', label: t('panel.manualEditor.tabs.knowledge') },
 ])
 
 // Initialize: load course if ID provided, otherwise show selector
@@ -202,19 +193,32 @@ const formatSaveTime = (date: Date | null): string => {
 
           <LessonSettingsPanel v-else-if="activeTab === 'lesson-settings'" />
 
-          <!-- Theory generation (AI) -->
-          <div v-else-if="activeTab === 'theory'" class="ai-tab-content">
+          <!-- Knowledge tab (Theory + Explanations) -->
+          <div v-else-if="activeTab === 'knowledge'" class="ai-tab-content">
+            <div class="knowledge-subtabs">
+              <button
+                :class="['subtab-btn', { active: knowledgeSubTab === 'chapter-theory' }]"
+                @click="knowledgeSubTab = 'chapter-theory'"
+              >
+                {{ $t('panel.manualEditor.knowledge.chapterTheory') }}
+              </button>
+              <button
+                :class="['subtab-btn', { active: knowledgeSubTab === 'lesson-explanation' }]"
+                @click="knowledgeSubTab = 'lesson-explanation'"
+              >
+                {{ $t('panel.manualEditor.knowledge.lessonExplanation') }}
+              </button>
+            </div>
+
             <TheoryGenerationContainer
+              v-if="knowledgeSubTab === 'chapter-theory'"
               :chapter="store.selectedChapterId ? { chapter_id: store.selectedChapterId } : null"
               :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id) } : null"
               @generated="store.markDirty()"
               @deleted="store.markDirty()"
             />
-          </div>
-
-          <!-- Explanation generation (AI) -->
-          <div v-else-if="activeTab === 'explanation'" class="ai-tab-content">
             <ExplanationGenerationContainer
+              v-else
               :lesson="store.currentLesson ? { lesson_id: store.currentLesson.lesson_id, title: store.currentLesson.title } : null"
               :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id), title: store.currentCourse.title } : null"
               @generated="store.markDirty()"
@@ -450,6 +454,36 @@ const formatSaveTime = (date: Date | null): string => {
 .ai-tab-content {
   height: 100%;
   overflow: auto;
+}
+
+.knowledge-subtabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.subtab-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  transition: all 0.15s;
+}
+
+.subtab-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.subtab-btn.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
 }
 
 /* Responsive */

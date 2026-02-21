@@ -11,9 +11,7 @@ import { useEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
-import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
-import Underline from '@tiptap/extension-underline'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
 
 export function useContentEditor() {
@@ -25,14 +23,14 @@ export function useContentEditor() {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        link: { openOnClick: false },
+      }),
       Placeholder.configure({
         placeholder: () => t('panel.manualEditor.content.placeholder'),
       }),
       Image,
-      Link.configure({ openOnClick: false }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Underline,
     ],
     content: '',
     onUpdate: ({ editor: ed }) => {

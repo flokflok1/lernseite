@@ -313,12 +313,13 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
 
   /**
    * List courses owned by current user
+   * @param status - Filter: 'active' (default), 'archived', 'trash', 'all'
    */
-  const listCourses = async (): Promise<void> => {
+  const listCourses = async (status?: string): Promise<void> => {
     courseListLoading.value = true
     error.value = null
     try {
-      courseList.value = await coursesApi.getMyCourses()
+      courseList.value = await coursesApi.listEditorCourses(status)
     } catch (err: any) {
       error.value = err.response?.data?.message || err.message || 'Failed to list courses'
     } finally {
@@ -327,10 +328,42 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
   }
 
   /**
-   * Delete a course by ID and refresh the list
+   * Move a course to trash (soft delete with 30-day auto-purge)
    */
-  const deleteCourseById = async (courseId: number): Promise<void> => {
+  const trashCourse = async (courseId: number): Promise<void> => {
     await coursesApi.deleteCourse(courseId)
+    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
+  }
+
+  /**
+   * Restore a course from trash back to draft
+   */
+  const restoreFromTrash = async (courseId: number): Promise<void> => {
+    await coursesApi.updateCourseStatus(courseId, 'restore')
+    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
+  }
+
+  /**
+   * Archive a course (intentional, permanent archive)
+   */
+  const archiveCourse = async (courseId: number): Promise<void> => {
+    await coursesApi.updateCourseStatus(courseId, 'archive')
+    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
+  }
+
+  /**
+   * Unarchive a course (restore from archive to draft)
+   */
+  const unarchiveCourse = async (courseId: number): Promise<void> => {
+    await coursesApi.updateCourseStatus(courseId, 'unarchive')
+    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
+  }
+
+  /**
+   * Permanently delete a course (admin-only, cannot be undone)
+   */
+  const permanentDelete = async (courseId: number): Promise<void> => {
+    await coursesApi.updateCourseStatus(courseId, 'purge')
     courseList.value = courseList.value.filter(c => c.course_id !== courseId)
   }
 
@@ -412,7 +445,11 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     publishCourse,
     unpublishCourse,
     listCourses,
-    deleteCourseById,
+    trashCourse,
+    restoreFromTrash,
+    archiveCourse,
+    unarchiveCourse,
+    permanentDelete,
     categoryTree,
     loadingCategories,
     loadCategories,

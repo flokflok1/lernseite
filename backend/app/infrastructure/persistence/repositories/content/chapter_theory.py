@@ -4,6 +4,8 @@ Chapter Theory Repository
 Repository for managing chapter theory records in the database.
 Chapter theories are AI-generated educational content with different styles
 (adhs, detailed, short, exam_focus, standard).
+
+DB Table: courses.chapter_theory
 """
 
 from typing import Optional, List, Dict, Any
@@ -11,6 +13,11 @@ from datetime import datetime
 import logging
 
 from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.database.connection import (
+    fetch_one,
+    fetch_all,
+    execute_query
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +38,15 @@ class ChapterTheoryRepository(BaseRepository):
         """
         query = """
             SELECT
-                theory_id, chapter_id, title, style, theory_data,
+                theory_id, chapter_id, style, theory_data,
                 audio_url, audio_duration_seconds, tokens_used,
+                model_used, generated_by,
                 created_at, updated_at
-            FROM content.chapter_theories
+            FROM courses.chapter_theory
             WHERE chapter_id = %s
             ORDER BY created_at DESC
         """
-        return ChapterTheoryRepository.fetch_all(query, (chapter_id,))
+        return fetch_all(query, (chapter_id,))
 
     @staticmethod
     def get_by_id(theory_id: str) -> Optional[Dict[str, Any]]:
@@ -53,13 +61,14 @@ class ChapterTheoryRepository(BaseRepository):
         """
         query = """
             SELECT
-                theory_id, chapter_id, title, style, theory_data,
+                theory_id, chapter_id, style, theory_data,
                 audio_url, audio_duration_seconds, tokens_used,
+                model_used, generated_by,
                 created_at, updated_at
-            FROM content.chapter_theories
+            FROM courses.chapter_theory
             WHERE theory_id = %s
         """
-        return ChapterTheoryRepository.fetch_one(query, (theory_id,))
+        return fetch_one(query, (theory_id,))
 
     @staticmethod
     def get_by_chapter_and_style(chapter_id: str, style: str) -> Optional[Dict[str, Any]]:
@@ -75,20 +84,22 @@ class ChapterTheoryRepository(BaseRepository):
         """
         query = """
             SELECT
-                theory_id, chapter_id, title, style, theory_data,
+                theory_id, chapter_id, style, theory_data,
                 audio_url, audio_duration_seconds, tokens_used,
+                model_used, generated_by,
                 created_at, updated_at
-            FROM content.chapter_theories
+            FROM courses.chapter_theory
             WHERE chapter_id = %s AND style = %s
             ORDER BY created_at DESC
             LIMIT 1
         """
-        return ChapterTheoryRepository.fetch_one(query, (chapter_id, style))
+        return fetch_one(query, (chapter_id, style))
 
     @staticmethod
-    def create(chapter_id: str, style: str, theory_data: Dict, title: Optional[str] = None,
+    def create(chapter_id: str, style: str, theory_data: Dict,
                audio_url: Optional[str] = None, audio_duration_seconds: Optional[int] = None,
-               tokens_used: int = 0) -> Dict[str, Any]:
+               tokens_used: int = 0, model_used: Optional[str] = None,
+               generated_by: Optional[str] = None) -> Dict[str, Any]:
         """
         Create a new chapter theory record.
 
@@ -96,50 +107,30 @@ class ChapterTheoryRepository(BaseRepository):
             chapter_id: UUID of the chapter
             style: Theory style
             theory_data: JSONB theory content
-            title: Optional custom title
             audio_url: Optional audio URL
             audio_duration_seconds: Optional audio duration
             tokens_used: Token cost for generation
+            model_used: AI model used for generation
+            generated_by: User ID who generated this
 
         Returns:
             Created theory record
         """
         query = """
-            INSERT INTO content.chapter_theories
-            (chapter_id, style, theory_data, title, audio_url, audio_duration_seconds, tokens_used, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            INSERT INTO courses.chapter_theory
+            (chapter_id, style, theory_data, audio_url, audio_duration_seconds,
+             tokens_used, model_used, generated_by)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING
-                theory_id, chapter_id, title, style, theory_data,
+                theory_id, chapter_id, style, theory_data,
                 audio_url, audio_duration_seconds, tokens_used,
+                model_used, generated_by,
                 created_at, updated_at
         """
-        return ChapterTheoryRepository.fetch_one(query, (
-            chapter_id, style, theory_data, title, audio_url,
-            audio_duration_seconds, tokens_used
+        return fetch_one(query, (
+            chapter_id, style, theory_data, audio_url,
+            audio_duration_seconds, tokens_used, model_used, generated_by
         ))
-
-    @staticmethod
-    def update_title(theory_id: str, title: str) -> Optional[Dict[str, Any]]:
-        """
-        Update theory title.
-
-        Args:
-            theory_id: UUID of the theory
-            title: New title
-
-        Returns:
-            Updated theory record or None if not found
-        """
-        query = """
-            UPDATE content.chapter_theories
-            SET title = %s, updated_at = NOW()
-            WHERE theory_id = %s
-            RETURNING
-                theory_id, chapter_id, title, style, theory_data,
-                audio_url, audio_duration_seconds, tokens_used,
-                created_at, updated_at
-        """
-        return ChapterTheoryRepository.fetch_one(query, (title, theory_id))
 
     @staticmethod
     def delete_by_id(theory_id: str) -> bool:
@@ -153,10 +144,10 @@ class ChapterTheoryRepository(BaseRepository):
             True if deleted, False if not found
         """
         query = """
-            DELETE FROM content.chapter_theories
+            DELETE FROM courses.chapter_theory
             WHERE theory_id = %s
         """
-        result = ChapterTheoryRepository.execute(query, (theory_id,))
+        result = execute_query(query, (theory_id,))
         return result.rowcount > 0 if result else False
 
     @staticmethod
@@ -173,16 +164,16 @@ class ChapterTheoryRepository(BaseRepository):
         """
         if style:
             query = """
-                DELETE FROM content.chapter_theories
+                DELETE FROM courses.chapter_theory
                 WHERE chapter_id = %s AND style = %s
             """
             params = (chapter_id, style)
         else:
             query = """
-                DELETE FROM content.chapter_theories
+                DELETE FROM courses.chapter_theory
                 WHERE chapter_id = %s
             """
             params = (chapter_id,)
 
-        result = ChapterTheoryRepository.execute(query, params)
+        result = execute_query(query, params)
         return result.rowcount > 0 if result else False

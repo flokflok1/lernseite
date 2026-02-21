@@ -46,7 +46,23 @@ export function useTheoryGeneration() {
       const response = await http.get(`/chapters/${chapterId}/theories`)
 
       if (response.data.success) {
-        chapterTheories.value = response.data.data || []
+        const raw = response.data.data
+        const items = Array.isArray(raw) ? raw : (raw?.theories || [])
+        chapterTheories.value = items.map((t: any) => ({
+          theoryId: t.theory_id || t.theoryId,
+          chapterId: t.chapter_id || t.chapterId,
+          title: t.title || `Theorie (${t.style || 'standard'})`,
+          style: t.style || 'standard',
+          overview: t.theory_data?.overview,
+          learningGoals: t.theory_data?.learning_goals,
+          concepts: t.theory_data?.concepts,
+          terms: t.theory_data?.terms,
+          examRelevance: t.theory_data?.exam_relevance,
+          examTips: t.theory_data?.exam_tips,
+          audioUrl: t.audio_url || t.audioUrl,
+          createdAt: t.created_at || t.createdAt,
+          updatedAt: t.updated_at || t.updatedAt
+        }))
       } else {
         throw new Error(response.data.error?.message || t('course-editor.theory.loadError'))
       }

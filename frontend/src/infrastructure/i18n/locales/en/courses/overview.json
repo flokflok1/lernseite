@@ -12,6 +12,17 @@
   },
   "course-editor": {
     "theory": {
+      "loadError": "Error loading theory content",
+      "deleteError": "Error deleting theory",
+      "generationError": "Error generating theory",
+      "confirmDelete": "Really delete this theory?",
+      "styles": {
+        "standard": "Standard",
+        "compact": "Compact",
+        "detailed": "Detailed",
+        "visual": "Visual",
+        "exam": "Exam-oriented"
+      },
       "container": {
         "title": "Theory",
         "available": "Available",
@@ -50,6 +61,11 @@
       "settings": {
         "title": "Settings",
         "noSelection": "Select a theory to view settings.",
+        "clipboard": {
+          "learningGoals": "Learning goals copied to clipboard",
+          "concepts": "Key concepts copied to clipboard",
+          "terms": "Terms copied to clipboard"
+        },
         "tts": {
           "title": "Text-to-Speech",
           "enabled": "Speech Output",
@@ -72,6 +88,9 @@
       }
     },
     "explanation": {
+      "loadError": "Error loading explanations",
+      "generateError": "Error generating explanation",
+      "deleteError": "Error deleting explanation",
       "container": {
         "title": "Explanations",
         "available": "Available",

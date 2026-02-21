@@ -104,7 +104,7 @@ class CourseRepositoryCRUD(BaseRepository):
 
         params = {**defaults, **course_data}
 
-        return insert_returning(query, params)
+        return fetch_one(query, params)
 
     @classmethod
     def find_by_id(cls, course_id: int, use_cache: bool = True) -> Optional[Dict[str, Any]]:
@@ -298,7 +298,7 @@ class CourseRepositoryCRUD(BaseRepository):
 
         params = {**update_data, 'course_id': course_id}
 
-        result = insert_returning(query, params)
+        result = fetch_one(query, params)
 
         # Invalidate course cache after update
         if result:

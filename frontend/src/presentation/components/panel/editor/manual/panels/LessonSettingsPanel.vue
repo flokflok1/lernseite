@@ -17,16 +17,9 @@ const store = useCourseEditorStore()
 
 const localTitle = ref('')
 const localNotes = ref('')
-const localType = ref('text')
+const localType = ref('text') // Always 'text' — type selector removed, lessons are rich-text + LM activities
 
 const lesson = computed(() => store.currentLesson)
-
-const lessonTypes = computed(() => [
-  { value: 'text', label: t('panel.manualEditor.lessonSettings.typeText'), icon: '📝' },
-  { value: 'video', label: t('panel.manualEditor.lessonSettings.typeVideo'), icon: '🎬' },
-  { value: 'quiz', label: t('panel.manualEditor.lessonSettings.typeQuiz'), icon: '❓' },
-  { value: 'ai', label: t('panel.manualEditor.lessonSettings.typeAi'), icon: '🤖' },
-])
 
 // Estimated reading time (words per minute)
 const estimatedReadingTime = computed(() => {
@@ -49,12 +42,6 @@ watch(lesson, (newLesson) => {
 const updateTitle = async () => {
   if (!lesson.value || localTitle.value === lesson.value.title) return
   await store.updateLessonMeta(lesson.value.lesson_id, { title: localTitle.value })
-}
-
-const updateType = async (newType: string) => {
-  if (!lesson.value) return
-  localType.value = newType
-  await store.updateLessonMeta(lesson.value.lesson_id, { lesson_type: newType })
 }
 
 const updateNotes = async () => {
@@ -82,22 +69,6 @@ const updateNotes = async () => {
           @blur="updateTitle"
           @keydown.enter="updateTitle"
         />
-      </div>
-
-      <!-- Type selector -->
-      <div class="form-group">
-        <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.lessonType') }}</label>
-        <div class="type-selector">
-          <button
-            v-for="lt in lessonTypes"
-            :key="lt.value"
-            :class="['type-btn', { active: localType === lt.value }]"
-            @click="updateType(lt.value)"
-          >
-            <span class="type-icon">{{ lt.icon }}</span>
-            <span class="type-label">{{ lt.label }}</span>
-          </button>
-        </div>
       </div>
 
       <!-- Reading time -->
@@ -189,44 +160,6 @@ const updateNotes = async () => {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 10%, transparent);
-}
-
-/* Type selector */
-.type-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.type-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.type-btn:hover {
-  background: var(--color-surface-secondary);
-}
-
-.type-btn.active {
-  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-}
-
-.type-icon {
-  font-size: 16px;
-}
-
-.type-label {
-  font-size: 13px;
 }
 
 /* Reading time */

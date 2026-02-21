@@ -32,34 +32,23 @@ const showAddForm = ref(false)
 const newActivityType = ref<number>(0)
 const newActivityTitle = ref('')
 
-// LM groups for the selector (12 methods in 3 groups)
+const lmName = (id: number): string => {
+  return t(`lesson.methodExecution.methods.lm${String(id).padStart(2, '0')}`)
+}
+
+// 12 Content-LMs in 3 groups (architecture.md), names from DB via i18n
 const lmGroups = computed(() => [
   {
     label: t('panel.manualEditor.activities.groupA'),
-    methods: [
-      { type: 0, name: t('learningMethods.lm00.name') },
-      { type: 1, name: t('learningMethods.lm01.name') },
-      { type: 2, name: t('learningMethods.lm02.name') },
-      { type: 3, name: t('learningMethods.lm03.name') },
-      { type: 4, name: t('learningMethods.lm04.name') },
-    ]
+    methods: [0, 1, 2, 3, 4].map(id => ({ type: id, name: lmName(id) }))
   },
   {
     label: t('panel.manualEditor.activities.groupB'),
-    methods: [
-      { type: 5, name: t('learningMethods.lm05.name') },
-      { type: 6, name: t('learningMethods.lm06.name') },
-      { type: 7, name: t('learningMethods.lm07.name') },
-      { type: 8, name: t('learningMethods.lm08.name') },
-    ]
+    methods: [5, 6, 7, 8].map(id => ({ type: id, name: lmName(id) }))
   },
   {
     label: t('panel.manualEditor.activities.groupC'),
-    methods: [
-      { type: 9, name: t('learningMethods.lm09.name') },
-      { type: 10, name: t('learningMethods.lm10.name') },
-      { type: 11, name: t('learningMethods.lm11.name') },
-    ]
+    methods: [9, 10, 11].map(id => ({ type: id, name: lmName(id) }))
   }
 ])
 
@@ -83,9 +72,7 @@ const removeActivity = async (activityId: string, title: string) => {
   }
 }
 
-const getMethodName = (methodType: number): string => {
-  return t(`learningMethods.lm${String(methodType).padStart(2, '0')}.name`)
-}
+const getMethodName = (methodType: number): string => lmName(methodType)
 </script>
 
 <template>

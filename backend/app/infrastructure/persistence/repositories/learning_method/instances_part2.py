@@ -126,9 +126,9 @@ class LearningMethodInstanceStatisticsRepository(LearningMethodInstanceRepositor
                         l.chapter_id,
                         c.course_id
                     FROM learning_methods.learning_method_instances lmi
-                    LEFT JOIN content.lessons l ON lmi.lesson_id = l.lesson_id
-                    LEFT JOIN content.chapters ch ON l.chapter_id = ch.chapter_id
-                    LEFT JOIN content.courses c ON ch.course_id = c.course_id
+                    LEFT JOIN courses.lessons l ON lmi.lesson_id = l.lesson_id
+                    LEFT JOIN courses.chapters ch ON l.chapter_id = ch.chapter_id
+                    LEFT JOIN courses.courses c ON ch.course_id = c.course_id
                     WHERE lmi.method_id = %s
                 """, (method_id,))
                 return cur.fetchone()

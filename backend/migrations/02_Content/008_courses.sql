@@ -186,5 +186,19 @@ CREATE TRIGGER update_course_collaborators_updated_at BEFORE UPDATE ON courses.c
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
+-- EXTENSION: Add trashed_at for trash/recycle bin feature
+-- Date: 2026-02-21
+-- ============================================================================
+ALTER TABLE courses.courses
+ADD COLUMN IF NOT EXISTS trashed_at TIMESTAMPTZ;
+
+CREATE INDEX IF NOT EXISTS idx_courses_trashed_at
+ON courses.courses(status, trashed_at)
+WHERE trashed_at IS NOT NULL;
+
+COMMENT ON COLUMN courses.courses.trashed_at IS
+  'Timestamp when course was moved to trash. NULL = not trashed. Auto-purged after 30 days.';
+
+-- ============================================================================
 -- End of Migration: 008_courses.sql
 -- ============================================================================

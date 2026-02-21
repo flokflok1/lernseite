@@ -127,8 +127,8 @@ class LearningMethodProgressRepository:
                     FROM {cls.TABLE_NAME} p
                     JOIN learning_methods.learning_method_instances lmi
                         ON p.method_id = lmi.method_id
-                    JOIN content.lessons l ON lmi.lesson_id = l.lesson_id
-                    JOIN content.chapters ch ON l.chapter_id = ch.chapter_id
+                    JOIN courses.lessons l ON lmi.lesson_id = l.lesson_id
+                    JOIN courses.chapters ch ON l.chapter_id = ch.chapter_id
                     WHERE p.user_id = %s AND ch.course_id = %s
                     ORDER BY p.completed_at DESC
                 """, (user_id, course_id))

@@ -212,7 +212,7 @@ class AdminCourseStatusUpdateRequest(BaseModel):
     @classmethod
     def validate_action(cls, v: str) -> str:
         """Validate action"""
-        valid_actions = ['publish', 'unpublish', 'archive', 'unarchive']
+        valid_actions = ['publish', 'unpublish', 'archive', 'unarchive', 'restore', 'purge']
         if v not in valid_actions:
             raise ValueError(f'Action must be one of: {", ".join(valid_actions)}')
         return v

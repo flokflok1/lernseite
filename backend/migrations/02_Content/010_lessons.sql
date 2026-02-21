@@ -138,6 +138,35 @@ COMMENT ON TABLE courses.moderation_audit IS 'Audit trail for all moderation act
 COMMENT ON COLUMN courses.moderation_audit.ai_analysis IS 'JSONB structure with KI analysis results: {quality, appropriateness, originality, learning_methods, overall_score, issues, recommendations}';
 
 -- ============================================================================
+-- TABLE: lesson_explanations
+-- Description: AI-generated lesson explanations (step-by-step, visual, etc.)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS courses.lesson_explanations (
+    explanation_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    lesson_id UUID NOT NULL REFERENCES courses.lessons(lesson_id) ON DELETE CASCADE,
+    title TEXT,
+    style VARCHAR(50) NOT NULL DEFAULT 'standard',
+    explanation_data JSONB,
+    audio_url TEXT,
+    audio_duration_seconds INTEGER,
+    tokens_used INTEGER DEFAULT 0,
+    model_used VARCHAR(100),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_lesson_explanations_lesson ON courses.lesson_explanations (lesson_id);
+
+COMMENT ON TABLE courses.lesson_explanations IS 'AI-generated lesson explanations (step-by-step, visual, etc.)';
+
+-- ============================================================================
+-- Trigger: Update updated_at for lesson_explanations
+-- ============================================================================
+DROP TRIGGER IF EXISTS update_lesson_explanations_updated_at ON courses.lesson_explanations;
+CREATE TRIGGER update_lesson_explanations_updated_at BEFORE UPDATE ON courses.lesson_explanations
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
 -- Trigger: Update updated_at for chapter_theory
 -- ============================================================================
 CREATE TRIGGER update_chapter_theory_updated_at BEFORE UPDATE ON courses.chapter_theory

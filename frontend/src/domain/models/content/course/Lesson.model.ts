@@ -92,19 +92,16 @@ export class Lesson {
    * Validation includes:
    * - Title not empty
    * - Learning method type valid (0-11)
-   * - Description provided
+   * - Title not empty (required for drafts)
    *
-   * @returns true if lesson is fully valid, false otherwise
+   * Note: Description and learningMethodType are checked in canPublish(),
+   * not here — drafts can be saved without them.
+   *
+   * @returns true if lesson is valid for saving, false otherwise
    */
   isValid(): boolean {
-    // Title validation
+    // Title validation (required even for drafts)
     if (!this.title || this.title.trim().length === 0) return false
-
-    // Description validation
-    if (!this.description || this.description.trim().length === 0) return false
-
-    // Learning method type validation (0-11 for LM00-LM11)
-    if (this.learningMethodType < 0 || this.learningMethodType > 11) return false
 
     return true
   }

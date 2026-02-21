@@ -133,7 +133,7 @@ def delete_chapter(chapter_id: str):
     """Delete a chapter."""
     try:
         current_user = get_current_user()
-        data = request.get_json() or {}
+        data = request.get_json(silent=True) or {}
         reason = data.get('reason', 'Deleted by admin')
 
         existing_chapter = ChapterRepository.find_by_id(chapter_id)

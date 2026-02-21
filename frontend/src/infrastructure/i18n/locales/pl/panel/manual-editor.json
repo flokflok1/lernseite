@@ -83,8 +83,10 @@
       "lessonType": "Typ",
       "typeText": "Tekst",
       "typeVideo": "Wideo",
+      "typeInteractive": "Interaktywny",
+      "typeAssignment": "Zadanie",
+      "typeDiscussion": "Dyskusja",
       "typeQuiz": "Quiz",
-      "typeAi": "Generowane przez AI",
       "readingTime": "Czas czytania",
       "readingTimeAuto": "Obliczany automatycznie",
       "position": "Pozycja",
@@ -231,15 +233,36 @@
       "noCourses": "Brak kursów",
       "noCoursesHint": "Utwórz swój pierwszy kurs",
       "noResults": "Nie znaleziono kursów",
-      "confirmDelete": "Czy na pewno usunąć kurs \"{title}\"?",
+      "confirmDelete": "Przenieść kurs \"{title}\" do kosza?",
       "backToList": "Powrót do listy kursów",
+      "unarchive": "Przywróć",
       "chapters": "{count} rozdziałów",
       "lastEdited": "Ostatnio edytowane",
       "status": {
         "draft": "Szkic",
         "published": "Opublikowany",
         "archived": "Zarchiwizowany"
-      }
+      },
+      "tabs": {
+        "active": "Aktywne",
+        "archived": "Archiwum",
+        "trash": "Kosz"
+      },
+      "trash": {
+        "daysRemaining": "Pozostało {days} dni",
+        "autoDeleteHint": "Kursy w koszu są automatycznie usuwane po 30 dniach",
+        "emptyTrash": "Opróżnij kosz",
+        "confirmEmptyTrash": "Trwale usunąć wszystkie kursy z kosza?",
+        "restore": "Przywróć",
+        "permanentDelete": "Usuń trwale",
+        "confirmPermanentDelete": "Trwale usunąć \"{title}\"? Tego nie można cofnąć.",
+        "empty": "Kosz jest pusty"
+      },
+      "archive": {
+        "moveTo": "Archiwizuj",
+        "empty": "Brak zarchiwizowanych kursów"
+      },
+      "moveToTrash": "Przenieś do kosza"
     }
   }
 }

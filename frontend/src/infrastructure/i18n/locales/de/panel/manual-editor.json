@@ -83,8 +83,10 @@
       "lessonType": "Typ",
       "typeText": "Text",
       "typeVideo": "Video",
+      "typeInteractive": "Interaktiv",
+      "typeAssignment": "Aufgabe",
+      "typeDiscussion": "Diskussion",
       "typeQuiz": "Quiz",
-      "typeAi": "KI-generiert",
       "readingTime": "Lesezeit",
       "readingTimeAuto": "Automatisch berechnet",
       "position": "Position",
@@ -231,15 +233,36 @@
       "noCourses": "Noch keine Kurse vorhanden",
       "noCoursesHint": "Erstelle deinen ersten Kurs",
       "noResults": "Keine Kurse gefunden",
-      "confirmDelete": "Kurs \"{title}\" wirklich löschen?",
+      "confirmDelete": "Kurs \"{title}\" in den Papierkorb verschieben?",
       "backToList": "Zurück zur Kursliste",
+      "unarchive": "Wiederherstellen",
       "chapters": "{count} Kapitel",
       "lastEdited": "Zuletzt bearbeitet",
       "status": {
         "draft": "Entwurf",
         "published": "Veröffentlicht",
         "archived": "Archiviert"
-      }
+      },
+      "tabs": {
+        "active": "Aktiv",
+        "archived": "Archiv",
+        "trash": "Papierkorb"
+      },
+      "trash": {
+        "daysRemaining": "Noch {days} Tage",
+        "autoDeleteHint": "Kurse im Papierkorb werden nach 30 Tagen automatisch gelöscht",
+        "emptyTrash": "Papierkorb leeren",
+        "confirmEmptyTrash": "Alle Kurse im Papierkorb endgültig löschen?",
+        "restore": "Wiederherstellen",
+        "permanentDelete": "Endgültig löschen",
+        "confirmPermanentDelete": "Kurs \"{title}\" endgültig löschen? Das kann nicht rückgängig gemacht werden.",
+        "empty": "Papierkorb ist leer"
+      },
+      "archive": {
+        "moveTo": "Archivieren",
+        "empty": "Keine archivierten Kurse"
+      },
+      "moveToTrash": "In Papierkorb verschieben"
     }
   }
 }

@@ -83,8 +83,10 @@
       "lessonType": "Type",
       "typeText": "Text",
       "typeVideo": "Video",
+      "typeInteractive": "Interactive",
+      "typeAssignment": "Assignment",
+      "typeDiscussion": "Discussion",
       "typeQuiz": "Quiz",
-      "typeAi": "AI-generated",
       "readingTime": "Reading time",
       "readingTimeAuto": "Automatically calculated",
       "position": "Position",
@@ -231,15 +233,36 @@
       "noCourses": "No courses yet",
       "noCoursesHint": "Create your first course",
       "noResults": "No courses found",
-      "confirmDelete": "Really delete course \"{title}\"?",
+      "confirmDelete": "Move course \"{title}\" to trash?",
       "backToList": "Back to course list",
+      "unarchive": "Restore",
       "chapters": "{count} chapters",
       "lastEdited": "Last edited",
       "status": {
         "draft": "Draft",
         "published": "Published",
         "archived": "Archived"
-      }
+      },
+      "tabs": {
+        "active": "Active",
+        "archived": "Archive",
+        "trash": "Trash"
+      },
+      "trash": {
+        "daysRemaining": "{days} days left",
+        "autoDeleteHint": "Courses in trash are automatically deleted after 30 days",
+        "emptyTrash": "Empty trash",
+        "confirmEmptyTrash": "Permanently delete all courses in trash?",
+        "restore": "Restore",
+        "permanentDelete": "Delete permanently",
+        "confirmPermanentDelete": "Permanently delete \"{title}\"? This cannot be undone.",
+        "empty": "Trash is empty"
+      },
+      "archive": {
+        "moveTo": "Archive",
+        "empty": "No archived courses"
+      },
+      "moveToTrash": "Move to trash"
     }
   }
 }

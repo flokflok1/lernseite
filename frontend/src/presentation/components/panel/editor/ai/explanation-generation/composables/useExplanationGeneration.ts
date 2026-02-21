@@ -7,13 +7,11 @@
 
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import http from '@/infrastructure/api/http'
 import type {
   LessonExplanation,
   ExplanationStyle
 } from '../types/explanation.types'
-
-// API client (assuming it exists)
-const http = useHttp() // Placeholder - inject actual HTTP client
 
 export function useExplanationGeneration() {
   const { t } = useI18n()
@@ -57,7 +55,8 @@ export function useExplanationGeneration() {
       const response = await http.get(`/lessons/${lessonId}/explanations`)
 
       if (response.data.success) {
-        explanations.value = response.data.data || []
+        const raw = response.data.data
+        explanations.value = Array.isArray(raw) ? raw : (raw?.explanations || [])
       } else {
         error.value = t('course-editor.explanation.loadError')
       }
@@ -211,13 +210,3 @@ export function useExplanationGeneration() {
   }
 }
 
-// Helper to inject HTTP client
-function useHttp() {
-  // This would be injected from main.ts or similar
-  // For now, we'll export a reference to be filled in during implementation
-  return {
-    get: async (_url: string) => ({ data: { success: false, data: null } }),
-    post: async (_url: string, _data: any) => ({ data: { success: false, data: null } }),
-    delete: async (_url: string) => ({ data: { success: false, data: null } })
-  }
-}

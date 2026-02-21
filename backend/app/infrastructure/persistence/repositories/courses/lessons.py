@@ -14,6 +14,7 @@ Updated: 2025-11-27 (Refactoring: modules → chapters)
 from typing import Optional, Dict, List, Any
 from datetime import datetime
 
+from psycopg.types.json import Json
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, execute_query, insert_returning
 from app.infrastructure.persistence.repositories.core.base import BaseRepository
 
@@ -95,6 +96,10 @@ class LessonRepository(BaseRepository):
         }
 
         params = {**defaults, **lesson_data}
+
+        # Wrap jsonb fields with Json adapter for psycopg3
+        if params.get('content') is not None:
+            params['content'] = Json(params['content'])
 
         return fetch_one(query, params)
 
@@ -189,6 +194,12 @@ class LessonRepository(BaseRepository):
         # Always update updated_at
         update_data['updated_at'] = datetime.utcnow()
 
+        # Wrap jsonb fields with Json adapter for psycopg3
+        jsonb_fields = ['content', 'metadata']
+        for field in jsonb_fields:
+            if field in update_data and update_data[field] is not None:
+                update_data[field] = Json(update_data[field])
+
         # Build SET clause
         set_parts = [f"{key} = %({key})s" for key in update_data.keys()]
         set_clause = ", ".join(set_parts)
@@ -202,7 +213,7 @@ class LessonRepository(BaseRepository):
 
         params = {**update_data, 'lesson_id': lesson_id}
 
-        return insert_returning(query, params)
+        return fetch_one(query, params)
 
     @classmethod
     def reorder(cls, chapter_id: int, lesson_orders: List[Dict[str, int]]) -> bool:

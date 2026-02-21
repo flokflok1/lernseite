@@ -145,5 +145,31 @@ COMMENT ON COLUMN learning_methods.learning_method_instances.lesson_id IS
   'Optional lesson assignment. NULL = chapter-level, set = lesson-level activity.';
 
 -- ============================================================================
+-- TABLE: learning_method_groups (master data for group categories)
+-- Date: 2026-02-21
+-- Purpose: Store group definitions (A, B, C) with tier and metadata
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS learning_methods.learning_method_groups (
+    group_code CHAR(1) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT DEFAULT '',
+    icon VARCHAR(50) DEFAULT '',
+    tier VARCHAR(20) NOT NULL DEFAULT 'basic',
+    sort_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT chk_group_code_valid CHECK (group_code IN ('A', 'B', 'C'))
+);
+
+COMMENT ON TABLE learning_methods.learning_method_groups IS 'Master data for LM group categories: A=Explanatory, B=Practice, C=Assessment';
+
+-- Seed data for 3 groups
+INSERT INTO learning_methods.learning_method_groups (group_code, name, description, icon, tier, sort_order) VALUES
+    ('A', 'Erklärend', 'Explanatory methods for understanding concepts', 'book-open', 'basic', 1),
+    ('B', 'Praxis', 'Practice methods for hands-on learning', 'hand-pointer', 'basic', 2),
+    ('C', 'Prüfung', 'Assessment methods for testing knowledge', 'file-certificate', 'premium', 3)
+ON CONFLICT (group_code) DO NOTHING;
+
+-- ============================================================================
 -- End of Migration: 011_learning_methods.sql
 -- ============================================================================

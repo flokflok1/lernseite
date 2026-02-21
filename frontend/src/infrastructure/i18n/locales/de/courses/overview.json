@@ -12,6 +12,17 @@
   },
   "course-editor": {
     "theory": {
+      "loadError": "Fehler beim Laden der Theorie-Inhalte",
+      "deleteError": "Fehler beim Löschen der Theorie",
+      "generationError": "Fehler beim Generieren der Theorie",
+      "confirmDelete": "Theorie wirklich löschen?",
+      "styles": {
+        "standard": "Standard",
+        "compact": "Kompakt",
+        "detailed": "Ausführlich",
+        "visual": "Visuell",
+        "exam": "Prüfungsorientiert"
+      },
       "container": {
         "title": "Theorie",
         "available": "Verfügbar",
@@ -50,6 +61,11 @@
       "settings": {
         "title": "Einstellungen",
         "noSelection": "Wähle eine Theorie aus, um Einstellungen anzuzeigen.",
+        "clipboard": {
+          "learningGoals": "Lernziele in die Zwischenablage kopiert",
+          "concepts": "Kernkonzepte in die Zwischenablage kopiert",
+          "terms": "Fachbegriffe in die Zwischenablage kopiert"
+        },
         "tts": {
           "title": "Text-to-Speech",
           "enabled": "Sprachausgabe",
@@ -72,6 +88,9 @@
       }
     },
     "explanation": {
+      "loadError": "Fehler beim Laden der Erklärungen",
+      "generateError": "Fehler beim Generieren der Erklärung",
+      "deleteError": "Fehler beim Löschen der Erklärung",
       "container": {
         "title": "Erklärungen",
         "available": "Verfügbar",

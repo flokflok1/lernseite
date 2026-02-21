@@ -284,6 +284,21 @@ export interface ReorderPayload {
 }
 
 /**
+ * List courses via Manual Editor endpoint (includes academy courses)
+ * @param status - Filter: 'active' (default), 'archived', 'trash', 'all'
+ */
+export const listEditorCourses = async (status?: string): Promise<CourseListItem[]> => {
+  const response = await http.get<{
+    success: boolean
+    courses: CourseListItem[]
+  }>(`${EDITOR_PREFIX}/courses`, {
+    params: status ? { status } : undefined
+  })
+
+  return response.data.courses || []
+}
+
+/**
  * Create a new course (Creator/Teacher/Admin)
  */
 export const createCourse = async (payload: CreateCoursePayload): Promise<EditableCourse> => {
@@ -315,6 +330,21 @@ export const updateCourse = async (
  */
 export const deleteCourse = async (courseId: number): Promise<void> => {
   await http.delete(`${EDITOR_PREFIX}/courses/${courseId}`)
+}
+
+/**
+ * Update course status (publish, unpublish, archive, unarchive)
+ */
+export const updateCourseStatus = async (
+  courseId: number,
+  action: 'publish' | 'unpublish' | 'archive' | 'unarchive' | 'restore' | 'purge',
+  reason?: string
+): Promise<{ success: boolean; status: string }> => {
+  const response = await http.post<{ success: boolean; status: string }>(
+    `${EDITOR_PREFIX}/courses/${courseId}/status`,
+    { action, reason }
+  )
+  return response.data
 }
 
 /**

@@ -35,7 +35,7 @@ class LessonContentRepository:
                 tokens_used,
                 created_at,
                 updated_at
-            FROM lesson_explanations
+            FROM courses.lesson_explanations
             WHERE lesson_id = %s
             ORDER BY created_at DESC
         """
@@ -65,7 +65,7 @@ class LessonContentRepository:
                 model_used,
                 created_at,
                 updated_at
-            FROM lesson_explanations
+            FROM courses.lesson_explanations
             WHERE explanation_id = %s
         """
         return fetch_one(query, (explanation_id,))
@@ -85,7 +85,7 @@ class LessonContentRepository:
             Updated record with explanation_id and title, or None
         """
         query = """
-            UPDATE lesson_explanations
+            UPDATE courses.lesson_explanations
             SET title = %s
             WHERE explanation_id = %s
             RETURNING explanation_id, title
@@ -104,7 +104,7 @@ class LessonContentRepository:
             Deleted record with explanation_id, or None
         """
         query = """
-            DELETE FROM lesson_explanations
+            DELETE FROM courses.lesson_explanations
             WHERE explanation_id = %s
             RETURNING explanation_id
         """

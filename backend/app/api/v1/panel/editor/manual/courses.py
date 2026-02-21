@@ -11,7 +11,7 @@ Endpoints:
 - POST   /api/v1/course-editor/manual/courses - Create course
 - PATCH  /api/v1/course-editor/manual/courses/{id} - Update course
 - POST   /api/v1/course-editor/manual/courses/{id}/status - Change status
-- DELETE /api/v1/course-editor/manual/courses/{id} - Archive course
+- DELETE /api/v1/course-editor/manual/courses/{id} - Move to trash (30-day auto-purge)
 - DELETE /api/v1/course-editor/manual/courses/{id}/permanent - Hard delete (admin-only)
 """
 
@@ -48,6 +48,9 @@ def list_courses():
         current_user = get_current_user()
         user_id = current_user['user_id']
         is_admin = _is_admin_user(current_user)
+
+        # Lazy purge: remove courses trashed >30 days ago (lightweight, index-based)
+        CourseRepository.purge_trash(30)
 
         page = int(request.args.get('page', 1))
         per_page = min(int(request.args.get('per_page', 50)), 100)
@@ -251,8 +254,26 @@ def update_course_status(course_id: str):
         elif status_request.action == 'unarchive':
             result = CourseRepository.unarchive(course_id)
             new_status = 'draft'
+        elif status_request.action == 'restore':
+            result = CourseRepository.restore_from_trash(course_id)
+            new_status = 'draft'
+        elif status_request.action == 'purge':
+            if not is_admin:
+                return error_response(ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS, 403)
+            deleted = CourseRepository.delete(course_id)
+            if deleted:
+                AuditService.log_action(
+                    user_id=current_user['user_id'],
+                    action='admin.courses.permanent_delete',
+                    resource_type='course',
+                    resource_id=str(course_id),
+                    details={'reason': status_request.reason},
+                    severity='critical'
+                )
+                return jsonify({'success': True, 'message': 'Course permanently deleted', 'status': 'deleted'}), 200
+            return error_response(ErrorCode.OPERATION_FAILED, 500)
         else:
-            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'message': 'Action must be: publish, unpublish, archive, unarchive'})
+            return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400, details={'message': 'Action must be: publish, unpublish, archive, unarchive, restore, purge'})
 
         if not result:
             return error_response(ErrorCode.COURSE_PUBLISH_FAILED, 400)
@@ -282,34 +303,35 @@ def update_course_status(course_id: str):
 @manual_editor_bp.route('/courses/<course_id>', methods=['DELETE'])
 @check_course_permission('delete')
 def delete_course(course_id: str):
-    """Archive a course (soft delete)."""
+    """Move a course to trash (soft delete with 30-day auto-purge)."""
     try:
         current_user = get_current_user()
-        data = request.get_json() or {}
-        reason = data.get('reason', 'Deleted by admin')
+        data = request.get_json(silent=True) or {}
+        reason = data.get('reason', 'Moved to trash by user')
 
         existing_course = CourseRepository.find_by_id(course_id, use_cache=False)
         if not existing_course:
             return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
-        result = CourseRepository.archive(course_id)
+        course_title = existing_course.get('title', 'Unknown')
 
+        result = CourseRepository.trash(course_id)
         if not result:
             return error_response(ErrorCode.COURSE_ARCHIVE_FAILED, 500)
 
         AuditService.log_action(
             user_id=current_user['user_id'],
-            action='admin.courses.delete',
+            action='admin.courses.trash',
             resource_type='course',
             resource_id=str(course_id),
-            details={'reason': reason, 'course_title': existing_course['title']},
-            severity='critical'
+            details={'reason': reason, 'course_title': course_title},
+            severity='medium'
         )
 
-        return jsonify({'success': True, 'message': 'Course archived successfully'}), 200
+        return jsonify({'success': True, 'message': 'Course moved to trash'}), 200
 
     except Exception as e:
-        logger.error(f"ERROR in admin_delete_course: {e}")
+        logger.error(f"ERROR in delete_course (trash): {e}")
         return error_response(ErrorCode.COURSE_ARCHIVE_FAILED, 500, details={'details': str(e)})
 
 

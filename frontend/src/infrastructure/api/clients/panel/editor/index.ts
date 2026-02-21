@@ -27,6 +27,7 @@ export type {
 export {
   getMyEnrolledCourses,
   getMyCourses,
+  listEditorCourses,
   searchCourses,
   getCourse,
   enrollInCourse,
@@ -46,6 +47,7 @@ export {
   getLessonsForEdit,
   publishCourse,
   unpublishCourse,
+  updateCourseStatus,
   type CreateCoursePayload,
   type UpdateCoursePayload,
   type EditableCourse,

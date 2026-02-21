@@ -139,6 +139,7 @@ export class Course {
    */
   canPublish(): boolean {
     if (this.chapters.length === 0) return false
+    if (!this.description || this.description.trim().length === 0) return false
 
     const hasLessons = this.sortedChapters.some(
       chapter => chapter.lessons.length > 0
@@ -159,13 +160,10 @@ export class Course {
    * @returns true if course is fully valid, false otherwise
    */
   isValid(): boolean {
-    // Title validation
+    // Title validation (required even for drafts)
     if (!this.title || this.title.trim().length === 0) return false
 
-    // Description validation
-    if (!this.description || this.description.trim().length === 0) return false
-
-    // Chapter validation
+    // Chapter validation (only if chapters exist)
     for (const chapter of this.chapters) {
       if (!chapter.isValid()) return false
     }

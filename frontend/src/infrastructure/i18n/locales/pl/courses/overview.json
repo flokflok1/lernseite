@@ -12,6 +12,17 @@
   },
   "course-editor": {
     "theory": {
+      "loadError": "Błąd podczas ładowania treści teoretycznych",
+      "deleteError": "Błąd podczas usuwania teorii",
+      "generationError": "Błąd podczas generowania teorii",
+      "confirmDelete": "Czy na pewno usunąć tę teorię?",
+      "styles": {
+        "standard": "Standardowy",
+        "compact": "Kompaktowy",
+        "detailed": "Szczegółowy",
+        "visual": "Wizualny",
+        "exam": "Egzaminacyjny"
+      },
       "container": {
         "title": "Teoria",
         "available": "Dostępne",
@@ -50,6 +61,11 @@
       "settings": {
         "title": "Ustawienia",
         "noSelection": "Wybierz teorię, aby zobaczyć ustawienia.",
+        "clipboard": {
+          "learningGoals": "Cele nauki skopiowane do schowka",
+          "concepts": "Kluczowe pojęcia skopiowane do schowka",
+          "terms": "Terminy skopiowane do schowka"
+        },
         "tts": {
           "title": "Text-to-Speech",
           "enabled": "Wyjście głosowe",
@@ -72,6 +88,9 @@
       }
     },
     "explanation": {
+      "loadError": "Błąd podczas ładowania wyjaśnień",
+      "generateError": "Błąd podczas generowania wyjaśnienia",
+      "deleteError": "Błąd podczas usuwania wyjaśnienia",
       "container": {
         "title": "Wyjaśnienia",
         "available": "Dostępne",

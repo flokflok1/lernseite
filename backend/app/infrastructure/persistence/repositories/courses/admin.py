@@ -66,14 +66,19 @@ class CourseRepositoryAdmin(BaseRepository):
         conditions = []
         params = []
 
-        # Status filter (virtual status based on is_published and archived_at)
-        if status == 'draft':
-            conditions.append("c.published = FALSE AND c.status != 'archived'")
+        # Status filter
+        if status == 'active':
+            conditions.append("c.status IN ('draft', 'published') AND c.trashed_at IS NULL")
+        elif status == 'draft':
+            conditions.append("c.published = FALSE AND c.status NOT IN ('archived') AND c.trashed_at IS NULL")
         elif status == 'published':
-            conditions.append("c.published = TRUE AND c.status != 'archived'")
+            conditions.append("c.published = TRUE AND c.status != 'archived' AND c.trashed_at IS NULL")
         elif status == 'archived':
-            conditions.append("c.status = 'archived'")
-        # 'all' = no status filter
+            conditions.append("c.status = 'archived' AND c.trashed_at IS NULL")
+        elif status == 'trash':
+            conditions.append("c.trashed_at IS NOT NULL")
+        elif status == 'all':
+            conditions.append("c.trashed_at IS NULL")
 
         # Search filter
         if search:
@@ -151,7 +156,9 @@ class CourseRepositoryAdmin(BaseRepository):
                 c.published_at,
                 (SELECT COUNT(*) FROM courses.chapters WHERE course_id = c.course_id) AS chapter_count,
                 (SELECT COUNT(*) FROM courses.course_enrollments WHERE course_id = c.course_id) AS enrollment_count,
-                c.status
+                c.status,
+                c.course_type,
+                c.trashed_at
             FROM courses.courses c
             LEFT JOIN core.users u ON c.creator_user_id = u.user_id
             LEFT JOIN organisations.organisations o ON c.organisation_id = o.organisation_id
@@ -299,7 +306,7 @@ class CourseRepositoryAdmin(BaseRepository):
 
         # Use update_returning helper function
         result = update_returning(
-            table='courses',
+            table='courses.courses',
             data=update_data,
             where='course_id = %s',
             where_params=(course_id,),

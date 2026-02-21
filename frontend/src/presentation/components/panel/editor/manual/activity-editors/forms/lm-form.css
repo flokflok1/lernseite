@@ -1,0 +1,12 @@
+/* Shared styles for all LM form components */
+.lm-form { display: flex; flex-direction: column; gap: 10px; }
+.lm-field { display: flex; flex-direction: column; gap: 3px; }
+.lm-field label { font-size: 11px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+.lm-input, .lm-textarea { padding: 6px 8px; border: 1px solid var(--color-border); border-radius: 4px; font-size: 13px; background: var(--color-surface); color: var(--color-text-primary); width: 100%; }
+.lm-input:focus, .lm-textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.lm-textarea { resize: vertical; min-height: 40px; }
+.lm-row { display: flex; gap: 12px; }
+.lm-code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 12px; }
+.lm-checkbox-list { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
+.lm-checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-primary); cursor: pointer; }
+.lm-checkbox-item input[type="checkbox"] { margin: 0; cursor: pointer; }

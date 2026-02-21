@@ -1,4 +1,6 @@
 export { useAutoSave } from './useAutoSave'
+export { useActivityEditor } from './useActivityEditor'
+export type { SaveStatus } from './useActivityEditor'
 export { useContentEditor } from './useContentEditor'
 export { useEditorKeyboard } from './useEditorKeyboard'
 export { useLessonActivities } from './useLessonActivities'

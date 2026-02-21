@@ -45,6 +45,11 @@ export function useLessonActivities(lessonId: Ref<string | null>) {
     activities.value = activities.value.filter(a => a.method_id !== activityId)
   }
 
+  const updateActivityLocal = (updated: LessonActivity) => {
+    const idx = activities.value.findIndex(a => a.method_id === updated.method_id)
+    if (idx !== -1) activities.value[idx] = updated
+  }
+
   const reorder = async (orderedIds: string[]) => {
     if (!lessonId.value) return
     await activitiesApi.reorderLessonActivities(lessonId.value, orderedIds)
@@ -55,6 +60,7 @@ export function useLessonActivities(lessonId: Ref<string | null>) {
     loading,
     addActivity,
     removeActivity,
+    updateActivityLocal,
     reorder,
   }
 }

@@ -16,7 +16,7 @@ import { useActivitySyncStore } from '@/application/stores/modules/content/activ
 import InlineErrorBanner from './InlineErrorBanner.vue'
 
 const props = defineProps<{
-  lessonId: number | null
+  lessonId: string | number | null
 }>()
 
 const { t } = useI18n()

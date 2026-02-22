@@ -11,7 +11,6 @@ import { useEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
-import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
 
@@ -29,7 +28,6 @@ export function useContentEditor() {
         placeholder: () => t('panel.manualEditor.content.placeholder'),
       }),
       Image,
-      Underline,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: '',

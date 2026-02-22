@@ -12,6 +12,6 @@ Structure:
 Part of: Phase 3 Courses Consolidation
 """
 
-from app.api.v1.public.courses import core, crud, enrollment, publishing
+from app.api.v1.public.courses import core, crud, enrollment, lessons, publishing
 
-__all__ = ['core', 'crud', 'enrollment', 'publishing']
+__all__ = ['core', 'crud', 'enrollment', 'lessons', 'publishing']

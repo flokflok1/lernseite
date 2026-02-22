@@ -37,6 +37,7 @@ from app.api.v1.public.courses.core import core_bp as courses_core_bp
 from app.api.v1.public.courses.crud import crud_bp as courses_crud_bp
 from app.api.v1.public.courses.publishing import publishing_bp as courses_publishing_bp
 from app.api.v1.public.courses.enrollment import enrollment_bp as courses_enrollment_bp
+from app.api.v1.public.courses.lessons import lessons_bp as lessons_public_bp
 from app.api.v1.public.categories import public_bp as categories_public_bp, hierarchy_bp as categories_hierarchy_bp
 from app.api.v1.public.learning_methods import learning_methods_bp, learning_methods_catalog_bp, chapter_theory_bp, lesson_explanations_bp, lesson_videos_bp
 from app.api.v1.public.features import features_bp, features_catalog_bp
@@ -176,6 +177,7 @@ api_v1.register_blueprint(courses_core_bp)
 api_v1.register_blueprint(courses_crud_bp)
 api_v1.register_blueprint(courses_publishing_bp)
 api_v1.register_blueprint(courses_enrollment_bp)
+api_v1.register_blueprint(lessons_public_bp)
 api_v1.register_blueprint(categories_public_bp)
 api_v1.register_blueprint(categories_hierarchy_bp)
 api_v1.register_blueprint(learning_methods_bp)
@@ -252,7 +254,7 @@ __all__ = [
     'api_v1',
     # Public
     'auth_bp', 'business_contact_bp',
-    'courses_core_bp', 'courses_crud_bp', 'courses_publishing_bp', 'courses_enrollment_bp',
+    'courses_core_bp', 'courses_crud_bp', 'courses_publishing_bp', 'courses_enrollment_bp', 'lessons_public_bp',
     'categories_public_bp', 'categories_hierarchy_bp',
     'learning_methods_bp', 'learning_methods_catalog_bp', 'chapter_theory_bp',
     'lesson_explanations_bp', 'lesson_videos_bp',

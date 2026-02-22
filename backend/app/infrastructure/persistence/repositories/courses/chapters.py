@@ -226,15 +226,15 @@ class ChapterRepository(BaseRepository):
                 c.chapter_id,
                 c.title,
                 COUNT(l.lesson_id) AS total_lessons,
-                COUNT(CASE WHEN lp.completed_at IS NOT NULL THEN 1 END) AS completed_lessons,
+                COUNT(CASE WHEN lc.completed_at IS NOT NULL THEN 1 END) AS completed_lessons,
                 CASE
                     WHEN COUNT(l.lesson_id) > 0
-                    THEN (COUNT(CASE WHEN lp.completed_at IS NOT NULL THEN 1 END)::FLOAT / COUNT(l.lesson_id)::FLOAT * 100)
+                    THEN (COUNT(CASE WHEN lc.completed_at IS NOT NULL THEN 1 END)::FLOAT / COUNT(l.lesson_id)::FLOAT * 100)
                     ELSE 0
                 END AS progress_percentage
             FROM courses.chapters c
             LEFT JOIN courses.lessons l ON c.chapter_id = l.chapter_id
-            LEFT JOIN lesson_progress lp ON l.lesson_id = lp.lesson_id AND lp.user_id = %s
+            LEFT JOIN courses.lesson_completions lc ON l.lesson_id = lc.lesson_id AND lc.user_id = %s
             WHERE c.chapter_id = %s
             GROUP BY c.chapter_id, c.title
         """

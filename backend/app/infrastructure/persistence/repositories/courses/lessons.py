@@ -260,27 +260,26 @@ class LessonRepository(BaseRepository):
         return execute_query(query, (lesson_id,))
 
     @classmethod
-    def mark_completed(cls, lesson_id: int, user_id: int) -> Dict[str, Any]:
+    def mark_completed(cls, lesson_id: str, user_id: str) -> Dict[str, Any]:
         """
         Mark a lesson as completed for a user
 
         Args:
-            lesson_id: Lesson ID
-            user_id: User ID
+            lesson_id: Lesson ID (UUID string)
+            user_id: User ID (UUID string)
 
         Returns:
-            Lesson progress record
+            Lesson completion record
         """
         query = """
-            INSERT INTO lesson_progress (
-                user_id, lesson_id, completed_at, completion_percentage
+            INSERT INTO courses.lesson_completions (
+                user_id, lesson_id, completed_at
             ) VALUES (
-                %s, %s, NOW(), 100
+                %s, %s, NOW()
             )
-            ON CONFLICT (user_id, lesson_id)
+            ON CONFLICT (lesson_id, user_id)
             DO UPDATE SET
-                completed_at = NOW(),
-                completion_percentage = 100
+                completed_at = NOW()
             RETURNING *
         """
 
@@ -289,36 +288,43 @@ class LessonRepository(BaseRepository):
     @classmethod
     def mark_started(cls, lesson_id: str, user_id: str) -> Dict[str, Any]:
         """
-        Mark a lesson as started for a user
+        Mark a lesson as started for a user (creates completion record
+        without completed_at)
 
         Args:
             lesson_id: Lesson ID (UUID string)
             user_id: User ID (UUID string)
 
         Returns:
-            Lesson progress record
+            Lesson completion record
         """
         query = """
-            INSERT INTO lesson_progress (
-                user_id, lesson_id, started_at
+            INSERT INTO courses.lesson_completions (
+                user_id, lesson_id
             ) VALUES (
-                %s, %s, NOW()
+                %s, %s
             )
-            ON CONFLICT (user_id, lesson_id)
-            DO UPDATE SET
-                started_at = COALESCE(lesson_progress.started_at, NOW())
+            ON CONFLICT (lesson_id, user_id)
+            DO NOTHING
             RETURNING *
         """
 
-        return fetch_one(query, (user_id, lesson_id))
+        result = fetch_one(query, (user_id, lesson_id))
+        if result:
+            return result
+        # Row already existed, fetch it
+        return fetch_one(
+            "SELECT * FROM courses.lesson_completions WHERE lesson_id = %s AND user_id = %s",
+            (lesson_id, user_id)
+        )
 
     @classmethod
     def update_progress(
         cls,
         lesson_id: str,
         user_id: str,
-        progress_percentage: float,
-        time_spent_seconds: Optional[int] = None
+        time_spent_seconds: Optional[int] = None,
+        score: Optional[float] = None
     ) -> Dict[str, Any]:
         """
         Update progress for a lesson
@@ -326,43 +332,26 @@ class LessonRepository(BaseRepository):
         Args:
             lesson_id: Lesson ID (UUID string)
             user_id: User ID (UUID string)
-            progress_percentage: Progress percentage (0-100)
-            time_spent_seconds: Optional time spent in seconds
+            time_spent_seconds: Time spent in seconds (accumulated)
+            score: Score (0-100)
 
         Returns:
-            Updated lesson progress record
+            Updated lesson completion record
         """
-        if time_spent_seconds is not None:
-            query = """
-                INSERT INTO lesson_progress (
-                    user_id, lesson_id, completion_percentage, time_spent_seconds,
-                    started_at
-                ) VALUES (
-                    %s, %s, %s, %s, NOW()
-                )
-                ON CONFLICT (user_id, lesson_id)
-                DO UPDATE SET
-                    completion_percentage = %s,
-                    time_spent_seconds = COALESCE(lesson_progress.time_spent_seconds, 0) + %s
-                RETURNING *
-            """
-            return fetch_one(query, (
-                user_id, lesson_id, progress_percentage, time_spent_seconds,
-                progress_percentage, time_spent_seconds
-            ))
-        else:
-            query = """
-                INSERT INTO lesson_progress (
-                    user_id, lesson_id, completion_percentage, started_at
-                ) VALUES (
-                    %s, %s, %s, NOW()
-                )
-                ON CONFLICT (user_id, lesson_id)
-                DO UPDATE SET
-                    completion_percentage = %s
-                RETURNING *
-            """
-            return fetch_one(query, (user_id, lesson_id, progress_percentage, progress_percentage))
+        query = """
+            INSERT INTO courses.lesson_completions (
+                user_id, lesson_id, time_spent_seconds, score
+            ) VALUES (
+                %s, %s, %s, %s
+            )
+            ON CONFLICT (lesson_id, user_id)
+            DO UPDATE SET
+                time_spent_seconds = COALESCE(courses.lesson_completions.time_spent_seconds, 0)
+                    + COALESCE(EXCLUDED.time_spent_seconds, 0),
+                score = COALESCE(EXCLUDED.score, courses.lesson_completions.score)
+            RETURNING *
+        """
+        return fetch_one(query, (user_id, lesson_id, time_spent_seconds, score))
 
     @classmethod
     def get_user_progress(cls, lesson_id: str, user_id: str) -> Optional[Dict[str, Any]]:
@@ -374,12 +363,12 @@ class LessonRepository(BaseRepository):
             user_id: User ID
 
         Returns:
-            Progress dict or None if not started
+            Completion dict or None if not started
         """
         query = """
-            SELECT lp.*
-            FROM lesson_progress lp
-            WHERE lp.lesson_id = %s AND lp.user_id = %s
+            SELECT lc.*
+            FROM courses.lesson_completions lc
+            WHERE lc.lesson_id = %s AND lc.user_id = %s
         """
 
         return fetch_one(query, (lesson_id, user_id))

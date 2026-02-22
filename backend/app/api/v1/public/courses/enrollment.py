@@ -325,3 +325,50 @@ def get_enrolled_courses():
             'error': 'Failed to get enrolled courses',
             'details': str(e)
         }), 500
+
+
+@enrollment_bp.route('/<course_id>/chapters/<chapter_id>/progress', methods=['GET'])
+@token_required
+def get_chapter_progress(course_id: str, chapter_id: str):
+    """
+    Get user's progress for a specific chapter.
+
+    Response:
+        200: Chapter progress data
+        500: Server error
+    """
+    try:
+        user = get_current_user()
+        progress_data = ChapterRepository.get_chapter_progress(
+            chapter_id, user['user_id']
+        )
+
+        total = progress_data.get('total_lessons', 0)
+        completed = progress_data.get('completed_lessons', 0)
+        pct = progress_data.get('progress_percentage', 0)
+
+        if total == 0:
+            status = 'not_started'
+        elif completed >= total:
+            status = 'completed'
+        elif completed > 0 or pct > 0:
+            status = 'in_progress'
+        else:
+            status = 'not_started'
+
+        progress = {
+            'chapter_id': str(chapter_id),
+            'user_id': user['user_id'],
+            'status': status,
+            'progress_percentage': pct,
+            'lessons_completed': completed,
+            'total_lessons': total,
+            'started_at': None,
+            'completed_at': None,
+        }
+
+        return jsonify({'success': True, 'progress': progress}), 200
+
+    except Exception as e:
+        logger.error(f"Error getting chapter progress: {e}")
+        return jsonify({'success': False, 'error': 'Server error'}), 500

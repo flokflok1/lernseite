@@ -1,81 +1,52 @@
-import http from '@/infrastructure/api/http'
-
-// ============================================================================
-// URL Prefix for Manual Editor Backend Routes
-// Backend blueprint: /api/v1/course-editor/manual/*
-// ============================================================================
-const EDITOR_PREFIX = '/course-editor/manual'
-
-// ============================================================================
-// Types & Interfaces
-// ============================================================================
-
-export interface CourseListItem {
-  course_id: number
-  title: string
-  description: string
-  category: string
-  category_id?: number
-  level: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  language: string
-  price: number
-  is_public: boolean
-  is_published: boolean
-  thumbnail_url?: string
-  creator_id: number
-  creator_name?: string
-  organisation_id?: number
-  organisation_name?: string
-  created_at: string
-  updated_at?: string
-  tags?: string[]
-  total_chapters?: number  // Refactored: total_modules → total_chapters (2025-11-27)
-  total_lessons?: number
-  total_duration_minutes?: number
-  enrollment_count?: number
-  average_rating?: number
-}
-
-export interface EnrolledCourse {
-  enrollment_id: number
-  course_id: number
-  title: string
-  description: string
-  thumbnail_url?: string
-  enrolled_at: string
-  last_accessed_at?: string
-  progress: number
-  is_completed: boolean
-  completed_at?: string | null
-  status: 'active' | 'completed' | 'cancelled'
-  price_paid: number
-  total_chapters?: number  // Refactored: total_modules → total_chapters (2025-11-27)
-  total_lessons?: number
-  lessons_completed?: number
-}
-
-export interface PaginationParams {
-  page?: number
-  per_page?: number
-}
-
-export interface PaginatedResponse<T> {
-  items: T[]
-  pagination: {
-    page: number
-    per_page: number
-    total: number
-    total_pages: number
-  }
-}
-
-// ============================================================================
-// Course API Functions
-// ============================================================================
-
 /**
- * Get courses current user is enrolled in
+ * courses.api.ts
+ *
+ * API functions for course CRUD (public + editor).
+ * Types: ./courses.types.ts (split for G01 compliance)
  */
+import http from '@/infrastructure/api/http'
+import type {
+  CourseListItem,
+  EnrolledCourse,
+  PaginationParams,
+  PaginatedResponse,
+  CreateCoursePayload,
+  UpdateCoursePayload,
+  EditableCourse,
+  ChapterPayload,
+  UpdateChapterPayload,
+  EditableChapter,
+  LessonPayload,
+  UpdateLessonPayload,
+  EditableLesson,
+  ReorderPayload,
+} from './courses.types'
+
+// Re-export all types for backwards compatibility
+export type {
+  CourseListItem,
+  EnrolledCourse,
+  PaginationParams,
+  PaginatedResponse,
+  CreateCoursePayload,
+  UpdateCoursePayload,
+  EditableCourse,
+  ChapterPayload,
+  UpdateChapterPayload,
+  EditableChapter,
+  LessonPayload,
+  UpdateLessonPayload,
+  EditableLesson,
+  ReorderPayload,
+} from './courses.types'
+
+import { EDITOR_PREFIX } from './constants'
+
+// ============================================================================
+// Public Course API Functions
+// ============================================================================
+
+/** Fetch the current user's enrolled courses (paginated, filterable by status) */
 export const getMyEnrolledCourses = async (
   params: PaginationParams & { status?: 'active' | 'completed' | 'cancelled' } = {}
 ): Promise<PaginatedResponse<EnrolledCourse>> => {
@@ -97,9 +68,7 @@ export const getMyEnrolledCourses = async (
   }
 }
 
-/**
- * Get courses created by current user
- */
+/** Fetch courses created by the current user */
 export const getMyCourses = async (includeArchived = false): Promise<CourseListItem[]> => {
   const response = await http.get<{
     success: boolean
@@ -111,9 +80,7 @@ export const getMyCourses = async (includeArchived = false): Promise<CourseListI
   return response.data.courses
 }
 
-/**
- * Search public courses
- */
+/** Search public course catalog with filters (category, level, language, price, tags) */
 export const searchCourses = async (
   params: PaginationParams & {
     search?: string
@@ -153,9 +120,7 @@ export const searchCourses = async (
   }
 }
 
-/**
- * Get course details
- */
+/** Fetch a single course by ID (public view) */
 export const getCourse = async (courseId: number): Promise<CourseListItem> => {
   const response = await http.get<{
     success: boolean
@@ -165,9 +130,7 @@ export const getCourse = async (courseId: number): Promise<CourseListItem> => {
   return response.data.course
 }
 
-/**
- * Enroll in a course
- */
+/** Enroll the current user in a course */
 export const enrollInCourse = async (courseId: number): Promise<EnrolledCourse> => {
   const response = await http.post<{
     success: boolean
@@ -181,112 +144,7 @@ export const enrollInCourse = async (courseId: number): Promise<EnrolledCourse> 
 // Course Editor API Functions (Creator/Teacher/Admin)
 // ============================================================================
 
-export interface CreateCoursePayload {
-  title: string
-  subtitle?: string
-  description?: string
-  category_id?: number
-  subcategory_id?: number
-  level?: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  language?: string
-  target_group?: string
-  tags?: string[]
-  learning_goals?: string[]
-  requirements?: string[]
-  visibility?: 'private' | 'group_private' | 'class_internal' | 'company_internal' | 'community_public' | 'marketplace' | 'academy'
-  price?: number
-  thumbnail_url?: string
-}
-
-export interface UpdateCoursePayload extends Partial<CreateCoursePayload> {
-  is_published?: boolean
-  draft_state?: boolean
-}
-
-export interface EditableCourse {
-  course_id: number
-  title: string
-  subtitle?: string
-  description?: string
-  category_id?: number
-  subcategory_id?: number
-  category?: string
-  subcategory?: string
-  level: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  language: string
-  target_group?: string
-  created_by: number
-  creator_role?: string
-  visibility: string
-  tags?: string[]
-  thumbnail_url?: string
-  duration_estimate?: number
-  learning_goals?: string[]
-  requirements?: string[]
-  is_published: boolean
-  draft_state: boolean
-  created_at: string
-  updated_at?: string
-  last_edit_by?: number
-  version?: number
-}
-
-export interface ChapterPayload {
-  course_id: number
-  title: string
-  description?: string
-  order_index?: number
-  estimated_time?: number
-}
-
-export type UpdateChapterPayload = Partial<ChapterPayload>
-
-export interface EditableChapter {
-  chapter_id: string  // UUID (Refactored: module_id → chapter_id 2025-11-27)
-  course_id: number
-  title: string
-  description?: string
-  order_index: number
-  estimated_time?: number
-  created_at: string
-  updated_at?: string
-}
-
-export interface LessonPayload {
-  chapter_id: string  // Refactored: module_id → chapter_id (2025-11-27)
-  title: string
-  description?: string
-  lesson_type: 'text' | 'video' | 'quiz' | 'ai' | 'mixed'
-  order_index?: number
-  duration_minutes?: number
-  content?: any
-}
-
-export type UpdateLessonPayload = Partial<LessonPayload>
-
-export interface EditableLesson {
-  lesson_id: number
-  chapter_id: string  // Refactored: module_id → chapter_id (2025-11-27)
-  course_id: number
-  title: string
-  description?: string
-  lesson_type: 'text' | 'video' | 'quiz' | 'ai' | 'mixed'
-  order_index: number
-  duration_minutes?: number
-  content?: any
-  is_published: boolean
-  created_at: string
-  updated_at?: string
-}
-
-export interface ReorderPayload {
-  items: Array<{ id: number; order_index: number }>
-}
-
-/**
- * List courses via Manual Editor endpoint (includes academy courses)
- * @param status - Filter: 'active' (default), 'archived', 'trash', 'all'
- */
+/** List courses for the editor panel (optionally filter by status) */
 export const listEditorCourses = async (status?: string): Promise<CourseListItem[]> => {
   const response = await http.get<{
     success: boolean
@@ -298,9 +156,7 @@ export const listEditorCourses = async (status?: string): Promise<CourseListItem
   return response.data.courses || []
 }
 
-/**
- * Create a new course (Creator/Teacher/Admin)
- */
+/** Create a new course */
 export const createCourse = async (payload: CreateCoursePayload): Promise<EditableCourse> => {
   const response = await http.post<{
     success: boolean
@@ -310,9 +166,7 @@ export const createCourse = async (payload: CreateCoursePayload): Promise<Editab
   return response.data.course
 }
 
-/**
- * Update course metadata (Creator/Teacher/Admin)
- */
+/** Partially update course metadata */
 export const updateCourse = async (
   courseId: number,
   payload: UpdateCoursePayload
@@ -325,16 +179,12 @@ export const updateCourse = async (
   return response.data.course
 }
 
-/**
- * Delete course (Creator/Teacher/Admin)
- */
+/** Soft-delete a course (moves to trash) */
 export const deleteCourse = async (courseId: number): Promise<void> => {
   await http.delete(`${EDITOR_PREFIX}/courses/${courseId}`)
 }
 
-/**
- * Update course status (publish, unpublish, archive, unarchive)
- */
+/** Change course lifecycle status (publish, unpublish, archive, unarchive, restore, purge) */
 export const updateCourseStatus = async (
   courseId: number,
   action: 'publish' | 'unpublish' | 'archive' | 'unarchive' | 'restore' | 'purge',
@@ -347,9 +197,7 @@ export const updateCourseStatus = async (
   return response.data
 }
 
-/**
- * Get editable course data (includes chapters & lessons)
- */
+/** Fetch full course data for the editor (includes all editable fields) */
 export const getCourseForEdit = async (courseId: number): Promise<EditableCourse> => {
   const response = await http.get<{
     success: boolean
@@ -359,10 +207,7 @@ export const getCourseForEdit = async (courseId: number): Promise<EditableCourse
   return response.data.course
 }
 
-/**
- * Create a new chapter in a course
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Create a new chapter in a course */
 export const createChapter = async (payload: ChapterPayload): Promise<EditableChapter> => {
   const response = await http.post<{
     success: boolean
@@ -372,10 +217,7 @@ export const createChapter = async (payload: ChapterPayload): Promise<EditableCh
   return response.data.chapter
 }
 
-/**
- * Update chapter
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Update chapter metadata (title, position) */
 export const updateChapter = async (
   chapterId: string,
   payload: UpdateChapterPayload
@@ -388,18 +230,12 @@ export const updateChapter = async (
   return response.data.chapter
 }
 
-/**
- * Delete chapter
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Delete a chapter and all its lessons */
 export const deleteChapter = async (chapterId: string): Promise<void> => {
   await http.delete(`${EDITOR_PREFIX}/chapters/${chapterId}`)
 }
 
-/**
- * Reorder chapters within a course
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Reorder chapters within a course */
 export const reorderChapters = async (
   courseId: number,
   payload: ReorderPayload
@@ -407,10 +243,7 @@ export const reorderChapters = async (
   await http.post(`${EDITOR_PREFIX}/courses/${courseId}/chapters/reorder`, payload)
 }
 
-/**
- * Get chapters for editing (includes lessons)
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Fetch all chapters for a course (editor view) */
 export const getChaptersForEdit = async (courseId: number): Promise<EditableChapter[]> => {
   const response = await http.get<{
     success: boolean
@@ -420,10 +253,7 @@ export const getChaptersForEdit = async (courseId: number): Promise<EditableChap
   return response.data.chapters
 }
 
-/**
- * Create a new lesson in a chapter
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Create a new lesson in a chapter */
 export const createLesson = async (payload: LessonPayload): Promise<EditableLesson> => {
   const response = await http.post<{
     success: boolean
@@ -433,9 +263,7 @@ export const createLesson = async (payload: LessonPayload): Promise<EditableLess
   return response.data.lesson
 }
 
-/**
- * Update lesson
- */
+/** Update lesson fields (title, content, type, settings) */
 export const updateLesson = async (
   lessonId: number,
   payload: UpdateLessonPayload
@@ -448,17 +276,12 @@ export const updateLesson = async (
   return response.data.lesson
 }
 
-/**
- * Delete lesson
- */
+/** Delete a lesson */
 export const deleteLesson = async (lessonId: number): Promise<void> => {
   await http.delete(`${EDITOR_PREFIX}/lessons/${lessonId}`)
 }
 
-/**
- * Reorder lessons within a chapter
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Reorder lessons within a chapter */
 export const reorderLessons = async (
   chapterId: string,
   payload: ReorderPayload
@@ -466,10 +289,7 @@ export const reorderLessons = async (
   await http.post(`${EDITOR_PREFIX}/chapters/${chapterId}/lessons/reorder`, payload)
 }
 
-/**
- * Get lessons for editing
- * Refactored: modules → chapters (2025-11-27)
- */
+/** Fetch all lessons for a chapter (editor view) */
 export const getLessonsForEdit = async (chapterId: string): Promise<EditableLesson[]> => {
   const response = await http.get<{
     success: boolean
@@ -477,29 +297,5 @@ export const getLessonsForEdit = async (chapterId: string): Promise<EditableLess
   }>(`${EDITOR_PREFIX}/chapters/${chapterId}/lessons`)
 
   return response.data.lessons
-}
-
-/**
- * Publish course (set is_published = true)
- */
-export const publishCourse = async (courseId: number): Promise<EditableCourse> => {
-  const response = await http.post<{
-    success: boolean
-    course: EditableCourse
-  }>(`/courses/${courseId}/publish`)
-
-  return response.data.course
-}
-
-/**
- * Unpublish course (set is_published = false)
- */
-export const unpublishCourse = async (courseId: number): Promise<EditableCourse> => {
-  const response = await http.post<{
-    success: boolean
-    course: EditableCourse
-  }>(`/courses/${courseId}/unpublish`)
-
-  return response.data.course
 }
 

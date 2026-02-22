@@ -1,17 +1,7 @@
 /**
- * LernsystemX - Course Editor Store (Pinia)
- *
- * Manages:
- * - Current course being edited
- * - Chapters and lessons structure
- * - Dirty state (unsaved changes)
- * - Save/discard operations
- *
- * Chapter/lesson CRUD operations are in courseEditor.chapters.ts
- *
- * Refactored: modules -> chapters (2025-11-27)
+ * Course Editor Store — course editing state, chapters, lessons, dirty/save.
+ * Chapter/lesson CRUD: courseEditor.chapters.ts
  */
-
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -20,11 +10,15 @@ import type {
   EditableLesson,
   CreateCoursePayload,
   UpdateCoursePayload,
+  UpdateChapterPayload,
   UpdateLessonPayload,
+  CourseListItem,
+  CategoryTreeResponse,
 } from '@/infrastructure/api/clients/panel/editor'
 import * as coursesApi from '@/infrastructure/api/clients/panel/editor'
 import { toCourseDomain, toChapterDomain, fromChapterDomain, fromLessonDomain } from './adapters'
 import * as chapterOps from './courseEditor.chapters'
+import { i18n } from '@/infrastructure/plugins/i18n'
 
 export const useCourseEditorStore = defineStore('courseEditor', () => {
   // State
@@ -37,8 +31,9 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
   const saving = ref(false)
   const dirty = ref(false)
   const error = ref<string | null>(null)
-  const courseList = ref<any[]>([])
+  const courseList = ref<CourseListItem[]>([])
   const courseListLoading = ref(false)
+  const pendingContent = ref<{ lessonId: number; html: string } | null>(null)
 
   // Shared refs object for chapter/lesson operations
   const editorRefs = {
@@ -109,6 +104,21 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
 
   // Actions
 
+  /** Translate using the global i18n instance (safe outside Vue components) */
+  const t = (key: string): string => {
+    const composer = i18n.global
+    return typeof composer.t === 'function' ? composer.t(key) : key
+  }
+
+  /** Extract error message from API error, with i18n fallback key */
+  const extractErrorMessage = (err: unknown, fallbackKey: string): string => {
+    if (err instanceof Error) {
+      const axiosErr = err as Error & { response?: { data?: { message?: string } } }
+      return axiosErr.response?.data?.message || t(fallbackKey)
+    }
+    return t(fallbackKey)
+  }
+
   /**
    * Load course and all its chapters and lessons for editing
    */
@@ -121,14 +131,16 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
       chapters.value = await coursesApi.getChaptersForEdit(courseId)
 
       lessonsByChapterId.value = {}
-      for (const chapter of chapters.value) {
-        const lessons = await coursesApi.getLessonsForEdit(chapter.chapter_id)
-        lessonsByChapterId.value[chapter.chapter_id] = lessons
-      }
+      const lessonResults = await Promise.all(
+        chapters.value.map(c => coursesApi.getLessonsForEdit(c.chapter_id))
+      )
+      chapters.value.forEach((chapter, i) => {
+        lessonsByChapterId.value[chapter.chapter_id] = lessonResults[i]
+      })
 
       dirty.value = false
-    } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to load course'
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, 'panel.manualEditor.errors.loadFailed')
       throw err
     } finally {
       loading.value = false
@@ -144,7 +156,7 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
 
     try {
       const payload: CreateCoursePayload = {
-        title: initialData?.title || 'Neuer Kurs',
+        title: initialData?.title || t('panel.manualEditor.courseSelector.defaultTitle'),
         subtitle: initialData?.subtitle,
         description: initialData?.description || '',
         level: initialData?.level || 'beginner',
@@ -159,8 +171,8 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
       chapters.value = []
       lessonsByChapterId.value = {}
       dirty.value = false
-    } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to create course'
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, 'panel.manualEditor.errors.createFailed')
       throw err
     } finally {
       loading.value = false
@@ -172,7 +184,7 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
    */
   const updateCourseMeta = async (partialMeta: UpdateCoursePayload): Promise<void> => {
     if (!currentCourse.value) {
-      throw new Error('No course loaded')
+      throw new Error(t('panel.manualEditor.errors.loadFailed'))
     }
 
     saving.value = true
@@ -186,7 +198,7 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
       )
 
       if (!tmpCourse.isValid()) {
-        throw new Error('Course metadata is invalid')
+        throw new Error(t('panel.manualEditor.errors.updateFailed'))
       }
 
       currentCourse.value = await coursesApi.updateCourse(
@@ -194,8 +206,8 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
         partialMeta
       )
       dirty.value = false
-    } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to update course'
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, 'panel.manualEditor.errors.updateFailed')
       throw err
     } finally {
       saving.value = false
@@ -203,17 +215,54 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
   }
 
   /**
-   * Update lesson content (text, video, quiz data, etc.)
+   * Update lesson content immediately via API (used for non-TipTap content updates)
    */
-  const updateLessonContent = async (lessonId: number, content: any): Promise<void> => {
-    return chapterOps.updateLessonMeta(editorRefs, lessonId, { content } as UpdateLessonPayload)
+  const updateLessonContent = async (lessonId: number, content: string): Promise<void> => {
+    return chapterOps.updateLessonMeta(editorRefs, lessonId, { content })
   }
 
   /**
-   * Save all changes (marks dirty as false; actual saves happen per operation)
+   * Buffer TipTap content locally without hitting the API.
+   * Updates the in-memory lesson data (for preview) and marks dirty.
+   * Content is flushed to API by saveAllChanges() after debounce.
+   */
+  const setLocalContent = (lessonId: number, html: string): void => {
+    pendingContent.value = { lessonId, html }
+
+    // Update in-memory lesson data so Preview tab reflects changes immediately
+    for (const lessons of Object.values(lessonsByChapterId.value)) {
+      const lesson = lessons.find(l => l.lesson_id === lessonId)
+      if (lesson) {
+        lesson.content = html
+        break
+      }
+    }
+    dirty.value = true
+  }
+
+  /**
+   * Flush pending content to API and clear dirty flag.
+   * On failure: restores pendingContent so the next save attempt retries.
    */
   const saveAllChanges = async (): Promise<void> => {
-    dirty.value = false
+    if (saving.value) return  // Guard: prevent concurrent saves
+    const pending = pendingContent.value
+    if (!pending) { dirty.value = false; return }
+    pendingContent.value = null
+    try {
+      await updateLessonContent(pending.lessonId, pending.html)
+      // Only clear dirty if no new content was buffered during the async save
+      if (!pendingContent.value) {
+        dirty.value = false
+      }
+    } catch (err) {
+      // Restore only if no newer content has been buffered
+      if (!pendingContent.value) {
+        pendingContent.value = pending
+      }
+      dirty.value = true
+      throw err
+    }
   }
 
   /**
@@ -266,7 +315,7 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
    */
   const publishCourse = async (): Promise<void> => {
     if (!currentCourse.value) {
-      throw new Error('No course loaded')
+      throw new Error(t('panel.manualEditor.errors.loadFailed'))
     }
 
     saving.value = true
@@ -276,13 +325,14 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
       const courseDomain = toCourseDomain(currentCourse.value, chapters.value, lessonsByChapterId.value)
 
       if (!courseDomain.canPublish()) {
-        throw new Error('Course must have at least one chapter with lessons before publishing')
+        throw new Error(t('panel.manualEditor.errors.publishFailed'))
       }
 
-      currentCourse.value = await coursesApi.publishCourse(currentCourse.value.course_id)
+      await coursesApi.updateCourseStatus(currentCourse.value.course_id, 'publish')
+      currentCourse.value = await coursesApi.getCourseForEdit(currentCourse.value.course_id)
       dirty.value = false
-    } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to publish course'
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, 'panel.manualEditor.errors.publishFailed')
       throw err
     } finally {
       saving.value = false
@@ -294,17 +344,18 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
    */
   const unpublishCourse = async (): Promise<void> => {
     if (!currentCourse.value) {
-      throw new Error('No course loaded')
+      throw new Error(t('panel.manualEditor.errors.loadFailed'))
     }
 
     saving.value = true
     error.value = null
 
     try {
-      currentCourse.value = await coursesApi.unpublishCourse(currentCourse.value.course_id)
+      await coursesApi.updateCourseStatus(currentCourse.value.course_id, 'unpublish')
+      currentCourse.value = await coursesApi.getCourseForEdit(currentCourse.value.course_id)
       dirty.value = false
-    } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to unpublish course'
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, 'panel.manualEditor.errors.unpublishFailed')
       throw err
     } finally {
       saving.value = false
@@ -320,63 +371,48 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     error.value = null
     try {
       courseList.value = await coursesApi.listEditorCourses(status)
-    } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to list courses'
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, 'panel.manualEditor.errors.listFailed')
     } finally {
       courseListLoading.value = false
     }
   }
 
-  /**
-   * Move a course to trash (soft delete with 30-day auto-purge)
-   */
-  const trashCourse = async (courseId: number): Promise<void> => {
-    await coursesApi.deleteCourse(courseId)
-    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
+  /** Run a course-list action: API call → remove from local list → surface errors */
+  const courseListAction = async (
+    action: () => Promise<unknown>,
+    courseId: number,
+    fallbackMsg: string
+  ): Promise<void> => {
+    try {
+      await action()
+      courseList.value = courseList.value.filter(c => c.course_id !== courseId)
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, fallbackMsg)
+    }
   }
 
-  /**
-   * Restore a course from trash back to draft
-   */
-  const restoreFromTrash = async (courseId: number): Promise<void> => {
-    await coursesApi.updateCourseStatus(courseId, 'restore')
-    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
-  }
-
-  /**
-   * Archive a course (intentional, permanent archive)
-   */
-  const archiveCourse = async (courseId: number): Promise<void> => {
-    await coursesApi.updateCourseStatus(courseId, 'archive')
-    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
-  }
-
-  /**
-   * Unarchive a course (restore from archive to draft)
-   */
-  const unarchiveCourse = async (courseId: number): Promise<void> => {
-    await coursesApi.updateCourseStatus(courseId, 'unarchive')
-    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
-  }
-
-  /**
-   * Permanently delete a course (admin-only, cannot be undone)
-   */
-  const permanentDelete = async (courseId: number): Promise<void> => {
-    await coursesApi.updateCourseStatus(courseId, 'purge')
-    courseList.value = courseList.value.filter(c => c.course_id !== courseId)
-  }
+  const trashCourse = (courseId: number) =>
+    courseListAction(() => coursesApi.deleteCourse(courseId), courseId, 'panel.manualEditor.errors.genericError')
+  const restoreFromTrash = (courseId: number) =>
+    courseListAction(() => coursesApi.updateCourseStatus(courseId, 'restore'), courseId, 'panel.manualEditor.errors.genericError')
+  const archiveCourse = (courseId: number) =>
+    courseListAction(() => coursesApi.updateCourseStatus(courseId, 'archive'), courseId, 'panel.manualEditor.errors.genericError')
+  const unarchiveCourse = (courseId: number) =>
+    courseListAction(() => coursesApi.updateCourseStatus(courseId, 'unarchive'), courseId, 'panel.manualEditor.errors.genericError')
+  const permanentDelete = (courseId: number) =>
+    courseListAction(() => coursesApi.updateCourseStatus(courseId, 'purge'), courseId, 'panel.manualEditor.errors.genericError')
 
   // Delegated chapter/lesson actions (bound to shared refs)
   const addChapter = (title: string) => chapterOps.addChapter(editorRefs, title)
-  const updateChapterMeta = (chapterId: string, payload: any) =>
+  const updateChapterMeta = (chapterId: string, payload: UpdateChapterPayload) =>
     chapterOps.updateChapterMeta(editorRefs, chapterId, payload)
   const removeChapter = (chapterId: string) => chapterOps.removeChapter(editorRefs, chapterId)
   const reorderChapters = (reordered: EditableChapter[]) =>
     chapterOps.reorderChapters(editorRefs, reordered)
   const addLesson = (chapterId: string, title: string) =>
     chapterOps.addLesson(editorRefs, chapterId, title)
-  const updateLessonMeta = (lessonId: number, payload: any) =>
+  const updateLessonMeta = (lessonId: number, payload: UpdateLessonPayload) =>
     chapterOps.updateLessonMeta(editorRefs, lessonId, payload)
   const removeLesson = (chapterId: string, lessonId: number) =>
     chapterOps.removeLesson(editorRefs, chapterId, lessonId)
@@ -384,7 +420,7 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     chapterOps.reorderLessons(editorRefs, chapterId, reordered)
 
   // Categories
-  const categoryTree = ref<any[]>([])
+  const categoryTree = ref<CategoryTreeResponse | null>(null)
   const loadingCategories = ref(false)
 
   const loadCategories = async () => {
@@ -392,8 +428,9 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     try {
       const result = await coursesApi.getCategoryTree()
       categoryTree.value = result
-    } catch {
-      categoryTree.value = []
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err, 'panel.manualEditor.errors.loadFailed')
+      categoryTree.value = null
     } finally {
       loadingCategories.value = false
     }
@@ -436,6 +473,7 @@ export const useCourseEditorStore = defineStore('courseEditor', () => {
     removeLesson,
     reorderLessons,
     updateLessonContent,
+    setLocalContent,
     saveAllChanges,
     discardChanges,
     markDirty,

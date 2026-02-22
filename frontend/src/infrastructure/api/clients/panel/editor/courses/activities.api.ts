@@ -1,6 +1,6 @@
 import http from '@/infrastructure/api/http'
 
-const EDITOR_PREFIX = '/course-editor/manual'
+import { EDITOR_PREFIX } from './constants'
 
 // ============================================================================
 // Lesson Activities (Learning Method Instances per Lesson)
@@ -23,7 +23,7 @@ export interface LessonActivity {
   updated_at: string
 }
 
-export const getLessonActivities = async (lessonId: string): Promise<LessonActivity[]> => {
+export const getLessonActivities = async (lessonId: number): Promise<LessonActivity[]> => {
   const response = await http.get<{
     success: boolean
     activities: LessonActivity[]
@@ -33,7 +33,7 @@ export const getLessonActivities = async (lessonId: string): Promise<LessonActiv
 }
 
 export const createLessonActivity = async (
-  lessonId: string,
+  lessonId: number,
   methodType: number,
   title: string
 ): Promise<LessonActivity> => {
@@ -65,7 +65,7 @@ export const deleteLessonActivity = async (activityId: string): Promise<void> =>
 }
 
 export const reorderLessonActivities = async (
-  lessonId: string,
+  lessonId: number,
   methodIds: string[]
 ): Promise<void> => {
   await http.post(`${EDITOR_PREFIX}/lessons/${lessonId}/activities/reorder`, {

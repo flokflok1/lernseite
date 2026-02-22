@@ -3,7 +3,8 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
-import { useAutoSave, useEditorKeyboard } from '@/presentation/components/panel/editor/manual/composables'
+import { useAutoSave, useEditorKeyboard, useConfirmDialog } from '@/presentation/components/panel/editor/manual/composables'
+import type { AutoSaveStatus } from '@/presentation/components/panel/editor/manual/composables'
 import type { EditorTab } from '@/presentation/components/panel/editor/manual/types'
 import StructureTreePanel from '@/presentation/components/panel/editor/manual/panels/StructureTreePanel.vue'
 import ContentEditPanel from '@/presentation/components/panel/editor/manual/panels/ContentEditPanel.vue'
@@ -11,7 +12,10 @@ import CourseInfoPanel from '@/presentation/components/panel/editor/manual/panel
 import MediaUploadPanel from '@/presentation/components/panel/editor/manual/panels/MediaUploadPanel.vue'
 import LessonSettingsPanel from '@/presentation/components/panel/editor/manual/panels/LessonSettingsPanel.vue'
 import PreviewPanel from '@/presentation/components/panel/editor/manual/panels/PreviewPanel.vue'
+import LessonActivitiesSection from '@/presentation/components/panel/editor/manual/panels/LessonActivitiesSection.vue'
 import CourseSelector from '@/presentation/components/panel/editor/manual/panels/CourseSelector.vue'
+import InlineErrorBanner from '@/presentation/components/panel/editor/manual/panels/InlineErrorBanner.vue'
+import ConfirmDialog from '@/presentation/components/panel/editor/manual/panels/ConfirmDialog.vue'
 import { TheoryGenerationContainer } from '@/presentation/components/panel/editor/ai/content-generation'
 import { ExplanationGenerationContainer } from '@/presentation/components/panel/editor/ai/explanation-generation'
 
@@ -25,12 +29,12 @@ const props = defineProps<Props>()
 const { t } = useI18n()
 const store = useCourseEditorStore()
 const authStore = useAuthStore()
-const { saveStatus, lastSaved, triggerSave } = useAutoSave()
+const { saveStatus, lastSaved, saveError, triggerSave, dismissError } = useAutoSave()
+const { confirm: confirmDialog } = useConfirmDialog()
 
 const isAdmin = computed(() => authStore.userHierarchyLevel >= 750)
 
-const activeTab = ref<EditorTab>('content')
-const knowledgeSubTab = ref<'chapter-theory' | 'lesson-explanation'>('chapter-theory')
+const activeTab = ref<EditorTab>('lesson')
 const isInitialized = ref(false)
 const selectedCourseId = ref<number | null>(props.courseId ? Number(props.courseId) : null)
 
@@ -41,12 +45,11 @@ useEditorKeyboard({
 
 // All tabs always visible
 const tabs = computed<Array<{ key: EditorTab; label: string }>>(() => [
-  { key: 'content', label: t('panel.manualEditor.tabs.content') },
+  { key: 'lesson', label: t('panel.manualEditor.tabs.lesson') },
+  { key: 'activities', label: t('panel.manualEditor.tabs.activities') },
   { key: 'course-info', label: t('panel.manualEditor.tabs.courseInfo') },
   { key: 'media', label: t('panel.manualEditor.tabs.media') },
   { key: 'preview', label: t('panel.manualEditor.tabs.preview') },
-  { key: 'lesson-settings', label: t('panel.manualEditor.tabs.lessonSettings') },
-  { key: 'knowledge', label: t('panel.manualEditor.tabs.knowledge') },
 ])
 
 // Initialize: load course if ID provided, otherwise show selector
@@ -57,29 +60,48 @@ onMounted(async () => {
   isInitialized.value = true
 })
 
+const loadError = ref<string | null>(null)
+
 const handleSelectCourse = async (courseId: number) => {
   selectedCourseId.value = courseId
-  await store.loadCourseForEdit(courseId)
-}
-
-const handleCreateCourse = async () => {
-  await store.createNewCourse()
-  if (store.currentCourse) {
-    selectedCourseId.value = store.currentCourse.course_id
+  loadError.value = null
+  try {
+    await store.loadCourseForEdit(courseId)
+  } catch {
+    loadError.value = t('panel.manualEditor.errors.loadFailed')
+    selectedCourseId.value = null
   }
 }
 
-const handleBackToList = () => {
+const handleCreateCourse = async () => {
+  loadError.value = null
+  try {
+    await store.createNewCourse({ title: t('panel.manualEditor.courseSelector.defaultTitle') })
+    if (store.currentCourse) {
+      selectedCourseId.value = store.currentCourse.course_id
+    }
+  } catch {
+    loadError.value = t('panel.manualEditor.errors.createFailed')
+    selectedCourseId.value = null
+  }
+}
+
+const handleBackToList = async () => {
+  if (store.isDirty && !(await confirmDialog(t('panel.manualEditor.toolbar.confirmDiscard')))) return
   selectedCourseId.value = null
   store.clearEditor()
 }
 
 const handleTogglePublish = async () => {
   if (!store.currentCourse) return
-  if (store.currentCourse.is_published) {
-    await store.unpublishCourse()
-  } else {
-    await store.publishCourse()
+  try {
+    if (store.currentCourse.is_published) {
+      await store.unpublishCourse()
+    } else {
+      await store.publishCourse()
+    }
+  } catch {
+    // Error already surfaced via store.error
   }
 }
 
@@ -88,13 +110,24 @@ onBeforeUnmount(() => {
 })
 
 const handleSave = async (): Promise<void> => {
-  await store.saveAllChanges()
+  dismissError()
+  await triggerSave()
 }
 
 const formatSaveTime = (date: Date | null): string => {
   if (!date) return ''
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
+
+const saveStatusLabel = computed(() => {
+  const labels: Record<AutoSaveStatus, string> = {
+    saved: t('panel.manualEditor.toolbar.saved'),
+    saving: t('panel.manualEditor.toolbar.saving'),
+    unsaved: t('panel.manualEditor.toolbar.unsaved'),
+    error: t('panel.manualEditor.toolbar.error'),
+  }
+  return labels[saveStatus.value]
+})
 </script>
 
 <template>
@@ -105,11 +138,18 @@ const formatSaveTime = (date: Date | null): string => {
     </div>
 
     <!-- Course selector (no course selected) -->
-    <CourseSelector
-      v-else-if="!selectedCourseId"
-      @select="handleSelectCourse"
-      @create="handleCreateCourse"
-    />
+    <template v-else-if="!selectedCourseId">
+      <InlineErrorBanner
+        v-if="loadError"
+        :message="loadError"
+        class="selector-error"
+        @dismiss="loadError = null"
+      />
+      <CourseSelector
+        @select="handleSelectCourse"
+        @create="handleCreateCourse"
+      />
+    </template>
 
     <!-- Editor layout (course selected) -->
     <template v-else>
@@ -149,14 +189,22 @@ const formatSaveTime = (date: Date | null): string => {
 
           <!-- Save status -->
           <span class="save-status" :class="saveStatus">
-            {{ $t(`panel.manualEditor.toolbar.${saveStatus}`) }}
-            <span v-if="lastSaved" class="save-time">
+            {{ saveStatusLabel }}
+            <span v-if="saveStatus === 'saved' && lastSaved" class="save-time">
               {{ formatSaveTime(lastSaved) }}
             </span>
           </span>
           <button class="save-btn" @click="handleSave" :disabled="store.saving">
             {{ store.saving ? $t('panel.manualEditor.toolbar.saving') : $t('panel.manualEditor.toolbar.save') }}
           </button>
+
+          <!-- Error banner (appears below toolbar) -->
+          <InlineErrorBanner
+            :message="saveError"
+            :hint="$t('panel.manualEditor.toolbar.retryHint')"
+            class="save-error-dropdown"
+            @dismiss="dismissError"
+          />
         </div>
       </div>
 
@@ -183,52 +231,48 @@ const formatSaveTime = (date: Date | null): string => {
 
         <!-- Tab content -->
         <div class="tab-content">
-          <ContentEditPanel v-if="activeTab === 'content'" />
+          <!-- Lesson tab: Content + Settings + Knowledge -->
+          <div v-if="activeTab === 'lesson'" class="lesson-tab">
+            <ContentEditPanel />
+            <LessonSettingsPanel />
+            <details class="knowledge-section" open>
+              <summary>{{ $t('panel.manualEditor.knowledge.chapterTheory') }}</summary>
+              <TheoryGenerationContainer
+                :chapter="store.selectedChapterId ? { chapter_id: store.selectedChapterId } : null"
+                :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id) } : null"
+                @generated="store.markDirty()"
+                @deleted="store.markDirty()"
+              />
+            </details>
+            <details class="knowledge-section">
+              <summary>{{ $t('panel.manualEditor.knowledge.lessonExplanation') }}</summary>
+              <ExplanationGenerationContainer
+                :lesson="store.currentLesson ? { lesson_id: store.currentLesson.lesson_id, title: store.currentLesson.title } : null"
+                :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id), title: store.currentCourse.title } : null"
+                @generated="store.markDirty()"
+                @deleted="store.markDirty()"
+              />
+            </details>
+          </div>
+
+          <!-- Activities tab -->
+          <LessonActivitiesSection
+            v-else-if="activeTab === 'activities'"
+            :lesson-id="store.currentLesson?.lesson_id ?? null"
+          />
 
           <CourseInfoPanel v-else-if="activeTab === 'course-info'" />
 
           <MediaUploadPanel v-else-if="activeTab === 'media'" />
 
           <PreviewPanel v-else-if="activeTab === 'preview'" />
-
-          <LessonSettingsPanel v-else-if="activeTab === 'lesson-settings'" />
-
-          <!-- Knowledge tab (Theory + Explanations) -->
-          <div v-else-if="activeTab === 'knowledge'" class="ai-tab-content">
-            <div class="knowledge-subtabs">
-              <button
-                :class="['subtab-btn', { active: knowledgeSubTab === 'chapter-theory' }]"
-                @click="knowledgeSubTab = 'chapter-theory'"
-              >
-                {{ $t('panel.manualEditor.knowledge.chapterTheory') }}
-              </button>
-              <button
-                :class="['subtab-btn', { active: knowledgeSubTab === 'lesson-explanation' }]"
-                @click="knowledgeSubTab = 'lesson-explanation'"
-              >
-                {{ $t('panel.manualEditor.knowledge.lessonExplanation') }}
-              </button>
-            </div>
-
-            <TheoryGenerationContainer
-              v-if="knowledgeSubTab === 'chapter-theory'"
-              :chapter="store.selectedChapterId ? { chapter_id: store.selectedChapterId } : null"
-              :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id) } : null"
-              @generated="store.markDirty()"
-              @deleted="store.markDirty()"
-            />
-            <ExplanationGenerationContainer
-              v-else
-              :lesson="store.currentLesson ? { lesson_id: store.currentLesson.lesson_id, title: store.currentLesson.title } : null"
-              :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id), title: store.currentCourse.title } : null"
-              @generated="store.markDirty()"
-              @deleted="store.markDirty()"
-            />
-          </div>
         </div>
       </div>
     </div>
     </template>
+
+    <!-- Global confirm dialog (singleton, renders via Teleport) -->
+    <ConfirmDialog />
   </div>
 </template>
 
@@ -290,6 +334,8 @@ const formatSaveTime = (date: Date | null): string => {
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  flex-wrap: wrap;
 }
 
 .publish-badge {
@@ -321,40 +367,31 @@ const formatSaveTime = (date: Date | null): string => {
   transition: filter 0.15s;
 }
 
-.btn-publish:hover {
-  filter: brightness(0.9);
-}
+.btn-publish:hover { filter: brightness(0.9); }
+.btn-publish:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-unpublish { background: var(--color-warning); }
 
-.btn-publish:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.save-status { font-size: 12px; color: var(--color-text-tertiary); }
+.save-status.saved { color: var(--color-success); }
+.save-status.saving { color: var(--color-warning); }
+.save-status.unsaved { color: var(--color-error); }
 
-.btn-unpublish {
-  background: var(--color-warning);
-}
-
-.save-status {
-  font-size: 12px;
-  color: var(--color-text-tertiary);
-}
-
-.save-status.saved {
-  color: var(--color-success);
-}
-
-.save-status.saving {
-  color: var(--color-warning);
-}
-
-.save-status.unsaved {
+.save-status.error {
   color: var(--color-error);
+  font-weight: 600;
 }
 
-.save-time {
-  margin-left: 4px;
-  color: var(--color-text-tertiary);
+/* Positioning override: dropdown below toolbar */
+.save-error-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  white-space: nowrap;
+  border-radius: 0 0 6px 6px;
 }
+
+.save-time { margin-left: 4px; color: var(--color-text-tertiary); }
 
 .save-btn {
   padding: 6px 14px;
@@ -367,17 +404,9 @@ const formatSaveTime = (date: Date | null): string => {
   font-weight: 500;
 }
 
-.save-btn:hover {
-  background: var(--color-accent-hover, var(--color-accent));
-  filter: brightness(0.9);
-}
+.save-btn:hover { background: var(--color-accent-hover, var(--color-accent)); filter: brightness(0.9); }
+.save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.save-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Loading */
 .loading-state {
   flex: 1;
   display: flex;
@@ -386,7 +415,6 @@ const formatSaveTime = (date: Date | null): string => {
   color: var(--color-text-tertiary);
 }
 
-/* Main layout */
 .editor-body {
   display: flex;
   flex: 1;
@@ -411,7 +439,6 @@ const formatSaveTime = (date: Date | null): string => {
   background: var(--color-surface);
 }
 
-/* Tab bar */
 .tab-bar {
   display: flex;
   gap: 0;
@@ -433,63 +460,37 @@ const formatSaveTime = (date: Date | null): string => {
   white-space: nowrap;
 }
 
-.tab-btn:hover {
-  color: var(--color-text-primary);
-  background: var(--color-surface-secondary);
-  filter: brightness(0.95);
-}
+.tab-btn:hover { color: var(--color-text-primary); background: var(--color-surface-secondary); filter: brightness(0.95); }
+.tab-btn.active { color: var(--color-accent); border-bottom-color: var(--color-accent); font-weight: 500; }
 
-.tab-btn.active {
-  color: var(--color-accent);
-  border-bottom-color: var(--color-accent);
-  font-weight: 500;
-}
+.tab-content { flex: 1; overflow: hidden; }
 
-/* Tab content */
-.tab-content {
-  flex: 1;
-  overflow: hidden;
-}
-
-.ai-tab-content {
+/* Lesson tab (combined content + settings + knowledge) */
+.lesson-tab {
   height: 100%;
-  overflow: auto;
-}
-
-.knowledge-subtabs {
+  overflow-y: auto;
   display: flex;
-  gap: 4px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  flex-direction: column;
 }
 
-.subtab-btn {
-  padding: 5px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  background: var(--color-surface);
-  cursor: pointer;
-  font-size: 12px;
+.knowledge-section {
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.knowledge-section summary {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  transition: all 0.15s;
+  cursor: pointer;
+  background: var(--color-surface-secondary);
+  user-select: none;
 }
 
-.subtab-btn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-}
+.knowledge-section summary:hover { color: var(--color-text-primary); }
+.knowledge-section[open] summary { border-bottom: 1px solid var(--color-border); }
 
-.subtab-btn.active {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: white;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .sidebar {
-    width: 180px;
-  }
-}
+.selector-error { margin: 8px 16px 0; }
+@media (max-width: 900px) { .sidebar { width: 180px; } }
 </style>

@@ -3,9 +3,8 @@
  */
 
 export type EditorTab =
-  | 'content'
+  | 'lesson'
+  | 'activities'
   | 'course-info'
   | 'media'
   | 'preview'
-  | 'lesson-settings'
-  | 'knowledge'

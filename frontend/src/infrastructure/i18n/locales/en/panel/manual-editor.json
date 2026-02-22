@@ -1,12 +1,11 @@
 {
   "manualEditor": {
     "tabs": {
-      "content": "Content",
+      "lesson": "Lesson",
+      "activities": "Activities",
       "courseInfo": "Course Info",
       "media": "Media",
-      "preview": "Preview",
-      "lessonSettings": "Lesson",
-      "knowledge": "Knowledge"
+      "preview": "Preview"
     },
     "knowledge": {
       "chapterTheory": "Chapter Theory",
@@ -37,7 +36,25 @@
       "quizAddAnswer": "Add answer",
       "quizCorrect": "Correct answer",
       "aiPrompt": "AI Prompt",
-      "aiGenerate": "Generate"
+      "aiGenerate": "Generate",
+      "toolbarBold": "Bold",
+      "toolbarItalic": "Italic",
+      "toolbarUnderline": "Underline",
+      "toolbarStrikethrough": "Strikethrough",
+      "toolbarHeading": "Heading {level}",
+      "toolbarBulletList": "Bullet list",
+      "toolbarOrderedList": "Ordered list",
+      "toolbarCodeBlock": "Code block",
+      "toolbarAlignLeft": "Align left",
+      "toolbarAlignCenter": "Align center",
+      "toolbarAlignRight": "Align right",
+      "toolbarUndo": "Undo",
+      "toolbarRedo": "Redo",
+      "enterUrl": "Enter link URL",
+      "enterImageUrl": "Enter image URL",
+      "cancel": "Cancel",
+      "confirm": "OK",
+      "insert": "Insert"
     },
     "courseInfo": {
       "title": "Course Information",
@@ -56,7 +73,9 @@
       "visibility": "Visibility",
       "visibilityPublic": "Public",
       "visibilityPrivate": "Private",
-      "visibilityUnlisted": "Unlisted"
+      "visibilityUnlisted": "Unlisted",
+      "saveFailed": "Save failed",
+      "noCourseLoaded": "No course loaded"
     },
     "media": {
       "title": "Media Library",
@@ -80,24 +99,34 @@
     "lessonSettings": {
       "title": "Lesson Settings",
       "lessonTitle": "Title",
-      "lessonType": "Type",
       "typeText": "Text",
       "typeVideo": "Video",
-      "typeInteractive": "Interactive",
-      "typeAssignment": "Assignment",
-      "typeDiscussion": "Discussion",
       "typeQuiz": "Quiz",
       "readingTime": "Reading time",
       "readingTimeAuto": "Automatically calculated",
+      "minuteUnit": "min",
       "position": "Position",
       "notes": "Internal notes",
       "notesHint": "Only visible to authors"
+    },
+    "errors": {
+      "loadFailed": "Failed to load course",
+      "createFailed": "Failed to create course",
+      "updateFailed": "Update failed",
+      "publishFailed": "Publish failed",
+      "unpublishFailed": "Unpublish failed",
+      "listFailed": "Failed to load course list",
+      "genericError": "An error occurred"
     },
     "toolbar": {
       "save": "Save",
       "saving": "Saving...",
       "saved": "Saved",
-      "unsaved": "Unsaved"
+      "unsaved": "Unsaved",
+      "error": "Save failed",
+      "retryHint": "Auto-retry in 5s — or click Save",
+      "dismiss": "Dismiss",
+      "confirmDiscard": "You have unsaved changes. Discard them?"
     },
     "levels": {
       "beginner": "Beginner",
@@ -118,9 +147,13 @@
       "selectMethod": "Select learning method",
       "activityTitle": "Activity title",
       "confirmDelete": "Really delete activity \"{title}\"?",
+      "noLessonSelected": "Select a lesson from the structure",
       "groupA": "Explanatory",
       "groupB": "Practice",
-      "groupC": "Assessment"
+      "groupC": "Assessment",
+      "addFailed": "Failed to create activity",
+      "deleteActivity": "Delete activity",
+      "deleteFailed": "Failed to delete activity"
     },
     "activityEditor": {
       "unsupported": "Form not available for this type",
@@ -238,6 +271,7 @@
     },
     "courseSelector": {
       "title": "My Courses",
+      "defaultTitle": "New Course",
       "createNew": "Create new course",
       "search": "Search courses...",
       "noCourses": "No courses yet",

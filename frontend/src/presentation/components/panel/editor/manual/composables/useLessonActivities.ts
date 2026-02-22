@@ -5,20 +5,25 @@
  * Wraps infrastructure API calls per DDD layer rules (presentation -> application -> infrastructure).
  */
 import { ref, watch, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import * as activitiesApi from '@/infrastructure/api/clients/panel/editor/courses/activities.api'
 import type { LessonActivity } from '@/infrastructure/api/clients/panel/editor/courses/activities.api'
 
 export type { LessonActivity }
 
-export function useLessonActivities(lessonId: Ref<string | null>) {
+export function useLessonActivities(lessonId: Ref<number | null>) {
+  const { t } = useI18n()
   const activities = ref<LessonActivity[]>([])
   const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  const loadActivities = async (id: string) => {
+  const loadActivities = async (id: number) => {
     loading.value = true
+    error.value = null
     try {
       activities.value = await activitiesApi.getLessonActivities(id)
-    } catch {
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : t('panel.manualEditor.errors.genericError')
       activities.value = []
     } finally {
       loading.value = false
@@ -30,6 +35,7 @@ export function useLessonActivities(lessonId: Ref<string | null>) {
       await loadActivities(id)
     } else {
       activities.value = []
+      error.value = null
     }
   }, { immediate: true })
 
@@ -50,17 +56,15 @@ export function useLessonActivities(lessonId: Ref<string | null>) {
     if (idx !== -1) activities.value[idx] = updated
   }
 
-  const reorder = async (orderedIds: string[]) => {
-    if (!lessonId.value) return
-    await activitiesApi.reorderLessonActivities(lessonId.value, orderedIds)
-  }
+  const clearError = () => { error.value = null }
 
   return {
     activities,
     loading,
+    error,
+    clearError,
     addActivity,
     removeActivity,
     updateActivityLocal,
-    reorder,
   }
 }

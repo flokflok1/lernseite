@@ -2,22 +2,19 @@
  * LessonSettingsPanel.vue
  *
  * Settings for the currently selected lesson.
- * Editable title, type selector, estimated reading time, internal notes.
- * Includes LessonActivitiesSection for managing learning method activities.
+ * Editable title, estimated reading time, position, internal notes.
  */
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
-import LessonActivitiesSection from './LessonActivitiesSection.vue'
 
 const { t } = useI18n()
 const store = useCourseEditorStore()
 
 const localTitle = ref('')
 const localNotes = ref('')
-const localType = ref('text') // Always 'text' — type selector removed, lessons are rich-text + LM activities
 
 const lesson = computed(() => store.currentLesson)
 
@@ -34,8 +31,7 @@ const estimatedReadingTime = computed(() => {
 watch(lesson, (newLesson) => {
   if (newLesson) {
     localTitle.value = newLesson.title || ''
-    localNotes.value = (newLesson as any).notes || ''
-    localType.value = newLesson.lesson_type || 'text'
+    localNotes.value = newLesson.notes || ''
   }
 }, { immediate: true })
 
@@ -46,7 +42,7 @@ const updateTitle = async () => {
 
 const updateNotes = async () => {
   if (!lesson.value) return
-  await store.updateLessonMeta(lesson.value.lesson_id, { notes: localNotes.value } as any)
+  await store.updateLessonMeta(lesson.value.lesson_id, { notes: localNotes.value })
 }
 </script>
 
@@ -75,14 +71,14 @@ const updateNotes = async () => {
       <div class="form-group">
         <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.readingTime') }}</label>
         <div class="reading-time">
-          <span class="time-value">{{ estimatedReadingTime }} min</span>
+          <span class="time-value">{{ estimatedReadingTime }} {{ $t('panel.manualEditor.lessonSettings.minuteUnit') }}</span>
           <span class="time-hint">{{ $t('panel.manualEditor.lessonSettings.readingTimeAuto') }}</span>
         </div>
       </div>
 
       <!-- Order display -->
       <div class="form-group">
-        <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.position') || 'Position' }}</label>
+        <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.position') }}</label>
         <div class="position-display">
           #{{ lesson.order_index ?? '-' }}
         </div>
@@ -100,8 +96,6 @@ const updateNotes = async () => {
         ></textarea>
       </div>
 
-      <!-- Activities / Learning Methods -->
-      <LessonActivitiesSection :lesson-id="lesson.lesson_id" />
     </div>
   </div>
 </template>

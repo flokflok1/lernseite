@@ -9,24 +9,33 @@
 <script setup lang="ts">
 import { ref, computed, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useLessonActivities } from '../composables'
+import { useLessonActivities, useConfirmDialog } from '../composables'
 import type { LessonActivity } from '../composables'
-import { useWindowStore } from '@/application/stores/modules/ui/window.store'
+import { useWindowStore, type LsxWindow } from '@/application/stores/modules/ui/window.store'
 import { useActivitySyncStore } from '@/application/stores/modules/content/activitySync.store'
+import InlineErrorBanner from './InlineErrorBanner.vue'
 
 const props = defineProps<{
-  lessonId: string | null
+  lessonId: number | null
 }>()
 
 const { t } = useI18n()
+const { confirm: confirmDialog } = useConfirmDialog()
 const windowStore = useWindowStore()
 const activitySyncStore = useActivitySyncStore()
 
-const { activities, loading, addActivity: apiAddActivity, removeActivity: apiRemoveActivity, updateActivityLocal } = useLessonActivities(toRef(props, 'lessonId'))
+const { activities, loading, error: activitiesError, clearError: clearActivitiesError, addActivity: apiAddActivity, removeActivity: apiRemoveActivity, updateActivityLocal } = useLessonActivities(toRef(props, 'lessonId'))
+
+const errorMessage = ref<string | null>(null)
+
+const clearAllErrors = () => {
+  clearActivitiesError()
+  errorMessage.value = null
+}
 
 // Sync saves from floating windows back to the list
 watch(() => activitySyncStore.lastSaved, (saved) => {
-  if (saved && saved.lesson_id === props.lessonId) {
+  if (saved && Number(saved.lesson_id) === props.lessonId) {
     updateActivityLocal(saved)
   }
 })
@@ -34,7 +43,7 @@ watch(() => activitySyncStore.lastSaved, (saved) => {
 const openActivityWindow = (activity: LessonActivity) => {
   // Check if a window for this activity is already open -> focus it
   const existing = windowStore.panels.find(
-    (p: any) => p.type === 'activity-editor' && p.payload?.activity?.method_id === activity.method_id
+    (p: LsxWindow) => p.type === 'activity-editor' && ((p.payload as { activity?: LessonActivity })?.activity?.method_id === activity.method_id)
   )
   if (existing) {
     windowStore.focusWindow(existing.id)
@@ -54,6 +63,11 @@ const showAddForm = ref(false)
 const newActivityType = ref<number>(0)
 const newActivityTitle = ref('')
 
+/**
+ * Resolve localized LM name. Depends on keys from content.json:
+ * `lesson.methodExecution.methods.lm00` ... `lm11`
+ * (not from manual-editor.json — cross-locale bundle dependency)
+ */
 const lmName = (id: number): string => {
   return t(`lesson.methodExecution.methods.lm${String(id).padStart(2, '0')}`)
 }
@@ -75,33 +89,45 @@ const lmGroups = computed(() => [
 
 const addActivity = async () => {
   if (!props.lessonId || !newActivityTitle.value.trim()) return
+  errorMessage.value = null
   try {
     await apiAddActivity(newActivityType.value, newActivityTitle.value.trim())
     newActivityTitle.value = ''
     showAddForm.value = false
   } catch (e) {
-    console.error('Failed to create activity:', e)
+    errorMessage.value = e instanceof Error ? e.message : t('panel.manualEditor.activities.addFailed')
   }
 }
 
 const removeActivity = async (activityId: string, title: string) => {
-  if (!confirm(t('panel.manualEditor.activities.confirmDelete', { title }))) return
+  if (!(await confirmDialog(t('panel.manualEditor.activities.confirmDelete', { title })))) return
+  errorMessage.value = null
   try {
     await apiRemoveActivity(activityId)
   } catch (e) {
-    console.error('Failed to delete activity:', e)
+    errorMessage.value = e instanceof Error ? e.message : t('panel.manualEditor.activities.deleteFailed')
   }
 }
 
-const getMethodName = (methodType: number): string => lmName(methodType)
 </script>
 
 <template>
   <div class="activities-section">
     <label class="section-label">{{ $t('panel.manualEditor.activities.title') }}</label>
 
+    <!-- Error banner -->
+    <InlineErrorBanner
+      :message="activitiesError || errorMessage"
+      @dismiss="clearAllErrors"
+    />
+
+    <!-- No lesson selected -->
+    <div v-if="!lessonId" class="activities-empty">
+      <p>{{ $t('panel.manualEditor.activities.noLessonSelected') }}</p>
+    </div>
+
     <!-- Loading -->
-    <div v-if="loading" class="activities-loading">...</div>
+    <div v-else-if="loading" class="activities-loading">...</div>
 
     <!-- Activity list -->
     <div v-else-if="activities.length > 0" class="activities-list">
@@ -113,16 +139,18 @@ const getMethodName = (methodType: number): string => lmName(methodType)
         <div class="activity-info" @click="openActivityWindow(activity)">
           <span class="activity-type-badge">LM{{ String(activity.method_type).padStart(2, '0') }}</span>
           <span class="activity-title">{{ activity.title }}</span>
-          <span class="activity-method-name">{{ getMethodName(activity.method_type) }}</span>
+          <span class="activity-method-name">{{ lmName(activity.method_type) }}</span>
         </div>
         <div class="activity-actions">
           <button
             class="activity-edit-btn"
             :title="$t('panel.manualEditor.activityEditor.openEditor')"
+            :aria-label="$t('panel.manualEditor.activityEditor.openEditor')"
             @click="openActivityWindow(activity)"
           >&#x270E;</button>
           <button
             class="activity-delete-btn"
+            :aria-label="$t('panel.manualEditor.activities.deleteActivity')"
             @click="removeActivity(activity.method_id, activity.title)"
           >&times;</button>
         </div>
@@ -136,7 +164,7 @@ const getMethodName = (methodType: number): string => lmName(methodType)
     </div>
 
     <!-- Add activity form -->
-    <div v-if="showAddForm" class="add-activity-form">
+    <div v-if="lessonId && showAddForm" class="add-activity-form">
       <select v-model="newActivityType" class="form-select">
         <optgroup v-for="group in lmGroups" :key="group.label" :label="group.label">
           <option v-for="m in group.methods" :key="m.type" :value="m.type">
@@ -158,7 +186,7 @@ const getMethodName = (methodType: number): string => lmName(methodType)
     </div>
 
     <button
-      v-else
+      v-else-if="lessonId"
       class="btn-add-activity"
       @click="showAddForm = true"
     >
@@ -365,4 +393,5 @@ const getMethodName = (methodType: number): string => lmName(methodType)
   font-size: 12px;
   padding: 8px 0;
 }
+
 </style>

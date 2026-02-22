@@ -1,12 +1,11 @@
 {
   "manualEditor": {
     "tabs": {
-      "content": "Inhalt",
+      "lesson": "Lektion",
+      "activities": "Aufgaben",
       "courseInfo": "Kurs-Info",
       "media": "Medien",
-      "preview": "Vorschau",
-      "lessonSettings": "Lektion",
-      "knowledge": "Wissen"
+      "preview": "Vorschau"
     },
     "knowledge": {
       "chapterTheory": "Kapitel-Theorie",
@@ -37,7 +36,25 @@
       "quizAddAnswer": "Antwort hinzufügen",
       "quizCorrect": "Richtige Antwort",
       "aiPrompt": "KI-Prompt",
-      "aiGenerate": "Generieren"
+      "aiGenerate": "Generieren",
+      "toolbarBold": "Fett",
+      "toolbarItalic": "Kursiv",
+      "toolbarUnderline": "Unterstrichen",
+      "toolbarStrikethrough": "Durchgestrichen",
+      "toolbarHeading": "Überschrift {level}",
+      "toolbarBulletList": "Aufzählung",
+      "toolbarOrderedList": "Nummerierte Liste",
+      "toolbarCodeBlock": "Code-Block",
+      "toolbarAlignLeft": "Links ausrichten",
+      "toolbarAlignCenter": "Zentrieren",
+      "toolbarAlignRight": "Rechts ausrichten",
+      "toolbarUndo": "Rückgängig",
+      "toolbarRedo": "Wiederholen",
+      "enterUrl": "Link-URL eingeben",
+      "enterImageUrl": "Bild-URL eingeben",
+      "cancel": "Abbrechen",
+      "confirm": "OK",
+      "insert": "Einfügen"
     },
     "courseInfo": {
       "title": "Kurs-Informationen",
@@ -56,7 +73,9 @@
       "visibility": "Sichtbarkeit",
       "visibilityPublic": "Öffentlich",
       "visibilityPrivate": "Privat",
-      "visibilityUnlisted": "Nicht gelistet"
+      "visibilityUnlisted": "Nicht gelistet",
+      "saveFailed": "Speichern fehlgeschlagen",
+      "noCourseLoaded": "Kein Kurs geladen"
     },
     "media": {
       "title": "Medien-Bibliothek",
@@ -80,24 +99,34 @@
     "lessonSettings": {
       "title": "Lektion-Einstellungen",
       "lessonTitle": "Titel",
-      "lessonType": "Typ",
       "typeText": "Text",
       "typeVideo": "Video",
-      "typeInteractive": "Interaktiv",
-      "typeAssignment": "Aufgabe",
-      "typeDiscussion": "Diskussion",
       "typeQuiz": "Quiz",
       "readingTime": "Lesezeit",
       "readingTimeAuto": "Automatisch berechnet",
+      "minuteUnit": "min",
       "position": "Position",
       "notes": "Interne Notizen",
       "notesHint": "Nur für Autoren sichtbar"
+    },
+    "errors": {
+      "loadFailed": "Kurs konnte nicht geladen werden",
+      "createFailed": "Kurs konnte nicht erstellt werden",
+      "updateFailed": "Aktualisierung fehlgeschlagen",
+      "publishFailed": "Veröffentlichung fehlgeschlagen",
+      "unpublishFailed": "Zurückziehen fehlgeschlagen",
+      "listFailed": "Kursliste konnte nicht geladen werden",
+      "genericError": "Ein Fehler ist aufgetreten"
     },
     "toolbar": {
       "save": "Speichern",
       "saving": "Speichern...",
       "saved": "Gespeichert",
-      "unsaved": "Ungespeichert"
+      "unsaved": "Ungespeichert",
+      "error": "Fehler beim Speichern",
+      "retryHint": "Automatischer Retry in 5s — oder klicke Speichern",
+      "dismiss": "Ausblenden",
+      "confirmDiscard": "Du hast ungespeicherte Änderungen. Wirklich verwerfen?"
     },
     "levels": {
       "beginner": "Anfänger",
@@ -118,9 +147,13 @@
       "selectMethod": "Lernmethode wählen",
       "activityTitle": "Aufgaben-Titel",
       "confirmDelete": "Aufgabe \"{title}\" wirklich löschen?",
+      "noLessonSelected": "Wähle eine Lektion aus der Struktur",
       "groupA": "Erklärend",
       "groupB": "Übung",
-      "groupC": "Prüfung"
+      "groupC": "Prüfung",
+      "addFailed": "Aufgabe konnte nicht erstellt werden",
+      "deleteActivity": "Aufgabe löschen",
+      "deleteFailed": "Aufgabe konnte nicht gelöscht werden"
     },
     "activityEditor": {
       "unsupported": "Formular für diesen Typ nicht verfügbar",
@@ -238,6 +271,7 @@
     },
     "courseSelector": {
       "title": "Meine Kurse",
+      "defaultTitle": "Neuer Kurs",
       "createNew": "Neuen Kurs erstellen",
       "search": "Kurs suchen...",
       "noCourses": "Noch keine Kurse vorhanden",

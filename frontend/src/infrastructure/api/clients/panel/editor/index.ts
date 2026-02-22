@@ -45,8 +45,6 @@ export {
   deleteLesson,
   reorderLessons,
   getLessonsForEdit,
-  publishCourse,
-  unpublishCourse,
   updateCourseStatus,
   type CreateCoursePayload,
   type UpdateCoursePayload,
@@ -59,6 +57,16 @@ export {
   type EditableLesson,
   type ReorderPayload
 } from './courses/courses.api'
+
+// Activities
+export {
+  getLessonActivities,
+  createLessonActivity,
+  updateLessonActivity,
+  deleteLessonActivity,
+  reorderLessonActivities,
+  type LessonActivity,
+} from './courses/activities.api'
 
 // Categories
 export {

@@ -7,9 +7,11 @@
  */
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
+import type { CategoryTreeNode } from '@/infrastructure/api/clients/panel/editor'
+import InlineErrorBanner from './InlineErrorBanner.vue'
 
 const { t } = useI18n()
 const store = useCourseEditorStore()
@@ -44,9 +46,15 @@ watch(course, (c) => {
 }, { immediate: true })
 
 const descriptionLength = computed(() => description.value.length)
+const saveError = ref<string | null>(null)
 
-const saveField = (field: string, value: unknown): void => {
-  store.updateCourseMeta({ [field]: value })
+const saveField = async (field: string, value: unknown): Promise<void> => {
+  try {
+    await store.updateCourseMeta({ [field]: value })
+    saveError.value = null
+  } catch {
+    saveError.value = t('panel.manualEditor.courseInfo.saveFailed')
+  }
 }
 
 const handleTitleBlur = (): void => {
@@ -104,6 +112,29 @@ const handleTagKeydown = (e: KeyboardEvent): void => {
   }
 }
 
+// Load categories on mount
+onMounted(() => {
+  store.loadCategories()
+})
+
+// Flatten category tree for <select> display with indentation
+interface FlatCategory { id: number; label: string }
+const flatCategories = computed<FlatCategory[]>(() => {
+  const result: FlatCategory[] = []
+  const flatten = (nodes: CategoryTreeNode[], depth: number) => {
+    for (const node of nodes) {
+      const prefix = depth > 0 ? '\u00A0\u00A0'.repeat(depth) + '└ ' : ''
+      result.push({ id: node.category_id, label: prefix + node.name })
+      if (node.children?.length) {
+        flatten(node.children, depth + 1)
+      }
+    }
+  }
+  const tree = store.categoryTree
+  flatten(tree?.categories || [], 0)
+  return result
+})
+
 const languages = [
   { code: 'de', label: 'Deutsch' },
   { code: 'en', label: 'English' },
@@ -118,8 +149,14 @@ const languages = [
   <div class="course-info-panel">
     <h3 class="panel-title">{{ $t('panel.manualEditor.courseInfo.title') }}</h3>
 
+    <InlineErrorBanner
+      :message="saveError"
+      class="save-error-margin"
+      @dismiss="saveError = null"
+    />
+
     <div v-if="!course" class="empty-state">
-      <p>{{ $t('panel.manualEditor.content.noLessonSelected') }}</p>
+      <p>{{ $t('panel.manualEditor.courseInfo.noCourseLoaded') }}</p>
     </div>
 
     <div v-else class="form-fields">
@@ -193,13 +230,12 @@ const languages = [
       <!-- Category -->
       <div class="field">
         <label>{{ $t('panel.manualEditor.courseInfo.category') }}</label>
-        <input
-          v-model.number="categoryId"
-          type="number"
-          min="0"
-          :placeholder="$t('panel.manualEditor.courseInfo.categoryHint')"
-          @blur="handleCategoryChange"
-        />
+        <select v-model="categoryId" @change="handleCategoryChange">
+          <option :value="null">{{ $t('panel.manualEditor.courseInfo.categoryHint') }}</option>
+          <option v-for="cat in flatCategories" :key="cat.id" :value="cat.id">
+            {{ cat.label }}
+          </option>
+        </select>
       </div>
 
       <!-- Duration -->
@@ -392,4 +428,7 @@ const languages = [
   height: auto;
   display: block;
 }
+
+/* Save error margin override */
+.save-error-margin { margin-bottom: 12px; }
 </style>

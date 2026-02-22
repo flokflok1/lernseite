@@ -1,12 +1,11 @@
 {
   "manualEditor": {
     "tabs": {
-      "content": "Treść",
+      "lesson": "Lekcja",
+      "activities": "Zadania",
       "courseInfo": "Info o kursie",
       "media": "Media",
-      "preview": "Podgląd",
-      "lessonSettings": "Lekcja",
-      "knowledge": "Wiedza"
+      "preview": "Podgląd"
     },
     "knowledge": {
       "chapterTheory": "Teoria rozdziału",
@@ -37,7 +36,25 @@
       "quizAddAnswer": "Dodaj odpowiedź",
       "quizCorrect": "Prawidłowa odpowiedź",
       "aiPrompt": "Prompt AI",
-      "aiGenerate": "Generuj"
+      "aiGenerate": "Generuj",
+      "toolbarBold": "Pogrubienie",
+      "toolbarItalic": "Kursywa",
+      "toolbarUnderline": "Podkreślenie",
+      "toolbarStrikethrough": "Przekreślenie",
+      "toolbarHeading": "Nagłówek {level}",
+      "toolbarBulletList": "Lista punktowana",
+      "toolbarOrderedList": "Lista numerowana",
+      "toolbarCodeBlock": "Blok kodu",
+      "toolbarAlignLeft": "Wyrównaj do lewej",
+      "toolbarAlignCenter": "Wyśrodkuj",
+      "toolbarAlignRight": "Wyrównaj do prawej",
+      "toolbarUndo": "Cofnij",
+      "toolbarRedo": "Ponów",
+      "enterUrl": "Podaj URL linku",
+      "enterImageUrl": "Podaj URL obrazu",
+      "cancel": "Anuluj",
+      "confirm": "OK",
+      "insert": "Wstaw"
     },
     "courseInfo": {
       "title": "Informacje o kursie",
@@ -53,10 +70,12 @@
       "visibilityPublic": "Publiczny",
       "visibilityPrivate": "Prywatny",
       "visibilityUnlisted": "Niewidoczny",
+      "saveFailed": "Zapisywanie nie powiodło się",
       "thumbnail": "URL miniatury",
       "thumbnailHint": "Bezpośredni link do obrazu (np. https://...)",
       "category": "Kategoria",
-      "categoryHint": "ID kategorii (opcjonalne)"
+      "categoryHint": "ID kategorii (opcjonalne)",
+      "noCourseLoaded": "Nie załadowano kursu"
     },
     "media": {
       "title": "Biblioteka mediów",
@@ -80,24 +99,34 @@
     "lessonSettings": {
       "title": "Ustawienia lekcji",
       "lessonTitle": "Tytuł",
-      "lessonType": "Typ",
       "typeText": "Tekst",
       "typeVideo": "Wideo",
-      "typeInteractive": "Interaktywny",
-      "typeAssignment": "Zadanie",
-      "typeDiscussion": "Dyskusja",
       "typeQuiz": "Quiz",
       "readingTime": "Czas czytania",
       "readingTimeAuto": "Obliczany automatycznie",
+      "minuteUnit": "min",
       "position": "Pozycja",
       "notes": "Notatki wewnętrzne",
       "notesHint": "Widoczne tylko dla autorów"
+    },
+    "errors": {
+      "loadFailed": "Nie udało się załadować kursu",
+      "createFailed": "Nie udało się utworzyć kursu",
+      "updateFailed": "Aktualizacja nie powiodła się",
+      "publishFailed": "Publikacja nie powiodła się",
+      "unpublishFailed": "Cofnięcie publikacji nie powiodło się",
+      "listFailed": "Nie udało się załadować listy kursów",
+      "genericError": "Wystąpił błąd"
     },
     "toolbar": {
       "save": "Zapisz",
       "saving": "Zapisywanie...",
       "saved": "Zapisano",
-      "unsaved": "Niezapisane"
+      "unsaved": "Niezapisane",
+      "error": "Błąd zapisu",
+      "retryHint": "Automatyczny retry za 5s — lub kliknij Zapisz",
+      "dismiss": "Ukryj",
+      "confirmDiscard": "Masz niezapisane zmiany. Odrzucić je?"
     },
     "levels": {
       "beginner": "Początkujący",
@@ -118,9 +147,13 @@
       "selectMethod": "Wybierz metodę nauki",
       "activityTitle": "Tytuł zadania",
       "confirmDelete": "Czy na pewno usunąć zadanie \"{title}\"?",
+      "noLessonSelected": "Wybierz lekcję ze struktury",
       "groupA": "Wyjaśniające",
       "groupB": "Ćwiczenia",
-      "groupC": "Ocena"
+      "groupC": "Ocena",
+      "addFailed": "Nie udało się utworzyć zadania",
+      "deleteActivity": "Usuń zadanie",
+      "deleteFailed": "Nie udało się usunąć zadania"
     },
     "activityEditor": {
       "unsupported": "Formularz niedostępny dla tego typu",
@@ -238,6 +271,7 @@
     },
     "courseSelector": {
       "title": "Moje kursy",
+      "defaultTitle": "Nowy kurs",
       "createNew": "Utwórz nowy kurs",
       "search": "Szukaj kursów...",
       "noCourses": "Brak kursów",

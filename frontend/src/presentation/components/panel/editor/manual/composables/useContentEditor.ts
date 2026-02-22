@@ -11,6 +11,7 @@ import { useEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
+import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
 
@@ -23,19 +24,18 @@ export function useContentEditor() {
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        link: { openOnClick: false },
-      }),
+      StarterKit,
       Placeholder.configure({
         placeholder: () => t('panel.manualEditor.content.placeholder'),
       }),
       Image,
+      Underline,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: '',
     onUpdate: ({ editor: ed }) => {
       if (lesson.value) {
-        store.updateLessonContent(lesson.value.lesson_id, ed.getHTML())
+        store.setLocalContent(lesson.value.lesson_id, ed.getHTML())
       }
     },
   })
@@ -72,21 +72,19 @@ export function useContentEditor() {
   function undoAction(): void { editor.value?.chain().focus().undo().run() }
   function redoAction(): void { editor.value?.chain().focus().redo().run() }
 
-  function insertLink(): void {
-    const url = window.prompt('URL:')
+  function insertLink(url?: string): void {
     if (url) {
       editor.value?.chain().focus().setLink({ href: url }).run()
     }
   }
 
-  function insertImage(): void {
-    const url = window.prompt('Image URL:')
+  function insertImage(url?: string): void {
     if (url) {
       editor.value?.chain().focus().setImage({ src: url }).run()
     }
   }
 
-  function isActive(name: string, attrs?: Record<string, unknown>): boolean {
+  function isActive(name: string | Record<string, unknown>, attrs?: Record<string, unknown>): boolean {
     return editor.value?.isActive(name, attrs) || false
   }
 
@@ -94,7 +92,6 @@ export function useContentEditor() {
     editor,
     lesson,
     lessonType,
-    store,
     toggleBold,
     toggleItalic,
     toggleUnderline,

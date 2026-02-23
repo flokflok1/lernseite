@@ -6,6 +6,7 @@ import features from './features.json'
 import panels from './panels.json'
 import settings from './settings.json'
 import shared from './shared.json'
+import unified from './unified.json'
 
 export default {
   ...admin,
@@ -14,5 +15,6 @@ export default {
   ...features,
   ...panels,
   ...settings,
-  ...shared
+  ...shared,
+  ...unified
 }

@@ -57,7 +57,7 @@ function getLmRegistry() {
 
 // Import window content components lazily - Migrated to feature-domain structure (Wave 3-5, 2026-01-11)
 // AI Operations
-const AdminAiStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/studio/views/AiStudioProWindow.vue'))
+const AdminAiStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/unified/UnifiedAIEditorWindow.vue'))
 const AdminAIKapitelGeneratorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/authoring/views/KapitelGeneratorWindow.vue'))
 const AdminAIJobWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/ai/management/jobs/views/AIJobWindow.vue'))
 const AdminModelSelectorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/ai/management/models/views/ModelSelectorWindow.vue'))
@@ -86,7 +86,7 @@ const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentati
 
 // Editor Windows (Course Authoring - /editor route)
 const EditorManualWindow = defineAsyncComponent(() => import('@/presentation/pages/panel/editor/manual/ManualEditorWindow.vue'))
-const EditorAIStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/AIEditorWindow.vue'))
+const EditorAIStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/unified/UnifiedAIEditorWindow.vue'))
 const ActivityEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/manual/activity-editors/ActivityEditorWindow.vue'))
 
 const windowStore = useWindowStore()

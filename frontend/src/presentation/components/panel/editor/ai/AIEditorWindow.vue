@@ -1,20 +1,17 @@
 /**
  * AIEditorWindow.vue
  *
- * Thin window wrapper for AIEditorContainer.
- * Receives window prop from DesktopLayer and extracts payload data.
+ * DEPRECATED: Redirects to UnifiedAIEditorWindow.
+ * Kept for backward compatibility with existing panel/window references.
  */
 
 <template>
-  <AIEditorContainer
-    :project-id="(window?.payload?.projectId as string) || ''"
-    :course-id="(window?.payload?.courseId as string) || null"
-  />
+  <UnifiedAIEditorWindow :window="window" />
 </template>
 
 <script setup lang="ts">
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import AIEditorContainer from './AIEditorContainer.vue'
+import UnifiedAIEditorWindow from './unified/UnifiedAIEditorWindow.vue'
 
 defineProps<{ window: LsxWindow }>()
 </script>

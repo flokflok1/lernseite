@@ -1,0 +1,312 @@
+"""
+LernsystemX AI Skill Definitions
+
+Pure domain-level catalog of all executable AI skills for the Unified AI Editor.
+Maps the 12 Content-Lernmethoden + utility skills to executable definitions.
+
+No infrastructure imports allowed (DDD domain layer).
+"""
+
+from dataclasses import dataclass, field
+from typing import Optional
+
+
+@dataclass(frozen=True)
+class SkillParameter:
+    """A configurable parameter for a skill."""
+    key: str
+    label_i18n_key: str
+    param_type: str  # 'string', 'number', 'select', 'boolean'
+    default_value: object = None
+    options: tuple = ()  # tuple of (value, label_i18n_key) pairs
+    required: bool = False
+
+
+@dataclass(frozen=True)
+class SkillDefinition:
+    """
+    Defines an executable AI skill in the Unified Editor.
+
+    Each skill maps to either a Content-Lernmethode (LM 0-11) or a utility action.
+    The prompt_template_code references a registered PromptTemplate.
+    """
+    code: str
+    name_i18n_key: str
+    description_i18n_key: str
+    icon: str
+    category: str  # 'explanatory', 'practice', 'assessment', 'content', 'review'
+    prompt_template_code: str
+    learning_method_id: Optional[int] = None
+    required_context: tuple = ('course',)
+    parameters: tuple = ()
+    supports_variants: bool = True
+    estimated_tokens: int = 2000
+
+
+# ---------------------------------------------------------------------------
+# Shared parameter definitions (reused across skills)
+# ---------------------------------------------------------------------------
+
+_DIFFICULTY_PARAM = SkillParameter(
+    key='difficulty',
+    label_i18n_key='aiEditor.skills.params.difficulty',
+    param_type='select',
+    default_value='medium',
+    options=(
+        ('easy', 'aiEditor.skills.params.difficultyEasy'),
+        ('medium', 'aiEditor.skills.params.difficultyMedium'),
+        ('hard', 'aiEditor.skills.params.difficultyHard'),
+    ),
+)
+
+_COUNT_PARAM = SkillParameter(
+    key='count',
+    label_i18n_key='aiEditor.skills.params.count',
+    param_type='number',
+    default_value=5,
+)
+
+_LANGUAGE_PARAM = SkillParameter(
+    key='language',
+    label_i18n_key='aiEditor.skills.params.language',
+    param_type='select',
+    default_value='de',
+    options=(
+        ('de', 'common.languages.de'),
+        ('en', 'common.languages.en'),
+        ('pl', 'common.languages.pl'),
+    ),
+)
+
+
+# ---------------------------------------------------------------------------
+# Skill Catalog — 12 Content-Lernmethoden + 4 Utility Skills
+# ---------------------------------------------------------------------------
+
+SKILL_CATALOG: dict[str, SkillDefinition] = {
+
+    # ── Group A: Explanatory (LM 0-4) ──────────────────────────────────
+
+    'generate_deep_explanation': SkillDefinition(
+        code='generate_deep_explanation',
+        name_i18n_key='learningMethods.lm00.name',
+        description_i18n_key='aiEditor.skills.generateDeepExplanation.desc',
+        icon='BookOpen',
+        category='explanatory',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=0,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_step_by_step': SkillDefinition(
+        code='generate_step_by_step',
+        name_i18n_key='learningMethods.lm01.name',
+        description_i18n_key='aiEditor.skills.generateStepByStep.desc',
+        icon='ListOrdered',
+        category='explanatory',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=1,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_interactive_theory': SkillDefinition(
+        code='generate_interactive_theory',
+        name_i18n_key='learningMethods.lm02.name',
+        description_i18n_key='aiEditor.skills.generateInteractiveTheory.desc',
+        icon='MessageSquare',
+        category='explanatory',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=2,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_diagram': SkillDefinition(
+        code='generate_diagram',
+        name_i18n_key='learningMethods.lm03.name',
+        description_i18n_key='aiEditor.skills.generateDiagram.desc',
+        icon='GitBranch',
+        category='explanatory',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=3,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_example_scenario': SkillDefinition(
+        code='generate_example_scenario',
+        name_i18n_key='learningMethods.lm04.name',
+        description_i18n_key='aiEditor.skills.generateExampleScenario.desc',
+        icon='Lightbulb',
+        category='explanatory',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=4,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    # ── Group B: Practice (LM 5-8) ─────────────────────────────────────
+
+    'generate_math_interactive': SkillDefinition(
+        code='generate_math_interactive',
+        name_i18n_key='learningMethods.lm05.name',
+        description_i18n_key='aiEditor.skills.generateMathInteractive.desc',
+        icon='Calculator',
+        category='practice',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=5,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_flashcards': SkillDefinition(
+        code='generate_flashcards',
+        name_i18n_key='learningMethods.lm06.name',
+        description_i18n_key='aiEditor.skills.generateFlashcards.desc',
+        icon='Layers',
+        category='practice',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=6,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_drag_and_drop': SkillDefinition(
+        code='generate_drag_and_drop',
+        name_i18n_key='learningMethods.lm07.name',
+        description_i18n_key='aiEditor.skills.generateDragAndDrop.desc',
+        icon='Move',
+        category='practice',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=7,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_cloze_test': SkillDefinition(
+        code='generate_cloze_test',
+        name_i18n_key='learningMethods.lm08.name',
+        description_i18n_key='aiEditor.skills.generateClozeTest.desc',
+        icon='FileText',
+        category='practice',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=8,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    # ── Group C: Assessment (LM 9-11) ──────────────────────────────────
+
+    'generate_free_text': SkillDefinition(
+        code='generate_free_text',
+        name_i18n_key='learningMethods.lm09.name',
+        description_i18n_key='aiEditor.skills.generateFreeText.desc',
+        icon='PenTool',
+        category='assessment',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=9,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_ihk_tasks': SkillDefinition(
+        code='generate_ihk_tasks',
+        name_i18n_key='learningMethods.lm10.name',
+        description_i18n_key='aiEditor.skills.generateIhkTasks.desc',
+        icon='ClipboardCheck',
+        category='assessment',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=10,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_multi_step': SkillDefinition(
+        code='generate_multi_step',
+        name_i18n_key='learningMethods.lm11.name',
+        description_i18n_key='aiEditor.skills.generateMultiStep.desc',
+        icon='GitMerge',
+        category='assessment',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=11,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    # ── Utility Skills ──────────────────────────────────────────────────
+
+    'generate_theory_sheet': SkillDefinition(
+        code='generate_theory_sheet',
+        name_i18n_key='aiEditor.skills.generateTheorySheet.name',
+        description_i18n_key='aiEditor.skills.generateTheorySheet.desc',
+        icon='FileText',
+        category='content',
+        prompt_template_code='ai_editor_theory',
+        required_context=('course', 'lesson'),
+        parameters=(_LANGUAGE_PARAM,),
+        estimated_tokens=3000,
+    ),
+
+    'generate_quiz': SkillDefinition(
+        code='generate_quiz',
+        name_i18n_key='aiEditor.skills.generateQuiz.name',
+        description_i18n_key='aiEditor.skills.generateQuiz.desc',
+        icon='HelpCircle',
+        category='content',
+        prompt_template_code='ai_editor_quiz',
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+        estimated_tokens=2500,
+    ),
+
+    'review_content': SkillDefinition(
+        code='review_content',
+        name_i18n_key='aiEditor.skills.reviewContent.name',
+        description_i18n_key='aiEditor.skills.reviewContent.desc',
+        icon='CheckCircle',
+        category='review',
+        prompt_template_code='ai_editor_review',
+        required_context=('course', 'lesson'),
+        parameters=(_LANGUAGE_PARAM,),
+        supports_variants=False,
+        estimated_tokens=1500,
+    ),
+
+    'generate_summary': SkillDefinition(
+        code='generate_summary',
+        name_i18n_key='aiEditor.skills.generateSummary.name',
+        description_i18n_key='aiEditor.skills.generateSummary.desc',
+        icon='AlignLeft',
+        category='content',
+        prompt_template_code='ai_editor_summary',
+        required_context=('course', 'chapter'),
+        parameters=(_LANGUAGE_PARAM,),
+        estimated_tokens=2000,
+    ),
+}
+
+
+# ---------------------------------------------------------------------------
+# Accessor functions
+# ---------------------------------------------------------------------------
+
+def get_skill(code: str) -> Optional[SkillDefinition]:
+    """Get a skill definition by code."""
+    return SKILL_CATALOG.get(code)
+
+
+def get_skills_by_category(category: str) -> list[SkillDefinition]:
+    """Get all skills in a category."""
+    return [s for s in SKILL_CATALOG.values() if s.category == category]
+
+
+def get_all_skills() -> list[SkillDefinition]:
+    """Get all skill definitions."""
+    return list(SKILL_CATALOG.values())
+
+
+def get_skill_codes() -> list[str]:
+    """Get all skill codes."""
+    return list(SKILL_CATALOG.keys())

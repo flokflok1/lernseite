@@ -1,5 +1,7 @@
 export { default as AIEditorContainer } from './AIEditorContainer.vue'
 export { default as AIEditorWindow } from './AIEditorWindow.vue'
+export { default as UnifiedAIEditor } from './unified/UnifiedAIEditor.vue'
+export { default as UnifiedAIEditorWindow } from './unified/UnifiedAIEditorWindow.vue'
 export { default as AIPreview } from './AIPreview.vue'
 export { default as AISettings } from './AISettings.vue'
 export { default as ChatInterface } from './ChatInterface.vue'

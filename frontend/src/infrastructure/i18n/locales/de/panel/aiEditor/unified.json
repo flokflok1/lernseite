@@ -1,0 +1,69 @@
+{
+  "aiEditor": {
+    "title": "Unified AI Editor",
+    "selectCourse": "Kurs auswählen",
+    "selectCoursePrompt": "Wähle einen Kurs aus, um den AI Editor zu starten.",
+    "tabs": {
+      "plan": "Plan",
+      "skills": "Skills",
+      "content": "Inhalte",
+      "prompts": "Prompts",
+      "history": "Verlauf",
+      "contentPlaceholder": "Content-Tab wird mit bestehenden Inhalten integriert.",
+      "promptsPlaceholder": "Prompt-Bibliothek wird hier integriert."
+    },
+    "plan": {
+      "emptyTitle": "Content-Plan erstellen",
+      "emptyDescription": "Lass die KI einen strukturierten Plan für deine Kursinhalte erstellen, oder lade Material hoch und die KI schlägt eine Kursstruktur vor.",
+      "createManual": "Plan erstellen",
+      "creating": "Plan wird erstellt...",
+      "uploadFile": "Material hochladen",
+      "tokens": "Tokens",
+      "approve": "Plan genehmigen",
+      "execute": "Plan ausführen",
+      "executing": "Plan wird ausgeführt...",
+      "recentPlans": "Letzte Pläne",
+      "phases": "Phasen"
+    },
+    "skills": {
+      "searchPlaceholder": "Skills durchsuchen...",
+      "noResults": "Keine Skills gefunden.",
+      "generate": "Generieren",
+      "generating": "Generiert...",
+      "resultReady": "Ergebnis bereit",
+      "accept": "Übernehmen",
+      "reject": "Verwerfen"
+    },
+    "prompts": {
+      "style": "Stil-Preset",
+      "useCustom": "Eigenen Prompt verwenden",
+      "customPlaceholder": "Eigenen System-Prompt eingeben...",
+      "preview": "Prompt-Vorschau",
+      "customize": "Prompt anpassen"
+    },
+    "result": {
+      "title": "Generierungsergebnis",
+      "variants": "Varianten",
+      "accept": "Übernehmen",
+      "newVariant": "Neue Variante",
+      "reject": "Verwerfen"
+    },
+    "batch": {
+      "paused": "Pausiert",
+      "running": "Läuft",
+      "completed": "Abgeschlossen",
+      "idle": "Bereit",
+      "currentStep": "Aktueller Schritt",
+      "failed": "fehlgeschlagen",
+      "pause": "Pause",
+      "resume": "Fortsetzen",
+      "cancel": "Abbrechen"
+    },
+    "history": {
+      "title": "Generierungsverlauf",
+      "totalTokens": "Tokens gesamt",
+      "all": "Alle",
+      "empty": "Noch keine Generierungen vorhanden."
+    }
+  }
+}

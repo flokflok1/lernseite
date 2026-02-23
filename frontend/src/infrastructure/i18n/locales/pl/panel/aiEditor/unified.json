@@ -1,0 +1,69 @@
+{
+  "aiEditor": {
+    "title": "Unified AI Editor",
+    "selectCourse": "Wybierz kurs",
+    "selectCoursePrompt": "Wybierz kurs, aby uruchomić AI Editor.",
+    "tabs": {
+      "plan": "Plan",
+      "skills": "Umiejętności",
+      "content": "Treści",
+      "prompts": "Prompty",
+      "history": "Historia",
+      "contentPlaceholder": "Zakładka treści zostanie zintegrowana z istniejącą zawartością.",
+      "promptsPlaceholder": "Biblioteka promptów zostanie tutaj zintegrowana."
+    },
+    "plan": {
+      "emptyTitle": "Utwórz plan treści",
+      "emptyDescription": "Pozwól AI stworzyć strukturalny plan treści kursu lub prześlij materiały, a AI zaproponuje strukturę kursu.",
+      "createManual": "Utwórz plan",
+      "creating": "Tworzenie planu...",
+      "uploadFile": "Prześlij materiały",
+      "tokens": "tokenów",
+      "approve": "Zatwierdź plan",
+      "execute": "Wykonaj plan",
+      "executing": "Wykonywanie planu...",
+      "recentPlans": "Ostatnie plany",
+      "phases": "faz"
+    },
+    "skills": {
+      "searchPlaceholder": "Szukaj umiejętności...",
+      "noResults": "Nie znaleziono umiejętności.",
+      "generate": "Generuj",
+      "generating": "Generowanie...",
+      "resultReady": "Wynik gotowy",
+      "accept": "Zaakceptuj",
+      "reject": "Odrzuć"
+    },
+    "prompts": {
+      "style": "Styl",
+      "useCustom": "Użyj własnego promptu",
+      "customPlaceholder": "Wprowadź własny prompt systemowy...",
+      "preview": "Podgląd promptu",
+      "customize": "Dostosuj prompt"
+    },
+    "result": {
+      "title": "Wynik generowania",
+      "variants": "Warianty",
+      "accept": "Zaakceptuj",
+      "newVariant": "Nowy wariant",
+      "reject": "Odrzuć"
+    },
+    "batch": {
+      "paused": "Wstrzymano",
+      "running": "W toku",
+      "completed": "Zakończono",
+      "idle": "Gotowy",
+      "currentStep": "Bieżący krok",
+      "failed": "nieudanych",
+      "pause": "Wstrzymaj",
+      "resume": "Wznów",
+      "cancel": "Anuluj"
+    },
+    "history": {
+      "title": "Historia generowania",
+      "totalTokens": "tokenów łącznie",
+      "all": "Wszystkie",
+      "empty": "Brak generowań."
+    }
+  }
+}

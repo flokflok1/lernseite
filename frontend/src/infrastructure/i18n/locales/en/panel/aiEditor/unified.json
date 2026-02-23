@@ -1,0 +1,69 @@
+{
+  "aiEditor": {
+    "title": "Unified AI Editor",
+    "selectCourse": "Select course",
+    "selectCoursePrompt": "Select a course to start the AI Editor.",
+    "tabs": {
+      "plan": "Plan",
+      "skills": "Skills",
+      "content": "Content",
+      "prompts": "Prompts",
+      "history": "History",
+      "contentPlaceholder": "Content tab will be integrated with existing content.",
+      "promptsPlaceholder": "Prompt library will be integrated here."
+    },
+    "plan": {
+      "emptyTitle": "Create Content Plan",
+      "emptyDescription": "Let AI create a structured plan for your course content, or upload material and AI will suggest a course structure.",
+      "createManual": "Create Plan",
+      "creating": "Creating plan...",
+      "uploadFile": "Upload Material",
+      "tokens": "tokens",
+      "approve": "Approve Plan",
+      "execute": "Execute Plan",
+      "executing": "Executing plan...",
+      "recentPlans": "Recent Plans",
+      "phases": "phases"
+    },
+    "skills": {
+      "searchPlaceholder": "Search skills...",
+      "noResults": "No skills found.",
+      "generate": "Generate",
+      "generating": "Generating...",
+      "resultReady": "Result ready",
+      "accept": "Accept",
+      "reject": "Reject"
+    },
+    "prompts": {
+      "style": "Style Preset",
+      "useCustom": "Use custom prompt",
+      "customPlaceholder": "Enter custom system prompt...",
+      "preview": "Prompt Preview",
+      "customize": "Customize Prompt"
+    },
+    "result": {
+      "title": "Generation Result",
+      "variants": "Variants",
+      "accept": "Accept",
+      "newVariant": "New Variant",
+      "reject": "Reject"
+    },
+    "batch": {
+      "paused": "Paused",
+      "running": "Running",
+      "completed": "Completed",
+      "idle": "Ready",
+      "currentStep": "Current step",
+      "failed": "failed",
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel"
+    },
+    "history": {
+      "title": "Generation History",
+      "totalTokens": "total tokens",
+      "all": "All",
+      "empty": "No generations yet."
+    }
+  }
+}

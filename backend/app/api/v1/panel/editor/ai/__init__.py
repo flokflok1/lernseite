@@ -6,6 +6,8 @@ Chat-based AI-powered course authoring with quick actions.
 Modules:
 - authoring.py: AI-powered chat-based authoring with sessions
 - actions.py: Quick actions for content generation
+- plans.py: AI content plan management (Unified AI Editor)
+- skills.py: AI skill catalog and execution (Unified AI Editor)
 
 All routes: /api/v1/course-editor/ai/*
 
@@ -23,5 +25,11 @@ from . import authoring, actions
 
 # Register sub-blueprints
 ai_editor_bp.register_blueprint(actions.actions_bp)
+
+# Unified AI Editor sub-blueprints
+from .plans import plans_bp
+from .skills import skills_bp
+ai_editor_bp.register_blueprint(plans_bp)
+ai_editor_bp.register_blueprint(skills_bp)
 
 __all__ = ['ai_editor_bp']

@@ -85,7 +85,10 @@
     "redo": "Wiederherstellen",
     "minimize": "Minimieren",
     "maximize": "Maximieren",
-    "restore": "Wiederherstellen"
+    "restore": "Wiederherstellen",
+    "pop_out": "In eigenem Fenster öffnen",
+    "pop_in": "Zurück ins Hauptfenster",
+    "unknown_window_type": "Unbekannter Fenstertyp"
   },
   "i18n": {
     "completion": "{percent}% übersetzt",

@@ -184,6 +184,20 @@ const routes: RouteRecordRaw[] = [
     redirect: '/legal/content-usage',
   },
 
+  // Pop-out Windows (independent browser windows for multi-monitor)
+  {
+    path: '/panel/popout/:windowType',
+    component: () => import('@/presentation/layouts/PopoutLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'Popout',
+        component: () => import('@/presentation/pages/panel/popout/PopoutPage.vue'),
+      },
+    ],
+  },
+
   // 404 Not Found
   {
     path: '/:pathMatch(.*)*',

@@ -38,5 +38,7 @@ export function useWindowStore() {
     updateWindowPosition: store.updatePanelPosition,
     updateWindowSize: store.updatePanelSize,
     loadWindowSizesFromServer: store.loadPanelSizesFromServer,
+    popoutWindow: store.popoutPanel,
+    popinWindow: store.popinPanel,
   }
 }

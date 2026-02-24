@@ -85,7 +85,10 @@
     "redo": "Redo",
     "minimize": "Minimize",
     "maximize": "Maximize",
-    "restore": "Restore"
+    "restore": "Restore",
+    "pop_out": "Open in separate window",
+    "pop_in": "Back to main window",
+    "unknown_window_type": "Unknown window type"
   },
   "i18n": {
     "completion": "{percent}% translated",

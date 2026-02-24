@@ -87,8 +87,10 @@
     "maximize": "Maximize",
     "restore": "Restore",
     "pop_out": "Open in separate window",
-    "pop_in": "Back to main window",
-    "unknown_window_type": "Unknown window type"
+    "pop_in": "← Back to main window",
+    "unknown_window_type": "Unknown window type",
+    "not_implemented_lm": "Not implemented — LM{code}",
+    "migrated_to_panel": "Migrated to Panel system"
   },
   "i18n": {
     "completion": "{percent}% translated",

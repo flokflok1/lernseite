@@ -87,8 +87,10 @@
     "maximize": "Maksymalizuj",
     "restore": "Przywróć",
     "pop_out": "Otwórz w osobnym oknie",
-    "pop_in": "Powrót do głównego okna",
-    "unknown_window_type": "Nieznany typ okna"
+    "pop_in": "← Powrót do głównego okna",
+    "unknown_window_type": "Nieznany typ okna",
+    "not_implemented_lm": "Nie zaimplementowano — LM{code}",
+    "migrated_to_panel": "Przeniesiono do systemu panelu"
   },
   "i18n": {
     "completion": "{percent}% przetłumaczone",

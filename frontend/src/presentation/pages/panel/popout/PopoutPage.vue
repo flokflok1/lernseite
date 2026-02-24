@@ -20,7 +20,7 @@
         class="px-3 py-1.5 text-xs font-medium rounded-md bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
         :title="$t('common.pop_in')"
       >
-        ← {{ $t('common.pop_in') }}
+        {{ $t('common.pop_in') }}
       </button>
     </header>
 

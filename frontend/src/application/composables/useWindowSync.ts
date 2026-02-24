@@ -10,7 +10,7 @@
  *   sendSync('action:popout', { windowType: 'admin-ai-editor' })
  */
 
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, getCurrentInstance } from 'vue'
 
 export interface SyncMessage {
   type: string
@@ -84,6 +84,18 @@ export function useWindowSync() {
     onUnmounted(() => {
       listeners.get(type)?.delete(handler)
     })
+  }
+
+  // Send disconnect when tab unloads (best-effort cleanup)
+  if (typeof window !== 'undefined') {
+    const handleUnload = () => sendSync('worker:disconnect')
+    window.addEventListener('beforeunload', handleUnload)
+
+    if (getCurrentInstance()) {
+      onUnmounted(() => {
+        window.removeEventListener('beforeunload', handleUnload)
+      })
+    }
   }
 
   return { sendSync, onSync, isConnected, tabId }

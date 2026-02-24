@@ -64,7 +64,7 @@ export function resolveWindowComponent(type: string) {
         const form = getLearningMethodForm(code)
         if (form !== null) return form as any
         return {
-          template: '<div class="p-4 text-center text-gray-500">{{ $t("system.notImplemented") }} - LM{{ lmCode }}</div>',
+          template: '<div class="p-4 text-center text-gray-500">{{ $t("common.not_implemented_lm", { code: lmCode }) }}</div>',
           props: ['window'],
           setup() { return { lmCode: code } }
         }
@@ -79,7 +79,7 @@ export function resolveWindowComponent(type: string) {
       return AdminCourseEditorWindow
     case 'admin-kapitel-editor':
       return {
-        template: '<div class="p-4">{{ $t("system.migrated.kapitelEditor") }}</div>',
+        template: '<div class="p-4">{{ $t("common.migrated_to_panel") }}</div>',
         props: ['window']
       }
     case 'admin-kapitel-manager':
@@ -92,7 +92,7 @@ export function resolveWindowComponent(type: string) {
       return AdminLessonEditorWindow
     case 'admin-learning-method-editor':
       return {
-        template: '<div class="p-4">Learning Method Editor migrated to Panel system</div>',
+        template: '<div class="p-4">{{ $t("common.migrated_to_panel") }}</div>',
         props: ['window']
       }
     case 'admin-exam-manager':
@@ -121,7 +121,7 @@ export function resolveWindowComponent(type: string) {
       return ActivityEditorWindow
     default:
       return {
-        template: '<div class="p-4">Unknown window type: {{ type }}</div>',
+        template: '<div class="p-4">{{ $t("common.unknown_window_type") }}</div>',
         props: ['window']
       }
   }

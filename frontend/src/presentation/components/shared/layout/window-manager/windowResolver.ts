@@ -86,6 +86,7 @@ export function resolveWindowComponent(type: string) {
       return AdminKapitelManagerWindow
     case 'admin-ai-kapitel-generator':
       return AdminAIKapitelGeneratorWindow
+    case 'admin-ai-editor':
     case 'admin-ai-studio':
       return AdminAiStudioWindow
     case 'admin-lesson-editor':

@@ -2,7 +2,7 @@
 /**
  * UnifiedAIEditor — Main orchestrator component
  *
- * Replaces AIEditorContainer + AI Studio Pro with a single unified editor.
+ * Replaces AIEditorContainer with a single unified editor.
  * Tab system: Plan | Skills | Content | Prompts | History
  */
 import { onMounted, provide, watch } from 'vue'

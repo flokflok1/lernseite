@@ -4,7 +4,7 @@
     "chapterNumber": "Kapitel {number}",
     "completedLessons": "{completed}/{total} abgeschlossen",
     "continue_learning": "Fortsetzen",
-    "lessonsCount": "{count} {count, plural, one {Lektion} other {Lektionen}}",
+    "lessonsCount": "{count} Lektionen",
     "lessons_completed": "{completed}/{total} abgeschlossen",
     "lessons_in_chapter": "Lektionen in diesem Kapitel",
     "load_error": "Fehler beim Laden des Kapitels",
@@ -12,7 +12,18 @@
     "progress_completed": "{progress}% abgeschlossen",
     "start_learning": "Lernen starten",
     "tab_lessons": "Lektionen",
-    "tab_theory": "Theorie"
+    "tab_theory": "Theorie",
+    "continueLearning": "Weiterlernen",
+    "startLearning": "Starten",
+    "chapterComplete": "Kapitel abgeschlossen!",
+    "chapterCompleteDesc": "Alle {count} Lektionen geschafft. Großartig!",
+    "estimatedDuration": "{minutes} Min.",
+    "learningPath": "Lernpfad"
+  },
+  "lessonTimeline": {
+    "statusCompleted": "Abgeschlossen",
+    "statusCurrent": "Als Nächstes",
+    "statusLocked": "Gesperrt"
   },
   "chapterTheory": {
     "available": "{count} verfügbar",
@@ -39,9 +50,21 @@
     "newTheory": "+ Neu",
     "newTheoryTitle": "Neues Theorieblatt erstellen",
     "noTheory": {
-      "description": "Lass dir die Theorie zu diesem Kapitel per KI generieren!",
-      "info": "Die Theorie wird einmal generiert und gespeichert. Du kannst sie jederzeit wieder anschauen.",
+      "description": "Für dieses Kapitel ist noch keine Theorie vorhanden.",
+      "emptyHint": "Theorie-Blätter werden vom Kursautor erstellt und hier angezeigt.",
+      "info": "Theorie-Blätter werden vom Kursautor erstellt.",
       "title": "Keine Theorie vorhanden"
+    },
+    "sheetsTitle": "Theorie-Blätter",
+    "loadingContent": "Inhalt wird geladen...",
+    "styles": {
+      "standard": "Standard",
+      "detailed": "Ausführlich",
+      "adhs": "ADHS-freundlich",
+      "exam_focus": "Prüfungsfokus",
+      "short": "Kurz & Knapp",
+      "manual_0": "Manuell",
+      "manual_1": "Manuell"
     },
     "theorySheet": "Theorieblatt:",
     "voices": {
@@ -118,13 +141,15 @@
     },
     "back_to_courses": "Zurück zu den Kursen",
     "completed": "Abgeschlossen",
+    "completed_toast": "Lektion abgeschlossen!",
     "contents": "Inhalte",
     "example": "Beispiel:",
     "explanation_loading": "Erklärung wird geladen...",
     "explanations": "Erklärungen",
-    "explanations_hint": "Erklärungen werden im KI-Studio erstellt",
+    "explanations_hint": "Erklärungen werden im AI Editor erstellt",
     "finish_course": "Kurs abschließen",
     "interactive_hint": "Nutze die Aufgaben im rechten Panel um diese Lektion zu bearbeiten.",
+    "methods_sidebar_title": "Aufgaben",
     "lesson_count": "Lektion {current}/{total}",
     "loading": "Lektion wird geladen...",
     "loading_short": "Lade...",
@@ -178,7 +203,14 @@
         "lm08": "Lückentext",
         "lm09": "Freitext-Langantwort",
         "lm10": "Multiple-Choice Quiz",
-        "lm11": "True/False"
+        "lm11": "Multi-Step Praxisprüfung",
+        "lm100": "Whiteboard-Aufgabe",
+        "lm101": "Hands-on Lab",
+        "lm102": "Zeitlimit-Training",
+        "lm103": "Prüfungs-Quiz",
+        "lm104": "Verständnis-Check",
+        "lm105": "Mündliche Erklärung",
+        "lm106": "Kapitel-Endprüfung"
       },
       "modal": {
         "completed": "Erledigt",
@@ -197,7 +229,28 @@
         "title": "Alle Aufgaben",
         "totalTasks": "{count} Aufgaben gesamt"
       },
-      "noMethods": "Keine Lernmethoden verfügbar",
+      "practiceTitle": "Aufgaben",
+      "progressLabel": "{completed}/{total} abgeschlossen",
+      "aiGenerate": "Aufgabe generieren",
+      "aiGenerateHint": "AI erstellt eine passende Aufgabe (kostet Tokens)",
+      "openTask": "Starten",
+      "taskCompleted": "Abgeschlossen",
+      "allCompleted": "Alle Aufgaben erledigt",
+      "emptyTasks": "Keine Aufgaben verfügbar",
+      "emptyTasksHint": "Der Kursautor hat noch keine Aufgaben hinzugefügt.",
+      "backToLesson": "Zurück zur Lektion",
+      "instructions": "Anweisungen",
+      "taskContent": "Aufgabeninhalt",
+      "noContent": "Kein Inhalt für diese Aufgabe verfügbar.",
+      "showSolution": "Lösung anzeigen",
+      "hideSolution": "Lösung verbergen",
+      "difficulty": {
+        "easy": "Leicht",
+        "medium": "Mittel",
+        "hard": "Schwer"
+      },
+      "noMethods": "Keine Aufgaben verfügbar",
+      "noMethodsHint": "Aufgaben werden vom Kursautor zugewiesen und erscheinen hier automatisch.",
       "premiumOnly": "⭐ Premium",
       "recentTasks": "Letzte Aufgaben",
       "stats": {
@@ -218,7 +271,174 @@
         "minutesAgo": "vor {count} Min."
       },
       "tokenBalance": "Token-Guthaben",
-      "tokens": "Tokens"
+      "tokens": "Tokens",
+      "renderer": {
+        "common": {
+          "check": "Prüfen",
+          "reset": "Nochmal",
+          "solution": "Lösung",
+          "sampleSolution": "Musterlösung",
+          "showSolution": "Musterlösung anzeigen",
+          "hideSolution": "Lösung verbergen",
+          "correct": "richtig",
+          "yourAnswer": "Deine Antwort",
+          "question": "Frage",
+          "answer": "Antwort",
+          "hint": "Hinweis",
+          "bonus": "Bonus"
+        },
+        "deepExplanation": {
+          "understood": "Ich habe den Inhalt verstanden",
+          "summary": "Zusammenfassung"
+        },
+        "stepByStep": {
+          "stepOf": "Schritt {current} von {total}",
+          "back": "Zurück",
+          "next": "Weiter",
+          "done": "Fertig",
+          "expectedOutput": "Erwartete Ausgabe",
+          "commonErrors": "Häufige Fehler"
+        },
+        "interactiveTheory": {
+          "questionLabel": "Frage"
+        },
+        "diagram": {
+          "comprehensionQuestions": "Verständnisfragen",
+          "checkAnswers": "Antworten prüfen"
+        },
+        "scenario": {
+          "requirements": "Anforderungen",
+          "showHints": "Hinweise anzeigen",
+          "hideHints": "Hinweise verbergen",
+          "hintsCount": "({count})",
+          "yourSolution": "Deine Lösung",
+          "codePlaceholder": "Schreibe deinen Code hier..."
+        },
+        "mathInteractive": {
+          "yourSolution": "Deine Lösung",
+          "testCases": "Testfälle",
+          "checkSolution": "Lösung prüfen",
+          "input": "Input",
+          "expected": "Erwartet",
+          "problemLabel": "Aufgabe {n}",
+          "formula": "Formel",
+          "yourAnswer": "Deine Antwort",
+          "correctAnswer": "Richtige Antwort",
+          "score": "{correct} von {total} richtig",
+          "equationLabel": "Gleichung {n}",
+          "solveFor": "Löse nach {variable}",
+          "result": "Ergebnis",
+          "stepLabel": "Schritt {n}",
+          "stepInstruction": "Berechne den nächsten Schritt",
+          "allStepsComplete": "Alle Schritte abgeschlossen",
+          "difficulty": "Schwierigkeit",
+          "points": "{pts} Punkte",
+          "hint": "Hinweis"
+        },
+        "flashcards": {
+          "cardOf": "Karte {current} / {total}",
+          "questionLabel": "FRAGE",
+          "answerLabel": "ANTWORT",
+          "flipHint": "Klicken zum Umdrehen",
+          "practiceAgain": "Nochmal üben",
+          "known": "Gewusst",
+          "knownCount": "{known} / {total} gewusst"
+        },
+        "dragDrop": {
+          "assignItems": "Ordne jeden Begriff der richtigen Kategorie zu",
+          "selectCategory": "Kategorie wählen",
+          "correctCount": "{correct} / {total} richtig"
+        },
+        "cloze": {
+          "correctCount": "{correct} / {total} richtig"
+        },
+        "freeText": {
+          "placeholder": "Schreibe deine Antwort hier...",
+          "wordCount": "{count} Wörter",
+          "submit": "Antwort einreichen",
+          "modelAnswer": "Musterantwort",
+          "keyPoints": "Wichtige Punkte"
+        },
+        "multipleChoice": {
+          "questionOf": "Frage {current} von {total}",
+          "selectAnswers": "Wähle die richtige(n) Antwort(en)",
+          "correctCount": "{correct} / {total} richtig"
+        },
+        "trueFalse": {
+          "statementOf": "Aussage {current} von {total}",
+          "true": "Richtig",
+          "false": "Falsch",
+          "correctCount": "{correct} / {total} richtig",
+          "explanation": "Erklärung"
+        },
+        "whiteboard": {
+          "clear": "Löschen",
+          "drawHint": "Zeichne deine Lösung auf der Leinwand",
+          "requirements": "Anforderungen",
+          "explain": "Erklärung",
+          "explainPlaceholder": "Erkläre deine Zeichnung..."
+        },
+        "handsOnLab": {
+          "tasks": "Aufgaben",
+          "codeEditor": "Code-Editor",
+          "output": "Ausgabe",
+          "run": "Ausführen",
+          "noOutput": "Noch keine Ausgabe...",
+          "simulatedOutput": "Simulierte Ausgabe",
+          "codePlaceholder": "Schreibe deinen Code hier...",
+          "tasksCompleted": "abgeschlossen"
+        },
+        "multiStepExam": {
+          "stepOf": "Schritt {current} von {total}",
+          "stepLabel": "Schritt {n}",
+          "points": "Punkte",
+          "answerPlaceholder": "Deine Antwort eingeben...",
+          "expectedAnswer": "Erwartete Antwort",
+          "submit": "Prüfung abgeben",
+          "stepsCorrect": "Schritte richtig"
+        },
+        "timeLimit": {
+          "start": "Timer starten",
+          "submitEarly": "Vorzeitig abgeben",
+          "answerPlaceholder": "Deine Antwort...",
+          "timeRemaining": "Verbleibende Zeit",
+          "timeUp": "Zeit abgelaufen!"
+        },
+        "comprehensionCheck": {
+          "title": "Verständnis-Check",
+          "placeholder": "Deine Antwort...",
+          "correct": "Richtig! Gut verstanden.",
+          "incorrect": "Nicht ganz richtig. Lies die Erklärung."
+        },
+        "oralExplanation": {
+          "topic": "Thema zum Erklären",
+          "keyPoints": "Wichtige Punkte",
+          "yourExplanation": "Deine Erklärung",
+          "audioHint": "Audio-Aufnahme in zukünftiger Version — nutze vorerst die Texteingabe",
+          "placeholder": "Erkläre das Thema in eigenen Worten...",
+          "words": "Wörter",
+          "minWords": "Mindestens {count} Wörter",
+          "submit": "Erklärung einreichen",
+          "selfAssess": "Selbstbewertung",
+          "criteriaMetLabel": "Kriterien erfüllt",
+          "criteria": {
+            "complete": "Alle wichtigen Punkte abgedeckt",
+            "clear": "Verständlich und klar formuliert",
+            "examples": "Eigene Beispiele verwendet"
+          }
+        },
+        "chapterExam": {
+          "badge": "Kapitel-Prüfung",
+          "totalPoints": "Punkte gesamt",
+          "questionsCount": "Fragen",
+          "passingScore": "zum Bestehen",
+          "answerPlaceholder": "Deine Antwort...",
+          "correctAnswer": "Richtige Antwort",
+          "submitExam": "Prüfung abgeben",
+          "passed": "Bestanden!",
+          "failed": "Nicht bestanden — nochmal versuchen"
+        }
+      }
     },
     "methodPanel": {
       "all": "Alle",
@@ -234,7 +454,7 @@
       "learningMethod": "Lernmethode",
       "loadSaved": "Gespeicherte laden",
       "newTask": "Neue Aufgabe",
-      "noMethods": "Keine Lernmethoden verfügbar",
+      "noMethods": "Keine Aufgaben verfügbar",
       "noTasks": "Keine Aufgaben vorhanden",
       "noTasksHint": "Generiere neue Aufgaben oder lade gespeicherte",
       "notEnoughTokens": "Nicht genug Tokens ({cost} benötigt)",

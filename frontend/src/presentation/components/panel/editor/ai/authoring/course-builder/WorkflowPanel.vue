@@ -88,8 +88,9 @@
 </template>
 
 <script setup lang="ts">
-import WorkflowTheorySection from '../../studio/workflow/WorkflowTheorySection.vue'
-import WorkflowLmSection from '../../studio/workflow/WorkflowLmSection.vue'
+// TODO: These components were in the removed studio/ directory — needs migration to unified/
+// import WorkflowTheorySection from '../../studio/workflow/WorkflowTheorySection.vue'
+// import WorkflowLmSection from '../../studio/workflow/WorkflowLmSection.vue'
 
 const searchIcon = '\uD83D\uDD0D'
 

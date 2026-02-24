@@ -50,7 +50,7 @@
             @open-files="openFilesWindow"
             @open-exams="openExamsWindow"
             @generate-exam="generateExam"
-            @open-ai-studio="openAiStudioWindow"
+            @open-ai-editor="openAiEditorWindow"
             @publish="publishCourse"
             @unpublish="unpublishCourse"
             @archive="archiveCourse"
@@ -205,11 +205,11 @@ function generateExam(): void {
   })
 }
 
-function openAiStudioWindow(): void {
+function openAiEditorWindow(): void {
   if (!course.value) return
 
   windowStore.openWindow({
-    type: 'panel-ai-studio',
+    type: 'admin-ai-editor',
     title: t('panel.courseDetail.aiEditor', { title: course.value.title }),
     icon: '🤖',
     payload: {

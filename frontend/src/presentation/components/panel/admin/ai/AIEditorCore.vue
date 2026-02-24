@@ -17,7 +17,7 @@
       @click="emit('open-editor')"
       class="px-8 py-4 bg-white text-violet-600 font-bold rounded-xl hover:bg-white/90 transition-colors text-lg"
     >
-      {{ $t('panel.aiEditor.openStudio') }}
+      {{ $t('panel.aiEditor.openEditor') }}
     </button>
 
     <!-- Features -->

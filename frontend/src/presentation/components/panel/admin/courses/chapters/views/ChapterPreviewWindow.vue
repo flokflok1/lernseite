@@ -4,7 +4,7 @@
   Thin wrapper that extracts chapter data from an LsxWindow payload
   and delegates rendering to ChapterPreviewContent.
 
-  Phase: D4 - KI-Authoring-Studio
+  Phase: D4 - AI Editor
 -->
 
 <template>

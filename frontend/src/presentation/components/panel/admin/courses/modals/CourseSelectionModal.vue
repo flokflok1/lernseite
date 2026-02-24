@@ -199,7 +199,7 @@ function handleCreateNew() {
 
   // For now, use AI editor with empty course
   windowStore.openWindow({
-    type: 'admin-ai-studio',
+    type: 'admin-ai-editor',
     title: `AI Editor: ${title}`,
     icon: '🤖',
     payload: {
@@ -221,7 +221,7 @@ function handleOpenCourse(course: Course, editorType: 'ai' | 'manual') {
   try {
     if (editorType === 'ai') {
       windowStore.openWindow({
-        type: 'admin-ai-studio',
+        type: 'admin-ai-editor',
         title: `AI Editor: ${course.title}`,
         icon: '🤖',
         payload: {

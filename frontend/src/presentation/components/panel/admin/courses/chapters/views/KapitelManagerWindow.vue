@@ -8,7 +8,7 @@
   - Löschen
   - Zurück zur Startseite
 
-  Für KI-gestützte Kapitel-Erstellung: KI-Authoring-Studio verwenden
+  Für KI-gestützte Kapitel-Erstellung: AI Editor verwenden
 
   Phase: Desktop OS - Kapitel-Manager
 -->
@@ -71,7 +71,7 @@
             Noch keine Kapitel
           </h3>
           <p class="text-sm text-[var(--color-text-secondary)] mb-6 max-w-sm mx-auto">
-            Erstelle dein erstes Kapitel oder nutze das KI-Authoring-Studio für KI-gestützte Erstellung.
+            Erstelle dein erstes Kapitel oder nutze den AI Editor für KI-gestützte Erstellung.
           </p>
           <button
             @click="createManual"

@@ -201,7 +201,7 @@ function openCourseQuick(_course: Course) {
 function openCourseWithEditor(course: Course, editorType: 'ai' | 'manual') {
   if (editorType === 'ai') {
     windowStore.openWindow({
-      type: 'panel-ai-studio',
+      type: 'admin-ai-editor',
       title: `AI Editor: ${course.title}`,
       icon: '🤖',
       payload: {

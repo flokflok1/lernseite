@@ -1,4 +1,7 @@
 {
+  "title": "AI Editor",
+  "description": "AI-powered course creation with automatic content generation",
+  "openEditor": "Open AI Editor",
   "features": {
     "models": "Models",
     "modelsDesc": "Configure AI models",

@@ -50,10 +50,6 @@ export const panelRoutes: RouteRecordRaw = {
       path: 'kurs-editor/:id',
       redirect: (to) => `/panel/editor/${to.params.id}`,
     },
-    {
-      path: 'ai-studio',
-      redirect: '/ai-editor',
-    },
     // Legacy route (old name)
     {
       path: 'courses',
@@ -105,8 +101,7 @@ export const panelRoutes: RouteRecordRaw = {
     },
     {
       path: 'ai-settings',
-      name: 'PanelAISettings',
-      component: () => import('@/presentation/pages/panel/admin/PanelAISettingsPage.vue'),
+      redirect: '/panel/system-settings',
     },
     {
       path: 'system-settings',

@@ -4,7 +4,7 @@
     "chapterNumber": "Chapter {number}",
     "completedLessons": "{completed}/{total} completed",
     "continue_learning": "Continue",
-    "lessonsCount": "{count} {count, plural, one {Lesson} other {Lessons}}",
+    "lessonsCount": "{count} Lessons",
     "lessons_completed": "{completed}/{total} completed",
     "lessons_in_chapter": "Lessons in this Chapter",
     "load_error": "Error loading chapter",
@@ -12,7 +12,18 @@
     "progress_completed": "{progress}% completed",
     "start_learning": "Start Learning",
     "tab_lessons": "Lessons",
-    "tab_theory": "Theory"
+    "tab_theory": "Theory",
+    "continueLearning": "Continue Learning",
+    "startLearning": "Start",
+    "chapterComplete": "Chapter Complete!",
+    "chapterCompleteDesc": "All {count} lessons completed. Great job!",
+    "estimatedDuration": "{minutes} min",
+    "learningPath": "Learning Path"
+  },
+  "lessonTimeline": {
+    "statusCompleted": "Completed",
+    "statusCurrent": "Up Next",
+    "statusLocked": "Locked"
   },
   "chapterTheory": {
     "available": "{count} available",
@@ -39,9 +50,21 @@
     "newTheory": "+ New",
     "newTheoryTitle": "Create new theory sheet",
     "noTheory": {
-      "description": "Let AI generate the theory for this chapter!",
-      "info": "The theory is generated once and saved. You can view it anytime.",
+      "description": "No theory available for this chapter yet.",
+      "emptyHint": "Theory sheets are created by the course author and displayed here.",
+      "info": "Theory sheets are created by the course author.",
       "title": "No Theory Available"
+    },
+    "sheetsTitle": "Theory Sheets",
+    "loadingContent": "Loading content...",
+    "styles": {
+      "standard": "Standard",
+      "detailed": "Detailed",
+      "adhs": "ADHD-friendly",
+      "exam_focus": "Exam Focus",
+      "short": "Short & Concise",
+      "manual_0": "Manual",
+      "manual_1": "Manual"
     },
     "theorySheet": "Theory Sheet:",
     "voices": {
@@ -118,13 +141,15 @@
     },
     "back_to_courses": "Back to Courses",
     "completed": "Completed",
+    "completed_toast": "Lesson completed!",
     "contents": "Contents",
     "example": "Example:",
     "explanation_loading": "Loading explanation...",
     "explanations": "Explanations",
-    "explanations_hint": "Explanations are created in AI Studio",
+    "explanations_hint": "Explanations are created in AI Editor",
     "finish_course": "Finish Course",
     "interactive_hint": "Use the tasks in the right panel to complete this lesson.",
+    "methods_sidebar_title": "Tasks",
     "lesson_count": "Lesson {current}/{total}",
     "loading": "Loading lesson...",
     "loading_short": "Loading...",
@@ -178,7 +203,14 @@
         "lm08": "Fill-in-the-Blank",
         "lm09": "Long Answer",
         "lm10": "Multiple Choice Quiz",
-        "lm11": "True/False"
+        "lm11": "Multi-Step Practical Exam",
+        "lm100": "Whiteboard Task",
+        "lm101": "Hands-on Lab",
+        "lm102": "Time Limit Training",
+        "lm103": "Exam Quiz",
+        "lm104": "Comprehension Check",
+        "lm105": "Oral Explanation",
+        "lm106": "Chapter Exam"
       },
       "modal": {
         "completed": "Completed",
@@ -197,7 +229,28 @@
         "title": "All Tasks",
         "totalTasks": "{count} tasks total"
       },
-      "noMethods": "No learning methods available",
+      "practiceTitle": "Practice Tasks",
+      "progressLabel": "{completed}/{total} completed",
+      "aiGenerate": "Generate Task",
+      "aiGenerateHint": "AI creates a fitting task (costs tokens)",
+      "openTask": "Start",
+      "taskCompleted": "Completed",
+      "allCompleted": "All tasks completed",
+      "emptyTasks": "No tasks available",
+      "emptyTasksHint": "The course author has not added tasks yet.",
+      "backToLesson": "Back to Lesson",
+      "instructions": "Instructions",
+      "taskContent": "Task Content",
+      "noContent": "No content available for this task.",
+      "showSolution": "Show Solution",
+      "hideSolution": "Hide Solution",
+      "difficulty": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
+      "noMethods": "No tasks available",
+      "noMethodsHint": "Tasks are assigned by the course author and will appear here automatically.",
       "premiumOnly": "⭐ Premium",
       "recentTasks": "Recent Tasks",
       "stats": {
@@ -218,7 +271,174 @@
         "minutesAgo": "{count} min. ago"
       },
       "tokenBalance": "Token Balance",
-      "tokens": "Tokens"
+      "tokens": "Tokens",
+      "renderer": {
+        "common": {
+          "check": "Check",
+          "reset": "Retry",
+          "solution": "Solution",
+          "sampleSolution": "Sample Solution",
+          "showSolution": "Show Sample Solution",
+          "hideSolution": "Hide Solution",
+          "correct": "correct",
+          "yourAnswer": "Your Answer",
+          "question": "Question",
+          "answer": "Answer",
+          "hint": "Hint",
+          "bonus": "Bonus"
+        },
+        "deepExplanation": {
+          "understood": "I understood the content",
+          "summary": "Summary"
+        },
+        "stepByStep": {
+          "stepOf": "Step {current} of {total}",
+          "back": "Back",
+          "next": "Next",
+          "done": "Done",
+          "expectedOutput": "Expected Output",
+          "commonErrors": "Common Errors"
+        },
+        "interactiveTheory": {
+          "questionLabel": "Question"
+        },
+        "diagram": {
+          "comprehensionQuestions": "Comprehension Questions",
+          "checkAnswers": "Check Answers"
+        },
+        "scenario": {
+          "requirements": "Requirements",
+          "showHints": "Show Hints",
+          "hideHints": "Hide Hints",
+          "hintsCount": "({count})",
+          "yourSolution": "Your Solution",
+          "codePlaceholder": "Write your code here..."
+        },
+        "mathInteractive": {
+          "yourSolution": "Your Solution",
+          "testCases": "Test Cases",
+          "checkSolution": "Check Solution",
+          "input": "Input",
+          "expected": "Expected",
+          "problemLabel": "Problem {n}",
+          "formula": "Formula",
+          "yourAnswer": "Your answer",
+          "correctAnswer": "Correct answer",
+          "score": "{correct} of {total} correct",
+          "equationLabel": "Equation {n}",
+          "solveFor": "Solve for {variable}",
+          "result": "Result",
+          "stepLabel": "Step {n}",
+          "stepInstruction": "Calculate the next step",
+          "allStepsComplete": "All steps completed",
+          "difficulty": "Difficulty",
+          "points": "{pts} points",
+          "hint": "Hint"
+        },
+        "flashcards": {
+          "cardOf": "Card {current} / {total}",
+          "questionLabel": "QUESTION",
+          "answerLabel": "ANSWER",
+          "flipHint": "Click to flip",
+          "practiceAgain": "Practice Again",
+          "known": "Known",
+          "knownCount": "{known} / {total} known"
+        },
+        "dragDrop": {
+          "assignItems": "Assign each term to the correct category",
+          "selectCategory": "Select category",
+          "correctCount": "{correct} / {total} correct"
+        },
+        "cloze": {
+          "correctCount": "{correct} / {total} correct"
+        },
+        "freeText": {
+          "placeholder": "Write your answer here...",
+          "wordCount": "{count} words",
+          "submit": "Submit Answer",
+          "modelAnswer": "Model Answer",
+          "keyPoints": "Key Points"
+        },
+        "multipleChoice": {
+          "questionOf": "Question {current} of {total}",
+          "selectAnswers": "Select the correct answer(s)",
+          "correctCount": "{correct} / {total} correct"
+        },
+        "trueFalse": {
+          "statementOf": "Statement {current} of {total}",
+          "true": "True",
+          "false": "False",
+          "correctCount": "{correct} / {total} correct",
+          "explanation": "Explanation"
+        },
+        "whiteboard": {
+          "clear": "Clear",
+          "drawHint": "Draw your solution on the canvas",
+          "requirements": "Requirements",
+          "explain": "Explanation",
+          "explainPlaceholder": "Explain your drawing..."
+        },
+        "handsOnLab": {
+          "tasks": "Tasks",
+          "codeEditor": "Code Editor",
+          "output": "Output",
+          "run": "Run",
+          "noOutput": "No output yet...",
+          "simulatedOutput": "Simulated output",
+          "codePlaceholder": "Write your code here...",
+          "tasksCompleted": "completed"
+        },
+        "multiStepExam": {
+          "stepOf": "Step {current} of {total}",
+          "stepLabel": "Step {n}",
+          "points": "Points",
+          "answerPlaceholder": "Enter your answer...",
+          "expectedAnswer": "Expected answer",
+          "submit": "Submit Exam",
+          "stepsCorrect": "steps correct"
+        },
+        "timeLimit": {
+          "start": "Start Timer",
+          "submitEarly": "Submit Early",
+          "answerPlaceholder": "Your answer...",
+          "timeRemaining": "Time remaining",
+          "timeUp": "Time's up!"
+        },
+        "comprehensionCheck": {
+          "title": "Comprehension Check",
+          "placeholder": "Your answer...",
+          "correct": "Correct! Well understood.",
+          "incorrect": "Not quite right. Read the explanation."
+        },
+        "oralExplanation": {
+          "topic": "Topic to Explain",
+          "keyPoints": "Key Points",
+          "yourExplanation": "Your Explanation",
+          "audioHint": "Audio recording coming soon — use text input for now",
+          "placeholder": "Explain the topic in your own words...",
+          "words": "words",
+          "minWords": "Minimum {count} words",
+          "submit": "Submit Explanation",
+          "selfAssess": "Self-Assessment",
+          "criteriaMetLabel": "criteria met",
+          "criteria": {
+            "complete": "All key points covered",
+            "clear": "Clear and understandable",
+            "examples": "Used own examples"
+          }
+        },
+        "chapterExam": {
+          "badge": "Chapter Exam",
+          "totalPoints": "total points",
+          "questionsCount": "questions",
+          "passingScore": "to pass",
+          "answerPlaceholder": "Your answer...",
+          "correctAnswer": "Correct answer",
+          "submitExam": "Submit Exam",
+          "passed": "Passed!",
+          "failed": "Not passed — try again"
+        }
+      }
     },
     "methodPanel": {
       "all": "All",
@@ -234,7 +454,7 @@
       "learningMethod": "Learning method",
       "loadSaved": "Load saved",
       "newTask": "New task",
-      "noMethods": "No learning methods available",
+      "noMethods": "No tasks available",
       "noTasks": "No tasks available",
       "noTasksHint": "Generate new tasks or load saved ones",
       "notEnoughTokens": "Not enough tokens ({cost} needed)",

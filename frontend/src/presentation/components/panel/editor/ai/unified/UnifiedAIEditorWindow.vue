@@ -3,7 +3,7 @@
  * UnifiedAIEditorWindow — Window wrapper for the desktop window system
  *
  * Receives window prop from FloatingWindow and extracts payload data.
- * Replaces AiStudioProWindow and AIEditorWindow.
+ * Single entry point for AI Editor in window system.
  */
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
 import UnifiedAIEditor from './UnifiedAIEditor.vue'

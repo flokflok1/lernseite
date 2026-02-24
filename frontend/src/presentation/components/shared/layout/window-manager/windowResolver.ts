@@ -18,7 +18,7 @@ function getLmRegistry() {
 }
 
 // AI Operations
-const AdminAiStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/unified/UnifiedAIEditorWindow.vue'))
+const AdminAiEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/unified/UnifiedAIEditorWindow.vue'))
 const AdminAIKapitelGeneratorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/authoring/views/KapitelGeneratorWindow.vue'))
 const AdminAIJobWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/ai/management/jobs/views/AIJobWindow.vue'))
 const AdminModelSelectorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/ai/management/models/views/ModelSelectorWindow.vue'))
@@ -46,7 +46,7 @@ const AdminWindowManagerWindow = defineAsyncComponent(() => import('@/presentati
 
 // Editor Windows (Course Authoring - /editor route)
 const EditorManualWindow = defineAsyncComponent(() => import('@/presentation/pages/panel/editor/manual/ManualEditorWindow.vue'))
-const EditorAIStudioWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/unified/UnifiedAIEditorWindow.vue'))
+const EditorAIEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/unified/UnifiedAIEditorWindow.vue'))
 const ActivityEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/manual/activity-editors/ActivityEditorWindow.vue'))
 
 /**
@@ -87,8 +87,7 @@ export function resolveWindowComponent(type: string) {
     case 'admin-ai-kapitel-generator':
       return AdminAIKapitelGeneratorWindow
     case 'admin-ai-editor':
-    case 'admin-ai-studio':
-      return AdminAiStudioWindow
+      return AdminAiEditorWindow
     case 'admin-lesson-editor':
       return AdminLessonEditorWindow
     case 'admin-learning-method-editor':
@@ -116,8 +115,8 @@ export function resolveWindowComponent(type: string) {
       return AdminChapterPreviewWindow
     case 'editor-manual':
       return EditorManualWindow
-    case 'editor-ai-studio':
-      return EditorAIStudioWindow
+    case 'editor-ai-editor':
+      return EditorAIEditorWindow
     case 'activity-editor':
       return ActivityEditorWindow
     default:

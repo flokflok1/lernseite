@@ -4,7 +4,7 @@
   Loads and displays REAL lesson data from the database.
   Shows theory content and actual learning method exercises.
 
-  Phase: D4 - KI-Authoring-Studio
+  Phase: D4 - AI Editor
 -->
 
 <template>
@@ -81,7 +81,7 @@
                   <span class="exercise-type">{{ getMethodName(method.method_type, t) }}</span>
                   <span class="exercise-title">{{ cleanMethodTitle(method.method_name, method.method_type) }}</span>
                 </div>
-                <span class="method-badge">LM{{ String(method.method_type).padStart(2, '0') }}</span>
+                <span class="method-badge">{{ getMethodName(method.method_type, t) }}</span>
                 <span class="expand-icon">{{ expandedMethod === method.method_id ? '▼' : '▶' }}</span>
               </div>
 
@@ -97,7 +97,7 @@
           <div v-else class="empty-state">
             <span class="empty-icon">📭</span>
             <p>{{ $t('panel.lessons.preview.noMethods') }}</p>
-            <p class="empty-hint">{{ $t('panel.lessons.preview.methodsCreatedInStudio') }}</p>
+            <p class="empty-hint">{{ $t('panel.lessons.preview.methodsCreatedInEditor') }}</p>
           </div>
         </div>
 

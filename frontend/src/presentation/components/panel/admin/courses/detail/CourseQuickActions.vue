@@ -64,9 +64,9 @@
         <span class="text-[11px] font-semibold text-white">{{ $t('panel.courseDetail.actions.aiExam') }}</span>
       </button>
 
-      <!-- AI Studio Button -->
+      <!-- AI Editor Button -->
       <button
-        @click="$emit('open-ai-studio')"
+        @click="$emit('open-ai-editor')"
         class="action-btn group py-2.5 px-2 rounded-lg bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-600 shadow-sm hover:shadow-md transition-all text-center"
       >
         <div class="w-8 h-8 mx-auto mb-1 bg-white/20 rounded-md flex items-center justify-center group-hover:scale-110 group-hover:bg-white/30 transition-all">
@@ -74,7 +74,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
         </div>
-        <span class="text-[11px] font-semibold text-white">{{ $t('panel.courseDetail.actions.aiStudio') }}</span>
+        <span class="text-[11px] font-semibold text-white">{{ $t('panel.courseDetail.actions.aiEditor') }}</span>
       </button>
 
       <!-- Publish Button (only if draft) -->
@@ -153,7 +153,7 @@ defineEmits<{
   'open-files': []
   'open-exams': []
   'generate-exam': []
-  'open-ai-studio': []
+  'open-ai-editor': []
   'publish': []
   'unpublish': []
   'archive': []

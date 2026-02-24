@@ -1,4 +1,7 @@
 {
+  "title": "AI Editor",
+  "description": "KI-gestützte Kurserstellung mit automatischer Inhaltsgeneration",
+  "openEditor": "AI Editor öffnen",
   "features": {
     "models": "Modelle",
     "modelsDesc": "KI-Modelle konfigurieren",

@@ -16,7 +16,7 @@ export type PanelType =
   | 'admin-kapitel-editor'  // Refactored: modules -> chapters (2025-11-27)
   | 'admin-kapitel-manager'  // NEW: Kapitel Manager (2025-12-03)
   | 'admin-ai-kapitel-generator'  // NEW: AI Kapitel Generator (2025-11-27)
-  | 'admin-ai-editor'  // Phase D4: KI-Authoring-Editor (renamed from Studio 2026-01)
+  | 'admin-ai-editor'  // Phase D4: AI Editor
   | 'admin-lesson-editor'
   | 'admin-learning-method-editor'  // Phase D3.4: Learning Methods Editor (19 Content-LMs)
   | 'admin-exam-manager'
@@ -33,7 +33,7 @@ export type PanelType =
   | 'admin-kurs-editor-select'  // Phase D4: Kurs-Editor Mode Selector Modal
   // Editor Windows (Course Authoring - /editor route)
   | 'editor-manual'        // Manual Course Editor
-  | 'editor-ai-studio'     // AI-Assisted Course Editor
+  | 'editor-ai-editor'     // AI-Assisted Course Editor
   | 'activity-editor'      // Floating LM Activity Editor
   // Lernmethoden-Formulare (Legacy: 00-31, aktiv: 19 Content-LMs) - Phase D3.5
   | 'learning-method-0-form'

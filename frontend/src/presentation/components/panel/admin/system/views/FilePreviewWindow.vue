@@ -7,7 +7,7 @@
   Uses LsxWindow (window store alias) as data source.
   Delegates to shared composable and sub-components.
 
-  Phase D4 - KI-Studio Pro
+  Phase D4 - AI Editor
 -->
 
 <template>

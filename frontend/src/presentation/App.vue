@@ -45,7 +45,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import BaseLayout from '@/presentation/layouts/BaseLayout.vue'
 import AuthLayout from '@/presentation/layouts/AuthLayout.vue'
-// import { TutorCompanion } from '@/presentation/components/studio/system-features/tutor/user'
+// import { TutorCompanion } from '@/presentation/components/public/system-features/tutor/user'
 import { useAuthStore } from '@/application/stores/modules/core'
 import { useAppStore } from '@/application/stores/modules/core/app.store'
 // import { useTutorStore } from '@/application/stores/modules/learning'
@@ -231,6 +231,11 @@ const layout = computed(() => {
 
   // 404 page has no layout
   if (route.name === 'NotFound') {
+    return 'div'
+  }
+
+  // Lesson player has its own full-screen layout (TopBar + 3-column)
+  if (route.name === 'LessonPlayer' || route.name === 'ExamSimulation') {
     return 'div'
   }
 

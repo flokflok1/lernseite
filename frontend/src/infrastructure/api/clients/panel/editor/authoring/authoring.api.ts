@@ -1,7 +1,7 @@
 /**
  * LernsystemX - Authoring Actions API
  *
- * API endpoints for DB-driven Quick-Actions in KI-Studio:
+ * API endpoints for DB-driven Quick-Actions in AI Editor:
  * - Get actions by category (course_builder, chat, chapter, lesson, method, content)
  * - Execute actions with context
  * - Create, update, delete actions (admin only)

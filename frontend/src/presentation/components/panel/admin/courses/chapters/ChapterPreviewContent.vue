@@ -4,7 +4,7 @@
   Renders the header, body content, and footer for chapter previews.
   Used by ChapterPreview, ChapterPreviewWindow, and ChapterPreviewPanel.
 
-  Phase: D4 - KI-Authoring-Studio
+  Phase: D4 - AI Editor
 -->
 
 <template>
@@ -81,7 +81,7 @@
                 v-for="method in (lesson.methods || []).slice(0, 3)"
                 :key="method.id"
                 class="method-badge"
-                :title="getMethodName(method.type)"
+                :title="getMethodName(method.type, t)"
               >
                 {{ getMethodIcon(method.type) }}
               </span>
@@ -95,7 +95,7 @@
         <div v-else class="no-lessons">
           <span class="empty-icon">📭</span>
           <p>{{ $t('chapterPreview.noLessons') }}</p>
-          <p class="empty-hint">{{ $t('chapterPreview.lessonsCreatedInStudio') }}</p>
+          <p class="empty-hint">{{ $t('chapterPreview.lessonsCreatedInEditor') }}</p>
         </div>
       </div>
 
@@ -109,7 +109,7 @@
             class="method-tag"
           >
             <span class="tag-icon">{{ getMethodIcon(method.type) }}</span>
-            <span class="tag-name">{{ getMethodName(method.type) }}</span>
+            <span class="tag-name">{{ getMethodName(method.type, t) }}</span>
             <span class="tag-count">{{ method.count }}&times;</span>
           </span>
         </div>
@@ -139,6 +139,9 @@
 <script setup lang="ts">
 import { useChapterPreview, getMethodIcon, getMethodName } from './composables/useChapterPreview'
 import { computed, toRef } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   /** The chapter data object to preview */

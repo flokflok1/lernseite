@@ -51,13 +51,13 @@ function openManualEditor(): void {
 }
 
 function openAIEditor(): void {
-  const existing = windowStore.getPanelsByType('editor-ai-studio')
+  const existing = windowStore.getPanelsByType('editor-ai-editor')
   if (existing.length > 0) {
     windowStore.focusWindow(existing[0].id)
     return
   }
   windowStore.openWindow({
-    type: 'editor-ai-studio',
+    type: 'editor-ai-editor',
     title: t('panel.editor.ai.title'),
     icon: '\uD83E\uDD16',
     size: { width: 1000, height: 700 },

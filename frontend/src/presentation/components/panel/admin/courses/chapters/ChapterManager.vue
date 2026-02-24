@@ -8,7 +8,7 @@
   - Löschen
   - Zurück zur Startseite
 
-  Für KI-gestützte Kapitel-Erstellung: KI-Authoring-Studio verwenden
+  Für KI-gestützte Kapitel-Erstellung: AI Editor verwenden
 
   Phase: Desktop OS - Kapitel-Manager
 -->

@@ -4,7 +4,7 @@
     "chapterNumber": "Rozdział {number}",
     "completedLessons": "{completed}/{total} ukończone",
     "continue_learning": "Kontynuuj",
-    "lessonsCount": "{count} {count, plural, one {lekcja} few {lekcje} other {lekcji}}",
+    "lessonsCount": "{count} lekcji",
     "lessons_completed": "{completed}/{total} ukończone",
     "lessons_in_chapter": "Lekcje w tym rozdziale",
     "load_error": "Błąd ładowania rozdziału",
@@ -12,7 +12,18 @@
     "progress_completed": "{progress}% ukończone",
     "start_learning": "Rozpocznij naukę",
     "tab_lessons": "Lekcje",
-    "tab_theory": "Teoria"
+    "tab_theory": "Teoria",
+    "continueLearning": "Kontynuuj naukę",
+    "startLearning": "Rozpocznij",
+    "chapterComplete": "Rozdział ukończony!",
+    "chapterCompleteDesc": "Wszystkie {count} lekcji ukończone. Świetna robota!",
+    "estimatedDuration": "{minutes} min",
+    "learningPath": "Ścieżka nauki"
+  },
+  "lessonTimeline": {
+    "statusCompleted": "Ukończone",
+    "statusCurrent": "Następne",
+    "statusLocked": "Zablokowane"
   },
   "chapterTheory": {
     "available": "{count} dostępne",
@@ -39,9 +50,21 @@
     "newTheory": "+ Nowy",
     "newTheoryTitle": "Utwórz nowy arkusz teorii",
     "noTheory": {
-      "description": "Pozwól AI wygenerować teorię dla tego rozdziału!",
-      "info": "Teoria jest generowana raz i zapisywana. Możesz ją przeglądać w dowolnym momencie.",
+      "description": "Dla tego rozdziału nie ma jeszcze teorii.",
+      "emptyHint": "Arkusze teorii są tworzone przez autora kursu i wyświetlane tutaj.",
+      "info": "Arkusze teorii są tworzone przez autora kursu.",
       "title": "Brak teorii"
+    },
+    "sheetsTitle": "Arkusze teorii",
+    "loadingContent": "Ładowanie treści...",
+    "styles": {
+      "standard": "Standardowy",
+      "detailed": "Szczegółowy",
+      "adhs": "Przyjazny ADHD",
+      "exam_focus": "Fokus egzaminacyjny",
+      "short": "Krótko i zwięźle",
+      "manual_0": "Ręczny",
+      "manual_1": "Ręczny"
     },
     "theorySheet": "Arkusz teorii:",
     "voices": {
@@ -118,13 +141,15 @@
     },
     "back_to_courses": "Powrót do kursów",
     "completed": "Ukończone",
+    "completed_toast": "Lekcja ukończona!",
     "contents": "Zawartość",
     "example": "Przykład:",
     "explanation_loading": "Ładowanie wyjaśnienia...",
     "explanations": "Wyjaśnienia",
-    "explanations_hint": "Wyjaśnienia są tworzone w AI Studio",
+    "explanations_hint": "Wyjaśnienia są tworzone w AI Editor",
     "finish_course": "Zakończ kurs",
     "interactive_hint": "Użyj zadań w prawym panelu, aby ukończyć tę lekcję.",
+    "methods_sidebar_title": "Zadania",
     "lesson_count": "Lekcja {current}/{total}",
     "loading": "Ładowanie lekcji...",
     "loading_short": "Ładowanie...",
@@ -178,7 +203,14 @@
         "lm08": "Uzupełnij luki",
         "lm09": "Długa odpowiedź",
         "lm10": "Quiz wielokrotnego wyboru",
-        "lm11": "Prawda/Fałsz"
+        "lm11": "Wieloetapowy egzamin praktyczny",
+        "lm100": "Zadanie na tablicy",
+        "lm101": "Hands-on Lab",
+        "lm102": "Trening z limitem czasu",
+        "lm103": "Quiz egzaminacyjny",
+        "lm104": "Sprawdzian rozumienia",
+        "lm105": "Wyjaśnienie ustne",
+        "lm106": "Egzamin końcowy rozdziału"
       },
       "modal": {
         "completed": "Ukończone",
@@ -197,7 +229,28 @@
         "title": "Wszystkie zadania",
         "totalTasks": "{count} zadań łącznie"
       },
-      "noMethods": "Brak dostępnych metod nauki",
+      "practiceTitle": "Zadania",
+      "progressLabel": "{completed}/{total} ukończonych",
+      "aiGenerate": "Wygeneruj zadanie",
+      "aiGenerateHint": "AI tworzy odpowiednie zadanie (kosztuje tokeny)",
+      "openTask": "Rozpocznij",
+      "taskCompleted": "Ukończone",
+      "allCompleted": "Wszystkie zadania ukończone",
+      "emptyTasks": "Brak zadań",
+      "emptyTasksHint": "Autor kursu nie dodał jeszcze zadań.",
+      "backToLesson": "Powrót do lekcji",
+      "instructions": "Instrukcje",
+      "taskContent": "Treść zadania",
+      "noContent": "Brak treści dla tego zadania.",
+      "showSolution": "Pokaż rozwiązanie",
+      "hideSolution": "Ukryj rozwiązanie",
+      "difficulty": {
+        "easy": "Łatwy",
+        "medium": "Średni",
+        "hard": "Trudny"
+      },
+      "noMethods": "Brak dostępnych zadań",
+      "noMethodsHint": "Zadania są przypisywane przez autora kursu i pojawią się tutaj automatycznie.",
       "premiumOnly": "⭐ Premium",
       "recentTasks": "Ostatnie zadania",
       "stats": {
@@ -218,7 +271,174 @@
         "minutesAgo": "{count} min. temu"
       },
       "tokenBalance": "Saldo tokenów",
-      "tokens": "Tokeny"
+      "tokens": "Tokeny",
+      "renderer": {
+        "common": {
+          "check": "Sprawdź",
+          "reset": "Powtórz",
+          "solution": "Rozwiązanie",
+          "sampleSolution": "Przykładowe rozwiązanie",
+          "showSolution": "Pokaż przykładowe rozwiązanie",
+          "hideSolution": "Ukryj rozwiązanie",
+          "correct": "poprawnie",
+          "yourAnswer": "Twoja odpowiedź",
+          "question": "Pytanie",
+          "answer": "Odpowiedź",
+          "hint": "Wskazówka",
+          "bonus": "Bonus"
+        },
+        "deepExplanation": {
+          "understood": "Rozumiem treść",
+          "summary": "Podsumowanie"
+        },
+        "stepByStep": {
+          "stepOf": "Krok {current} z {total}",
+          "back": "Wstecz",
+          "next": "Dalej",
+          "done": "Gotowe",
+          "expectedOutput": "Oczekiwany wynik",
+          "commonErrors": "Częste błędy"
+        },
+        "interactiveTheory": {
+          "questionLabel": "Pytanie"
+        },
+        "diagram": {
+          "comprehensionQuestions": "Pytania kontrolne",
+          "checkAnswers": "Sprawdź odpowiedzi"
+        },
+        "scenario": {
+          "requirements": "Wymagania",
+          "showHints": "Pokaż wskazówki",
+          "hideHints": "Ukryj wskazówki",
+          "hintsCount": "({count})",
+          "yourSolution": "Twoje rozwiązanie",
+          "codePlaceholder": "Napisz swój kod tutaj..."
+        },
+        "mathInteractive": {
+          "yourSolution": "Twoje rozwiązanie",
+          "testCases": "Przypadki testowe",
+          "checkSolution": "Sprawdź rozwiązanie",
+          "input": "Wejście",
+          "expected": "Oczekiwane",
+          "problemLabel": "Zadanie {n}",
+          "formula": "Wzór",
+          "yourAnswer": "Twoja odpowiedź",
+          "correctAnswer": "Poprawna odpowiedź",
+          "score": "{correct} z {total} poprawnych",
+          "equationLabel": "Równanie {n}",
+          "solveFor": "Rozwiąż dla {variable}",
+          "result": "Wynik",
+          "stepLabel": "Krok {n}",
+          "stepInstruction": "Oblicz następny krok",
+          "allStepsComplete": "Wszystkie kroki ukończone",
+          "difficulty": "Poziom trudności",
+          "points": "{pts} punktów",
+          "hint": "Wskazówka"
+        },
+        "flashcards": {
+          "cardOf": "Karta {current} / {total}",
+          "questionLabel": "PYTANIE",
+          "answerLabel": "ODPOWIEDŹ",
+          "flipHint": "Kliknij, aby odwrócić",
+          "practiceAgain": "Ćwicz ponownie",
+          "known": "Znane",
+          "knownCount": "{known} / {total} znanych"
+        },
+        "dragDrop": {
+          "assignItems": "Przyporządkuj każdy termin do właściwej kategorii",
+          "selectCategory": "Wybierz kategorię",
+          "correctCount": "{correct} / {total} poprawnie"
+        },
+        "cloze": {
+          "correctCount": "{correct} / {total} poprawnie"
+        },
+        "freeText": {
+          "placeholder": "Napisz swoją odpowiedź tutaj...",
+          "wordCount": "{count} słów",
+          "submit": "Prześlij odpowiedź",
+          "modelAnswer": "Wzorcowa odpowiedź",
+          "keyPoints": "Kluczowe punkty"
+        },
+        "multipleChoice": {
+          "questionOf": "Pytanie {current} z {total}",
+          "selectAnswers": "Wybierz poprawną odpowiedź/odpowiedzi",
+          "correctCount": "{correct} / {total} poprawnie"
+        },
+        "trueFalse": {
+          "statementOf": "Stwierdzenie {current} z {total}",
+          "true": "Prawda",
+          "false": "Fałsz",
+          "correctCount": "{correct} / {total} poprawnie",
+          "explanation": "Wyjaśnienie"
+        },
+        "whiteboard": {
+          "clear": "Wyczyść",
+          "drawHint": "Narysuj swoje rozwiązanie na płótnie",
+          "requirements": "Wymagania",
+          "explain": "Wyjaśnienie",
+          "explainPlaceholder": "Wyjaśnij swój rysunek..."
+        },
+        "handsOnLab": {
+          "tasks": "Zadania",
+          "codeEditor": "Edytor kodu",
+          "output": "Wyjście",
+          "run": "Uruchom",
+          "noOutput": "Brak wyjścia...",
+          "simulatedOutput": "Symulowane wyjście",
+          "codePlaceholder": "Napisz swój kod tutaj...",
+          "tasksCompleted": "ukończonych"
+        },
+        "multiStepExam": {
+          "stepOf": "Krok {current} z {total}",
+          "stepLabel": "Krok {n}",
+          "points": "Punkty",
+          "answerPlaceholder": "Wpisz swoją odpowiedź...",
+          "expectedAnswer": "Oczekiwana odpowiedź",
+          "submit": "Złóż egzamin",
+          "stepsCorrect": "kroków poprawnych"
+        },
+        "timeLimit": {
+          "start": "Rozpocznij timer",
+          "submitEarly": "Złóż wcześniej",
+          "answerPlaceholder": "Twoja odpowiedź...",
+          "timeRemaining": "Pozostały czas",
+          "timeUp": "Czas minął!"
+        },
+        "comprehensionCheck": {
+          "title": "Sprawdzian rozumienia",
+          "placeholder": "Twoja odpowiedź...",
+          "correct": "Poprawnie! Dobrze zrozumiano.",
+          "incorrect": "Nie do końca poprawnie. Przeczytaj wyjaśnienie."
+        },
+        "oralExplanation": {
+          "topic": "Temat do wyjaśnienia",
+          "keyPoints": "Kluczowe punkty",
+          "yourExplanation": "Twoje wyjaśnienie",
+          "audioHint": "Nagrywanie audio wkrótce — użyj tekstu na razie",
+          "placeholder": "Wyjaśnij temat własnymi słowami...",
+          "words": "słów",
+          "minWords": "Minimum {count} słów",
+          "submit": "Prześlij wyjaśnienie",
+          "selfAssess": "Samoocena",
+          "criteriaMetLabel": "kryteriów spełnionych",
+          "criteria": {
+            "complete": "Wszystkie kluczowe punkty omówione",
+            "clear": "Jasne i zrozumiałe",
+            "examples": "Użyto własnych przykładów"
+          }
+        },
+        "chapterExam": {
+          "badge": "Egzamin rozdziałowy",
+          "totalPoints": "punktów łącznie",
+          "questionsCount": "pytań",
+          "passingScore": "do zdania",
+          "answerPlaceholder": "Twoja odpowiedź...",
+          "correctAnswer": "Poprawna odpowiedź",
+          "submitExam": "Złóż egzamin",
+          "passed": "Zdany!",
+          "failed": "Niezdany — spróbuj ponownie"
+        }
+      }
     },
     "methodPanel": {
       "all": "Wszystkie",
@@ -234,7 +454,7 @@
       "learningMethod": "Metoda nauki",
       "loadSaved": "Załaduj zapisane",
       "newTask": "Nowe zadanie",
-      "noMethods": "Brak dostępnych metod nauki",
+      "noMethods": "Brak dostępnych zadań",
       "noTasks": "Brak zadań",
       "noTasksHint": "Wygeneruj nowe zadania lub załaduj zapisane",
       "notEnoughTokens": "Za mało tokenów ({cost} potrzebne)",

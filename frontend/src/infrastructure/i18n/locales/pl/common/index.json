@@ -85,7 +85,10 @@
     "redo": "Ponów",
     "minimize": "Minimalizuj",
     "maximize": "Maksymalizuj",
-    "restore": "Przywróć"
+    "restore": "Przywróć",
+    "pop_out": "Otwórz w osobnym oknie",
+    "pop_in": "Powrót do głównego okna",
+    "unknown_window_type": "Nieznany typ okna"
   },
   "i18n": {
     "completion": "{percent}% przetłumaczone",

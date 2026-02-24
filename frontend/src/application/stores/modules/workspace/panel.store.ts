@@ -379,6 +379,39 @@ export const useDesktopPanelStore = defineStore('desktop-panel', () => {
   }
 
   /**
+   * Pop out a panel as an independent browser window.
+   * Serializes payload to Base64, opens new window, closes the panel.
+   */
+  function popoutPanel(id: string): void {
+    const panel = panels.value.find(p => p.id === id)
+    if (!panel) return
+
+    const payload = { ...panel.payload, title: panel.title }
+    const encoded = btoa(JSON.stringify(payload))
+    const url = `/panel/popout/${panel.type}?p=${encoded}`
+
+    window.open(url, `lsx-popout-${panel.type}-${Date.now()}`, 'popup')
+    closePanel(id)
+
+    // Notify other windows via SharedWorker
+    import('@/application/composables/useWindowSync').then(({ sendSync }) => {
+      sendSync('action:popout', { windowType: panel.type })
+    })
+  }
+
+  /**
+   * Pop a window back in from a pop-out (called via SharedWorker message).
+   */
+  function popinPanel(windowType: string, payload: Record<string, unknown>): void {
+    const title = (payload.title as string) || windowType
+    openPanel({
+      type: windowType as PanelType,
+      title,
+      payload,
+    })
+  }
+
+  /**
    * Close all panels
    */
   function closeAllPanels(): void {
@@ -427,6 +460,8 @@ export const useDesktopPanelStore = defineStore('desktop-panel', () => {
     toggleMaximize,
     closeAllPanels,
     closePanelsByType,
-    loadPanelSizesFromServer
+    loadPanelSizesFromServer,
+    popoutPanel,
+    popinPanel
   }
 })

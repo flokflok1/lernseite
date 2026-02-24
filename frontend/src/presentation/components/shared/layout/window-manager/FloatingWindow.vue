@@ -37,6 +37,15 @@
       <!-- Window Controls -->
       <div class="lsx-window-controls">
         <button
+          class="lsx-window-control lsx-window-control--popout"
+          @click.stop="handlePopout"
+          :title="$t('common.pop_out')"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M7 1h4v4M11 1L6 6M5 1H2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button
           class="lsx-window-control lsx-window-control--minimize"
           @click.stop="handleMinimize"
           :title="$t('common.minimize')"
@@ -103,6 +112,7 @@ interface Emits {
   (e: 'focus', id: string): void
   (e: 'drag', id: string, position: { x: number; y: number }): void
   (e: 'resize', id: string, size: { width: number; height: number }): void
+  (e: 'popout', id: string): void
 }
 
 const props = defineProps<Props>()
@@ -175,6 +185,10 @@ function handleClose(): void {
  */
 function handleMaximize(): void {
   emit('maximize', props.window.id)
+}
+
+function handlePopout(): void {
+  emit('popout', props.window.id)
 }
 </script>
 
@@ -292,6 +306,11 @@ function handleMaximize(): void {
 
 .lsx-window-control--minimize:hover {
   background: var(--color-primary);
+  color: white;
+}
+
+.lsx-window-control--popout:hover {
+  background: #6366f1;
   color: white;
 }
 

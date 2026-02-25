@@ -4,13 +4,65 @@
     "selectCourse": "Select course",
     "selectCoursePrompt": "Select a course to start the AI Editor.",
     "tabs": {
+      "chat": "Chat",
+      "files": "Files",
       "plan": "Plan",
       "skills": "Skills",
       "content": "Content",
       "prompts": "Prompts",
       "history": "History",
+      "course": "Course",
       "contentPlaceholder": "Content tab will be integrated with existing content.",
       "promptsPlaceholder": "Prompt library will be integrated here."
+    },
+    "files": {
+      "upload": "Upload File",
+      "uploading": "Uploading...",
+      "dropzone": "Drag & drop files here or click to upload",
+      "delete": "Delete",
+      "extracting": "Extracting",
+      "extracted": "Extracted",
+      "noFiles": "No files uploaded yet. Upload PDF, DOCX, or other materials to use as AI context.",
+      "selectForContext": "Select for AI context",
+      "preview": "Preview"
+    },
+    "chat": {
+      "roles": {
+        "user": "You",
+        "assistant": "AI",
+        "system": "System"
+      },
+      "welcome": "AI Course Editor",
+      "welcomeDesc": "Create courses by chatting with the AI. Upload materials or start from scratch.",
+      "placeholder": "Type a message...",
+      "attachFile": "Attach file",
+      "filesAttached": "files attached",
+      "newCourse": "Start new course",
+      "loadCourse": "Load existing course",
+      "selectCourse": "Select course",
+      "selectCourseFirst": "Please select a course from the dropdown above first.",
+      "newCourseDraft": "New AI Course",
+      "createCourseFailed": "Could not create course.",
+      "contextSet": "Context set: {type} \"{title}\"",
+      "contextLabel": "Context",
+      "clearContext": "Clear context",
+      "fileUploadTodo": "File upload will be available soon."
+    },
+    "structure": {
+      "title": "Course Structure",
+      "empty": "No structure yet. Chat with the AI to create chapters and lessons.",
+      "chapters": "Chapters",
+      "lessons": "Lessons",
+      "materials": "Materials",
+      "uploadMaterial": "Upload material",
+      "finalize": "Finalize course",
+      "finalizing": "Finalizing...",
+      "finalizeConfirm": "Do you really want to finalize this course?",
+      "finalizeSuccess": "Course finalized successfully! Structure has been saved to the database."
+    },
+    "progress": {
+      "generating": "Generating content...",
+      "tokens": "Tokens"
     },
     "plan": {
       "emptyTitle": "Create Content Plan",
@@ -32,21 +84,106 @@
       "generating": "Generating...",
       "resultReady": "Result ready",
       "accept": "Accept",
-      "reject": "Reject"
+      "reject": "Reject",
+      "categories": {
+        "all": "All",
+        "explanatory": "Explanatory",
+        "practice": "Practice",
+        "assessment": "Assessment",
+        "content": "Content",
+        "review": "Review",
+        "interactive": "Interactive"
+      },
+      "generateDeepExplanation": { "desc": "Generate a deep explanation for a lesson" },
+      "generateStepByStep": { "desc": "Generate step-by-step instructions" },
+      "generateInteractiveTheory": { "desc": "Generate interactive theory content" },
+      "generateDiagram": { "desc": "Generate diagram visualizations" },
+      "generateExampleScenario": { "desc": "Generate example scenarios" },
+      "generateMathInteractive": { "desc": "Generate interactive math exercises" },
+      "generateFlashcards": { "desc": "Generate flashcard sets" },
+      "generateDragAndDrop": { "desc": "Generate drag & drop exercises" },
+      "generateClozeTest": { "desc": "Generate cloze test exercises" },
+      "generateFreeText": { "desc": "Generate free text answer tasks" },
+      "generateIhkTasks": { "desc": "Generate IHK-style exam tasks" },
+      "generateMultiStep": { "desc": "Generate multi-step practical tasks" },
+      "generateTheorySheet": { "name": "Theory Sheet", "desc": "Generate a theory summary sheet" },
+      "generateQuiz": { "name": "Quiz", "desc": "Generate quiz questions" },
+      "reviewContent": { "name": "Content Review", "desc": "Review and improve existing content" },
+      "generateSummary": { "name": "Summary", "desc": "Generate a chapter summary" },
+      "generateWhiteboard": { "name": "Whiteboard", "desc": "Drawing task with canvas (diagrams, topologies)" },
+      "generateHandsOnLab": { "name": "Hands-on Lab", "desc": "Practical IT exercise with code/terminal" },
+      "generateTimedChallenge": { "name": "Timed Challenge", "desc": "Time-limited quiz challenge" },
+      "generateTrueFalse": { "name": "True/False", "desc": "True/false statements on the topic" },
+      "generateComprehensionCheck": { "name": "Comprehension Check", "desc": "Quick comprehension check between topics" },
+      "generateOralExplanation": { "name": "Oral Explanation", "desc": "Oral explanation task (speech-to-text)" },
+      "generateChapterExam": { "name": "Chapter Exam", "desc": "End-of-chapter exam with mixed questions" }
     },
     "prompts": {
       "style": "Style Preset",
       "useCustom": "Use custom prompt",
       "customPlaceholder": "Enter custom system prompt...",
       "preview": "Prompt Preview",
-      "customize": "Customize Prompt"
+      "customize": "Customize Prompt",
+      "library": {
+        "title": "Prompt Library",
+        "searchPlaceholder": "Search templates...",
+        "noResults": "No templates found.",
+        "empty": "No prompt templates available yet.",
+        "loadError": "Could not load templates.",
+        "allCategories": "All",
+        "systemPrompt": "System Prompt",
+        "userPrompt": "User Prompt Template",
+        "variables": "Variables",
+        "variableName": "Name",
+        "variableDesc": "Description",
+        "variableRequired": "Required",
+        "variableOptional": "Optional",
+        "model": "Model",
+        "temperature": "Temperature",
+        "maxTokens": "Max Tokens",
+        "version": "Version",
+        "default": "Default",
+        "system": "System",
+        "save": "Save",
+        "saving": "Saving...",
+        "saved": "Saved",
+        "delete": "Delete",
+        "confirmDelete": "Really delete template \"{title}\"?",
+        "back": "Back",
+        "edit": "Edit",
+        "categories": {
+          "theory": "Theory",
+          "lesson": "Lesson",
+          "quiz": "Quiz",
+          "flashcard": "Flashcards",
+          "tutor": "Tutor",
+          "summary": "Summary",
+          "exam": "Exam"
+        },
+        "styles": {
+          "adhs": "ADHD-friendly",
+          "detailed": "Detailed",
+          "short": "Short & Concise",
+          "exam_focus": "Exam Focus",
+          "standard": "Standard"
+        }
+      }
     },
     "result": {
-      "title": "Generation Result",
+      "title": "Generated Result",
       "variants": "Variants",
       "accept": "Accept",
       "newVariant": "New Variant",
-      "reject": "Reject"
+      "reject": "Reject",
+      "revise": "Revise",
+      "accepted": "Result accepted and saved.",
+      "rejected": "Result rejected.",
+      "revisePrompt": "Describe the changes you want in the chat."
+    },
+    "phase": {
+      "plan": "Planning",
+      "generate": "Generating",
+      "accept": "Review"
     },
     "batch": {
       "paused": "Paused",
@@ -59,11 +196,86 @@
       "resume": "Resume",
       "cancel": "Cancel"
     },
+    "course": {
+      "title": "Course Settings",
+      "selectFirst": "Please select a course first.",
+      "loading": "Loading course...",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "saveFailed": "Save failed",
+      "fields": {
+        "title": "Title",
+        "subtitle": "Subtitle",
+        "description": "Description",
+        "category": "Category",
+        "subcategory": "Subcategory",
+        "level": "Level",
+        "language": "Language",
+        "targetGroup": "Target Group",
+        "visibility": "Visibility",
+        "price": "Price",
+        "tags": "Tags",
+        "learningGoals": "Learning Goals",
+        "requirements": "Requirements",
+        "thumbnail": "Thumbnail URL",
+        "published": "Published",
+        "draft": "Draft",
+        "createdAt": "Created at"
+      },
+      "levels": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "expert": "Expert"
+      },
+      "visibility": {
+        "private": "Private",
+        "groupPrivate": "Group Private",
+        "classInternal": "Class Internal",
+        "companyInternal": "Company Internal",
+        "communityPublic": "Community Public",
+        "marketplace": "Marketplace",
+        "academy": "Academy"
+      },
+      "actions": {
+        "trash": "Move to trash",
+        "archive": "Archive",
+        "restore": "Restore",
+        "unarchive": "Unarchive",
+        "purge": "Delete permanently",
+        "confirmTrash": "Move \"{title}\" to trash?",
+        "confirmArchive": "Archive \"{title}\"?",
+        "confirmPurge": "Permanently delete \"{title}\"? This action cannot be undone."
+      },
+      "tagsPlaceholder": "Enter tags separated by commas",
+      "goalsPlaceholder": "One learning goal per line",
+      "requirementsPlaceholder": "One requirement per line"
+    },
+    "model": {
+      "provider": "Provider",
+      "model": "Model",
+      "usingDefault": "Default",
+      "noProviders": "No active providers"
+    },
     "history": {
       "title": "Generation History",
       "totalTokens": "total tokens",
       "all": "All",
       "empty": "No generations yet."
     }
+  },
+  "learningMethods": {
+    "lm00": { "name": "In-depth Explanation" },
+    "lm01": { "name": "Step-by-Step" },
+    "lm02": { "name": "Interactive Theory" },
+    "lm03": { "name": "Diagram Visualization" },
+    "lm04": { "name": "Example Scenario" },
+    "lm05": { "name": "Math Interactive" },
+    "lm06": { "name": "Flashcards" },
+    "lm07": { "name": "Drag & Drop" },
+    "lm08": { "name": "Cloze Test" },
+    "lm09": { "name": "Free Text Answer" },
+    "lm10": { "name": "IHK-Style Tasks" },
+    "lm11": { "name": "Multi-Step Practical" }
   }
 }

@@ -34,7 +34,7 @@ class SkillDefinition:
     name_i18n_key: str
     description_i18n_key: str
     icon: str
-    category: str  # 'explanatory', 'practice', 'assessment', 'content', 'review'
+    category: str  # 'explanatory', 'practice', 'assessment', 'content', 'review', 'interactive'
     prompt_template_code: str
     learning_method_id: Optional[int] = None
     required_context: tuple = ('course',)
@@ -80,7 +80,7 @@ _LANGUAGE_PARAM = SkillParameter(
 
 
 # ---------------------------------------------------------------------------
-# Skill Catalog — 12 Content-Lernmethoden + 4 Utility Skills
+# Skill Catalog — 12 Content-Lernmethoden + 4 Utility + 7 Extension Skills
 # ---------------------------------------------------------------------------
 
 SKILL_CATALOG: dict[str, SkillDefinition] = {
@@ -284,6 +284,92 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         required_context=('course', 'chapter'),
         parameters=(_LANGUAGE_PARAM,),
         estimated_tokens=2000,
+    ),
+
+    # ── Extension Skills (type-IDs 100-106, no LM mapping) ───────────────
+
+    'generate_whiteboard': SkillDefinition(
+        code='generate_whiteboard',
+        name_i18n_key='aiEditor.skills.generateWhiteboard.name',
+        description_i18n_key='aiEditor.skills.generateWhiteboard.desc',
+        icon='PenTool',
+        category='interactive',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=None,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_hands_on_lab': SkillDefinition(
+        code='generate_hands_on_lab',
+        name_i18n_key='aiEditor.skills.generateHandsOnLab.name',
+        description_i18n_key='aiEditor.skills.generateHandsOnLab.desc',
+        icon='Terminal',
+        category='practice',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=None,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_timed_challenge': SkillDefinition(
+        code='generate_timed_challenge',
+        name_i18n_key='aiEditor.skills.generateTimedChallenge.name',
+        description_i18n_key='aiEditor.skills.generateTimedChallenge.desc',
+        icon='Clock',
+        category='assessment',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=None,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_true_false': SkillDefinition(
+        code='generate_true_false',
+        name_i18n_key='aiEditor.skills.generateTrueFalse.name',
+        description_i18n_key='aiEditor.skills.generateTrueFalse.desc',
+        icon='CheckSquare',
+        category='assessment',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=None,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_comprehension_check': SkillDefinition(
+        code='generate_comprehension_check',
+        name_i18n_key='aiEditor.skills.generateComprehensionCheck.name',
+        description_i18n_key='aiEditor.skills.generateComprehensionCheck.desc',
+        icon='Brain',
+        category='assessment',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=None,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_oral_explanation': SkillDefinition(
+        code='generate_oral_explanation',
+        name_i18n_key='aiEditor.skills.generateOralExplanation.name',
+        description_i18n_key='aiEditor.skills.generateOralExplanation.desc',
+        icon='Mic',
+        category='explanatory',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=None,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+    ),
+
+    'generate_chapter_exam': SkillDefinition(
+        code='generate_chapter_exam',
+        name_i18n_key='aiEditor.skills.generateChapterExam.name',
+        description_i18n_key='aiEditor.skills.generateChapterExam.desc',
+        icon='Award',
+        category='assessment',
+        prompt_template_code='ai_editor_methods',
+        learning_method_id=None,
+        required_context=('course', 'lesson'),
+        parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
     ),
 }
 

@@ -65,26 +65,19 @@ class PlanService:
         """
         Create a plan from an uploaded file's extracted text.
 
-        Uses existing CourseFileRepository to load ai_extracted_text,
-        then generates a structural plan via AI.
+        Uses AuthoringFilesRepository to load extracted_text from
+        the multi-file upload system.
         """
-        from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
+        from app.infrastructure.persistence.repositories.authoring.files import AuthoringFilesRepository
 
-        # Load extracted text
-        file_data = CourseFileRepository.get_by_id(file_id)
+        # Load extracted text from authoring files
+        file_data = AuthoringFilesRepository.get_file_by_id(file_id)
         if not file_data:
             raise ValueError(f'File not found: {file_id}')
 
-        extracted_text = file_data.get('ai_extracted_text', '')
+        extracted_text = file_data.get('extracted_text', '')
         if not extracted_text:
-            # Try PDF extraction
-            try:
-                from app.application.services.content.pdf.bridge import PDFService
-                extracted_text = PDFService.extract_text(file_data.get('file_path', ''))
-                CourseFileRepository.mark_ai_processed(file_id, extracted_text)
-            except Exception as e:
-                logger.error(f"PDF extraction failed: {e}")
-                raise ValueError('Could not extract text from file')
+            raise ValueError('File has no extracted text. Please wait for processing to complete.')
 
         # Generate plan from extracted text
         plan_data = _generate_plan_from_text(extracted_text, course_id)
@@ -185,13 +178,118 @@ class PlanService:
 # Private helpers
 # ---------------------------------------------------------------------------
 
+def _get_active_sf_codes() -> set:
+    """Return set of active system feature codes from DB."""
+    from app.infrastructure.persistence.repositories.features.system_features_repository import (
+        SystemFeaturesRepository,
+    )
+    try:
+        active = SystemFeaturesRepository.find_active()
+        return {sf.get('code', '') for sf in active}
+    except Exception:
+        return set()
+
+
+# Mapping: system_feature_code → (skill_code, description for prompt)
+_SF_TO_SKILL = {
+    'whiteboard_engine': ('generate_whiteboard', 'Drawing/sketching task (diagrams, topologies, flowcharts)'),
+    'it_sandbox': ('generate_hands_on_lab', 'Practical IT exercise with code/terminal'),
+    'timer_wrapper': ('generate_timed_challenge', 'Time-limited quiz/challenge'),
+    'comprehension_checker': ('generate_comprehension_check', 'Quick understanding verification'),
+    'speech_to_text': ('generate_oral_explanation', 'Oral explanation task (speech-to-text)'),
+    'chapter_completion_system': ('generate_chapter_exam', 'End-of-chapter exam with mixed questions'),
+}
+
+# TrueFalse has no SF dependency — always available
+_ALWAYS_AVAILABLE_EXTENSIONS = {
+    'generate_true_false': 'True/false statements for knowledge testing',
+}
+
+
+def _get_skill_catalog_prompt(active_sf_codes: Optional[set] = None) -> str:
+    """Build a description of available skills for AI plan generation prompts."""
+    parts = [
+        'You MUST use ONLY the following skill_code values. Do NOT invent new ones.\n\n'
+        'EXPLANATORY SKILLS (Group A — teach/explain concepts):\n'
+        '  - generate_deep_explanation: In-depth explanation of a topic\n'
+        '  - generate_step_by_step: Step-by-step walkthrough\n'
+        '  - generate_interactive_theory: Interactive theory with questions\n'
+        '  - generate_diagram: Visual diagram/visualization\n'
+        '  - generate_example_scenario: Practical example/scenario\n\n'
+        'PRACTICE SKILLS (Group B — hands-on practice):\n'
+        '  - generate_flashcards: Flashcard sets for memorization\n'
+        '  - generate_drag_and_drop: Drag & drop exercises\n'
+        '  - generate_cloze_test: Fill-in-the-blank exercises\n'
+        '  - generate_math_interactive: Math/calculation exercises\n\n'
+        'ASSESSMENT SKILLS (Group C — test knowledge):\n'
+        '  - generate_free_text: Open-ended text questions\n'
+        '  - generate_ihk_tasks: Exam-style tasks (IHK format)\n'
+        '  - generate_multi_step: Multi-step practical tasks\n\n'
+        'UTILITY SKILLS:\n'
+        '  - generate_theory_sheet: Theory summary sheet for a lesson\n'
+        '  - generate_quiz: Multiple-choice quiz\n'
+        '  - generate_summary: Chapter summary\n'
+        '  - review_content: Review existing content for quality\n\n'
+    ]
+
+    # Build extension skills block based on active system features
+    extension_lines = []
+    if active_sf_codes is not None:
+        for sf_code, (skill_code, desc) in _SF_TO_SKILL.items():
+            if sf_code in active_sf_codes:
+                extension_lines.append(f'  - {skill_code}: {desc}')
+    else:
+        # No SF info available — include all SF-gated extensions
+        for _sf_code, (skill_code, desc) in _SF_TO_SKILL.items():
+            extension_lines.append(f'  - {skill_code}: {desc}')
+
+    # Always-available extensions
+    for skill_code, desc in _ALWAYS_AVAILABLE_EXTENSIONS.items():
+        extension_lines.append(f'  - {skill_code}: {desc}')
+
+    if extension_lines:
+        parts.append(
+            'EXTENSION SKILLS (advanced task types):\n'
+            + '\n'.join(extension_lines) + '\n\n'
+        )
+
+    # Didactic guidelines
+    parts.append(
+        'DIDACTIC GUIDELINES — when to use which skill:\n'
+        '- Visual/spatial topics (diagrams, topologies, architecture) → generate_diagram + generate_whiteboard\n'
+        '- Calculation/formulas (subnetting, math, conversion) → generate_math_interactive + generate_step_by_step\n'
+        '- Terminology/definitions → generate_flashcards + generate_cloze_test + generate_true_false\n'
+        '- Configuration/CLI commands → generate_hands_on_lab + generate_example_scenario\n'
+        '- Quick knowledge check between topics → generate_comprehension_check\n'
+        '- End of each major chapter → generate_chapter_exam\n'
+        '- Theory introduction → generate_deep_explanation + generate_theory_sheet\n'
+        '- Complex multi-step processes → generate_step_by_step + generate_multi_step\n\n'
+    )
+
+    parts.append(
+        'PLAN STRUCTURE RULES:\n'
+        '- Organize phases by chapter/topic from the material\n'
+        '- Each phase = one chapter/major topic\n'
+        '- For EACH chapter, include a MIX of learning methods:\n'
+        '  1. At least one explanatory skill (theory)\n'
+        '  2. At least one practice skill (exercises)\n'
+        '  3. Optionally an assessment skill (test)\n'
+        '  4. Use extension skills where didactically appropriate\n'
+        '- Cover ALL content from the material — do not skip sections\n'
+        '- Each step targets one lesson (target_type: "lesson")\n'
+        '- Set target_title to a descriptive lesson name\n'
+    )
+
+    return ''.join(parts)
+
+
 def _load_course_context(
     course_id: str, scope: str, scope_id: Optional[str]
 ) -> Dict[str, Any]:
     """Load course structure for AI plan generation."""
-    from app.infrastructure.persistence.repositories.courses.core import CourseRepository
+    from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
 
-    course = CourseRepository.get_by_id(course_id)
+    course = CourseRepositoryCRUD.get_by_id_simple(course_id)
     context = {
         'course_id': course_id,
         'course_title': course.get('title', '') if course else '',
@@ -219,15 +317,17 @@ def _generate_plan_via_ai(context: Dict[str, Any]) -> Dict[str, Any]:
     provider = default_model.get('provider_name', 'openai') if default_model else 'openai'
     model = default_model.get('model_name', 'gpt-4o-mini') if default_model else 'gpt-4o-mini'
 
+    active_sfs = _get_active_sf_codes()
+    skill_catalog = _get_skill_catalog_prompt(active_sf_codes=active_sfs)
+
     adapter = AIAdapter(provider=provider, model=model)
     messages = [
         {
             'role': 'system',
             'content': (
                 'You are an expert educational content planner. '
-                'Generate a structured content plan as JSON. '
-                'The plan should have phases, each with steps. '
-                'Each step should specify a skill_code from the available skills.'
+                'Generate a structured content plan as JSON.\n\n'
+                f'{skill_catalog}'
             ),
         },
         {
@@ -236,10 +336,12 @@ def _generate_plan_via_ai(context: Dict[str, Any]) -> Dict[str, Any]:
                 f"Create a content plan for the course: {context.get('course_title', 'Untitled')}\n"
                 f"Scope: {context.get('scope', 'course')}\n"
                 f"Existing chapters: {json.dumps(context.get('chapters', []))}\n\n"
-                'Return JSON with format: {"phases": [{"phase_id": "...", "order": 1, '
-                '"title": "...", "steps": [{"step_id": "...", "order": 1, '
-                '"skill_code": "generate_...", "target_type": "lesson", '
-                '"target_id": "...", "target_title": "...", "parameters": {}, '
+                'Return ONLY valid JSON (no markdown fences) with format:\n'
+                '{"phases": [{"phase_id": "uuid", "order": 1, '
+                '"title": "Chapter Name", "steps": [{"step_id": "uuid", "order": 1, '
+                '"skill_code": "generate_deep_explanation", "target_type": "lesson", '
+                '"target_id": null, "target_title": "Lesson Title", '
+                '"parameters": {"language": "de"}, '
                 '"status": "pending"}]}]}'
             ),
         },
@@ -247,11 +349,23 @@ def _generate_plan_via_ai(context: Dict[str, Any]) -> Dict[str, Any]:
 
     try:
         response = adapter.send_messages(messages=messages, max_tokens=4000)
-        output = response.get('output_text', '{}')
+        output = response.get('output_text', '').strip()
+        # Strip markdown code fences if present
+        if output.startswith('```'):
+            lines = output.split('\n')
+            # Remove first line (```json or ```) and last line (```)
+            lines = [l for l in lines if not l.strip().startswith('```')]
+            output = '\n'.join(lines).strip()
+        if not output:
+            logger.warning("AI returned empty output for plan generation")
+            return _create_default_plan(context)
         plan_data = json.loads(output)
         if 'phases' not in plan_data:
             plan_data = {'phases': []}
         return plan_data
+    except json.JSONDecodeError as e:
+        logger.error(f"AI plan generation - invalid JSON: {e}, output: {output[:200]}")
+        return _create_default_plan(context)
     except Exception as e:
         logger.error(f"AI plan generation failed: {e}")
         return _create_default_plan(context)
@@ -265,9 +379,8 @@ def _generate_plan_from_text(
     provider = default_model.get('provider_name', 'openai') if default_model else 'openai'
     model = default_model.get('model_name', 'gpt-4o-mini') if default_model else 'gpt-4o-mini'
 
-    # Truncate text to avoid token limits
-    max_chars = 15000
-    text_snippet = extracted_text[:max_chars]
+    active_sfs = _get_active_sf_codes()
+    skill_catalog = _get_skill_catalog_prompt(active_sf_codes=active_sfs)
 
     adapter = AIAdapter(provider=provider, model=model)
     messages = [
@@ -275,31 +388,46 @@ def _generate_plan_from_text(
             'role': 'system',
             'content': (
                 'You are an expert educational content planner. '
-                'Analyze the provided text and create a structured course plan as JSON. '
-                'Suggest chapters, lessons, and appropriate learning methods.'
+                'Analyze educational material and create a comprehensive structured course plan as JSON.\n\n'
+                f'{skill_catalog}'
             ),
         },
         {
             'role': 'user',
             'content': (
-                f"Analyze this educational material and create a content plan:\n\n"
-                f"{text_snippet}\n\n"
-                'Return JSON with format: {"phases": [{"phase_id": "...", "order": 1, '
-                '"title": "...", "steps": [{"step_id": "...", "order": 1, '
-                '"skill_code": "generate_...", "target_type": "lesson", '
-                '"target_id": "...", "target_title": "...", "parameters": {}, '
+                f"Analyze this educational material and create a COMPLETE content plan "
+                f"covering ALL chapters and topics:\n\n"
+                f"{extracted_text}\n\n"
+                'IMPORTANT: Cover the ENTIRE material. Each major topic/chapter = one phase.\n'
+                'For each phase, include multiple steps with different learning methods '
+                '(theory + practice + assessment).\n\n'
+                'Return ONLY valid JSON (no markdown fences) with format:\n'
+                '{"phases": [{"phase_id": "uuid", "order": 1, '
+                '"title": "Chapter Name", "steps": [{"step_id": "uuid", "order": 1, '
+                '"skill_code": "generate_deep_explanation", "target_type": "lesson", '
+                '"target_id": null, "target_title": "Lesson Title", '
+                '"parameters": {"language": "de"}, '
                 '"status": "pending"}]}]}'
             ),
         },
     ]
 
     try:
-        response = adapter.send_messages(messages=messages, max_tokens=4000)
-        output = response.get('output_text', '{}')
+        response = adapter.send_messages(messages=messages, max_tokens=8000)
+        output = response.get('output_text', '').strip()
+        if output.startswith('```'):
+            lines = output.split('\n')
+            lines = [l for l in lines if not l.strip().startswith('```')]
+            output = '\n'.join(lines).strip()
+        if not output:
+            return {'phases': []}
         plan_data = json.loads(output)
         if 'phases' not in plan_data:
             plan_data = {'phases': []}
         return plan_data
+    except json.JSONDecodeError as e:
+        logger.error(f"AI plan from file - invalid JSON: {e}, output: {output[:200]}")
+        return {'phases': []}
     except Exception as e:
         logger.error(f"AI plan from file failed: {e}")
         return {'phases': []}

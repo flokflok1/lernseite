@@ -4,13 +4,65 @@
     "selectCourse": "Wybierz kurs",
     "selectCoursePrompt": "Wybierz kurs, aby uruchomić AI Editor.",
     "tabs": {
+      "chat": "Czat",
+      "files": "Pliki",
       "plan": "Plan",
       "skills": "Umiejętności",
       "content": "Treści",
       "prompts": "Prompty",
       "history": "Historia",
+      "course": "Kurs",
       "contentPlaceholder": "Zakładka treści zostanie zintegrowana z istniejącą zawartością.",
       "promptsPlaceholder": "Biblioteka promptów zostanie tutaj zintegrowana."
+    },
+    "files": {
+      "upload": "Prześlij plik",
+      "uploading": "Przesyłanie...",
+      "dropzone": "Przeciągnij i upuść pliki tutaj lub kliknij, aby przesłać",
+      "delete": "Usuń",
+      "extracting": "Ekstrakcja",
+      "extracted": "Wyodrębniono",
+      "noFiles": "Nie przesłano jeszcze plików. Prześlij PDF, DOCX lub inne materiały jako kontekst AI.",
+      "selectForContext": "Wybierz jako kontekst AI",
+      "preview": "Podgląd"
+    },
+    "chat": {
+      "roles": {
+        "user": "Ty",
+        "assistant": "AI",
+        "system": "System"
+      },
+      "welcome": "Edytor kursów AI",
+      "welcomeDesc": "Twórz kursy w rozmowie z AI. Prześlij materiały lub zacznij od zera.",
+      "placeholder": "Wpisz wiadomość...",
+      "attachFile": "Dołącz plik",
+      "filesAttached": "plików dołączonych",
+      "newCourse": "Rozpocznij nowy kurs",
+      "loadCourse": "Załaduj istniejący kurs",
+      "selectCourse": "Wybierz kurs",
+      "selectCourseFirst": "Proszę najpierw wybrać kurs z listy powyżej.",
+      "newCourseDraft": "Nowy kurs AI",
+      "createCourseFailed": "Nie udało się utworzyć kursu.",
+      "contextSet": "Kontekst ustawiony: {type} \"{title}\"",
+      "contextLabel": "Kontekst",
+      "clearContext": "Wyczyść kontekst",
+      "fileUploadTodo": "Przesyłanie plików będzie wkrótce dostępne."
+    },
+    "structure": {
+      "title": "Struktura kursu",
+      "empty": "Brak struktury. Porozmawiaj z AI, aby utworzyć rozdziały i lekcje.",
+      "chapters": "Rozdziały",
+      "lessons": "Lekcje",
+      "materials": "Materiały",
+      "uploadMaterial": "Prześlij materiał",
+      "finalize": "Finalizuj kurs",
+      "finalizing": "Finalizowanie...",
+      "finalizeConfirm": "Czy na pewno chcesz sfinalizować ten kurs?",
+      "finalizeSuccess": "Kurs sfinalizowany pomyślnie! Struktura została zapisana w bazie danych."
+    },
+    "progress": {
+      "generating": "Generowanie treści...",
+      "tokens": "Tokeny"
     },
     "plan": {
       "emptyTitle": "Utwórz plan treści",
@@ -32,21 +84,106 @@
       "generating": "Generowanie...",
       "resultReady": "Wynik gotowy",
       "accept": "Zaakceptuj",
-      "reject": "Odrzuć"
+      "reject": "Odrzuć",
+      "categories": {
+        "all": "Wszystkie",
+        "explanatory": "Wyjaśniające",
+        "practice": "Ćwiczenia",
+        "assessment": "Egzamin",
+        "content": "Treść",
+        "review": "Przegląd",
+        "interactive": "Interaktywne"
+      },
+      "generateDeepExplanation": { "desc": "Generuj szczegółowe wyjaśnienie dla lekcji" },
+      "generateStepByStep": { "desc": "Generuj instrukcje krok po kroku" },
+      "generateInteractiveTheory": { "desc": "Generuj interaktywne treści teoretyczne" },
+      "generateDiagram": { "desc": "Generuj wizualizacje diagramów" },
+      "generateExampleScenario": { "desc": "Generuj przykładowe scenariusze" },
+      "generateMathInteractive": { "desc": "Generuj interaktywne ćwiczenia matematyczne" },
+      "generateFlashcards": { "desc": "Generuj zestawy fiszek" },
+      "generateDragAndDrop": { "desc": "Generuj ćwiczenia przeciągnij i upuść" },
+      "generateClozeTest": { "desc": "Generuj ćwiczenia z lukami" },
+      "generateFreeText": { "desc": "Generuj zadania z wolną odpowiedzią" },
+      "generateIhkTasks": { "desc": "Generuj zadania w stylu IHK" },
+      "generateMultiStep": { "desc": "Generuj wieloetapowe zadania praktyczne" },
+      "generateTheorySheet": { "name": "Arkusz teorii", "desc": "Generuj arkusz podsumowujący teorię" },
+      "generateQuiz": { "name": "Quiz", "desc": "Generuj pytania quizowe" },
+      "reviewContent": { "name": "Przegląd treści", "desc": "Sprawdź i ulepsz istniejące treści" },
+      "generateSummary": { "name": "Podsumowanie", "desc": "Generuj podsumowanie rozdziału" },
+      "generateWhiteboard": { "name": "Tablica", "desc": "Zadanie rysunkowe z kanwą (diagramy, topologie)" },
+      "generateHandsOnLab": { "name": "Ćwiczenie praktyczne", "desc": "Praktyczne ćwiczenie IT z kodem/terminalem" },
+      "generateTimedChallenge": { "name": "Wyzwanie na czas", "desc": "Quiz z limitem czasu" },
+      "generateTrueFalse": { "name": "Prawda/Fałsz", "desc": "Stwierdzenia prawda/fałsz na temat" },
+      "generateComprehensionCheck": { "name": "Sprawdzian zrozumienia", "desc": "Szybki sprawdzian zrozumienia między tematami" },
+      "generateOralExplanation": { "name": "Wyjaśnienie ustne", "desc": "Zadanie wyjaśnienia ustnego (speech-to-text)" },
+      "generateChapterExam": { "name": "Egzamin rozdziału", "desc": "Egzamin końcowy rozdziału z mieszanymi zadaniami" }
     },
     "prompts": {
       "style": "Styl",
       "useCustom": "Użyj własnego promptu",
       "customPlaceholder": "Wprowadź własny prompt systemowy...",
       "preview": "Podgląd promptu",
-      "customize": "Dostosuj prompt"
+      "customize": "Dostosuj prompt",
+      "library": {
+        "title": "Biblioteka promptów",
+        "searchPlaceholder": "Szukaj szablonów...",
+        "noResults": "Nie znaleziono szablonów.",
+        "empty": "Brak dostępnych szablonów promptów.",
+        "loadError": "Nie udało się załadować szablonów.",
+        "allCategories": "Wszystkie",
+        "systemPrompt": "Prompt systemowy",
+        "userPrompt": "Szablon promptu użytkownika",
+        "variables": "Zmienne",
+        "variableName": "Nazwa",
+        "variableDesc": "Opis",
+        "variableRequired": "Wymagane",
+        "variableOptional": "Opcjonalne",
+        "model": "Model",
+        "temperature": "Temperatura",
+        "maxTokens": "Maks. tokenów",
+        "version": "Wersja",
+        "default": "Domyślny",
+        "system": "Systemowy",
+        "save": "Zapisz",
+        "saving": "Zapisywanie...",
+        "saved": "Zapisano",
+        "delete": "Usuń",
+        "confirmDelete": "Naprawdę usunąć szablon \"{title}\"?",
+        "back": "Wstecz",
+        "edit": "Edytuj",
+        "categories": {
+          "theory": "Teoria",
+          "lesson": "Lekcja",
+          "quiz": "Quiz",
+          "flashcard": "Fiszki",
+          "tutor": "Tutor",
+          "summary": "Podsumowanie",
+          "exam": "Egzamin"
+        },
+        "styles": {
+          "adhs": "Przyjazny ADHD",
+          "detailed": "Szczegółowy",
+          "short": "Krótko i zwięźle",
+          "exam_focus": "Fokus egzaminacyjny",
+          "standard": "Standardowy"
+        }
+      }
     },
     "result": {
-      "title": "Wynik generowania",
+      "title": "Wygenerowany wynik",
       "variants": "Warianty",
-      "accept": "Zaakceptuj",
+      "accept": "Akceptuj",
       "newVariant": "Nowy wariant",
-      "reject": "Odrzuć"
+      "reject": "Odrzuć",
+      "revise": "Popraw",
+      "accepted": "Wynik zaakceptowany i zapisany.",
+      "rejected": "Wynik odrzucony.",
+      "revisePrompt": "Opisz pożądane zmiany w czacie."
+    },
+    "phase": {
+      "plan": "Planowanie",
+      "generate": "Generowanie",
+      "accept": "Sprawdzanie"
     },
     "batch": {
       "paused": "Wstrzymano",
@@ -59,11 +196,86 @@
       "resume": "Wznów",
       "cancel": "Anuluj"
     },
+    "course": {
+      "title": "Ustawienia kursu",
+      "selectFirst": "Najpierw wybierz kurs.",
+      "loading": "Ładowanie kursu...",
+      "saving": "Zapisywanie...",
+      "saved": "Zapisano",
+      "saveFailed": "Zapisywanie nie powiodlo sie",
+      "fields": {
+        "title": "Tytuł",
+        "subtitle": "Podtytuł",
+        "description": "Opis",
+        "category": "Kategoria",
+        "subcategory": "Podkategoria",
+        "level": "Poziom",
+        "language": "Język",
+        "targetGroup": "Grupa docelowa",
+        "visibility": "Widoczność",
+        "price": "Cena",
+        "tags": "Tagi",
+        "learningGoals": "Cele nauki",
+        "requirements": "Wymagania",
+        "thumbnail": "URL miniatury",
+        "published": "Opublikowany",
+        "draft": "Szkic",
+        "createdAt": "Utworzono"
+      },
+      "levels": {
+        "beginner": "Początkujący",
+        "intermediate": "Średniozaawansowany",
+        "advanced": "Zaawansowany",
+        "expert": "Ekspert"
+      },
+      "visibility": {
+        "private": "Prywatny",
+        "groupPrivate": "Grupowy",
+        "classInternal": "Wewnątrzklasowy",
+        "companyInternal": "Wewnątrzfirmowy",
+        "communityPublic": "Publiczny",
+        "marketplace": "Marketplace",
+        "academy": "Akademia"
+      },
+      "actions": {
+        "trash": "Do kosza",
+        "archive": "Archiwizuj",
+        "restore": "Przywróć",
+        "unarchive": "Cofnij archiwizację",
+        "purge": "Usuń na stałe",
+        "confirmTrash": "Przenieść \"{title}\" do kosza?",
+        "confirmArchive": "Zarchiwizować \"{title}\"?",
+        "confirmPurge": "Trwale usunąć \"{title}\"? Tej akcji nie można cofnąć."
+      },
+      "tagsPlaceholder": "Wpisz tagi oddzielone przecinkami",
+      "goalsPlaceholder": "Jeden cel nauki na linię",
+      "requirementsPlaceholder": "Jedno wymaganie na linię"
+    },
+    "model": {
+      "provider": "Provider",
+      "model": "Model",
+      "usingDefault": "Domyślny",
+      "noProviders": "Brak aktywnych providerów"
+    },
     "history": {
       "title": "Historia generowania",
       "totalTokens": "tokenów łącznie",
       "all": "Wszystkie",
       "empty": "Brak generowań."
     }
+  },
+  "learningMethods": {
+    "lm00": { "name": "Szczegółowe wyjaśnienie" },
+    "lm01": { "name": "Krok po kroku" },
+    "lm02": { "name": "Interaktywna teoria" },
+    "lm03": { "name": "Wizualizacja diagramów" },
+    "lm04": { "name": "Scenariusz przykładowy" },
+    "lm05": { "name": "Interaktywna matematyka" },
+    "lm06": { "name": "Fiszki" },
+    "lm07": { "name": "Przeciągnij i upuść" },
+    "lm08": { "name": "Test z lukami" },
+    "lm09": { "name": "Odpowiedź tekstowa" },
+    "lm10": { "name": "Zadania IHK" },
+    "lm11": { "name": "Wieloetapowe zadanie praktyczne" }
   }
 }

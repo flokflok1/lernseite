@@ -4,13 +4,65 @@
     "selectCourse": "Kurs auswählen",
     "selectCoursePrompt": "Wähle einen Kurs aus, um den AI Editor zu starten.",
     "tabs": {
+      "chat": "Chat",
+      "files": "Dateien",
       "plan": "Plan",
       "skills": "Skills",
       "content": "Inhalte",
       "prompts": "Prompts",
       "history": "Verlauf",
+      "course": "Kurs",
       "contentPlaceholder": "Content-Tab wird mit bestehenden Inhalten integriert.",
       "promptsPlaceholder": "Prompt-Bibliothek wird hier integriert."
+    },
+    "files": {
+      "upload": "Datei hochladen",
+      "uploading": "Wird hochgeladen...",
+      "dropzone": "Dateien hierher ziehen oder klicken zum Hochladen",
+      "delete": "Löschen",
+      "extracting": "Wird extrahiert",
+      "extracted": "Extrahiert",
+      "noFiles": "Noch keine Dateien hochgeladen. Lade PDF, DOCX oder andere Materialien als KI-Kontext hoch.",
+      "selectForContext": "Für KI-Kontext auswählen",
+      "preview": "Vorschau"
+    },
+    "chat": {
+      "roles": {
+        "user": "Du",
+        "assistant": "KI",
+        "system": "System"
+      },
+      "welcome": "KI-Kurseditor",
+      "welcomeDesc": "Erstelle Kurse im Dialog mit der KI. Lade Materialien hoch oder starte von Grund auf.",
+      "placeholder": "Nachricht eingeben...",
+      "attachFile": "Datei anhängen",
+      "filesAttached": "Dateien angehängt",
+      "newCourse": "Neuen Kurs starten",
+      "loadCourse": "Bestehenden Kurs laden",
+      "selectCourse": "Kurs auswählen",
+      "selectCourseFirst": "Bitte wähle zuerst einen Kurs aus der Auswahl oben.",
+      "newCourseDraft": "Neuer KI-Kurs",
+      "createCourseFailed": "Kurs konnte nicht erstellt werden.",
+      "contextSet": "Kontext gesetzt: {type} \"{title}\"",
+      "contextLabel": "Kontext",
+      "clearContext": "Kontext löschen",
+      "fileUploadTodo": "Datei-Upload wird in Kürze verfügbar sein."
+    },
+    "structure": {
+      "title": "Kursstruktur",
+      "empty": "Noch keine Struktur. Chatte mit der KI, um Kapitel und Lektionen zu erstellen.",
+      "chapters": "Kapitel",
+      "lessons": "Lektionen",
+      "materials": "Materialien",
+      "uploadMaterial": "Material hochladen",
+      "finalize": "Kurs finalisieren",
+      "finalizing": "Finalisiere...",
+      "finalizeConfirm": "Möchtest du den Kurs wirklich finalisieren?",
+      "finalizeSuccess": "Kurs erfolgreich finalisiert! Die Struktur wurde in die Datenbank übernommen."
+    },
+    "progress": {
+      "generating": "Inhalt wird generiert...",
+      "tokens": "Tokens"
     },
     "plan": {
       "emptyTitle": "Content-Plan erstellen",
@@ -32,21 +84,106 @@
       "generating": "Generiert...",
       "resultReady": "Ergebnis bereit",
       "accept": "Übernehmen",
-      "reject": "Verwerfen"
+      "reject": "Verwerfen",
+      "categories": {
+        "all": "Alle",
+        "explanatory": "Erklärend",
+        "practice": "Übung",
+        "assessment": "Prüfung",
+        "content": "Inhalt",
+        "review": "Überprüfung",
+        "interactive": "Interaktiv"
+      },
+      "generateDeepExplanation": { "desc": "Tiefgehende Erklärung für eine Lektion generieren" },
+      "generateStepByStep": { "desc": "Schritt-für-Schritt-Anleitung generieren" },
+      "generateInteractiveTheory": { "desc": "Interaktive Theorieinhalte generieren" },
+      "generateDiagram": { "desc": "Diagramm-Visualisierungen generieren" },
+      "generateExampleScenario": { "desc": "Beispielszenarien generieren" },
+      "generateMathInteractive": { "desc": "Interaktive Matheübungen generieren" },
+      "generateFlashcards": { "desc": "Karteikarten-Sets generieren" },
+      "generateDragAndDrop": { "desc": "Drag & Drop Übungen generieren" },
+      "generateClozeTest": { "desc": "Lückentext-Übungen generieren" },
+      "generateFreeText": { "desc": "Freitext-Aufgaben generieren" },
+      "generateIhkTasks": { "desc": "IHK-Prüfungsaufgaben generieren" },
+      "generateMultiStep": { "desc": "Mehrstufige Praxisaufgaben generieren" },
+      "generateTheorySheet": { "name": "Theorie-Blatt", "desc": "Zusammenfassungsblatt generieren" },
+      "generateQuiz": { "name": "Quiz", "desc": "Quiz-Fragen generieren" },
+      "reviewContent": { "name": "Inhalts-Review", "desc": "Bestehende Inhalte prüfen und verbessern" },
+      "generateSummary": { "name": "Zusammenfassung", "desc": "Kapitelzusammenfassung generieren" },
+      "generateWhiteboard": { "name": "Whiteboard", "desc": "Zeichenaufgabe mit Canvas (Diagramme, Topologien)" },
+      "generateHandsOnLab": { "name": "Hands-on Lab", "desc": "Praktische IT-Übung mit Code/Terminal" },
+      "generateTimedChallenge": { "name": "Zeitaufgabe", "desc": "Zeitbasierte Quiz-Aufgabe" },
+      "generateTrueFalse": { "name": "Wahr/Falsch", "desc": "Wahr/Falsch-Aussagen zum Thema" },
+      "generateComprehensionCheck": { "name": "Verständnis-Check", "desc": "Schneller Verständnis-Check zwischen Themen" },
+      "generateOralExplanation": { "name": "Mündliche Erklärung", "desc": "Mündliche Erklärungsaufgabe (Speech-to-Text)" },
+      "generateChapterExam": { "name": "Kapitelprüfung", "desc": "Kapitelabschluss-Prüfung mit gemischten Aufgaben" }
     },
     "prompts": {
       "style": "Stil-Preset",
       "useCustom": "Eigenen Prompt verwenden",
       "customPlaceholder": "Eigenen System-Prompt eingeben...",
       "preview": "Prompt-Vorschau",
-      "customize": "Prompt anpassen"
+      "customize": "Prompt anpassen",
+      "library": {
+        "title": "Prompt-Bibliothek",
+        "searchPlaceholder": "Templates durchsuchen...",
+        "noResults": "Keine Templates gefunden.",
+        "empty": "Noch keine Prompt-Templates vorhanden.",
+        "loadError": "Templates konnten nicht geladen werden.",
+        "allCategories": "Alle",
+        "systemPrompt": "System-Prompt",
+        "userPrompt": "User-Prompt-Template",
+        "variables": "Variablen",
+        "variableName": "Name",
+        "variableDesc": "Beschreibung",
+        "variableRequired": "Pflicht",
+        "variableOptional": "Optional",
+        "model": "Modell",
+        "temperature": "Temperatur",
+        "maxTokens": "Max. Tokens",
+        "version": "Version",
+        "default": "Standard",
+        "system": "System",
+        "save": "Speichern",
+        "saving": "Speichert...",
+        "saved": "Gespeichert",
+        "delete": "Löschen",
+        "confirmDelete": "Template \"{title}\" wirklich löschen?",
+        "back": "Zurück",
+        "edit": "Bearbeiten",
+        "categories": {
+          "theory": "Theorie",
+          "lesson": "Lektion",
+          "quiz": "Quiz",
+          "flashcard": "Karteikarten",
+          "tutor": "Tutor",
+          "summary": "Zusammenfassung",
+          "exam": "Prüfung"
+        },
+        "styles": {
+          "adhs": "ADHS-freundlich",
+          "detailed": "Ausführlich",
+          "short": "Kurz & Knapp",
+          "exam_focus": "Prüfungsfokus",
+          "standard": "Standard"
+        }
+      }
     },
     "result": {
-      "title": "Generierungsergebnis",
+      "title": "Generiertes Ergebnis",
       "variants": "Varianten",
-      "accept": "Übernehmen",
+      "accept": "Akzeptieren",
       "newVariant": "Neue Variante",
-      "reject": "Verwerfen"
+      "reject": "Ablehnen",
+      "revise": "Überarbeiten",
+      "accepted": "Ergebnis akzeptiert und gespeichert.",
+      "rejected": "Ergebnis abgelehnt.",
+      "revisePrompt": "Beschreibe die gewünschten Änderungen im Chat."
+    },
+    "phase": {
+      "plan": "Planung",
+      "generate": "Generierung",
+      "accept": "Prüfung"
     },
     "batch": {
       "paused": "Pausiert",
@@ -59,11 +196,86 @@
       "resume": "Fortsetzen",
       "cancel": "Abbrechen"
     },
+    "course": {
+      "title": "Kurs-Einstellungen",
+      "selectFirst": "Bitte wähle zuerst einen Kurs aus.",
+      "loading": "Kurs wird geladen...",
+      "saving": "Speichert...",
+      "saved": "Gespeichert",
+      "saveFailed": "Speichern fehlgeschlagen",
+      "fields": {
+        "title": "Titel",
+        "subtitle": "Untertitel",
+        "description": "Beschreibung",
+        "category": "Kategorie",
+        "subcategory": "Unterkategorie",
+        "level": "Niveau",
+        "language": "Sprache",
+        "targetGroup": "Zielgruppe",
+        "visibility": "Sichtbarkeit",
+        "price": "Preis",
+        "tags": "Tags",
+        "learningGoals": "Lernziele",
+        "requirements": "Voraussetzungen",
+        "thumbnail": "Thumbnail-URL",
+        "published": "Veröffentlicht",
+        "draft": "Entwurf",
+        "createdAt": "Erstellt am"
+      },
+      "levels": {
+        "beginner": "Anfänger",
+        "intermediate": "Fortgeschritten",
+        "advanced": "Weit fortgeschritten",
+        "expert": "Experte"
+      },
+      "visibility": {
+        "private": "Privat",
+        "groupPrivate": "Gruppenintern",
+        "classInternal": "Klassenintern",
+        "companyInternal": "Firmenintern",
+        "communityPublic": "Community öffentlich",
+        "marketplace": "Marktplatz",
+        "academy": "Akademie"
+      },
+      "actions": {
+        "trash": "In Papierkorb",
+        "archive": "Archivieren",
+        "restore": "Wiederherstellen",
+        "unarchive": "Dearchivieren",
+        "purge": "Endgültig löschen",
+        "confirmTrash": "Kurs \"{title}\" wirklich in den Papierkorb verschieben?",
+        "confirmArchive": "Kurs \"{title}\" archivieren?",
+        "confirmPurge": "Kurs \"{title}\" endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+      },
+      "tagsPlaceholder": "Tags kommagetrennt eingeben",
+      "goalsPlaceholder": "Ein Lernziel pro Zeile",
+      "requirementsPlaceholder": "Eine Voraussetzung pro Zeile"
+    },
+    "model": {
+      "provider": "Provider",
+      "model": "Modell",
+      "usingDefault": "Standard",
+      "noProviders": "Keine aktiven Provider"
+    },
     "history": {
       "title": "Generierungsverlauf",
       "totalTokens": "Tokens gesamt",
       "all": "Alle",
       "empty": "Noch keine Generierungen vorhanden."
     }
+  },
+  "learningMethods": {
+    "lm00": { "name": "Tiefgehende Erklärung" },
+    "lm01": { "name": "Schritt für Schritt" },
+    "lm02": { "name": "Interaktive Theorie" },
+    "lm03": { "name": "Diagramm-Visualisierung" },
+    "lm04": { "name": "Beispielszenario" },
+    "lm05": { "name": "Interaktive Mathematik" },
+    "lm06": { "name": "Karteikarten" },
+    "lm07": { "name": "Drag & Drop" },
+    "lm08": { "name": "Lückentext" },
+    "lm09": { "name": "Freitext-Antwort" },
+    "lm10": { "name": "IHK-Aufgaben" },
+    "lm11": { "name": "Mehrstufige Praxisaufgabe" }
   }
 }

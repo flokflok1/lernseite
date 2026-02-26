@@ -6,7 +6,7 @@ All routes: /api/v1/course-editor/ai/plans/*
 """
 
 from flask import Blueprint, request, g
-from typing import Dict, Any, Tuple
+from typing import Any
 import logging
 
 from app.api.middleware.auth import permission_required
@@ -18,7 +18,7 @@ plans_bp = Blueprint('ai_plans', __name__, url_prefix='/plans')
 
 @plans_bp.route('', methods=['POST'])
 @permission_required('admin.system:read')
-def create_plan() -> Tuple[Dict[str, Any], int]:
+def create_plan() -> tuple[dict[str, Any], int]:
     """Create a new content plan (manual or from file)."""
     from app.application.services.ai.plan_service import PlanService
 
@@ -55,7 +55,7 @@ def create_plan() -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('', methods=['GET'])
 @permission_required('admin.system:read')
-def list_plans() -> Tuple[Dict[str, Any], int]:
+def list_plans() -> tuple[dict[str, Any], int]:
     """List plans for a course."""
     from app.application.services.ai.plan_service import PlanService
 
@@ -76,7 +76,7 @@ def list_plans() -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>', methods=['GET'])
 @permission_required('admin.system:read')
-def get_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
+def get_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Get a specific plan."""
     from app.application.services.ai.plan_service import PlanService
 
@@ -93,7 +93,7 @@ def get_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>', methods=['PATCH'])
 @permission_required('admin.system:read')
-def update_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
+def update_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Update plan data (reorder steps, change parameters)."""
     from app.application.services.ai.plan_service import PlanService
 
@@ -115,7 +115,7 @@ def update_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>/approve', methods=['POST'])
 @permission_required('admin.system:read')
-def approve_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
+def approve_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Approve a plan for execution."""
     from app.application.services.ai.plan_service import PlanService
 
@@ -132,7 +132,7 @@ def approve_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>/execute', methods=['POST'])
 @permission_required('admin.system:read')
-def execute_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
+def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Execute an approved plan."""
     from app.application.services.ai.plan_service import PlanService
 
@@ -155,7 +155,7 @@ def execute_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/phased', methods=['POST'])
 @permission_required('admin.system:read')
-def create_phased_plan() -> Tuple[Dict[str, Any], int]:
+def create_phased_plan() -> tuple[dict[str, Any], int]:
     """Create a phased plan with Phase 1 (course definition)."""
     from app.application.services.ai.plan_service_part2 import PlanWizardService
 
@@ -181,7 +181,7 @@ def create_phased_plan() -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>/phase2', methods=['POST'])
 @permission_required('admin.system:read')
-def advance_to_phase2(plan_id: str) -> Tuple[Dict[str, Any], int]:
+def advance_to_phase2(plan_id: str) -> tuple[dict[str, Any], int]:
     """Advance plan to Phase 2 (chapter structure generation)."""
     from app.application.services.ai.plan_service_part2 import PlanWizardService
 
@@ -198,7 +198,7 @@ def advance_to_phase2(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>/phase3', methods=['POST'])
 @permission_required('admin.system:read')
-def advance_to_phase3(plan_id: str) -> Tuple[Dict[str, Any], int]:
+def advance_to_phase3(plan_id: str) -> tuple[dict[str, Any], int]:
     """Advance plan to Phase 3 (detailed content plan)."""
     from app.application.services.ai.plan_service_part2 import PlanWizardService
 
@@ -215,7 +215,7 @@ def advance_to_phase3(plan_id: str) -> Tuple[Dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>/chat', methods=['POST'])
 @permission_required('admin.system:read')
-def chat_about_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
+def chat_about_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Chat about the plan to refine current phase."""
     from app.application.services.ai.plan_service_part2 import PlanWizardService
 

@@ -115,11 +115,16 @@ const canConfirm = computed(() => {
       <PlanModePanel
         v-else-if="currentPhase >= 3"
         :plan="plan"
+        :is-creating="isCreating"
         :is-draft="isDraft"
         :is-approved="isApproved"
         :is-executing="isExecuting"
         :total-steps="totalSteps"
         :completed-steps="completedSteps"
+        @approve="emit('confirmPhase')"
+        @save-plan="emit('confirmPhase')"
+        @execute="emit('execute')"
+        @discard="emit('discard')"
       />
     </div>
 

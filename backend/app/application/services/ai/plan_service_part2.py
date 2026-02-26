@@ -60,6 +60,7 @@ class PlanWizardService:
         plan = ContentPlanRepository.create({
             'course_id': course_id,
             'user_id': user_id,
+            'scope': 'course',
             'current_phase': 1,
             'status': 'draft',
             'course_meta': course_meta,

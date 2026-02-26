@@ -28,7 +28,7 @@ def create_plan() -> tuple[dict[str, Any], int]:
         if not course_id:
             return {'success': False, 'error': {'code': 'MISSING_COURSE_ID', 'message': 'course_id is required'}}, 400
 
-        user_id = g.get('user_id', 'system')
+        user_id = g.current_user['user_id']
         source = data.get('source')
 
         if source == 'file':
@@ -91,7 +91,7 @@ def create_phased_plan() -> tuple[dict[str, Any], int]:
         if not course_id:
             return {'success': False, 'error': {'code': 'MISSING_COURSE_ID', 'message': 'course_id is required'}}, 400
 
-        user_id = g.get('user_id', 'system')
+        user_id = g.current_user['user_id']
         topic = data.get('topic', '')
         file_ids = data.get('file_ids', [])
 
@@ -173,7 +173,7 @@ def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     from app.application.services.ai.plan_service import PlanService
 
     try:
-        user_id = g.get('user_id', 'system')
+        user_id = g.current_user['user_id']
         result = PlanService.execute_plan(plan_id, user_id)
         return {'success': True, 'data': result}, 200
 

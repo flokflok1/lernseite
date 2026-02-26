@@ -58,6 +58,10 @@ from .context.detector import (
     get_exam_context_sync
 )
 
+# Plan services
+from .plan_service import PlanService
+from .plan_service_part2 import PlanWizardService
+
 # Provider implementations (moved to infrastructure layer)
 from app.infrastructure.ai.providers import (  # noqa: F401
     OpenAIProvider,
@@ -95,6 +99,10 @@ __all__ = [
     'GoogleProvider',
     'CohereProvider',
     'HuggingFaceProvider',
+
+    # Plan services
+    'PlanService',
+    'PlanWizardService',
 
     # NOTE: AIJobService, PromptResolver, ExamContextDetector are available via:
     # - Direct imports: from app.application.services.ai.job_service import AIJobService

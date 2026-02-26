@@ -1,17 +1,25 @@
 <script setup lang="ts">
 /**
- * PlanTab — Plan Mode entry point: create, edit, approve, execute plans
+ * PlanTab — Plan Mode entry point with 4-phase wizard.
+ *
+ * Orchestrates the plan wizard lifecycle:
+ * - No plan: shows course card (Phase 1 entry)
+ * - Active plan: shows PlanPhaseWizard with phase navigation
+ * - Plan history: recent plans for reloading
  */
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePlanMode } from '../composables'
-import { PlanModePanel, BatchProgressPanel } from '../panels'
+import { PlanPhaseWizard, PlanCourseCard } from '../panels'
 
 interface Props {
   courseId: string
+  hasFiles?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  hasFiles: false,
+})
 const { t } = useI18n()
 
 const plan = usePlanMode()
@@ -22,20 +30,15 @@ onMounted(() => {
   }
 })
 
-function handleCreatePlan(scope: string, scopeId?: string) {
-  plan.createNewPlan(props.courseId, scope, scopeId)
-}
-
-function handleCreateFromFile(fileId: string) {
-  // TODO: Open file picker dialog, then call plan.createFromFile(courseId, fileId)
-  plan.createFromFile(props.courseId, fileId)
+function handleGeneratePhase1(topic?: string, fileIds?: string[]) {
+  plan.generatePhase1(props.courseId, topic, fileIds)
 }
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full gap-4">
     <!-- Plan History (when no active plan) -->
-    <div v-if="!plan.hasPlan.value && plan.planHistory.value.length > 0" class="p-4 border-b border-gray-700">
+    <div v-if="!plan.hasPlan.value && plan.planHistory.value.length > 0" class="p-3 border-b border-gray-700">
       <label class="text-xs text-gray-500 mb-2 block">{{ t('aiEditor.plan.recentPlans') }}</label>
       <div class="space-y-1">
         <button
@@ -50,24 +53,42 @@ function handleCreateFromFile(fileId: string) {
       </div>
     </div>
 
-    <!-- Active Plan -->
-    <PlanModePanel
+    <!-- Active Plan: Phase Wizard -->
+    <PlanPhaseWizard
+      v-if="plan.hasPlan.value"
+      :current-phase="plan.currentPhase.value"
       :plan="plan.currentPlan.value"
+      :course-meta="plan.courseMeta.value"
+      :chapters="plan.chapters.value"
+      :chat-messages="plan.chatMessages.value"
       :is-creating="plan.isCreating.value"
       :is-executing="plan.isExecuting.value"
+      :is-chatting="plan.isChatting.value"
+      :has-files="hasFiles"
       :is-draft="plan.isDraft.value"
       :is-approved="plan.isApproved.value"
-      @create-plan="handleCreatePlan"
-      @create-from-file="handleCreateFromFile"
-      @reorder-step="plan.reorderStep"
-      @remove-step="plan.removeStep"
-      @save-plan="plan.savePlan"
-      @approve="plan.approve"
+      :total-steps="plan.totalSteps.value"
+      :completed-steps="plan.completedSteps.value"
+      @generate-phase1="handleGeneratePhase1"
+      @confirm-phase="plan.confirmPhase"
+      @go-back="plan.goBackToPhase"
+      @send-chat="plan.sendPlanChatMessage"
       @execute="plan.execute"
+      @discard="plan.clearPlan"
     />
 
+    <!-- Empty State: Start New Plan -->
+    <div v-if="!plan.hasPlan.value" class="flex-1">
+      <PlanCourseCard
+        :course-meta="null"
+        :is-creating="plan.isCreating.value"
+        :has-files="hasFiles"
+        @generate="handleGeneratePhase1"
+      />
+    </div>
+
     <!-- Error -->
-    <div v-if="plan.error.value" class="p-4">
+    <div v-if="plan.error.value" class="px-2">
       <div class="p-3 bg-red-900/30 border border-red-800 rounded-lg text-xs text-red-300">
         {{ plan.error.value }}
       </div>

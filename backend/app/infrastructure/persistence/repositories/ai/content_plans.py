@@ -18,12 +18,22 @@ class ContentPlanRepository:
 
     table_name = 'ai_pipeline.ai_content_plans'
 
+    JSONB_FIELDS = ('plan_data', 'course_meta', 'chapters', 'chat_history')
+
+    @classmethod
+    def _serialize_jsonb(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Serialize dict/list values in JSONB columns to JSON strings."""
+        result = dict(data)
+        for field in cls.JSONB_FIELDS:
+            if field in result and isinstance(result[field], (dict, list)):
+                result[field] = json.dumps(result[field])
+        return result
+
     @classmethod
     def create(cls, plan_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Create a new content plan."""
-        if 'plan_data' in plan_data and isinstance(plan_data['plan_data'], (dict, list)):
-            plan_data['plan_data'] = json.dumps(plan_data['plan_data'])
-        return insert_returning(cls.table_name, plan_data, returning='*')
+        """Create a new content plan with optional wizard columns."""
+        serialized = cls._serialize_jsonb(plan_data)
+        return insert_returning(cls.table_name, serialized, returning='*')
 
     @classmethod
     def find_by_id(cls, plan_id: str) -> Optional[Dict[str, Any]]:
@@ -94,6 +104,49 @@ class ContentPlanRepository:
             'plan_id = %s',
             (plan_id,),
         )
+
+    @classmethod
+    def update_phase(
+        cls,
+        plan_id: str,
+        phase: int,
+        phase_data: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """Update current phase and associated JSONB fields.
+
+        Only provided fields in phase_data are updated (course_meta,
+        chapters, plan_data). Missing keys are left unchanged via COALESCE.
+        """
+        query = """
+            UPDATE ai_pipeline.ai_content_plans
+            SET current_phase = %s,
+                course_meta = COALESCE(%s::jsonb, course_meta),
+                chapters    = COALESCE(%s::jsonb, chapters),
+                plan_data   = COALESCE(%s::jsonb, plan_data),
+                updated_at  = NOW()
+            WHERE plan_id = %s
+            RETURNING *
+        """
+        data = phase_data or {}
+        course_meta = json.dumps(data['course_meta']) if 'course_meta' in data else None
+        chapters = json.dumps(data['chapters']) if 'chapters' in data else None
+        plan_data = json.dumps(data['plan_data']) if 'plan_data' in data else None
+
+        return fetch_one(query, (phase, course_meta, chapters, plan_data, plan_id))
+
+    @classmethod
+    def append_chat_message(
+        cls, plan_id: str, message: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
+        """Append a chat message to the chat_history JSONB array."""
+        query = """
+            UPDATE ai_pipeline.ai_content_plans
+            SET chat_history = chat_history || %s::jsonb,
+                updated_at = NOW()
+            WHERE plan_id = %s
+            RETURNING *
+        """
+        return fetch_one(query, (json.dumps([message]), plan_id))
 
     @classmethod
     def delete(cls, plan_id: str) -> None:

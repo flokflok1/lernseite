@@ -13,6 +13,13 @@ export type {
   CreatePlanRequest,
   CreatePlanFromFileRequest,
   UpdatePlanRequest,
+  WizardPhase,
+  CourseMeta,
+  ChapterDraft,
+  PlanChatMessage,
+  PlanChatResponse,
+  CreatePhasedPlanRequest,
+  PlanChatRequest,
 } from './plan.types'
 
 // Skill types

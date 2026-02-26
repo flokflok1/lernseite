@@ -25,6 +25,9 @@ from app.domain.ports.core import (
     _RepositoryRegistry
 )
 
+# Plan generation port
+from app.domain.ports.plan_generator import PlanGeneratorPort
+
 # Social domain ports
 from app.domain.ports.social import (
     SocialPostsPort,
@@ -55,6 +58,9 @@ __all__ = [
     'SocialCommentsPort',
     'SocialFollowsPort',
     'SocialNotificationsPort',
+
+    # Plan generation
+    'PlanGeneratorPort',
 
     # Registry
     'repos'

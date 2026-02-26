@@ -11,6 +11,8 @@ import type {
   CreatePlanRequest,
   CreatePlanFromFileRequest,
   UpdatePlanRequest,
+  CreatePhasedPlanRequest,
+  PlanChatResponse,
   SkillConfig,
   ExecuteSkillRequest,
   BatchExecuteRequest,
@@ -56,6 +58,30 @@ export async function executePlan(planId: string): Promise<{ plan_id: string; st
 
 export async function listPlans(courseId: string, limit = 20, offset = 0): Promise<ContentPlan[]> {
   const res = await http.get(`${BASE}/plans`, { params: { course_id: courseId, limit, offset } })
+  return res.data.data
+}
+
+// ============================================================================
+// Phase Wizard API
+// ============================================================================
+
+export async function createPhasedPlan(data: CreatePhasedPlanRequest): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/phased`, data)
+  return res.data.data
+}
+
+export async function advanceToPhase2(planId: string): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/${planId}/phase2`)
+  return res.data.data
+}
+
+export async function advanceToPhase3(planId: string): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/${planId}/phase3`)
+  return res.data.data
+}
+
+export async function sendPlanChat(planId: string, message: string): Promise<PlanChatResponse> {
+  const res = await http.post(`${BASE}/plans/${planId}/chat`, { message })
   return res.data.data
 }
 

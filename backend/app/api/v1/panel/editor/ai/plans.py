@@ -169,7 +169,7 @@ def create_phased_plan() -> tuple[dict[str, Any], int]:
         topic = data.get('topic', '')
         file_ids = data.get('file_ids', [])
 
-        plan = PlanWizardService.create_phased_plan(course_id, user_id, topic, file_ids)
+        plan = PlanWizardService().create_phased_plan(course_id, user_id, topic, file_ids)
         return {'success': True, 'data': plan}, 201
 
     except ValueError as e:
@@ -186,7 +186,7 @@ def advance_to_phase2(plan_id: str) -> tuple[dict[str, Any], int]:
     from app.application.services.ai.plan_service_part2 import PlanWizardService
 
     try:
-        plan = PlanWizardService.advance_to_phase2(plan_id)
+        plan = PlanWizardService().advance_to_phase2(plan_id)
         return {'success': True, 'data': plan}, 200
 
     except ValueError as e:
@@ -203,7 +203,7 @@ def advance_to_phase3(plan_id: str) -> tuple[dict[str, Any], int]:
     from app.application.services.ai.plan_service_part2 import PlanWizardService
 
     try:
-        plan = PlanWizardService.advance_to_phase3(plan_id)
+        plan = PlanWizardService().advance_to_phase3(plan_id)
         return {'success': True, 'data': plan}, 200
 
     except ValueError as e:
@@ -225,7 +225,7 @@ def chat_about_plan(plan_id: str) -> tuple[dict[str, Any], int]:
         if not message:
             return {'success': False, 'error': {'code': 'MISSING_MESSAGE', 'message': 'message is required'}}, 400
 
-        result = PlanWizardService.chat_about_plan(plan_id, message)
+        result = PlanWizardService().chat_about_plan(plan_id, message)
         return {'success': True, 'data': result}, 200
 
     except ValueError as e:

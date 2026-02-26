@@ -13,6 +13,7 @@ import logging
 from typing import Any
 
 from app.domain.ai.configuration.skill_catalog_prompt import build_skill_catalog_prompt
+from app.domain.ports.plan_generator import PlanGeneratorPort
 from app.infrastructure.persistence.repositories.ai.content_plans import ContentPlanRepository
 from app.application.services.ai.plan_service import (
     _get_active_sf_codes,
@@ -22,26 +23,37 @@ from app.application.services.ai.plan_service import (
 logger = logging.getLogger(__name__)
 
 
-class PlanWizardService:
-    """Orchestrates phased plan wizard lifecycle."""
+def _default_generator() -> PlanGeneratorPort:
+    """Lazy-resolve the default PlanGeneratorPort implementation."""
+    from app.infrastructure.ai.plan_generator import PlanGeneratorAdapter
+    return PlanGeneratorAdapter()
 
-    @staticmethod
+
+class PlanWizardService:
+    """Orchestrates phased plan wizard lifecycle.
+
+    Depends on PlanGeneratorPort (domain contract).
+    If no generator is injected, the default infrastructure adapter is used.
+    """
+
+    def __init__(self, generator: PlanGeneratorPort | None = None) -> None:
+        self._generator = generator or _default_generator()
+
     def create_phased_plan(
+        self,
         course_id: str,
         user_id: str,
         topic: str = '',
         file_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         """Create a plan and run Phase 1 (course definition)."""
-        from app.infrastructure.ai.plan_generator import PlanGeneratorAdapter
         from app.infrastructure.persistence.repositories.authoring.files import (
             AuthoringFilesRepository,
         )
 
         file_text = _collect_file_text(file_ids, AuthoringFilesRepository)
 
-        generator = PlanGeneratorAdapter()
-        course_meta = generator.generate_course_definition(
+        course_meta = self._generator.generate_course_definition(
             topic=topic, file_text=file_text,
         )
 
@@ -57,27 +69,20 @@ class PlanWizardService:
         })
         return plan
 
-    @staticmethod
-    def advance_to_phase2(plan_id: str) -> dict[str, Any]:
+    def advance_to_phase2(self, plan_id: str) -> dict[str, Any]:
         """Load plan and run Phase 2 (chapter structure generation)."""
-        from app.infrastructure.ai.plan_generator import PlanGeneratorAdapter
-
         plan = _load_plan_or_raise(plan_id)
         course_meta = _parse_jsonb_field(plan, 'course_meta', {})
 
-        generator = PlanGeneratorAdapter()
-        result = generator.generate_chapter_structure(course_meta)
+        result = self._generator.generate_chapter_structure(course_meta)
 
         updated = ContentPlanRepository.update_phase(
             plan_id, 2, {'chapters': result.get('chapters', [])},
         )
         return updated
 
-    @staticmethod
-    def advance_to_phase3(plan_id: str) -> dict[str, Any]:
+    def advance_to_phase3(self, plan_id: str) -> dict[str, Any]:
         """Load plan and run Phase 3 (detailed content plan)."""
-        from app.infrastructure.ai.plan_generator import PlanGeneratorAdapter
-
         plan = _load_plan_or_raise(plan_id)
         course_meta = _parse_jsonb_field(plan, 'course_meta', {})
         chapters = _parse_jsonb_field(plan, 'chapters', [])
@@ -85,8 +90,7 @@ class PlanWizardService:
         active_sf_codes = _get_active_sf_codes()
         skill_catalog = build_skill_catalog_prompt(active_sf_codes)
 
-        generator = PlanGeneratorAdapter()
-        result = generator.generate_content_plan(
+        result = self._generator.generate_content_plan(
             course_meta, chapters, skill_catalog,
         )
 
@@ -99,13 +103,10 @@ class PlanWizardService:
             updated['estimated_tokens'] = estimated_tokens
         return updated
 
-    @staticmethod
     def chat_about_plan(
-        plan_id: str, message: str
+        self, plan_id: str, message: str,
     ) -> dict[str, Any]:
         """Refine the current plan phase via conversational chat."""
-        from app.infrastructure.ai.plan_generator import PlanGeneratorAdapter
-
         plan = _load_plan_or_raise(plan_id)
         current_phase = plan.get('current_phase', 1)
 
@@ -115,8 +116,7 @@ class PlanWizardService:
             'phases': _parse_jsonb_field(plan, 'plan_data', {}).get('phases', []),
         }
 
-        generator = PlanGeneratorAdapter()
-        result = generator.chat_about_plan(plan_data, message, current_phase)
+        result = self._generator.chat_about_plan(plan_data, message, current_phase)
 
         ContentPlanRepository.append_chat_message(
             plan_id, {'role': 'user', 'content': message},

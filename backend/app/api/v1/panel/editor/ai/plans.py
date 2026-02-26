@@ -74,6 +74,42 @@ def list_plans() -> tuple[dict[str, Any], int]:
         return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to list plans'}}, 500
 
 
+# ---------------------------------------------------------------------------
+# Phase Wizard Endpoints (MUST be before /<plan_id> to avoid route conflict)
+# ---------------------------------------------------------------------------
+
+
+@plans_bp.route('/phased', methods=['POST'])
+@permission_required('admin.system:read')
+def create_phased_plan() -> tuple[dict[str, Any], int]:
+    """Create a phased plan with Phase 1 (course definition)."""
+    from app.application.services.ai.plan_service_part2 import PlanWizardService
+
+    try:
+        data = request.get_json() or {}
+        course_id = data.get('course_id')
+        if not course_id:
+            return {'success': False, 'error': {'code': 'MISSING_COURSE_ID', 'message': 'course_id is required'}}, 400
+
+        user_id = g.get('user_id', 'system')
+        topic = data.get('topic', '')
+        file_ids = data.get('file_ids', [])
+
+        plan = PlanWizardService().create_phased_plan(course_id, user_id, topic, file_ids)
+        return {'success': True, 'data': plan}, 201
+
+    except ValueError as e:
+        return {'success': False, 'error': {'code': 'PLAN_ERROR', 'message': str(e)}}, 400
+    except Exception as e:
+        logger.error(f"Create phased plan failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to create phased plan'}}, 500
+
+
+# ---------------------------------------------------------------------------
+# Dynamic <plan_id> Endpoints
+# ---------------------------------------------------------------------------
+
+
 @plans_bp.route('/<plan_id>', methods=['GET'])
 @permission_required('admin.system:read')
 def get_plan(plan_id: str) -> tuple[dict[str, Any], int]:
@@ -146,37 +182,6 @@ def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     except Exception as e:
         logger.error(f"Execute plan failed: {e}")
         return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to execute plan'}}, 500
-
-
-# ---------------------------------------------------------------------------
-# Phase Wizard Endpoints
-# ---------------------------------------------------------------------------
-
-
-@plans_bp.route('/phased', methods=['POST'])
-@permission_required('admin.system:read')
-def create_phased_plan() -> tuple[dict[str, Any], int]:
-    """Create a phased plan with Phase 1 (course definition)."""
-    from app.application.services.ai.plan_service_part2 import PlanWizardService
-
-    try:
-        data = request.get_json() or {}
-        course_id = data.get('course_id')
-        if not course_id:
-            return {'success': False, 'error': {'code': 'MISSING_COURSE_ID', 'message': 'course_id is required'}}, 400
-
-        user_id = g.get('user_id', 'system')
-        topic = data.get('topic', '')
-        file_ids = data.get('file_ids', [])
-
-        plan = PlanWizardService().create_phased_plan(course_id, user_id, topic, file_ids)
-        return {'success': True, 'data': plan}, 201
-
-    except ValueError as e:
-        return {'success': False, 'error': {'code': 'PLAN_ERROR', 'message': str(e)}}, 400
-    except Exception as e:
-        logger.error(f"Create phased plan failed: {e}")
-        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to create phased plan'}}, 500
 
 
 @plans_bp.route('/<plan_id>/phase2', methods=['POST'])

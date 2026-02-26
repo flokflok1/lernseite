@@ -25,8 +25,15 @@ ALTER TABLE ai_pipeline.ai_content_plans
     ADD COLUMN IF NOT EXISTS chat_history JSONB DEFAULT '[]';
 
 -- Ensure phase stays within valid range (1-4)
-ALTER TABLE ai_pipeline.ai_content_plans
-    ADD CONSTRAINT chk_plan_phase
-    CHECK (current_phase >= 1 AND current_phase <= 4);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'chk_plan_phase'
+    ) THEN
+        ALTER TABLE ai_pipeline.ai_content_plans
+            ADD CONSTRAINT chk_plan_phase
+            CHECK (current_phase >= 1 AND current_phase <= 4);
+    END IF;
+END $$;
 
 COMMIT;

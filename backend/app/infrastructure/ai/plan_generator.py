@@ -176,15 +176,13 @@ class PlanGeneratorAdapter(PlanGeneratorPort):
         self,
         course_meta: dict,
         chapters: list[dict],
-        active_sf_codes: Optional[set[str]] = None,
+        skill_catalog_section: str = '',
     ) -> dict:
         """Phase 3: generate detailed content plan with skills per lesson."""
-        skill_catalog = _get_skill_catalog_section(active_sf_codes)
-
         system_msg, user_msg = build_phase3_prompt(
             course_meta=course_meta,
             chapters=chapters,
-            skill_catalog_section=skill_catalog,
+            skill_catalog_section=skill_catalog_section,
         )
         fallback: dict[str, Any] = {'phases': []}
 
@@ -215,7 +213,7 @@ class PlanGeneratorAdapter(PlanGeneratorPort):
         )
         user_msg = message
         fallback = {
-            'response': 'Entschuldigung, ich konnte die Anfrage nicht verarbeiten.',
+            'response': '[PLAN_CHAT_UNAVAILABLE]',
             'updated_data': None,
             'phase': current_phase,
         }
@@ -252,28 +250,13 @@ def _safe_call_ai(
 def _phase1_fallback(topic: str) -> dict:
     """Minimal fallback for Phase 1 when AI is unavailable."""
     return {
-        'title': topic[:80] if topic else 'Neuer Kurs',
+        'title': topic[:80] if topic else '',
         'description': '',
         'target_audience': '',
         'difficulty': 'intermediate',
         'language': 'de',
     }
 
-
-def _get_skill_catalog_section(
-    active_sf_codes: Optional[set[str]] = None,
-) -> str:
-    """Import and call the skill catalog builder from plan_service."""
-    try:
-        from app.application.services.ai.plan_service import (
-            _get_skill_catalog_prompt,
-        )
-        return _get_skill_catalog_prompt(active_sf_codes=active_sf_codes)
-    except ImportError:
-        logger.warning(
-            "Could not import _get_skill_catalog_prompt; using empty catalog"
-        )
-        return ''
 
 
 def _normalize_chat_response(

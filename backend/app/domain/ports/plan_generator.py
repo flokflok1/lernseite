@@ -72,16 +72,16 @@ class PlanGeneratorPort(ABC):
         self,
         course_meta: dict,
         chapters: list[dict],
-        active_sf_codes: set[str] | None = None
+        skill_catalog_section: str = '',
     ) -> dict:
         """Phase 3: Generate a detailed content plan with lessons and methods.
 
         Args:
             course_meta: The course definition dict from Phase 1.
             chapters: The chapter list from Phase 2.
-            active_sf_codes: Optional set of active system-feature codes
-                             (e.g. {'whiteboard_engine', 'code_sandbox'}) so
-                             the AI can suggest relevant system features per lesson.
+            skill_catalog_section: Pre-built skill catalog text listing
+                available skill codes and didactic guidelines. Built by
+                the application layer from domain skill definitions.
 
         Returns:
             dict with keys:

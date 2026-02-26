@@ -9,6 +9,10 @@ export type PlanStepStatus = 'pending' | 'running' | 'completed' | 'failed' | 's
 export interface ContentPlan {
   plan_id: string
   course_id: string
+  current_phase?: WizardPhase
+  course_meta?: CourseMeta
+  chapters?: ChapterDraft[]
+  chat_history?: PlanChatMessage[]
   scope: PlanScope
   scope_id: string | null
   status: PlanStatus
@@ -51,4 +55,47 @@ export interface CreatePlanFromFileRequest {
 
 export interface UpdatePlanRequest {
   plan_data?: { phases: PlanPhase[] }
+}
+
+// ---------------------------------------------------------------------------
+// Phase Wizard Types
+// ---------------------------------------------------------------------------
+
+export type WizardPhase = 1 | 2 | 3 | 4
+
+export interface CourseMeta {
+  title: string
+  description: string
+  target_audience: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert'
+  language: 'de' | 'en' | 'pl'
+}
+
+export interface ChapterDraft {
+  id: string
+  title: string
+  description: string
+  order: number
+}
+
+export interface PlanChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  timestamp?: string
+}
+
+export interface PlanChatResponse {
+  assistant_message: string
+  plan_patch: Record<string, unknown> | null
+  plan: ContentPlan
+}
+
+export interface CreatePhasedPlanRequest {
+  course_id: string
+  topic?: string
+  file_ids?: string[]
+}
+
+export interface PlanChatRequest {
+  message: string
 }

@@ -15,6 +15,7 @@ import { PlanPhaseWizard, PlanCourseCard } from '../panels'
 interface Props {
   courseId: string
   hasFiles?: boolean
+  fileIds?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -65,6 +66,7 @@ function handleGeneratePhase1(topic?: string, fileIds?: string[]) {
       :is-executing="plan.isExecuting.value"
       :is-chatting="plan.isChatting.value"
       :has-files="hasFiles"
+      :file-ids="fileIds"
       :is-draft="plan.isDraft.value"
       :is-approved="plan.isApproved.value"
       :total-steps="plan.totalSteps.value"
@@ -83,6 +85,7 @@ function handleGeneratePhase1(topic?: string, fileIds?: string[]) {
         :course-meta="null"
         :is-creating="plan.isCreating.value"
         :has-files="hasFiles"
+        :file-ids="fileIds"
         @generate="handleGeneratePhase1"
       />
     </div>

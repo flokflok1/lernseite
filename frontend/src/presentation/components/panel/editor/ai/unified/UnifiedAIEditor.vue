@@ -73,7 +73,7 @@
             />
             <CourseTab v-else-if="editorState.activeTab.value === 'course'" :course-id="selectedCourseId" @deleted="handleCourseDeleted" />
             <FilesTab v-else-if="editorState.activeTab.value === 'files'" />
-            <PlanTab v-else-if="editorState.activeTab.value === 'plan'" :course-id="selectedCourseId" :has-files="editorState.fileCount.value > 0" />
+            <PlanTab v-else-if="editorState.activeTab.value === 'plan'" :course-id="selectedCourseId" :has-files="editorState.fileCount.value > 0" :file-ids="fileUpload.files.value.map((f: any) => f.file_id)" />
             <SkillsTab v-else-if="editorState.activeTab.value === 'skills'" :course-id="selectedCourseId" />
             <PromptsTab v-else-if="editorState.activeTab.value === 'prompts'" />
             <HistoryTab v-else-if="editorState.activeTab.value === 'history'" :course-id="selectedCourseId" />

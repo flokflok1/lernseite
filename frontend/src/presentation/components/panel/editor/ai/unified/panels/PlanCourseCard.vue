@@ -14,9 +14,10 @@ interface Props {
   courseMeta: CourseMeta | null
   isCreating: boolean
   hasFiles: boolean
+  fileIds?: string[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const { t } = useI18n()
 
 const emit = defineEmits<{
@@ -66,7 +67,7 @@ function handleCreate() {
         v-if="hasFiles"
         class="px-4 py-2 text-sm text-gray-300 hover:text-white border border-gray-600 hover:border-gray-500 rounded transition-colors"
         :disabled="isCreating"
-        @click="emit('generate', undefined, [])"
+        @click="emit('generate', undefined, props.fileIds)"
       >
         {{ t('aiEditor.planWizard.createFromFiles') }}
       </button>

@@ -23,6 +23,7 @@ interface Props {
   isExecuting: boolean
   isChatting: boolean
   hasFiles: boolean
+  fileIds?: string[]
   isDraft: boolean
   isApproved: boolean
   totalSteps: number
@@ -101,7 +102,8 @@ const canConfirm = computed(() => {
         :course-meta="courseMeta"
         :is-creating="isCreating"
         :has-files="hasFiles"
-        @generate="(topic, fileIds) => emit('generatePhase1', topic, fileIds)"
+        :file-ids="fileIds"
+        @generate="(topic, fIds) => emit('generatePhase1', topic, fIds)"
       />
 
       <PlanChapterList

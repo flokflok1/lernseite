@@ -169,13 +169,13 @@ def approve_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 @plans_bp.route('/<plan_id>/execute', methods=['POST'])
 @permission_required('admin.system:read')
 def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
-    """Execute an approved plan."""
+    """Start async execution of an approved plan. Returns 202 immediately."""
     from app.application.services.ai.plan_service import PlanService
 
     try:
         user_id = g.current_user['user_id']
         result = PlanService.execute_plan(plan_id, user_id)
-        return {'success': True, 'data': result}, 200
+        return {'success': True, 'data': result}, 202
 
     except ValueError as e:
         return {'success': False, 'error': {'code': 'PLAN_ERROR', 'message': str(e)}}, 400

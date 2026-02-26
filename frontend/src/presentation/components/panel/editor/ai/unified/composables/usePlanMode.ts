@@ -152,19 +152,45 @@ export function usePlanMode() {
     }
   }
 
+  let _pollTimer: ReturnType<typeof setInterval> | null = null
+
   async function execute() {
     if (!currentPlan.value) return
     isExecuting.value = true
     error.value = null
     try {
-      const result = await executePlan(currentPlan.value.plan_id)
-      if (currentPlan.value) {
-        currentPlan.value.status = result.status as PlanStatus
-      }
+      await executePlan(currentPlan.value.plan_id)
+      // Backend returns 202 immediately — start polling for progress
+      _startProgressPolling(currentPlan.value.plan_id)
     } catch (e: unknown) {
       _handleError(e, 'execute')
-    } finally {
       isExecuting.value = false
+    }
+  }
+
+  function _startProgressPolling(planId: string) {
+    _stopProgressPolling()
+    _pollTimer = setInterval(async () => {
+      try {
+        const plan = await getPlan(planId)
+        if (currentPlan.value) {
+          currentPlan.value = _normalizePlan(plan)
+        }
+        // Stop polling when execution is done
+        if (plan.status !== 'executing') {
+          _stopProgressPolling()
+          isExecuting.value = false
+        }
+      } catch {
+        // Ignore polling errors, keep trying
+      }
+    }, 3000)
+  }
+
+  function _stopProgressPolling() {
+    if (_pollTimer) {
+      clearInterval(_pollTimer)
+      _pollTimer = null
     }
   }
 
@@ -254,6 +280,8 @@ export function usePlanMode() {
   }
 
   function clearPlan() {
+    _stopProgressPolling()
+    isExecuting.value = false
     currentPlan.value = null
     error.value = null
     currentPhase.value = 1

@@ -9,7 +9,7 @@ mechanism as the existing plan_service.py.
 import json
 import logging
 import uuid
-from typing import Any, Optional
+from typing import Any
 
 from app.domain.ports.plan_generator import PlanGeneratorPort
 from app.infrastructure.ai.adapter import AIAdapter
@@ -118,8 +118,8 @@ class PlanGeneratorAdapter(PlanGeneratorPort):
 
     def __init__(
         self,
-        provider_name: Optional[str] = None,
-        model_name: Optional[str] = None,
+        provider_name: str | None = None,
+        model_name: str | None = None,
     ):
         if provider_name and model_name:
             self._provider = provider_name
@@ -132,7 +132,7 @@ class PlanGeneratorAdapter(PlanGeneratorPort):
     def generate_course_definition(
         self,
         topic: str,
-        file_text: Optional[str] = None,
+        file_text: str | None = None,
     ) -> dict:
         """Phase 1: generate course metadata from a topic description."""
         system_msg, user_msg = build_phase1_prompt(
@@ -153,7 +153,7 @@ class PlanGeneratorAdapter(PlanGeneratorPort):
     def generate_chapter_structure(
         self,
         course_meta: dict,
-        file_text: Optional[str] = None,
+        file_text: str | None = None,
     ) -> dict:
         """Phase 2: generate chapter structure from course metadata."""
         system_msg, user_msg = build_phase2_prompt(
@@ -238,7 +238,7 @@ def _safe_call_ai(
     system_msg: str,
     user_msg: str,
     max_tokens: int = 4000,
-) -> Optional[str]:
+) -> str | None:
     """Wrap _call_ai with exception handling; returns None on failure."""
     try:
         return _call_ai(provider, model, system_msg, user_msg, max_tokens)
@@ -256,7 +256,6 @@ def _phase1_fallback(topic: str) -> dict:
         'difficulty': 'intermediate',
         'language': 'de',
     }
-
 
 
 def _normalize_chat_response(

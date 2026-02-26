@@ -81,7 +81,8 @@ const canConfirm = computed(() => {
               'bg-gray-700 text-gray-400': p.num > currentPhase,
             }"
           >
-            {{ p.num < currentPhase ? '✓' : p.num }}
+            <span v-if="p.num < currentPhase" aria-hidden="true">✓</span>
+            <span v-else>{{ p.num }}</span>
           </span>
           <span class="text-xs text-gray-300">{{ p.label }}</span>
         </div>
@@ -136,7 +137,7 @@ const canConfirm = computed(() => {
         class="px-3 py-1.5 text-sm text-gray-300 hover:text-white rounded border border-gray-600 hover:border-gray-500 transition-colors"
         @click="emit('goBack', (currentPhase - 1) as WizardPhase)"
       >
-        ← {{ t('planWizard.back') }}
+        {{ t('planWizard.backPrev') }}
       </button>
       <div class="flex-1" />
       <button
@@ -144,7 +145,7 @@ const canConfirm = computed(() => {
         :disabled="!canConfirm"
         @click="emit('confirmPhase')"
       >
-        {{ isCreating ? t('planWizard.generating') : t('planWizard.confirm') + ' →' }}
+        {{ isCreating ? t('planWizard.generating') : t('planWizard.confirmNext') }}
       </button>
     </div>
 

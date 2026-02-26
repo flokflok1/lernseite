@@ -186,7 +186,8 @@ def _get_active_sf_codes() -> set:
     try:
         active = SystemFeaturesRepository.find_active()
         return {sf.get('code', '') for sf in active}
-    except Exception:
+    except Exception as exc:
+        logger.warning("Could not load active system features: %s", exc)
         return set()
 
 

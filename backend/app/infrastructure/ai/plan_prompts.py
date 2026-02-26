@@ -5,7 +5,7 @@ Builds system/user message pairs for each phase of the AI plan wizard.
 Pure infrastructure concern — no Flask, Application, or API imports.
 """
 
-from typing import Optional
+from __future__ import annotations
 
 
 # ---------------------------------------------------------------------------
@@ -14,7 +14,7 @@ from typing import Optional
 
 def build_phase1_prompt(
     topic: str,
-    file_text: Optional[str] = None,
+    file_text: str | None = None,
 ) -> tuple[str, str]:
     """Build prompt pair for Phase 1 (course meta extraction)."""
     system_message = (
@@ -54,7 +54,7 @@ def build_phase1_prompt(
 
 def build_phase2_prompt(
     course_meta: dict,
-    file_text: Optional[str] = None,
+    file_text: str | None = None,
 ) -> tuple[str, str]:
     """Build prompt pair for Phase 2 (chapter structure generation)."""
     system_message = (

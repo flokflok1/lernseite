@@ -9,6 +9,8 @@ import type {
   ContentPlan,
   PlanPhase,
   PlanStep,
+  PlanScope,
+  PlanStatus,
   WizardPhase,
   CourseMeta,
   ChapterDraft,
@@ -62,14 +64,14 @@ export function usePlanMode() {
 
   // ── Actions ─────────────────────────────────────────────────────
 
-  async function createNewPlan(courseId: string, scope = 'course', scopeId?: string) {
+  async function createNewPlan(courseId: string, scope: PlanScope = 'course', scopeId?: string) {
     isCreating.value = true
     error.value = null
     try {
-      const plan = await createPlan({ course_id: courseId, scope: scope as any, scope_id: scopeId })
+      const plan = await createPlan({ course_id: courseId, scope, scope_id: scopeId })
       currentPlan.value = _normalizePlan(plan)
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'createNewPlan')
     } finally {
       isCreating.value = false
     }
@@ -81,8 +83,8 @@ export function usePlanMode() {
     try {
       const plan = await createPlanFromFile({ course_id: courseId, file_id: fileId })
       currentPlan.value = _normalizePlan(plan)
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'createFromFile')
     } finally {
       isCreating.value = false
     }
@@ -93,8 +95,8 @@ export function usePlanMode() {
     try {
       const plan = await getPlan(planId)
       currentPlan.value = _normalizePlan(plan)
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'loadPlan')
     }
   }
 
@@ -102,8 +104,8 @@ export function usePlanMode() {
     try {
       const plans = await listPlans(courseId)
       planHistory.value = (plans || []).map(_normalizePlan)
-    } catch (e: any) {
-      error.value = e.message
+    } catch (e: unknown) {
+      _handleError(e, 'loadPlanHistory')
     }
   }
 
@@ -134,8 +136,8 @@ export function usePlanMode() {
         plan_data: { phases: currentPlan.value.phases },
       })
       currentPlan.value = _normalizePlan(updated)
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'savePlan')
     }
   }
 
@@ -145,8 +147,8 @@ export function usePlanMode() {
     try {
       const updated = await approvePlan(currentPlan.value.plan_id)
       currentPlan.value = _normalizePlan(updated)
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'approve')
     }
   }
 
@@ -157,10 +159,10 @@ export function usePlanMode() {
     try {
       const result = await executePlan(currentPlan.value.plan_id)
       if (currentPlan.value) {
-        currentPlan.value.status = result.status as any
+        currentPlan.value.status = result.status as PlanStatus
       }
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'execute')
     } finally {
       isExecuting.value = false
     }
@@ -181,8 +183,8 @@ export function usePlanMode() {
       courseMeta.value = plan.course_meta || null
       currentPhase.value = 1
       chatMessages.value = []
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'generatePhase1')
     } finally {
       isCreating.value = false
     }
@@ -209,8 +211,8 @@ export function usePlanMode() {
         currentPhase.value = 4
       }
       chatMessages.value = []
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'confirmPhase')
     } finally {
       isCreating.value = false
     }
@@ -243,8 +245,8 @@ export function usePlanMode() {
       }
 
       return result.assistant_message
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      _handleError(e, 'sendPlanChatMessage')
       return ''
     } finally {
       isChatting.value = false
@@ -258,6 +260,14 @@ export function usePlanMode() {
     courseMeta.value = null
     chapters.value = []
     chatMessages.value = []
+  }
+
+  // ── Error Helper ──────────────────────────────────────────────
+
+  function _handleError(e: unknown, context: string) {
+    const err = e as { response?: { data?: { error?: { message?: string } } }; message?: string }
+    error.value = err.response?.data?.error?.message || err.message || String(e)
+    console.error(`[usePlanMode] ${context} failed:`, e)
   }
 
   return {
@@ -297,7 +307,8 @@ export function usePlanMode() {
 
 // ── Helpers ─────────────────────────────────────────────────────
 
-function _normalizePlan(raw: any): ContentPlan {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function _normalizePlan(raw: Record<string, any>): ContentPlan {
   const planData = typeof raw.plan_data === 'string' ? JSON.parse(raw.plan_data) : raw.plan_data
   const courseMeta = typeof raw.course_meta === 'string' ? JSON.parse(raw.course_meta) : raw.course_meta
   const chapters = typeof raw.chapters === 'string' ? JSON.parse(raw.chapters) : raw.chapters

@@ -27,17 +27,9 @@ ALWAYS_AVAILABLE_EXTENSIONS: dict[str, str] = {
 }
 
 
-def build_skill_catalog_prompt(active_sf_codes: set[str] | None = None) -> str:
-    """Build a description of available skills for AI plan generation prompts.
-
-    Args:
-        active_sf_codes: Set of active system-feature codes. If None,
-            all SF-gated extensions are included.
-
-    Returns:
-        Multi-line string listing all skill codes with didactic guidelines.
-    """
-    parts = [
+def _core_skills_section() -> str:
+    """Core skill listings: explanatory, practice, assessment, utility."""
+    return (
         'You MUST use ONLY the following skill_code values. Do NOT invent new ones.\n\n'
         'EXPLANATORY SKILLS (Group A — teach/explain concepts):\n'
         '  - generate_deep_explanation: In-depth explanation of a topic\n'
@@ -59,28 +51,31 @@ def build_skill_catalog_prompt(active_sf_codes: set[str] | None = None) -> str:
         '  - generate_quiz: Multiple-choice quiz\n'
         '  - generate_summary: Chapter summary\n'
         '  - review_content: Review existing content for quality\n\n'
-    ]
+    )
 
-    # Build extension skills block based on active system features
-    extension_lines: list[str] = []
+
+def _extension_skills_section(active_sf_codes: set[str] | None) -> str:
+    """Extension skills gated by active system features."""
+    lines: list[str] = []
     if active_sf_codes is not None:
         for sf_code, (skill_code, desc) in SF_TO_SKILL.items():
             if sf_code in active_sf_codes:
-                extension_lines.append(f'  - {skill_code}: {desc}')
+                lines.append(f'  - {skill_code}: {desc}')
     else:
         for _sf_code, (skill_code, desc) in SF_TO_SKILL.items():
-            extension_lines.append(f'  - {skill_code}: {desc}')
+            lines.append(f'  - {skill_code}: {desc}')
 
     for skill_code, desc in ALWAYS_AVAILABLE_EXTENSIONS.items():
-        extension_lines.append(f'  - {skill_code}: {desc}')
+        lines.append(f'  - {skill_code}: {desc}')
 
-    if extension_lines:
-        parts.append(
-            'EXTENSION SKILLS (advanced task types):\n'
-            + '\n'.join(extension_lines) + '\n\n'
-        )
+    if not lines:
+        return ''
+    return 'EXTENSION SKILLS (advanced task types):\n' + '\n'.join(lines) + '\n\n'
 
-    parts.append(
+
+def _didactic_guidelines() -> str:
+    """Didactic rules mapping topic types to recommended skills."""
+    return (
         'DIDACTIC GUIDELINES — when to use which skill:\n'
         '- Visual/spatial topics (diagrams, topologies, architecture) → generate_diagram + generate_whiteboard\n'
         '- Calculation/formulas (subnetting, math, conversion) → generate_math_interactive + generate_step_by_step\n'
@@ -92,7 +87,10 @@ def build_skill_catalog_prompt(active_sf_codes: set[str] | None = None) -> str:
         '- Complex multi-step processes → generate_step_by_step + generate_multi_step\n\n'
     )
 
-    parts.append(
+
+def _structure_rules() -> str:
+    """Plan structure constraints for AI output."""
+    return (
         'PLAN STRUCTURE RULES:\n'
         '- Organize phases by chapter/topic from the material\n'
         '- Each phase = one chapter/major topic\n'
@@ -106,4 +104,20 @@ def build_skill_catalog_prompt(active_sf_codes: set[str] | None = None) -> str:
         '- Set target_title to a descriptive lesson name\n'
     )
 
-    return ''.join(parts)
+
+def build_skill_catalog_prompt(active_sf_codes: set[str] | None = None) -> str:
+    """Build a description of available skills for AI plan generation prompts.
+
+    Args:
+        active_sf_codes: Set of active system-feature codes. If None,
+            all SF-gated extensions are included.
+
+    Returns:
+        Multi-line string listing all skill codes with didactic guidelines.
+    """
+    return (
+        _core_skills_section()
+        + _extension_skills_section(active_sf_codes)
+        + _didactic_guidelines()
+        + _structure_rules()
+    )

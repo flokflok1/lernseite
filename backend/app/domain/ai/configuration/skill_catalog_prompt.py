@@ -8,7 +8,7 @@ and didactic guidelines) with no infrastructure imports.
 Used by both PlanService (legacy) and PlanGeneratorAdapter (wizard).
 """
 
-from typing import Optional
+from __future__ import annotations
 
 
 # Mapping: system_feature_code → (skill_code, description for prompt)
@@ -27,7 +27,7 @@ ALWAYS_AVAILABLE_EXTENSIONS: dict[str, str] = {
 }
 
 
-def build_skill_catalog_prompt(active_sf_codes: Optional[set[str]] = None) -> str:
+def build_skill_catalog_prompt(active_sf_codes: set[str] | None = None) -> str:
     """Build a description of available skills for AI plan generation prompts.
 
     Args:

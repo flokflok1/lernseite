@@ -146,3 +146,90 @@ def execute_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
     except Exception as e:
         logger.error(f"Execute plan failed: {e}")
         return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to execute plan'}}, 500
+
+
+# ---------------------------------------------------------------------------
+# Phase Wizard Endpoints
+# ---------------------------------------------------------------------------
+
+
+@plans_bp.route('/phased', methods=['POST'])
+@permission_required('admin.system:read')
+def create_phased_plan() -> Tuple[Dict[str, Any], int]:
+    """Create a phased plan with Phase 1 (course definition)."""
+    from app.application.services.ai.plan_service_part2 import PlanWizardService
+
+    try:
+        data = request.get_json() or {}
+        course_id = data.get('course_id')
+        if not course_id:
+            return {'success': False, 'error': {'code': 'MISSING_COURSE_ID', 'message': 'course_id is required'}}, 400
+
+        user_id = g.get('user_id', 'system')
+        topic = data.get('topic', '')
+        file_ids = data.get('file_ids', [])
+
+        plan = PlanWizardService.create_phased_plan(course_id, user_id, topic, file_ids)
+        return {'success': True, 'data': plan}, 201
+
+    except ValueError as e:
+        return {'success': False, 'error': {'code': 'PLAN_ERROR', 'message': str(e)}}, 400
+    except Exception as e:
+        logger.error(f"Create phased plan failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to create phased plan'}}, 500
+
+
+@plans_bp.route('/<plan_id>/phase2', methods=['POST'])
+@permission_required('admin.system:read')
+def advance_to_phase2(plan_id: str) -> Tuple[Dict[str, Any], int]:
+    """Advance plan to Phase 2 (chapter structure generation)."""
+    from app.application.services.ai.plan_service_part2 import PlanWizardService
+
+    try:
+        plan = PlanWizardService.advance_to_phase2(plan_id)
+        return {'success': True, 'data': plan}, 200
+
+    except ValueError as e:
+        return {'success': False, 'error': {'code': 'NOT_FOUND', 'message': str(e)}}, 404
+    except Exception as e:
+        logger.error(f"Advance to phase 2 failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to advance to phase 2'}}, 500
+
+
+@plans_bp.route('/<plan_id>/phase3', methods=['POST'])
+@permission_required('admin.system:read')
+def advance_to_phase3(plan_id: str) -> Tuple[Dict[str, Any], int]:
+    """Advance plan to Phase 3 (detailed content plan)."""
+    from app.application.services.ai.plan_service_part2 import PlanWizardService
+
+    try:
+        plan = PlanWizardService.advance_to_phase3(plan_id)
+        return {'success': True, 'data': plan}, 200
+
+    except ValueError as e:
+        return {'success': False, 'error': {'code': 'NOT_FOUND', 'message': str(e)}}, 404
+    except Exception as e:
+        logger.error(f"Advance to phase 3 failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to advance to phase 3'}}, 500
+
+
+@plans_bp.route('/<plan_id>/chat', methods=['POST'])
+@permission_required('admin.system:read')
+def chat_about_plan(plan_id: str) -> Tuple[Dict[str, Any], int]:
+    """Chat about the plan to refine current phase."""
+    from app.application.services.ai.plan_service_part2 import PlanWizardService
+
+    try:
+        data = request.get_json() or {}
+        message = (data.get('message') or '').strip()
+        if not message:
+            return {'success': False, 'error': {'code': 'MISSING_MESSAGE', 'message': 'message is required'}}, 400
+
+        result = PlanWizardService.chat_about_plan(plan_id, message)
+        return {'success': True, 'data': result}, 200
+
+    except ValueError as e:
+        return {'success': False, 'error': {'code': 'NOT_FOUND', 'message': str(e)}}, 404
+    except Exception as e:
+        logger.error(f"Chat about plan failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to process chat message'}}, 500

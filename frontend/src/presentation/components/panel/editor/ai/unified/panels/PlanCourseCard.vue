@@ -36,10 +36,10 @@ function handleCreate() {
   <div v-if="!courseMeta" class="flex flex-col items-center gap-4 py-8">
     <div class="text-center">
       <h3 class="text-lg font-semibold text-white mb-1">
-        {{ t('planWizard.phase1Title') }}
+        {{ t('aiEditor.planWizard.phase1Title') }}
       </h3>
       <p class="text-sm text-gray-400">
-        {{ t('planWizard.topicDescription') }}
+        {{ t('aiEditor.planWizard.topicDescription') }}
       </p>
     </div>
 
@@ -47,7 +47,7 @@ function handleCreate() {
       <input
         v-model="topicInput"
         type="text"
-        :placeholder="t('planWizard.topicPlaceholder')"
+        :placeholder="t('aiEditor.planWizard.topicPlaceholder')"
         class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
         :disabled="isCreating"
         @keydown.enter="handleCreate"
@@ -60,7 +60,7 @@ function handleCreate() {
         :disabled="isCreating"
         @click="handleCreate"
       >
-        {{ isCreating ? t('planWizard.generating') : t('planWizard.createManual') }}
+        {{ isCreating ? t('aiEditor.planWizard.generating') : t('aiEditor.planWizard.createManual') }}
       </button>
       <button
         v-if="hasFiles"
@@ -68,7 +68,7 @@ function handleCreate() {
         :disabled="isCreating"
         @click="emit('generate', undefined, [])"
       >
-        {{ t('planWizard.createFromFiles') }}
+        {{ t('aiEditor.planWizard.createFromFiles') }}
       </button>
     </div>
   </div>
@@ -85,15 +85,15 @@ function handleCreate() {
 
     <div class="grid grid-cols-3 gap-3 text-sm">
       <div>
-        <span class="text-gray-500 text-xs block">{{ t('planWizard.targetAudience') }}</span>
+        <span class="text-gray-500 text-xs block">{{ t('aiEditor.planWizard.targetAudience') }}</span>
         <span class="text-gray-200">{{ courseMeta.target_audience || '—' }}</span>
       </div>
       <div>
-        <span class="text-gray-500 text-xs block">{{ t('planWizard.difficulty') }}</span>
+        <span class="text-gray-500 text-xs block">{{ t('aiEditor.planWizard.difficulty') }}</span>
         <span class="text-gray-200">{{ courseMeta.difficulty || '—' }}</span>
       </div>
       <div>
-        <span class="text-gray-500 text-xs block">{{ t('planWizard.language') }}</span>
+        <span class="text-gray-500 text-xs block">{{ t('aiEditor.planWizard.language') }}</span>
         <span class="text-gray-200 uppercase">{{ courseMeta.language || '—' }}</span>
       </div>
     </div>

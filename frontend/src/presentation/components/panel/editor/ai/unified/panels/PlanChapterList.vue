@@ -21,7 +21,7 @@ const { t } = useI18n()
   <div v-if="isCreating && chapters.length === 0" class="flex items-center justify-center py-12">
     <div class="text-center">
       <div class="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-3" />
-      <p class="text-sm text-gray-400">{{ t('planWizard.generating') }}</p>
+      <p class="text-sm text-gray-400">{{ t('aiEditor.planWizard.generating') }}</p>
     </div>
   </div>
 
@@ -29,10 +29,10 @@ const { t } = useI18n()
   <div v-else class="flex flex-col gap-2">
     <div class="flex items-center justify-between mb-2">
       <h3 class="text-sm font-semibold text-white">
-        {{ t('planWizard.phase2Title') }}
+        {{ t('aiEditor.planWizard.phase2Title') }}
       </h3>
       <span class="text-xs text-gray-500">
-        {{ t('planWizard.chapterCount', { count: chapters.length }) }}
+        {{ t('aiEditor.planWizard.chapterCount', { count: chapters.length }) }}
       </span>
     </div>
 
@@ -53,7 +53,7 @@ const { t } = useI18n()
     </div>
 
     <p v-if="chapters.length === 0" class="text-sm text-gray-500 text-center py-4">
-      {{ t('planWizard.noChapters') }}
+      {{ t('aiEditor.planWizard.noChapters') }}
     </p>
   </div>
 </template>

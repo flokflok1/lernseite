@@ -42,10 +42,10 @@ const emit = defineEmits<{
 }>()
 
 const phaseLabels = computed(() => [
-  { num: 1 as WizardPhase, label: t('planWizard.phase1Title') },
-  { num: 2 as WizardPhase, label: t('planWizard.phase2Title') },
-  { num: 3 as WizardPhase, label: t('planWizard.phase3Title') },
-  { num: 4 as WizardPhase, label: t('planWizard.phase4Title') },
+  { num: 1 as WizardPhase, label: t('aiEditor.planWizard.phase1Title') },
+  { num: 2 as WizardPhase, label: t('aiEditor.planWizard.phase2Title') },
+  { num: 3 as WizardPhase, label: t('aiEditor.planWizard.phase3Title') },
+  { num: 4 as WizardPhase, label: t('aiEditor.planWizard.phase4Title') },
 ])
 
 const canGoBack = computed(() => props.currentPhase > 1 && props.currentPhase < 4)
@@ -137,7 +137,7 @@ const canConfirm = computed(() => {
         class="px-3 py-1.5 text-sm text-gray-300 hover:text-white rounded border border-gray-600 hover:border-gray-500 transition-colors"
         @click="emit('goBack', (currentPhase - 1) as WizardPhase)"
       >
-        {{ t('planWizard.backPrev') }}
+        {{ t('aiEditor.planWizard.backPrev') }}
       </button>
       <div class="flex-1" />
       <button
@@ -145,7 +145,7 @@ const canConfirm = computed(() => {
         :disabled="!canConfirm"
         @click="emit('confirmPhase')"
       >
-        {{ isCreating ? t('planWizard.generating') : t('planWizard.confirmNext') }}
+        {{ isCreating ? t('aiEditor.planWizard.generating') : t('aiEditor.planWizard.confirmNext') }}
       </button>
     </div>
 
@@ -155,7 +155,7 @@ const canConfirm = computed(() => {
         class="px-4 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-500 rounded transition-colors"
         @click="emit('execute')"
       >
-        {{ t('planWizard.execute') }}
+        {{ t('aiEditor.planWizard.execute') }}
       </button>
     </div>
   </div>

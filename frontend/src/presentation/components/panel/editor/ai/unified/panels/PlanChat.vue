@@ -26,7 +26,7 @@ const inputText = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
 
 const placeholder = computed(() => {
-  const key = `planWizard.chatPlaceholder${props.currentPhase}` as const
+  const key = `aiEditor.planWizard.chatPlaceholder${props.currentPhase}` as const
   return t(key)
 })
 
@@ -75,7 +75,7 @@ watch(() => props.messages.length, async () => {
       </div>
 
       <p v-if="messages.length === 0 && !isLoading" class="text-xs text-gray-600 text-center py-2">
-        {{ t('planWizard.chatHint') }}
+        {{ t('aiEditor.planWizard.chatHint') }}
       </p>
     </div>
 
@@ -94,7 +94,7 @@ watch(() => props.messages.length, async () => {
         :disabled="!inputText.trim() || isLoading"
         @click="handleSend"
       >
-        {{ t('planWizard.send') }}
+        {{ t('aiEditor.planWizard.send') }}
       </button>
     </div>
   </div>

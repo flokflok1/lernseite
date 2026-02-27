@@ -242,8 +242,32 @@ def course_authoring_chat(session_id):
             file_ids=file_ids
         )
 
-        logger.info(f"Chat processed for session {session_id}, "
-                   f"operations: {len(result.get('operations_applied', []))}")
+        ops_count = len(result.get('operations_applied', []))
+        logger.info(f"Chat processed for session {session_id}, operations: {ops_count}")
+
+        # Auto-finalize: if operations were applied, write to real DB immediately
+        if ops_count > 0:
+            try:
+                finalize_result = service.finalize_session(session_id, user_id)
+                result['finalized'] = True
+                result['finalize_stats'] = finalize_result.get('stats', {})
+                logger.info(f"Auto-finalized session {session_id}: {finalize_result.get('stats')}")
+
+                # Create a fresh session so the user can keep chatting
+                course_id = result['draft_structure'].get('course_id')
+                if course_id:
+                    new_session = service.create_session(
+                        user_id=user_id,
+                        course_id=course_id,
+                        model_profile='anthropic-claude-sonnet'
+                    )
+                    result['new_session_id'] = new_session['session_id']
+                    result['draft_structure'] = new_session['draft_structure']
+                    logger.info(f"Created follow-up session {new_session['session_id']}")
+            except Exception as e:
+                logger.error(f"Auto-finalize failed for session {session_id}: {e}", exc_info=True)
+                result['finalized'] = False
+                result['finalize_error'] = str(e)
 
         return jsonify({'success': True, 'data': result}), 200
 

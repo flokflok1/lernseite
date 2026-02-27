@@ -229,6 +229,27 @@ export function useChatSession() {
         })
       }
 
+      // Auto-finalize: backend wrote changes to real DB and created a new session
+      if (response.finalized && response.new_session_id) {
+        session.value = {
+          ...session.value!,
+          sessionId: response.new_session_id,
+        }
+        messages.value.push({
+          id: `msg-${Date.now()}-finalized`,
+          role: 'system',
+          content: `Änderungen gespeichert (${response.finalize_stats?.chapters ?? 0} Kapitel, ${response.finalize_stats?.lessons ?? 0} Lektionen, ${response.finalize_stats?.methods ?? 0} Methoden)`,
+          timestamp: new Date().toISOString(),
+        })
+      } else if (response.finalize_error) {
+        messages.value.push({
+          id: `msg-${Date.now()}-fin-err`,
+          role: 'system',
+          content: `Speichern fehlgeschlagen: ${response.finalize_error}`,
+          timestamp: new Date().toISOString(),
+        })
+      }
+
       // Track tokens
       if (response.tokens_used) {
         tokensUsed.value += response.tokens_used

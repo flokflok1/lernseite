@@ -29,8 +29,9 @@ export function useGenerationHistory() {
     error.value = null
     try {
       entries.value = await getGenerationHistory(courseId, limit, offset)
-    } catch (e: any) {
-      error.value = e.response?.data?.error?.message || e.message
+    } catch (e: unknown) {
+      console.warn('[GenerationHistory] Failed to load history:', e)
+      entries.value = []
     } finally {
       isLoading.value = false
     }

@@ -12,12 +12,13 @@ import logging
 import uuid
 
 from app.domain.ai.configuration.skills import (
-    get_skill, get_all_skills, get_skills_by_category, SkillDefinition
+    get_skill, get_all_skills, get_course_skills, get_skills_by_category, SkillDefinition
 )
 from app.application.services.ai.prompts.resolver import PromptResolver
 from app.application.services.content.lm.model_resolver import LMModelResolver
 from app.infrastructure.ai.adapter import AIAdapter
 from app.infrastructure.persistence.repositories.ai.generation_log import GenerationLogRepository
+from app.infrastructure.persistence.repositories.features.repository import FeatureRepository
 
 logger = logging.getLogger(__name__)
 
@@ -27,15 +28,21 @@ class SkillExecutionService:
 
     @staticmethod
     def get_catalog() -> List[Dict[str, Any]]:
-        """Return the full skill catalog as serializable dicts."""
-        skills = get_all_skills()
-        return [_serialize_skill(s) for s in skills]
+        """
+        Return the AI Editor skill catalog.
+
+        Filters applied:
+        1. Only course-scoped skills (session/user-level excluded)
+        2. Skills with required_feature_code only if that SF is active
+        """
+        skills = get_course_skills()
+        return _filter_by_active_features(skills)
 
     @staticmethod
     def get_catalog_by_category(category: str) -> List[Dict[str, Any]]:
-        """Return skills filtered by category."""
-        skills = get_skills_by_category(category)
-        return [_serialize_skill(s) for s in skills]
+        """Return skills filtered by category (course-scoped only)."""
+        skills = [s for s in get_course_skills() if s.category == category]
+        return _filter_by_active_features(skills)
 
     @staticmethod
     def get_skill_detail(code: str) -> Optional[Dict[str, Any]]:
@@ -208,6 +215,9 @@ def _resolve_prompt(
         'count': params.get('count', 5),
         'skill_code': skill.code,
         'learning_method_id': skill.learning_method_id,
+        'topic': params.get('topic', ''),
+        'chapter_title': params.get('chapter_title', ''),
+        'course_title': params.get('course_title', ''),
     }
 
     try:
@@ -222,11 +232,124 @@ def _resolve_prompt(
     except Exception as e:
         logger.warning(f"PromptResolver failed for {skill.code}: {e}")
 
-    # Hardcoded fallback
+    # Hardcoded fallback with topic context
+    topic = params.get('topic', '')
+    chapter_title = params.get('chapter_title', '')
+    course_title = params.get('course_title', '')
+
+    topic_context = ''
+    if course_title:
+        topic_context += f'Kurs: {course_title}\n'
+    if chapter_title:
+        topic_context += f'Kapitel: {chapter_title}\n'
+    if topic:
+        topic_context += f'Lektion: {topic}\n'
+
+    skill_instructions = _get_skill_instructions(skill.code, language)
+
     return [
-        {'role': 'system', 'content': 'You are an expert educational content creator.'},
-        {'role': 'user', 'content': f'Generate {skill.code} content in {language}.'},
+        {
+            'role': 'system',
+            'content': (
+                'Du bist ein erfahrener Lehrplanentwickler und Content-Creator. '
+                'Erstelle hochwertige Lerninhalte in der angegebenen Sprache. '
+                'Antworte NUR mit dem Lerninhalt, ohne Meta-Kommentare.'
+            ),
+        },
+        {
+            'role': 'user',
+            'content': (
+                f'{topic_context}\n'
+                f'{skill_instructions}\n\n'
+                f'Sprache: {language}\n'
+                f'Erstelle den Inhalt passend zum Thema der Lektion.'
+            ),
+        },
     ]
+
+
+def _get_skill_instructions(skill_code: str, language: str) -> str:
+    """Return skill-specific generation instructions."""
+    lang_label = 'Deutsch' if language == 'de' else 'English' if language == 'en' else language
+
+    instructions = {
+        'generate_theory_sheet': (
+            f'Erstelle ein ausführliches Theorie-Arbeitsblatt auf {lang_label}. '
+            'Strukturiere es mit Überschriften, Erklärungen, Beispielen und '
+            'einer Zusammenfassung. Verwende Markdown-Formatierung.'
+        ),
+        'generate_deep_explanation': (
+            f'Erstelle eine tiefgehende Erklärung auf {lang_label}. '
+            'Erkläre das Thema ausführlich mit Analogien, Beispielen und '
+            'Hintergrundwissen. Verwende Markdown-Formatierung.'
+        ),
+        'generate_step_by_step': (
+            f'Erstelle eine Schritt-für-Schritt-Anleitung auf {lang_label}. '
+            'Nummeriere jeden Schritt und erkläre ihn verständlich.'
+        ),
+        'generate_example_scenario': (
+            f'Erstelle ein praxisnahes Beispiel-Szenario auf {lang_label}. '
+            'Beschreibe eine realistische Situation und zeige die Anwendung.'
+        ),
+        'generate_diagram': (
+            f'Erstelle eine textuelle Beschreibung eines Diagramms auf {lang_label}. '
+            'Beschreibe die Elemente, Verbindungen und Zusammenhänge.'
+        ),
+        'generate_quiz': (
+            f'Erstelle ein Quiz mit 5-10 Multiple-Choice-Fragen auf {lang_label}. '
+            'Gib als JSON zurück: {{"questions": [{{"question": "...", '
+            '"options": ["A", "B", "C", "D"], "correct": 0, '
+            '"explanation": "..."}}]}}'
+        ),
+        'generate_flashcards': (
+            f'Erstelle 10-15 Lernkarten auf {lang_label}. '
+            'Gib als JSON zurück: {{"cards": [{{"front": "...", "back": "..."}}]}}'
+        ),
+        'generate_drag_and_drop': (
+            f'Erstelle eine Zuordnungsaufgabe auf {lang_label}. '
+            'Gib als JSON zurück: {{"pairs": [{{"term": "...", "definition": "..."}}]}}'
+        ),
+        'generate_cloze_test': (
+            f'Erstelle einen Lückentext auf {lang_label}. '
+            'Gib als JSON zurück: {{"text": "Der {{{{1}}}} ist...", '
+            '"gaps": [{{"id": 1, "answer": "...", "alternatives": ["..."]}}]}}'
+        ),
+        'generate_true_false': (
+            f'Erstelle 8-12 Wahr/Falsch-Aussagen auf {lang_label}. '
+            'Gib als JSON zurück: {{"statements": [{{"statement": "...", '
+            '"correct": true, "explanation": "..."}}]}}'
+        ),
+        'generate_free_text': (
+            f'Erstelle 3-5 offene Fragen auf {lang_label}. '
+            'Gib als JSON zurück: {{"questions": [{{"question": "...", '
+            '"sample_answer": "...", "keywords": ["..."]}}]}}'
+        ),
+        'generate_ihk_tasks': (
+            f'Erstelle prüfungsähnliche Aufgaben im IHK-Stil auf {lang_label}. '
+            'Gib als JSON zurück: {{"tasks": [{{"task": "...", '
+            '"points": 10, "solution": "..."}}]}}'
+        ),
+        'generate_multi_step': (
+            f'Erstelle eine mehrstufige praktische Aufgabe auf {lang_label}. '
+            'Gib als JSON zurück: {{"steps": [{{"instruction": "...", '
+            '"expected_result": "...", "hints": ["..."]}}]}}'
+        ),
+        'generate_math_interactive': (
+            f'Erstelle interaktive Rechenaufgaben auf {lang_label}. '
+            'Gib als JSON zurück: {{"exercises": [{{"problem": "...", '
+            '"solution": "...", "steps": ["..."]}}]}}'
+        ),
+        'generate_hands_on_lab': (
+            f'Erstelle eine praktische Laborübung auf {lang_label}. '
+            'Beschreibe Ziel, Materialien, Schritte und erwartete Ergebnisse.'
+        ),
+        'generate_whiteboard': (
+            f'Erstelle eine Whiteboard-Übung auf {lang_label}. '
+            'Beschreibe Konzepte die visuell erarbeitet werden sollen.'
+        ),
+    }
+
+    return instructions.get(skill_code, f'Erstelle Lerninhalt auf {lang_label}.')
 
 
 def _parse_output(output_text: str) -> Dict[str, Any]:
@@ -235,6 +358,33 @@ def _parse_output(output_text: str) -> Dict[str, Any]:
         return json.loads(output_text)
     except (json.JSONDecodeError, TypeError):
         return {'raw_text': output_text}
+
+
+def _filter_by_active_features(skills: List[SkillDefinition]) -> List[Dict[str, Any]]:
+    """
+    Filter skills by active System Features.
+
+    Skills without required_feature_code pass through.
+    Skills with required_feature_code are only included if that SF is active.
+    """
+    # Collect which feature codes we need to check
+    needed_codes = {s.required_feature_code for s in skills if s.required_feature_code}
+
+    if not needed_codes:
+        return [_serialize_skill(s) for s in skills]
+
+    # Query active features once
+    try:
+        active_features = FeatureRepository.list_all_features(active_only=True)
+        active_codes = {f['feature_code'] for f in active_features}
+    except Exception as e:
+        logger.warning(f"Could not query active features, showing all course skills: {e}")
+        active_codes = needed_codes  # Fail open: show all on DB error
+
+    return [
+        _serialize_skill(s) for s in skills
+        if not s.required_feature_code or s.required_feature_code in active_codes
+    ]
 
 
 def _serialize_skill(skill: SkillDefinition) -> Dict[str, Any]:
@@ -261,4 +411,6 @@ def _serialize_skill(skill: SkillDefinition) -> Dict[str, Any]:
         ],
         'supports_variants': skill.supports_variants,
         'estimated_tokens': skill.estimated_tokens,
+        'content_scope': skill.content_scope,
+        'required_feature_code': skill.required_feature_code,
     }

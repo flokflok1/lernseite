@@ -12,12 +12,6 @@
 
 import http from '@/infrastructure/api/http'
 import {
-  transformCourseFromAPI,
-  transformChapterFromAPI,
-  transformLessonFromAPI,
-  transformCourseProgressFromAPI,
-  transformChapterProgressFromAPI,
-  transformLessonProgressFromAPI,
   transformSavedTaskExecutionFromAPI,
   transformQuizDataFromAPI,
   transformQuizResultFromAPI
@@ -31,6 +25,7 @@ import type {
   ChapterProgress,
   CourseProgress,
   LearningMethod,
+  MethodProgress,
   ExecuteMethodRequest,
   ExecuteMethodResponse,
   AnalyticsEventRequest,
@@ -49,6 +44,7 @@ export type {
   ChapterProgress,
   CourseProgress,
   LearningMethod,
+  MethodProgress,
   ExecuteMethodRequest,
   ExecuteMethodResponse,
   AnalyticsEventRequest,
@@ -76,7 +72,7 @@ export const getCourse = async (courseId: string): Promise<Course> => {
     course: Course
   }>(`/courses/${courseId}`)
 
-  return transformCourseFromAPI(response.data.course)
+  return response.data.course
 }
 
 /**
@@ -89,7 +85,7 @@ export const getCourseChapters = async (courseId: string): Promise<Chapter[]> =>
     chapters: Chapter[]
   }>(`/courses/${courseId}/chapters`)
 
-  return response.data.chapters.map(transformChapterFromAPI)
+  return response.data.chapters
 }
 
 /**
@@ -102,7 +98,7 @@ export const getChapter = async (courseId: string, chapterId: string): Promise<C
     chapter: Chapter
   }>(`/courses/${courseId}/chapters/${chapterId}`)
 
-  return transformChapterFromAPI(response.data.chapter)
+  return response.data.chapter
 }
 
 /**
@@ -119,7 +115,7 @@ export const getLesson = async (
     lesson: Lesson
   }>(`/lessons/${lessonId}`)
 
-  return transformLessonFromAPI(response.data.lesson)
+  return response.data.lesson
 }
 
 // ============================================================================
@@ -135,7 +131,7 @@ export const getCourseProgress = async (courseId: string): Promise<CourseProgres
     progress: CourseProgress
   }>(`/courses/${courseId}/progress`)
 
-  return transformCourseProgressFromAPI(response.data.progress)
+  return response.data.progress
 }
 
 /**
@@ -151,7 +147,7 @@ export const getChapterProgress = async (
     progress: ChapterProgress
   }>(`/courses/${courseId}/chapters/${chapterId}/progress`)
 
-  return transformChapterProgressFromAPI(response.data.progress)
+  return response.data.progress
 }
 
 /**
@@ -168,7 +164,7 @@ export const getLessonProgress = async (
     progress: LessonProgress
   }>(`/lessons/${lessonId}/progress`)
 
-  return transformLessonProgressFromAPI(response.data.progress)
+  return response.data.progress
 }
 
 /**
@@ -231,6 +227,20 @@ export const getLessonMethods = async (lessonId: string): Promise<LearningMethod
 }
 
 /**
+ * Get user's progress for all learning methods in a lesson
+ */
+export const getLessonMethodsProgress = async (
+  lessonId: string
+): Promise<Record<string, MethodProgress>> => {
+  const response = await http.get<{
+    success: boolean
+    progress: Record<string, MethodProgress>
+  }>(`/lessons/${lessonId}/methods/progress`)
+
+  return response.data.progress
+}
+
+/**
  * Execute a learning method (AI-powered)
  * Route: POST /api/v1/learning-methods/:method_id/execute
  *
@@ -265,7 +275,9 @@ export const executeMethod = async (
     result: execution.output_text || execution.result || execution.content,
     tokens_used: execution.billing?.tokens_charged || execution.total_tokens || 0,
     processing_time_ms: execution.latency_ms || execution.processing_time_ms || 0,
-    message: execution.message
+    message: execution.message,
+    // Full execution data for task rendering
+    execution,
   }
 }
 
@@ -327,15 +339,19 @@ export const getQuizAttempts = async (lessonId: number): Promise<QuizResult[]> =
 // ============================================================================
 
 /**
- * Send analytics event
+ * Send analytics event (fire-and-forget, never throws)
  */
 export const sendAnalyticsEvent = async (request: AnalyticsEventRequest): Promise<void> => {
-  await http.post('/analytics/event', {
-    event_type: request.event_type,
-    resource_type: request.resource_type,
-    resource_id: request.resource_id,
-    payload: request.metadata || {}  // Backend expects 'payload', not 'metadata'
-  })
+  try {
+    await http.post('/analytics/event', {
+      event_type: request.event_type,
+      resource_type: request.resource_type,
+      resource_id: request.resource_id,
+      payload: request.metadata || {}  // Backend expects 'payload', not 'metadata'
+    })
+  } catch {
+    // Analytics is non-critical — silently ignore failures
+  }
 }
 
 // ============================================================================

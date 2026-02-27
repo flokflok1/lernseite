@@ -1,11 +1,18 @@
 /**
  * useChapterDetail Composable
  * ============================
- * Manages chapter data, lessons, theory, and progress
+ * Manages chapter data, lessons, theory sheets, and progress.
+ * Uses DDD-compliant API clients (no direct http imports).
  */
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import http from '@/infrastructure/api/http'
+import {
+  getChapterDetail,
+  getChapterProgress,
+  getChapterTheories,
+  getChapterTheory,
+  getTheoryById,
+} from '@/infrastructure/api/clients/panel/user/courses/chapters.api'
 
 export function useChapterDetail(courseId: string, chapterId: string) {
   const { t } = useI18n()
@@ -17,10 +24,10 @@ export function useChapterDetail(courseId: string, chapterId: string) {
   const courseName = ref<string>('')
   const lessons = ref<any[]>([])
   const lessonProgress = ref<Record<string, any>>({})
-  const theoryData = ref<any>(null)
-  const theoryLoading = ref(false)
+  const theorySheets = ref<any[]>([])
+  const theorySheetsLoading = ref(false)
 
-  // Computed
+  // Computed — Progress
   const progress = computed(() => {
     if (!lessons.value.length) return null
     const completed = lessons.value.filter(l => isLessonCompleted(l)).length
@@ -33,6 +40,25 @@ export function useChapterDetail(courseId: string, chapterId: string) {
 
   const isChapterCompleted = computed(() => {
     return progress.value === 100
+  })
+
+  // Computed — Navigation
+  const firstIncompleteLesson = computed(() => {
+    return lessons.value.find((l, i) => !isLessonCompleted(l) && !isLessonLocked(l, i))
+  })
+
+  // Computed — Stats
+  const totalDuration = computed(() => {
+    return lessons.value.reduce((sum, l) => sum + (l.duration_minutes || 0), 0)
+  })
+
+  const lessonTypeBreakdown = computed(() => {
+    const map: Record<string, number> = {}
+    lessons.value.forEach(l => {
+      const type = l.lesson_type || 'text'
+      map[type] = (map[type] || 0) + 1
+    })
+    return map
   })
 
   // Helpers
@@ -59,19 +85,12 @@ export function useChapterDetail(courseId: string, chapterId: string) {
     error.value = null
 
     try {
-      const [chapterRes, lessonsRes] = await Promise.all([
-        http.get(`/chapters/${chapterId}`),
-        http.get(`/chapters/${chapterId}/lessons`)
-      ])
+      const data = await getChapterDetail(courseId, chapterId)
 
-      chapter.value = chapterRes.data.data
-      courseName.value = chapterRes.data.data.course_title || ''
-      lessons.value = lessonsRes.data.data || []
+      chapter.value = data.chapter
+      courseName.value = data.chapter?.course_title || ''
+      lessons.value = data.chapter?.lessons || []
 
-      // Load progress for all lessons
-      await loadLessonsProgress()
-
-      // Mark chapter as visited
       markAsVisited()
     } catch (e: any) {
       console.error('Failed to load chapter:', e)
@@ -83,37 +102,57 @@ export function useChapterDetail(courseId: string, chapterId: string) {
 
   async function loadLessonsProgress() {
     try {
-      const response = await http.get(`/chapters/${chapterId}/progress`)
-      const progressData = response.data.data || {}
-
+      const data = await getChapterProgress(courseId, chapterId)
+      const progressData = data.progress || data.data || {}
       lessonProgress.value = progressData.lessons || {}
     } catch (e) {
-      console.error('Failed to load progress:', e)
+      console.warn('Could not load progress:', e)
     }
   }
 
-  async function loadTheoryById(theoryId: string) {
-    theoryLoading.value = true
+  async function loadAllTheories() {
+    theorySheetsLoading.value = true
     try {
-      const response = await http.get(`/chapters/${chapterId}/theory/${theoryId}`)
-      theoryData.value = response.data.data
+      // Try the theories list endpoint first
+      const theories = await getChapterTheories(chapterId)
+      if (theories.length > 0) {
+        theorySheets.value = theories
+        return
+      }
+
+      // Fallback: single theory endpoint (AI-generated)
+      const data = await getChapterTheory(chapterId)
+      if (data?.hasTheory && data?.theory) {
+        theorySheets.value = [{
+          theoryId: data.theoryId || 'ai-theory',
+          title: data.title || t('chapterTheory.theorySheet'),
+          style: data.style || 'standard',
+          createdAt: data.createdAt,
+          // Inline content for AI theories (no lazy load needed)
+          _inlineContent: {
+            ...data.theory,
+            title: data.title,
+            created_at: data.createdAt,
+            style: data.style,
+          }
+        }]
+      } else {
+        theorySheets.value = []
+      }
     } catch (e) {
-      console.error('Failed to load theory:', e)
+      console.warn('Could not load theories:', e)
+      theorySheets.value = []
     } finally {
-      theoryLoading.value = false
+      theorySheetsLoading.value = false
     }
   }
 
-  async function generateTheory() {
-    theoryLoading.value = true
-    try {
-      const response = await http.post(`/chapters/${chapterId}/theory/generate`)
-      theoryData.value = response.data.data
-    } catch (e) {
-      console.error('Failed to generate theory:', e)
-    } finally {
-      theoryLoading.value = false
-    }
+  async function loadTheoryContent(theoryId: string) {
+    // Check if already inline
+    const sheet = theorySheets.value.find(s => s.theoryId === theoryId)
+    if (sheet?._inlineContent) return sheet._inlineContent
+
+    return await getTheoryById(theoryId)
   }
 
   // LocalStorage helpers
@@ -134,6 +173,9 @@ export function useChapterDetail(courseId: string, chapterId: string) {
   // Initialize
   async function initialize() {
     await loadChapterData()
+    // Load theory + progress in parallel (non-blocking)
+    loadAllTheories()
+    loadLessonsProgress()
   }
 
   return {
@@ -144,20 +186,23 @@ export function useChapterDetail(courseId: string, chapterId: string) {
     courseName,
     lessons,
     lessonProgress,
-    theoryData,
-    theoryLoading,
+    theorySheets,
+    theorySheetsLoading,
     // Computed
     progress,
     completedLessons,
     isChapterCompleted,
+    firstIncompleteLesson,
+    totalDuration,
+    lessonTypeBreakdown,
     // Methods
     isLessonCompleted,
     isLessonLocked,
     getLessonStatusClass,
     loadChapterData,
     loadLessonsProgress,
-    loadTheoryById,
-    generateTheory,
+    loadAllTheories,
+    loadTheoryContent,
     initialize
   }
 }

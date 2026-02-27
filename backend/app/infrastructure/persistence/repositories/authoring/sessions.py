@@ -41,8 +41,8 @@ class CourseAuthoringSessionRepository:
                 AND ug.is_active = TRUE
                 AND ug.left_at IS NULL
                 AND (
-                    p.permission_code LIKE 'content.%%:write'
-                    OR p.permission_code LIKE 'admin.%%:write'
+                    p.code LIKE 'content.%%:write'
+                    OR p.code LIKE 'admin.%%:write'
                 )
             LIMIT 1
         """
@@ -60,7 +60,7 @@ class CourseAuthoringSessionRepository:
         Returns:
             Creator user ID as string or None
         """
-        query = "SELECT created_by FROM courses WHERE course_id = %s"
+        query = "SELECT created_by FROM courses.courses WHERE course_id = %s"
         course = fetch_one(query, (course_id,))
         return str(course['created_by']) if course else None
 
@@ -77,8 +77,8 @@ class CourseAuthoringSessionRepository:
         """
         query = """
             SELECT c.*, cat.name as category_name
-            FROM courses c
-            LEFT JOIN course_categories cat ON cat.category_id = c.category_id
+            FROM courses.courses c
+            LEFT JOIN courses.course_categories cat ON cat.category_id = c.category_id
             WHERE c.course_id = %s
         """
         return fetch_one(query, (course_id,))
@@ -95,9 +95,9 @@ class CourseAuthoringSessionRepository:
             List of chapter rows
         """
         query = """
-            SELECT * FROM chapters
+            SELECT * FROM courses.chapters
             WHERE course_id = %s
-            ORDER BY sort_order, created_at
+            ORDER BY order_index, created_at
         """
         return fetch_all(query, (course_id,))
 
@@ -113,9 +113,9 @@ class CourseAuthoringSessionRepository:
             List of lesson rows
         """
         query = """
-            SELECT * FROM lessons
+            SELECT * FROM courses.lessons
             WHERE chapter_id = %s
-            ORDER BY sort_order, created_at
+            ORDER BY order_index, created_at
         """
         return fetch_all(query, (chapter_id,))
 
@@ -140,7 +140,7 @@ class CourseAuthoringSessionRepository:
             operations_delta: Operations count delta
         """
         query = """
-            UPDATE course_authoring_sessions
+            UPDATE courses.course_authoring_sessions
             SET draft_structure = %s,
                 chat_history = %s,
                 file_context = %s,
@@ -185,7 +185,7 @@ class CourseAuthoringSessionRepository:
             Row with method_id or None
         """
         query = """
-            INSERT INTO learning_method_instances (
+            INSERT INTO learning_methods.learning_method_instances (
                 lesson_id, chapter_id, method_type, title,
                 instructions, data, difficulty, tier
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
@@ -220,7 +220,7 @@ class CourseAuthoringSessionRepository:
             Created session row or None
         """
         query = """
-            INSERT INTO course_authoring_sessions (
+            INSERT INTO courses.course_authoring_sessions (
                 session_id, course_id, created_by, model_profile,
                 draft_structure, chat_history, status
             ) VALUES (%s, %s, %s, %s, %s, %s, 'active')
@@ -245,8 +245,8 @@ class CourseAuthoringSessionRepository:
         """
         query = """
             SELECT s.*, c.title as course_title
-            FROM course_authoring_sessions s
-            JOIN courses c ON c.course_id = s.course_id
+            FROM courses.course_authoring_sessions s
+            JOIN courses.courses c ON c.course_id = s.course_id
             WHERE s.session_id = %s
         """
         return fetch_one(query, (session_id,))
@@ -260,7 +260,7 @@ class CourseAuthoringSessionRepository:
             session_id: Session UUID
         """
         query = """
-            UPDATE course_authoring_sessions
+            UPDATE courses.course_authoring_sessions
             SET status = 'finalized', finalized_at = NOW()
             WHERE session_id = %s
         """
@@ -276,11 +276,11 @@ class CourseAuthoringSessionRepository:
             user_id: User UUID (must be creator or admin)
         """
         query = """
-            UPDATE course_authoring_sessions
+            UPDATE courses.course_authoring_sessions
             SET status = 'archived'
             WHERE session_id = %s
             AND (created_by = %s OR EXISTS (
-                SELECT 1 FROM users u
+                SELECT 1 FROM core.users u
                 JOIN core.users_groups ug ON u.user_id = ug.user_id
                 JOIN core.groups g ON ug.group_id = g.id
                 JOIN core.group_permissions gp ON g.id = gp.group_id
@@ -288,7 +288,7 @@ class CourseAuthoringSessionRepository:
                 WHERE u.user_id = %s
                     AND ug.is_active = TRUE
                     AND ug.left_at IS NULL
-                    AND p.permission_code LIKE 'admin.%%'
+                    AND p.code LIKE 'admin.%%'
             ))
         """
         execute_query(query, (session_id, user_id, user_id))
@@ -312,7 +312,7 @@ class CourseAuthoringSessionRepository:
             SELECT session_id, status, model_profile,
                    total_tokens_used, total_operations,
                    created_at, updated_at, finalized_at
-            FROM course_authoring_sessions
+            FROM courses.course_authoring_sessions
             WHERE course_id = %s
         """
         params = [course_id]

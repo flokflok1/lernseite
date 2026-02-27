@@ -17,7 +17,7 @@ skills_bp = Blueprint('ai_skills', __name__, url_prefix='/skills')
 
 
 @skills_bp.route('', methods=['GET'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def get_catalog() -> Tuple[Dict[str, Any], int]:
     """Get the full skill catalog."""
     from app.application.services.ai.skill_service import SkillExecutionService
@@ -36,7 +36,7 @@ def get_catalog() -> Tuple[Dict[str, Any], int]:
 
 
 @skills_bp.route('/<code>', methods=['GET'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def get_skill(code: str) -> Tuple[Dict[str, Any], int]:
     """Get a single skill definition."""
     from app.application.services.ai.skill_service import SkillExecutionService
@@ -53,7 +53,7 @@ def get_skill(code: str) -> Tuple[Dict[str, Any], int]:
 
 
 @skills_bp.route('/execute', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def execute_skill() -> Tuple[Dict[str, Any], int]:
     """Execute a single skill."""
     from app.application.services.ai.skill_service import SkillExecutionService
@@ -69,7 +69,7 @@ def execute_skill() -> Tuple[Dict[str, Any], int]:
                 'error': {'code': 'MISSING_PARAMS', 'message': 'skill_code and course_id are required'},
             }, 400
 
-        user_id = g.get('user_id', 'system')
+        user_id = g.current_user['user_id']
         result = SkillExecutionService.execute(
             skill_code=skill_code,
             course_id=course_id,
@@ -90,7 +90,7 @@ def execute_skill() -> Tuple[Dict[str, Any], int]:
 
 
 @skills_bp.route('/batch', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def execute_batch() -> Tuple[Dict[str, Any], int]:
     """Execute multiple skills (batch from plan)."""
     from app.application.services.ai.skill_service import SkillExecutionService
@@ -106,7 +106,7 @@ def execute_batch() -> Tuple[Dict[str, Any], int]:
                 'error': {'code': 'MISSING_PARAMS', 'message': 'plan_id and steps are required'},
             }, 400
 
-        user_id = g.get('user_id', 'system')
+        user_id = g.current_user['user_id']
         results = SkillExecutionService.execute_batch(plan_id, steps, user_id)
         return {'success': True, 'data': results}, 200
 
@@ -116,7 +116,7 @@ def execute_batch() -> Tuple[Dict[str, Any], int]:
 
 
 @skills_bp.route('/history', methods=['GET'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def get_history() -> Tuple[Dict[str, Any], int]:
     """Get generation history for a course."""
     from app.infrastructure.persistence.repositories.ai.generation_log import GenerationLogRepository

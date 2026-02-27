@@ -40,6 +40,7 @@ const emit = defineEmits<{
   sendChat: [message: string]
   execute: []
   discard: []
+  finalizePlan: []
 }>()
 
 const phaseLabels = computed(() => [
@@ -61,9 +62,9 @@ const canConfirm = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <!-- Phase Indicator -->
-    <div class="flex items-center justify-between px-2">
+  <div class="flex flex-col h-full min-h-0">
+    <!-- Phase Indicator (fixed top) -->
+    <div class="flex items-center justify-between px-2 pb-3 flex-shrink-0">
       <template v-for="(p, idx) in phaseLabels" :key="p.num">
         <div
           class="flex items-center gap-1.5 cursor-pointer select-none"
@@ -95,8 +96,8 @@ const canConfirm = computed(() => {
       </template>
     </div>
 
-    <!-- Phase Content -->
-    <div class="min-h-[200px]">
+    <!-- Phase Content (scrollable) -->
+    <div class="flex-1 min-h-0 overflow-y-auto plan-scroll">
       <PlanCourseCard
         v-if="currentPhase === 1"
         :course-meta="courseMeta"
@@ -125,20 +126,22 @@ const canConfirm = computed(() => {
         @save-plan="emit('confirmPhase')"
         @execute="emit('execute')"
         @discard="emit('discard')"
+        @finalize-plan="emit('finalizePlan')"
       />
     </div>
 
-    <!-- Chat (Phase 1-3) -->
-    <PlanChat
-      v-if="currentPhase < 4 && plan"
-      :messages="chatMessages"
-      :is-loading="isChatting"
-      :current-phase="currentPhase"
-      @send="(msg) => emit('sendChat', msg)"
-    />
+    <!-- Chat (Phase 1-3, fixed bottom) -->
+    <div v-if="currentPhase < 4 && plan" class="flex-shrink-0 pt-3">
+      <PlanChat
+        :messages="chatMessages"
+        :is-loading="isChatting"
+        :current-phase="currentPhase"
+        @send="(msg) => emit('sendChat', msg)"
+      />
+    </div>
 
-    <!-- Navigation -->
-    <div v-if="currentPhase < 4" class="flex items-center gap-3 pt-2 border-t border-gray-700">
+    <!-- Navigation (fixed bottom) -->
+    <div v-if="currentPhase < 4" class="flex items-center gap-3 pt-3 border-t border-gray-700 flex-shrink-0">
       <button
         v-if="canGoBack"
         class="px-3 py-1.5 text-sm text-gray-300 hover:text-white rounded border border-gray-600 hover:border-gray-500 transition-colors"
@@ -156,8 +159,8 @@ const canConfirm = computed(() => {
       </button>
     </div>
 
-    <!-- Phase 4: Execute Button -->
-    <div v-if="currentPhase === 4 && isApproved && !isExecuting" class="flex justify-end pt-2 border-t border-gray-700">
+    <!-- Phase 4: Execute Button (fixed bottom) -->
+    <div v-if="currentPhase === 4 && isApproved && !isExecuting" class="flex justify-end pt-3 border-t border-gray-700 flex-shrink-0">
       <button
         class="px-4 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-500 rounded transition-colors"
         @click="emit('execute')"
@@ -167,3 +170,26 @@ const canConfirm = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.plan-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+.plan-scroll:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+.plan-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.plan-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.plan-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+.plan-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+</style>

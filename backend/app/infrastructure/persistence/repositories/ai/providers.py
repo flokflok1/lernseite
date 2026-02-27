@@ -256,7 +256,7 @@ class AIProviderRepository:
         Returns:
             Updated provider or None
         """
-        allowed_fields = ['active', 'priority', 'base_url', 'api_version', 'rate_limit_per_minute', 'config']
+        allowed_fields = ['active', 'priority', 'base_url', 'api_version', 'rate_limit_per_minute', 'config', 'display_name']
         updates = []
         params = []
 
@@ -397,6 +397,91 @@ class AIProviderRepository:
 
         query += " ORDER BY priority DESC LIMIT 1"
         return fetch_one(query)
+
+    @classmethod
+    def create(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Create a new AI provider.
+
+        Args:
+            data: Provider data (name, display_name, description, base_url, etc.)
+
+        Returns:
+            Created provider dict
+        """
+        query = """
+            INSERT INTO ai_pipeline.ai_providers
+                (name, display_name, provider_type, base_url, api_version, active, priority)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING provider_id, name, display_name, provider_type, base_url,
+                      api_version, active, priority, created_at,
+                      CASE WHEN encrypted_api_key IS NOT NULL THEN true ELSE false END as has_api_key
+        """
+        return fetch_one(query, (
+            data.get('name'),
+            data.get('display_name'),
+            data.get('provider_type', data.get('name', 'custom')),
+            data.get('base_url'),
+            data.get('api_version'),
+            data.get('active', True),
+            data.get('priority', 0),
+        ))
+
+    @classmethod
+    def update(cls, provider_id: int, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Alias for update_provider (backward compatibility)."""
+        return cls.update_provider(provider_id, data)
+
+    @classmethod
+    def delete(cls, provider_id: int) -> bool:
+        """
+        Delete an AI provider.
+
+        Args:
+            provider_id: Provider ID
+
+        Returns:
+            True if deleted
+        """
+        query = "DELETE FROM ai_pipeline.ai_providers WHERE provider_id = %s"
+        execute_query(query, (provider_id,))
+        return True
+
+    @classmethod
+    def seed_defaults(cls) -> int:
+        """
+        Seed default AI providers if they don't exist.
+
+        Idempotent — safe to call on every app start.
+
+        Returns:
+            Number of providers seeded
+        """
+        defaults = [
+            ('openai', 'OpenAI', 'openai', 'https://api.openai.com/v1', 'v1', 1),
+            ('anthropic', 'Anthropic', 'anthropic', 'https://api.anthropic.com/v1', '2023-06-01', 2),
+            ('google', 'Google AI', 'google', 'https://generativelanguage.googleapis.com/v1', 'v1', 3),
+        ]
+
+        count_before = fetch_one(
+            "SELECT COUNT(*) as cnt FROM ai_pipeline.ai_providers"
+        )
+        before = count_before['cnt'] if count_before else 0
+
+        for name, display, ptype, url, ver, prio in defaults:
+            execute_query("""
+                INSERT INTO ai_pipeline.ai_providers
+                    (name, display_name, provider_type, base_url, api_version, active, priority)
+                VALUES (%s, %s, %s, %s, %s, true, %s)
+                ON CONFLICT (name) DO NOTHING
+            """, (name, display, ptype, url, ver, prio))
+
+        count_after = fetch_one(
+            "SELECT COUNT(*) as cnt FROM ai_pipeline.ai_providers"
+        )
+        after = count_after['cnt'] if count_after else 0
+
+        return after - before
 
     @classmethod
     def clear_api_key(cls, provider_id: int) -> Optional[Dict[str, Any]]:

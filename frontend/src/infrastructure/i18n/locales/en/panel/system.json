@@ -216,6 +216,29 @@
     "title": "Learning Method Plugins"
   },
   "systemFeatures": {
+    "admin": {
+      "title": "System Features",
+      "subtitle": "Activate and configure system features by category",
+      "active": "active",
+      "inactive": "inactive",
+      "toggleSuccess": "Feature has been updated",
+      "toggleError": "Failed to update feature",
+      "requiresInfrastructure": "Infrastructure required",
+      "requiresExternalService": "External service required",
+      "categories": {
+        "audio": "Audio",
+        "collaboration": "Collaboration",
+        "exam": "Exams",
+        "gamification": "Gamification",
+        "interactive": "Interactive",
+        "it_environments": "IT Environments",
+        "learning_paths": "Learning Paths",
+        "math": "Mathematics",
+        "meta": "Meta",
+        "tutor": "Tutor",
+        "visualization": "Visualization"
+      }
+    },
     "invertedClassroom": {
       "videos": "Explanation Videos"
     },
@@ -276,7 +299,9 @@
     "tabs": {
       "info": "System Info",
       "maintenance": "Maintenance Mode",
-      "mode": "Environment Mode"
+      "mode": "Environment Mode",
+      "ai": "AI Settings",
+      "features": "System Features"
     },
     "title": "System Settings",
     "uptime": "Uptime",

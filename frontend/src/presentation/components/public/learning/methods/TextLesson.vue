@@ -23,9 +23,7 @@
     <!-- Standard Lesson Content -->
     <div class="prose">
       <div v-if="content.html" v-html="sanitizedHtml"></div>
-      <div v-else-if="content.markdown" class="whitespace-pre-wrap">
-        {{ content.markdown }}
-      </div>
+      <div v-else-if="renderedMarkdown" v-html="renderedMarkdown"></div>
       <div v-else-if="content.text" class="whitespace-pre-wrap">
         {{ content.text }}
       </div>
@@ -72,6 +70,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Lesson } from '@/infrastructure/api/clients/public/learning/types/types'
 import DOMPurify from 'dompurify'
+import { marked } from 'marked'
 import DetailedSteps from './DetailedSteps.vue'
 
 const { t } = useI18n()
@@ -95,12 +94,38 @@ defineEmits<{
 // ============================================================================
 
 const content = computed(() => {
-  return props.lesson.content || {}
+  let raw = props.lesson.content
+  if (!raw) return {}
+
+  // DB stores content as jsonb — it may arrive as string (double-encoded) or object
+  if (typeof raw === 'string') {
+    // Strip <p>...</p> wrapper if present (legacy data issue)
+    const stripped = raw.replace(/^<p>(.*)<\/p>$/s, '$1').trim()
+    try { return JSON.parse(stripped) } catch { return { raw_text: raw } }
+  }
+
+  // If it's an object but has only one key that's a JSON string, try to unwrap
+  if (typeof raw === 'object' && raw !== null) {
+    return raw
+  }
+
+  return { raw_text: String(raw) }
 })
 
 const sanitizedHtml = computed(() => {
   if (!content.value.html) return ''
   return DOMPurify.sanitize(content.value.html)
+})
+
+/**
+ * Render markdown from raw_text (AI-generated) or markdown field.
+ * AI plan execution stores content as { raw_text: "# Markdown..." }.
+ */
+const renderedMarkdown = computed(() => {
+  const md = content.value.raw_text || content.value.markdown
+  if (!md) return ''
+  const html = marked.parse(md, { async: false }) as string
+  return DOMPurify.sanitize(html)
 })
 
 // Check if detailed content is available
@@ -115,10 +140,7 @@ const hasDetailedSteps = computed(() => {
 
 <style scoped>
 .text-lesson {
-  background-color: var(--color-surface, #ffffff);
-  border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 0;
 }
 
 .prose {

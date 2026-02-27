@@ -5,6 +5,9 @@ Database operations for course authoring service.
 import json
 import logging
 from typing import Dict, Optional, List, Any
+from datetime import datetime
+
+from psycopg.rows import dict_row
 
 from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
 from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
@@ -165,7 +168,8 @@ class DatabaseOperations:
     def create_or_update_chapter(
         course_id: str,
         chapter_draft: Dict,
-        user_id: str
+        user_id: str,
+        conn=None
     ) -> str:
         """
         Erstellt oder aktualisiert Kapitel.
@@ -174,33 +178,78 @@ class DatabaseOperations:
             course_id: Course UUID
             chapter_draft: Chapter draft data
             user_id: User UUID
+            conn: Optional shared DB connection for atomic transactions
 
         Returns:
             Chapter ID
         """
         existing_id = chapter_draft.get('existing_id')
 
-        if existing_id:
-            # Update
-            ChapterRepository.update(existing_id, {
-                'title': chapter_draft.get('title'),
-                'description': chapter_draft.get('description')
-            })
-            return existing_id
+        if conn:
+            # Use shared connection for atomic transaction
+            with conn.cursor(row_factory=dict_row) as cur:
+                if existing_id:
+                    cur.execute("""
+                        UPDATE courses.chapters
+                        SET title = %s, description = %s, updated_at = %s
+                        WHERE chapter_id = %s
+                        RETURNING chapter_id
+                    """, (
+                        chapter_draft.get('title'),
+                        chapter_draft.get('description'),
+                        datetime.utcnow(),
+                        existing_id
+                    ))
+                    if cur.fetchone() is None:
+                        raise CourseAuthoringError(
+                            f"Chapter {existing_id} not found during finalize"
+                        )
+                    return existing_id
+                else:
+                    cur.execute("""
+                        SELECT COALESCE(MAX(order_index), 0) + 1 AS next_order
+                        FROM courses.chapters WHERE course_id = %s
+                    """, (course_id,))
+                    order_row = cur.fetchone()
+                    order_index = order_row['next_order'] if order_row else 1
+
+                    cur.execute("""
+                        INSERT INTO courses.chapters (
+                            course_id, title, description, order_index,
+                            duration_minutes, has_video, has_quiz, has_exam,
+                            created_at, updated_at
+                        ) VALUES (%s, %s, %s, %s, 0, FALSE, FALSE, FALSE, NOW(), NOW())
+                        RETURNING chapter_id
+                    """, (
+                        course_id,
+                        chapter_draft.get('title', 'Neues Kapitel'),
+                        chapter_draft.get('description', ''),
+                        order_index
+                    ))
+                    result = cur.fetchone()
+                    return str(result['chapter_id'])
         else:
-            # Create
-            result = ChapterRepository.create({
-                'course_id': course_id,
-                'title': chapter_draft.get('title', 'Neues Kapitel'),
-                'description': chapter_draft.get('description', '')
-            })
-            return str(result['chapter_id'])
+            # Standalone mode (each call gets its own connection)
+            if existing_id:
+                ChapterRepository.update(existing_id, {
+                    'title': chapter_draft.get('title'),
+                    'description': chapter_draft.get('description')
+                })
+                return existing_id
+            else:
+                result = ChapterRepository.create({
+                    'course_id': course_id,
+                    'title': chapter_draft.get('title', 'Neues Kapitel'),
+                    'description': chapter_draft.get('description', '')
+                })
+                return str(result['chapter_id'])
 
     @staticmethod
     def create_or_update_lesson(
         chapter_id: str,
         lesson_draft: Dict,
-        user_id: str
+        user_id: str,
+        conn=None
     ) -> str:
         """
         Erstellt oder aktualisiert Lektion.
@@ -209,35 +258,104 @@ class DatabaseOperations:
             chapter_id: Chapter UUID
             lesson_draft: Lesson draft data
             user_id: User UUID
+            conn: Optional shared DB connection for atomic transactions
 
         Returns:
             Lesson ID
         """
         existing_id = lesson_draft.get('existing_id')
 
-        if existing_id:
-            # Update
-            LessonRepository.update(existing_id, {
-                'title': lesson_draft.get('title'),
-                'lesson_type': lesson_draft.get('type', 'text')
-            })
-            return existing_id
+        # Extract content from draft (AI-generated lesson content)
+        content_data = lesson_draft.get('content')
+        content_json = json.dumps(content_data) if content_data else None
+
+        if conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                if existing_id:
+                    # Update title, type, and content if provided
+                    if content_json:
+                        cur.execute("""
+                            UPDATE courses.lessons
+                            SET title = %s, lesson_type = %s, content = %s::jsonb, updated_at = %s
+                            WHERE lesson_id = %s
+                            RETURNING lesson_id
+                        """, (
+                            lesson_draft.get('title'),
+                            lesson_draft.get('type', 'text'),
+                            content_json,
+                            datetime.utcnow(),
+                            existing_id
+                        ))
+                    else:
+                        cur.execute("""
+                            UPDATE courses.lessons
+                            SET title = %s, lesson_type = %s, updated_at = %s
+                            WHERE lesson_id = %s
+                            RETURNING lesson_id
+                        """, (
+                            lesson_draft.get('title'),
+                            lesson_draft.get('type', 'text'),
+                            datetime.utcnow(),
+                            existing_id
+                        ))
+                    if cur.fetchone() is None:
+                        raise CourseAuthoringError(
+                            f"Lesson {existing_id} not found during finalize"
+                        )
+                    return existing_id
+                else:
+                    cur.execute("""
+                        SELECT COALESCE(MAX(order_index), 0) + 1 AS next_order
+                        FROM courses.lessons WHERE chapter_id = %s
+                    """, (chapter_id,))
+                    order_row = cur.fetchone()
+                    order_index = order_row['next_order'] if order_row else 1
+
+                    cur.execute("""
+                        INSERT INTO courses.lessons (
+                            chapter_id, title, lesson_type, content,
+                            order_index, duration_minutes, published, free_preview,
+                            created_at, updated_at
+                        ) VALUES (%s, %s, %s, %s::jsonb, %s, 0, FALSE, FALSE, NOW(), NOW())
+                        RETURNING lesson_id
+                    """, (
+                        chapter_id,
+                        lesson_draft.get('title', 'Neue Lektion'),
+                        lesson_draft.get('type', 'text'),
+                        content_json,
+                        order_index
+                    ))
+                    result = cur.fetchone()
+                    return str(result['lesson_id'])
         else:
-            # Create
-            result = LessonRepository.create({
-                'chapter_id': chapter_id,
-                'title': lesson_draft.get('title', 'Neue Lektion'),
-                'lesson_type': lesson_draft.get('type', 'text'),
-                'lm_type': lesson_draft.get('lm_type', 'LM00')
-            })
-            return str(result['lesson_id'])
+            if existing_id:
+                update_data = {
+                    'title': lesson_draft.get('title'),
+                    'lesson_type': lesson_draft.get('type', 'text')
+                }
+                if content_json:
+                    update_data['content'] = content_json
+                LessonRepository.update(existing_id, update_data)
+                return existing_id
+            else:
+                create_data = {
+                    'chapter_id': chapter_id,
+                    'title': lesson_draft.get('title', 'Neue Lektion'),
+                    'lesson_type': lesson_draft.get('type', 'text'),
+                    'lm_type': lesson_draft.get('lm_type', 'LM00')
+                }
+                if content_json:
+                    create_data['content'] = content_json
+                result = LessonRepository.create(create_data)
+                return str(result['lesson_id'])
 
     @staticmethod
     def create_method(
         lesson_id: str,
         chapter_id: str,
         method_draft: Dict,
-        user_id: str
+        user_id: str,
+        conn=None
     ) -> Optional[str]:
         """
         Erstellt Lernmethode.
@@ -247,6 +365,7 @@ class DatabaseOperations:
             chapter_id: Chapter UUID
             method_draft: Method draft data
             user_id: User UUID
+            conn: Optional shared DB connection for atomic transactions
 
         Returns:
             Method ID or None
@@ -254,30 +373,49 @@ class DatabaseOperations:
         method_type = method_draft.get('type', 'theory')
         content = method_draft.get('content', {})
 
-        # Map string type to numeric LM type
+        # Map string type to numeric LM type (IDs 0-11, see architecture.md)
         type_mapping = {
-            'theory': 0,           # LM00
-            'step_by_step': 1,     # LM01
-            'calculator_tutorial': 1,  # LM01 (Step-by-Step variant)
-            'tool_tutorial': 9,    # LM09 (Code/Config)
-            'quiz': 22,            # LM22
-            'flashcards': 13,      # LM13
-            'exercise': 8,         # LM08
-            'exam': 19,            # LM19 (IHK-Stil)
-            'interactive': 2       # LM02
+            'theory': 0,               # deep_explanation
+            'step_by_step': 1,         # step_by_step
+            'calculator_tutorial': 1,  # step_by_step variant
+            'interactive': 2,          # interactive_theory
+            'quiz': 2,                 # interactive_theory (multiple choice)
+            'flashcards': 6,           # flashcards
+            'exercise': 8,             # cloze_test
+            'tool_tutorial': 9,        # free_text_long_answer (code/config)
+            'exam': 10,                # ihk_style_tasks
         }
 
         lm_type = type_mapping.get(method_type, 0)
+        title = method_draft.get('title', 'Lernmethode')
+        instructions = content.get('instructions', '')
+        data_json = json.dumps(content)
+        difficulty = content.get('difficulty', 'medium')
+        tier = content.get('tier', 'basic')
 
-        result = CourseAuthoringSessionRepository.create_learning_method_instance(
-            lesson_id=lesson_id,
-            chapter_id=chapter_id,
-            lm_type=lm_type,
-            title=method_draft.get('title', 'Lernmethode'),
-            instructions=content.get('instructions', ''),
-            data_json=json.dumps(content),
-            difficulty=content.get('difficulty', 'medium'),
-            tier=content.get('tier', 'basic')
-        )
-
-        return str(result['method_id']) if result else None
+        if conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("""
+                    INSERT INTO learning_methods.learning_method_instances (
+                        lesson_id, chapter_id, method_type, title,
+                        instructions, data, difficulty, tier
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING method_id
+                """, (
+                    lesson_id, chapter_id, lm_type, title,
+                    instructions, data_json, difficulty, tier
+                ))
+                result = cur.fetchone()
+                return str(result['method_id']) if result else None
+        else:
+            result = CourseAuthoringSessionRepository.create_learning_method_instance(
+                lesson_id=lesson_id,
+                chapter_id=chapter_id,
+                lm_type=lm_type,
+                title=title,
+                instructions=instructions,
+                data_json=data_json,
+                difficulty=difficulty,
+                tier=tier
+            )
+            return str(result['method_id']) if result else None

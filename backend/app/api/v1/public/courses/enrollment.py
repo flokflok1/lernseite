@@ -242,15 +242,22 @@ def get_my_courses():
         per_page = min(int(request.args.get('per_page', 20)), 100)
         offset = (page - 1) * per_page
 
-        # Get user's courses
+        # Get user's courses (all types: academy + creator)
+        include_archived = request.args.get('include_archived', 'false').lower() == 'true'
         courses = CourseRepository.find_by_creator(
             creator_id=user['user_id'],
+            include_archived=include_archived,
+            course_type=None,
             limit=per_page,
             offset=offset
         )
 
         # Get total count
-        total = CourseRepository.count_by_creator(user['user_id'])
+        total = CourseRepository.count_by_creator(
+            user['user_id'],
+            include_archived=include_archived,
+            course_type=None
+        )
         total_pages = (total + per_page - 1) // per_page
 
         return jsonify({

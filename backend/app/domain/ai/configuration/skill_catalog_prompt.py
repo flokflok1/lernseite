@@ -76,15 +76,74 @@ def _extension_skills_section(active_sf_codes: set[str] | None) -> str:
 def _didactic_guidelines() -> str:
     """Didactic rules mapping topic types to recommended skills."""
     return (
-        'DIDACTIC GUIDELINES — when to use which skill:\n'
-        '- Visual/spatial topics (diagrams, topologies, architecture) → generate_diagram + generate_whiteboard\n'
-        '- Calculation/formulas (subnetting, math, conversion) → generate_math_interactive + generate_step_by_step\n'
-        '- Terminology/definitions → generate_flashcards + generate_cloze_test + generate_true_false\n'
-        '- Configuration/CLI commands → generate_hands_on_lab + generate_example_scenario\n'
-        '- Quick knowledge check between topics → generate_comprehension_check\n'
-        '- End of each major chapter → generate_chapter_exam\n'
-        '- Theory introduction → generate_deep_explanation + generate_theory_sheet\n'
-        '- Complex multi-step processes → generate_step_by_step + generate_multi_step\n\n'
+        'SKILL SELECTION GUIDELINES — which skill_code to use per step:\n'
+        '- Theory/intro lesson → generate_theory_sheet or generate_deep_explanation\n'
+        '- Visual topic → generate_diagram (+ generate_whiteboard if available)\n'
+        '- Calculation topic → generate_math_interactive\n'
+        '- Terminology-heavy → generate_flashcards or generate_cloze_test\n'
+        '- Process/configuration → generate_step_by_step or generate_example_scenario\n'
+        '- Hands-on IT practice → generate_hands_on_lab (if available)\n'
+        '- Chapter final assessment → generate_chapter_exam or generate_ihk_tasks\n'
+        '- Complex real-world task → generate_multi_step\n'
+        '- Quick check → generate_comprehension_check (if available)\n\n'
+        'IMPORTANT: The skill_code determines WHAT content the AI generates.\n'
+        'The learning_methods array determines WHICH interactive tasks the learner gets.\n'
+        'Both must be set correctly for each step!\n\n'
+    )
+
+
+def _learning_methods_section() -> str:
+    """Reference table of the 12 Content-Lernmethoden for LM assignment."""
+    return (
+        'LEARNING METHODS (Lernmethoden) — assign to each step:\n'
+        'Each step MUST include a "learning_methods" array with IDs of interactive '
+        'tasks the learner will practice for that lesson.\n\n'
+        'Available learning method IDs:\n'
+        '  Group A — Explanatory (Verstehen):\n'
+        '    0 = Deep Explanation — ausfuehrliche Erklaerung mit Analogien und Beispielen\n'
+        '    1 = Step-by-Step — Schritt-fuer-Schritt Anleitung (ideal fuer Prozesse, Konfigurationen)\n'
+        '    2 = Interactive Theory — Theorie mit eingebetteten Verstaendnisfragen\n'
+        '    3 = Diagram/Visualization — visuelle Darstellung (Topologien, Architekturen, Ablaeufe)\n'
+        '    4 = Example Scenario — konkretes Praxisbeispiel aus der echten Arbeitswelt\n'
+        '  Group B — Practice (Ueben):\n'
+        '    5 = Math Interactive — Berechnungen, Formeln, Umrechnungen (z.B. Subnetting, Binaer)\n'
+        '    6 = Flashcards — Lernkarten fuer Begriffe, Definitionen, Abkuerzungen, Ports\n'
+        '    7 = Drag & Drop — Zuordnungsaufgaben (Begriffe↔Definitionen, Schichten↔Protokolle)\n'
+        '    8 = Cloze Test — Lueckentexte zum aktiven Erinnern von Fachbegriffen\n'
+        '  Group C — Assessment (Pruefen):\n'
+        '    9 = Free Text — offene Freitext-Fragen fuer tiefes Verstaendnis\n'
+        '    10 = IHK-Style Tasks — Pruefungsaufgaben im IHK/Zertifizierungsformat\n'
+        '    11 = Multi-Step Practical — mehrstufige Praxisaufgaben (Troubleshooting, Konfiguration)\n\n'
+        #
+        # ── Pedagogical Selection Rules ──
+        #
+        'PEDAGOGISCHE REGELN fuer learning_methods (PFLICHT — gruendlich beachten!):\n\n'
+        '1. JEDE Lektion braucht 2-4 Lernmethoden (nie nur 1, nie mehr als 5)\n'
+        '   - Mindestens 1 aus Group A (Verstehen) UND mindestens 1 aus Group B oder C (Ueben/Pruefen)\n'
+        '   - Theorie allein reicht NICHT — der Lernende muss immer auch aktiv ueben\n\n'
+        '2. INHALTSTYP bestimmt die beste Kombination:\n'
+        '   - Fachbegriffe/Definitionen/Abkuerzungen → [0, 6, 8] (Erklaerung + Karteikarten + Lueckentext)\n'
+        '   - Prozesse/Ablaeufe/Konfiguration → [1, 4, 7] (Schritt-fuer-Schritt + Beispiel + Drag&Drop)\n'
+        '   - Berechnungen/Formeln/Umrechnungen → [0, 5, 8] (Erklaerung + Mathe-Interaktiv + Lueckentext)\n'
+        '   - Visuelle Themen (Topologien, OSI-Modell) → [3, 7, 4] (Diagramm + Drag&Drop + Beispiel)\n'
+        '   - Troubleshooting/Fehlersuche → [4, 11, 9] (Szenario + Multi-Step + Freitext)\n'
+        '   - Sicherheitskonzepte/Protokolle → [0, 2, 6, 10] (Erklaerung + Interaktiv + Karten + IHK)\n'
+        '   - Pruefungsvorbereitung → [10, 11, 9] (IHK + Multi-Step + Freitext)\n'
+        '   - Hardware/Geraete/Kabel → [3, 6, 7] (Diagramm + Karten + Drag&Drop)\n\n'
+        '3. PROGRESSION innerhalb eines Kapitels:\n'
+        '   - Erste Lektion: mehr Explanatory (Group A) — Grundlagen aufbauen\n'
+        '   - Mittlere Lektionen: Mix aus A + B — Wissen vertiefen und ueben\n'
+        '   - Letzte Lektion: mehr Assessment (Group C) — Wissen pruefen\n\n'
+        '4. VIELFALT ueber den gesamten Kurs:\n'
+        '   - NICHT jede Lektion mit der gleichen Kombination [0, 6, 8]\n'
+        '   - Wechsle ab: mal [0, 6, 8], dann [1, 4, 7], dann [3, 7, 9]\n'
+        '   - Nutze ALLE 12 Methoden verteilt ueber den Kurs\n'
+        '   - Drag&Drop (7) ist besonders gut fuer Zuordnungen — oft unterschaetzt\n'
+        '   - Interactive Theory (2) bricht Monotonie auf — einstreuen!\n\n'
+        '5. SCHWIERIGKEITSGRAD beachten:\n'
+        '   - Beginner-Kurs: mehr [0, 6, 8, 2] (einfach, Wiederholung)\n'
+        '   - Intermediate: ausgewogener Mix aller Gruppen\n'
+        '   - Advanced/Pruefung: mehr [10, 11, 9, 5] (anspruchsvoll, pruefungsnah)\n\n'
     )
 
 
@@ -102,6 +161,7 @@ def _structure_rules() -> str:
         '- Cover ALL content from the material — do not skip sections\n'
         '- Each step targets one lesson (target_type: "lesson")\n'
         '- Set target_title to a descriptive lesson name\n'
+        '- Each step MUST include "learning_methods": [list of LM IDs]\n'
     )
 
 
@@ -118,6 +178,7 @@ def build_skill_catalog_prompt(active_sf_codes: set[str] | None = None) -> str:
     return (
         _core_skills_section()
         + _extension_skills_section(active_sf_codes)
+        + _learning_methods_section()
         + _didactic_guidelines()
         + _structure_rules()
     )

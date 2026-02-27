@@ -70,9 +70,10 @@ def _call_ai(
     system_msg: str,
     user_msg: str,
     max_tokens: int = 4000,
+    timeout: int = 120,
 ) -> str:
     """Send a system/user message pair via AIAdapter and return raw text."""
-    adapter = AIAdapter(provider=provider_name, model=model_name)
+    adapter = AIAdapter(provider=provider_name, model=model_name, timeout=timeout)
     messages = [
         {'role': 'system', 'content': system_msg},
         {'role': 'user', 'content': user_msg},
@@ -189,6 +190,7 @@ class PlanGeneratorAdapter(PlanGeneratorPort):
         raw = _safe_call_ai(
             self._provider, self._model, system_msg, user_msg,
             max_tokens=8000,
+            timeout=180,
         )
         if raw is None:
             return fallback
@@ -205,11 +207,13 @@ class PlanGeneratorAdapter(PlanGeneratorPort):
         plan_data: dict,
         message: str,
         current_phase: int,
+        file_text: str | None = None,
     ) -> dict:
         """Refine a plan phase via conversational interaction."""
         system_msg = build_plan_chat_prompt(
             plan_data=plan_data,
             current_phase=current_phase,
+            file_text=file_text,
         )
         user_msg = message
         fallback = {
@@ -238,10 +242,11 @@ def _safe_call_ai(
     system_msg: str,
     user_msg: str,
     max_tokens: int = 4000,
+    timeout: int = 120,
 ) -> str | None:
     """Wrap _call_ai with exception handling; returns None on failure."""
     try:
-        return _call_ai(provider, model, system_msg, user_msg, max_tokens)
+        return _call_ai(provider, model, system_msg, user_msg, max_tokens, timeout)
     except Exception as exc:
         logger.error("AI call failed in plan generator: %s", exc)
         return None

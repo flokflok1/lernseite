@@ -116,6 +116,13 @@ export interface LearningMethod {
   config?: any
 }
 
+export interface MethodProgress {
+  method_id: string
+  score: number | null
+  attempts: number
+  completed: boolean
+}
+
 export interface ExecuteMethodRequest {
   lesson_id: string | number  // UUID string or legacy number
   method_id: number

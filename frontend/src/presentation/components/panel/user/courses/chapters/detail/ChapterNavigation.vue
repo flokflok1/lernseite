@@ -6,7 +6,7 @@
         <!-- Theory Tab -->
         <button
           :class="[
-            'px-6 py-4 font-medium text-sm transition-all border-b-2 -mb-px focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+            'px-4 py-2.5 font-medium text-sm transition-all border-b-2 -mb-px focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
             activeTab === 'theory'
               ? 'border-blue-500 text-blue-600 dark:text-blue-400'
               : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300'
@@ -35,7 +35,7 @@
         <!-- Lessons Tab -->
         <button
           :class="[
-            'px-6 py-4 font-medium text-sm transition-all border-b-2 -mb-px focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+            'px-4 py-2.5 font-medium text-sm transition-all border-b-2 -mb-px focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
             activeTab === 'lessons'
               ? 'border-blue-500 text-blue-600 dark:text-blue-400'
               : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300'

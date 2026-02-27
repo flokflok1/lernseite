@@ -239,10 +239,10 @@ class AISyncService:
             Dictionary with 'add', 'update', 'deactivate' lists
         """
         existing_identifiers = {
-            m.get('model_identifier'): m for m in existing_models
+            m.get('model_name'): m for m in existing_models
         }
         provider_identifiers = {
-            m.get('model_identifier') for m in provider_models
+            m.get('model_name') for m in provider_models
         }
 
         operations = {
@@ -253,7 +253,7 @@ class AISyncService:
 
         # Identify new and updated models
         for provider_model in provider_models:
-            identifier = provider_model.get('model_identifier')
+            identifier = provider_model.get('model_name')
             existing = existing_identifiers.get(identifier)
 
             if not existing:
@@ -269,7 +269,7 @@ class AISyncService:
 
         # Identify models to deactivate
         for existing in existing_models:
-            identifier = existing.get('model_identifier')
+            identifier = existing.get('model_name')
             if identifier not in provider_identifiers and existing.get('active', False):
                 operations['deactivate'].append(existing)
 
@@ -311,6 +311,106 @@ class AIHealthMonitoringService:
     # Thresholds
     HEALTHY_THRESHOLD_MS = 5000
     DEGRADED_THRESHOLD_MS = 15000
+
+    @staticmethod
+    def check_provider_health(provider: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Perform actual health check against provider API.
+
+        Decrypts the stored API key and makes a lightweight API call
+        to verify connectivity (e.g. list models).
+
+        Args:
+            provider: Provider dict with name, provider_id, etc.
+
+        Returns:
+            Dict with health_status, is_healthy, response_time_ms, etc.
+        """
+        import time as _time
+        import requests
+        from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+
+        provider_name = (provider.get('name') or '').lower()
+        api_key = AIProviderRepository.get_decrypted_api_key(provider_name)
+
+        if not api_key:
+            return {
+                'health_status': 'unhealthy',
+                'is_healthy': False,
+                'error_message': 'Could not decrypt API key',
+                'api_accessible': False,
+                'models_available': 0,
+            }
+
+        start = _time.time()
+        try:
+            if provider_name == 'openai':
+                resp = requests.get(
+                    'https://api.openai.com/v1/models',
+                    headers={'Authorization': f'Bearer {api_key}'},
+                    timeout=10,
+                )
+                resp.raise_for_status()
+                models_count = len(resp.json().get('data', []))
+            elif provider_name == 'anthropic':
+                resp = requests.get(
+                    'https://api.anthropic.com/v1/models',
+                    headers={
+                        'x-api-key': api_key,
+                        'anthropic-version': '2023-06-01',
+                    },
+                    timeout=10,
+                )
+                resp.raise_for_status()
+                models_count = len(resp.json().get('data', []))
+            elif provider_name == 'google':
+                resp = requests.get(
+                    f'https://generativelanguage.googleapis.com/v1/models?key={api_key}',
+                    timeout=10,
+                )
+                resp.raise_for_status()
+                models_count = len(resp.json().get('models', []))
+            else:
+                return {
+                    'health_status': 'unknown',
+                    'is_healthy': False,
+                    'error_message': f'Unknown provider: {provider_name}',
+                    'api_accessible': False,
+                    'models_available': 0,
+                }
+
+            elapsed_ms = int((_time.time() - start) * 1000)
+
+            health = AIHealthMonitoringService.evaluate_health_status(
+                response_time_ms=elapsed_ms,
+                error_occurred=False,
+            )
+
+            return {
+                'health_status': health.status.value,
+                'is_healthy': health.is_operational(),
+                'response_time_ms': elapsed_ms,
+                'api_accessible': True,
+                'models_available': models_count,
+            }
+
+        except requests.exceptions.RequestException as e:
+            elapsed_ms = int((_time.time() - start) * 1000)
+            error_msg = str(e)
+            if hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_msg = e.response.json().get('error', {}).get('message', str(e))
+                except Exception:
+                    error_msg = e.response.text[:200] if e.response.text else str(e)
+
+            return {
+                'health_status': 'unhealthy',
+                'is_healthy': False,
+                'response_time_ms': elapsed_ms,
+                'error_message': error_msg,
+                'api_accessible': False,
+                'models_available': 0,
+            }
 
     @staticmethod
     def evaluate_health_status(

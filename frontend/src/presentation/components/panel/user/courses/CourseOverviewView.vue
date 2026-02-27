@@ -13,7 +13,7 @@
     <!-- Course Content -->
     <div v-else-if="playerStore.course" class="container mx-auto max-w-6xl px-4 py-8">
       <!-- Course Header with Progress Stats -->
-      <!-- REMOVED: CourseOverviewHeader -->
+      <CourseOverviewHeader
         :course-title="playerStore.course.title"
         :course-subtitle="playerStore.course.subtitle"
         :completed-chapters="completedChapters"
@@ -44,7 +44,7 @@
 
       <!-- Course Details -->
       <div class="mt-8">
-        <!-- REMOVED: CourseDetailsSections -->
+        <CourseDetailsSections
           :description="playerStore.course.description"
           :learning-goals="playerStore.course.learning_goals"
         />
@@ -58,18 +58,16 @@
  * CourseOverviewView
  * ==================
  * Orchestrator component for course overview with mountain journey visualization
- * Refactored from 951 LOC to ~150 LOC
  */
 import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
-  // REMOVED: CourseOverviewHeader (not found)
-  // REMOVED: MountainJourneyMap (not found)
+  CourseOverviewHeader,
+  MountainJourneyMap,
   ChapterGridList,
-  // REMOVED: CourseDetailsSections (not found)
+  CourseDetailsSections,
   useCourseOverview
 } from '@/presentation/components/panel/user/courses/overview'
-import type { Chapter as _Chapter } from '@/infrastructure/api/clients/public/learning/types/types'
 
 // ============================================================================
 // Setup
@@ -91,13 +89,11 @@ const {
   // Computed - Progress
   totalChapters,
   completedChapters,
-  progressPercentage: _progressPercentage,
-  averageGrade: _averageGrade,
-  learningTimeFormatted: _learningTimeFormatted,
+  progressPercentage,
+  averageGrade,
+  learningTimeFormatted,
   currentChapterIndex,
   // Methods - Chapter Status
-  isCompleted: _isCompleted,
-  isCurrent: _isCurrent,
   isLocked,
   getChapterStatus,
   // Methods - Navigation
@@ -139,7 +135,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Minimal styles - most styling is in sub-components */
 .course-overview {
   background: var(--color-background);
   color: var(--color-text-primary);

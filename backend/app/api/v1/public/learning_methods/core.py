@@ -34,7 +34,8 @@ from app.domain.models.content.learning_method import (
     LearningMethodUpdate
 )
 from app.infrastructure.persistence.repositories.learning_method import LearningMethodRepository
-from app.api.middleware.auth import permission_required
+from app.infrastructure.persistence.repositories.learning_method.instances import LearningMethodInstanceRepository
+from app.api.middleware.auth import permission_required, token_required, get_current_user
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 
@@ -46,6 +47,84 @@ learning_methods_bp = Blueprint(
 )
 
 __all__ = ['learning_methods_bp']
+
+
+# =============================================================================
+# AUTHENTICATED ENDPOINTS - TASK EXECUTION
+# =============================================================================
+
+import logging
+logger = logging.getLogger(__name__)
+
+
+@learning_methods_bp.route('/<string:method_id>/execute', methods=['POST'])
+@token_required
+def execute_learning_method(method_id: str):
+    """
+    Execute/open a learning method instance for practice.
+
+    Returns the task data (content, instructions, solution) so the
+    student can work on it. Also logs an execution record for tracking.
+
+    Path Parameters:
+        method_id: Learning method instance ID (UUID)
+
+    Request Body (optional):
+        {
+            "lesson_id": "uuid",
+            "user_input": "optional user answer"
+        }
+
+    Response:
+        200: Task data for execution
+        404: Method not found
+    """
+    try:
+        user = get_current_user()
+        data = request.get_json() or {}
+
+        # Fetch the method instance
+        instance = LearningMethodInstanceRepository.find_by_id(method_id)
+        if not instance:
+            return jsonify({'success': False, 'error': 'Method not found'}), 404
+
+        # Transform raw_text into structured data if needed
+        raw_data = instance.get('data', {})
+        method_type = instance.get('method_type')
+        if isinstance(raw_data, dict) and 'raw_text' in raw_data and method_type is not None:
+            from app.application.services.ai.plan_execution import _transform_data_for_method
+            structured_data = _transform_data_for_method(
+                method_type, raw_data, instance.get('title', '')
+            )
+        else:
+            structured_data = raw_data
+
+        # Build execution response from instance data
+        execution = {
+            'execution_id': method_id,
+            'method_id': method_id,
+            'method_type': method_type,
+            'title': instance.get('title'),
+            'instructions': instance.get('instructions'),
+            'data': structured_data,
+            'solution': instance.get('solution'),
+            'difficulty': instance.get('difficulty'),
+            'ui_schema': instance.get('ui_schema'),
+            'output_text': instance.get('instructions') or instance.get('title', ''),
+            'result': structured_data,
+        }
+
+        return jsonify({
+            'success': True,
+            'execution': execution,
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error executing learning method {method_id}: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to execute method',
+        }), 500
 
 
 # =============================================================================

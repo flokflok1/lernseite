@@ -12,6 +12,8 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import TextAlign from '@tiptap/extension-text-align'
+import Underline from '@tiptap/extension-underline'
+import Link from '@tiptap/extension-link'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
 
 export function useContentEditor() {
@@ -29,6 +31,8 @@ export function useContentEditor() {
       }),
       Image,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Underline,
+      Link.configure({ openOnClick: false }),
     ],
     content: '',
     onUpdate: ({ editor: ed }) => {
@@ -38,7 +42,9 @@ export function useContentEditor() {
     },
   })
 
-  watch(lesson, (newLesson) => {
+  // Watch both lesson AND editor — useEditor creates the instance in onMounted,
+  // so the immediate watcher on lesson alone fires before editor.value exists.
+  watch([lesson, editor], ([newLesson]) => {
     if (!editor.value) return
 
     if (newLesson) {

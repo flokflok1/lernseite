@@ -65,7 +65,7 @@ class PlanWizardService:
             'status': 'draft',
             'course_meta': course_meta,
             'chapters': [],
-            'plan_data': {},
+            'plan_data': {'file_ids': file_ids or []},
             'chat_history': [],
         })
         return plan
@@ -74,8 +74,11 @@ class PlanWizardService:
         """Load plan and run Phase 2 (chapter structure generation)."""
         plan = _load_plan_or_raise(plan_id)
         course_meta = _parse_jsonb_field(plan, 'course_meta', {})
+        file_text = _load_file_text_from_plan(plan)
 
-        result = self._generator.generate_chapter_structure(course_meta)
+        result = self._generator.generate_chapter_structure(
+            course_meta, file_text=file_text,
+        )
 
         updated = ContentPlanRepository.update_phase(
             plan_id, 2, {'chapters': result.get('chapters', [])},
@@ -110,6 +113,7 @@ class PlanWizardService:
         """Refine the current plan phase via conversational chat."""
         plan = _load_plan_or_raise(plan_id)
         current_phase = plan.get('current_phase', 1)
+        file_text = _load_file_text_from_plan(plan)
 
         plan_data = {
             'course_meta': _parse_jsonb_field(plan, 'course_meta', {}),
@@ -117,7 +121,9 @@ class PlanWizardService:
             'phases': _parse_jsonb_field(plan, 'plan_data', {}).get('phases', []),
         }
 
-        result = self._generator.chat_about_plan(plan_data, message, current_phase)
+        result = self._generator.chat_about_plan(
+            plan_data, message, current_phase, file_text=file_text,
+        )
 
         ContentPlanRepository.append_chat_message(
             plan_id, {'role': 'user', 'content': message},
@@ -129,7 +135,8 @@ class PlanWizardService:
 
         plan_patch = result.get('updated_data')
         if plan_patch:
-            ContentPlanRepository.update_phase(plan_id, current_phase, plan_patch)
+            resolved = _resolve_incremental_patch(plan, plan_patch, current_phase)
+            ContentPlanRepository.update_phase(plan_id, current_phase, resolved)
 
         updated_plan = ContentPlanRepository.find_by_id(plan_id)
         return {
@@ -157,6 +164,57 @@ def _parse_jsonb_field(plan: dict[str, Any], field: str, default: Any) -> Any:
     if isinstance(value, str):
         return json.loads(value) if value else default
     return value if value is not None else default
+
+
+def _resolve_incremental_patch(
+    plan: dict[str, Any], patch: dict[str, Any], current_phase: int,
+) -> dict[str, Any]:
+    """Resolve incremental plan_patch operations for Phase 3.
+
+    Supports: add_phases, remove_phases, replace_phase, add_steps.
+    Falls back to returning the patch as-is for non-incremental patches.
+    """
+    incremental_keys = {'add_phases', 'remove_phases', 'replace_phase', 'add_steps'}
+    if not (incremental_keys & set(patch.keys())):
+        return patch
+
+    plan_data = _parse_jsonb_field(plan, 'plan_data', {})
+    phases = list(plan_data.get('phases', []))
+
+    if 'add_phases' in patch:
+        for new_phase in patch['add_phases']:
+            idx = new_phase.pop('chapter_index', len(phases))
+            phases.insert(idx, new_phase)
+
+    if 'remove_phases' in patch:
+        for idx in sorted(patch['remove_phases'], reverse=True):
+            if 0 <= idx < len(phases):
+                phases.pop(idx)
+
+    if 'replace_phase' in patch:
+        rp = patch['replace_phase']
+        idx = rp.get('index', -1)
+        if 0 <= idx < len(phases):
+            phases[idx] = rp.get('phase', phases[idx])
+
+    if 'add_steps' in patch:
+        info = patch['add_steps']
+        idx = info.get('phase_index', -1)
+        if 0 <= idx < len(phases):
+            phases[idx].setdefault('steps', []).extend(info.get('steps', []))
+
+    plan_data['phases'] = phases
+    return {'plan_data': plan_data}
+
+
+def _load_file_text_from_plan(plan: dict[str, Any]) -> str | None:
+    """Extract file_ids from plan_data and load their text content."""
+    from app.infrastructure.persistence.repositories.authoring.files import (
+        AuthoringFilesRepository,
+    )
+    plan_data = _parse_jsonb_field(plan, 'plan_data', {})
+    file_ids = plan_data.get('file_ids') if isinstance(plan_data, dict) else None
+    return _collect_file_text(file_ids, AuthoringFilesRepository)
 
 
 def _collect_file_text(

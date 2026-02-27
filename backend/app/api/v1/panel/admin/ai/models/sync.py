@@ -190,61 +190,198 @@ def sync_models_from_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
 
 def _fetch_models_from_provider(provider: Dict[str, Any]) -> list:
     """
-    Fetch models from provider API.
+    Fetch models from provider API using the stored (decrypted) API key.
 
-    TODO: Implement actual API calls for each provider.
+    Calls the real provider API to get available models, then enriches
+    with known pricing data and category classification.
 
     Args:
         provider: Provider configuration
 
     Returns:
-        List of models from provider
+        List of models with model_identifier, model_name, category,
+        input_cost_per_1k, output_cost_per_1k, context_window, supports_streaming
     """
-    # Mock implementation
-    # In production, this would call OpenAI, Anthropic, Google APIs
-    provider_name = provider.get('name', '').lower()
+    import requests
 
-    if provider_name == 'openai':
-        return [
-            {
-                'model_identifier': 'gpt-4-turbo',
-                'model_name': 'GPT-4 Turbo',
-                'category': 'chat',
-                'input_cost_per_1k': 0.01,
-                'output_cost_per_1k': 0.03,
-                'context_window': 128000,
-                'supports_streaming': True
-            },
-            {
-                'model_identifier': 'gpt-3.5-turbo',
-                'model_name': 'GPT-3.5 Turbo',
-                'category': 'chat',
-                'input_cost_per_1k': 0.0005,
-                'output_cost_per_1k': 0.0015,
-                'context_window': 16385,
-                'supports_streaming': True
-            }
-        ]
-    elif provider_name == 'anthropic':
-        return [
-            {
-                'model_identifier': 'claude-opus-4-5',
-                'model_name': 'Claude Opus 4.5',
-                'category': 'chat',
-                'input_cost_per_1k': 0.015,
-                'output_cost_per_1k': 0.075,
-                'context_window': 200000,
-                'supports_streaming': True
-            },
-            {
-                'model_identifier': 'claude-sonnet-4-5',
-                'model_name': 'Claude Sonnet 4.5',
-                'category': 'chat',
-                'input_cost_per_1k': 0.003,
-                'output_cost_per_1k': 0.015,
-                'context_window': 200000,
-                'supports_streaming': True
-            }
-        ]
-    else:
+    provider_name = (provider.get('name') or '').lower()
+    api_key = AIProviderRepository.get_decrypted_api_key(provider_name)
+
+    if not api_key:
+        logger.error(f"No decrypted API key for provider {provider_name}")
         return []
+
+    try:
+        if provider_name == 'openai':
+            return _fetch_openai_models(api_key)
+        elif provider_name == 'anthropic':
+            return _fetch_anthropic_models(api_key)
+        elif provider_name == 'google':
+            return _fetch_google_models(api_key)
+        else:
+            logger.warning(f"Unknown provider for sync: {provider_name}")
+            return []
+    except Exception as e:
+        logger.error(f"Error fetching models from {provider_name}: {e}")
+        return []
+
+
+# ============================================================================
+# Provider-specific model fetchers
+# ============================================================================
+
+# Known pricing per 1K tokens (USD) — updated Feb 2026
+_OPENAI_PRICING = {
+    'gpt-4o':           {'input': 0.0025, 'output': 0.01,   'ctx': 128000, 'cat': 'chat'},
+    'gpt-4o-mini':      {'input': 0.00015,'output': 0.0006, 'ctx': 128000, 'cat': 'chat'},
+    'gpt-4-turbo':      {'input': 0.01,   'output': 0.03,   'ctx': 128000, 'cat': 'chat'},
+    'gpt-4':            {'input': 0.03,   'output': 0.06,   'ctx': 8192,   'cat': 'chat'},
+    'gpt-3.5-turbo':    {'input': 0.0005, 'output': 0.0015, 'ctx': 16385,  'cat': 'chat'},
+    'o1':               {'input': 0.015,  'output': 0.06,   'ctx': 200000, 'cat': 'reasoning'},
+    'o1-mini':          {'input': 0.003,  'output': 0.012,  'ctx': 128000, 'cat': 'reasoning'},
+    'o3-mini':          {'input': 0.0011, 'output': 0.0044, 'ctx': 200000, 'cat': 'reasoning'},
+    'dall-e-3':         {'input': 0.04,   'output': 0.0,    'ctx': 0,      'cat': 'image'},
+    'tts-1':            {'input': 0.015,  'output': 0.0,    'ctx': 0,      'cat': 'audio'},
+    'tts-1-hd':         {'input': 0.03,   'output': 0.0,    'ctx': 0,      'cat': 'audio'},
+    'whisper-1':        {'input': 0.006,  'output': 0.0,    'ctx': 0,      'cat': 'audio'},
+    'text-embedding-3-small': {'input': 0.00002, 'output': 0.0, 'ctx': 8191, 'cat': 'embedding'},
+    'text-embedding-3-large': {'input': 0.00013, 'output': 0.0, 'ctx': 8191, 'cat': 'embedding'},
+    'omni-moderation-latest': {'input': 0.0, 'output': 0.0, 'ctx': 0, 'cat': 'moderation'},
+}
+
+_ANTHROPIC_PRICING = {
+    'claude-opus-4-20250514':   {'input': 0.015, 'output': 0.075, 'ctx': 200000, 'cat': 'chat'},
+    'claude-sonnet-4-20250514': {'input': 0.003, 'output': 0.015, 'ctx': 200000, 'cat': 'chat'},
+    'claude-3-5-sonnet-20241022': {'input': 0.003, 'output': 0.015, 'ctx': 200000, 'cat': 'chat'},
+    'claude-3-5-haiku-20241022':  {'input': 0.0008,'output': 0.004, 'ctx': 200000, 'cat': 'chat'},
+    'claude-3-opus-20240229':   {'input': 0.015, 'output': 0.075, 'ctx': 200000, 'cat': 'chat'},
+    'claude-3-haiku-20240307':  {'input': 0.00025,'output':0.00125,'ctx': 200000, 'cat': 'chat'},
+}
+
+
+def _classify_openai_model(model_id: str) -> str:
+    """Classify an OpenAI model into a category based on its ID prefix."""
+    if model_id in _OPENAI_PRICING:
+        return _OPENAI_PRICING[model_id]['cat']
+    if model_id.startswith(('o1', 'o3')):
+        return 'reasoning'
+    if model_id.startswith(('gpt-4', 'gpt-3', 'chatgpt')):
+        return 'chat'
+    if 'embedding' in model_id:
+        return 'embedding'
+    if 'dall-e' in model_id:
+        return 'image'
+    if model_id.startswith(('tts', 'whisper')):
+        return 'audio'
+    if 'moderation' in model_id:
+        return 'moderation'
+    if 'vision' in model_id or model_id.endswith('-vision'):
+        return 'vision'
+    return 'chat'
+
+
+def _fetch_openai_models(api_key: str) -> list:
+    """Fetch models from OpenAI API and classify them."""
+    import requests
+
+    resp = requests.get(
+        'https://api.openai.com/v1/models',
+        headers={'Authorization': f'Bearer {api_key}'},
+        timeout=15,
+    )
+    resp.raise_for_status()
+
+    raw_models = resp.json().get('data', [])
+    results = []
+
+    for m in raw_models:
+        model_id = m.get('id', '')
+        # Skip fine-tuned, internal, and snapshot models
+        if ':' in model_id or model_id.startswith('ft:'):
+            continue
+
+        pricing = _OPENAI_PRICING.get(model_id, {})
+        category = _classify_openai_model(model_id)
+
+        results.append({
+            'model_identifier': model_id,
+            'model_name': model_id,
+            'category': category,
+            'input_cost_per_1k': pricing.get('input', 0.0),
+            'output_cost_per_1k': pricing.get('output', 0.0),
+            'context_window': pricing.get('ctx', 0),
+            'supports_streaming': category in ('chat', 'reasoning'),
+        })
+
+    return results
+
+
+def _fetch_anthropic_models(api_key: str) -> list:
+    """Fetch models from Anthropic API."""
+    import requests
+
+    resp = requests.get(
+        'https://api.anthropic.com/v1/models',
+        headers={
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01',
+        },
+        timeout=15,
+    )
+    resp.raise_for_status()
+
+    raw_models = resp.json().get('data', [])
+    results = []
+
+    for m in raw_models:
+        model_id = m.get('id', '')
+        pricing = _ANTHROPIC_PRICING.get(model_id, {})
+
+        results.append({
+            'model_identifier': model_id,
+            'model_name': m.get('display_name', model_id),
+            'category': pricing.get('cat', 'chat'),
+            'input_cost_per_1k': pricing.get('input', 0.003),
+            'output_cost_per_1k': pricing.get('output', 0.015),
+            'context_window': pricing.get('ctx', 200000),
+            'supports_streaming': True,
+        })
+
+    return results
+
+
+def _fetch_google_models(api_key: str) -> list:
+    """Fetch models from Google Generative AI API."""
+    import requests
+
+    resp = requests.get(
+        f'https://generativelanguage.googleapis.com/v1/models?key={api_key}',
+        timeout=15,
+    )
+    resp.raise_for_status()
+
+    raw_models = resp.json().get('models', [])
+    results = []
+
+    for m in raw_models:
+        model_name = m.get('name', '').replace('models/', '')
+        display_name = m.get('displayName', model_name)
+
+        # Google models are generally chat/reasoning
+        category = 'chat'
+        if 'embedding' in model_name.lower():
+            category = 'embedding'
+        elif 'vision' in model_name.lower():
+            category = 'vision'
+
+        results.append({
+            'model_identifier': model_name,
+            'model_name': display_name,
+            'category': category,
+            'input_cost_per_1k': 0.0,
+            'output_cost_per_1k': 0.0,
+            'context_window': m.get('inputTokenLimit', 0),
+            'supports_streaming': True,
+        })
+
+    return results

@@ -46,7 +46,8 @@
       "contextSet": "Kontext gesetzt: {type} \"{title}\"",
       "contextLabel": "Kontext",
       "clearContext": "Kontext löschen",
-      "fileUploadTodo": "Datei-Upload wird in Kürze verfügbar sein."
+      "fileUploadTodo": "Datei-Upload wird in Kürze verfügbar sein.",
+      "newSession": "Neue Session"
     },
     "structure": {
       "title": "Kursstruktur",
@@ -75,7 +76,65 @@
       "execute": "Plan ausführen",
       "executing": "Plan wird ausgeführt...",
       "recentPlans": "Letzte Pläne",
-      "phases": "Phasen"
+      "phases": "Phasen",
+      "steps": "Schritte",
+      "save": "Speichern",
+      "saving": "Speichert...",
+      "approving": "Genehmigt...",
+      "discard": "Verwerfen",
+      "delete": "Löschen",
+      "confirmDelete": "Plan wirklich endgültig löschen? Dies kann nicht rückgängig gemacht werden.",
+      "createFromFile": "Plan aus Material erstellen",
+      "confirmDiscard": "Plan wirklich verwerfen? Alle ungespeicherten Änderungen gehen verloren.",
+      "confirmDiscardExecuting": "Der Plan wird gerade ausgeführt! Verwerfen stoppt die Ausführung. Fortfahren?",
+      "confirmDiscardPaused": "Der Plan ist pausiert und hat unfertige Schritte. Wirklich verwerfen?",
+      "finalize": "Übernehmen",
+      "newPlan": "Neuen Plan erstellen",
+      "completedSummary": "{completed} von {total} Schritten erfolgreich abgeschlossen.",
+      "failedSummary": "{failed} von {total} Schritten fehlgeschlagen ({completed} erfolgreich).",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "scope": {
+        "label": "Bereich",
+        "course": "Gesamter Kurs",
+        "chapter": "Einzelnes Kapitel",
+        "lesson": "Einzelne Lektion"
+      },
+      "selectScope": "Ziel auswählen",
+      "selectChapter": "Kapitel auswählen",
+      "selectLesson": "Lektion auswählen",
+      "progress": {
+        "stepsCompleted": "{completed} von {total} Schritten",
+        "currentStep": "Aktueller Schritt",
+        "failed": "{count} fehlgeschlagen",
+        "tokensUsed": "Tokens verbraucht"
+      },
+      "stepDetail": {
+        "skill": "Skill",
+        "target": "Ziel",
+        "parameters": "Parameter",
+        "result": "Ergebnis",
+        "noResult": "Noch kein Ergebnis",
+        "tokensUsed": "{input} ein / {output} aus",
+        "model": "Modell",
+        "close": "Schließen"
+      },
+      "errors": {
+        "noCourse": "Bitte wähle zuerst einen Kurs aus.",
+        "noFile": "Keine Datei ausgewählt. Lade zuerst eine Datei im Dateien-Tab hoch.",
+        "pauseFailed": "Plan konnte nicht pausiert werden.",
+        "resumeFailed": "Plan konnte nicht fortgesetzt werden.",
+        "planNotFound": "Plan wurde nicht gefunden oder wurde gelöscht.",
+        "pollFailed": "Verbindung zum Server verloren. Status kann nicht aktualisiert werden."
+      },
+      "status": {
+        "draft": "Entwurf",
+        "approved": "Genehmigt",
+        "executing": "Wird ausgeführt",
+        "completed": "Abgeschlossen",
+        "paused": "Pausiert",
+        "failed": "Fehlgeschlagen"
+      }
     },
     "skills": {
       "searchPlaceholder": "Skills durchsuchen...",

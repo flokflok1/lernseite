@@ -216,6 +216,29 @@
     "title": "Wtyczki metod nauczania"
   },
   "systemFeatures": {
+    "admin": {
+      "title": "Funkcje systemowe",
+      "subtitle": "Aktywacja i konfiguracja funkcji systemowych według kategorii",
+      "active": "aktywne",
+      "inactive": "nieaktywne",
+      "toggleSuccess": "Funkcja została zaktualizowana",
+      "toggleError": "Nie udało się zaktualizować funkcji",
+      "requiresInfrastructure": "Wymagana infrastruktura",
+      "requiresExternalService": "Wymagana usługa zewnętrzna",
+      "categories": {
+        "audio": "Audio",
+        "collaboration": "Współpraca",
+        "exam": "Egzaminy",
+        "gamification": "Grywalizacja",
+        "interactive": "Interaktywne",
+        "it_environments": "Środowiska IT",
+        "learning_paths": "Ścieżki nauki",
+        "math": "Matematyka",
+        "meta": "Meta",
+        "tutor": "Tutor",
+        "visualization": "Wizualizacja"
+      }
+    },
     "invertedClassroom": {
       "videos": "Filmy wyjaśniające"
     },
@@ -276,7 +299,9 @@
     "tabs": {
       "info": "Informacje systemowe",
       "maintenance": "Tryb konserwacji",
-      "mode": "Tryb środowiskowy"
+      "mode": "Tryb środowiskowy",
+      "ai": "Ustawienia AI",
+      "features": "Funkcje systemowe"
     },
     "title": "Ustawienia systemowe",
     "uptime": "Czas pracy",

@@ -4,6 +4,7 @@ LernsystemX Courses API - Lesson Progress & Methods
 User-facing lesson endpoints for progress tracking and method retrieval.
 
 Endpoints:
+- GET /lessons/:id - Get lesson details
 - GET /lessons/:id/progress - Get lesson progress
 - POST /lessons/:id/start - Mark lesson as started
 - POST /lessons/:id/complete - Mark lesson as completed
@@ -14,11 +15,16 @@ All routes: /api/v1/lessons/*
 """
 
 from flask import Blueprint, request, jsonify
+import json
 import logging
+import re
 
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.infrastructure.persistence.repositories.learning_method.instances import (
     LearningMethodInstanceRepository,
+)
+from app.infrastructure.persistence.repositories.learning_method.progress import (
+    LearningMethodProgressRepository,
 )
 from app.api.middleware.auth import token_required, get_current_user
 
@@ -57,6 +63,38 @@ def _build_lesson_progress(record, lesson_id, user_id):
         'completed_at': str(completed_at) if completed_at else None,
         'last_accessed_at': None,
     }
+
+
+@lessons_bp.route('/<lesson_id>', methods=['GET'])
+@token_required
+def get_lesson(lesson_id: str):
+    """Get lesson details by ID."""
+    try:
+        lesson = LessonRepository.find_by_id(lesson_id)
+        if not lesson:
+            return jsonify({'success': False, 'error': 'Lesson not found'}), 404
+
+        # Transform content for frontend compatibility
+        raw_content = lesson.get('content')
+        if isinstance(raw_content, str):
+            # Strip <p>...</p> wrapper (legacy data from AI authoring)
+            cleaned = re.sub(r'^<p>(.*)</p>$', r'\1', raw_content.strip(), flags=re.DOTALL).strip()
+
+            # Try to parse JSON string (AI-generated content stored via json.dumps)
+            try:
+                parsed = json.loads(cleaned)
+                if isinstance(parsed, dict):
+                    lesson['content'] = parsed
+                else:
+                    lesson['content'] = {'html': raw_content}
+            except (json.JSONDecodeError, TypeError):
+                lesson['content'] = {'html': raw_content}
+
+        return jsonify({'success': True, 'lesson': lesson}), 200
+
+    except Exception as e:
+        logger.error(f"Error getting lesson: {e}")
+        return jsonify({'success': False, 'error': 'Server error'}), 500
 
 
 @lessons_bp.route('/<lesson_id>/progress', methods=['GET'])
@@ -157,3 +195,29 @@ def get_lesson_methods(lesson_id: str):
             'methods': [],
             'total': 0,
         }), 200
+
+
+@lessons_bp.route('/<lesson_id>/methods/progress', methods=['GET'])
+@token_required
+def get_lesson_methods_progress(lesson_id: str):
+    """Get user's progress for all learning methods in a lesson."""
+    try:
+        user = get_current_user()
+        progress_list = LearningMethodProgressRepository.get_user_progress_for_lesson(
+            user['user_id'], lesson_id
+        )
+
+        progress_map = {}
+        for p in progress_list:
+            progress_map[str(p['method_id'])] = {
+                'method_id': str(p['method_id']),
+                'score': float(p['score']) if p.get('score') is not None else None,
+                'attempts': p.get('attempts', 0),
+                'completed': p.get('completed_at') is not None,
+            }
+
+        return jsonify({'success': True, 'progress': progress_map}), 200
+
+    except Exception as e:
+        logger.error(f"Error getting lesson methods progress: {e}")
+        return jsonify({'success': True, 'progress': {}}), 200

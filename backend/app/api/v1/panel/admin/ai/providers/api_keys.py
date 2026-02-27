@@ -15,12 +15,9 @@ Uses:
 - Audit logging for key changes
 """
 
-from flask import Blueprint, request, jsonify, g, current_app
+from flask import Blueprint, request, jsonify, g
 from typing import Dict, Any, Tuple
-from cryptography.fernet import Fernet
-import base64
 import logging
-import hashlib
 
 from app.api.middleware.auth import token_required, permission_required
 from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
@@ -36,32 +33,6 @@ providers_api_keys_bp = Blueprint(
     url_prefix='/panel/settings/ai/providers'
 )
 
-
-def _get_encryption_key() -> bytes:
-    """
-    Get encryption key from app config.
-
-    Returns:
-        32-byte Fernet encryption key
-    """
-    secret_key = current_app.config.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-    # Use SHA256 to derive a 32-byte key from SECRET_KEY
-    return base64.urlsafe_b64encode(hashlib.sha256(secret_key.encode()).digest())
-
-
-def _encrypt_api_key(api_key: str) -> str:
-    """
-    Encrypt API key for secure storage.
-
-    Args:
-        api_key: Plain text API key
-
-    Returns:
-        Encrypted API key as string
-    """
-    fernet = Fernet(_get_encryption_key())
-    encrypted = fernet.encrypt(api_key.encode())
-    return encrypted.decode()
 
 
 def _validate_api_key_format(provider_name: str, api_key: str) -> bool:
@@ -114,7 +85,7 @@ def update_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
     Update provider API key.
 
     Security:
-    - API key is encrypted before storage
+    - API key is encrypted by repository before storage
     - Only 'has_api_key' boolean is returned
     - Audit log created
 
@@ -122,7 +93,7 @@ def update_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
         provider_id: The provider's database ID
 
     Request Body:
-        api_key (str): New API key (plain text, will be encrypted)
+        api_key (str): New API key (plain text, will be encrypted by repository)
 
     Returns:
         JSON response confirming key update
@@ -151,20 +122,12 @@ def update_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
             return error_response(ErrorCode.VALIDATION_INVALID_VALUE, 400,
                 details={'field': 'api_key', 'message': str(ve)})
 
-        # Encrypt API key
-        encrypted_key = _encrypt_api_key(api_key)
+        # Repository handles encryption internally
+        updated_provider = AIProviderRepository.update_api_key(provider_id, api_key)
 
-        # Update provider with encrypted key
-        updated_provider = AIProviderRepository.update(
-            provider_id,
-            {
-                'api_key_encrypted': encrypted_key,
-                'has_api_key': True
-            }
-        )
-
-        # Don't expose encrypted key
-        updated_provider.pop('api_key_encrypted', None)
+        if not updated_provider:
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         # Audit log (NEVER log the actual key!)
         AuditService.log_action(
@@ -211,17 +174,12 @@ def remove_provider_api_key(provider_id: int) -> Tuple[Dict[str, Any], int]:
             return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
                 details={'provider_id': provider_id})
 
-        # Remove API key
-        updated_provider = AIProviderRepository.update(
-            provider_id,
-            {
-                'api_key_encrypted': None,
-                'has_api_key': False
-            }
-        )
+        # Remove API key (repository sets encrypted_api_key=NULL, active=FALSE)
+        updated_provider = AIProviderRepository.clear_api_key(provider_id)
 
-        # Don't expose encrypted key (should be None anyway)
-        updated_provider.pop('api_key_encrypted', None)
+        if not updated_provider:
+            return error_response(ErrorCode.AI_PROVIDER_NOT_FOUND, 404,
+                details={'provider_id': provider_id})
 
         # Audit log
         AuditService.log_action(

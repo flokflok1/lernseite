@@ -11,13 +11,13 @@ import type { LessonActivity } from '@/infrastructure/api/clients/panel/editor/c
 
 export type { LessonActivity }
 
-export function useLessonActivities(lessonId: Ref<number | null>) {
+export function useLessonActivities(lessonId: Ref<string | number | null>) {
   const { t } = useI18n()
   const activities = ref<LessonActivity[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const loadActivities = async (id: number) => {
+  const loadActivities = async (id: string | number) => {
     loading.value = true
     error.value = null
     try {

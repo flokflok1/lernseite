@@ -46,7 +46,8 @@
       "contextSet": "Kontekst ustawiony: {type} \"{title}\"",
       "contextLabel": "Kontekst",
       "clearContext": "Wyczyść kontekst",
-      "fileUploadTodo": "Przesyłanie plików będzie wkrótce dostępne."
+      "fileUploadTodo": "Przesyłanie plików będzie wkrótce dostępne.",
+      "newSession": "Nowa sesja"
     },
     "structure": {
       "title": "Struktura kursu",
@@ -75,7 +76,65 @@
       "execute": "Wykonaj plan",
       "executing": "Wykonywanie planu...",
       "recentPlans": "Ostatnie plany",
-      "phases": "faz"
+      "phases": "Fazy",
+      "steps": "Kroki",
+      "save": "Zapisz",
+      "saving": "Zapisywanie...",
+      "approving": "Zatwierdzanie...",
+      "discard": "Odrzuć",
+      "delete": "Usuń",
+      "confirmDelete": "Trwale usunąć ten plan? Tej operacji nie można cofnąć.",
+      "createFromFile": "Utwórz plan z materiałów",
+      "confirmDiscard": "Odrzucić ten plan? Wszystkie niezapisane zmiany zostaną utracone.",
+      "confirmDiscardExecuting": "Plan jest w trakcie wykonywania! Odrzucenie zatrzyma wykonywanie. Kontynuować?",
+      "confirmDiscardPaused": "Plan jest wstrzymany i ma niedokończone kroki. Odrzucić mimo to?",
+      "finalize": "Zatwierdź wyniki",
+      "newPlan": "Utwórz nowy plan",
+      "completedSummary": "{completed} z {total} kroków ukończono pomyślnie.",
+      "failedSummary": "{failed} z {total} kroków nie powiodło się ({completed} ukończono).",
+      "pause": "Wstrzymaj",
+      "resume": "Wznów",
+      "scope": {
+        "label": "Zakres",
+        "course": "Cały kurs",
+        "chapter": "Pojedynczy rozdział",
+        "lesson": "Pojedyncza lekcja"
+      },
+      "selectScope": "Wybierz cel",
+      "selectChapter": "Wybierz rozdział",
+      "selectLesson": "Wybierz lekcję",
+      "progress": {
+        "stepsCompleted": "{completed} z {total} kroków",
+        "currentStep": "Bieżący krok",
+        "failed": "{count} nieudanych",
+        "tokensUsed": "Zużyte tokeny"
+      },
+      "stepDetail": {
+        "skill": "Umiejętność",
+        "target": "Cel",
+        "parameters": "Parametry",
+        "result": "Wynik",
+        "noResult": "Brak wyniku",
+        "tokensUsed": "{input} wej / {output} wyj",
+        "model": "Model",
+        "close": "Zamknij"
+      },
+      "errors": {
+        "noCourse": "Najpierw wybierz kurs.",
+        "noFile": "Nie wybrano pliku. Najpierw prześlij plik w zakładce Pliki.",
+        "pauseFailed": "Nie udało się wstrzymać planu.",
+        "resumeFailed": "Nie udało się wznowić planu.",
+        "planNotFound": "Plan nie został znaleziony lub został usunięty.",
+        "pollFailed": "Utracono połączenie z serwerem. Nie można zaktualizować statusu."
+      },
+      "status": {
+        "draft": "Szkic",
+        "approved": "Zatwierdzony",
+        "executing": "Wykonywanie",
+        "completed": "Ukończony",
+        "paused": "Wstrzymany",
+        "failed": "Niepowodzenie"
+      }
     },
     "skills": {
       "searchPlaceholder": "Szukaj umiejętności...",

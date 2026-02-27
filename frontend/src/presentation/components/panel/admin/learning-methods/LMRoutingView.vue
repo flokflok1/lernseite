@@ -119,8 +119,6 @@ const applyPreset = async (preset: 'cheap' | 'medium' | 'expensive') => {
   }
 }
 
-const getLMCode = (id: number) => `LM${id.toString().padStart(2, '0')}`
-
 // Save default model for category
 const savingCategory = ref<string | null>(null)
 const saveDefaultModel = async (categoryCode: string, modelId: number | null) => {
@@ -272,7 +270,7 @@ onMounted(() => {
                   <div class="flex items-center justify-between mb-2">
                     <div>
                       <span class="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded mr-2">
-                        {{ getLMCode(lm.learning_method_id) }}
+                        {{ t(`lesson.methodExecution.methods.lm${String(lm.learning_method_id).padStart(2, '0')}`) }}
                       </span>
                       <span class="text-sm font-medium text-gray-900 dark:text-white">{{ lm.name }}</span>
                     </div>

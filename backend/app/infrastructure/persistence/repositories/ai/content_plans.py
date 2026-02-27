@@ -149,9 +149,18 @@ class ContentPlanRepository:
         return fetch_one(query, (json.dumps([message]), plan_id))
 
     @classmethod
-    def delete(cls, plan_id: str) -> None:
-        """Delete a draft plan."""
+    def delete(cls, plan_id: str) -> bool:
+        """Delete a plan and its related generation logs.
+
+        Returns True if the plan existed and was deleted.
+        """
+        # First delete FK-dependent generation logs
         execute_query(
-            "DELETE FROM ai_pipeline.ai_content_plans WHERE plan_id = %s AND status = 'draft'",
+            "DELETE FROM ai_pipeline.ai_generation_log WHERE plan_id = %s",
             (plan_id,),
         )
+        result = fetch_one(
+            "DELETE FROM ai_pipeline.ai_content_plans WHERE plan_id = %s RETURNING plan_id",
+            (plan_id,),
+        )
+        return result is not None

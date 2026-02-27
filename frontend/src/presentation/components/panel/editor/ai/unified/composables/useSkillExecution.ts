@@ -76,6 +76,10 @@ export function useSkillExecution() {
     } = {},
   ) {
     if (!selectedSkill.value) return
+    if (!courseId) {
+      error.value = 'No course selected'
+      return
+    }
     isExecuting.value = true
     error.value = null
     currentResult.value = null
@@ -97,9 +101,11 @@ export function useSkillExecution() {
     }
   }
 
-  function acceptResult() {
+  function acceptResult(): GenerationResult | null {
+    const result = currentResult.value
     currentResult.value = null
     selectedSkill.value = null
+    return result
   }
 
   function rejectResult() {

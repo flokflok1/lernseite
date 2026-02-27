@@ -9,7 +9,7 @@ checking course-level permissions.
 """
 
 from functools import wraps
-from flask import g, jsonify
+from flask import g, jsonify, request
 from typing import Callable
 from app.infrastructure.persistence.repositories.courses import CourseRepository
 from app.api.middleware.auth import token_required
@@ -43,6 +43,10 @@ def check_course_permission(action: str = 'read'):
         @wraps(f)
         @token_required
         def wrapper(*args, **kwargs):
+            # OPTIONS preflight has no auth — pass through
+            if request.method == 'OPTIONS':
+                return f(*args, **kwargs)
+
             user = g.current_user
             user_id = user.get('user_id')
             is_admin = _is_admin_user(user)

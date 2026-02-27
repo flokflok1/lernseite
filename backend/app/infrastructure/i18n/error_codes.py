@@ -115,6 +115,7 @@ class ErrorCode(str, Enum):
     # AI/KI ERRORS
     # ========================================================================
     AI_GENERATION_FAILED = "AI_GENERATION_FAILED"
+    AI_PROVIDER_NOT_FOUND = "AI_PROVIDER_NOT_FOUND"
     AI_PROVIDER_ERROR = "AI_PROVIDER_ERROR"
     AI_QUOTA_EXCEEDED = "AI_QUOTA_EXCEEDED"
     AI_MODEL_NOT_FOUND = "AI_MODEL_NOT_FOUND"

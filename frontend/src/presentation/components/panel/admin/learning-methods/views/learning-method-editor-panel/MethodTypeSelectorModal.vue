@@ -57,7 +57,7 @@
                 class="text-sm font-mono px-2 py-1 rounded"
                 :style="getGroupStyle(methodType.group)"
               >
-                {{ String(getGroupPosition(methodType)).padStart(2, '0') }}
+                {{ t(`lesson.methodExecution.methods.lm${String(methodType.lm_id).padStart(2, '0')}`) }}
               </span>
               <div class="flex-1">
                 <p class="font-medium text-[var(--color-text-primary)]">{{ methodType.name }}</p>
@@ -79,7 +79,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LearningMethodType, LearningMethodGroup } from '@/infrastructure/api/clients/panel/admin'
+
+const { t } = useI18n()
 
 interface Props {
   methodTypes: LearningMethodType[]

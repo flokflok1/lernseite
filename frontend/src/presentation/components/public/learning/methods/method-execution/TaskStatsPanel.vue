@@ -1,69 +1,55 @@
 <template>
   <div class="stats-section">
+    <!-- Inline stats row -->
     <div class="stats-row">
-      <!-- Generated Stat -->
-      <div class="stat-card stat-generated">
-        <div class="stat-icon">📝</div>
-        <div class="stat-content">
-          <span class="stat-label">{{ $t('lesson.methodExecution.stats.generated') }}</span>
-          <span class="stat-value">{{ countGenerated }}</span>
-        </div>
+      <div class="stat-item stat-generated">
+        <span class="stat-value">{{ countGenerated }}</span>
+        <span class="stat-label">{{ $t('lesson.methodExecution.stats.generated') }}</span>
       </div>
-
-      <!-- Solved Stat -->
-      <div class="stat-card stat-solved">
-        <div class="stat-icon">✅</div>
-        <div class="stat-content">
-          <span class="stat-label">{{ $t('lesson.methodExecution.stats.solved') }}</span>
-          <span class="stat-value">{{ countSolved }}</span>
-        </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item stat-solved">
+        <span class="stat-value">{{ countSolved }}</span>
+        <span class="stat-label">{{ $t('lesson.methodExecution.stats.solved') }}</span>
       </div>
     </div>
 
     <!-- Actions -->
-    <div class="stats-actions">
-      <button
-        v-if="countGenerated > 0"
-        @click="$emit('show-all')"
-        class="action-btn action-primary"
-      >
+    <div v-if="countGenerated > 0" class="stats-actions">
+      <button @click="$emit('show-all')" class="action-btn action-primary">
         <span>{{ $t('lesson.methodExecution.stats.viewAll') }}</span>
         <span class="badge">{{ countGenerated }}</span>
       </button>
 
-      <button
-        v-if="countGenerated > 0"
-        @click="$emit('delete-all')"
-        class="action-btn action-danger"
-      >
+      <button @click="$emit('delete-all')" class="action-btn action-danger">
         {{ $t('lesson.methodExecution.stats.deleteAll') }}
       </button>
-
-      <!-- Calculator Button (Optional) -->
-      <button
-        v-if="showCalculator"
-        @click="$emit('open-calculator')"
-        class="calc-btn"
-        :title="$t('lesson.methodExecution.calculator.tooltip')"
-      >
-        <span class="calc-icon">🧮</span>
-        <div class="calc-text">
-          <strong>{{ $t('lesson.methodExecution.calculator.title') }}</strong>
-          <small>{{ $t('lesson.methodExecution.calculator.subtitle') }}</small>
-        </div>
-        <span class="calc-badge">{{ $t('lesson.methodExecution.calculator.badge') }}</span>
-      </button>
     </div>
+
+    <!-- Calculator Button (Optional) -->
+    <button
+      v-if="showCalculator"
+      @click="$emit('open-calculator')"
+      class="calc-btn"
+      :title="$t('lesson.methodExecution.calculator.tooltip')"
+    >
+      <span class="calc-icon">
+        <svg class="calc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="2" width="16" height="20" rx="2" />
+          <line x1="8" y1="6" x2="16" y2="6" />
+          <line x1="8" y1="14" x2="16" y2="14" />
+          <line x1="12" y1="10" x2="12" y2="18" />
+        </svg>
+      </span>
+      <div class="calc-text">
+        <strong>{{ $t('lesson.methodExecution.calculator.title') }}</strong>
+        <small>{{ $t('lesson.methodExecution.calculator.subtitle') }}</small>
+      </div>
+      <span class="calc-badge">{{ $t('lesson.methodExecution.calculator.badge') }}</span>
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * TaskStatsPanel Component
- * =========================
- * Displays task statistics and action buttons
- */
-
 interface Props {
   countGenerated: number
   countSolved: number
@@ -82,87 +68,64 @@ defineEmits<{
 </script>
 
 <style scoped>
-/* Stats Section */
 .stats-section {
-  padding: 1rem;
+  padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--color-border, #e5e7eb);
 }
 
 .stats-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.stat-card {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  background-color: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-border, #e5e7eb);
-  transition: all 0.2s;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-.stat-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.stat-icon {
-  font-size: 1.75rem;
-  line-height: 1;
-}
-
-.stat-content {
-  flex: 1;
+.stat-item {
   display: flex;
-  flex-direction: column;
-}
-
-.stat-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--color-text-secondary, #6b7280);
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
+  align-items: baseline;
+  gap: 0.25rem;
 }
 
 .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-text-primary, #111827);
-  line-height: 1.2;
+  line-height: 1;
 }
 
-.stat-generated .stat-value {
-  color: #3b82f6;
+.stat-generated .stat-value { color: #3b82f6; }
+.stat-solved .stat-value { color: #10b981; }
+
+.stat-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
 }
 
-.stat-solved .stat-value {
-  color: #10b981;
+.stat-divider {
+  width: 1px;
+  height: 1.25rem;
+  background-color: var(--color-border, #e5e7eb);
 }
 
 /* Actions */
 .stats-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .action-btn {
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 0.875rem;
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .action-primary {
@@ -176,9 +139,9 @@ defineEmits<{
 }
 
 .action-danger {
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: rgba(239, 68, 68, 0.08);
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .action-danger:hover {
@@ -187,10 +150,10 @@ defineEmits<{
 }
 
 .badge {
-  padding: 0.125rem 0.5rem;
+  padding: 0.0625rem 0.375rem;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
 }
 
@@ -199,24 +162,25 @@ defineEmits<{
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
-  border: 2px dashed rgba(16, 185, 129, 0.3);
-  border-radius: 0.75rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%);
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+  border-radius: 0.5rem;
   color: #059669;
   font-weight: 600;
   transition: all 0.2s;
 }
 
 .calc-btn:hover {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+  transform: translateY(-1px);
 }
 
-.calc-icon {
-  font-size: 1.5rem;
+.calc-svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .calc-text {
@@ -228,20 +192,19 @@ defineEmits<{
 }
 
 .calc-text strong {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.75rem;
   color: #059669;
 }
 
 .calc-text small {
-  font-size: 0.7rem;
+  font-size: 0.625rem;
   color: var(--color-text-secondary, #6b7280);
 }
 
 .calc-badge {
-  font-size: 0.65rem;
+  font-size: 0.5625rem;
   font-weight: 600;
-  padding: 0.25rem 0.5rem;
+  padding: 0.125rem 0.375rem;
   background-color: #10b981;
   color: white;
   border-radius: 9999px;

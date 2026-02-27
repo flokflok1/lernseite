@@ -1,9 +1,13 @@
 /**
  * Types for AI Content Generation Results
+ *
+ * NOTE: GenerationResult (snake_case fields) = backend API response shape.
+ * For the frontend workflow model, see GenerateResult in workflow.types.ts (camelCase fields).
  */
 
 export type GenerationStatus = 'pending' | 'running' | 'completed' | 'failed'
 
+/** Backend API response shape for skill execution results. Fields match API snake_case. */
 export interface GenerationResult {
   generation_id: string
   skill_code: string

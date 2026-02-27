@@ -17,6 +17,16 @@
       "modelsFromProviders": "{count} models from {providers} providers",
       "title": "Available Models"
     },
+    "sync": {
+      "syncButton": "Sync Models",
+      "syncing": "Syncing...",
+      "noConfiguredProviders": "No active providers with API key configured",
+      "added": "added",
+      "updated": "updated",
+      "deactivated": "deactivated",
+      "errors": "Errors",
+      "syncFailed": "Sync failed"
+    },
     "defaultModel": {
       "defaultModelLabel": "Default Model",
       "defaultProvider": "Default Provider",

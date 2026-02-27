@@ -216,6 +216,29 @@
     "title": "Lernmethoden-Plugins"
   },
   "systemFeatures": {
+    "admin": {
+      "title": "System-Features",
+      "subtitle": "Aktivierung und Konfiguration von System-Features nach Kategorie",
+      "active": "aktiv",
+      "inactive": "inaktiv",
+      "toggleSuccess": "Feature wurde aktualisiert",
+      "toggleError": "Feature konnte nicht aktualisiert werden",
+      "requiresInfrastructure": "Infrastruktur benötigt",
+      "requiresExternalService": "Externer Dienst benötigt",
+      "categories": {
+        "audio": "Audio",
+        "collaboration": "Zusammenarbeit",
+        "exam": "Prüfungen",
+        "gamification": "Gamification",
+        "interactive": "Interaktiv",
+        "it_environments": "IT-Umgebungen",
+        "learning_paths": "Lernpfade",
+        "math": "Mathematik",
+        "meta": "Meta",
+        "tutor": "Tutor",
+        "visualization": "Visualisierung"
+      }
+    },
     "invertedClassroom": {
       "videos": "Erklär-Videos"
     },
@@ -276,7 +299,9 @@
     "tabs": {
       "info": "System-Info",
       "maintenance": "Wartungsmodus",
-      "mode": "Umgebungsmodus"
+      "mode": "Umgebungsmodus",
+      "ai": "KI-Einstellungen",
+      "features": "System-Features"
     },
     "title": "Systemeinstellungen",
     "uptime": "Betriebszeit",

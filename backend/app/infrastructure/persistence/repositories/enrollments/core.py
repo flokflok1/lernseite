@@ -59,7 +59,7 @@ class EnrollmentRepository(BaseRepository):
         }
 
         return insert_returning(
-            'course_enrollments',
+            'courses.course_enrollments',
             params,
             'enrollment_id, user_id, course_id, status, completion_percentage, enrolled_at, started_at, completed_at, last_accessed_at'
         )
@@ -405,7 +405,7 @@ class EnrollmentRepository(BaseRepository):
                 COUNT(lp.lesson_id) AS completed_lessons
             FROM courses.lessons l
             INNER JOIN courses.chapters ch ON l.chapter_id = ch.chapter_id
-            LEFT JOIN lesson_progress lp ON l.lesson_id = lp.lesson_id AND lp.user_id = %s
+            LEFT JOIN courses.lesson_completions lp ON l.lesson_id = lp.lesson_id AND lp.user_id = %s
             WHERE ch.course_id = %s
         """
 

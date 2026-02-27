@@ -47,7 +47,7 @@ class AggregationRepository(BaseRepository):
         """
         query = """
             SELECT event_type, COUNT(*) as count
-            FROM analytics_events
+            FROM analytics.analytics_events
             WHERE user_id = %s
             GROUP BY event_type
             ORDER BY count DESC
@@ -71,7 +71,7 @@ class AggregationRepository(BaseRepository):
         """
         query = """
             SELECT event_type, COUNT(*) as count
-            FROM analytics_events
+            FROM analytics.analytics_events
             WHERE organisation_id = %s
             GROUP BY event_type
             ORDER BY count DESC
@@ -93,7 +93,7 @@ class AggregationRepository(BaseRepository):
         Example:
             >>> total = AggregationRepository.get_user_total_events(123)
         """
-        query = "SELECT COUNT(*) as count FROM analytics_events WHERE user_id = %s"
+        query = "SELECT COUNT(*) as count FROM analytics.analytics_events WHERE user_id = %s"
         result = fetch_one(query, (user_id,))
         return result['count'] if result else 0
 
@@ -108,7 +108,7 @@ class AggregationRepository(BaseRepository):
         Returns:
             int: Total event count
         """
-        query = "SELECT COUNT(*) as count FROM analytics_events WHERE organisation_id = %s"
+        query = "SELECT COUNT(*) as count FROM analytics.analytics_events WHERE organisation_id = %s"
         result = fetch_one(query, (organisation_id,))
         return result['count'] if result else 0
 
@@ -130,7 +130,7 @@ class AggregationRepository(BaseRepository):
             SELECT
                 MIN(created_at) as first_event_at,
                 MAX(created_at) as last_event_at
-            FROM analytics_events
+            FROM analytics.analytics_events
             WHERE user_id = %s
         """
 
@@ -152,7 +152,7 @@ class AggregationRepository(BaseRepository):
             SELECT
                 MIN(created_at) as first_event_at,
                 MAX(created_at) as last_event_at
-            FROM analytics_events
+            FROM analytics.analytics_events
             WHERE organisation_id = %s
         """
 
@@ -176,7 +176,7 @@ class AggregationRepository(BaseRepository):
         """
         query = """
             SELECT COUNT(DISTINCT user_id) as count
-            FROM analytics_events
+            FROM analytics.analytics_events
             WHERE organisation_id = %s
               AND created_at >= %s
         """
@@ -209,7 +209,7 @@ class AggregationRepository(BaseRepository):
         if organisation_id:
             query = """
                 SELECT resource_id, COUNT(*) as count
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE resource_type = %s
                   AND organisation_id = %s
                   AND resource_id IS NOT NULL
@@ -221,7 +221,7 @@ class AggregationRepository(BaseRepository):
         else:
             query = """
                 SELECT resource_id, COUNT(*) as count
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE resource_type = %s
                   AND resource_id IS NOT NULL
                 GROUP BY resource_id

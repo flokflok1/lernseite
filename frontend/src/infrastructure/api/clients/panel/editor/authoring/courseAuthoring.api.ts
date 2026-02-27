@@ -66,15 +66,35 @@ export interface MethodType {
   lm_type: number
 }
 
+export interface AvailableProvider {
+  provider_name: string
+  display_name: string
+  models: AvailableModel[]
+}
+
+export interface AvailableModel {
+  model_id: number
+  model_name: string
+  display_name: string
+  is_default: boolean
+  context_window?: number
+  cost_level?: string
+}
+
 // API Functions
 
 /**
  * Create a new course authoring session
  */
-export async function createSession(courseId: string, modelProfile?: string) {
+export async function createSession(
+  courseId: string,
+  options?: { modelProfile?: string; providerName?: string; modelName?: string }
+) {
   const response = await http.post('/course-editor/ai/sessions', {
     course_id: courseId,
-    model_profile: modelProfile || 'anthropic-claude-sonnet'
+    model_profile: options?.modelProfile || 'anthropic-claude-sonnet',
+    provider_name: options?.providerName,
+    model_name: options?.modelName,
   })
   return response.data
 }
@@ -144,6 +164,14 @@ export async function getMethodTypes() {
   return response.data
 }
 
+/**
+ * Get active providers with their active chat models
+ */
+export async function getAvailableModels(): Promise<AvailableProvider[]> {
+  const response = await http.get('/course-editor/ai/available-models')
+  return response.data?.data?.providers ?? []
+}
+
 export default {
   createSession,
   getSession,
@@ -151,5 +179,6 @@ export default {
   finalizeSession,
   archiveSession,
   listSessions,
-  getMethodTypes
+  getMethodTypes,
+  getAvailableModels,
 }

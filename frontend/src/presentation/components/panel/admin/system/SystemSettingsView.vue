@@ -64,6 +64,16 @@
         <div v-if="activeTab === 'maintenance'">
           <MaintenanceModeToggle />
         </div>
+
+        <!-- AI Settings Tab -->
+        <div v-if="activeTab === 'ai'">
+          <AISettingsView />
+        </div>
+
+        <!-- System Features Tab -->
+        <div v-if="activeTab === 'features'">
+          <SystemFeaturesTab />
+        </div>
       </div>
     </div>
 
@@ -130,7 +140,8 @@ import { useI18n } from 'vue-i18n'
 import { useSystemMode } from '@/application/composables/system/useSystemMode'
 
 // Sub-components
-import { SystemInfoWidget, SystemModeManager, MaintenanceModeToggle } from '@/presentation/components/panel/admin/system/settings'
+import { SystemInfoWidget, SystemModeManager, MaintenanceModeToggle, SystemFeaturesTab } from '@/presentation/components/panel/admin/system/settings'
+import AISettingsView from '@/presentation/components/panel/admin/ai/settings/AISettingsView.vue'
 
 const { t } = useI18n()
 
@@ -138,7 +149,7 @@ const { t } = useI18n()
 const { isProduction } = useSystemMode()
 
 // Tab state
-type TabId = 'info' | 'mode' | 'maintenance'
+type TabId = 'info' | 'mode' | 'maintenance' | 'ai' | 'features'
 const activeTab = ref<TabId>('info')
 
 // Tab icons (SVG components)
@@ -190,6 +201,34 @@ const ToolIcon = () => h('svg', {
   })
 ])
 
+const AIIcon = () => h('svg', {
+  class: 'w-5 h-5',
+  fill: 'none',
+  stroke: 'currentColor',
+  viewBox: '0 0 24 24'
+}, [
+  h('path', {
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    'stroke-width': '2',
+    d: 'M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 00.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-2.47 2.47a2.25 2.25 0 00-.659 1.59v.66c0 .414-.168.81-.466 1.1l-1.525 1.525a1.125 1.125 0 01-1.76-.186l-.349-.582a1.125 1.125 0 00-.957-.541H9.375'
+  })
+])
+
+const FeaturesIcon = () => h('svg', {
+  class: 'w-5 h-5',
+  fill: 'none',
+  stroke: 'currentColor',
+  viewBox: '0 0 24 24'
+}, [
+  h('path', {
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    'stroke-width': '2',
+    d: 'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z'
+  })
+])
+
 // Tab configuration
 const tabs = computed(() => [
   {
@@ -206,6 +245,16 @@ const tabs = computed(() => [
     id: 'maintenance' as TabId,
     label: 'panel.systemSettings.tabs.maintenance',
     icon: ToolIcon
+  },
+  {
+    id: 'ai' as TabId,
+    label: 'panel.systemSettings.tabs.ai',
+    icon: AIIcon
+  },
+  {
+    id: 'features' as TabId,
+    label: 'panel.systemSettings.tabs.features',
+    icon: FeaturesIcon
   }
 ])
 </script>

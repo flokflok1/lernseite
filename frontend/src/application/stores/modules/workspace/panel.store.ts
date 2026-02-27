@@ -390,7 +390,14 @@ export const useDesktopPanelStore = defineStore('desktop-panel', () => {
     const encoded = btoa(JSON.stringify(payload))
     const url = `/panel/popout/${panel.type}?p=${encoded}`
 
-    window.open(url, `lsx-popout-${panel.type}-${Date.now()}`, 'popup')
+    // Use explicit dimensions to force a real window (not a tab).
+    // Tabs cannot be dragged to a second monitor independently.
+    const w = panel.size?.width || 1200
+    const h = panel.size?.height || 800
+    const left = window.screenX + 50
+    const top = window.screenY + 50
+    const features = `popup,width=${w},height=${h},left=${left},top=${top}`
+    window.open(url, `lsx-popout-${panel.type}-${Date.now()}`, features)
     closePanel(id)
 
     // Notify other windows via SharedWorker

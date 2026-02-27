@@ -201,6 +201,27 @@ class AIModelsQueryRepository:
         return fetch_all(query, tuple(params))
 
     @classmethod
+    def get_by_provider(
+        cls,
+        provider_id: int,
+        active_only: bool = False
+    ) -> List[Dict[str, Any]]:
+        """
+        Get all models for a specific provider.
+
+        Args:
+            provider_id: Provider ID
+            active_only: Only return active models
+
+        Returns:
+            List of model dicts
+        """
+        return cls.get_all(
+            include_inactive=not active_only,
+            provider_id=provider_id,
+        )
+
+    @classmethod
     def get_categories(cls) -> List[str]:
         """
         Get all unique model categories

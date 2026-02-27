@@ -202,3 +202,12 @@ export {
   type AttemptResult,
   type UserExamProfile
 } from './exam/examSimulation.api'
+
+// Courses (chapters)
+export {
+  getChapterDetail,
+  getChapterProgress,
+  getChapterTheories,
+  getChapterTheory,
+  getTheoryById,
+} from './courses/chapters.api'

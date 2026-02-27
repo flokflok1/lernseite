@@ -43,6 +43,14 @@
           </option>
         </select>
       </div>
+      <button
+        v-if="chatSession.hasSession.value"
+        class="new-session-btn"
+        :title="$t('aiEditor.chat.newSession', 'Neue Session')"
+        @click="handleNewSession"
+      >
+        ↻ {{ $t('aiEditor.chat.newSession', 'Neue Session') }}
+      </button>
       <span v-if="chatSession.hasSession.value" class="session-badge">
         {{ $t('aiEditor.phase.' + workflowPhase.phase.value) }}
       </span>
@@ -73,7 +81,7 @@
             />
             <CourseTab v-else-if="editorState.activeTab.value === 'course'" :course-id="selectedCourseId" @deleted="handleCourseDeleted" />
             <FilesTab v-else-if="editorState.activeTab.value === 'files'" />
-            <PlanTab v-else-if="editorState.activeTab.value === 'plan'" :course-id="selectedCourseId" :has-files="editorState.fileCount.value > 0" :file-ids="fileUpload.files.value.map((f: any) => f.file_id)" />
+            <PlanTab v-else-if="editorState.activeTab.value === 'plan'" :course-id="selectedCourseId" :has-files="editorState.fileCount.value > 0" :file-ids="fileUpload.files.value.map((f: any) => f.file_id)" @refresh-structure="structureView.loadCourseStructure(selectedCourseId)" />
             <SkillsTab v-else-if="editorState.activeTab.value === 'skills'" :course-id="selectedCourseId" />
             <PromptsTab v-else-if="editorState.activeTab.value === 'prompts'" />
             <HistoryTab v-else-if="editorState.activeTab.value === 'history'" :course-id="selectedCourseId" />
@@ -224,6 +232,18 @@ async function handleNewCourse(): Promise<void> {
   }
 }
 
+async function handleNewSession(): Promise<void> {
+  if (!selectedCourseId.value) return
+  chatSession.clearSession()
+  structureView.clearStructure()
+  workflowPhase.reset()
+  const course = courses.value.find(c => c.id === selectedCourseId.value)
+  await Promise.all([
+    chatSession.createSession(selectedCourseId.value, getModelOptions()),
+    structureView.loadCourseStructure(selectedCourseId.value, course?.title ?? ''),
+  ])
+}
+
 async function handleLoadCourse(): Promise<void> {
   if (selectedCourseId.value) {
     await handleCourseChange()
@@ -233,7 +253,17 @@ async function handleLoadCourse(): Promise<void> {
 }
 
 async function handleSend(content: string): Promise<void> {
-  await chatSession.sendMessage(content)
+  const ctx = structureView.selectedContext.value
+  const contextHint = ctx
+    ? `[Kontext: ${ctx.type === 'chapter' ? 'Kapitel' : 'Lektion'} "${ctx.title}" (ID: ${ctx.id})]\n`
+    : undefined
+  const result = await chatSession.sendMessage(content, undefined, contextHint)
+
+  // Refresh structure sidebar if operations were applied
+  if (result?.operations?.length && selectedCourseId.value) {
+    const course = courses.value.find(c => c.id === selectedCourseId.value)
+    await structureView.loadCourseStructure(selectedCourseId.value, course?.title ?? '')
+  }
 }
 
 function handleAttachFile(): void {
@@ -351,6 +381,25 @@ function handleCourseDeleted(courseId: string): void {
   background: var(--color-surface);
   color: var(--color-text-primary);
   font-size: 0.8125rem;
+}
+
+.new-session-btn {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.new-session-btn:hover {
+  background: var(--color-primary-subtle, rgba(99, 102, 241, 0.08));
+  border-color: var(--color-primary, #6366f1);
+  color: var(--color-primary, #6366f1);
 }
 
 .session-badge {

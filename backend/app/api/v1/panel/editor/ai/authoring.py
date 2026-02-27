@@ -17,6 +17,7 @@ Chat-basiertes Kurs-Authoring mit persistenten Sessions:
 Phase D4 - KI-Kurs-Builder
 """
 
+from typing import Optional, Tuple
 from flask import request, jsonify, g
 import logging
 
@@ -26,8 +27,35 @@ from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
+from app.infrastructure.persistence.repositories.authoring.sessions import (
+    CourseAuthoringSessionRepository,
+)
 
 logger = logging.getLogger(__name__)
+
+# Roles with full access (mirrors permissions.py ADMIN_ROLES)
+_ADMIN_ROLES = {'admin', 'owner', 'superadmin'}
+
+
+def _verify_session_access(session_id: str) -> Optional[Tuple[dict, int]]:
+    """
+    Verify current user owns the session or is admin.
+
+    Returns None if access is granted, or a (response, status_code) tuple
+    to return immediately if access is denied.
+    """
+    user = g.current_user
+    if user.get('role') in _ADMIN_ROLES:
+        return None
+
+    session = CourseAuthoringSessionRepository.get_session_with_course(session_id)
+    if not session:
+        return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404, details={'error': 'Session not found'})
+
+    if str(session.get('created_by')) != str(user.get('user_id')):
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 403, details={'error': 'No access to this session'})
+
+    return None
 
 
 @ai_editor_bp.route('/sessions', methods=['POST'])
@@ -68,9 +96,29 @@ def create_course_authoring_session():
             return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400, details={'field': 'course_id'})
 
         model_profile = data.get('model_profile', 'anthropic-claude-sonnet')
+        provider_name = data.get('provider_name')
+        model_name = data.get('model_name')
         user_id = g.current_user['user_id']
 
-        service = get_course_authoring_service()
+        # Explicit course access check (decorator can't check body params)
+        user = g.current_user
+        if user.get('role') not in _ADMIN_ROLES:
+            from app.application.services.content.course_authoring.database import DatabaseOperations
+            if not DatabaseOperations.check_user_access(user_id, course_id):
+                return error_response(
+                    ErrorCode.COURSE_FILE_OPERATION_FAILED, 403,
+                    details={'error': 'No access to this course'}
+                )
+
+        # Validate manual model selection (DDD: validation in service layer)
+        if provider_name and model_name:
+            from app.application.services.content.course_authoring.session import CourseAuthoringService
+            CourseAuthoringService.validate_model_selection(provider_name, model_name)
+
+        service = get_course_authoring_service(
+            provider=provider_name,
+            model=model_name
+        )
         result = service.create_session(
             user_id=user_id,
             course_id=course_id,
@@ -86,8 +134,8 @@ def create_course_authoring_session():
         logger.error(f"Course authoring error: {str(e)}")
         return error_response(ErrorCode.AI_GENERATION_FAILED, 400, details={'error': str(e)})
     except Exception as e:
-        logger.error(f"Error creating session: {str(e)}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        logger.error(f"Error creating session: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': 'Internal server error'})
 
 
 @ai_editor_bp.route('/sessions/<session_id>', methods=['GET'])
@@ -113,6 +161,10 @@ def get_course_authoring_session(session_id):
             }
         }
     """
+    denied = _verify_session_access(session_id)
+    if denied:
+        return denied
+
     try:
         from app.application.services.content.course_authoring import (
             get_course_authoring_service, CourseAuthoringError
@@ -128,8 +180,8 @@ def get_course_authoring_session(session_id):
         logger.error(f"Course authoring error: {str(e)}")
         return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404, details={'error': str(e)})
     except Exception as e:
-        logger.error(f"Error getting session: {str(e)}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        logger.error(f"Error getting session: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': 'Internal server error'})
 
 
 @ai_editor_bp.route('/sessions/<session_id>/chat', methods=['POST'])
@@ -160,6 +212,10 @@ def course_authoring_chat(session_id):
             }
         }
     """
+    denied = _verify_session_access(session_id)
+    if denied:
+        return denied
+
     try:
         from app.application.services.content.course_authoring import (
             get_course_authoring_service, CourseAuthoringError
@@ -195,8 +251,8 @@ def course_authoring_chat(session_id):
         logger.error(f"Course authoring error: {str(e)}")
         return error_response(ErrorCode.AI_GENERATION_FAILED, 400, details={'error': str(e)})
     except Exception as e:
-        logger.error(f"Error processing chat: {str(e)}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        logger.error(f"Error processing chat: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': 'Internal server error'})
 
 
 @ai_editor_bp.route('/sessions/<session_id>/finalize', methods=['POST'])
@@ -225,6 +281,10 @@ def finalize_course_authoring_session(session_id):
             }
         }
     """
+    denied = _verify_session_access(session_id)
+    if denied:
+        return denied
+
     try:
         from app.application.services.content.course_authoring import (
             get_course_authoring_service, CourseAuthoringError
@@ -245,8 +305,8 @@ def finalize_course_authoring_session(session_id):
         logger.error(f"Course authoring error: {str(e)}")
         return error_response(ErrorCode.AI_GENERATION_FAILED, 400, details={'error': str(e)})
     except Exception as e:
-        logger.error(f"Error finalizing session: {str(e)}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        logger.error(f"Error finalizing session: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': 'Internal server error'})
 
 
 @ai_editor_bp.route('/sessions/<session_id>', methods=['DELETE'])
@@ -264,12 +324,14 @@ def archive_course_authoring_session(session_id):
             "message": "Session archived"
         }
     """
-    try:
-        from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
+    denied = _verify_session_access(session_id)
+    if denied:
+        return denied
 
+    try:
         user_id = g.current_user['user_id']
 
-        # Update status to archived
+        # Update status to archived (ownership already verified by _verify_session_access)
         CourseAuthoringSessionRepository.archive_session(session_id, user_id)
 
         logger.info(f"Archived session {session_id} by user {user_id}")
@@ -277,8 +339,8 @@ def archive_course_authoring_session(session_id):
         return jsonify({'success': True, 'message': 'Session archived'}), 200
 
     except Exception as e:
-        logger.error(f"Error archiving session: {str(e)}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        logger.error(f"Error archiving session: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': 'Internal server error'})
 
 
 @ai_editor_bp.route('/courses/<course_id>/sessions', methods=['GET'])
@@ -333,8 +395,8 @@ def list_course_authoring_sessions(course_id):
         return jsonify({'success': True, 'data': {'sessions': sessions}}), 200
 
     except Exception as e:
-        logger.error(f"Error listing sessions: {str(e)}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        logger.error(f"Error listing sessions: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': 'Internal server error'})
 
 
 @ai_editor_bp.route('/method-types', methods=['GET'])
@@ -393,14 +455,14 @@ def get_method_types():
             'name': 'Quiz',
             'description': 'Multiple-Choice und Verständnisfragen',
             'icon': '❓',
-            'lm_type': 22
+            'lm_type': 2
         },
         {
             'type': 'flashcards',
             'name': 'Karteikarten',
             'description': 'Lernkarten für Begriffe und Definitionen',
             'icon': '🗂️',
-            'lm_type': 13
+            'lm_type': 6
         },
         {
             'type': 'exercise',
@@ -414,8 +476,24 @@ def get_method_types():
             'name': 'Prüfungssimulation',
             'description': 'IHK-Stil Prüfungsaufgaben',
             'icon': '🎓',
-            'lm_type': 19
+            'lm_type': 10
         }
     ]
 
     return jsonify({'success': True, 'data': {'method_types': method_types}}), 200
+
+
+@ai_editor_bp.route('/available-models', methods=['GET'])
+@check_course_permission('read')
+def get_available_models():
+    """Returns active providers with their active chat models (editor-level)."""
+    try:
+        from app.application.services.content.course_authoring.session import (
+            CourseAuthoringService,
+        )
+        result = CourseAuthoringService.get_available_models()
+        return jsonify({'success': True, 'data': {'providers': result}}), 200
+    except Exception as e:
+        logger.error(f"Error fetching available models: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500,
+                            details={'error': 'Internal server error'})

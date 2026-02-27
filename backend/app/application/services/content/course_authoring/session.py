@@ -86,18 +86,80 @@ class CourseAuthoringService:
 
     def __init__(
         self,
-        provider: str = "anthropic",
-        model: str = "claude-sonnet-4-20250514"
+        provider: Optional[str] = None,
+        model: Optional[str] = None
     ):
         """
         Initialize course authoring service.
 
         Args:
-            provider: AI provider name
-            model: AI model name
+            provider: AI provider name (resolved from DB default if None)
+            model: AI model name (resolved from DB default if None)
         """
-        self.provider = provider
-        self.model = model
+        if provider and model:
+            self.provider = provider
+            self.model = model
+        else:
+            self.provider, self.model = self._resolve_default_model()
+
+    @staticmethod
+    def get_available_models() -> List[Dict[str, Any]]:
+        """Returns active providers (with API key) and their active chat models."""
+        from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+        from app.infrastructure.persistence.repositories.ai_models.query import AIModelsQueryRepository
+
+        providers = AIProviderRepository.get_all(include_inactive=False)
+        models = AIModelsQueryRepository.get_by_category('chat', active_only=True)
+
+        result = []
+        for p in providers:
+            if not p.get('has_api_key'):
+                continue
+            provider_models = [
+                {
+                    'model_id': m['model_id'],
+                    'model_name': m['model_name'],
+                    'display_name': m.get('display_name') or m['model_name'],
+                    'is_default': m.get('is_default', False),
+                    'context_window': m.get('context_window'),
+                    'cost_level': m.get('cost_level'),
+                }
+                for m in models if m.get('provider_name') == p['name']
+            ]
+            if not provider_models:
+                continue
+            result.append({
+                'provider_name': p['name'],
+                'display_name': p['display_name'],
+                'models': provider_models,
+            })
+        return result
+
+    @staticmethod
+    def validate_model_selection(provider_name: str, model_name: str) -> None:
+        """Validates that a provider+model combination is active. Raises on invalid."""
+        from app.infrastructure.persistence.repositories.ai_models.query import AIModelsQueryRepository
+
+        model_record = AIModelsQueryRepository.get_by_name(model_name, provider_name)
+        if not model_record or not model_record.get('active'):
+            raise CourseAuthoringError(
+                f"Model '{model_name}' for provider '{provider_name}' not found or inactive"
+            )
+
+    @staticmethod
+    def _resolve_default_model() -> tuple:
+        """Resolve default AI model from admin settings (G07 compliant)."""
+        try:
+            from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
+            default = AIModelsRepository.get_default_model()
+            if default:
+                return (
+                    default.get('provider_name', 'openai'),
+                    default.get('model_name', 'gpt-4o-mini'),
+                )
+        except Exception:
+            pass
+        return ('openai', 'gpt-4o-mini')
 
     def create_session(
         self,
@@ -212,6 +274,13 @@ class CourseAuthoringService:
         # File context laden falls angegeben
         file_context_text = ""
         if file_ids:
+            # Validate file_ids belong to this session (prevent cross-session injection)
+            from app.infrastructure.persistence.repositories.authoring.files import AuthoringFilesRepository
+            session_files = AuthoringFilesRepository.get_files_by_session(session_id)
+            valid_ids = {str(f['file_id']) for f in session_files}
+            invalid = [fid for fid in file_ids if str(fid) not in valid_ids]
+            if invalid:
+                raise CourseAuthoringError("One or more file_ids do not belong to this session")
             file_context_text = DataHelpers.extract_file_context(file_ids)
 
         # Kurs-Info laden
@@ -256,17 +325,30 @@ class CourseAuthoringService:
             # Response parsen
             assistant_message, structure_patch = DataHelpers.parse_ai_response(output_text)
 
+            # Check for parse errors
+            parse_error = None
+            if structure_patch and '_parse_error' in structure_patch:
+                parse_error = structure_patch['_parse_error']
+                logger.warning(f"Session {session_id}: JSON parse error: {parse_error}")
+                structure_patch = None
+
             # Patch validieren und anwenden
             operations_applied = []
+            failed_ops = []
             validated_ops = []
             if structure_patch and structure_patch.get('operations'):
                 operations = structure_patch['operations']
                 validated_ops = OperationValidator.validate_operations(operations)
-                draft_structure = StructureOperations.apply_operations(
+                draft_structure, operations_applied, failed_ops = StructureOperations.apply_operations(
                     draft_structure,
                     validated_ops
                 )
-                operations_applied = [op.get('op') for op in validated_ops]
+
+            if failed_ops:
+                logger.warning(
+                    f"Session {session_id}: {len(failed_ops)} operations failed: "
+                    f"{[f['op'] for f in failed_ops]}"
+                )
 
             # Activity Log generieren
             if operations_applied:
@@ -301,20 +383,28 @@ class CourseAuthoringService:
 
             logger.info(f"Applied {len(operations_applied)} operations to session {session_id}")
 
-            return {
+            result = {
                 'assistant_message': assistant_message,
                 'draft_structure': draft_structure,
                 'operations_applied': operations_applied,
                 'tokens_used': tokens_used
             }
+            if failed_ops:
+                result['operations_failed'] = failed_ops
+            if parse_error:
+                result['parse_error'] = parse_error
+            return result
 
         except AIProviderError as e:
             logger.error(f"AI provider error: {str(e)}")
-            raise CourseAuthoringError(f"AI generation failed: {str(e)}")
+            raise CourseAuthoringError("AI generation failed. Please try again.")
 
     def finalize_session(self, session_id: str, user_id: str) -> Dict[str, Any]:
         """
         Finalisiert eine Session und erstellt echte DB-Entities.
+
+        All DB writes run in a single transaction — on any error,
+        all changes are rolled back (no orphaned chapters/lessons).
 
         Args:
             session_id: Session UUID
@@ -323,6 +413,9 @@ class CourseAuthoringService:
         Returns:
             Dict mit created IDs und Stats
         """
+        from app.infrastructure.persistence.database.connection import get_connection
+        from psycopg.rows import dict_row
+
         session = self.get_session(session_id, user_id)
 
         if session['status'] != 'active':
@@ -336,36 +429,59 @@ class CourseAuthoringService:
         created_methods = []
 
         try:
-            # Kapitel erstellen/updaten
-            for chapter_draft in draft_structure.get('chapters', []):
-                chapter_id = DatabaseOperations.create_or_update_chapter(
-                    course_id,
-                    chapter_draft,
-                    user_id
-                )
-                created_chapters.append(chapter_id)
-
-                # Lektionen erstellen
-                for lesson_draft in chapter_draft.get('lessons', []):
-                    lesson_id = DatabaseOperations.create_or_update_lesson(
-                        chapter_id,
-                        lesson_draft,
-                        user_id
-                    )
-                    created_lessons.append(lesson_id)
-
-                    # Methoden erstellen
-                    for method_draft in lesson_draft.get('methods', []):
-                        method_id = DatabaseOperations.create_method(
-                            lesson_id,
-                            chapter_id,
-                            method_draft,
-                            user_id
+            with get_connection() as conn:
+                # Atomic CAS: claim the session for finalization.
+                # Prevents double-finalize race condition.
+                with conn.cursor(row_factory=dict_row) as cur:
+                    cur.execute("""
+                        UPDATE courses.course_authoring_sessions
+                        SET status = 'finalizing'
+                        WHERE session_id = %s AND status = 'active'
+                        RETURNING session_id
+                    """, (session_id,))
+                    if cur.fetchone() is None:
+                        raise CourseAuthoringError(
+                            "Session was already finalized or is no longer active"
                         )
-                        created_methods.append(method_id)
 
-            # Session als finalized markieren
-            CourseAuthoringSessionRepository.finalize_session(session_id)
+                # Kapitel erstellen/updaten
+                for chapter_draft in draft_structure.get('chapters', []):
+                    chapter_id = DatabaseOperations.create_or_update_chapter(
+                        course_id,
+                        chapter_draft,
+                        user_id,
+                        conn=conn
+                    )
+                    created_chapters.append(chapter_id)
+
+                    # Lektionen erstellen
+                    for lesson_draft in chapter_draft.get('lessons', []):
+                        lesson_id = DatabaseOperations.create_or_update_lesson(
+                            chapter_id,
+                            lesson_draft,
+                            user_id,
+                            conn=conn
+                        )
+                        created_lessons.append(lesson_id)
+
+                        # Methoden erstellen
+                        for method_draft in lesson_draft.get('methods', []):
+                            method_id = DatabaseOperations.create_method(
+                                lesson_id,
+                                chapter_id,
+                                method_draft,
+                                user_id,
+                                conn=conn
+                            )
+                            created_methods.append(method_id)
+
+                # Mark as finalized (same transaction — commits together)
+                with conn.cursor(row_factory=dict_row) as cur:
+                    cur.execute("""
+                        UPDATE courses.course_authoring_sessions
+                        SET status = 'finalized', finalized_at = NOW()
+                        WHERE session_id = %s
+                    """, (session_id,))
 
             logger.info(
                 f"Finalized session {session_id}: {len(created_chapters)} chapters, "
@@ -384,6 +500,8 @@ class CourseAuthoringService:
                 }
             }
 
+        except CourseAuthoringError:
+            raise
         except Exception as e:
-            logger.error(f"Error finalizing session: {str(e)}")
-            raise CourseAuthoringError(f"Finalize failed: {str(e)}")
+            logger.error(f"Error finalizing session: {str(e)}", exc_info=True)
+            raise CourseAuthoringError("Finalize failed due to an internal error")

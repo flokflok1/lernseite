@@ -19,6 +19,7 @@ import logging
 import json
 
 from app.infrastructure.persistence.repositories.core.base import BaseRepository
+from app.infrastructure.persistence.database.connection import fetch_all, fetch_one, execute_query
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class PromptTemplateRepository(BaseRepository):
             FROM ai_pipeline.prompt_templates
             WHERE code = %s AND is_active = true
         """
-        return PromptTemplateRepository.fetch_one(query, (code,))
+        return fetch_one(query, (code,))
 
     @staticmethod
     def find_by_id(template_id: str) -> Optional[Dict[str, Any]]:
@@ -66,7 +67,7 @@ class PromptTemplateRepository(BaseRepository):
             FROM ai_pipeline.prompt_templates
             WHERE template_id = %s
         """
-        return PromptTemplateRepository.fetch_one(query, (template_id,))
+        return fetch_one(query, (template_id,))
 
     @staticmethod
     def find_by_category_and_style(category: str, style: str = 'standard') -> Optional[Dict[str, Any]]:
@@ -87,7 +88,7 @@ class PromptTemplateRepository(BaseRepository):
             ORDER BY is_default DESC, created_at DESC
             LIMIT 1
         """
-        return PromptTemplateRepository.fetch_one(query, (category, style))
+        return fetch_one(query, (category, style))
 
     @staticmethod
     def list_by_category(category: str) -> List[Dict[str, Any]]:
@@ -110,7 +111,7 @@ class PromptTemplateRepository(BaseRepository):
             WHERE category = %s AND is_active = true
             ORDER BY style, is_default DESC, title
         """
-        return PromptTemplateRepository.fetch_all(query, (category,))
+        return fetch_all(query, (category,))
 
     @staticmethod
     def list_all_active() -> List[Dict[str, Any]]:
@@ -126,7 +127,7 @@ class PromptTemplateRepository(BaseRepository):
             WHERE is_active = true
             ORDER BY category, style, title
         """
-        return PromptTemplateRepository.fetch_all(query)
+        return fetch_all(query)
 
     @staticmethod
     def list_styles_for_category(category: str) -> List[Dict[str, Any]]:
@@ -146,7 +147,7 @@ class PromptTemplateRepository(BaseRepository):
             GROUP BY style
             ORDER BY style
         """
-        return PromptTemplateRepository.fetch_all(query, (category,))
+        return fetch_all(query, (category,))
 
     @staticmethod
     def create(template_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -221,7 +222,7 @@ class PromptTemplateRepository(BaseRepository):
             template_data.get('is_system', False),
             template_data.get('created_by')
         )
-        return PromptTemplateRepository.fetch_one(query, params)
+        return fetch_one(query, params)
 
     @staticmethod
     def update(template_id: str, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -278,7 +279,7 @@ class PromptTemplateRepository(BaseRepository):
             WHERE template_id = %s
             RETURNING *
         """
-        return PromptTemplateRepository.fetch_one(query, tuple(params))
+        return fetch_one(query, tuple(params))
 
     @staticmethod
     def delete(template_id: str) -> bool:
@@ -299,7 +300,7 @@ class PromptTemplateRepository(BaseRepository):
             WHERE template_id = %s AND is_system = false
             RETURNING template_id
         """
-        result = PromptTemplateRepository.fetch_one(query, (template_id,))
+        result = fetch_one(query, (template_id,))
         return result is not None
 
     @staticmethod
@@ -332,7 +333,7 @@ class PromptTemplateRepository(BaseRepository):
             WHERE template_id = %s
             RETURNING template_id
         """
-        result = PromptTemplateRepository.fetch_one(query2, (template_id,))
+        result = fetch_one(query2, (template_id,))
         return result is not None
 
     @staticmethod
@@ -374,7 +375,7 @@ class PromptTemplateRepository(BaseRepository):
             WHERE template_id = %s
             RETURNING *
         """
-        return PromptTemplateRepository.fetch_one(query, (new_code, created_by, template_id))
+        return fetch_one(query, (new_code, created_by, template_id))
 
     @staticmethod
     def log_usage(
@@ -434,7 +435,7 @@ class PromptTemplateRepository(BaseRepository):
 
         context_json = json.dumps(context_data) if context_data else None
 
-        return PromptTemplateRepository.fetch_one(query, (
+        return fetch_one(query, (
             template_id, user_id, content_type, content_id,
             tokens_input, tokens_output, tokens_total, cost_eur,
             response_time_ms,
@@ -467,7 +468,7 @@ class PromptTemplateRepository(BaseRepository):
                 WHERE template_id = %s
                   AND created_at >= NOW() - INTERVAL '%s days'
             """
-            result = PromptTemplateRepository.fetch_one(query, (template_id, days))
+            result = fetch_one(query, (template_id, days))
         else:
             query = """
                 SELECT
@@ -481,6 +482,6 @@ class PromptTemplateRepository(BaseRepository):
                 FROM prompt_template_usage
                 WHERE created_at >= NOW() - INTERVAL '%s days'
             """
-            result = PromptTemplateRepository.fetch_one(query, (days,))
+            result = fetch_one(query, (days,))
 
         return result or {}

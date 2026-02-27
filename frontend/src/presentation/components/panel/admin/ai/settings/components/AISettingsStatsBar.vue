@@ -1,47 +1,52 @@
 <!--
-  Stats bar showing provider counts (total, active, configured).
+  Compact stats bar showing provider counts as inline badges.
 -->
 
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-[var(--color-text-secondary)] mb-1">{{ $t('panel.aiSettingsPage.stats.providersTotal') }}</p>
-          <p class="text-2xl font-bold text-[var(--color-text-primary)]">{{ totalCount }}</p>
-        </div>
-        <div class="text-3xl">&#x1F916;</div>
-      </div>
-    </div>
-
-    <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-[var(--color-text-secondary)] mb-1">{{ $t('panel.aiSettingsPage.stats.active') }}</p>
-          <p class="text-2xl font-bold text-green-600">{{ activeCount }}</p>
-        </div>
-        <div class="text-3xl">&#x2705;</div>
-      </div>
-    </div>
-
-    <div class="bg-[var(--color-surface)] rounded-lg p-4 border border-[var(--color-border)]">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-[var(--color-text-secondary)] mb-1">{{ $t('panel.aiSettingsPage.stats.configured') }}</p>
-          <p class="text-2xl font-bold text-blue-600">{{ configuredCount }}</p>
-        </div>
-        <div class="text-3xl">&#x1F511;</div>
-      </div>
+  <div class="flex items-center gap-3 flex-wrap">
+    <div
+      v-for="stat in stats"
+      :key="stat.label"
+      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]"
+    >
+      <span class="text-sm">{{ stat.icon }}</span>
+      <span class="text-sm font-semibold" :class="stat.color">{{ stat.value }}</span>
+      <span class="text-xs text-[var(--color-text-secondary)]">{{ stat.label }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
 interface Props {
   totalCount: number
   activeCount: number
   configuredCount: number
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const { t } = useI18n()
+
+const stats = computed(() => [
+  {
+    icon: '\u{1F916}',
+    value: props.totalCount,
+    label: t('panel.aiSettingsPage.stats.providersTotal'),
+    color: 'text-[var(--color-text-primary)]',
+  },
+  {
+    icon: '\u2705',
+    value: props.activeCount,
+    label: t('panel.aiSettingsPage.stats.active'),
+    color: 'text-green-600',
+  },
+  {
+    icon: '\u{1F511}',
+    value: props.configuredCount,
+    label: t('panel.aiSettingsPage.stats.configured'),
+    color: 'text-blue-600',
+  },
+])
 </script>

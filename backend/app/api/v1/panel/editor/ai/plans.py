@@ -110,6 +110,23 @@ def create_phased_plan() -> tuple[dict[str, Any], int]:
 # ---------------------------------------------------------------------------
 
 
+@plans_bp.route('/<plan_id>', methods=['DELETE'])
+@permission_required('admin.system:read')
+def delete_plan(plan_id: str) -> tuple[dict[str, Any], int]:
+    """Delete a content plan and its generation logs."""
+    from app.infrastructure.persistence.repositories.ai.content_plans import ContentPlanRepository
+
+    try:
+        deleted = ContentPlanRepository.delete(plan_id)
+        if not deleted:
+            return {'success': False, 'error': {'code': 'NOT_FOUND', 'message': 'Plan not found'}}, 404
+        return {'success': True, 'data': {'deleted': True}}, 200
+
+    except Exception as e:
+        logger.error(f"Delete plan failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to delete plan'}}, 500
+
+
 @plans_bp.route('/<plan_id>', methods=['GET'])
 @permission_required('admin.system:read')
 def get_plan(plan_id: str) -> tuple[dict[str, Any], int]:
@@ -182,6 +199,25 @@ def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     except Exception as e:
         logger.error(f"Execute plan failed: {e}")
         return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to execute plan'}}, 500
+
+
+@plans_bp.route('/<plan_id>/archive', methods=['POST'])
+@permission_required('admin.system:read')
+def archive_plan(plan_id: str) -> tuple[dict[str, Any], int]:
+    """Archive a completed plan (keeps record, clears from active view)."""
+    from app.application.services.ai.plan_service import PlanService
+
+    try:
+        plan = PlanService.set_plan_status(plan_id, 'archived', required_current='completed')
+        if not plan:
+            return {'success': False, 'error': {'code': 'NOT_FOUND', 'message': 'Plan not found'}}, 404
+        return {'success': True, 'data': plan}, 200
+
+    except ValueError as e:
+        return {'success': False, 'error': {'code': 'PLAN_ERROR', 'message': str(e)}}, 400
+    except Exception as e:
+        logger.error(f"Archive plan failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to archive plan'}}, 500
 
 
 @plans_bp.route('/<plan_id>/phase2', methods=['POST'])

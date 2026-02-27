@@ -53,10 +53,10 @@ const updateNotes = async () => {
       <p>{{ $t('panel.manualEditor.content.noLessonSelected') }}</p>
     </div>
 
-    <!-- Lesson settings -->
+    <!-- Lesson settings (compact grid) -->
     <div v-else class="settings-form">
-      <!-- Title -->
-      <div class="form-group">
+      <!-- Row 1: Title + Position -->
+      <div class="form-group title-group">
         <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.lessonTitle') }}</label>
         <input
           v-model="localTitle"
@@ -67,8 +67,13 @@ const updateNotes = async () => {
         />
       </div>
 
-      <!-- Reading time -->
-      <div class="form-group">
+      <div class="form-group position-group">
+        <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.position') }}</label>
+        <div class="position-display">#{{ lesson.order_index ?? '-' }}</div>
+      </div>
+
+      <!-- Row 2: Reading time + Notes -->
+      <div class="form-group reading-group">
         <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.readingTime') }}</label>
         <div class="reading-time">
           <span class="time-value">{{ estimatedReadingTime }} {{ $t('panel.manualEditor.lessonSettings.minuteUnit') }}</span>
@@ -76,21 +81,12 @@ const updateNotes = async () => {
         </div>
       </div>
 
-      <!-- Order display -->
-      <div class="form-group">
-        <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.position') }}</label>
-        <div class="position-display">
-          #{{ lesson.order_index ?? '-' }}
-        </div>
-      </div>
-
-      <!-- Internal notes -->
-      <div class="form-group">
+      <div class="form-group notes-group">
         <label class="form-label">{{ $t('panel.manualEditor.lessonSettings.notes') }}</label>
         <textarea
           v-model="localNotes"
           class="form-textarea"
-          rows="4"
+          rows="2"
           :placeholder="$t('panel.manualEditor.lessonSettings.notesHint')"
           @blur="updateNotes"
         ></textarea>
@@ -102,16 +98,16 @@ const updateNotes = async () => {
 
 <style scoped>
 .lesson-settings-panel {
-  height: 100%;
-  overflow-y: auto;
-  padding: 16px;
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .empty-state {
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 8px 0;
 }
 
 .empty-state p {
@@ -121,9 +117,10 @@ const updateNotes = async () => {
 }
 
 .settings-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 16px;
+  align-items: start;
 }
 
 .form-group {
@@ -131,6 +128,11 @@ const updateNotes = async () => {
   flex-direction: column;
   gap: 4px;
 }
+
+.title-group { grid-column: 1; }
+.position-group { grid-column: 2; }
+.reading-group { grid-column: 1; }
+.notes-group { grid-column: 1 / -1; }
 
 .form-label {
   font-size: 12px;
@@ -164,7 +166,7 @@ const updateNotes = async () => {
 }
 
 .time-value {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -189,7 +191,7 @@ const updateNotes = async () => {
   font-size: 13px;
   resize: vertical;
   font-family: inherit;
-  min-height: 80px;
+  min-height: 48px;
   transition: border-color 0.15s;
   background: var(--color-surface);
   color: var(--color-text-primary);

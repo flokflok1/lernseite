@@ -23,6 +23,9 @@
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-info: #3b82f6;
+  --color-accent-light: #6366f1;
+  --color-code-bg: #1e293b;
+  --color-code-text: #334155;
 }
 
 .dark {
@@ -41,6 +44,9 @@
   --color-warning: #fbbf24;
   --color-error: #f87171;
   --color-info: #60a5fa;
+  --color-accent-light: #a5b4fc;
+  --color-code-bg: #0f172a;
+  --color-code-text: #e2e8f0;
 }
 
 /* Global Styles */

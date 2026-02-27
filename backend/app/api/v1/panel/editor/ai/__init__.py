@@ -29,7 +29,9 @@ ai_editor_bp.register_blueprint(actions.actions_bp)
 # Unified AI Editor sub-blueprints
 from .plans import plans_bp
 from .skills import skills_bp
+from .authoring_files import authoring_files_bp
 ai_editor_bp.register_blueprint(plans_bp)
 ai_editor_bp.register_blueprint(skills_bp)
+ai_editor_bp.register_blueprint(authoring_files_bp)
 
 __all__ = ['ai_editor_bp']

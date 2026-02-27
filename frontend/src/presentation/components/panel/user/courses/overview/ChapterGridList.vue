@@ -85,7 +85,7 @@ interface Props {
   truncateDescription: (text: string, maxLength?: number) => string
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 defineEmits<{
   'chapter-click': [chapter: Chapter, index: number]
@@ -96,9 +96,7 @@ defineEmits<{
 // ============================================================================
 
 const getChapterCardClass = (index: number): string => {
-  const { getChapterStatus } = defineProps<Props>()
-  const status = getChapterStatus(index)
-  return status
+  return props.getChapterStatus(index)
 }
 </script>
 

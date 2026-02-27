@@ -41,6 +41,8 @@ export function useAISettingsManager() {
   })
   const savingSettings = ref(false)
   const settingsResult = ref<SettingsResult | null>(null)
+  const syncingModels = ref(false)
+  const syncResult = ref<{ success: boolean; message: string } | null>(null)
 
   // ============================================================================
   // Computed
@@ -232,8 +234,8 @@ export function useAISettingsManager() {
         success: response.data.success,
         message: response.data.success
           ? t('panel.aiSettingsPage.messages.connectionSuccess')
-          : (response.data.error || t('panel.aiSettingsPage.messages.connectionFailed')),
-        response_time: response.data.data?.response_time_ms,
+          : (response.data.data?.error || response.data.message || t('panel.aiSettingsPage.messages.connectionFailed')),
+        response_time: response.data.data?.test_results?.response_time_ms,
       }
     } catch (err: unknown) {
       console.error('Error testing API key:', err)
@@ -437,6 +439,67 @@ export function useAISettingsManager() {
   // Init
   // ============================================================================
 
+  async function syncModelsFromProviders(): Promise<void> {
+    syncingModels.value = true
+    syncResult.value = null
+
+    try {
+      const configuredProvidersList = providers.value.filter(p => p.has_api_key && p.active)
+
+      if (configuredProvidersList.length === 0) {
+        syncResult.value = {
+          success: false,
+          message: t('panel.aiSettingsPage.sync.noConfiguredProviders'),
+        }
+        return
+      }
+
+      let totalAdded = 0
+      let totalUpdated = 0
+      let totalDeactivated = 0
+      const errors: string[] = []
+
+      for (const provider of configuredProvidersList) {
+        try {
+          const response = await axios.post(
+            `/api/v1/panel/settings/ai/models/sync/${provider.provider_id}`,
+            {},
+            { headers: getAuthHeaders() }
+          )
+
+          if (response.data.success) {
+            totalAdded += response.data.data?.models_added || 0
+            totalUpdated += response.data.data?.models_updated || 0
+            totalDeactivated += response.data.data?.models_deactivated || 0
+          } else {
+            errors.push(`${provider.display_name}: ${response.data.message || 'Sync failed'}`)
+          }
+        } catch (err: unknown) {
+          errors.push(`${provider.display_name}: ${extractAxiosError(err, 'panel.aiSettingsPage.sync.syncFailed')}`)
+        }
+      }
+
+      // Reload models after sync
+      await loadModels()
+
+      const summary = `${totalAdded} ${t('panel.aiSettingsPage.sync.added')}, ${totalUpdated} ${t('panel.aiSettingsPage.sync.updated')}, ${totalDeactivated} ${t('panel.aiSettingsPage.sync.deactivated')}`
+      syncResult.value = {
+        success: errors.length === 0,
+        message: errors.length > 0
+          ? `${summary}. ${t('panel.aiSettingsPage.sync.errors')}: ${errors.join('; ')}`
+          : summary,
+      }
+    } catch (err: unknown) {
+      console.error('Error syncing models:', err)
+      syncResult.value = {
+        success: false,
+        message: extractAxiosError(err, 'panel.aiSettingsPage.sync.syncFailed'),
+      }
+    } finally {
+      syncingModels.value = false
+    }
+  }
+
   async function initializeAll(): Promise<void> {
     await Promise.all([loadProviders(), loadModels(), loadSettings()])
   }
@@ -456,6 +519,8 @@ export function useAISettingsManager() {
     defaultSettings,
     savingSettings,
     settingsResult,
+    syncingModels,
+    syncResult,
 
     // Computed
     activeProviders,
@@ -478,6 +543,7 @@ export function useAISettingsManager() {
     formatDate,
     formatPrice,
     toggleShowApiKey,
+    syncModelsFromProviders,
     initializeAll,
   }
 }

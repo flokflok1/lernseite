@@ -1,28 +1,28 @@
 <!--
-  Default model selection section for choosing the default AI provider and model.
+  Compact default model selection: provider + model dropdowns in one row.
 -->
 
 <template>
   <div class="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] overflow-hidden">
-    <div class="px-6 py-4 border-b border-[var(--color-border)]">
-      <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
-        {{ $t('panel.aiSettingsPage.defaultModel.title') }}
-      </h3>
-      <p class="text-sm text-[var(--color-text-secondary)]">
-        {{ $t('panel.aiSettingsPage.defaultModel.subtitle') }}
-      </p>
-    </div>
+    <div class="px-4 py-3">
+      <div class="flex items-center gap-2 mb-3">
+        <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
+          {{ $t('panel.aiSettingsPage.defaultModel.title') }}
+        </h3>
+        <span class="text-xs text-[var(--color-text-secondary)]">
+          {{ $t('panel.aiSettingsPage.defaultModel.subtitle') }}
+        </span>
+      </div>
 
-    <div class="p-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Default Provider Selection -->
-        <div>
-          <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
+      <div class="flex items-end gap-3">
+        <!-- Provider -->
+        <div class="w-48">
+          <label class="block text-[10px] uppercase tracking-wide text-[var(--color-text-secondary)] mb-1">
             {{ $t('panel.aiSettingsPage.defaultModel.defaultProvider') }}
           </label>
           <select
             :value="selectedProvider"
-            class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            class="w-full px-3 py-1.5 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
             @change="$emit('providerChange', ($event.target as HTMLSelectElement).value)"
           >
             <option
@@ -35,14 +35,14 @@
           </select>
         </div>
 
-        <!-- Default Model Selection -->
-        <div>
-          <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
+        <!-- Model -->
+        <div class="flex-1">
+          <label class="block text-[10px] uppercase tracking-wide text-[var(--color-text-secondary)] mb-1">
             {{ $t('panel.aiSettingsPage.defaultModel.defaultModelLabel') }}
           </label>
           <select
             :value="selectedModel"
-            class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            class="w-full px-3 py-1.5 text-sm border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
             @change="$emit('modelChange', ($event.target as HTMLSelectElement).value)"
           >
             <option
@@ -50,36 +50,24 @@
               :key="model.name"
               :value="model.name"
             >
-              {{ model.name }} ({{ formatPrice(model.input_price) }}/{{ formatPrice(model.output_price) }} {{ $t('panel.aiSettingsPage.defaultModel.perThousandTokens') }})
+              {{ model.name }}
             </option>
           </select>
         </div>
-      </div>
 
-      <!-- Model Info -->
-      <div v-if="selectedModelInfo" class="mt-4 p-4 bg-[var(--color-bg)] rounded-lg border border-[var(--color-border)]">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="font-medium text-[var(--color-text-primary)]">{{ selectedModelInfo.name }}</p>
-            <p class="text-sm text-[var(--color-text-secondary)]">
-              {{ $t('panel.aiSettingsPage.defaultModel.input') }}: {{ formatPrice(selectedModelInfo.input_price) }} | {{ $t('panel.aiSettingsPage.defaultModel.output') }}: {{ formatPrice(selectedModelInfo.output_price) }} {{ $t('panel.aiSettingsPage.defaultModel.perThousandTokens') }}
-            </p>
-          </div>
-          <div class="text-2xl">
-            {{ providerIcon }}
-          </div>
+        <!-- Price Info -->
+        <div v-if="selectedModelInfo" class="shrink-0 text-xs text-[var(--color-text-secondary)] text-right">
+          <div>{{ $t('panel.aiSettingsPage.defaultModel.input') }}: {{ formatPrice(selectedModelInfo.input_price) }}</div>
+          <div>{{ $t('panel.aiSettingsPage.defaultModel.output') }}: {{ formatPrice(selectedModelInfo.output_price) }}</div>
         </div>
-      </div>
 
-      <!-- Save Button -->
-      <div class="mt-4 flex justify-end">
+        <!-- Save -->
         <button
           :disabled="isSaving"
-          class="px-6 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center gap-2"
+          class="shrink-0 px-4 py-1.5 text-sm bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           @click="$emit('save')"
         >
-          <span v-if="isSaving" class="animate-spin">&#x23F3;</span>
-          <span>{{ isSaving ? $t('panel.aiSettingsPage.defaultModel.savingSettings') : $t('panel.aiSettingsPage.defaultModel.saveSettings') }}</span>
+          {{ isSaving ? $t('panel.aiSettingsPage.defaultModel.savingSettings') : $t('panel.aiSettingsPage.defaultModel.saveSettings') }}
         </button>
       </div>
 
@@ -87,10 +75,10 @@
       <div
         v-if="settingsResult"
         :class="[
-          'mt-3 p-3 rounded-lg text-sm',
+          'mt-2 px-3 py-1.5 rounded-lg text-xs',
           settingsResult.success
-            ? 'bg-green-50 text-green-700 border border-green-200'
-            : 'bg-red-50 text-red-700 border border-red-200'
+            ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+            : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
         ]"
       >
         {{ settingsResult.message }}

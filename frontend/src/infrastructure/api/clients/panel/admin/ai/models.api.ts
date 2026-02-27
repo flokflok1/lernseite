@@ -10,8 +10,10 @@ import type {
   AIModelSyncResponse,
   AIModelRegistryResponse,
   AIModelRegistryItem,
+  AIModelRegistryCategory,
   AIModelUpdateRequest,
-  AIModelCategory
+  AIModelCategory,
+  AIProviderInfo,
 } from '../types'
 
 export const adminGetAIModels = async (
@@ -73,17 +75,61 @@ export const adminGetDefaultAIModel = async (
 export const adminGetAIModelsRegistry = async (
   params: AIModelFilterParams = {}
 ): Promise<AIModelRegistryResponse> => {
-  const response = await http.get<AIModelRegistryResponse>('/admin/ai/models/registry', {
-    params: {
-      category: params.category,
-      active_only: params.active_only !== false ? 'true' : 'false',
-      search: params.search,
-      provider: params.provider,
-      configured_only: params.configured_only ? 'true' : 'false'
-    }
-  })
+  // Reuse existing endpoints: models + providers
+  const [modelsRes, providersRes] = await Promise.all([
+    http.get<{
+      success: boolean
+      data: { models: AIModelRegistryItem[]; count: number; categories: string[] }
+    }>('/panel/settings/ai/models', {
+      params: {
+        include_inactive: params.active_only === false ? 'true' : 'false',
+        category: params.category,
+        provider: params.provider,
+      },
+    }),
+    http.get<{
+      success: boolean
+      data: { providers: Array<{ provider_id: number; name: string; display_name: string; has_api_key: boolean }>; count: number }
+    }>('/panel/settings/ai/providers', {
+      params: { include_inactive: 'true' },
+    }),
+  ])
 
-  return response.data
+  const rawModels = modelsRes.data.data.models || []
+  const rawProviders = providersRes.data.data.providers || []
+
+  // Map provider_name → provider for ModelSelector compatibility
+  const models: AIModelRegistryItem[] = rawModels.map((m: Record<string, unknown>) => ({
+    ...m,
+    provider: (m.provider_name as string) || (m.provider as string) || '',
+  })) as AIModelRegistryItem[]
+
+  // Build categories from raw strings
+  const categoryLabels: Record<string, string> = {
+    chat: 'Chat', reasoning: 'Reasoning', realtime: 'Realtime',
+    audio: 'Audio', image: 'Image', video: 'Video',
+    embedding: 'Embedding', moderation: 'Moderation',
+  }
+  const categories: AIModelRegistryCategory[] = (modelsRes.data.data.categories || []).map(
+    (id: string) => ({ id, label: categoryLabels[id] || id })
+  )
+
+  // Map providers to AIProviderInfo
+  const providers: AIProviderInfo[] = rawProviders.map((p) => ({
+    provider_id: p.provider_id,
+    name: p.name,
+    display_name: p.display_name,
+    has_api_key: p.has_api_key,
+  }))
+
+  return {
+    success: true,
+    data: models,
+    categories,
+    providers,
+    total: models.length,
+    timestamp: new Date().toISOString(),
+  }
 }
 
 export const adminUpdateAIModel = async (

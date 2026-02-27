@@ -14,7 +14,7 @@ defineProps<{ window: LsxWindow }>()
 <template>
   <div class="w-full h-full">
     <UnifiedAIEditor
-      :initial-course-id="(window?.payload?.courseId as string) || undefined"
+      :course-id="(window?.payload?.courseId as string) || undefined"
     />
   </div>
 </template>

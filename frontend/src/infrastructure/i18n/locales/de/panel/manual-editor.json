@@ -9,7 +9,21 @@
     },
     "knowledge": {
       "chapterTheory": "Kapitel-Theorie",
-      "lessonExplanation": "Lektion-Erklärungen"
+      "lessonTheory": "Lektion-Theorie",
+      "addSheet": "Theorie-Blatt hinzufügen",
+      "editSheet": "Theorie-Blatt bearbeiten",
+      "deleteSheet": "Theorie-Blatt löschen",
+      "confirmDelete": "Theorie-Blatt \"{title}\" wirklich löschen?",
+      "sheetTitle": "Titel",
+      "sheetTitlePlaceholder": "Titel des Theorie-Blatts",
+      "sheetContent": "Inhalt",
+      "sheetContentPlaceholder": "Inhalt hier eingeben (Markdown unterstützt)",
+      "empty": "Noch keine Theorie-Blätter",
+      "save": "Speichern",
+      "saveFailed": "Speichern fehlgeschlagen",
+      "loadFailed": "Theorie-Blätter konnten nicht geladen werden",
+      "deleteFailed": "Löschen fehlgeschlagen",
+      "noParentSelected": "Wähle ein Kapitel oder eine Lektion aus"
     },
     "structure": {
       "title": "Struktur",
@@ -94,7 +108,8 @@
       "title": "Vorschau",
       "noContent": "Kein Inhalt zum Anzeigen",
       "desktop": "Desktop",
-      "mobile": "Mobil"
+      "mobile": "Mobil",
+      "activitiesHeading": "Aufgaben"
     },
     "lessonSettings": {
       "title": "Lektion-Einstellungen",

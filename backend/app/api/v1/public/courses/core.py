@@ -6,6 +6,8 @@ User-facing course browsing and retrieval.
 Read Operations:
 - GET /courses - List/search public courses
 - GET /courses/:id - Get course details
+- GET /courses/:id/chapters - Get course chapters
+- GET /courses/:id/chapters/:chapterId - Get chapter details with lessons
 
 All routes: /api/v1/courses/*
 ISO 9001:2015 compliant - Course Management Layer
@@ -15,6 +17,8 @@ from flask import Blueprint, request, jsonify
 import logging
 
 from app.infrastructure.persistence.repositories.courses import CourseRepository
+from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.infrastructure.persistence.repositories.enrollments.core import EnrollmentRepository
 from app.api.middleware.auth import get_current_user
 from app.infrastructure.i18n.error_codes import ErrorCode
@@ -141,18 +145,18 @@ def get_course(course_id: str):
         user = get_current_user()
 
         # Public published courses are accessible to everyone
-        if course['is_public'] and course['is_published']:
+        if course.get('published'):
             return jsonify({
                 'success': True,
                 'course': course
             }), 200
 
-        # For non-public courses, check permissions
+        # For non-public/draft courses, check permissions
         if not user:
             return error_response(ErrorCode.AUTH_TOKEN_MISSING, 401, details={'message': 'This course requires authentication to view'})
 
         # Course creator can always view
-        if user['user_id'] == course['creator_id']:
+        if str(user['user_id']) == str(course.get('creator_user_id')):
             return jsonify({
                 'success': True,
                 'course': course
@@ -184,4 +188,57 @@ def get_course(course_id: str):
 
     except Exception as e:
         logger.error(f"Error getting course: {e}")
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
+
+
+@core_bp.route('/<course_id>/chapters', methods=['GET'])
+def get_course_chapters(course_id: str):
+    """
+    Get all chapters for a course.
+
+    Response:
+        200: List of chapters
+        404: Course not found
+    """
+    try:
+        course = CourseRepository.find_by_id(course_id)
+        if not course:
+            return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
+
+        chapters = ChapterRepository.find_by_course(course_id)
+
+        return jsonify({
+            'success': True,
+            'chapters': chapters
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error getting course chapters: {e}")
+        return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})
+
+
+@core_bp.route('/<course_id>/chapters/<chapter_id>', methods=['GET'])
+def get_chapter_detail(course_id: str, chapter_id: str):
+    """
+    Get chapter details with its lessons.
+
+    Response:
+        200: Chapter with lessons
+        404: Chapter not found
+    """
+    try:
+        chapter = ChapterRepository.find_by_id(chapter_id)
+        if not chapter:
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
+
+        lessons = LessonRepository.find_by_chapter(chapter_id)
+        chapter['lessons'] = lessons
+
+        return jsonify({
+            'success': True,
+            'chapter': chapter
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error getting chapter detail: {e}")
         return error_response(ErrorCode.OPERATION_FAILED, 500, details={'details': str(e)})

@@ -50,3 +50,29 @@ export type {
   GenerationStatus,
   BatchProgress,
 } from './generation.types'
+
+// Chat types (split-view)
+export type {
+  MessageRole,
+  ChatMessage,
+  ChatOperation,
+  ChatConfirmation,
+  ChatSession,
+  FileContext,
+} from './chat.types'
+
+// Structure types (split-view)
+export type {
+  DraftStructure,
+  DraftChapter,
+  DraftLesson,
+  ContentIndicator,
+  SelectedContext,
+} from './structure.types'
+
+// Workflow types (split-view)
+export type {
+  WorkflowPhase,
+  GenerateProgress,
+  GenerateResult,
+} from './workflow.types'

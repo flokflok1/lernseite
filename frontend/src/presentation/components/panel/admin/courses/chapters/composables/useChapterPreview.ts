@@ -20,41 +20,6 @@ const METHOD_ICONS: Record<number, string> = {
   31: '\uD83C\uDF93', 32: '\uD83D\uDD04'
 }
 
-/** Method name lookup by numeric type ID. */
-const METHOD_NAMES: Record<number, string> = {
-  0: 'Tiefgehende Erkl\u00E4rung',
-  1: 'Schritt-f\u00FCr-Schritt',
-  2: 'Interaktive Theorie',
-  3: 'Diagramm/Visualisierung',
-  4: 'Sokratischer Dialog',
-  6: 'Beispiel-Szenario',
-  8: 'Whiteboard-Aufgabe',
-  9: 'Code Sandbox',
-  10: 'Netzwerk-Simulation',
-  11: 'IT-Szenario',
-  12: 'Mathe-Interaktiv',
-  13: 'Flashcards',
-  14: 'Drag & Drop',
-  15: 'L\u00FCckentext',
-  16: 'Fehleranalyse',
-  17: 'Hands-on Lab',
-  18: 'Freitext',
-  19: 'IHK-Stil',
-  20: 'Multi-Step',
-  21: 'Zeitlimit',
-  22: 'Quiz',
-  23: 'Verst\u00E4ndnis-Check',
-  24: 'M\u00FCndlich',
-  25: 'Endpr\u00FCfung',
-  26: 'Peer Instruction',
-  27: 'Team-Case',
-  28: 'Peer Review',
-  29: 'Lerntagebuch',
-  30: 'Portfolio',
-  31: 'Projektbasiert',
-  32: 'Inverted Classroom'
-}
-
 export interface UniqueMethod {
   type: number
   count: number
@@ -80,12 +45,15 @@ export function getMethodIcon(type: number | string | undefined): string {
 }
 
 /**
- * Returns the display name for a given learning method type.
+ * Returns the localized display name for a given learning method type.
  */
-export function getMethodName(type: number | string | undefined): string {
+export function getMethodName(
+  type: number | string | undefined,
+  t: (key: string) => string
+): string {
   const numType = parseMethodType(type)
   if (isNaN(numType)) return 'LM'
-  return METHOD_NAMES[numType] || `LM${numType}`
+  return t(`lesson.methodExecution.methods.lm${String(numType).padStart(2, '0')}`)
 }
 
 /**

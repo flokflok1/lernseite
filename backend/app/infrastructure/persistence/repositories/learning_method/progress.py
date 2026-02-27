@@ -135,6 +135,35 @@ class LearningMethodProgressRepository:
                 return cur.fetchall()
 
     @classmethod
+    def get_user_progress_for_lesson(
+        cls,
+        user_id: str,
+        lesson_id: str
+    ) -> List[Dict[str, Any]]:
+        """
+        Get all progress records for a user's methods in a lesson.
+
+        Args:
+            user_id: User UUID
+            lesson_id: Lesson UUID
+
+        Returns:
+            List of progress records with method_id, score, attempts, completed_at
+        """
+        with extensions.db_pool.connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(f"""
+                    SELECT
+                        p.progress_id, p.method_id, p.score, p.attempts,
+                        p.completed_at, p.duration_seconds
+                    FROM {cls.TABLE_NAME} p
+                    JOIN learning_methods.learning_method_instances lmi
+                        ON p.method_id = lmi.method_id
+                    WHERE p.user_id = %s AND lmi.lesson_id = %s
+                """, (user_id, lesson_id))
+                return cur.fetchall()
+
+    @classmethod
     def get_completion_stats(
         cls,
         user_id: str,

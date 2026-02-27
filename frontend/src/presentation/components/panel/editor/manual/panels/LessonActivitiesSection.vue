@@ -50,10 +50,9 @@ const openActivityWindow = (activity: LessonActivity) => {
     return
   }
 
-  const lmLabel = `LM${String(activity.method_type).padStart(2, '0')}`
   windowStore.openWindow({
     type: 'activity-editor',
-    title: `${lmLabel}: ${activity.title}`,
+    title: `${lmName(activity.method_type)}: ${activity.title}`,
     payload: { activity },
     size: { width: 700, height: 560 },
   })
@@ -137,7 +136,7 @@ const removeActivity = async (activityId: string, title: string) => {
         class="activity-item"
       >
         <div class="activity-info" @click="openActivityWindow(activity)">
-          <span class="activity-type-badge">LM{{ String(activity.method_type).padStart(2, '0') }}</span>
+          <span class="activity-type-badge">{{ lmName(activity.method_type) }}</span>
           <span class="activity-title">{{ activity.title }}</span>
           <span class="activity-method-name">{{ lmName(activity.method_type) }}</span>
         </div>

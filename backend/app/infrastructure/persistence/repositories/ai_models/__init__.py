@@ -41,6 +41,7 @@ class AIModelsRepository:
     get_all = staticmethod(AIModelsQueryRepository.get_all)
     get_models_by_category = staticmethod(AIModelsQueryRepository.get_models_by_category)
     get_categories = staticmethod(AIModelsQueryRepository.get_categories)
+    get_by_provider = staticmethod(AIModelsQueryRepository.get_by_provider)
 
     # Default Model Operations
     get_default_model = staticmethod(AIModelsDefaultRepository.get_default_model)

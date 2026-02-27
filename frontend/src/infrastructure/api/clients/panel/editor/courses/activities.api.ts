@@ -23,7 +23,7 @@ export interface LessonActivity {
   updated_at: string
 }
 
-export const getLessonActivities = async (lessonId: number): Promise<LessonActivity[]> => {
+export const getLessonActivities = async (lessonId: string | number): Promise<LessonActivity[]> => {
   const response = await http.get<{
     success: boolean
     activities: LessonActivity[]
@@ -33,7 +33,7 @@ export const getLessonActivities = async (lessonId: number): Promise<LessonActiv
 }
 
 export const createLessonActivity = async (
-  lessonId: number,
+  lessonId: string | number,
   methodType: number,
   title: string
 ): Promise<LessonActivity> => {
@@ -65,7 +65,7 @@ export const deleteLessonActivity = async (activityId: string): Promise<void> =>
 }
 
 export const reorderLessonActivities = async (
-  lessonId: number,
+  lessonId: string | number,
   methodIds: string[]
 ): Promise<void> => {
   await http.post(`${EDITOR_PREFIX}/lessons/${lessonId}/activities/reorder`, {

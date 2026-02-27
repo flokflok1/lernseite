@@ -57,6 +57,10 @@ from app.api.v1.panel.admin import ai as ai_admin  # Triggers AI admin blueprint
 from app.api.v1.panel.admin.analytics import analytics_bp, org_analytics_bp
 from app.api.v1.panel.admin import courses as courses_admin  # Triggers admin route registration
 
+# Prompts Library (CRUD, actions, categories)
+from app.api.v1.panel.admin.prompts import crud as _prompts_crud, actions as _prompts_actions, categories as _prompts_categories  # noqa: F401 — triggers route registration
+from app.api.v1.panel.admin.prompts.blueprints import prompts_crud_bp, prompts_actions_bp, prompts_categories_bp
+
 # Dashboard admin blueprints (importlib for dynamic import)
 try:
     dashboard_admin_stats = importlib.import_module('.stats', package='app.api.v1.panel.admin.dashboard')
@@ -212,6 +216,11 @@ api_v1.register_blueprint(feature_config_rollout_bp)
 api_v1.register_blueprint(feature_config_ab_tests_bp)
 api_v1.register_blueprint(feature_config_audit_bp)
 
+# Prompts Library
+api_v1.register_blueprint(prompts_crud_bp)
+api_v1.register_blueprint(prompts_actions_bp)
+api_v1.register_blueprint(prompts_categories_bp)
+
 # Panel editor endpoints
 api_v1.register_blueprint(course_editor_bp)
 
@@ -268,6 +277,7 @@ __all__ = [
     'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp',
     'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
+    'prompts_crud_bp', 'prompts_actions_bp', 'prompts_categories_bp',
     # Panel editor
     'course_editor_bp',
     # Panel user

@@ -51,7 +51,7 @@ class AIModelsCRUDRepository:
             Created model dict or None
         """
         query = """
-            INSERT INTO ai_models (
+            INSERT INTO ai_pipeline.ai_models (
                 provider_id, model_name, display_name, model_type, category,
                 description, cost_level, speed, context_window, max_output_tokens,
                 supports_vision, supports_functions, input_price_per_1k, output_price_per_1k,
@@ -152,7 +152,7 @@ class AIModelsCRUDRepository:
             Upserted model dict or None
         """
         query = """
-            INSERT INTO ai_models (
+            INSERT INTO ai_pipeline.ai_models (
                 provider_id, model_name, display_name, model_type, category,
                 description, cost_level, speed, context_window, max_output_tokens,
                 supports_vision, supports_functions, input_price_per_1k, output_price_per_1k,
@@ -167,15 +167,15 @@ class AIModelsCRUDRepository:
                 display_name = EXCLUDED.display_name,
                 model_type = EXCLUDED.model_type,
                 category = EXCLUDED.category,
-                description = COALESCE(EXCLUDED.description, ai_models.description),
+                description = COALESCE(EXCLUDED.description, ai_pipeline.ai_models.description),
                 cost_level = EXCLUDED.cost_level,
                 speed = EXCLUDED.speed,
-                context_window = COALESCE(EXCLUDED.context_window, ai_models.context_window),
-                max_output_tokens = COALESCE(EXCLUDED.max_output_tokens, ai_models.max_output_tokens),
+                context_window = COALESCE(EXCLUDED.context_window, ai_pipeline.ai_models.context_window),
+                max_output_tokens = COALESCE(EXCLUDED.max_output_tokens, ai_pipeline.ai_models.max_output_tokens),
                 supports_vision = EXCLUDED.supports_vision,
                 supports_functions = EXCLUDED.supports_functions,
-                input_price_per_1k = COALESCE(EXCLUDED.input_price_per_1k, ai_models.input_price_per_1k),
-                output_price_per_1k = COALESCE(EXCLUDED.output_price_per_1k, ai_models.output_price_per_1k),
+                input_price_per_1k = COALESCE(EXCLUDED.input_price_per_1k, ai_pipeline.ai_models.input_price_per_1k),
+                output_price_per_1k = COALESCE(EXCLUDED.output_price_per_1k, ai_pipeline.ai_models.output_price_per_1k),
                 updated_at = NOW()
             RETURNING *
         """

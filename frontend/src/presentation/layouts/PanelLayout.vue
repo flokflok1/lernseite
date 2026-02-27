@@ -162,7 +162,7 @@ const menuItems = computed(() => {
     { path: '/panel/users', label: t('panel.nav.users'), icon: '👥' },
     { path: '/panel/groups', label: t('panel.nav.groups'), icon: '👥' },
     { path: '/panel/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
-    { path: '/panel/editor', label: t('panel.nav.courseEditor'), icon: '📝' },
+    { path: '/panel/admin/editor', label: t('panel.nav.courseEditor'), icon: '📝' },
     { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
     { path: '/panel/lm-routing', label: t('panel.nav.lmRouting'), icon: '📚' },
     { path: '/panel/languages', label: t('panel.nav.languages'), icon: '🌐' },
@@ -171,7 +171,6 @@ const menuItems = computed(() => {
     { path: '/panel/billing', label: t('panel.nav.billing'), icon: '💰' },
     { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },
     { path: '/panel/audit-logs', label: t('panel.nav.audit_logs'), icon: '📋' },
-    { path: '/panel/ai-settings', label: t('panel.nav.ai_settings'), icon: '🤖' },
     { path: '/panel/system-settings', label: t('panel.nav.settings'), icon: '⚙️' }
   ]
 })

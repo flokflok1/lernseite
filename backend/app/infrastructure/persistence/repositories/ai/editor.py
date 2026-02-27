@@ -365,18 +365,18 @@ class AIEditorAnalyticsRepository:
 class PDFCacheRepository:
     """Repository for PDF text cache"""
 
-    table_name = 'pdf_cache'
+    table_name = 'storage.pdf_cache'
 
     @classmethod
     def get_by_hash(cls, file_hash: str) -> Optional[Dict[str, Any]]:
         """Get cached PDF by file hash"""
-        query = "SELECT * FROM pdf_cache WHERE file_hash = %s"
+        query = "SELECT * FROM storage.pdf_cache WHERE file_hash = %s"
         result = fetch_one(query, (file_hash,))
 
         if result:
             # Update access stats
             execute_query(
-                "UPDATE pdf_cache SET access_count = access_count + 1, last_accessed_at = NOW() WHERE file_hash = %s",
+                "UPDATE storage.pdf_cache SET access_count = access_count + 1, last_accessed_at = NOW() WHERE file_hash = %s",
                 (file_hash,)
             )
 

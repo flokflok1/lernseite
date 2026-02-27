@@ -46,7 +46,8 @@
       "contextSet": "Context set: {type} \"{title}\"",
       "contextLabel": "Context",
       "clearContext": "Clear context",
-      "fileUploadTodo": "File upload will be available soon."
+      "fileUploadTodo": "File upload will be available soon.",
+      "newSession": "New Session"
     },
     "structure": {
       "title": "Course Structure",
@@ -75,7 +76,65 @@
       "execute": "Execute Plan",
       "executing": "Executing plan...",
       "recentPlans": "Recent Plans",
-      "phases": "phases"
+      "phases": "Phases",
+      "steps": "Steps",
+      "save": "Save",
+      "saving": "Saving...",
+      "approving": "Approving...",
+      "discard": "Discard",
+      "delete": "Delete",
+      "confirmDelete": "Permanently delete this plan? This cannot be undone.",
+      "createFromFile": "Create plan from material",
+      "confirmDiscard": "Discard this plan? All unsaved changes will be lost.",
+      "confirmDiscardExecuting": "This plan is currently executing! Discarding will stop execution. Continue?",
+      "confirmDiscardPaused": "This plan is paused and has incomplete steps. Discard anyway?",
+      "finalize": "Apply Results",
+      "newPlan": "Create New Plan",
+      "completedSummary": "{completed} of {total} steps completed successfully.",
+      "failedSummary": "{failed} of {total} steps failed ({completed} succeeded).",
+      "pause": "Pause",
+      "resume": "Resume",
+      "scope": {
+        "label": "Scope",
+        "course": "Entire course",
+        "chapter": "Single chapter",
+        "lesson": "Single lesson"
+      },
+      "selectScope": "Select target",
+      "selectChapter": "Select chapter",
+      "selectLesson": "Select lesson",
+      "progress": {
+        "stepsCompleted": "{completed} of {total} steps",
+        "currentStep": "Current step",
+        "failed": "{count} failed",
+        "tokensUsed": "Tokens used"
+      },
+      "stepDetail": {
+        "skill": "Skill",
+        "target": "Target",
+        "parameters": "Parameters",
+        "result": "Result",
+        "noResult": "No result yet",
+        "tokensUsed": "{input} in / {output} out",
+        "model": "Model",
+        "close": "Close"
+      },
+      "errors": {
+        "noCourse": "Please select a course first.",
+        "noFile": "No file selected. Upload a file in the Files tab first.",
+        "pauseFailed": "Failed to pause plan.",
+        "resumeFailed": "Failed to resume plan.",
+        "planNotFound": "Plan was not found or has been deleted.",
+        "pollFailed": "Lost connection to server. Unable to update status."
+      },
+      "status": {
+        "draft": "Draft",
+        "approved": "Approved",
+        "executing": "Executing",
+        "completed": "Completed",
+        "paused": "Paused",
+        "failed": "Failed"
+      }
     },
     "skills": {
       "searchPlaceholder": "Search skills...",

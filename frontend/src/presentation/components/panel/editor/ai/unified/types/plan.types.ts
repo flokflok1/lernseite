@@ -51,6 +51,8 @@ export interface CreatePlanRequest {
 export interface CreatePlanFromFileRequest {
   course_id: string
   file_id: string
+  scope?: PlanScope
+  scope_id?: string
 }
 
 export interface UpdatePlanRequest {

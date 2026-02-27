@@ -73,7 +73,7 @@ class CoreEventsRepository(BaseRepository):
             ip_hash = hashlib.sha256(ip_address.encode()).hexdigest()
 
         query = """
-            INSERT INTO analytics_events (
+            INSERT INTO analytics.analytics_events (
                 user_id,
                 organisation_id,
                 event_type,
@@ -136,7 +136,7 @@ class CoreEventsRepository(BaseRepository):
         if event_type:
             query = """
                 SELECT *
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE user_id = %s AND event_type = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s
@@ -145,7 +145,7 @@ class CoreEventsRepository(BaseRepository):
         else:
             query = """
                 SELECT *
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE user_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s
@@ -187,7 +187,7 @@ class CoreEventsRepository(BaseRepository):
         if event_type:
             query = """
                 SELECT *
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE organisation_id = %s AND event_type = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s
@@ -196,7 +196,7 @@ class CoreEventsRepository(BaseRepository):
         else:
             query = """
                 SELECT *
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE organisation_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s
@@ -226,5 +226,5 @@ class CoreEventsRepository(BaseRepository):
         Example:
             >>> deleted = CoreEventsRepository.delete_user_events(123)
         """
-        query = "DELETE FROM analytics_events WHERE user_id = %s"
+        query = "DELETE FROM analytics.analytics_events WHERE user_id = %s"
         return execute_query(query, (user_id,))

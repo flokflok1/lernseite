@@ -3,7 +3,7 @@
  *
  * Manages: course/chapter/lesson selection, active tab, loading states.
  */
-import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, type ComputedRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 export interface EditorTab {
@@ -26,7 +26,7 @@ export function useEditorState() {
   const { t } = useI18n()
 
   // ── Core State ──────────────────────────────────────────────────
-  const activeTab = ref('plan')
+  const activeTab = ref('chat')
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
@@ -56,12 +56,16 @@ export function useEditorState() {
     }
   })
 
+  const fileCount = ref(0)
+
   const tabs: ComputedRef<EditorTab[]> = computed(() => [
-    { id: 'plan', icon: 'Map', label: t('aiEditor.tabs.plan') },
-    { id: 'skills', icon: 'Zap', label: t('aiEditor.tabs.skills') },
-    { id: 'content', icon: 'FileText', label: t('aiEditor.tabs.content') },
-    { id: 'prompts', icon: 'Terminal', label: t('aiEditor.tabs.prompts') },
-    { id: 'history', icon: 'Clock', label: t('aiEditor.tabs.history') },
+    { id: 'chat', icon: '💬', label: t('aiEditor.tabs.chat') },
+    { id: 'course', icon: '📚', label: t('aiEditor.tabs.course') },
+    { id: 'files', icon: '📎', label: t('aiEditor.tabs.files'), badge: fileCount.value || undefined },
+    { id: 'plan', icon: '📋', label: t('aiEditor.tabs.plan') },
+    { id: 'skills', icon: '⚡', label: t('aiEditor.tabs.skills') },
+    { id: 'prompts', icon: '📝', label: t('aiEditor.tabs.prompts') },
+    { id: 'history', icon: '📊', label: t('aiEditor.tabs.history') },
   ])
 
   // ── Actions ─────────────────────────────────────────────────────
@@ -120,6 +124,7 @@ export function useEditorState() {
     lessonId,
     lessonTitle,
     courses,
+    fileCount,
     // Computed
     hasCourseSelected,
     courseContext,

@@ -244,7 +244,7 @@ export const reorderChapters = async (
 }
 
 /** Fetch all chapters for a course (editor view) */
-export const getChaptersForEdit = async (courseId: number): Promise<EditableChapter[]> => {
+export const getChaptersForEdit = async (courseId: number | string): Promise<EditableChapter[]> => {
   const response = await http.get<{
     success: boolean
     chapters: EditableChapter[]

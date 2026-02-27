@@ -29,6 +29,11 @@ class SkillDefinition:
 
     Each skill maps to either a Content-Lernmethode (LM 0-11) or a utility action.
     The prompt_template_code references a registered PromptTemplate.
+
+    content_scope: 'course' = generates course content (shown in AI Editor),
+                   'session' = runs at session/user level (hidden from AI Editor).
+    required_feature_code: If set, the skill is only available when this
+                           System Feature is active in the admin panel.
     """
     code: str
     name_i18n_key: str
@@ -41,6 +46,8 @@ class SkillDefinition:
     parameters: tuple = ()
     supports_variants: bool = True
     estimated_tokens: int = 2000
+    content_scope: str = 'course'  # 'course' | 'session'
+    required_feature_code: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -298,6 +305,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         learning_method_id=None,
         required_context=('course', 'lesson'),
         parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+        required_feature_code='whiteboard_engine',
     ),
 
     'generate_hands_on_lab': SkillDefinition(
@@ -310,6 +318,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         learning_method_id=None,
         required_context=('course', 'lesson'),
         parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+        required_feature_code='it_sandbox',
     ),
 
     'generate_timed_challenge': SkillDefinition(
@@ -322,6 +331,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         learning_method_id=None,
         required_context=('course', 'lesson'),
         parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+        required_feature_code='timer_wrapper',
     ),
 
     'generate_true_false': SkillDefinition(
@@ -346,6 +356,8 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         learning_method_id=None,
         required_context=('course', 'lesson'),
         parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+        content_scope='session',
+        required_feature_code='comprehension_checker',
     ),
 
     'generate_oral_explanation': SkillDefinition(
@@ -358,6 +370,8 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         learning_method_id=None,
         required_context=('course', 'lesson'),
         parameters=(_DIFFICULTY_PARAM, _LANGUAGE_PARAM),
+        content_scope='session',
+        required_feature_code='speech_to_text',
     ),
 
     'generate_chapter_exam': SkillDefinition(
@@ -370,6 +384,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         learning_method_id=None,
         required_context=('course', 'lesson'),
         parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
+        required_feature_code='chapter_completion_system',
     ),
 }
 
@@ -391,6 +406,11 @@ def get_skills_by_category(category: str) -> list[SkillDefinition]:
 def get_all_skills() -> list[SkillDefinition]:
     """Get all skill definitions."""
     return list(SKILL_CATALOG.values())
+
+
+def get_course_skills() -> list[SkillDefinition]:
+    """Get only course-scoped skills (for AI Editor)."""
+    return [s for s in SKILL_CATALOG.values() if s.content_scope == 'course']
 
 
 def get_skill_codes() -> list[str]:

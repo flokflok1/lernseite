@@ -1,7 +1,8 @@
 <!--
   LessonPlayerSidebar - Chapter navigation sidebar for lesson player
 
-  Displays the list of lessons in the current chapter with active state highlighting.
+  Displays the list of lessons in the current chapter with progress dots
+  and active state highlighting via left border accent.
 -->
 
 <template>
@@ -16,22 +17,23 @@
           class="lesson-item"
           :class="{
             'lesson-item--active': lesson.lesson_id === activeLessonId,
-            'lesson-item--inactive': lesson.lesson_id !== activeLessonId
+            'lesson-item--completed': isCompleted(lesson),
+            'lesson-item--inactive': lesson.lesson_id !== activeLessonId && !isCompleted(lesson)
           }"
           @click="$emit('navigate', lesson.lesson_id)"
         >
-          <div class="lesson-item-content">
-            <span class="lesson-number">{{ index + 1 }}</span>
-            <div class="lesson-info">
-              <p class="lesson-name">{{ lesson.title }}</p>
-              <div class="lesson-meta">
-                <span class="lesson-type-badge">
-                  {{ lessonTypeLabel(lesson.lesson_type) }}
-                </span>
-                <span v-if="lesson.duration_minutes" class="lesson-duration">
-                  {{ lesson.duration_minutes }} {{ $t('courses.minutes_short') }}
-                </span>
-              </div>
+          <!-- Progress dot -->
+          <div class="lesson-dot" :class="dotClass(lesson)"></div>
+
+          <div class="lesson-info">
+            <p class="lesson-name">{{ lesson.title }}</p>
+            <div class="lesson-meta">
+              <span class="lesson-type-badge">
+                {{ lessonTypeLabel(lesson.lesson_type) }}
+              </span>
+              <span v-if="lesson.duration_minutes" class="lesson-duration">
+                {{ lesson.duration_minutes }} {{ $t('courses.minutes_short') }}
+              </span>
             </div>
           </div>
         </div>
@@ -48,20 +50,34 @@ interface Lesson {
   title: string
   lesson_type: string
   duration_minutes?: number
+  completed?: boolean
 }
 
 interface Props {
   lessons: Lesson[] | undefined
   activeLessonId: number | undefined
+  completedLessonIds?: number[]
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  completedLessonIds: () => []
+})
 
 defineEmits<{
   (e: 'navigate', lessonId: number): void
 }>()
 
 const { t } = useI18n()
+
+function isCompleted(lesson: Lesson): boolean {
+  return lesson.completed === true || props.completedLessonIds.includes(lesson.lesson_id)
+}
+
+function dotClass(lesson: Lesson): string {
+  if (lesson.lesson_id === props.activeLessonId) return 'dot--current'
+  if (isCompleted(lesson)) return 'dot--completed'
+  return 'dot--pending'
+}
 
 function lessonTypeLabel(type: string): string {
   const typeMap: Record<string, string> = {
@@ -78,97 +94,133 @@ function lessonTypeLabel(type: string): string {
 
 <style scoped>
 .sidebar-left {
-  width: 16rem;
+  width: 14rem;
   background-color: var(--color-surface, #ffffff);
   border-right: 1px solid var(--color-border, #e5e7eb);
   overflow-y: auto;
 }
 
+:root.dark .sidebar-left {
+  background-color: #111827;
+}
+
 .sidebar-content {
-  padding: 1rem;
+  padding: 0.625rem;
 }
 
 .sidebar-title {
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
-  margin: 0 0 1rem;
-  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 0.5rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .lesson-list {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
 }
 
 .lesson-item {
   cursor: pointer;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.5rem;
   transition: all 0.2s;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border-left: 3px solid transparent;
 }
 
 .lesson-item--active {
-  background-color: var(--color-primary, #3b82f6);
-  color: white;
+  border-left-color: var(--color-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.08);
 }
 
-.lesson-item--active .lesson-number,
-.lesson-item--active .lesson-name,
-.lesson-item--active .lesson-duration {
-  color: white;
+:root.dark .lesson-item--active {
+  background-color: rgba(59, 130, 246, 0.15);
 }
 
-.lesson-item--active .lesson-type-badge {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
+.lesson-item--completed {
+  opacity: 0.75;
 }
 
 .lesson-item--inactive:hover {
   background-color: var(--color-surface-secondary, #f9fafb);
 }
 
-.lesson-item-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+:root.dark .lesson-item--inactive:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-.lesson-number {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary, #9ca3af);
-  font-weight: 500;
-  min-width: 1rem;
+/* Progress dots */
+.lesson-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 0.3125rem;
+  transition: all 0.2s;
+}
+
+.dot--current {
+  background-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dot--completed {
+  background-color: #10b981;
+}
+
+.dot--pending {
+  background-color: var(--color-border, #d1d5db);
+}
+
+:root.dark .dot--pending {
+  background-color: #4b5563;
 }
 
 .lesson-info {
   flex: 1;
+  min-width: 0;
 }
 
 .lesson-name {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-text-primary, #111827);
   margin: 0;
+  line-height: 1.3;
+}
+
+.lesson-item--active .lesson-name {
+  color: var(--color-primary, #3b82f6);
+  font-weight: 600;
 }
 
 .lesson-meta {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
+  gap: 0.375rem;
+  margin-top: 0.125rem;
 }
 
 .lesson-type-badge {
-  font-size: 0.625rem;
-  padding: 0.125rem 0.375rem;
-  background-color: var(--color-surface-secondary, #f9fafb);
+  font-size: 0.5625rem;
+  padding: 0.0625rem 0.3125rem;
+  background-color: var(--color-surface-secondary, #f3f4f6);
   color: var(--color-text-secondary, #6b7280);
-  border-radius: 0.25rem;
+  border-radius: 0.1875rem;
+}
+
+:root.dark .lesson-type-badge {
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .lesson-duration {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.625rem;
+  color: var(--color-text-secondary, #9ca3af);
 }
 </style>

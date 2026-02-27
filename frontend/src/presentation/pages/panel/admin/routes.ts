@@ -32,32 +32,39 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelOrganisations',
       component: () => import('@/presentation/pages/panel/admin/PanelOrganisationsPage.vue'),
     },
-    // Redirects for renamed routes (Wave 6)
+    // Legacy redirects → /panel/admin/editor
     {
       path: 'kurse',
-      redirect: '/panel/editor',
+      redirect: '/panel/admin/editor',
     },
     {
       path: 'roles',
       redirect: '/panel/groups',
     },
-    // Course Editor now at /panel/editor (within panel)
     {
       path: 'kurs-editor',
-      redirect: '/panel/editor',
+      redirect: '/panel/admin/editor',
     },
     {
       path: 'kurs-editor/:id',
-      redirect: (to) => `/panel/editor/${to.params.id}`,
+      redirect: (to) => `/panel/admin/editor/${to.params.id}`,
     },
-    // Legacy route (old name)
     {
       path: 'courses',
-      redirect: '/panel/editor',
+      redirect: '/panel/admin/editor',
     },
     {
       path: 'courses/:id',
-      redirect: (to) => `/panel/editor/${to.params.id}`,
+      redirect: (to) => `/panel/admin/editor/${to.params.id}`,
+    },
+    // Backward compat: /panel/editor → /panel/admin/editor
+    {
+      path: 'editor',
+      redirect: '/panel/admin/editor',
+    },
+    {
+      path: 'editor/:id',
+      redirect: (to) => `/panel/admin/editor/${to.params.id}`,
     },
     {
       path: 'categories',
@@ -108,15 +115,15 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelSystemSettings',
       component: () => import('@/presentation/pages/panel/admin/PanelSystemSettingsPage.vue'),
     },
-    // Course Editor (windowed interface within panel)
+    // Admin Course Editor (windowed interface within panel)
     {
-      path: 'editor',
-      name: 'PanelEditor',
+      path: 'admin/editor',
+      name: 'PanelAdminEditor',
       component: () => import('@/presentation/pages/panel/editor/CourseEditorMain.vue'),
     },
     {
-      path: 'editor/:id',
-      name: 'PanelEditorDetail',
+      path: 'admin/editor/:id',
+      name: 'PanelAdminEditorDetail',
       component: () => import('@/presentation/pages/panel/admin/PanelCourseDetailPage.vue'),
       props: true,
     },

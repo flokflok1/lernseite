@@ -28,6 +28,8 @@ import {
   approvePlan,
   executePlan,
   listPlans,
+  deletePlan as apiDeletePlan,
+  archivePlan as apiArchivePlan,
 } from '@/infrastructure/api/clients/panel/editor/unified/unified.api'
 
 export function usePlanMode() {
@@ -95,6 +97,22 @@ export function usePlanMode() {
     try {
       const plan = await getPlan(planId)
       currentPlan.value = _normalizePlan(plan)
+
+      // Restore wizard phase from plan state
+      const status = currentPlan.value.status
+      if (status === 'executing' || status === 'completed' || status === 'paused' || status === 'approved') {
+        currentPhase.value = 4
+        if (status === 'executing') {
+          isExecuting.value = true
+          _startProgressPolling(planId)
+        }
+      } else if (currentPlan.value.current_phase) {
+        currentPhase.value = currentPlan.value.current_phase as WizardPhase
+      }
+      // Restore sub-state
+      courseMeta.value = currentPlan.value.course_meta || null
+      chapters.value = currentPlan.value.chapters || []
+      chatMessages.value = currentPlan.value.chat_history || []
     } catch (e: unknown) {
       _handleError(e, 'loadPlan')
     }
@@ -279,7 +297,31 @@ export function usePlanMode() {
     }
   }
 
-  function clearPlan() {
+  async function finalizePlan() {
+    const planId = currentPlan.value?.plan_id
+    if (!planId) return
+
+    error.value = null
+    try {
+      await apiArchivePlan(planId)
+    } catch (e) {
+      console.warn('[usePlanMode] Archive failed, deleting instead:', e)
+      try { await apiDeletePlan(planId) } catch { /* ignore */ }
+    }
+
+    // Reset UI state
+    _stopProgressPolling()
+    isExecuting.value = false
+    currentPlan.value = null
+    currentPhase.value = 1
+    courseMeta.value = null
+    chapters.value = []
+    chatMessages.value = []
+    planHistory.value = planHistory.value.filter(p => p.plan_id !== planId)
+  }
+
+  async function clearPlan() {
+    const planId = currentPlan.value?.plan_id
     _stopProgressPolling()
     isExecuting.value = false
     currentPlan.value = null
@@ -288,6 +330,26 @@ export function usePlanMode() {
     courseMeta.value = null
     chapters.value = []
     chatMessages.value = []
+
+    // Delete from backend if plan existed
+    if (planId) {
+      try {
+        await apiDeletePlan(planId)
+        planHistory.value = planHistory.value.filter(p => p.plan_id !== planId)
+      } catch (e) {
+        console.warn('[usePlanMode] Backend delete failed (plan cleared locally):', e)
+      }
+    }
+  }
+
+  async function deletePlanFromHistory(planId: string) {
+    error.value = null
+    try {
+      await apiDeletePlan(planId)
+      planHistory.value = planHistory.value.filter(p => p.plan_id !== planId)
+    } catch (e: unknown) {
+      _handleError(e, 'deletePlanFromHistory')
+    }
   }
 
   // ── Error Helper ──────────────────────────────────────────────
@@ -320,6 +382,8 @@ export function usePlanMode() {
     approve,
     execute,
     clearPlan,
+    finalizePlan,
+    deletePlanFromHistory,
     // Phase Wizard
     currentPhase,
     courseMeta,

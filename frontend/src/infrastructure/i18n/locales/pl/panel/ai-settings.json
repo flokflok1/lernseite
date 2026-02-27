@@ -17,6 +17,16 @@
       "modelsFromProviders": "{count} modeli od {providers} dostawców",
       "title": "Dostępne modele"
     },
+    "sync": {
+      "syncButton": "Synchronizuj modele",
+      "syncing": "Synchronizowanie...",
+      "noConfiguredProviders": "Brak aktywnych dostawców ze skonfigurowanym kluczem API",
+      "added": "dodano",
+      "updated": "zaktualizowano",
+      "deactivated": "dezaktywowano",
+      "errors": "Błędy",
+      "syncFailed": "Synchronizacja nie powiodła się"
+    },
     "defaultModel": {
       "defaultModelLabel": "Domyślny model",
       "defaultProvider": "Domyślny dostawca",

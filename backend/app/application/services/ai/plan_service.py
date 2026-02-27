@@ -153,10 +153,11 @@ class PlanService:
 
         ContentPlanRepository.update_status(plan_id, 'executing')
 
-        # Launch background execution
+        # Launch background execution (creates chapters + lessons)
+        from app.application.services.ai.plan_execution import execute_plan_background
         import threading
         thread = threading.Thread(
-            target=_execute_plan_background,
+            target=execute_plan_background,
             args=(plan_id, plan, user_id),
             daemon=True,
         )
@@ -166,76 +167,6 @@ class PlanService:
             'plan_id': plan_id,
             'status': 'executing',
         }
-
-
-# ---------------------------------------------------------------------------
-# Background execution
-# ---------------------------------------------------------------------------
-
-def _execute_plan_background(plan_id: str, plan: Dict[str, Any], user_id: str) -> None:
-    """
-    Execute all plan steps in a background thread.
-
-    Updates each step's status in plan_data as it completes (Bug 3 fix).
-    Runs outside the Flask request context, so uses its own app context.
-    """
-    from flask import current_app
-    from app.application.services.ai.skill_service import SkillExecutionService
-
-    # Import the app factory to get a fresh app context
-    try:
-        from app import create_app
-        app = create_app()
-    except Exception:
-        # Fallback: try to use current_app if available
-        app = current_app._get_current_object()
-
-    with app.app_context():
-        try:
-            plan_data = plan['plan_data']
-            if isinstance(plan_data, str):
-                plan_data = json.loads(plan_data)
-
-            total_tokens = 0
-            has_failures = False
-
-            for phase_idx, phase in enumerate(plan_data.get('phases', [])):
-                for step_idx, step in enumerate(phase.get('steps', [])):
-                    step_id = step.get('step_id', f'{phase_idx}-{step_idx}')
-
-                    # Mark step as running
-                    step['status'] = 'running'
-                    ContentPlanRepository.update_plan_data(plan_id, plan_data)
-
-                    try:
-                        result = SkillExecutionService.execute(
-                            skill_code=step['skill_code'],
-                            course_id=plan['course_id'],
-                            user_id=user_id,
-                            target_type=step.get('target_type'),
-                            target_id=step.get('target_id'),
-                            parameters=step.get('parameters'),
-                            plan_id=plan_id,
-                        )
-                        step['status'] = 'completed'
-                        tokens = result.get('tokens_input', 0) + result.get('tokens_output', 0)
-                        total_tokens += tokens
-                    except Exception as e:
-                        logger.error(f"Step {step_id} failed: {e}")
-                        step['status'] = 'failed'
-                        has_failures = True
-
-                    # Persist step status + running token count
-                    ContentPlanRepository.update_plan_data(plan_id, plan_data)
-                    ContentPlanRepository.update_token_count(plan_id, total_tokens)
-
-            final_status = 'completed' if not has_failures else 'paused'
-            ContentPlanRepository.update_status(plan_id, final_status)
-            logger.info(f"Plan {plan_id} execution finished: {final_status}, {total_tokens} tokens")
-
-        except Exception as e:
-            logger.error(f"Plan {plan_id} background execution crashed: {e}")
-            ContentPlanRepository.update_status(plan_id, 'paused')
 
 
 # ---------------------------------------------------------------------------

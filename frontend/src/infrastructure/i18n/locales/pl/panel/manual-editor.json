@@ -9,7 +9,21 @@
     },
     "knowledge": {
       "chapterTheory": "Teoria rozdziału",
-      "lessonExplanation": "Wyjaśnienia lekcji"
+      "lessonTheory": "Teoria lekcji",
+      "addSheet": "Dodaj arkusz teorii",
+      "editSheet": "Edytuj arkusz teorii",
+      "deleteSheet": "Usuń arkusz teorii",
+      "confirmDelete": "Czy na pewno usunąć arkusz teorii \"{title}\"?",
+      "sheetTitle": "Tytuł",
+      "sheetTitlePlaceholder": "Tytuł arkusza teorii",
+      "sheetContent": "Treść",
+      "sheetContentPlaceholder": "Wprowadź treść tutaj (obsługa Markdown)",
+      "empty": "Brak arkuszy teorii",
+      "save": "Zapisz",
+      "saveFailed": "Zapisywanie nie powiodło się",
+      "loadFailed": "Nie udało się załadować arkuszy teorii",
+      "deleteFailed": "Usuwanie nie powiodło się",
+      "noParentSelected": "Wybierz rozdział lub lekcję"
     },
     "structure": {
       "title": "Struktura",
@@ -94,7 +108,8 @@
       "title": "Podgląd",
       "noContent": "Brak treści do wyświetlenia",
       "desktop": "Komputer",
-      "mobile": "Telefon"
+      "mobile": "Telefon",
+      "activitiesHeading": "Zadania"
     },
     "lessonSettings": {
       "title": "Ustawienia lekcji",

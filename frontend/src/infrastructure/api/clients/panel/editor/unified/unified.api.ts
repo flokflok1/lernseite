@@ -56,6 +56,25 @@ export async function executePlan(planId: string): Promise<{ plan_id: string; st
   return res.data.data
 }
 
+export async function pausePlan(planId: string): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/${planId}/pause`)
+  return res.data.data
+}
+
+export async function resumePlan(planId: string): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/${planId}/resume`)
+  return res.data.data
+}
+
+export async function archivePlan(planId: string): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/${planId}/archive`)
+  return res.data.data
+}
+
+export async function deletePlan(planId: string): Promise<void> {
+  await http.delete(`${BASE}/plans/${planId}`)
+}
+
 export async function listPlans(courseId: string, limit = 20, offset = 0): Promise<ContentPlan[]> {
   const res = await http.get(`${BASE}/plans`, { params: { course_id: courseId, limit, offset } })
   return res.data.data

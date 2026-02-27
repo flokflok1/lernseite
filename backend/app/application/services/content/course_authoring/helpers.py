@@ -4,6 +4,7 @@ Helper utilities for course authoring service.
 
 import json
 import logging
+import re
 from typing import Dict, List, Tuple, Any
 from datetime import datetime
 
@@ -12,6 +13,60 @@ logger = logging.getLogger(__name__)
 
 class DataHelpers:
     """Data parsing and extraction helpers."""
+
+    @staticmethod
+    def _strip_json_comments(json_str: str) -> str:
+        """
+        Strip JS-style comments from JSON string.
+
+        Handles:
+        - Single-line comments: // ...
+        - Multi-line comments: /* ... */
+        - Trailing commas before } or ]
+
+        Does NOT strip inside quoted strings.
+        """
+        # Remove single-line comments (// ...) — but not inside strings
+        # Strategy: match strings first to skip them, then remove comments
+        result = []
+        i = 0
+        while i < len(json_str):
+            # Skip quoted strings
+            if json_str[i] == '"':
+                j = i + 1
+                while j < len(json_str):
+                    if json_str[j] == '\\':
+                        j += 2
+                        continue
+                    if json_str[j] == '"':
+                        j += 1
+                        break
+                    j += 1
+                result.append(json_str[i:j])
+                i = j
+            # Single-line comment
+            elif json_str[i:i+2] == '//':
+                # Skip to end of line
+                end = json_str.find('\n', i)
+                if end == -1:
+                    break
+                i = end
+            # Multi-line comment
+            elif json_str[i:i+2] == '/*':
+                end = json_str.find('*/', i + 2)
+                if end == -1:
+                    break
+                i = end + 2
+            else:
+                result.append(json_str[i])
+                i += 1
+
+        cleaned = ''.join(result)
+
+        # Remove trailing commas before } or ]
+        cleaned = re.sub(r',\s*([}\]])', r'\1', cleaned)
+
+        return cleaned
 
     @staticmethod
     def parse_ai_response(output: str) -> Tuple[str, Dict]:
@@ -23,26 +78,42 @@ class DataHelpers:
 
         Returns:
             Tuple of (assistant_message, structure_patch)
+            If JSON parsing fails, structure_patch will contain
+            {'_parse_error': '...'} so callers can report the error.
         """
         assistant_message = output
         structure_patch = None
 
         try:
+            json_str = None
+
             # Versuche JSON zu extrahieren
             if '```json' in output:
                 start = output.find('```json') + 7
                 end = output.find('```', start)
                 if end > start:
                     json_str = output[start:end].strip()
-                    data = json.loads(json_str)
-                    assistant_message = data.get('assistant_message', output[:500])
-                    structure_patch = data.get('structure_patch')
             elif output.strip().startswith('{'):
-                data = json.loads(output)
-                assistant_message = data.get('assistant_message', '')
+                json_str = output.strip()
+
+            if json_str:
+                # Strip JS-style comments before parsing
+                cleaned = DataHelpers._strip_json_comments(json_str)
+                data = json.loads(cleaned)
+                assistant_message = data.get('assistant_message', output[:500])
                 structure_patch = data.get('structure_patch')
+
         except json.JSONDecodeError as e:
             logger.warning(f"Could not parse AI response as JSON: {e}")
+            # Preserve the assistant message from raw output if possible
+            # and signal the parse error to the caller
+            structure_patch = {'_parse_error': str(e)}
+            # Try to extract a human-readable message from the raw text
+            if '```json' in output:
+                # Text before the JSON block might be a message
+                before_json = output[:output.find('```json')].strip()
+                if before_json:
+                    assistant_message = before_json
 
         return assistant_message, structure_patch
 

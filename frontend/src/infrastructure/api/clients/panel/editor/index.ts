@@ -124,17 +124,5 @@ export {
 // Course Authoring (KI-Kurs-Builder)
 export * as courseAuthoringApi from './authoring/courseAuthoring.api'
 
-// AI Editor
-export {
-  createSession,
-  getSession,
-  listSessions,
-  updateSession,
-  deleteSession,
-  getTemplates,
-  uploadPDF,
-  setSourceData,
-  generateContent,
-  getStats,
-  finalizeSession
-} from './ai-editor/editor.api'
+// AI Editor (unified) — session/chat API accessed via courseAuthoringApi above
+// Legacy editor.api.ts removed: used non-existent /admin/ai-editor/ routes

@@ -104,7 +104,8 @@ class PlanGeneratorPort(ABC):
         self,
         plan_data: dict,
         message: str,
-        current_phase: int
+        current_phase: int,
+        file_text: str | None = None,
     ) -> dict:
         """Refine any plan phase via conversational interaction.
 

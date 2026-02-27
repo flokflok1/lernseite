@@ -36,8 +36,7 @@ from app.infrastructure.persistence.repositories.courses.chapters import Chapter
 from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
 from app.infrastructure.persistence.repositories.content.theory_sheet import TheorySheetRepository
 from app.application.services.system.audit.service import AuditService
-from app.infrastructure.i18n.error_codes import ErrorCode
-from app.infrastructure.i18n.error_codes import error_response
+from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +72,7 @@ def list_chapter_theories(chapter_id: str):
         # Verify chapter exists
         chapter = ChapterRepository.find_by_id(chapter_id)
         if not chapter:
-            return error_response(ErrorCode.COURSE_CHAPTER_NOT_FOUND, 404)
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
 
         # Get theory sheets
         theories = TheorySheetRepository.list_by_chapter(chapter_id)
@@ -87,7 +86,7 @@ def list_chapter_theories(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in list_chapter_theories: {e}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/chapters/<chapter_id>/theory', methods=['POST'])
@@ -118,7 +117,7 @@ def create_chapter_theory(chapter_id: str):
         # Verify chapter exists
         chapter = ChapterRepository.find_by_id(chapter_id)
         if not chapter:
-            return error_response(ErrorCode.COURSE_CHAPTER_NOT_FOUND, 404)
+            return error_response(ErrorCode.CHAPTER_NOT_FOUND, 404)
 
         # Validate request
         try:
@@ -157,7 +156,7 @@ def create_chapter_theory(chapter_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in create_chapter_theory: {e}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'error': str(e)})
 
 
 # ============================================================================
@@ -191,7 +190,7 @@ def list_lesson_theories(lesson_id: str):
         # Verify lesson exists
         lesson = LessonRepository.find_by_id(lesson_id)
         if not lesson:
-            return error_response(ErrorCode.COURSE_LESSON_NOT_FOUND, 404)
+            return error_response(ErrorCode.LESSON_NOT_FOUND, 404)
 
         # Get theory sheets
         theories = TheorySheetRepository.list_by_lesson(lesson_id)
@@ -205,7 +204,7 @@ def list_lesson_theories(lesson_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in list_lesson_theories: {e}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/lessons/<lesson_id>/theory', methods=['POST'])
@@ -236,7 +235,7 @@ def create_lesson_theory(lesson_id: str):
         # Verify lesson exists
         lesson = LessonRepository.find_by_id(lesson_id)
         if not lesson:
-            return error_response(ErrorCode.COURSE_LESSON_NOT_FOUND, 404)
+            return error_response(ErrorCode.LESSON_NOT_FOUND, 404)
 
         # Validate request
         try:
@@ -253,7 +252,7 @@ def create_lesson_theory(lesson_id: str):
             lesson_id=lesson_id,
             title=theory_data.title,
             content=theory_data.content,
-            order_index=theory_data.order_index or 0
+            order_index=theory_data.order_index
         )
 
         # Audit log
@@ -275,7 +274,7 @@ def create_lesson_theory(lesson_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in create_lesson_theory: {e}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'error': str(e)})
 
 
 # ============================================================================
@@ -310,13 +309,13 @@ def get_theory_sheet(theory_id: str):
     try:
         theory = TheorySheetRepository.get_by_id(theory_id)
         if not theory:
-            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
+            return error_response(ErrorCode.THEORY_NOT_FOUND, 404)
 
         return jsonify({'success': True, 'data': theory}), 200
 
     except Exception as e:
         logger.error(f"ERROR in get_theory_sheet: {e}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/theory-sheets/<theory_id>', methods=['PATCH'])
@@ -350,7 +349,7 @@ def update_theory_sheet(theory_id: str):
         # Get theory sheet to determine parent type
         theory = TheorySheetRepository.get_by_id(theory_id)
         if not theory:
-            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
+            return error_response(ErrorCode.THEORY_NOT_FOUND, 404)
 
         parent_type = theory['parent_type']
 
@@ -370,7 +369,7 @@ def update_theory_sheet(theory_id: str):
         )
 
         if not updated_theory:
-            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
+            return error_response(ErrorCode.THEORY_NOT_FOUND, 404)
 
         # Audit log
         AuditService.log_action(
@@ -390,7 +389,7 @@ def update_theory_sheet(theory_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in update_theory_sheet: {e}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'error': str(e)})
 
 
 @manual_editor_bp.route('/theory-sheets/<theory_id>', methods=['DELETE'])
@@ -416,14 +415,14 @@ def delete_theory_sheet(theory_id: str):
         # Get theory sheet to determine parent type and details
         theory = TheorySheetRepository.get_by_id(theory_id)
         if not theory:
-            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
+            return error_response(ErrorCode.THEORY_NOT_FOUND, 404)
 
         parent_type = theory['parent_type']
 
         # Delete theory sheet
         deleted = TheorySheetRepository.delete_by_id(theory_id, parent_type)
         if not deleted:
-            return error_response(ErrorCode.COURSE_FILE_NOT_FOUND, 404)
+            return error_response(ErrorCode.THEORY_NOT_FOUND, 404)
 
         # Audit log
         AuditService.log_action(
@@ -443,4 +442,4 @@ def delete_theory_sheet(theory_id: str):
 
     except Exception as e:
         logger.error(f"ERROR in delete_theory_sheet: {e}")
-        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500, details={'error': str(e)})
+        return error_response(ErrorCode.INTERNAL_ERROR, 500, details={'error': str(e)})

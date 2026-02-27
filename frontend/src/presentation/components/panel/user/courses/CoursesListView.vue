@@ -246,7 +246,7 @@ const tabs = computed(() => {
   return [
     { id: 'academy' as const, label: t('courses.tab_academy'), icon: '🎓', count: academyCourses.value.length },
     { id: 'community' as const, label: t('courses.tab_community'), icon: '🌍', count: undefined },
-    { id: 'own' as const, label: t('courses.tab_own'), icon: '📖', count: enrolledCourses.value.length }
+    { id: 'own' as const, label: t('courses.tab_own'), icon: '📖', count: myCourses.value.length + enrolledCourses.value.length }
   ]
 })
 

@@ -31,9 +31,10 @@ export * from './users/groups.api'
 export * from './users/groups.types'
 export { default as groupsApi } from './users/groups.api'
 
-// System domain (settings, feature flags)
+// System domain (settings, feature flags, system features)
 export * from './system/settings.api'
 export * from './system/feature-flags.api'
+export * from './system/system-features.api'
 
 // Content domain (learning methods, plugins, routing)
 export * from './content/learning-methods.api'

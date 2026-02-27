@@ -215,7 +215,7 @@
                   class="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
                   :style="getGroupStyle(methodType.group)"
                 >
-                  {{ String(getGroupPosition(methodType)).padStart(2, '0') }}
+                  {{ t(`lesson.methodExecution.methods.lm${String(methodType.lm_id).padStart(2, '0')}`) }}
                 </div>
                 <div class="flex-1 min-w-0">
                   <h4 class="font-semibold text-[var(--color-text-primary)] text-sm">{{ methodType.name }}</h4>
@@ -240,6 +240,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 import { useLearningMethods } from './composables/useLearningMethods.ts'
 import { InstancesTab, CatalogTab, StatsTab } from './tabs/index.ts'
 import LearningMethodEditModal from './LearningMethodEditModal.vue'

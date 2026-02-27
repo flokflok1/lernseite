@@ -29,7 +29,6 @@ from ..core.events import (
     EventPublisher,
     EventPriority
 )
-from ..core.value_objects import ProviderHealth
 
 logger = logging.getLogger(__name__)
 
@@ -88,14 +87,8 @@ def test_provider_connection(provider_id: int) -> Tuple[Dict[str, Any], int]:
         new_health = health_result['health_status']
         health_changed = previous_health != new_health
 
-        # Update provider health status in DB
-        AIProviderRepository.update(
-            provider_id,
-            {
-                'health_status': new_health,
-                'last_health_check': datetime.utcnow()
-            }
-        )
+        # Update last validated timestamp in DB
+        AIProviderRepository.validate_api_key(provider_id, health_result['is_healthy'])
 
         # DDD: Publish Domain Event if health changed
         if health_changed:
@@ -105,8 +98,8 @@ def test_provider_connection(provider_id: int) -> Tuple[Dict[str, Any], int]:
                 aggregate_id=str(provider_id),
                 provider_id=str(provider_id),
                 provider_name=provider.get('name'),
-                previous_health=previous_health,
-                new_health=new_health,
+                old_status=previous_health,
+                new_status=new_health,
                 response_time_ms=health_result.get('response_time_ms', 0),
                 error_message=health_result.get('error_message'),
                 priority=EventPriority.HIGH if new_health == 'unhealthy' else EventPriority.MEDIUM
@@ -154,7 +147,7 @@ def test_provider_connection(provider_id: int) -> Tuple[Dict[str, Any], int]:
                 if health_result['is_healthy']
                 else f'Provider {provider.get("display_name")} failed health check'
             )
-        }), 200 if health_result['is_healthy'] else 503
+        }), 200
 
     except Exception as e:
         logger.error(f"Error testing provider {provider_id}: {e}")

@@ -100,21 +100,14 @@ def build_phase2_prompt(
 
 _DIDACTIC_GUIDELINES = (
     'DIDAKTISCHE REGELN (PFLICHT):\n'
-    '1. Jedes Kapitel MUSS mit generate_theory_sheet beginnen '
-    '(target_type: "chapter")\n'
-    '2. Jede Lektion MUSS mit generate_theory_sheet beginnen '
-    '(target_type: "lesson")\n'
-    '3. Nach der Theorie: 2-3 Lernmethoden pro Lektion\n'
-    '4. Am Ende jedes Kapitels: generate_chapter_exam '
-    '(falls verfuegbar)\n\n'
-    'ZUORDNUNG nach Inhaltstyp:\n'
-    '- Konzepte/Definitionen -> generate_flashcards, generate_cloze_test\n'
-    '- Prozesse/Ablaeufe -> generate_step_by_step, generate_multi_step\n'
-    '- Berechnungen/Formeln -> generate_math_interactive\n'
-    '- Praxisbeispiele -> generate_example_scenario\n'
-    '- Visuelle Themen -> generate_diagram\n'
-    '- Verstaendnispruefung -> generate_free_text\n'
-    '- Pruefungsvorbereitung -> generate_ihk_tasks\n'
+    '1. Jede Lektion beginnt mit einem Theorie-Skill '
+    '(generate_theory_sheet oder generate_deep_explanation)\n'
+    '2. Nach der Theorie: 2-3 weitere Lernmethoden pro Lektion (im learning_methods Array)\n'
+    '3. Am Ende jedes Kapitels: eine Assessment-Lektion '
+    '(generate_ihk_tasks, generate_multi_step oder generate_chapter_exam)\n'
+    '4. Die learning_methods IDs MUESSEN zum Inhalt passen — '
+    'siehe die PEDAGOGISCHE REGELN im Skill-Katalog!\n'
+    '5. Abwechslung: Nicht jede Lektion gleich aufbauen\n'
 )
 
 
@@ -139,14 +132,17 @@ def build_phase3_prompt(
         '      "steps": [\n'
         '        {\n'
         '          "skill_code": "generate_theory_sheet",\n'
-        '          "target_type": "chapter",\n'
-        '          "target_title": "Kapitelname",\n'
+        '          "target_type": "lesson",\n'
+        '          "target_title": "Lektionsname",\n'
+        '          "learning_methods": [0, 6, 8],\n'
         '          "parameters": {"language": "de"}\n'
         '        }\n'
         '      ]\n'
         '    }\n'
         '  ]\n'
-        '}'
+        '}\n\n'
+        'WICHTIG: "learning_methods" ist ein Array von Lernmethoden-IDs (0-11), '
+        'die der Lektion zugeordnet werden. Siehe Skill-Katalog fuer die IDs.'
     )
 
     meta_section = _format_course_meta(course_meta)
@@ -169,6 +165,7 @@ def build_phase3_prompt(
 def build_plan_chat_prompt(
     plan_data: dict,
     current_phase: int,
+    file_text: str | None = None,
 ) -> str:
     """Build system message for plan chat refinement."""
     phase_labels = {
@@ -180,25 +177,59 @@ def build_plan_chat_prompt(
     phase_label = phase_labels.get(current_phase, 'Unbekannt')
     plan_summary = _format_plan_for_chat(plan_data)
 
+    file_section = ''
+    if file_text:
+        truncated = file_text[:4000]
+        file_section = (
+            '\n\nHOCHGELADENES MATERIAL (Auszug):\n'
+            f'--- DOKUMENT ---\n{truncated}\n--- ENDE ---\n'
+            'Du HAST Zugriff auf dieses Material. Nutze es als Kontext.\n'
+        )
+
     return (
         'Du bist ein Kursplanungs-Assistent.\n'
+        'WICHTIG: Antworte IMMER mit validem JSON, NIEMALS mit Freitext!\n\n'
         f'Aktuelle Phase: {current_phase} — {phase_label}\n\n'
         f'Aktueller Plan:\n{plan_summary}\n\n'
-        'Der Benutzer moechte den Plan anpassen. '
-        'Antworte mit validem JSON:\n'
+        'ANTWORTFORMAT (PFLICHT — nur JSON, kein Freitext!):\n'
         '{\n'
-        '  "assistant_message": "Deine Antwort an den Benutzer",\n'
+        '  "assistant_message": "<hier deine Antwort schreiben>",\n'
         '  "plan_patch": null\n'
         '}\n\n'
-        'Wenn du eine Aenderung am Plan vorschlaegst, '
-        'setze plan_patch auf ein Objekt mit den geaenderten Feldern.\n'
-        'Beispiel plan_patch fuer Phase 1: '
-        '{"title": "Neuer Titel", "difficulty": "advanced"}\n'
-        'Beispiel plan_patch fuer Phase 2: '
-        '{"chapters": [{"title": "...", "description": "..."}]}\n'
-        'Beispiel plan_patch fuer Phase 3: '
-        '{"phases": [...]}\n\n'
-        'Wenn keine Aenderung noetig ist, setze plan_patch auf null.'
+        'KRITISCHE REGEL: Wenn der Benutzer eine Aenderung wuenscht '
+        '(hinzufuegen, entfernen, aendern, erweitern, mehr Inhalt, etc.), '
+        'MUSST du einen plan_patch senden! Antworte NIEMALS nur verbal '
+        'mit plan_patch: null wenn eine Aenderung gewuenscht ist.\n\n'
+        'PLAN_PATCH BEISPIELE nach Phase:\n'
+        'Phase 1: {"title": "Neuer Titel", "difficulty": "advanced"}\n'
+        'Phase 2: {"chapters": [{"title": "...", "description": "..."}]}\n'
+        'Phase 3 — INKREMENTELLE Aenderungen (NICHT das gesamte phases-Array!):\n'
+        '  Nutze die Phase-Indizes aus dem Plan oben (z.B. [0], [1], [2]...).\n'
+        '  Neue Phase hinzufuegen: {"add_phases": [{"title": "OSI-Modell", '
+        '"chapter_index": 3, "steps": [{"skill_code": "generate_theory_sheet", '
+        '"target_type": "lesson", "target_title": "Das OSI-Schichtenmodell", '
+        '"learning_methods": [0, 3, 7], "parameters": {"language": "de"}}]}]}\n'
+        '  Phase entfernen: {"remove_phases": [2]}\n'
+        '  Phase komplett ersetzen: {"replace_phase": {"index": 5, '
+        '"phase": {"title": "...", "steps": [...]}}}\n'
+        '  Steps zu bestehender Phase hinzufuegen: {"add_steps": {"phase_index": 3, '
+        '"steps": [{"skill_code": "generate_drag_and_drop", "target_type": "lesson", '
+        '"target_title": "OSI-Schichten zuordnen", "learning_methods": [7], '
+        '"parameters": {"language": "de"}}]}}\n\n'
+        'VERBOTEN bei Phase 3:\n'
+        '- NIEMALS eine Phase entfernen (remove_phases) wenn der User nur '
+        'einen Step aendern will — nutze stattdessen replace_phase!\n'
+        '- NIEMALS das gesamte phases-Array senden — nur inkrementelle Ops!\n'
+        '- NIEMALS plan_patch: null wenn der User explizit eine Aenderung will!\n\n'
+        'LERNMETHODEN IDs: 0=Erklaerung, 1=Schritt-fuer-Schritt, '
+        '2=Interaktive Theorie, 3=Diagramm, 4=Praxisbeispiel, '
+        '5=Mathe, 6=Karteikarten, 7=Drag&Drop, 8=Lueckentext, '
+        '9=Freitext, 10=IHK-Aufgaben, 11=Mehrstufige Praxis\n\n'
+        'Wenn keine Aenderung noetig ist (reine Informationsfrage), '
+        'setze plan_patch auf null.\n'
+        f'{file_section}'
+        '\nERINNERUNG: Deine Antwort MUSS valides JSON sein mit '
+        '"assistant_message" und "plan_patch" Feldern!'
     )
 
 
@@ -263,19 +294,19 @@ def _format_plan_for_chat(plan_data: dict) -> str:
         for i, ch in enumerate(chapters):
             lines.append(f'  {i + 1}. {ch.get("title", "?")}')
 
-    # Phases/steps if present
+    # Phases/steps if present — show indices for incremental patches
     phases = plan_data.get('phases', [])
     if phases:
         lines.append(f'\nPhasen ({len(phases)}):')
-        for phase in phases:
+        for idx, phase in enumerate(phases):
             title = phase.get('title', '?')
             steps = phase.get('steps', [])
-            lines.append(f'  - {title} ({len(steps)} Schritte)')
-            for step in steps[:5]:
+            lines.append(f'  [{idx}] {title} ({len(steps)} Schritte)')
+            for step_idx, step in enumerate(steps):
                 skill = step.get('skill_code', '?')
                 target = step.get('target_title', '')
-                lines.append(f'    * {skill}: {target}')
-            if len(steps) > 5:
-                lines.append(f'    ... +{len(steps) - 5} weitere')
+                lms = step.get('learning_methods', [])
+                lm_str = f' [LM: {lms}]' if lms else ''
+                lines.append(f'    {step_idx+1}. {skill}: {target}{lm_str}')
 
     return '\n'.join(lines) if lines else '(Leerer Plan)'

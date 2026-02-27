@@ -76,7 +76,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
 
         query = f"""
             SELECT *
-            FROM analytics_events
+            FROM analytics.analytics_events
             WHERE {where_clause}
             ORDER BY created_at DESC
         """
@@ -117,7 +117,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                 SELECT
                     DATE(created_at) as date,
                     COUNT(*) as count
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE created_at BETWEEN %s AND %s
                   AND organisation_id = %s
                 GROUP BY DATE(created_at)
@@ -129,7 +129,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                 SELECT
                     DATE(created_at) as date,
                     COUNT(*) as count
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE created_at BETWEEN %s AND %s
                 GROUP BY DATE(created_at)
                 ORDER BY date ASC
@@ -164,7 +164,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                 SELECT
                     DATE(created_at) as date,
                     COUNT(DISTINCT user_id) as count
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE created_at BETWEEN %s AND %s
                   AND organisation_id = %s
                 GROUP BY DATE(created_at)
@@ -176,7 +176,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                 SELECT
                     DATE(created_at) as date,
                     COUNT(DISTINCT user_id) as count
-                FROM analytics_events
+                FROM analytics.analytics_events
                 WHERE created_at BETWEEN %s AND %s
                 GROUP BY DATE(created_at)
                 ORDER BY date ASC
@@ -240,7 +240,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                        AND ce.completion_percentage = 100),
                     0
                 ) as completions
-            FROM analytics_events ae
+            FROM analytics.analytics_events ae
             LEFT JOIN courses.courses c ON c.course_id = CAST(ae.resource_id AS INTEGER)
             WHERE {where_clause}
             GROUP BY ae.resource_id, c.title
@@ -288,7 +288,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                 COUNT(*) as calls,
                 COALESCE(SUM(CAST(ae.payload->>'tokens_used' AS INTEGER)), 0) as tokens_used,
                 COALESCE(AVG(CAST(ae.payload->>'tokens_used' AS INTEGER)), 0) as avg_tokens
-            FROM analytics_events ae
+            FROM analytics.analytics_events ae
             LEFT JOIN learning_methods lm ON lm.method_id = CAST(ae.resource_id AS INTEGER)
             WHERE {where_clause}
             GROUP BY ae.resource_id, lm.name
@@ -355,7 +355,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                     0
                 ) * 100.0 / NULLIF(COUNT(DISTINCT ae.user_id), 0) as completion_rate,
                 COUNT(*) as events_count
-            FROM analytics_events ae
+            FROM analytics.analytics_events ae
             LEFT JOIN courses.courses c ON c.course_id = CAST(ae.resource_id AS INTEGER)
             WHERE {where_clause}
             GROUP BY ae.resource_id, c.title
@@ -409,7 +409,7 @@ class AdvancedAnalyticsRepository(BaseRepository):
                 c.title as course_title,
                 COUNT(*) as completions,
                 COALESCE(AVG(CAST(ae.payload->>'time_spent_minutes' AS INTEGER)), 0) as avg_time_spent
-            FROM analytics_events ae
+            FROM analytics.analytics_events ae
             LEFT JOIN courses.chapters ch ON ch.chapter_id = CAST(ae.resource_id AS UUID)
             LEFT JOIN courses.courses c ON c.course_id = ch.course_id
             WHERE {where_clause}

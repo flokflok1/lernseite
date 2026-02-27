@@ -202,18 +202,15 @@ export function formatDate(dateStr: string, locale = 'de-DE'): string {
 
 /**
  * Returns localized method name using the i18n t() function.
- * Falls back to "Lernmethode {id}" if key is not found.
+ * Uses keys from the i18n DB: lesson.methodExecution.methods.lm00..lm11
  */
 export function getMethodName(
   type: number | string | undefined,
-  t: (key: string, params?: Record<string, unknown>) => string,
-  keyPrefix = 'panel.lessons.preview'
+  t: (key: string) => string
 ): string {
   const numType = parseMethodType(type)
-  if (isNaN(numType)) return t(`${keyPrefix}.methodDefault`)
-  const key = `${keyPrefix}.methodNames.lm${numType}`
-  const name = t(key)
-  return name === key ? t(`${keyPrefix}.methodWithId`, { id: numType }) : name
+  if (isNaN(numType)) return 'LM'
+  return t(`lesson.methodExecution.methods.lm${String(numType).padStart(2, '0')}`)
 }
 
 export interface PreviewTab {

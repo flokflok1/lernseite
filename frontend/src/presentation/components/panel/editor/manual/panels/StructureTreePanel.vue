@@ -103,8 +103,13 @@ const cancelDelete = (): void => {
 }
 
 const selectChapter = (chapterId: string): void => {
-  store.selectChapter(chapterId)
   expandedChapters.value.add(chapterId)
+  const lessons = getLessons(chapterId)
+  if (lessons.length > 0) {
+    store.selectLesson(chapterId, lessons[0].lesson_id)
+  } else {
+    store.selectChapter(chapterId)
+  }
 }
 
 const selectLesson = (chapterId: string, lessonId: number): void => {

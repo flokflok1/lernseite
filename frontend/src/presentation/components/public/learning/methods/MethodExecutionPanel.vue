@@ -1,55 +1,39 @@
 <template>
   <div class="method-execution-panel">
-    <!-- Token Balance -->
-    <TokenBalanceDisplay
-      :balance="tokenBalance"
-      :color-class="tokenColorClass"
-      :percentage="tokenPercentage"
+    <!-- 1. Progress Header -->
+    <TaskProgressHeader
+      :completed="completedCount"
+      :total="totalCount"
+      :percentage="progressPercentage"
     />
 
-    <!-- Task Stats -->
-    <TaskStatsPanel
-      :count-generated="countGenerated"
-      :count-solved="countSolved"
-      :show-calculator="false"
-      @show-all="openAllTasksModal"
-      @delete-all="confirmDeleteAll"
-    />
-
-    <!-- Method Cards -->
-    <MethodCardList
-      :methods="methods"
-      :is-executing="isExecuting"
-      :executing-method-id="executingMethodId"
+    <!-- 2. Task Practice List (PRIMARY) -->
+    <TaskPracticeList
+      :tasks="tasks"
+      :active-task-id="activeTaskId"
       :get-icon="getMethodIcon"
       :get-name="getMethodName"
-      :can-execute="canExecute"
-      @generate="handleGenerateTask"
+      @open="handleOpenTask"
     />
 
-    <!-- Recent Tasks Preview -->
-    <div v-if="recentTasks.length > 0" class="recent-section">
-      <h4 class="recent-title">{{ $t('lesson.methodExecution.recentTasks') }}</h4>
-      <div class="recent-list">
-        <button
-          v-for="(task, index) in recentTasks"
-          :key="index"
-          @click="handleOpenRecentTask(index)"
-          class="recent-item"
-        >
-          <div class="recent-num">{{ generatedTasks.length - index }}</div>
-          <span class="recent-text">{{ getTaskPreview(task) }}</span>
-          <span class="recent-status">
-            {{ task.completed ? '✓' : '○' }}
-          </span>
-        </button>
-      </div>
+    <!-- 3. AI Smart-Mix (SECONDARY, bottom) -->
+    <div class="ai-section">
+      <button
+        @click="handleAiGenerate"
+        :disabled="isGenerating || !smartMixPreview"
+        class="ai-generate-btn"
+      >
+        <span v-if="isGenerating" class="spinner-sm" />
+        <span v-else-if="smartMixPreview">{{ $t('lesson.methodExecution.aiGenerate') }}: {{ smartMixPreview }}</span>
+        <span v-else>{{ $t('lesson.methodExecution.allCompleted') }}</span>
+      </button>
+      <p class="ai-hint">{{ $t('lesson.methodExecution.aiGenerateHint') }}</p>
     </div>
 
     <!-- Loading Overlay -->
-    <div v-if="isExecuting" class="loading-overlay">
+    <div v-if="isGenerating" class="loading-overlay">
       <div class="loading-box">
-        <div class="loading-spinner"></div>
+        <div class="loading-spinner" />
         <p class="loading-title">{{ $t('lesson.methodExecution.generating') }}</p>
         <p class="loading-hint">{{ $t('lesson.methodExecution.generatingHint') }}</p>
       </div>
@@ -59,59 +43,28 @@
     <Transition name="slide-up">
       <div v-if="errorMessage" class="error-bar">
         <span>{{ errorMessage }}</span>
-        <button @click="errorMessage = null" class="error-close">×</button>
+        <button @click="errorMessage = null" class="error-close">&times;</button>
       </div>
     </Transition>
-
-    <!-- Math Task Modal -->
-    <\!--REMOVED: MathTaskModal
-      v-if="showTaskModal && selectedTaskIndex !== null && generatedTasks[selectedTaskIndex]"
-      :task="generatedTasks[selectedTaskIndex].data"
-      @close="closeTaskModal"
-      @complete="handleTaskComplete"
-    />
-
-    <!-- All Tasks Modal -->
-    <TaskManagerModal
-      :show="showAllTasksModal"
-      :tasks="filteredTasks"
-      :selected-tasks="selectedTasks"
-      :sort-by="sortBy"
-      :filter-by="filterBy"
-      :format-time="formatTimeAgo"
-      @close="closeAllTasksModal"
-      @sort="setSortBy"
-      @filter="setFilterBy"
-      @toggle-select="toggleTaskSelection"
-      @toggle-all="toggleAllTasks"
-      @delete-selected="confirmDeleteSelected"
-      @delete-task="confirmDeleteTask"
-      @open-task="openTaskModal"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 /**
- * MethodExecutionPanel (Orchestrator)
- * ====================================
- * Coordinates method execution, task management, and token balance
- * Refactored from 1601 LOC to ~250 LOC (-84%)
+ * MethodExecutionPanel (Redesigned)
+ * ==================================
+ * Shows editor-created tasks as a practice list (primary).
+ * AI generation is a small secondary feature at the bottom.
  */
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LearningMethod } from '@/domain/models/learning/types'
-// REMOVED: import MathTaskModal (file not found)
-
+import { usePlayerStore } from '@/application/stores/modules/content/player.store'
 import {
-  // REMOVED: TokenBalanceDisplay (not exported)
-  // REMOVED: TaskStatsPanel (not exported)
-  MethodCardList,
-  // ... other removed components
+  TaskProgressHeader,
+  TaskPracticeList,
+  useTaskPractice,
+  useMethodExecution,
 } from '@/presentation/components/public/learning/methods/method-execution'
-import TaskManagerModal from './TaskManagerModal.vue'
-
-const { t } = useI18n()
 
 // ============================================================================
 // Props
@@ -119,208 +72,153 @@ const { t } = useI18n()
 
 interface Props {
   lessonId: string | number
-  methods: LearningMethod[]
+  methods: any[]
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
+const playerStore = usePlayerStore()
 
 // ============================================================================
-// Composable
+// Composables
 // ============================================================================
 
 const {
-  // State - Token & Balance
-  tokenBalance,
-  tokenColorClass,
-  tokenPercentage,
-
-  // State - Tasks
-  generatedTasks,
-  selectedTaskIndex: _selectedTaskIndex,
-  selectedTasks,
-
-  // State - UI
-  isExecuting,
-  errorMessage,
-  showAllTasksModal,
-  showTaskModal: _showTaskModal,
-
-  // State - Modal Filters
-  sortBy,
-  filterBy,
-
-  // Computed - Stats
-  countGenerated,
-  countSolved,
-
-  // Computed - Tasks
-  filteredTasks,
-  recentTasks,
-
-  // Methods - Metadata
+  tasks,
+  completedCount,
+  totalCount,
+  progressPercentage,
   getMethodIcon,
   getMethodName,
-  getMethodMetadata: _getMethodMetadata,
+  pickSmartMixMethodType,
+  refreshProgress,
+} = useTaskPractice(String(props.lessonId))
 
-  // Methods - Task Generation
-  canExecute,
+const {
+  isExecuting: isGenerating,
   generateTask,
-
-  // Methods - Task Management
-  openTaskModal,
-  closeTaskModal: _closeTaskModal,
-  handleTaskComplete: _handleTaskComplete,
-  toggleTaskSelection,
-  toggleAllTasks,
-  deleteTask,
-  deleteSelectedTasks,
-  deleteAllTasks,
-
-  // Methods - Formatting
-  formatTimeAgo,
-
-  // Methods - Modal
-  openAllTasksModal,
-  closeAllTasksModal,
-  setSortBy,
-  setFilterBy
 } = useMethodExecution(String(props.lessonId))
 
 // ============================================================================
-// State (UI-specific)
+// State
 // ============================================================================
 
-const executingMethodId = ref<string | null>(null)
+const activeTaskId = ref<string | number | null>(null)
+const errorMessage = ref<string | null>(null)
 
-// ============================================================================
-// Event Handlers
-// ============================================================================
-
-async function handleGenerateTask(method: LearningMethod): Promise<void> {
-  executingMethodId.value = method.method_id
-  try {
-    await generateTask(method)
-  } finally {
-    executingMethodId.value = null
-  }
-}
-
-function handleOpenRecentTask(recentIndex: number): void {
-  // Map recent index (0-2) to actual task index (reverse order)
-  const actualIndex = generatedTasks.value.length - 1 - recentIndex
-  openTaskModal(actualIndex)
-}
-
-function getTaskPreview(task: GeneratedTask): string {
-  if (task.data && typeof task.data === 'object') {
-    if (task.data.question) return task.data.question
-    if (task.data.title) return task.data.title
-    if (task.data.text) return task.data.text
-  }
-  return task.methodName
-}
-
-function confirmDeleteAll(): void {
-  if (confirm(t('lesson.methodExecution.confirmDeleteAll'))) {
-    deleteAllTasks()
-  }
-}
-
-function confirmDeleteSelected(): void {
-  if (confirm(t('lesson.methodExecution.confirmDeleteSelected', { count: selectedTasks.value.size }))) {
-    deleteSelectedTasks()
-  }
-}
-
-function confirmDeleteTask(index: number): void {
-  if (confirm(t('lesson.methodExecution.confirmDeleteTask'))) {
-    deleteTask(index)
-  }
-}
-
-// ============================================================================
-// Lifecycle
-// ============================================================================
-
-onMounted(() => {
-  // Initialize token balance or load from API if needed
-  // tokenBalance is managed by the composable
+const smartMixPreview = computed(() => {
+  const type = pickSmartMixMethodType()
+  if (type === null) return null
+  return getMethodName(type)
 })
+
+// ============================================================================
+// Handlers
+// ============================================================================
+
+function handleOpenTask(methodId: string | number): void {
+  activeTaskId.value = methodId
+
+  // Find the method in the store and start a runner session
+  const method = playerStore.availableMethods.find(
+    (m: any) => String(m.method_id) === String(methodId)
+  )
+  if (method) {
+    playerStore.executeLearningMethod({
+      lesson_id: String(props.lessonId),
+      method_id: method.method_id,
+    }).then(() => {
+      refreshProgress()
+    }).catch((err: any) => {
+      errorMessage.value = err?.message || t('lesson.methodExecution.generating')
+      setTimeout(() => { errorMessage.value = null }, 5000)
+    })
+  }
+}
+
+async function handleAiGenerate(): Promise<void> {
+  const methodType = pickSmartMixMethodType()
+  if (methodType === null) return
+
+  // Find a method instance of this type to use for generation
+  const method = playerStore.availableMethods.find(
+    (m: any) => m.method_type === methodType
+  )
+  if (!method) return
+
+  errorMessage.value = null
+  try {
+    await generateTask(method as any)
+    await refreshProgress()
+  } catch (err: any) {
+    errorMessage.value = err?.message || t('lesson.methodPanel.errors.generating')
+    setTimeout(() => { errorMessage.value = null }, 5000)
+  }
+}
 </script>
 
 <style scoped>
-/* Method Execution Panel */
+/* Panel Layout */
 .method-execution-panel {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
-  background-color: var(--color-background, #f9fafb);
 }
 
-/* Recent Section */
-.recent-section {
-  padding: 1rem;
-  border-top: 1px solid var(--color-border, #e5e7eb);
-  background-color: var(--color-surface-secondary, #f9fafb);
+/* AI Section */
+.ai-section {
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
 }
 
-.recent-title {
+.ai-generate-btn {
+  width: 100%;
+  padding: 0.4375rem 0.75rem;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-secondary, #6b7280);
-  margin: 0 0 0.5rem;
-  text-transform: uppercase;
-}
-
-.recent-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.recent-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background-color: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-border, #e5e7eb);
+  font-weight: 500;
+  color: #64748b;
+  background-color: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
   border-radius: 0.5rem;
-  font-size: 0.75rem;
-  text-align: left;
-  transition: all 0.2s;
-}
-
-.recent-item:hover {
-  border-color: var(--color-primary, #3b82f6);
-}
-
-.recent-num {
-  width: 22px;
-  height: 22px;
-  background-color: var(--color-primary, #3b82f6);
-  color: white;
-  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.7rem;
-  flex-shrink: 0;
+  gap: 0.375rem;
 }
 
-.recent-text {
-  flex: 1;
-  color: var(--color-text-primary, #111827);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.ai-generate-btn:hover:not(:disabled) {
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.04);
 }
 
-.recent-status {
-  flex-shrink: 0;
+.ai-generate-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ai-hint {
+  font-size: 0.625rem;
+  color: #475569;
+  margin: 0.25rem 0 0;
+  text-align: center;
+}
+
+/* Spinner */
+.spinner-sm {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-top-color: var(--color-primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
 }
 
 /* Loading Overlay */
@@ -353,9 +251,7 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .loading-title {

@@ -64,7 +64,7 @@ class AIAdapter:
         Args:
             provider: AI provider ('openai', 'anthropic', 'google', 'cohere', 'huggingface')
             model: Model name (defaults to first model for provider)
-            timeout: Request timeout in seconds (max 55s, API has 60s hard limit)
+            timeout: Request timeout in seconds (default 55s, max 300s)
 
         Raises:
             ValueError: If provider is invalid or API key is missing
@@ -74,7 +74,7 @@ class AIAdapter:
 
         self.provider = provider
         self.provider_config = PROVIDERS[provider]
-        self.timeout = min(timeout, 55)  # Max 55s to stay under 60s API limit
+        self.timeout = min(timeout, 300)
 
         # Try to get API key from database first, then fallback to environment
         self.api_key = self._get_api_key_from_db(provider)

@@ -9,7 +9,7 @@
     :class="{ 'has-instances': instanceCount > 0 }"
   >
     <div class="method-header">
-      <span class="method-badge">LM{{ String(method.method_number).padStart(2, '0') }}</span>
+      <span class="method-badge">{{ t(`lesson.methodExecution.methods.lm${String(method.method_number).padStart(2, '0')}`) }}</span>
       <span v-if="method.tier === 'premium'" class="premium-badge">Pro</span>
     </div>
     <h4 class="method-name">{{ method.name }}</h4>

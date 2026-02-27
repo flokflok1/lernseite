@@ -1,19 +1,24 @@
 /**
  * PreviewPanel.vue
  *
- * Read-only preview of the current lesson content as students would see it.
- * Renders sanitized HTML, shows lesson title/type badge, responsive toggle.
- * Only visible in advanced/expert editor modes.
+ * Read-only preview of the current lesson as students would see it.
+ * Shows sanitized HTML content + all assigned activities (via ActivityPreviewPanel).
+ * Responsive toggle (desktop/mobile).
  */
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import DOMPurify from 'dompurify'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
+import { useLessonActivities } from '../composables'
+import ActivityPreviewPanel from '../activity-editors/ActivityPreviewPanel.vue'
 
 const { t } = useI18n()
 const store = useCourseEditorStore()
+
+const currentLessonId = computed(() => store.currentLesson?.lesson_id ?? null)
+const { activities, loading: activitiesLoading } = useLessonActivities(toRef(currentLessonId))
 
 type PreviewMode = 'desktop' | 'mobile'
 const previewMode = ref<PreviewMode>('desktop')
@@ -69,6 +74,13 @@ const estimatedTime = computed(() => {
   const words = text.split(/\s+/).filter(w => w.length > 0).length
   return Math.max(1, Math.ceil(words / 200))
 })
+
+/**
+ * Resolve localized LM name. Uses keys from content.json:
+ * `lesson.methodExecution.methods.lm00` ... `lm11`
+ */
+const lmName = (id: number): string =>
+  t(`lesson.methodExecution.methods.lm${String(id).padStart(2, '0')}`)
 </script>
 
 <template>
@@ -145,6 +157,26 @@ const estimatedTime = computed(() => {
           <!-- Quiz preview -->
           <div v-else-if="lesson.lesson_type === 'quiz'" class="quiz-preview">
             <p class="quiz-hint">{{ $t('panel.manualEditor.lessonSettings.typeQuiz') }}</p>
+          </div>
+
+          <!-- Activities section -->
+          <div v-if="activitiesLoading" class="activities-preview-loading">
+            {{ $t('common.loading') }}...
+          </div>
+          <div v-else-if="activities.length > 0" class="activities-preview">
+            <h2 class="activities-preview-heading">{{ $t('panel.manualEditor.preview.activitiesHeading') }}</h2>
+            <div
+              v-for="activity in activities"
+              :key="activity.method_id"
+              class="activity-preview-card"
+            >
+              <div class="activity-preview-header">
+                <span class="activity-preview-badge">{{ lmName(activity.method_type) }}</span>
+                <span v-if="activity.difficulty" class="activity-preview-difficulty">{{ activity.difficulty }}</span>
+                <span v-if="activity.duration_minutes" class="activity-preview-duration">{{ activity.duration_minutes }} min</span>
+              </div>
+              <ActivityPreviewPanel :activity="activity" :data="activity.data || {}" />
+            </div>
           </div>
         </div>
       </div>
@@ -364,5 +396,63 @@ const estimatedTime = computed(() => {
 .quiz-hint {
   color: var(--color-text-tertiary);
   font-size: 14px;
+}
+
+/* Activities preview */
+.activities-preview-loading {
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  padding: 16px 0;
+}
+
+.activities-preview {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid var(--color-border);
+}
+
+.activities-preview-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
+}
+
+.activity-preview-card {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.activity-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-surface-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.activity-preview-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  color: var(--color-accent);
+}
+
+.activity-preview-difficulty {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+}
+
+.activity-preview-duration {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-left: auto;
 }
 </style>

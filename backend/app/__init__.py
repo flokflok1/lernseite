@@ -158,4 +158,13 @@ def create_app(config_name=None):
     # Register WebSocket events (Section 4)
     register_socket_events(app)
 
+    # Seed default AI providers (idempotent)
+    try:
+        from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+        seeded = AIProviderRepository.seed_defaults()
+        if seeded > 0:
+            app.logger.info(f'Seeded {seeded} default AI provider(s)')
+    except Exception as e:
+        app.logger.warning(f'Could not seed AI providers: {e}')
+
     return app

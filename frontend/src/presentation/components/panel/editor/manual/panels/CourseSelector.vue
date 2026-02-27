@@ -11,6 +11,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCourseEditorStore } from '@/application/stores/modules/content/courseEditor.store'
+import { useCourseActions } from '@/presentation/components/panel/editor/shared/composables'
+import ConfirmBanner from '@/presentation/components/panel/editor/shared/ConfirmBanner.vue'
 
 const { t } = useI18n()
 const store = useCourseEditorStore()
@@ -22,10 +24,9 @@ const emit = defineEmits<{
 
 type TabKey = 'active' | 'archived' | 'trash'
 
+const courseActions = useCourseActions()
 const activeTab = ref<TabKey>('active')
 const searchQuery = ref('')
-const confirmingDeleteId = ref<number | null>(null)
-const confirmingPermanentDeleteId = ref<number | null>(null)
 const confirmingEmptyTrash = ref(false)
 
 onMounted(() => {
@@ -34,8 +35,7 @@ onMounted(() => {
 
 watch(activeTab, (tab) => {
   searchQuery.value = ''
-  confirmingDeleteId.value = null
-  confirmingPermanentDeleteId.value = null
+  courseActions.cancelAction()
   confirmingEmptyTrash.value = false
   store.listCourses(tab)
 })
@@ -88,52 +88,11 @@ const getDaysRemaining = (trashedAt: string): number => {
   return Math.max(0, diff)
 }
 
-// --- Actions ---
+// --- Actions (delegated to shared composable) ---
 
-const requestTrash = (course: any) => {
-  confirmingDeleteId.value = course.course_id
-}
-
-const cancelConfirm = () => {
-  confirmingDeleteId.value = null
-  confirmingPermanentDeleteId.value = null
+const cancelAllConfirm = () => {
+  courseActions.cancelAction()
   confirmingEmptyTrash.value = false
-}
-
-const confirmTrash = async (course: any) => {
-  confirmingDeleteId.value = null
-  try {
-    await store.trashCourse(course.course_id)
-  } catch { /* error in store */ }
-}
-
-const handleArchive = async (course: any) => {
-  try {
-    await store.archiveCourse(course.course_id)
-  } catch { /* error in store */ }
-}
-
-const handleUnarchive = async (course: any) => {
-  try {
-    await store.unarchiveCourse(course.course_id)
-  } catch { /* error in store */ }
-}
-
-const handleRestore = async (course: any) => {
-  try {
-    await store.restoreFromTrash(course.course_id)
-  } catch { /* error in store */ }
-}
-
-const requestPermanentDelete = (course: any) => {
-  confirmingPermanentDeleteId.value = course.course_id
-}
-
-const confirmPermanentDelete = async (course: any) => {
-  confirmingPermanentDeleteId.value = null
-  try {
-    await store.permanentDelete(course.course_id)
-  } catch { /* error in store */ }
 }
 
 const requestEmptyTrash = () => {
@@ -143,10 +102,24 @@ const requestEmptyTrash = () => {
 const confirmEmptyTrash = async () => {
   confirmingEmptyTrash.value = false
   try {
-    for (const course of [...store.courseList]) {
-      await store.permanentDelete(course.course_id)
+    for (const c of [...store.courseList]) {
+      await store.permanentDelete(c.course_id)
     }
   } catch { /* error in store */ }
+}
+
+function getCardConfirmMessage(course: any): string {
+  if (courseActions.pendingAction.value === 'purge') {
+    return t('panel.manualEditor.courseSelector.trash.confirmPermanentDelete', { title: course.title })
+  }
+  return t('panel.manualEditor.courseSelector.confirmDelete', { title: course.title })
+}
+
+function getCardConfirmLabel(): string {
+  if (courseActions.pendingAction.value === 'purge') {
+    return t('panel.manualEditor.courseSelector.trash.permanentDelete')
+  }
+  return t('panel.manualEditor.courseSelector.moveToTrash')
 }
 </script>
 
@@ -195,17 +168,14 @@ const confirmEmptyTrash = async () => {
     </div>
 
     <!-- Confirm empty trash -->
-    <div v-if="confirmingEmptyTrash" class="confirm-banner">
-      <span>{{ $t('panel.manualEditor.courseSelector.trash.confirmEmptyTrash') }}</span>
-      <div class="confirm-banner-actions">
-        <button class="btn-confirm-delete" @click="confirmEmptyTrash">
-          {{ $t('panel.manualEditor.courseSelector.trash.emptyTrash') }}
-        </button>
-        <button class="btn-confirm-cancel" @click="cancelConfirm">
-          {{ $t('common.cancel') }}
-        </button>
-      </div>
-    </div>
+    <ConfirmBanner
+      v-if="confirmingEmptyTrash"
+      :message="$t('panel.manualEditor.courseSelector.trash.confirmEmptyTrash')"
+      :confirm-label="$t('panel.manualEditor.courseSelector.trash.emptyTrash')"
+      variant="danger"
+      @confirm="confirmEmptyTrash"
+      @cancel="cancelAllConfirm"
+    />
 
     <!-- Loading -->
     <div v-if="store.courseListLoading" class="loading-state">
@@ -238,42 +208,19 @@ const confirmEmptyTrash = async () => {
         :key="course.course_id"
         class="course-card"
         :class="{
-          'card-confirming': confirmingDeleteId === course.course_id || confirmingPermanentDeleteId === course.course_id
+          'card-confirming': courseActions.isConfirmingCourse(course.course_id)
         }"
-        @click="activeTab === 'active' && confirmingDeleteId !== course.course_id && emit('select', course.course_id)"
+        @click="activeTab === 'active' && !courseActions.isConfirmingCourse(course.course_id) && emit('select', course.course_id)"
       >
-        <!-- Confirm trash view -->
-        <template v-if="confirmingDeleteId === course.course_id">
-          <div class="confirm-content">
-            <p class="confirm-text">
-              {{ $t('panel.manualEditor.courseSelector.confirmDelete', { title: course.title }) }}
-            </p>
-            <div class="confirm-actions">
-              <button class="btn-confirm-delete" @click.stop="confirmTrash(course)">
-                {{ $t('panel.manualEditor.courseSelector.moveToTrash') }}
-              </button>
-              <button class="btn-confirm-cancel" @click.stop="cancelConfirm">
-                {{ $t('common.cancel') }}
-              </button>
-            </div>
-          </div>
-        </template>
-
-        <!-- Confirm permanent delete view -->
-        <template v-else-if="confirmingPermanentDeleteId === course.course_id">
-          <div class="confirm-content">
-            <p class="confirm-text">
-              {{ $t('panel.manualEditor.courseSelector.trash.confirmPermanentDelete', { title: course.title }) }}
-            </p>
-            <div class="confirm-actions">
-              <button class="btn-confirm-delete" @click.stop="confirmPermanentDelete(course)">
-                {{ $t('panel.manualEditor.courseSelector.trash.permanentDelete') }}
-              </button>
-              <button class="btn-confirm-cancel" @click.stop="cancelConfirm">
-                {{ $t('common.cancel') }}
-              </button>
-            </div>
-          </div>
+        <!-- Confirm action view (trash or permanent delete) -->
+        <template v-if="courseActions.isConfirmingCourse(course.course_id)">
+          <ConfirmBanner
+            :message="getCardConfirmMessage(course)"
+            :confirm-label="getCardConfirmLabel()"
+            variant="danger"
+            @confirm="courseActions.confirmAction()"
+            @cancel="courseActions.cancelAction()"
+          />
         </template>
 
         <!-- Normal view -->
@@ -306,14 +253,14 @@ const confirmEmptyTrash = async () => {
           <div v-if="activeTab === 'active'" class="card-actions">
             <button
               class="btn-action btn-archive"
-              @click.stop="handleArchive(course)"
+              @click.stop="store.archiveCourse(course.course_id)"
               :title="$t('panel.manualEditor.courseSelector.archive.moveTo')"
             >
               &#128451;
             </button>
             <button
               class="btn-action btn-delete"
-              @click.stop="requestTrash(course)"
+              @click.stop="courseActions.requestAction('trash', course.course_id)"
               :title="$t('panel.manualEditor.courseSelector.moveToTrash')"
             >
               &times;
@@ -324,14 +271,14 @@ const confirmEmptyTrash = async () => {
           <div v-if="activeTab === 'archived'" class="card-actions">
             <button
               class="btn-action btn-unarchive"
-              @click.stop="handleUnarchive(course)"
+              @click.stop="store.unarchiveCourse(course.course_id)"
               :title="$t('panel.manualEditor.courseSelector.unarchive')"
             >
               &#8634;
             </button>
             <button
               class="btn-action btn-delete"
-              @click.stop="requestTrash(course)"
+              @click.stop="courseActions.requestAction('trash', course.course_id)"
               :title="$t('panel.manualEditor.courseSelector.moveToTrash')"
             >
               &times;
@@ -342,14 +289,14 @@ const confirmEmptyTrash = async () => {
           <div v-if="activeTab === 'trash'" class="card-actions">
             <button
               class="btn-action btn-unarchive"
-              @click.stop="handleRestore(course)"
+              @click.stop="store.restoreFromTrash(course.course_id)"
               :title="$t('panel.manualEditor.courseSelector.trash.restore')"
             >
               &#8634;
             </button>
             <button
               class="btn-action btn-delete"
-              @click.stop="requestPermanentDelete(course)"
+              @click.stop="courseActions.requestAction('purge', course.course_id)"
               :title="$t('panel.manualEditor.courseSelector.trash.permanentDelete')"
             >
               &times;
@@ -507,28 +454,6 @@ const confirmEmptyTrash = async () => {
 
 .btn-empty-trash:hover {
   filter: brightness(0.9);
-}
-
-/* Confirm banner (empty trash) */
-.confirm-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  background: color-mix(in srgb, var(--color-error) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  flex-shrink: 0;
-}
-
-.confirm-banner-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
 }
 
 /* States */
@@ -716,57 +641,4 @@ const confirmEmptyTrash = async () => {
   color: var(--color-warning);
 }
 
-/* Inline confirm */
-.confirm-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.confirm-text {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
-.confirm-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.btn-confirm-delete {
-  padding: 6px 14px;
-  background: var(--color-error);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: filter 0.15s;
-}
-
-.btn-confirm-delete:hover {
-  filter: brightness(0.9);
-}
-
-.btn-confirm-cancel {
-  padding: 6px 14px;
-  background: var(--color-surface-secondary);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.15s;
-}
-
-.btn-confirm-cancel:hover {
-  border-color: var(--color-text-tertiary);
-}
 </style>

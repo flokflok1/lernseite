@@ -9,7 +9,21 @@
     },
     "knowledge": {
       "chapterTheory": "Chapter Theory",
-      "lessonExplanation": "Lesson Explanations"
+      "lessonTheory": "Lesson Theory",
+      "addSheet": "Add theory sheet",
+      "editSheet": "Edit theory sheet",
+      "deleteSheet": "Delete theory sheet",
+      "confirmDelete": "Really delete theory sheet \"{title}\"?",
+      "sheetTitle": "Title",
+      "sheetTitlePlaceholder": "Theory sheet title",
+      "sheetContent": "Content",
+      "sheetContentPlaceholder": "Enter content here (Markdown supported)",
+      "empty": "No theory sheets yet",
+      "save": "Save",
+      "saveFailed": "Save failed",
+      "loadFailed": "Failed to load theory sheets",
+      "deleteFailed": "Delete failed",
+      "noParentSelected": "Select a chapter or lesson"
     },
     "structure": {
       "title": "Structure",
@@ -94,7 +108,8 @@
       "title": "Preview",
       "noContent": "No content to display",
       "desktop": "Desktop",
-      "mobile": "Mobile"
+      "mobile": "Mobile",
+      "activitiesHeading": "Activities"
     },
     "lessonSettings": {
       "title": "Lesson Settings",

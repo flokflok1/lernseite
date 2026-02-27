@@ -16,8 +16,7 @@ import LessonActivitiesSection from '@/presentation/components/panel/editor/manu
 import CourseSelector from '@/presentation/components/panel/editor/manual/panels/CourseSelector.vue'
 import InlineErrorBanner from '@/presentation/components/panel/editor/manual/panels/InlineErrorBanner.vue'
 import ConfirmDialog from '@/presentation/components/panel/editor/manual/panels/ConfirmDialog.vue'
-import { TheoryGenerationContainer } from '@/presentation/components/panel/editor/ai/content-generation'
-import { ExplanationGenerationContainer } from '@/presentation/components/panel/editor/ai/explanation-generation'
+import TheorySheetsSection from '@/presentation/components/panel/editor/manual/panels/TheorySheetsSection.vue'
 
 interface Props {
   projectId: string
@@ -231,26 +230,22 @@ const saveStatusLabel = computed(() => {
 
         <!-- Tab content -->
         <div class="tab-content">
-          <!-- Lesson tab: Content + Settings + Knowledge -->
+          <!-- Lesson tab: Settings → Editor → Knowledge -->
           <div v-if="activeTab === 'lesson'" class="lesson-tab">
-            <ContentEditPanel />
             <LessonSettingsPanel />
-            <details class="knowledge-section" open>
+            <div class="content-editor-section">
+              <ContentEditPanel />
+            </div>
+            <details class="knowledge-section">
               <summary>{{ $t('panel.manualEditor.knowledge.chapterTheory') }}</summary>
-              <TheoryGenerationContainer
-                :chapter="store.selectedChapterId ? { chapter_id: store.selectedChapterId } : null"
-                :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id) } : null"
-                @generated="store.markDirty()"
-                @deleted="store.markDirty()"
+              <TheorySheetsSection
+                :chapter-id="store.selectedChapterId ? String(store.selectedChapterId) : null"
               />
             </details>
             <details class="knowledge-section">
-              <summary>{{ $t('panel.manualEditor.knowledge.lessonExplanation') }}</summary>
-              <ExplanationGenerationContainer
-                :lesson="store.currentLesson ? { lesson_id: store.currentLesson.lesson_id, title: store.currentLesson.title } : null"
-                :course="store.currentCourse ? { course_id: String(store.currentCourse.course_id), title: store.currentCourse.title } : null"
-                @generated="store.markDirty()"
-                @deleted="store.markDirty()"
+              <summary>{{ $t('panel.manualEditor.knowledge.lessonTheory') }}</summary>
+              <TheorySheetsSection
+                :lesson-id="store.currentLesson?.lesson_id ? String(store.currentLesson.lesson_id) : null"
               />
             </details>
           </div>
@@ -473,7 +468,15 @@ const saveStatusLabel = computed(() => {
   flex-direction: column;
 }
 
+.content-editor-section {
+  flex: 1 0 400px;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
 .knowledge-section {
+  flex-shrink: 0;
   border-top: 1px solid var(--color-border);
   margin: 0;
 }

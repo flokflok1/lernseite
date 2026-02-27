@@ -28,8 +28,8 @@ __all__ = [
 
 
 def get_course_authoring_service(
-    provider: str = "anthropic",
-    model: str = "claude-sonnet-4-20250514"
+    provider: str = None,
+    model: str = None
 ) -> CourseAuthoringService:
-    """Get course authoring service instance."""
+    """Get course authoring service instance. Resolves default model from DB if not specified."""
     return CourseAuthoringService(provider=provider, model=model)

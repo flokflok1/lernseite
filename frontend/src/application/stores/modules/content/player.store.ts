@@ -26,6 +26,7 @@ import type {
   LearningMethod,
   ExecuteMethodRequest
 } from '@/infrastructure/api/clients/public/learning/types/types'
+import type { MethodProgress } from '@/infrastructure/api/clients/public/learning/player/player.types'
 import { usePlayerQuizStore } from './playerQuiz.store'
 
 export const usePlayerStore = defineStore('player', () => {
@@ -43,13 +44,16 @@ export const usePlayerStore = defineStore('player', () => {
   const lessonProgress = ref<LessonProgress | null>(null)
 
   const availableMethods = ref<LearningMethod[]>([])
+  const methodsProgress = ref<Record<string, MethodProgress>>({})
 
-  const loading = ref(false)
+  const loadingCount = ref(0)
+  const loading = computed(() => loadingCount.value > 0)
   const error = ref<string | null>(null)
 
   const methodExecuting = ref(false)
   const methodResult = ref<any>(null)
   const methodError = ref<string | null>(null)
+  const activeExecution = ref<any>(null)
 
   // ============================================================================
   // Quiz Store (delegated)
@@ -116,6 +120,12 @@ export const usePlayerStore = defineStore('player', () => {
     return lessonProgress.value?.status === 'completed'
   })
 
+  const completedMethodsCount = computed(() =>
+    Object.values(methodsProgress.value).filter(p => p.completed).length
+  )
+
+  const totalMethodsCount = computed(() => availableMethods.value.length)
+
   // ============================================================================
   // Actions
   // ============================================================================
@@ -124,7 +134,7 @@ export const usePlayerStore = defineStore('player', () => {
    * Load course with chapters
    */
   const loadCourse = async (courseId: string): Promise<void> => {
-    loading.value = true
+    loadingCount.value++
     error.value = null
 
     try {
@@ -151,7 +161,7 @@ export const usePlayerStore = defineStore('player', () => {
       console.error('Failed to load course:', err)
       throw err
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -159,7 +169,7 @@ export const usePlayerStore = defineStore('player', () => {
    * Load chapter with lessons
    */
   const loadChapter = async (courseId: string, chapterId: string): Promise<void> => {
-    loading.value = true
+    loadingCount.value++
     error.value = null
 
     try {
@@ -171,18 +181,18 @@ export const usePlayerStore = defineStore('player', () => {
       currentChapter.value = chapterData
       chapterProgress.value = progressData
 
-      // Send analytics event
-      await playerApi.sendAnalyticsEvent({
+      // Send analytics event (non-blocking, errors are ignored)
+      playerApi.sendAnalyticsEvent({
         event_type: 'chapter_start',
         resource_type: 'chapter',
         resource_id: chapterId
-      })
+      }).catch(() => {})
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Kapitel konnte nicht geladen werden'
       console.error('Failed to load chapter:', err)
       throw err
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -194,37 +204,39 @@ export const usePlayerStore = defineStore('player', () => {
     chapterId: string,
     lessonId: string
   ): Promise<void> => {
-    loading.value = true
+    loadingCount.value++
     error.value = null
 
     try {
-      const [lessonData, progressData, methodsData] = await Promise.all([
+      const [lessonData, progressData, methodsData, methodsProgressData] = await Promise.all([
         playerApi.getLesson(courseId, chapterId, lessonId),
         playerApi.getLessonProgress(courseId, chapterId, lessonId).catch(() => null),
-        playerApi.getLessonMethods(lessonId).catch(() => [])
+        playerApi.getLessonMethods(lessonId).catch(() => []),
+        playerApi.getLessonMethodsProgress(lessonId).catch(() => ({}))
       ])
 
       currentLesson.value = lessonData
       lessonProgress.value = progressData
       availableMethods.value = methodsData
+      methodsProgress.value = methodsProgressData
 
       // Mark as started if not already
       if (!progressData || progressData.status === 'not_started') {
         await markLessonStarted(courseId, chapterId, lessonId)
       }
 
-      // Send analytics event
-      await playerApi.sendAnalyticsEvent({
+      // Send analytics event (non-blocking, errors are ignored)
+      playerApi.sendAnalyticsEvent({
         event_type: 'lesson_start',
         resource_type: 'lesson',
         resource_id: lessonId
-      })
+      }).catch(() => {})
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Lektion konnte nicht geladen werden'
       console.error('Failed to load lesson:', err)
       throw err
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -285,14 +297,15 @@ export const usePlayerStore = defineStore('player', () => {
     methodExecuting.value = true
     methodError.value = null
     methodResult.value = null
+    activeExecution.value = null
 
     try {
       const response = await playerApi.executeMethod(request)
 
       console.log('[PlayerStore] executeMethod response:', response)
-      console.log('[PlayerStore] Setting methodResult to:', response.result)
 
       methodResult.value = response.result
+      activeExecution.value = response.execution || null
 
       // Send analytics event
       await playerApi.sendAnalyticsEvent({
@@ -340,6 +353,17 @@ export const usePlayerStore = defineStore('player', () => {
   }
 
   /**
+   * Refresh methods progress (e.g. after completing a task)
+   */
+  const refreshMethodsProgress = async (lessonId: string): Promise<void> => {
+    try {
+      methodsProgress.value = await playerApi.getLessonMethodsProgress(lessonId)
+    } catch (err) {
+      console.error('Failed to refresh methods progress:', err)
+    }
+  }
+
+  /**
    * Submit quiz (delegates to quiz store, passes lesson completion callback)
    */
   const submitQuiz = async (
@@ -365,7 +389,9 @@ export const usePlayerStore = defineStore('player', () => {
     chapterProgress.value = null
     lessonProgress.value = null
     availableMethods.value = []
+    methodsProgress.value = {}
     methodResult.value = null
+    activeExecution.value = null
     error.value = null
     quizStore.resetQuizState()
   }
@@ -384,11 +410,13 @@ export const usePlayerStore = defineStore('player', () => {
     chapterProgress,
     lessonProgress,
     availableMethods,
+    methodsProgress,
     loading,
     error,
     methodExecuting,
     methodResult,
     methodError,
+    activeExecution,
 
     // Quiz State (re-exported from quiz store for backward compatibility)
     quiz: quizStore.quiz,
@@ -408,6 +436,8 @@ export const usePlayerStore = defineStore('player', () => {
     nextLesson,
     previousLesson,
     isLessonCompleted,
+    completedMethodsCount,
+    totalMethodsCount,
 
     // Quiz Getters (re-exported)
     isQuizLoaded: quizStore.isQuizLoaded,
@@ -426,6 +456,8 @@ export const usePlayerStore = defineStore('player', () => {
     markLessonCompleted,
     executeLearningMethod,
     syncProgress,
+    refreshMethodsProgress,
+    clearActiveTask: () => { activeExecution.value = null; methodResult.value = null },
     clearPlayer,
 
     // Quiz Actions (re-exported)

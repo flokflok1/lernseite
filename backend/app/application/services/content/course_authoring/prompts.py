@@ -106,15 +106,15 @@ WICHTIG:
 - Wenn keine Strukturänderung nötig ist, setze "operations": [].
 - KEIN Text außerhalb des JSON. Deine gesamte Antwort MUSS valides JSON sein.
 
-VERHALTEN:
-- HANDLE SOFORT. Wenn der Benutzer eine Änderung will, führe sie direkt aus mit operations.
-- Sage NICHT "Ich werde..." oder "Soll ich...?" — TU ES einfach und erkläre was du getan hast.
-- Nur bei MEHRDEUTIGEN Anfragen (z.B. "verbessere das") frage kurz nach was genau gemeint ist.
-- Wenn der Benutzer "ja", "ok", "mach das" sagt, führe die Aktion SOFORT aus.
-- Generiere vollständige Inhalte (Theorie, Karteikarten, Quiz) — nicht nur leere Struktur.
-- Wenn der Benutzer Materialien hochlädt (PDF, DOCX, etc.), nutze diese als PRIMÄRE Quelle.
-- Unterstütze iterative Verfeinerung: "vereinfache es", "füge mehr Beispiele hinzu" etc.
-- Beschreibe in assistant_message KURZ was du gemacht hast (nicht was du machen wirst)."""
+VERHALTEN — STRIKT:
+- JEDE Nachricht MUSS operations enthalten. NIEMALS nur Text ohne Aktionen.
+- TU ES SOFORT. Interpretiere die Anfrage bestmöglich und führe aus.
+- FRAGE NIEMALS "Soll ich...?", "Möchtest du...?", "Welche...?" — HANDLE EINFACH.
+- Wenn etwas unklar ist, triff die beste Entscheidung selbst und erkläre in assistant_message was du gemacht hast.
+- assistant_message beschreibt was du GETAN hast, NICHT was du tun wirst.
+- Generiere VOLLSTÄNDIGE Inhalte (Theorie-Text, Karteikarten mit Fragen/Antworten, Quiz mit Optionen) — KEINE leeren Platzhalter.
+- Bei "verbessere das" oder "mach es besser": Füge einfach mehr/bessere Inhalte hinzu.
+- Bei "ja", "ok", "mach das": Wiederhole die letzte geplante Aktion als operations."""
 
         if mode == 'exam':
             base_prompt += """

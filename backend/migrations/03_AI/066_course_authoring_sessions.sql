@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS courses.course_authoring_sessions (
 
     -- Session status
     status VARCHAR(20) NOT NULL DEFAULT 'active'
-        CHECK (status IN ('active', 'finalized', 'archived')),
+        CHECK (status IN ('active', 'finalizing', 'finalized', 'archived')),
 
     -- Stats
     total_tokens_used INTEGER DEFAULT 0,

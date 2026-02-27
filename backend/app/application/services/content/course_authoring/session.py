@@ -454,7 +454,7 @@ class CourseAuthoringService:
                     )
                     created_chapters.append(chapter_id)
 
-                    # Lektionen erstellen
+                    # Lektionen erstellen/updaten
                     for lesson_draft in chapter_draft.get('lessons', []):
                         lesson_id = DatabaseOperations.create_or_update_lesson(
                             chapter_id,
@@ -464,8 +464,21 @@ class CourseAuthoringService:
                         )
                         created_lessons.append(lesson_id)
 
-                        # Methoden erstellen
+                        # Für bestehende Lektionen: alte Methoden löschen
+                        # die nicht mehr im Draft stehen (KI hat sie entfernt)
+                        if lesson_draft.get('existing_id'):
+                            DatabaseOperations.sync_methods_for_lesson(
+                                lesson_draft['existing_id'],
+                                lesson_draft.get('methods', []),
+                                conn=conn
+                            )
+
+                        # Neue Methoden erstellen (nur die im Draft)
                         for method_draft in lesson_draft.get('methods', []):
+                            # Methoden mit existing_id überspringen —
+                            # die existieren bereits in der DB
+                            if method_draft.get('existing_id'):
+                                continue
                             method_id = DatabaseOperations.create_method(
                                 lesson_id,
                                 chapter_id,

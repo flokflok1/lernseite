@@ -419,3 +419,61 @@ class DatabaseOperations:
                 tier=tier
             )
             return str(result['method_id']) if result else None
+
+    @staticmethod
+    def sync_methods_for_lesson(
+        lesson_id: str,
+        draft_methods: List[Dict],
+        conn=None
+    ) -> List[str]:
+        """
+        Synchronisiert Methoden einer Lektion: löscht Methoden aus der DB
+        die nicht mehr in der draft_structure stehen.
+
+        Die KI kann delete_method Operationen durchführen, die nur aus dem
+        Draft entfernen. Beim Finalize muss die echte DB abgeglichen werden.
+
+        Args:
+            lesson_id: Echte Lesson UUID (existing_id)
+            draft_methods: Methoden-Liste aus der draft_structure
+            conn: DB connection (Teil der Finalize-Transaktion)
+
+        Returns:
+            Liste der gelöschten method_ids
+        """
+        if not conn:
+            return []
+
+        # IDs der Methoden die im Draft stehen und eine existing_id haben
+        # (= sie existierten schon in der DB und wurden NICHT gelöscht)
+        keep_ids = set()
+        for m in draft_methods:
+            existing = m.get('existing_id')
+            if existing:
+                keep_ids.add(str(existing))
+
+        # Alle aktuellen Methoden dieser Lektion aus der echten DB holen
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("""
+                SELECT method_id
+                FROM learning_methods.learning_method_instances
+                WHERE lesson_id = %s
+            """, (lesson_id,))
+            db_methods = cur.fetchall()
+
+        # Differenz berechnen: DB-Methoden die NICHT im Draft sind → löschen
+        db_ids = {str(row['method_id']) for row in db_methods}
+        to_delete = db_ids - keep_ids
+
+        if to_delete:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    DELETE FROM learning_methods.learning_method_instances
+                    WHERE method_id = ANY(%s)
+                """, (list(to_delete),))
+            logger.info(
+                f"Deleted {len(to_delete)} orphaned methods for lesson {lesson_id}: "
+                f"{to_delete}"
+            )
+
+        return list(to_delete)

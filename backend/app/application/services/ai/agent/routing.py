@@ -77,7 +77,7 @@ class AgentRouter:
             provider = config.get('primary_provider', 'openai')
             model = config.get('primary_model', 'gpt-4o-mini')
             temperature = config.get('temperature', 0.7)
-            max_tokens = config.get('max_tokens', 2000)
+            max_tokens = config.get('max_tokens', 16000)
 
             # Try primary provider
             return AgentRouter._try_provider(

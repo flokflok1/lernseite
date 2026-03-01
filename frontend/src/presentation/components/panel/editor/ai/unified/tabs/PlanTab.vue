@@ -7,9 +7,10 @@
  * - Active plan: shows PlanPhaseWizard with phase navigation
  * - Plan history: recent plans for reloading
  */
-import { onMounted } from 'vue'
+import { onMounted, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePlanMode } from '../composables'
+import type { useQualityLevel } from '../composables/plan/useQualityLevel'
 import { PlanPhaseWizard, PlanCourseCard } from '../panels'
 
 interface Props {
@@ -27,7 +28,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 const { t } = useI18n()
 
-const plan = usePlanMode()
+const qualityLevel = inject<ReturnType<typeof useQualityLevel>>('qualityLevel')
+const plan = usePlanMode(qualityLevel ?? undefined)
 
 onMounted(() => {
   if (props.courseId) {
@@ -35,9 +37,10 @@ onMounted(() => {
   }
 })
 
-function handleGeneratePhase1(topic?: string, fileIds?: string[]) {
-  plan.generatePhase1(props.courseId, topic, fileIds)
+function handleGeneratePhase1(topic?: string, fileIds?: string[], language?: string) {
+  plan.generatePhase1(props.courseId, topic, fileIds, language)
 }
+
 
 function handleDeletePlan(planId: string) {
   if (confirm(t('aiEditor.plan.confirmDelete'))) {
@@ -94,16 +97,18 @@ async function handleFinalizePlan() {
       :is-creating="plan.isCreating.value"
       :is-executing="plan.isExecuting.value"
       :is-chatting="plan.isChatting.value"
+      :can-undo="plan.canUndo.value"
       :has-files="hasFiles"
       :file-ids="fileIds"
       :is-draft="plan.isDraft.value"
       :is-approved="plan.isApproved.value"
       :total-steps="plan.totalSteps.value"
       :completed-steps="plan.completedSteps.value"
-      @generate-phase1="handleGeneratePhase1"
+      @generate-phase1="(topic, fIds, lang) => handleGeneratePhase1(topic, fIds, lang)"
       @confirm-phase="plan.confirmPhase"
       @go-back="plan.goBackToPhase"
       @send-chat="plan.sendPlanChatMessage"
+      @undo-chat="plan.undoLastPatch"
       @execute="plan.execute"
       @discard="plan.clearPlan"
       @finalize-plan="handleFinalizePlan"

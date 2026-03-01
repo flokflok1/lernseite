@@ -93,7 +93,6 @@ def init_review_prompt() -> None:
             PromptVariable(name="methods", description="Methoden (JSON)", required=True)
         ],
         model="claude-3-5-sonnet-20241022",
-        max_tokens=4000,
         temperature=0.5,
         language_mode="target",
         allowed_roles=["teacher", "admin"],

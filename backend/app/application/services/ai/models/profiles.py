@@ -12,7 +12,7 @@ ISO 9001:2015 compliant - Service layer
 
 from typing import Dict, Optional, List, Any
 
-from app.infrastructure.persistence.repositories.ai.profiles import AiModelProfilesRepository
+from app.infrastructure.persistence.repositories.ai.config.profiles import AiModelProfilesRepository
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 
 

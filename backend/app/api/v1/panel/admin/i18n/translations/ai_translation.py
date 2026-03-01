@@ -122,7 +122,7 @@ def seed_keys():
         }), 400
 
     try:
-        from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
+        from app.infrastructure.persistence.repositories.i18n.admin.admin_queries import I18nAdminQueryRepository
 
         results = {'created': 0, 'updated': 0, 'errors': []}
 
@@ -198,7 +198,7 @@ def seed_all_locales():
         }), 400
 
     try:
-        from app.infrastructure.persistence.repositories.i18n.bulk_seed import I18nBulkSeedRepository
+        from app.infrastructure.persistence.repositories.i18n.admin.bulk_seed import I18nBulkSeedRepository
 
         results = I18nBulkSeedRepository.seed_all_locales(
             locales=locales,

@@ -65,7 +65,7 @@ class AIAdapterPort(ABC):
         context: Optional[str] = None,
         language: str = 'de',
         temperature: float = 0.7,
-        max_tokens: int = 2000,
+        max_tokens: Optional[int] = None,
         conversation_history: Optional[list] = None
     ) -> Dict[str, Any]: ...
 

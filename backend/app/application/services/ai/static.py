@@ -36,7 +36,7 @@ def _get_api_key_from_db(provider: str) -> Optional[str]:
         Decrypted API key or None
     """
     try:
-        from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+        from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
         return AIProviderRepository.get_decrypted_api_key(provider)
     except Exception:
         # If database is not available, return None to use env fallback
@@ -68,7 +68,7 @@ def chat_completion(
     messages: list,
     system_prompt: str = None,
     model: str = 'gpt-4o-mini',
-    max_tokens: int = 1000,
+    max_tokens: Optional[int] = None,
     temperature: float = 0.7,
     user_id: str = None
 ) -> Dict[str, Any]:

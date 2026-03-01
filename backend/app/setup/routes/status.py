@@ -17,7 +17,7 @@ from flask import request, jsonify, current_app
 from app.setup import setup_bp
 from app.setup.diagnostics.install import InstallationChecker  # Fixed path (2026-02-12)
 from app.setup.seeds.seeds import SeedData  # Fixed path (2026-02-12)
-from app.setup.diagnostics.verify import VerificationChecks as SetupVerification  # Fixed path (2026-02-12)
+from app.setup.diagnostics.verification.verify import VerificationChecks as SetupVerification  # Fixed path (2026-02-12)
 
 
 @setup_bp.route('/status', methods=['GET'])

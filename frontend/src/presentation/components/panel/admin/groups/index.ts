@@ -5,6 +5,6 @@
  * Replaces legacy role system with group-based access control.
  */
 
-export { GroupsManagement } from './GroupsManagement.vue'
+export { GroupsManagement } from './core/GroupsManagement.vue'
 export * from './types'
 export * from './composables'

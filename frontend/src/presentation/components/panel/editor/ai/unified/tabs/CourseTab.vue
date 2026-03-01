@@ -184,7 +184,7 @@ import { getCourseForEdit, updateCourse } from '@/infrastructure/api/clients/pan
 import { getCategoryTree } from '@/infrastructure/api/clients/panel/editor/courses/categories.api'
 import type { EditableCourse, CategoryTreeNode } from '@/infrastructure/api/clients/panel/editor'
 import { useCourseActions } from '@/presentation/components/panel/editor/shared/composables'
-import ConfirmBanner from '@/presentation/components/panel/editor/shared/ConfirmBanner.vue'
+import ConfirmBanner from '@/presentation/components/panel/editor/shared/ui/ConfirmBanner.vue'
 
 const props = defineProps<{ courseId: string }>()
 const emit = defineEmits<{ deleted: [courseId: string] }>()

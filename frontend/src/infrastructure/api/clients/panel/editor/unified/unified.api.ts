@@ -89,18 +89,30 @@ export async function createPhasedPlan(data: CreatePhasedPlanRequest): Promise<C
   return res.data.data
 }
 
-export async function advanceToPhase2(planId: string): Promise<ContentPlan> {
-  const res = await http.post(`${BASE}/plans/${planId}/phase2`)
+export async function advanceToPhase2(planId: string, qualityLevel?: string): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/${planId}/phase2`, {
+    quality_level: qualityLevel || 'standard',
+  })
   return res.data.data
 }
 
-export async function advanceToPhase3(planId: string): Promise<ContentPlan> {
-  const res = await http.post(`${BASE}/plans/${planId}/phase3`)
+export async function advanceToPhase3(planId: string, qualityLevel?: string): Promise<ContentPlan> {
+  const res = await http.post(`${BASE}/plans/${planId}/phase3`, {
+    quality_level: qualityLevel || 'standard',
+  })
   return res.data.data
 }
 
-export async function sendPlanChat(planId: string, message: string): Promise<PlanChatResponse> {
-  const res = await http.post(`${BASE}/plans/${planId}/chat`, { message })
+export async function sendPlanChat(planId: string, message: string, qualityLevel?: string): Promise<PlanChatResponse> {
+  const res = await http.post(`${BASE}/plans/${planId}/chat`, {
+    message,
+    quality_level: qualityLevel || 'standard',
+  })
+  return res.data.data
+}
+
+export async function undoPlanChat(planId: string): Promise<{ plan: ContentPlan; undone: boolean }> {
+  const res = await http.post(`${BASE}/plans/${planId}/undo`)
   return res.data.data
 }
 

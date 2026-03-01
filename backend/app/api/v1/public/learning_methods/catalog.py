@@ -23,8 +23,8 @@ from flask import Blueprint, jsonify, request, current_app
 from typing import Dict, Any, Tuple
 import logging
 
-from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
-from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
+from app.infrastructure.persistence.repositories.learning_method.config.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.config.groups import LearningMethodGroupRepository
 from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)

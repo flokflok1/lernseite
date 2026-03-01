@@ -14,7 +14,7 @@ ISO/IEC/IEEE 26515:2018 compliant - API documentation
 import os
 from flask import request, jsonify, current_app
 from app.setup import setup_bp
-from app.setup.diagnostics.system_check import SystemCheck
+from app.setup.diagnostics.checks.system_check import SystemCheck
 from app.setup.diagnostics.install import InstallationChecker
 from app.setup.initialization.admin import AdminSetup
 from app.setup.initialization.environment import EnvironmentSetup

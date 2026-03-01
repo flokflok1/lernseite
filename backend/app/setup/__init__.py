@@ -110,7 +110,7 @@ from app.setup.routes import verification
 from app.setup.routes import groups
 
 # Import setup modules for external use (Fixed paths 2026-02-12)
-from app.setup.diagnostics.system_check import SystemCheck
+from app.setup.diagnostics.checks.system_check import SystemCheck
 from app.setup.initialization.database import DatabaseInitializer
 from app.setup.diagnostics.install import InstallationChecker
 from app.setup.initialization.admin import AdminSetup
@@ -118,7 +118,7 @@ from app.setup.initialization.groups import GroupSetup
 from app.setup.initialization.organisations import OrganisationSetup
 from app.setup.seeds.seeds import SeedData
 from app.setup.initialization.ai_part2 import KISetup
-from app.setup.diagnostics.verify import VerificationChecks as SetupVerification  # Fixed class name (2026-02-12)
+from app.setup.diagnostics.verification.verify import VerificationChecks as SetupVerification  # Fixed class name (2026-02-12)
 
 __all__ = [
     'setup_bp',

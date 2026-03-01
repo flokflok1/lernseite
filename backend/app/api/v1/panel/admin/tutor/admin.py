@@ -17,8 +17,8 @@ import time
 from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required, permission_required
 from app.application.services.ai.adapter import AIAdapter
-from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
-from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.content.lessons import LessonRepository
 from app.api.v1.panel.user.tutor.core import (
     GenerationStyle,
     build_context_for_generation,
@@ -143,7 +143,6 @@ Zielgruppe: {context['target_audience']}"""
             messages=messages,
             model='gpt-4o-mini',
             temperature=style_config['temperature'],
-            max_tokens=style_config['max_tokens'],
             user_id=user_id
         )
 
@@ -297,7 +296,6 @@ Zielgruppe: Fachinformatiker Systemintegration (FISI)"""
             messages=messages,
             model='gpt-4o-mini',
             temperature=style_config['temperature'],
-            max_tokens=style_config['max_tokens'],
             user_id=user_id
         )
 

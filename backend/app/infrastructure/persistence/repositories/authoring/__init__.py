@@ -23,18 +23,18 @@ Example usage:
 For backward compatibility, legacy imports still work via bridge modules.
 """
 
-from app.infrastructure.persistence.repositories.authoring.analysis import AuthoringAnalysisRepository
-from app.infrastructure.persistence.repositories.authoring.changes import AuthoringChangesRepository
+from app.infrastructure.persistence.repositories.authoring.content.analysis import AuthoringAnalysisRepository
+from app.infrastructure.persistence.repositories.authoring.content.changes import AuthoringChangesRepository
 from app.infrastructure.persistence.repositories.authoring.decision_explanations import AIDecisionExplanationsRepository
 from app.infrastructure.persistence.repositories.authoring.dialog_messages import AuthoringDialogMessagesRepository
 from app.infrastructure.persistence.repositories.authoring.files import AuthoringFilesRepository
-from app.infrastructure.persistence.repositories.authoring.finalization import AuthoringFinalizationRepository
-from app.infrastructure.persistence.repositories.authoring.generations import AuthoringGenerationsRepository
-from app.infrastructure.persistence.repositories.authoring.milestones import AuthoringMilestonesRepository
-from app.infrastructure.persistence.repositories.authoring.plan_versions import AuthoringPlanVersionsRepository
-from app.infrastructure.persistence.repositories.authoring.refinements import AuthoringRefinementsRepository
-from app.infrastructure.persistence.repositories.authoring.user_journey import AuthoringUserJourneyRepository
-from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
+from app.infrastructure.persistence.repositories.authoring.sessions.finalization import AuthoringFinalizationRepository
+from app.infrastructure.persistence.repositories.authoring.content.generations import AuthoringGenerationsRepository
+from app.infrastructure.persistence.repositories.authoring.sessions.milestones import AuthoringMilestonesRepository
+from app.infrastructure.persistence.repositories.authoring.sessions.plan_versions import AuthoringPlanVersionsRepository
+from app.infrastructure.persistence.repositories.authoring.content.refinements import AuthoringRefinementsRepository
+from app.infrastructure.persistence.repositories.authoring.sessions.user_journey import AuthoringUserJourneyRepository
+from app.infrastructure.persistence.repositories.authoring.sessions.sessions import CourseAuthoringSessionRepository
 
 __all__ = [
     'AuthoringAnalysisRepository',

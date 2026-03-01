@@ -17,8 +17,8 @@ from flask import Blueprint, request, jsonify
 import logging
 
 from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
-from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.content.lessons import LessonRepository
 from app.infrastructure.persistence.repositories.enrollments.core import EnrollmentRepository
 from app.api.middleware.auth import get_current_user
 from app.infrastructure.i18n.error_codes import ErrorCode

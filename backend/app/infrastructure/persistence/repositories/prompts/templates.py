@@ -205,7 +205,7 @@ class PromptTemplateRepository(BaseRepository):
             template_data.get('model', 'gpt-4o-mini'),
             template_data.get('provider', 'openai'),
             template_data.get('temperature', 0.7),
-            template_data.get('max_tokens', 4000),
+            template_data.get('max_tokens', 16000),
             variables,
             template_data.get('output_format', 'json'),
             output_schema,

@@ -110,11 +110,22 @@ class AIAdapter:
             Decrypted API key or None
         """
         try:
-            from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+            from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
             return AIProviderRepository.get_decrypted_api_key(provider)
         except Exception:
             # If database is not available, return None to use env fallback
             return None
+
+    def _resolve_max_tokens(self, max_tokens: Optional[int]) -> int:
+        """Resolve max_tokens: use model's actual limit if not explicitly set."""
+        if max_tokens is not None:
+            return max_tokens
+        try:
+            from app.infrastructure.ai.config import PROVIDERS
+            model_cfg = PROVIDERS.get(self.provider, {}).get('models', {}).get(self.model, {})
+            return model_cfg.get('max_tokens', 16000)
+        except Exception:
+            return 16000
 
     def send_request(
         self,
@@ -122,7 +133,7 @@ class AIAdapter:
         context: Optional[str] = None,
         language: str = 'de',
         temperature: float = 0.7,
-        max_tokens: int = 2000,
+        max_tokens: Optional[int] = None,
         conversation_history: Optional[list] = None
     ) -> Dict[str, Any]:
         """
@@ -133,7 +144,7 @@ class AIAdapter:
             context: Additional context about the learning material
             language: Response language ('de', 'en', etc.)
             temperature: Randomness (0.0-1.0, higher = more creative)
-            max_tokens: Maximum output tokens
+            max_tokens: Maximum output tokens (None = use model's limit)
             conversation_history: Previous conversation turns
 
         Returns:
@@ -153,6 +164,7 @@ class AIAdapter:
             AITimeoutError: On timeout
             AIQuotaExceededError: On quota exceeded
         """
+        max_tokens = self._resolve_max_tokens(max_tokens)
         start_time = time.time()
 
         # Build request based on provider
@@ -190,7 +202,7 @@ class AIAdapter:
         self,
         messages: list[Dict[str, str]],
         temperature: float = 0.7,
-        max_tokens: int = 2000
+        max_tokens: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Send AI request with pre-formatted messages (Phase 24 - Prompt Templates).
@@ -244,6 +256,7 @@ class AIAdapter:
             if msg['role'] not in ['system', 'user', 'assistant']:
                 raise ValueError(f"Invalid role: {msg['role']}. Must be 'system', 'user', or 'assistant'")
 
+        max_tokens = self._resolve_max_tokens(max_tokens)
         start_time = time.time()
 
         # Send to provider based on type
@@ -276,6 +289,103 @@ class AIAdapter:
             raise AIProviderError(f'Provider {self.provider} not implemented')
 
         return self._format_response(response_data, start_time, 'ai_request_template')
+
+    def send_messages_with_tools(
+        self,
+        messages: list[Dict[str, str]],
+        tools: list[Dict],
+        temperature: float = 0.7,
+        max_tokens: int = 4000
+    ) -> Dict[str, Any]:
+        """
+        Send messages with tool definitions for structured AI responses.
+
+        The AI can respond with text AND tool calls. Tool calls are
+        schema-validated by the provider (no manual JSON parsing needed).
+
+        Args:
+            messages: List of message dicts with 'role' and 'content'
+            tools: Provider-agnostic tool definitions (from domain/ai/tool_definitions.py)
+            temperature: Randomness (0.0-1.0)
+            max_tokens: Maximum output tokens
+
+        Returns:
+            {
+                'output_text': str,
+                'tool_calls': list[{name: str, arguments: dict}],
+                'input_tokens': int,
+                'output_tokens': int,
+                'total_tokens': int,
+                'cost_eur': float,
+                'latency_ms': int,
+                'model': str,
+                'provider': str
+            }
+        """
+        from .tool_formatters import (
+            to_openai_tools, to_anthropic_tools, to_google_tools,
+            normalize_tool_calls
+        )
+
+        start_time = time.time()
+
+        # Convert tools to provider-specific format and call
+        if self.provider == 'openai':
+            provider_tools = to_openai_tools(tools)
+            raw = OpenAIProvider.send_messages_with_tools(
+                self.api_key, self.provider_config['api_url'], self.model,
+                messages, provider_tools, temperature, max_tokens, self.timeout
+            )
+        elif self.provider == 'anthropic':
+            provider_tools = to_anthropic_tools(tools)
+            raw = AnthropicProvider.send_messages_with_tools(
+                self.api_key, self.provider_config['api_url'], self.model,
+                messages, provider_tools, temperature, max_tokens, self.timeout
+            )
+        elif self.provider == 'google':
+            provider_tools = to_google_tools(tools)
+            raw = GoogleProvider.send_messages_with_tools(
+                self.api_key, self.provider_config['api_url'], self.model,
+                messages, provider_tools, temperature, max_tokens, self.timeout
+            )
+        else:
+            # Fallback: Provider without tool calling support
+            # Call regular send_messages, return empty tool_calls
+            result = self.send_messages(messages, temperature, max_tokens)
+            result['tool_calls'] = []
+            return result
+
+        # Normalize response to unified format
+        output_text, tool_calls = normalize_tool_calls(self.provider, raw)
+
+        # Calculate cost and latency
+        latency_ms = int((time.time() - start_time) * 1000)
+        input_tokens = raw.get('input_tokens', 0)
+        output_tokens = raw.get('output_tokens', 0)
+        cost_eur = self.calculate_cost(input_tokens, output_tokens)
+
+        if MONITORING_AVAILABLE:
+            total_tokens = input_tokens + output_tokens
+            record_ai_call(
+                method_name='ai_request_tools',
+                provider=self.provider,
+                duration=latency_ms / 1000.0,
+                tokens=total_tokens,
+                cost=cost_eur,
+                success=True
+            )
+
+        return {
+            'output_text': output_text,
+            'tool_calls': tool_calls,
+            'input_tokens': input_tokens,
+            'output_tokens': output_tokens,
+            'total_tokens': input_tokens + output_tokens,
+            'cost_eur': cost_eur,
+            'latency_ms': latency_ms,
+            'model': self.model,
+            'provider': self.provider
+        }
 
     def _format_response(
         self,

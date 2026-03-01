@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import type { EditorTab } from '../composables/useEditorState'
+import type { EditorTab } from '../composables/editor/useEditorState'
 
 defineProps<{
   tabs: EditorTab[]

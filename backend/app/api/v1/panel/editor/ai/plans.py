@@ -10,6 +10,7 @@ from typing import Any
 import logging
 
 from app.api.middleware.auth import permission_required
+from app.core.bootstrap.extensions import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ plans_bp = Blueprint('ai_plans', __name__, url_prefix='/plans')
 @permission_required('admin.system:read')
 def create_plan() -> tuple[dict[str, Any], int]:
     """Create a new content plan (manual or from file)."""
-    from app.application.services.ai.plan_service import PlanService
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
         data = request.get_json() or {}
@@ -31,17 +32,20 @@ def create_plan() -> tuple[dict[str, Any], int]:
         user_id = g.current_user['user_id']
         source = data.get('source')
 
+        language = data.get('language', 'de')
+
         if source == 'file':
             file_id = data.get('file_id')
             if not file_id:
                 return {'success': False, 'error': {'code': 'MISSING_FILE_ID', 'message': 'file_id is required'}}, 400
-            plan = PlanService.create_plan_from_file(course_id, file_id, user_id)
+            plan = PlanService.create_plan_from_file(course_id, file_id, user_id, language=language)
         else:
             plan = PlanService.create_plan(
                 course_id=course_id,
                 user_id=user_id,
                 scope=data.get('scope', 'course'),
                 scope_id=data.get('scope_id'),
+                language=language,
             )
 
         return {'success': True, 'data': plan}, 201
@@ -57,7 +61,7 @@ def create_plan() -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def list_plans() -> tuple[dict[str, Any], int]:
     """List plans for a course."""
-    from app.application.services.ai.plan_service import PlanService
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
         course_id = request.args.get('course_id')
@@ -83,7 +87,7 @@ def list_plans() -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def create_phased_plan() -> tuple[dict[str, Any], int]:
     """Create a phased plan with Phase 1 (course definition)."""
-    from app.application.services.ai.plan_service_part2 import PlanWizardService
+    from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
 
     try:
         data = request.get_json() or {}
@@ -94,8 +98,13 @@ def create_phased_plan() -> tuple[dict[str, Any], int]:
         user_id = g.current_user['user_id']
         topic = data.get('topic', '')
         file_ids = data.get('file_ids', [])
+        quality_level = data.get('quality_level', 'standard')
+        language = data.get('language', 'de')
 
-        plan = PlanWizardService().create_phased_plan(course_id, user_id, topic, file_ids)
+        plan = PlanWizardService().create_phased_plan(
+            course_id, user_id, topic, file_ids,
+            quality_level=quality_level, language=language,
+        )
         return {'success': True, 'data': plan}, 201
 
     except ValueError as e:
@@ -114,10 +123,10 @@ def create_phased_plan() -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def delete_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Delete a content plan and its generation logs."""
-    from app.infrastructure.persistence.repositories.ai.content_plans import ContentPlanRepository
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
-        deleted = ContentPlanRepository.delete(plan_id)
+        deleted = PlanService.delete_plan(plan_id)
         if not deleted:
             return {'success': False, 'error': {'code': 'NOT_FOUND', 'message': 'Plan not found'}}, 404
         return {'success': True, 'data': {'deleted': True}}, 200
@@ -128,10 +137,11 @@ def delete_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>', methods=['GET'])
+@limiter.exempt
 @permission_required('admin.system:read')
 def get_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Get a specific plan."""
-    from app.application.services.ai.plan_service import PlanService
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
         plan = PlanService.get_plan(plan_id)
@@ -148,7 +158,7 @@ def get_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def update_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Update plan data (reorder steps, change parameters)."""
-    from app.application.services.ai.plan_service import PlanService
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
         data = request.get_json() or {}
@@ -170,7 +180,7 @@ def update_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def approve_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Approve a plan for execution."""
-    from app.application.services.ai.plan_service import PlanService
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
         plan = PlanService.approve_plan(plan_id)
@@ -187,7 +197,7 @@ def approve_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Start async execution of an approved plan. Returns 202 immediately."""
-    from app.application.services.ai.plan_service import PlanService
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
         user_id = g.current_user['user_id']
@@ -205,7 +215,7 @@ def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def archive_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Archive a completed plan (keeps record, clears from active view)."""
-    from app.application.services.ai.plan_service import PlanService
+    from app.application.services.ai.plan.plan_service import PlanService
 
     try:
         plan = PlanService.set_plan_status(plan_id, 'archived', required_current='completed')
@@ -224,10 +234,12 @@ def archive_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def advance_to_phase2(plan_id: str) -> tuple[dict[str, Any], int]:
     """Advance plan to Phase 2 (chapter structure generation)."""
-    from app.application.services.ai.plan_service_part2 import PlanWizardService
+    from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
 
     try:
-        plan = PlanWizardService().advance_to_phase2(plan_id)
+        data = request.get_json(silent=True) or {}
+        quality_level = data.get('quality_level', 'standard')
+        plan = PlanWizardService().advance_to_phase2(plan_id, quality_level=quality_level)
         return {'success': True, 'data': plan}, 200
 
     except ValueError as e:
@@ -241,10 +253,12 @@ def advance_to_phase2(plan_id: str) -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def advance_to_phase3(plan_id: str) -> tuple[dict[str, Any], int]:
     """Advance plan to Phase 3 (detailed content plan)."""
-    from app.application.services.ai.plan_service_part2 import PlanWizardService
+    from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
 
     try:
-        plan = PlanWizardService().advance_to_phase3(plan_id)
+        data = request.get_json(silent=True) or {}
+        quality_level = data.get('quality_level', 'standard')
+        plan = PlanWizardService().advance_to_phase3(plan_id, quality_level=quality_level)
         return {'success': True, 'data': plan}, 200
 
     except ValueError as e:
@@ -258,7 +272,7 @@ def advance_to_phase3(plan_id: str) -> tuple[dict[str, Any], int]:
 @permission_required('admin.system:read')
 def chat_about_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Chat about the plan to refine current phase."""
-    from app.application.services.ai.plan_service_part2 import PlanWizardService
+    from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
 
     try:
         data = request.get_json() or {}
@@ -266,7 +280,8 @@ def chat_about_plan(plan_id: str) -> tuple[dict[str, Any], int]:
         if not message:
             return {'success': False, 'error': {'code': 'MISSING_MESSAGE', 'message': 'message is required'}}, 400
 
-        result = PlanWizardService().chat_about_plan(plan_id, message)
+        quality_level = data.get('quality_level', 'standard')
+        result = PlanWizardService().chat_about_plan(plan_id, message, quality_level=quality_level)
         return {'success': True, 'data': result}, 200
 
     except ValueError as e:
@@ -274,3 +289,20 @@ def chat_about_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     except Exception as e:
         logger.error(f"Chat about plan failed: {e}")
         return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to process chat message'}}, 500
+
+
+@plans_bp.route('/<plan_id>/undo', methods=['POST'])
+@permission_required('admin.system:read')
+def undo_plan_chat(plan_id: str) -> tuple[dict[str, Any], int]:
+    """Undo the last chat patch by restoring previous plan state."""
+    from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
+
+    try:
+        result = PlanWizardService().undo_last_chat_patch(plan_id)
+        return {'success': True, 'data': result}, 200
+
+    except ValueError as e:
+        return {'success': False, 'error': {'code': 'UNDO_ERROR', 'message': str(e)}}, 400
+    except Exception as e:
+        logger.error(f"Undo plan chat failed: {e}")
+        return {'success': False, 'error': {'code': 'INTERNAL_ERROR', 'message': 'Failed to undo'}}, 500

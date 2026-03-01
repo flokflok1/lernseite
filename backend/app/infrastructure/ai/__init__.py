@@ -1,4 +1,4 @@
-from .plan_generator import PlanGeneratorAdapter
+from .plan.plan_generator import PlanGeneratorAdapter
 
 __all__ = [
     'PlanGeneratorAdapter',

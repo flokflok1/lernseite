@@ -3,5 +3,5 @@
 </template>
 
 <script setup lang="ts">
-import ExamSimulationView from '@/presentation/components/panel/user/learning/ExamSimulationView.vue'
+import ExamSimulationView from '@/presentation/components/panel/user/learning/core/ExamSimulationView.vue'
 </script>

@@ -17,7 +17,7 @@ from flask import request, jsonify, current_app, Response
 from app.setup import setup_bp
 from app.setup.seeds.seeds import SeedData
 from app.setup.diagnostics.install import InstallationChecker
-from app.setup.diagnostics.verify import VerificationChecks as SetupVerification
+from app.setup.diagnostics.verification.verify import VerificationChecks as SetupVerification
 
 
 @setup_bp.route('/seed', methods=['POST'])

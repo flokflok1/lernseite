@@ -18,7 +18,7 @@ Usage:
     video = LessonVideoService.get_cached_video(lesson_id)
 """
 
-from app.application.services.content.lesson_video.orchestration import LessonVideoService
+from app.application.services.content.lesson_video.pipeline.orchestration import LessonVideoService
 from app.application.services.content.lesson_video.exceptions import VideoGenerationError
 
 __all__ = [

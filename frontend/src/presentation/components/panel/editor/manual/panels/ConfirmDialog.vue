@@ -10,7 +10,7 @@
 import { ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
-import { useFocusTrap } from '../composables/useFocusTrap'
+import { useFocusTrap } from '../composables/editor/useFocusTrap'
 
 const { t } = useI18n()
 const {

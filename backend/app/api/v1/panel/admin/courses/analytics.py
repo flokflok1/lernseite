@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 
 from app.api.v1 import api_v1
 from app.api.middleware.auth import admin_required
-from app.infrastructure.persistence.repositories.courses.analytics import CourseAnalyticsRepository
+from app.infrastructure.persistence.repositories.courses.analytics.analytics import CourseAnalyticsRepository
 
 
 # ============================================================================

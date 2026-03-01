@@ -160,7 +160,7 @@ def create_app(config_name=None):
 
     # Seed default AI providers (idempotent)
     try:
-        from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+        from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
         seeded = AIProviderRepository.seed_defaults()
         if seeded > 0:
             app.logger.info(f'Seeded {seeded} default AI provider(s)')

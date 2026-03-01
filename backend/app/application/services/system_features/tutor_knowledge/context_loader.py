@@ -8,7 +8,7 @@ import logging
 from app.infrastructure.persistence.repositories.tutor_knowledge import (
     TutorKnowledgeRepository
 )
-from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
+from app.infrastructure.persistence.repositories.courses.management.crud import CourseRepositoryCRUD
 
 logger = logging.getLogger(__name__)
 

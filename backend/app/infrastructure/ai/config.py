@@ -130,10 +130,12 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
         'api_key_env': 'GOOGLE_API_KEY',
         'display_name': 'Google',
         'models': {
-            'gemini-2.0-flash': {'input_price': 0.0001, 'output_price': 0.0004, 'max_tokens': 8192, 'context_window': 1000000, 'category': 'chat'},
-            'gemini-2.0-pro': {'input_price': 0.00125, 'output_price': 0.005, 'max_tokens': 8192, 'context_window': 1000000, 'category': 'chat'},
-            'gemini-1.5-pro': {'input_price': 0.00125, 'output_price': 0.005, 'max_tokens': 8192, 'context_window': 2000000, 'category': 'chat'},
-            'gemini-1.5-flash': {'input_price': 0.000075, 'output_price': 0.0003, 'max_tokens': 8192, 'context_window': 1000000, 'category': 'chat'},
+            'gemini-2.5-pro': {'input_price': 0.00125, 'output_price': 0.01, 'max_tokens': 65536, 'context_window': 1000000, 'category': 'chat'},
+            'gemini-2.5-flash': {'input_price': 0.00015, 'output_price': 0.0006, 'max_tokens': 65536, 'context_window': 1000000, 'category': 'chat'},
+            'gemini-2.0-flash': {'input_price': 0.0001, 'output_price': 0.0004, 'max_tokens': 65536, 'context_window': 1000000, 'category': 'chat'},
+            'gemini-2.0-pro': {'input_price': 0.00125, 'output_price': 0.005, 'max_tokens': 65536, 'context_window': 1000000, 'category': 'chat'},
+            'gemini-1.5-pro': {'input_price': 0.00125, 'output_price': 0.005, 'max_tokens': 65536, 'context_window': 2000000, 'category': 'chat'},
+            'gemini-1.5-flash': {'input_price': 0.000075, 'output_price': 0.0003, 'max_tokens': 65536, 'context_window': 1000000, 'category': 'chat'},
             'gemini-pro': {'input_price': 0.0005, 'output_price': 0.0015, 'max_tokens': 8192, 'context_window': 32000, 'category': 'chat'}
         }
     },

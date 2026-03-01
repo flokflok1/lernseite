@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 from app.api.v1.panel.editor.manual import manual_editor_bp
 from app.api.v1.panel.editor.shared.permissions import check_course_permission
 from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
 from app.application.services.system.audit.service import AuditService
 from app.api.middleware.auth import get_current_user
 from app.infrastructure.i18n.error_codes import ErrorCode

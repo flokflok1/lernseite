@@ -32,8 +32,8 @@ from app.domain.models.content.theory_sheet import (
     TheorySheetResponse,
     TheorySheetUpdate,
 )
-from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
-from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.content.lessons import LessonRepository
 from app.infrastructure.persistence.repositories.content.theory_sheet import TheorySheetRepository
 from app.application.services.system.audit.service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response

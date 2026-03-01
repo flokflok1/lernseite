@@ -59,8 +59,8 @@ from .context.detector import (
 )
 
 # Plan services
-from .plan_service import PlanService
-from .plan_service_part2 import PlanWizardService
+from .plan.plan_service import PlanService
+from .plan.plan_service_part2 import PlanWizardService
 
 # Provider implementations (moved to infrastructure layer)
 from app.infrastructure.ai.providers import (  # noqa: F401

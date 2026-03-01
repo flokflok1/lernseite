@@ -15,7 +15,7 @@ from app.infrastructure.persistence.repositories.lm_model_routing import (
     LMModelRequirementsRepository
 )
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
-from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.config.catalog import LearningMethodCatalogRepository
 
 
 class ModelNotConfiguredError(Exception):

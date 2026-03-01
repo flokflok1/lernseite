@@ -20,7 +20,7 @@ from typing import Dict, Any, Tuple
 
 from app.api.v1 import api_v1
 from app.api.middleware.auth import permission_required
-from app.infrastructure.persistence.repositories.ai.usage import AIUsageRepository
+from app.infrastructure.persistence.repositories.ai.tracking.usage import AIUsageRepository
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
 

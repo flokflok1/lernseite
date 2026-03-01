@@ -397,7 +397,6 @@ Antworte im JSON-Format:
                 messages=[{'role': 'user', 'content': analysis_prompt}],
                 system_prompt="Du bist ein erfahrener Prüfer und Lehrer. Analysiere mündliche Erklärungen fair aber gründlich. Antworte ausschließlich im angeforderten JSON-Format.",
                 model='gpt-4o-mini',
-                max_tokens=1000,
                 temperature=0.3,
                 user_id=user_id
             )

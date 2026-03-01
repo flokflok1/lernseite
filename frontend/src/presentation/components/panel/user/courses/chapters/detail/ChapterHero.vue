@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import ProgressRing from './ProgressRing.vue'
+import ProgressRing from './timeline/ProgressRing.vue'
 
 interface Props {
   chapter: any

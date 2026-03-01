@@ -147,7 +147,8 @@ class StructureOperations:
             'id': data.get('id', str(uuid.uuid4())),
             'type': data.get('type', 'theory'),
             'title': data.get('title', 'Neue Methode'),
-            'content': data.get('content', {})
+            'content': data.get('content', {}),
+            'solution': data.get('solution'),
         }
         for ch in structure['chapters']:
             for lesson in ch['lessons']:

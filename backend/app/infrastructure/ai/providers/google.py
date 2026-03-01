@@ -129,6 +129,92 @@ class GoogleProvider:
         return GoogleProvider._execute_request(url_with_key, payload, combined_text, timeout)
 
     @staticmethod
+    def send_messages_with_tools(
+        api_key: str,
+        api_url: str,
+        model: str,
+        messages: List[Dict[str, str]],
+        tools: List[Dict],
+        temperature: float,
+        max_tokens: int,
+        timeout: int
+    ) -> Dict[str, Any]:
+        """
+        Send messages with tool definitions to Google Gemini API.
+
+        Returns dict with 'parts' key containing the response parts
+        (text + functionCall) for normalization by tool_formatters.
+        """
+        system_instruction = None
+        conversation_parts = []
+
+        for msg in messages:
+            if msg['role'] == 'system':
+                system_instruction = msg['content']
+            elif msg['role'] == 'user':
+                conversation_parts.append({
+                    'role': 'user',
+                    'parts': [{'text': msg['content']}]
+                })
+            elif msg['role'] == 'assistant':
+                conversation_parts.append({
+                    'role': 'model',
+                    'parts': [{'text': msg['content']}]
+                })
+
+        formatted_url = api_url.format(model=model)
+        url_with_key = f"{formatted_url}?key={api_key}"
+
+        payload = {
+            'contents': conversation_parts,
+            'tools': tools,
+            'generationConfig': {
+                'temperature': temperature,
+                'maxOutputTokens': max_tokens
+            }
+        }
+
+        if system_instruction:
+            payload['systemInstruction'] = {
+                'parts': [{'text': system_instruction}]
+            }
+
+        combined_text = ' '.join([m['content'] for m in messages])
+
+        try:
+            response = requests.post(
+                url_with_key, json=payload, timeout=timeout
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            parts = data['candidates'][0]['content']['parts']
+            input_tokens = data.get('usageMetadata', {}).get(
+                'promptTokenCount', len(combined_text) // 4
+            )
+            output_tokens = data.get('usageMetadata', {}).get(
+                'candidatesTokenCount', 100
+            )
+
+            return {
+                'parts': parts,
+                'input_tokens': input_tokens,
+                'output_tokens': output_tokens
+            }
+
+        except Timeout:
+            raise AITimeoutError(f'Google request timed out after {timeout}s')
+        except requests.HTTPError as e:
+            if e.response.status_code == 429:
+                raise AIQuotaExceededError('Google quota exceeded')
+            elif e.response.status_code == 401:
+                raise AIInvalidKeyError('Invalid Google API key')
+            else:
+                raise AIProviderError(f'Google API error: {e.response.text}')
+        except RequestException as e:
+            raise AIProviderError(f'Google request failed: {str(e)}')
+
+    @staticmethod
     def _execute_request(
         url: str,
         payload: Dict[str, Any],

@@ -87,7 +87,6 @@ def init_methods_prompt() -> None:
             PromptVariable(name="lessons", description="Lektionen (JSON)", required=True)
         ],
         model="claude-3-5-sonnet-20241022",
-        max_tokens=10000,
         temperature=0.8,
         language_mode="target",
         allowed_roles=["teacher", "admin"],

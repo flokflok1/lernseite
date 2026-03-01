@@ -189,7 +189,7 @@ if redis_client is not None:
         limiter = Limiter(
             key_func=rate_limit_key_func,
             storage_uri=ratelimit_storage,
-            default_limits=[os.getenv('RATELIMIT_DEFAULT', '200 per hour')]
+            default_limits=[os.getenv('RATELIMIT_DEFAULT', '1000 per hour')]
         )
     except Exception as e:
         print(f"Warning: Rate limiter not available (normal during setup): {e}")

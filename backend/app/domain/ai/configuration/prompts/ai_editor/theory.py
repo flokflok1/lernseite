@@ -89,7 +89,6 @@ def init_theory_prompt() -> None:
             PromptVariable(name="selected_didactic_angle", description="Gewählter didaktischer Ansatz", required=False, default="")
         ],
         model="claude-3-5-sonnet-20241022",
-        max_tokens=6000,
         temperature=0.8,
         language_mode="target",
         allowed_roles=["teacher", "admin"],

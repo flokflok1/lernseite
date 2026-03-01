@@ -19,7 +19,7 @@ import logging
 import uuid
 
 from app.api.middleware.auth import token_required, permission_required
-from app.infrastructure.persistence.repositories.ai.jobs import AIJobsRepository
+from app.infrastructure.persistence.repositories.ai.tracking.jobs import AIJobsRepository
 from app.application.services.system.audit.service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response

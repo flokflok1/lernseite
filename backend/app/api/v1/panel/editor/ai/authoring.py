@@ -27,7 +27,7 @@ from app.core.bootstrap.extensions import limiter
 from app.api.middleware.auth import token_required
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
-from app.infrastructure.persistence.repositories.authoring.sessions import (
+from app.infrastructure.persistence.repositories.authoring.sessions.sessions import (
     CourseAuthoringSessionRepository,
 )
 
@@ -112,7 +112,7 @@ def create_course_authoring_session():
 
         # Validate manual model selection (DDD: validation in service layer)
         if provider_name and model_name:
-            from app.application.services.content.course_authoring.session import CourseAuthoringService
+            from app.application.services.content.course_authoring.session.session import CourseAuthoringService
             CourseAuthoringService.validate_model_selection(provider_name, model_name)
 
         service = get_course_authoring_service(
@@ -231,6 +231,10 @@ def course_authoring_chat(session_id):
 
         mode = data.get('mode')
         file_ids = data.get('file_ids', [])
+        focus_chapter_id = data.get('focus_chapter_id')
+        focus_lesson_id = data.get('focus_lesson_id')
+        prompt_code = data.get('prompt_code')
+        quality_level = data.get('quality_level', 'standard')
         user_id = g.current_user['user_id']
 
         service = get_course_authoring_service()
@@ -239,7 +243,11 @@ def course_authoring_chat(session_id):
             user_id=user_id,
             message=message,
             mode=mode,
-            file_ids=file_ids
+            file_ids=file_ids,
+            focus_chapter_id=focus_chapter_id,
+            focus_lesson_id=focus_lesson_id,
+            prompt_code=prompt_code,
+            quality_level=quality_level
         )
 
         ops_count = len(result.get('operations_applied', []))
@@ -256,10 +264,14 @@ def course_authoring_chat(session_id):
                 # Create a fresh session so the user can keep chatting
                 course_id = result['draft_structure'].get('course_id')
                 if course_id:
+                    # Carry chat history so the AI remembers context
+                    carry_history = result.get('_chat_history', [])[-20:]
+
                     new_session = service.create_session(
                         user_id=user_id,
                         course_id=course_id,
-                        model_profile='anthropic-claude-sonnet'
+                        model_profile=data.get('model_profile', 'anthropic-claude-sonnet'),
+                        initial_chat_history=carry_history
                     )
                     result['new_session_id'] = new_session['session_id']
                     result['draft_structure'] = new_session['draft_structure']
@@ -268,6 +280,9 @@ def course_authoring_chat(session_id):
                 logger.error(f"Auto-finalize failed for session {session_id}: {e}", exc_info=True)
                 result['finalized'] = False
                 result['finalize_error'] = str(e)
+
+        # Remove internal field from response
+        result.pop('_chat_history', None)
 
         return jsonify({'success': True, 'data': result}), 200
 
@@ -395,7 +410,7 @@ def list_course_authoring_sessions(course_id):
         }
     """
     try:
-        from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
+        from app.infrastructure.persistence.repositories.authoring.sessions.sessions import CourseAuthoringSessionRepository
 
         status_filter = request.args.get('status')
 
@@ -479,7 +494,7 @@ def get_method_types():
             'name': 'Quiz',
             'description': 'Multiple-Choice und Verständnisfragen',
             'icon': '❓',
-            'lm_type': 2
+            'lm_type': 10
         },
         {
             'type': 'flashcards',
@@ -493,7 +508,7 @@ def get_method_types():
             'name': 'Übungsaufgabe',
             'description': 'Praktische Übung mit Lösung',
             'icon': '✏️',
-            'lm_type': 8
+            'lm_type': 9
         },
         {
             'type': 'exam',
@@ -507,17 +522,99 @@ def get_method_types():
     return jsonify({'success': True, 'data': {'method_types': method_types}}), 200
 
 
+@ai_editor_bp.route('/prompt-templates', methods=['GET'])
+@check_course_permission('read')
+def list_prompt_templates():
+    """
+    Listet verfügbare Prompt-Templates für den AI Editor.
+
+    Response 200:
+        {
+            "success": true,
+            "data": {
+                "templates": [
+                    {
+                        "code": "ai_editor_standard",
+                        "title": "Standard",
+                        "description": "...",
+                        "style": "standard",
+                        "is_default": true
+                    }
+                ]
+            }
+        }
+    """
+    try:
+        from app.application.services.content.course_authoring.session.session import (
+            CourseAuthoringService,
+        )
+        templates = CourseAuthoringService.list_available_prompts()
+        return jsonify({'success': True, 'data': {'templates': templates}}), 200
+    except Exception as e:
+        logger.error(f"Error listing prompt templates: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500,
+                            details={'error': 'Internal server error'})
+
+
 @ai_editor_bp.route('/available-models', methods=['GET'])
 @check_course_permission('read')
 def get_available_models():
     """Returns active providers with their active chat models (editor-level)."""
     try:
-        from app.application.services.content.course_authoring.session import (
+        from app.application.services.content.course_authoring.session.session import (
             CourseAuthoringService,
         )
         result = CourseAuthoringService.get_available_models()
         return jsonify({'success': True, 'data': {'providers': result}}), 200
     except Exception as e:
         logger.error(f"Error fetching available models: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500,
+                            details={'error': 'Internal server error'})
+
+
+@ai_editor_bp.route('/quality-levels', methods=['GET'])
+@check_course_permission('read')
+def get_quality_levels():
+    """Returns available quality levels for UI selector."""
+    try:
+        from app.application.services.content.course_authoring.quality_profile import (
+            list_quality_levels,
+        )
+        return jsonify({'success': True, 'data': {'levels': list_quality_levels()}}), 200
+    except Exception as e:
+        logger.error(f"Error listing quality levels: {str(e)}", exc_info=True)
+        return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500,
+                            details={'error': 'Internal server error'})
+
+
+@ai_editor_bp.route('/sessions/<session_id>/pipeline-status', methods=['GET'])
+@check_course_permission('read')
+def get_pipeline_status(session_id):
+    """Returns current pipeline step and what needs work."""
+    denied = _verify_session_access(session_id)
+    if denied:
+        return denied
+    try:
+        from app.application.services.content.course_authoring import (
+            get_course_authoring_service,
+        )
+        from app.application.services.content.course_authoring.pipeline import (
+            GenerationPipeline,
+        )
+        user_id = g.current_user['user_id']
+        service = get_course_authoring_service()
+        session_data = service.get_session(session_id, user_id)
+        draft = session_data['draft_structure']
+
+        step = GenerationPipeline.determine_step(draft)
+        focused = GenerationPipeline.get_focused_chapters(draft, step)
+
+        return jsonify({'success': True, 'data': {
+            'current_step': step,
+            'focused_chapter_ids': focused,
+            'is_complete': step == 'complete',
+        }}), 200
+    except Exception as e:
+        logger.error(f"Pipeline status error: {e}", exc_info=True)
         return error_response(ErrorCode.COURSE_FILE_OPERATION_FAILED, 500,
                             details={'error': 'Internal server error'})

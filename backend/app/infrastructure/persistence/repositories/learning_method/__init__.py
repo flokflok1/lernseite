@@ -14,14 +14,14 @@ Original learning_method_repository.py imports still work via bridge module.
 """
 
 from .base import LearningMethodBaseRepository
-from .ai_execution import LearningMethodAIRepository
-from .ai_execution_part2 import LearningMethodAIPromptsMixin
+from .execution.ai_execution import LearningMethodAIRepository
+from .execution.ai_execution_part2 import LearningMethodAIPromptsMixin
 from .feedback import LearningMethodFeedbackRepository
 from .statistics import LearningMethodStatisticsRepository
-from .instances import LearningMethodInstanceRepository
-from .instances_part2 import LearningMethodInstanceStatisticsRepository
-from .progress import LearningMethodProgressRepository
-from .types import (
+from .execution.instances import LearningMethodInstanceRepository
+from .execution.instances_part2 import LearningMethodInstanceStatisticsRepository
+from .execution.progress import LearningMethodProgressRepository
+from .config.types import (
     LearningMethodBase,
     AIExecutionResult,
     TokenUsageStats,

@@ -8,7 +8,7 @@ Routes registered on the blueprint from translations.py.
 
 from flask import request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
+from app.infrastructure.persistence.repositories.i18n.admin.admin_queries import I18nAdminQueryRepository
 from app.api.v1.panel.admin.i18n.translations.translations import bp
 import logging
 

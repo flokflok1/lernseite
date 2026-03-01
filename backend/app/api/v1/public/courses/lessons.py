@@ -19,11 +19,11 @@ import json
 import logging
 import re
 
-from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
-from app.infrastructure.persistence.repositories.learning_method.instances import (
+from app.infrastructure.persistence.repositories.courses.content.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.learning_method.execution.instances import (
     LearningMethodInstanceRepository,
 )
-from app.infrastructure.persistence.repositories.learning_method.progress import (
+from app.infrastructure.persistence.repositories.learning_method.execution.progress import (
     LearningMethodProgressRepository,
 )
 from app.api.middleware.auth import token_required, get_current_user

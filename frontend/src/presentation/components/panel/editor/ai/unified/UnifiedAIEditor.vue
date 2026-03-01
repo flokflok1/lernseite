@@ -43,6 +43,8 @@
           </option>
         </select>
       </div>
+      <!-- Quality level selector -->
+      <QualityLevelSelector v-if="qualityLevel.levels.value.length > 0" />
       <button
         v-if="chatSession.hasSession.value"
         class="new-session-btn"
@@ -117,13 +119,15 @@
 <script setup lang="ts">
 import { ref, onMounted, provide, computed, watch, KeepAlive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useChatSession } from './composables/useChatSession'
-import { useStructureView } from './composables/useStructureView'
-import { useWorkflowPhase } from './composables/useWorkflowPhase'
-import { useEditorState } from './composables/useEditorState'
-import { useFileUpload } from './composables/useFileUpload'
-import { useGenerationHistory } from './composables/useGenerationHistory'
-import { useModelSelector } from './composables/useModelSelector'
+import { useChatSession } from './composables/generation/useChatSession'
+import { useStructureView } from './composables/editor/useStructureView'
+import { useWorkflowPhase } from './composables/plan/useWorkflowPhase'
+import { useEditorState } from './composables/editor/useEditorState'
+import { useFileUpload } from './composables/editor/useFileUpload'
+import { useGenerationHistory } from './composables/generation/useGenerationHistory'
+import { useModelSelector } from './composables/editor/useModelSelector'
+import { useQualityLevel } from './composables/plan/useQualityLevel'
+import QualityLevelSelector from './components/QualityLevelSelector.vue'
 import { ChatTab, FilesTab, PromptsTab, PlanTab, SkillsTab, HistoryTab, CourseTab } from './tabs'
 import { RightPanel } from './right-panel'
 import EditorTabBar from './components/EditorTabBar.vue'
@@ -144,6 +148,7 @@ const editorState = useEditorState()
 
 const generationHistory = useGenerationHistory()
 const modelSelector = useModelSelector()
+const qualityLevel = useQualityLevel()
 const sessionId = computed(() => chatSession.session.value?.sessionId ?? null)
 const fileUpload = useFileUpload(sessionId)
 
@@ -160,6 +165,7 @@ provide('editorState', editorState)
 provide('fileUpload', fileUpload)
 provide('generationHistory', generationHistory)
 provide('modelSelector', modelSelector)
+provide('qualityLevel', qualityLevel)
 
 // ---- Local state ----
 const courses = ref<Array<{ id: string; title: string }>>([])
@@ -179,8 +185,9 @@ onMounted(async () => {
     courses.value = []
   }
 
-  // Load available AI models for manual selection
+  // Load available AI models and quality levels
   modelSelector.loadAvailableModels()
+  qualityLevel.loadQualityLevels()
 
   if (props.courseId) {
     const course = courses.value.find(c => c.id === props.courseId)
@@ -257,7 +264,11 @@ async function handleSend(content: string): Promise<void> {
   const contextHint = ctx
     ? `[Kontext: ${ctx.type === 'chapter' ? 'Kapitel' : 'Lektion'} "${ctx.title}" (ID: ${ctx.id})]\n`
     : undefined
-  const result = await chatSession.sendMessage(content, undefined, contextHint)
+  const focusContext = ctx ? { type: ctx.type, id: ctx.id } : undefined
+  const result = await chatSession.sendMessage(
+    content, undefined, contextHint, focusContext,
+    qualityLevel.selectedLevel.value
+  )
 
   // Refresh structure sidebar if operations were applied
   if (result?.operations?.length && selectedCourseId.value) {

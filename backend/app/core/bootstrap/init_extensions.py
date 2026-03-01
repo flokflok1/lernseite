@@ -65,8 +65,8 @@ def register_shell_context(app: Flask) -> None:
         """Add database pool and utilities to shell context"""
         from app.infrastructure.persistence.repositories.user import UserRepository
         from app.infrastructure.persistence.repositories.courses import CourseRepository
-        from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
-        from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+        from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
+        from app.infrastructure.persistence.repositories.courses.content.lessons import LessonRepository
         from app.infrastructure.persistence.repositories.enrollments.core import EnrollmentRepository
         from app.infrastructure.persistence.repositories.category import CategoryRepository
         from app.infrastructure.persistence.repositories.learning_method import LearningMethodRepository

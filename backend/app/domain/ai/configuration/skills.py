@@ -45,7 +45,7 @@ class SkillDefinition:
     required_context: tuple = ('course',)
     parameters: tuple = ()
     supports_variants: bool = True
-    estimated_tokens: int = 2000
+    estimated_tokens: int = 8000
     content_scope: str = 'course'  # 'course' | 'session'
     required_feature_code: Optional[str] = None
 
@@ -253,7 +253,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         prompt_template_code='ai_editor_theory',
         required_context=('course', 'lesson'),
         parameters=(_LANGUAGE_PARAM,),
-        estimated_tokens=3000,
+        estimated_tokens=12000,
     ),
 
     'generate_quiz': SkillDefinition(
@@ -265,7 +265,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         prompt_template_code='ai_editor_quiz',
         required_context=('course', 'lesson'),
         parameters=(_DIFFICULTY_PARAM, _COUNT_PARAM, _LANGUAGE_PARAM),
-        estimated_tokens=2500,
+        estimated_tokens=10000,
     ),
 
     'review_content': SkillDefinition(
@@ -278,7 +278,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         required_context=('course', 'lesson'),
         parameters=(_LANGUAGE_PARAM,),
         supports_variants=False,
-        estimated_tokens=1500,
+        estimated_tokens=8000,
     ),
 
     'generate_summary': SkillDefinition(
@@ -290,7 +290,7 @@ SKILL_CATALOG: dict[str, SkillDefinition] = {
         prompt_template_code='ai_editor_summary',
         required_context=('course', 'chapter'),
         parameters=(_LANGUAGE_PARAM,),
-        estimated_tokens=2000,
+        estimated_tokens=10000,
     ),
 
     # ── Extension Skills (type-IDs 100-106, no LM mapping) ───────────────

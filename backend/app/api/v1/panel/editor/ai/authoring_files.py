@@ -18,7 +18,7 @@ import logging
 
 from app.api.v1.panel.editor.shared.permissions import check_course_permission
 from app.core.bootstrap.extensions import limiter
-from app.infrastructure.persistence.repositories.authoring.sessions import (
+from app.infrastructure.persistence.repositories.authoring.sessions.sessions import (
     CourseAuthoringSessionRepository,
 )
 

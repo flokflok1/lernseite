@@ -51,8 +51,7 @@ def generate_exam_task(self, simulation_id: str) -> Dict[str, Any]:
                 prompt=prompt,
                 context=f"Kurs: {sim['course_title']}",
                 language='de',
-                temperature=0.7,
-                max_tokens=8000
+                temperature=0.7
             )
 
             output_text = response['output_text']

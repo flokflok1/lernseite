@@ -14,7 +14,7 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify
 from app.application.services.i18n.bridge import I18nService
-from app.infrastructure.persistence.repositories.i18n.admin_languages import I18nAdminLanguageRepository
+from app.infrastructure.persistence.repositories.i18n.admin.admin_languages import I18nAdminLanguageRepository
 from app.api.middleware.auth import permission_required
 import logging
 
@@ -32,7 +32,7 @@ def admin_get_languages():
     Returns:
         List of all languages with full metadata
     """
-    from app.application.services.i18n.languages import LanguageManager
+    from app.application.services.i18n.core.languages import LanguageManager
     languages = LanguageManager.get_all_languages()
     return jsonify({
         'success': True,
@@ -157,7 +157,7 @@ def update_language(language_code: str):
         primary_changed = False
         if 'is_primary' in data and data['is_primary']:
             # Use LanguageManager to safely toggle primary (unsets others first)
-            from app.application.services.i18n.languages import LanguageManager
+            from app.application.services.i18n.core.languages import LanguageManager
             primary_changed = LanguageManager.set_primary_language(language_code)
         if 'priority' in data:
             updates.append("priority = %s")
@@ -196,7 +196,7 @@ def delete_language(language_code: str):
         Success status
     """
     # Don't allow deleting the primary language (dynamic check)
-    from app.application.services.i18n.languages import LanguageManager
+    from app.application.services.i18n.core.languages import LanguageManager
     if language_code == LanguageManager.get_primary_language():
         return jsonify({
             'success': False,

@@ -87,7 +87,6 @@ def init_lessons_prompt() -> None:
             PromptVariable(name="selected_theory_variant", description="Gewählte Theorie-Variante (JSON)", required=True)
         ],
         model="claude-3-5-sonnet-20241022",
-        max_tokens=8000,
         temperature=0.7,
         language_mode="target",
         allowed_roles=["teacher", "admin"],

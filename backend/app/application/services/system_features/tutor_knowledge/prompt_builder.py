@@ -78,7 +78,7 @@ Lektionen in diesem Kapitel:
         lesson_ctx = context_loader.get_lesson_content(lesson_id)
         if lesson_ctx:
             content = lesson_ctx['lesson'].get('content')
-            content_preview = content[:2000] + '...' if content and len(content) > 2000 else content
+            content_preview = content if content else ''
             context_parts.append(f"""
 === AKTUELLE LEKTION ===
 Lektion: {lesson_ctx['lesson']['title']}

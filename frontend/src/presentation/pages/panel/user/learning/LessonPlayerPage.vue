@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import LessonPlayerView from '@/presentation/components/panel/user/learning/LessonPlayerView.vue'
+import LessonPlayerView from '@/presentation/components/panel/user/learning/core/LessonPlayerView.vue'
 
 interface Props {
   courseId: string

@@ -40,8 +40,8 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import { useDesktopPanelStore } from '@/application/stores/modules/workspace'
 import http from '@/infrastructure/api/http'
-import AIEditorCore from '@/presentation/components/panel/admin/ai/AIEditorCore.vue'
-import AIEditorStats from '@/presentation/components/panel/admin/ai/AIEditorStats.vue'
+import AIEditorCore from '@/presentation/components/panel/admin/ai/core/AIEditorCore.vue'
+import AIEditorStats from '@/presentation/components/panel/admin/ai/core/AIEditorStats.vue'
 
 useI18n()
 

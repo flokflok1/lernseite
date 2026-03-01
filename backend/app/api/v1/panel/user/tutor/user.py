@@ -137,8 +137,7 @@ def tutor_chat() -> Tuple[Dict[str, Any], int]:
         response = AIAdapter.chat_completion(
             messages=messages,
             system_prompt=system_prompt,
-            model='gpt-4o-mini',  # Use fast model for chat
-            max_tokens=800 if context_used else 500,  # More tokens when using context
+            model='gpt-4o-mini',
             temperature=0.7,
             user_id=user_id
         )

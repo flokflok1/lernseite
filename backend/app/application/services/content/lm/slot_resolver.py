@@ -20,7 +20,7 @@ from app.infrastructure.persistence.repositories.lm_slot import (
     LMSlotResolverRepository,
     CapabilitySlotRepository
 )
-from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.config.catalog import LearningMethodCatalogRepository
 
 
 @dataclass

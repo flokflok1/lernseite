@@ -2,13 +2,13 @@
  * Tutor User Composables
  */
 
-export { useAvatar3DScene } from './useAvatar3DScene'
-export { useCalculator } from './useCalculator'
-export { useClassroomScene } from './useClassroomScene'
-export { useRobotAvatar } from './useRobotAvatar'
-export { useTeacherAnimation } from './useTeacherAnimation'
-export { useTeacherDrawing } from './useTeacherDrawing'
-export { useTutorAudio } from './useTutorAudio'
-export { useTutorAvatar } from './useTutorAvatar'
-export { useTutorChat } from './useTutorChat'
-export { useWhiteboardCanvas } from './useWhiteboardCanvas'
+export { useAvatar3DScene } from './scene/useAvatar3DScene'
+export { useCalculator } from './interaction/useCalculator'
+export { useClassroomScene } from './scene/useClassroomScene'
+export { useRobotAvatar } from './avatar/useRobotAvatar'
+export { useTeacherAnimation } from './avatar/useTeacherAnimation'
+export { useTeacherDrawing } from './avatar/useTeacherDrawing'
+export { useTutorAudio } from './interaction/useTutorAudio'
+export { useTutorAvatar } from './avatar/useTutorAvatar'
+export { useTutorChat } from './interaction/useTutorChat'
+export { useWhiteboardCanvas } from './scene/useWhiteboardCanvas'

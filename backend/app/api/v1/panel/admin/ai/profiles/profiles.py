@@ -26,7 +26,7 @@ import logging
 import uuid
 
 from app.api.middleware.auth import permission_required
-from app.infrastructure.persistence.repositories.ai.profiles import AiModelProfilesRepository as AIProfileRepository
+from app.infrastructure.persistence.repositories.ai.config.profiles import AiModelProfilesRepository as AIProfileRepository
 from app.application.services.system.audit.service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 from app.infrastructure.error_handling.exceptions import NotFoundError, ValidationError

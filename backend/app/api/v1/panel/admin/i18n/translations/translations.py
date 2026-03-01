@@ -11,9 +11,9 @@ Translation management endpoints:
 
 from flask import Blueprint, request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
-from app.application.services.i18n.keys import KeyManager
-from app.application.services.i18n.translations import TranslationManager
+from app.infrastructure.persistence.repositories.i18n.admin.admin_queries import I18nAdminQueryRepository
+from app.application.services.i18n.core.keys import KeyManager
+from app.application.services.i18n.core.translations import TranslationManager
 import json
 import logging
 

@@ -91,7 +91,7 @@ import { useI18n } from 'vue-i18n'
 import { useTTS } from '@/application/composables/system/useTTS'
 import type { Course, Lesson } from '@/presentation/components/panel/editor/ai/explanation-generation/types/explanation.types'
 import type { LessonExplanation as _LessonExplanation } from '@/application/composables/learning/useTheoryManagement'
-import InteractiveWhiteboard from '@/presentation/components/public/system-features/tutor/user/InteractiveWhiteboard.vue'
+import InteractiveWhiteboard from '@/presentation/components/public/system-features/tutor/user/tools/InteractiveWhiteboard.vue'
 import {
   ExplanationList,
   ExplanationViewer,

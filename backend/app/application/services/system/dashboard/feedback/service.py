@@ -153,7 +153,6 @@ Antworte im JSON-Format:
             result = AIAdapter.generate_content(
                 prompt=prompt,
                 provider='anthropic',
-                max_tokens=500,
                 temperature=0.3
             )
 
@@ -285,7 +284,6 @@ Antworte im JSON-Format:
             result = AIAdapter.generate_content(
                 prompt=prompt,
                 provider='anthropic',
-                max_tokens=2000,
                 temperature=0.3
             )
 

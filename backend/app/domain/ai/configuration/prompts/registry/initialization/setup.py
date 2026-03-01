@@ -87,7 +87,7 @@ def init_default_prompts() -> None:
             )
         ],
         model="claude-3-sonnet-20240229",
-        max_tokens=2000,
+        max_tokens=16000,
         temperature=0.7,
         language_mode="target",
         allowed_roles=["student", "teacher", "admin"],
@@ -160,7 +160,7 @@ def init_default_prompts() -> None:
             )
         ],
         model="gpt-4-turbo",
-        max_tokens=2500,
+        max_tokens=16000,
         temperature=0.8,
         language_mode="target",
         allowed_roles=["student", "teacher", "admin"],
@@ -235,7 +235,7 @@ def init_default_prompts() -> None:
             )
         ],
         model="gpt-4-turbo",
-        max_tokens=3000,
+        max_tokens=16000,
         temperature=0.7,
         language_mode="target",
         allowed_roles=["teacher", "admin"],
@@ -294,7 +294,7 @@ def init_default_prompts() -> None:
             )
         ],
         model="claude-3-sonnet-20240229",
-        max_tokens=1500,
+        max_tokens=16000,
         temperature=0.8,
         language_mode="target",
         allowed_roles=["student", "teacher", "admin"],
@@ -362,7 +362,7 @@ def init_default_prompts() -> None:
             )
         ],
         model="gpt-4-turbo",
-        max_tokens=1500,
+        max_tokens=16000,
         temperature=0.6,
         language_mode="target",
         allowed_roles=["student", "teacher", "admin"],
@@ -431,7 +431,7 @@ def init_default_prompts() -> None:
             )
         ],
         model="gpt-4-turbo",
-        max_tokens=3000,
+        max_tokens=16000,
         temperature=0.3,
         language_mode="mixed",
         allowed_roles=["teacher", "admin"],

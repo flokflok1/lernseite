@@ -165,7 +165,6 @@ Du kannst Konzepte erklären, Beispiele geben und bei Übungen helfen."""
 STYLE_CONFIGS = {
     GenerationStyle.ADHS: {
         'temperature': 0.7,
-        'max_tokens': 2000,
         'instructions': [
             'Verwende kurze Sätze (max. 10-15 Wörter)',
             'Strukturiere klar mit Aufzählungen und Absätzen',
@@ -176,7 +175,6 @@ STYLE_CONFIGS = {
     },
     GenerationStyle.DETAILED: {
         'temperature': 0.6,
-        'max_tokens': 3500,
         'instructions': [
             'Erkläre Konzepte ausführlich und detailliert',
             'Verwende Beispiele zur Veranschaulichung',
@@ -187,7 +185,6 @@ STYLE_CONFIGS = {
     },
     GenerationStyle.SHORT: {
         'temperature': 0.5,
-        'max_tokens': 1000,
         'instructions': [
             'Fasse dich kurz und prägnant',
             'Konzentriere dich auf die Kernpunkte',
@@ -198,7 +195,6 @@ STYLE_CONFIGS = {
     },
     GenerationStyle.EXAM_FOCUS: {
         'temperature': 0.6,
-        'max_tokens': 2500,
         'instructions': [
             'Fokus auf prüfungsrelevante Inhalte',
             'Verwende Prüfungssprache und -format',

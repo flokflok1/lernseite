@@ -17,7 +17,7 @@ from flask import Blueprint, jsonify, request
 from typing import Dict, Any, Tuple
 import logging
 
-from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.config.catalog import LearningMethodCatalogRepository
 from app.api.middleware.auth import token_required, admin_required
 from app.infrastructure.error_handling.exceptions import NotFoundError, ValidationError
 

@@ -17,7 +17,7 @@ from app.domain.ai.configuration.skills import (
 from app.application.services.ai.prompts.resolver import PromptResolver
 from app.application.services.content.lm.model_resolver import LMModelResolver
 from app.infrastructure.ai.adapter import AIAdapter
-from app.infrastructure.persistence.repositories.ai.generation_log import GenerationLogRepository
+from app.infrastructure.persistence.repositories.ai.tracking.generation_log import GenerationLogRepository
 from app.infrastructure.persistence.repositories.features.repository import FeatureRepository
 
 logger = logging.getLogger(__name__)

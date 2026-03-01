@@ -21,7 +21,7 @@ from .value_objects import (
     ProviderHealth,
     ProviderHealthStatus
 )
-from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.config.catalog import LearningMethodCatalogRepository
 
 
 class AIModelFactory:

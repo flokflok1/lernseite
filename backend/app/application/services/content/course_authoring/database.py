@@ -9,10 +9,10 @@ from datetime import datetime
 
 from psycopg.rows import dict_row
 
-from app.infrastructure.persistence.repositories.authoring.sessions import CourseAuthoringSessionRepository
-from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
-from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
-from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.authoring.sessions.sessions import CourseAuthoringSessionRepository
+from app.infrastructure.persistence.repositories.courses.management.crud import CourseRepositoryCRUD
+from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.content.lessons import LessonRepository
 from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
 
 logger = logging.getLogger(__name__)
@@ -374,22 +374,28 @@ class DatabaseOperations:
         content = method_draft.get('content', {})
 
         # Map string type to numeric LM type (IDs 0-11, see architecture.md)
+        # 0=deep_explanation, 1=step_by_step, 2=interactive_theory,
+        # 3=diagram, 4=scenario, 5=math, 6=flashcards, 7=drag_drop,
+        # 8=cloze, 9=free_text, 10=multiple_choice(ihk), 11=multi_step
         type_mapping = {
             'theory': 0,               # deep_explanation
             'step_by_step': 1,         # step_by_step
             'calculator_tutorial': 1,  # step_by_step variant
             'interactive': 2,          # interactive_theory
-            'quiz': 2,                 # interactive_theory (multiple choice)
             'flashcards': 6,           # flashcards
-            'exercise': 8,             # cloze_test
-            'tool_tutorial': 9,        # free_text_long_answer (code/config)
-            'exam': 10,                # ihk_style_tasks
+            'drag_and_drop': 7,        # drag_and_drop
+            'cloze': 8,               # cloze_test
+            'exercise': 9,             # free_text_long_answer (Freitext)
+            'quiz': 10,                # multiple_choice (questions/options/correct)
+            'exam': 10,                # ihk_style_tasks (multiple choice)
         }
 
         lm_type = type_mapping.get(method_type, 0)
         title = method_draft.get('title', 'Lernmethode')
         instructions = content.get('instructions', '')
         data_json = json.dumps(content)
+        solution = method_draft.get('solution')
+        solution_json = json.dumps(solution) if solution else None
         difficulty = content.get('difficulty', 'medium')
         tier = content.get('tier', 'basic')
 
@@ -398,12 +404,12 @@ class DatabaseOperations:
                 cur.execute("""
                     INSERT INTO learning_methods.learning_method_instances (
                         lesson_id, chapter_id, method_type, title,
-                        instructions, data, difficulty, tier
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        instructions, data, solution, difficulty, tier, published
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, TRUE)
                     RETURNING method_id
                 """, (
                     lesson_id, chapter_id, lm_type, title,
-                    instructions, data_json, difficulty, tier
+                    instructions, data_json, solution_json, difficulty, tier
                 ))
                 result = cur.fetchone()
                 return str(result['method_id']) if result else None

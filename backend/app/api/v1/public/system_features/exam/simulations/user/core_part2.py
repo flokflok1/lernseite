@@ -20,7 +20,7 @@ from uuid import UUID
 from app.api.middleware.auth import token_required, get_current_user
 from app.application.services.ai import get_exam_context_sync
 from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
-from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
+from app.infrastructure.persistence.repositories.courses.management.crud import CourseRepositoryCRUD
 
 from app.api.v1.public.system_features.exam.simulations.user.core import (
     core_bp,

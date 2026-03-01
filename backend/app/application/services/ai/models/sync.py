@@ -16,7 +16,7 @@ import requests
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 
-from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
 from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
 from app.application.services.ai.adapter import AIAdapter
 from app.application.services.ai.models.sync_part2 import AIModelSyncHelpers

@@ -8,8 +8,8 @@ Routes registered on the blueprint from translations.py.
 
 from flask import request, jsonify, g
 from app.api.middleware.auth import token_required, admin_required
-from app.infrastructure.persistence.repositories.i18n.admin_queries import I18nAdminQueryRepository
-from app.application.services.i18n.translations import TranslationManager
+from app.infrastructure.persistence.repositories.i18n.admin.admin_queries import I18nAdminQueryRepository
+from app.application.services.i18n.core.translations import TranslationManager
 from app.api.v1.panel.admin.i18n.translations.translations import bp
 import json
 import logging
@@ -72,7 +72,7 @@ def create_bulk_translate_job():
         { job_id, status, total }
     """
     from app.application.services.ai.job_service import AIJobService
-    from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
+    from app.infrastructure.persistence.repositories.ai.tracking.jobs import AIJobRepository
 
     data = request.get_json(silent=True) or {}
     source_language = data.get('source_language', 'en')
@@ -135,7 +135,7 @@ def run_bulk_translate_step(job_id: str):
     Safe to call repeatedly (idempotent/resumable).
     Frontend drives by calling this until status is completed/failed.
     """
-    from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
+    from app.infrastructure.persistence.repositories.ai.tracking.jobs import AIJobRepository
     from app.infrastructure.persistence.repositories.ai_models.defaults import AIModelsDefaultRepository
     from app.application.services.ai.adapter import AIAdapter
     from app.application.services.ai.job_service import AIJobService
@@ -270,7 +270,7 @@ def run_bulk_translate_step(job_id: str):
 @admin_required
 def get_bulk_translate_progress(job_id: str):
     """Poll bulk translation job status/progress."""
-    from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
+    from app.infrastructure.persistence.repositories.ai.tracking.jobs import AIJobRepository
 
     job = AIJobRepository.find_by_id(job_id)
     if not job:

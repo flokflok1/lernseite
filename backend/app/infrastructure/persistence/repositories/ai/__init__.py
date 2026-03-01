@@ -14,14 +14,14 @@ Example usage:
     >>> job = AIJobRepository.find_by_id(job_id)
 """
 
-from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
-from app.infrastructure.persistence.repositories.ai.profiles import AiModelProfilesRepository
-from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
-from app.infrastructure.persistence.repositories.ai.editor import AIEditorRepository
-from app.infrastructure.persistence.repositories.ai.usage import AIUsageRepository
+from app.infrastructure.persistence.repositories.ai.tracking.jobs import AIJobRepository
+from app.infrastructure.persistence.repositories.ai.config.profiles import AiModelProfilesRepository
+from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
+from app.infrastructure.persistence.repositories.ai.config.editor import AIEditorRepository
+from app.infrastructure.persistence.repositories.ai.tracking.usage import AIUsageRepository
 from app.infrastructure.persistence.repositories.ai.exam_context import ExamContextRepository
 from app.infrastructure.persistence.repositories.ai.content_plans import ContentPlanRepository
-from app.infrastructure.persistence.repositories.ai.generation_log import GenerationLogRepository
+from app.infrastructure.persistence.repositories.ai.tracking.generation_log import GenerationLogRepository
 
 __all__ = [
     'AIJobRepository',

@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import ManualEditorContainerView from '@/presentation/components/panel/editor/manual/ManualEditorContainerView.vue'
+import ManualEditorContainerView from '@/presentation/components/panel/editor/manual/core/ManualEditorContainerView.vue'
 
 defineProps<{
   projectId: string

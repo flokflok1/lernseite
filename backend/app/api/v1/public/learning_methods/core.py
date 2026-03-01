@@ -34,7 +34,7 @@ from app.domain.models.content.learning_method import (
     LearningMethodUpdate
 )
 from app.infrastructure.persistence.repositories.learning_method import LearningMethodRepository
-from app.infrastructure.persistence.repositories.learning_method.instances import LearningMethodInstanceRepository
+from app.infrastructure.persistence.repositories.learning_method.execution.instances import LearningMethodInstanceRepository
 from app.api.middleware.auth import permission_required, token_required, get_current_user
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response
@@ -92,7 +92,7 @@ def execute_learning_method(method_id: str):
         raw_data = instance.get('data', {})
         method_type = instance.get('method_type')
         if isinstance(raw_data, dict) and 'raw_text' in raw_data and method_type is not None:
-            from app.application.services.ai.plan_execution import _transform_data_for_method
+            from app.application.services.ai.plan.plan_execution import _transform_data_for_method
             structured_data = _transform_data_for_method(
                 method_type, raw_data, instance.get('title', '')
             )

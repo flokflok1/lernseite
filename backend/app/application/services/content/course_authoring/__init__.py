@@ -14,16 +14,34 @@ Integration:
 - Speichert Sessions in course_authoring_sessions Tabelle
 """
 
-from app.application.services.content.course_authoring.session import (
+from app.application.services.content.course_authoring.session.session import (
     CourseAuthoringSession,
     CourseAuthoringService,
 )
 from app.application.services.content.course_authoring.exceptions import CourseAuthoringError
+from app.application.services.content.course_authoring.generation.tool_processor import ToolCallProcessor
+from app.application.services.content.course_authoring.validation.scope_guard import ScopeGuard
+from app.application.services.content.course_authoring.quality_profile import (
+    QualityProfile,
+    get_quality_profile,
+    list_quality_levels,
+)
+from app.application.services.content.course_authoring.session.token_budget import TokenBudget
+from app.application.services.content.course_authoring.validation.content_validator import ContentValidator
+from app.application.services.content.course_authoring.generation.pipeline import GenerationPipeline
 
 __all__ = [
     "CourseAuthoringService",
     "CourseAuthoringSession",
     "CourseAuthoringError",
+    "ToolCallProcessor",
+    "ScopeGuard",
+    "QualityProfile",
+    "get_quality_profile",
+    "list_quality_levels",
+    "TokenBudget",
+    "ContentValidator",
+    "GenerationPipeline",
 ]
 
 

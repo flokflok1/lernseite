@@ -1,2 +1,2 @@
-export { default as SystemSettingsView } from './SystemSettingsView.vue'
-export { default as SystemStatus } from './SystemStatus.vue'
+export { default as SystemSettingsView } from './core/SystemSettingsView.vue'
+export { default as SystemStatus } from './core/SystemStatus.vue'

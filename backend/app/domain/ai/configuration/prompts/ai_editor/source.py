@@ -84,7 +84,6 @@ def init_source_prompt() -> None:
             PromptVariable(name="pdf_keywords", description="Schlüsselbegriffe (JSON)", required=True)
         ],
         model="claude-3-5-sonnet-20241022",
-        max_tokens=4000,
         temperature=0.7,
         language_mode="target",
         allowed_roles=["teacher", "admin"],

@@ -142,7 +142,7 @@ class PromptTemplate(BaseModel):
                 PromptVariable(name="user_level", description="Wissenslevel", required=False, default="beginner")
             ],
             model="claude-3-sonnet-20240229",
-            max_tokens=2000,
+            max_tokens=16000,
             temperature=0.7,
             language_mode="target",
             allowed_roles=["student", "teacher", "admin"]

@@ -3,5 +3,5 @@
 </template>
 
 <script setup lang="ts">
-import DashboardView from '@/presentation/components/panel/admin/dashboard/DashboardView.vue'
+import DashboardView from '@/presentation/components/panel/admin/dashboard/core/DashboardView.vue'
 </script>

@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import CourseEditorView from '@/presentation/components/panel/editor/shared/CourseEditorView.vue'
+import CourseEditorView from '@/presentation/components/panel/editor/shared/views/CourseEditorView.vue'
 
 defineProps<{
   courseId?: number

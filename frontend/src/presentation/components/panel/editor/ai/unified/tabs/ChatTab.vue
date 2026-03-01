@@ -26,8 +26,8 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { ChatPanel } from '../chat'
-import type { useChatSession } from '../composables/useChatSession'
-import type { useStructureView } from '../composables/useStructureView'
+import type { useChatSession } from '../composables/generation/useChatSession'
+import type { useStructureView } from '../composables/editor/useStructureView'
 
 const chatSession = inject<ReturnType<typeof useChatSession>>('chatSession')
 const structureView = inject<ReturnType<typeof useStructureView>>('structureView')

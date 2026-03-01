@@ -28,7 +28,7 @@ from app.domain.models.schemas.exam import (
     ExamGenerateRequest
 )
 from app.infrastructure.persistence.repositories.courses import CourseRepository
-from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
+from app.infrastructure.persistence.repositories.ai.tracking.jobs import AIJobRepository
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository, ExamQuestionRepository
 from app.application.services.system.audit.service import AuditService
 from app.application.services.ai.job_service import AIJobService

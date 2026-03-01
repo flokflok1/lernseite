@@ -20,7 +20,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 from app.api.middleware.auth import token_required, permission_required
-from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
 from app.application.services.system.audit.service import AuditService
 from app.infrastructure.i18n.error_codes import ErrorCode
 from app.infrastructure.i18n.error_codes import error_response

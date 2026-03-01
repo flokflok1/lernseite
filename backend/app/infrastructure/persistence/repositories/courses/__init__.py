@@ -19,16 +19,16 @@ This package provides backward-compatible bridge for existing imports:
     # Maps to: from app.infrastructure.persistence.repositories.courses import CourseRepository
 """
 
-from app.infrastructure.persistence.repositories.courses.crud import CourseRepositoryCRUD
-from app.infrastructure.persistence.repositories.courses.search import CourseRepositorySearch
-from app.infrastructure.persistence.repositories.courses.admin import CourseRepositoryAdmin
-from app.infrastructure.persistence.repositories.courses.lifecycle import CourseRepositoryLifecycle
-from app.infrastructure.persistence.repositories.courses.statistics import CourseRepositoryStatistics
-from app.infrastructure.persistence.repositories.courses.chapters import ChapterRepository
-from app.infrastructure.persistence.repositories.courses.lessons import LessonRepository
-from app.infrastructure.persistence.repositories.courses.ai_settings import CourseAiSettingsRepository
-from app.infrastructure.persistence.repositories.courses.files import CourseFileRepository
-from app.infrastructure.persistence.repositories.courses.analytics import CourseAnalyticsRepository
+from app.infrastructure.persistence.repositories.courses.management.crud import CourseRepositoryCRUD
+from app.infrastructure.persistence.repositories.courses.analytics.search import CourseRepositorySearch
+from app.infrastructure.persistence.repositories.courses.management.admin import CourseRepositoryAdmin
+from app.infrastructure.persistence.repositories.courses.management.lifecycle import CourseRepositoryLifecycle
+from app.infrastructure.persistence.repositories.courses.analytics.statistics import CourseRepositoryStatistics
+from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
+from app.infrastructure.persistence.repositories.courses.content.lessons import LessonRepository
+from app.infrastructure.persistence.repositories.courses.analytics.ai_settings import CourseAiSettingsRepository
+from app.infrastructure.persistence.repositories.courses.content.files import CourseFileRepository
+from app.infrastructure.persistence.repositories.courses.analytics.analytics import CourseAnalyticsRepository
 
 # Alias for backward compatibility (AI vs Ai naming)
 CourseAISettingsRepository = CourseAiSettingsRepository

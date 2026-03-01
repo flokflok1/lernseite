@@ -12,15 +12,15 @@ Modular system for mathematical learning with:
 All functionality accessible through MathToolkitService for backward compatibility.
 """
 
-from .parser import ExpressionParser
-from .solver import MathSolver
-from .patterns import PatternManager
-from .sessions import SessionManager
-from .progress import ProgressTracker
-from .hints import HintProvider
-from .tasks import TaskManager
-from .calculator import CalculatorHistory
-from .steps import StepRecorder
+from .solving.parser import ExpressionParser
+from .solving.solver import MathSolver
+from .solving.patterns import PatternManager
+from .tracking.sessions import SessionManager
+from .tracking.progress import ProgressTracker
+from .tracking.hints import HintProvider
+from .tracking.tasks import TaskManager
+from .solving.calculator import CalculatorHistory
+from .solving.steps import StepRecorder
 
 __all__ = [
     'ExpressionParser',

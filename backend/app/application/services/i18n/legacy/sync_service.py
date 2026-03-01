@@ -14,19 +14,19 @@ from datetime import datetime
 import time
 import logging
 
-from app.infrastructure.persistence.repositories.i18n.sync_ops import (
+from app.infrastructure.persistence.repositories.i18n.sync.sync_ops import (
     SyncMode, SyncStatus, SyncOperation, SyncOpsRepository
 )
-from app.infrastructure.persistence.repositories.i18n.sync_changes import (
+from app.infrastructure.persistence.repositories.i18n.sync.sync_changes import (
     ChangeType, SyncChange, SyncChangesRepository
 )
-from app.infrastructure.persistence.repositories.i18n.sync_resolutions import (
+from app.infrastructure.persistence.repositories.i18n.sync.sync_resolutions import (
     Resolution, SyncResolution, SyncResolutionsRepository
 )
-from app.infrastructure.persistence.repositories.i18n.sync_repository import (
+from app.infrastructure.persistence.repositories.i18n.sync.sync_repository import (
     I18nSyncRepository
 )
-from app.infrastructure.persistence.repositories.i18n.translations import I18nTranslationsRepository as TranslationRepository
+from app.infrastructure.persistence.repositories.i18n.translations.translations import I18nTranslationsRepository as TranslationRepository
 from app.infrastructure.error_handling.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.infrastructure.persistence.database import get_connection
 

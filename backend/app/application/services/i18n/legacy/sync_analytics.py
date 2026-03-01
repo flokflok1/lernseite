@@ -10,10 +10,10 @@ from typing import Dict, Any, List, Tuple, Optional
 from difflib import SequenceMatcher
 import logging
 
-from app.infrastructure.persistence.repositories.i18n.sync import (
+from app.infrastructure.persistence.repositories.i18n.sync.sync import (
     SyncRepository, SyncOperation, SyncChange
 )
-from app.infrastructure.persistence.repositories.i18n.translations import I18nTranslationsRepository as TranslationRepository
+from app.infrastructure.persistence.repositories.i18n.translations.translations import I18nTranslationsRepository as TranslationRepository
 from app.infrastructure.error_handling.exceptions import NotFoundError
 from app.infrastructure.persistence.database import get_connection
 

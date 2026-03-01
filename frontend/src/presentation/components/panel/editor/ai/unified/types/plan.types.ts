@@ -70,7 +70,7 @@ export interface CourseMeta {
   description: string
   target_audience: string
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  language: 'de' | 'en' | 'pl'
+  language: string
 }
 
 export interface ChapterDraft {
@@ -90,14 +90,20 @@ export interface PlanChatResponse {
   assistant_message: string
   plan_patch: Record<string, unknown> | null
   plan: ContentPlan
+  diff_summary?: string[]
+  validation_warnings?: string[]
+  has_undo?: boolean
 }
 
 export interface CreatePhasedPlanRequest {
   course_id: string
   topic?: string
   file_ids?: string[]
+  quality_level?: string
+  language?: string
 }
 
 export interface PlanChatRequest {
   message: string
+  quality_level?: string
 }

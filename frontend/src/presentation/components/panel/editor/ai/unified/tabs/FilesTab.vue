@@ -104,8 +104,8 @@
 <script setup lang="ts">
 import { ref, inject, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { useFileUpload } from '../composables/useFileUpload'
-import type { useChatSession } from '../composables/useChatSession'
+import type { useFileUpload } from '../composables/editor/useFileUpload'
+import type { useChatSession } from '../composables/generation/useChatSession'
 
 const { t } = useI18n()
 

@@ -116,12 +116,18 @@ export async function sendChatMessage(
   options?: {
     mode?: string
     file_ids?: string[]
+    focus_chapter_id?: string
+    focus_lesson_id?: string
+    quality_level?: string
   }
 ) {
   const response = await http.post(`/course-editor/ai/sessions/${sessionId}/chat`, {
     message,
     mode: options?.mode,
-    file_ids: options?.file_ids || []
+    file_ids: options?.file_ids || [],
+    focus_chapter_id: options?.focus_chapter_id,
+    focus_lesson_id: options?.focus_lesson_id,
+    quality_level: options?.quality_level,
   })
   return response.data
 }

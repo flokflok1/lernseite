@@ -119,7 +119,7 @@ def execute_batch() -> Tuple[Dict[str, Any], int]:
 @permission_required('content.courses:write')
 def get_history() -> Tuple[Dict[str, Any], int]:
     """Get generation history for a course."""
-    from app.infrastructure.persistence.repositories.ai.generation_log import GenerationLogRepository
+    from app.infrastructure.persistence.repositories.ai.tracking.generation_log import GenerationLogRepository
 
     try:
         course_id = request.args.get('course_id')

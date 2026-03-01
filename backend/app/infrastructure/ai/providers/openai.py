@@ -101,6 +101,68 @@ class OpenAIProvider:
         )
 
     @staticmethod
+    def send_messages_with_tools(
+        api_key: str,
+        api_url: str,
+        model: str,
+        messages: List[Dict[str, str]],
+        tools: List[Dict],
+        temperature: float,
+        max_tokens: int,
+        timeout: int
+    ) -> Dict[str, Any]:
+        """
+        Send messages with tool definitions to OpenAI API.
+
+        Returns dict with 'message' key containing the full message object
+        (content + tool_calls) for normalization by tool_formatters.
+        """
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+
+        from ..config import MODELS_USING_COMPLETION_TOKENS
+
+        payload = {
+            'model': model,
+            'messages': messages,
+            'tools': tools,
+            'temperature': temperature
+        }
+
+        if any(model.startswith(m) for m in MODELS_USING_COMPLETION_TOKENS):
+            payload['max_completion_tokens'] = max_tokens
+        else:
+            payload['max_tokens'] = max_tokens
+
+        try:
+            response = requests.post(
+                api_url, headers=headers, json=payload, timeout=timeout
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            message = data['choices'][0]['message']
+            return {
+                'message': message,
+                'input_tokens': data['usage']['prompt_tokens'],
+                'output_tokens': data['usage']['completion_tokens']
+            }
+
+        except Timeout:
+            raise AITimeoutError(f'OpenAI request timed out after {timeout}s')
+        except requests.HTTPError as e:
+            if e.response.status_code == 429:
+                raise AIQuotaExceededError('OpenAI quota exceeded')
+            elif e.response.status_code == 401:
+                raise AIInvalidKeyError('Invalid OpenAI API key')
+            else:
+                raise AIProviderError(f'OpenAI API error: {e.response.text}')
+        except RequestException as e:
+            raise AIProviderError(f'OpenAI request failed: {str(e)}')
+
+    @staticmethod
     def _execute_request(
         api_key: str,
         api_url: str,

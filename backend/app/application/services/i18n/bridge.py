@@ -9,12 +9,12 @@ working without modification during the migration period.
 """
 
 from typing import Optional, Dict, Any, List
-from .translations import TranslationManager
-from .languages import LanguageManager
-from .keys import KeyManager
-from .suggestions import SuggestionManager
-from .ai_generation import AITranslationGenerator
-from .config import ConfigManager
+from .core.translations import TranslationManager
+from .core.languages import LanguageManager
+from .core.keys import KeyManager
+from .generation.suggestions import SuggestionManager
+from .generation.ai_generation import AITranslationGenerator
+from .core.config import ConfigManager
 
 
 class I18nService:

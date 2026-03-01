@@ -3,5 +3,5 @@
 </template>
 
 <script setup lang="ts">
-import CoursesListView from '@/presentation/components/panel/user/courses/CoursesListView.vue'
+import CoursesListView from '@/presentation/components/panel/user/courses/list/CoursesListView.vue'
 </script>

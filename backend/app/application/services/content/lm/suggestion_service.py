@@ -22,8 +22,8 @@ from typing import List, Dict, Optional
 import json
 import logging
 
-from app.infrastructure.persistence.repositories.learning_method.catalog import LearningMethodCatalogRepository
-from app.infrastructure.persistence.repositories.learning_method.groups import LearningMethodGroupRepository
+from app.infrastructure.persistence.repositories.learning_method.config.catalog import LearningMethodCatalogRepository
+from app.infrastructure.persistence.repositories.learning_method.config.groups import LearningMethodGroupRepository
 from app.application.services.ai.adapter import AIAdapter
 
 logger = logging.getLogger(__name__)
@@ -110,7 +110,7 @@ KAPITEL: {chapter_title or 'Nicht angegeben'}
 LEKTION: {lesson_title}
 
 LEKTIONSINHALT:
-{lesson_content[:2000] if lesson_content else 'Kein Inhalt vorhanden'}
+{lesson_content if lesson_content else 'Kein Inhalt vorhanden'}
 
 BEREITS VORHANDENE LMs (NICHT nochmal vorschlagen): {existing_lm_ids if existing_lm_ids else 'Keine'}
 
@@ -124,8 +124,7 @@ Antworte NUR mit JSON."""
                 user_prompt=user_prompt,
                 user_id=user_id,
                 request_type='lm_suggestion',
-                model='claude-3-haiku-20240307',  # Schnelles Modell für Suggestions
-                max_tokens=1000
+                model='claude-3-haiku-20240307'  # Schnelles Modell für Suggestions
             )
 
             if not result or not result.get('success'):

@@ -118,12 +118,21 @@ class DataHelpers:
         return assistant_message, structure_patch
 
     @staticmethod
-    def format_history_for_prompt(history: List[Dict]) -> str:
+    def format_history_for_prompt(
+        history: List[Dict],
+        max_chars: int = 6000,
+        message_char_limit: int = 500
+    ) -> str:
         """
-        Formatiert Chat-History für Prompt.
+        Formatiert Chat-History für Prompt mit Token-Budget.
+
+        Newest messages get priority. Each message capped at message_char_limit.
+        Total output capped at max_chars.
 
         Args:
             history: Chat history list
+            max_chars: Max total chars for history
+            message_char_limit: Max chars per individual message
 
         Returns:
             Formatted history string
@@ -132,12 +141,20 @@ class DataHelpers:
             return "Keine vorherigen Nachrichten."
 
         lines = []
-        for msg in history:
-            role = "Benutzer" if msg['role'] == 'user' else "Assistent"
-            content = msg['content'][:300] + "..." if len(msg['content']) > 300 else msg['content']
-            lines.append(f"{role}: {content}")
+        total_chars = 0
 
-        return "\n".join(lines)
+        for msg in reversed(history):
+            role = 'Benutzer' if msg.get('role') == 'user' else 'Assistent'
+            content = msg.get('content', '')[:message_char_limit]
+            line = f"{role}: {content}"
+
+            if total_chars + len(line) > max_chars:
+                break
+
+            lines.insert(0, line)
+            total_chars += len(line)
+
+        return "\n".join(lines) if lines else "Keine vorherigen Nachrichten."
 
     @staticmethod
     def extract_file_context(file_ids: List[str]) -> str:

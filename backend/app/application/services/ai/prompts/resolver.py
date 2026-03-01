@@ -72,7 +72,7 @@ class PromptResolver:
                 "Target audience: {{target_audience}}\n"
                 "Difficulty level: {{difficulty}}"
             ),
-            'metadata': {'temperature': 0.7, 'max_tokens': 3000}
+            'metadata': {'temperature': 0.7, 'max_tokens': 16000}
         },
         'module_generation': {
             'prompt_system': (
@@ -85,7 +85,7 @@ class PromptResolver:
                 "Module description: {{description}}\n\n"
                 "The module should include clear learning objectives, structured content, and practical examples."
             ),
-            'metadata': {'temperature': 0.7, 'max_tokens': 4000}
+            'metadata': {'temperature': 0.7, 'max_tokens': 16000}
         },
         'exam_generation': {
             'prompt_system': (
@@ -100,7 +100,7 @@ class PromptResolver:
                 "Number of questions: {{question_count}}\n\n"
                 "Create questions that accurately assess understanding of the material."
             ),
-            'metadata': {'temperature': 0.5, 'max_tokens': 6000}
+            'metadata': {'temperature': 0.5, 'max_tokens': 16000}
         },
         'lesson_generation': {
             'prompt_system': (
@@ -113,7 +113,7 @@ class PromptResolver:
                 "Lesson type: {{lesson_type}}\n\n"
                 "Create content that is easy to understand and engaging for learners."
             ),
-            'metadata': {'temperature': 0.7, 'max_tokens': 3000}
+            'metadata': {'temperature': 0.7, 'max_tokens': 16000}
         },
         'quiz_generation': {
             'prompt_system': (
@@ -127,7 +127,7 @@ class PromptResolver:
                 "Difficulty: {{difficulty}}\n\n"
                 "Create questions with clear, unambiguous answers."
             ),
-            'metadata': {'temperature': 0.5, 'max_tokens': 2000}
+            'metadata': {'temperature': 0.5, 'max_tokens': 16000}
         }
     }
 

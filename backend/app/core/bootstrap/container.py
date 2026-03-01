@@ -10,6 +10,21 @@ This is the ONLY place that bridges infrastructure → domain ports.
 from app.domain.ports.core.registry import repos
 
 
+# ---------------------------------------------------------------------------
+# Lazy singleton factories for domain ports
+# ---------------------------------------------------------------------------
+
+def get_plan_generator():
+    """Lazy-resolve the PlanGeneratorPort implementation.
+
+    This is the ONLY place that bridges PlanGeneratorAdapter (infrastructure)
+    into the application layer. Application services call this instead of
+    importing infrastructure directly.
+    """
+    from app.infrastructure.ai.plan.plan_generator import PlanGeneratorAdapter
+    return PlanGeneratorAdapter()
+
+
 def wire_repositories() -> None:
     """Bind concrete repository classes to the domain port registry."""
 
@@ -49,14 +64,14 @@ def wire_repositories() -> None:
     repos.social_notifications = SocialNotificationsRepository
 
     # -- ai --
-    from app.infrastructure.persistence.repositories.ai.jobs import AIJobRepository
+    from app.infrastructure.persistence.repositories.ai.tracking.jobs import AIJobRepository
     from app.infrastructure.persistence.repositories.prompts.templates import (
         PromptTemplateRepository,
     )
-    from app.infrastructure.persistence.repositories.learning_method.catalog import (
+    from app.infrastructure.persistence.repositories.learning_method.config.catalog import (
         LearningMethodCatalogRepository,
     )
-    from app.infrastructure.persistence.repositories.learning_method.groups import (
+    from app.infrastructure.persistence.repositories.learning_method.config.groups import (
         LearningMethodGroupRepository,
     )
 

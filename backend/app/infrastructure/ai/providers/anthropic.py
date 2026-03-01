@@ -111,6 +111,73 @@ class AnthropicProvider:
         )
 
     @staticmethod
+    def send_messages_with_tools(
+        api_key: str,
+        api_url: str,
+        model: str,
+        messages: List[Dict[str, str]],
+        tools: List[Dict],
+        temperature: float,
+        max_tokens: int,
+        timeout: int
+    ) -> Dict[str, Any]:
+        """
+        Send messages with tool definitions to Anthropic API.
+
+        Returns dict with 'content' key containing content blocks
+        (text + tool_use) for normalization by tool_formatters.
+        """
+        headers = {
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01',
+            'Content-Type': 'application/json'
+        }
+
+        system_message = None
+        conversation_messages = []
+        for msg in messages:
+            if msg['role'] == 'system':
+                system_message = msg['content']
+            else:
+                conversation_messages.append(msg)
+
+        payload = {
+            'model': model,
+            'messages': conversation_messages,
+            'tools': tools,
+            'temperature': temperature,
+            'max_tokens': max_tokens
+        }
+
+        if system_message:
+            payload['system'] = system_message
+
+        try:
+            response = requests.post(
+                api_url, headers=headers, json=payload, timeout=timeout
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            return {
+                'content': data['content'],
+                'input_tokens': data['usage']['input_tokens'],
+                'output_tokens': data['usage']['output_tokens']
+            }
+
+        except Timeout:
+            raise AITimeoutError(f'Anthropic request timed out after {timeout}s')
+        except requests.HTTPError as e:
+            if e.response.status_code == 429:
+                raise AIQuotaExceededError('Anthropic quota exceeded')
+            elif e.response.status_code == 401:
+                raise AIInvalidKeyError('Invalid Anthropic API key')
+            else:
+                raise AIProviderError(f'Anthropic API error: {e.response.text}')
+        except RequestException as e:
+            raise AIProviderError(f'Anthropic request failed: {str(e)}')
+
+    @staticmethod
     def _execute_request(
         api_key: str,
         api_url: str,

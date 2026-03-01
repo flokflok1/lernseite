@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import type { LsxWindow } from '@/application/stores/modules/ui/window.store'
-import ManualEditorContainerView from '@/presentation/components/panel/editor/manual/ManualEditorContainerView.vue'
+import ManualEditorContainerView from '@/presentation/components/panel/editor/manual/core/ManualEditorContainerView.vue'
 
 defineProps<{ window: LsxWindow }>()
 </script>

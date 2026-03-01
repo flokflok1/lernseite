@@ -117,7 +117,6 @@ def init_finalize_prompt() -> None:
             PromptVariable(name="review_results", description="Review-Ergebnisse (JSON)", required=True)
         ],
         model="claude-3-5-sonnet-20241022",
-        max_tokens=12000,
         temperature=0.5,
         language_mode="target",
         allowed_roles=["teacher", "admin"],

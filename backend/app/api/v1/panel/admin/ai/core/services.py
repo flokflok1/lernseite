@@ -328,7 +328,7 @@ class AIHealthMonitoringService:
         """
         import time as _time
         import requests
-        from app.infrastructure.persistence.repositories.ai.providers import AIProviderRepository
+        from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
 
         provider_name = (provider.get('name') or '').lower()
         api_key = AIProviderRepository.get_decrypted_api_key(provider_name)

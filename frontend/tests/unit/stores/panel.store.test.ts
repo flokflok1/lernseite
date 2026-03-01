@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { usePanelStore } from '@/application/stores/modules/desktop/panel.store'
+import { useDesktopPanelStore as usePanelStore } from '@/application/stores/modules/workspace/panel.store'
 
 describe('usePanelStore - Multi-Window Support', () => {
   beforeEach(() => {

@@ -178,22 +178,20 @@ describe('Lesson', () => {
       expect(lesson.isValid()).toBe(false)
     })
 
-    it('returns false for empty description', () => {
+    it('returns true for empty description (drafts allowed)', () => {
       const lesson = new Lesson('l1', 'ch1', 'Title', '', 1, 0, true)
 
-      expect(lesson.isValid()).toBe(false)
+      // isValid() only checks title — description is validated in canPublish()
+      expect(lesson.isValid()).toBe(true)
     })
 
-    it('returns false for invalid learning method type (< 0)', () => {
-      const lesson = new Lesson('l1', 'ch1', 'Title', 'Description', 1, -1, true)
+    it('returns true regardless of learning method type (draft validation)', () => {
+      const lessonNeg = new Lesson('l1', 'ch1', 'Title', 'Description', 1, -1, true)
+      const lessonHigh = new Lesson('l2', 'ch1', 'Title', 'Description', 1, 12, true)
 
-      expect(lesson.isValid()).toBe(false)
-    })
-
-    it('returns false for invalid learning method type (> 11)', () => {
-      const lesson = new Lesson('l1', 'ch1', 'Title', 'Description', 1, 12, true)
-
-      expect(lesson.isValid()).toBe(false)
+      // isValid() only checks title — learningMethodType is validated in canPublish()
+      expect(lessonNeg.isValid()).toBe(true)
+      expect(lessonHigh.isValid()).toBe(true)
     })
   })
 

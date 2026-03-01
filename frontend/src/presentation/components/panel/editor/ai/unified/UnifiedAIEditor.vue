@@ -234,7 +234,8 @@ async function handleNewCourse(): Promise<void> {
     workflowPhase.reset()
 
     await chatSession.loadOrCreateSession(id, getModelOptions())
-  } catch {
+  } catch (e: unknown) {
+    console.warn('[AIEditor] Failed to create course:', e)
     chatSession.addSystemMessage(t('aiEditor.chat.createCourseFailed', 'Kurs konnte nicht erstellt werden.'))
   }
 }

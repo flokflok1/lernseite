@@ -208,8 +208,8 @@ export function usePlanMode(qualityLevelRef?: { selectedLevel: { value: string }
           _stopProgressPolling()
           isExecuting.value = false
         }
-      } catch {
-        // Ignore polling errors, keep trying
+      } catch (e: unknown) {
+        console.warn('[PlanMode] Polling error:', e)
       }
     }, 3000)
   }
@@ -360,7 +360,7 @@ export function usePlanMode(qualityLevelRef?: { selectedLevel: { value: string }
       await apiArchivePlan(planId)
     } catch (e) {
       console.warn('[usePlanMode] Archive failed, deleting instead:', e)
-      try { await apiDeletePlan(planId) } catch { /* ignore */ }
+      try { await apiDeletePlan(planId) } catch (e: unknown) { console.warn('[PlanMode] Failed to delete plan:', e) }
     }
 
     // Reset UI state

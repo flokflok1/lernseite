@@ -18,7 +18,7 @@ plans_bp = Blueprint('ai_plans', __name__, url_prefix='/plans')
 
 
 @plans_bp.route('', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def create_plan() -> tuple[dict[str, Any], int]:
     """Create a new content plan (manual or from file)."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -58,7 +58,7 @@ def create_plan() -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('', methods=['GET'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def list_plans() -> tuple[dict[str, Any], int]:
     """List plans for a course."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -84,7 +84,7 @@ def list_plans() -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/phased', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def create_phased_plan() -> tuple[dict[str, Any], int]:
     """Create a phased plan with Phase 1 (course definition)."""
     from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
@@ -120,7 +120,7 @@ def create_phased_plan() -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>', methods=['DELETE'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def delete_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Delete a content plan and its generation logs."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -138,7 +138,7 @@ def delete_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 @plans_bp.route('/<plan_id>', methods=['GET'])
 @limiter.exempt
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def get_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Get a specific plan."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -155,7 +155,7 @@ def get_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>', methods=['PATCH'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def update_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Update plan data (reorder steps, change parameters)."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -177,7 +177,7 @@ def update_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>/approve', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def approve_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Approve a plan for execution."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -194,7 +194,7 @@ def approve_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>/execute', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Start async execution of an approved plan. Returns 202 immediately."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -212,7 +212,7 @@ def execute_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>/archive', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def archive_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Archive a completed plan (keeps record, clears from active view)."""
     from app.application.services.ai.plan.plan_service import PlanService
@@ -231,7 +231,7 @@ def archive_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>/phase2', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def advance_to_phase2(plan_id: str) -> tuple[dict[str, Any], int]:
     """Advance plan to Phase 2 (chapter structure generation)."""
     from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
@@ -250,7 +250,7 @@ def advance_to_phase2(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>/phase3', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def advance_to_phase3(plan_id: str) -> tuple[dict[str, Any], int]:
     """Advance plan to Phase 3 (detailed content plan)."""
     from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
@@ -269,7 +269,7 @@ def advance_to_phase3(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>/chat', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def chat_about_plan(plan_id: str) -> tuple[dict[str, Any], int]:
     """Chat about the plan to refine current phase."""
     from app.application.services.ai.plan.plan_service_part2 import PlanWizardService
@@ -292,7 +292,7 @@ def chat_about_plan(plan_id: str) -> tuple[dict[str, Any], int]:
 
 
 @plans_bp.route('/<plan_id>/undo', methods=['POST'])
-@permission_required('admin.system:read')
+@permission_required('content.courses:write')
 def undo_plan_chat(plan_id: str) -> tuple[dict[str, Any], int]:
     """Undo the last chat patch by restoring previous plan state."""
     from app.application.services.ai.plan.plan_service_part2 import PlanWizardService

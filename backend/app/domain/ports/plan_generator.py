@@ -13,6 +13,8 @@ Domain and application code depend only on this ABC.
 
 from abc import ABC, abstractmethod
 
+from app.domain.ai.models.plan import CourseMeta, ChapterDraft, PlanChatMessage, PlanData
+
 
 class PlanGeneratorPort(ABC):
     """Port for phased course plan generation via AI."""
@@ -48,7 +50,7 @@ class PlanGeneratorPort(ABC):
     @abstractmethod
     def generate_chapter_structure(
         self,
-        course_meta: dict,
+        course_meta: CourseMeta | dict,
         file_text: str | None = None,
         quality_level: str = 'standard',
     ) -> dict:
@@ -73,8 +75,8 @@ class PlanGeneratorPort(ABC):
     @abstractmethod
     def generate_content_plan(
         self,
-        course_meta: dict,
-        chapters: list[dict],
+        course_meta: CourseMeta | dict,
+        chapters: list[ChapterDraft] | list[dict],
         skill_catalog_section: str = '',
         quality_level: str = 'standard',
     ) -> dict:
@@ -106,12 +108,12 @@ class PlanGeneratorPort(ABC):
     @abstractmethod
     def chat_about_plan(
         self,
-        plan_data: dict,
+        plan_data: PlanData | dict,
         message: str,
         current_phase: int,
         file_text: str | None = None,
         quality_level: str = 'standard',
-        chat_history: list[dict] | None = None,
+        chat_history: list[PlanChatMessage] | list[dict] | None = None,
     ) -> dict:
         """Refine any plan phase via conversational interaction.
 

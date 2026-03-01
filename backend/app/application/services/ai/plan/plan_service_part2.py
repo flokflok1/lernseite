@@ -14,6 +14,7 @@ from typing import Any
 
 from app.core.bootstrap.container import get_plan_generator
 from app.domain.ai.configuration.skill_catalog_prompt import build_skill_catalog_prompt
+from app.domain.ai.models.plan import CourseMeta, ChapterDraft, PlanData
 from app.domain.ports.plan_generator import PlanGeneratorPort
 from app.infrastructure.persistence.repositories.ai.content_plans import ContentPlanRepository
 from app.application.services.ai.plan.plan_service import (
@@ -50,10 +51,15 @@ class PlanWizardService:
 
         file_text = _collect_file_text(file_ids, AuthoringFilesRepository)
 
-        course_meta = self._generator.generate_course_definition(
+        course_meta_raw = self._generator.generate_course_definition(
             topic=topic, file_text=file_text, quality_level=quality_level,
             language=language,
         )
+        # Validate AI output via domain VO
+        try:
+            course_meta = CourseMeta.from_dict(course_meta_raw).to_dict()
+        except ValueError:
+            course_meta = course_meta_raw  # Fallback: use raw dict if validation fails
 
         plan = ContentPlanRepository.create({
             'course_id': course_id,
@@ -77,9 +83,16 @@ class PlanWizardService:
         result = self._generator.generate_chapter_structure(
             course_meta, file_text=file_text, quality_level=quality_level,
         )
+        # Validate chapters via domain VOs
+        validated_chapters = []
+        for ch in result.get('chapters', []):
+            try:
+                validated_chapters.append(ChapterDraft.from_dict(ch).to_dict())
+            except ValueError:
+                validated_chapters.append(ch)  # Fallback: keep raw
 
         updated = ContentPlanRepository.update_phase(
-            plan_id, 2, {'chapters': result.get('chapters', [])},
+            plan_id, 2, {'chapters': validated_chapters},
         )
         return updated
 
@@ -111,8 +124,9 @@ class PlanWizardService:
         plan = _load_plan_or_raise(plan_id)
         current_phase = plan.get('current_phase', 1)
 
+        plan_data = _extract_plan_data(plan)
         result = self._generator.chat_about_plan(
-            _extract_plan_data(plan), message, current_phase,
+            plan_data.to_dict(), message, current_phase,
             file_text=_load_file_text_from_plan(plan),
             quality_level=quality_level,
             chat_history=_parse_jsonb_field(plan, 'chat_history', []),
@@ -163,13 +177,25 @@ class PlanWizardService:
 # Private helpers (wizard-specific)
 # ---------------------------------------------------------------------------
 
-def _extract_plan_data(plan: dict[str, Any]) -> dict[str, Any]:
-    """Extract structured plan_data dict from a plan row for AI calls."""
-    return {
-        'course_meta': _parse_jsonb_field(plan, 'course_meta', {}),
-        'chapters': _parse_jsonb_field(plan, 'chapters', []),
-        'phases': _parse_jsonb_field(plan, 'plan_data', {}).get('phases', []),
-    }
+def _extract_plan_data(plan: dict[str, Any]) -> PlanData:
+    """Extract structured PlanData from a plan row for AI calls."""
+    course_meta_raw = _parse_jsonb_field(plan, 'course_meta', {})
+    chapters_raw = _parse_jsonb_field(plan, 'chapters', [])
+    phases = _parse_jsonb_field(plan, 'plan_data', {}).get('phases', [])
+
+    try:
+        course_meta = CourseMeta.from_dict(course_meta_raw) if course_meta_raw else None
+    except ValueError:
+        course_meta = None
+
+    chapters = []
+    for ch in chapters_raw:
+        try:
+            chapters.append(ChapterDraft.from_dict(ch))
+        except ValueError:
+            pass  # Skip invalid chapters from legacy data
+
+    return PlanData(course_meta=course_meta, chapters=chapters, phases=phases)
 
 
 def _persist_chat_messages(plan_id: str, user_msg: str, assistant_msg: str) -> None:

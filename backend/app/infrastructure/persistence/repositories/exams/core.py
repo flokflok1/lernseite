@@ -115,6 +115,17 @@ class ExamRepository(BaseRepository):
                 - generated_by_ai (bool, default: False)
                 - ai_model (str, optional)
                 - ai_job_id (UUID, optional)
+                Archive columns (optional):
+                - semester (str) - e.g. "Sommer 2024"
+                - year (int)
+                - season (str) - "sommer" or "winter"
+                - part (str) - e.g. "GA1", "GA2", "WK"
+                - region (str) - e.g. "bw"
+                - profession (str) - e.g. "FISI"
+                - pdf_path (str) - filesystem path to PDF
+                - solution_pdf_path (str) - path to solution PDF
+                - analysis_status (str) - "pending", "processing", "done", "error"
+                - raw_text (str) - extracted PDF text
 
         Returns:
             Created exam record
@@ -191,6 +202,81 @@ class ExamRepository(BaseRepository):
         """
         return cls.update_exam(exam_id, {'published': False})
 
+    @classmethod
+    def find_by_pdf_path(cls, pdf_path: str) -> Optional[Dict]:
+        """
+        Find exam by its PDF filesystem path (for duplicate detection)
+
+        Args:
+            pdf_path: Absolute path to the PDF file
+
+        Returns:
+            Exam record or None
+        """
+        query = """
+            SELECT * FROM assessments.exams
+            WHERE pdf_path = %s
+            LIMIT 1
+        """
+        return fetch_one(query, (pdf_path,))
+
+    @classmethod
+    def find_archive_exams(
+        cls, status: Optional[str] = None
+    ) -> List[Dict]:
+        """
+        Find all real (archived) exams, optionally filtered by status
+
+        Args:
+            status: Optional analysis_status filter
+
+        Returns:
+            List of archive exam records with question counts
+        """
+        if status:
+            query = """
+                SELECT e.*,
+                       COUNT(eq.question_id) as question_count
+                FROM assessments.exams e
+                LEFT JOIN assessments.exam_questions eq
+                    ON e.exam_id = eq.exam_id
+                WHERE e.exam_type = 'real'
+                  AND e.analysis_status = %s
+                GROUP BY e.exam_id
+                ORDER BY e.year DESC NULLS LAST, e.season
+            """
+            return fetch_all(query, (status,))
+        else:
+            query = """
+                SELECT e.*,
+                       COUNT(eq.question_id) as question_count
+                FROM assessments.exams e
+                LEFT JOIN assessments.exam_questions eq
+                    ON e.exam_id = eq.exam_id
+                WHERE e.exam_type = 'real'
+                GROUP BY e.exam_id
+                ORDER BY e.year DESC NULLS LAST, e.season
+            """
+            return fetch_all(query)
+
+    @classmethod
+    def update_analysis_status(
+        cls, exam_id: str, status: str
+    ) -> Optional[Dict]:
+        """
+        Update the analysis status of an archived exam
+
+        Args:
+            exam_id: Exam UUID
+            status: New status ("pending", "processing", "done", "error")
+
+        Returns:
+            Updated exam record
+        """
+        return cls.update_exam(exam_id, {
+            'analysis_status': status
+        })
+
 
 class ExamQuestionRepository(BaseRepository):
     """
@@ -236,6 +322,12 @@ class ExamQuestionRepository(BaseRepository):
                 - solution (dict/JSONB) - solution data
                 - points (int, default: 1)
                 - order_index (int, optional)
+                Archive columns (optional):
+                - scenario_title (str)
+                - scenario_text (str)
+                - question_number (str)
+                - topics (list[str]) - TEXT[] array
+                - solution_text (str)
 
         Returns:
             Created question record
@@ -314,6 +406,29 @@ class ExamQuestionRepository(BaseRepository):
         where = "question_id = %s"
         result = delete_returning('exam_questions', where, (question_id,), 'question_id')
         return result is not None
+
+    @classmethod
+    def find_by_topics(cls, topics: List[str]) -> List[Dict]:
+        """
+        Find questions whose topics overlap with the given list
+
+        Uses PostgreSQL array overlap operator (&&).
+
+        Args:
+            topics: List of topic strings to search for
+
+        Returns:
+            List of matching question records
+        """
+        query = """
+            SELECT eq.*, e.title as exam_title,
+                   e.semester, e.year, e.season, e.part
+            FROM assessments.exam_questions eq
+            JOIN assessments.exams e ON eq.exam_id = e.exam_id
+            WHERE eq.topics && %s
+            ORDER BY e.year DESC NULLS LAST, eq.order_index
+        """
+        return fetch_all(query, (topics,))
 
     @classmethod
     def reorder_questions(cls, exam_id: str, question_orders: List[Dict[str, Any]]) -> bool:

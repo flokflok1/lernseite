@@ -12,5 +12,6 @@ Example usage:
 
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
 from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
+from app.infrastructure.persistence.repositories.exams.trainer import ExamTrainerRepository
 
-__all__ = ['ExamRepository', 'ExamSimulationRepository']
+__all__ = ['ExamRepository', 'ExamSimulationRepository', 'ExamTrainerRepository']

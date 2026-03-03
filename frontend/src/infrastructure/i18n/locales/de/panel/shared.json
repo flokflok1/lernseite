@@ -89,7 +89,40 @@
     "settings": "Einstellungen",
     "systemSettings": "Systemeinstellungen",
     "translations": "Übersetzungen",
+    "examArchive": "IHK-Prüfungsarchiv",
     "users": "Benutzer"
+  },
+  "examArchive": {
+    "title": "IHK-Prüfungsarchiv",
+    "subtitle": "Echte IHK-Prüfungen importieren und KI-analysieren",
+    "scanFolder": "AP1-Ordner scannen",
+    "scanning": "Ordner wird gescannt...",
+    "importAll": "Alle importieren",
+    "importing": "Wird importiert...",
+    "analyzeAll": "Alle analysieren",
+    "analyzing": "Wird analysiert...",
+    "noExams": "Noch keine Prüfungen importiert",
+    "noPapersFound": "Keine Prüfungs-PDFs im AP1-Ordner gefunden",
+    "scanFirst": "Scanne zuerst den AP1-Ordner, um Prüfungen zu finden.",
+    "papersFound": "{count} Prüfungspapiere gefunden",
+    "importSuccess": "{imported} importiert, {skipped} übersprungen",
+    "analyzeTriggered": "{count} Analysen gestartet",
+    "status": {
+      "pending": "Ausstehend",
+      "analyzing": "Wird analysiert",
+      "ready": "Bereit",
+      "failed": "Fehlgeschlagen"
+    },
+    "questions": "{count} Aufgaben",
+    "noQuestions": "Keine Aufgaben (noch nicht analysiert)",
+    "topics": "Themen",
+    "points": "{count} Punkte",
+    "analyze": "Analysieren",
+    "showQuestions": "Aufgaben anzeigen",
+    "hideQuestions": "Aufgaben verbergen",
+    "semester": "Semester",
+    "part": "Teil",
+    "examCount": "{count} Prüfungen"
   },
   "title": "Administration"
 }

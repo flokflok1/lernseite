@@ -89,7 +89,40 @@
     "settings": "Settings",
     "systemSettings": "System Settings",
     "translations": "Translations",
+    "examArchive": "IHK Exam Archive",
     "users": "Users"
+  },
+  "examArchive": {
+    "title": "IHK Exam Archive",
+    "subtitle": "Import real IHK exams and analyze with AI",
+    "scanFolder": "Scan AP1 Folder",
+    "scanning": "Scanning folder...",
+    "importAll": "Import All",
+    "importing": "Importing...",
+    "analyzeAll": "Analyze All",
+    "analyzing": "Analyzing...",
+    "noExams": "No exams imported yet",
+    "noPapersFound": "No exam PDFs found in AP1 folder",
+    "scanFirst": "Scan the AP1 folder first to find exams.",
+    "papersFound": "{count} exam papers found",
+    "importSuccess": "{imported} imported, {skipped} skipped",
+    "analyzeTriggered": "{count} analyses started",
+    "status": {
+      "pending": "Pending",
+      "analyzing": "Analyzing",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "questions": "{count} questions",
+    "noQuestions": "No questions (not analyzed yet)",
+    "topics": "Topics",
+    "points": "{count} points",
+    "analyze": "Analyze",
+    "showQuestions": "Show Questions",
+    "hideQuestions": "Hide Questions",
+    "semester": "Semester",
+    "part": "Part",
+    "examCount": "{count} exams"
   },
   "title": "Administration"
 }

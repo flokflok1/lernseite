@@ -1,8 +1,13 @@
 """
 ExamArchive Service
 
-Application service for importing real IHK exam PDFs into the archive.
-Handles folder scanning, filename parsing, PDF text extraction, and DB import.
+Application service for importing real IHK exam PDFs and images into the archive.
+Handles folder scanning, filename parsing, text extraction (PDF + Vision-AI OCR),
+and DB import.
+
+Supported file types:
+  - PDF (.pdf) — text extracted via PDFService
+  - Images (.jpg, .jpeg, .png) — text extracted via Vision-AI OCR
 
 Filename conventions handled:
   GA1_FIA_Sommer2024.PDF          → part=GA1, profession=FISI, season=sommer, year=2024
@@ -12,10 +17,12 @@ Filename conventions handled:
   AP 1 Aufgaben Sommer 2024.pdf   → season=sommer, year=2024
   W2023_AP1_Aufgaben und Lösungen.pdf → season=winter, year=2023
   AP2_Wiso_Sommer2021_Loesung.PDF → part=WK, is_solution=True
+  PHOTO-2023-11-17-12-47-41.jpg   → OCR via Vision-AI
 """
 
 import os
 import re
+import base64
 import logging
 from typing import Optional, List, Dict, Any
 
@@ -50,6 +57,11 @@ PART_PATTERNS = [
 SOLUTION_MARKERS = re.compile(
     r'l(?:ö|oe|o)sung(?:en)?', re.IGNORECASE
 )
+
+# Supported file extensions
+PDF_EXTENSIONS = {'.pdf'}
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png'}
+ALL_EXTENSIONS = PDF_EXTENSIONS | IMAGE_EXTENSIONS
 
 
 def _parse_season_year_from_folder(folder_name: str) -> Dict[str, Any]:
@@ -173,7 +185,7 @@ class ExamArchiveService:
             parent = os.path.basename(dirpath)
             for fname in files:
                 ext = os.path.splitext(fname)[1].lower()
-                if ext != '.pdf':
+                if ext not in ALL_EXTENSIONS:
                     continue
                 # Skip macOS resource fork files
                 if fname.startswith('._'):
@@ -239,14 +251,14 @@ class ExamArchiveService:
             logger.info("Skipping duplicate: %s", filepath)
             return None
 
-        # Extract text from task PDF
-        raw_text = _extract_pdf_text(filepath)
+        # Extract text (PDF or image via Vision-AI OCR)
+        raw_text = _extract_text(filepath)
 
         # Extract solution text if available
         solution_text = None
         solution_path = paper.get('solution_filepath')
         if solution_path and solution_path != filepath:
-            solution_text = _extract_pdf_text(solution_path)
+            solution_text = _extract_text(solution_path)
 
         # Build title
         title = _build_exam_title(meta, paper.get('filename', ''))
@@ -355,16 +367,26 @@ def _build_identity_key(meta: Dict) -> str:
     return '|'.join(parts).lower()
 
 
-def _extract_pdf_text(filepath: str) -> Optional[str]:
+def _extract_text(filepath: str) -> Optional[str]:
     """
-    Read a PDF file and extract its text content.
+    Extract text from a file (PDF or image).
+
+    For PDFs, uses PDFService. For images, uses Vision-AI OCR.
 
     Args:
-        filepath: Absolute path to the PDF
+        filepath: Absolute path to the file
 
     Returns:
         Extracted text or None on failure
     """
+    ext = os.path.splitext(filepath)[1].lower()
+    if ext in IMAGE_EXTENSIONS:
+        return _extract_text_from_image(filepath)
+    return _extract_pdf_text(filepath)
+
+
+def _extract_pdf_text(filepath: str) -> Optional[str]:
+    """Extract text from a PDF file via PDFService."""
     try:
         with open(filepath, 'rb') as f:
             file_bytes = f.read()
@@ -375,6 +397,81 @@ def _extract_pdf_text(filepath: str) -> Optional[str]:
         return result.get('extracted_text')
     except Exception as e:
         logger.warning("PDF extraction failed for %s: %s", filepath, e)
+        return None
+
+
+def _extract_text_from_image(filepath: str) -> Optional[str]:
+    """
+    Extract text from an exam photo using Vision-AI OCR.
+
+    Sends the image to a vision-capable AI model (e.g. GPT-4o)
+    and asks it to transcribe all visible text.
+
+    Args:
+        filepath: Absolute path to the image file
+
+    Returns:
+        Transcribed text or None on failure
+    """
+    try:
+        with open(filepath, 'rb') as f:
+            image_bytes = f.read()
+
+        ext = os.path.splitext(filepath)[1].lower().lstrip('.')
+        mime_type = 'jpeg' if ext in ('jpg', 'jpeg') else 'png'
+        b64 = base64.b64encode(image_bytes).decode('utf-8')
+
+        messages = [
+            {
+                'role': 'system',
+                'content': (
+                    'Du bist ein OCR-Spezialist für IHK-Prüfungsbögen. '
+                    'Transkribiere den gesamten sichtbaren Text aus dem '
+                    'Foto einer Prüfungsseite. Gib NUR den transkribierten '
+                    'Text zurück, keine Erklärungen oder Kommentare. '
+                    'Behalte die Struktur bei (Aufgabennummern, '
+                    'Unterpunkte, Tabellen).'
+                ),
+            },
+            {
+                'role': 'user',
+                'content': [
+                    {
+                        'type': 'text',
+                        'text': (
+                            'Transkribiere den gesamten Text aus '
+                            'diesem IHK-Prüfungsfoto:'
+                        ),
+                    },
+                    {
+                        'type': 'image_url',
+                        'image_url': {
+                            'url': (
+                                f'data:image/{mime_type};base64,{b64}'
+                            ),
+                        },
+                    },
+                ],
+            },
+        ]
+
+        from app.infrastructure.ai.adapter import AIAdapter
+        adapter = AIAdapter(provider='openai', model='gpt-4o')
+        response = adapter.send_messages(
+            messages, temperature=0.1, max_tokens=4000
+        )
+        text = response.get('output_text', '').strip()
+        if text:
+            logger.info(
+                "Vision OCR extracted %d chars from %s",
+                len(text), os.path.basename(filepath),
+            )
+            return text
+        return None
+    except Exception as e:
+        logger.warning(
+            "Vision OCR failed for %s: %s", filepath, e
+        )
         return None
 
 

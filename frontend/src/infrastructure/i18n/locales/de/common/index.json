@@ -127,7 +127,8 @@
     "home": "Startseite",
     "panel": "Admin Panel",
     "profile": "Profil",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "examTrainer": "Prüfungstrainer"
   },
   "time": {
     "days_ago": "vor {n} Tagen",

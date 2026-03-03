@@ -127,7 +127,8 @@
     "home": "Strona główna",
     "panel": "Panel administracyjny",
     "profile": "Profil",
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "examTrainer": "Trener egzaminacyjny"
   },
   "time": {
     "days_ago": "{n} dni temu",

@@ -107,6 +107,14 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
 
+  // Exam Trainer (IHK exam practice)
+  {
+    path: '/exam-trainer',
+    name: 'ExamTrainer',
+    component: () => import('@/presentation/pages/panel/user/exam-trainer/ExamTrainerPage.vue'),
+    meta: { requiresAuth: true },
+  },
+
   // AI Editor (GBA-based - all authenticated users)
   {
     path: '/ai-editor',

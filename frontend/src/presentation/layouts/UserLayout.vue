@@ -11,6 +11,7 @@ const navigation = [
   { name: '📚 My Courses', path: '/panel/user/courses' },
   { name: '🎯 Progress', path: '/panel/user/progress' },
   { name: '💬 Social', path: '/panel/user/social' },
+  { name: '📝 Exam Trainer', path: '/exam-trainer' },
   { name: '⚙️ Settings', path: '/panel/user/settings' },
 ]
 

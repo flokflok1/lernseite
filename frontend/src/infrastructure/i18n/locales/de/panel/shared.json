@@ -90,6 +90,7 @@
     "systemSettings": "Systemeinstellungen",
     "translations": "Übersetzungen",
     "examArchive": "IHK-Prüfungsarchiv",
+    "examTrainer": "Prüfungstrainer",
     "users": "Benutzer"
   },
   "examArchive": {
@@ -123,6 +124,43 @@
     "semester": "Semester",
     "part": "Teil",
     "examCount": "{count} Prüfungen"
+  },
+  "examTrainer": {
+    "title": "IHK-Prüfungstrainer",
+    "subtitle": "Übe mit echten IHK-Prüfungsaufgaben",
+    "tabs": {
+      "exams": "Prüfungen",
+      "topics": "Themen",
+      "practice": "Aufgabe"
+    },
+    "selectExam": "Wähle eine Prüfung zum Üben",
+    "noExams": "Keine Prüfungen verfügbar. Der Admin muss zuerst Prüfungen importieren und analysieren.",
+    "startExam": "Prüfung starten",
+    "questions": "{count} Aufgaben",
+    "topicHeatmap": "Themen-Übersicht",
+    "topicHeatmapDesc": "Klicke auf ein Thema um gezielt zu üben",
+    "noTopics": "Noch keine Themen verfügbar",
+    "attempts": "{count} Versuche",
+    "correctRate": "{rate}% richtig",
+    "notAttempted": "Noch nicht geübt",
+    "strong": "Stark",
+    "medium": "Mittel",
+    "weak": "Schwach",
+    "question": "Aufgabe {number}",
+    "scenario": "Szenario",
+    "yourAnswer": "Deine Antwort",
+    "submit": "Antwort absenden",
+    "correct": "Richtig!",
+    "incorrect": "Leider falsch",
+    "explanation": "Erklärung",
+    "nextQuestion": "Nächste Aufgabe",
+    "examComplete": "Prüfung abgeschlossen!",
+    "score": "Ergebnis: {score}/{total} Punkte ({percentage}%)",
+    "passed": "Bestanden!",
+    "failed": "Nicht bestanden",
+    "backToExams": "Zurück zur Übersicht",
+    "points": "{count} Punkte",
+    "questionOf": "Aufgabe {current} von {total}"
   },
   "title": "Administration"
 }

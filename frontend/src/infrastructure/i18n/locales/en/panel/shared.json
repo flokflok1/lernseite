@@ -90,6 +90,7 @@
     "systemSettings": "System Settings",
     "translations": "Translations",
     "examArchive": "IHK Exam Archive",
+    "examTrainer": "Exam Trainer",
     "users": "Users"
   },
   "examArchive": {
@@ -123,6 +124,43 @@
     "semester": "Semester",
     "part": "Part",
     "examCount": "{count} exams"
+  },
+  "examTrainer": {
+    "title": "IHK Exam Trainer",
+    "subtitle": "Practice with real IHK exam questions",
+    "tabs": {
+      "exams": "Exams",
+      "topics": "Topics",
+      "practice": "Question"
+    },
+    "selectExam": "Select an exam to practice",
+    "noExams": "No exams available. The admin needs to import and analyze exams first.",
+    "startExam": "Start Exam",
+    "questions": "{count} questions",
+    "topicHeatmap": "Topic Overview",
+    "topicHeatmapDesc": "Click a topic to practice specifically",
+    "noTopics": "No topics available yet",
+    "attempts": "{count} attempts",
+    "correctRate": "{rate}% correct",
+    "notAttempted": "Not practiced yet",
+    "strong": "Strong",
+    "medium": "Medium",
+    "weak": "Weak",
+    "question": "Question {number}",
+    "scenario": "Scenario",
+    "yourAnswer": "Your answer",
+    "submit": "Submit Answer",
+    "correct": "Correct!",
+    "incorrect": "Incorrect",
+    "explanation": "Explanation",
+    "nextQuestion": "Next Question",
+    "examComplete": "Exam Complete!",
+    "score": "Score: {score}/{total} points ({percentage}%)",
+    "passed": "Passed!",
+    "failed": "Not passed",
+    "backToExams": "Back to overview",
+    "points": "{count} points",
+    "questionOf": "Question {current} of {total}"
   },
   "title": "Administration"
 }

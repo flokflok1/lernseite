@@ -203,6 +203,25 @@ export {
   type UserExamProfile
 } from './exam/examSimulation.api'
 
+// Exam Trainer (IHK archive practice)
+export {
+  trainerListExams,
+  trainerGetQuestions,
+  trainerGetTopics,
+  trainerGetTopicQuestions,
+  trainerSubmitAnswer,
+  trainerStartExam,
+  trainerCompleteAttempt,
+} from './exams/trainer.api'
+
+export type {
+  TrainerExam,
+  TrainerQuestion,
+  TopicStat,
+  AnswerResult as TrainerAnswerResult,
+  AttemptResult as TrainerAttemptResult,
+} from './exams/trainer.api'
+
 // Courses (chapters)
 export {
   getChapterDetail,

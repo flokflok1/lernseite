@@ -90,6 +90,7 @@
     "systemSettings": "Ustawienia systemu",
     "translations": "Tłumaczenia",
     "examArchive": "Archiwum egzaminów IHK",
+    "examTrainer": "Trener egzaminów",
     "users": "Użytkownicy"
   },
   "examArchive": {
@@ -123,6 +124,43 @@
     "semester": "Semestr",
     "part": "Część",
     "examCount": "{count} egzaminów"
+  },
+  "examTrainer": {
+    "title": "Trener egzaminów IHK",
+    "subtitle": "Ćwicz z prawdziwymi pytaniami egzaminacyjnymi IHK",
+    "tabs": {
+      "exams": "Egzaminy",
+      "topics": "Tematy",
+      "practice": "Pytanie"
+    },
+    "selectExam": "Wybierz egzamin do ćwiczenia",
+    "noExams": "Brak dostępnych egzaminów. Administrator musi najpierw zaimportować i przeanalizować egzaminy.",
+    "startExam": "Rozpocznij egzamin",
+    "questions": "{count} pytań",
+    "topicHeatmap": "Przegląd tematów",
+    "topicHeatmapDesc": "Kliknij temat, aby ćwiczyć celowo",
+    "noTopics": "Brak dostępnych tematów",
+    "attempts": "{count} prób",
+    "correctRate": "{rate}% poprawnych",
+    "notAttempted": "Jeszcze nie ćwiczono",
+    "strong": "Mocny",
+    "medium": "Średni",
+    "weak": "Słaby",
+    "question": "Pytanie {number}",
+    "scenario": "Scenariusz",
+    "yourAnswer": "Twoja odpowiedź",
+    "submit": "Prześlij odpowiedź",
+    "correct": "Poprawnie!",
+    "incorrect": "Niepoprawnie",
+    "explanation": "Wyjaśnienie",
+    "nextQuestion": "Następne pytanie",
+    "examComplete": "Egzamin zakończony!",
+    "score": "Wynik: {score}/{total} punktów ({percentage}%)",
+    "passed": "Zdany!",
+    "failed": "Niezdany",
+    "backToExams": "Powrót do przeglądu",
+    "points": "{count} punktów",
+    "questionOf": "Pytanie {current} z {total}"
   },
   "title": "Administracja"
 }

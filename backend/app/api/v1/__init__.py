@@ -56,6 +56,7 @@ from app.api.v1.panel.admin.tutor.admin import tutor_admin_bp
 from app.api.v1.panel.admin import ai as ai_admin  # Triggers AI admin blueprint registration
 from app.api.v1.panel.admin.analytics import analytics_bp, org_analytics_bp
 from app.api.v1.panel.admin import courses as courses_admin  # Triggers admin route registration
+from app.api.v1.panel.admin import exams as exams_admin  # Triggers exam archive blueprint registration
 
 # Prompts Library (CRUD, actions, categories)
 from app.api.v1.panel.admin.prompts import crud as _prompts_crud, actions as _prompts_actions, categories as _prompts_categories  # noqa: F401 — triggers route registration

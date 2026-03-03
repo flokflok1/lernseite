@@ -22,13 +22,15 @@ Filename conventions handled:
 
 import os
 import re
-import base64
 import logging
 from typing import Optional, List, Dict, Any
 
-from app.application.services.content.pdf.bridge import PDFService
 from app.infrastructure.persistence.repositories.exams.core import (
     ExamRepository
+)
+from app.application.services.exams.archive_service_part2 import (
+    extract_text,
+    IMAGE_EXTENSIONS,
 )
 
 logger = logging.getLogger(__name__)
@@ -60,7 +62,6 @@ SOLUTION_MARKERS = re.compile(
 
 # Supported file extensions
 PDF_EXTENSIONS = {'.pdf'}
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png'}
 ALL_EXTENSIONS = PDF_EXTENSIONS | IMAGE_EXTENSIONS
 
 
@@ -367,112 +368,7 @@ def _build_identity_key(meta: Dict) -> str:
     return '|'.join(parts).lower()
 
 
-def _extract_text(filepath: str) -> Optional[str]:
-    """
-    Extract text from a file (PDF or image).
-
-    For PDFs, uses PDFService. For images, uses Vision-AI OCR.
-
-    Args:
-        filepath: Absolute path to the file
-
-    Returns:
-        Extracted text or None on failure
-    """
-    ext = os.path.splitext(filepath)[1].lower()
-    if ext in IMAGE_EXTENSIONS:
-        return _extract_text_from_image(filepath)
-    return _extract_pdf_text(filepath)
-
-
-def _extract_pdf_text(filepath: str) -> Optional[str]:
-    """Extract text from a PDF file via PDFService."""
-    try:
-        with open(filepath, 'rb') as f:
-            file_bytes = f.read()
-
-        result = PDFService.extract_text(
-            file_bytes, os.path.basename(filepath), use_cache=False
-        )
-        return result.get('extracted_text')
-    except Exception as e:
-        logger.warning("PDF extraction failed for %s: %s", filepath, e)
-        return None
-
-
-def _extract_text_from_image(filepath: str) -> Optional[str]:
-    """
-    Extract text from an exam photo using Vision-AI OCR.
-
-    Sends the image to a vision-capable AI model (e.g. GPT-4o)
-    and asks it to transcribe all visible text.
-
-    Args:
-        filepath: Absolute path to the image file
-
-    Returns:
-        Transcribed text or None on failure
-    """
-    try:
-        with open(filepath, 'rb') as f:
-            image_bytes = f.read()
-
-        ext = os.path.splitext(filepath)[1].lower().lstrip('.')
-        mime_type = 'jpeg' if ext in ('jpg', 'jpeg') else 'png'
-        b64 = base64.b64encode(image_bytes).decode('utf-8')
-
-        messages = [
-            {
-                'role': 'system',
-                'content': (
-                    'Du bist ein OCR-Spezialist für IHK-Prüfungsbögen. '
-                    'Transkribiere den gesamten sichtbaren Text aus dem '
-                    'Foto einer Prüfungsseite. Gib NUR den transkribierten '
-                    'Text zurück, keine Erklärungen oder Kommentare. '
-                    'Behalte die Struktur bei (Aufgabennummern, '
-                    'Unterpunkte, Tabellen).'
-                ),
-            },
-            {
-                'role': 'user',
-                'content': [
-                    {
-                        'type': 'text',
-                        'text': (
-                            'Transkribiere den gesamten Text aus '
-                            'diesem IHK-Prüfungsfoto:'
-                        ),
-                    },
-                    {
-                        'type': 'image_url',
-                        'image_url': {
-                            'url': (
-                                f'data:image/{mime_type};base64,{b64}'
-                            ),
-                        },
-                    },
-                ],
-            },
-        ]
-
-        from app.infrastructure.ai.adapter import AIAdapter
-        adapter = AIAdapter(provider='openai', model='gpt-4o')
-        response = adapter.send_messages(
-            messages, temperature=0.1, max_tokens=4000
-        )
-        text = response.get('output_text', '').strip()
-        if text:
-            logger.info(
-                "Vision OCR extracted %d chars from %s",
-                len(text), os.path.basename(filepath),
-            )
-            return text
-        return None
-    except Exception as e:
-        logger.warning(
-            "Vision OCR failed for %s: %s", filepath, e
-        )
-        return None
+_extract_text = extract_text  # Re-export for internal use
 
 
 def _build_exam_title(meta: Dict, filename: str) -> str:

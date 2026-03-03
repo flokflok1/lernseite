@@ -1,7 +1,7 @@
 """
 ExamArchive Service
 
-Application service for importing real IHK exam PDFs and images into the archive.
+Application service for importing exam PDFs and images into the archive.
 Handles folder scanning, filename parsing, text extraction (PDF + Vision-AI OCR),
 and DB import.
 
@@ -162,7 +162,7 @@ def _parse_filename(filename: str, parent_folder: str) -> Dict[str, Any]:
 
 class ExamArchiveService:
     """
-    Service for scanning folders of real IHK exam PDFs and importing
+    Service for scanning folders of exam PDFs and images and importing
     them into the exam archive database.
     """
 
@@ -373,22 +373,20 @@ _extract_text = extract_text  # Re-export for internal use
 
 def _build_exam_title(meta: Dict, filename: str) -> str:
     """Build a human-readable exam title from metadata."""
-    parts = ['IHK AP1']
+    parts = []
 
     if meta.get('part'):
         parts.append(meta['part'])
 
-    if meta.get('profession') and meta['profession'] != 'FISI':
+    if meta.get('profession'):
         parts.append(meta['profession'])
-    elif meta.get('profession'):
-        parts.append('FISI')
 
     if meta.get('semester'):
         parts.append(meta['semester'])
     elif meta.get('year'):
         parts.append(str(meta['year']))
 
-    if len(parts) <= 1:
-        return f"IHK AP1 - {filename}"
+    if not parts:
+        return filename
 
     return ' '.join(parts)

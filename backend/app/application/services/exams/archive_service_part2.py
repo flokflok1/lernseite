@@ -112,7 +112,7 @@ def extract_text_from_image(filepath: str) -> Optional[str]:
             {
                 'role': 'system',
                 'content': (
-                    'Du bist ein OCR-Spezialist für IHK-Prüfungsbögen. '
+                    'Du bist ein OCR-Spezialist für Prüfungsbögen. '
                     'Transkribiere den gesamten sichtbaren Text aus dem '
                     'Foto einer Prüfungsseite. Gib NUR den transkribierten '
                     'Text zurück, keine Erklärungen oder Kommentare. '
@@ -127,7 +127,7 @@ def extract_text_from_image(filepath: str) -> Optional[str]:
                         'type': 'text',
                         'text': (
                             'Transkribiere den gesamten Text aus '
-                            'diesem IHK-Prüfungsfoto:'
+                            'diesem Prüfungsfoto:'
                         ),
                     },
                     {

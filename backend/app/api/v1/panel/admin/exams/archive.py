@@ -1,9 +1,9 @@
 """
 Exam Archive Admin API
 
-Endpoints for managing the real IHK exam archive:
-- Scan filesystem for exam PDFs
-- Import PDFs into the database
+Endpoints for managing the exam archive:
+- Scan filesystem for exam PDFs and images
+- Import files into the database
 - Queue AI analysis for question extraction
 - List archive exams and their questions
 
@@ -30,7 +30,7 @@ archive_bp = Blueprint(
     url_prefix='/admin/exam-archive',
 )
 
-# Default AP1 folder — resolved relative to backend/ directory
+# Default exam folder — resolved relative to backend/ directory
 _BACKEND_DIR = os.path.dirname(
     os.path.dirname(
         os.path.dirname(
@@ -42,14 +42,14 @@ _BACKEND_DIR = os.path.dirname(
         )
     )
 )
-_DEFAULT_AP1_FOLDER = os.path.normpath(
+_DEFAULT_EXAM_FOLDER = os.path.normpath(
     os.path.join(_BACKEND_DIR, '..', 'AP 1')
 )
 
 
-def _get_ap1_folder() -> str:
+def _get_exam_folder() -> str:
     """
-    Get the AP1 folder path from query param or default.
+    Get the exam folder path from query param or default.
 
     Query param: ?folder=/absolute/path
     Default: <project_root>/AP 1/
@@ -57,19 +57,19 @@ def _get_ap1_folder() -> str:
     folder = request.args.get('folder')
     if folder and os.path.isabs(folder):
         return folder
-    return _DEFAULT_AP1_FOLDER
+    return _DEFAULT_EXAM_FOLDER
 
 
 @archive_bp.route('/scan', methods=['GET'])
 @admin_required
 def scan_folder():
     """
-    Scan the AP1 folder for exam PDFs without importing.
+    Scan the exam folder for PDFs and images without importing.
 
     Returns list of found papers with parsed metadata.
     Query param: ?folder=/path (optional, defaults to AP 1/)
     """
-    folder = _get_ap1_folder()
+    folder = _get_exam_folder()
 
     if not os.path.isdir(folder):
         return jsonify({
@@ -100,12 +100,12 @@ def scan_folder():
 @admin_required
 def import_folder():
     """
-    Scan and import all exam PDFs from the AP1 folder into the DB.
+    Scan and import all exam files from the exam folder into the DB.
 
     Skips duplicates (by pdf_path). Extracts text from each PDF.
     Query param: ?folder=/path (optional, defaults to AP 1/)
     """
-    folder = _get_ap1_folder()
+    folder = _get_exam_folder()
 
     if not os.path.isdir(folder):
         return jsonify({

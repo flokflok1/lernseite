@@ -306,6 +306,50 @@ def update_session_tags(session_id):
     return jsonify({'session_id': str(updated['session_id'])}), 200
 
 
+@archive_bp.route('/<exam_id>/review', methods=['POST'])
+@admin_required
+def review_upload(exam_id):
+    """
+    Moderate a community upload: approve or reject.
+
+    JSON body: {"action": "approve"|"reject", "notes": "..."}
+    Approve -> analysis_status='pending' (enters AI pipeline)
+    Reject  -> analysis_status='rejected'
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
+
+    action = data.get('action')
+    notes = data.get('notes', '')
+
+    if action not in ('approve', 'reject'):
+        return jsonify({'error': 'action must be approve or reject'}), 400
+
+    exam = ExamRepository.find_by_id(exam_id)
+    if not exam:
+        return jsonify({'error': 'Exam not found'}), 404
+
+    if exam.get('analysis_status') != 'pending_review':
+        return jsonify({'error': 'Exam is not pending review'}), 400
+
+    new_status = 'pending' if action == 'approve' else 'rejected'
+    ExamRepository.update_analysis_status(exam_id, new_status)
+
+    from app.infrastructure.persistence.database.connection import (
+        execute_query,
+    )
+    execute_query(
+        "UPDATE assessments.exams SET moderation_notes = %s WHERE exam_id = %s",
+        [notes, exam_id],
+    )
+
+    logger.info(
+        "Moderation: exam=%s action=%s by admin", exam_id, action
+    )
+    return jsonify({'status': action + 'd', 'exam_id': str(exam_id)}), 200
+
+
 def _serialize_exam_list(exams: list) -> list:
     """Serialize exam records for JSON response."""
     result = []

@@ -77,9 +77,33 @@
           >
             <span>{{ analyzingAll ? t('panel.examArchive.analyzing') : t('panel.examArchive.analyzeAll') }}</span>
           </button>
+
+          <!-- Upload Button -->
+          <button
+            @click="showUploadDialog = true"
+            class="px-3 py-1.5 text-white rounded text-sm transition-colors flex items-center gap-1"
+            style="background-color: var(--color-primary, #7c3aed);"
+          >
+            {{ t('panel.examArchive.upload.title') }}
+          </button>
+
+          <!-- Pending Review Count -->
+          <span
+            v-if="pendingReviewCount > 0"
+            class="px-2 py-1 rounded text-xs font-medium bg-[var(--color-warning-bg,#fef3c7)] text-[var(--color-warning-text,#92400e)]"
+          >
+            {{ t('panel.examArchive.moderation.pendingReview') }}: {{ pendingReviewCount }}
+          </span>
         </div>
       </div>
     </div>
+
+    <!-- Upload Dialog -->
+    <ExamUploadDialog
+      :visible="showUploadDialog"
+      @close="showUploadDialog = false"
+      @uploaded="handleUploadComplete"
+    />
 
     <!-- Status Messages -->
     <div v-if="statusMessage" class="px-4 py-2">
@@ -167,6 +191,7 @@ import {
   archiveListSessions,
 } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 import ExamArchiveCard from './ExamArchiveCard.vue'
+import ExamUploadDialog from './ExamUploadDialog.vue'
 import { ExamTypeSection } from './sessions'
 
 const { t } = useI18n()
@@ -182,6 +207,7 @@ const scanning = ref(false)
 const importing = ref(false)
 const analyzingAll = ref(false)
 const statusMessage = ref('')
+const showUploadDialog = ref(false)
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null
 
@@ -192,6 +218,10 @@ const hasPendingExams = computed(() =>
 
 const hasAnalyzingExams = computed(() =>
   exams.value.some((e) => e.analysis_status === 'analyzing')
+)
+
+const pendingReviewCount = computed(() =>
+  exams.value.filter((e) => e.analysis_status === 'pending_review').length
 )
 
 // Methods
@@ -281,6 +311,14 @@ const handleAnalyzeSingle = async (examId: string) => {
     startAutoRefresh()
   } catch (err) {
     console.error('Analyze failed:', err)
+  }
+}
+
+const handleUploadComplete = async (_examId: string) => {
+  statusMessage.value = t('panel.examArchive.upload.success')
+  await loadExams()
+  if (viewMode.value === 'grouped') {
+    await loadSessions()
   }
 }
 

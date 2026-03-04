@@ -143,3 +143,41 @@ export const archiveUpdateSessionTags = async (
 ): Promise<void> => {
   await http.patch(`/admin/exam-archive/sessions/${sessionId}/tags`, { tags })
 }
+
+// --- Community Upload ---
+
+export const communityUploadExam = async (
+  file: File,
+  metadata: {
+    exam_type_key: string
+    year: number
+    season: string
+    part?: string
+    region?: string
+  }
+): Promise<{ exam_id: string; status: string }> => {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('exam_type_key', metadata.exam_type_key)
+  form.append('year', String(metadata.year))
+  form.append('season', metadata.season)
+  if (metadata.part) form.append('part', metadata.part)
+  if (metadata.region) form.append('region', metadata.region)
+
+  const response = await http.post<{ exam_id: string; status: string }>(
+    '/user/exam-upload/',
+    form,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  )
+  return response.data
+}
+
+// --- Admin Moderation ---
+
+export const archiveReviewUpload = async (
+  examId: string,
+  action: 'approve' | 'reject',
+  notes?: string
+): Promise<void> => {
+  await http.post(`/admin/exam-archive/${examId}/review`, { action, notes })
+}

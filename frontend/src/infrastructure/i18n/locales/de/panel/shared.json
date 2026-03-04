@@ -89,7 +89,110 @@
     "settings": "Einstellungen",
     "systemSettings": "Systemeinstellungen",
     "translations": "Übersetzungen",
+    "examArchive": "Prüfungsarchiv",
+    "examTrainer": "Prüfungstrainer",
     "users": "Benutzer"
+  },
+  "examArchive": {
+    "title": "Prüfungsarchiv",
+    "subtitle": "Prüfungen importieren und KI-analysieren",
+    "scanFolder": "Ordner scannen",
+    "scanning": "Ordner wird gescannt...",
+    "importAll": "Alle importieren",
+    "importing": "Wird importiert...",
+    "analyzeAll": "Alle analysieren",
+    "analyzing": "Wird analysiert...",
+    "noExams": "Noch keine Prüfungen importiert",
+    "noPapersFound": "Keine Prüfungs-PDFs im Ordner gefunden",
+    "scanFirst": "Scanne zuerst den Prüfungsordner, um Prüfungen zu finden.",
+    "papersFound": "{count} Prüfungspapiere gefunden",
+    "importSuccess": "{imported} importiert, {skipped} übersprungen",
+    "analyzeTriggered": "{count} Analysen gestartet",
+    "status": {
+      "pending": "Ausstehend",
+      "analyzing": "Wird analysiert",
+      "ready": "Bereit",
+      "failed": "Fehlgeschlagen"
+    },
+    "questions": "{count} Aufgaben",
+    "noQuestions": "Keine Aufgaben (noch nicht analysiert)",
+    "topics": "Themen",
+    "points": "{count} Punkte",
+    "analyze": "Analysieren",
+    "showQuestions": "Aufgaben anzeigen",
+    "hideQuestions": "Aufgaben verbergen",
+    "semester": "Semester",
+    "part": "Teil",
+    "examCount": "{count} Prüfungen",
+    "viewMode": {
+      "flat": "Flache Liste",
+      "grouped": "Sitzungsansicht"
+    },
+    "session": {
+      "title": "Prüfungssitzung",
+      "examCount": "{ready} von {total} bereit",
+      "totalQuestions": "{count} Aufgaben",
+      "noSessions": "Noch keine Sitzungen",
+      "tags": "Tags",
+      "season": {
+        "sommer": "Sommer",
+        "winter": "Winter"
+      }
+    },
+    "upload": {
+      "title": "Prüfung hochladen",
+      "dropzone": "PDF hier ablegen oder klicken",
+      "submit": "Einreichen",
+      "success": "Prüfung eingereicht — wird moderiert",
+      "subscriptionRequired": "Aktives Abo erforderlich",
+      "virusDetected": "Datei abgelehnt — Sicherheitsproblem",
+      "pdfOnly": "Nur PDF-Dateien erlaubt"
+    },
+    "moderation": {
+      "pendingReview": "Wartet auf Überprüfung",
+      "approve": "Genehmigen",
+      "reject": "Ablehnen",
+      "notes": "Moderationsnotizen",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    }
+  },
+  "examTrainer": {
+    "title": "Prüfungstrainer",
+    "subtitle": "Übe mit echten Prüfungsaufgaben",
+    "tabs": {
+      "exams": "Prüfungen",
+      "topics": "Themen",
+      "practice": "Aufgabe"
+    },
+    "selectExam": "Wähle eine Prüfung zum Üben",
+    "noExams": "Keine Prüfungen verfügbar. Der Admin muss zuerst Prüfungen importieren und analysieren.",
+    "startExam": "Prüfung starten",
+    "questions": "{count} Aufgaben",
+    "topicHeatmap": "Themen-Übersicht",
+    "topicHeatmapDesc": "Klicke auf ein Thema um gezielt zu üben",
+    "noTopics": "Noch keine Themen verfügbar",
+    "attempts": "{count} Versuche",
+    "correctRate": "{rate}% richtig",
+    "notAttempted": "Noch nicht geübt",
+    "strong": "Stark",
+    "medium": "Mittel",
+    "weak": "Schwach",
+    "question": "Aufgabe {number}",
+    "scenario": "Szenario",
+    "yourAnswer": "Deine Antwort",
+    "submit": "Antwort absenden",
+    "correct": "Richtig!",
+    "incorrect": "Leider falsch",
+    "explanation": "Erklärung",
+    "nextQuestion": "Nächste Aufgabe",
+    "examComplete": "Prüfung abgeschlossen!",
+    "score": "Ergebnis: {score}/{total} Punkte ({percentage}%)",
+    "passed": "Bestanden!",
+    "failed": "Nicht bestanden",
+    "backToExams": "Zurück zur Übersicht",
+    "points": "{count} Punkte",
+    "questionOf": "Aufgabe {current} von {total}"
   },
   "title": "Administration"
 }

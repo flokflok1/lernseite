@@ -89,7 +89,110 @@
     "settings": "Settings",
     "systemSettings": "System Settings",
     "translations": "Translations",
+    "examArchive": "Exam Archive",
+    "examTrainer": "Exam Trainer",
     "users": "Users"
+  },
+  "examArchive": {
+    "title": "Exam Archive",
+    "subtitle": "Import exams and analyze with AI",
+    "scanFolder": "Scan Folder",
+    "scanning": "Scanning folder...",
+    "importAll": "Import All",
+    "importing": "Importing...",
+    "analyzeAll": "Analyze All",
+    "analyzing": "Analyzing...",
+    "noExams": "No exams imported yet",
+    "noPapersFound": "No exam PDFs found in folder",
+    "scanFirst": "Scan the exam folder first to find exams.",
+    "papersFound": "{count} exam papers found",
+    "importSuccess": "{imported} imported, {skipped} skipped",
+    "analyzeTriggered": "{count} analyses started",
+    "status": {
+      "pending": "Pending",
+      "analyzing": "Analyzing",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "questions": "{count} questions",
+    "noQuestions": "No questions (not analyzed yet)",
+    "topics": "Topics",
+    "points": "{count} points",
+    "analyze": "Analyze",
+    "showQuestions": "Show Questions",
+    "hideQuestions": "Hide Questions",
+    "semester": "Semester",
+    "part": "Part",
+    "examCount": "{count} exams",
+    "viewMode": {
+      "flat": "Flat List",
+      "grouped": "Session View"
+    },
+    "session": {
+      "title": "Exam Session",
+      "examCount": "{ready} of {total} ready",
+      "totalQuestions": "{count} questions",
+      "noSessions": "No sessions yet",
+      "tags": "Tags",
+      "season": {
+        "sommer": "Summer",
+        "winter": "Winter"
+      }
+    },
+    "upload": {
+      "title": "Upload Exam",
+      "dropzone": "Drop PDF here or click to browse",
+      "submit": "Submit",
+      "success": "Exam submitted — awaiting moderation",
+      "subscriptionRequired": "Active subscription required",
+      "virusDetected": "File rejected — security issue",
+      "pdfOnly": "Only PDF files allowed"
+    },
+    "moderation": {
+      "pendingReview": "Pending Review",
+      "approve": "Approve",
+      "reject": "Reject",
+      "notes": "Moderation notes",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "examTrainer": {
+    "title": "Exam Trainer",
+    "subtitle": "Practice with real exam questions",
+    "tabs": {
+      "exams": "Exams",
+      "topics": "Topics",
+      "practice": "Question"
+    },
+    "selectExam": "Select an exam to practice",
+    "noExams": "No exams available. The admin needs to import and analyze exams first.",
+    "startExam": "Start Exam",
+    "questions": "{count} questions",
+    "topicHeatmap": "Topic Overview",
+    "topicHeatmapDesc": "Click a topic to practice specifically",
+    "noTopics": "No topics available yet",
+    "attempts": "{count} attempts",
+    "correctRate": "{rate}% correct",
+    "notAttempted": "Not practiced yet",
+    "strong": "Strong",
+    "medium": "Medium",
+    "weak": "Weak",
+    "question": "Question {number}",
+    "scenario": "Scenario",
+    "yourAnswer": "Your answer",
+    "submit": "Submit Answer",
+    "correct": "Correct!",
+    "incorrect": "Incorrect",
+    "explanation": "Explanation",
+    "nextQuestion": "Next Question",
+    "examComplete": "Exam Complete!",
+    "score": "Score: {score}/{total} points ({percentage}%)",
+    "passed": "Passed!",
+    "failed": "Not passed",
+    "backToExams": "Back to overview",
+    "points": "{count} points",
+    "questionOf": "Question {current} of {total}"
   },
   "title": "Administration"
 }

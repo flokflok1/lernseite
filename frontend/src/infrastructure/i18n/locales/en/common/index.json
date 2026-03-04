@@ -127,7 +127,8 @@
     "home": "Home",
     "panel": "Admin Panel",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "examTrainer": "Exam Trainer"
   },
   "time": {
     "days_ago": "{n} days ago",

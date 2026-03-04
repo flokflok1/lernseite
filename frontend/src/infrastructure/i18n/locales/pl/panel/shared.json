@@ -89,7 +89,110 @@
     "settings": "Ustawienia",
     "systemSettings": "Ustawienia systemu",
     "translations": "Tłumaczenia",
+    "examArchive": "Archiwum egzaminów",
+    "examTrainer": "Trener egzaminów",
     "users": "Użytkownicy"
+  },
+  "examArchive": {
+    "title": "Archiwum egzaminów",
+    "subtitle": "Importuj egzaminy i analizuj za pomocą AI",
+    "scanFolder": "Skanuj folder",
+    "scanning": "Skanowanie folderu...",
+    "importAll": "Importuj wszystko",
+    "importing": "Importowanie...",
+    "analyzeAll": "Analizuj wszystko",
+    "analyzing": "Analizowanie...",
+    "noExams": "Brak zaimportowanych egzaminów",
+    "noPapersFound": "Nie znaleziono plików PDF w folderze",
+    "scanFirst": "Najpierw zeskanuj folder egzaminów, aby znaleźć egzaminy.",
+    "papersFound": "Znaleziono {count} arkuszy egzaminacyjnych",
+    "importSuccess": "{imported} zaimportowano, {skipped} pominięto",
+    "analyzeTriggered": "Uruchomiono {count} analiz",
+    "status": {
+      "pending": "Oczekuje",
+      "analyzing": "Analizowanie",
+      "ready": "Gotowy",
+      "failed": "Niepowodzenie"
+    },
+    "questions": "{count} pytań",
+    "noQuestions": "Brak pytań (jeszcze nie przeanalizowano)",
+    "topics": "Tematy",
+    "points": "{count} punktów",
+    "analyze": "Analizuj",
+    "showQuestions": "Pokaż pytania",
+    "hideQuestions": "Ukryj pytania",
+    "semester": "Semestr",
+    "part": "Część",
+    "examCount": "{count} egzaminów",
+    "viewMode": {
+      "flat": "Lista płaska",
+      "grouped": "Widok sesji"
+    },
+    "session": {
+      "title": "Sesja egzaminacyjna",
+      "examCount": "{ready} z {total} gotowe",
+      "totalQuestions": "{count} pytań",
+      "noSessions": "Brak sesji",
+      "tags": "Tagi",
+      "season": {
+        "sommer": "Lato",
+        "winter": "Zima"
+      }
+    },
+    "upload": {
+      "title": "Prześlij egzamin",
+      "dropzone": "Upuść plik PDF lub kliknij, aby wybrać",
+      "submit": "Wyślij",
+      "success": "Egzamin przesłany — oczekuje na moderację",
+      "subscriptionRequired": "Wymagana aktywna subskrypcja",
+      "virusDetected": "Plik odrzucony — problem bezpieczeństwa",
+      "pdfOnly": "Dozwolone tylko pliki PDF"
+    },
+    "moderation": {
+      "pendingReview": "Oczekuje na przegląd",
+      "approve": "Zatwierdź",
+      "reject": "Odrzuć",
+      "notes": "Notatki moderacyjne",
+      "approved": "Zatwierdzone",
+      "rejected": "Odrzucone"
+    }
+  },
+  "examTrainer": {
+    "title": "Trener egzaminów",
+    "subtitle": "Ćwicz z prawdziwymi pytaniami egzaminacyjnymi",
+    "tabs": {
+      "exams": "Egzaminy",
+      "topics": "Tematy",
+      "practice": "Pytanie"
+    },
+    "selectExam": "Wybierz egzamin do ćwiczenia",
+    "noExams": "Brak dostępnych egzaminów. Administrator musi najpierw zaimportować i przeanalizować egzaminy.",
+    "startExam": "Rozpocznij egzamin",
+    "questions": "{count} pytań",
+    "topicHeatmap": "Przegląd tematów",
+    "topicHeatmapDesc": "Kliknij temat, aby ćwiczyć celowo",
+    "noTopics": "Brak dostępnych tematów",
+    "attempts": "{count} prób",
+    "correctRate": "{rate}% poprawnych",
+    "notAttempted": "Jeszcze nie ćwiczono",
+    "strong": "Mocny",
+    "medium": "Średni",
+    "weak": "Słaby",
+    "question": "Pytanie {number}",
+    "scenario": "Scenariusz",
+    "yourAnswer": "Twoja odpowiedź",
+    "submit": "Prześlij odpowiedź",
+    "correct": "Poprawnie!",
+    "incorrect": "Niepoprawnie",
+    "explanation": "Wyjaśnienie",
+    "nextQuestion": "Następne pytanie",
+    "examComplete": "Egzamin zakończony!",
+    "score": "Wynik: {score}/{total} punktów ({percentage}%)",
+    "passed": "Zdany!",
+    "failed": "Niezdany",
+    "backToExams": "Powrót do przeglądu",
+    "points": "{count} punktów",
+    "questionOf": "Pytanie {current} z {total}"
   },
   "title": "Administracja"
 }

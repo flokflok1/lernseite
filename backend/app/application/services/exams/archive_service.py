@@ -28,6 +28,10 @@ from typing import Optional, List, Dict, Any
 from app.infrastructure.persistence.repositories.exams.core import (
     ExamRepository
 )
+from app.infrastructure.persistence.repositories.exams.sessions import (
+    ExamSessionRepository
+)
+from app.infrastructure.persistence.database.connection import execute_query
 from app.application.services.exams.archive_service_part2 import (
     extract_text,
     IMAGE_EXTENSIONS,
@@ -158,6 +162,26 @@ def _parse_filename(filename: str, parent_folder: str) -> Dict[str, Any]:
         meta['semester'] = None
 
     return meta
+
+
+# Profession string -> exam_type_registry key
+PROFESSION_TO_TYPE = {
+    'fisi': 'IHK_FISI',
+    'fiae': 'IHK_FIAE',
+    'fachinformatiker systemintegration': 'IHK_FISI',
+    'fachinformatiker anwendungsentwicklung': 'IHK_FIAE',
+}
+
+
+def _resolve_exam_type_key(profession: str) -> str:
+    """Map profession string to exam_type_registry key."""
+    if not profession:
+        return 'IHK_FISI'
+    key = profession.lower().strip()
+    for pattern, type_key in PROFESSION_TO_TYPE.items():
+        if pattern in key:
+            return type_key
+    return 'IHK_FISI'
 
 
 class ExamArchiveService:
@@ -294,11 +318,29 @@ class ExamArchiveService:
 
         result = ExamRepository.create_exam(exam_data)
         if result:
-            logger.info(
-                "Imported exam: %s (id=%s)",
-                title, result.get('exam_id')
-            )
-            return result.get('exam_id')
+            exam_id = result.get('exam_id')
+            logger.info("Imported exam: %s (id=%s)", title, exam_id)
+
+            # Assign to session if year+season available
+            if meta.get('year') and meta.get('season'):
+                type_key = _resolve_exam_type_key(
+                    meta.get('profession', '')
+                )
+                session = ExamSessionRepository.find_or_create(
+                    exam_type_key=type_key,
+                    region=meta.get('region', 'alle'),
+                    year=meta['year'],
+                    season=meta['season'],
+                )
+                if session:
+                    execute_query(
+                        """UPDATE assessments.exams
+                           SET session_id = %s, exam_type_key = %s
+                           WHERE exam_id = %s""",
+                        [session['session_id'], type_key, exam_id],
+                    )
+
+            return exam_id
 
         logger.error("Failed to create exam record for: %s", filepath)
         return None

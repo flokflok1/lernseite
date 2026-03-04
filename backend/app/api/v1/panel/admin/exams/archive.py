@@ -20,6 +20,9 @@ from app.infrastructure.persistence.repositories.exams.core import (
     ExamRepository,
     ExamQuestionRepository,
 )
+from app.infrastructure.persistence.repositories.exams.sessions import (
+    ExamSessionRepository,
+)
 from app.infrastructure.tasks.exam_archive_tasks import analyze_exam_pdf_task
 
 logger = logging.getLogger(__name__)
@@ -232,6 +235,75 @@ def get_exam_questions(exam_id):
         'count': len(questions),
         'questions': _serialize_question_list(questions),
     })
+
+
+@archive_bp.route('/sessions', methods=['GET'])
+@admin_required
+def list_sessions():
+    """Grouped view: exam_type -> region -> sessions with counts."""
+    exam_type = request.args.get('exam_type')
+    rows = ExamSessionRepository.find_sessions_grouped(exam_type)
+
+    grouped = {}
+    for row in rows:
+        etype = row['exam_type']
+        if etype not in grouped:
+            grouped[etype] = {
+                'exam_type': etype,
+                'display_name': row['type_display_name'],
+                'parts': row['type_parts'],
+                'regions': {},
+            }
+        region = row['region']
+        if region not in grouped[etype]['regions']:
+            grouped[etype]['regions'][region] = {
+                'region_code': region,
+                'region_name': row['region_name'],
+                'sessions': [],
+            }
+        grouped[etype]['regions'][region]['sessions'].append({
+            'session_id': str(row['session_id']),
+            'year': row['year'],
+            'season': row['season'],
+            'tags': row['tags'] or [],
+            'exam_count': row['exam_count'],
+            'ready_count': row['ready_count'],
+            'total_questions': row['total_questions'] or 0,
+        })
+
+    return jsonify({'groups': list(grouped.values())}), 200
+
+
+@archive_bp.route('/sessions/<session_id>/exams', methods=['GET'])
+@admin_required
+def list_session_exams(session_id):
+    """List individual exams (GA1, GA2, WK) within a session."""
+    exams = ExamSessionRepository.find_exams_by_session(session_id)
+    return jsonify({
+        'exams': [
+            {
+                'exam_id': str(e['exam_id']),
+                'title': e.get('title', ''),
+                'part': e.get('part'),
+                'analysis_status': e.get('analysis_status', 'pending'),
+                'upload_source': e.get('upload_source', 'admin'),
+                'question_count': e.get('question_count', 0),
+            }
+            for e in exams
+        ],
+    }), 200
+
+
+@archive_bp.route('/sessions/<session_id>/tags', methods=['PATCH'])
+@admin_required
+def update_session_tags(session_id):
+    """Update tags on a session."""
+    data = request.get_json()
+    tags = data.get('tags', [])
+    updated = ExamSessionRepository.update_tags(session_id, tags)
+    if not updated:
+        return jsonify({'error': 'Session not found'}), 404
+    return jsonify({'session_id': str(updated['session_id'])}), 200
 
 
 def _serialize_exam_list(exams: list) -> list:

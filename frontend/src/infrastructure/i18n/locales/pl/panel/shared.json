@@ -123,7 +123,39 @@
     "hideQuestions": "Ukryj pytania",
     "semester": "Semestr",
     "part": "Część",
-    "examCount": "{count} egzaminów"
+    "examCount": "{count} egzaminów",
+    "viewMode": {
+      "flat": "Lista płaska",
+      "grouped": "Widok sesji"
+    },
+    "session": {
+      "title": "Sesja egzaminacyjna",
+      "examCount": "{ready} z {total} gotowe",
+      "totalQuestions": "{count} pytań",
+      "noSessions": "Brak sesji",
+      "tags": "Tagi",
+      "season": {
+        "sommer": "Lato",
+        "winter": "Zima"
+      }
+    },
+    "upload": {
+      "title": "Prześlij egzamin",
+      "dropzone": "Upuść plik PDF lub kliknij, aby wybrać",
+      "submit": "Wyślij",
+      "success": "Egzamin przesłany — oczekuje na moderację",
+      "subscriptionRequired": "Wymagana aktywna subskrypcja",
+      "virusDetected": "Plik odrzucony — problem bezpieczeństwa",
+      "pdfOnly": "Dozwolone tylko pliki PDF"
+    },
+    "moderation": {
+      "pendingReview": "Oczekuje na przegląd",
+      "approve": "Zatwierdź",
+      "reject": "Odrzuć",
+      "notes": "Notatki moderacyjne",
+      "approved": "Zatwierdzone",
+      "rejected": "Odrzucone"
+    }
   },
   "examTrainer": {
     "title": "Trener egzaminów",

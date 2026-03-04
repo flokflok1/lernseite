@@ -123,7 +123,39 @@
     "hideQuestions": "Aufgaben verbergen",
     "semester": "Semester",
     "part": "Teil",
-    "examCount": "{count} Prüfungen"
+    "examCount": "{count} Prüfungen",
+    "viewMode": {
+      "flat": "Flache Liste",
+      "grouped": "Sitzungsansicht"
+    },
+    "session": {
+      "title": "Prüfungssitzung",
+      "examCount": "{ready} von {total} bereit",
+      "totalQuestions": "{count} Aufgaben",
+      "noSessions": "Noch keine Sitzungen",
+      "tags": "Tags",
+      "season": {
+        "sommer": "Sommer",
+        "winter": "Winter"
+      }
+    },
+    "upload": {
+      "title": "Prüfung hochladen",
+      "dropzone": "PDF hier ablegen oder klicken",
+      "submit": "Einreichen",
+      "success": "Prüfung eingereicht — wird moderiert",
+      "subscriptionRequired": "Aktives Abo erforderlich",
+      "virusDetected": "Datei abgelehnt — Sicherheitsproblem",
+      "pdfOnly": "Nur PDF-Dateien erlaubt"
+    },
+    "moderation": {
+      "pendingReview": "Wartet auf Überprüfung",
+      "approve": "Genehmigen",
+      "reject": "Ablehnen",
+      "notes": "Moderationsnotizen",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    }
   },
   "examTrainer": {
     "title": "Prüfungstrainer",

@@ -23,9 +23,25 @@
     <!-- Action Bar -->
     <div class="bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 py-3">
       <div class="flex items-center justify-between flex-wrap gap-2">
-        <p class="text-sm font-medium text-[var(--color-text-primary)]">
-          {{ t('panel.examArchive.examCount', { count: exams.length }) }}
-        </p>
+        <div class="flex items-center gap-3">
+          <p class="text-sm font-medium text-[var(--color-text-primary)]">
+            {{ t('panel.examArchive.examCount', { count: exams.length }) }}
+          </p>
+          <!-- View Mode Toggle -->
+          <div class="flex rounded-lg border border-[var(--color-border)] overflow-hidden">
+            <button
+              v-for="mode in (['flat', 'grouped'] as const)"
+              :key="mode"
+              @click="viewMode = mode"
+              class="px-3 py-1 text-xs font-medium transition-colors"
+              :class="viewMode === mode
+                ? 'bg-[var(--color-primary)] text-white'
+                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'"
+            >
+              {{ t(`panel.examArchive.viewMode.${mode}`) }}
+            </button>
+          </div>
+        </div>
         <div class="flex gap-2">
           <!-- Scan Folder -->
           <button
@@ -93,10 +109,10 @@
       </div>
     </div>
 
-    <!-- Exam List -->
+    <!-- Content -->
     <div v-else class="flex-1 overflow-y-auto p-4">
       <!-- Empty State -->
-      <div v-if="exams.length === 0" class="text-center py-12">
+      <div v-if="exams.length === 0 && sessionGroups.length === 0" class="text-center py-12">
         <div class="text-6xl mb-4 opacity-30">📄</div>
         <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
           {{ t('panel.examArchive.noExams') }}
@@ -106,7 +122,26 @@
         </p>
       </div>
 
-      <!-- Exam Cards -->
+      <!-- Grouped Session View -->
+      <div v-else-if="viewMode === 'grouped'" class="space-y-6">
+        <div v-if="loadingSessions" class="flex justify-center py-8">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]" />
+        </div>
+        <p
+          v-else-if="sessionGroups.length === 0"
+          class="text-sm text-[var(--color-text-secondary)] text-center py-8"
+        >
+          {{ t('panel.examArchive.session.noSessions') }}
+        </p>
+        <ExamTypeSection
+          v-else
+          v-for="group in sessionGroups"
+          :key="group.exam_type"
+          :group="group"
+        />
+      </div>
+
+      <!-- Flat List View -->
       <div v-else class="space-y-3">
         <ExamArchiveCard
           v-for="exam in exams"
@@ -120,24 +155,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ScannedPaper, ArchiveExam } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+import type { ScannedPaper, ArchiveExam, SessionGroup } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 import {
   archiveScanFolder,
   archiveImportPapers,
   archiveAnalyzeExam,
   archiveAnalyzeAll,
-  archiveListExams
+  archiveListExams,
+  archiveListSessions,
 } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 import ExamArchiveCard from './ExamArchiveCard.vue'
+import { ExamTypeSection } from './sessions'
 
 const { t } = useI18n()
 
 // State
+const viewMode = ref<'flat' | 'grouped'>('grouped')
 const exams = ref<ArchiveExam[]>([])
+const sessionGroups = ref<SessionGroup[]>([])
 const scannedPapers = ref<ScannedPaper[]>([])
 const loading = ref(false)
+const loadingSessions = ref(false)
 const scanning = ref(false)
 const importing = ref(false)
 const analyzingAll = ref(false)
@@ -162,6 +202,24 @@ const loadExams = async () => {
     console.error('Failed to load archive exams:', err)
   }
 }
+
+const loadSessions = async () => {
+  loadingSessions.value = true
+  try {
+    sessionGroups.value = await archiveListSessions()
+  } catch (err) {
+    console.error('Failed to load sessions:', err)
+  } finally {
+    loadingSessions.value = false
+  }
+}
+
+// Load sessions when switching to grouped view
+watch(viewMode, (mode) => {
+  if (mode === 'grouped' && sessionGroups.value.length === 0) {
+    loadSessions()
+  }
+})
 
 const handleScan = async () => {
   scanning.value = true
@@ -246,7 +304,7 @@ const stopAutoRefresh = () => {
 // Lifecycle
 onMounted(async () => {
   loading.value = true
-  await loadExams()
+  await Promise.all([loadExams(), loadSessions()])
   loading.value = false
 
   if (hasAnalyzingExams.value) {

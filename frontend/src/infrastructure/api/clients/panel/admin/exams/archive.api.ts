@@ -91,3 +91,55 @@ export const archiveGetQuestions = async (
   }>(`/admin/exams/archive/${examId}/questions`)
   return response.data.questions
 }
+
+// --- Session Grouping ---
+
+export interface ExamSession {
+  session_id: string
+  year: number
+  season: string
+  tags: string[]
+  exam_count: number
+  ready_count: number
+  total_questions: number
+}
+
+export interface SessionRegion {
+  region_code: string
+  region_name: Record<string, string> | null
+  sessions: ExamSession[]
+}
+
+export interface SessionGroup {
+  exam_type: string
+  display_name: Record<string, string>
+  parts: string[]
+  regions: Record<string, SessionRegion>
+}
+
+export const archiveListSessions = async (
+  examType?: string
+): Promise<SessionGroup[]> => {
+  const params = examType ? { exam_type: examType } : {}
+  const response = await http.get<{ groups: SessionGroup[] }>(
+    '/admin/exam-archive/sessions',
+    { params }
+  )
+  return response.data.groups
+}
+
+export const archiveSessionExams = async (
+  sessionId: string
+): Promise<ArchiveExam[]> => {
+  const response = await http.get<{ exams: ArchiveExam[] }>(
+    `/admin/exam-archive/sessions/${sessionId}/exams`
+  )
+  return response.data.exams
+}
+
+export const archiveUpdateSessionTags = async (
+  sessionId: string,
+  tags: string[]
+): Promise<void> => {
+  await http.patch(`/admin/exam-archive/sessions/${sessionId}/tags`, { tags })
+}

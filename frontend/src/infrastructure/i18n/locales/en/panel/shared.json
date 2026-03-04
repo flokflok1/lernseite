@@ -123,7 +123,39 @@
     "hideQuestions": "Hide Questions",
     "semester": "Semester",
     "part": "Part",
-    "examCount": "{count} exams"
+    "examCount": "{count} exams",
+    "viewMode": {
+      "flat": "Flat List",
+      "grouped": "Session View"
+    },
+    "session": {
+      "title": "Exam Session",
+      "examCount": "{ready} of {total} ready",
+      "totalQuestions": "{count} questions",
+      "noSessions": "No sessions yet",
+      "tags": "Tags",
+      "season": {
+        "sommer": "Summer",
+        "winter": "Winter"
+      }
+    },
+    "upload": {
+      "title": "Upload Exam",
+      "dropzone": "Drop PDF here or click to browse",
+      "submit": "Submit",
+      "success": "Exam submitted — awaiting moderation",
+      "subscriptionRequired": "Active subscription required",
+      "virusDetected": "File rejected — security issue",
+      "pdfOnly": "Only PDF files allowed"
+    },
+    "moderation": {
+      "pendingReview": "Pending Review",
+      "approve": "Approve",
+      "reject": "Reject",
+      "notes": "Moderation notes",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
   },
   "examTrainer": {
     "title": "Exam Trainer",

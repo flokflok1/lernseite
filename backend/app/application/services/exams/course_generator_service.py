@@ -23,6 +23,7 @@ class ExamCourseGeneratorService:
     def preview(
         exam_type_key: str,
         region: str = 'alle',
+        language: str = 'de',
     ) -> ExamCoursePlan:
         """
         Build a course plan without persisting anything.
@@ -65,7 +66,7 @@ class ExamCourseGeneratorService:
             ))
 
         simulation_exam_ids = _find_simulation_exams(exam_type_key, region)
-        title = _build_title(exam_type_key, region)
+        title = _build_title(exam_type_key, region, language)
 
         return ExamCoursePlan(
             title=title,
@@ -123,19 +124,27 @@ def _find_simulation_exams(
     )
 
 
-def _build_title(exam_type_key: str, region: str) -> str:
+def _build_title(
+    exam_type_key: str, region: str, language: str = 'de',
+) -> str:
     """Build a human-readable course title from DB display_name fields."""
     type_row = ExamSessionRepository.find_type_display_name(exam_type_key)
     if type_row and type_row.get('display_name'):
         dn = type_row['display_name']
-        type_label = dn.get('de', exam_type_key) if isinstance(dn, dict) else str(dn)
+        type_label = (
+            dn.get(language, dn.get('de', exam_type_key))
+            if isinstance(dn, dict) else str(dn)
+        )
     else:
         type_label = exam_type_key
 
     region_row = ExamSessionRepository.find_region_display_name(region)
     if region_row and region_row.get('display_name'):
         dn = region_row['display_name']
-        region_label = dn.get('de', region) if isinstance(dn, dict) else str(dn)
+        region_label = (
+            dn.get(language, dn.get('de', region))
+            if isinstance(dn, dict) else str(dn)
+        )
     else:
         region_label = region
 

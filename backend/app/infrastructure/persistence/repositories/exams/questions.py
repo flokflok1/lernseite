@@ -4,6 +4,7 @@ ExamQuestionRepository — CRUD + queries for exam_questions table.
 Split from core.py per G01 (500 LOC limit).
 """
 
+import logging
 from typing import Optional, List, Dict, Any
 import json
 
@@ -15,6 +16,8 @@ from app.infrastructure.persistence.database.connection import (
     update_returning,
     delete_returning,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ExamQuestionRepository(BaseRepository):
@@ -66,9 +69,9 @@ class ExamQuestionRepository(BaseRepository):
             for question_data in questions:
                 cls.create_question(question_data)
             return True
-        except Exception as e:
-            print(f"Error bulk creating questions: {e}")
-            return False
+        except Exception:
+            logger.exception("Error bulk creating questions")
+            raise
 
     @classmethod
     def update_question(cls, question_id: str, update_data: Dict[str, Any]) -> Optional[Dict]:
@@ -144,6 +147,6 @@ class ExamQuestionRepository(BaseRepository):
                     'question_id'
                 )
             return True
-        except Exception as e:
-            print(f"Error reordering questions: {e}")
-            return False
+        except Exception:
+            logger.exception("Error reordering questions")
+            raise

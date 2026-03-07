@@ -32,8 +32,11 @@ def preview_course():
         return jsonify({'error': 'exam_type is required'}), 400
 
     region = data.get('region', 'alle')
+    language = data.get('language', 'de')
 
-    plan = ExamCourseGeneratorService.preview(exam_type, region)
+    plan = ExamCourseGeneratorService.preview(
+        exam_type, region, language,
+    )
 
     return jsonify({
         'success': True,
@@ -57,10 +60,14 @@ def generate_course():
 
     region = data.get('region', 'alle')
     options = data.get('options', {})
+    language = data.get('language', 'de')
+    options.setdefault('language', language)
     user_id = get_jwt_identity()
 
     # First generate the plan
-    plan = ExamCourseGeneratorService.preview(exam_type, region)
+    plan = ExamCourseGeneratorService.preview(
+        exam_type, region, language,
+    )
 
     if not plan.chapters:
         return jsonify({

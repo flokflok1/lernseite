@@ -67,46 +67,17 @@ class CourseGeneratorBuilder:
             {course_id, chapters_count, lm_count, tokens_used}
         """
         options = options or {}
-        total_lm_count = 0
-        total_tokens = 0
-
         language = options.get('language', 'de')
 
-        # 1. Create course
-        descriptions = {
-            'de': f'Automatisch generiert aus {plan.total_questions} '
-                  f'echten Pruefungsaufgaben.',
-            'en': f'Auto-generated from {plan.total_questions} '
-                  f'real exam questions.',
-        }
-        course = CourseRepositoryCRUD.create({
-            'title': plan.title,
-            'creator_id': creator_user_id,
-            'description': descriptions.get(language, descriptions['de']),
-            'tags': ['exam-based', 'auto-generated', plan.exam_type.lower()],
-            'level': 'intermediate',
-        })
-        course_id = str(course['course_id'])
-        logger.info("Created course %s: %s", course_id, plan.title)
+        course_id = _create_course(plan, creator_user_id, language)
 
-        # 2. Build chapters
-        for idx, chapter_plan in enumerate(plan.chapters):
-            chapter_result = _build_chapter(
-                course_id, chapter_plan, idx, options, language,
-            )
-            total_lm_count += chapter_result['lm_count']
-            total_tokens += chapter_result.get('tokens_used', 0)
-
-        # 3. Build simulation chapters
-        for sim_exam_id in plan.simulation_exam_ids:
-            sim_result = _build_simulation_chapter(
-                course_id, sim_exam_id,
-            )
-            total_lm_count += sim_result['lm_count']
+        total_lm_count, total_tokens = _build_all_chapters(
+            course_id, plan, options, language,
+        )
 
         logger.info(
-            "Course generation complete: %s — %d chapters, %d LMs, %d tokens",
-            course_id, len(plan.chapters), total_lm_count, total_tokens,
+            "Course generation complete: %s — %d chapters, %d LMs",
+            course_id, len(plan.chapters), total_lm_count,
         )
 
         return {
@@ -117,6 +88,52 @@ class CourseGeneratorBuilder:
             'lm_count': total_lm_count,
             'tokens_used': total_tokens,
         }
+
+
+def _create_course(
+    plan: ExamCoursePlan, creator_user_id: str, language: str,
+) -> str:
+    """Create the course record and return course_id."""
+    descriptions = {
+        'de': f'Automatisch generiert aus {plan.total_questions} '
+              f'echten Pruefungsaufgaben.',
+        'en': f'Auto-generated from {plan.total_questions} '
+              f'real exam questions.',
+    }
+    course = CourseRepositoryCRUD.create({
+        'title': plan.title,
+        'creator_id': creator_user_id,
+        'description': descriptions.get(language, descriptions['de']),
+        'tags': ['exam-based', 'auto-generated', plan.exam_type.lower()],
+        'level': 'intermediate',
+    })
+    course_id = str(course['course_id'])
+    logger.info("Created course %s: %s", course_id, plan.title)
+    return course_id
+
+
+def _build_all_chapters(
+    course_id: str,
+    plan: ExamCoursePlan,
+    options: Dict[str, Any],
+    language: str,
+) -> tuple:
+    """Build topic chapters + simulation chapters. Returns (lm_count, tokens)."""
+    total_lm = 0
+    total_tokens = 0
+
+    for idx, chapter_plan in enumerate(plan.chapters):
+        result = _build_chapter(
+            course_id, chapter_plan, idx, options, language,
+        )
+        total_lm += result['lm_count']
+        total_tokens += result.get('tokens_used', 0)
+
+    for sim_exam_id in plan.simulation_exam_ids:
+        sim = _build_simulation_chapter(course_id, sim_exam_id)
+        total_lm += sim['lm_count']
+
+    return total_lm, total_tokens
 
 
 def _build_chapter(
@@ -141,14 +158,31 @@ def _build_chapter(
     })
     chapter_id = str(chapter['chapter_id'])
 
-    # Fetch full question data for this chapter
+    questions = _fetch_chapter_questions(chapter_plan.question_ids)
+
+    return _create_lm_instances(
+        chapter_id, chapter_plan, questions, options, language,
+    )
+
+
+def _fetch_chapter_questions(question_ids: List[str]) -> List[Dict]:
+    """Fetch full question data for a set of question IDs."""
     questions = []
-    for qid in chapter_plan.question_ids:
+    for qid in question_ids:
         q = ExamQuestionRepository.find_by_id(qid)
         if q:
             questions.append(q)
+    return questions
 
-    # Create LM instances for each selected type
+
+def _create_lm_instances(
+    chapter_id: str,
+    chapter_plan: ChapterPlan,
+    questions: List[Dict],
+    options: Dict[str, Any],
+    language: str,
+) -> Dict[str, Any]:
+    """Create LM instances for each selected type. Returns {lm_count, tokens_used}."""
     lm_count = 0
     tokens_used = 0
 
@@ -156,15 +190,10 @@ def _build_chapter(
         lm_data, used_tokens = _build_lm_data(
             lm_type, chapter_plan.topic, questions, options,
         )
-
         if lm_data is None:
             continue
 
-        suffixes = LM_TITLE_SUFFIXES.get(language, LM_TITLE_SUFFIXES['de'])
-        suffix = suffixes.get(lm_type, '')
-        topic_label = chapter_plan.topic.replace('_', ' ').title()
-        title = f'{topic_label} — {suffix}' if suffix else topic_label
-
+        title = _lm_title(chapter_plan.topic, lm_type, language)
         LearningMethodInstanceRepository.create({
             'chapter_id': chapter_id,
             'method_type': lm_type,
@@ -178,6 +207,14 @@ def _build_chapter(
         tokens_used += used_tokens
 
     return {'lm_count': lm_count, 'tokens_used': tokens_used}
+
+
+def _lm_title(topic: str, lm_type: int, language: str) -> str:
+    """Build a localized LM instance title."""
+    suffixes = LM_TITLE_SUFFIXES.get(language, LM_TITLE_SUFFIXES['de'])
+    suffix = suffixes.get(lm_type, '')
+    topic_label = topic.replace('_', ' ').title()
+    return f'{topic_label} — {suffix}' if suffix else topic_label
 
 
 def _build_simulation_chapter(
@@ -273,12 +310,13 @@ def _generate_deep_explanation(
     )
 
     prompt = build_deep_explanation_prompt(topic, questions)
+    language = options.get('language', 'de')
 
     try:
         adapter = _create_ai_adapter(options)
         response = adapter.send_request(
             prompt=prompt,
-            language='de',
+            language=language,
             temperature=0.5,
             max_tokens=4000,
         )
@@ -294,7 +332,7 @@ def _generate_deep_explanation(
     except Exception as e:
         logger.error("AI generation failed for %s: %s", topic, e)
         return {
-            'content': f'Thema: {topic.replace("_", " ").title()}',
+            'content': topic.replace('_', ' ').title(),
             'topic': topic,
             'source_questions': len(questions),
         }, 0
@@ -311,12 +349,13 @@ def _generate_step_by_step(
     )
 
     prompt = build_step_by_step_prompt(topic, questions)
+    language = options.get('language', 'de')
 
     try:
         adapter = _create_ai_adapter(options)
         response = adapter.send_request(
             prompt=prompt,
-            language='de',
+            language=language,
             temperature=0.5,
             max_tokens=4000,
         )

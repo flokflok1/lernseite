@@ -6,5 +6,6 @@ Application services for exam management:
 """
 
 from app.application.services.exams.archive_service import ExamArchiveService
+from app.application.services.exams.course_generator_service import ExamCourseGeneratorService
 
-__all__ = ['ExamArchiveService']
+__all__ = ['ExamArchiveService', 'ExamCourseGeneratorService']

@@ -35,8 +35,9 @@ class TokenBudget:
     @staticmethod
     def get_model_limits(provider: str, model: str) -> Dict[str, int]:
         """
-        Get context_window and max_output_tokens for a model.
-        Checks DB first, falls back to config.py.
+        Get context_window and max_output_tokens for a model from DB.
+
+        Falls back to safe defaults if model not found (e.g. during setup).
         """
         try:
             from app.infrastructure.persistence.repositories.ai_models.query import (
@@ -49,17 +50,10 @@ class TokenBudget:
                 if cw and mo:
                     return {'context_window': int(cw), 'max_output_tokens': int(mo)}
         except Exception:
-            pass
-
-        try:
-            from app.infrastructure.ai.config import PROVIDERS
-            cfg = PROVIDERS.get(provider, {}).get('models', {}).get(model, {})
-            return {
-                'context_window': cfg.get('context_window', 128000),
-                'max_output_tokens': cfg.get('max_tokens', 32000),
-            }
-        except Exception:
-            pass
+            logger.warning(
+                "Could not fetch model limits for '%s'/'%s' from DB, using defaults",
+                provider, model
+            )
 
         return {'context_window': 128000, 'max_output_tokens': 32000}
 

@@ -66,7 +66,9 @@ class AIModelSyncHelpers:
     @classmethod
     def _build_model_data(cls, model_id: str, provider: str) -> Dict[str, Any]:
         """
-        Build model data from model ID and static pricing
+        Build model data from model ID.
+
+        Pricing is $0.00 — admin sets prices in the panel after sync.
 
         Args:
             model_id: Model identifier
@@ -75,31 +77,21 @@ class AIModelSyncHelpers:
         Returns:
             Model data dictionary
         """
-        # Get pricing from static data
-        pricing = {}
-        if provider == 'openai':
-            pricing = cls.OPENAI_PRICES.get(model_id, {})
-        elif provider == 'anthropic':
-            pricing = cls.ANTHROPIC_PRICES.get(model_id, {})
-        elif provider == 'google':
-            pricing = cls.GOOGLE_PRICES.get(model_id, {})
-
         category = cls._get_category(model_id)
-        input_price = pricing.get('input_price', 0)
 
         return {
             'display_name': cls._format_display_name(model_id),
             'model_type': category if category in ['embedding', 'audio'] else 'chat',
             'category': category,
             'description': cls._get_model_description(model_id, provider),
-            'cost_level': cls._get_cost_level(input_price),
+            'cost_level': 'free',
             'speed': cls._get_speed(model_id, category),
-            'context_window': pricing.get('context_window'),
-            'max_output_tokens': pricing.get('max_tokens'),
+            'context_window': 0,
+            'max_output_tokens': 0,
             'supports_vision': cls._supports_vision(model_id, category),
             'supports_functions': category in ['chat', 'reasoning'],
-            'input_price_per_1k': input_price,
-            'output_price_per_1k': pricing.get('output_price', 0),
+            'input_price_per_1k': 0.0,
+            'output_price_per_1k': 0.0,
             'active': True,
             'is_default': False
         }

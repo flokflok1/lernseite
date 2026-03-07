@@ -227,9 +227,9 @@ class AISyncService:
         Prepare sync operations for models.
 
         Business Rules:
-        1. New models → Add as active
-        2. Existing models with price changes → Update
-        3. Missing models → Deactivate (don't delete)
+        1. New models → Add as active (pricing $0.00, admin sets later)
+        2. Missing models → Deactivate (don't delete)
+        3. Pricing is NEVER overwritten by sync — admin manages prices
 
         Args:
             provider_models: Models from provider API
@@ -251,21 +251,11 @@ class AISyncService:
             'deactivate': []
         }
 
-        # Identify new and updated models
+        # Identify new models only (no pricing updates)
         for provider_model in provider_models:
             identifier = provider_model.get('model_name')
-            existing = existing_identifiers.get(identifier)
-
-            if not existing:
-                # New model
+            if identifier not in existing_identifiers:
                 operations['add'].append(provider_model)
-            else:
-                # Check if pricing changed
-                if AISyncService._has_pricing_changed(provider_model, existing):
-                    operations['update'].append({
-                        'model_id': existing.get('model_id'),
-                        'changes': provider_model
-                    })
 
         # Identify models to deactivate
         for existing in existing_models:
@@ -274,28 +264,6 @@ class AISyncService:
                 operations['deactivate'].append(existing)
 
         return operations
-
-    @staticmethod
-    def _has_pricing_changed(
-        provider_model: Dict[str, Any],
-        existing_model: Dict[str, Any]
-    ) -> bool:
-        """
-        Check if model pricing has changed.
-
-        Args:
-            provider_model: Model from provider
-            existing_model: Existing model in database
-
-        Returns:
-            True if pricing changed
-        """
-        provider_input = Decimal(str(provider_model.get('input_cost_per_1k', 0)))
-        provider_output = Decimal(str(provider_model.get('output_cost_per_1k', 0)))
-        existing_input = Decimal(str(existing_model.get('input_cost_per_1k', 0)))
-        existing_output = Decimal(str(existing_model.get('output_cost_per_1k', 0)))
-
-        return provider_input != existing_input or provider_output != existing_output
 
 
 class AIHealthMonitoringService:

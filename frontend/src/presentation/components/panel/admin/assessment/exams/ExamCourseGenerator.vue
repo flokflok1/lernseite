@@ -26,7 +26,7 @@
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
           >
             <option v-for="et in examTypes" :key="et.exam_type" :value="et.exam_type">
-              {{ et.display_name?.de || et.exam_type }}
+              {{ et.display_name?.[locale] || et.display_name?.de || et.exam_type }}
             </option>
           </select>
         </div>
@@ -41,7 +41,7 @@
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
           >
             <option v-for="r in regions" :key="r.region_code" :value="r.region_code">
-              {{ r.display_name?.de || r.region_code }}
+              {{ r.display_name?.[locale] || r.display_name?.de || r.region_code }}
             </option>
           </select>
         </div>
@@ -206,7 +206,7 @@ import type { ExamRegion } from '@/infrastructure/api/clients/panel/admin/exams/
 import { adminGetAIModelsRegistry } from '@/infrastructure/api/clients/panel/admin/ai/models.api'
 import type { AIModelRegistryItem, AIProviderInfo } from '@/infrastructure/api/clients/panel/admin/types'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 // --- Exam type & region ---
 const examTypes = ref<ExamType[]>([])

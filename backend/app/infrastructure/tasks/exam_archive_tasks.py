@@ -15,6 +15,7 @@ from app.infrastructure.persistence.repositories.exams.core import ExamRepositor
 from app.infrastructure.persistence.repositories.exams.questions import (
     ExamQuestionRepository,
 )
+from app.domain.services.exam_topic_utils import normalize_topic
 from app.infrastructure.ai.adapter import AIAdapter
 from app.infrastructure.ai.exceptions import AIProviderError
 
@@ -282,7 +283,7 @@ def _build_question_records(
             'scenario_title': scenario.get('title', ''),
             'scenario_text': scenario.get('context', ''),
             'question_number': q.get('question_number', str(idx + 1)),
-            'topics': q.get('topics', []),
+            'topics': [normalize_topic(t) for t in (q.get('topics') or [])],
             'solution_text': q.get('solution_text', ''),
         }
         records.append(record)

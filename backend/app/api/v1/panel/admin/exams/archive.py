@@ -237,6 +237,14 @@ def get_exam_questions(exam_id):
     })
 
 
+@archive_bp.route('/regions', methods=['GET'])
+@admin_required
+def list_regions():
+    """List all available exam regions."""
+    regions = ExamSessionRepository.find_all_regions()
+    return jsonify({'regions': regions}), 200
+
+
 @archive_bp.route('/sessions', methods=['GET'])
 @admin_required
 def list_sessions():

@@ -197,6 +197,48 @@ class I18nBulkSeedRepository:
         cur.execute("DROP TABLE IF EXISTS _tmp_trans")
 
     @staticmethod
+    def sync_entity_display_name(namespace: str, key_path: str, display_name: dict):
+        """Sync a single entity's display_name dict into i18n keys + translations.
+
+        Used when creating/updating entities with multilingual display names
+        (e.g., exam_type_registry, exam_regions).
+        """
+        from app.infrastructure.persistence.database.connection import (
+            fetch_one, execute_query,
+        )
+
+        # Upsert key
+        execute_query(
+            "INSERT INTO translations.i18n_keys (namespace_code, key_path, default_value) "
+            "VALUES (%s, %s, %s) "
+            "ON CONFLICT (namespace_code, key_path) "
+            "  DO UPDATE SET default_value = EXCLUDED.default_value, updated_at = NOW()",
+            (namespace, key_path, display_name.get('de', '')),
+        )
+
+        row = fetch_one(
+            "SELECT key_id FROM translations.i18n_keys "
+            "WHERE namespace_code = %s AND key_path = %s",
+            (namespace, key_path),
+        )
+        if not row:
+            return
+
+        key_id = row['key_id']
+        for lang, value in display_name.items():
+            if not value:
+                continue
+            execute_query(
+                "INSERT INTO translations.i18n_translations "
+                "  (key_id, language_code, translated_value, translation_source) "
+                "VALUES (%s, %s, %s, 'imported') "
+                "ON CONFLICT (key_id, language_code) "
+                "  DO UPDATE SET translated_value = EXCLUDED.translated_value, "
+                "    updated_at = NOW()",
+                (key_id, lang, value),
+            )
+
+    @staticmethod
     def _update_language_progress(cur) -> None:
         """Update language progress stats once (replaces per-row trigger calls)."""
         cur.execute("""

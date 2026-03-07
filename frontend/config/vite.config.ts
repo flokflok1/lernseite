@@ -43,6 +43,13 @@ export default defineConfig({
         secure: false
       },
 
+      // Proxy setup wizard endpoint
+      '/setup': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false
+      },
+
       // Proxy Socket.IO for real-time features
       '/socket.io': {
         target: 'http://localhost:5000',

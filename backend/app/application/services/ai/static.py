@@ -20,8 +20,7 @@ from app.infrastructure.ai.exceptions import (
     AIInvalidKeyError,
     AITimeoutError
 )
-from app.infrastructure.ai.config import PROVIDERS
-
+from app.infrastructure.ai.config import DEFAULT_TTS_MODEL, DEFAULT_WHISPER_MODEL
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +38,7 @@ def _get_api_key_from_db(provider: str) -> Optional[str]:
         from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
         return AIProviderRepository.get_decrypted_api_key(provider)
     except Exception:
-        # If database is not available, return None to use env fallback
+        logger.warning("Could not fetch API key for '%s' from DB, using env fallback", provider)
         return None
 
 
@@ -67,10 +66,11 @@ def _get_openai_key() -> str:
 def chat_completion(
     messages: list,
     system_prompt: str = None,
-    model: str = 'gpt-4o-mini',
+    model: Optional[str] = None,
     max_tokens: Optional[int] = None,
     temperature: float = 0.7,
-    user_id: str = None
+    user_id: str = None,
+    provider: str = None
 ) -> Dict[str, Any]:
     """
     Convenience static method for chat completions.
@@ -78,10 +78,11 @@ def chat_completion(
     Args:
         messages: List of message dicts with 'role' and 'content'
         system_prompt: Optional system prompt
-        model: Model name (default: gpt-4o-mini)
+        model: Model name (None = default from DB)
         max_tokens: Maximum output tokens
         temperature: Randomness (0.0-1.0)
         user_id: Optional user ID for logging
+        provider: Provider name (auto-detected from model if not set)
 
     Returns:
         {
@@ -96,14 +97,12 @@ def chat_completion(
     # Import here to avoid circular imports
     from .adapter import AIAdapter
 
-    # Determine provider from model name
-    provider = 'openai'
-    if model.startswith('claude'):
-        provider = 'anthropic'
-    elif model.startswith('gemini'):
-        provider = 'google'
+    # Detect provider from model name if not explicitly given
+    if not provider and model:
+        provider = AIAdapter.detect_provider(model)
 
-    adapter = AIAdapter(provider=provider, model=model)
+    # AIAdapter resolves default model from DB when model=None
+    adapter = AIAdapter(provider=provider, model=model) if provider else AIAdapter(model=model)
 
     # Prepare messages
     formatted_messages = []
@@ -136,7 +135,7 @@ def chat_completion(
 def text_to_speech(
     text: str,
     voice: str = 'alloy',
-    model: str = 'tts-1',
+    model: Optional[str] = None,
     speed: float = 1.0
 ) -> bytes:
     """
@@ -145,7 +144,7 @@ def text_to_speech(
     Args:
         text: Text to convert to speech
         voice: Voice ID (alloy, echo, fable, onyx, nova, shimmer)
-        model: TTS model (tts-1 or tts-1-hd)
+        model: TTS model (None = resolved from infrastructure defaults)
         speed: Speech speed (0.25 to 4.0)
 
     Returns:
@@ -157,20 +156,10 @@ def text_to_speech(
         AIInvalidKeyError: On invalid API key
         AIProviderError: On other API errors
     """
-    logger.info("TTS: Attempting to get OpenAI API key from database...")
-    api_key = _get_api_key_from_db('openai')
+    if not model:
+        model = DEFAULT_TTS_MODEL
 
-    if api_key:
-        logger.info(f"TTS: Got API key from DB (length: {len(api_key)}, starts with: {api_key[:10]}...)")
-    else:
-        logger.warning("TTS: No API key found in database, trying environment variable...")
-        api_key = os.getenv('OPENAI_API_KEY')
-        if api_key:
-            logger.info(f"TTS: Got API key from env (length: {len(api_key)})")
-
-    if not api_key:
-        logger.error("TTS: No OpenAI API key configured!")
-        raise AIProviderError('OpenAI API key not configured. Set OPENAI_API_KEY or configure in Admin Panel.')
+    api_key = _get_openai_key()
 
     headers = {
         'Authorization': f'Bearer {api_key}',
@@ -212,7 +201,7 @@ def transcribe_audio(
     audio_path: str,
     language: str = None,
     prompt: str = None,
-    model: str = 'whisper-1'
+    model: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Transcribe audio to text using OpenAI Whisper.
@@ -221,7 +210,7 @@ def transcribe_audio(
         audio_path: Path to the audio file
         language: Optional language code (e.g., 'de', 'en')
         prompt: Optional context prompt to improve accuracy
-        model: Whisper model (default: whisper-1)
+        model: Whisper model (None = resolved from infrastructure defaults)
 
     Returns:
         {
@@ -237,13 +226,10 @@ def transcribe_audio(
         AIInvalidKeyError: On invalid API key
         AIProviderError: On other API errors
     """
-    api_key = _get_api_key_from_db('openai')
+    if not model:
+        model = DEFAULT_WHISPER_MODEL
 
-    if not api_key:
-        api_key = os.getenv('OPENAI_API_KEY')
-
-    if not api_key:
-        raise AIProviderError('OpenAI API key not configured. Set OPENAI_API_KEY or configure in Admin Panel.')
+    api_key = _get_openai_key()
 
     headers = {
         'Authorization': f'Bearer {api_key}'

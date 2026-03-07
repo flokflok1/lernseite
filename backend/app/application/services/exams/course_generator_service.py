@@ -8,6 +8,7 @@ import logging
 from typing import Dict, Any, Optional, List
 
 from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan
+from app.domain.services.exam_topic_utils import normalize_topic
 from app.domain.services.lm_content_mapper import LMContentMapper
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
 from app.infrastructure.persistence.repositories.exams.questions import ExamQuestionRepository
@@ -47,6 +48,7 @@ class ExamCourseGeneratorService:
             )
 
         topic_groups = _group_by_topic(questions)
+        topic_groups = _merge_small_topics(topic_groups)
 
         chapters = []
         for topic, topic_questions in sorted(
@@ -101,18 +103,40 @@ def _fetch_questions_for_course(
     )
 
 
+MIN_TOPIC_SIZE = 3  # Minimum questions for a standalone chapter
+
+
 def _group_by_topic(questions: List[Dict]) -> Dict[str, List[Dict]]:
-    """Group questions by their topics (a question can belong to multiple topics)."""
+    """Group questions by their normalized topics."""
     groups: Dict[str, List[Dict]] = {}
     for q in questions:
         topics = q.get('topics') or []
         if not topics:
             topics = ['allgemein']
         for topic in topics:
-            if topic not in groups:
-                groups[topic] = []
-            groups[topic].append(q)
+            normalized = normalize_topic(topic)
+            if normalized not in groups:
+                groups[normalized] = []
+            groups[normalized].append(q)
     return groups
+
+
+def _merge_small_topics(groups: Dict[str, List[Dict]]) -> Dict[str, List[Dict]]:
+    """Merge topics with fewer than MIN_TOPIC_SIZE questions into related larger topics."""
+    large = {k: v for k, v in groups.items() if len(v) >= MIN_TOPIC_SIZE}
+    small = {k: v for k, v in groups.items() if len(v) < MIN_TOPIC_SIZE}
+
+    for topic, questions in small.items():
+        merged = False
+        for parent in large:
+            if parent in topic or topic in parent:
+                large[parent].extend(questions)
+                merged = True
+                break
+        if not merged:
+            large.setdefault('allgemein', []).extend(questions)
+
+    return large
 
 
 def _find_simulation_exams(

@@ -1,12 +1,9 @@
 """
 LernsystemX AI Adapter Package
 
-Multi-provider AI integration with Factory Pattern:
-- OpenAI (GPT-4o, GPT-4o-mini)
-- Anthropic (Claude 3.5 Sonnet, Claude 3 Haiku)
-- Google (Gemini Pro, Gemini Flash)
-- Cohere (Command, Command Light)
-- HuggingFace (Open-source models)
+Multi-provider AI integration with Factory Pattern.
+Supported providers: OpenAI, Anthropic, Google, Cohere, HuggingFace.
+Model data and pricing are managed in the database (Single Source of Truth).
 
 Features:
 - Automatic provider selection based on configuration
@@ -15,11 +12,9 @@ Features:
 - Timeout management (<60s)
 - Request/response logging
 
-ISO 27001:2013 compliant - API key management and security
-
 Usage:
     >>> from app.application.services.ai import AIAdapter
-    >>> adapter = AIAdapter(provider='openai', model='gpt-4o-mini')
+    >>> adapter = AIAdapter()  # Uses default provider/model from DB
     >>> response = adapter.send_request(
     ...     prompt="Explain polymorphism in Python",
     ...     context="We are at OOP basics",
@@ -29,7 +24,7 @@ Usage:
 
     # Static convenience methods
     >>> from app.application.services.ai import chat_completion, text_to_speech
-    >>> result = chat_completion(messages=[...], model='gpt-4o-mini')
+    >>> result = chat_completion(messages=[...])
 """
 
 # Core adapter class (moved to infrastructure layer, bridge in ./adapter.py)
@@ -44,7 +39,11 @@ from app.infrastructure.ai.exceptions import (
 )
 
 # Configuration (moved to infrastructure layer)
-from app.infrastructure.ai.config import PROVIDERS, MODELS_USING_COMPLETION_TOKENS
+from app.infrastructure.ai.config import (
+    MODELS_USING_COMPLETION_TOKENS,
+    DEFAULT_TTS_MODEL,
+    DEFAULT_WHISPER_MODEL,
+)
 
 # Static convenience methods
 from .static import (
@@ -82,7 +81,6 @@ __all__ = [
     'AITimeoutError',
 
     # Configuration
-    'PROVIDERS',
     'MODELS_USING_COMPLETION_TOKENS',
 
     # Static methods

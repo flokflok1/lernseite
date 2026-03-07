@@ -8,7 +8,7 @@ import axios from 'axios'
 
 // Create separate axios instance for setup (no auth required)
 const setupHttp = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_SETUP_URL || '',
   headers: {
     'Content-Type': 'application/json',
   },

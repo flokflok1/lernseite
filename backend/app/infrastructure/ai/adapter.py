@@ -13,9 +13,12 @@ Features:
 ISO 27001:2013 compliant - API key management and security
 """
 
+import logging
 import os
 import time
 from typing import Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 from .exceptions import (
     AIProviderError,
@@ -39,19 +42,7 @@ except ImportError:
 
 
 class AIAdapter:
-    """
-    AI Adapter with multi-provider support using Factory Pattern.
-
-    Usage:
-        >>> adapter = AIAdapter(provider='openai', model='gpt-4o-mini')
-        >>> response = adapter.send_request(
-        ...     prompt="Explain polymorphism in Python",
-        ...     context="We are at OOP basics",
-        ...     language="de"
-        ... )
-        >>> print(response['output_text'])
-        >>> print(response['tokens_used'])
-    """
+    """AI Adapter with multi-provider support using Factory Pattern."""
 
     # Expose configuration as class attributes for backwards compatibility
     PROVIDERS = PROVIDERS
@@ -63,7 +54,7 @@ class AIAdapter:
 
         Args:
             provider: AI provider ('openai', 'anthropic', 'google', 'cohere', 'huggingface')
-            model: Model name (defaults to first model for provider)
+            model: Model name (defaults to default model from DB)
             timeout: Request timeout in seconds (default 55s, max 300s)
 
         Raises:
@@ -80,23 +71,21 @@ class AIAdapter:
         self.api_key = self._get_api_key_from_db(provider)
 
         if not self.api_key:
-            # Fallback to environment variable
             api_key_env = self.provider_config['api_key_env']
             self.api_key = os.getenv(api_key_env)
 
         if not self.api_key:
             api_key_env = self.provider_config['api_key_env']
-            raise AIInvalidKeyError(f'API key not found. Set {api_key_env} environment variable or configure in Admin Panel.')
+            raise AIInvalidKeyError(f'API key not found. Set {api_key_env} or configure in Admin Panel.')
 
-        # Set model (default to first/cheapest model)
-        available_models = list(self.provider_config['models'].keys())
-        self.model = model if model else available_models[0]
+        # Model from DB (Single Source of Truth)
+        if model:
+            self.model = model
+        else:
+            self.model = self._get_default_model(provider)
 
-        if self.model not in self.provider_config['models']:
-            raise ValueError(f'Invalid model: {self.model}. Available models: {", ".join(available_models)}')
-
-        # Get pricing
-        self.pricing = self.provider_config['models'][self.model]
+        # Pricing from DB
+        self.pricing = self._get_model_pricing(provider, self.model)
 
     @staticmethod
     def _get_api_key_from_db(provider: str) -> Optional[str]:
@@ -113,19 +102,67 @@ class AIAdapter:
             from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
             return AIProviderRepository.get_decrypted_api_key(provider)
         except Exception:
-            # If database is not available, return None to use env fallback
+            logger.warning("Could not fetch API key for '%s' from DB, using env fallback", provider)
             return None
+
+    @staticmethod
+    def _get_default_model(provider: str) -> str:
+        """Get default model for provider from DB."""
+        try:
+            from app.infrastructure.persistence.repositories.ai_models.query import AIModelsQueryRepository
+            models = AIModelsQueryRepository.get_by_provider(provider)
+            if models:
+                default = next((m for m in models if m.get('is_default')), None)
+                return default['model_name'] if default else models[0]['model_name']
+        except Exception:
+            logger.warning("Failed to fetch default model for provider '%s' from DB", provider)
+        raise ValueError(
+            f'No models configured for provider "{provider}". '
+            f'Sync models in Admin Panel first.'
+        )
+
+    @staticmethod
+    def _get_model_pricing(provider: str, model: str) -> dict:
+        """Get model pricing and limits from DB."""
+        try:
+            from app.infrastructure.persistence.repositories.ai_models.query import AIModelsQueryRepository
+            info = AIModelsQueryRepository.get_by_name(model, provider)
+            if info:
+                return {
+                    'input_price': float(info.get('input_price_per_1k', 0) or 0),
+                    'output_price': float(info.get('output_price_per_1k', 0) or 0),
+                    'max_tokens': info.get('max_output_tokens') or 0,
+                    'context_window': info.get('context_window') or 0,
+                    'category': info.get('category', 'chat'),
+                }
+        except Exception:
+            logger.warning("Failed to fetch pricing for model '%s' (provider '%s') from DB", model, provider)
+        # Model not in DB — return zero pricing (no error, just no cost tracking)
+        return {
+            'input_price': 0.0,
+            'output_price': 0.0,
+            'max_tokens': 16000,
+            'context_window': 128000,
+            'category': 'chat',
+        }
+
+    @staticmethod
+    def detect_provider(model: str) -> str:
+        """Detect provider from model name prefix."""
+        model_lower = model.lower()
+        if model_lower.startswith('claude'):
+            return 'anthropic'
+        if model_lower.startswith('gemini'):
+            return 'google'
+        if model_lower.startswith('command'):
+            return 'cohere'
+        return 'openai'
 
     def _resolve_max_tokens(self, max_tokens: Optional[int]) -> int:
         """Resolve max_tokens: use model's actual limit if not explicitly set."""
         if max_tokens is not None:
             return max_tokens
-        try:
-            from app.infrastructure.ai.config import PROVIDERS
-            model_cfg = PROVIDERS.get(self.provider, {}).get('models', {}).get(self.model, {})
-            return model_cfg.get('max_tokens', 16000)
-        except Exception:
-            return 16000
+        return self.pricing.get('max_tokens', 16000)
 
     def send_request(
         self,
@@ -205,46 +242,15 @@ class AIAdapter:
         max_tokens: Optional[int] = None
     ) -> Dict[str, Any]:
         """
-        Send AI request with pre-formatted messages (Phase 24 - Prompt Templates).
-
-        This method accepts pre-rendered messages from PromptTemplate.render()
-        and sends them directly to the AI provider without additional formatting.
+        Send AI request with pre-formatted messages.
 
         Args:
             messages: List of message dicts with 'role' and 'content' keys
-                     Example: [{"role": "system", "content": "..."}, {"role": "user", "content": "..."}]
-            temperature: Randomness (0.0-1.0, higher = more creative)
+            temperature: Randomness (0.0-1.0)
             max_tokens: Maximum output tokens
 
         Returns:
-            {
-                'output_text': str,
-                'input_tokens': int,
-                'output_tokens': int,
-                'total_tokens': int,
-                'cost_eur': float,
-                'latency_ms': int,
-                'model': str,
-                'provider': str
-            }
-
-        Raises:
-            AIProviderError: On API errors
-            AITimeoutError: On timeout
-            AIQuotaExceededError: On quota exceeded
-            ValueError: If messages format is invalid
-
-        Usage:
-            >>> from app.domain.ai.configuration import get_prompt_template
-            >>> template = get_prompt_template("explain_concept")
-            >>> messages = template.render({
-            ...     "course_title": "Python Basics",
-            ...     "lesson_title": "Functions",
-            ...     "concept_text": "What is a decorator?",
-            ...     "user_level": "intermediate"
-            ... })
-            >>> adapter = AIAdapter(provider='openai', model='gpt-4o-mini')
-            >>> response = adapter.send_messages(messages)
+            Same format as send_request()
         """
         # Validate messages format
         if not messages or not isinstance(messages, list):
@@ -300,27 +306,14 @@ class AIAdapter:
         """
         Send messages with tool definitions for structured AI responses.
 
-        The AI can respond with text AND tool calls. Tool calls are
-        schema-validated by the provider (no manual JSON parsing needed).
-
         Args:
             messages: List of message dicts with 'role' and 'content'
-            tools: Provider-agnostic tool definitions (from domain/ai/tool_definitions.py)
+            tools: Provider-agnostic tool definitions
             temperature: Randomness (0.0-1.0)
             max_tokens: Maximum output tokens
 
         Returns:
-            {
-                'output_text': str,
-                'tool_calls': list[{name: str, arguments: dict}],
-                'input_tokens': int,
-                'output_tokens': int,
-                'total_tokens': int,
-                'cost_eur': float,
-                'latency_ms': int,
-                'model': str,
-                'provider': str
-            }
+            Same as send_request() plus 'tool_calls' list
         """
         from .tool_formatters import (
             to_openai_tools, to_anthropic_tools, to_google_tools,
@@ -393,17 +386,7 @@ class AIAdapter:
         start_time: float,
         method_name: str
     ) -> Dict[str, Any]:
-        """
-        Format the response with latency, cost, and metadata.
-
-        Args:
-            response_data: Raw response from provider
-            start_time: Request start time
-            method_name: Method name for monitoring
-
-        Returns:
-            Formatted response dict
-        """
+        """Format the response with latency, cost, and metadata."""
         # Calculate latency
         latency_ms = int((time.time() - start_time) * 1000)
 
@@ -470,7 +453,7 @@ class AIAdapter:
     @staticmethod
     def get_available_providers() -> Dict[str, list]:
         """
-        Get list of available providers and their models.
+        Get list of available providers and their models from DB.
 
         Returns:
             {
@@ -479,10 +462,16 @@ class AIAdapter:
                 ...
             }
         """
-        return {
-            provider: list(config['models'].keys())
-            for provider, config in PROVIDERS.items()
-        }
+        try:
+            from app.infrastructure.persistence.repositories.ai_models.query import AIModelsQueryRepository
+            result = {}
+            for provider in PROVIDERS:
+                models = AIModelsQueryRepository.get_by_provider(provider)
+                result[provider] = [m['model_name'] for m in models]
+            return result
+        except Exception:
+            logger.warning("Failed to fetch available providers from DB")
+            return {p: [] for p in PROVIDERS}
 
     @staticmethod
     def validate_api_key(provider: str) -> bool:

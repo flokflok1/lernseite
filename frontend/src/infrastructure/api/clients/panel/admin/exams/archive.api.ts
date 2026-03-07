@@ -39,7 +39,7 @@ export interface ArchiveQuestion {
 
 export const archiveScanFolder = async (): Promise<ScannedPaper[]> => {
   const response = await http.get<{ success: boolean; papers: ScannedPaper[] }>(
-    '/admin/exams/archive/scan'
+    '/admin/exam-archive/scan'
   )
   return response.data.papers
 }
@@ -51,7 +51,7 @@ export const archiveImportPapers = async (
     success: boolean
     imported: number
     skipped: number
-  }>('/admin/exams/archive/import', { papers })
+  }>('/admin/exam-archive/import', { papers })
   return { imported: response.data.imported, skipped: response.data.skipped }
 }
 
@@ -59,14 +59,14 @@ export const archiveAnalyzeExam = async (
   examId: string
 ): Promise<{ task_id: string }> => {
   const response = await http.post<{ success: boolean; task_id: string }>(
-    `/admin/exams/archive/analyze/${examId}`
+    `/admin/exam-archive/analyze/${examId}`
   )
   return { task_id: response.data.task_id }
 }
 
 export const archiveAnalyzeAll = async (): Promise<{ triggered: number }> => {
   const response = await http.post<{ success: boolean; triggered: number }>(
-    '/admin/exams/archive/analyze-all'
+    '/admin/exam-archive/analyze-all'
   )
   return { triggered: response.data.triggered }
 }
@@ -76,7 +76,7 @@ export const archiveListExams = async (
 ): Promise<ArchiveExam[]> => {
   const params = status ? { status } : {}
   const response = await http.get<{ success: boolean; exams: ArchiveExam[] }>(
-    '/admin/exams/archive/list',
+    '/admin/exam-archive/list',
     { params }
   )
   return response.data.exams
@@ -88,8 +88,22 @@ export const archiveGetQuestions = async (
   const response = await http.get<{
     success: boolean
     questions: ArchiveQuestion[]
-  }>(`/admin/exams/archive/${examId}/questions`)
+  }>(`/admin/exam-archive/${examId}/questions`)
   return response.data.questions
+}
+
+// --- Regions ---
+
+export interface ExamRegion {
+  region_code: string
+  display_name: Record<string, string>
+}
+
+export const archiveListRegions = async (): Promise<ExamRegion[]> => {
+  const response = await http.get<{ regions: ExamRegion[] }>(
+    '/admin/exam-archive/regions'
+  )
+  return response.data.regions || []
 }
 
 // --- Session Grouping ---

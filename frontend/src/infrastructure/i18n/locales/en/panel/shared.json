@@ -172,7 +172,11 @@
     "chapters": "Chapters",
     "points": "Points",
     "lmCount": "Learning Methods",
-    "simulations": "Exam Simulations"
+    "simulations": "Exam Simulations",
+    "selectProvider": "AI Provider",
+    "selectModel": "Model",
+    "noProviders": "No AI providers configured",
+    "aiSettings": "AI Settings"
   },
   "examTrainer": {
     "title": "Exam Trainer",

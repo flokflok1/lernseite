@@ -172,7 +172,11 @@
     "chapters": "Kapitel",
     "points": "Punkte",
     "lmCount": "Lernmethoden",
-    "simulations": "Prüfungssimulationen"
+    "simulations": "Prüfungssimulationen",
+    "selectProvider": "KI-Anbieter",
+    "selectModel": "Modell",
+    "noProviders": "Keine KI-Anbieter konfiguriert",
+    "aiSettings": "KI-Einstellungen"
   },
   "examTrainer": {
     "title": "Prüfungstrainer",

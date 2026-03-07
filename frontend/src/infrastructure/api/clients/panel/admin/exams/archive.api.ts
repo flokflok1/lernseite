@@ -92,6 +92,20 @@ export const archiveGetQuestions = async (
   return response.data.questions
 }
 
+// --- Regions ---
+
+export interface ExamRegion {
+  region_code: string
+  display_name: Record<string, string>
+}
+
+export const archiveListRegions = async (): Promise<ExamRegion[]> => {
+  const response = await http.get<{ regions: ExamRegion[] }>(
+    '/admin/exam-archive/regions'
+  )
+  return response.data.regions || []
+}
+
 // --- Session Grouping ---
 
 export interface ExamSession {

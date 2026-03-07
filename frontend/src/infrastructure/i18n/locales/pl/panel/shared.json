@@ -172,7 +172,11 @@
     "chapters": "Rozdziały",
     "points": "Punkty",
     "lmCount": "Metody nauki",
-    "simulations": "Symulacje egzaminu"
+    "simulations": "Symulacje egzaminu",
+    "selectProvider": "Dostawca AI",
+    "selectModel": "Model",
+    "noProviders": "Brak skonfigurowanych dostawców AI",
+    "aiSettings": "Ustawienia AI"
   },
   "examTrainer": {
     "title": "Trener egzaminów",

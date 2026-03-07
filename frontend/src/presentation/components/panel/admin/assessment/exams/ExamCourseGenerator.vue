@@ -1,6 +1,7 @@
 <!--
   ExamCourseGenerator — Admin UI for auto-generating IHK exam courses.
   Workflow: Select exam type + region → Preview plan → Generate course.
+  Provider/Model selection allows choosing AI backend for content generation.
 -->
 
 <template>
@@ -24,8 +25,9 @@
             v-model="examType"
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
           >
-            <option value="IHK_FISI">IHK Fachinformatiker SI (AP1)</option>
-            <option value="IHK_FIAE">IHK Fachinformatiker AE (AP1)</option>
+            <option v-for="et in examTypes" :key="et.exam_type" :value="et.exam_type">
+              {{ et.display_name?.de || et.exam_type }}
+            </option>
           </select>
         </div>
 
@@ -39,9 +41,43 @@
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
           >
             <option value="alle">{{ t('panel.examCourseGenerator.regionAll') }}</option>
-            <option value="bw">Baden-Wuerttemberg</option>
-            <option value="bayern">Bayern</option>
-            <option value="nrw">Nordrhein-Westfalen</option>
+            <option v-for="r in regions" :key="r.region_code" :value="r.region_code">
+              {{ r.display_name?.de || r.region_code }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- AI Provider / Model -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+            {{ t('panel.examCourseGenerator.selectProvider') }}
+          </label>
+          <select
+            v-model="selectedProvider"
+            class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
+          >
+            <option v-if="availableProviders.length === 0" value="" disabled>
+              {{ t('panel.examCourseGenerator.noProviders') }}
+            </option>
+            <option v-for="p in availableProviders" :key="p.name" :value="p.name">
+              {{ p.display_name }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+            {{ t('panel.examCourseGenerator.selectModel') }}
+          </label>
+          <select
+            v-model="selectedModel"
+            class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
+          >
+            <option v-for="m in availableModels" :key="m.model_name" :value="m.model_name">
+              {{ m.display_name || m.model_name }}
+            </option>
           </select>
         </div>
       </div>
@@ -160,20 +196,72 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CoursePlan, GenerateResult } from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
 import { previewExamCourse, generateExamCourse } from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
+import { fetchExamTypes } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
+import type { ExamType } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
+import { archiveListRegions } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+import type { ExamRegion } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+import { adminGetAIModelsRegistry } from '@/infrastructure/api/clients/panel/admin/ai/models.api'
+import type { AIModelRegistryItem, AIProviderInfo } from '@/infrastructure/api/clients/panel/admin/types'
 
 const { t } = useI18n()
 
-const examType = ref('IHK_FISI')
+// --- Exam type & region ---
+const examTypes = ref<ExamType[]>([])
+const examType = ref('')
+const regions = ref<ExamRegion[]>([])
 const region = ref('alle')
+
+// --- AI Provider / Model ---
+const providers = ref<AIProviderInfo[]>([])
+const models = ref<AIModelRegistryItem[]>([])
+const selectedProvider = ref('')
+const selectedModel = ref('')
+
+const availableProviders = computed(() =>
+  providers.value.filter(p => p.has_api_key)
+)
+
+const availableModels = computed(() =>
+  models.value.filter(m => m.provider === selectedProvider.value && m.category === 'chat')
+)
+
+watch(selectedProvider, () => {
+  const first = availableModels.value[0]
+  selectedModel.value = first?.model_name || ''
+})
+
+// --- Generation state ---
 const previewing = ref(false)
 const generating = ref(false)
 const plan = ref<CoursePlan | null>(null)
 const result = ref<GenerateResult | null>(null)
 const error = ref<string | null>(null)
+
+onMounted(async () => {
+  const [typesData, regionsData, registry] = await Promise.all([
+    fetchExamTypes(),
+    archiveListRegions(),
+    adminGetAIModelsRegistry(),
+  ])
+
+  examTypes.value = typesData
+  if (typesData.length > 0) {
+    examType.value = typesData[0].exam_type
+  }
+
+  regions.value = regionsData
+
+  providers.value = registry.providers
+  models.value = registry.data
+  const firstAvailable = availableProviders.value[0]
+  if (firstAvailable) {
+    selectedProvider.value = firstAvailable.name
+  }
+})
 
 function formatTopic(topic: string): string {
   return topic.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
@@ -196,7 +284,10 @@ async function handleGenerate() {
   generating.value = true
   error.value = null
   try {
-    result.value = await generateExamCourse(examType.value, region.value)
+    result.value = await generateExamCourse(examType.value, region.value, {
+      provider: selectedProvider.value || undefined,
+      model: selectedModel.value || undefined,
+    })
   } catch (err: any) {
     error.value = err?.response?.data?.error || 'Generation failed'
   } finally {

@@ -26,7 +26,7 @@
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
           >
             <option v-for="et in examTypes" :key="et.exam_type" :value="et.exam_type">
-              {{ et.display_name?.[locale] || et.display_name?.de || et.exam_type }}
+              {{ t(`exams.types.${et.exam_type}`, et.display_name?.[locale] || et.exam_type) }}
             </option>
           </select>
         </div>
@@ -41,7 +41,7 @@
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
           >
             <option v-for="r in regions" :key="r.region_code" :value="r.region_code">
-              {{ r.display_name?.[locale] || r.display_name?.de || r.region_code }}
+              {{ t(`exams.regions.${r.region_code}`, r.display_name?.[locale] || r.region_code) }}
             </option>
           </select>
         </div>

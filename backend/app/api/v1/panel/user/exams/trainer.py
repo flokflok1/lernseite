@@ -15,9 +15,9 @@ import logging
 
 from flask import Blueprint, jsonify, request
 from app.api.middleware.auth import token_required, get_current_user
-from app.infrastructure.persistence.repositories.exams.core import (
-    ExamRepository,
-    ExamQuestionRepository
+from app.infrastructure.persistence.repositories.exams.core import ExamRepository
+from app.infrastructure.persistence.repositories.exams.questions import (
+    ExamQuestionRepository,
 )
 from app.infrastructure.persistence.repositories.exams.trainer import (
     ExamTrainerRepository

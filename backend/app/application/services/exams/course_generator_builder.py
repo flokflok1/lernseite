@@ -18,7 +18,7 @@ from app.infrastructure.persistence.repositories.courses.content.chapters import
 from app.infrastructure.persistence.repositories.learning_method.execution.instances import (
     LearningMethodInstanceRepository,
 )
-from app.infrastructure.persistence.repositories.exams.core import (
+from app.infrastructure.persistence.repositories.exams.questions import (
     ExamQuestionRepository,
 )
 
@@ -34,16 +34,20 @@ LM_MAPPER: Dict[int, str] = {
     11: 'map_to_multi_step',
 }
 
-# LM type -> human-readable title template
-LM_TITLES: Dict[int, str] = {
-    0: '{topic} — Erklaerung',
-    1: '{topic} — Schritt fuer Schritt',
-    5: '{topic} — Rechenaufgaben',
-    6: '{topic} — Karteikarten',
-    7: '{topic} — Zuordnungen',
-    8: '{topic} — Lueckentexte',
-    10: '{topic} — Pruefungsaufgaben',
-    11: '{topic} — Fallstudien',
+# LM type -> title suffix per language
+LM_TITLE_SUFFIXES: Dict[str, Dict[int, str]] = {
+    'de': {
+        0: 'Erklaerung', 1: 'Schritt fuer Schritt',
+        5: 'Rechenaufgaben', 6: 'Karteikarten',
+        7: 'Zuordnungen', 8: 'Lueckentexte',
+        10: 'Pruefungsaufgaben', 11: 'Fallstudien',
+    },
+    'en': {
+        0: 'Explanation', 1: 'Step by Step',
+        5: 'Math Exercises', 6: 'Flashcards',
+        7: 'Matching', 8: 'Cloze Tests',
+        10: 'Exam Tasks', 11: 'Case Studies',
+    },
 }
 
 
@@ -66,15 +70,20 @@ class CourseGeneratorBuilder:
         total_lm_count = 0
         total_tokens = 0
 
+        language = options.get('language', 'de')
+
         # 1. Create course
+        descriptions = {
+            'de': f'Automatisch generiert aus {plan.total_questions} '
+                  f'echten Pruefungsaufgaben.',
+            'en': f'Auto-generated from {plan.total_questions} '
+                  f'real exam questions.',
+        }
         course = CourseRepositoryCRUD.create({
             'title': plan.title,
             'creator_id': creator_user_id,
-            'description': (
-                f'Automatisch generiert aus {plan.total_questions} '
-                f'echten Pruefungsaufgaben.'
-            ),
-            'tags': ['ihk', 'auto-generated', plan.exam_type.lower()],
+            'description': descriptions.get(language, descriptions['de']),
+            'tags': ['exam-based', 'auto-generated', plan.exam_type.lower()],
             'level': 'intermediate',
         })
         course_id = str(course['course_id'])
@@ -83,7 +92,7 @@ class CourseGeneratorBuilder:
         # 2. Build chapters
         for idx, chapter_plan in enumerate(plan.chapters):
             chapter_result = _build_chapter(
-                course_id, chapter_plan, idx, options,
+                course_id, chapter_plan, idx, options, language,
             )
             total_lm_count += chapter_result['lm_count']
             total_tokens += chapter_result.get('tokens_used', 0)
@@ -115,15 +124,19 @@ def _build_chapter(
     chapter_plan: ChapterPlan,
     order_index: int,
     options: Dict[str, Any],
+    language: str = 'de',
 ) -> Dict[str, Any]:
     """Build a single topic chapter with its LM instances."""
+    desc_templates = {
+        'de': f'{chapter_plan.question_count} Aufgaben, '
+              f'{int(chapter_plan.point_weight)} Punkte',
+        'en': f'{chapter_plan.question_count} questions, '
+              f'{int(chapter_plan.point_weight)} points',
+    }
     chapter = ChapterRepository.create({
         'course_id': course_id,
         'title': chapter_plan.topic.replace('_', ' ').title(),
-        'description': (
-            f'{chapter_plan.question_count} Aufgaben, '
-            f'{int(chapter_plan.point_weight)} Punkte'
-        ),
+        'description': desc_templates.get(language, desc_templates['de']),
         'order_index': order_index + 1,
     })
     chapter_id = str(chapter['chapter_id'])
@@ -147,9 +160,10 @@ def _build_chapter(
         if lm_data is None:
             continue
 
-        title = LM_TITLES.get(lm_type, '{topic}').format(
-            topic=chapter_plan.topic.replace('_', ' ').title(),
-        )
+        suffixes = LM_TITLE_SUFFIXES.get(language, LM_TITLE_SUFFIXES['de'])
+        suffix = suffixes.get(lm_type, '')
+        topic_label = chapter_plan.topic.replace('_', ' ').title()
+        title = f'{topic_label} — {suffix}' if suffix else topic_label
 
         LearningMethodInstanceRepository.create({
             'chapter_id': chapter_id,
@@ -176,14 +190,13 @@ def _build_simulation_chapter(
         return {'lm_count': 0}
 
     first_q = questions[0]
-    title = f"Simulation — {first_q.get('exam_title', 'Pruefung')}"
+    exam_label = first_q.get('exam_title', 'Exam')
+    title = f"Simulation — {exam_label}"
 
     chapter = ChapterRepository.create({
         'course_id': course_id,
         'title': title,
-        'description': (
-            f'Pruefungssimulation mit {len(questions)} Aufgaben'
-        ),
+        'description': f'Exam simulation — {len(questions)} questions',
     })
     chapter_id = str(chapter['chapter_id'])
 
@@ -238,6 +251,17 @@ def _build_lm_data(
     return None, 0
 
 
+def _create_ai_adapter(options: Dict[str, Any]):
+    """Create AIAdapter from options, letting infra defaults apply."""
+    from app.infrastructure.ai.adapter import AIAdapter
+    kwargs: Dict[str, Any] = {}
+    if options.get('provider'):
+        kwargs['provider'] = options['provider']
+    if options.get('model'):
+        kwargs['model'] = options['model']
+    return AIAdapter(**kwargs)
+
+
 def _generate_deep_explanation(
     topic: str,
     questions: List[Dict],
@@ -247,14 +271,11 @@ def _generate_deep_explanation(
     from app.application.services.exams.course_generator_prompts import (
         build_deep_explanation_prompt,
     )
-    from app.infrastructure.ai.adapter import AIAdapter
 
     prompt = build_deep_explanation_prompt(topic, questions)
-    provider = options.get('provider', 'openai')
-    model = options.get('model', 'gpt-4o-mini')
 
     try:
-        adapter = AIAdapter(provider=provider, model=model)
+        adapter = _create_ai_adapter(options)
         response = adapter.send_request(
             prompt=prompt,
             language='de',
@@ -288,14 +309,11 @@ def _generate_step_by_step(
     from app.application.services.exams.course_generator_prompts import (
         build_step_by_step_prompt,
     )
-    from app.infrastructure.ai.adapter import AIAdapter
 
     prompt = build_step_by_step_prompt(topic, questions)
-    provider = options.get('provider', 'openai')
-    model = options.get('model', 'gpt-4o-mini')
 
     try:
-        adapter = AIAdapter(provider=provider, model=model)
+        adapter = _create_ai_adapter(options)
         response = adapter.send_request(
             prompt=prompt,
             language='de',

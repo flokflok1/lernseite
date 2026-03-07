@@ -133,3 +133,25 @@ class ExamSessionRepository:
             "SELECT * FROM assessments.exam_regions ORDER BY region_code",
             [],
         )
+
+    @staticmethod
+    def find_type_display_name(
+        exam_type_key: str,
+    ) -> Optional[Dict[str, Any]]:
+        """Look up display_name for an exam type from registry."""
+        return fetch_one(
+            """SELECT display_name FROM assessments.exam_type_registry
+               WHERE exam_type = %s""",
+            [exam_type_key],
+        )
+
+    @staticmethod
+    def find_region_display_name(
+        region_code: str,
+    ) -> Optional[Dict[str, Any]]:
+        """Look up display_name for a region."""
+        return fetch_one(
+            """SELECT display_name FROM assessments.exam_regions
+               WHERE region_code = %s""",
+            [region_code],
+        )

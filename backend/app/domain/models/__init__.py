@@ -57,6 +57,13 @@ from app.domain.models.content.learning_method import (
     LearningMethodConfig
 )
 
+from app.domain.models.curriculum import (
+    CurriculumObjective,
+    CurriculumPosition,
+    CurriculumSection,
+    CurriculumFramework
+)
+
 __all__ = [
     # User models
     'UserBase',
@@ -93,5 +100,11 @@ __all__ = [
     'LearningMethodCreate',
     'LearningMethodUpdate',
     'LearningMethodResponse',
-    'LearningMethodConfig'
+    'LearningMethodConfig',
+
+    # Curriculum models
+    'CurriculumObjective',
+    'CurriculumPosition',
+    'CurriculumSection',
+    'CurriculumFramework',
 ]

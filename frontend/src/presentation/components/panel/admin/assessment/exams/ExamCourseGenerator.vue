@@ -268,8 +268,21 @@ onMounted(async () => {
   }
 })
 
+const ACRONYMS = new Set([
+  'sql', 'erm', 'csv', 'xml', 'json', 'html', 'dhcp',
+  'raid', 'itil', 'vpn', 'ipv4', 'osi', 'dsgvo', 'wlan',
+  'it', 'ip', 'css', 'http', 'https', 'api', 'dns', 'tcp', 'udp',
+])
+
 function formatTopic(topic: string): string {
-  return topic.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  return topic
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(word => {
+      if (ACRONYMS.has(word.toLowerCase())) return word.toUpperCase()
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+    .join(' ')
 }
 
 async function handlePreview() {

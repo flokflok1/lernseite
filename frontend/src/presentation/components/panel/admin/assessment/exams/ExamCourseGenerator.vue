@@ -242,24 +242,30 @@ const result = ref<GenerateResult | null>(null)
 const error = ref<string | null>(null)
 
 onMounted(async () => {
-  const [typesData, regionsData, registry] = await Promise.all([
+  const [typesResult, regionsResult, registryResult] = await Promise.allSettled([
     fetchExamTypes(),
     archiveListRegions(),
     adminGetAIModelsRegistry(),
   ])
 
-  examTypes.value = typesData
-  if (typesData.length > 0) {
-    examType.value = typesData[0].exam_type
+  if (typesResult.status === 'fulfilled') {
+    examTypes.value = typesResult.value
+    if (typesResult.value.length > 0) {
+      examType.value = typesResult.value[0].exam_type
+    }
   }
 
-  regions.value = regionsData
+  if (regionsResult.status === 'fulfilled') {
+    regions.value = regionsResult.value
+  }
 
-  providers.value = registry.providers
-  models.value = registry.data
-  const firstAvailable = availableProviders.value[0]
-  if (firstAvailable) {
-    selectedProvider.value = firstAvailable.name
+  if (registryResult.status === 'fulfilled') {
+    providers.value = registryResult.value.providers
+    models.value = registryResult.value.data
+    const firstAvailable = availableProviders.value[0]
+    if (firstAvailable) {
+      selectedProvider.value = firstAvailable.name
+    }
   }
 })
 

@@ -16,8 +16,8 @@ from flask import Blueprint, jsonify, request
 
 from app.api.middleware.auth import admin_required
 from app.application.services.exams.archive_service import ExamArchiveService
-from app.infrastructure.persistence.repositories.exams.core import (
-    ExamRepository,
+from app.infrastructure.persistence.repositories.exams.core import ExamRepository
+from app.infrastructure.persistence.repositories.exams.questions import (
     ExamQuestionRepository,
 )
 from app.infrastructure.persistence.repositories.exams.sessions import (

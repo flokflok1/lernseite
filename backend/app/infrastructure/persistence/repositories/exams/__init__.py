@@ -12,12 +12,14 @@ Example usage:
 """
 
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
+from app.infrastructure.persistence.repositories.exams.questions import ExamQuestionRepository
 from app.infrastructure.persistence.repositories.exams.simulations import ExamSimulationRepository
 from app.infrastructure.persistence.repositories.exams.trainer import ExamTrainerRepository
 from app.infrastructure.persistence.repositories.exams.sessions import ExamSessionRepository
 
 __all__ = [
     'ExamRepository',
+    'ExamQuestionRepository',
     'ExamSimulationRepository',
     'ExamTrainerRepository',
     'ExamSessionRepository',

@@ -157,6 +157,23 @@
       "rejected": "Rejected"
     }
   },
+  "examCourseGenerator": {
+    "title": "Generate Exam Course",
+    "selectType": "Exam Type",
+    "selectRegion": "Region / State",
+    "regionAll": "All States",
+    "preview": "Preview",
+    "generate": "Generate Course",
+    "generating": "Generating...",
+    "generatingHint": "AI is creating explanations — this may take 1-2 minutes",
+    "success": "Course generated successfully!",
+    "openInEditor": "Open in Editor",
+    "questions": "Questions",
+    "chapters": "Chapters",
+    "points": "Points",
+    "lmCount": "Learning Methods",
+    "simulations": "Exam Simulations"
+  },
   "examTrainer": {
     "title": "Exam Trainer",
     "subtitle": "Practice with real exam questions",

@@ -87,6 +87,17 @@
             {{ t('panel.examArchive.upload.title') }}
           </button>
 
+          <!-- Generate Course Button -->
+          <button
+            @click="showCourseGenerator = !showCourseGenerator"
+            class="px-3 py-1.5 rounded text-sm transition-colors flex items-center gap-1 border"
+            :class="showCourseGenerator
+              ? 'bg-[var(--color-primary)] text-white border-transparent'
+              : 'bg-[var(--color-surface)] text-[var(--color-text-primary)] border-[var(--color-border)] hover:bg-[var(--color-surface-secondary)]'"
+          >
+            {{ t('panel.examCourseGenerator.title') }}
+          </button>
+
           <!-- Pending Review Count -->
           <span
             v-if="pendingReviewCount > 0"
@@ -104,6 +115,11 @@
       @close="showUploadDialog = false"
       @uploaded="handleUploadComplete"
     />
+
+    <!-- Course Generator (collapsible) -->
+    <div v-if="showCourseGenerator" class="px-4 py-3">
+      <ExamCourseGenerator />
+    </div>
 
     <!-- Status Messages -->
     <div v-if="statusMessage" class="px-4 py-2">
@@ -193,6 +209,7 @@ import {
 import ExamArchiveCard from './ExamArchiveCard.vue'
 import ExamUploadDialog from './ExamUploadDialog.vue'
 import { ExamTypeSection } from './sessions'
+import { ExamCourseGenerator } from '../exams'
 
 const { t } = useI18n()
 
@@ -208,6 +225,7 @@ const importing = ref(false)
 const analyzingAll = ref(false)
 const statusMessage = ref('')
 const showUploadDialog = ref(false)
+const showCourseGenerator = ref(false)
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null
 

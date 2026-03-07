@@ -11,8 +11,8 @@ import logging
 from typing import Dict, Any, Optional, List
 
 from app.core.bootstrap.extensions import celery
-from app.infrastructure.persistence.repositories.exams.core import (
-    ExamRepository,
+from app.infrastructure.persistence.repositories.exams.core import ExamRepository
+from app.infrastructure.persistence.repositories.exams.questions import (
     ExamQuestionRepository,
 )
 from app.infrastructure.ai.adapter import AIAdapter

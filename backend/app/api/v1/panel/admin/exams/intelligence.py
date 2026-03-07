@@ -1,8 +1,9 @@
 """
 Exam Intelligence Admin API
 
-Endpoints for managing exam types and topic taxonomy:
+Endpoints for managing exam types, regions, and topic taxonomy:
 - CRUD for exam type registry
+- CRUD for exam regions
 - CRUD for topic taxonomy per exam type
 
 All endpoints require admin authentication.
@@ -17,6 +18,9 @@ from app.infrastructure.persistence.repositories.exams.exam_type_registry import
 )
 from app.infrastructure.persistence.repositories.exams.topic_taxonomy import (
     TopicTaxonomyRepository,
+)
+from app.infrastructure.persistence.repositories.exams.regions import (
+    ExamRegionRepository,
 )
 
 logger = logging.getLogger(__name__)
@@ -75,6 +79,54 @@ def update_exam_type(exam_type):
 def delete_exam_type(exam_type):
     """Delete an exam type."""
     ExamTypeRegistryRepository.delete(exam_type)
+    return jsonify({'success': True})
+
+
+# --- Regions ---
+
+@intelligence_bp.route('/regions', methods=['GET'])
+@admin_required
+def list_regions():
+    """List all exam regions."""
+    regions = ExamRegionRepository.find_all()
+    return jsonify({'success': True, 'count': len(regions), 'regions': regions})
+
+
+@intelligence_bp.route('/regions', methods=['POST'])
+@admin_required
+def create_region():
+    """Create a new exam region."""
+    body = request.get_json(silent=True) or {}
+    if not body.get('region_code') or not body.get('display_name'):
+        return jsonify({
+            'success': False,
+            'error': 'region_code and display_name required',
+        }), 400
+    result = ExamRegionRepository.create(body)
+    from app.application.services.exams.intelligence_service import sync_exam_region_i18n
+    sync_exam_region_i18n(body['region_code'], body['display_name'])
+    return jsonify({'success': True, 'region': result}), 201
+
+
+@intelligence_bp.route('/regions/<region_code>', methods=['PUT'])
+@admin_required
+def update_region(region_code):
+    """Update a region."""
+    body = request.get_json(silent=True) or {}
+    result = ExamRegionRepository.update(region_code, body)
+    if not result:
+        return jsonify({'success': False, 'error': 'Region not found'}), 404
+    if body.get('display_name'):
+        from app.application.services.exams.intelligence_service import sync_exam_region_i18n
+        sync_exam_region_i18n(region_code, body['display_name'])
+    return jsonify({'success': True, 'region': result})
+
+
+@intelligence_bp.route('/regions/<region_code>', methods=['DELETE'])
+@admin_required
+def delete_region(region_code):
+    """Delete a region."""
+    ExamRegionRepository.delete(region_code)
     return jsonify({'success': True})
 
 

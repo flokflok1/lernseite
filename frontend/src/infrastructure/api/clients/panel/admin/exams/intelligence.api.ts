@@ -23,13 +23,13 @@ export interface TopicTaxonomy {
 
 // GET /admin/exam-intelligence/types
 export const fetchExamTypes = async (): Promise<ExamType[]> => {
-  const { data } = await http.get('/panel/admin/exam-intelligence/types')
-  return data.types || []
+  const { data } = await http.get('/admin/exam-intelligence/types')
+  return data.exam_types || data.types || []
 }
 
 // POST /admin/exam-intelligence/types
 export const createExamType = async (payload: Partial<ExamType>): Promise<ExamType> => {
-  const { data } = await http.post('/panel/admin/exam-intelligence/types', payload)
+  const { data } = await http.post('/admin/exam-intelligence/types', payload)
   return data
 }
 
@@ -39,7 +39,7 @@ export const updateExamType = async (
   payload: Partial<ExamType>
 ): Promise<ExamType> => {
   const { data } = await http.put(
-    `/panel/admin/exam-intelligence/types/${examType}`,
+    `/admin/exam-intelligence/types/${examType}`,
     payload
   )
   return data
@@ -47,13 +47,13 @@ export const updateExamType = async (
 
 // DELETE /admin/exam-intelligence/types/:exam_type
 export const deleteExamType = async (examType: string): Promise<void> => {
-  await http.delete(`/panel/admin/exam-intelligence/types/${examType}`)
+  await http.delete(`/admin/exam-intelligence/types/${examType}`)
 }
 
 // GET /admin/exam-intelligence/topics/:exam_type
 export const fetchTopics = async (examType: string): Promise<TopicTaxonomy[]> => {
   const { data } = await http.get(
-    `/panel/admin/exam-intelligence/topics/${examType}`
+    `/admin/exam-intelligence/topics/${examType}`
   )
   return data.topics || []
 }
@@ -64,7 +64,7 @@ export const createTopic = async (
   payload: Partial<TopicTaxonomy>
 ): Promise<TopicTaxonomy> => {
   const { data } = await http.post(
-    `/panel/admin/exam-intelligence/topics/${examType}`,
+    `/admin/exam-intelligence/topics/${examType}`,
     payload
   )
   return data
@@ -77,7 +77,7 @@ export const updateTopic = async (
   payload: Partial<TopicTaxonomy>
 ): Promise<TopicTaxonomy> => {
   const { data } = await http.put(
-    `/panel/admin/exam-intelligence/topics/${examType}/${topicId}`,
+    `/admin/exam-intelligence/topics/${examType}/${topicId}`,
     payload
   )
   return data
@@ -89,6 +89,6 @@ export const deleteTopic = async (
   topicId: string
 ): Promise<void> => {
   await http.delete(
-    `/panel/admin/exam-intelligence/topics/${examType}/${topicId}`
+    `/admin/exam-intelligence/topics/${examType}/${topicId}`
   )
 }

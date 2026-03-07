@@ -40,7 +40,6 @@
             v-model="region"
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
           >
-            <option value="alle">{{ t('panel.examCourseGenerator.regionAll') }}</option>
             <option v-for="r in regions" :key="r.region_code" :value="r.region_code">
               {{ r.display_name?.de || r.region_code }}
             </option>

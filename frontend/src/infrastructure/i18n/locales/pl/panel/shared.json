@@ -157,6 +157,23 @@
       "rejected": "Odrzucone"
     }
   },
+  "examCourseGenerator": {
+    "title": "Generuj kurs egzaminacyjny",
+    "selectType": "Typ egzaminu",
+    "selectRegion": "Region / Kraj",
+    "regionAll": "Wszystkie regiony",
+    "preview": "Podgląd",
+    "generate": "Generuj kurs",
+    "generating": "Generowanie...",
+    "generatingHint": "AI tworzy wyjaśnienia — może to potrwać 1-2 minuty",
+    "success": "Kurs wygenerowany pomyślnie!",
+    "openInEditor": "Otwórz w edytorze",
+    "questions": "Pytania",
+    "chapters": "Rozdziały",
+    "points": "Punkty",
+    "lmCount": "Metody nauki",
+    "simulations": "Symulacje egzaminu"
+  },
   "examTrainer": {
     "title": "Trener egzaminów",
     "subtitle": "Ćwicz z prawdziwymi pytaniami egzaminacyjnymi",

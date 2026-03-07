@@ -157,6 +157,23 @@
       "rejected": "Abgelehnt"
     }
   },
+  "examCourseGenerator": {
+    "title": "Prüfungskurs generieren",
+    "selectType": "Prüfungstyp",
+    "selectRegion": "Region / Bundesland",
+    "regionAll": "Alle Bundesländer",
+    "preview": "Vorschau",
+    "generate": "Kurs generieren",
+    "generating": "Generiere...",
+    "generatingHint": "KI erstellt Erklärungen — das kann 1-2 Minuten dauern",
+    "success": "Kurs erfolgreich generiert!",
+    "openInEditor": "Im Editor öffnen",
+    "questions": "Fragen",
+    "chapters": "Kapitel",
+    "points": "Punkte",
+    "lmCount": "Lernmethoden",
+    "simulations": "Prüfungssimulationen"
+  },
   "examTrainer": {
     "title": "Prüfungstrainer",
     "subtitle": "Übe mit echten Prüfungsaufgaben",

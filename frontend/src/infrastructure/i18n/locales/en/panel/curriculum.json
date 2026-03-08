@@ -34,6 +34,13 @@
       "sourcePlaceholder": "e.g. Training Framework FISI 2020",
       "parseBtn": "Analyze with AI",
       "confirmBtn": "Confirm import"
+    },
+    "tags": {
+      "label": "Curriculum Objectives",
+      "none": "No objectives assigned",
+      "objectiveId": "Objective ID",
+      "add": "Add",
+      "remove": "Remove objective"
     }
   }
 }

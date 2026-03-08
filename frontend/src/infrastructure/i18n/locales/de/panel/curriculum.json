@@ -34,6 +34,13 @@
       "sourcePlaceholder": "z.B. Ausbildungsrahmenplan FISI 2020",
       "parseBtn": "Mit KI analysieren",
       "confirmBtn": "Import bestätigen"
+    },
+    "tags": {
+      "label": "Curriculum-Lernziele",
+      "none": "Keine Lernziele zugeordnet",
+      "objectiveId": "Lernziel-ID",
+      "add": "Hinzufügen",
+      "remove": "Lernziel entfernen"
     }
   }
 }

@@ -34,6 +34,13 @@
       "sourcePlaceholder": "np. Plan ramowy FISI 2020",
       "parseBtn": "Analizuj z AI",
       "confirmBtn": "Potwierdź import"
+    },
+    "tags": {
+      "label": "Cele nauczania",
+      "none": "Brak przypisanych celów",
+      "objectiveId": "ID celu",
+      "add": "Dodaj",
+      "remove": "Usuń cel"
     }
   }
 }

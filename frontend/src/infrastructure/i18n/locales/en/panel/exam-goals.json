@@ -1,0 +1,30 @@
+{
+  "examGoals": {
+    "title": "Exam Goals",
+    "subtitle": "Manage your exam goals and track your progress",
+    "addGoal": "Add goal",
+    "removeGoal": "Remove goal",
+    "confirmRemove": "Do you really want to remove this exam goal?",
+    "availableTypes": "Available exam types",
+    "noTypes": "No exam types available",
+    "targetDate": "Target date",
+    "noGoals": "No exam goals",
+    "noGoalsDesc": "Add an exam goal to start tracking your progress.",
+    "status": {
+      "active": "Active",
+      "passed": "Passed",
+      "paused": "Paused",
+      "planned": "Planned"
+    },
+    "weakness": {
+      "title": "Weakness Profile",
+      "overallScore": "Overall score",
+      "attempts": "attempts",
+      "noData": "No data available yet"
+    },
+    "curriculum": {
+      "title": "Curriculum Progress",
+      "noData": "No framework linked to this exam type"
+    }
+  }
+}

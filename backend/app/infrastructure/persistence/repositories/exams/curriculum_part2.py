@@ -199,7 +199,7 @@ class CurriculumMappingMixin:
             """SELECT f.*
                FROM assessments.curriculum_frameworks f
                JOIN assessments.exam_type_registry r
-                   ON r.curriculum_framework_id = f.framework_id
+                   ON r.framework_id = f.id
                WHERE r.exam_type = %s""",
             [exam_type_key],
         )

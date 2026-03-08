@@ -89,10 +89,17 @@
     "settings": "Einstellungen",
     "systemSettings": "Systemeinstellungen",
     "translations": "Übersetzungen",
+    "exams": "Prüfungen",
     "examArchive": "Prüfungsarchiv",
     "curriculum": "Rahmenpläne",
     "examTrainer": "Prüfungstrainer",
     "users": "Benutzer"
+  },
+  "exams": {
+    "tabs": {
+      "archive": "Archiv",
+      "curriculum": "Rahmenpläne"
+    }
   },
   "examArchive": {
     "title": "Prüfungsarchiv",

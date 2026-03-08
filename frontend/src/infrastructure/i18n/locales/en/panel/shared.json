@@ -89,10 +89,17 @@
     "settings": "Settings",
     "systemSettings": "System Settings",
     "translations": "Translations",
+    "exams": "Exams",
     "examArchive": "Exam Archive",
     "curriculum": "Curriculum",
     "examTrainer": "Exam Trainer",
     "users": "Users"
+  },
+  "exams": {
+    "tabs": {
+      "archive": "Archive",
+      "curriculum": "Curriculum"
+    }
   },
   "examArchive": {
     "title": "Exam Archive",

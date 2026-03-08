@@ -41,7 +41,13 @@ export function useCurriculum() {
     try {
       frameworks.value = await fetchFrameworks()
     } catch (e: any) {
-      error.value = e?.response?.data?.error || 'Failed to load frameworks'
+      // 404 means no frameworks exist yet — treat as empty, not error
+      const status = e?.response?.status ?? e?.status
+      if (status === 404) {
+        frameworks.value = []
+      } else {
+        error.value = e?.response?.data?.error || e?.message || 'Failed to load frameworks'
+      }
     } finally {
       loading.value = false
     }

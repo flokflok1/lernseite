@@ -10,16 +10,6 @@
 
 <template>
   <div class="h-full flex flex-col bg-[var(--color-bg)]">
-    <!-- Header -->
-    <div class="bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 py-3">
-      <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
-        {{ t('panel.examArchive.title') }}
-      </h2>
-      <p class="text-sm text-[var(--color-text-secondary)]">
-        {{ t('panel.examArchive.subtitle') }}
-      </p>
-    </div>
-
     <!-- Action Bar -->
     <div class="bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 py-3">
       <div class="flex items-center justify-between flex-wrap gap-2">

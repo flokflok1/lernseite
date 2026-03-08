@@ -3,22 +3,23 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-bold">
+        <h2 class="text-2xl font-bold text-[var(--color-text-primary)]">
           {{ $t('panel.curriculum.title') }}
         </h2>
-        <p class="text-sm text-gray-500 mt-1">
+        <p class="text-sm text-[var(--color-text-secondary)] mt-1">
           {{ $t('panel.curriculum.subtitle') }}
         </p>
       </div>
       <div class="flex gap-2">
         <button
-          class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+          class="px-4 py-2 text-sm text-white rounded transition-colors"
+          style="background-color: var(--color-primary, #7c3aed);"
           @click="showImport = true"
         >
           {{ $t('panel.curriculum.importPdf') }}
         </button>
         <button
-          class="px-4 py-2 text-sm border rounded hover:bg-gray-50 dark:hover:bg-gray-800"
+          class="px-4 py-2 text-sm rounded border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-secondary)] transition-colors"
           @click="showCreate = !showCreate"
         >
           {{ $t('panel.curriculum.createManual') }}
@@ -29,23 +30,23 @@
     <!-- Create form (inline) -->
     <div
       v-if="showCreate"
-      class="border rounded p-4 space-y-3 bg-gray-50 dark:bg-gray-800"
+      class="border border-[var(--color-border)] rounded-lg p-4 space-y-3 bg-[var(--color-surface-secondary)]"
     >
-      <h3 class="font-medium">{{ $t('panel.curriculum.createTitle') }}</h3>
+      <h3 class="font-medium text-[var(--color-text-primary)]">{{ $t('panel.curriculum.createTitle') }}</h3>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm mb-1">{{ $t('panel.curriculum.name') }}</label>
+          <label class="block text-sm mb-1 text-[var(--color-text-secondary)]">{{ $t('panel.curriculum.name') }}</label>
           <input
             v-model="createForm.name"
             type="text"
-            class="w-full border rounded p-2 text-sm dark:bg-gray-700"
+            class="w-full border border-[var(--color-border)] rounded p-2 text-sm bg-[var(--color-surface)] text-[var(--color-text-primary)]"
           />
         </div>
         <div>
-          <label class="block text-sm mb-1">{{ $t('panel.curriculum.type') }}</label>
+          <label class="block text-sm mb-1 text-[var(--color-text-secondary)]">{{ $t('panel.curriculum.type') }}</label>
           <select
             v-model="createForm.framework_type"
-            class="w-full border rounded p-2 text-sm dark:bg-gray-700"
+            class="w-full border border-[var(--color-border)] rounded p-2 text-sm bg-[var(--color-surface)] text-[var(--color-text-primary)]"
           >
             <option value="ihk_ausbildung">IHK Ausbildung</option>
             <option value="hochschule">Hochschule</option>
@@ -56,14 +57,15 @@
       </div>
       <div class="flex gap-2">
         <button
-          class="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+          class="px-3 py-1.5 text-sm text-white rounded transition-colors disabled:opacity-50"
+          style="background-color: var(--color-success, #16a34a);"
           :disabled="!createForm.name || loading"
           @click="handleCreate"
         >
           {{ $t('common.create') }}
         </button>
         <button
-          class="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700"
+          class="px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           @click="showCreate = false"
         >
           {{ $t('common.cancel') }}
@@ -74,7 +76,8 @@
     <!-- Error banner -->
     <div
       v-if="error"
-      class="bg-red-50 dark:bg-red-900/20 p-3 rounded text-sm text-red-700 dark:text-red-400"
+      class="p-3 rounded-lg text-sm border"
+      style="background-color: var(--color-error-bg, #fef2f2); border-color: var(--color-error-border, #fecaca); color: var(--color-error-text, #dc2626);"
     >
       {{ error }}
     </div>
@@ -82,74 +85,79 @@
     <!-- Loading -->
     <div
       v-if="loading && !frameworks.length"
-      class="text-center py-8 text-gray-500"
+      class="flex justify-center py-8"
       aria-live="polite"
     >
-      {{ $t('common.loading') }}
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]" />
     </div>
 
     <!-- Framework list -->
-    <div v-if="frameworks.length" class="space-y-4">
+    <div v-if="frameworks.length" class="space-y-3">
       <div
         v-for="fw in frameworks"
         :key="fw.framework_id"
-        class="border rounded-lg overflow-hidden"
+        class="border border-[var(--color-border)] rounded-lg overflow-hidden bg-[var(--color-surface)]"
       >
         <div
-          class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+          class="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--color-surface-secondary)] transition-colors"
           @click="selectFramework(fw.framework_id)"
         >
           <div>
-            <h3 class="font-medium">{{ fw.name }}</h3>
-            <p class="text-xs text-gray-500">
+            <h3 class="font-medium text-[var(--color-text-primary)]">{{ fw.name }}</h3>
+            <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">
               {{ fw.framework_type }}
               <span v-if="fw.source_document"> &middot; {{ fw.source_document }}</span>
             </p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-3">
             <button
-              class="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded"
+              class="px-2 py-1 text-xs rounded transition-colors"
+              style="color: var(--color-error-text, #dc2626);"
               @click.stop="handleDelete(fw.framework_id)"
             >
               {{ $t('common.delete') }}
             </button>
-            <span class="text-gray-400 text-sm">
-              {{ selectedId === fw.framework_id ? '&#9660;' : '&#9654;' }}
-            </span>
+            <svg
+              class="w-4 h-4 text-[var(--color-text-secondary)] transition-transform"
+              :class="{ 'rotate-180': selectedId === fw.framework_id }"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
         </div>
 
         <!-- Expanded tree + coverage -->
         <div
           v-if="selectedId === fw.framework_id"
-          class="border-t p-4 space-y-4"
+          class="border-t border-[var(--color-border)] p-4 space-y-4"
         >
           <!-- Coverage stats -->
           <div
             v-if="coverage"
             class="grid grid-cols-3 gap-4 text-center"
           >
-            <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded">
-              <div class="text-2xl font-bold text-blue-600">
+            <div class="p-3 rounded-lg" style="background-color: var(--color-info-bg, #eff6ff);">
+              <div class="text-2xl font-bold" style="color: var(--color-info-text, #2563eb);">
                 {{ coverage.total_objectives }}
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-[var(--color-text-secondary)]">
                 {{ $t('panel.curriculum.coverage.totalObjectives') }}
               </div>
             </div>
-            <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded">
-              <div class="text-2xl font-bold text-green-600">
+            <div class="p-3 rounded-lg" style="background-color: var(--color-success-bg, #dcfce7);">
+              <div class="text-2xl font-bold" style="color: var(--color-success-text, #15803d);">
                 {{ coverage.mapped_objectives }}
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-[var(--color-text-secondary)]">
                 {{ $t('panel.curriculum.coverage.mapped') }}
               </div>
             </div>
-            <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded">
-              <div class="text-2xl font-bold text-orange-600">
+            <div class="p-3 rounded-lg" style="background-color: var(--color-warning-bg, #fef3c7);">
+              <div class="text-2xl font-bold" style="color: var(--color-warning-text, #92400e);">
                 {{ coverage.coverage_percent }}%
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-[var(--color-text-secondary)]">
                 {{ $t('panel.curriculum.coverage.percent') }}
               </div>
             </div>
@@ -163,10 +171,15 @@
     <!-- Empty state -->
     <div
       v-if="!loading && !frameworks.length"
-      class="text-center py-12 text-gray-500"
+      class="text-center py-16"
     >
-      <p class="text-lg mb-2">{{ $t('panel.curriculum.empty.title') }}</p>
-      <p class="text-sm">{{ $t('panel.curriculum.empty.hint') }}</p>
+      <div class="text-5xl mb-4 opacity-30">📋</div>
+      <p class="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
+        {{ $t('panel.curriculum.empty.title') }}
+      </p>
+      <p class="text-sm text-[var(--color-text-secondary)]">
+        {{ $t('panel.curriculum.empty.hint') }}
+      </p>
     </div>
 
     <!-- Import dialog -->

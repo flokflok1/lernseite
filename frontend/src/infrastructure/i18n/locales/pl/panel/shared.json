@@ -89,10 +89,17 @@
     "settings": "Ustawienia",
     "systemSettings": "Ustawienia systemu",
     "translations": "Tłumaczenia",
+    "exams": "Egzaminy",
     "examArchive": "Archiwum egzaminów",
     "curriculum": "Plany ramowe",
     "examTrainer": "Trener egzaminów",
     "users": "Użytkownicy"
+  },
+  "exams": {
+    "tabs": {
+      "archive": "Archiwum",
+      "curriculum": "Plany ramowe"
+    }
   },
   "examArchive": {
     "title": "Archiwum egzaminów",

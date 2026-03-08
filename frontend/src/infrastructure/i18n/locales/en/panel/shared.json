@@ -184,7 +184,10 @@
     "selectProvider": "AI Provider",
     "selectModel": "Model",
     "noProviders": "No AI providers configured",
-    "aiSettings": "AI Settings"
+    "aiSettings": "AI Settings",
+    "tokens": "Tokens",
+    "previewFailed": "Preview failed",
+    "generationFailed": "Generation failed"
   },
   "examTrainer": {
     "title": "Exam Trainer",

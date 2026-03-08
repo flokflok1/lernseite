@@ -171,9 +171,9 @@
     "generating": "Generowanie...",
     "generatingHint": "AI tworzy wyjaśnienia — może to potrwać 1-2 minuty",
     "generatingProgress": "Generowanie kursu...",
-    "chaptersReady": "rozdzialow gotowych",
-    "generationComplete": "Wszystkie rozdzialy wygenerowane pomyslnie!",
-    "chaptersFailed": "rozdzialow nie powiodlo sie",
+    "chaptersReady": "rozdziałów gotowych",
+    "generationComplete": "Wszystkie rozdziały wygenerowane pomyślnie!",
+    "chaptersFailed": "rozdziałów nie powiodło się",
     "success": "Kurs wygenerowany pomyślnie!",
     "openInEditor": "Otwórz w edytorze",
     "questions": "Pytania",
@@ -184,7 +184,10 @@
     "selectProvider": "Dostawca AI",
     "selectModel": "Model",
     "noProviders": "Brak skonfigurowanych dostawców AI",
-    "aiSettings": "Ustawienia AI"
+    "aiSettings": "Ustawienia AI",
+    "tokens": "Tokeny",
+    "previewFailed": "Podgląd nie powiódł się",
+    "generationFailed": "Generowanie nie powiodło się"
   },
   "examTrainer": {
     "title": "Trener egzaminów",

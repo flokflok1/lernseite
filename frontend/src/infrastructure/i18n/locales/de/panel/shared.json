@@ -184,7 +184,10 @@
     "selectProvider": "KI-Anbieter",
     "selectModel": "Modell",
     "noProviders": "Keine KI-Anbieter konfiguriert",
-    "aiSettings": "KI-Einstellungen"
+    "aiSettings": "KI-Einstellungen",
+    "tokens": "Tokens",
+    "previewFailed": "Vorschau fehlgeschlagen",
+    "generationFailed": "Generierung fehlgeschlagen"
   },
   "examTrainer": {
     "title": "Prüfungstrainer",

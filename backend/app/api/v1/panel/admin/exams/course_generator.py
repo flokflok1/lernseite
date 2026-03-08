@@ -96,9 +96,5 @@ def get_course_generation_progress(course_id):
     Reads from Redis (set by the Celery background task).
     Returns: {total, completed, failed, status}
     """
-    from app.infrastructure.tasks.course_generation_tasks import (
-        get_generation_progress,
-    )
-
-    progress = get_generation_progress(course_id)
+    progress = ExamCourseGeneratorService.get_generation_progress(course_id)
     return jsonify({'success': True, 'data': progress}), 200

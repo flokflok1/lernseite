@@ -97,63 +97,20 @@
       class="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-4 space-y-4"
     >
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ plan.title }}
-        </h3>
+        <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">{{ plan.title }}</h3>
         <div class="flex items-center gap-3 text-xs text-[var(--color-text-secondary)]">
           <span>{{ plan.total_questions }} {{ t('panel.examCourseGenerator.questions') }}</span>
           <span>{{ plan.chapters.length }} {{ t('panel.examCourseGenerator.chapters') }}</span>
           <span>{{ Math.round(plan.total_points) }} {{ t('panel.examCourseGenerator.points') }}</span>
         </div>
       </div>
-
-      <!-- Chapter List — hierarchical -->
       <div class="space-y-3">
-        <div
+        <ChapterPreviewCard
           v-for="(ch, idx) in plan.chapters"
           :key="ch.topic"
-          class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4"
-        >
-          <div class="flex items-center justify-between">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-mono text-[var(--color-text-secondary)] w-6 shrink-0">
-                  {{ idx + 1 }}
-                </span>
-                <h4 class="font-semibold text-[var(--color-text-primary)] truncate">
-                  {{ chapterTitle(ch) }}
-                </h4>
-              </div>
-              <p class="text-sm text-[var(--color-text-secondary)] mt-1 ml-8">
-                {{ ch.question_count }} {{ t('panel.examCourseGenerator.questions') }},
-                {{ Math.round(ch.point_weight) }} {{ t('panel.examCourseGenerator.points') }}
-              </p>
-              <div v-if="ch.child_topics?.length" class="mt-2 ml-8 flex flex-wrap gap-1">
-                <span
-                  v-for="child in ch.child_topics"
-                  :key="child"
-                  class="text-xs px-2 py-0.5 rounded bg-[var(--color-primary-bg,#ede9fe)] text-[var(--color-primary-text,#6d28d9)]"
-                >
-                  {{ formatTopic(child) }}
-                </span>
-              </div>
-            </div>
-            <div class="text-right text-sm text-[var(--color-text-secondary)] shrink-0 ml-4">
-              <div class="flex gap-1 flex-wrap justify-end">
-                <span
-                  v-for="lm in ch.lm_types"
-                  :key="lm"
-                  class="px-1.5 py-0.5 text-xs rounded bg-[var(--color-primary-bg,#ede9fe)] text-[var(--color-primary-text,#6d28d9)]"
-                >
-                  LM{{ lm }}
-                </span>
-              </div>
-              <span class="text-xs text-[var(--color-text-secondary)] mt-1 block">
-                {{ ch.lm_types.length }} {{ t('panel.examCourseGenerator.lmCount') }}
-              </span>
-            </div>
-          </div>
-        </div>
+          :chapter="ch"
+          :index="idx"
+        />
       </div>
 
       <!-- Simulations -->
@@ -227,7 +184,7 @@
       <p class="text-xs text-[var(--color-success-text,#15803d)] mt-1">
         {{ result.chapters_count }} {{ t('panel.examCourseGenerator.chapters') }},
         {{ result.lm_count }} {{ t('panel.examCourseGenerator.lmCount') }},
-        {{ result.tokens_used }} Tokens
+        {{ result.tokens_used }} {{ t('panel.examCourseGenerator.tokens') }}
       </p>
       <a
         :href="`/panel/courses/${result.course_id}/edit`"
@@ -254,13 +211,13 @@ import type {
   CoursePlan,
   GenerateResult,
   GenerationProgress,
-  ChapterPreview,
 } from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
 import {
   previewExamCourse,
   generateExamCourse,
   getGenerationProgress,
 } from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
+import ChapterPreviewCard from './ChapterPreviewCard.vue'
 import { fetchExamTypes } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
 import type { ExamType } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
 import { archiveListRegions } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
@@ -385,31 +342,6 @@ onMounted(async () => {
   }
 })
 
-const ACRONYMS = new Set([
-  'sql', 'erm', 'csv', 'xml', 'json', 'html', 'dhcp',
-  'raid', 'itil', 'vpn', 'ipv4', 'osi', 'dsgvo', 'wlan',
-  'it', 'ip', 'css', 'http', 'https', 'api', 'dns', 'tcp', 'udp',
-])
-
-function formatTopic(topic: string): string {
-  return topic
-    .replace(/_/g, ' ')
-    .split(' ')
-    .map(word => {
-      if (ACRONYMS.has(word.toLowerCase())) return word.toUpperCase()
-      return word.charAt(0).toUpperCase() + word.slice(1)
-    })
-    .join(' ')
-}
-
-function chapterTitle(ch: ChapterPreview): string {
-  if (ch.parent_label) {
-    const label = ch.parent_label[locale.value] || ch.parent_label['de'] || ch.parent_label['en']
-    if (label) return label
-  }
-  return formatTopic(ch.topic)
-}
-
 async function handlePreview() {
   previewing.value = true
   error.value = null
@@ -418,7 +350,7 @@ async function handlePreview() {
   try {
     plan.value = await previewExamCourse(examType.value, region.value)
   } catch (err: any) {
-    error.value = err?.response?.data?.error || 'Preview failed'
+    error.value = err?.response?.data?.error || t('panel.examCourseGenerator.previewFailed')
   } finally {
     previewing.value = false
   }
@@ -439,7 +371,7 @@ async function handleGenerate() {
       generating.value = false
     }
   } catch (err: any) {
-    error.value = err?.response?.data?.error || 'Generation failed'
+    error.value = err?.response?.data?.error || t('panel.examCourseGenerator.generationFailed')
     generating.value = false
   }
 }

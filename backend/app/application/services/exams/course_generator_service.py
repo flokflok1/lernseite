@@ -80,6 +80,18 @@ class ExamCourseGeneratorService:
         )
         return CourseGeneratorBuilder.build(plan, creator_user_id, options)
 
+    @staticmethod
+    def get_generation_progress(course_id: str) -> Dict[str, Any]:
+        """
+        Read generation progress from infrastructure layer (Redis).
+
+        Returns a dict with {total, completed, failed, status}.
+        """
+        from app.infrastructure.tasks.course_generation_tasks import (
+            get_generation_progress as _get_progress,
+        )
+        return _get_progress(course_id)
+
 
 def _fetch_questions_for_course(
     exam_type_key: str, region: str

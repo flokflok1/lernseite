@@ -19,6 +19,7 @@ from app.infrastructure.persistence.repositories.exams.simulations import ExamSi
 from app.infrastructure.persistence.repositories.exams.trainer import ExamTrainerRepository
 from app.infrastructure.persistence.repositories.exams.sessions import ExamSessionRepository
 from app.infrastructure.persistence.repositories.exams.curriculum import CurriculumFrameworkRepository
+from app.infrastructure.persistence.repositories.exams.user_exam_goals import UserExamGoalsRepository
 
 __all__ = [
     'ExamRepository',
@@ -27,4 +28,5 @@ __all__ = [
     'ExamTrainerRepository',
     'ExamSessionRepository',
     'CurriculumFrameworkRepository',
+    'UserExamGoalsRepository',
 ]

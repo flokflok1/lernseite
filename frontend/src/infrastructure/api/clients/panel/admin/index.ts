@@ -47,6 +47,7 @@ export * from './analytics/analytics.api'
 // Exams
 export * from './exams/exams.api'
 export * from './exams/archive.api'
+export * from './exams/curriculum.api'
 
 // Organisations
 export * from './organisations/organisations.api'

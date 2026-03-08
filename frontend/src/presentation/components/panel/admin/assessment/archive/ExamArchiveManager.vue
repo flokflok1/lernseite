@@ -26,20 +26,6 @@
             </span>
           </div>
 
-          <!-- View Mode Toggle -->
-          <div class="flex rounded-lg border border-[var(--color-border)] overflow-hidden">
-            <button
-              v-for="mode in (['flat', 'grouped'] as const)"
-              :key="mode"
-              @click="viewMode = mode"
-              class="px-3.5 py-1.5 text-xs font-medium transition-colors"
-              :class="viewMode === mode
-                ? 'bg-[var(--color-primary)] text-white'
-                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'"
-            >
-              {{ t(`panel.examArchive.viewMode.${mode}`) }}
-            </button>
-          </div>
         </div>
 
         <div class="flex items-center gap-2.5">
@@ -186,59 +172,39 @@
         </p>
       </div>
 
-      <!-- Grouped Session View -->
-      <div v-else-if="viewMode === 'grouped'" class="space-y-8">
-        <div v-if="loadingSessions" class="flex justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--color-border)] border-t-[var(--color-primary)]" />
-        </div>
-        <p
-          v-else-if="sessionGroups.length === 0"
-          class="text-sm text-[var(--color-text-secondary)] text-center py-12"
-        >
-          {{ t('panel.examArchive.session.noSessions') }}
-        </p>
-        <ExamTypeSection
-          v-else
-          v-for="group in sessionGroups"
-          :key="group.exam_type"
-          :group="group"
-        />
+      <!-- Folder Explorer View -->
+      <div v-else-if="loadingSessions" class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--color-border)] border-t-[var(--color-primary)]" />
       </div>
-
-      <!-- Flat List View -->
-      <div v-else class="space-y-3">
-        <ExamArchiveCard
-          v-for="exam in exams"
-          :key="exam.exam_id"
-          :exam="exam"
-          @analyze="handleAnalyzeSingle"
-        />
-      </div>
+      <p
+        v-else-if="sessionGroups.length === 0"
+        class="text-sm text-[var(--color-text-secondary)] text-center py-12"
+      >
+        {{ t('panel.examArchive.session.noSessions') }}
+      </p>
+      <ExamFolderExplorer v-else :groups="sessionGroups" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ScannedPaper, ArchiveExam, SessionGroup } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 import {
   archiveScanFolder,
   archiveImportPapers,
-  archiveAnalyzeExam,
   archiveAnalyzeAll,
   archiveListExams,
   archiveListSessions,
 } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
-import ExamArchiveCard from './ExamArchiveCard.vue'
 import ExamUploadDialog from './ExamUploadDialog.vue'
-import { ExamTypeSection } from './sessions'
+import ExamFolderExplorer from './ExamFolderExplorer.vue'
 import { ExamCourseGenerator } from '../exams'
 
 const { t } = useI18n()
 
 // State
-const viewMode = ref<'flat' | 'grouped'>('grouped')
 const exams = ref<ArchiveExam[]>([])
 const sessionGroups = ref<SessionGroup[]>([])
 const scannedPapers = ref<ScannedPaper[]>([])
@@ -285,13 +251,6 @@ const loadSessions = async () => {
     loadingSessions.value = false
   }
 }
-
-// Load sessions when switching to grouped view
-watch(viewMode, (mode) => {
-  if (mode === 'grouped' && sessionGroups.value.length === 0) {
-    loadSessions()
-  }
-})
 
 const handleScan = async () => {
   scanning.value = true
@@ -346,22 +305,9 @@ const handleAnalyzeAll = async () => {
   }
 }
 
-const handleAnalyzeSingle = async (examId: string) => {
-  try {
-    await archiveAnalyzeExam(examId)
-    await loadExams()
-    startAutoRefresh()
-  } catch (err) {
-    console.error('Analyze failed:', err)
-  }
-}
-
 const handleUploadComplete = async (_examId: string) => {
   statusMessage.value = t('panel.examArchive.upload.success')
-  await loadExams()
-  if (viewMode.value === 'grouped') {
-    await loadSessions()
-  }
+  await Promise.all([loadExams(), loadSessions()])
 }
 
 const startAutoRefresh = () => {

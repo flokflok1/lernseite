@@ -172,3 +172,63 @@ def delete_topic(topic_id):
     """Delete a topic."""
     TopicTaxonomyRepository.delete(topic_id)
     return jsonify({'success': True})
+
+
+# --- Taxonomy Bootstrap ---
+
+@intelligence_bp.route('/types/<exam_type>/topics/bootstrap', methods=['POST'])
+@admin_required
+def bootstrap_taxonomy(exam_type):
+    """Bootstrap topic taxonomy for an exam type via AI grouping.
+
+    Body (optional): {"provider": "...", "model": "..."}
+    """
+    body = request.get_json(silent=True) or {}
+    provider = body.get('provider')
+    model = body.get('model')
+
+    from app.application.services.exams.taxonomy_bootstrap_service import (
+        TaxonomyBootstrapService,
+    )
+    try:
+        result = TaxonomyBootstrapService.bootstrap_exam_type(
+            exam_type=exam_type,
+            provider=provider,
+            model=model,
+        )
+    except ValueError as exc:
+        logger.warning("Taxonomy bootstrap failed for %s: %s", exam_type, exc)
+        return jsonify({'success': False, 'error': str(exc)}), 422
+    except Exception:
+        logger.exception("Taxonomy bootstrap error for %s", exam_type)
+        raise
+
+    return jsonify({'success': True, 'data': result}), 200
+
+
+@intelligence_bp.route(
+    '/types/<exam_type>/topics/classify-orphan', methods=['POST'],
+)
+@admin_required
+def classify_orphan_topic(exam_type):
+    """Classify a single orphan topic into an existing parent category.
+
+    Body: {"topic_key": "...", "provider": "...", "model": "..."}
+    """
+    body = request.get_json(silent=True) or {}
+    topic_key = body.get('topic_key')
+    if not topic_key:
+        return jsonify({
+            'success': False, 'error': 'topic_key required',
+        }), 400
+
+    from app.application.services.exams.taxonomy_bootstrap_service import (
+        TaxonomyBootstrapService,
+    )
+    result = TaxonomyBootstrapService.classify_orphan_topic(
+        exam_type=exam_type,
+        topic_key=topic_key,
+        provider=body.get('provider'),
+        model=body.get('model'),
+    )
+    return jsonify({'success': True, 'data': result}), 200

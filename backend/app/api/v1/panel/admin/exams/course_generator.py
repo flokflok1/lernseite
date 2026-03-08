@@ -85,3 +85,20 @@ def generate_course():
         'success': True,
         **result,
     }), 201
+
+
+@course_gen_bp.route('/courses/<course_id>/generation-progress', methods=['GET'])
+@admin_required
+def get_course_generation_progress(course_id):
+    """
+    Get real-time generation progress for a course.
+
+    Reads from Redis (set by the Celery background task).
+    Returns: {total, completed, failed, status}
+    """
+    from app.infrastructure.tasks.course_generation_tasks import (
+        get_generation_progress,
+    )
+
+    progress = get_generation_progress(course_id)
+    return jsonify({'success': True, 'data': progress}), 200

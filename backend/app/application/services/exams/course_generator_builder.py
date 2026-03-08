@@ -83,6 +83,19 @@ class CourseGeneratorBuilder:
 
         status = 'generating' if ai_plan_ids else 'ready'
 
+        # Trigger background AI content generation for all plans
+        if ai_plan_ids:
+            from app.infrastructure.tasks.course_generation_tasks import (
+                generate_course_content_task,
+            )
+            generate_course_content_task.delay(
+                course_id, ai_plan_ids, creator_user_id,
+            )
+            logger.info(
+                "Queued Celery task for %d AI plans (course %s)",
+                len(ai_plan_ids), course_id,
+            )
+
         logger.info(
             "Course generation complete: %s -- %d chapters, %d LMs, "
             "%d AI plans (%s)",

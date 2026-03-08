@@ -25,14 +25,17 @@ class CurriculumService:
     # ── AI PDF Import ──────────────────────────────────────────────
 
     @staticmethod
-    def parse_pdf_with_ai(pdf_text: str) -> Dict[str, Any]:
+    def parse_pdf_with_ai(
+        pdf_text: str,
+        provider: str = None,
+        model: str = None,
+    ) -> Dict[str, Any]:
         """Use AI to parse PDF text into a curriculum structure.
-
-        Sends the raw PDF text to an AI model with a structured prompt
-        requesting JSON output matching the bulk_import_framework schema.
 
         Args:
             pdf_text: Extracted text content from a curriculum PDF.
+            provider: Optional AI provider name (caller-selected).
+            model: Optional model name. Falls back to provider default.
 
         Returns:
             Parsed curriculum dict with sections/positions/objectives.
@@ -70,7 +73,8 @@ class CurriculumService:
             f"{pdf_text}"
         )
 
-        adapter = AIAdapter()
+        ai_opts = {k: v for k, v in {'provider': provider, 'model': model}.items() if v}
+        adapter = AIAdapter(**ai_opts)
         response = adapter.send_request(
             prompt=prompt,
             temperature=0.1,

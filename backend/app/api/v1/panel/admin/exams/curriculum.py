@@ -90,8 +90,64 @@ def import_pdf_preview():
             'error': 'pdf_text must be at least 100 characters',
         }), 400
 
+    provider = body.get('provider')
+    model = body.get('model')
+
     try:
-        preview = CurriculumService.parse_pdf_with_ai(pdf_text)
+        preview = CurriculumService.parse_pdf_with_ai(
+            pdf_text, provider=provider, model=model,
+        )
+        return jsonify({'success': True, 'preview': preview})
+    except ValueError as exc:
+        logger.exception("AI PDF parse failed")
+        return jsonify({'success': False, 'error': str(exc)}), 422
+    except Exception:
+        logger.exception("Unexpected error during PDF AI parse")
+        return jsonify({
+            'success': False,
+            'error': 'AI processing failed',
+        }), 500
+
+
+@curriculum_bp.route('/frameworks/import-pdf-upload', methods=['POST'])
+@admin_required
+def import_pdf_upload():
+    """Upload a PDF file, extract text, and parse with AI."""
+    if 'file' not in request.files:
+        return jsonify({
+            'success': False,
+            'error': 'No file uploaded',
+        }), 400
+
+    file = request.files['file']
+    if not file.filename or not file.filename.lower().endswith('.pdf'):
+        return jsonify({
+            'success': False,
+            'error': 'Only PDF files are allowed',
+        }), 400
+
+    provider = request.form.get('provider')
+    model = request.form.get('model')
+
+    try:
+        pdf_text = _extract_text_from_pdf(file)
+    except Exception:
+        logger.exception("PDF text extraction failed")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to extract text from PDF',
+        }), 422
+
+    if len(pdf_text.strip()) < 100:
+        return jsonify({
+            'success': False,
+            'error': 'PDF contains too little text (min 100 chars)',
+        }), 400
+
+    try:
+        preview = CurriculumService.parse_pdf_with_ai(
+            pdf_text, provider=provider, model=model,
+        )
         return jsonify({'success': True, 'preview': preview})
     except ValueError as exc:
         logger.exception("AI PDF parse failed")
@@ -224,3 +280,16 @@ def get_relevance(framework_id):
     """Get relevance weights for a curriculum framework."""
     weights = CurriculumService.get_exam_relevance_weights(framework_id)
     return jsonify({'success': True, 'relevance': weights})
+
+
+# --- Helpers ---
+
+def _extract_text_from_pdf(file_storage) -> str:
+    """Extract text from an uploaded PDF file using PyPDF2."""
+    import io
+    from PyPDF2 import PdfReader
+
+    pdf_bytes = file_storage.read()
+    reader = PdfReader(io.BytesIO(pdf_bytes))
+    pages = [page.extract_text() or '' for page in reader.pages]
+    return '\n'.join(pages)

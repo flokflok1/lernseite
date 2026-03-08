@@ -99,11 +99,31 @@ export const deleteFramework = async (
 // --- AI PDF Import ---
 
 export const importPdfPreview = async (
-  pdfText: string
+  pdfText: string,
+  provider?: string,
+  model?: string,
 ): Promise<Record<string, any>> => {
   const { data } = await http.post(
     '/admin/curriculum/frameworks/import-pdf',
-    { pdf_text: pdfText }
+    { pdf_text: pdfText, provider, model }
+  )
+  return data.preview
+}
+
+export const importPdfFilePreview = async (
+  file: File,
+  provider?: string,
+  model?: string,
+): Promise<Record<string, any>> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  if (provider) formData.append('provider', provider)
+  if (model) formData.append('model', model)
+
+  const { data } = await http.post(
+    '/admin/curriculum/frameworks/import-pdf-upload',
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
   )
   return data.preview
 }

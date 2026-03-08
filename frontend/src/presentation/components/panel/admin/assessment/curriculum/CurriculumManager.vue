@@ -190,6 +190,7 @@
       :error="error"
       @close="showImport = false"
       @parse="handleParse"
+      @parse-file="handleParseFile"
       @confirm="handleConfirm"
     />
   </div>
@@ -213,6 +214,7 @@ const {
   addFramework,
   removeFramework,
   parsePdf,
+  parsePdfFile,
   confirmImport,
 } = useCurriculum()
 
@@ -254,8 +256,15 @@ async function handleDelete(frameworkId: number) {
   }
 }
 
-async function handleParse(pdfText: string) {
-  const preview = await parsePdf(pdfText)
+async function handleParse(pdfText: string, provider: string, model: string) {
+  const preview = await parsePdf(pdfText, provider || undefined, model || undefined)
+  if (preview && importDialogRef.value) {
+    importDialogRef.value.setPreview(preview)
+  }
+}
+
+async function handleParseFile(file: File, provider: string, model: string) {
+  const preview = await parsePdfFile(file, provider || undefined, model || undefined)
   if (preview && importDialogRef.value) {
     importDialogRef.value.setPreview(preview)
   }

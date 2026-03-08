@@ -22,10 +22,19 @@
       "percent": "Coverage"
     },
     "import": {
-      "title": "Import framework from PDF",
+      "title": "Import framework",
+      "uploadLabel": "Upload PDF file",
+      "dropHint": "Drop PDF here or click",
+      "dropHintFormats": "PDF files only",
+      "fileSelected": "File selected",
+      "removeFile": "Remove file",
+      "orPasteText": "Or paste text",
       "pasteLabel": "Paste PDF text",
       "pastePlaceholder": "Copy the text from the framework PDF and paste it here...",
       "pasteHint": "At least 100 characters. AI will automatically detect sections, positions and objectives.",
+      "selectProvider": "AI Provider",
+      "selectModel": "Model",
+      "noProviders": "No providers available",
       "previewSuccess": "AI analysis successful! Please review the detected structure.",
       "name": "Name",
       "type": "Type",
@@ -33,7 +42,10 @@
       "sourceDocument": "Source document (optional)",
       "sourcePlaceholder": "e.g. Training Framework FISI 2020",
       "parseBtn": "Analyze with AI",
-      "confirmBtn": "Confirm import"
+      "confirmBtn": "Confirm import",
+      "analyzing": "AI analyzing...",
+      "uploadError": "Failed to upload file",
+      "noInput": "Please upload a PDF file or paste text"
     },
     "tags": {
       "label": "Curriculum Objectives",

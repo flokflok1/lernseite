@@ -15,6 +15,7 @@ import {
   createFramework,
   deleteFramework,
   importPdfPreview,
+  importPdfFilePreview,
   importPdfConfirm,
   autoMapQuestions,
   fetchCoverageStats,
@@ -95,11 +96,25 @@ export function useCurriculum() {
     }
   }
 
-  async function parsePdf(pdfText: string) {
+  async function parsePdf(pdfText: string, provider?: string, model?: string) {
     loading.value = true
     error.value = null
     try {
-      importPreview.value = await importPdfPreview(pdfText)
+      importPreview.value = await importPdfPreview(pdfText, provider, model)
+      return importPreview.value
+    } catch (e: any) {
+      error.value = e?.response?.data?.error || 'AI PDF parse failed'
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function parsePdfFile(file: File, provider?: string, model?: string) {
+    loading.value = true
+    error.value = null
+    try {
+      importPreview.value = await importPdfFilePreview(file, provider, model)
       return importPreview.value
     } catch (e: any) {
       error.value = e?.response?.data?.error || 'AI PDF parse failed'
@@ -182,6 +197,7 @@ export function useCurriculum() {
     addFramework,
     removeFramework,
     parsePdf,
+    parsePdfFile,
     confirmImport,
     runAutoMap,
     loadCoverage,

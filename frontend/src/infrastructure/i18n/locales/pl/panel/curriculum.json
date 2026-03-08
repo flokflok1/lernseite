@@ -22,10 +22,19 @@
       "percent": "Pokrycie"
     },
     "import": {
-      "title": "Importuj plan ramowy z PDF",
+      "title": "Importuj plan ramowy",
+      "uploadLabel": "Prześlij plik PDF",
+      "dropHint": "Upuść PDF tutaj lub kliknij",
+      "dropHintFormats": "Tylko pliki PDF",
+      "fileSelected": "Plik wybrany",
+      "removeFile": "Usuń plik",
+      "orPasteText": "Lub wklej tekst",
       "pasteLabel": "Wklej tekst PDF",
       "pastePlaceholder": "Skopiuj tekst z PDF planu ramowego i wklej go tutaj...",
       "pasteHint": "Minimum 100 znaków. AI automatycznie rozpozna sekcje, pozycje i cele.",
+      "selectProvider": "Dostawca AI",
+      "selectModel": "Model",
+      "noProviders": "Brak dostępnych dostawców",
       "previewSuccess": "Analiza AI zakończona! Sprawdź wykrytą strukturę.",
       "name": "Nazwa",
       "type": "Typ",
@@ -33,7 +42,10 @@
       "sourceDocument": "Dokument źródłowy (opcjonalnie)",
       "sourcePlaceholder": "np. Plan ramowy FISI 2020",
       "parseBtn": "Analizuj z AI",
-      "confirmBtn": "Potwierdź import"
+      "confirmBtn": "Potwierdź import",
+      "analyzing": "AI analizuje...",
+      "uploadError": "Nie udało się przesłać pliku",
+      "noInput": "Prześlij plik PDF lub wklej tekst"
     },
     "tags": {
       "label": "Cele nauczania",

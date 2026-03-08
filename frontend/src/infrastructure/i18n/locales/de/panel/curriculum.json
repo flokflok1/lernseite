@@ -22,10 +22,19 @@
       "percent": "Abdeckung"
     },
     "import": {
-      "title": "Rahmenplan aus PDF importieren",
+      "title": "Rahmenplan importieren",
+      "uploadLabel": "PDF-Datei hochladen",
+      "dropHint": "PDF hier ablegen oder klicken",
+      "dropHintFormats": "Nur PDF-Dateien erlaubt",
+      "fileSelected": "Datei ausgewählt",
+      "removeFile": "Datei entfernen",
+      "orPasteText": "Oder Text einfügen",
       "pasteLabel": "PDF-Text einfügen",
       "pastePlaceholder": "Kopieren Sie den Text aus dem Rahmenplan-PDF und fügen Sie ihn hier ein...",
       "pasteHint": "Mindestens 100 Zeichen. Die KI erkennt automatisch Abschnitte, Positionen und Lernziele.",
+      "selectProvider": "KI-Anbieter",
+      "selectModel": "Modell",
+      "noProviders": "Keine Anbieter verfügbar",
       "previewSuccess": "KI-Analyse erfolgreich! Bitte prüfen Sie die erkannte Struktur.",
       "name": "Name",
       "type": "Typ",
@@ -33,7 +42,10 @@
       "sourceDocument": "Quelldokument (optional)",
       "sourcePlaceholder": "z.B. Ausbildungsrahmenplan FISI 2020",
       "parseBtn": "Mit KI analysieren",
-      "confirmBtn": "Import bestätigen"
+      "confirmBtn": "Import bestätigen",
+      "analyzing": "KI analysiert...",
+      "uploadError": "Fehler beim Hochladen der Datei",
+      "noInput": "Bitte laden Sie eine PDF-Datei hoch oder fügen Sie Text ein"
     },
     "tags": {
       "label": "Curriculum-Lernziele",

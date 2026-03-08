@@ -4,8 +4,9 @@ Exam Course Generator Service — Application Layer.
 Orchestrates course generation from exam archive questions.
 Two phases: preview() returns a plan, generate() persists it.
 """
+import json
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 
 from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan
 from app.domain.services.exam_topic_utils import normalize_topic
@@ -111,7 +112,7 @@ def _group_by_taxonomy(
 
 def _build_taxonomy_lookup(
     all_topics: List[Dict],
-) -> tuple:
+) -> Tuple[Dict[str, str], Dict[str, Dict]]:
     """Build child->parent lookup and parent label map from taxonomy rows."""
     id_to_key: Dict[str, str] = {}
     parent_labels: Dict[str, Dict] = {}
@@ -121,13 +122,7 @@ def _build_taxonomy_lookup(
         tid = str(row['topic_id'])
         key = row['topic_key']
         id_to_key[tid] = key
-        label = row.get('topic_label') or {}
-        if isinstance(label, str):
-            import json
-            try:
-                label = json.loads(label)
-            except (json.JSONDecodeError, TypeError):
-                label = {}
+        label = _ensure_dict_label(row.get('topic_label'))
         if row.get('parent_topic_id') is None:
             parent_labels[key] = label
 
@@ -203,10 +198,23 @@ def _group_flat(questions: List[Dict]) -> Dict[str, Dict]:
     return groups
 
 
+def _ensure_dict_label(value: Any) -> Dict:
+    """Parse topic_label to dict, handling both str (JSON) and dict inputs."""
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            return parsed if isinstance(parsed, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+    return {}
+
+
 def _primary_topic(question: Dict) -> str:
     """Extract the first (primary) topic from a question dict."""
     topics = question.get('topics') or []
-    return topics[0] if topics else 'allgemein'
+    return topics[0] if topics and topics[0] else 'allgemein'
 
 
 def _build_chapters_from_groups(

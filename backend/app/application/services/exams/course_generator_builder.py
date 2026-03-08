@@ -256,13 +256,10 @@ def _chapter_title_from_plan(
     chapter_plan: ChapterPlan, language: str,
 ) -> str:
     """Derive chapter title from parent_label (taxonomy) or topic key."""
-    label = chapter_plan.parent_label or {}
-    if isinstance(label, str):
-        import json
-        try:
-            label = json.loads(label)
-        except (json.JSONDecodeError, TypeError):
-            label = {}
+    from app.application.services.exams.course_generator_service import (
+        _ensure_dict_label,
+    )
+    label = _ensure_dict_label(chapter_plan.parent_label)
     return label.get(language, chapter_plan.topic.replace('_', ' ').title())
 
 

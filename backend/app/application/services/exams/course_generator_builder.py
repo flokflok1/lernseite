@@ -150,9 +150,10 @@ def _build_chapter(
         'en': f'{chapter_plan.question_count} questions, '
               f'{int(chapter_plan.point_weight)} points',
     }
+    chapter_title = _chapter_title_from_plan(chapter_plan, language)
     chapter = ChapterRepository.create({
         'course_id': course_id,
-        'title': chapter_plan.topic.replace('_', ' ').title(),
+        'title': chapter_title,
         'description': desc_templates.get(language, desc_templates['de']),
         'order_index': order_index + 1,
     })
@@ -249,6 +250,20 @@ def _build_simulation_chapter(
     })
 
     return {'lm_count': 1}
+
+
+def _chapter_title_from_plan(
+    chapter_plan: ChapterPlan, language: str,
+) -> str:
+    """Derive chapter title from parent_label (taxonomy) or topic key."""
+    label = chapter_plan.parent_label or {}
+    if isinstance(label, str):
+        import json
+        try:
+            label = json.loads(label)
+        except (json.JSONDecodeError, TypeError):
+            label = {}
+    return label.get(language, chapter_plan.topic.replace('_', ' ').title())
 
 
 def _build_lm_data(

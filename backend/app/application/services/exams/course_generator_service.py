@@ -13,6 +13,9 @@ from app.domain.services.lm_content_mapper import LMContentMapper
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
 from app.infrastructure.persistence.repositories.exams.questions import ExamQuestionRepository
 from app.infrastructure.persistence.repositories.exams.sessions import ExamSessionRepository
+from app.infrastructure.persistence.repositories.exams.topic_taxonomy import (
+    TopicTaxonomyRepository,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,25 +50,8 @@ class ExamCourseGeneratorService:
                 region=region,
             )
 
-        topic_groups = _group_by_topic(questions)
-        topic_groups = _merge_small_topics(topic_groups)
-
-        chapters = []
-        for topic, topic_questions in sorted(
-            topic_groups.items(),
-            key=lambda x: sum(q.get('points', 0) for q in x[1]),
-            reverse=True,
-        ):
-            lm_types = LMContentMapper.select_lm_types(topic_questions)
-            total_points = sum(q.get('points', 0) for q in topic_questions)
-
-            chapters.append(ChapterPlan(
-                topic=topic,
-                question_ids=[q['question_id'] for q in topic_questions],
-                lm_types=lm_types,
-                point_weight=total_points,
-                question_count=len(topic_questions),
-            ))
+        grouped = _group_by_taxonomy(questions, exam_type_key)
+        chapters = _build_chapters_from_groups(grouped)
 
         simulation_exam_ids = _find_simulation_exams(exam_type_key, region)
         title = _build_title(exam_type_key, region, language)
@@ -103,40 +89,149 @@ def _fetch_questions_for_course(
     )
 
 
-MIN_TOPIC_SIZE = 3  # Minimum questions for a standalone chapter
+def _group_by_taxonomy(
+    questions: List[Dict], exam_type: str,
+) -> Dict[str, Dict]:
+    """Group questions by taxonomy parent categories.
+
+    When a taxonomy exists the child->parent lookup drives grouping.
+    When no taxonomy data is found we fall back to flat grouping.
+
+    Returns {parent_key: {'questions': [...], 'label': {...}, 'children': [...]}}
+    """
+    all_topics = TopicTaxonomyRepository.find_all_by_exam_type(exam_type)
+    if not all_topics:
+        return _group_flat(questions)
+
+    child_to_parent, parent_labels = _build_taxonomy_lookup(all_topics)
+    return _assign_questions_to_parents(
+        questions, child_to_parent, parent_labels,
+    )
 
 
-def _group_by_topic(questions: List[Dict]) -> Dict[str, List[Dict]]:
-    """Group questions by their normalized topics."""
-    groups: Dict[str, List[Dict]] = {}
+def _build_taxonomy_lookup(
+    all_topics: List[Dict],
+) -> tuple:
+    """Build child->parent lookup and parent label map from taxonomy rows."""
+    id_to_key: Dict[str, str] = {}
+    parent_labels: Dict[str, Dict] = {}
+    child_to_parent: Dict[str, str] = {}
+
+    for row in all_topics:
+        tid = str(row['topic_id'])
+        key = row['topic_key']
+        id_to_key[tid] = key
+        label = row.get('topic_label') or {}
+        if isinstance(label, str):
+            import json
+            try:
+                label = json.loads(label)
+            except (json.JSONDecodeError, TypeError):
+                label = {}
+        if row.get('parent_topic_id') is None:
+            parent_labels[key] = label
+
+    for row in all_topics:
+        key = row['topic_key']
+        pid = row.get('parent_topic_id')
+        if pid is not None:
+            parent_key = id_to_key.get(str(pid), key)
+            child_to_parent[key] = parent_key
+        else:
+            child_to_parent[key] = key
+
+    return child_to_parent, parent_labels
+
+
+def _assign_questions_to_parents(
+    questions: List[Dict],
+    child_to_parent: Dict[str, str],
+    parent_labels: Dict[str, Dict],
+) -> Dict[str, Dict]:
+    """Assign each question to exactly one parent chapter (dedup by qid)."""
+    groups: Dict[str, Dict] = {}
+    seen_qids: set = set()
+
     for q in questions:
-        topics = q.get('topics') or []
-        if not topics:
-            topics = ['allgemein']
-        for topic in topics:
-            normalized = normalize_topic(topic)
-            if normalized not in groups:
-                groups[normalized] = []
-            groups[normalized].append(q)
+        qid = q.get('question_id')
+        if qid in seen_qids:
+            continue
+
+        primary_topic = _primary_topic(q)
+        normalized = normalize_topic(primary_topic)
+        parent_key = child_to_parent.get(normalized, normalized)
+
+        if parent_key not in groups:
+            groups[parent_key] = {
+                'questions': [],
+                'label': parent_labels.get(parent_key, {}),
+                'children': [],
+            }
+
+        groups[parent_key]['questions'].append(q)
+        seen_qids.add(qid)
+
+        if normalized != parent_key and normalized not in groups[parent_key]['children']:
+            groups[parent_key]['children'].append(normalized)
+
     return groups
 
 
-def _merge_small_topics(groups: Dict[str, List[Dict]]) -> Dict[str, List[Dict]]:
-    """Merge topics with fewer than MIN_TOPIC_SIZE questions into related larger topics."""
-    large = {k: v for k, v in groups.items() if len(v) >= MIN_TOPIC_SIZE}
-    small = {k: v for k, v in groups.items() if len(v) < MIN_TOPIC_SIZE}
+def _group_flat(questions: List[Dict]) -> Dict[str, Dict]:
+    """Legacy fallback: group by primary topic when no taxonomy exists."""
+    groups: Dict[str, Dict] = {}
+    seen_qids: set = set()
 
-    for topic, questions in small.items():
-        merged = False
-        for parent in large:
-            if parent in topic or topic in parent:
-                large[parent].extend(questions)
-                merged = True
-                break
-        if not merged:
-            large.setdefault('allgemein', []).extend(questions)
+    for q in questions:
+        qid = q.get('question_id')
+        if qid in seen_qids:
+            continue
 
-    return large
+        primary_topic = _primary_topic(q)
+        normalized = normalize_topic(primary_topic)
+
+        if normalized not in groups:
+            groups[normalized] = {
+                'questions': [],
+                'label': {},
+                'children': [],
+            }
+
+        groups[normalized]['questions'].append(q)
+        seen_qids.add(qid)
+
+    return groups
+
+
+def _primary_topic(question: Dict) -> str:
+    """Extract the first (primary) topic from a question dict."""
+    topics = question.get('topics') or []
+    return topics[0] if topics else 'allgemein'
+
+
+def _build_chapters_from_groups(
+    grouped: Dict[str, Dict],
+) -> List['ChapterPlan']:
+    """Convert grouped dict to sorted list of ChapterPlan VOs."""
+    chapters = []
+    for parent_key, group in grouped.items():
+        topic_questions = group['questions']
+        lm_types = LMContentMapper.select_lm_types(topic_questions)
+        total_points = sum(q.get('points', 0) for q in topic_questions)
+
+        chapters.append(ChapterPlan(
+            topic=parent_key,
+            question_ids=[q['question_id'] for q in topic_questions],
+            lm_types=lm_types,
+            point_weight=total_points,
+            question_count=len(topic_questions),
+            parent_topic=parent_key,
+            parent_label=group.get('label') or None,
+            child_topics=group.get('children') or None,
+        ))
+
+    chapters.sort(key=lambda ch: ch.point_weight, reverse=True)
+    return chapters
 
 
 def _find_simulation_exams(

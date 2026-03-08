@@ -5,7 +5,7 @@ Describes the structure of an auto-generated IHK exam course
 before it's persisted to the database.
 """
 from dataclasses import dataclass, field
-from typing import List
+from typing import Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -18,12 +18,21 @@ class LMMapping:
 
 @dataclass(frozen=True)
 class ChapterPlan:
-    """Plan for a single chapter (= one topic)."""
+    """Plan for a single chapter (= one topic).
+
+    When taxonomy data is available, parent_topic / parent_label /
+    child_topics carry the hierarchy information.  All three are
+    optional so the dataclass stays backward-compatible with flat
+    (non-taxonomy) grouping.
+    """
     topic: str
     question_ids: List[str]
     lm_types: List[int]
     point_weight: float
     question_count: int
+    parent_topic: Optional[str] = None
+    parent_label: Optional[Dict[str, str]] = None
+    child_topics: Optional[List[str]] = None
 
 
 @dataclass(frozen=True)
@@ -56,6 +65,9 @@ class ExamCoursePlan:
                     'question_count': ch.question_count,
                     'lm_types': ch.lm_types,
                     'point_weight': ch.point_weight,
+                    'parent_topic': ch.parent_topic,
+                    'parent_label': ch.parent_label,
+                    'child_topics': ch.child_topics,
                 }
                 for ch in self.chapters
             ],

@@ -10,8 +10,9 @@ import json
 from typing import Optional, List, Dict, Any
 
 from app.infrastructure.persistence.database.connection import (
-    fetch_one, fetch_all, execute_query,
+    fetch_one, fetch_all, execute_query, get_connection,
 )
+from psycopg.rows import dict_row
 
 
 class TopicTaxonomyRepository:
@@ -19,7 +20,11 @@ class TopicTaxonomyRepository:
 
     @staticmethod
     def find_by_exam_type(exam_type: str) -> List[Dict[str, Any]]:
-        """List all topics for an exam type, ordered by weight desc."""
+        """List all topics for an exam type, ordered by weight desc.
+
+        Simple weight-based ordering for display/selection contexts.
+        See also find_all_by_exam_type() for hierarchy-aware ordering.
+        """
         query = """
             SELECT topic_id, exam_type, topic_key, topic_label,
                    parent_topic_id, weight, created_at
@@ -121,7 +126,12 @@ class TopicTaxonomyRepository:
 
     @staticmethod
     def find_all_by_exam_type(exam_type: str) -> List[Dict[str, Any]]:
-        """Fetch every topic for an exam type (flat list)."""
+        """Fetch every topic for an exam type, ordered for hierarchy building.
+
+        Returns roots first (parent_topic_id IS NULL), then children.
+        Used by bootstrap/taxonomy services that need parent-before-child ordering.
+        See also find_by_exam_type() for simple weight-based ordering.
+        """
         query = """
             SELECT topic_id, exam_type, topic_key, topic_label,
                    parent_topic_id, weight, created_at
@@ -135,8 +145,8 @@ class TopicTaxonomyRepository:
     def bulk_create(records: List[Dict[str, Any]]) -> int:
         """Insert multiple topics with ON CONFLICT DO NOTHING.
 
-        Returns the number of records passed in (actual inserts may be fewer
-        due to conflict skipping).
+        All inserts run within a single transaction for atomicity.
+        Returns the number of actually inserted rows (conflicts are skipped).
         """
         if not records:
             return 0
@@ -146,15 +156,19 @@ class TopicTaxonomyRepository:
             VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT DO NOTHING
         """
-        for rec in records:
-            execute_query(query, (
-                rec['exam_type'],
-                rec['topic_key'],
-                json.dumps(rec.get('topic_label', {})),
-                rec.get('parent_topic_id'),
-                rec.get('weight', 1.0),
-            ))
-        return len(records)
+        inserted = 0
+        with get_connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                for rec in records:
+                    cur.execute(query, (
+                        rec['exam_type'],
+                        rec['topic_key'],
+                        json.dumps(rec.get('topic_label', {})),
+                        rec.get('parent_topic_id'),
+                        rec.get('weight', 1.0),
+                    ))
+                    inserted += cur.rowcount
+        return inserted
 
     @staticmethod
     def find_by_topic_key(

@@ -133,7 +133,7 @@ def _build_adapter(
     provider: Optional[str], model: Optional[str],
 ):
     """Build AIAdapter with optional provider/model override (G07)."""
-    from app.infrastructure.ai.adapter import AIAdapter
+    from app.application.services.ai.adapter import AIAdapter
 
     kwargs: Dict[str, Any] = {}
     if provider:
@@ -205,10 +205,26 @@ def _persist_grouping(
     """Write AI grouping to exam_topic_taxonomy.
 
     Creates parent categories first, then child topics under each.
+    Validates each category dict before persisting — malformed entries
+    are skipped with a warning log.
     Returns total number of records created.
     """
     total = 0
-    for category in grouping:
+    for idx, category in enumerate(grouping):
+        # C3: Validate AI response structure before accessing keys
+        if not isinstance(category, dict):
+            logger.warning(
+                "Skipping malformed category at index %d: expected dict, got %s",
+                idx, type(category).__name__,
+            )
+            continue
+        if 'key' not in category:
+            logger.warning(
+                "Skipping category at index %d: missing required 'key' field",
+                idx,
+            )
+            continue
+
         parent = TopicTaxonomyRepository.create({
             'exam_type': exam_type,
             'topic_key': category['key'],
@@ -219,12 +235,13 @@ def _persist_grouping(
             'parent_topic_id': None,
             'weight': 1.0,
         })
-        total += 1
 
+        # W2: Only count after confirming parent was created
         if not parent:
             logger.warning("Failed to create parent category %s", category['key'])
             continue
 
+        total += 1
         parent_id = parent['topic_id']
         children = category.get('children', [])
         child_records = [
@@ -236,6 +253,7 @@ def _persist_grouping(
                 'weight': 1.0,
             }
             for child in children
+            if isinstance(child, str) and child.strip()
         ]
         total += TopicTaxonomyRepository.bulk_create(child_records)
 

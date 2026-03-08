@@ -10,6 +10,7 @@ All endpoints require admin authentication.
 """
 
 import logging
+import re
 from flask import Blueprint, jsonify, request
 
 from app.api.middleware.auth import admin_required
@@ -216,19 +217,44 @@ def classify_orphan_topic(exam_type):
     Body: {"topic_key": "...", "provider": "...", "model": "..."}
     """
     body = request.get_json(silent=True) or {}
-    topic_key = body.get('topic_key')
+    topic_key = body.get('topic_key', '')
     if not topic_key:
         return jsonify({
             'success': False, 'error': 'topic_key required',
         }), 400
 
+    # W4: Input validation — max 100 chars, alphanumeric + underscores/hyphens/spaces
+    if len(topic_key) > 100:
+        return jsonify({
+            'success': False,
+            'error': 'topic_key must be at most 100 characters',
+        }), 400
+    if not re.match(r'^[\w\s\-äöüÄÖÜß]+$', topic_key):
+        return jsonify({
+            'success': False,
+            'error': 'topic_key contains invalid characters',
+        }), 400
+
     from app.application.services.exams.taxonomy_bootstrap_service import (
         TaxonomyBootstrapService,
     )
-    result = TaxonomyBootstrapService.classify_orphan_topic(
-        exam_type=exam_type,
-        topic_key=topic_key,
-        provider=body.get('provider'),
-        model=body.get('model'),
-    )
+    try:
+        result = TaxonomyBootstrapService.classify_orphan_topic(
+            exam_type=exam_type,
+            topic_key=topic_key,
+            provider=body.get('provider'),
+            model=body.get('model'),
+        )
+    except ValueError as exc:
+        logger.warning(
+            "Classify orphan failed for %s/%s: %s",
+            exam_type, topic_key, exc,
+        )
+        return jsonify({'success': False, 'error': str(exc)}), 422
+    except Exception:
+        logger.exception(
+            "Classify orphan error for %s/%s", exam_type, topic_key,
+        )
+        raise
+
     return jsonify({'success': True, 'data': result}), 200

@@ -37,6 +37,11 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelExamArchive',
       component: () => import('@/presentation/pages/panel/admin/PanelExamArchivePage.vue'),
     },
+    {
+      path: 'curriculum',
+      name: 'PanelCurriculum',
+      component: () => import('@/presentation/pages/panel/admin/PanelCurriculumPage.vue'),
+    },
     // Legacy redirects → /panel/admin/editor
     {
       path: 'kurse',

@@ -1,0 +1,39 @@
+{
+  "curriculum": {
+    "title": "Curriculum-Rahmenpläne",
+    "subtitle": "Ausbildungsrahmenpläne importieren und mit Prüfungsfragen verknüpfen",
+    "importPdf": "PDF importieren",
+    "createManual": "Manuell erstellen",
+    "createTitle": "Neuen Rahmenplan erstellen",
+    "name": "Name",
+    "type": "Typ",
+    "empty": {
+      "title": "Noch keine Rahmenpläne vorhanden",
+      "hint": "Importieren Sie einen Ausbildungsrahmenplan als PDF oder erstellen Sie einen manuell."
+    },
+    "tree": {
+      "noFramework": "Kein Rahmenplan ausgewählt",
+      "positions": "Positionen",
+      "objectives": "Lernziele"
+    },
+    "coverage": {
+      "totalObjectives": "Lernziele gesamt",
+      "mapped": "Zugeordnet",
+      "percent": "Abdeckung"
+    },
+    "import": {
+      "title": "Rahmenplan aus PDF importieren",
+      "pasteLabel": "PDF-Text einfügen",
+      "pastePlaceholder": "Kopieren Sie den Text aus dem Rahmenplan-PDF und fügen Sie ihn hier ein...",
+      "pasteHint": "Mindestens 100 Zeichen. Die KI erkennt automatisch Abschnitte, Positionen und Lernziele.",
+      "previewSuccess": "KI-Analyse erfolgreich! Bitte prüfen Sie die erkannte Struktur.",
+      "name": "Name",
+      "type": "Typ",
+      "sections": "Abschnitte",
+      "sourceDocument": "Quelldokument (optional)",
+      "sourcePlaceholder": "z.B. Ausbildungsrahmenplan FISI 2020",
+      "parseBtn": "Mit KI analysieren",
+      "confirmBtn": "Import bestätigen"
+    }
+  }
+}

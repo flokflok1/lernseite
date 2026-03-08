@@ -1,0 +1,39 @@
+{
+  "curriculum": {
+    "title": "Curriculum Frameworks",
+    "subtitle": "Import training frameworks and map them to exam questions",
+    "importPdf": "Import PDF",
+    "createManual": "Create manually",
+    "createTitle": "Create new framework",
+    "name": "Name",
+    "type": "Type",
+    "empty": {
+      "title": "No frameworks yet",
+      "hint": "Import a curriculum framework from PDF or create one manually."
+    },
+    "tree": {
+      "noFramework": "No framework selected",
+      "positions": "positions",
+      "objectives": "objectives"
+    },
+    "coverage": {
+      "totalObjectives": "Total objectives",
+      "mapped": "Mapped",
+      "percent": "Coverage"
+    },
+    "import": {
+      "title": "Import framework from PDF",
+      "pasteLabel": "Paste PDF text",
+      "pastePlaceholder": "Copy the text from the framework PDF and paste it here...",
+      "pasteHint": "At least 100 characters. AI will automatically detect sections, positions and objectives.",
+      "previewSuccess": "AI analysis successful! Please review the detected structure.",
+      "name": "Name",
+      "type": "Type",
+      "sections": "Sections",
+      "sourceDocument": "Source document (optional)",
+      "sourcePlaceholder": "e.g. Training Framework FISI 2020",
+      "parseBtn": "Analyze with AI",
+      "confirmBtn": "Confirm import"
+    }
+  }
+}

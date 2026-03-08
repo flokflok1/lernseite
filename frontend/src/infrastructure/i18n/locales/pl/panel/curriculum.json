@@ -1,0 +1,39 @@
+{
+  "curriculum": {
+    "title": "Ramowe plany nauczania",
+    "subtitle": "Importuj plany ramowe i powiąż je z pytaniami egzaminacyjnymi",
+    "importPdf": "Importuj PDF",
+    "createManual": "Utwórz ręcznie",
+    "createTitle": "Utwórz nowy plan ramowy",
+    "name": "Nazwa",
+    "type": "Typ",
+    "empty": {
+      "title": "Brak planów ramowych",
+      "hint": "Zaimportuj plan ramowy z PDF lub utwórz go ręcznie."
+    },
+    "tree": {
+      "noFramework": "Nie wybrano planu ramowego",
+      "positions": "pozycje",
+      "objectives": "cele nauczania"
+    },
+    "coverage": {
+      "totalObjectives": "Cele łącznie",
+      "mapped": "Przypisane",
+      "percent": "Pokrycie"
+    },
+    "import": {
+      "title": "Importuj plan ramowy z PDF",
+      "pasteLabel": "Wklej tekst PDF",
+      "pastePlaceholder": "Skopiuj tekst z PDF planu ramowego i wklej go tutaj...",
+      "pasteHint": "Minimum 100 znaków. AI automatycznie rozpozna sekcje, pozycje i cele.",
+      "previewSuccess": "Analiza AI zakończona! Sprawdź wykrytą strukturę.",
+      "name": "Nazwa",
+      "type": "Typ",
+      "sections": "Sekcje",
+      "sourceDocument": "Dokument źródłowy (opcjonalnie)",
+      "sourcePlaceholder": "np. Plan ramowy FISI 2020",
+      "parseBtn": "Analizuj z AI",
+      "confirmBtn": "Potwierdź import"
+    }
+  }
+}

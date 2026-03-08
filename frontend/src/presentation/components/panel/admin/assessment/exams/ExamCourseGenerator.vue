@@ -107,32 +107,49 @@
         </div>
       </div>
 
-      <!-- Chapter List -->
-      <div class="space-y-2">
+      <!-- Chapter List — hierarchical -->
+      <div class="space-y-3">
         <div
           v-for="(ch, idx) in plan.chapters"
           :key="ch.topic"
-          class="flex items-center justify-between px-3 py-2 rounded bg-[var(--color-bg)] border border-[var(--color-border)]"
+          class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4"
         >
-          <div class="flex items-center gap-3">
-            <span class="text-xs font-mono text-[var(--color-text-secondary)] w-6">
-              {{ idx + 1 }}
-            </span>
-            <span class="text-sm font-medium text-[var(--color-text-primary)]">
-              {{ formatTopic(ch.topic) }}
-            </span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-[var(--color-text-secondary)]">
-              {{ ch.question_count }} {{ t('panel.examCourseGenerator.questions') }}
-            </span>
-            <div class="flex gap-1">
-              <span
-                v-for="lm in ch.lm_types"
-                :key="lm"
-                class="px-1.5 py-0.5 text-xs rounded bg-[var(--color-primary-bg,#ede9fe)] text-[var(--color-primary-text,#6d28d9)]"
-              >
-                LM{{ lm }}
+          <div class="flex items-center justify-between">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono text-[var(--color-text-secondary)] w-6 shrink-0">
+                  {{ idx + 1 }}
+                </span>
+                <h4 class="font-semibold text-[var(--color-text-primary)] truncate">
+                  {{ chapterTitle(ch) }}
+                </h4>
+              </div>
+              <p class="text-sm text-[var(--color-text-secondary)] mt-1 ml-8">
+                {{ ch.question_count }} {{ t('panel.examCourseGenerator.questions') }},
+                {{ Math.round(ch.point_weight) }} {{ t('panel.examCourseGenerator.points') }}
+              </p>
+              <div v-if="ch.child_topics?.length" class="mt-2 ml-8 flex flex-wrap gap-1">
+                <span
+                  v-for="child in ch.child_topics"
+                  :key="child"
+                  class="text-xs px-2 py-0.5 rounded bg-[var(--color-primary-bg,#ede9fe)] text-[var(--color-primary-text,#6d28d9)]"
+                >
+                  {{ formatTopic(child) }}
+                </span>
+              </div>
+            </div>
+            <div class="text-right text-sm text-[var(--color-text-secondary)] shrink-0 ml-4">
+              <div class="flex gap-1 flex-wrap justify-end">
+                <span
+                  v-for="lm in ch.lm_types"
+                  :key="lm"
+                  class="px-1.5 py-0.5 text-xs rounded bg-[var(--color-primary-bg,#ede9fe)] text-[var(--color-primary-text,#6d28d9)]"
+                >
+                  LM{{ lm }}
+                </span>
+              </div>
+              <span class="text-xs text-[var(--color-text-secondary)] mt-1 block">
+                {{ ch.lm_types.length }} {{ t('panel.examCourseGenerator.lmCount') }}
               </span>
             </div>
           </div>
@@ -154,12 +171,48 @@
         >
           {{ generating ? t('panel.examCourseGenerator.generating') : t('panel.examCourseGenerator.generate') }}
         </button>
-        <div v-if="generating" class="flex items-center gap-2">
+        <div v-if="generating && !generationProgress" class="flex items-center gap-2">
           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[var(--color-primary)]" />
           <span class="text-xs text-[var(--color-text-secondary)]">
             {{ t('panel.examCourseGenerator.generatingHint') }}
           </span>
         </div>
+      </div>
+
+      <!-- Generation Progress Bar -->
+      <div
+        v-if="generationProgress"
+        class="border rounded-lg p-4"
+        :class="progressBgClass"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-medium text-sm text-[var(--color-text-primary)]">
+            {{ t('panel.examCourseGenerator.generatingProgress') }}
+          </span>
+          <span class="text-sm text-[var(--color-text-secondary)]">
+            {{ generationProgress.completed }}/{{ generationProgress.total }}
+            {{ t('panel.examCourseGenerator.chaptersReady') }}
+          </span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div
+            class="h-2 rounded-full transition-all duration-500"
+            :class="progressBarClass"
+            :style="{ width: progressPercent + '%' }"
+          />
+        </div>
+        <p
+          v-if="generationProgress.status === 'ready'"
+          class="mt-2 text-green-600 text-sm"
+        >
+          {{ t('panel.examCourseGenerator.generationComplete') }}
+        </p>
+        <p
+          v-if="generationProgress.failed > 0"
+          class="mt-2 text-amber-600 text-sm"
+        >
+          {{ generationProgress.failed }} {{ t('panel.examCourseGenerator.chaptersFailed') }}
+        </p>
       </div>
     </div>
 
@@ -195,10 +248,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { CoursePlan, GenerateResult } from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
-import { previewExamCourse, generateExamCourse } from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
+import type {
+  CoursePlan,
+  GenerateResult,
+  GenerationProgress,
+  ChapterPreview,
+} from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
+import {
+  previewExamCourse,
+  generateExamCourse,
+  getGenerationProgress,
+} from '@/infrastructure/api/clients/panel/admin/exams/course-generator.api'
 import { fetchExamTypes } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
 import type { ExamType } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
 import { archiveListRegions } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
@@ -239,6 +301,61 @@ const generating = ref(false)
 const plan = ref<CoursePlan | null>(null)
 const result = ref<GenerateResult | null>(null)
 const error = ref<string | null>(null)
+
+// --- Generation progress polling ---
+const generationProgress = ref<GenerationProgress | null>(null)
+const generatingCourseId = ref<string | null>(null)
+let progressInterval: ReturnType<typeof setInterval> | null = null
+
+const progressPercent = computed(() => {
+  if (!generationProgress.value) return 0
+  const { completed, total } = generationProgress.value
+  return Math.round((completed / Math.max(total, 1)) * 100)
+})
+
+const progressBgClass = computed(() => {
+  const status = generationProgress.value?.status
+  if (status === 'ready') return 'bg-green-50 border-green-200'
+  if (status === 'failed') return 'bg-red-50 border-red-200'
+  if (status === 'partial') return 'bg-amber-50 border-amber-200'
+  return 'bg-blue-50 border-blue-200'
+})
+
+const progressBarClass = computed(() => {
+  const status = generationProgress.value?.status
+  if (status === 'ready') return 'bg-green-600'
+  if (status === 'failed') return 'bg-red-600'
+  if (status === 'partial') return 'bg-amber-600'
+  return 'bg-blue-600'
+})
+
+function startPolling(courseId: string) {
+  generatingCourseId.value = courseId
+  progressInterval = setInterval(pollProgress, 3000)
+  pollProgress()
+}
+
+function stopPolling() {
+  if (progressInterval) {
+    clearInterval(progressInterval)
+    progressInterval = null
+  }
+}
+
+async function pollProgress() {
+  if (!generatingCourseId.value) return
+  try {
+    generationProgress.value = await getGenerationProgress(generatingCourseId.value)
+    if (generationProgress.value.status !== 'generating') {
+      stopPolling()
+      generating.value = false
+    }
+  } catch {
+    /* ignore polling errors */
+  }
+}
+
+onUnmounted(() => stopPolling())
 
 onMounted(async () => {
   const [typesResult, regionsResult, registryResult] = await Promise.allSettled([
@@ -285,10 +402,19 @@ function formatTopic(topic: string): string {
     .join(' ')
 }
 
+function chapterTitle(ch: ChapterPreview): string {
+  if (ch.parent_label) {
+    const label = ch.parent_label[locale.value] || ch.parent_label['de'] || ch.parent_label['en']
+    if (label) return label
+  }
+  return formatTopic(ch.topic)
+}
+
 async function handlePreview() {
   previewing.value = true
   error.value = null
   result.value = null
+  generationProgress.value = null
   try {
     plan.value = await previewExamCourse(examType.value, region.value)
   } catch (err: any) {
@@ -301,14 +427,19 @@ async function handlePreview() {
 async function handleGenerate() {
   generating.value = true
   error.value = null
+  generationProgress.value = null
   try {
     result.value = await generateExamCourse(examType.value, region.value, {
       provider: selectedProvider.value || undefined,
       model: selectedModel.value || undefined,
     })
+    if (result.value.status === 'generating' && result.value.course_id) {
+      startPolling(result.value.course_id)
+    } else {
+      generating.value = false
+    }
   } catch (err: any) {
     error.value = err?.response?.data?.error || 'Generation failed'
-  } finally {
     generating.value = false
   }
 }

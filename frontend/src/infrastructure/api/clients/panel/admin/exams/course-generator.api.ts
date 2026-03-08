@@ -5,6 +5,8 @@ export interface ChapterPreview {
   question_count: number
   lm_types: number[]
   point_weight: number
+  parent_label?: Record<string, string> | null
+  child_topics?: string[] | null
 }
 
 export interface CoursePlan {
@@ -22,6 +24,14 @@ export interface GenerateResult {
   chapters_count: number
   lm_count: number
   tokens_used: number
+  status?: 'generating' | 'ready'
+}
+
+export interface GenerationProgress {
+  total: number
+  completed: number
+  failed: number
+  status: 'generating' | 'ready' | 'partial' | 'failed' | 'unknown'
 }
 
 export async function previewExamCourse(
@@ -49,5 +59,15 @@ export async function generateExamCourse(
     chapters_count: response.data.chapters_count,
     lm_count: response.data.lm_count,
     tokens_used: response.data.tokens_used,
+    status: response.data.status,
   }
+}
+
+export async function getGenerationProgress(
+  courseId: string
+): Promise<GenerationProgress> {
+  const response = await http.get<{ success: boolean; data: GenerationProgress }>(
+    `/admin/exam-courses/courses/${courseId}/generation-progress`
+  )
+  return response.data.data
 }

@@ -26,22 +26,7 @@ def generate_course_content_task(
     ai_plan_ids: List[str],
     user_id: str,
 ) -> Dict[str, Any]:
-    """
-    Execute AI Editor plans for all chapters in an exam course.
-
-    For each plan_id:
-    1. Load plan from ContentPlanRepository
-    2. Call execute_plan_background (synchronous within worker)
-    3. Track progress in Redis
-
-    Args:
-        course_id: UUID of the generated course
-        ai_plan_ids: list of content plan UUIDs to execute
-        user_id: creator's user ID for AI Editor context
-
-    Returns:
-        Summary dict with completed/failed counts
-    """
+    """Execute AI Editor plans for all chapters in an exam course."""
     total = len(ai_plan_ids)
     completed = 0
     failed = 0

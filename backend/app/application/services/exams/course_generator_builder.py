@@ -6,11 +6,10 @@ AI-generated LM types (0, 1) are delegated to the AI Editor pipeline
 via CoursePlanFactory; static LM types (5-11) are created directly
 from exam question data via LMContentMapper.
 """
-import json
 import logging
 from typing import Dict, Any, Optional, List
 
-from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan
+from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, parse_label
 from app.domain.services.lm_content_mapper import LMContentMapper
 from app.application.services.exams.course_plan_factory import (
     CoursePlanFactory,
@@ -373,21 +372,8 @@ def _chapter_title_from_plan(
     chapter_plan: ChapterPlan, language: str,
 ) -> str:
     """Derive chapter title from parent_label (taxonomy) or topic key."""
-    label = _parse_label(chapter_plan.parent_label)
+    label = parse_label(chapter_plan.parent_label)
     return label.get(language, chapter_plan.topic.replace('_', ' ').title())
-
-
-def _parse_label(value: Any) -> Dict:
-    """Parse topic_label to dict, handling both str (JSON) and dict inputs."""
-    if isinstance(value, dict):
-        return value
-    if isinstance(value, str):
-        try:
-            parsed = json.loads(value)
-            return parsed if isinstance(parsed, dict) else {}
-        except (json.JSONDecodeError, TypeError):
-            return {}
-    return {}
 
 
 def _build_static_lm_data(

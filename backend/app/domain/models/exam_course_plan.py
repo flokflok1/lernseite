@@ -4,8 +4,26 @@ Exam Course Plan — Domain Value Objects.
 Describes the structure of an auto-generated IHK exam course
 before it's persisted to the database.
 """
+import json
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
+
+
+def parse_label(value: Any) -> Dict:
+    """Parse topic_label to dict, handling both str (JSON) and dict inputs.
+
+    Used by service and builder layers to normalize label data from DB
+    or taxonomy lookups.
+    """
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            return parsed if isinstance(parsed, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+    return {}
 
 
 @dataclass(frozen=True)

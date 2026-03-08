@@ -29,16 +29,7 @@ class TaxonomyBootstrapService:
         provider: Optional[str] = None,
         model: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """
-        Bootstrap taxonomy for an exam type.
-
-        1. Check if taxonomy already populated — skip if yes.
-        2. Get distinct topics from exam_questions.
-        3. AI call to group topics into 6-10 parent categories.
-        4. Write results to exam_topic_taxonomy.
-
-        Returns summary dict with counts and created categories.
-        """
+        """Bootstrap taxonomy for an exam type via AI grouping."""
         existing = TopicTaxonomyRepository.find_roots_by_exam_type(exam_type)
         if existing:
             logger.info(
@@ -205,24 +196,11 @@ def _persist_grouping(
     """Write AI grouping to exam_topic_taxonomy.
 
     Creates parent categories first, then child topics under each.
-    Validates each category dict before persisting — malformed entries
-    are skipped with a warning log.
     Returns total number of records created.
     """
     total = 0
     for idx, category in enumerate(grouping):
-        # C3: Validate AI response structure before accessing keys
-        if not isinstance(category, dict):
-            logger.warning(
-                "Skipping malformed category at index %d: expected dict, got %s",
-                idx, type(category).__name__,
-            )
-            continue
-        if 'key' not in category:
-            logger.warning(
-                "Skipping category at index %d: missing required 'key' field",
-                idx,
-            )
+        if not _validate_category(category, idx):
             continue
 
         parent = TopicTaxonomyRepository.create({
@@ -236,28 +214,50 @@ def _persist_grouping(
             'weight': 1.0,
         })
 
-        # W2: Only count after confirming parent was created
         if not parent:
             logger.warning("Failed to create parent category %s", category['key'])
             continue
 
         total += 1
-        parent_id = parent['topic_id']
-        children = category.get('children', [])
-        child_records = [
-            {
-                'exam_type': exam_type,
-                'topic_key': child,
-                'topic_label': {'de': child, 'en': child},
-                'parent_topic_id': parent_id,
-                'weight': 1.0,
-            }
-            for child in children
-            if isinstance(child, str) and child.strip()
-        ]
-        total += TopicTaxonomyRepository.bulk_create(child_records)
+        total += _persist_children(exam_type, parent['topic_id'], category)
 
     return total
+
+
+def _validate_category(category: Any, idx: int) -> bool:
+    """Validate a single AI category dict before persisting."""
+    if not isinstance(category, dict):
+        logger.warning(
+            "Skipping malformed category at index %d: expected dict, got %s",
+            idx, type(category).__name__,
+        )
+        return False
+    if 'key' not in category:
+        logger.warning(
+            "Skipping category at index %d: missing required 'key' field",
+            idx,
+        )
+        return False
+    return True
+
+
+def _persist_children(
+    exam_type: str, parent_id: str, category: Dict[str, Any],
+) -> int:
+    """Create child topic records under a parent category."""
+    children = category.get('children', [])
+    child_records = [
+        {
+            'exam_type': exam_type,
+            'topic_key': child,
+            'topic_label': {'de': child, 'en': child},
+            'parent_topic_id': parent_id,
+            'weight': 1.0,
+        }
+        for child in children
+        if isinstance(child, str) and child.strip()
+    ]
+    return TopicTaxonomyRepository.bulk_create(child_records)
 
 
 def _ai_classify_single(

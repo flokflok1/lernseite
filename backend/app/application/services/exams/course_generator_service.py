@@ -8,7 +8,7 @@ import json
 import logging
 from typing import Dict, Any, Optional, List, Tuple
 
-from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan
+from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, parse_label
 from app.domain.services.exam_topic_utils import normalize_topic
 from app.domain.services.lm_content_mapper import LMContentMapper
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
@@ -134,7 +134,7 @@ def _build_taxonomy_lookup(
         tid = str(row['topic_id'])
         key = row['topic_key']
         id_to_key[tid] = key
-        label = _ensure_dict_label(row.get('topic_label'))
+        label = parse_label(row.get('topic_label'))
         if row.get('parent_topic_id') is None:
             parent_labels[key] = label
 
@@ -208,19 +208,6 @@ def _group_flat(questions: List[Dict]) -> Dict[str, Dict]:
         seen_qids.add(qid)
 
     return groups
-
-
-def _ensure_dict_label(value: Any) -> Dict:
-    """Parse topic_label to dict, handling both str (JSON) and dict inputs."""
-    if isinstance(value, dict):
-        return value
-    if isinstance(value, str):
-        try:
-            parsed = json.loads(value)
-            return parsed if isinstance(parsed, dict) else {}
-        except (json.JSONDecodeError, TypeError):
-            return {}
-    return {}
 
 
 def _primary_topic(question: Dict) -> str:

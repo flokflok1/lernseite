@@ -278,7 +278,7 @@ const handleImport = async () => {
       skipped: result.skipped
     })
     scannedPapers.value = []
-    await loadExams()
+    await Promise.all([loadExams(), loadSessions()])
   } catch (err) {
     console.error('Import failed:', err)
     statusMessage.value = String(err)
@@ -295,7 +295,7 @@ const handleAnalyzeAll = async () => {
     statusMessage.value = t('panel.examArchive.analyzeTriggered', {
       count: result.triggered
     })
-    await loadExams()
+    await Promise.all([loadExams(), loadSessions()])
     startAutoRefresh()
   } catch (err) {
     console.error('Analyze all failed:', err)
@@ -313,7 +313,7 @@ const handleUploadComplete = async (_examId: string) => {
 const startAutoRefresh = () => {
   stopAutoRefresh()
   refreshInterval = setInterval(async () => {
-    await loadExams()
+    await Promise.all([loadExams(), loadSessions()])
     if (!hasAnalyzingExams.value) {
       stopAutoRefresh()
     }

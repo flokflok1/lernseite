@@ -203,3 +203,65 @@ class CurriculumMappingMixin:
                WHERE r.exam_type = %s""",
             [exam_type_key],
         )
+
+    # ── Unmapped Questions ─────────────────────────────────────────
+
+    @staticmethod
+    def find_unmapped_questions(
+        exam_type_key: str,
+    ) -> List[Dict[str, Any]]:
+        """Find questions for an exam type that have no curriculum tags."""
+        return fetch_all(
+            """SELECT q.question_id, q.question_number,
+                      q.question_text, q.points, q.difficulty,
+                      q.exam_id
+               FROM assessments.exam_questions q
+               JOIN assessments.exams e ON e.exam_id = q.exam_id
+               JOIN assessments.exam_type_registry r
+                   ON r.exam_type = e.exam_type
+               WHERE e.exam_type = %s
+                 AND NOT EXISTS (
+                     SELECT 1
+                     FROM assessments.curriculum_question_tags ct
+                     WHERE ct.question_id = q.question_id
+                 )
+               ORDER BY e.exam_date DESC, q.question_number""",
+            [exam_type_key],
+        )
+
+    # ── User Curriculum Profile ────────────────────────────────────
+
+    @staticmethod
+    def get_user_curriculum_profile(
+        user_id: str, framework_id: int,
+    ) -> List[Dict[str, Any]]:
+        """User performance aggregated by curriculum position.
+
+        Joins question tags with user answer history to compute
+        per-position accuracy and attempt counts.
+        """
+        return fetch_all(
+            """SELECT p.position_id, p.code AS position_code,
+                      p.title AS position_title,
+                      s.code AS section_code, s.title AS section_title,
+                      COUNT(DISTINCT ct.question_id) AS question_count,
+                      COUNT(DISTINCT ua.answer_id) AS attempt_count,
+                      ROUND(AVG(
+                          CASE WHEN ua.is_correct THEN 100.0 ELSE 0.0 END
+                      ), 1) AS accuracy_pct
+               FROM assessments.curriculum_sections s
+               JOIN assessments.curriculum_positions p
+                   ON p.section_id = s.section_id
+               LEFT JOIN assessments.curriculum_objectives o
+                   ON o.position_id = p.position_id
+               LEFT JOIN assessments.curriculum_question_tags ct
+                   ON ct.objective_id = o.objective_id
+               LEFT JOIN assessments.user_exam_answers ua
+                   ON ua.question_id = ct.question_id
+                   AND ua.user_id = %s
+               WHERE s.framework_id = %s
+               GROUP BY p.position_id, p.code, p.title,
+                        s.code, s.title
+               ORDER BY s.code, p.code""",
+            [user_id, framework_id],
+        )

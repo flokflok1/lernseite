@@ -142,8 +142,12 @@ def _register_new_topics(
 
     known_keys = {t['topic_key'] for t in known}
 
-    for topic in extracted_topics:
-        normalized = normalize_topic(topic)
+    # Deduplicate to avoid redundant AI classification calls
+    unique_topics = sorted(set(
+        normalize_topic(t) for t in extracted_topics if t
+    ))
+
+    for normalized in unique_topics:
         if normalized and normalized not in known_keys:
             logger.info("New topic discovered: %s for %s", normalized, exam_type)
             try:

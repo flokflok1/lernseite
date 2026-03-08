@@ -132,10 +132,6 @@
     "semester": "Semester",
     "part": "Part",
     "examCount": "{count} exams",
-    "viewMode": {
-      "flat": "Flat List",
-      "grouped": "Session View"
-    },
     "session": {
       "title": "Exam Session",
       "examCount": "{ready} of {total} ready",

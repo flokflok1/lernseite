@@ -132,10 +132,6 @@
     "semester": "Semestr",
     "part": "Część",
     "examCount": "{count} egzaminów",
-    "viewMode": {
-      "flat": "Lista płaska",
-      "grouped": "Widok sesji"
-    },
     "session": {
       "title": "Sesja egzaminacyjna",
       "examCount": "{ready} z {total} gotowe",

@@ -132,10 +132,6 @@
     "semester": "Semester",
     "part": "Teil",
     "examCount": "{count} Prüfungen",
-    "viewMode": {
-      "flat": "Flache Liste",
-      "grouped": "Sitzungsansicht"
-    },
     "session": {
       "title": "Prüfungssitzung",
       "examCount": "{ready} von {total} bereit",

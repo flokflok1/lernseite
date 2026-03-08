@@ -135,6 +135,15 @@ def _create_course(
         'description': desc_map.get(language, desc_map['en']),
         'tags': ['exam-based', 'auto-generated', plan.exam_type.lower()],
         'level': 'intermediate',
+        'exam_mode': True,
+        'exam_config': {
+            'time_limit_minutes': 90,
+            'total_points': plan.total_points,
+            'passing_percentage': 50,
+            'source_exam_type': plan.exam_type,
+            'source_region': plan.region,
+            'simulation_exam_ids': plan.simulation_exam_ids,
+        },
     })
     course_id = str(course['course_id'])
     logger.info("Created course %s: %s", course_id, plan.title)

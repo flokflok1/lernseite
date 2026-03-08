@@ -14,6 +14,8 @@ Inherits from BaseRepository for connection pooling and standard operations.
 from typing import Optional, Dict, List, Any
 from datetime import datetime
 
+from psycopg.types.json import Json
+
 from app.infrastructure.persistence.database.connection import fetch_one, fetch_all, insert_returning
 from app.infrastructure.persistence.repositories.core.base import BaseRepository
 from app.infrastructure.cache.service import CacheService
@@ -70,17 +72,20 @@ class CourseRepositoryCRUD(BaseRepository):
                 title, description, creator_user_id, organisation_id, course_type,
                 category_id, level, language_default, price,
                 published, thumbnail_url, video_preview_url,
-                tags, status, created_at, updated_at
+                tags, exam_mode, exam_config,
+                status, created_at, updated_at
             ) VALUES (
                 %(title)s, %(description)s, %(creator_user_id)s, %(organisation_id)s, 'standard',
                 %(category_id)s, %(level)s, %(language_default)s, %(price)s,
                 %(published)s, %(thumbnail_url)s, %(video_preview_url)s,
-                %(tags)s, 'draft', NOW(), NOW()
+                %(tags)s, %(exam_mode)s, %(exam_config)s,
+                'draft', NOW(), NOW()
             )
             RETURNING
                 course_id, title, description, creator_user_id AS creator_id, organisation_id,
                 category_id, level, language_default, price, published,
                 thumbnail_url, video_preview_url, tags,
+                exam_mode, exam_config,
                 created_at, updated_at, published_at, status
         """
 
@@ -99,10 +104,16 @@ class CourseRepositoryCRUD(BaseRepository):
             'published': False,
             'thumbnail_url': None,
             'video_preview_url': None,
-            'tags': []
+            'tags': [],
+            'exam_mode': False,
+            'exam_config': None,
         }
 
         params = {**defaults, **course_data}
+
+        # Wrap JSONB field with psycopg Json adapter
+        if params['exam_config'] is not None:
+            params['exam_config'] = Json(params['exam_config'])
 
         return fetch_one(query, params)
 

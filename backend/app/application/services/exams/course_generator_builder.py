@@ -6,6 +6,7 @@ AI-generated LM types (0, 1) are delegated to the AI Editor pipeline
 via CoursePlanFactory; static LM types (5-11) are created directly
 from exam question data via LMContentMapper.
 """
+import json
 import logging
 from typing import Dict, Any, Optional, List
 
@@ -83,18 +84,8 @@ class CourseGeneratorBuilder:
 
         status = 'generating' if ai_plan_ids else 'ready'
 
-        # Trigger background AI content generation for all plans
         if ai_plan_ids:
-            from app.infrastructure.tasks.course_generation_tasks import (
-                generate_course_content_task,
-            )
-            generate_course_content_task.delay(
-                course_id, ai_plan_ids, creator_user_id,
-            )
-            logger.info(
-                "Queued Celery task for %d AI plans (course %s)",
-                len(ai_plan_ids), course_id,
-            )
+            _dispatch_ai_generation(course_id, ai_plan_ids, creator_user_id)
 
         logger.info(
             "Course generation complete: %s -- %d chapters, %d LMs, "
@@ -148,6 +139,24 @@ def _create_course(
     course_id = str(course['course_id'])
     logger.info("Created course %s: %s", course_id, plan.title)
     return course_id
+
+
+def _dispatch_ai_generation(
+    course_id: str,
+    ai_plan_ids: List[str],
+    creator_user_id: str,
+) -> None:
+    """Queue Celery task for background AI content generation."""
+    from app.infrastructure.tasks.course_generation_tasks import (
+        generate_course_content_task,
+    )
+    generate_course_content_task.delay(
+        course_id, ai_plan_ids, creator_user_id,
+    )
+    logger.info(
+        "Queued Celery task for %d AI plans (course %s)",
+        len(ai_plan_ids), course_id,
+    )
 
 
 def _build_all_chapters(
@@ -364,11 +373,21 @@ def _chapter_title_from_plan(
     chapter_plan: ChapterPlan, language: str,
 ) -> str:
     """Derive chapter title from parent_label (taxonomy) or topic key."""
-    from app.application.services.exams.course_generator_service import (
-        _ensure_dict_label,
-    )
-    label = _ensure_dict_label(chapter_plan.parent_label)
+    label = _parse_label(chapter_plan.parent_label)
     return label.get(language, chapter_plan.topic.replace('_', ' ').title())
+
+
+def _parse_label(value: Any) -> Dict:
+    """Parse topic_label to dict, handling both str (JSON) and dict inputs."""
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            return parsed if isinstance(parsed, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+    return {}
 
 
 def _build_static_lm_data(

@@ -134,6 +134,22 @@ class ExamQuestionRepository(BaseRepository):
         )
 
     @classmethod
+    def find_by_ids(cls, question_ids: List[str]) -> List[Dict]:
+        """Load multiple questions by their IDs."""
+        if not question_ids:
+            return []
+        placeholders = ', '.join(['%s'] * len(question_ids))
+        return fetch_all(
+            f"""SELECT q.question_id, q.question_text, q.question_type,
+                       q.points, q.data, q.solution_text, q.question_number,
+                       q.scenario_title, q.scenario_text,
+                       COALESCE(q.topics, ARRAY[]::text[]) AS topics
+                FROM assessments.exam_questions q
+                WHERE q.question_id IN ({placeholders})""",
+            question_ids,
+        )
+
+    @classmethod
     def reorder_questions(cls, exam_id: str, question_orders: List[Dict[str, Any]]) -> bool:
         """Reorder questions in an exam."""
         try:

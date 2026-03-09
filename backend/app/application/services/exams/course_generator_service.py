@@ -17,6 +17,9 @@ from app.infrastructure.persistence.repositories.exams.sessions import ExamSessi
 from app.infrastructure.persistence.repositories.exams.topic_taxonomy import (
     TopicTaxonomyRepository,
 )
+from app.infrastructure.persistence.repositories.exams.curriculum import (
+    CurriculumFrameworkRepository,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,15 +32,30 @@ class ExamCourseGeneratorService:
         exam_type_key: str,
         region: str = 'alle',
         language: str = 'de',
+        framework_id: int = None,
+        sort_mode: str = 'relevance',
     ) -> ExamCoursePlan:
-        """
-        Build a course plan without persisting anything.
+        """Build a course plan without persisting anything.
 
-        1. Fetch all ready exam questions for the given type + region
-        2. Group by topic
-        3. For each topic: determine LM types
-        4. Return ExamCoursePlan VO
+        When framework_id is provided, uses curriculum positions as chapters.
+        Otherwise falls back to topic-based grouping.
         """
+        simulation_exam_ids = _find_simulation_exams(exam_type_key, region)
+        title = _build_title(exam_type_key, region, language)
+
+        if framework_id:
+            chapters = _group_by_curriculum(framework_id, sort_mode)
+            return ExamCoursePlan(
+                title=title,
+                exam_type=exam_type_key,
+                region=region,
+                curriculum_framework_id=framework_id,
+                sort_mode=sort_mode,
+                chapters=chapters,
+                simulation_exam_ids=simulation_exam_ids,
+            )
+
+        # Fallback: topic-based grouping (existing logic)
         questions = _fetch_questions_for_course(exam_type_key, region)
 
         if not questions:
@@ -53,9 +71,6 @@ class ExamCourseGeneratorService:
 
         grouped = _group_by_taxonomy(questions, exam_type_key)
         chapters = _build_chapters_from_groups(grouped)
-
-        simulation_exam_ids = _find_simulation_exams(exam_type_key, region)
-        title = _build_title(exam_type_key, region, language)
 
         return ExamCoursePlan(
             title=title,
@@ -275,3 +290,96 @@ def _build_title(
         region_label = region
 
     return f'{type_label} — {region_label}'
+
+
+def _group_by_curriculum(
+    framework_id: int,
+    sort_mode: str = 'relevance',
+) -> List[ChapterPlan]:
+    """Group by curriculum positions instead of topics.
+
+    Each position becomes a chapter. Questions are pulled from
+    curriculum tags. Positions without questions get AI-only content.
+    """
+    positions = CurriculumFrameworkRepository.find_positions_with_question_stats(
+        framework_id,
+    )
+
+    if not positions:
+        logger.warning("No positions found for framework %s", framework_id)
+        return []
+
+    question_data = _load_question_data_for_curriculum(positions)
+    chapters = []
+
+    for pos in positions:
+        q_ids = pos.get('question_ids') or []
+        objectives_total = pos.get('objectives_total', 0)
+        objectives_with_q = pos.get('objectives_with_questions', 0)
+        objectives_ai = objectives_total - objectives_with_q
+        total_points = float(pos.get('total_points', 0))
+
+        # Determine coverage source
+        if objectives_with_q > 0 and objectives_ai > 0:
+            coverage = 'mixed'
+        elif objectives_with_q > 0:
+            coverage = 'exam_questions'
+        else:
+            coverage = 'ai_generated'
+
+        # Select LM types based on available questions
+        chapter_questions = [
+            question_data[qid] for qid in q_ids if qid in question_data
+        ]
+        if chapter_questions:
+            lm_types = LMContentMapper.select_lm_types(chapter_questions)
+        else:
+            lm_types = [0, 1]  # AI-only: explanation + step-by-step
+
+        position_code = f"{pos['section_code']}.{pos['position_code']}"
+
+        chapters.append(ChapterPlan(
+            topic=position_code,
+            question_ids=[str(qid) for qid in q_ids],
+            lm_types=lm_types,
+            point_weight=total_points,
+            question_count=len(q_ids),
+            parent_topic=position_code,
+            parent_label=_parse_position_label(pos),
+            curriculum_position_id=pos['position_id'],
+            curriculum_position_code=position_code,
+            objectives_total=objectives_total,
+            objectives_with_questions=objectives_with_q,
+            objectives_ai_only=objectives_ai,
+            coverage_source=coverage,
+        ))
+
+    if sort_mode == 'relevance':
+        chapters.sort(key=lambda ch: ch.point_weight, reverse=True)
+    # 'curriculum' = keep DB order (already ordered by section/position)
+
+    return chapters
+
+
+def _load_question_data_for_curriculum(
+    positions: List[Dict],
+) -> Dict[str, Dict]:
+    """Load full question data for all question IDs across positions."""
+    all_ids = []
+    for pos in positions:
+        all_ids.extend(pos.get('question_ids') or [])
+
+    if not all_ids:
+        return {}
+
+    unique_ids = list(set(str(qid) for qid in all_ids))
+    questions = ExamQuestionRepository.find_by_ids(unique_ids)
+    return {str(q['question_id']): q for q in questions}
+
+
+def _parse_position_label(pos: Dict) -> Dict[str, str]:
+    """Build a label dict from position title (JSONB or str)."""
+    title = pos.get('position_title', '')
+    if isinstance(title, dict):
+        return title
+    return {'de': str(title)} if title else {}

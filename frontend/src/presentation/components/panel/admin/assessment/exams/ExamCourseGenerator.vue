@@ -47,6 +47,36 @@
         </div>
       </div>
 
+      <!-- Framework + Sort Mode -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+            {{ t('panel.examCourseGenerator.selectFramework') }}
+          </label>
+          <select
+            v-model="selectedFrameworkId"
+            class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
+          >
+            <option :value="null">{{ t('panel.examCourseGenerator.noFramework') }}</option>
+            <option v-for="fw in frameworks" :key="fw.framework_id" :value="fw.framework_id">
+              {{ fw.name }}
+            </option>
+          </select>
+        </div>
+        <div v-if="selectedFrameworkId">
+          <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+            {{ t('panel.examCourseGenerator.sortMode') }}
+          </label>
+          <select
+            v-model="sortMode"
+            class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm"
+          >
+            <option value="relevance">{{ t('panel.examCourseGenerator.sortRelevance') }}</option>
+            <option value="curriculum">{{ t('panel.examCourseGenerator.sortCurriculum') }}</option>
+          </select>
+        </div>
+      </div>
+
       <!-- AI Provider / Model -->
       <div class="grid grid-cols-2 gap-4">
         <div>
@@ -224,6 +254,8 @@ import { archiveListRegions } from '@/infrastructure/api/clients/panel/admin/exa
 import type { ExamRegion } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 import { adminGetAIModelsRegistry } from '@/infrastructure/api/clients/panel/admin/ai/models.api'
 import type { AIModelRegistryItem, AIProviderInfo } from '@/infrastructure/api/clients/panel/admin/types'
+import { fetchFrameworks } from '@/infrastructure/api/clients/panel/admin/exams/curriculum.api'
+import type { CurriculumFramework } from '@/infrastructure/api/clients/panel/admin/exams/curriculum.api'
 
 const { t, locale } = useI18n()
 
@@ -232,6 +264,11 @@ const examTypes = ref<ExamType[]>([])
 const examType = ref('')
 const regions = ref<ExamRegion[]>([])
 const region = ref('alle')
+
+// --- Curriculum Framework ---
+const frameworks = ref<CurriculumFramework[]>([])
+const selectedFrameworkId = ref<number | null>(null)
+const sortMode = ref('relevance')
 
 // --- AI Provider / Model ---
 const providers = ref<AIProviderInfo[]>([])
@@ -315,10 +352,11 @@ async function pollProgress() {
 onUnmounted(() => stopPolling())
 
 onMounted(async () => {
-  const [typesResult, regionsResult, registryResult] = await Promise.allSettled([
+  const [typesResult, regionsResult, registryResult, fwResult] = await Promise.allSettled([
     fetchExamTypes(),
     archiveListRegions(),
     adminGetAIModelsRegistry(),
+    fetchFrameworks(),
   ])
 
   if (typesResult.status === 'fulfilled') {
@@ -340,6 +378,10 @@ onMounted(async () => {
       selectedProvider.value = firstAvailable.name
     }
   }
+
+  if (fwResult.status === 'fulfilled') {
+    frameworks.value = fwResult.value
+  }
 })
 
 async function handlePreview() {
@@ -348,7 +390,12 @@ async function handlePreview() {
   result.value = null
   generationProgress.value = null
   try {
-    plan.value = await previewExamCourse(examType.value, region.value)
+    plan.value = await previewExamCourse(
+      examType.value,
+      region.value,
+      selectedFrameworkId.value ?? undefined,
+      selectedFrameworkId.value ? sortMode.value : undefined,
+    )
   } catch (err: any) {
     error.value = err?.response?.data?.error || t('panel.examCourseGenerator.previewFailed')
   } finally {
@@ -361,10 +408,16 @@ async function handleGenerate() {
   error.value = null
   generationProgress.value = null
   try {
-    result.value = await generateExamCourse(examType.value, region.value, {
-      provider: selectedProvider.value || undefined,
-      model: selectedModel.value || undefined,
-    })
+    result.value = await generateExamCourse(
+      examType.value,
+      region.value,
+      {
+        provider: selectedProvider.value || undefined,
+        model: selectedModel.value || undefined,
+      },
+      selectedFrameworkId.value ?? undefined,
+      selectedFrameworkId.value ? sortMode.value : undefined,
+    )
     if (result.value.status === 'generating' && result.value.course_id) {
       startPolling(result.value.course_id)
     } else {

@@ -7,12 +7,21 @@ export interface ChapterPreview {
   point_weight: number
   parent_label?: Record<string, string> | null
   child_topics?: string[] | null
+  // Curriculum fields
+  curriculum_position_id?: number | null
+  curriculum_position_code?: string | null
+  objectives_total?: number
+  objectives_with_questions?: number
+  objectives_ai_only?: number
+  coverage_source?: 'exam_questions' | 'ai_generated' | 'mixed' | null
 }
 
 export interface CoursePlan {
   title: string
   exam_type: string
   region: string
+  curriculum_framework_id?: number | null
+  sort_mode?: string
   total_questions: number
   total_points: number
   chapters: ChapterPreview[]
@@ -36,11 +45,18 @@ export interface GenerationProgress {
 
 export async function previewExamCourse(
   examType: string,
-  region: string = 'alle'
+  region: string = 'alle',
+  frameworkId?: number,
+  sortMode?: string,
 ): Promise<CoursePlan> {
   const response = await http.post<{ success: boolean; plan: CoursePlan }>(
     '/admin/exam-courses/preview',
-    { exam_type: examType, region }
+    {
+      exam_type: examType,
+      region,
+      framework_id: frameworkId,
+      sort_mode: sortMode,
+    },
   )
   return response.data.plan
 }
@@ -48,11 +64,19 @@ export async function previewExamCourse(
 export async function generateExamCourse(
   examType: string,
   region: string = 'alle',
-  options?: { provider?: string; model?: string }
+  options?: { provider?: string; model?: string },
+  frameworkId?: number,
+  sortMode?: string,
 ): Promise<GenerateResult> {
   const response = await http.post<{ success: boolean } & GenerateResult>(
     '/admin/exam-courses/generate',
-    { exam_type: examType, region, options }
+    {
+      exam_type: examType,
+      region,
+      options,
+      framework_id: frameworkId,
+      sort_mode: sortMode,
+    },
   )
   return {
     course_id: response.data.course_id,

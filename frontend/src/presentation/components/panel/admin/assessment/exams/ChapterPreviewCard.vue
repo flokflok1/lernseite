@@ -9,7 +9,13 @@
     <div class="flex items-center justify-between">
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-mono text-[var(--color-text-secondary)] w-6 shrink-0">
+          <span
+            v-if="chapter.curriculum_position_code"
+            class="text-xs font-mono px-1.5 py-0.5 rounded bg-[var(--color-info-bg,#eff6ff)] text-[var(--color-info-text,#2563eb)]"
+          >
+            {{ chapter.curriculum_position_code }}
+          </span>
+          <span v-else class="text-xs font-mono text-[var(--color-text-secondary)] w-6 shrink-0">
             {{ index + 1 }}
           </span>
           <h4 class="font-semibold text-[var(--color-text-primary)] truncate">
@@ -20,6 +26,19 @@
           {{ chapter.question_count }} {{ t('panel.examCourseGenerator.questions') }},
           {{ Math.round(chapter.point_weight) }} {{ t('panel.examCourseGenerator.points') }}
         </p>
+        <!-- Coverage info -->
+        <div v-if="chapter.objectives_total" class="mt-1 ml-8 flex items-center gap-2">
+          <span class="text-xs px-2 py-0.5 rounded" :class="coverageBadgeClass">
+            {{ chapter.objectives_with_questions }}/{{ chapter.objectives_total }}
+            {{ t('panel.examCourseGenerator.objectivesCovered') }}
+          </span>
+          <span
+            v-if="(chapter.objectives_ai_only ?? 0) > 0"
+            class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+          >
+            {{ chapter.objectives_ai_only }} {{ t('panel.examCourseGenerator.aiOnly') }}
+          </span>
+        </div>
         <div v-if="chapter.child_topics?.length" class="mt-2 ml-8 flex flex-wrap gap-1">
           <span
             v-for="child in chapter.child_topics"
@@ -77,6 +96,14 @@ function formatTopic(topic: string): string {
     })
     .join(' ')
 }
+
+const coverageBadgeClass = computed(() => {
+  if (!props.chapter.objectives_total) return ''
+  const ratio = (props.chapter.objectives_with_questions || 0) / props.chapter.objectives_total
+  if (ratio >= 0.8) return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+  if (ratio >= 0.5) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+  return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+})
 
 const title = computed(() => {
   if (props.chapter.parent_label) {

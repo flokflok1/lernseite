@@ -51,6 +51,13 @@ class ChapterPlan:
     parent_topic: Optional[str] = None
     parent_label: Optional[Dict[str, str]] = None
     child_topics: Optional[List[str]] = None
+    # Curriculum integration
+    curriculum_position_id: Optional[int] = None
+    curriculum_position_code: Optional[str] = None
+    objectives_total: int = 0
+    objectives_with_questions: int = 0
+    objectives_ai_only: int = 0
+    coverage_source: Optional[str] = None  # "exam_questions" | "ai_generated" | "mixed"
 
 
 @dataclass(frozen=True)
@@ -59,6 +66,8 @@ class ExamCoursePlan:
     title: str
     exam_type: str
     region: str
+    curriculum_framework_id: Optional[int] = None
+    sort_mode: str = 'relevance'
     chapters: List[ChapterPlan] = field(default_factory=list)
     simulation_exam_ids: List[str] = field(default_factory=list)
 
@@ -75,6 +84,8 @@ class ExamCoursePlan:
             'title': self.title,
             'exam_type': self.exam_type,
             'region': self.region,
+            'curriculum_framework_id': self.curriculum_framework_id,
+            'sort_mode': self.sort_mode,
             'total_questions': self.total_questions,
             'total_points': self.total_points,
             'chapters': [
@@ -86,6 +97,12 @@ class ExamCoursePlan:
                     'parent_topic': ch.parent_topic,
                     'parent_label': ch.parent_label,
                     'child_topics': ch.child_topics,
+                    'curriculum_position_id': ch.curriculum_position_id,
+                    'curriculum_position_code': ch.curriculum_position_code,
+                    'objectives_total': ch.objectives_total,
+                    'objectives_with_questions': ch.objectives_with_questions,
+                    'objectives_ai_only': ch.objectives_ai_only,
+                    'coverage_source': ch.coverage_source,
                 }
                 for ch in self.chapters
             ],

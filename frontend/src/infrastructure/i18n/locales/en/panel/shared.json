@@ -187,7 +187,14 @@
     "aiSettings": "AI Settings",
     "tokens": "Tokens",
     "previewFailed": "Preview failed",
-    "generationFailed": "Generation failed"
+    "generationFailed": "Generation failed",
+    "selectFramework": "Curriculum framework (optional)",
+    "noFramework": "Without framework (topic-based)",
+    "sortMode": "Sort by",
+    "sortRelevance": "Exam relevance",
+    "sortCurriculum": "Curriculum order",
+    "objectivesCovered": "objectives covered",
+    "aiOnly": "AI-only content"
   },
   "examTrainer": {
     "title": "Exam Trainer",

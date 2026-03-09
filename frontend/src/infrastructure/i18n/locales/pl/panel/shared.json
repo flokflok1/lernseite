@@ -187,7 +187,14 @@
     "aiSettings": "Ustawienia AI",
     "tokens": "Tokeny",
     "previewFailed": "Podgląd nie powiódł się",
-    "generationFailed": "Generowanie nie powiodło się"
+    "generationFailed": "Generowanie nie powiodło się",
+    "selectFramework": "Plan ramowy (opcjonalnie)",
+    "noFramework": "Bez planu ramowego (wg tematów)",
+    "sortMode": "Sortowanie",
+    "sortRelevance": "Wg ważności egzaminu",
+    "sortCurriculum": "Wg kolejności planu ramowego",
+    "objectivesCovered": "celów objętych",
+    "aiOnly": "tylko treść AI"
   },
   "examTrainer": {
     "title": "Trener egzaminów",

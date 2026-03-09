@@ -187,7 +187,14 @@
     "aiSettings": "KI-Einstellungen",
     "tokens": "Tokens",
     "previewFailed": "Vorschau fehlgeschlagen",
-    "generationFailed": "Generierung fehlgeschlagen"
+    "generationFailed": "Generierung fehlgeschlagen",
+    "selectFramework": "Rahmenplan (optional)",
+    "noFramework": "Ohne Rahmenplan (Topic-basiert)",
+    "sortMode": "Sortierung",
+    "sortRelevance": "Nach Prüfungsrelevanz",
+    "sortCurriculum": "Nach Rahmenplan-Reihenfolge",
+    "objectivesCovered": "Lernziele abgedeckt",
+    "aiOnly": "nur AI-Content"
   },
   "examTrainer": {
     "title": "Prüfungstrainer",

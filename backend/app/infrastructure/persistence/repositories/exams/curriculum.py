@@ -49,7 +49,9 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
     def find_all_frameworks() -> List[Dict[str, Any]]:
         """List all frameworks with section counts."""
         return fetch_all(
-            """SELECT f.*,
+            """SELECT f.id AS framework_id, f.name, f.framework_type,
+                      f.source_document, f.version, f.valid_from,
+                      f.valid_until, f.metadata, f.created_at, f.updated_at,
                       COALESCE(sc.section_count, 0) AS section_count
                FROM assessments.curriculum_frameworks f
                LEFT JOIN LATERAL (
@@ -66,10 +68,13 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
         framework_id: int,
     ) -> Optional[Dict[str, Any]]:
         """Find a single framework by ID."""
-        return fetch_one(
+        row = fetch_one(
             "SELECT * FROM assessments.curriculum_frameworks WHERE id = %s",
             [framework_id],
         )
+        if row:
+            row['framework_id'] = row.pop('id', row.get('framework_id'))
+        return row
 
     @staticmethod
     def delete_framework(framework_id: int) -> bool:
@@ -89,14 +94,19 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
         framework_id: int, data: dict,
     ) -> Dict[str, Any]:
         """Insert a new curriculum section."""
+        insert_data = {
+            'framework_id': framework_id,
+            'section_code': data.get('section_code') or data.get('code', ''),
+            'display_name': json.dumps(data.get('title', '')) if isinstance(data.get('title'), str) else json.dumps(data.get('title', {})),
+            'description': json.dumps(data.get('description', '')) if isinstance(data.get('description'), str) else json.dumps(data.get('description', {})),
+            'order_index': data.get('order_index', 0),
+        }
+        applies_to = data.get('applies_to')
+        if applies_to and isinstance(applies_to, list):
+            insert_data['applies_to'] = applies_to
         return insert_returning(
             'assessments.curriculum_sections',
-            {
-                'framework_id': framework_id,
-                'section_code': data.get('section_code') or data.get('code', ''),
-                'display_name': json.dumps(data.get('title', '')) if isinstance(data.get('title'), str) else json.dumps(data.get('title', {})),
-                'order_index': data.get('order_index', 0),
-            },
+            insert_data,
         )
 
     @staticmethod
@@ -105,7 +115,11 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
     ) -> List[Dict[str, Any]]:
         """All sections for a framework, ordered by order_index."""
         return fetch_all(
-            """SELECT * FROM assessments.curriculum_sections
+            """SELECT id AS section_id,
+                      section_code AS section_number,
+                      display_name AS title,
+                      framework_id, order_index, applies_to
+               FROM assessments.curriculum_sections
                WHERE framework_id = %s
                ORDER BY order_index, id""",
             [framework_id],
@@ -118,14 +132,19 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
         section_id: int, data: dict,
     ) -> Dict[str, Any]:
         """Insert a new curriculum position."""
+        insert_data = {
+            'section_id': section_id,
+            'position_number': data.get('position_number') or data.get('code', ''),
+            'display_name': json.dumps(data.get('title', '')) if isinstance(data.get('title'), str) else json.dumps(data.get('title', {})),
+            'description': json.dumps(data.get('description', '')) if isinstance(data.get('description'), str) else json.dumps(data.get('description', {})),
+            'order_index': data.get('order_index', 0),
+        }
+        training_period = data.get('training_period')
+        if training_period:
+            insert_data['training_period'] = training_period
         return insert_returning(
             'assessments.curriculum_positions',
-            {
-                'section_id': section_id,
-                'position_number': data.get('position_number') or data.get('code', ''),
-                'display_name': json.dumps(data.get('title', '')) if isinstance(data.get('title'), str) else json.dumps(data.get('title', {})),
-                'order_index': data.get('order_index', 0),
-            },
+            insert_data,
         )
 
     @staticmethod
@@ -134,7 +153,11 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
     ) -> List[Dict[str, Any]]:
         """All positions for a section, ordered by order_index."""
         return fetch_all(
-            """SELECT * FROM assessments.curriculum_positions
+            """SELECT id AS position_id,
+                      position_number,
+                      display_name AS title,
+                      section_id, order_index, training_period
+               FROM assessments.curriculum_positions
                WHERE section_id = %s
                ORDER BY order_index, id""",
             [section_id],
@@ -166,7 +189,12 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
     ) -> List[Dict[str, Any]]:
         """All objectives for a position, ordered by order_index."""
         return fetch_all(
-            """SELECT * FROM assessments.curriculum_objectives
+            """SELECT id AS objective_id,
+                      objective_code AS code,
+                      description AS description_text,
+                      competency_level AS bloom_level,
+                      position_id, order_index
+               FROM assessments.curriculum_objectives
                WHERE position_id = %s
                ORDER BY order_index, id""",
             [position_id],
@@ -191,6 +219,55 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
                    ON s.id = p.section_id
                WHERE s.framework_id = %s
                ORDER BY s.order_index, p.order_index, o.order_index""",
+            [framework_id],
+        )
+
+    # ── Curriculum Course Generation ─────────────────────────────────
+
+    @staticmethod
+    def find_positions_with_question_stats(
+        framework_id: int,
+    ) -> List[Dict[str, Any]]:
+        """Load all positions with objective counts and mapped question IDs.
+
+        Returns one row per position with:
+        - position metadata (id, code, title, section info)
+        - objectives_total: count of objectives in this position
+        - objectives_with_questions: objectives with at least one tagged question
+        - question_ids: array of distinct question IDs mapped to this position
+        - total_points: sum of question points
+        """
+        return fetch_all(
+            """SELECT p.id AS position_id,
+                      p.position_number AS position_code,
+                      p.display_name AS position_title,
+                      s.id AS section_id,
+                      s.section_code,
+                      s.display_name AS section_title,
+                      s.order_index AS section_order,
+                      p.order_index AS position_order,
+                      COUNT(DISTINCT o.id) AS objectives_total,
+                      COUNT(DISTINCT o.id) FILTER (
+                          WHERE ct.question_id IS NOT NULL
+                      ) AS objectives_with_questions,
+                      ARRAY_REMOVE(
+                          ARRAY_AGG(DISTINCT ct.question_id), NULL
+                      ) AS question_ids,
+                      COALESCE(SUM(DISTINCT q.points), 0) AS total_points
+               FROM assessments.curriculum_sections s
+               JOIN assessments.curriculum_positions p
+                   ON p.section_id = s.id
+               LEFT JOIN assessments.curriculum_objectives o
+                   ON o.position_id = p.id
+               LEFT JOIN assessments.exam_question_curriculum_tags ct
+                   ON ct.curriculum_objective_id = o.id
+               LEFT JOIN assessments.exam_questions q
+                   ON q.question_id = ct.question_id
+               WHERE s.framework_id = %s
+               GROUP BY p.id, p.position_number, p.display_name,
+                        s.id, s.section_code, s.display_name,
+                        s.order_index, p.order_index
+               ORDER BY s.order_index, p.order_index""",
             [framework_id],
         )
 
@@ -224,7 +301,8 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
         repo = CurriculumFrameworkRepository
 
         framework = repo.create_framework(data)
-        framework_id = framework['id']
+        framework_id = framework.get('id') or framework.get('framework_id')
+        framework['framework_id'] = framework_id
 
         counts = {'sections': 0, 'positions': 0, 'objectives': 0}
 
@@ -270,11 +348,11 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
         sections = repo.find_sections_by_framework(framework_id)
         for section in sections:
             positions = repo.find_positions_by_section(
-                section['id'],
+                section['section_id'],
             )
             for position in positions:
                 position['objectives'] = repo.find_objectives_by_position(
-                    position['id'],
+                    position['position_id'],
                 )
             section['positions'] = positions
 

@@ -148,6 +148,79 @@ class ReviewService:
         return result
 
     @staticmethod
+    def get_daily_recall(
+        user_id: str, limit: int = 10,
+    ) -> Dict[str, Any]:
+        """Get due review items across ALL courses for daily recall.
+
+        Unlike get_review_queue (per-course), this returns the most
+        urgent items globally — ideal for a daily recall session.
+        """
+        cache_key = CacheService.make_key('REVIEW', user_id, 'daily')
+        cached = CacheService.cache_get(cache_key)
+        if cached:
+            return cached
+
+        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
+            ReviewScheduleRepository,
+        )
+        items = ReviewScheduleRepository.find_due_reviews(
+            user_id, course_id=None, limit=limit,
+        )
+        result = {
+            'items': items,
+            'count': len(items),
+        }
+        CacheService.cache_set(cache_key, result, ttl=REVIEW_QUEUE_TTL)
+        return result
+
+    @staticmethod
+    def get_method_difficulty(
+        user_id: str, method_id: str,
+    ) -> Dict[str, Any]:
+        """Get difficulty info for a specific LM from review_schedule."""
+        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
+            ReviewScheduleRepository,
+        )
+        row = ReviewScheduleRepository.find_by_user_method(user_id, method_id)
+        if not row:
+            return {
+                'difficulty_level': 'medium',
+                'mastery_score': 0,
+                'confidence': 0,
+                'total_reviews': 0,
+            }
+        return {
+            'difficulty_level': row.get('difficulty_level', 'medium'),
+            'mastery_score': row.get('mastery_score', 0),
+            'confidence': row.get('confidence', 0),
+            'total_reviews': row.get('total_reviews', 0),
+        }
+
+    @staticmethod
+    def get_course_difficulty(
+        user_id: str, course_id: str,
+    ) -> Dict[str, Any]:
+        """Get aggregated difficulty recommendation for a course."""
+        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
+            ReviewScheduleRepository,
+        )
+        stats = ReviewScheduleRepository.get_review_stats(user_id, course_id)
+        avg = stats.get('avg_mastery', 0) if stats else 0
+        if avg >= 80:
+            level = 'hard'
+        elif avg >= 50:
+            level = 'medium'
+        else:
+            level = 'easy'
+        return {
+            'recommended_difficulty': level,
+            'avg_mastery': avg,
+            'total_items': stats.get('total_items', 0) if stats else 0,
+            'mastered_count': stats.get('mastered_count', 0) if stats else 0,
+        }
+
+    @staticmethod
     def get_stats(
         user_id: str, course_id: str,
     ) -> Dict[str, Any]:

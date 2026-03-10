@@ -113,7 +113,7 @@ class ExamQuestionRepository(BaseRepository):
         Fetch all ready exam questions for a given type + region.
         Used by ExamCourseGeneratorService.preview().
         """
-        query = """
+        base = """
             SELECT eq.question_id, eq.question_text, eq.question_type,
                    eq.points, eq.topics, eq.data, eq.solution_text,
                    eq.scenario_title, eq.scenario_text, eq.question_number,
@@ -123,14 +123,25 @@ class ExamQuestionRepository(BaseRepository):
             LEFT JOIN assessments.exam_sessions s ON e.session_id = s.session_id
             WHERE e.analysis_status = 'ready'
               AND (s.exam_type_key = %s OR e.exam_type_key = %s)
+        """
+        order = " ORDER BY eq.topics, e.year DESC, eq.order_index"
+
+        if region == 'alle':
+            # "Alle Bundesländer" → return all questions regardless of region
+            return fetch_all(
+                base + order,
+                (exam_type_key, exam_type_key),
+            )
+
+        # Specific region → match region or untagged ('alle')
+        return fetch_all(
+            base + """
               AND (
                   COALESCE(s.region, 'alle') = %s
                   OR COALESCE(s.region, 'alle') = 'alle'
               )
-            ORDER BY eq.topics, e.year DESC, eq.order_index
-        """
-        return fetch_all(
-            query, (exam_type_key, exam_type_key, region),
+            """ + order,
+            (exam_type_key, exam_type_key, region),
         )
 
     @classmethod

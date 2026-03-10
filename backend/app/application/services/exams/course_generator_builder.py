@@ -354,8 +354,8 @@ def _build_simulation_chapter(
     if not questions:
         return {'lm_count': 0}
 
-    # Map questions first — skip if no compatible content
-    tasks = LMContentMapper.map_to_ihk_tasks(questions)
+    # Map ALL question types for realistic exam simulation
+    tasks = LMContentMapper.map_to_ihk_tasks(questions, include_mcq=True)
     if not tasks or not tasks.get('tasks'):
         logger.warning(
             "Simulation exam %s has no IHK-compatible questions, skipping",

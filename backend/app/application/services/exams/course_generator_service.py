@@ -238,7 +238,9 @@ def _build_chapters_from_groups(
     chapters = []
     for parent_key, group in grouped.items():
         topic_questions = group['questions']
-        lm_types = LMContentMapper.select_lm_types(topic_questions)
+        lm_types = LMContentMapper.select_lm_types(
+            topic_questions, exam_mode=True,
+        )
         total_points = sum(q.get('points', 0) for q in topic_questions)
 
         chapters.append(ChapterPlan(
@@ -315,13 +317,24 @@ def _group_by_curriculum(
     relevance_map = _build_relevance_map(framework_id)
     question_data = _load_question_data_for_curriculum(positions)
     chapters = []
+    seen_qids: set = set()  # Cross-chapter dedup (same as taxonomy path)
 
     for pos in positions:
-        q_ids = [str(qid) for qid in (pos.get('question_ids') or [])]
+        raw_ids = [str(qid) for qid in (pos.get('question_ids') or [])]
+        # Deduplicate: assign each question to its first (most relevant) position
+        q_ids = [qid for qid in raw_ids if qid not in seen_qids]
+        seen_qids.update(q_ids)
+
         objectives_total = pos.get('objectives_total', 0)
         objectives_with_q = pos.get('objectives_with_questions', 0)
         objectives_ai = objectives_total - objectives_with_q
-        total_points = float(pos.get('total_points', 0))
+        # Recalculate points from deduplicated questions only
+        chapter_questions = [
+            question_data[qid] for qid in q_ids if qid in question_data
+        ]
+        total_points = sum(
+            float(q.get('points', 0)) for q in chapter_questions
+        )
 
         # Determine coverage source
         if objectives_with_q > 0 and objectives_ai > 0:
@@ -331,12 +344,11 @@ def _group_by_curriculum(
         else:
             coverage = 'ai_generated'
 
-        # Select LM types based on available questions
-        chapter_questions = [
-            question_data[qid] for qid in q_ids if qid in question_data
-        ]
+        # Select LM types — exam_mode prioritises Active Recall
         if chapter_questions:
-            lm_types = LMContentMapper.select_lm_types(chapter_questions)
+            lm_types = LMContentMapper.select_lm_types(
+                chapter_questions, exam_mode=True,
+            )
         else:
             lm_types = [0, 1]  # AI-only: explanation + step-by-step
 
@@ -345,7 +357,7 @@ def _group_by_curriculum(
 
         chapters.append(ChapterPlan(
             topic=position_code,
-            question_ids=[str(qid) for qid in q_ids],
+            question_ids=q_ids,
             lm_types=lm_types,
             point_weight=total_points,
             question_count=len(q_ids),

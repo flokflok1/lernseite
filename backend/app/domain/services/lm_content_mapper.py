@@ -3,7 +3,7 @@
 import hashlib
 from typing import Dict, List
 
-# Question type -> LM type IDs
+# Question type -> LM type IDs (general learning context)
 QUESTION_TYPE_TO_LM: Dict[str, List[int]] = {
     'mcq': [6, 7],          # Flashcards, Drag & Drop
     'fill_blank': [8],       # Cloze Test
@@ -11,6 +11,18 @@ QUESTION_TYPE_TO_LM: Dict[str, List[int]] = {
     'calculation': [5],      # Math Interactive
     'code': [10],            # IHK-Style Tasks
     'case_study': [11],      # Multi-Step Practical
+}
+
+# Exam prep context: Active Recall > passive recognition.
+# MCQ as IHK-Tasks (active answering) + Cloze (fill-in recall),
+# NOT Flashcards (passive recognition) or Drag & Drop (matching).
+EXAM_QUESTION_TYPE_TO_LM: Dict[str, List[int]] = {
+    'mcq': [10, 8],          # IHK-Tasks (active), Cloze (recall)
+    'fill_blank': [8],       # Cloze Test
+    'essay': [10],           # IHK-Style Tasks
+    'calculation': [5, 10],  # Math Interactive + IHK-Tasks
+    'code': [10],            # IHK-Style Tasks
+    'case_study': [11, 10],  # Multi-Step + IHK-Tasks
 }
 
 ALWAYS_INCLUDE = [0]  # Deep Explanation always added
@@ -31,12 +43,21 @@ class LMContentMapper:
     """Maps exam questions to Learning Method content structures."""
 
     @staticmethod
-    def select_lm_types(questions: List[Dict]) -> List[int]:
-        """Pick 3-5 LM types based on question types present."""
+    def select_lm_types(
+        questions: List[Dict], exam_mode: bool = False,
+    ) -> List[int]:
+        """Pick 3-5 LM types based on question types present.
+
+        When exam_mode=True, prioritises Active Recall methods
+        (IHK-Tasks, Cloze, Math) over passive recognition (Flashcards,
+        Drag & Drop). Based on testing-effect research: retrieval
+        practice produces stronger long-term retention than re-study.
+        """
         q_types = {q.get('question_type', '') for q in questions}
+        mapping = EXAM_QUESTION_TYPE_TO_LM if exam_mode else QUESTION_TYPE_TO_LM
         lm_set = set(ALWAYS_INCLUDE)
         for qt in q_types:
-            lm_set.update(QUESTION_TYPE_TO_LM.get(qt, []))
+            lm_set.update(mapping.get(qt, []))
         result = sorted(lm_set)
         if len(result) > 5:
             result = sorted(ALWAYS_INCLUDE) + sorted(lm_set - set(ALWAYS_INCLUDE))[:4]
@@ -113,19 +134,28 @@ class LMContentMapper:
         return {'problems': problems}
 
     @staticmethod
-    def map_to_ihk_tasks(questions: List[Dict]) -> Dict:
-        """Essay/code/case_study questions -> IHK-style tasks."""
+    def map_to_ihk_tasks(
+        questions: List[Dict], include_mcq: bool = False,
+    ) -> Dict:
+        """Essay/code/case_study questions -> IHK-style tasks.
+
+        When include_mcq=True (exam prep mode), also converts MCQ
+        questions into active-recall tasks where the student must
+        select/formulate the answer without seeing flashcard hints.
+        """
         tasks = []
         valid_types = {'essay', 'code', 'case_study'}
+        if include_mcq:
+            valid_types.update({'mcq', 'fill_blank', 'calculation'})
         for q in questions:
             qt = q.get('question_type', '')
             if qt not in valid_types:
                 continue
             data = q.get('data', {})
-            for item in data.get('tasks', [data]):
+            for item in data.get('tasks', data.get('questions', [data])):
                 tasks.append({
                     'question': item.get('question', item.get('text', '')),
-                    'points': item.get('points', 0),
+                    'points': item.get('points', q.get('points', 0)),
                     'solution': item.get('solution', _extract_correct_answer(item)),
                     'question_type': qt,
                     'source_question_id': q.get('question_id', ''),

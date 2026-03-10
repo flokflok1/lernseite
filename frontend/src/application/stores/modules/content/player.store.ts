@@ -28,6 +28,7 @@ import type {
 } from '@/infrastructure/api/clients/public/learning/types/types'
 import type { MethodProgress } from '@/infrastructure/api/clients/public/learning/player/player.types'
 import { usePlayerQuizStore } from './playerQuiz.store'
+import { useReviewIntegration } from '@/presentation/components/panel/user/learning/composables/useReviewIntegration'
 
 export const usePlayerStore = defineStore('player', () => {
   // ============================================================================
@@ -60,6 +61,7 @@ export const usePlayerStore = defineStore('player', () => {
   // ============================================================================
 
   const quizStore = usePlayerQuizStore()
+  const { recordReview } = useReviewIntegration()
 
   // ============================================================================
   // Getters
@@ -378,6 +380,17 @@ export const usePlayerStore = defineStore('player', () => {
   }
 
   /**
+   * Record SRS review after method completion (non-blocking)
+   */
+  const recordMethodReview = async (
+    methodId: string,
+    score: number,
+    timeSeconds: number = 0,
+  ): Promise<void> => {
+    recordReview(methodId, score, timeSeconds)
+  }
+
+  /**
    * Clear player state
    */
   const clearPlayer = (): void => {
@@ -458,6 +471,7 @@ export const usePlayerStore = defineStore('player', () => {
     syncProgress,
     refreshMethodsProgress,
     clearActiveTask: () => { activeExecution.value = null; methodResult.value = null },
+    recordMethodReview,
     clearPlayer,
 
     // Quiz Actions (re-exported)

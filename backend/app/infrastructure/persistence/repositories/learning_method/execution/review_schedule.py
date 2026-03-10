@@ -7,7 +7,7 @@ Manages review intervals, mastery scores, and due-review queries.
 
 import logging
 from typing import Dict, Any, Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from psycopg.rows import dict_row
 
@@ -147,7 +147,7 @@ class ReviewScheduleRepository:
         Returns:
             List of due review records with LM and chapter info
         """
-        params: list = [user_id, datetime.utcnow()]
+        params: list = [user_id, datetime.now(timezone.utc)]
         course_filter = ""
         if course_id:
             course_filter = "AND ch.course_id = %s"

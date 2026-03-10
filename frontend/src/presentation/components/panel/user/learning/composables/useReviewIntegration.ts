@@ -20,8 +20,11 @@ export function useReviewIntegration() {
   ): Promise<void> {
     try {
       await reviewStore.processReview(methodId, score, timeSeconds)
-    } catch {
-      // SRS not initialized for this course — expected for non-exam courses
+    } catch (err) {
+      // Expected for non-exam courses (no SRS rows exist)
+      if (import.meta.env.DEV) {
+        console.warn('[SRS] recordReview skipped:', (err as Error).message)
+      }
     }
   }
 
@@ -34,8 +37,10 @@ export function useReviewIntegration() {
         '@/infrastructure/api/clients/panel/user/learning/reviews.api'
       )
       await initializeReviews(courseId)
-    } catch {
-      // SRS init failed — non-blocking
+    } catch (err) {
+      if (import.meta.env.DEV) {
+        console.warn('[SRS] initializeSrs failed:', (err as Error).message)
+      }
     }
   }
 

@@ -9,7 +9,7 @@ Orchestrates spaced repetition reviews:
 """
 import logging
 from typing import Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.domain.services.spaced_repetition import (
     compute_next_review, quality_from_score,
@@ -126,6 +126,18 @@ class ReviewService:
             user_id, course_id,
         )
 
+    @staticmethod
+    def get_stats(
+        user_id: str, course_id: str,
+    ) -> Dict[str, Any]:
+        """Get summary review statistics for a course."""
+        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
+            ReviewScheduleRepository,
+        )
+        return ReviewScheduleRepository.get_review_stats(
+            user_id, course_id,
+        )
+
 
 # ------------------------------------------------------------------
 # Private helpers (keep methods under 50 LOC)
@@ -156,7 +168,7 @@ def _row_to_review_state(row: dict) -> ReviewState:
         easiness_factor=row.get('easiness_factor', 2.5),
         interval_days=row.get('interval_days', 1),
         repetition=row.get('repetition_number', 0),
-        next_review=datetime.utcnow(),
+        next_review=row.get('next_review_at') or datetime.now(timezone.utc),
         mastery_score=row.get('mastery_score', 0.0),
         difficulty_level=row.get('difficulty_level', 'medium'),
     )
@@ -178,7 +190,7 @@ def _build_upsert_data(
         'current_streak': streak,
         'total_reviews': current_row.get('total_reviews', 0) + 1,
         'last_quality': quality,
-        'last_reviewed_at': datetime.utcnow(),
+        'last_reviewed_at': datetime.now(timezone.utc),
         'difficulty_level': new_state.difficulty_level,
         'confidence': min(1.0, new_state.mastery_score / 100),
     }

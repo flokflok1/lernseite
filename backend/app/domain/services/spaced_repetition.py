@@ -15,7 +15,7 @@ Quality scale (0-5):
 Based on: Wozniak, P.A. (1990). SuperMemo algorithm SM-2.
 """
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 @dataclass(frozen=True)
@@ -45,7 +45,7 @@ def compute_next_review(
     Returns:
         New ReviewState with updated interval, EF, mastery.
     """
-    now = now or datetime.utcnow()
+    now = now or datetime.now(timezone.utc)
     quality = max(0, min(5, quality))
 
     # Update easiness factor
@@ -122,7 +122,7 @@ def quality_from_score(score: float, time_ratio: float = 1.0) -> int:
 
 def initial_state(now: datetime = None) -> ReviewState:
     """Create initial review state for a new LM instance."""
-    now = now or datetime.utcnow()
+    now = now or datetime.now(timezone.utc)
     return ReviewState(
         easiness_factor=2.5,
         interval_days=1,

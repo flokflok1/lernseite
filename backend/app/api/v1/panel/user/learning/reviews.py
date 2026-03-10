@@ -36,7 +36,10 @@ def get_review_queue():
     """Get prioritized review queue."""
     user_id = get_jwt_identity()
     course_id = request.args.get('course_id')
-    limit = int(request.args.get('limit', 20))
+    try:
+        limit = min(int(request.args.get('limit', 20)), 100)
+    except (ValueError, TypeError):
+        limit = 20
 
     result = ReviewService.get_review_queue(user_id, course_id, limit)
     return jsonify(result)
@@ -50,11 +53,18 @@ def submit_review():
     data = request.json or {}
 
     method_id = data.get('method_id')
-    score = float(data.get('score', 0))
-    time_seconds = int(data.get('time_seconds', 0))
-
     if not method_id:
         return jsonify({'error': 'method_id required'}), 400
+
+    try:
+        score = max(0.0, min(100.0, float(data.get('score', 0))))
+    except (ValueError, TypeError):
+        return jsonify({'error': 'score must be a number 0-100'}), 400
+
+    try:
+        time_seconds = max(0, int(data.get('time_seconds', 0)))
+    except (ValueError, TypeError):
+        time_seconds = 0
 
     result = ReviewService.process_review(
         user_id, method_id, score, time_seconds,
@@ -84,8 +94,5 @@ def get_review_stats():
     if not course_id:
         return jsonify({'error': 'course_id required'}), 400
 
-    from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-        ReviewScheduleRepository,
-    )
-    stats = ReviewScheduleRepository.get_review_stats(user_id, course_id)
+    stats = ReviewService.get_stats(user_id, course_id)
     return jsonify({'stats': stats})

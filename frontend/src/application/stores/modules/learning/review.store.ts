@@ -41,7 +41,9 @@ export const useReviewStore = defineStore('review', () => {
   async function processReview(
     methodId: string, score: number, timeSeconds: number,
   ) {
-    return await submitReview(methodId, score, timeSeconds)
+    const result = await submitReview(methodId, score, timeSeconds)
+    queue.value = queue.value.filter(item => item.method_id !== methodId)
+    return result
   }
 
   function $reset() {

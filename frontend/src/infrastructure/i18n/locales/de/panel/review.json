@@ -13,6 +13,11 @@
       "easy": "Leicht",
       "medium": "Mittel",
       "hard": "Schwer"
-    }
+    },
+    "dailyRecall": "Tägliche Wiederholung",
+    "dailyRecallDesc": "{count} Aufgaben fällig",
+    "noDailyRecall": "Heute keine Wiederholungen fällig",
+    "adaptiveDifficulty": "Adaptive Schwierigkeit",
+    "recommendedLevel": "Empfohlenes Niveau: {level}"
   }
 }

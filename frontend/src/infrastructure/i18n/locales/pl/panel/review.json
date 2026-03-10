@@ -1,18 +1,23 @@
 {
   "review": {
-    "title": "Powt\u00f3rka",
+    "title": "Powtórka",
     "masteryTitle": "Poziom opanowania",
-    "dueCount": "{count} do powt\u00f3rki",
+    "dueCount": "{count} do powtórki",
     "mastered": "{count} opanowane",
-    "avgMastery": "\u015arednia: {pct}%",
-    "startReview": "\u0106wicz teraz",
-    "noReviews": "Brak powt\u00f3rek",
-    "nextReview": "Nast\u0119pna powt\u00f3rka: {date}",
-    "streak": "{count} z rz\u0119du",
+    "avgMastery": "Średnia: {pct}%",
+    "startReview": "Ćwicz teraz",
+    "noReviews": "Brak powtórek",
+    "nextReview": "Następna powtórka: {date}",
+    "streak": "{count} z rzędu",
     "difficulty": {
-      "easy": "\u0141atwe",
-      "medium": "\u015arednie",
+      "easy": "Łatwe",
+      "medium": "Średnie",
       "hard": "Trudne"
-    }
+    },
+    "dailyRecall": "Codzienne powtórki",
+    "dailyRecallDesc": "{count} zadań do powtórzenia",
+    "noDailyRecall": "Brak powtórek na dziś",
+    "adaptiveDifficulty": "Adaptacyjny poziom trudności",
+    "recommendedLevel": "Zalecany poziom: {level}"
   }
 }

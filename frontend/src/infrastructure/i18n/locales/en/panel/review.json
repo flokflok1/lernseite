@@ -13,6 +13,11 @@
       "easy": "Easy",
       "medium": "Medium",
       "hard": "Hard"
-    }
+    },
+    "dailyRecall": "Daily Recall",
+    "dailyRecallDesc": "{count} items due",
+    "noDailyRecall": "No reviews due today",
+    "adaptiveDifficulty": "Adaptive Difficulty",
+    "recommendedLevel": "Recommended level: {level}"
   }
 }

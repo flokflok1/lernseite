@@ -51,7 +51,7 @@ class CoursePlanFactory:
         if not steps:
             return {}
 
-        phase_title = chapter_plan.topic.replace('_', ' ').title()
+        phase_title = _resolve_topic_label(chapter_plan, language)
 
         return {
             'course_id': course_id,
@@ -74,13 +74,13 @@ def _build_ai_steps(
     """Build plan steps for each AI-generated LM type in the chapter."""
     steps: List[Dict[str, Any]] = []
     question_context = _build_question_context(questions)
+    topic_label = _resolve_topic_label(chapter_plan, language)
 
     for idx, lm_type in enumerate(chapter_plan.lm_types):
         if lm_type not in AI_GENERATED_LM_TYPES:
             continue
 
         skill_code = LM_SKILL_MAP[lm_type]
-        topic_label = chapter_plan.topic.replace('_', ' ').title()
 
         steps.append({
             'step_id': f'0-{idx}',
@@ -91,7 +91,7 @@ def _build_ai_steps(
             'learning_methods': [lm_type],
             'parameters': {
                 'difficulty': 'medium',
-                'topic': chapter_plan.topic,
+                'topic': topic_label,
                 'language': language,
                 'question_context': question_context,
             },
@@ -100,6 +100,23 @@ def _build_ai_steps(
         })
 
     return steps
+
+
+def _resolve_topic_label(
+    chapter_plan: ChapterPlan, language: str = 'de',
+) -> str:
+    """Extract a human-readable topic label from the chapter plan.
+
+    Prefers parent_label (localized curriculum position title) over
+    the raw topic code (e.g. "A.1") which is meaningless for AI.
+    """
+    label = chapter_plan.parent_label
+    if label and isinstance(label, dict):
+        resolved = label.get(language) or label.get('de') or ''
+        if resolved:
+            return resolved
+    # Fallback: topic key (only useful for topic-based grouping)
+    return chapter_plan.topic.replace('_', ' ').title()
 
 
 def _build_question_context(

@@ -27,6 +27,9 @@ from app.infrastructure.persistence.repositories.learning_method.execution.insta
 from app.infrastructure.persistence.repositories.exams.questions import (
     ExamQuestionRepository,
 )
+from app.infrastructure.persistence.repositories.exams.core import (
+    ExamRepository,
+)
 from app.infrastructure.persistence.repositories.ai.content_plans import (
     ContentPlanRepository,
 )
@@ -264,7 +267,7 @@ def _create_static_lm_instances(
         if lm_data is None:
             continue
 
-        title = _lm_title(chapter_plan.topic, lm_type)
+        title = _lm_title(chapter_plan, lm_type, language)
         LearningMethodInstanceRepository.create({
             'chapter_id': chapter_id,
             'method_type': lm_type,
@@ -324,10 +327,21 @@ def _create_ai_plan_if_needed(
     return plan_id
 
 
-def _lm_title(topic: str, lm_type: int) -> str:
-    """Build an LM instance title with English suffix."""
+def _lm_title(
+    chapter_plan: ChapterPlan, lm_type: int, language: str = 'de',
+) -> str:
+    """Build an LM instance title with English suffix.
+
+    Uses parent_label (human-readable curriculum title) when available,
+    falls back to topic key for topic-based grouping.
+    """
     suffix = LM_TITLE_SUFFIX.get(lm_type, '')
-    topic_label = topic.replace('_', ' ').title()
+    label = parse_label(chapter_plan.parent_label)
+    topic_label = (
+        label.get(language)
+        or label.get('de')
+        or chapter_plan.topic.replace('_', ' ').title()
+    )
     return f'{topic_label} -- {suffix}' if suffix else topic_label
 
 
@@ -340,8 +354,18 @@ def _build_simulation_chapter(
     if not questions:
         return {'lm_count': 0}
 
-    first_q = questions[0]
-    exam_label = first_q.get('exam_title', 'Exam')
+    # Map questions first — skip if no compatible content
+    tasks = LMContentMapper.map_to_ihk_tasks(questions)
+    if not tasks or not tasks.get('tasks'):
+        logger.warning(
+            "Simulation exam %s has no IHK-compatible questions, skipping",
+            exam_id,
+        )
+        return {'lm_count': 0}
+
+    # Get exam title from exams table (not from questions)
+    exam = ExamRepository.find_by_id(exam_id)
+    exam_label = exam.get('title', 'Exam') if exam else 'Exam'
     title = f"Simulation -- {exam_label}"
 
     chapter = ChapterRepository.create({
@@ -351,8 +375,6 @@ def _build_simulation_chapter(
     })
     chapter_id = str(chapter['chapter_id'])
 
-    # Create one IHK-Style Tasks (LM10) with all questions
-    tasks = LMContentMapper.map_to_ihk_tasks(questions)
     LearningMethodInstanceRepository.create({
         'chapter_id': chapter_id,
         'method_type': 10,

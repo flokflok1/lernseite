@@ -84,6 +84,23 @@ class CourseGeneratorBuilder:
             course_id, plan, creator_user_id, options, language,
         )
 
+        # Initialize spaced repetition schedule for the creator
+        if plan.exam_type:
+            try:
+                from app.application.services.learning.review_service import ReviewService
+                srs_result = ReviewService.initialize_course_reviews(
+                    creator_user_id, course_id,
+                )
+                logger.info(
+                    "SRS initialized: %d review items for course %s",
+                    srs_result.get('initialized', 0), course_id,
+                )
+            except Exception:
+                logger.exception(
+                    "SRS initialization failed for course %s (non-blocking)",
+                    course_id,
+                )
+
         status = 'generating' if ai_plan_ids else 'ready'
 
         if ai_plan_ids:

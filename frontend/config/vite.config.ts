@@ -29,9 +29,21 @@ export default defineConfig({
           })
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('[Vite Proxy] Request:', req.method, req.url, '→', proxyReq.path)
+            // Disable gzip for SSE — compression buffers the stream
+            if (req.headers.accept?.includes('text/event-stream')) {
+              proxyReq.removeHeader('Accept-Encoding')
+            }
           })
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
             console.log('[Vite Proxy] Response:', req.method, req.url, '→', proxyRes.statusCode)
+            // Flush SSE events immediately instead of buffering
+            if (proxyRes.headers['content-type']?.includes('text/event-stream')) {
+              proxyRes.on('data', () => {
+                if (typeof (res as any).flushHeaders === 'function') {
+                  (res as any).flushHeaders()
+                }
+              })
+            }
           })
         }
       },

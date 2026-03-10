@@ -194,7 +194,11 @@
     "sortRelevance": "Nach Prüfungsrelevanz",
     "sortCurriculum": "Nach Rahmenplan-Reihenfolge",
     "objectivesCovered": "Lernziele abgedeckt",
-    "aiOnly": "nur AI-Content"
+    "aiOnly": "nur AI-Content",
+    "examAppearance": "Prüfungshäufigkeit",
+    "trend_rising": "Trend steigend",
+    "trend_stable": "Trend stabil",
+    "trend_declining": "Trend rückläufig"
   },
   "examTrainer": {
     "title": "Prüfungstrainer",

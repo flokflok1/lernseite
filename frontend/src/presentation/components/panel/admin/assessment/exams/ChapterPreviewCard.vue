@@ -39,6 +39,16 @@
             {{ chapter.objectives_ai_only }} {{ t('panel.examCourseGenerator.aiOnly') }}
           </span>
         </div>
+        <!-- Exam relevance -->
+        <div v-if="chapter.relevance_score > 0" class="mt-1 ml-8 flex items-center gap-2">
+          <span class="text-xs px-2 py-0.5 rounded" :class="relevanceBadgeClass">
+            {{ Math.round(chapter.exam_appearance_rate * 100) }}%
+            {{ t('panel.examCourseGenerator.examAppearance') }}
+          </span>
+          <span v-if="chapter.relevance_trend" class="text-xs" :class="trendClass">
+            {{ trendIcon }} {{ t(`panel.examCourseGenerator.trend_${chapter.relevance_trend}`) }}
+          </span>
+        </div>
         <div v-if="chapter.child_topics?.length" class="mt-2 ml-8 flex flex-wrap gap-1">
           <span
             v-for="child in chapter.child_topics"
@@ -113,5 +123,26 @@ const title = computed(() => {
     if (label) return label
   }
   return formatTopic(props.chapter.topic)
+})
+
+const relevanceBadgeClass = computed(() => {
+  const rate = props.chapter.exam_appearance_rate ?? 0
+  if (rate >= 0.7) return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+  if (rate >= 0.4) return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+  return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+})
+
+const trendIcon = computed(() => {
+  const t = props.chapter.relevance_trend
+  if (t === 'rising') return '\u2191'
+  if (t === 'declining') return '\u2193'
+  return '\u2192'
+})
+
+const trendClass = computed(() => {
+  const t = props.chapter.relevance_trend
+  if (t === 'rising') return 'text-red-600 dark:text-red-400 font-medium'
+  if (t === 'declining') return 'text-green-600 dark:text-green-400'
+  return 'text-[var(--color-text-secondary)]'
 })
 </script>

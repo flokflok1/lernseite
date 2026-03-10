@@ -127,43 +127,68 @@
           </div>
         </div>
 
-        <!-- Expanded tree + coverage -->
+        <!-- Expanded content -->
         <div
           v-if="selectedId === fw.framework_id"
           class="border-t border-[var(--color-border)] p-4 space-y-4"
         >
-          <!-- Coverage stats -->
-          <div
-            v-if="coverage"
-            class="grid grid-cols-3 gap-4 text-center"
-          >
-            <div class="p-3 rounded-lg" style="background-color: var(--color-info-bg, #eff6ff);">
-              <div class="text-2xl font-bold" style="color: var(--color-info-text, #2563eb);">
-                {{ coverage.total_objectives }}
-              </div>
-              <div class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('panel.curriculum.coverage.totalObjectives') }}
-              </div>
-            </div>
-            <div class="p-3 rounded-lg" style="background-color: var(--color-success-bg, #dcfce7);">
-              <div class="text-2xl font-bold" style="color: var(--color-success-text, #15803d);">
-                {{ coverage.mapped_objectives }}
-              </div>
-              <div class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('panel.curriculum.coverage.mapped') }}
-              </div>
-            </div>
-            <div class="p-3 rounded-lg" style="background-color: var(--color-warning-bg, #fef3c7);">
-              <div class="text-2xl font-bold" style="color: var(--color-warning-text, #92400e);">
-                {{ coverage.coverage_percent }}%
-              </div>
-              <div class="text-xs text-[var(--color-text-secondary)]">
-                {{ $t('panel.curriculum.coverage.percent') }}
-              </div>
-            </div>
+          <!-- Tab navigation -->
+          <div class="flex gap-1 border-b border-[var(--color-border)]">
+            <button
+              v-for="tab in ['structure', 'mapping'] as const"
+              :key="tab"
+              class="px-4 py-2 text-sm font-medium transition-colors -mb-px"
+              :class="activeTab === tab
+                ? 'border-b-2 border-[var(--color-primary,#7c3aed)] text-[var(--color-primary,#7c3aed)]'
+                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'"
+              @click="activeTab = tab"
+            >
+              {{ $t(`panel.curriculum.tabs.${tab}`) }}
+            </button>
           </div>
 
-          <CurriculumTreeView :tree="activeTree" />
+          <!-- Structure tab -->
+          <template v-if="activeTab === 'structure'">
+            <!-- Coverage stats -->
+            <div
+              v-if="coverage"
+              class="grid grid-cols-3 gap-4 text-center"
+            >
+              <div class="p-3 rounded-lg" style="background-color: var(--color-info-bg, #eff6ff);">
+                <div class="text-2xl font-bold" style="color: var(--color-info-text, #2563eb);">
+                  {{ coverage.total_objectives }}
+                </div>
+                <div class="text-xs text-[var(--color-text-secondary)]">
+                  {{ $t('panel.curriculum.coverage.totalObjectives') }}
+                </div>
+              </div>
+              <div class="p-3 rounded-lg" style="background-color: var(--color-success-bg, #dcfce7);">
+                <div class="text-2xl font-bold" style="color: var(--color-success-text, #15803d);">
+                  {{ coverage.mapped_objectives }}
+                </div>
+                <div class="text-xs text-[var(--color-text-secondary)]">
+                  {{ $t('panel.curriculum.coverage.mapped') }}
+                </div>
+              </div>
+              <div class="p-3 rounded-lg" style="background-color: var(--color-warning-bg, #fef3c7);">
+                <div class="text-2xl font-bold" style="color: var(--color-warning-text, #92400e);">
+                  {{ coverage.coverage_percent }}%
+                </div>
+                <div class="text-xs text-[var(--color-text-secondary)]">
+                  {{ $t('panel.curriculum.coverage.percent') }}
+                </div>
+              </div>
+            </div>
+
+            <CurriculumTreeView :tree="activeTree" />
+          </template>
+
+          <!-- Mapping & Relevance tab -->
+          <CurriculumMappingPanel
+            v-if="activeTab === 'mapping'"
+            :framework-id="fw.framework_id"
+            @refresh="() => loadCoverage(fw.framework_id)"
+          />
         </div>
       </div>
     </div>
@@ -188,6 +213,7 @@
       :visible="showImport"
       :loading="loading"
       :error="error"
+      :progress="importProgress"
       @close="showImport = false"
       @parse="handleParse"
       @parse-file="handleParseFile"
@@ -201,6 +227,7 @@ import { ref, onMounted } from 'vue'
 import { useCurriculum } from '../composables'
 import CurriculumTreeView from './CurriculumTreeView.vue'
 import CurriculumImportDialog from './CurriculumImportDialog.vue'
+import CurriculumMappingPanel from './CurriculumMappingPanel.vue'
 
 const {
   frameworks,
@@ -208,9 +235,10 @@ const {
   coverage,
   loading,
   error,
+  importProgress,
   loadFrameworks,
-  loadTree,
   loadCoverage,
+  loadStructureData,
   addFramework,
   removeFramework,
   parsePdf,
@@ -221,6 +249,7 @@ const {
 const showImport = ref(false)
 const showCreate = ref(false)
 const selectedId = ref<number | null>(null)
+const activeTab = ref<'structure' | 'mapping'>('structure')
 const importDialogRef = ref<InstanceType<typeof CurriculumImportDialog> | null>(null)
 
 const createForm = ref({
@@ -238,7 +267,8 @@ async function selectFramework(id: number) {
     return
   }
   selectedId.value = id
-  await Promise.all([loadTree(id), loadCoverage(id)])
+  activeTab.value = 'structure'
+  await loadStructureData(id)
 }
 
 async function handleCreate() {

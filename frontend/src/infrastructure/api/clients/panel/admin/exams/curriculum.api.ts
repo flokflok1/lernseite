@@ -51,11 +51,24 @@ export interface CurriculumTag {
   tagged_by: string
 }
 
+export interface CoveragePositionDetail {
+  section_id: number
+  section_code: string
+  section_title: string | Record<string, string>
+  position_id: number
+  position_code: string
+  position_title: string | Record<string, string>
+  question_count: number
+  objective_count: number
+  ai_tagged_count: number
+}
+
 export interface CoverageStats {
   total_objectives: number
   mapped_objectives: number
   coverage_percent: number
   unmapped_count: number
+  positions?: CoveragePositionDetail[]
 }
 
 export interface AutoMapStats {
@@ -110,22 +123,90 @@ export const importPdfPreview = async (
   return data.preview
 }
 
-export const importPdfFilePreview = async (
+export interface ImportProgressEvent {
+  event: 'extracting' | 'extracted' | 'ai_started' | 'ai_progress' | 'log' | 'complete' | 'error'
+  data: Record<string, any>
+}
+
+export const importPdfFileStreaming = async (
   file: File,
-  provider?: string,
-  model?: string,
-): Promise<Record<string, any>> => {
+  provider: string | undefined,
+  model: string | undefined,
+  onProgress: (event: ImportProgressEvent) => void,
+): Promise<Record<string, any> | null> => {
   const formData = new FormData()
   formData.append('file', file)
   if (provider) formData.append('provider', provider)
   if (model) formData.append('model', model)
 
-  const { data } = await http.post(
-    '/admin/curriculum/frameworks/import-pdf-upload',
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
+  // Get auth token
+  let token: string | null = null
+  try {
+    const { useAuthStore } = await import('@/application/stores/modules/core/auth.store')
+    token = useAuthStore().accessToken
+  } catch { /* ignore */ }
+  if (!token) token = localStorage.getItem('access_token')
+
+  const baseUrl = '/api/v1'
+  const response = await fetch(
+    `${baseUrl}/admin/curriculum/frameworks/import-pdf-upload`,
+    {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        'Accept': 'text/event-stream',
+      },
+      body: formData,
+    },
   )
-  return data.preview
+
+  if (!response.ok || !response.body) {
+    throw new Error(`Upload failed: ${response.status}`)
+  }
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let result: Record<string, any> | null = null
+  // Declared outside loop — event: and data: may arrive in separate chunks
+  let currentEvent = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() || ''
+
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        currentEvent = line.slice(7).trim()
+      } else if (line.startsWith('data: ') && currentEvent) {
+        try {
+          const data = JSON.parse(line.slice(6))
+          const evt: ImportProgressEvent = { event: currentEvent as any, data }
+          onProgress(evt)
+
+          if (currentEvent === 'complete' && data.preview) {
+            result = data.preview
+          }
+          if (currentEvent === 'error') {
+            throw new Error(data.message || 'Import failed')
+          }
+        } catch (e) {
+          if (e instanceof Error && e.message !== 'Import failed') {
+            console.error('SSE parse error:', e)
+          } else {
+            throw e
+          }
+        }
+        currentEvent = ''
+      }
+    }
+  }
+
+  return result
 }
 
 export const importPdfConfirm = async (
@@ -204,9 +285,21 @@ export const fetchCoverageStats = async (
   return data.coverage
 }
 
+export interface RelevanceEntry {
+  position_id: number
+  exam_count: number
+  total_exams: number
+  appearance_rate: number
+  weighted_score: number
+  avg_points_per_exam: number
+  recent_count: number
+  older_count: number
+  trend: 'rising' | 'stable' | 'declining'
+}
+
 export const fetchRelevanceWeights = async (
   frameworkId: number
-): Promise<Record<string, any>> => {
+): Promise<RelevanceEntry[]> => {
   const { data } = await http.get(
     `/admin/curriculum/frameworks/${frameworkId}/relevance`
   )

@@ -58,6 +58,10 @@ class ChapterPlan:
     objectives_with_questions: int = 0
     objectives_ai_only: int = 0
     coverage_source: Optional[str] = None  # "exam_questions" | "ai_generated" | "mixed"
+    # Exam relevance (frequency-based + trend)
+    relevance_score: float = 0.0          # year-weighted point score
+    exam_appearance_rate: float = 0.0     # 0.0-1.0 how often in exams
+    relevance_trend: Optional[str] = None  # "rising" | "stable" | "declining"
 
 
 @dataclass(frozen=True)
@@ -103,6 +107,9 @@ class ExamCoursePlan:
                     'objectives_with_questions': ch.objectives_with_questions,
                     'objectives_ai_only': ch.objectives_ai_only,
                     'coverage_source': ch.coverage_source,
+                    'relevance_score': ch.relevance_score,
+                    'exam_appearance_rate': ch.exam_appearance_rate,
+                    'relevance_trend': ch.relevance_trend,
                 }
                 for ch in self.chapters
             ],

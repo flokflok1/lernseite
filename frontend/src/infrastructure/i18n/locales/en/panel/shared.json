@@ -194,7 +194,11 @@
     "sortRelevance": "Exam relevance",
     "sortCurriculum": "Curriculum order",
     "objectivesCovered": "objectives covered",
-    "aiOnly": "AI-only content"
+    "aiOnly": "AI-only content",
+    "examAppearance": "exam frequency",
+    "trend_rising": "trending up",
+    "trend_stable": "stable",
+    "trend_declining": "trending down"
   },
   "examTrainer": {
     "title": "Exam Trainer",

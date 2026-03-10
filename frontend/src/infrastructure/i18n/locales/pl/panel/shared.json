@@ -194,7 +194,11 @@
     "sortRelevance": "Wg ważności egzaminu",
     "sortCurriculum": "Wg kolejności planu ramowego",
     "objectivesCovered": "celów objętych",
-    "aiOnly": "tylko treść AI"
+    "aiOnly": "tylko treść AI",
+    "examAppearance": "częstotliwość egzaminu",
+    "trend_rising": "trend rosnący",
+    "trend_stable": "stabilny",
+    "trend_declining": "trend malejący"
   },
   "examTrainer": {
     "title": "Trener egzaminów",

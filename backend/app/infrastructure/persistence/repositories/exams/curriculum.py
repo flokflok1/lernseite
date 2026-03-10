@@ -253,7 +253,18 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
                       ARRAY_REMOVE(
                           ARRAY_AGG(DISTINCT ct.question_id), NULL
                       ) AS question_ids,
-                      COALESCE(SUM(DISTINCT q.points), 0) AS total_points
+                      COALESCE((
+                          SELECT SUM(sub_q.points)
+                          FROM (
+                              SELECT DISTINCT ct2.question_id, q2.points
+                              FROM assessments.exam_question_curriculum_tags ct2
+                              JOIN assessments.curriculum_objectives o2
+                                  ON o2.id = ct2.curriculum_objective_id
+                              JOIN assessments.exam_questions q2
+                                  ON q2.question_id = ct2.question_id
+                              WHERE o2.position_id = p.id
+                          ) sub_q
+                      ), 0) AS total_points
                FROM assessments.curriculum_sections s
                JOIN assessments.curriculum_positions p
                    ON p.section_id = s.id
@@ -261,8 +272,6 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
                    ON o.position_id = p.id
                LEFT JOIN assessments.exam_question_curriculum_tags ct
                    ON ct.curriculum_objective_id = o.id
-               LEFT JOIN assessments.exam_questions q
-                   ON q.question_id = ct.question_id
                WHERE s.framework_id = %s
                GROUP BY p.id, p.position_number, p.display_name,
                         s.id, s.section_code, s.display_name,
@@ -358,3 +367,78 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
 
         framework['sections'] = sections
         return framework
+
+    # ── Exam Relevance Scores ──────────────────────────────────────
+
+    @staticmethod
+    def find_position_relevance_scores(
+        framework_id: int,
+    ) -> List[Dict[str, Any]]:
+        """Calculate exam relevance per curriculum position.
+
+        Uses year-weighted scoring: newer exams count more.
+        Weight = max(1.0 - (current_year - exam_year) * 0.1, 0.1)
+
+        Also calculates trend by comparing recent (last 3 years)
+        vs older appearance rates.
+
+        Returns one row per position that has at least one tagged question.
+        """
+        return fetch_all(
+            """WITH position_exam_data AS (
+                   SELECT p.id AS position_id,
+                          es.session_id,
+                          es.year,
+                          SUM(eq.points) AS exam_points
+                   FROM assessments.curriculum_sections s
+                   JOIN assessments.curriculum_positions p
+                       ON p.section_id = s.id
+                   JOIN assessments.curriculum_objectives o
+                       ON o.position_id = p.id
+                   JOIN assessments.exam_question_curriculum_tags ct
+                       ON ct.curriculum_objective_id = o.id
+                   JOIN assessments.exam_questions eq
+                       ON eq.question_id = ct.question_id
+                   JOIN assessments.exams e
+                       ON e.exam_id = eq.exam_id
+                   JOIN assessments.exam_sessions es
+                       ON es.session_id = e.session_id
+                   WHERE s.framework_id = %s
+                     AND es.year IS NOT NULL
+                   GROUP BY p.id, es.session_id, es.year
+               ),
+               total AS (
+                   SELECT COUNT(DISTINCT session_id) AS total_exams,
+                          MIN(year) AS min_year,
+                          MAX(year) AS max_year
+                   FROM position_exam_data
+               )
+               SELECT ped.position_id,
+                      COUNT(DISTINCT ped.session_id) AS exam_count,
+                      t.total_exams,
+                      ROUND(
+                          COUNT(DISTINCT ped.session_id)::numeric
+                          / NULLIF(t.total_exams, 0), 2
+                      ) AS appearance_rate,
+                      ROUND(SUM(
+                          ped.exam_points
+                          * GREATEST(
+                              1.0 - (t.max_year - ped.year) * 0.1,
+                              0.1
+                          )
+                      )::numeric, 1) AS weighted_score,
+                      ROUND(AVG(ped.exam_points)::numeric, 1)
+                          AS avg_points_per_exam,
+                      COUNT(DISTINCT ped.session_id) FILTER (
+                          WHERE ped.year >= t.max_year - 2
+                      ) AS recent_count,
+                      COUNT(DISTINCT ped.session_id) FILTER (
+                          WHERE ped.year < t.max_year - 2
+                      ) AS older_count
+               FROM position_exam_data ped
+               CROSS JOIN total t
+               GROUP BY ped.position_id, t.total_exams,
+                        t.min_year, t.max_year
+               ORDER BY weighted_score DESC""",
+            [framework_id],
+        )

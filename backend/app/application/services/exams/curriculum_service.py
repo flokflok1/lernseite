@@ -46,23 +46,49 @@ class CurriculumService:
         from app.infrastructure.ai.adapter import AIAdapter
 
         prompt = (
-            "You are a curriculum structure parser. "
-            "Analyze the following exam curriculum document and extract "
-            "its hierarchical structure as JSON.\n\n"
+            "You are an expert curriculum structure parser for German IHK "
+            "(Industrie- und Handelskammer) vocational training frameworks "
+            "(Ausbildungsrahmenplan). Analyze the document and extract the "
+            "complete hierarchical structure as JSON.\n\n"
+            "IMPORTANT extraction rules:\n"
+            "- Detect the framework type: ihk_ausbildung, hochschule, "
+            "zertifizierung, or custom\n"
+            "- Extract the official section codes (e.g. 'A', 'B', 'C' or "
+            "'Teil 1', 'Teil 2')\n"
+            "- For each section, detect which specializations it applies to "
+            "(e.g. 'Fachinformatiker Anwendungsentwicklung', "
+            "'Fachinformatiker Systemintegration', etc.)\n"
+            "- For each position, extract the training period if mentioned "
+            "(e.g. '1.-15. Monat', '1.-36. Monat')\n"
+            "- For each objective, detect the competency level from IHK "
+            "taxonomy: 'kennen' (know), 'anwenden' (apply), or "
+            "'beherrschen' (master). Look for cues like 'kennen', "
+            "'beschreiben', 'anwenden', 'durchfuehren', 'beherrschen'.\n"
+            "- Preserve the original German text for descriptions\n\n"
             "Output MUST be valid JSON with this schema:\n"
             "{\n"
-            '  "name": "Framework name",\n'
+            '  "name": "Official framework name",\n'
+            '  "framework_type": "ihk_ausbildung",\n'
             '  "version": "1.0",\n'
             '  "sections": [\n'
             "    {\n"
-            '      "code": "T1",\n'
+            '      "code": "A",\n'
             '      "title": "Section title",\n'
+            '      "description": "Optional section description",\n'
+            '      "applies_to": ["Fachinformatiker Anwendungsentwicklung",'
+            ' "Fachinformatiker Systemintegration"],\n'
             '      "positions": [\n'
             "        {\n"
-            '          "code": "T1.1",\n'
+            '          "code": "1",\n'
             '          "title": "Position title",\n'
+            '          "description": "Optional position description",\n'
+            '          "training_period": "1.-15. Monat",\n'
             '          "objectives": [\n'
-            '            {"code": "T1.1.1", "description": "..."}\n'
+            "            {\n"
+            '              "code": "a",\n'
+            '              "description": "Full objective text",\n'
+            '              "competency_level": "anwenden"\n'
+            "            }\n"
             "          ]\n"
             "        }\n"
             "      ]\n"
@@ -74,22 +100,37 @@ class CurriculumService:
         )
 
         ai_opts = {k: v for k, v in {'provider': provider, 'model': model}.items() if v}
-        adapter = AIAdapter(**ai_opts)
+        adapter = AIAdapter(timeout=300, **ai_opts)
         response = adapter.send_request(
             prompt=prompt,
             temperature=0.1,
-            max_tokens=8000,
+            max_tokens=65000,
         )
 
         raw_text = response.get('output_text', '')
-        raw_text = _strip_markdown_fences(raw_text)
+        logger.info(
+            "AI curriculum response: %d chars, %d input tokens, %d output tokens",
+            len(raw_text),
+            response.get('input_tokens', 0),
+            response.get('output_tokens', 0),
+        )
+
+        if not raw_text.strip():
+            raise ValueError(
+                "AI returned empty response. The document may be too large "
+                "or the model's safety filter blocked the output. "
+                "Try a different model or smaller PDF."
+            )
+
+        raw_text = _extract_json_object(raw_text)
 
         try:
             result = json.loads(raw_text)
         except json.JSONDecodeError as exc:
             logger.error(
-                "Failed to parse AI curriculum response as JSON: %s",
-                exc,
+                "Failed to parse AI curriculum response as JSON: %s\n"
+                "First 500 chars: %s",
+                exc, raw_text[:500],
             )
             raise ValueError(
                 f"AI response is not valid JSON: {exc}"
@@ -155,7 +196,7 @@ class CurriculumService:
             batch_size: Number of questions per AI batch call.
 
         Returns:
-            Stats dict with mapped_count, skipped_count, error_count.
+            Stats dict with mapped, skipped, errors.
 
         Raises:
             ValueError: If no framework is linked to the exam type.
@@ -180,16 +221,16 @@ class CurriculumService:
                 "Framework %s has no objectives, skipping mapping",
                 framework_id,
             )
-            return {'mapped_count': 0, 'skipped_count': 0, 'error_count': 0}
+            return {'mapped': 0, 'skipped': 0, 'errors': 0}
 
         obj_reference = _build_objective_reference(objectives)
 
         unmapped = repo.find_unmapped_questions(exam_type_key)
         if not unmapped:
             logger.info("No unmapped questions for %s", exam_type_key)
-            return {'mapped_count': 0, 'skipped_count': 0, 'error_count': 0}
+            return {'mapped': 0, 'skipped': 0, 'errors': 0}
 
-        stats = {'mapped_count': 0, 'skipped_count': 0, 'error_count': 0}
+        stats = {'mapped': 0, 'skipped': 0, 'errors': 0}
 
         for i in range(0, len(unmapped), batch_size):
             batch = unmapped[i:i + batch_size]
@@ -251,7 +292,7 @@ class CurriculumService:
                 max_tokens=4000,
             )
 
-            raw = _strip_markdown_fences(
+            raw = _extract_json_object(
                 response.get('output_text', ''),
             )
             mappings = json.loads(raw)
@@ -262,7 +303,7 @@ class CurriculumService:
                 confidence = float(m.get('confidence', 0.8))
 
                 if code not in obj_by_code or not qid:
-                    stats['skipped_count'] += 1
+                    stats['skipped'] += 1
                     continue
 
                 CurriculumFrameworkRepository.tag_question(
@@ -271,14 +312,14 @@ class CurriculumService:
                     confidence=confidence,
                     tagged_by='ai',
                 )
-                stats['mapped_count'] += 1
+                stats['mapped'] += 1
 
         except json.JSONDecodeError:
             logger.exception("Failed to parse AI mapping response")
-            stats['error_count'] += len(questions)
+            stats['errors'] += len(questions)
         except Exception:
             logger.exception("Error in question batch mapping")
-            stats['error_count'] += len(questions)
+            stats['errors'] += len(questions)
 
     # ── User Profile ───────────────────────────────────────────────
 
@@ -321,33 +362,77 @@ class CurriculumService:
     def get_exam_relevance_weights(
         framework_id: int,
     ) -> List[Dict]:
-        """Get coverage statistics for a curriculum framework.
+        """Get exam-relevance scores per curriculum position.
 
-        Delegates to the repository's coverage stats query.
+        Returns year-weighted appearance rates, point scores,
+        recent/older counts, and computed trend per position.
 
         Args:
             framework_id: Curriculum framework ID.
 
         Returns:
-            List of position-level stats with question counts.
+            List of dicts with position_id, exam_count, appearance_rate,
+            weighted_score, recent_count, older_count, trend.
         """
         from app.infrastructure.persistence.repositories.exams.curriculum import (
             CurriculumFrameworkRepository,
         )
 
-        return CurriculumFrameworkRepository.get_curriculum_coverage_stats(
+        rows = CurriculumFrameworkRepository.find_position_relevance_scores(
             framework_id,
         )
+        for row in rows:
+            row['trend'] = compute_trend(
+                row.get('recent_count', 0),
+                row.get('older_count', 0),
+            )
+        return rows
 
 
 # ── Module-level helpers ───────────────────────────────────────────
 
-def _strip_markdown_fences(text: str) -> str:
-    """Remove markdown code fences from AI output."""
+def compute_trend(recent_count: int, older_count: int) -> str:
+    """Determine trend from recent vs older exam appearances.
+
+    Recent = last 3 years, older = everything before.
+    Normalizes to per-year rate for fair comparison.
+
+    Used by both the relevance API and the course generator.
+    """
+    if recent_count == 0 and older_count == 0:
+        return 'stable'
+    if older_count == 0:
+        return 'rising'
+    if recent_count == 0:
+        return 'declining'
+    recent_rate = recent_count / 3.0
+    older_rate = older_count / 5.0
+    if recent_rate > older_rate * 1.3:
+        return 'rising'
+    if recent_rate < older_rate * 0.7:
+        return 'declining'
+    return 'stable'
+
+
+def _extract_json_object(text: str) -> str:
+    """Extract JSON object from AI output, ignoring surrounding text.
+
+    AI models often add explanatory text before/after the JSON.
+    This finds the outermost { ... } block.
+    """
     text = text.strip()
+    # Remove markdown code fences first
     text = re.sub(r'^```(?:json)?\s*\n?', '', text)
     text = re.sub(r'\n?```\s*$', '', text)
-    return text.strip()
+    text = text.strip()
+
+    # Find the first { and last } to extract the JSON object
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1 and end > start:
+        return text[start:end + 1]
+
+    return text
 
 
 def _build_objective_reference(objectives: List[Dict]) -> str:

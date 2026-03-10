@@ -14,6 +14,10 @@ export interface ChapterPreview {
   objectives_with_questions?: number
   objectives_ai_only?: number
   coverage_source?: 'exam_questions' | 'ai_generated' | 'mixed' | null
+  // Exam relevance
+  relevance_score?: number
+  exam_appearance_rate?: number
+  relevance_trend?: 'rising' | 'stable' | 'declining' | null
 }
 
 export interface CoursePlan {

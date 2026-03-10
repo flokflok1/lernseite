@@ -44,8 +44,41 @@
       "parseBtn": "Analizuj z AI",
       "confirmBtn": "Potwierdź import",
       "analyzing": "AI analizuje...",
+      "elapsed": "Czas trwania",
       "uploadError": "Nie udało się przesłać pliku",
-      "noInput": "Prześlij plik PDF lub wklej tekst"
+      "noInput": "Prześlij plik PDF lub wklej tekst",
+      "progress": {
+        "extracting": "Ekstrakcja tekstu z PDF",
+        "extractedDetail": "{chars} znaków z {pages} stron wyodrębniono",
+        "aiAnalyzing": "AI analizuje strukturę",
+        "parsing": "Przetwarzanie wyniku",
+        "liveLog": "Dziennik na żywo",
+        "waitingForLogs": "Oczekiwanie na zdarzenia...",
+        "importSuccess": "Import zakończony pomyślnie!",
+        "unknownError": "Nieznany błąd"
+      }
+    },
+    "mapping": {
+      "examType": "Typ egzaminu",
+      "selectExamType": "Wybierz typ egzaminu",
+      "link": "Powiąż",
+      "autoMap": "Auto-mapowanie",
+      "mapping": "Mapowanie...",
+      "mapResult": "{mapped} przypisano, {skipped} pominięto, {errors} błędów",
+      "position": "Pozycja",
+      "objectives": "Cele",
+      "questions": "Pytania",
+      "relevance": "Trafność",
+      "trend": "Trend",
+      "trend_rising": "rosnący",
+      "trend_stable": "stabilny",
+      "trend_declining": "malejący",
+      "linkSuccess": "Typ egzaminu powiązany. Możesz teraz uruchomić auto-mapowanie.",
+      "noData": "Brak danych. Powiąż typ egzaminu i uruchom auto-mapowanie."
+    },
+    "tabs": {
+      "structure": "Struktura",
+      "mapping": "Mapowanie i trafność"
     },
     "tags": {
       "label": "Cele nauczania",

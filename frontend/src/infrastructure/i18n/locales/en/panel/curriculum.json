@@ -44,8 +44,41 @@
       "parseBtn": "Analyze with AI",
       "confirmBtn": "Confirm import",
       "analyzing": "AI analyzing...",
+      "elapsed": "Elapsed time",
       "uploadError": "Failed to upload file",
-      "noInput": "Please upload a PDF file or paste text"
+      "noInput": "Please upload a PDF file or paste text",
+      "progress": {
+        "extracting": "Extracting PDF text",
+        "extractedDetail": "{chars} characters from {pages} pages extracted",
+        "aiAnalyzing": "AI analyzing structure",
+        "parsing": "Processing result",
+        "liveLog": "Live Log",
+        "waitingForLogs": "Waiting for events...",
+        "importSuccess": "Import completed successfully!",
+        "unknownError": "Unknown error"
+      }
+    },
+    "mapping": {
+      "examType": "Exam Type",
+      "selectExamType": "Select exam type",
+      "link": "Link",
+      "autoMap": "Auto-Map",
+      "mapping": "Mapping...",
+      "mapResult": "{mapped} mapped, {skipped} skipped, {errors} errors",
+      "position": "Position",
+      "objectives": "Objectives",
+      "questions": "Questions",
+      "relevance": "Relevance",
+      "trend": "Trend",
+      "trend_rising": "rising",
+      "trend_stable": "stable",
+      "trend_declining": "declining",
+      "linkSuccess": "Exam type linked successfully. You can now run auto-mapping.",
+      "noData": "No data available. Link an exam type and run auto-mapping first."
+    },
+    "tabs": {
+      "structure": "Structure",
+      "mapping": "Mapping & Relevance"
     },
     "tags": {
       "label": "Curriculum Objectives",

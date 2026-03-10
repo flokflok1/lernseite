@@ -46,7 +46,8 @@ class AIModelFactory:
         input_cost_per_1k: float,
         output_cost_per_1k: float,
         context_window: Optional[int] = None,
-        supports_streaming: bool = True
+        supports_streaming: bool = True,
+        display_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Create a model from provider synchronization.
@@ -91,7 +92,7 @@ class AIModelFactory:
             'provider_id': provider_id,
             'model_identifier': model_identifier,
             'model_name': model_name,
-            'display_name': model_name,
+            'display_name': display_name or model_name,
             'category': category_enum.value,
             'input_cost_per_1k': float(pricing.input_cost_per_1k),
             'output_cost_per_1k': float(pricing.output_cost_per_1k),

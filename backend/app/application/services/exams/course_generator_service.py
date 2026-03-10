@@ -300,6 +300,9 @@ def _group_by_curriculum(
 
     Each position becomes a chapter. Questions are pulled from
     curriculum tags. Positions without questions get AI-only content.
+
+    When sort_mode='relevance', sorts by year-weighted exam relevance
+    (newer exams count more, trend detection included).
     """
     positions = CurriculumFrameworkRepository.find_positions_with_question_stats(
         framework_id,
@@ -309,6 +312,7 @@ def _group_by_curriculum(
         logger.warning("No positions found for framework %s", framework_id)
         return []
 
+    relevance_map = _build_relevance_map(framework_id)
     question_data = _load_question_data_for_curriculum(positions)
     chapters = []
 
@@ -337,6 +341,7 @@ def _group_by_curriculum(
             lm_types = [0, 1]  # AI-only: explanation + step-by-step
 
         position_code = f"{pos['section_code']}.{pos['position_code']}"
+        rel = relevance_map.get(pos['position_id'], {})
 
         chapters.append(ChapterPlan(
             topic=position_code,
@@ -352,13 +357,43 @@ def _group_by_curriculum(
             objectives_with_questions=objectives_with_q,
             objectives_ai_only=objectives_ai,
             coverage_source=coverage,
+            relevance_score=rel.get('weighted_score', 0.0),
+            exam_appearance_rate=rel.get('appearance_rate', 0.0),
+            relevance_trend=rel.get('trend'),
         ))
 
     if sort_mode == 'relevance':
-        chapters.sort(key=lambda ch: ch.point_weight, reverse=True)
+        chapters.sort(
+            key=lambda ch: (ch.relevance_score, ch.point_weight),
+            reverse=True,
+        )
     # 'curriculum' = keep DB order (already ordered by section/position)
 
     return chapters
+
+
+def _build_relevance_map(framework_id: int) -> Dict[int, Dict]:
+    """Load relevance scores and compute trend per position.
+
+    Returns {position_id: {weighted_score, appearance_rate, trend}}.
+    """
+    from app.application.services.exams.curriculum_service import compute_trend
+
+    rows = CurriculumFrameworkRepository.find_position_relevance_scores(
+        framework_id,
+    )
+    result = {}
+    for row in rows:
+        trend = compute_trend(
+            row.get('recent_count', 0),
+            row.get('older_count', 0),
+        )
+        result[row['position_id']] = {
+            'weighted_score': float(row.get('weighted_score', 0)),
+            'appearance_rate': float(row.get('appearance_rate', 0)),
+            'trend': trend,
+        }
+    return result
 
 
 def _load_question_data_for_curriculum(

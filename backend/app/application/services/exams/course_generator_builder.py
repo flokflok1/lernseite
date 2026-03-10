@@ -237,13 +237,10 @@ def _build_chapter(
 
 
 def _fetch_chapter_questions(question_ids: List[str]) -> List[Dict]:
-    """Fetch full question data for a set of question IDs."""
-    questions = []
-    for qid in question_ids:
-        q = ExamQuestionRepository.find_by_id(qid)
-        if q:
-            questions.append(q)
-    return questions
+    """Fetch full question data for a set of question IDs (batch)."""
+    if not question_ids:
+        return []
+    return ExamQuestionRepository.find_by_ids(question_ids)
 
 
 def _create_static_lm_instances(
@@ -394,8 +391,10 @@ def _build_static_lm_data(
         return None
 
     data = map_fn(questions)
-    # Skip if no content was mapped
-    items_key = list(data.keys())[0] if data else None
-    if items_key and len(data.get(items_key, [])) == 0:
+    if not data:
+        return None
+    # Skip if content dict exists but all values are empty lists
+    items_key = next(iter(data), None)
+    if items_key is not None and len(data.get(items_key, [])) == 0:
         return None
     return data

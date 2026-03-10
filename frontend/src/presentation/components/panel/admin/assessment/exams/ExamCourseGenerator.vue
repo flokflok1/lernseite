@@ -340,7 +340,8 @@ async function pollProgress() {
   if (!generatingCourseId.value) return
   try {
     generationProgress.value = await getGenerationProgress(generatingCourseId.value)
-    if (generationProgress.value.status !== 'generating') {
+    const terminalStatuses = new Set(['ready', 'partial', 'failed'])
+    if (terminalStatuses.has(generationProgress.value.status)) {
       stopPolling()
       generating.value = false
     }

@@ -59,7 +59,7 @@ class LMContentMapper:
                 cards.append({
                     'front': item.get('question', item.get('text', '')),
                     'back': _extract_correct_answer(item),
-                    'source_question_id': q.get('id', ''),
+                    'source_question_id': q.get('question_id', ''),
                 })
         return {'cards': cards}
 
@@ -75,7 +75,7 @@ class LMContentMapper:
                 sentences.append({
                     'text': item.get('text', ''),
                     'answers': item.get('answers', [_extract_correct_answer(item)]),
-                    'source_question_id': q.get('id', ''),
+                    'source_question_id': q.get('question_id', ''),
                 })
         return {'sentences': sentences}
 
@@ -91,7 +91,7 @@ class LMContentMapper:
                 pairs.append({
                     'question': item.get('question', item.get('text', '')),
                     'answer': _extract_correct_answer(item),
-                    'source_question_id': q.get('id', ''),
+                    'source_question_id': q.get('question_id', ''),
                 })
         return {'pairs': pairs}
 
@@ -108,7 +108,7 @@ class LMContentMapper:
                     'question': item.get('question', item.get('text', '')),
                     'answer': _extract_correct_answer(item),
                     'hint': item.get('hint', ''),
-                    'source_question_id': q.get('id', ''),
+                    'source_question_id': q.get('question_id', ''),
                 })
         return {'problems': problems}
 
@@ -128,7 +128,7 @@ class LMContentMapper:
                     'points': item.get('points', 0),
                     'solution': item.get('solution', _extract_correct_answer(item)),
                     'question_type': qt,
-                    'source_question_id': q.get('id', ''),
+                    'source_question_id': q.get('question_id', ''),
                 })
         return {'tasks': tasks}
 
@@ -143,6 +143,6 @@ class LMContentMapper:
             steps.append({
                 'scenario': data.get('scenario', data.get('text', '')),
                 'questions': data.get('questions', []),
-                'source_question_id': q.get('id', ''),
+                'source_question_id': q.get('question_id', ''),
             })
         return {'steps': steps}

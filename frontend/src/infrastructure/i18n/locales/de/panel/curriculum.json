@@ -44,8 +44,41 @@
       "parseBtn": "Mit KI analysieren",
       "confirmBtn": "Import bestätigen",
       "analyzing": "KI analysiert...",
+      "elapsed": "Vergangene Zeit",
       "uploadError": "Fehler beim Hochladen der Datei",
-      "noInput": "Bitte laden Sie eine PDF-Datei hoch oder fügen Sie Text ein"
+      "noInput": "Bitte laden Sie eine PDF-Datei hoch oder fügen Sie Text ein",
+      "progress": {
+        "extracting": "PDF-Text extrahieren",
+        "extractedDetail": "{chars} Zeichen aus {pages} Seiten extrahiert",
+        "aiAnalyzing": "KI analysiert Struktur",
+        "parsing": "Ergebnis verarbeiten",
+        "liveLog": "Live-Log",
+        "waitingForLogs": "Warte auf Ereignisse...",
+        "importSuccess": "Import erfolgreich abgeschlossen!",
+        "unknownError": "Unbekannter Fehler"
+      }
+    },
+    "mapping": {
+      "examType": "Prüfungstyp",
+      "selectExamType": "Prüfungstyp auswählen",
+      "link": "Verknüpfen",
+      "autoMap": "Auto-Mapping",
+      "mapping": "Mapping läuft...",
+      "mapResult": "{mapped} zugeordnet, {skipped} übersprungen, {errors} Fehler",
+      "position": "Position",
+      "objectives": "Lernziele",
+      "questions": "Fragen",
+      "relevance": "Relevanz",
+      "trend": "Trend",
+      "trend_rising": "steigend",
+      "trend_stable": "stabil",
+      "trend_declining": "rückläufig",
+      "linkSuccess": "Prüfungstyp erfolgreich verknüpft. Sie können jetzt Auto-Mapping starten.",
+      "noData": "Keine Daten vorhanden. Verknüpfen Sie einen Prüfungstyp und starten Sie das Auto-Mapping."
+    },
+    "tabs": {
+      "structure": "Struktur",
+      "mapping": "Mapping & Relevanz"
     },
     "tags": {
       "label": "Curriculum-Lernziele",

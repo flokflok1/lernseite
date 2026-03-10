@@ -15,26 +15,35 @@ import {
   createFramework,
   deleteFramework,
   importPdfPreview,
-  importPdfFilePreview,
+  importPdfFileStreaming,
   importPdfConfirm,
   autoMapQuestions,
   fetchCoverageStats,
+  fetchRelevanceWeights,
   linkFrameworkToExamType,
   type CurriculumFramework,
   type CurriculumTree,
   type CoverageStats,
   type AutoMapStats,
+  type RelevanceEntry,
+  type ImportProgressEvent,
 } from '@/infrastructure/api/clients/panel/admin/exams/curriculum.api'
 
 export function useCurriculum() {
   const frameworks = ref<CurriculumFramework[]>([])
   const activeTree = ref<CurriculumTree | null>(null)
   const coverage = ref<CoverageStats | null>(null)
+  const relevance = ref<RelevanceEntry[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
   const importPreview = ref<Record<string, any> | null>(null)
+  const importProgress = ref<ImportProgressEvent | null>(null)
 
   const hasFrameworks = computed(() => frameworks.value.length > 0)
+
+  // Stale-response guard: each read increments the counter.
+  // After await, if counter moved, a newer read superseded us — skip write.
+  let _readSeq = 0
 
   async function loadFrameworks() {
     loading.value = true
@@ -55,14 +64,18 @@ export function useCurriculum() {
   }
 
   async function loadTree(frameworkId: number) {
+    const seq = ++_readSeq
     loading.value = true
     error.value = null
     try {
-      activeTree.value = await fetchFrameworkTree(frameworkId)
+      const result = await fetchFrameworkTree(frameworkId)
+      if (seq !== _readSeq) return
+      activeTree.value = result
     } catch (e: any) {
+      if (seq !== _readSeq) return
       error.value = e?.response?.data?.error || 'Failed to load framework tree'
     } finally {
-      loading.value = false
+      if (seq === _readSeq) loading.value = false
     }
   }
 
@@ -113,11 +126,16 @@ export function useCurriculum() {
   async function parsePdfFile(file: File, provider?: string, model?: string) {
     loading.value = true
     error.value = null
+    importProgress.value = null
     try {
-      importPreview.value = await importPdfFilePreview(file, provider, model)
-      return importPreview.value
+      const preview = await importPdfFileStreaming(
+        file, provider, model,
+        (evt) => { importProgress.value = { ...evt } },
+      )
+      importPreview.value = preview
+      return preview
     } catch (e: any) {
-      error.value = e?.response?.data?.error || 'AI PDF parse failed'
+      error.value = e?.message || 'AI PDF parse failed'
       return null
     } finally {
       loading.value = false
@@ -161,24 +179,100 @@ export function useCurriculum() {
   }
 
   async function loadCoverage(frameworkId: number) {
+    const seq = ++_readSeq
     loading.value = true
     error.value = null
     try {
-      coverage.value = await fetchCoverageStats(frameworkId)
+      const result = await fetchCoverageStats(frameworkId)
+      if (seq !== _readSeq) return
+      coverage.value = result
     } catch (e: any) {
+      if (seq !== _readSeq) return
       error.value = e?.response?.data?.error || 'Failed to load coverage'
     } finally {
-      loading.value = false
+      if (seq === _readSeq) loading.value = false
     }
   }
 
-  async function linkToExamType(frameworkId: number, examTypeKey: string) {
+  async function loadRelevance(frameworkId: number) {
+    const seq = ++_readSeq
+    loading.value = true
+    error.value = null
+    try {
+      const result = await fetchRelevanceWeights(frameworkId)
+      if (seq !== _readSeq) return
+      relevance.value = result
+    } catch (e: any) {
+      if (seq !== _readSeq) return
+      error.value = e?.response?.data?.error || 'Failed to load relevance'
+    } finally {
+      if (seq === _readSeq) loading.value = false
+    }
+  }
+
+  async function loadStructureData(frameworkId: number) {
+    const seq = ++_readSeq
+    loading.value = true
+    error.value = null
+    try {
+      const [treeResult, coverageResult] = await Promise.allSettled([
+        fetchFrameworkTree(frameworkId),
+        fetchCoverageStats(frameworkId),
+      ])
+      if (seq !== _readSeq) return
+      if (treeResult.status === 'fulfilled') {
+        activeTree.value = treeResult.value
+      }
+      if (coverageResult.status === 'fulfilled') {
+        coverage.value = coverageResult.value
+      }
+      const failed = [treeResult, coverageResult].filter(
+        (r) => r.status === 'rejected',
+      )
+      if (failed.length) {
+        error.value = 'Failed to load framework data'
+      }
+    } finally {
+      if (seq === _readSeq) loading.value = false
+    }
+  }
+
+  async function loadMappingData(frameworkId: number) {
+    const seq = ++_readSeq
+    loading.value = true
+    error.value = null
+    try {
+      const [coverageResult, relevanceResult] = await Promise.allSettled([
+        fetchCoverageStats(frameworkId),
+        fetchRelevanceWeights(frameworkId),
+      ])
+      if (seq !== _readSeq) return
+      if (coverageResult.status === 'fulfilled') {
+        coverage.value = coverageResult.value
+      }
+      if (relevanceResult.status === 'fulfilled') {
+        relevance.value = relevanceResult.value
+      }
+      const failed = [coverageResult, relevanceResult].filter(
+        (r) => r.status === 'rejected',
+      )
+      if (failed.length) {
+        error.value = 'Failed to load mapping data'
+      }
+    } finally {
+      if (seq === _readSeq) loading.value = false
+    }
+  }
+
+  async function linkToExamType(frameworkId: number, examTypeKey: string): Promise<boolean> {
     loading.value = true
     error.value = null
     try {
       await linkFrameworkToExamType(frameworkId, examTypeKey)
+      return true
     } catch (e: any) {
       error.value = e?.response?.data?.error || 'Failed to link framework'
+      return false
     } finally {
       loading.value = false
     }
@@ -188,9 +282,11 @@ export function useCurriculum() {
     frameworks,
     activeTree,
     coverage,
+    relevance,
     loading,
     error,
     importPreview,
+    importProgress,
     hasFrameworks,
     loadFrameworks,
     loadTree,
@@ -201,6 +297,9 @@ export function useCurriculum() {
     confirmImport,
     runAutoMap,
     loadCoverage,
+    loadRelevance,
+    loadStructureData,
+    loadMappingData,
     linkToExamType,
   }
 }

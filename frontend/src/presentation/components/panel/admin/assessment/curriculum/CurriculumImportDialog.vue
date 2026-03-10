@@ -121,6 +121,86 @@
           </div>
         </div>
 
+        <!-- Step: Processing (progress view) -->
+        <div v-if="step === 'processing'" class="space-y-4 py-4">
+          <div class="space-y-3">
+            <!-- Step indicators -->
+            <div
+              v-for="s in progressSteps"
+              :key="s.key"
+              class="flex items-center gap-3"
+            >
+              <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                <div
+                  v-if="s.status === 'done'"
+                  class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center"
+                >
+                  <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div
+                  v-else-if="s.status === 'active'"
+                  class="w-5 h-5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"
+                />
+                <div
+                  v-else
+                  class="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600"
+                />
+              </div>
+              <div class="flex-1">
+                <p
+                  class="text-sm font-medium"
+                  :class="s.status === 'active'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : s.status === 'done'
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-400 dark:text-gray-500'"
+                >
+                  {{ s.label }}
+                </p>
+                <p v-if="s.detail" class="text-xs text-gray-500">
+                  {{ s.detail }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Log -->
+          <div class="mt-3">
+            <p class="text-xs font-medium text-gray-500 mb-1">{{ t('panel.curriculum.import.progress.liveLog') }}</p>
+            <div
+              ref="logContainerRef"
+              class="bg-gray-950 rounded-lg p-3 h-36 overflow-y-auto font-mono text-xs leading-relaxed"
+            >
+              <div
+                v-for="(entry, idx) in logEntries"
+                :key="idx"
+                class="flex gap-2"
+              >
+                <span class="text-gray-500 flex-shrink-0">{{ entry.time }}</span>
+                <span
+                  :class="entry.isError
+                    ? 'text-red-400'
+                    : entry.isSuccess
+                      ? 'text-green-400'
+                      : 'text-gray-300'"
+                >{{ entry.message }}</span>
+              </div>
+              <div v-if="logEntries.length === 0" class="text-gray-500 italic">
+                {{ t('panel.curriculum.import.progress.waitingForLogs') }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Elapsed time -->
+          <div class="text-center pt-1">
+            <p class="text-xs text-gray-500">
+              {{ t('panel.curriculum.import.elapsed') }}: {{ elapsedFormatted }}
+            </p>
+          </div>
+        </div>
+
         <!-- Step 2: Preview AI result -->
         <div v-if="step === 'preview' && preview">
           <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded mb-3">
@@ -177,7 +257,7 @@
           :disabled="loading || !hasInput"
           @click="handleParse"
         >
-          {{ loading ? t('panel.curriculum.import.analyzing') : t('panel.curriculum.import.parseBtn') }}
+          {{ t('panel.curriculum.import.parseBtn') }}
         </button>
 
         <button
@@ -198,14 +278,17 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminGetAIModelsRegistry } from '@/infrastructure/api/clients/panel/admin/ai/models.api'
 import type { AIModelRegistryItem, AIProviderInfo } from '@/infrastructure/api/clients/panel/admin/types'
+import type { ImportProgressEvent } from '@/infrastructure/api/clients/panel/admin/exams/curriculum.api'
+import { useImportLog } from '../composables/useImportLog'
 
 interface Props {
   visible: boolean
   loading: boolean
   error: string | null
+  progress: ImportProgressEvent | null
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   close: []
@@ -223,8 +306,98 @@ const showPaste = ref(false)
 const dragOver = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const sourceDocument = ref('')
-const step = ref<'input' | 'preview'>('input')
+const step = ref<'input' | 'processing' | 'preview'>('input')
 const preview = ref<Record<string, any> | null>(null)
+
+// --- Log + timer (composable) ---
+const {
+  logEntries, logContainerRef, addLogEntry, clearLog,
+  elapsedFormatted, startTimer, stopTimer,
+} = useImportLog()
+
+// --- Progress steps ---
+const progressSteps = computed(() => {
+  const evt = props.progress
+  const evtName = evt?.event || ''
+
+  const steps = [
+    {
+      key: 'extract',
+      label: t('panel.curriculum.import.progress.extracting'),
+      detail: evtName === 'extracted'
+        ? t('panel.curriculum.import.progress.extractedDetail', {
+            chars: evt?.data?.chars?.toLocaleString() || '?',
+            pages: evt?.data?.pages || '?',
+          })
+        : evtName === 'extracting'
+          ? evt?.data?.filename || ''
+          : '',
+      status: getStepStatus('extract', evtName),
+    },
+    {
+      key: 'ai',
+      label: t('panel.curriculum.import.progress.aiAnalyzing'),
+      detail: evtName === 'ai_started'
+        ? `${evt?.data?.provider} / ${evt?.data?.model}`
+        : '',
+      status: getStepStatus('ai', evtName),
+    },
+    {
+      key: 'parse',
+      label: t('panel.curriculum.import.progress.parsing'),
+      detail: '',
+      status: getStepStatus('parse', evtName),
+    },
+  ]
+  return steps
+})
+
+function getStepStatus(stepKey: string, evtName: string): 'pending' | 'active' | 'done' {
+  const order = ['extract', 'ai', 'parse']
+  const map: Record<string, string> = {
+    extracting: 'extract', extracted: 'ai',
+    ai_started: 'ai', ai_progress: 'ai', complete: 'parse',
+  }
+  if (evtName === 'complete') return 'done'
+  const ai = order.indexOf(map[evtName] || '')
+  const si = order.indexOf(stepKey)
+  return si < ai ? 'done' : si === ai ? 'active' : 'pending'
+}
+
+// --- Watch progress for step transitions + log ---
+watch(() => props.progress, (evt) => {
+  if (!evt) return
+
+  if (evt.event === 'extracting' && step.value !== 'processing') {
+    step.value = 'processing'
+    clearLog()
+    startTimer()
+  }
+
+  if (evt.event === 'log') {
+    const msg = evt.data?.message || ''
+    addLogEntry(msg, msg.startsWith('FEHLER'), false)
+  }
+
+  if (evt.event === 'complete') {
+    addLogEntry(t('panel.curriculum.import.progress.importSuccess'), false, true)
+    stopTimer()
+  }
+
+  if (evt.event === 'error') {
+    addLogEntry(evt.data?.message || t('panel.curriculum.import.progress.unknownError'), true)
+    stopTimer()
+  }
+})
+
+// --- Watch loading to detect completion ---
+watch(() => props.loading, (isLoading, wasLoading) => {
+  if (wasLoading && !isLoading && step.value === 'processing') {
+    stopTimer()
+    // If no error, preview will be set via setPreview()
+    // If error, step stays at processing but error shows
+  }
+})
 
 // --- AI Provider / Model ---
 const providers = ref<AIProviderInfo[]>([])
@@ -305,6 +478,7 @@ function handleConfirm() {
 function setPreview(data: Record<string, any>) {
   preview.value = data
   step.value = 'preview'
+  stopTimer()
 }
 
 function reset() {
@@ -314,6 +488,8 @@ function reset() {
   step.value = 'input'
   preview.value = null
   showPaste.value = false
+  clearLog()
+  stopTimer()
   if (fileInputRef.value) fileInputRef.value.value = ''
 }
 

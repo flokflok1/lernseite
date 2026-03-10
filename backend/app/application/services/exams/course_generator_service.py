@@ -317,7 +317,7 @@ def _group_by_curriculum(
     chapters = []
 
     for pos in positions:
-        q_ids = pos.get('question_ids') or []
+        q_ids = [str(qid) for qid in (pos.get('question_ids') or [])]
         objectives_total = pos.get('objectives_total', 0)
         objectives_with_q = pos.get('objectives_with_questions', 0)
         objectives_ai = objectives_total - objectives_with_q

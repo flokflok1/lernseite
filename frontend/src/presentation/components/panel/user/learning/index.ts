@@ -1,2 +1,5 @@
 export { default as ExamSimulationView } from './ExamSimulationView.vue'
 export { default as LessonPlayerView } from './LessonPlayerView.vue'
+export { default as ReviewCard } from './ReviewCard.vue'
+export { default as MasteryHeatmap } from './MasteryHeatmap.vue'
+export { default as ReviewDashboard } from './ReviewDashboard.vue'

@@ -12,6 +12,7 @@ import system from './system.json'
 import users from './users.json'
 import curriculum from './curriculum.json'
 import exam_goals from './exam-goals.json'
+import review from './review.json'
 
 export default {
   panel: {
@@ -27,6 +28,7 @@ export default {
     ...system,
     ...users,
     ...curriculum,
-    ...exam_goals
+    ...exam_goals,
+    ...review
   }
 }

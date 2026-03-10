@@ -1,0 +1,18 @@
+{
+  "review": {
+    "title": "Wiederholung",
+    "masteryTitle": "Wissensstand",
+    "dueCount": "{count} f\u00e4llig",
+    "mastered": "{count} gemeistert",
+    "avgMastery": "Durchschnitt: {pct}%",
+    "startReview": "Jetzt \u00fcben",
+    "noReviews": "Keine Wiederholungen f\u00e4llig",
+    "nextReview": "N\u00e4chste Wiederholung: {date}",
+    "streak": "{count} in Folge",
+    "difficulty": {
+      "easy": "Leicht",
+      "medium": "Mittel",
+      "hard": "Schwer"
+    }
+  }
+}

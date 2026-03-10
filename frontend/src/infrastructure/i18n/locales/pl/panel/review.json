@@ -1,0 +1,18 @@
+{
+  "review": {
+    "title": "Powt\u00f3rka",
+    "masteryTitle": "Poziom opanowania",
+    "dueCount": "{count} do powt\u00f3rki",
+    "mastered": "{count} opanowane",
+    "avgMastery": "\u015arednia: {pct}%",
+    "startReview": "\u0106wicz teraz",
+    "noReviews": "Brak powt\u00f3rek",
+    "nextReview": "Nast\u0119pna powt\u00f3rka: {date}",
+    "streak": "{count} z rz\u0119du",
+    "difficulty": {
+      "easy": "\u0141atwe",
+      "medium": "\u015arednie",
+      "hard": "Trudne"
+    }
+  }
+}

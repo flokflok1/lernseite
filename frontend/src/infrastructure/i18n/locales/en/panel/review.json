@@ -1,0 +1,18 @@
+{
+  "review": {
+    "title": "Review",
+    "masteryTitle": "Mastery",
+    "dueCount": "{count} due",
+    "mastered": "{count} mastered",
+    "avgMastery": "Average: {pct}%",
+    "startReview": "Practice now",
+    "noReviews": "No reviews due",
+    "nextReview": "Next review: {date}",
+    "streak": "{count} streak",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    }
+  }
+}

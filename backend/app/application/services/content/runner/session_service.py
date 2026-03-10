@@ -394,10 +394,16 @@ class RunnerSessionService(RunnerSessionHelpersMixin):
                     score=score,
                     time_seconds=duration_seconds,
                 )
-            except Exception:
+            except ValueError:
                 logger.debug(
-                    "SRS review skipped for method %s (not initialized)",
+                    "SRS review skipped for method %s (no schedule)",
                     session['method_id'],
+                )
+            except Exception:
+                logger.warning(
+                    "SRS review failed for method %s",
+                    session['method_id'],
+                    exc_info=True,
                 )
 
         # Clean up Redis state

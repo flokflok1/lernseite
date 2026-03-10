@@ -16,6 +16,9 @@ from app.domain.services.spaced_repetition import (
     initial_state, ReviewState,
 )
 from app.infrastructure.cache.service import CacheService
+from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
+    ReviewScheduleRepository,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +38,6 @@ class ReviewService:
         Called when user enrolls or starts an exam course.
         Creates review_schedule rows with default SM-2 state.
         """
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
         count = ReviewScheduleRepository.initialize_for_course(
             user_id, course_id,
         )
@@ -57,9 +57,6 @@ class ReviewService:
         expected_seconds: int = 120,
     ) -> Dict[str, Any]:
         """Process a completed review (score -> SM-2 -> persist)."""
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
 
         current_row = _load_or_create_initial(
             ReviewScheduleRepository, user_id, method_id,
@@ -113,9 +110,6 @@ class ReviewService:
         if cached:
             return cached
 
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
         items = ReviewScheduleRepository.find_due_reviews(
             user_id, course_id, limit,
         )
@@ -138,9 +132,6 @@ class ReviewService:
         if cached:
             return cached
 
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
         result = ReviewScheduleRepository.find_user_mastery_map(
             user_id, course_id,
         )
@@ -161,9 +152,6 @@ class ReviewService:
         if cached:
             return cached
 
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
         items = ReviewScheduleRepository.find_due_reviews(
             user_id, course_id=None, limit=limit,
         )
@@ -179,9 +167,6 @@ class ReviewService:
         user_id: str, method_id: str,
     ) -> Dict[str, Any]:
         """Get difficulty info for a specific LM from review_schedule."""
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
         row = ReviewScheduleRepository.find_by_user_method(user_id, method_id)
         if not row:
             return {
@@ -202,9 +187,6 @@ class ReviewService:
         user_id: str, course_id: str,
     ) -> Dict[str, Any]:
         """Get aggregated difficulty recommendation for a course."""
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
         stats = ReviewScheduleRepository.get_review_stats(user_id, course_id)
         avg = stats.get('avg_mastery', 0) if stats else 0
         if avg >= 80:
@@ -232,9 +214,6 @@ class ReviewService:
         if cached:
             return cached
 
-        from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
-            ReviewScheduleRepository,
-        )
         result = ReviewScheduleRepository.get_review_stats(
             user_id, course_id,
         )

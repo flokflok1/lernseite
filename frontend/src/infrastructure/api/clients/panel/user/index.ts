@@ -230,3 +230,18 @@ export {
   getChapterTheory,
   getTheoryById,
 } from './courses/chapters.api'
+
+// Learning (spaced repetition reviews)
+export {
+  initializeReviews,
+  fetchReviewQueue,
+  submitReview,
+  fetchMasteryMap,
+  fetchReviewStats,
+} from './learning/reviews.api'
+
+export type {
+  ReviewItem,
+  ReviewStats,
+  MasteryEntry,
+} from './learning/reviews.api'

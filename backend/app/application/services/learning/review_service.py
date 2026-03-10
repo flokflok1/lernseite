@@ -15,8 +15,12 @@ from app.domain.services.spaced_repetition import (
     compute_next_review, quality_from_score,
     initial_state, ReviewState,
 )
+from app.infrastructure.cache.service import CacheService
 
 logger = logging.getLogger(__name__)
+
+REVIEW_QUEUE_TTL = 300    # 5 min
+REVIEW_MASTERY_TTL = 600  # 10 min
 
 
 class ReviewService:
@@ -37,6 +41,7 @@ class ReviewService:
         count = ReviewScheduleRepository.initialize_for_course(
             user_id, course_id,
         )
+        _invalidate_review_cache(user_id)
         logger.info(
             "Initialized %d review items for user %s, course %s",
             count, user_id, course_id,
@@ -78,6 +83,7 @@ class ReviewService:
         result = ReviewScheduleRepository.upsert(
             user_id, method_id, upsert_data,
         )
+        _invalidate_review_cache(user_id)
 
         logger.info(
             "Review processed: user=%s method=%s quality=%d "
@@ -100,6 +106,13 @@ class ReviewService:
         Returns due items sorted by urgency (overdue first,
         then lowest mastery).
         """
+        cache_key = CacheService.make_key(
+            'REVIEW', user_id, 'queue', course_id or 'all',
+        )
+        cached = CacheService.cache_get(cache_key)
+        if cached:
+            return cached
+
         from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
             ReviewScheduleRepository,
         )
@@ -109,34 +122,57 @@ class ReviewService:
         stats = ReviewScheduleRepository.get_review_stats(
             user_id, course_id,
         )
-        return {
-            'items': items,
-            'stats': stats,
-        }
+        result = {'items': items, 'stats': stats}
+        CacheService.cache_set(cache_key, result, ttl=REVIEW_QUEUE_TTL)
+        return result
 
     @staticmethod
     def get_mastery_map(
         user_id: str, course_id: str,
     ) -> List[Dict[str, Any]]:
         """Get per-chapter mastery overview for dashboard."""
+        cache_key = CacheService.make_key(
+            'REVIEW', user_id, 'mastery', course_id,
+        )
+        cached = CacheService.cache_get(cache_key)
+        if cached:
+            return cached
+
         from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
             ReviewScheduleRepository,
         )
-        return ReviewScheduleRepository.find_user_mastery_map(
+        result = ReviewScheduleRepository.find_user_mastery_map(
             user_id, course_id,
         )
+        CacheService.cache_set(cache_key, result, ttl=REVIEW_MASTERY_TTL)
+        return result
 
     @staticmethod
     def get_stats(
         user_id: str, course_id: str,
     ) -> Dict[str, Any]:
         """Get summary review statistics for a course."""
+        cache_key = CacheService.make_key(
+            'REVIEW', user_id, 'stats', course_id,
+        )
+        cached = CacheService.cache_get(cache_key)
+        if cached:
+            return cached
+
         from app.infrastructure.persistence.repositories.learning_method.execution.review_schedule import (
             ReviewScheduleRepository,
         )
-        return ReviewScheduleRepository.get_review_stats(
+        result = ReviewScheduleRepository.get_review_stats(
             user_id, course_id,
         )
+        CacheService.cache_set(cache_key, result, ttl=REVIEW_QUEUE_TTL)
+        return result
+
+
+def _invalidate_review_cache(user_id: str) -> None:
+    """Invalidate all review cache keys for a user."""
+    pattern = CacheService.make_key('REVIEW', user_id, '*')
+    CacheService.cache_delete_pattern(pattern)
 
 
 # ------------------------------------------------------------------

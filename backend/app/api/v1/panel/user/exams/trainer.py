@@ -260,3 +260,22 @@ def complete_attempt(attempt_id: str):
     except Exception as e:
         logger.error("Failed to complete attempt: %s", e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@trainer_bp.route('/weaknesses', methods=['GET'])
+@token_required
+def get_user_weaknesses():
+    """Get user weakness map sorted by severity."""
+    user = get_current_user()
+    exam_type = request.args.get('exam_type')
+    if not exam_type:
+        return jsonify({'success': False, 'error': 'exam_type parameter required'}), 400
+    try:
+        from app.application.services.exams.prognosis_service import PrognosisService
+        weaknesses = PrognosisService.get_user_weakness_map(
+            user_id=str(user['user_id']),
+            exam_type_key=exam_type,
+        )
+        return jsonify({'success': True, 'weaknesses': weaknesses})
+    except ValueError as exc:
+        return jsonify({'success': False, 'error': str(exc)}), 400

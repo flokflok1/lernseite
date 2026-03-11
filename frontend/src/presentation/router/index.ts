@@ -115,6 +115,14 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
 
+  // Exam Cockpit (personal exam dashboard)
+  {
+    path: '/exam-cockpit',
+    name: 'ExamCockpit',
+    component: () => import('@/presentation/pages/panel/user/exams/ExamCockpitPage.vue'),
+    meta: { requiresAuth: true },
+  },
+
   // AI Editor (GBA-based - all authenticated users)
   {
     path: '/ai-editor',

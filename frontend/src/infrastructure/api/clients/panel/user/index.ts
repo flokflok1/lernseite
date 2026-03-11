@@ -222,6 +222,18 @@ export type {
   AttemptResult as TrainerAttemptResult,
 } from './exams/trainer.api'
 
+// Exam Cockpit (personal exam dashboard)
+export {
+  fetchCockpitData,
+} from './exams/cockpit.api'
+
+export type {
+  CockpitData,
+  CockpitWeaknessEntry,
+  CockpitPrediction,
+  CockpitRecommendation,
+} from './exams/cockpit.api'
+
 // Courses (chapters)
 export {
   getChapterDetail,

@@ -1,0 +1,38 @@
+{
+  "examCockpit": {
+    "title": "Exam Cockpit",
+    "selectExamType": "Select Exam Type",
+    "loading": "Loading cockpit data...",
+    "error": "Failed to load cockpit data",
+    "retry": "Try again",
+    "noExamTypes": "No exam types available. Please create an exam goal first.",
+    "readiness": {
+      "title": "Exam Readiness",
+      "positionsCovered": "{covered} of {total} positions covered",
+      "gaps": "{count} gaps"
+    },
+    "recommendations": {
+      "title": "Top 5 -- Study These NOW",
+      "priority": "Priority {n}",
+      "noRecommendations": "No recommendations -- all areas strong!"
+    },
+    "weaknesses": {
+      "title": "Strengths & Weaknesses",
+      "critical": "Critical Weaknesses",
+      "strengths": "Strengths",
+      "proficiency": "Proficiency",
+      "peerComparison": "Comparison: {percentile}th percentile",
+      "noCritical": "No critical weaknesses",
+      "noStrengths": "No strengths identified yet"
+    },
+    "predictions": {
+      "title": "Likely in Next Exam",
+      "probability": "{percent}%",
+      "confidenceHigh": "High confidence",
+      "confidenceMedium": "Medium confidence",
+      "confidenceLow": "Low confidence",
+      "noPredictions": "No predictions available"
+    },
+    "startExam": "Start Exam"
+  }
+}

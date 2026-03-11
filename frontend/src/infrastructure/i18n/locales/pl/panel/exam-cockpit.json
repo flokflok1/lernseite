@@ -1,0 +1,38 @@
+{
+  "examCockpit": {
+    "title": "Kokpit egzaminacyjny",
+    "selectExamType": "Wybierz typ egzaminu",
+    "loading": "Ladowanie danych kokpitu...",
+    "error": "Nie udalo sie zaladowac danych kokpitu",
+    "retry": "Sprobuj ponownie",
+    "noExamTypes": "Brak dostepnych typow egzaminow. Najpierw utworz cel egzaminacyjny.",
+    "readiness": {
+      "title": "Gotowosc na egzamin",
+      "positionsCovered": "{covered} z {total} pozycji objetych",
+      "gaps": "{count} luk"
+    },
+    "recommendations": {
+      "title": "Top 5 -- Ucz sie tego TERAZ",
+      "priority": "Priorytet {n}",
+      "noRecommendations": "Brak rekomendacji -- wszystkie obszary mocne!"
+    },
+    "weaknesses": {
+      "title": "Mocne i slabe strony",
+      "critical": "Krytyczne slabosci",
+      "strengths": "Mocne strony",
+      "proficiency": "Kompetencja",
+      "peerComparison": "Porownanie: {percentile}. percentyl",
+      "noCritical": "Brak krytycznych slabosci",
+      "noStrengths": "Nie zidentyfikowano jeszcze mocnych stron"
+    },
+    "predictions": {
+      "title": "Prawdopodobne na nastepnym egzaminie",
+      "probability": "{percent}%",
+      "confidenceHigh": "Wysoka pewnosc",
+      "confidenceMedium": "Srednia pewnosc",
+      "confidenceLow": "Niska pewnosc",
+      "noPredictions": "Brak dostepnych prognoz"
+    },
+    "startExam": "Rozpocznij egzamin"
+  }
+}

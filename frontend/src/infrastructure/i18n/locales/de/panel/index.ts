@@ -13,6 +13,7 @@ import users from './users.json'
 import curriculum from './curriculum.json'
 import exam_goals from './exam-goals.json'
 import review from './review.json'
+import exam_cockpit from './exam-cockpit.json'
 
 export default {
   panel: {
@@ -29,6 +30,7 @@ export default {
     ...users,
     ...curriculum,
     ...exam_goals,
-    ...review
+    ...review,
+    ...exam_cockpit
   }
 }

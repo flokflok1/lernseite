@@ -1,0 +1,38 @@
+{
+  "examCockpit": {
+    "title": "Pruefungs-Cockpit",
+    "selectExamType": "Pruefungstyp waehlen",
+    "loading": "Lade Cockpit-Daten...",
+    "error": "Fehler beim Laden der Cockpit-Daten",
+    "retry": "Erneut versuchen",
+    "noExamTypes": "Keine Pruefungstypen verfuegbar. Bitte lege zuerst ein Pruefungsziel an.",
+    "readiness": {
+      "title": "Pruefungsbereitschaft",
+      "positionsCovered": "{covered} von {total} Positionen abgedeckt",
+      "gaps": "{count} Luecken"
+    },
+    "recommendations": {
+      "title": "Top 5 -- Das solltest du JETZT lernen",
+      "priority": "Prioritaet {n}",
+      "noRecommendations": "Keine Empfehlungen -- alle Bereiche stark!"
+    },
+    "weaknesses": {
+      "title": "Staerken & Schwaechen",
+      "critical": "Kritische Schwaechen",
+      "strengths": "Staerken",
+      "proficiency": "Kompetenz",
+      "peerComparison": "Vergleich: {percentile}. Perzentil",
+      "noCritical": "Keine kritischen Schwaechen",
+      "noStrengths": "Noch keine Staerken identifiziert"
+    },
+    "predictions": {
+      "title": "Wahrscheinlich in der naechsten Pruefung",
+      "probability": "{percent}%",
+      "confidenceHigh": "Hohe Sicherheit",
+      "confidenceMedium": "Mittlere Sicherheit",
+      "confidenceLow": "Geringe Sicherheit",
+      "noPredictions": "Keine Prognosen verfuegbar"
+    },
+    "startExam": "Pruefung starten"
+  }
+}

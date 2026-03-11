@@ -6,6 +6,7 @@ Application services for exam management:
 - ExamCourseGeneratorService: Generate courses from exam content
 - CurriculumService: AI PDF import, question mapping, user profiles
 - TaxonomyBootstrapService: AI-powered taxonomy bootstrapping
+- ExamCockpitService: Aggregated cockpit data for user exam preparation
 """
 
 from app.application.services.exams.archive_service import ExamArchiveService
@@ -14,6 +15,7 @@ from app.application.services.exams.curriculum_service import CurriculumService
 from app.application.services.exams.taxonomy_bootstrap_service import TaxonomyBootstrapService
 from app.application.services.exams.question_generator_service import QuestionGeneratorService
 from app.application.services.exams.gap_content_service import GapContentService
+from app.application.services.exams.exam_cockpit_service import ExamCockpitService
 
 __all__ = [
     'ExamArchiveService',
@@ -22,4 +24,5 @@ __all__ = [
     'TaxonomyBootstrapService',
     'QuestionGeneratorService',
     'GapContentService',
+    'ExamCockpitService',
 ]

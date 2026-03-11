@@ -442,3 +442,26 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
                ORDER BY weighted_score DESC""",
             [framework_id],
         )
+
+    @staticmethod
+    def find_position_exam_history(framework_id: int) -> List[Dict[str, Any]]:
+        """Get exam appearance history per position for prognosis."""
+        return fetch_all(
+            """SELECT p.id AS position_id,
+                      p.position_number AS position_code,
+                      p.display_name AS position_title,
+                      s.section_code,
+                      ARRAY_AGG(DISTINCT e.year) FILTER (WHERE e.year IS NOT NULL) AS years,
+                      ARRAY_AGG(DISTINCT e.semester) FILTER (WHERE e.semester IS NOT NULL) AS semesters,
+                      COUNT(DISTINCT ct.question_id) AS total_questions
+               FROM assessments.curriculum_sections s
+               JOIN assessments.curriculum_positions p ON p.section_id = s.id
+               LEFT JOIN assessments.curriculum_objectives o ON o.position_id = p.id
+               LEFT JOIN assessments.exam_question_curriculum_tags ct ON ct.curriculum_objective_id = o.id
+               LEFT JOIN assessments.exam_questions q ON q.question_id = ct.question_id
+               LEFT JOIN assessments.exams e ON e.exam_id = q.exam_id
+               WHERE s.framework_id = %s
+               GROUP BY p.id, p.position_number, p.display_name, s.section_code
+               ORDER BY s.order_index, p.order_index""",
+            [framework_id],
+        )

@@ -40,14 +40,46 @@
           </span>
         </div>
         <!-- Exam relevance -->
-        <div v-if="chapter.relevance_score > 0" class="mt-1 ml-8 flex items-center gap-2">
-          <span class="text-xs px-2 py-0.5 rounded" :class="relevanceBadgeClass">
-            {{ Math.round(chapter.exam_appearance_rate * 100) }}%
-            {{ t('panel.examCourseGenerator.examAppearance') }}
-          </span>
-          <span v-if="chapter.relevance_trend" class="text-xs" :class="trendClass">
-            {{ trendIcon }} {{ t(`panel.examCourseGenerator.trend_${chapter.relevance_trend}`) }}
-          </span>
+        <div v-if="chapter.relevance_score > 0" class="mt-2 ml-8 space-y-1">
+          <!-- Relevance bar with label -->
+          <div class="flex items-center gap-2">
+            <div class="flex-1 max-w-[160px] h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all"
+                :class="relevanceBarColor"
+                :style="{ width: `${Math.round((chapter.relevance_score ?? 0) * 100)}%` }"
+              />
+            </div>
+            <span class="text-xs font-medium" :class="relevanceTextColor">
+              {{ relevanceLabel }}
+            </span>
+            <!-- Trend arrow -->
+            <span v-if="chapter.relevance_trend" class="text-xs" :class="trendClass">
+              {{ trendIcon }} {{ t(`curriculum.coverage.trend${trendKey}`) }}
+            </span>
+          </div>
+          <!-- Appearance rate badge -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs px-2 py-0.5 rounded" :class="relevanceBadgeClass">
+              {{ Math.round((chapter.exam_appearance_rate ?? 0) * 100) }}%
+              {{ t('panel.examCourseGenerator.examAppearance') }}
+            </span>
+            <!-- Gap badge: AI-generated coverage -->
+            <span
+              v-if="chapter.is_gap || chapter.coverage_source === 'ai_generated'"
+              class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+            >
+              {{ t('curriculum.coverage.gapBadge') }}
+            </span>
+            <!-- Low confidence warning -->
+            <span
+              v-if="(chapter.ai_confidence ?? 1) < 0.7"
+              class="text-xs text-orange-600 dark:text-orange-400 cursor-help"
+              :title="t('curriculum.coverage.lowConfidence')"
+            >
+              &#9888;
+            </span>
+          </div>
         </div>
         <div v-if="chapter.child_topics?.length" class="mt-2 ml-8 flex flex-wrap gap-1">
           <span
@@ -132,17 +164,45 @@ const relevanceBadgeClass = computed(() => {
   return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
 })
 
+const relevanceBarColor = computed(() => {
+  const score = props.chapter.relevance_score ?? 0
+  if (score > 0.7) return 'bg-red-500 dark:bg-red-400'
+  if (score >= 0.4) return 'bg-yellow-500 dark:bg-yellow-400'
+  return 'bg-gray-400 dark:bg-gray-500'
+})
+
+const relevanceTextColor = computed(() => {
+  const score = props.chapter.relevance_score ?? 0
+  if (score > 0.7) return 'text-red-700 dark:text-red-400'
+  if (score >= 0.4) return 'text-yellow-700 dark:text-yellow-400'
+  return 'text-gray-500 dark:text-gray-400'
+})
+
+const relevanceLabel = computed(() => {
+  const score = props.chapter.relevance_score ?? 0
+  if (score > 0.7) return t('curriculum.coverage.relevanceHigh')
+  if (score >= 0.4) return t('curriculum.coverage.relevanceMedium')
+  return t('curriculum.coverage.relevanceLow')
+})
+
+const trendKey = computed(() => {
+  const trend = props.chapter.relevance_trend
+  if (trend === 'rising') return 'Rising'
+  if (trend === 'declining') return 'Declining'
+  return 'Stable'
+})
+
 const trendIcon = computed(() => {
-  const t = props.chapter.relevance_trend
-  if (t === 'rising') return '\u2191'
-  if (t === 'declining') return '\u2193'
+  const trend = props.chapter.relevance_trend
+  if (trend === 'rising') return '\u2191'
+  if (trend === 'declining') return '\u2193'
   return '\u2192'
 })
 
 const trendClass = computed(() => {
-  const t = props.chapter.relevance_trend
-  if (t === 'rising') return 'text-red-600 dark:text-red-400 font-medium'
-  if (t === 'declining') return 'text-green-600 dark:text-green-400'
-  return 'text-[var(--color-text-secondary)]'
+  const trend = props.chapter.relevance_trend
+  if (trend === 'rising') return 'text-green-600 dark:text-green-400 font-medium'
+  if (trend === 'declining') return 'text-gray-500 dark:text-gray-400'
+  return 'text-yellow-600 dark:text-yellow-400'
 })
 </script>

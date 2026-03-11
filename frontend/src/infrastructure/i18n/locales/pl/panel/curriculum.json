@@ -19,7 +19,16 @@
     "coverage": {
       "totalObjectives": "Cele łącznie",
       "mapped": "Przypisane",
-      "percent": "Pokrycie"
+      "percent": "Pokrycie",
+      "relevanceHigh": "Wysoka trafność",
+      "relevanceMedium": "Średnia trafność",
+      "relevanceLow": "Niska trafność",
+      "trendRising": "Rosnący",
+      "trendStable": "Stabilny",
+      "trendDeclining": "Malejący",
+      "gapBadge": "Wygenerowane przez AI",
+      "noRealQuestions": "Brak prawdziwych pytań egzaminacyjnych",
+      "lowConfidence": "Niska pewność mapowania"
     },
     "import": {
       "title": "Importuj plan ramowy",

@@ -19,7 +19,16 @@
     "coverage": {
       "totalObjectives": "Lernziele gesamt",
       "mapped": "Zugeordnet",
-      "percent": "Abdeckung"
+      "percent": "Abdeckung",
+      "relevanceHigh": "Hohe Relevanz",
+      "relevanceMedium": "Mittlere Relevanz",
+      "relevanceLow": "Geringe Relevanz",
+      "trendRising": "Steigend",
+      "trendStable": "Stabil",
+      "trendDeclining": "Abnehmend",
+      "gapBadge": "KI-generiert",
+      "noRealQuestions": "Keine echten Prüfungsfragen",
+      "lowConfidence": "Niedrige Zuordnungs-Sicherheit"
     },
     "import": {
       "title": "Rahmenplan importieren",

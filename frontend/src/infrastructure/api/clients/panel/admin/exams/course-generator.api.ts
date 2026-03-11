@@ -18,6 +18,8 @@ export interface ChapterPreview {
   relevance_score?: number
   exam_appearance_rate?: number
   relevance_trend?: 'rising' | 'stable' | 'declining' | null
+  is_gap?: boolean
+  ai_confidence?: number
 }
 
 export interface CoursePlan {

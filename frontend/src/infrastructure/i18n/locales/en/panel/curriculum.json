@@ -19,7 +19,16 @@
     "coverage": {
       "totalObjectives": "Total objectives",
       "mapped": "Mapped",
-      "percent": "Coverage"
+      "percent": "Coverage",
+      "relevanceHigh": "High Relevance",
+      "relevanceMedium": "Medium Relevance",
+      "relevanceLow": "Low Relevance",
+      "trendRising": "Rising",
+      "trendStable": "Stable",
+      "trendDeclining": "Declining",
+      "gapBadge": "AI-generated",
+      "noRealQuestions": "No real exam questions",
+      "lowConfidence": "Low mapping confidence"
     },
     "import": {
       "title": "Import framework",

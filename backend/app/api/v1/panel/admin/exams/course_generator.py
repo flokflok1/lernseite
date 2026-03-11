@@ -35,11 +35,13 @@ def preview_course():
     language = data.get('language', 'de')
     framework_id = data.get('framework_id')
     sort_mode = data.get('sort_mode', 'relevance')
+    user_id = get_jwt_identity()
 
     plan = ExamCourseGeneratorService.preview(
         exam_type, region, language,
         framework_id=framework_id,
         sort_mode=sort_mode,
+        user_id=user_id,
     )
 
     return jsonify({
@@ -70,11 +72,12 @@ def generate_course():
     framework_id = data.get('framework_id')
     sort_mode = data.get('sort_mode', 'relevance')
 
-    # First generate the plan
+    # First generate the plan (with intelligence scoring)
     plan = ExamCourseGeneratorService.preview(
         exam_type, region, language,
         framework_id=framework_id,
         sort_mode=sort_mode,
+        user_id=user_id,
     )
 
     if not plan.chapters:

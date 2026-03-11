@@ -51,6 +51,30 @@ def classify_weakness(
     return 'none'
 
 
+def compute_intelligence_score(
+    relevance_score: float,
+    prognosis_probability: float = 0.0,
+    proficiency_score: Optional[float] = None,
+    severity: Optional[str] = None,
+) -> float:
+    """Combined intelligence score for course chapter priority.
+
+    When user data (proficiency + severity) is available:
+      relevance 40% + prognosis 30% + weakness 30%
+    Otherwise (global only):
+      relevance 60% + prognosis 40%
+    """
+    rel = min(relevance_score, 1.0)
+    prog = min(prognosis_probability, 1.0)
+
+    if proficiency_score is not None and severity is not None:
+        sev_w = {'critical': 1.0, 'moderate': 0.7, 'minor': 0.3, 'none': 0.0}
+        weakness = (1.0 - proficiency_score / 100.0) * sev_w.get(severity, 0.0)
+        return round(rel * 0.4 + prog * 0.3 + weakness * 0.3, 4)
+
+    return round(rel * 0.6 + prog * 0.4, 4)
+
+
 def build_recommendation(severity: str, trend: str, position_title: str) -> dict:
     """Build recommendation as i18n-ready dict with key + parameters.
 

@@ -4,7 +4,6 @@ Exam Course Generator Service — Application Layer.
 Orchestrates course generation from exam archive questions.
 Two phases: preview() returns a plan, generate() persists it.
 """
-import json
 import logging
 from typing import Dict, Any, Optional, List, Tuple
 
@@ -34,17 +33,30 @@ class ExamCourseGeneratorService:
         language: str = 'de',
         framework_id: int = None,
         sort_mode: str = 'relevance',
+        user_id: str = None,
     ) -> ExamCoursePlan:
         """Build a course plan without persisting anything.
 
         When framework_id is provided, uses curriculum positions as chapters.
         Otherwise falls back to topic-based grouping.
+
+        When user_id is provided, enriches chapters with user-specific
+        weakness data for personalized priority sorting.
         """
         simulation_exam_ids = _find_simulation_exams(exam_type_key, region)
         title = _build_title(exam_type_key, region, language)
 
         if framework_id:
-            chapters = _group_by_curriculum(framework_id, sort_mode)
+            prognosis_map = _build_prognosis_map(framework_id)
+            weakness_map = (
+                _build_weakness_map(user_id, exam_type_key)
+                if user_id else {}
+            )
+            chapters = _group_by_curriculum(
+                framework_id, sort_mode,
+                prognosis_map=prognosis_map,
+                weakness_map=weakness_map,
+            )
             return ExamCoursePlan(
                 title=title,
                 exam_type=exam_type_key,
@@ -297,15 +309,20 @@ def _build_title(
 def _group_by_curriculum(
     framework_id: int,
     sort_mode: str = 'relevance',
+    prognosis_map: Optional[Dict[int, Dict]] = None,
+    weakness_map: Optional[Dict[int, Dict]] = None,
 ) -> List[ChapterPlan]:
     """Group by curriculum positions instead of topics.
 
     Each position becomes a chapter. Questions are pulled from
     curriculum tags. Positions without questions get AI-only content.
 
-    When sort_mode='relevance', sorts by year-weighted exam relevance
-    (newer exams count more, trend detection included).
+    When sort_mode='relevance', sorts by intelligence_score which
+    combines exam relevance, prognosis predictions, and optionally
+    user weakness data.
     """
+    from app.domain.services.proficiency_scorer import compute_intelligence_score
+
     positions = CurriculumFrameworkRepository.find_positions_with_question_stats(
         framework_id,
     )
@@ -316,19 +333,19 @@ def _group_by_curriculum(
 
     relevance_map = _build_relevance_map(framework_id)
     question_data = _load_question_data_for_curriculum(positions)
+    prog_map = prognosis_map or {}
+    weak_map = weakness_map or {}
     chapters = []
-    seen_qids: set = set()  # Cross-chapter dedup (same as taxonomy path)
+    seen_qids: set = set()
 
     for pos in positions:
         raw_ids = [str(qid) for qid in (pos.get('question_ids') or [])]
-        # Deduplicate: assign each question to its first (most relevant) position
         q_ids = [qid for qid in raw_ids if qid not in seen_qids]
         seen_qids.update(q_ids)
 
         objectives_total = pos.get('objectives_total', 0)
         objectives_with_q = pos.get('objectives_with_questions', 0)
         objectives_ai = objectives_total - objectives_with_q
-        # Recalculate points from deduplicated questions only
         chapter_questions = [
             question_data[qid] for qid in q_ids if qid in question_data
         ]
@@ -336,7 +353,6 @@ def _group_by_curriculum(
             float(q.get('points', 0)) for q in chapter_questions
         )
 
-        # Determine coverage source
         if objectives_with_q > 0 and objectives_ai > 0:
             coverage = 'mixed'
         elif objectives_with_q > 0:
@@ -344,16 +360,30 @@ def _group_by_curriculum(
         else:
             coverage = 'ai_generated'
 
-        # Select LM types — exam_mode prioritises Active Recall
         if chapter_questions:
             lm_types = LMContentMapper.select_lm_types(
                 chapter_questions, exam_mode=True,
             )
         else:
-            lm_types = [0, 1]  # AI-only: explanation + step-by-step
+            lm_types = [0, 1]
 
         position_code = f"{pos['section_code']}.{pos['position_code']}"
-        rel = relevance_map.get(pos['position_id'], {})
+        pid = pos['position_id']
+        rel = relevance_map.get(pid, {})
+        prog = prog_map.get(pid, {})
+        weak = weak_map.get(pid, {})
+
+        rel_score = rel.get('weighted_score', 0.0)
+        prog_prob = prog.get('probability', 0.0)
+        user_prof = weak.get('proficiency_score') if weak else None
+        user_sev = weak.get('severity') if weak else None
+
+        intel_score = compute_intelligence_score(
+            relevance_score=rel_score,
+            prognosis_probability=prog_prob,
+            proficiency_score=user_prof,
+            severity=user_sev,
+        )
 
         chapters.append(ChapterPlan(
             topic=position_code,
@@ -363,23 +393,27 @@ def _group_by_curriculum(
             question_count=len(q_ids),
             parent_topic=position_code,
             parent_label=_parse_position_label(pos),
-            curriculum_position_id=pos['position_id'],
+            curriculum_position_id=pid,
             curriculum_position_code=position_code,
             objectives_total=objectives_total,
             objectives_with_questions=objectives_with_q,
             objectives_ai_only=objectives_ai,
             coverage_source=coverage,
-            relevance_score=rel.get('weighted_score', 0.0),
+            relevance_score=rel_score,
             exam_appearance_rate=rel.get('appearance_rate', 0.0),
             relevance_trend=rel.get('trend'),
+            prognosis_probability=prog_prob,
+            prognosis_confidence=prog.get('confidence'),
+            user_proficiency=user_prof,
+            user_severity=user_sev,
+            intelligence_score=intel_score,
         ))
 
     if sort_mode == 'relevance':
         chapters.sort(
-            key=lambda ch: (ch.relevance_score, ch.point_weight),
+            key=lambda ch: (ch.intelligence_score, ch.point_weight),
             reverse=True,
         )
-    # 'curriculum' = keep DB order (already ordered by section/position)
 
     return chapters
 
@@ -422,6 +456,28 @@ def _load_question_data_for_curriculum(
     unique_ids = list(set(str(qid) for qid in all_ids))
     questions = ExamQuestionRepository.find_by_ids(unique_ids)
     return {str(q['question_id']): q for q in questions}
+
+
+def _build_prognosis_map(framework_id: int) -> Dict[int, Dict]:
+    """Load prognosis predictions: {position_id: {probability, ...}}."""
+    from app.application.services.exams.prognosis_service import PrognosisService
+    try:
+        predictions = PrognosisService.predict_all(framework_id)
+        return {p['position_id']: p for p in predictions}
+    except Exception:
+        logger.exception("Failed to load prognosis for framework %d", framework_id)
+        return {}
+
+
+def _build_weakness_map(user_id: str, exam_type_key: str) -> Dict[int, Dict]:
+    """Load user weakness data: {position_id: {proficiency_score, severity, ...}}."""
+    from app.application.services.exams.prognosis_service import PrognosisService
+    try:
+        weaknesses = PrognosisService.get_user_weakness_map(user_id, exam_type_key)
+        return {w['position_id']: w for w in weaknesses}
+    except (ValueError, Exception):
+        logger.debug("No weakness data for user=%s type=%s", user_id, exam_type_key)
+        return {}
 
 
 def _parse_position_label(pos: Dict) -> Dict[str, str]:

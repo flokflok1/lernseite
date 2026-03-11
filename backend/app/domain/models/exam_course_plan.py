@@ -62,6 +62,12 @@ class ChapterPlan:
     relevance_score: float = 0.0          # year-weighted point score
     exam_appearance_rate: float = 0.0     # 0.0-1.0 how often in exams
     relevance_trend: Optional[str] = None  # "rising" | "stable" | "declining"
+    # Intelligence scoring (prognosis + user weakness)
+    prognosis_probability: float = 0.0    # 0.0-1.0 predicted exam appearance
+    prognosis_confidence: Optional[str] = None  # "low" | "medium" | "high"
+    user_proficiency: Optional[float] = None    # 0-100 (None = no user data)
+    user_severity: Optional[str] = None         # "critical" | "moderate" | "minor" | "none"
+    intelligence_score: float = 0.0       # combined priority score
 
 
 @dataclass(frozen=True)
@@ -110,6 +116,11 @@ class ExamCoursePlan:
                     'relevance_score': ch.relevance_score,
                     'exam_appearance_rate': ch.exam_appearance_rate,
                     'relevance_trend': ch.relevance_trend,
+                    'prognosis_probability': ch.prognosis_probability,
+                    'prognosis_confidence': ch.prognosis_confidence,
+                    'user_proficiency': ch.user_proficiency,
+                    'user_severity': ch.user_severity,
+                    'intelligence_score': ch.intelligence_score,
                 }
                 for ch in self.chapters
             ],

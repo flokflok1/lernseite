@@ -423,6 +423,14 @@ def get_relevance(framework_id):
     return jsonify({'success': True, 'relevance': weights})
 
 
+@curriculum_bp.route('/frameworks/<int:framework_id>/coverage-report', methods=['GET'])
+@admin_required
+def get_coverage_report(framework_id):
+    """Combined coverage + gap report for a curriculum framework."""
+    report = CurriculumService.get_coverage_report(framework_id)
+    return jsonify({'success': True, **report})
+
+
 # --- Helpers ---
 
 def _sse(event: str, data: dict) -> str:

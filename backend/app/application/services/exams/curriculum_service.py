@@ -416,6 +416,56 @@ class CurriculumService:
             )
         return rows
 
+    @staticmethod
+    def get_coverage_report(framework_id: int) -> Dict[str, Any]:
+        """Combined coverage report: per-position gap detection + summary.
+
+        Args:
+            framework_id: Curriculum framework ID.
+
+        Returns:
+            Dict with 'summary' and 'positions' keys.
+        """
+        from app.infrastructure.persistence.repositories.exams.curriculum import (
+            CurriculumFrameworkRepository,
+        )
+
+        coverage_rows = CurriculumFrameworkRepository.get_curriculum_coverage_stats(
+            framework_id,
+        )
+        relevance_rows = CurriculumService.get_exam_relevance_weights(framework_id)
+        relevance_by_id = {r['position_id']: r for r in relevance_rows}
+
+        positions = []
+        for row in coverage_rows:
+            q_count = row.get('question_count', 0) or 0
+            obj_count = row.get('objective_count', 0) or 0
+            pos = dict(row)
+            pos['has_questions'] = q_count > 0
+            pos['gap'] = obj_count > 0 and q_count == 0
+            pos['relevance'] = relevance_by_id.get(row.get('position_id'))
+            positions.append(pos)
+
+        total_obj = sum(p.get('objective_count', 0) or 0 for p in positions)
+        mapped_obj = sum(
+            p.get('objective_count', 0) or 0 for p in positions if p['has_questions']
+        )
+        gap_count = sum(1 for p in positions if p['gap'])
+        positions_with_q = sum(1 for p in positions if p['has_questions'])
+        coverage_pct = round(mapped_obj / total_obj * 100) if total_obj else 0
+
+        return {
+            'summary': {
+                'total_positions': len(positions),
+                'positions_with_questions': positions_with_q,
+                'gap_count': gap_count,
+                'coverage_percent': coverage_pct,
+                'total_objectives': total_obj,
+                'mapped_objectives': mapped_obj,
+            },
+            'positions': positions,
+        }
+
 
 # ── Module-level helpers ───────────────────────────────────────────
 

@@ -431,6 +431,15 @@ def get_coverage_report(framework_id):
     return jsonify({'success': True, **report})
 
 
+@curriculum_bp.route('/frameworks/<int:framework_id>/prognosis', methods=['GET'])
+@admin_required
+def get_prognosis(framework_id):
+    """Get exam prognosis for all positions in a framework."""
+    from app.application.services.exams.prognosis_service import PrognosisService
+    predictions = PrognosisService.predict_all(framework_id)
+    return jsonify({'success': True, 'predictions': predictions})
+
+
 # --- Helpers ---
 
 def _sse(event: str, data: dict) -> str:

@@ -161,6 +161,51 @@ class ExamQuestionRepository(BaseRepository):
         )
 
     @classmethod
+    def find_by_difficulty(
+        cls,
+        exam_type_key: str,
+        difficulty: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """Find questions filtered by difficulty level.
+
+        Args:
+            exam_type_key: Exam type key (e.g. 'IHK_FISI_AP1').
+            difficulty: 'leicht', 'mittel', 'schwer', or None for mixed.
+            limit: Optional max number of questions.
+
+        Returns:
+            List of question dicts.
+        """
+        difficulty_filter = ""
+        params: List[Any] = [exam_type_key]
+
+        if difficulty == 'leicht':
+            difficulty_filter = "AND (q.difficulty IN ('easy', 'leicht') OR q.difficulty IS NULL)"
+        elif difficulty == 'mittel':
+            difficulty_filter = "AND q.difficulty IN ('medium', 'mittel')"
+        elif difficulty == 'schwer':
+            difficulty_filter = "AND q.difficulty IN ('hard', 'schwer')"
+
+        limit_clause = ""
+        if limit:
+            limit_clause = "LIMIT %s"
+            params.append(limit)
+
+        return fetch_all(
+            f"""SELECT q.question_id, q.question_number,
+                       q.question_text, q.points, q.difficulty,
+                       q.exam_id, e.part AS exam_part
+                FROM assessments.exam_questions q
+                JOIN assessments.exams e ON e.exam_id = q.exam_id
+                WHERE e.exam_type_key = %s
+                {difficulty_filter}
+                ORDER BY RANDOM()
+                {limit_clause}""",
+            params,
+        )
+
+    @classmethod
     def reorder_questions(cls, exam_id: str, question_orders: List[Dict[str, Any]]) -> bool:
         """Reorder questions in an exam."""
         try:

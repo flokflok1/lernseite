@@ -85,6 +85,31 @@
       "linkSuccess": "Prüfungstyp erfolgreich verknüpft. Sie können jetzt Auto-Mapping starten.",
       "noData": "Keine Daten vorhanden. Verknüpfen Sie einen Prüfungstyp und starten Sie das Auto-Mapping."
     },
+    "coverageReport": {
+      "title": "Coverage-Report",
+      "tabLabel": "Coverage",
+      "summary": "{covered} von {total} Positionen abgedeckt ({percent}%)",
+      "gaps": "{count} Lücken",
+      "lowConfidence": "{count} unsichere Zuordnungen",
+      "columns": {
+        "position": "Position",
+        "questions": "Fragen",
+        "objectives": "Lernziele",
+        "coverage": "Coverage",
+        "relevance": "Relevanz",
+        "trend": "Trend",
+        "gap": "Lücke"
+      },
+      "filters": {
+        "gapsOnly": "Nur Lücken",
+        "risingOnly": "Steigende Trends"
+      },
+      "noFramework": "Bitte wählen Sie ein Rahmenplan-Framework aus.",
+      "loading": "Lade Coverage-Daten...",
+      "empty": "Keine Daten vorhanden.",
+      "gapYes": "Ja",
+      "gapNo": "Nein"
+    },
     "tabs": {
       "structure": "Struktur",
       "mapping": "Mapping & Relevanz"

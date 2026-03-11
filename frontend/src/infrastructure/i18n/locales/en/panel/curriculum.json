@@ -85,6 +85,31 @@
       "linkSuccess": "Exam type linked successfully. You can now run auto-mapping.",
       "noData": "No data available. Link an exam type and run auto-mapping first."
     },
+    "coverageReport": {
+      "title": "Coverage Report",
+      "tabLabel": "Coverage",
+      "summary": "{covered} of {total} positions covered ({percent}%)",
+      "gaps": "{count} gaps",
+      "lowConfidence": "{count} low-confidence mappings",
+      "columns": {
+        "position": "Position",
+        "questions": "Questions",
+        "objectives": "Objectives",
+        "coverage": "Coverage",
+        "relevance": "Relevance",
+        "trend": "Trend",
+        "gap": "Gap"
+      },
+      "filters": {
+        "gapsOnly": "Gaps only",
+        "risingOnly": "Rising trends"
+      },
+      "noFramework": "Please select a curriculum framework.",
+      "loading": "Loading coverage data...",
+      "empty": "No data available.",
+      "gapYes": "Yes",
+      "gapNo": "No"
+    },
     "tabs": {
       "structure": "Structure",
       "mapping": "Mapping & Relevance"

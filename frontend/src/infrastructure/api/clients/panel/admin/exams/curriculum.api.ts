@@ -305,3 +305,40 @@ export const fetchRelevanceWeights = async (
   )
   return data.relevance
 }
+
+// --- Coverage Report ---
+
+export interface CoverageReportPosition {
+  position_id: string
+  code: string
+  title: string
+  question_count: number
+  objective_count: number
+  coverage_percent: number
+  relevance_score: number
+  trend: 'rising' | 'stable' | 'declining'
+  has_questions: boolean
+  gap: boolean
+}
+
+export interface CoverageReportSummary {
+  total_positions: number
+  covered_positions: number
+  gap_positions: number
+  coverage_percent: number
+  low_confidence_count: number
+}
+
+export interface CoverageReportData {
+  positions: CoverageReportPosition[]
+  summary: CoverageReportSummary
+}
+
+export const fetchCoverageReport = async (
+  frameworkId: number
+): Promise<CoverageReportData> => {
+  const { data } = await http.get(
+    `/admin/exams/curriculum/frameworks/${frameworkId}/coverage-report`
+  )
+  return data
+}

@@ -135,7 +135,7 @@
           <!-- Tab navigation -->
           <div class="flex gap-1 border-b border-[var(--color-border)]">
             <button
-              v-for="tab in ['structure', 'mapping'] as const"
+              v-for="tab in ['structure', 'coverage', 'mapping'] as const"
               :key="tab"
               class="px-4 py-2 text-sm font-medium transition-colors -mb-px"
               :class="activeTab === tab
@@ -143,7 +143,9 @@
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'"
               @click="activeTab = tab"
             >
-              {{ $t(`panel.curriculum.tabs.${tab}`) }}
+              {{ tab === 'coverage'
+                ? $t('panel.curriculum.coverageReport.tabLabel')
+                : $t(`panel.curriculum.tabs.${tab}`) }}
             </button>
           </div>
 
@@ -182,6 +184,12 @@
 
             <CurriculumTreeView :tree="activeTree" />
           </template>
+
+          <!-- Coverage Report tab -->
+          <CurriculumCoverageReport
+            v-if="activeTab === 'coverage'"
+            :framework-id="fw.framework_id"
+          />
 
           <!-- Mapping & Relevance tab -->
           <CurriculumMappingPanel
@@ -228,6 +236,7 @@ import { useCurriculum } from '../composables'
 import CurriculumTreeView from './CurriculumTreeView.vue'
 import CurriculumImportDialog from './CurriculumImportDialog.vue'
 import CurriculumMappingPanel from './CurriculumMappingPanel.vue'
+import CurriculumCoverageReport from './CurriculumCoverageReport.vue'
 
 const {
   frameworks,
@@ -249,7 +258,7 @@ const {
 const showImport = ref(false)
 const showCreate = ref(false)
 const selectedId = ref<number | null>(null)
-const activeTab = ref<'structure' | 'mapping'>('structure')
+const activeTab = ref<'structure' | 'coverage' | 'mapping'>('structure')
 const importDialogRef = ref<InstanceType<typeof CurriculumImportDialog> | null>(null)
 
 const createForm = ref({

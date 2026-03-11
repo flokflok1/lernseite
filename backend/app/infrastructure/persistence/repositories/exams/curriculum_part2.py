@@ -280,3 +280,44 @@ class CurriculumMappingMixin:
                ORDER BY s.section_code, p.position_number""",
             [user_id, framework_id],
         )
+
+    @staticmethod
+    def get_user_weakness_map(
+        user_id: str, framework_id: int,
+    ) -> List[Dict[str, Any]]:
+        """User performance per position: mastery + accuracy + attempts.
+
+        Extends get_user_curriculum_profile with SRS mastery_score from
+        learning_methods.review_schedule (item_type='curriculum_position').
+        NULL mastery means no SRS data yet — handled by domain scorer.
+        """
+        return fetch_all(
+            """SELECT p.id AS position_id,
+                      p.position_number AS position_code,
+                      p.display_name AS position_title,
+                      s.section_code,
+                      s.display_name AS section_title,
+                      COUNT(DISTINCT ct.question_id) AS question_count,
+                      COUNT(DISTINCT ua.id) AS attempt_count,
+                      ROUND(AVG(
+                          CASE WHEN ua.is_correct THEN 100.0 ELSE 0.0 END
+                      ), 1) AS accuracy_pct,
+                      ROUND(AVG(rs.mastery_score), 1) AS mastery_avg
+               FROM assessments.curriculum_sections s
+               JOIN assessments.curriculum_positions p ON p.section_id = s.id
+               LEFT JOIN assessments.curriculum_objectives o
+                   ON o.position_id = p.id
+               LEFT JOIN assessments.exam_question_curriculum_tags ct
+                   ON ct.curriculum_objective_id = o.id
+               LEFT JOIN assessments.user_exam_answers ua
+                   ON ua.question_id = ct.question_id AND ua.user_id = %s
+               LEFT JOIN learning_methods.review_schedule rs
+                   ON rs.user_id = %s
+                   AND rs.item_type = 'curriculum_position'
+                   AND rs.item_id = p.id::text
+               WHERE s.framework_id = %s
+               GROUP BY p.id, p.position_number, p.display_name,
+                        s.section_code, s.display_name
+               ORDER BY s.section_code, p.position_number""",
+            [user_id, user_id, framework_id],
+        )

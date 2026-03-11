@@ -5,9 +5,61 @@ Orchestrates exam prognosis predictions using domain logic and repository data.
 """
 
 import logging
-from typing import Dict, Any, List
+import statistics
+from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
+
+
+def _derive_trend(recent_count: Optional[int], older_count: Optional[int]) -> str:
+    """Derive trend string from recent vs older exam appearance counts."""
+    recent = recent_count or 0
+    older = older_count or 0
+    if recent > older:
+        return 'rising'
+    if recent < older:
+        return 'declining'
+    return 'stable'
+
+
+def _build_weakness_entry(
+    row: Dict[str, Any],
+    relevance_by_id: Dict[int, Dict[str, Any]],
+    median_relevance: float,
+    compute_proficiency_score: Any,
+    classify_weakness: Any,
+    build_recommendation: Any,
+) -> Dict[str, Any]:
+    """Build a single weakness result dict for one curriculum position."""
+    from app.domain.services.proficiency_scorer import (
+        compute_proficiency_score, classify_weakness, build_recommendation,
+    )
+    proficiency = compute_proficiency_score(
+        mastery_avg=row.get('mastery_avg'),
+        accuracy_pct=row.get('accuracy_pct'),
+        attempts_count=row.get('attempt_count', 0),
+    )
+    rel = relevance_by_id.get(row['position_id'], {})
+    rel_score = rel.get('weighted_score', 0) or 0
+    trend = _derive_trend(rel.get('recent_count'), rel.get('older_count'))
+    severity = classify_weakness(proficiency, rel_score, median_relevance)
+    recommendation = build_recommendation(
+        severity, trend, row.get('position_title', ''),
+    )
+    return {
+        'position_id': row['position_id'],
+        'position_code': f"{row.get('section_code', '?')}.{row['position_code']}",
+        'position_title': row.get('position_title', ''),
+        'section_title': row.get('section_title', ''),
+        'proficiency_score': proficiency,
+        'mastery_avg': row.get('mastery_avg'),
+        'accuracy_pct': row.get('accuracy_pct'),
+        'attempt_count': row.get('attempt_count', 0),
+        'relevance_score': rel_score,
+        'trend': trend,
+        'severity': severity,
+        'recommendation': recommendation,
+    }
 
 
 class PrognosisService:
@@ -105,3 +157,56 @@ class PrognosisService:
             'total_questions': pos['total_questions'],
         })
         return prediction
+
+    @staticmethod
+    def get_user_weakness_map(
+        user_id: str, exam_type_key: str,
+    ) -> List[Dict[str, Any]]:
+        """Get user weaknesses with proficiency scores and recommendations.
+
+        Combines SRS mastery, simulation accuracy, and exam relevance to
+        classify each curriculum position as critical/moderate/minor/none.
+        Results are sorted: critical first, then by proficiency ascending.
+        """
+        from app.infrastructure.persistence.repositories.exams.curriculum import (
+            CurriculumFrameworkRepository,
+        )
+        from app.domain.services.proficiency_scorer import (
+            compute_proficiency_score, classify_weakness, build_recommendation,
+        )
+
+        framework = CurriculumFrameworkRepository.find_framework_for_exam_type(
+            exam_type_key,
+        )
+        if not framework:
+            raise ValueError(f"No curriculum framework for '{exam_type_key}'")
+
+        framework_id = framework['id']
+        rows = CurriculumFrameworkRepository.get_user_weakness_map(
+            user_id, framework_id,
+        )
+        relevance = CurriculumFrameworkRepository.find_position_relevance_scores(
+            framework_id,
+        )
+        relevance_by_id = {r['position_id']: r for r in relevance}
+
+        relevance_scores = [r.get('weighted_score', 0) or 0 for r in relevance]
+        median_rel = statistics.median(relevance_scores) if relevance_scores else 0.0
+
+        results = [
+            _build_weakness_entry(
+                row, relevance_by_id, median_rel,
+                compute_proficiency_score, classify_weakness, build_recommendation,
+            )
+            for row in rows
+        ]
+
+        severity_order = {'critical': 0, 'moderate': 1, 'minor': 2, 'none': 3}
+        results.sort(
+            key=lambda x: (severity_order.get(x['severity'], 3), x['proficiency_score']),
+        )
+        logger.info(
+            "Weakness map for user=%s exam_type=%s: %d positions, framework=%d",
+            user_id, exam_type_key, len(results), framework_id,
+        )
+        return results

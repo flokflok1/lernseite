@@ -342,3 +342,22 @@ export const fetchCoverageReport = async (
   )
   return data
 }
+
+// --- Web Research (Gap Intelligence) ---
+
+export const startWebResearch = async (
+  frameworkId: number,
+  positionId: string
+): Promise<void> => {
+  await http.post(
+    `/admin/exams/curriculum/frameworks/${frameworkId}/positions/${positionId}/web-research`
+  )
+}
+
+export const startBulkWebResearch = async (
+  frameworkId: number
+): Promise<void> => {
+  await http.post(
+    `/admin/exams/curriculum/frameworks/${frameworkId}/web-research-all`
+  )
+}

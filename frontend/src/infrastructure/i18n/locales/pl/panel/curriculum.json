@@ -110,6 +110,16 @@
       "gapYes": "Tak",
       "gapNo": "Nie"
     },
+    "gaps": {
+      "noRealQuestions": "Brak prawdziwych pytań egzaminacyjnych",
+      "webResearchAvailable": "Dostępne wyszukiwanie w sieci",
+      "startResearch": "Rozpocznij wyszukiwanie",
+      "researchAll": "Zbadaj wszystkie luki",
+      "researching": "Wyszukiwanie...",
+      "researchStarted": "Wyszukiwanie rozpoczęte",
+      "webContent": "Wynik wyszukiwania",
+      "source": "Źródło"
+    },
     "tabs": {
       "structure": "Struktura",
       "mapping": "Mapowanie i trafność"

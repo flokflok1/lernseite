@@ -71,6 +71,13 @@
             >
               {{ t('curriculum.coverage.gapBadge') }}
             </span>
+            <!-- No real questions hint for gap positions -->
+            <span
+              v-if="chapter.is_gap && !webContentSummary"
+              class="text-xs text-red-600 dark:text-red-400"
+            >
+              {{ t('curriculum.coverage.noRealQuestions') }}
+            </span>
             <!-- Low confidence warning -->
             <span
               v-if="(chapter.ai_confidence ?? 1) < 0.7"
@@ -80,6 +87,18 @@
               &#9888;
             </span>
           </div>
+        </div>
+        <!-- Web content summary card (when available) -->
+        <div
+          v-if="webContentSummary"
+          class="mt-2 ml-8 p-2 rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20"
+        >
+          <div class="text-xs font-medium text-amber-800 dark:text-amber-300">
+            {{ t('panel.curriculum.coverageReport.gaps.webContent') }}
+          </div>
+          <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">
+            {{ webContentSummary }}
+          </p>
         </div>
         <div v-if="chapter.child_topics?.length" class="mt-2 ml-8 flex flex-wrap gap-1">
           <span
@@ -123,9 +142,12 @@ const ACRONYMS = new Set([
 interface Props {
   chapter: ChapterPreview
   index: number
+  webContentSummary?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  webContentSummary: '',
+})
 const { t, locale } = useI18n()
 
 function formatTopic(topic: string): string {

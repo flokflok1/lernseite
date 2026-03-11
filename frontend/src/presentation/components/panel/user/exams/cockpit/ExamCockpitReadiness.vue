@@ -1,7 +1,7 @@
 <template>
   <div class="bg-[var(--color-surface)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
     <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
-      {{ t('examCockpit.readiness.title') }}
+      {{ t('panel.examCockpit.readiness.title') }}
     </h2>
 
     <div class="flex items-center gap-6">
@@ -35,13 +35,13 @@
       <!-- Coverage Info -->
       <div class="space-y-2">
         <p class="text-sm text-[var(--color-text-secondary)]">
-          {{ t('examCockpit.readiness.positionsCovered', {
+          {{ t('panel.examCockpit.readiness.positionsCovered', {
             covered: coveredPositions,
             total: totalPositions,
           }) }}
         </p>
         <p class="text-sm text-[var(--color-text-secondary)]">
-          {{ t('examCockpit.readiness.gaps', { count: gapCount }) }}
+          {{ t('panel.examCockpit.readiness.gaps', { count: gapCount }) }}
         </p>
       </div>
     </div>

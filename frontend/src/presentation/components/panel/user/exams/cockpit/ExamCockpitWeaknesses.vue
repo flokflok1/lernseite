@@ -1,18 +1,18 @@
 <template>
   <div class="bg-[var(--color-surface)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
     <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
-      {{ t('examCockpit.weaknesses.title') }}
+      {{ t('panel.examCockpit.weaknesses.title') }}
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Critical Weaknesses -->
       <div>
         <h3 class="text-sm font-semibold text-red-500 mb-3">
-          {{ t('examCockpit.weaknesses.critical') }}
+          {{ t('panel.examCockpit.weaknesses.critical') }}
         </h3>
 
         <div v-if="weaknesses.length === 0" class="text-xs text-[var(--color-text-secondary)] italic">
-          {{ t('examCockpit.weaknesses.noCritical') }}
+          {{ t('panel.examCockpit.weaknesses.noCritical') }}
         </div>
 
         <ul v-else class="space-y-3">
@@ -41,7 +41,7 @@
               v-if="item.peer_comparison"
               class="text-xs text-[var(--color-text-secondary)] mt-1"
             >
-              {{ t('examCockpit.weaknesses.peerComparison', {
+              {{ t('panel.examCockpit.weaknesses.peerComparison', {
                 percentile: Math.round(item.peer_comparison.percentile * 100),
               }) }}
             </p>
@@ -52,11 +52,11 @@
       <!-- Strengths -->
       <div>
         <h3 class="text-sm font-semibold text-green-500 mb-3">
-          {{ t('examCockpit.weaknesses.strengths') }}
+          {{ t('panel.examCockpit.weaknesses.strengths') }}
         </h3>
 
         <div v-if="strengths.length === 0" class="text-xs text-[var(--color-text-secondary)] italic">
-          {{ t('examCockpit.weaknesses.noStrengths') }}
+          {{ t('panel.examCockpit.weaknesses.noStrengths') }}
         </div>
 
         <ul v-else class="space-y-3">

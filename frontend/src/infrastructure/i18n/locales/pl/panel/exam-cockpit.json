@@ -14,7 +14,17 @@
     "recommendations": {
       "title": "Top 5 -- Ucz sie tego TERAZ",
       "priority": "Priorytet {n}",
-      "noRecommendations": "Brak rekomendacji -- wszystkie obszary mocne!"
+      "noRecommendations": "Brak rekomendacji -- wszystkie obszary mocne!",
+      "actions": {
+        "practice_position": "Cwicz {code} -- {title}"
+      },
+      "reasons": {
+        "weak": "Slaby",
+        "needs_improvement": "Wymaga poprawy",
+        "high_relevance": "Bardzo istotny",
+        "likely_next_exam": "Prawdopodobny na nastepnym egzaminie",
+        "recommended": "Zalecany"
+      }
     },
     "weaknesses": {
       "title": "Mocne i slabe strony",

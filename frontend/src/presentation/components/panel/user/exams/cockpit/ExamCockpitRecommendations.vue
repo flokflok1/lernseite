@@ -1,11 +1,11 @@
 <template>
   <div class="bg-[var(--color-surface)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
     <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
-      {{ t('examCockpit.recommendations.title') }}
+      {{ t('panel.examCockpit.recommendations.title') }}
     </h2>
 
     <div v-if="recommendations.length === 0" class="text-sm text-[var(--color-text-secondary)] italic">
-      {{ t('examCockpit.recommendations.noRecommendations') }}
+      {{ t('panel.examCockpit.recommendations.noRecommendations') }}
     </div>
 
     <ol v-else class="space-y-3">
@@ -25,11 +25,14 @@
         <div class="min-w-0 flex-1">
           <!-- Action -->
           <p class="text-sm font-medium text-[var(--color-text)]">
-            {{ rec.action }}
+            {{ t(`panel.examCockpit.recommendations.actions.${rec.action_key}`, {
+              code: rec.position_code,
+              title: rec.position_title,
+            }) }}
           </p>
           <!-- Reason -->
           <p class="text-xs text-[var(--color-text-secondary)] mt-1">
-            {{ rec.reason }}
+            {{ rec.reason_keys.map(k => t(`panel.examCockpit.recommendations.reasons.${k}`)).join(' + ') }}
           </p>
           <!-- Proficiency bar -->
           <div class="mt-2 flex items-center gap-2">

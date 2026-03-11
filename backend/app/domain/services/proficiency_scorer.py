@@ -51,15 +51,16 @@ def classify_weakness(
     return 'none'
 
 
-def build_recommendation(severity: str, trend: str, position_title: str) -> str:
-    """Build German recommendation text based on severity and trend."""
+def build_recommendation(severity: str, trend: str, position_title: str) -> dict:
+    """Build recommendation as i18n-ready dict with key + parameters.
+
+    Returns dict with 'key' and 'params' for frontend i18n resolution.
+    """
     if severity == 'critical':
-        base = f'Dringend empfohlen — {position_title} ist hochrelevant und schwach'
-        if trend == 'rising':
-            return f'{base} (steigende Prüfungsrelevanz!)'
-        return base
+        key = 'critical_rising' if trend == 'rising' else 'critical'
+        return {'key': key, 'params': {'title': position_title}}
     if severity == 'moderate':
-        return f'Fokus empfohlen — {position_title} hat Verbesserungspotenzial'
+        return {'key': 'moderate', 'params': {'title': position_title}}
     if severity == 'minor':
-        return f'Optional — {position_title} kann verbessert werden'
-    return ''
+        return {'key': 'minor', 'params': {'title': position_title}}
+    return {'key': 'none', 'params': {}}

@@ -14,7 +14,17 @@
     "recommendations": {
       "title": "Top 5 -- Study These NOW",
       "priority": "Priority {n}",
-      "noRecommendations": "No recommendations -- all areas strong!"
+      "noRecommendations": "No recommendations -- all areas strong!",
+      "actions": {
+        "practice_position": "Practice {code} -- {title}"
+      },
+      "reasons": {
+        "weak": "Weak",
+        "needs_improvement": "Needs improvement",
+        "high_relevance": "Highly relevant",
+        "likely_next_exam": "Likely in next exam",
+        "recommended": "Recommended"
+      }
     },
     "weaknesses": {
       "title": "Strengths & Weaknesses",

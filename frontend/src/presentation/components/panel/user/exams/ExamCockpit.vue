@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <h1 class="text-2xl font-bold text-[var(--color-text)]">
-        {{ t('examCockpit.title') }}
+        {{ t('panel.examCockpit.title') }}
       </h1>
 
       <!-- Exam Type Selector -->
@@ -12,7 +12,7 @@
           for="exam-type-select"
           class="text-sm font-medium text-[var(--color-text-secondary)]"
         >
-          {{ t('examCockpit.selectExamType') }}
+          {{ t('panel.examCockpit.selectExamType') }}
         </label>
         <select
           id="exam-type-select"
@@ -42,7 +42,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
-        <span class="text-sm">{{ t('examCockpit.loading') }}</span>
+        <span class="text-sm">{{ t('panel.examCockpit.loading') }}</span>
       </div>
     </div>
 
@@ -51,12 +51,12 @@
       v-else-if="error"
       class="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-xl p-6 text-center"
     >
-      <p class="text-sm text-red-600 dark:text-red-400">{{ t('examCockpit.error') }}</p>
+      <p class="text-sm text-red-600 dark:text-red-400">{{ t('panel.examCockpit.error') }}</p>
       <button
         class="mt-3 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
         @click="loadCockpitData"
       >
-        {{ t('examCockpit.retry') }}
+        {{ t('panel.examCockpit.retry') }}
       </button>
     </div>
 
@@ -93,7 +93,7 @@
       class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-8 text-center"
     >
       <p class="text-sm text-[var(--color-text-secondary)]">
-        {{ t('examCockpit.noExamTypes') }}
+        {{ t('panel.examCockpit.noExamTypes') }}
       </p>
     </div>
   </div>

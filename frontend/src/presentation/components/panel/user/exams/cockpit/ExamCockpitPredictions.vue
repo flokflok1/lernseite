@@ -1,11 +1,11 @@
 <template>
   <div class="bg-[var(--color-surface)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
     <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
-      {{ t('examCockpit.predictions.title') }}
+      {{ t('panel.examCockpit.predictions.title') }}
     </h2>
 
     <div v-if="predictions.length === 0" class="text-sm text-[var(--color-text-secondary)] italic">
-      {{ t('examCockpit.predictions.noPredictions') }}
+      {{ t('panel.examCockpit.predictions.noPredictions') }}
     </div>
 
     <ul v-else class="space-y-3">
@@ -35,7 +35,7 @@
             />
           </div>
           <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 w-12 text-right">
-            {{ t('examCockpit.predictions.probability', {
+            {{ t('panel.examCockpit.predictions.probability', {
               percent: Math.round(pred.probability * 100),
             }) }}
           </span>
@@ -71,9 +71,9 @@ const confidenceBadgeClass = (confidence: string): string => {
 
 const confidenceLabel = (confidence: string): string => {
   switch (confidence) {
-    case 'high': return t('examCockpit.predictions.confidenceHigh')
-    case 'medium': return t('examCockpit.predictions.confidenceMedium')
-    default: return t('examCockpit.predictions.confidenceLow')
+    case 'high': return t('panel.examCockpit.predictions.confidenceHigh')
+    case 'medium': return t('panel.examCockpit.predictions.confidenceMedium')
+    default: return t('panel.examCockpit.predictions.confidenceLow')
   }
 }
 </script>

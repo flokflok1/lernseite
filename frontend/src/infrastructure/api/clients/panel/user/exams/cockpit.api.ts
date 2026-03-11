@@ -13,7 +13,7 @@ export interface CockpitWeaknessEntry {
   position_title: string
   proficiency_score: number
   severity: string
-  recommendation?: string
+  recommendation?: { key: string; params: Record<string, string> }
   peer_comparison?: { percentile: number; avg_accuracy: number; user_count: number } | null
 }
 
@@ -29,8 +29,8 @@ export interface CockpitPrediction {
 export interface CockpitRecommendation {
   position_code: string
   position_title: string
-  action: string
-  reason: string
+  action_key: string
+  reason_keys: string[]
   priority: number
   severity: string
   proficiency_score: number

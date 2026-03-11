@@ -14,7 +14,17 @@
     "recommendations": {
       "title": "Top 5 -- Das solltest du JETZT lernen",
       "priority": "Prioritaet {n}",
-      "noRecommendations": "Keine Empfehlungen -- alle Bereiche stark!"
+      "noRecommendations": "Keine Empfehlungen -- alle Bereiche stark!",
+      "actions": {
+        "practice_position": "Uebe {code} -- {title}"
+      },
+      "reasons": {
+        "weak": "Schwach",
+        "needs_improvement": "Verbesserungsbedarf",
+        "high_relevance": "Hochrelevant",
+        "likely_next_exam": "Wahrscheinlich in naechster Pruefung",
+        "recommended": "Empfohlen"
+      }
     },
     "weaknesses": {
       "title": "Staerken & Schwaechen",

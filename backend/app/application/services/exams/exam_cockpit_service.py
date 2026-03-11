@@ -170,15 +170,15 @@ def _score_weakness(
 
     score = sev_weight * relevance * prob
 
-    reason_parts = []
+    reason_keys = []
     if severity == 'critical':
-        reason_parts.append('Schwach')
+        reason_keys.append('weak')
     elif severity == 'moderate':
-        reason_parts.append('Verbesserungsbedarf')
+        reason_keys.append('needs_improvement')
     if relevance > 0.7:
-        reason_parts.append('hochrelevant')
+        reason_keys.append('high_relevance')
     if prob > 0.6:
-        reason_parts.append('wahrscheinlich in nächster Prüfung')
+        reason_keys.append('likely_next_exam')
 
     pos_code = w.get('position_code', '')
     pos_title = w.get('position_title', '')
@@ -187,8 +187,8 @@ def _score_weakness(
         'position_id': pid,
         'position_code': pos_code,
         'position_title': pos_title,
-        'action': f"Übe {pos_code} — {pos_title}",
-        'reason': ' + '.join(reason_parts) if reason_parts else 'Empfohlen',
+        'action_key': 'practice_position',
+        'reason_keys': reason_keys if reason_keys else ['recommended'],
         'priority_score': round(score, 3),
         'severity': severity,
         'proficiency_score': w.get('proficiency_score', 0),

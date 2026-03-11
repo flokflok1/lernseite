@@ -318,7 +318,12 @@ def link_framework_to_exam_type(framework_id, exam_type_key):
 def auto_map_questions(exam_type_key):
     """Auto-map unmapped questions to curriculum objectives via AI."""
     try:
-        stats = CurriculumService.auto_map_questions(exam_type_key)
+        body = request.get_json(silent=True) or {}
+        stats = CurriculumService.auto_map_questions(
+            exam_type_key,
+            provider=body.get('provider'),
+            model=body.get('model'),
+        )
         return jsonify({'success': True, 'stats': stats})
     except ValueError as exc:
         return jsonify({'success': False, 'error': str(exc)}), 400

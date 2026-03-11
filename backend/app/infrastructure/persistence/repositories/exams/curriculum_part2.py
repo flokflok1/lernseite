@@ -229,13 +229,13 @@ class CurriculumMappingMixin:
                       q.exam_id
                FROM assessments.exam_questions q
                JOIN assessments.exams e ON e.exam_id = q.exam_id
-               WHERE e.exam_type = %s
+               WHERE e.exam_type_key = %s
                  AND NOT EXISTS (
                      SELECT 1
                      FROM assessments.exam_question_curriculum_tags ct
                      WHERE ct.question_id = q.question_id
                  )
-               ORDER BY e.exam_date DESC, q.question_number""",
+               ORDER BY e.year DESC NULLS LAST, q.question_number""",
             [exam_type_key],
         )
 

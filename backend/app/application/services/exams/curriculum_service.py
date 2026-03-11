@@ -184,6 +184,8 @@ class CurriculumService:
     def auto_map_questions(
         exam_type_key: str,
         batch_size: int = 10,
+        provider: str = None,
+        model: str = None,
     ) -> Dict[str, Any]:
         """AI-map unmapped questions to curriculum objectives.
 
@@ -194,6 +196,8 @@ class CurriculumService:
         Args:
             exam_type_key: Exam type key (e.g. 'IHK_FISI').
             batch_size: Number of questions per AI batch call.
+            provider: Optional AI provider name.
+            model: Optional model name.
 
         Returns:
             Stats dict with mapped, skipped, errors.
@@ -214,7 +218,7 @@ class CurriculumService:
                 f"'{exam_type_key}'"
             )
 
-        framework_id = framework['framework_id']
+        framework_id = framework['id']
         objectives = repo.find_all_objectives_by_framework(framework_id)
         if not objectives:
             logger.warning(
@@ -232,10 +236,13 @@ class CurriculumService:
 
         stats = {'mapped': 0, 'skipped': 0, 'errors': 0}
 
+        ai_kwargs = {k: v for k, v in
+                     {'provider': provider, 'model': model}.items() if v}
+
         for i in range(0, len(unmapped), batch_size):
             batch = unmapped[i:i + batch_size]
             CurriculumService._map_question_batch(
-                batch, obj_reference, objectives, stats,
+                batch, obj_reference, objectives, stats, ai_kwargs,
             )
 
         logger.info(
@@ -249,6 +256,7 @@ class CurriculumService:
         obj_reference: str,
         objectives: List[Dict],
         stats: Dict[str, int],
+        ai_kwargs: Dict[str, str] = None,
     ) -> None:
         """Map a batch of questions to objectives using AI.
 
@@ -257,13 +265,14 @@ class CurriculumService:
             obj_reference: Formatted objectives reference for AI prompt.
             objectives: Full objectives list for code lookup.
             stats: Mutable stats dict to update in-place.
+            ai_kwargs: Optional dict with provider/model for AIAdapter.
         """
         from app.infrastructure.ai.adapter import AIAdapter
         from app.infrastructure.persistence.repositories.exams.curriculum import (
             CurriculumFrameworkRepository,
         )
 
-        obj_by_code = {o['objective_code']: o for o in objectives}
+        obj_by_code = {_build_compound_code(o): o for o in objectives}
 
         questions_text = "\n".join(
             f"- ID: {q['question_id']} | "
@@ -273,23 +282,27 @@ class CurriculumService:
         )
 
         prompt = (
-            "Map each exam question to the most relevant curriculum "
-            "objective code. Respond with a JSON array.\n\n"
-            "Curriculum objectives:\n"
+            "You are mapping IHK exam questions to curriculum objectives. "
+            "For each question, pick the BEST matching objective code.\n\n"
+            "Curriculum objectives (code: description):\n"
             f"{obj_reference}\n\n"
-            "Questions:\n"
+            "Questions to map:\n"
             f"{questions_text}\n\n"
-            "Output format (JSON array):\n"
-            '[{"question_id": "...", "objective_code": "...", '
-            '"confidence": 0.0-1.0}]'
+            "Respond with ONLY a JSON array, no other text:\n"
+            '[{"question_id": "uuid-here", "objective_code": "A.1.a", '
+            '"confidence": 0.85}]\n\n'
+            "Rules:\n"
+            "- objective_code MUST be a compound code like A.1.a\n"
+            "- confidence: 0.0-1.0 (how well the question matches)\n"
+            "- Each question gets exactly one objective"
         )
 
         try:
-            adapter = AIAdapter()
+            adapter = AIAdapter(**(ai_kwargs or {}))
             response = adapter.send_request(
                 prompt=prompt,
                 temperature=0.1,
-                max_tokens=4000,
+                max_tokens=32000,
             )
 
             raw = _extract_json_object(
@@ -415,10 +428,10 @@ def compute_trend(recent_count: int, older_count: int) -> str:
 
 
 def _extract_json_object(text: str) -> str:
-    """Extract JSON object from AI output, ignoring surrounding text.
+    """Extract JSON array or object from AI output.
 
     AI models often add explanatory text before/after the JSON.
-    This finds the outermost { ... } block.
+    Handles both [...] arrays and {...} objects.
     """
     text = text.strip()
     # Remove markdown code fences first
@@ -426,7 +439,13 @@ def _extract_json_object(text: str) -> str:
     text = re.sub(r'\n?```\s*$', '', text)
     text = text.strip()
 
-    # Find the first { and last } to extract the JSON object
+    # Prefer array extraction (auto-map returns arrays)
+    arr_start = text.find('[')
+    arr_end = text.rfind(']')
+    if arr_start != -1 and arr_end != -1 and arr_end > arr_start:
+        return text[arr_start:arr_end + 1]
+
+    # Fallback: extract single object
     start = text.find('{')
     end = text.rfind('}')
     if start != -1 and end != -1 and end > start:
@@ -435,12 +454,22 @@ def _extract_json_object(text: str) -> str:
     return text
 
 
+def _build_compound_code(obj: Dict) -> str:
+    """Build unique compound code like A.1.a from objective hierarchy."""
+    return (
+        f"{obj.get('section_code', '?')}"
+        f".{obj.get('position_code', '?')}"
+        f".{obj['objective_code']}"
+    )
+
+
 def _build_objective_reference(objectives: List[Dict]) -> str:
     """Build a compact text reference of objectives for AI prompts."""
     lines = []
     for obj in objectives:
-        lines.append(
-            f"{obj['objective_code']}: "
-            f"{obj.get('description', '')[:120]}"
-        )
+        code = _build_compound_code(obj)
+        desc = obj.get('description', '')
+        if isinstance(desc, dict):
+            desc = desc.get('de', '') or next(iter(desc.values()), '')
+        lines.append(f"{code}: {str(desc)[:120]}")
     return "\n".join(lines)

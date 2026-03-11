@@ -222,11 +222,14 @@ class CurriculumMappingMixin:
     def find_unmapped_questions(
         exam_type_key: str,
     ) -> List[Dict[str, Any]]:
-        """Find questions for an exam type that have no curriculum tags."""
+        """Find questions for an exam type that have no curriculum tags.
+
+        Includes exam part (GA1/GA2/WK) for context-aware mapping.
+        """
         return fetch_all(
             """SELECT q.question_id, q.question_number,
                       q.question_text, q.points, q.difficulty,
-                      q.exam_id
+                      q.exam_id, e.part AS exam_part, e.title AS exam_title
                FROM assessments.exam_questions q
                JOIN assessments.exams e ON e.exam_id = q.exam_id
                WHERE e.exam_type_key = %s

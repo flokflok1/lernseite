@@ -16,6 +16,15 @@ import logging
 import re
 from typing import Dict, Any, List
 
+from app.application.services.exams.curriculum_mapping_helpers import (
+    extract_json_object,
+    build_compound_code,
+    build_objective_reference,
+    build_mapping_prompt,
+    detect_specialization,
+    filter_sections_for_specialization,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -122,7 +131,7 @@ class CurriculumService:
                 "Try a different model or smaller PDF."
             )
 
-        raw_text = _extract_json_object(raw_text)
+        raw_text = extract_json_object(raw_text)
 
         try:
             result = json.loads(raw_text)
@@ -189,12 +198,11 @@ class CurriculumService:
     ) -> Dict[str, Any]:
         """AI-map unmapped questions to curriculum objectives.
 
-        Finds all questions for the given exam type that have no
-        curriculum tags, then uses AI to suggest objective mappings
-        in batches.
+        Filters objectives by specialization (e.g. FISI → sections A,C,F)
+        and passes exam part context (GA1/GA2/WK) for accurate mapping.
 
         Args:
-            exam_type_key: Exam type key (e.g. 'IHK_FISI').
+            exam_type_key: Exam type key (e.g. 'IHK_FISI_AP1').
             batch_size: Number of questions per AI batch call.
             provider: Optional AI provider name.
             model: Optional model name.
@@ -219,15 +227,30 @@ class CurriculumService:
             )
 
         framework_id = framework['id']
-        objectives = repo.find_all_objectives_by_framework(framework_id)
-        if not objectives:
+        specialization = detect_specialization(exam_type_key)
+        all_objectives = repo.find_all_objectives_by_framework(framework_id)
+        if not all_objectives:
             logger.warning(
                 "Framework %s has no objectives, skipping mapping",
                 framework_id,
             )
             return {'mapped': 0, 'skipped': 0, 'errors': 0}
 
-        obj_reference = _build_objective_reference(objectives)
+        sections = repo.find_sections_by_framework(framework_id)
+        allowed_sections = filter_sections_for_specialization(
+            sections, specialization,
+        )
+        objectives = [
+            o for o in all_objectives
+            if o.get('section_code') in allowed_sections
+        ]
+        logger.info(
+            "Filtered objectives: %d/%d (sections %s for %s)",
+            len(objectives), len(all_objectives),
+            allowed_sections, specialization,
+        )
+
+        obj_reference = build_objective_reference(objectives)
 
         unmapped = repo.find_unmapped_questions(exam_type_key)
         if not unmapped:
@@ -243,6 +266,7 @@ class CurriculumService:
             batch = unmapped[i:i + batch_size]
             CurriculumService._map_question_batch(
                 batch, obj_reference, objectives, stats, ai_kwargs,
+                specialization,
             )
 
         logger.info(
@@ -257,6 +281,7 @@ class CurriculumService:
         objectives: List[Dict],
         stats: Dict[str, int],
         ai_kwargs: Dict[str, str] = None,
+        specialization: str = None,
     ) -> None:
         """Map a batch of questions to objectives using AI.
 
@@ -266,35 +291,25 @@ class CurriculumService:
             objectives: Full objectives list for code lookup.
             stats: Mutable stats dict to update in-place.
             ai_kwargs: Optional dict with provider/model for AIAdapter.
+            specialization: Detected specialization (e.g. 'FISI').
         """
         from app.infrastructure.ai.adapter import AIAdapter
         from app.infrastructure.persistence.repositories.exams.curriculum import (
             CurriculumFrameworkRepository,
         )
 
-        obj_by_code = {_build_compound_code(o): o for o in objectives}
+        obj_by_code = {build_compound_code(o): o for o in objectives}
 
         questions_text = "\n".join(
             f"- ID: {q['question_id']} | "
+            f"Part: {q.get('exam_part') or 'unknown'} | "
             f"Q{q.get('question_number', '?')}: "
             f"{(q.get('question_text') or '')[:200]}"
             for q in questions
         )
 
-        prompt = (
-            "You are mapping IHK exam questions to curriculum objectives. "
-            "For each question, pick the BEST matching objective code.\n\n"
-            "Curriculum objectives (code: description):\n"
-            f"{obj_reference}\n\n"
-            "Questions to map:\n"
-            f"{questions_text}\n\n"
-            "Respond with ONLY a JSON array, no other text:\n"
-            '[{"question_id": "uuid-here", "objective_code": "A.1.a", '
-            '"confidence": 0.85}]\n\n'
-            "Rules:\n"
-            "- objective_code MUST be a compound code like A.1.a\n"
-            "- confidence: 0.0-1.0 (how well the question matches)\n"
-            "- Each question gets exactly one objective"
+        prompt = build_mapping_prompt(
+            obj_reference, questions_text, specialization,
         )
 
         try:
@@ -305,7 +320,7 @@ class CurriculumService:
                 max_tokens=32000,
             )
 
-            raw = _extract_json_object(
+            raw = extract_json_object(
                 response.get('output_text', ''),
             )
             mappings = json.loads(raw)
@@ -427,49 +442,3 @@ def compute_trend(recent_count: int, older_count: int) -> str:
     return 'stable'
 
 
-def _extract_json_object(text: str) -> str:
-    """Extract JSON array or object from AI output.
-
-    AI models often add explanatory text before/after the JSON.
-    Handles both [...] arrays and {...} objects.
-    """
-    text = text.strip()
-    # Remove markdown code fences first
-    text = re.sub(r'^```(?:json)?\s*\n?', '', text)
-    text = re.sub(r'\n?```\s*$', '', text)
-    text = text.strip()
-
-    # Prefer array extraction (auto-map returns arrays)
-    arr_start = text.find('[')
-    arr_end = text.rfind(']')
-    if arr_start != -1 and arr_end != -1 and arr_end > arr_start:
-        return text[arr_start:arr_end + 1]
-
-    # Fallback: extract single object
-    start = text.find('{')
-    end = text.rfind('}')
-    if start != -1 and end != -1 and end > start:
-        return text[start:end + 1]
-
-    return text
-
-
-def _build_compound_code(obj: Dict) -> str:
-    """Build unique compound code like A.1.a from objective hierarchy."""
-    return (
-        f"{obj.get('section_code', '?')}"
-        f".{obj.get('position_code', '?')}"
-        f".{obj['objective_code']}"
-    )
-
-
-def _build_objective_reference(objectives: List[Dict]) -> str:
-    """Build a compact text reference of objectives for AI prompts."""
-    lines = []
-    for obj in objectives:
-        code = _build_compound_code(obj)
-        desc = obj.get('description', '')
-        if isinstance(desc, dict):
-            desc = desc.get('de', '') or next(iter(desc.values()), '')
-        lines.append(f"{code}: {str(desc)[:120]}")
-    return "\n".join(lines)

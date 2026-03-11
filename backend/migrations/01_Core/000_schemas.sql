@@ -44,8 +44,7 @@ COMMENT ON SCHEMA analytics IS 'Analytics: Events, user behavior, statistics';
 CREATE SCHEMA IF NOT EXISTS ai_pipeline;
 COMMENT ON SCHEMA ai_pipeline IS 'AI: Models, jobs, prompts, usage tracking';
 
-CREATE SCHEMA IF NOT EXISTS ai;
-COMMENT ON SCHEMA ai IS 'AI system: Preferred naming for AI-related tables. Use this or ai_pipeline for new AI features (ACTIVE)';
+-- REMOVED: ai schema (2026-03-12) — was empty, all AI tables live in ai_pipeline
 
 CREATE SCHEMA IF NOT EXISTS liveroom;
 COMMENT ON SCHEMA liveroom IS 'LiveRoom: WebRTC rooms, chat, whiteboard, recordings';

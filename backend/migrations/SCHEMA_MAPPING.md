@@ -4,14 +4,13 @@
 
 ## Schema-Zuordnung
 
-### ai_pipeline (20 Tabellen → 33 Tabellen)
+### ai_pipeline (19 Tabellen → 32 Tabellen)
 ```
-BEREITS IM SCHEMA (7):
+BEREITS IM SCHEMA (6):
 - ai_jobs
 - ai_model_profiles
 - ai_models
 - ai_providers
-- ki_raw_inputs
 - ki_requests
 - prompt_templates
 
@@ -324,7 +323,7 @@ PRÜFEN ob Schema existiert, sonst anlegen:
 
 | Schema | Aktuell | Ziel | Differenz |
 |--------|---------|------|-----------|
-| ai_pipeline | 7 | 33 | +26 |
+| ai_pipeline | 6 | 32 | +26 |
 | courses | 11 | 19 | +8 |
 | learning_methods | 5 | 23 | +18 |
 | core | 11 | 29 | +18 |

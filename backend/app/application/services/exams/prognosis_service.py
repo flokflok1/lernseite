@@ -26,9 +26,6 @@ def _build_weakness_entry(
     row: Dict[str, Any],
     relevance_by_id: Dict[int, Dict[str, Any]],
     median_relevance: float,
-    compute_proficiency_score: Any,
-    classify_weakness: Any,
-    build_recommendation: Any,
 ) -> Dict[str, Any]:
     """Build a single weakness result dict for one curriculum position."""
     from app.domain.services.proficiency_scorer import (
@@ -171,9 +168,6 @@ class PrognosisService:
         from app.infrastructure.persistence.repositories.exams.curriculum import (
             CurriculumFrameworkRepository,
         )
-        from app.domain.services.proficiency_scorer import (
-            compute_proficiency_score, classify_weakness, build_recommendation,
-        )
 
         framework = CurriculumFrameworkRepository.find_framework_for_exam_type(
             exam_type_key,
@@ -194,10 +188,7 @@ class PrognosisService:
         median_rel = statistics.median(relevance_scores) if relevance_scores else 0.0
 
         results = [
-            _build_weakness_entry(
-                row, relevance_by_id, median_rel,
-                compute_proficiency_score, classify_weakness, build_recommendation,
-            )
+            _build_weakness_entry(row, relevance_by_id, median_rel)
             for row in rows
         ]
 

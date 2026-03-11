@@ -92,7 +92,7 @@ def _assemble_dashboard(
         'predictions': predictions[:10],
         'recommendations': recommendations,
         'coverage_percent': cov_summary.get('coverage_percent', 0),
-        'gap_count': cov_summary.get('gap_positions', 0),
+        'gap_count': cov_summary.get('gap_count', 0),
         'total_positions': cov_summary.get('total_positions', 0),
     }
 

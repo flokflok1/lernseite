@@ -90,7 +90,7 @@
       "tabLabel": "Pokrycie",
       "summary": "{covered} z {total} pozycji objętych ({percent}%)",
       "gaps": "{count} luk",
-      "lowConfidence": "{count} niepewnych przypisań",
+      "mappedObjectives": "Przypisane cele nauczania",
       "columns": {
         "position": "Pozycja",
         "questions": "Pytania",

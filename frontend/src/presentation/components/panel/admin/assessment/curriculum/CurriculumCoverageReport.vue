@@ -33,7 +33,7 @@
           </div>
           <div class="text-xs text-[var(--color-text-secondary)] mt-1">
             {{ $t('panel.curriculum.coverageReport.summary', {
-              covered: report.summary.covered_positions,
+              covered: report.summary.positions_with_questions,
               total: report.summary.total_positions,
               percent: report.summary.coverage_percent
             }) }}
@@ -44,10 +44,10 @@
           style="background-color: var(--color-error-bg, #fef2f2);"
         >
           <div class="text-xl font-bold" style="color: var(--color-error-text, #dc2626);">
-            {{ report.summary.gap_positions }}
+            {{ report.summary.gap_count }}
           </div>
           <div class="text-xs text-[var(--color-text-secondary)] mt-1">
-            {{ $t('panel.curriculum.coverageReport.gaps', { count: report.summary.gap_positions }) }}
+            {{ $t('panel.curriculum.coverageReport.gaps', { count: report.summary.gap_count }) }}
           </div>
         </div>
         <div
@@ -55,10 +55,10 @@
           style="background-color: var(--color-warning-bg, #fef3c7);"
         >
           <div class="text-xl font-bold" style="color: var(--color-warning-text, #92400e);">
-            {{ report.summary.low_confidence_count }}
+            {{ report.summary.mapped_objectives ?? 0 }} / {{ report.summary.total_objectives ?? 0 }}
           </div>
           <div class="text-xs text-[var(--color-text-secondary)] mt-1">
-            {{ $t('panel.curriculum.coverageReport.lowConfidence', { count: report.summary.low_confidence_count }) }}
+            {{ $t('panel.curriculum.coverageReport.mappedObjectives') }}
           </div>
         </div>
       </div>
@@ -154,7 +154,7 @@
                 </span>
               </td>
               <td class="px-3 py-2 text-center text-[var(--color-text-primary)]">
-                {{ pos.relevance_score.toFixed(2) }}
+                {{ (pos.relevance_score ?? 0).toFixed(2) }}
               </td>
               <td class="px-3 py-2 text-center">
                 <span :title="pos.trend">{{ trendArrow(pos.trend) }}</span>

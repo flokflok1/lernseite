@@ -48,7 +48,7 @@ export interface CockpitData {
 }
 
 export const fetchCockpitData = async (examType: string): Promise<CockpitData> => {
-  const { data } = await http.get('/user/exams/cockpit', {
+  const { data } = await http.get('/user/exam-trainer/cockpit', {
     params: { exam_type: examType },
   })
   return data

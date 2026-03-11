@@ -90,7 +90,7 @@
       "tabLabel": "Coverage",
       "summary": "{covered} of {total} positions covered ({percent}%)",
       "gaps": "{count} gaps",
-      "lowConfidence": "{count} low-confidence mappings",
+      "mappedObjectives": "Mapped Objectives",
       "columns": {
         "position": "Position",
         "questions": "Questions",

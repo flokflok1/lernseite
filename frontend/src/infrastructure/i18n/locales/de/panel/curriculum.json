@@ -90,7 +90,7 @@
       "tabLabel": "Coverage",
       "summary": "{covered} von {total} Positionen abgedeckt ({percent}%)",
       "gaps": "{count} Lücken",
-      "lowConfidence": "{count} unsichere Zuordnungen",
+      "mappedObjectives": "Zugeordnete Lernziele",
       "columns": {
         "position": "Position",
         "questions": "Fragen",

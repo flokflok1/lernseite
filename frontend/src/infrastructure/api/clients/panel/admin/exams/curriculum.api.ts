@@ -323,10 +323,11 @@ export interface CoverageReportPosition {
 
 export interface CoverageReportSummary {
   total_positions: number
-  covered_positions: number
-  gap_positions: number
+  positions_with_questions: number
+  gap_count: number
   coverage_percent: number
-  low_confidence_count: number
+  total_objectives?: number
+  mapped_objectives?: number
 }
 
 export interface CoverageReportData {
@@ -338,7 +339,7 @@ export const fetchCoverageReport = async (
   frameworkId: number
 ): Promise<CoverageReportData> => {
   const { data } = await http.get(
-    `/admin/exams/curriculum/frameworks/${frameworkId}/coverage-report`
+    `/admin/curriculum/frameworks/${frameworkId}/coverage-report`
   )
   return data
 }
@@ -350,7 +351,7 @@ export const startWebResearch = async (
   positionId: string
 ): Promise<void> => {
   await http.post(
-    `/admin/exams/curriculum/frameworks/${frameworkId}/positions/${positionId}/web-research`
+    `/admin/curriculum/frameworks/${frameworkId}/positions/${positionId}/web-research`
   )
 }
 
@@ -358,6 +359,6 @@ export const startBulkWebResearch = async (
   frameworkId: number
 ): Promise<void> => {
   await http.post(
-    `/admin/exams/curriculum/frameworks/${frameworkId}/web-research-all`
+    `/admin/curriculum/frameworks/${frameworkId}/web-research-all`
   )
 }

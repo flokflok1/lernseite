@@ -5,7 +5,7 @@ Generates learning content for curriculum positions that have no exam questions 
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ class GapContentService:
     @staticmethod
     def generate_gap_content(
         framework_id: int,
-        position_id: int = None,
+        position_id: Optional[int] = None,
         provider: str = None,
         model: str = None,
     ) -> List[Dict[str, Any]]:
@@ -73,7 +73,7 @@ class GapContentService:
 
 def _resolve_gaps(
     framework_id: int,
-    position_id: int,
+    position_id: Optional[int],
     PrognosisService: Any,
 ) -> List[Dict[str, Any]]:
     """Return the list of gaps to process."""

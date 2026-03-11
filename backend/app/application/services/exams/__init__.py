@@ -13,6 +13,7 @@ from app.application.services.exams.course_generator_service import ExamCourseGe
 from app.application.services.exams.curriculum_service import CurriculumService
 from app.application.services.exams.taxonomy_bootstrap_service import TaxonomyBootstrapService
 from app.application.services.exams.question_generator_service import QuestionGeneratorService
+from app.application.services.exams.gap_content_service import GapContentService
 
 __all__ = [
     'ExamArchiveService',
@@ -20,4 +21,5 @@ __all__ = [
     'CurriculumService',
     'TaxonomyBootstrapService',
     'QuestionGeneratorService',
+    'GapContentService',
 ]

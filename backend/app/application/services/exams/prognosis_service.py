@@ -242,3 +242,23 @@ class PrognosisService:
                 }
             else:
                 entry['peer_comparison'] = None
+
+    @staticmethod
+    def get_gap_positions(framework_id: int) -> List[Dict[str, Any]]:
+        """Get positions with objectives but no tagged questions (gaps).
+
+        Args:
+            framework_id: Curriculum framework ID.
+
+        Returns:
+            List of gap position dicts with position info.
+        """
+        from app.application.services.exams.curriculum_service import CurriculumService
+
+        report = CurriculumService.get_coverage_report(framework_id)
+        gaps = [p for p in report['positions'] if p.get('gap')]
+        logger.info(
+            "Found %d gap positions in framework %d",
+            len(gaps), framework_id,
+        )
+        return gaps

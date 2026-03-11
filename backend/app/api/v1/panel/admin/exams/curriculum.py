@@ -440,6 +440,26 @@ def get_prognosis(framework_id):
     return jsonify({'success': True, 'predictions': predictions})
 
 
+@curriculum_bp.route('/positions/<int:position_id>/generate-questions', methods=['POST'])
+@admin_required
+def generate_questions(position_id):
+    """Generate AI exam questions for a curriculum position."""
+    body = request.get_json(silent=True) or {}
+    try:
+        from app.application.services.exams.question_generator_service import QuestionGeneratorService
+        questions = QuestionGeneratorService.generate_for_position(
+            position_id=position_id,
+            count=body.get('count', 3),
+            difficulty=body.get('difficulty', 'mittel'),
+            style=body.get('style', 'multiple_choice'),
+            provider=body.get('provider'),
+            model=body.get('model'),
+        )
+        return jsonify({'success': True, 'questions': questions})
+    except ValueError as exc:
+        return jsonify({'success': False, 'error': str(exc)}), 400
+
+
 # --- Helpers ---
 
 def _sse(event: str, data: dict) -> str:

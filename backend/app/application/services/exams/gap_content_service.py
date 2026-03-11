@@ -1,36 +1,29 @@
 """
 Gap Content Service
 
-Generates learning content for curriculum positions that have no exam questions (gaps).
+Generates learning content for curriculum gap positions via Gemini Grounding.
+Raises WebResearchError on failure — no silent fallback.
 """
 
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
 
 class GapContentService:
-    """Generate learning content for gap positions."""
+    """Generate learning content for gap positions via web research."""
 
     @staticmethod
     def generate_gap_content(
         framework_id: int,
         position_id: Optional[int] = None,
-        provider: str = None,
-        model: str = None,
+        language: str = 'de',
     ) -> List[Dict[str, Any]]:
-        """Generate learning content for gap positions.
+        """Generate content for gap positions via Gemini Grounding.
 
-        Args:
-            framework_id: Curriculum framework ID.
-            position_id: Optional specific position. If None, generates for all gaps.
-            provider: Optional AI provider.
-            model: Optional AI model.
-
-        Returns:
-            List of generated content dicts.
+        Raises WebResearchError if Grounding fails.
         """
         from app.application.services.exams.prognosis_service import PrognosisService
         from app.infrastructure.web_research.search_service import WebSearchService
@@ -49,19 +42,18 @@ class GapContentService:
                 continue
 
             position_title = _extract_position_title(gap, objectives)
-            context = _build_objective_context(objectives)
-            query = f"IHK Fachinformatiker: {position_title}"
+            objective_texts = _extract_objective_texts(objectives)
 
-            content = WebSearchService.search_and_summarize(
-                query=query,
-                context=context,
-                provider=provider,
-                model=model,
+            content = WebSearchService.research_position(
+                position_id=pid,
+                position_title=position_title,
+                objectives=objective_texts,
+                language=language,
             )
 
             content['position_id'] = pid
             content['position_title'] = position_title
-            content['generated_at'] = datetime.utcnow().isoformat()
+            content['generated_at'] = datetime.now(timezone.utc).isoformat()
             results.append(content)
 
         logger.info(
@@ -94,14 +86,14 @@ def _extract_position_title(
     return first_obj.get('position_title', '')
 
 
-def _build_objective_context(objectives: List[Dict[str, Any]]) -> str:
-    """Build a bullet-point context string from the first 5 objectives."""
-    lines = []
+def _extract_objective_texts(objectives: List[Dict[str, Any]]) -> List[str]:
+    """Extract text strings from the first 5 objectives."""
+    texts = []
     for obj in objectives[:5]:
         desc = obj.get('description_text') or obj.get('description') or ''
         if isinstance(desc, dict):
             desc = desc.get('de', '') or next(iter(desc.values()), '')
         desc_str = str(desc)[:100]
         if desc_str:
-            lines.append(f"- {desc_str}")
-    return "\n".join(lines)
+            texts.append(desc_str)
+    return texts

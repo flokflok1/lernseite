@@ -219,6 +219,7 @@ def _build_chapter(
     language: str = 'de',
 ) -> Dict[str, Any]:
     """Build a single topic chapter with its LM instances."""
+    is_ai_only = chapter_plan.coverage_source == 'ai_generated'
     desc_map = {
         'de': (
             f'{chapter_plan.question_count} Fragen, '
@@ -235,6 +236,8 @@ def _build_chapter(
         'title': chapter_title,
         'description': desc_map.get(language, desc_map['en']),
         'order_index': order_index + 1,
+        'ai_generated': is_ai_only,
+        'ai_metadata': _build_chapter_metadata(chapter_plan),
     })
     chapter_id = str(chapter['chapter_id'])
 
@@ -321,6 +324,9 @@ def _create_ai_plan_if_needed(
     if not plan_data:
         return None
 
+    # Enrich AI plan with web research for gap positions
+    _enrich_ai_plan_with_gap_content(chapter_plan, plan_data)
+
     plan = ContentPlanRepository.create({
         'course_id': course_id,
         'scope': 'chapter',
@@ -402,6 +408,58 @@ def _build_simulation_chapter(
     })
 
     return {'lm_count': 1}
+
+
+def _build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
+    """Build ai_metadata JSONB with intelligence data for frontend badges."""
+    meta = {
+        'coverage_source': chapter_plan.coverage_source,
+        'intelligence_score': chapter_plan.intelligence_score,
+        'relevance_score': chapter_plan.relevance_score,
+        'prognosis_probability': chapter_plan.prognosis_probability,
+    }
+    if chapter_plan.prognosis_confidence:
+        meta['prognosis_confidence'] = chapter_plan.prognosis_confidence
+    if chapter_plan.user_proficiency is not None:
+        meta['user_proficiency'] = chapter_plan.user_proficiency
+        meta['user_severity'] = chapter_plan.user_severity
+    return meta
+
+
+def _enrich_ai_plan_with_gap_content(
+    chapter_plan: ChapterPlan,
+    plan_data: dict,
+) -> None:
+    """Enrich AI plan with web research context for gap positions.
+
+    Only triggered for ai_generated chapters (no real exam questions).
+    Adds research context to the plan so the AI Editor can produce
+    more relevant content.
+    """
+    if chapter_plan.coverage_source != 'ai_generated':
+        return
+    if not chapter_plan.curriculum_position_id:
+        return
+
+    try:
+        from app.application.services.exams.gap_content_service import (
+            GapContentService,
+        )
+        gap_results = GapContentService.generate_gap_content(
+            framework_id=0,  # not needed — position_id is provided
+            position_id=chapter_plan.curriculum_position_id,
+        )
+        if gap_results:
+            plan_data['gap_research_context'] = gap_results[0]
+            logger.info(
+                "Gap content enriched for position %s",
+                chapter_plan.curriculum_position_code,
+            )
+    except Exception:
+        logger.exception(
+            "Gap content enrichment failed for position %s (non-blocking)",
+            chapter_plan.curriculum_position_code,
+        )
 
 
 def _chapter_title_from_plan(

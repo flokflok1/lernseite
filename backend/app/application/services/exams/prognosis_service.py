@@ -205,8 +205,40 @@ class PrognosisService:
         results.sort(
             key=lambda x: (severity_order.get(x['severity'], 3), x['proficiency_score']),
         )
+        PrognosisService._enrich_with_peer_comparison(results, user_id, framework_id)
         logger.info(
             "Weakness map for user=%s exam_type=%s: %d positions, framework=%d",
             user_id, exam_type_key, len(results), framework_id,
         )
         return results
+
+    @staticmethod
+    def _enrich_with_peer_comparison(
+        results: List[Dict], user_id: str, framework_id: int,
+    ) -> None:
+        """Add peer comparison data to weakness entries (in-place)."""
+        from app.infrastructure.persistence.repositories.exams.performance_stats import (
+            PerformanceStatsRepository,
+        )
+
+        percentiles = PerformanceStatsRepository.get_user_percentile(
+            user_id, framework_id,
+        )
+        percentile_by_id = {p['position_id']: p for p in percentiles}
+
+        aggregates = PerformanceStatsRepository.get_position_aggregates(framework_id)
+        agg_by_id = {a['position_id']: a for a in aggregates}
+
+        for entry in results:
+            pid = entry['position_id']
+            perc = percentile_by_id.get(pid)
+            agg = agg_by_id.get(pid)
+
+            if perc and agg:
+                entry['peer_comparison'] = {
+                    'percentile': perc.get('percentile', 0),
+                    'avg_accuracy': agg.get('avg_accuracy', 0),
+                    'user_count': agg.get('user_count', 0),
+                }
+            else:
+                entry['peer_comparison'] = None

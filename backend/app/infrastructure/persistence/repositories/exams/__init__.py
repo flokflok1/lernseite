@@ -6,11 +6,13 @@ Exam and assessment repositories:
 - ExamSimulationRepository: Exam simulation and attempt management
 - ExamSessionRepository: Hierarchical session grouping
 - CurriculumFrameworkRepository: Curriculum framework CRUD and mappings
+- PerformanceStatsRepository: Anonymized peer comparison aggregates
 
 Example usage:
     >>> from app.infrastructure.persistence.repositories.exams.core import ExamRepository
     >>> from app.infrastructure.persistence.repositories.exams.sessions import ExamSessionRepository
     >>> from app.infrastructure.persistence.repositories.exams.curriculum import CurriculumFrameworkRepository
+    >>> from app.infrastructure.persistence.repositories.exams.performance_stats import PerformanceStatsRepository
 """
 
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
@@ -20,6 +22,7 @@ from app.infrastructure.persistence.repositories.exams.trainer import ExamTraine
 from app.infrastructure.persistence.repositories.exams.sessions import ExamSessionRepository
 from app.infrastructure.persistence.repositories.exams.curriculum import CurriculumFrameworkRepository
 from app.infrastructure.persistence.repositories.exams.user_exam_goals import UserExamGoalsRepository
+from app.infrastructure.persistence.repositories.exams.performance_stats import PerformanceStatsRepository
 
 __all__ = [
     'ExamRepository',
@@ -29,4 +32,5 @@ __all__ = [
     'ExamSessionRepository',
     'CurriculumFrameworkRepository',
     'UserExamGoalsRepository',
+    'PerformanceStatsRepository',
 ]

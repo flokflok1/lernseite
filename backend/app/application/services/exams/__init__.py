@@ -12,10 +12,12 @@ from app.application.services.exams.archive_service import ExamArchiveService
 from app.application.services.exams.course_generator_service import ExamCourseGeneratorService
 from app.application.services.exams.curriculum_service import CurriculumService
 from app.application.services.exams.taxonomy_bootstrap_service import TaxonomyBootstrapService
+from app.application.services.exams.question_generator_service import QuestionGeneratorService
 
 __all__ = [
     'ExamArchiveService',
     'ExamCourseGeneratorService',
     'CurriculumService',
     'TaxonomyBootstrapService',
+    'QuestionGeneratorService',
 ]

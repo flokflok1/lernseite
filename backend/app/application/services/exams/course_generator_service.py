@@ -10,6 +10,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, parse_label
 from app.domain.services.exam_topic_utils import normalize_topic
 from app.domain.services.lm_content_mapper import LMContentMapper
+from app.application.services.exams.course_plan_factory import _GAP_AI_LM_TYPES
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
 from app.infrastructure.persistence.repositories.exams.questions import ExamQuestionRepository
 from app.infrastructure.persistence.repositories.exams.sessions import ExamSessionRepository
@@ -369,8 +370,8 @@ def _group_by_curriculum(
                 chapter_questions, exam_mode=True,
             )
         else:
-            # Full gap: AI generates explanations + active practice LMs
-            lm_types = [0, 1, 6, 8, 10]
+            # Full gap: use evidence-based LM types (single source of truth)
+            lm_types = sorted(_GAP_AI_LM_TYPES)
 
         position_code = f"{pos['section_code']}.{pos['position_code']}"
         pid = pos['position_id']

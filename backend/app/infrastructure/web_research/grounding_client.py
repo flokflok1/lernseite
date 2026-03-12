@@ -51,11 +51,7 @@ def search_with_grounding(
     url = GEMINI_API_URL.format(model=model) + f'?key={api_key}'
 
     lang_label = 'Deutsch' if language == 'de' else 'English'
-    prompt = (
-        f"Beantworte die folgende Frage ausführlich auf {lang_label}. "
-        f"Nutze aktuelle Informationen aus dem Internet.\n\n"
-        f"Frage: {query}"
-    )
+    prompt = _build_grounding_prompt(query, language, lang_label)
 
     payload = {
         'contents': [{'parts': [{'text': prompt}]}],
@@ -100,6 +96,30 @@ def search_with_grounding(
             time.sleep(RETRY_BACKOFF * (attempt + 1))
 
     raise WebResearchError(last_error or 'Gemini Grounding failed')
+
+
+def _build_grounding_prompt(
+    query: str, language: str, lang_label: str,
+) -> str:
+    """Build an IHK-exam-focused prompt for Gemini Grounding."""
+    if language == 'de':
+        return (
+            "Du bist ein Experte für IHK-Prüfungsvorbereitung im Bereich "
+            "Fachinformatik. Beantworte die folgende Frage ausführlich auf "
+            f"{lang_label}. Fokussiere dich auf prüfungsrelevante Inhalte, "
+            "konkrete Definitionen und praktische Beispiele die in einer "
+            "IHK-Abschlussprüfung vorkommen können. "
+            "Nutze aktuelle Informationen aus dem Internet.\n\n"
+            f"Frage: {query}"
+        )
+    return (
+        "You are an IT specialist exam preparation expert. "
+        f"Answer the following question in detail in {lang_label}. "
+        "Focus on exam-relevant content, concrete definitions, and "
+        "practical examples suitable for IT certification exams. "
+        "Use current information from the internet.\n\n"
+        f"Question: {query}"
+    )
 
 
 def _parse_grounding_response(

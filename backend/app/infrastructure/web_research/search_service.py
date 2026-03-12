@@ -82,18 +82,37 @@ class WebSearchService:
 def _build_queries(
     position_title: str, objectives: List[str], search_lang: str,
 ) -> List[str]:
-    """Build 3 targeted queries per position."""
+    """Build objective-driven queries from position + Lernziele.
+
+    1 overview query + 1 query per objective (max 5).
+    Falls back to generic queries if no objectives provided.
+    """
+    queries = []
+
     if search_lang == 'en':
-        return [
-            f"IT specialist {position_title} fundamentals theory",
-            f"{position_title} practical tasks examples IT training",
-            f"IT certification {position_title} exam question types",
-        ]
-    return [
-        f"IHK Fachinformatiker {position_title} Grundlagen Theorie",
-        f"{position_title} praktische Aufgaben Beispiele IT-Ausbildung",
-        f"IHK Abschlussprüfung {position_title} Aufgabentypen",
-    ]
+        queries.append(
+            f"IT specialist {position_title} exam preparation fundamentals"
+        )
+        for obj in objectives[:5]:
+            queries.append(f"{obj} IT specialist explanation examples")
+        if not objectives:
+            queries.append(f"{position_title} practical tasks IT training")
+            queries.append(f"IT certification {position_title} exam questions")
+    else:
+        queries.append(
+            f"IHK Fachinformatiker {position_title} Prüfungsvorbereitung"
+        )
+        for obj in objectives[:5]:
+            queries.append(f"{obj} IHK Fachinformatiker Erklärung Beispiele")
+        if not objectives:
+            queries.append(
+                f"{position_title} praktische Aufgaben IT-Ausbildung"
+            )
+            queries.append(
+                f"IHK Abschlussprüfung {position_title} Aufgabentypen"
+            )
+
+    return queries
 
 
 def _detect_search_language(position_title: str) -> str:

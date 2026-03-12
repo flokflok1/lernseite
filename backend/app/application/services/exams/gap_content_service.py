@@ -87,13 +87,13 @@ def _extract_position_title(
 
 
 def _extract_objective_texts(objectives: List[Dict[str, Any]]) -> List[str]:
-    """Extract text strings from the first 5 objectives."""
+    """Extract full objective texts for targeted web research queries."""
     texts = []
-    for obj in objectives[:5]:
+    for obj in objectives:
         desc = obj.get('description_text') or obj.get('description') or ''
         if isinstance(desc, dict):
             desc = desc.get('de', '') or next(iter(desc.values()), '')
-        desc_str = str(desc)[:100]
+        desc_str = str(desc).strip()[:200]
         if desc_str:
             texts.append(desc_str)
     return texts

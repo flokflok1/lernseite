@@ -1,11 +1,4 @@
-"""
-Course Plan Factory -- Creates AI Editor plans for exam course chapters.
-
-Bridges the Exam Course Generator (structure) with the AI Editor Pipeline
-(content).  For gap positions (no exam questions), active LM types (6, 8, 10)
-are also AI-generated.  Non-gap positions create practice LMs from exam
-questions deterministically via LMContentMapper in the builder.
-"""
+"""Course Plan Factory -- AI Editor plans for exam course chapters."""
 import logging
 from typing import Dict, Any, List, Set
 
@@ -16,15 +9,19 @@ logger = logging.getLogger(__name__)
 # Base LM types that always require AI content generation
 _BASE_AI_LM_TYPES: Set[int] = {0, 1}
 
-# Additional LM types that need AI generation for gap positions (no questions)
-_GAP_AI_LM_TYPES: Set[int] = {0, 1, 6, 8, 10}
+# Gap LM types: evidence-based learning psychology selection
+# 0,1 = Elaboration/Scaffolding; 7 = Dual Coding/Spatial (Generation Effect);
+# 8 = Cloze (Generation Effect, scaffolded); 9 = Free Text (strongest Active
+# Recall, Self-Explanation); 10 = IHK-Tasks (Transfer, Desirable Difficulty)
+_GAP_AI_LM_TYPES: Set[int] = {0, 1, 7, 8, 9, 10}
 
 # Mapping from LM type to the AI skill code used by plan_execution
 LM_SKILL_MAP: Dict[int, str] = {
     0: 'generate_deep_explanation',
     1: 'generate_step_by_step',
-    6: 'generate_flashcards',
+    7: 'generate_drag_and_drop',
     8: 'generate_cloze_test',
+    9: 'generate_free_text',
     10: 'generate_ihk_tasks',
 }
 
@@ -32,9 +29,9 @@ LM_SKILL_MAP: Dict[int, str] = {
 def get_ai_lm_types(chapter_plan: ChapterPlan) -> Set[int]:
     """Return LM types requiring AI generation based on chapter context.
 
-    Gap positions (no exam questions) need AI to generate practice content
-    (flashcards, cloze, IHK tasks).  Non-gap positions create those LMs
-    from exam questions deterministically.
+    Gap positions (no exam questions) get the full evidence-based set
+    (D&D, cloze, free text, IHK tasks).  Non-gap positions create
+    practice LMs from exam questions deterministically.
     """
     if chapter_plan.coverage_source == 'ai_generated':
         return _GAP_AI_LM_TYPES

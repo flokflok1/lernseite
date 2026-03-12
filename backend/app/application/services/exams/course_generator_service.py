@@ -417,7 +417,11 @@ def _group_by_curriculum(
 
     if sort_mode == 'relevance':
         chapters.sort(
-            key=lambda ch: (ch.intelligence_score, ch.point_weight),
+            key=lambda ch: (
+                ch.intelligence_score,
+                ch.point_weight,
+                ch.curriculum_position_code or '',
+            ),
             reverse=True,
         )
 

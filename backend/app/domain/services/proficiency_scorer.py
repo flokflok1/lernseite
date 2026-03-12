@@ -6,6 +6,24 @@ Pure domain logic — no infrastructure imports.
 """
 from typing import Optional
 
+# --- Intelligence Score Weights ---
+# Global-only mode (no user data): relevance + prognosis
+W_GLOBAL_RELEVANCE = 0.6
+W_GLOBAL_PROGNOSIS = 0.4
+
+# Personalized mode (with user weakness data)
+W_PERSONAL_RELEVANCE = 0.4
+W_PERSONAL_PROGNOSIS = 0.3
+W_PERSONAL_WEAKNESS = 0.3
+
+# Weakness severity multipliers (higher = more urgent)
+SEVERITY_WEIGHTS = {
+    'critical': 1.0,
+    'moderate': 0.7,
+    'minor': 0.3,
+    'none': 0.0,
+}
+
 
 def compute_proficiency_score(
     mastery_avg: Optional[float],
@@ -68,11 +86,18 @@ def compute_intelligence_score(
     prog = min(prognosis_probability, 1.0)
 
     if proficiency_score is not None and severity is not None:
-        sev_w = {'critical': 1.0, 'moderate': 0.7, 'minor': 0.3, 'none': 0.0}
-        weakness = (1.0 - proficiency_score / 100.0) * sev_w.get(severity, 0.0)
-        return round(rel * 0.4 + prog * 0.3 + weakness * 0.3, 4)
+        weakness = (
+            (1.0 - proficiency_score / 100.0)
+            * SEVERITY_WEIGHTS.get(severity, 0.0)
+        )
+        return round(
+            rel * W_PERSONAL_RELEVANCE
+            + prog * W_PERSONAL_PROGNOSIS
+            + weakness * W_PERSONAL_WEAKNESS,
+            4,
+        )
 
-    return round(rel * 0.6 + prog * 0.4, 4)
+    return round(rel * W_GLOBAL_RELEVANCE + prog * W_GLOBAL_PROGNOSIS, 4)
 
 
 def build_recommendation(severity: str, trend: str, position_title: str) -> dict:

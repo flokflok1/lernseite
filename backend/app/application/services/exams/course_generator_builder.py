@@ -61,13 +61,7 @@ class CourseGeneratorBuilder:
         creator_user_id: str,
         options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """
-        Create course + chapters + LM instances from plan.
-
-        Returns:
-            {course_id, chapters_count, lm_count, tokens_used,
-             ai_plan_ids, status}
-        """
+        """Create course + chapters + LM instances from plan."""
         options = options or {}
         language = options.get('language', 'de')
 
@@ -300,10 +294,7 @@ def _create_ai_plan_if_needed(
     creator_user_id: str,
     language: str,
 ) -> Optional[str]:
-    """Create an AI Editor plan for AI-generated LM types if needed.
-
-    Returns the plan_id or None if no AI generation is needed.
-    """
+    """Create AI Editor plan if chapter needs AI generation. Returns plan_id or None."""
     if not CoursePlanFactory.needs_ai_generation(chapter_plan):
         return None
 
@@ -314,8 +305,8 @@ def _create_ai_plan_if_needed(
     if not plan_data:
         return None
 
-    # Enrich AI plan with web research for gap positions
-    _enrich_ai_plan_with_gap_content(chapter_plan, plan_data, language)
+    # Enrich AI plan with web research (cross-reference + validation)
+    _enrich_with_web_research(chapter_plan, plan_data, language)
 
     plan = ContentPlanRepository.create({
         'course_id': course_id,
@@ -426,60 +417,69 @@ def _build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
     return meta
 
 
-def _enrich_ai_plan_with_gap_content(
+def _enrich_with_web_research(
     chapter_plan: ChapterPlan,
     plan_data: dict,
     language: str = 'de',
 ) -> None:
-    """Enrich AI plan with Grounding web research for gap positions (<50% coverage)."""
-    if chapter_plan.coverage_pct >= 50:
-        return
-    if not chapter_plan.curriculum_position_id:
-        return
+    """Enrich AI plan with web research for cross-referencing and validation.
 
+    Runs for ALL chapters — the AI uses Google Grounding + crawled IHK PDFs
+    to validate OCR-extracted exam content and catch extraction errors.
+    """
     from app.domain.exceptions.web_research import WebResearchError
 
+    label = chapter_plan.curriculum_position_code or chapter_plan.topic
+    result = None
     try:
+        result = _fetch_web_research(chapter_plan, language)
+    except WebResearchError as e:
+        logger.warning("Grounding failed for %s: %s", label, e)
+    except Exception:
+        logger.exception("Web research failed for %s", label)
+
+    if result and result.get('summary'):
+        plan_data['web_research_context'] = result
+        plan_data['grounding_status'] = result.get('grounding_status', 'success')
+        plan_data['research_sources'] = result.get('sources', [])
+        logger.info("Web research enriched %s (grounding=%s, src=%d)",
+                     label, result.get('grounding_status', '?'),
+                     len(result.get('sources', [])))
+    else:
+        plan_data['grounding_status'] = 'failed'
+        plan_data['research_sources'] = []
+
+
+def _fetch_web_research(chapter_plan: ChapterPlan, language: str) -> dict:
+    """Fetch web research — curriculum-based or topic-based."""
+    if chapter_plan.curriculum_position_id:
         from app.application.services.exams.gap_content_service import (
             GapContentService,
         )
-        gap_results = GapContentService.generate_gap_content(
-            framework_id=0,  # not needed — position_id is provided
+        results = GapContentService.generate_gap_content(
+            framework_id=0,
             position_id=chapter_plan.curriculum_position_id,
             language=language,
         )
-        if gap_results:
-            result = gap_results[0]
-            plan_data['gap_research_context'] = result
-            plan_data['grounding_status'] = result.get('grounding_status', 'success')
-            plan_data['research_sources'] = result.get('sources', [])
-            logger.info("Gap enriched position %s (grounding=%s, src=%d)",
-                        chapter_plan.curriculum_position_code,
-                        result.get('grounding_status', '?'), len(result.get('sources', [])))
-    except WebResearchError as e:
-        logger.warning("Grounding failed for position %s: %s",
-                        chapter_plan.curriculum_position_code, str(e))
-        plan_data['grounding_status'] = 'failed'
-        plan_data['research_sources'] = []
-    except Exception:
-        logger.exception("Gap enrichment failed for position %s",
-                          chapter_plan.curriculum_position_code)
-        plan_data['grounding_status'] = 'failed'
-        plan_data['research_sources'] = []
+        return results[0] if results else {}
+
+    from app.infrastructure.web_research.search_service import WebSearchService
+    topic_name = chapter_plan.topic.replace('_', ' ')
+    return WebSearchService.research_position(
+        position_id=0,
+        position_title=topic_name,
+        objectives=[topic_name],
+        language=language,
+    )
 
 
-def _chapter_title_from_plan(
-    chapter_plan: ChapterPlan, language: str,
-) -> str:
-    """Derive chapter title from parent_label (taxonomy) or topic key."""
+def _chapter_title_from_plan(chapter_plan: ChapterPlan, language: str) -> str:
+    """Derive chapter title from parent_label or topic key."""
     label = parse_label(chapter_plan.parent_label)
     return label.get(language, chapter_plan.topic.replace('_', ' ').title())
 
 
-def _build_static_lm_data(
-    lm_type: int,
-    questions: List[Dict],
-) -> Optional[Dict[str, Any]]:
+def _build_static_lm_data(lm_type: int, questions: List[Dict]) -> Optional[Dict[str, Any]]:
     """Build JSONB data for a static LM type via LMContentMapper."""
     mapper = LM_MAPPER.get(lm_type)
     if not mapper:

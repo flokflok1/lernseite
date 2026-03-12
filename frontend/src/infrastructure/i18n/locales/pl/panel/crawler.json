@@ -1,0 +1,103 @@
+{
+  "crawler": {
+    "title": "Zarządzanie crawlerem",
+    "tabs": {
+      "dashboard": "Panel",
+      "jobs": "Zadania crawlowania",
+      "pdfs": "Biblioteka PDF",
+      "domains": "Ustawienia domen"
+    },
+    "dashboard": {
+      "totalPdfs": "Łącznie PDF",
+      "totalDomains": "Domeny",
+      "activeDomains": "Aktywne domeny",
+      "activeJobs": "Aktywne zadania",
+      "cacheSize": "Rozmiar cache",
+      "lastCrawl": "Ostatnie crawlowanie",
+      "neverCrawled": "Nigdy nie crawlowano",
+      "domainStatus": "Status domen",
+      "health": {
+        "good": "OK",
+        "stale": "Nieaktualny",
+        "error": "Błąd",
+        "never": "Nigdy nie crawlowano"
+      }
+    },
+    "jobs": {
+      "title": "Zadania crawlowania",
+      "startCrawl": "Rozpocznij crawlowanie",
+      "startAll": "Crawluj wszystko",
+      "noJobs": "Brak zadań",
+      "status": {
+        "pending": "Oczekujące",
+        "running": "W toku",
+        "completed": "Zakończone",
+        "failed": "Nieudane",
+        "cancelled": "Anulowane"
+      },
+      "pages": "Strony",
+      "pdfsFound": "Znalezione PDF-y",
+      "pdfsNew": "Nowe PDF-y",
+      "pdfsUpdated": "Zaktualizowane PDF-y",
+      "errors": "Błędy",
+      "duration": "Czas trwania",
+      "progress": "Postęp",
+      "started": "Rozpoczęto"
+    },
+    "pdfs": {
+      "title": "Biblioteka PDF",
+      "search": "Szukaj PDF-ów...",
+      "noResults": "Nie znaleziono PDF-ów",
+      "relevance": "Trafność",
+      "pages": "Strony",
+      "size": "Rozmiar",
+      "textQuality": "Jakość tekstu",
+      "hasText": "Tekst dostępny",
+      "noText": "Brak tekstu (skan)",
+      "unknown": "Nieznany",
+      "delete": "Usuń",
+      "confirmDelete": "Naprawdę usunąć ten PDF?",
+      "domain": "Domena",
+      "lastChecked": "Ostatnio sprawdzono"
+    },
+    "domains": {
+      "title": "Ustawienia domen",
+      "addDomain": "Dodaj domenę",
+      "editDomain": "Edytuj domenę",
+      "name": "Nazwa domeny",
+      "baseUrl": "Bazowy URL",
+      "displayName": "Nazwa wyświetlana",
+      "schedule": "Harmonogram",
+      "urlPatterns": "Wzorce URL",
+      "urlPatternsHint": "Wzorce wieloznaczne (np. */fachinformatiker/*)",
+      "rateLimit": "Limit zapytań (sek.)",
+      "maxPages": "Maks. stron na crawl",
+      "maxDepth": "Maks. głębokość",
+      "active": "Aktywna",
+      "inactive": "Nieaktywna",
+      "confirmDelete": "Naprawdę usunąć tę domenę? Wszystkie powiązane URL-e również zostaną usunięte.",
+      "lastCrawled": "Ostatnio crawlowano",
+      "pdfsFound": "Znalezione PDF-y",
+      "noDomains": "Brak skonfigurowanych domen",
+      "scheduleOptions": {
+        "daily": "Codziennie",
+        "weekly": "Co tydzień",
+        "monthly": "Co miesiąc"
+      }
+    },
+    "startDialog": {
+      "title": "Rozpocznij crawlowanie",
+      "description": "Wybierz domenę lub crawluj wszystkie aktywne domeny.",
+      "allDomains": "Wszystkie aktywne domeny",
+      "singleDomain": "Pojedyncza domena",
+      "selectDomain": "Wybierz domenę",
+      "start": "Rozpocznij",
+      "cancel": "Anuluj"
+    },
+    "domainForm": {
+      "title": "Konfiguracja domeny",
+      "save": "Zapisz",
+      "cancel": "Anuluj"
+    }
+  }
+}

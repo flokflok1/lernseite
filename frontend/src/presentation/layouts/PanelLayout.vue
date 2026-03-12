@@ -172,6 +172,7 @@ const menuItems = computed(() => {
     { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },
     { path: '/panel/audit-logs', label: t('panel.nav.audit_logs'), icon: '📋' },
     { path: '/panel/exams', label: t('panel.nav.exams'), icon: '📄' },
+    { path: '/panel/crawler', label: t('panel.nav.crawler'), icon: '🕷️' },
     { path: '/panel/system-settings', label: t('panel.nav.settings'), icon: '⚙️' }
   ]
 })

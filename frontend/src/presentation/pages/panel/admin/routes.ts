@@ -129,6 +129,11 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelSystemSettings',
       component: () => import('@/presentation/pages/panel/admin/PanelSystemSettingsPage.vue'),
     },
+    {
+      path: 'crawler',
+      name: 'PanelCrawler',
+      component: () => import('@/presentation/pages/panel/admin/PanelCrawlerPage.vue'),
+    },
     // Admin Course Editor (windowed interface within panel)
     {
       path: 'admin/editor',

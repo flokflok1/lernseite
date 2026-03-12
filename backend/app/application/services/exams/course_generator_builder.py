@@ -1,9 +1,4 @@
-"""
-Course Generator Builder -- Persists ExamCoursePlan as course/chapter/LM records.
-
-Gap positions get AI-generated practice types (6, 8, 10) plus explanatory (0, 1).
-Non-gap chapters create practice LMs from exam questions via LMContentMapper.
-"""
+"""Course Generator Builder -- persists ExamCoursePlan as course/chapter/LM records."""
 import logging
 from typing import Dict, Any, Optional, List
 
@@ -393,16 +388,25 @@ def _build_simulation_chapter(
     })
     chapter_id = str(chapter['chapter_id'])
 
+    question_count = len(questions)
+    exam_config = {
+        'exam_id': exam_id,
+        'question_count': question_count,
+        'time_limit_minutes': 90,
+        'passing_percentage': 50,
+        'mode': 'simulation',
+    }
+
     LearningMethodInstanceRepository.create({
         'chapter_id': chapter_id,
         'method_type': 10,
         'title': title,
-        'data': tasks,
+        'data': {**tasks, 'exam_config': exam_config},
         'published': True,
         'difficulty': 'hard',
     })
 
-    return {'lm_count': 1}
+    return {'lm_count': 1, 'question_count': question_count}
 
 
 def _build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
@@ -427,10 +431,7 @@ def _enrich_ai_plan_with_gap_content(
     plan_data: dict,
     language: str = 'de',
 ) -> None:
-    """Enrich AI plan with Gemini Grounding web research for gap positions.
-
-    Runs for full gaps (0% coverage) and mixed positions with <50% coverage.
-    """
+    """Enrich AI plan with Grounding web research for gap positions (<50% coverage)."""
     if chapter_plan.coverage_pct >= 50:
         return
     if not chapter_plan.curriculum_position_id:

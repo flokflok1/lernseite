@@ -183,7 +183,7 @@ def _build_all_chapters(
     for idx, chapter_plan in enumerate(plan.chapters):
         result = _build_chapter(
             course_id, chapter_plan, idx, creator_user_id,
-            options, language, plan.region, plan.exam_type,
+            options, language, plan.region_display_name, plan.exam_type,
         )
         total_lm += result['lm_count']
         total_tokens += result.get('tokens_used', 0)
@@ -234,7 +234,7 @@ def _build_chapter(
 
     ai_plan_id = _create_ai_plan_if_needed(
         course_id, chapter_id, chapter_plan,
-        questions, creator_user_id, language,
+        questions, creator_user_id, language, region, exam_type,
     )
     if ai_plan_id:
         result['ai_plan_id'] = ai_plan_id
@@ -290,6 +290,8 @@ def _create_ai_plan_if_needed(
     questions: List[Dict],
     creator_user_id: str,
     language: str,
+    region: str = '',
+    exam_type: str = '',
 ) -> Optional[str]:
     """Create AI Editor plan if chapter needs AI generation. Returns plan_id or None."""
     if not CoursePlanFactory.needs_ai_generation(chapter_plan):

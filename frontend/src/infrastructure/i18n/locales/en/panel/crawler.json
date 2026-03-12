@@ -1,0 +1,103 @@
+{
+  "crawler": {
+    "title": "Crawler Management",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "jobs": "Crawl Jobs",
+      "pdfs": "PDF Library",
+      "domains": "Domain Settings"
+    },
+    "dashboard": {
+      "totalPdfs": "Total PDFs",
+      "totalDomains": "Domains",
+      "activeDomains": "Active Domains",
+      "activeJobs": "Running Jobs",
+      "cacheSize": "Cache Size",
+      "lastCrawl": "Last Crawl",
+      "neverCrawled": "Never crawled",
+      "domainStatus": "Domain Status",
+      "health": {
+        "good": "OK",
+        "stale": "Stale",
+        "error": "Error",
+        "never": "Never crawled"
+      }
+    },
+    "jobs": {
+      "title": "Crawl Jobs",
+      "startCrawl": "Start Crawl",
+      "startAll": "Crawl All",
+      "noJobs": "No jobs found",
+      "status": {
+        "pending": "Pending",
+        "running": "Running",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "pages": "Pages",
+      "pdfsFound": "PDFs found",
+      "pdfsNew": "New PDFs",
+      "pdfsUpdated": "Updated PDFs",
+      "errors": "Errors",
+      "duration": "Duration",
+      "progress": "Progress",
+      "started": "Started"
+    },
+    "pdfs": {
+      "title": "PDF Library",
+      "search": "Search PDFs...",
+      "noResults": "No PDFs found",
+      "relevance": "Relevance",
+      "pages": "Pages",
+      "size": "Size",
+      "textQuality": "Text Quality",
+      "hasText": "Text available",
+      "noText": "No text (scan)",
+      "unknown": "Unknown",
+      "delete": "Remove",
+      "confirmDelete": "Really remove this PDF?",
+      "domain": "Domain",
+      "lastChecked": "Last checked"
+    },
+    "domains": {
+      "title": "Domain Settings",
+      "addDomain": "Add Domain",
+      "editDomain": "Edit Domain",
+      "name": "Domain Name",
+      "baseUrl": "Base URL",
+      "displayName": "Display Name",
+      "schedule": "Schedule",
+      "urlPatterns": "URL Patterns",
+      "urlPatternsHint": "Wildcard patterns (e.g. */fachinformatiker/*)",
+      "rateLimit": "Rate Limit (sec)",
+      "maxPages": "Max Pages per Crawl",
+      "maxDepth": "Max Depth",
+      "active": "Active",
+      "inactive": "Inactive",
+      "confirmDelete": "Really delete this domain? All associated URLs will also be deleted.",
+      "lastCrawled": "Last crawled",
+      "pdfsFound": "PDFs found",
+      "noDomains": "No domains configured",
+      "scheduleOptions": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      }
+    },
+    "startDialog": {
+      "title": "Start Crawl",
+      "description": "Choose a domain or crawl all active domains.",
+      "allDomains": "All active domains",
+      "singleDomain": "Single domain",
+      "selectDomain": "Select domain",
+      "start": "Start",
+      "cancel": "Cancel"
+    },
+    "domainForm": {
+      "title": "Configure Domain",
+      "save": "Save",
+      "cancel": "Cancel"
+    }
+  }
+}

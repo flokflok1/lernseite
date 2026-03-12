@@ -211,7 +211,7 @@ def _check_redis_cache(
             result['cached'] = True
             return result
     except Exception:
-        logger.debug("Redis cache miss for position %d", position_id)
+        logger.debug("Redis cache lookup failed for position %d", position_id)
     return None
 
 
@@ -225,7 +225,7 @@ def _check_db_cache(
         )
         return ResearchCacheRepository.find_cached(position_id, language)
     except Exception:
-        logger.debug("DB cache miss for position %d", position_id)
+        logger.debug("DB cache lookup failed for position %d", position_id)
     return None
 
 
@@ -240,7 +240,7 @@ def _save_to_redis(
         )
         CacheService.cache_set(key, data, ttl=CACHE_TTL_SECONDS)
     except Exception:
-        pass
+        logger.debug("Redis cache save failed for position %d", position_id)
 
 
 def _save_to_caches(

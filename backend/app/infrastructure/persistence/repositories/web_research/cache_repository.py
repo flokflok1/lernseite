@@ -107,7 +107,7 @@ class ResearchCacheRepository:
 
     @staticmethod
     def _increment_access(cache_key: str) -> None:
-        """Increment access count (best-effort)."""
+        """Increment access count (best-effort, non-critical)."""
         try:
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
@@ -119,7 +119,7 @@ class ResearchCacheRepository:
                     """, [cache_key])
                     conn.commit()
         except Exception:
-            pass
+            logger.debug("Cache access count increment failed for %s", cache_key)
 
     @staticmethod
     def delete_expired() -> int:

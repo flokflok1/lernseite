@@ -74,6 +74,29 @@ class PDFCacheRepository:
         return str(result[0]) if result else None
 
     @staticmethod
+    def search_by_keywords(
+        keywords: list, max_results: int = 2,
+    ) -> list:
+        """Search cached PDFs by keyword matches in extracted_text."""
+        if not keywords:
+            return []
+
+        like_clauses = " OR ".join(
+            ["LOWER(extracted_text) LIKE %s"] * min(len(keywords), 5)
+        )
+        params = [f"%{kw}%" for kw in keywords[:5]]
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(f"""
+                    SELECT original_filename, extracted_text, structure_analysis
+                    FROM storage.pdf_cache
+                    WHERE {like_clauses}
+                    LIMIT %s
+                """, params + [max_results])
+                return cur.fetchall()
+
+    @staticmethod
     def compute_hash(content: bytes) -> str:
         """Compute SHA-256 hash for dedup."""
         return hashlib.sha256(content).hexdigest()

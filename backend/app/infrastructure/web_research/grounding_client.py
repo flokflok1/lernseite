@@ -163,7 +163,7 @@ def _get_api_key() -> str:
         if key:
             return key
     except Exception:
-        pass
+        logger.debug("DB API key lookup failed, falling back to env var")
 
     key = os.getenv('GOOGLE_API_KEY', '')
     if not key:

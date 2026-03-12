@@ -102,37 +102,20 @@ class PDFScraperService:
         position_title: str,
         max_results: int = 2,
     ) -> List[Dict[str, Any]]:
-        """Search cached PDFs for content relevant to a position.
-
-        Searches extracted_text in pdf_cache for keyword matches.
-        Returns relevant text snippets.
-        """
-        from app.infrastructure.persistence.database.connection import get_db_connection
+        """Search cached PDFs for content relevant to a position."""
+        from app.infrastructure.persistence.repositories.web_research.pdf_cache_repository import (
+            PDFCacheRepository,
+        )
 
         keywords = position_title.lower().split()
         if not keywords:
             return []
 
-        # Simple keyword search in cached PDFs
-        like_clauses = " OR ".join(
-            ["LOWER(extracted_text) LIKE %s"] * len(keywords)
-        )
-        params = [f"%{kw}%" for kw in keywords[:5]]
-
         try:
-            with get_db_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(f"""
-                        SELECT original_filename, extracted_text, structure_analysis
-                        FROM storage.pdf_cache
-                        WHERE {like_clauses}
-                        LIMIT %s
-                    """, params + [max_results])
-                    rows = cur.fetchall()
+            rows = PDFCacheRepository.search_by_keywords(keywords, max_results)
 
             results = []
             for row in rows:
-                # Extract relevant snippet (first match context)
                 text = row[1] or ''
                 snippet = _extract_relevant_snippet(text, keywords)
                 if snippet:

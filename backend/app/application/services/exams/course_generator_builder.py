@@ -182,8 +182,8 @@ def _build_all_chapters(
 
     for idx, chapter_plan in enumerate(plan.chapters):
         result = _build_chapter(
-            course_id, chapter_plan, idx,
-            creator_user_id, options, language,
+            course_id, chapter_plan, idx, creator_user_id,
+            options, language, plan.region, plan.exam_type,
         )
         total_lm += result['lm_count']
         total_tokens += result.get('tokens_used', 0)
@@ -198,12 +198,9 @@ def _build_all_chapters(
 
 
 def _build_chapter(
-    course_id: str,
-    chapter_plan: ChapterPlan,
-    order_index: int,
-    creator_user_id: str,
-    options: Dict[str, Any],
-    language: str = 'de',
+    course_id: str, chapter_plan: ChapterPlan, order_index: int,
+    creator_user_id: str, options: Dict[str, Any],
+    language: str = 'de', region: str = '', exam_type: str = '',
 ) -> Dict[str, Any]:
     """Build a single topic chapter with its LM instances."""
     is_ai_only = chapter_plan.coverage_source == 'ai_generated'
@@ -306,7 +303,9 @@ def _create_ai_plan_if_needed(
         return None
 
     # Enrich AI plan with web research (cross-reference + validation)
-    _enrich_with_web_research(chapter_plan, plan_data, language)
+    _enrich_with_web_research(
+        chapter_plan, plan_data, language, region, exam_type,
+    )
 
     plan = ContentPlanRepository.create({
         'course_id': course_id,
@@ -418,21 +417,16 @@ def _build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
 
 
 def _enrich_with_web_research(
-    chapter_plan: ChapterPlan,
-    plan_data: dict,
-    language: str = 'de',
+    chapter_plan: ChapterPlan, plan_data: dict,
+    language: str = 'de', region: str = '', exam_type: str = '',
 ) -> None:
-    """Enrich AI plan with web research for cross-referencing and validation.
-
-    Runs for ALL chapters — the AI uses Google Grounding + crawled IHK PDFs
-    to validate OCR-extracted exam content and catch extraction errors.
-    """
+    """Enrich AI plan with web research (Grounding + PDFs) for validation."""
     from app.domain.exceptions.web_research import WebResearchError
 
     label = chapter_plan.curriculum_position_code or chapter_plan.topic
     result = None
     try:
-        result = _fetch_web_research(chapter_plan, language)
+        result = _fetch_web_research(chapter_plan, language, region, exam_type)
     except WebResearchError as e:
         logger.warning("Grounding failed for %s: %s", label, e)
     except Exception:
@@ -450,7 +444,10 @@ def _enrich_with_web_research(
         plan_data['research_sources'] = []
 
 
-def _fetch_web_research(chapter_plan: ChapterPlan, language: str) -> dict:
+def _fetch_web_research(
+    chapter_plan: ChapterPlan, language: str,
+    region: str = '', exam_type: str = '',
+) -> dict:
     """Fetch web research — curriculum-based or topic-based."""
     if chapter_plan.curriculum_position_id:
         from app.application.services.exams.gap_content_service import (
@@ -459,17 +456,16 @@ def _fetch_web_research(chapter_plan: ChapterPlan, language: str) -> dict:
         results = GapContentService.generate_gap_content(
             framework_id=0,
             position_id=chapter_plan.curriculum_position_id,
-            language=language,
+            language=language, region=region, exam_type=exam_type,
         )
         return results[0] if results else {}
 
     from app.infrastructure.web_research.search_service import WebSearchService
     topic_name = chapter_plan.topic.replace('_', ' ')
     return WebSearchService.research_position(
-        position_id=0,
-        position_title=topic_name,
-        objectives=[topic_name],
-        language=language,
+        position_id=0, position_title=topic_name,
+        objectives=[topic_name], language=language,
+        region=region, exam_type=exam_type,
     )
 
 
@@ -484,11 +480,9 @@ def _build_static_lm_data(lm_type: int, questions: List[Dict]) -> Optional[Dict[
     mapper = LM_MAPPER.get(lm_type)
     if not mapper:
         return None
-
     map_fn = getattr(LMContentMapper, mapper, None)
     if not map_fn:
         return None
-
     data = map_fn(questions)
     if not data:
         return None

@@ -443,7 +443,7 @@ class CurriculumService:
             pos = dict(row)
             pos['has_questions'] = q_count > 0
             pos['gap'] = obj_count > 0 and q_count == 0
-            pos['coverage_pct'] = round(q_count / obj_count * 100) if obj_count > 0 else 0
+            pos['coverage_pct'] = min(100, round(q_count / obj_count * 100)) if obj_count > 0 else 0
             pos['relevance'] = relevance_by_id.get(row.get('position_id'))
             positions.append(pos)
 

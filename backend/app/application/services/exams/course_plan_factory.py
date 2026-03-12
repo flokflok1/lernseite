@@ -10,15 +10,16 @@ logger = logging.getLogger(__name__)
 _BASE_AI_LM_TYPES: Set[int] = {0, 1}
 
 # Gap LM types: evidence-based learning psychology selection
-# 0,1 = Elaboration/Scaffolding; 7 = Dual Coding/Spatial (Generation Effect);
-# 8 = Cloze (Generation Effect, scaffolded); 9 = Free Text (strongest Active
-# Recall, Self-Explanation); 10 = IHK-Tasks (Transfer, Desirable Difficulty)
-_GAP_AI_LM_TYPES: Set[int] = {0, 1, 7, 8, 9, 10}
+# 0,1 = Elaboration/Scaffolding; 5 = Math Interactive (Active Problem Solving);
+# 7 = Dual Coding/Spatial (Generation Effect); 8 = Cloze (scaffolded recall);
+# 9 = Free Text (strongest Active Recall); 10 = IHK-Tasks (Transfer)
+_GAP_AI_LM_TYPES: Set[int] = {0, 1, 5, 7, 8, 9, 10}
 
 # Mapping from LM type to the AI skill code used by plan_execution
 LM_SKILL_MAP: Dict[int, str] = {
     0: 'generate_deep_explanation',
     1: 'generate_step_by_step',
+    5: 'generate_math_interactive',
     7: 'generate_drag_and_drop',
     8: 'generate_cloze_test',
     9: 'generate_free_text',

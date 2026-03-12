@@ -55,7 +55,7 @@ class AIAdapter:
         Args:
             provider: AI provider ('openai', 'anthropic', 'google', 'cohere', 'huggingface')
             model: Model name (defaults to default model from DB)
-            timeout: Request timeout in seconds (default 55s, max 300s)
+            timeout: Request timeout in seconds (default 55s, max 600s)
 
         Raises:
             ValueError: If provider is invalid or API key is missing
@@ -65,7 +65,7 @@ class AIAdapter:
 
         self.provider = provider
         self.provider_config = PROVIDERS[provider]
-        self.timeout = min(timeout, 300)
+        self.timeout = min(timeout, 600)
 
         # Try to get API key from database first, then fallback to environment
         self.api_key = self._get_api_key_from_db(provider)
@@ -109,13 +109,26 @@ class AIAdapter:
     def _get_default_model(provider: str) -> str:
         """Get default model for provider from DB."""
         try:
+            from app.infrastructure.persistence.repositories.ai.config.providers import AIProviderRepository
             from app.infrastructure.persistence.repositories.ai_models.query import AIModelsQueryRepository
-            models = AIModelsQueryRepository.get_by_provider(provider)
-            if models:
-                default = next((m for m in models if m.get('is_default')), None)
-                return default['model_name'] if default else models[0]['model_name']
+            provider_row = AIProviderRepository.get_by_name(provider)
+            if provider_row:
+                models = AIModelsQueryRepository.get_by_provider(
+                    provider_row['provider_id'],
+                )
+                if models:
+                    default = next(
+                        (m for m in models if m.get('is_default')), None,
+                    )
+                    return (
+                        default['model_name'] if default
+                        else models[0]['model_name']
+                    )
         except Exception:
-            logger.warning("Failed to fetch default model for provider '%s' from DB", provider)
+            logger.warning(
+                "Failed to fetch default model for provider '%s' from DB",
+                provider,
+            )
         raise ValueError(
             f'No models configured for provider "{provider}". '
             f'Sync models in Admin Panel first.'

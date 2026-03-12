@@ -51,6 +51,13 @@ export interface AttemptResult {
   passed: boolean
 }
 
+export interface GeneratedExamData {
+  exam_id: string
+  title: string
+  questions: TrainerQuestion[]
+  question_count: number
+}
+
 export const trainerListExams = async (): Promise<TrainerExam[]> => {
   const response = await http.get<{ success: boolean; exams: TrainerExam[] }>(
     '/user/exams/trainer/exams'
@@ -100,6 +107,24 @@ export const trainerStartExam = async (examId: string): Promise<string> => {
 export const trainerCompleteAttempt = async (attemptId: string): Promise<AttemptResult> => {
   const response = await http.post<{ success: boolean } & AttemptResult>(
     `/user/exams/trainer/complete-attempt/${attemptId}`
+  )
+  return response.data
+}
+
+export const generatePracticeExam = async (params: {
+  examType: string
+  difficulty: string
+  focusWeakness: boolean
+  questionCount: number
+}): Promise<GeneratedExamData> => {
+  const response = await http.post<{ success: boolean } & GeneratedExamData>(
+    '/system-features/exam/question-generator/generate-practice',
+    {
+      exam_type: params.examType,
+      difficulty: params.difficulty,
+      focus_weakness: params.focusWeakness,
+      question_count: params.questionCount,
+    }
   )
   return response.data
 }

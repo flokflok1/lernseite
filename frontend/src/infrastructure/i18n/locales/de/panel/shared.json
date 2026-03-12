@@ -89,9 +89,17 @@
     "settings": "Einstellungen",
     "systemSettings": "Systemeinstellungen",
     "translations": "Übersetzungen",
+    "exams": "Prüfungen",
     "examArchive": "Prüfungsarchiv",
+    "curriculum": "Rahmenpläne",
     "examTrainer": "Prüfungstrainer",
     "users": "Benutzer"
+  },
+  "exams": {
+    "tabs": {
+      "archive": "Archiv",
+      "curriculum": "Rahmenpläne"
+    }
   },
   "examArchive": {
     "title": "Prüfungsarchiv",
@@ -124,10 +132,6 @@
     "semester": "Semester",
     "part": "Teil",
     "examCount": "{count} Prüfungen",
-    "viewMode": {
-      "flat": "Flache Liste",
-      "grouped": "Sitzungsansicht"
-    },
     "session": {
       "title": "Prüfungssitzung",
       "examCount": "{ready} von {total} bereit",
@@ -166,6 +170,10 @@
     "generate": "Kurs generieren",
     "generating": "Generiere...",
     "generatingHint": "KI erstellt Erklärungen — das kann 1-2 Minuten dauern",
+    "generatingProgress": "Kurs wird generiert...",
+    "chaptersReady": "Kapitel fertig",
+    "generationComplete": "Alle Kapitel erfolgreich generiert!",
+    "chaptersFailed": "Kapitel fehlgeschlagen",
     "success": "Kurs erfolgreich generiert!",
     "openInEditor": "Im Editor öffnen",
     "questions": "Fragen",
@@ -176,7 +184,21 @@
     "selectProvider": "KI-Anbieter",
     "selectModel": "Modell",
     "noProviders": "Keine KI-Anbieter konfiguriert",
-    "aiSettings": "KI-Einstellungen"
+    "aiSettings": "KI-Einstellungen",
+    "tokens": "Tokens",
+    "previewFailed": "Vorschau fehlgeschlagen",
+    "generationFailed": "Generierung fehlgeschlagen",
+    "selectFramework": "Rahmenplan (optional)",
+    "noFramework": "Ohne Rahmenplan (Topic-basiert)",
+    "sortMode": "Sortierung",
+    "sortRelevance": "Nach Prüfungsrelevanz",
+    "sortCurriculum": "Nach Rahmenplan-Reihenfolge",
+    "objectivesCovered": "Lernziele abgedeckt",
+    "aiOnly": "nur AI-Content",
+    "examAppearance": "Prüfungshäufigkeit",
+    "trend_rising": "Trend steigend",
+    "trend_stable": "Trend stabil",
+    "trend_declining": "Trend rückläufig"
   },
   "examTrainer": {
     "title": "Prüfungstrainer",

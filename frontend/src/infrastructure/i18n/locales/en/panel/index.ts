@@ -10,6 +10,10 @@ import prompts from './prompts.json'
 import shared from './shared.json'
 import system from './system.json'
 import users from './users.json'
+import curriculum from './curriculum.json'
+import exam_goals from './exam-goals.json'
+import review from './review.json'
+import exam_cockpit from './exam-cockpit.json'
 
 export default {
   panel: {
@@ -23,6 +27,10 @@ export default {
     ...prompts,
     ...shared,
     ...system,
-    ...users
+    ...users,
+    ...curriculum,
+    ...exam_goals,
+    ...review,
+    ...exam_cockpit
   }
 }

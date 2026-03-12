@@ -113,7 +113,7 @@ class ExamQuestionRepository(BaseRepository):
         Fetch all ready exam questions for a given type + region.
         Used by ExamCourseGeneratorService.preview().
         """
-        query = """
+        base = """
             SELECT eq.question_id, eq.question_text, eq.question_type,
                    eq.points, eq.topics, eq.data, eq.solution_text,
                    eq.scenario_title, eq.scenario_text, eq.question_number,
@@ -123,14 +123,86 @@ class ExamQuestionRepository(BaseRepository):
             LEFT JOIN assessments.exam_sessions s ON e.session_id = s.session_id
             WHERE e.analysis_status = 'ready'
               AND (s.exam_type_key = %s OR e.exam_type_key = %s)
+        """
+        order = " ORDER BY eq.topics, e.year DESC, eq.order_index"
+
+        if region == 'alle':
+            # "Alle Bundesländer" → return all questions regardless of region
+            return fetch_all(
+                base + order,
+                (exam_type_key, exam_type_key),
+            )
+
+        # Specific region → match region or untagged ('alle')
+        return fetch_all(
+            base + """
               AND (
                   COALESCE(s.region, 'alle') = %s
                   OR COALESCE(s.region, 'alle') = 'alle'
               )
-            ORDER BY eq.topics, e.year DESC, eq.order_index
-        """
+            """ + order,
+            (exam_type_key, exam_type_key, region),
+        )
+
+    @classmethod
+    def find_by_ids(cls, question_ids: List[str]) -> List[Dict]:
+        """Load multiple questions by their IDs."""
+        if not question_ids:
+            return []
+        placeholders = ', '.join(['%s'] * len(question_ids))
         return fetch_all(
-            query, (exam_type_key, exam_type_key, region),
+            f"""SELECT q.question_id, q.question_text, q.question_type,
+                       q.points, q.data, q.solution_text, q.question_number,
+                       q.scenario_title, q.scenario_text,
+                       COALESCE(q.topics, ARRAY[]::text[]) AS topics
+                FROM assessments.exam_questions q
+                WHERE q.question_id IN ({placeholders})""",
+            question_ids,
+        )
+
+    @classmethod
+    def find_by_difficulty(
+        cls,
+        exam_type_key: str,
+        difficulty: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """Find questions filtered by difficulty level.
+
+        Args:
+            exam_type_key: Exam type key (e.g. 'IHK_FISI_AP1').
+            difficulty: 'leicht', 'mittel', 'schwer', or None for mixed.
+            limit: Optional max number of questions.
+
+        Returns:
+            List of question dicts.
+        """
+        difficulty_filter = ""
+        params: List[Any] = [exam_type_key]
+
+        if difficulty == 'leicht':
+            difficulty_filter = "AND (q.difficulty IN ('easy', 'leicht') OR q.difficulty IS NULL)"
+        elif difficulty == 'mittel':
+            difficulty_filter = "AND q.difficulty IN ('medium', 'mittel')"
+        elif difficulty == 'schwer':
+            difficulty_filter = "AND q.difficulty IN ('hard', 'schwer')"
+
+        limit_clause = ""
+        if limit:
+            limit_clause = "LIMIT %s"
+            params.append(limit)
+
+        return fetch_all(
+            f"""SELECT q.question_id, q.question_number,
+                       q.question_text, q.points, q.difficulty,
+                       q.exam_id, e.part AS exam_part
+                FROM assessments.exam_questions q
+                JOIN assessments.exams e ON e.exam_id = q.exam_id
+                WHERE e.exam_type_key = %s
+                {difficulty_filter}
+                ORDER BY RANDOM()
+                {limit_clause}""",
+            params,
         )
 
     @classmethod

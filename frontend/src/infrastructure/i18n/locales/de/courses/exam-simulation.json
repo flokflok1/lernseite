@@ -59,6 +59,20 @@
     },
     "profession": "Beruf:",
     "region": "Region:",
+    "newExam": {
+      "repeatSame": "Gleiche Prüfung wiederholen",
+      "generateNew": "Neue Prüfung generieren",
+      "options": "Prüfungsoptionen",
+      "focusWeakness": "Schwächen-Fokus",
+      "focusWeaknessHint": "Priorisiert Themen, bei denen du schlecht abgeschnitten hast",
+      "difficulty": "Schwierigkeit",
+      "difficultyEasy": "Leicht",
+      "difficultyMedium": "Mittel",
+      "difficultyHard": "Schwer",
+      "difficultyRealistic": "Realistisch (IHK-Mix)",
+      "generating": "Neue Prüfung wird generiert...",
+      "generateButton": "Prüfung starten"
+    },
     "results": {
       "backToOverview": "Zur Übersicht",
       "correct": "richtig",

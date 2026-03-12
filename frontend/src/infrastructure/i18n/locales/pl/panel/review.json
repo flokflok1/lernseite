@@ -1,0 +1,23 @@
+{
+  "review": {
+    "title": "Powtórka",
+    "masteryTitle": "Poziom opanowania",
+    "dueCount": "{count} do powtórki",
+    "mastered": "{count} opanowane",
+    "avgMastery": "Średnia: {pct}%",
+    "startReview": "Ćwicz teraz",
+    "noReviews": "Brak powtórek",
+    "nextReview": "Następna powtórka: {date}",
+    "streak": "{count} z rzędu",
+    "difficulty": {
+      "easy": "Łatwe",
+      "medium": "Średnie",
+      "hard": "Trudne"
+    },
+    "dailyRecall": "Codzienne powtórki",
+    "dailyRecallDesc": "{count} zadań do powtórzenia",
+    "noDailyRecall": "Brak powtórek na dziś",
+    "adaptiveDifficulty": "Adaptacyjny poziom trudności",
+    "recommendedLevel": "Zalecany poziom: {level}"
+  }
+}

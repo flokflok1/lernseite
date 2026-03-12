@@ -89,9 +89,17 @@
     "settings": "Ustawienia",
     "systemSettings": "Ustawienia systemu",
     "translations": "Tłumaczenia",
+    "exams": "Egzaminy",
     "examArchive": "Archiwum egzaminów",
+    "curriculum": "Plany ramowe",
     "examTrainer": "Trener egzaminów",
     "users": "Użytkownicy"
+  },
+  "exams": {
+    "tabs": {
+      "archive": "Archiwum",
+      "curriculum": "Plany ramowe"
+    }
   },
   "examArchive": {
     "title": "Archiwum egzaminów",
@@ -124,10 +132,6 @@
     "semester": "Semestr",
     "part": "Część",
     "examCount": "{count} egzaminów",
-    "viewMode": {
-      "flat": "Lista płaska",
-      "grouped": "Widok sesji"
-    },
     "session": {
       "title": "Sesja egzaminacyjna",
       "examCount": "{ready} z {total} gotowe",
@@ -166,6 +170,10 @@
     "generate": "Generuj kurs",
     "generating": "Generowanie...",
     "generatingHint": "AI tworzy wyjaśnienia — może to potrwać 1-2 minuty",
+    "generatingProgress": "Generowanie kursu...",
+    "chaptersReady": "rozdziałów gotowych",
+    "generationComplete": "Wszystkie rozdziały wygenerowane pomyślnie!",
+    "chaptersFailed": "rozdziałów nie powiodło się",
     "success": "Kurs wygenerowany pomyślnie!",
     "openInEditor": "Otwórz w edytorze",
     "questions": "Pytania",
@@ -176,7 +184,21 @@
     "selectProvider": "Dostawca AI",
     "selectModel": "Model",
     "noProviders": "Brak skonfigurowanych dostawców AI",
-    "aiSettings": "Ustawienia AI"
+    "aiSettings": "Ustawienia AI",
+    "tokens": "Tokeny",
+    "previewFailed": "Podgląd nie powiódł się",
+    "generationFailed": "Generowanie nie powiodło się",
+    "selectFramework": "Plan ramowy (opcjonalnie)",
+    "noFramework": "Bez planu ramowego (wg tematów)",
+    "sortMode": "Sortowanie",
+    "sortRelevance": "Wg ważności egzaminu",
+    "sortCurriculum": "Wg kolejności planu ramowego",
+    "objectivesCovered": "celów objętych",
+    "aiOnly": "tylko treść AI",
+    "examAppearance": "częstotliwość egzaminu",
+    "trend_rising": "trend rosnący",
+    "trend_stable": "stabilny",
+    "trend_declining": "trend malejący"
   },
   "examTrainer": {
     "title": "Trener egzaminów",

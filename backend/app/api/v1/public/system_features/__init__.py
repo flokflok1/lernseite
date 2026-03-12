@@ -60,8 +60,8 @@ from flask import Blueprint
 # EXISTING FEATURES (Already Implemented)
 # =============================================================================
 
-# Exam Features (existing: simulations)
-from app.api.v1.public.system_features.exam import exams_bp
+# Exam Features (existing: simulations, question generator)
+from app.api.v1.public.system_features.exam import exams_bp, question_generator_bp
 
 # Math Features (existing: toolkit)
 from app.api.v1.public.system_features.math import (
@@ -104,6 +104,9 @@ system_features_bp = Blueprint('system_features', __name__, url_prefix='/system-
 
 # Exam Simulations
 system_features_bp.register_blueprint(exams_bp, url_prefix='/exam/simulations')
+
+# Question Generator (user-facing practice exam generation)
+system_features_bp.register_blueprint(question_generator_bp)
 
 # Math Toolkit
 system_features_bp.register_blueprint(math_practice_bp, url_prefix='/math/toolkit')
@@ -168,9 +171,10 @@ system_features_bp.register_blueprint(math_tasks_bp, url_prefix='/math/toolkit')
 # =============================================================================
 
 __all__ = [
-    'system_features_bp',  # Main blueprint (register this in api/v1/__init__.py)
-    'registry_bp',         # Panel API (register separately)
-    'exams_bp',           # Exam Simulations (for backward compatibility)
+    'system_features_bp',      # Main blueprint (register this in api/v1/__init__.py)
+    'registry_bp',             # Panel API (register separately)
+    'exams_bp',                # Exam Simulations (for backward compatibility)
+    'question_generator_bp',   # Question Generator (user-facing practice exam generation)
     # math_admin_bp moved to panel/admin/math_toolkit (Phase 1 Task 2)
     'math_practice_bp',   # Math Toolkit Practice (for backward compatibility)
     'math_reference_bp',  # Math Toolkit Reference (for backward compatibility)

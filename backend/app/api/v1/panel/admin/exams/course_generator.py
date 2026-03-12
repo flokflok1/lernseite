@@ -33,9 +33,15 @@ def preview_course():
 
     region = data.get('region', 'alle')
     language = data.get('language', 'de')
+    framework_id = data.get('framework_id')
+    sort_mode = data.get('sort_mode', 'relevance')
+    user_id = get_jwt_identity()
 
     plan = ExamCourseGeneratorService.preview(
         exam_type, region, language,
+        framework_id=framework_id,
+        sort_mode=sort_mode,
+        user_id=user_id,
     )
 
     return jsonify({
@@ -63,10 +69,15 @@ def generate_course():
     language = data.get('language', 'de')
     options.setdefault('language', language)
     user_id = get_jwt_identity()
+    framework_id = data.get('framework_id')
+    sort_mode = data.get('sort_mode', 'relevance')
 
-    # First generate the plan
+    # First generate the plan (with intelligence scoring)
     plan = ExamCourseGeneratorService.preview(
         exam_type, region, language,
+        framework_id=framework_id,
+        sort_mode=sort_mode,
+        user_id=user_id,
     )
 
     if not plan.chapters:
@@ -85,3 +96,16 @@ def generate_course():
         'success': True,
         **result,
     }), 201
+
+
+@course_gen_bp.route('/courses/<course_id>/generation-progress', methods=['GET'])
+@admin_required
+def get_course_generation_progress(course_id):
+    """
+    Get real-time generation progress for a course.
+
+    Reads from Redis (set by the Celery background task).
+    Returns: {total, completed, failed, status}
+    """
+    progress = ExamCourseGeneratorService.get_generation_progress(course_id)
+    return jsonify({'success': True, 'data': progress}), 200

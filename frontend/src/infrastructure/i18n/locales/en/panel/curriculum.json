@@ -1,0 +1,135 @@
+{
+  "curriculum": {
+    "title": "Curriculum Frameworks",
+    "subtitle": "Import training frameworks and map them to exam questions",
+    "importPdf": "Import PDF",
+    "createManual": "Create manually",
+    "createTitle": "Create new framework",
+    "name": "Name",
+    "type": "Type",
+    "empty": {
+      "title": "No frameworks yet",
+      "hint": "Import a curriculum framework from PDF or create one manually."
+    },
+    "tree": {
+      "noFramework": "No framework selected",
+      "positions": "positions",
+      "objectives": "objectives"
+    },
+    "coverage": {
+      "totalObjectives": "Total objectives",
+      "mapped": "Mapped",
+      "percent": "Coverage",
+      "relevanceHigh": "High Relevance",
+      "relevanceMedium": "Medium Relevance",
+      "relevanceLow": "Low Relevance",
+      "trendRising": "Rising",
+      "trendStable": "Stable",
+      "trendDeclining": "Declining",
+      "gapBadge": "AI-generated",
+      "noRealQuestions": "No real exam questions",
+      "lowConfidence": "Low mapping confidence"
+    },
+    "import": {
+      "title": "Import framework",
+      "uploadLabel": "Upload PDF file",
+      "dropHint": "Drop PDF here or click",
+      "dropHintFormats": "PDF files only",
+      "fileSelected": "File selected",
+      "removeFile": "Remove file",
+      "orPasteText": "Or paste text",
+      "pasteLabel": "Paste PDF text",
+      "pastePlaceholder": "Copy the text from the framework PDF and paste it here...",
+      "pasteHint": "At least 100 characters. AI will automatically detect sections, positions and objectives.",
+      "selectProvider": "AI Provider",
+      "selectModel": "Model",
+      "noProviders": "No providers available",
+      "previewSuccess": "AI analysis successful! Please review the detected structure.",
+      "name": "Name",
+      "type": "Type",
+      "sections": "Sections",
+      "sourceDocument": "Source document (optional)",
+      "sourcePlaceholder": "e.g. Training Framework FISI 2020",
+      "parseBtn": "Analyze with AI",
+      "confirmBtn": "Confirm import",
+      "analyzing": "AI analyzing...",
+      "elapsed": "Elapsed time",
+      "uploadError": "Failed to upload file",
+      "noInput": "Please upload a PDF file or paste text",
+      "progress": {
+        "extracting": "Extracting PDF text",
+        "extractedDetail": "{chars} characters from {pages} pages extracted",
+        "aiAnalyzing": "AI analyzing structure",
+        "parsing": "Processing result",
+        "liveLog": "Live Log",
+        "waitingForLogs": "Waiting for events...",
+        "importSuccess": "Import completed successfully!",
+        "unknownError": "Unknown error"
+      }
+    },
+    "mapping": {
+      "examType": "Exam Type",
+      "selectExamType": "Select exam type",
+      "link": "Link",
+      "autoMap": "Auto-Map",
+      "mapping": "Mapping...",
+      "mapResult": "{mapped} mapped, {skipped} skipped, {errors} errors",
+      "position": "Position",
+      "objectives": "Objectives",
+      "questions": "Questions",
+      "relevance": "Relevance",
+      "trend": "Trend",
+      "trend_rising": "rising",
+      "trend_stable": "stable",
+      "trend_declining": "declining",
+      "linkSuccess": "Exam type linked successfully. You can now run auto-mapping.",
+      "noData": "No data available. Link an exam type and run auto-mapping first."
+    },
+    "coverageReport": {
+      "title": "Coverage Report",
+      "tabLabel": "Coverage",
+      "summary": "{covered} of {total} positions covered ({percent}%)",
+      "gaps": "{count} gaps",
+      "mappedObjectives": "Mapped Objectives",
+      "columns": {
+        "position": "Position",
+        "questions": "Questions",
+        "objectives": "Objectives",
+        "coverage": "Coverage",
+        "relevance": "Relevance",
+        "trend": "Trend",
+        "gap": "Gap"
+      },
+      "filters": {
+        "gapsOnly": "Gaps only",
+        "risingOnly": "Rising trends"
+      },
+      "noFramework": "Please select a curriculum framework.",
+      "loading": "Loading coverage data...",
+      "empty": "No data available.",
+      "gapYes": "Yes",
+      "gapNo": "No"
+    },
+    "gaps": {
+      "noRealQuestions": "No real exam questions",
+      "webResearchAvailable": "Web research available",
+      "startResearch": "Start Web Research",
+      "researchAll": "Research All Gaps",
+      "researching": "Researching...",
+      "researchStarted": "Web research started",
+      "webContent": "Web Research Result",
+      "source": "Source"
+    },
+    "tabs": {
+      "structure": "Structure",
+      "mapping": "Mapping & Relevance"
+    },
+    "tags": {
+      "label": "Curriculum Objectives",
+      "none": "No objectives assigned",
+      "objectiveId": "Objective ID",
+      "add": "Add",
+      "remove": "Remove objective"
+    }
+  }
+}

@@ -9,7 +9,10 @@ Private helper methods are in session_service_part2.py (RunnerSessionHelpersMixi
 
 from typing import Any, Dict, Optional, Tuple
 from datetime import datetime
+import logging
 import uuid
+
+logger = logging.getLogger(__name__)
 
 from app.infrastructure.persistence.repositories.runner.modes import (
     RunnerModesRepository
@@ -380,6 +383,28 @@ class RunnerSessionService(RunnerSessionHelpersMixin):
             duration_seconds=duration_seconds,
             final_state=final_state
         )
+
+        # SRS: Update spaced repetition schedule (non-blocking)
+        if progress_saved and score is not None:
+            try:
+                from app.application.services.learning.review_service import ReviewService
+                ReviewService.process_review(
+                    user_id=user_id,
+                    method_id=session['method_id'],
+                    score=score,
+                    time_seconds=duration_seconds,
+                )
+            except ValueError:
+                logger.debug(
+                    "SRS review skipped for method %s (no schedule)",
+                    session['method_id'],
+                )
+            except Exception:
+                logger.warning(
+                    "SRS review failed for method %s",
+                    session['method_id'],
+                    exc_info=True,
+                )
 
         # Clean up Redis state
         RunnerStateManager.delete_session_state(session_id)

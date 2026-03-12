@@ -222,6 +222,18 @@ export type {
   AttemptResult as TrainerAttemptResult,
 } from './exams/trainer.api'
 
+// Exam Cockpit (personal exam dashboard)
+export {
+  fetchCockpitData,
+} from './exams/cockpit.api'
+
+export type {
+  CockpitData,
+  CockpitWeaknessEntry,
+  CockpitPrediction,
+  CockpitRecommendation,
+} from './exams/cockpit.api'
+
 // Courses (chapters)
 export {
   getChapterDetail,
@@ -230,3 +242,18 @@ export {
   getChapterTheory,
   getTheoryById,
 } from './courses/chapters.api'
+
+// Learning (spaced repetition reviews)
+export {
+  initializeReviews,
+  fetchReviewQueue,
+  submitReview,
+  fetchMasteryMap,
+  fetchReviewStats,
+} from './learning/reviews.api'
+
+export type {
+  ReviewItem,
+  ReviewStats,
+  MasteryEntry,
+} from './learning/reviews.api'

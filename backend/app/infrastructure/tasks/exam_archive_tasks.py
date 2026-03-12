@@ -22,7 +22,16 @@ from app.infrastructure.ai.exceptions import AIProviderError
 logger = logging.getLogger(__name__)
 
 
-ANALYSIS_PROMPT = """Du bist ein Experte für IHK-Prüfungen (Fachinformatiker AP1).
+_FALLBACK_TOPICS = (
+    'subnetting, kalkulation, sql, erm, schutzbedarfsanalyse, '
+    'osi_modell, dhcp, wlan, programmierung, itil, rechtsformen, '
+    'organisationsformen, raid, virtualisierung, datenschutz, '
+    'netzwerk, backup, it_sicherheit, projektmanagement, '
+    'qualitaetsmanagement, datenbanken, hardware, software, '
+    'cloud, verschluesselung, firewall, routing'
+)
+
+_ANALYSIS_PROMPT_TEMPLATE = """Du bist ein Experte für IHK-Prüfungen (Fachinformatiker AP1).
 Analysiere den folgenden Prüfungstext und extrahiere ALLE Aufgaben strukturiert.
 
 ## Regeln:
@@ -36,12 +45,7 @@ Analysiere den folgenden Prüfungstext und extrahiere ALLE Aufgaben strukturiert
    - "fill_blank" (Lückentext / Zuordnung)
    - "case_study" (Fallstudie / Szenario-Analyse)
 4. Tagge Topics aus dieser Liste (mehrere möglich):
-   subnetting, kalkulation, sql, erm, schutzbedarfsanalyse,
-   osi_modell, dhcp, wlan, programmierung, itil, rechtsformen,
-   organisationsformen, raid, virtualisierung, datenschutz,
-   netzwerk, backup, it_sicherheit, projektmanagement,
-   qualitaetsmanagement, datenbanken, hardware, software,
-   cloud, verschluesselung, firewall, routing
+   {topic_list}
 5. Generiere renderer_data passend zum question_type:
    - mcq: {{"questions": [{{"question": "...", "options": [...], "correctAnswers": [0], "explanation": "..."}}]}}
    - calculation: {{"problems": [{{"question": "...", "answer": "...", "hint": "..."}}]}}
@@ -88,6 +92,75 @@ Analysiere den folgenden Prüfungstext und extrahiere ALLE Aufgaben strukturiert
 {exam_text}"""
 
 
+def _build_topic_list(exam_type: str) -> str:
+    """Build topic list for ANALYSIS_PROMPT from taxonomy, with fallback."""
+    from app.infrastructure.persistence.repositories.exams.topic_taxonomy import (
+        TopicTaxonomyRepository,
+    )
+
+    try:
+        topics = TopicTaxonomyRepository.find_all_by_exam_type(exam_type)
+    except Exception:
+        logger.exception("Failed to load taxonomy for %s, using fallback", exam_type)
+        return _FALLBACK_TOPICS
+
+    if topics:
+        topic_keys = sorted(set(t['topic_key'] for t in topics))
+        return ', '.join(topic_keys)
+
+    return _FALLBACK_TOPICS
+
+
+def _build_analysis_prompt(
+    exam_type: str, exam_text: str, solution_section: str,
+) -> str:
+    """Build the full ANALYSIS_PROMPT with dynamic topic list."""
+    topic_list = _build_topic_list(exam_type)
+    return _ANALYSIS_PROMPT_TEMPLATE.format(
+        topic_list=topic_list,
+        exam_text=exam_text,
+        solution_section=solution_section,
+    )
+
+
+def _register_new_topics(
+    exam_type: str, extracted_topics: List[str],
+) -> None:
+    """Check for new topics not in taxonomy and auto-classify them."""
+    from app.infrastructure.persistence.repositories.exams.topic_taxonomy import (
+        TopicTaxonomyRepository,
+    )
+    from app.application.services.exams.taxonomy_bootstrap_service import (
+        TaxonomyBootstrapService,
+    )
+
+    try:
+        known = TopicTaxonomyRepository.find_all_by_exam_type(exam_type)
+    except Exception:
+        logger.exception("Failed to load taxonomy for new topic registration")
+        return
+
+    known_keys = {t['topic_key'] for t in known}
+
+    # Deduplicate to avoid redundant AI classification calls
+    unique_topics = sorted(set(
+        normalize_topic(t) for t in extracted_topics if t
+    ))
+
+    for normalized in unique_topics:
+        if normalized and normalized not in known_keys:
+            logger.info("New topic discovered: %s for %s", normalized, exam_type)
+            try:
+                TaxonomyBootstrapService.classify_orphan_topic(
+                    exam_type=exam_type,
+                    topic_key=normalized,
+                )
+            except Exception:
+                logger.exception(
+                    "Failed to classify orphan topic %s", normalized,
+                )
+
+
 @celery.task(bind=True, max_retries=2, default_retry_delay=30)
 def analyze_exam_pdf_task(
     self,
@@ -131,13 +204,15 @@ def analyze_exam_pdf_task(
         ExamRepository.update_analysis_status(exam_id, 'analyzing')
 
         # 4. Build prompt and call AI
+        exam_type = exam.get('exam_type_key', 'IHK_FISI')
         solution_section = ''
         if solution_text:
             solution_section = (
                 f"## Lösungstext (zur Zuordnung):\n{solution_text[:8000]}"
             )
 
-        prompt = ANALYSIS_PROMPT.format(
+        prompt = _build_analysis_prompt(
+            exam_type=exam_type,
             exam_text=raw_text[:12000],
             solution_section=solution_section,
         )
@@ -183,7 +258,14 @@ def analyze_exam_pdf_task(
             _mark_failed(exam_id, 'Failed to insert questions into DB')
             return {'success': False, 'error': 'DB insert failed'}
 
-        # 8. Mark as ready
+        # 8. Register new topics discovered by AI analysis
+        all_topics = []
+        for q in questions:
+            all_topics.extend(q.get('topics') or [])
+        if all_topics:
+            _register_new_topics(exam_type, all_topics)
+
+        # 9. Mark as ready
         ExamRepository.update_analysis_status(exam_id, 'ready')
 
         logger.info(

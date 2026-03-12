@@ -59,6 +59,20 @@
     },
     "profession": "Profession:",
     "region": "Region:",
+    "newExam": {
+      "repeatSame": "Repeat Same Exam",
+      "generateNew": "Generate New Exam",
+      "options": "Exam Options",
+      "focusWeakness": "Focus on Weaknesses",
+      "focusWeaknessHint": "Prioritizes topics where you scored poorly",
+      "difficulty": "Difficulty",
+      "difficultyEasy": "Easy",
+      "difficultyMedium": "Medium",
+      "difficultyHard": "Hard",
+      "difficultyRealistic": "Realistic (IHK Mix)",
+      "generating": "Generating new exam...",
+      "generateButton": "Start Exam"
+    },
     "results": {
       "backToOverview": "Back to overview",
       "correct": "correct",

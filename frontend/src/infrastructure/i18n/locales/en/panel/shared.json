@@ -89,9 +89,17 @@
     "settings": "Settings",
     "systemSettings": "System Settings",
     "translations": "Translations",
+    "exams": "Exams",
     "examArchive": "Exam Archive",
+    "curriculum": "Curriculum",
     "examTrainer": "Exam Trainer",
     "users": "Users"
+  },
+  "exams": {
+    "tabs": {
+      "archive": "Archive",
+      "curriculum": "Curriculum"
+    }
   },
   "examArchive": {
     "title": "Exam Archive",
@@ -124,10 +132,6 @@
     "semester": "Semester",
     "part": "Part",
     "examCount": "{count} exams",
-    "viewMode": {
-      "flat": "Flat List",
-      "grouped": "Session View"
-    },
     "session": {
       "title": "Exam Session",
       "examCount": "{ready} of {total} ready",
@@ -166,6 +170,10 @@
     "generate": "Generate Course",
     "generating": "Generating...",
     "generatingHint": "AI is creating explanations — this may take 1-2 minutes",
+    "generatingProgress": "Generating course...",
+    "chaptersReady": "chapters ready",
+    "generationComplete": "All chapters generated successfully!",
+    "chaptersFailed": "chapters failed",
     "success": "Course generated successfully!",
     "openInEditor": "Open in Editor",
     "questions": "Questions",
@@ -176,7 +184,21 @@
     "selectProvider": "AI Provider",
     "selectModel": "Model",
     "noProviders": "No AI providers configured",
-    "aiSettings": "AI Settings"
+    "aiSettings": "AI Settings",
+    "tokens": "Tokens",
+    "previewFailed": "Preview failed",
+    "generationFailed": "Generation failed",
+    "selectFramework": "Curriculum framework (optional)",
+    "noFramework": "Without framework (topic-based)",
+    "sortMode": "Sort by",
+    "sortRelevance": "Exam relevance",
+    "sortCurriculum": "Curriculum order",
+    "objectivesCovered": "objectives covered",
+    "aiOnly": "AI-only content",
+    "examAppearance": "exam frequency",
+    "trend_rising": "trending up",
+    "trend_stable": "stable",
+    "trend_declining": "trending down"
   },
   "examTrainer": {
     "title": "Exam Trainer",

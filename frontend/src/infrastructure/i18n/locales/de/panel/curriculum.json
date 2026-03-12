@@ -1,0 +1,135 @@
+{
+  "curriculum": {
+    "title": "Curriculum-Rahmenpläne",
+    "subtitle": "Ausbildungsrahmenpläne importieren und mit Prüfungsfragen verknüpfen",
+    "importPdf": "PDF importieren",
+    "createManual": "Manuell erstellen",
+    "createTitle": "Neuen Rahmenplan erstellen",
+    "name": "Name",
+    "type": "Typ",
+    "empty": {
+      "title": "Noch keine Rahmenpläne vorhanden",
+      "hint": "Importieren Sie einen Ausbildungsrahmenplan als PDF oder erstellen Sie einen manuell."
+    },
+    "tree": {
+      "noFramework": "Kein Rahmenplan ausgewählt",
+      "positions": "Positionen",
+      "objectives": "Lernziele"
+    },
+    "coverage": {
+      "totalObjectives": "Lernziele gesamt",
+      "mapped": "Zugeordnet",
+      "percent": "Abdeckung",
+      "relevanceHigh": "Hohe Relevanz",
+      "relevanceMedium": "Mittlere Relevanz",
+      "relevanceLow": "Geringe Relevanz",
+      "trendRising": "Steigend",
+      "trendStable": "Stabil",
+      "trendDeclining": "Abnehmend",
+      "gapBadge": "KI-generiert",
+      "noRealQuestions": "Keine echten Prüfungsfragen",
+      "lowConfidence": "Niedrige Zuordnungs-Sicherheit"
+    },
+    "import": {
+      "title": "Rahmenplan importieren",
+      "uploadLabel": "PDF-Datei hochladen",
+      "dropHint": "PDF hier ablegen oder klicken",
+      "dropHintFormats": "Nur PDF-Dateien erlaubt",
+      "fileSelected": "Datei ausgewählt",
+      "removeFile": "Datei entfernen",
+      "orPasteText": "Oder Text einfügen",
+      "pasteLabel": "PDF-Text einfügen",
+      "pastePlaceholder": "Kopieren Sie den Text aus dem Rahmenplan-PDF und fügen Sie ihn hier ein...",
+      "pasteHint": "Mindestens 100 Zeichen. Die KI erkennt automatisch Abschnitte, Positionen und Lernziele.",
+      "selectProvider": "KI-Anbieter",
+      "selectModel": "Modell",
+      "noProviders": "Keine Anbieter verfügbar",
+      "previewSuccess": "KI-Analyse erfolgreich! Bitte prüfen Sie die erkannte Struktur.",
+      "name": "Name",
+      "type": "Typ",
+      "sections": "Abschnitte",
+      "sourceDocument": "Quelldokument (optional)",
+      "sourcePlaceholder": "z.B. Ausbildungsrahmenplan FISI 2020",
+      "parseBtn": "Mit KI analysieren",
+      "confirmBtn": "Import bestätigen",
+      "analyzing": "KI analysiert...",
+      "elapsed": "Vergangene Zeit",
+      "uploadError": "Fehler beim Hochladen der Datei",
+      "noInput": "Bitte laden Sie eine PDF-Datei hoch oder fügen Sie Text ein",
+      "progress": {
+        "extracting": "PDF-Text extrahieren",
+        "extractedDetail": "{chars} Zeichen aus {pages} Seiten extrahiert",
+        "aiAnalyzing": "KI analysiert Struktur",
+        "parsing": "Ergebnis verarbeiten",
+        "liveLog": "Live-Log",
+        "waitingForLogs": "Warte auf Ereignisse...",
+        "importSuccess": "Import erfolgreich abgeschlossen!",
+        "unknownError": "Unbekannter Fehler"
+      }
+    },
+    "mapping": {
+      "examType": "Prüfungstyp",
+      "selectExamType": "Prüfungstyp auswählen",
+      "link": "Verknüpfen",
+      "autoMap": "Auto-Mapping",
+      "mapping": "Mapping läuft...",
+      "mapResult": "{mapped} zugeordnet, {skipped} übersprungen, {errors} Fehler",
+      "position": "Position",
+      "objectives": "Lernziele",
+      "questions": "Fragen",
+      "relevance": "Relevanz",
+      "trend": "Trend",
+      "trend_rising": "steigend",
+      "trend_stable": "stabil",
+      "trend_declining": "rückläufig",
+      "linkSuccess": "Prüfungstyp erfolgreich verknüpft. Sie können jetzt Auto-Mapping starten.",
+      "noData": "Keine Daten vorhanden. Verknüpfen Sie einen Prüfungstyp und starten Sie das Auto-Mapping."
+    },
+    "coverageReport": {
+      "title": "Coverage-Report",
+      "tabLabel": "Coverage",
+      "summary": "{covered} von {total} Positionen abgedeckt ({percent}%)",
+      "gaps": "{count} Lücken",
+      "mappedObjectives": "Zugeordnete Lernziele",
+      "columns": {
+        "position": "Position",
+        "questions": "Fragen",
+        "objectives": "Lernziele",
+        "coverage": "Coverage",
+        "relevance": "Relevanz",
+        "trend": "Trend",
+        "gap": "Lücke"
+      },
+      "filters": {
+        "gapsOnly": "Nur Lücken",
+        "risingOnly": "Steigende Trends"
+      },
+      "noFramework": "Bitte wählen Sie ein Rahmenplan-Framework aus.",
+      "loading": "Lade Coverage-Daten...",
+      "empty": "Keine Daten vorhanden.",
+      "gapYes": "Ja",
+      "gapNo": "Nein"
+    },
+    "gaps": {
+      "noRealQuestions": "Keine echten Prüfungsfragen",
+      "webResearchAvailable": "Web-Recherche verfügbar",
+      "startResearch": "Web-Recherche starten",
+      "researchAll": "Alle Lücken recherchieren",
+      "researching": "Recherche läuft...",
+      "researchStarted": "Web-Recherche gestartet",
+      "webContent": "Web-Recherche-Ergebnis",
+      "source": "Quelle"
+    },
+    "tabs": {
+      "structure": "Struktur",
+      "mapping": "Mapping & Relevanz"
+    },
+    "tags": {
+      "label": "Curriculum-Lernziele",
+      "none": "Keine Lernziele zugeordnet",
+      "objectiveId": "Lernziel-ID",
+      "add": "Hinzufügen",
+      "remove": "Lernziel entfernen"
+    }
+  }
+}

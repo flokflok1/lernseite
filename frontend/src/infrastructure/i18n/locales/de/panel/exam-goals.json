@@ -1,0 +1,30 @@
+{
+  "examGoals": {
+    "title": "Prüfungsziele",
+    "subtitle": "Verwalte deine Prüfungsziele und verfolge deinen Fortschritt",
+    "addGoal": "Ziel hinzufügen",
+    "removeGoal": "Ziel entfernen",
+    "confirmRemove": "Möchtest du dieses Prüfungsziel wirklich entfernen?",
+    "availableTypes": "Verfügbare Prüfungstypen",
+    "noTypes": "Keine Prüfungstypen verfügbar",
+    "targetDate": "Zieldatum",
+    "noGoals": "Keine Prüfungsziele",
+    "noGoalsDesc": "Füge ein Prüfungsziel hinzu, um deinen Fortschritt zu verfolgen.",
+    "status": {
+      "active": "Aktiv",
+      "passed": "Bestanden",
+      "paused": "Pausiert",
+      "planned": "Geplant"
+    },
+    "weakness": {
+      "title": "Schwächenprofil",
+      "overallScore": "Gesamtpunktzahl",
+      "attempts": "Versuche",
+      "noData": "Noch keine Daten vorhanden"
+    },
+    "curriculum": {
+      "title": "Curriculum-Fortschritt",
+      "noData": "Kein Rahmenplan mit diesem Prüfungstyp verknüpft"
+    }
+  }
+}

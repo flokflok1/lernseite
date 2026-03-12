@@ -59,6 +59,20 @@
     },
     "profession": "Zawód:",
     "region": "Region:",
+    "newExam": {
+      "repeatSame": "Powtórz ten sam egzamin",
+      "generateNew": "Wygeneruj nowy egzamin",
+      "options": "Opcje egzaminu",
+      "focusWeakness": "Skupienie na słabościach",
+      "focusWeaknessHint": "Priorytetyzuje tematy, w których wypadłeś słabo",
+      "difficulty": "Trudność",
+      "difficultyEasy": "Łatwy",
+      "difficultyMedium": "Średni",
+      "difficultyHard": "Trudny",
+      "difficultyRealistic": "Realistyczny (miks IHK)",
+      "generating": "Generowanie nowego egzaminu...",
+      "generateButton": "Rozpocznij egzamin"
+    },
     "results": {
       "backToOverview": "Powrót do przeglądu",
       "correct": "poprawne",

@@ -38,27 +38,10 @@ CREATE INDEX IF NOT EXISTS idx_ki_requests_created ON ai_pipeline.ki_requests(cr
 COMMENT ON TABLE ai_pipeline.ki_requests IS 'AI request tracking for usage analytics and billing';
 
 -- ============================================================================
--- TABLE: ki_raw_inputs
--- Description: Raw uploaded files for AI processing
+-- TABLE: ki_raw_inputs — REMOVED (2026-03-12)
+-- Reason: Dead table, zero references in codebase, zero rows in DB.
+-- Was intended for raw file uploads but never integrated.
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS ai_pipeline.ki_raw_inputs (
-    input_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    uploaded_by_user_id UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
-    file_path VARCHAR(500) NOT NULL,
-    original_filename VARCHAR(255),
-    file_type VARCHAR(50),
-    file_size_bytes BIGINT,
-    parsed_json JSONB,
-    processing_status VARCHAR(20) DEFAULT 'uploaded',
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    CONSTRAINT chk_input_status CHECK (processing_status IN ('uploaded', 'processing', 'completed', 'failed'))
-);
-
-CREATE INDEX IF NOT EXISTS idx_ki_inputs_user ON ai_pipeline.ki_raw_inputs(uploaded_by_user_id);
-CREATE INDEX IF NOT EXISTS idx_ki_inputs_status ON ai_pipeline.ki_raw_inputs(processing_status);
-CREATE INDEX IF NOT EXISTS idx_ki_inputs_created ON ai_pipeline.ki_raw_inputs(created_at DESC);
-
-COMMENT ON TABLE ai_pipeline.ki_raw_inputs IS 'Raw file uploads for AI processing (PDF, DOCX, PPTX)';
 
 -- ============================================================================
 -- TABLE: ai_usage_aggregates

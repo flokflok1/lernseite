@@ -1,0 +1,135 @@
+{
+  "curriculum": {
+    "title": "Ramowe plany nauczania",
+    "subtitle": "Importuj plany ramowe i powiąż je z pytaniami egzaminacyjnymi",
+    "importPdf": "Importuj PDF",
+    "createManual": "Utwórz ręcznie",
+    "createTitle": "Utwórz nowy plan ramowy",
+    "name": "Nazwa",
+    "type": "Typ",
+    "empty": {
+      "title": "Brak planów ramowych",
+      "hint": "Zaimportuj plan ramowy z PDF lub utwórz go ręcznie."
+    },
+    "tree": {
+      "noFramework": "Nie wybrano planu ramowego",
+      "positions": "pozycje",
+      "objectives": "cele nauczania"
+    },
+    "coverage": {
+      "totalObjectives": "Cele łącznie",
+      "mapped": "Przypisane",
+      "percent": "Pokrycie",
+      "relevanceHigh": "Wysoka trafność",
+      "relevanceMedium": "Średnia trafność",
+      "relevanceLow": "Niska trafność",
+      "trendRising": "Rosnący",
+      "trendStable": "Stabilny",
+      "trendDeclining": "Malejący",
+      "gapBadge": "Wygenerowane przez AI",
+      "noRealQuestions": "Brak prawdziwych pytań egzaminacyjnych",
+      "lowConfidence": "Niska pewność mapowania"
+    },
+    "import": {
+      "title": "Importuj plan ramowy",
+      "uploadLabel": "Prześlij plik PDF",
+      "dropHint": "Upuść PDF tutaj lub kliknij",
+      "dropHintFormats": "Tylko pliki PDF",
+      "fileSelected": "Plik wybrany",
+      "removeFile": "Usuń plik",
+      "orPasteText": "Lub wklej tekst",
+      "pasteLabel": "Wklej tekst PDF",
+      "pastePlaceholder": "Skopiuj tekst z PDF planu ramowego i wklej go tutaj...",
+      "pasteHint": "Minimum 100 znaków. AI automatycznie rozpozna sekcje, pozycje i cele.",
+      "selectProvider": "Dostawca AI",
+      "selectModel": "Model",
+      "noProviders": "Brak dostępnych dostawców",
+      "previewSuccess": "Analiza AI zakończona! Sprawdź wykrytą strukturę.",
+      "name": "Nazwa",
+      "type": "Typ",
+      "sections": "Sekcje",
+      "sourceDocument": "Dokument źródłowy (opcjonalnie)",
+      "sourcePlaceholder": "np. Plan ramowy FISI 2020",
+      "parseBtn": "Analizuj z AI",
+      "confirmBtn": "Potwierdź import",
+      "analyzing": "AI analizuje...",
+      "elapsed": "Czas trwania",
+      "uploadError": "Nie udało się przesłać pliku",
+      "noInput": "Prześlij plik PDF lub wklej tekst",
+      "progress": {
+        "extracting": "Ekstrakcja tekstu z PDF",
+        "extractedDetail": "{chars} znaków z {pages} stron wyodrębniono",
+        "aiAnalyzing": "AI analizuje strukturę",
+        "parsing": "Przetwarzanie wyniku",
+        "liveLog": "Dziennik na żywo",
+        "waitingForLogs": "Oczekiwanie na zdarzenia...",
+        "importSuccess": "Import zakończony pomyślnie!",
+        "unknownError": "Nieznany błąd"
+      }
+    },
+    "mapping": {
+      "examType": "Typ egzaminu",
+      "selectExamType": "Wybierz typ egzaminu",
+      "link": "Powiąż",
+      "autoMap": "Auto-mapowanie",
+      "mapping": "Mapowanie...",
+      "mapResult": "{mapped} przypisano, {skipped} pominięto, {errors} błędów",
+      "position": "Pozycja",
+      "objectives": "Cele",
+      "questions": "Pytania",
+      "relevance": "Trafność",
+      "trend": "Trend",
+      "trend_rising": "rosnący",
+      "trend_stable": "stabilny",
+      "trend_declining": "malejący",
+      "linkSuccess": "Typ egzaminu powiązany. Możesz teraz uruchomić auto-mapowanie.",
+      "noData": "Brak danych. Powiąż typ egzaminu i uruchom auto-mapowanie."
+    },
+    "coverageReport": {
+      "title": "Raport pokrycia",
+      "tabLabel": "Pokrycie",
+      "summary": "{covered} z {total} pozycji objętych ({percent}%)",
+      "gaps": "{count} luk",
+      "mappedObjectives": "Przypisane cele nauczania",
+      "columns": {
+        "position": "Pozycja",
+        "questions": "Pytania",
+        "objectives": "Cele",
+        "coverage": "Pokrycie",
+        "relevance": "Trafność",
+        "trend": "Trend",
+        "gap": "Luka"
+      },
+      "filters": {
+        "gapsOnly": "Tylko luki",
+        "risingOnly": "Rosnące trendy"
+      },
+      "noFramework": "Proszę wybrać framework programu nauczania.",
+      "loading": "Ładowanie danych pokrycia...",
+      "empty": "Brak danych.",
+      "gapYes": "Tak",
+      "gapNo": "Nie"
+    },
+    "gaps": {
+      "noRealQuestions": "Brak prawdziwych pytań egzaminacyjnych",
+      "webResearchAvailable": "Dostępne wyszukiwanie w sieci",
+      "startResearch": "Rozpocznij wyszukiwanie",
+      "researchAll": "Zbadaj wszystkie luki",
+      "researching": "Wyszukiwanie...",
+      "researchStarted": "Wyszukiwanie rozpoczęte",
+      "webContent": "Wynik wyszukiwania",
+      "source": "Źródło"
+    },
+    "tabs": {
+      "structure": "Struktura",
+      "mapping": "Mapowanie i trafność"
+    },
+    "tags": {
+      "label": "Cele nauczania",
+      "none": "Brak przypisanych celów",
+      "objectiveId": "ID celu",
+      "add": "Dodaj",
+      "remove": "Usuń cel"
+    }
+  }
+}

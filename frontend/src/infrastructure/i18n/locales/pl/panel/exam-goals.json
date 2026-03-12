@@ -1,0 +1,30 @@
+{
+  "examGoals": {
+    "title": "Cele egzaminacyjne",
+    "subtitle": "Zarządzaj celami egzaminacyjnymi i śledź swoje postępy",
+    "addGoal": "Dodaj cel",
+    "removeGoal": "Usuń cel",
+    "confirmRemove": "Czy na pewno chcesz usunąć ten cel egzaminacyjny?",
+    "availableTypes": "Dostępne typy egzaminów",
+    "noTypes": "Brak dostępnych typów egzaminów",
+    "targetDate": "Data docelowa",
+    "noGoals": "Brak celów egzaminacyjnych",
+    "noGoalsDesc": "Dodaj cel egzaminacyjny, aby śledzić swoje postępy.",
+    "status": {
+      "active": "Aktywny",
+      "passed": "Zdany",
+      "paused": "Wstrzymany",
+      "planned": "Zaplanowany"
+    },
+    "weakness": {
+      "title": "Profil słabości",
+      "overallScore": "Wynik ogólny",
+      "attempts": "prób",
+      "noData": "Brak dostępnych danych"
+    },
+    "curriculum": {
+      "title": "Postęp w ramowym planie",
+      "noData": "Brak planu ramowego powiązanego z tym typem egzaminu"
+    }
+  }
+}

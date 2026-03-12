@@ -260,3 +260,55 @@ def complete_attempt(attempt_id: str):
     except Exception as e:
         logger.error("Failed to complete attempt: %s", e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@trainer_bp.route('/weaknesses', methods=['GET'])
+@token_required
+def get_user_weaknesses():
+    """Get user weakness map sorted by severity."""
+    user = get_current_user()
+    exam_type = request.args.get('exam_type')
+    if not exam_type:
+        return jsonify({'success': False, 'error': 'exam_type parameter required'}), 400
+    try:
+        from app.application.services.exams.prognosis_service import PrognosisService
+        weaknesses = PrognosisService.get_user_weakness_map(
+            user_id=str(user['user_id']),
+            exam_type_key=exam_type,
+        )
+        return jsonify({'success': True, 'weaknesses': weaknesses})
+    except ValueError as exc:
+        return jsonify({'success': False, 'error': str(exc)}), 400
+
+
+@trainer_bp.route('/cockpit', methods=['GET'])
+@token_required
+def get_exam_cockpit():
+    """GET /user/exam-trainer/cockpit?exam_type=IHK_FISI_AP1
+
+    Returns aggregated cockpit data for the user's exam preparation.
+    """
+    user = get_current_user()
+    exam_type = request.args.get('exam_type')
+    if not exam_type:
+        return jsonify({
+            'success': False, 'error': 'exam_type parameter required'
+        }), 400
+
+    try:
+        from app.application.services.exams.exam_cockpit_service import (
+            ExamCockpitService,
+        )
+        data = ExamCockpitService.get_dashboard(
+            str(user['user_id']), exam_type,
+        )
+        return jsonify({'success': True, **data})
+    except ValueError as e:
+        return jsonify({'success': False, 'error': str(e)}), 404
+    except Exception:
+        logger.exception(
+            "Cockpit data failed for user=%s", user['user_id'],
+        )
+        return jsonify({
+            'success': False, 'error': 'Failed to load cockpit data'
+        }), 500

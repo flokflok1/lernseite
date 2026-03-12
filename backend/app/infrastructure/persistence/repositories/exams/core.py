@@ -280,9 +280,14 @@ class ExamRepository(BaseRepository):
     def find_simulation_exam_ids(
         cls, exam_type_key: str, region: str, limit: int = 6,
     ) -> List[str]:
-        """Find distinct ready exam IDs for simulation chapters."""
+        """Find distinct ready exam IDs for simulation chapters.
+
+        Returns the most recent exams first (by session year/season)
+        so simulations reflect current exam style.
+        """
         query = """
-            SELECT DISTINCT e.exam_id
+            SELECT DISTINCT ON (e.exam_id)
+                   e.exam_id, s.year, s.season
             FROM assessments.exams e
             LEFT JOIN assessments.exam_sessions s
                 ON e.session_id = s.session_id
@@ -292,11 +297,17 @@ class ExamRepository(BaseRepository):
                   COALESCE(s.region, 'alle') = %s
                   OR COALESCE(s.region, 'alle') = 'alle'
               )
-            ORDER BY e.exam_id
+            ORDER BY e.exam_id, s.year DESC NULLS LAST
+        """
+        # Wrap to re-sort by year descending after DISTINCT ON
+        outer = f"""
+            SELECT sub.exam_id
+            FROM ({query}) sub
+            ORDER BY sub.year DESC NULLS LAST, sub.exam_id
             LIMIT %s
         """
         rows = fetch_all(
-            query, (exam_type_key, exam_type_key, region, limit),
+            outer, (exam_type_key, exam_type_key, region, limit),
         )
         return [str(r['exam_id']) for r in rows]
 

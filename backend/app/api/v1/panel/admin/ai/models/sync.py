@@ -112,7 +112,8 @@ def sync_models_from_provider(provider_id: int) -> Tuple[Dict[str, Any], int]:
                     input_cost_per_1k=provider_model['input_cost_per_1k'],
                     output_cost_per_1k=provider_model['output_cost_per_1k'],
                     context_window=provider_model.get('context_window'),
-                    supports_streaming=provider_model.get('supports_streaming', True)
+                    supports_streaming=provider_model.get('supports_streaming', True),
+                    display_name=provider_model.get('display_name'),
                 )
                 AIModelsRepository.create(model_data)
                 models_added += 1
@@ -302,7 +303,8 @@ def _fetch_anthropic_models(api_key: str) -> list:
 
         results.append({
             'model_identifier': model_id,
-            'model_name': m.get('display_name', model_id),
+            'model_name': model_id,
+            'display_name': m.get('display_name', model_id),
             'category': 'chat',
             'input_cost_per_1k': 0.0,
             'output_cost_per_1k': 0.0,
@@ -339,7 +341,8 @@ def _fetch_google_models(api_key: str) -> list:
 
         results.append({
             'model_identifier': model_name,
-            'model_name': display_name,
+            'model_name': model_name,
+            'display_name': display_name,
             'category': category,
             'input_cost_per_1k': 0.0,
             'output_cost_per_1k': 0.0,

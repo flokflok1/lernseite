@@ -29,17 +29,18 @@ RETRY_BACKOFF = 2
 
 
 def search_with_grounding(
-    query: str,
-    language: str = 'de',
+    query: str, language: str = 'de',
+    region: str = '', exam_type: str = '',
     model: str = DEFAULT_MODEL,
-    temperature: float = 0.2,
-    max_tokens: int = 4000,
+    temperature: float = 0.2, max_tokens: int = 4000,
 ) -> Dict[str, Any]:
     """Execute a single Gemini Grounding search.
 
     Args:
         query: Search query string.
         language: Response language ('de' or 'en').
+        region: Federal state (e.g. 'Bayern') for IHK context.
+        exam_type: Exam type key (e.g. 'IHK_FISI_AP1') for specificity.
 
     Returns:
         Dict with 'text', 'sources', 'grounding_status', token counts.
@@ -51,7 +52,9 @@ def search_with_grounding(
     url = GEMINI_API_URL.format(model=model) + f'?key={api_key}'
 
     lang_label = 'Deutsch' if language == 'de' else 'English'
-    prompt = _build_grounding_prompt(query, language, lang_label)
+    prompt = _build_grounding_prompt(
+        query, language, lang_label, region, exam_type,
+    )
 
     payload = {
         'contents': [{'parts': [{'text': prompt}]}],
@@ -100,25 +103,74 @@ def search_with_grounding(
 
 def _build_grounding_prompt(
     query: str, language: str, lang_label: str,
+    region: str = '', exam_type: str = '',
 ) -> str:
-    """Build an IHK-exam-focused prompt for Gemini Grounding."""
+    """Build an exam-focused prompt for Gemini Grounding.
+
+    Dynamically adapts to exam_type (FISI/FIAE/AP1/AP2/CompTIA)
+    and region (Bayern/Sachsen/etc.) for targeted results.
+    """
+    # Build exam context from exam_type
+    exam_label = _resolve_exam_label(exam_type, language)
+    region_ctx = _resolve_region_context(region, language)
+
     if language == 'de':
         return (
-            "Du bist ein Experte für IHK-Prüfungsvorbereitung im Bereich "
-            "Fachinformatik. Beantworte die folgende Frage ausführlich auf "
+            f"Du bist ein Experte für Prüfungsvorbereitung im Bereich "
+            f"{exam_label}. Beantworte die folgende Frage ausführlich auf "
             f"{lang_label}. Fokussiere dich auf prüfungsrelevante Inhalte, "
             "konkrete Definitionen und praktische Beispiele die in einer "
-            "IHK-Abschlussprüfung vorkommen können. "
+            f"Abschlussprüfung vorkommen können.{region_ctx} "
             "Nutze aktuelle Informationen aus dem Internet.\n\n"
             f"Frage: {query}"
         )
     return (
-        "You are an IT specialist exam preparation expert. "
+        f"You are an exam preparation expert for {exam_label}. "
         f"Answer the following question in detail in {lang_label}. "
         "Focus on exam-relevant content, concrete definitions, and "
-        "practical examples suitable for IT certification exams. "
+        f"practical examples suitable for this certification.{region_ctx} "
         "Use current information from the internet.\n\n"
         f"Question: {query}"
+    )
+
+
+def _resolve_exam_label(exam_type: str, language: str) -> str:
+    """Convert exam_type key to human-readable prompt label."""
+    if not exam_type or exam_type == 'Custom':
+        if language == 'de':
+            return 'IHK Fachinformatik'
+        return 'IT specialist certification'
+
+    labels_de = {
+        'FISI': 'Fachinformatiker Systemintegration',
+        'FIAE': 'Fachinformatiker Anwendungsentwicklung',
+    }
+    labels_en = {
+        'FISI': 'IT Specialist System Integration',
+        'FIAE': 'IT Specialist Application Development',
+    }
+    labels = labels_de if language == 'de' else labels_en
+    parts = exam_type.split('_')
+    result = []
+    for part in parts:
+        expanded = labels.get(part.upper())
+        result.append(expanded if expanded else part)
+    return ' '.join(result)
+
+
+def _resolve_region_context(region: str, language: str) -> str:
+    """Build region context string for prompt injection."""
+    if not region:
+        return ''
+    if language == 'de':
+        return (
+            f" Berücksichtige den regionalen Kontext der IHK {region}. "
+            f"Suche nach Rahmenlehrplänen, alten Prüfungen und "
+            f"regionalen Besonderheiten für {region}."
+        )
+    return (
+        f" Consider the regional context of IHK {region}. "
+        f"Search for curriculum frameworks and past exams from {region}."
     )
 
 

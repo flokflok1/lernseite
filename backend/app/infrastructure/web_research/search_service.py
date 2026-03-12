@@ -23,6 +23,35 @@ logger = logging.getLogger(__name__)
 MAX_WORKERS = int(os.getenv('WEB_RESEARCH_MAX_WORKERS', '5'))
 CACHE_TTL_SECONDS = int(os.getenv('WEB_RESEARCH_CACHE_TTL', str(7 * 24 * 3600)))
 
+_PROFESSION_LABELS_DE = {
+    'FISI': 'Fachinformatiker Systemintegration',
+    'FIAE': 'Fachinformatiker Anwendungsentwicklung',
+}
+_PROFESSION_LABELS_EN = {
+    'FISI': 'IT Specialist System Integration',
+    'FIAE': 'IT Specialist Application Development',
+}
+
+
+def _exam_type_to_label(exam_type: str, language: str = 'de') -> str:
+    """Parse exam_type key into a search-friendly label.
+
+    'IHK_FISI_AP1' → 'IHK Fachinformatiker Systemintegration AP1'
+    'IHK_FIAE_AP2' → 'IHK Fachinformatiker Anwendungsentwicklung AP2'
+    'CompTIA_A+' → 'CompTIA A+'
+    """
+    if not exam_type or exam_type == 'Custom':
+        return 'IHK Fachinformatiker' if language == 'de' else 'IT specialist'
+
+    labels = _PROFESSION_LABELS_DE if language == 'de' else _PROFESSION_LABELS_EN
+    parts = exam_type.split('_')
+    result = []
+    for part in parts:
+        expanded = labels.get(part.upper())
+        result.append(expanded if expanded else part)
+    return ' '.join(result)
+
+
 TECH_KEYWORDS = {
     'docker', 'kubernetes', 'python', 'java', 'linux', 'git',
     'sql', 'html', 'css', 'javascript', 'api', 'rest', 'tcp',
@@ -37,18 +66,17 @@ class WebSearchService:
 
     @staticmethod
     def research_position(
-        position_id: int,
-        position_title: str,
-        objectives: List[str],
-        language: str = 'de',
+        position_id: int, position_title: str,
+        objectives: List[str], language: str = 'de',
+        region: str = '', exam_type: str = '',
     ) -> Dict[str, Any]:
         """Research a curriculum position via Grounding + PDFs.
 
         Checks Redis → DB cache → Gemini Grounding + PDF search.
         Raises WebResearchError if Grounding fails completely.
         """
-        # 1. Redis cache
-        cached = _check_redis_cache(position_id, language)
+        # 1. Redis cache (region-aware key)
+        cached = _check_redis_cache(position_id, language, region)
         if cached:
             logger.info("Redis cache hit for position %d", position_id)
             return cached
@@ -57,19 +85,24 @@ class WebSearchService:
         cached = _check_db_cache(position_id, language)
         if cached:
             logger.info("DB cache hit for position %d", position_id)
-            _save_to_redis(position_id, language, cached)
+            _save_to_redis(position_id, language, cached, region)
             return cached
 
         # 3. Grounding + PDF
         search_lang = _detect_search_language(position_title)
-        queries = _build_queries(position_title, objectives, search_lang)
-
-        logger.info(
-            "Research for position %d: %d queries (%s)",
-            position_id, len(queries), search_lang,
+        queries = _build_queries(
+            position_title, objectives, search_lang, region, exam_type,
         )
 
-        grounding_results = _execute_queries_parallel(queries, search_lang)
+        logger.info(
+            "Research for position %d: %d queries (%s, region=%s, type=%s)",
+            position_id, len(queries), search_lang,
+            region or 'none', exam_type or 'none',
+        )
+
+        grounding_results = _execute_queries_parallel(
+            queries, search_lang, region, exam_type,
+        )
         pdf_content = _find_pdf_content(position_title)
         merged = _merge_results(grounding_results, pdf_content, queries)
 
@@ -80,37 +113,39 @@ class WebSearchService:
 
 
 def _build_queries(
-    position_title: str, objectives: List[str], search_lang: str,
+    position_title: str, objectives: List[str],
+    search_lang: str, region: str = '', exam_type: str = '',
 ) -> List[str]:
     """Build objective-driven queries from position + Lernziele.
 
-    1 overview query + 1 query per objective (max 5).
-    Falls back to generic queries if no objectives provided.
+    1 overview + 1 Rahmenplan + 1 exam + per-objective queries.
+    Uses exam_type for dynamic profession labels (FISI/FIAE/AP1/AP2).
+    Region replaces bare 'IHK' → 'IHK Bayern' for specificity.
     """
     queries = []
+    label_de = _exam_type_to_label(exam_type, 'de')
+    label_en = _exam_type_to_label(exam_type, 'en')
+
+    # Inject region into label: "IHK Fach..." → "IHK Bayern Fach..."
+    if region and label_de.upper().startswith('IHK '):
+        label_de = f"IHK {region} {label_de[4:]}"
+    if region and label_en.upper().startswith('IHK '):
+        label_en = f"IHK {region} {label_en[4:]}"
 
     if search_lang == 'en':
-        queries.append(
-            f"IT specialist {position_title} exam preparation fundamentals"
-        )
+        queries.append(f"{label_en} {position_title} exam preparation")
         for obj in objectives[:5]:
-            queries.append(f"{obj} IT specialist explanation examples")
+            queries.append(f"{obj} {label_en} explanation examples")
         if not objectives:
-            queries.append(f"{position_title} practical tasks IT training")
-            queries.append(f"IT certification {position_title} exam questions")
+            queries.append(f"{label_en} {position_title} exam questions")
     else:
+        queries.append(f"{label_de} {position_title} Prüfungsvorbereitung")
+        queries.append(f"Rahmenplan {label_de} {position_title}")
         queries.append(
-            f"IHK Fachinformatiker {position_title} Prüfungsvorbereitung"
+            f"Abschlussprüfung {label_de} {position_title} alte Prüfungen"
         )
         for obj in objectives[:5]:
-            queries.append(f"{obj} IHK Fachinformatiker Erklärung Beispiele")
-        if not objectives:
-            queries.append(
-                f"{position_title} praktische Aufgaben IT-Ausbildung"
-            )
-            queries.append(
-                f"IHK Abschlussprüfung {position_title} Aufgabentypen"
-            )
+            queries.append(f"{obj} {label_de} Erklärung Beispiele")
 
     return queries
 
@@ -124,12 +159,13 @@ def _detect_search_language(position_title: str) -> str:
 
 def _execute_queries_parallel(
     queries: List[str], language: str,
+    region: str = '', exam_type: str = '',
 ) -> List[Dict[str, Any]]:
     """Execute Grounding queries in parallel via ThreadPoolExecutor."""
     results = []
     with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(queries))) as ex:
         futures = {
-            ex.submit(search_with_grounding, q, language): q
+            ex.submit(search_with_grounding, q, language, region, exam_type): q
             for q in queries
         }
         for future in as_completed(futures):
@@ -217,14 +253,15 @@ def _merge_results(
 
 
 def _check_redis_cache(
-    position_id: int, language: str,
+    position_id: int, language: str, region: str = '',
 ) -> Optional[Dict[str, Any]]:
-    """Check Redis cache."""
+    """Check Redis cache (region-aware key)."""
     try:
         from app.infrastructure.cache.service import CacheService
-        key = CacheService.make_key(
-            'RESEARCH', 'POS', str(position_id), 'LANG', language,
-        )
+        parts = ['RESEARCH', 'POS', str(position_id), 'LANG', language]
+        if region:
+            parts.extend(['REG', region.lower().replace(' ', '_')])
+        key = CacheService.make_key(*parts)
         result = CacheService.cache_get(key)
         if result:
             result['cached'] = True
@@ -250,13 +287,15 @@ def _check_db_cache(
 
 def _save_to_redis(
     position_id: int, language: str, data: Dict[str, Any],
+    region: str = '',
 ) -> None:
-    """Save to Redis cache."""
+    """Save to Redis cache (region-aware key)."""
     try:
         from app.infrastructure.cache.service import CacheService
-        key = CacheService.make_key(
-            'RESEARCH', 'POS', str(position_id), 'LANG', language,
-        )
+        parts = ['RESEARCH', 'POS', str(position_id), 'LANG', language]
+        if region:
+            parts.extend(['REG', region.lower().replace(' ', '_')])
+        key = CacheService.make_key(*parts)
         CacheService.cache_set(key, data, ttl=CACHE_TTL_SECONDS)
     except Exception:
         logger.debug("Redis cache save failed for position %d", position_id)

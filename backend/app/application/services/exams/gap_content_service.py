@@ -17,9 +17,8 @@ class GapContentService:
 
     @staticmethod
     def generate_gap_content(
-        framework_id: int,
-        position_id: Optional[int] = None,
-        language: str = 'de',
+        framework_id: int, position_id: Optional[int] = None,
+        language: str = 'de', region: str = '', exam_type: str = '',
     ) -> List[Dict[str, Any]]:
         """Generate content for gap positions via Gemini Grounding.
 
@@ -45,10 +44,9 @@ class GapContentService:
             objective_texts = _extract_objective_texts(objectives)
 
             content = WebSearchService.research_position(
-                position_id=pid,
-                position_title=position_title,
-                objectives=objective_texts,
-                language=language,
+                position_id=pid, position_title=position_title,
+                objectives=objective_texts, language=language,
+                region=region, exam_type=exam_type,
             )
 
             content['position_id'] = pid

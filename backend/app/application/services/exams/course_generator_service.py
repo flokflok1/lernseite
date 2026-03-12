@@ -46,6 +46,7 @@ class ExamCourseGeneratorService:
         """
         simulation_exam_ids = _find_simulation_exams(exam_type_key, region)
         title = _build_title(exam_type_key, region, language)
+        region_name = _resolve_region_name(region, language, for_query=True)
 
         if framework_id:
             prognosis_map = _build_prognosis_map(framework_id)
@@ -61,7 +62,7 @@ class ExamCourseGeneratorService:
             return ExamCoursePlan(
                 title=title,
                 exam_type=exam_type_key,
-                region=region,
+                region=region_name,
                 curriculum_framework_id=framework_id,
                 sort_mode=sort_mode,
                 chapters=chapters,
@@ -77,9 +78,9 @@ class ExamCourseGeneratorService:
                 exam_type_key, region,
             )
             return ExamCoursePlan(
-                title=f'{exam_type_key} — {region}',
+                title=title,
                 exam_type=exam_type_key,
-                region=region,
+                region=region_name,
             )
 
         grouped = _group_by_taxonomy(questions, exam_type_key)
@@ -88,7 +89,7 @@ class ExamCourseGeneratorService:
         return ExamCoursePlan(
             title=title,
             exam_type=exam_type_key,
-            region=region,
+            region=region_name,
             chapters=chapters,
             simulation_exam_ids=simulation_exam_ids,
         )
@@ -280,31 +281,26 @@ def _find_simulation_exams(
     )
 
 
-def _build_title(
-    exam_type_key: str, region: str, language: str = 'de',
-) -> str:
+def _resolve_region_name(region: str, language: str = 'de', for_query: bool = False) -> str:
+    """Resolve region code to display name. Returns '' for 'alle' when for_query=True."""
+    if not region or (for_query and region == 'alle'):
+        return ''
+    row = ExamSessionRepository.find_region_display_name(region)
+    if row and row.get('display_name'):
+        dn = row['display_name']
+        return dn.get(language, dn.get('de', region)) if isinstance(dn, dict) else str(dn)
+    return region
+
+
+def _build_title(exam_type_key: str, region: str, language: str = 'de') -> str:
     """Build a human-readable course title from DB display_name fields."""
     type_row = ExamSessionRepository.find_type_display_name(exam_type_key)
     if type_row and type_row.get('display_name'):
         dn = type_row['display_name']
-        type_label = (
-            dn.get(language, dn.get('de', exam_type_key))
-            if isinstance(dn, dict) else str(dn)
-        )
+        type_label = dn.get(language, dn.get('de', exam_type_key)) if isinstance(dn, dict) else str(dn)
     else:
         type_label = exam_type_key
-
-    region_row = ExamSessionRepository.find_region_display_name(region)
-    if region_row and region_row.get('display_name'):
-        dn = region_row['display_name']
-        region_label = (
-            dn.get(language, dn.get('de', region))
-            if isinstance(dn, dict) else str(dn)
-        )
-    else:
-        region_label = region
-
-    return f'{type_label} — {region_label}'
+    return f'{type_label} — {_resolve_region_name(region, language)}'
 
 
 def _group_by_curriculum(

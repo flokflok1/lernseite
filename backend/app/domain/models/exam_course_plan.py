@@ -57,6 +57,7 @@ class ChapterPlan:
     objectives_total: int = 0
     objectives_with_questions: int = 0
     objectives_ai_only: int = 0
+    coverage_pct: float = 0.0              # 0-100 per-position objective coverage
     coverage_source: Optional[str] = None  # "exam_questions" | "ai_generated" | "mixed"
     # Exam relevance (frequency-based + trend)
     relevance_score: float = 0.0          # year-weighted point score
@@ -112,6 +113,7 @@ class ExamCoursePlan:
                     'objectives_total': ch.objectives_total,
                     'objectives_with_questions': ch.objectives_with_questions,
                     'objectives_ai_only': ch.objectives_ai_only,
+                    'coverage_pct': ch.coverage_pct,
                     'coverage_source': ch.coverage_source,
                     'relevance_score': ch.relevance_score,
                     'exam_appearance_rate': ch.exam_appearance_rate,

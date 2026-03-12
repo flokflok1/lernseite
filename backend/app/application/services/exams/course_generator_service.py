@@ -353,6 +353,10 @@ def _group_by_curriculum(
             float(q.get('points', 0)) for q in chapter_questions
         )
 
+        cov_pct = round(
+            objectives_with_q / objectives_total * 100,
+        ) if objectives_total > 0 else 0
+
         if objectives_with_q > 0 and objectives_ai > 0:
             coverage = 'mixed'
         elif objectives_with_q > 0:
@@ -365,7 +369,8 @@ def _group_by_curriculum(
                 chapter_questions, exam_mode=True,
             )
         else:
-            lm_types = [0, 1]
+            # Full gap: AI generates explanations + active practice LMs
+            lm_types = [0, 1, 6, 8, 10]
 
         position_code = f"{pos['section_code']}.{pos['position_code']}"
         pid = pos['position_id']
@@ -398,6 +403,7 @@ def _group_by_curriculum(
             objectives_total=objectives_total,
             objectives_with_questions=objectives_with_q,
             objectives_ai_only=objectives_ai,
+            coverage_pct=cov_pct,
             coverage_source=coverage,
             relevance_score=rel_score,
             exam_appearance_rate=rel.get('appearance_rate', 0.0),

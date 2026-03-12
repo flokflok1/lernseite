@@ -1,10 +1,8 @@
 """
-Course Generator Builder -- Application Layer.
+Course Generator Builder -- Persists ExamCoursePlan as course/chapter/LM records.
 
-Persists an ExamCoursePlan as real course/chapter/LM records.
-AI-generated LM types (0, 1) are delegated to the AI Editor pipeline
-via CoursePlanFactory; static LM types (5-11) are created directly
-from exam question data via LMContentMapper.
+Gap positions get AI-generated practice types (6, 8, 10) plus explanatory (0, 1).
+Non-gap chapters create practice LMs from exam questions via LMContentMapper.
 """
 import logging
 from typing import Dict, Any, Optional, List
@@ -13,7 +11,7 @@ from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, pars
 from app.domain.services.lm_content_mapper import LMContentMapper
 from app.application.services.exams.course_plan_factory import (
     CoursePlanFactory,
-    AI_GENERATED_LM_TYPES,
+    get_ai_lm_types,
 )
 from app.infrastructure.persistence.repositories.courses.management.crud import (
     CourseRepositoryCRUD,
@@ -248,7 +246,6 @@ def _build_chapter(
         chapter_id, chapter_plan, questions, language,
     )
 
-    # Create AI Editor plan for AI-generated LMs (types 0, 1)
     ai_plan_id = _create_ai_plan_if_needed(
         course_id, chapter_id, chapter_plan,
         questions, creator_user_id, language,
@@ -272,15 +269,13 @@ def _create_static_lm_instances(
     questions: List[Dict],
     language: str,
 ) -> Dict[str, Any]:
-    """Create LM instances for static types only (skip AI-generated).
-
-    Returns {lm_count, tokens_used}.
-    """
+    """Create LM instances for static types only (skip AI-generated)."""
+    ai_types = get_ai_lm_types(chapter_plan)
     lm_count = 0
 
     for lm_order, lm_type in enumerate(chapter_plan.lm_types):
         # Skip AI-generated types -- handled by AI Editor pipeline
-        if lm_type in AI_GENERATED_LM_TYPES:
+        if lm_type in ai_types:
             continue
 
         lm_data = _build_static_lm_data(lm_type, questions)
@@ -414,6 +409,7 @@ def _build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
     """Build ai_metadata JSONB with intelligence data for frontend badges."""
     meta = {
         'coverage_source': chapter_plan.coverage_source,
+        'coverage_pct': chapter_plan.coverage_pct,
         'intelligence_score': chapter_plan.intelligence_score,
         'relevance_score': chapter_plan.relevance_score,
         'prognosis_probability': chapter_plan.prognosis_probability,
@@ -431,8 +427,11 @@ def _enrich_ai_plan_with_gap_content(
     plan_data: dict,
     language: str = 'de',
 ) -> None:
-    """Enrich AI plan with Gemini Grounding web research for gap positions."""
-    if chapter_plan.coverage_source != 'ai_generated':
+    """Enrich AI plan with Gemini Grounding web research for gap positions.
+
+    Runs for full gaps (0% coverage) and mixed positions with <50% coverage.
+    """
+    if chapter_plan.coverage_pct >= 50:
         return
     if not chapter_plan.curriculum_position_id:
         return

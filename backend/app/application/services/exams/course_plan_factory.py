@@ -2,24 +2,47 @@
 Course Plan Factory -- Creates AI Editor plans for exam course chapters.
 
 Bridges the Exam Course Generator (structure) with the AI Editor Pipeline
-(content).  Only LM types that require AI generation (0, 1) get plan steps;
-static LM types (5-11) are handled by LMContentMapper directly in the builder.
+(content).  For gap positions (no exam questions), active LM types (6, 8, 10)
+are also AI-generated.  Non-gap positions create practice LMs from exam
+questions deterministically via LMContentMapper in the builder.
 """
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Set
 
 from app.domain.models.exam_course_plan import ChapterPlan
 
 logger = logging.getLogger(__name__)
 
-# LM types that require AI content generation via the editor pipeline
-AI_GENERATED_LM_TYPES = {0, 1}
+# Base LM types that always require AI content generation
+_BASE_AI_LM_TYPES: Set[int] = {0, 1}
+
+# Additional LM types that need AI generation for gap positions (no questions)
+_GAP_AI_LM_TYPES: Set[int] = {0, 1, 6, 8, 10}
 
 # Mapping from LM type to the AI skill code used by plan_execution
 LM_SKILL_MAP: Dict[int, str] = {
     0: 'generate_deep_explanation',
     1: 'generate_step_by_step',
+    6: 'generate_flashcards',
+    8: 'generate_cloze_test',
+    10: 'generate_ihk_tasks',
 }
+
+
+def get_ai_lm_types(chapter_plan: ChapterPlan) -> Set[int]:
+    """Return LM types requiring AI generation based on chapter context.
+
+    Gap positions (no exam questions) need AI to generate practice content
+    (flashcards, cloze, IHK tasks).  Non-gap positions create those LMs
+    from exam questions deterministically.
+    """
+    if chapter_plan.coverage_source == 'ai_generated':
+        return _GAP_AI_LM_TYPES
+    return _BASE_AI_LM_TYPES
+
+
+# Backward-compat alias (deprecated — use get_ai_lm_types() instead)
+AI_GENERATED_LM_TYPES = _BASE_AI_LM_TYPES
 
 
 class CoursePlanFactory:
@@ -28,7 +51,8 @@ class CoursePlanFactory:
     @staticmethod
     def needs_ai_generation(chapter_plan: ChapterPlan) -> bool:
         """Return True if any LM type in the chapter needs AI generation."""
-        return bool(AI_GENERATED_LM_TYPES & set(chapter_plan.lm_types))
+        ai_types = get_ai_lm_types(chapter_plan)
+        return bool(ai_types & set(chapter_plan.lm_types))
 
     @staticmethod
     def create_chapter_plan(
@@ -41,7 +65,7 @@ class CoursePlanFactory:
         """
         Create an AI Editor plan_data dict for a single chapter.
 
-        Only includes steps for LM types in AI_GENERATED_LM_TYPES.
+        Only includes steps for LM types requiring AI generation.
         Returns a dict compatible with plan_execution.py format.
         """
         steps = _build_ai_steps(
@@ -72,15 +96,19 @@ def _build_ai_steps(
     language: str,
 ) -> List[Dict[str, Any]]:
     """Build plan steps for each AI-generated LM type in the chapter."""
+    ai_types = get_ai_lm_types(chapter_plan)
     steps: List[Dict[str, Any]] = []
     question_context = _build_question_context(questions)
     topic_label = _resolve_topic_label(chapter_plan, language)
 
     for idx, lm_type in enumerate(chapter_plan.lm_types):
-        if lm_type not in AI_GENERATED_LM_TYPES:
+        if lm_type not in ai_types:
             continue
 
-        skill_code = LM_SKILL_MAP[lm_type]
+        skill_code = LM_SKILL_MAP.get(lm_type)
+        if not skill_code:
+            logger.warning("No skill code for AI LM type %d", lm_type)
+            continue
 
         steps.append({
             'step_id': f'0-{idx}',

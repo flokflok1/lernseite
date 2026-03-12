@@ -52,3 +52,6 @@ export * from './exams/curriculum.api'
 // Organisations
 export * from './organisations/organisations.api'
 export * from './organisations/index'
+
+// Crawler
+export * from './crawler'

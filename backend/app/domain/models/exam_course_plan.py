@@ -77,6 +77,7 @@ class ExamCoursePlan:
     title: str
     exam_type: str
     region: str
+    region_display_name: str = ''
     curriculum_framework_id: Optional[int] = None
     sort_mode: str = 'relevance'
     chapters: List[ChapterPlan] = field(default_factory=list)
@@ -95,6 +96,7 @@ class ExamCoursePlan:
             'title': self.title,
             'exam_type': self.exam_type,
             'region': self.region,
+            'region_display_name': self.region_display_name,
             'curriculum_framework_id': self.curriculum_framework_id,
             'sort_mode': self.sort_mode,
             'total_questions': self.total_questions,

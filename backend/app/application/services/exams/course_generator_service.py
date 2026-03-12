@@ -62,7 +62,8 @@ class ExamCourseGeneratorService:
             return ExamCoursePlan(
                 title=title,
                 exam_type=exam_type_key,
-                region=region_name,
+                region=region,
+                region_display_name=region_name,
                 curriculum_framework_id=framework_id,
                 sort_mode=sort_mode,
                 chapters=chapters,
@@ -80,7 +81,8 @@ class ExamCourseGeneratorService:
             return ExamCoursePlan(
                 title=title,
                 exam_type=exam_type_key,
-                region=region_name,
+                region=region,
+                region_display_name=region_name,
             )
 
         grouped = _group_by_taxonomy(questions, exam_type_key)
@@ -89,7 +91,8 @@ class ExamCourseGeneratorService:
         return ExamCoursePlan(
             title=title,
             exam_type=exam_type_key,
-            region=region_name,
+            region=region,
+            region_display_name=region_name,
             chapters=chapters,
             simulation_exam_ids=simulation_exam_ids,
         )

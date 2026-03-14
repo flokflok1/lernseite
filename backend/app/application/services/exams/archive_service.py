@@ -166,22 +166,22 @@ def _parse_filename(filename: str, parent_folder: str) -> Dict[str, Any]:
 
 # Profession string -> exam_type_registry key
 PROFESSION_TO_TYPE = {
-    'fisi': 'IHK_FISI',
-    'fiae': 'IHK_FIAE',
-    'fachinformatiker systemintegration': 'IHK_FISI',
-    'fachinformatiker anwendungsentwicklung': 'IHK_FIAE',
+    'fisi': 'FI_AP1',
+    'fiae': 'FI_AP1',
+    'fachinformatiker systemintegration': 'FI_AP1',
+    'fachinformatiker anwendungsentwicklung': 'FI_AP1',
 }
 
 
 def _resolve_exam_type_key(profession: str) -> str:
     """Map profession string to exam_type_registry key."""
     if not profession:
-        return 'IHK_FISI'
+        return 'FI_AP1'
     key = profession.lower().strip()
     for pattern, type_key in PROFESSION_TO_TYPE.items():
         if pattern in key:
             return type_key
-    return 'IHK_FISI'
+    return 'FI_AP1'
 
 
 class ExamArchiveService:

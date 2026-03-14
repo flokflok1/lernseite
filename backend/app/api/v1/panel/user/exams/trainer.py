@@ -284,7 +284,7 @@ def get_user_weaknesses():
 @trainer_bp.route('/cockpit', methods=['GET'])
 @token_required
 def get_exam_cockpit():
-    """GET /user/exam-trainer/cockpit?exam_type=IHK_FISI_AP1
+    """GET /user/exam-trainer/cockpit?exam_type=FI_AP1
 
     Returns aggregated cockpit data for the user's exam preparation.
     """

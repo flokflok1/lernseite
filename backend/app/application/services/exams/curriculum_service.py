@@ -202,7 +202,7 @@ class CurriculumService:
         and passes exam part context (GA1/GA2/WK) for accurate mapping.
 
         Args:
-            exam_type_key: Exam type key (e.g. 'IHK_FISI_AP1').
+            exam_type_key: Exam type key (e.g. 'FI_AP1').
             batch_size: Number of questions per AI batch call.
             provider: Optional AI provider name.
             model: Optional model name.

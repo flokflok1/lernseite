@@ -40,7 +40,7 @@ def search_with_grounding(
         query: Search query string.
         language: Response language ('de' or 'en').
         region: Federal state (e.g. 'Bayern') for IHK context.
-        exam_type: Exam type key (e.g. 'IHK_FISI_AP1') for specificity.
+        exam_type: Exam type key (e.g. 'FI_AP1') for specificity.
 
     Returns:
         Dict with 'text', 'sources', 'grounding_status', token counts.

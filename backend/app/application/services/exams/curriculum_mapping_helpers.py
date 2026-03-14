@@ -28,7 +28,7 @@ _SPECIALIZATION_MAP = {
 def detect_specialization(exam_type_key: str) -> str:
     """Extract specialization abbreviation from exam type key.
 
-    E.g. 'IHK_FISI_AP1' → 'FISI', 'IHK_FIAE_AP2' → 'FIAE'.
+    E.g. 'FI_AP1' → 'FISI', 'FI_AP2_FIAE' → 'FIAE'.
     """
     for abbr in _SPECIALIZATION_MAP:
         if abbr in exam_type_key.upper():

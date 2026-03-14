@@ -61,7 +61,7 @@ def upload_exam():
 
     Multipart form fields:
     - file: PDF (required)
-    - exam_type_key: e.g. "IHK_FISI" (required)
+    - exam_type_key: e.g. "FI_AP1" (required)
     - year: e.g. 2024 (required)
     - season: "sommer" | "winter" (required)
     - part: "GA1" | "GA2" | "WK" (optional)

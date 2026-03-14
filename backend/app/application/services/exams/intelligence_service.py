@@ -113,7 +113,7 @@ class ExamIntelligenceService:
 
         Args:
             user_id: User UUID
-            exam_type: Exam type key (e.g. 'IHK_FISI')
+            exam_type: Exam type key (e.g. 'FI_AP1')
 
         Returns:
             WeaknessProfile value object

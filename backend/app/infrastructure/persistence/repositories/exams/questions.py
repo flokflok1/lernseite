@@ -170,7 +170,7 @@ class ExamQuestionRepository(BaseRepository):
         """Find questions filtered by difficulty level.
 
         Args:
-            exam_type_key: Exam type key (e.g. 'IHK_FISI_AP1').
+            exam_type_key: Exam type key (e.g. 'FI_AP1').
             difficulty: 'leicht', 'mittel', 'schwer', or None for mixed.
             limit: Optional max number of questions.
 

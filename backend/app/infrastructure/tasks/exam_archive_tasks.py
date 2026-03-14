@@ -204,7 +204,7 @@ def analyze_exam_pdf_task(
         ExamRepository.update_analysis_status(exam_id, 'analyzing')
 
         # 4. Build prompt and call AI
-        exam_type = exam.get('exam_type_key', 'IHK_FISI')
+        exam_type = exam.get('exam_type_key') or 'unknown'
         solution_section = ''
         if solution_text:
             solution_section = (

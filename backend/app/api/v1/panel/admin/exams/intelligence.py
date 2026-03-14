@@ -33,6 +33,19 @@ intelligence_bp = Blueprint(
 )
 
 
+# --- Programs (hierarchical) ---
+
+@intelligence_bp.route('/programs', methods=['GET'])
+@admin_required
+def list_programs():
+    """List all exam programs with their parts (hierarchical)."""
+    from app.application.services.exams.intelligence_service import (
+        ExamIntelligenceService,
+    )
+    programs = ExamIntelligenceService.list_programs_with_parts()
+    return jsonify({'success': True, 'programs': programs})
+
+
 # --- Exam Types ---
 
 @intelligence_bp.route('/types', methods=['GET'])

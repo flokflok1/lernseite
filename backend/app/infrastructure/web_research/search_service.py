@@ -36,9 +36,9 @@ _PROFESSION_LABELS_EN = {
 def _exam_type_to_label(exam_type: str, language: str = 'de') -> str:
     """Parse exam_type key into a search-friendly label.
 
-    'IHK_FISI_AP1' → 'IHK Fachinformatiker Systemintegration AP1'
-    'IHK_FIAE_AP2' → 'IHK Fachinformatiker Anwendungsentwicklung AP2'
-    'CompTIA_A+' → 'CompTIA A+'
+    'FI_AP1' → 'FI AP1'
+    'FI_AP2_FISI' → 'FI AP2 FISI'
+    'COMPTIA_APLUS_CORE1' → 'COMPTIA APLUS CORE1'
     """
     if not exam_type or exam_type == 'Custom':
         return 'IHK Fachinformatiker' if language == 'de' else 'IT specialist'

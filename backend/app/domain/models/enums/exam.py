@@ -13,12 +13,13 @@ class ExamType(str, Enum):
 
 
 class ExamStandard(str, Enum):
-    """Exam standards for AI generation (09_KI-Pipeline.md:1032-1040)"""
-    IHK_FISI_AP1 = "IHK_FISI_AP1"
-    IHK_FIAE_AP1 = "IHK_FIAE_AP1"
-    COMPTIA_A_PLUS = "CompTIA_A+"
-    COMPTIA_NETWORK_PLUS = "CompTIA_Network+"
-    ABITUR_INFORMATIK = "Abitur_Informatik"
+    """Exam standards for AI generation — matches exam_type_registry keys."""
+    FI_AP1 = "FI_AP1"
+    FI_AP2_FISI = "FI_AP2_FISI"
+    FI_AP2_FIAE = "FI_AP2_FIAE"
+    COMPTIA_APLUS = "COMPTIA_APLUS_CORE1"
+    COMPTIA_NETPLUS = "COMPTIA_NETPLUS_N10"
+    AWS_SAA = "AWS_SAA_C03"
     CUSTOM = "Custom"
 
 

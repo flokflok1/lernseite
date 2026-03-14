@@ -92,7 +92,7 @@ class ExamDetailResponse(BaseModel):
         ...     title="IHK FISI AP1 Simulation",
         ...     duration_minutes=90,
         ...     passing_score=50,
-        ...     settings={"standard": "IHK_FISI_AP1", "difficulty": "intermediate"},
+        ...     settings={"standard": "FI_AP1", "difficulty": "intermediate"},
         ...     questions=[...],
         ...     created_at=datetime.now()
         ... )
@@ -173,8 +173,8 @@ class ExamGenerateRequest(BaseModel):
 
     Example:
         >>> request = ExamGenerateRequest(
-        ...     title="IHK FISI AP1 Simulation",
-        ...     exam_standard="IHK_FISI_AP1",
+        ...     title="FI AP1 Simulation",
+        ...     exam_standard="FI_AP1",
         ...     difficulty="intermediate",
         ...     duration_minutes=90,
         ...     question_distribution={"mcq": 25, "fill_blanks": 10, "short_answer": 3, "case_study": 2},

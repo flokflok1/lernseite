@@ -113,7 +113,7 @@ class ExamIntelligenceService:
 
         Args:
             user_id: User UUID
-            exam_type: Exam type key (e.g. 'IHK_FISI')
+            exam_type: Exam type key (e.g. 'FI_AP1')
 
         Returns:
             WeaknessProfile value object
@@ -195,6 +195,17 @@ class ExamIntelligenceService:
             'overall_score': round(overall, 1),
             'recommendation': recommendation,
         })
+
+    @staticmethod
+    def list_programs_with_parts() -> List[Dict[str, Any]]:
+        """Return all exam programs with their nested parts.
+
+        Application layer method — API calls this, not the repository directly.
+        """
+        from app.infrastructure.persistence.repositories.exams.programs import (
+            ExamProgramRepository,
+        )
+        return ExamProgramRepository.find_with_parts()
 
 
 def sync_exam_type_i18n(exam_type: str, display_name: dict):

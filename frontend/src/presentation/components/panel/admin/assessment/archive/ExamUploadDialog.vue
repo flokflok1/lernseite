@@ -53,11 +53,9 @@
             v-model="form.exam_type_key"
             class="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm text-[var(--color-text-primary)]"
           >
-            <option value="IHK_FISI">IHK FISI</option>
-            <option value="IHK_FIAE">IHK FIAE</option>
-            <option value="CompTIA_A+">CompTIA A+</option>
-            <option value="CompTIA_Net+">CompTIA Network+</option>
-            <option value="AWS_SAA">AWS SAA</option>
+            <option v-for="et in examTypes" :key="et.exam_type" :value="et.exam_type">
+              {{ et.display_name?.[locale] || et.exam_type }}
+            </option>
           </select>
         </div>
 
@@ -153,9 +151,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { communityUploadExam } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+import { fetchExamTypes, type ExamType } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
 
 interface Props {
   visible: boolean
@@ -167,8 +166,9 @@ const emit = defineEmits<{
   uploaded: [examId: string]
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
+const examTypes = ref<ExamType[]>([])
 const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFile = ref<File | null>(null)
 const dragOver = ref(false)
@@ -176,11 +176,22 @@ const submitting = ref(false)
 const error = ref('')
 
 const form = ref({
-  exam_type_key: 'IHK_FISI',
+  exam_type_key: '',
   season: 'sommer',
   year: new Date().getFullYear(),
   part: '',
   region: 'alle',
+})
+
+onMounted(async () => {
+  try {
+    examTypes.value = await fetchExamTypes()
+    if (examTypes.value.length > 0) {
+      form.value.exam_type_key = examTypes.value[0].exam_type
+    }
+  } catch {
+    // Fallback: dropdown stays empty, user must select manually
+  }
 })
 
 const canSubmit = computed(() =>

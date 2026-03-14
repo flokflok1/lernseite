@@ -87,6 +87,7 @@
             <SkillsTab v-else-if="editorState.activeTab.value === 'skills'" :course-id="selectedCourseId" />
             <PromptsTab v-else-if="editorState.activeTab.value === 'prompts'" />
             <HistoryTab v-else-if="editorState.activeTab.value === 'history'" :course-id="selectedCourseId" />
+            <ExamTab v-else-if="editorState.activeTab.value === 'exam'" />
           </KeepAlive>
         </div>
       </div>
@@ -128,7 +129,7 @@ import { useGenerationHistory } from './composables/generation/useGenerationHist
 import { useModelSelector } from './composables/editor/useModelSelector'
 import { useQualityLevel } from './composables/plan/useQualityLevel'
 import QualityLevelSelector from './components/QualityLevelSelector.vue'
-import { ChatTab, FilesTab, PromptsTab, PlanTab, SkillsTab, HistoryTab, CourseTab } from './tabs'
+import { ChatTab, FilesTab, PromptsTab, PlanTab, SkillsTab, HistoryTab, CourseTab, ExamTab } from './tabs'
 import { RightPanel } from './right-panel'
 import EditorTabBar from './components/EditorTabBar.vue'
 import type { ChatConfirmation } from './types'
@@ -166,6 +167,7 @@ provide('fileUpload', fileUpload)
 provide('generationHistory', generationHistory)
 provide('modelSelector', modelSelector)
 provide('qualityLevel', qualityLevel)
+provide('onCourseCreated', handleExamCourseCreated)
 
 // ---- Local state ----
 const courses = ref<Array<{ id: string; title: string }>>([])
@@ -348,6 +350,21 @@ function handleCourseDeleted(courseId: string): void {
   structureView.clearStructure()
   workflowPhase.reset()
   editorState.setTab('chat')
+}
+
+async function handleExamCourseCreated(courseId: string, courseTitle: string): Promise<void> {
+  const id = String(courseId)
+  if (!courses.value.find(c => c.id === id)) {
+    courses.value.push({ id, title: courseTitle })
+  }
+  selectedCourseId.value = id
+  chatSession.clearSession()
+  structureView.clearStructure()
+  workflowPhase.reset()
+  await Promise.all([
+    chatSession.loadOrCreateSession(id, getModelOptions()),
+    structureView.loadCourseStructure(id, courseTitle),
+  ])
 }
 </script>
 

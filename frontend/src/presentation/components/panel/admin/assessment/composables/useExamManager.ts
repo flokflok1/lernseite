@@ -15,6 +15,7 @@ import {
   type ExamCreateRequest,
   type ExamGenerateRequest
 } from '@/infrastructure/api/clients/panel/admin'
+import { fetchExamTypes, type ExamType } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
 
 interface ExamManagerOptions {
   courseId: string
@@ -36,7 +37,7 @@ function createDefaultGenerateForm(): ExamGenerateRequest {
   return {
     title: '',
     description: '',
-    exam_standard: 'IHK_FISI_AP1',
+    exam_standard: '',
     difficulty: 'intermediate',
     duration_minutes: 90,
     passing_score: 50,
@@ -52,6 +53,7 @@ function createDefaultGenerateForm(): ExamGenerateRequest {
 
 export function useExamManager(options: ExamManagerOptions) {
   const exams = ref<Exam[]>([])
+  const examTypes = ref<ExamType[]>([])
   const loading = ref(true)
   const error = ref<string | null>(null)
   const showCreateDialog = ref(false)
@@ -127,12 +129,26 @@ export function useExamManager(options: ExamManagerOptions) {
     }
   }
 
+  async function loadExamTypes(): Promise<void> {
+    try {
+      examTypes.value = await fetchExamTypes()
+      // Set default to first available type if form is empty
+      if (examTypes.value.length > 0 && !generateForm.value.exam_standard) {
+        generateForm.value.exam_standard = examTypes.value[0].exam_type
+      }
+    } catch {
+      // Non-critical — generate dialog still works with empty list
+    }
+  }
+
   onMounted(() => {
     loadExams()
+    loadExamTypes()
   })
 
   return {
     exams,
+    examTypes,
     loading,
     error,
     showCreateDialog,

@@ -15,6 +15,7 @@ import {
   type ExamCreateRequest,
   type ExamGenerateRequest
 } from '@/infrastructure/api/clients/panel/admin'
+import { fetchExamTypes, type ExamType } from '@/infrastructure/api/clients/panel/admin/exams/intelligence.api'
 
 interface ExamManagerOptions {
   courseId: string
@@ -52,6 +53,7 @@ function createDefaultGenerateForm(): ExamGenerateRequest {
 
 export function useExamManager(options: ExamManagerOptions) {
   const exams = ref<Exam[]>([])
+  const examTypes = ref<ExamType[]>([])
   const loading = ref(true)
   const error = ref<string | null>(null)
   const showCreateDialog = ref(false)
@@ -127,12 +129,22 @@ export function useExamManager(options: ExamManagerOptions) {
     }
   }
 
+  async function loadExamTypes(): Promise<void> {
+    try {
+      examTypes.value = await fetchExamTypes()
+    } catch {
+      // Non-critical — generate dialog still works with empty list
+    }
+  }
+
   onMounted(() => {
     loadExams()
+    loadExamTypes()
   })
 
   return {
     exams,
+    examTypes,
     loading,
     error,
     showCreateDialog,

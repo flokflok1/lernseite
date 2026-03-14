@@ -252,11 +252,9 @@
               v-model="generateForm.exam_standard"
               class="w-full px-3 py-2 border border-[var(--color-border)] rounded bg-[var(--color-bg)] text-[var(--color-text-primary)]"
             >
-              <option value="IHK_FISI_AP1">IHK FISI AP1</option>
-              <option value="IHK_FIAE_AP1">IHK FIAE AP1</option>
-              <option value="CompTIA_A+">CompTIA A+</option>
-              <option value="CompTIA_Network+">CompTIA Network+</option>
-              <option value="Abitur_Informatik">Abitur Informatik</option>
+              <option v-for="et in examTypes" :key="et.exam_type" :value="et.exam_type">
+                {{ et.display_name?.[locale] || et.exam_type }}
+              </option>
               <option value="Custom">Custom</option>
             </select>
           </div>
@@ -380,10 +378,11 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const {
   exams,
+  examTypes,
   loading,
   error,
   showCreateDialog,

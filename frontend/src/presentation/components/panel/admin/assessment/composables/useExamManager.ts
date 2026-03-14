@@ -36,7 +36,7 @@ function createDefaultGenerateForm(): ExamGenerateRequest {
   return {
     title: '',
     description: '',
-    exam_standard: 'IHK_FISI_AP1',
+    exam_standard: 'FI_AP1',
     difficulty: 'intermediate',
     duration_minutes: 90,
     passing_score: 50,

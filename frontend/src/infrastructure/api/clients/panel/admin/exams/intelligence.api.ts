@@ -10,6 +10,20 @@ export interface ExamType {
   passing_score: number
   parts: string[] | null
   settings: Record<string, any> | null
+  program_id: number | null
+  applies_to: string[]
+  sort_order: number
+}
+
+export interface ExamProgram {
+  program_id: number
+  program_key: string
+  display_name: Record<string, string>
+  program_type: 'ausbildung' | 'zertifizierung' | 'studium' | 'custom'
+  provider: string | null
+  icon: string | null
+  sort_order: number
+  parts: ExamType[]
 }
 
 export interface TopicTaxonomy {
@@ -19,6 +33,12 @@ export interface TopicTaxonomy {
   topic_label: Record<string, string>
   parent_topic_id: string | null
   weight: number
+}
+
+// GET /admin/exam-intelligence/programs
+export const fetchPrograms = async (): Promise<ExamProgram[]> => {
+  const { data } = await http.get('/admin/exam-intelligence/programs')
+  return data.programs || []
 }
 
 // GET /admin/exam-intelligence/types

@@ -294,7 +294,8 @@ export interface CourseFileUploadResponse {
 // ============================================================================
 
 export type ExamType = 'practice' | 'ai_simulation' | 'final'
-export type ExamStandard = 'IHK_FISI_AP1' | 'IHK_FIAE_AP1' | 'CompTIA_A+' | 'CompTIA_Network+' | 'Abitur_Informatik' | 'Custom'
+export type ExamStandard = 'FI_AP1' | 'FI_AP2_FISI' | 'FI_AP2_FIAE'
+  | 'COMPTIA_APLUS_CORE1' | 'COMPTIA_NETPLUS_N10' | 'AWS_SAA_C03' | 'Custom'
 export type QuestionType = 'mcq' | 'true_false' | 'fill_blanks' | 'matching' | 'short_answer' | 'math_problem' | 'case_question'
 
 export interface ExamQuestion {

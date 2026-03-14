@@ -1,7 +1,7 @@
 """
 ExamTypeRegistry Repository
 
-CRUD for exam type configurations (IHK_FISI, CompTIA_A+, etc.).
+CRUD for exam type configurations (FI_AP1, AWS_SAA_C03, etc.).
 All queries use parameterized SQL (%s) via psycopg3.
 """
 
@@ -20,9 +20,10 @@ class ExamTypeRegistryRepository:
     def find_all() -> List[Dict[str, Any]]:
         """List all registered exam types."""
         query = """
-            SELECT exam_type, display_name, passing_score, parts, settings, created_at
+            SELECT exam_type, display_name, passing_score, parts, settings,
+                   program_id, applies_to, sort_order, created_at
             FROM assessments.exam_type_registry
-            ORDER BY exam_type
+            ORDER BY sort_order, exam_type
         """
         return fetch_all(query)
 
@@ -30,11 +31,23 @@ class ExamTypeRegistryRepository:
     def find_by_type(exam_type: str) -> Optional[Dict[str, Any]]:
         """Find a single exam type by key."""
         query = """
-            SELECT exam_type, display_name, passing_score, parts, settings, created_at
+            SELECT exam_type, display_name, passing_score, parts, settings,
+                   program_id, applies_to, sort_order, created_at
             FROM assessments.exam_type_registry
             WHERE exam_type = %s
         """
         return fetch_one(query, (exam_type,))
+
+    @staticmethod
+    def find_by_program(program_id: int) -> List[Dict[str, Any]]:
+        """Find all exam types belonging to a program."""
+        return fetch_all("""
+            SELECT exam_type, display_name, passing_score, parts, settings,
+                   program_id, applies_to, sort_order, created_at
+            FROM assessments.exam_type_registry
+            WHERE program_id = %s
+            ORDER BY sort_order, exam_type
+        """, (program_id,))
 
     @staticmethod
     def create(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:

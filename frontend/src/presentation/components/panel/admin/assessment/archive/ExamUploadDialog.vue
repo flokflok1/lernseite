@@ -176,7 +176,7 @@ const submitting = ref(false)
 const error = ref('')
 
 const form = ref({
-  exam_type_key: 'FI_AP1',
+  exam_type_key: '',
   season: 'sommer',
   year: new Date().getFullYear(),
   part: '',
@@ -186,8 +186,11 @@ const form = ref({
 onMounted(async () => {
   try {
     examTypes.value = await fetchExamTypes()
+    if (examTypes.value.length > 0) {
+      form.value.exam_type_key = examTypes.value[0].exam_type
+    }
   } catch {
-    // Fallback: dropdown stays empty, user can still type
+    // Fallback: dropdown stays empty, user must select manually
   }
 })
 

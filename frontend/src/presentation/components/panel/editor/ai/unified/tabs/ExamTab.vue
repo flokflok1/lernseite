@@ -115,9 +115,8 @@ onMounted(async () => {
 
   if (programsResult.status === 'fulfilled' && programsResult.value.length > 0) {
     programs.value = programsResult.value
-    // Default to 'fachinformatiker' → 'FI_AP1'
-    const preferred = programsResult.value.find(p => p.program_key === 'fachinformatiker')
-    const firstProg = preferred || programsResult.value[0]
+    // Select first program (sorted by sort_order from DB)
+    const firstProg = programsResult.value[0]
     selectedProgramKey.value = firstProg.program_key
     if (firstProg.parts.length > 0) {
       selectedExamType.value = firstProg.parts[0].exam_type

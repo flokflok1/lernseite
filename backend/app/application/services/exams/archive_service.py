@@ -173,15 +173,15 @@ PROFESSION_TO_TYPE = {
 }
 
 
-def _resolve_exam_type_key(profession: str) -> str:
-    """Map profession string to exam_type_registry key."""
+def _resolve_exam_type_key(profession: str) -> str | None:
+    """Map profession string to exam_type_registry key. Returns None if no match."""
     if not profession:
-        return 'FI_AP1'
+        return None
     key = profession.lower().strip()
     for pattern, type_key in PROFESSION_TO_TYPE.items():
         if pattern in key:
             return type_key
-    return 'FI_AP1'
+    return None
 
 
 class ExamArchiveService:
@@ -321,11 +321,11 @@ class ExamArchiveService:
             exam_id = result.get('exam_id')
             logger.info("Imported exam: %s (id=%s)", title, exam_id)
 
-            # Assign to session if year+season available
-            if meta.get('year') and meta.get('season'):
-                type_key = _resolve_exam_type_key(
-                    meta.get('profession', '')
-                )
+            # Assign to session if year+season+type available
+            type_key = _resolve_exam_type_key(
+                meta.get('profession', '')
+            )
+            if meta.get('year') and meta.get('season') and type_key:
                 session = ExamSessionRepository.find_or_create(
                     exam_type_key=type_key,
                     region=meta.get('region', 'alle'),

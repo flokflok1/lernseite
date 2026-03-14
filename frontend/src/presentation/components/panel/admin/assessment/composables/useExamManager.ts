@@ -37,7 +37,7 @@ function createDefaultGenerateForm(): ExamGenerateRequest {
   return {
     title: '',
     description: '',
-    exam_standard: 'FI_AP1',
+    exam_standard: '',
     difficulty: 'intermediate',
     duration_minutes: 90,
     passing_score: 50,
@@ -132,6 +132,10 @@ export function useExamManager(options: ExamManagerOptions) {
   async function loadExamTypes(): Promise<void> {
     try {
       examTypes.value = await fetchExamTypes()
+      // Set default to first available type if form is empty
+      if (examTypes.value.length > 0 && !generateForm.value.exam_standard) {
+        generateForm.value.exam_standard = examTypes.value[0].exam_type
+      }
     } catch {
       // Non-critical — generate dialog still works with empty list
     }

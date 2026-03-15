@@ -151,8 +151,9 @@ class ExamQuestionRepository(BaseRepository):
             return []
         placeholders = ', '.join(['%s'] * len(question_ids))
         return fetch_all(
-            f"""SELECT q.question_id, q.question_text, q.question_type,
-                       q.points, q.data, q.solution_text, q.question_number,
+            f"""SELECT q.question_id, q.exam_id, q.question_text,
+                       q.question_type, q.points, q.data,
+                       q.solution_text, q.question_number,
                        q.scenario_title, q.scenario_text,
                        COALESCE(q.topics, ARRAY[]::text[]) AS topics
                 FROM assessments.exam_questions q

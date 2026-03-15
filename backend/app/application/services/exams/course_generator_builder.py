@@ -16,6 +16,8 @@ from app.application.services.exams.question_helpers import (
     lm_lesson_title,
     make_json_safe,
     build_static_lm_data,
+    extract_anlagen_from_raw_text,
+    enrich_scenario_with_anlagen,
 )
 from app.application.services.exams.course_generator_builder_part2 import (
     build_simulation_chapter as _build_simulation_chapter,
@@ -262,11 +264,50 @@ def _build_chapter(
 
 
 def _fetch_chapter_questions(question_ids: List[str]) -> List[Dict]:
-    """Fetch questions and make JSON-serializable (for JSONB LM data)."""
+    """Fetch questions, enrich with Anlage data, make JSON-serializable.
+
+    IHK questions often reference Anlagen (appendices with price tables,
+    network diagrams). This extracts Anlage content from the exam's
+    raw_text and appends it to each question's scenario_text.
+    """
     if not question_ids:
         return []
     rows = ExamQuestionRepository.find_by_ids(question_ids)
-    return [make_json_safe(row) for row in rows]
+    questions = [make_json_safe(row) for row in rows]
+    return _enrich_questions_with_anlagen(questions)
+
+
+def _enrich_questions_with_anlagen(questions: List[Dict]) -> List[Dict]:
+    """Append Anlage content from exam raw_text to each question's scenario."""
+    # Group questions by exam_id to avoid re-parsing the same exam
+    exam_ids = {q.get('exam_id') for q in questions if q.get('exam_id')}
+    if not exam_ids:
+        return questions
+
+    from app.infrastructure.persistence.repositories.exams.core import ExamRepository
+    anlagen_cache: Dict[str, Dict[int, str]] = {}
+    for eid in exam_ids:
+        exam = ExamRepository.find_by_id(str(eid))
+        raw = (exam or {}).get('raw_text', '')
+        if raw:
+            anlagen_cache[str(eid)] = extract_anlagen_from_raw_text(raw)
+
+    enriched_count = 0
+    for q in questions:
+        eid = str(q.get('exam_id', ''))
+        anlagen = anlagen_cache.get(eid, {})
+        if not anlagen:
+            continue
+        original = q.get('scenario_text', '') or ''
+        q['scenario_text'] = enrich_scenario_with_anlagen(
+            original, q.get('question_text', ''), anlagen,
+        )
+        if q['scenario_text'] != original:
+            enriched_count += 1
+
+    if enriched_count:
+        logger.info("Enriched %d questions with Anlage data", enriched_count)
+    return questions
 
 
 def _create_static_lm_instances(

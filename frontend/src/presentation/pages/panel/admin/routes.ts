@@ -147,7 +147,7 @@ export const panelRoutes: RouteRecordRaw = {
 
 /** Standalone fullscreen route — no PanelLayout sidebar */
 export const examArchiveRoute: RouteRecordRaw = {
-  path: '/panel/exam-archive',
+  path: '/exam-archive',
   name: 'PanelExamArchive',
   component: () => import('@/presentation/pages/panel/admin/PanelExamArchivePage.vue'),
   meta: { requiresAuth: true, requiresSystemAdmin: true },

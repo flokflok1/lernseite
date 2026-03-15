@@ -239,6 +239,11 @@ const layout = computed(() => {
     return 'div'
   }
 
+  // Exam Archive is fullscreen (no layout)
+  if (route.path.startsWith('/exam-archive')) {
+    return 'div'
+  }
+
   // Panel routes use PanelLayout (handled by router component definition)
   if (route.path.startsWith('/panel')) {
     return 'div'

@@ -75,7 +75,7 @@ class CourseRepositoryCRUD(BaseRepository):
                 tags, exam_mode, exam_config,
                 status, created_at, updated_at
             ) VALUES (
-                %(title)s, %(description)s, %(creator_user_id)s, %(organisation_id)s, 'standard',
+                %(title)s, %(description)s, %(creator_user_id)s, %(organisation_id)s, 'creator',
                 %(category_id)s, %(level)s, %(language_default)s, %(price)s,
                 %(published)s, %(thumbnail_url)s, %(video_preview_url)s,
                 %(tags)s, %(exam_mode)s, %(exam_config)s,

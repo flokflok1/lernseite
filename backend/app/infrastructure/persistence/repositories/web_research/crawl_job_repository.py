@@ -286,3 +286,29 @@ class CrawlJobRepository:
         if updated:
             logger.warning("Crawl job %s failed: %s", job_id, error_msg)
         return updated
+
+    @staticmethod
+    def mark_cancelled(job_id: str) -> bool:
+        """Mark a pending or running job as cancelled.
+
+        Args:
+            job_id: The job UUID.
+
+        Returns:
+            True if a row was updated (only pending/running jobs can be cancelled).
+        """
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE ai_pipeline.crawl_jobs
+                    SET status = 'cancelled',
+                        completed_at = NOW()
+                    WHERE job_id = %s
+                      AND status IN ('pending', 'running')
+                """, [job_id])
+                updated = cur.rowcount > 0
+                conn.commit()
+
+        if updated:
+            logger.info("Crawl job %s cancelled", job_id)
+        return updated

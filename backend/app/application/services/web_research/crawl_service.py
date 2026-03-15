@@ -224,6 +224,41 @@ class CrawlService:
         return job
 
     @staticmethod
+    def cancel_job(job_id: str) -> bool:
+        """Cancel a pending or running crawl job.
+
+        If the job has a Celery task, revoke it. Then mark DB as cancelled.
+
+        Args:
+            job_id: UUID of the crawl job.
+
+        Returns:
+            True if the job was cancelled, False if not found or already done.
+        """
+        from app.infrastructure.persistence.repositories.web_research.crawl_job_repository import (
+            CrawlJobRepository,
+        )
+
+        job = CrawlJobRepository.find_by_id(job_id)
+        if not job:
+            return False
+
+        if job['status'] not in ('pending', 'running'):
+            return False
+
+        # Revoke the Celery task if running
+        celery_task_id = job.get('celery_task_id')
+        if celery_task_id:
+            try:
+                from app.core.bootstrap.extensions import celery_app
+                celery_app.control.revoke(celery_task_id, terminate=True)
+                logger.info("Revoked Celery task %s for job %s", celery_task_id, job_id)
+            except Exception:
+                logger.exception("Failed to revoke Celery task %s", celery_task_id)
+
+        return CrawlJobRepository.mark_cancelled(job_id)
+
+    @staticmethod
     def list_pdfs(
         page: int = 1,
         per_page: int = 20,

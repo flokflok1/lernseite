@@ -17,10 +17,10 @@
         <p class="problem-text">{{ p.question }}</p>
         <div v-if="p.formula" class="formula-display">{{ p.formula }}</div>
         <div class="answer-row">
-          <input
+          <textarea
             v-model="answers[p.globalIndex]"
-            type="text"
             class="answer-input"
+            rows="4"
             :placeholder="t('lesson.methodExecution.renderer.mathInteractive.yourAnswer')"
             :disabled="checked"
             :class="{ 'input--correct': checked && isCorrect(p.globalIndex), 'input--wrong': checked && !isCorrect(p.globalIndex) }"
@@ -171,12 +171,13 @@ function reset() {
   font-size: 1rem; color: var(--color-accent-light); text-align: center; margin-bottom: 0.75rem;
 }
 
-.answer-row { display: flex; align-items: center; gap: 0.625rem; margin-top: 0.5rem; }
+.answer-row { display: flex; align-items: flex-start; gap: 0.625rem; margin-top: 0.5rem; }
 
 .answer-input {
-  flex: 1; padding: 0.5rem 0.75rem;
+  flex: 1; padding: 0.75rem; min-height: 5rem; resize: vertical;
   border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 0.5rem;
-  font-size: 0.875rem; background: rgba(255, 255, 255, 0.025);
+  font-size: 0.9rem; line-height: 1.5; font-family: inherit;
+  background: rgba(255, 255, 255, 0.025);
   color: var(--color-text-primary); transition: border-color 0.15s, box-shadow 0.15s;
 }
 .answer-input:focus { outline: none; border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); }

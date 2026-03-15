@@ -201,6 +201,19 @@ def group_questions_by_scenario(questions: List[Dict]) -> List[tuple]:
 # Anlage (appendix) extraction from raw PDF text
 # ---------------------------------------------------------------------------
 
+# Regex to strip PDF layout artifacts (long underscores, dashes, pipes)
+_PDF_ARTIFACT_RE = re.compile(r'[_\-─═]{10,}')
+# Collapse runs of 3+ blank lines to 2
+_MULTI_BLANK_RE = re.compile(r'\n{4,}')
+
+
+def _clean_pdf_artifacts(text: str) -> str:
+    """Remove PDF layout artifacts from extracted text."""
+    text = _PDF_ARTIFACT_RE.sub('', text)
+    text = _MULTI_BLANK_RE.sub('\n\n', text)
+    return text.strip()
+
+
 # Matches Anlage headers: "Anlage 1", "Anlage 2: zu IT 1.3", "Anlage 3" etc.
 # Standalone line starting with "Anlage N" (with optional suffix).
 _ANLAGE_HEADER_RE = re.compile(
@@ -252,6 +265,7 @@ def extract_anlagen_from_raw_text(raw_text: str) -> Dict[int, str]:
         else:
             end = len(raw_text)
         content = raw_text[start:end].strip()
+        content = _clean_pdf_artifacts(content)
         # Limit to 5000 chars per Anlage to avoid bloating scenario_text
         if len(content) > 5000:
             content = content[:5000] + '\n[... gekürzt]'

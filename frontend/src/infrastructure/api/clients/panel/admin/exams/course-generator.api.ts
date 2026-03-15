@@ -31,7 +31,6 @@ export interface CoursePlan {
   total_questions: number
   total_points: number
   chapters: ChapterPreview[]
-  simulation_exam_ids: string[]
 }
 
 export interface GenerateResult {

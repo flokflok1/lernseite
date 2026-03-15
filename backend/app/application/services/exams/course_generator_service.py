@@ -10,7 +10,6 @@ from typing import Dict, Any, Optional, List, Tuple
 from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, parse_label
 from app.domain.services.exam_topic_utils import normalize_topic
 from app.domain.services.lm_content_mapper import LMContentMapper
-from app.infrastructure.persistence.repositories.exams.core import ExamRepository
 from app.infrastructure.persistence.repositories.exams.questions import ExamQuestionRepository
 from app.infrastructure.persistence.repositories.exams.sessions import ExamSessionRepository
 from app.infrastructure.persistence.repositories.exams.topic_taxonomy import (
@@ -44,7 +43,6 @@ class ExamCourseGeneratorService:
         When user_id is provided, enriches chapters with user-specific
         weakness data for personalized priority sorting.
         """
-        simulation_exam_ids = _find_simulation_exams(exam_type_key, region)
         title = _build_title(exam_type_key, region, language)
         region_name = _resolve_region_name(region, language, for_query=True)
 
@@ -69,7 +67,6 @@ class ExamCourseGeneratorService:
                 region_display_name=region_name,
                 sort_mode=sort_mode,
                 chapters=chapters,
-                simulation_exam_ids=simulation_exam_ids,
             )
 
         if framework_id:
@@ -96,7 +93,6 @@ class ExamCourseGeneratorService:
                 curriculum_framework_id=framework_id,
                 sort_mode=sort_mode,
                 chapters=chapters,
-                simulation_exam_ids=simulation_exam_ids,
             )
 
         # Fallback: topic-based grouping (existing logic)
@@ -123,7 +119,6 @@ class ExamCourseGeneratorService:
             region=region,
             region_display_name=region_name,
             chapters=chapters,
-            simulation_exam_ids=simulation_exam_ids,
         )
 
     @staticmethod
@@ -302,15 +297,6 @@ def _build_chapters_from_groups(
 
     chapters.sort(key=lambda ch: ch.point_weight, reverse=True)
     return chapters
-
-
-def _find_simulation_exams(
-    exam_type_key: str, region: str
-) -> List[str]:
-    """Find distinct exam IDs that can serve as simulation chapters."""
-    return ExamRepository.find_simulation_exam_ids(
-        exam_type_key, region,
-    )
 
 
 def _resolve_region_name(region: str, language: str = 'de', for_query: bool = False) -> str:

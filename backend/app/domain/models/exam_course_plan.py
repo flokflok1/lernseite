@@ -128,5 +128,4 @@ class ExamCoursePlan:
                 }
                 for ch in self.chapters
             ],
-            'simulation_exam_ids': self.simulation_exam_ids,
         }

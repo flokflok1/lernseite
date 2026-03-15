@@ -216,6 +216,13 @@ def grade_and_record(user, question_id, user_answer, attempt_id):
             earned_points=result['points_earned']
         )
 
+    # Track per-question stats for rotation algorithm
+    ExamTrainerRepository.upsert_question_stats(
+        user_id=str(user['user_id']),
+        question_id=question_id,
+        is_correct=bool(result['is_correct']),
+    )
+
     return jsonify({
         'success': True,
         'is_correct': result['is_correct'],

@@ -4,7 +4,7 @@
       <!-- Scenario context block (shown once per group) -->
       <div v-if="group.scenario_title || group.scenario_text" class="scenario-block">
         <h3 v-if="group.scenario_title" class="scenario-title">{{ group.scenario_title }}</h3>
-        <p v-if="group.scenario_text" class="scenario-text">{{ group.scenario_text }}</p>
+        <div v-if="group.scenario_text" class="scenario-text" v-html="renderMarkdown(group.scenario_text)" />
       </div>
 
       <!-- Problems within this scenario -->
@@ -52,6 +52,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { MathInteractiveData, MathProblem } from '../types'
+import { renderMarkdown } from '../markdown'
 
 const { t } = useI18n()
 const props = defineProps<{ data: MathInteractiveData | null }>()
@@ -132,6 +133,25 @@ function reset() {
   line-height: 1.7;
   color: var(--color-text-secondary);
 }
+.scenario-text :deep(h1), .scenario-text :deep(h2), .scenario-text :deep(h3) {
+  font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.5rem;
+  color: var(--color-text-primary);
+}
+.scenario-text :deep(p) { margin: 0.4rem 0; }
+.scenario-text :deep(table) {
+  width: 100%; border-collapse: collapse; margin: 0.75rem 0;
+  font-size: 0.8rem;
+}
+.scenario-text :deep(th),
+.scenario-text :deep(td) {
+  padding: 0.375rem 0.625rem; text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.scenario-text :deep(th) {
+  background: rgba(255, 255, 255, 0.04); font-weight: 600;
+  color: var(--color-text-primary);
+}
+.scenario-text :deep(td) { color: var(--color-text-secondary); }
 
 /* ── Problem cards ── */
 .problem-card {

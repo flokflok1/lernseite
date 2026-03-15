@@ -17,11 +17,12 @@ class ExamProgramRepository:
 
     @staticmethod
     def find_all() -> List[Dict[str, Any]]:
-        """List all registered exam programs."""
+        """List all active (non-trashed) exam programs."""
         return fetch_all("""
             SELECT program_id, program_key, display_name, program_type,
                    provider, description, icon, sort_order, created_at
             FROM assessments.exam_programs
+            WHERE trashed_at IS NULL
             ORDER BY sort_order, program_key
         """)
 
@@ -121,10 +122,42 @@ class ExamProgramRepository:
         return True
 
     @staticmethod
-    def delete_by_id(program_id: int) -> bool:
-        """Delete a program by ID."""
+    def trash_by_id(program_id: int) -> bool:
+        """Soft-delete a program (move to trash)."""
+        result = fetch_one("""
+            UPDATE assessments.exam_programs
+            SET trashed_at = NOW()
+            WHERE program_id = %s AND trashed_at IS NULL
+            RETURNING program_id
+        """, (program_id,))
+        return result is not None
+
+    @staticmethod
+    def restore_by_id(program_id: int) -> bool:
+        """Restore a program from trash."""
+        result = fetch_one("""
+            UPDATE assessments.exam_programs
+            SET trashed_at = NULL
+            WHERE program_id = %s AND trashed_at IS NOT NULL
+            RETURNING program_id
+        """, (program_id,))
+        return result is not None
+
+    @staticmethod
+    def purge_by_id(program_id: int) -> bool:
+        """Permanently delete a trashed program."""
         result = fetch_one(
-            "DELETE FROM assessments.exam_programs WHERE program_id = %s RETURNING program_id",
+            "DELETE FROM assessments.exam_programs WHERE program_id = %s AND trashed_at IS NOT NULL RETURNING program_id",
             (program_id,),
         )
         return result is not None
+
+    @staticmethod
+    def find_trashed() -> List[Dict[str, Any]]:
+        """Get all trashed programs."""
+        return fetch_all("""
+            SELECT program_id, program_key, display_name, icon, trashed_at
+            FROM assessments.exam_programs
+            WHERE trashed_at IS NOT NULL
+            ORDER BY trashed_at DESC
+        """)

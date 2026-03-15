@@ -10,6 +10,7 @@ import ExplorerContent from './ExplorerContent.vue'
 import ExplorerContextMenu from './ExplorerContextMenu.vue'
 import ExplorerStatusBar from './ExplorerStatusBar.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+import TrashPanel from './TrashPanel.vue'
 import type { ArchiveFolder, ArchiveFile } from '@/infrastructure/api/clients/panel/admin/exams/folders.api'
 
 // FolderDetailDialog imported when needed
@@ -26,6 +27,9 @@ const ctxMenu = useContextMenu()
 const dragDrop = useDragDrop((item, targetFolderId) => {
   explorer.handleMoveItem(item.type, item.id, targetFolderId)
 })
+
+// ── Trash Panel ──
+const trashVisible = ref(false)
 
 // ── Confirm Dialog State ──
 const confirmDialog = ref({
@@ -187,6 +191,9 @@ function onOpenFile(examId: string) {
         />
       </div>
 
+      <button class="btn-secondary" @click="trashVisible = true">
+        🗑 Papierkorb
+      </button>
       <button class="btn-secondary">
         ⬆ {{ t('panel.examArchive.uploadPdfs') }}
       </button>
@@ -262,6 +269,13 @@ function onOpenFile(examId: string) {
       :position="ctxMenu.position.value"
       :target="ctxMenu.target.value"
       @action="handleContextAction"
+    />
+
+    <!-- Trash Panel (slide-in drawer) -->
+    <TrashPanel
+      :visible="trashVisible"
+      @close="trashVisible = false"
+      @restored="trashVisible = false; explorer.loadPrograms()"
     />
 
     <!-- Confirm Dialog -->

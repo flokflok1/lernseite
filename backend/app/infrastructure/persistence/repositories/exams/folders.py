@@ -34,6 +34,7 @@ class ArchiveFolderRepository:
         conditions: list[str] = []
         params: list = []
 
+        conditions: list[str] = ["f.trashed_at IS NULL"]
         if parent_folder_id:
             conditions.append("f.parent_folder_id = %s")
             params.append(parent_folder_id)
@@ -50,7 +51,7 @@ class ArchiveFolderRepository:
             SELECT f.folder_id, f.parent_folder_id, f.program_id, f.name, f.icon,
                    f.position, f.metadata, f.created_at,
                    (SELECT COUNT(*) FROM assessments.archive_folders c
-                    WHERE c.parent_folder_id = f.folder_id) AS child_count,
+                    WHERE c.parent_folder_id = f.folder_id AND c.trashed_at IS NULL) AS child_count,
                    (SELECT COUNT(*) FROM assessments.exams e
                     WHERE e.folder_id = f.folder_id) AS file_count
             FROM assessments.archive_folders f
@@ -65,12 +66,13 @@ class ArchiveFolderRepository:
             WITH RECURSIVE folder_tree AS (
                 SELECT folder_id, parent_folder_id, name, icon, position, 0 AS depth
                 FROM assessments.archive_folders
-                WHERE program_id = %s AND parent_folder_id IS NULL
+                WHERE program_id = %s AND parent_folder_id IS NULL AND trashed_at IS NULL
                 UNION ALL
                 SELECT f.folder_id, f.parent_folder_id, f.name, f.icon, f.position,
                        ft.depth + 1
                 FROM assessments.archive_folders f
                 JOIN folder_tree ft ON f.parent_folder_id = ft.folder_id
+                WHERE f.trashed_at IS NULL
             )
             SELECT ft.*,
                    (SELECT COUNT(*) FROM assessments.archive_folders c
@@ -129,14 +131,77 @@ class ArchiveFolderRepository:
         """, params)
 
     @staticmethod
-    def delete(folder_id: str) -> bool:
-        """Delete a folder and all descendants (CASCADE)."""
+    def trash(folder_id: str) -> bool:
+        """Soft-delete a folder (move to trash)."""
+        result = fetch_one("""
+            UPDATE assessments.archive_folders
+            SET trashed_at = NOW()
+            WHERE folder_id = %s AND trashed_at IS NULL
+            RETURNING folder_id
+        """, (folder_id,))
+        # Also trash all descendants
+        if result:
+            execute_query("""
+                WITH RECURSIVE descendants AS (
+                    SELECT folder_id FROM assessments.archive_folders
+                    WHERE parent_folder_id = %s
+                    UNION ALL
+                    SELECT f.folder_id FROM assessments.archive_folders f
+                    JOIN descendants d ON f.parent_folder_id = d.folder_id
+                )
+                UPDATE assessments.archive_folders
+                SET trashed_at = NOW()
+                WHERE folder_id IN (SELECT folder_id FROM descendants)
+                  AND trashed_at IS NULL
+            """, (folder_id,))
+        return result is not None
+
+    @staticmethod
+    def restore(folder_id: str) -> bool:
+        """Restore a folder from trash."""
+        result = fetch_one("""
+            UPDATE assessments.archive_folders
+            SET trashed_at = NULL
+            WHERE folder_id = %s AND trashed_at IS NOT NULL
+            RETURNING folder_id
+        """, (folder_id,))
+        # Also restore descendants
+        if result:
+            execute_query("""
+                WITH RECURSIVE descendants AS (
+                    SELECT folder_id FROM assessments.archive_folders
+                    WHERE parent_folder_id = %s
+                    UNION ALL
+                    SELECT f.folder_id FROM assessments.archive_folders f
+                    JOIN descendants d ON f.parent_folder_id = d.folder_id
+                )
+                UPDATE assessments.archive_folders
+                SET trashed_at = NULL
+                WHERE folder_id IN (SELECT folder_id FROM descendants)
+            """, (folder_id,))
+        return result is not None
+
+    @staticmethod
+    def purge(folder_id: str) -> bool:
+        """Permanently delete a trashed folder."""
         result = fetch_one("""
             DELETE FROM assessments.archive_folders
-            WHERE folder_id = %s
+            WHERE folder_id = %s AND trashed_at IS NOT NULL
             RETURNING folder_id
         """, (folder_id,))
         return result is not None
+
+    @staticmethod
+    def find_trashed() -> List[Dict[str, Any]]:
+        """Get all trashed folders (for trash view)."""
+        return fetch_all("""
+            SELECT f.folder_id, f.name, f.icon, f.program_id, f.trashed_at,
+                   p.display_name AS program_name
+            FROM assessments.archive_folders f
+            LEFT JOIN assessments.exam_programs p ON p.program_id = f.program_id
+            WHERE f.trashed_at IS NOT NULL
+            ORDER BY f.trashed_at DESC
+        """)
 
     @staticmethod
     def move(folder_id: str, new_parent_id: Optional[str]) -> Optional[Dict[str, Any]]:

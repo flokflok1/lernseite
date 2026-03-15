@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS assessments.archive_folders (
     metadata         JSONB DEFAULT '{}',
     created_by       UUID REFERENCES core.users(user_id) ON DELETE SET NULL,
     created_at       TIMESTAMPTZ DEFAULT NOW(),
-    updated_at       TIMESTAMPTZ DEFAULT NOW()
+    updated_at       TIMESTAMPTZ DEFAULT NOW(),
+    trashed_at       TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS idx_archive_folders_parent
@@ -36,3 +37,15 @@ ALTER TABLE assessments.exams
 
 CREATE INDEX IF NOT EXISTS idx_exams_folder
     ON assessments.exams(folder_id) WHERE folder_id IS NOT NULL;
+
+-- ============================================================
+-- 3. Soft-delete support for folders and programs
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_archive_folders_trashed
+    ON assessments.archive_folders(trashed_at) WHERE trashed_at IS NOT NULL;
+
+ALTER TABLE assessments.exam_programs
+    ADD COLUMN IF NOT EXISTS trashed_at TIMESTAMPTZ;
+
+CREATE INDEX IF NOT EXISTS idx_exam_programs_trashed
+    ON assessments.exam_programs(trashed_at) WHERE trashed_at IS NOT NULL;

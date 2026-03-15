@@ -115,11 +115,11 @@ class FolderService:
 
     @staticmethod
     def delete_folder(folder_id: str) -> bool:
-        """Delete a folder and all descendants (exams get folder_id=NULL)."""
-        deleted = ArchiveFolderRepository.delete(folder_id)
-        if deleted:
-            logger.info("Deleted folder %s and descendants", folder_id)
-        return deleted
+        """Soft-delete a folder (move to trash)."""
+        trashed = ArchiveFolderRepository.trash(folder_id)
+        if trashed:
+            logger.info("Trashed folder %s and descendants", folder_id)
+        return trashed
 
     @staticmethod
     def move_file_to_folder(exam_id: str, folder_id: Optional[str]) -> bool:

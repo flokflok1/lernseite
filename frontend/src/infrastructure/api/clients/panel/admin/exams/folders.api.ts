@@ -119,5 +119,30 @@ export function updateProgram(programId: string, params: { display_name?: Record
 }
 
 export function deleteProgram(programId: string) {
-  return http.delete<{ deleted: boolean }>(`${BASE}/programs/${programId}`)
+  return http.delete<{ trashed: boolean }>(`${BASE}/programs/${programId}`)
+}
+
+// ── Trash (Papierkorb) ──
+
+export interface TrashItem {
+  type: 'program' | 'folder'
+  program_id?: number
+  folder_id?: string
+  name?: string
+  display_name?: Record<string, string>
+  icon?: string
+  trashed_at: string
+  program_name?: Record<string, string>
+}
+
+export function fetchTrash(): Promise<{ data: { programs: TrashItem[]; folders: TrashItem[] } }> {
+  return http.get(`${BASE}/trash`)
+}
+
+export function restoreFromTrash(type: 'program' | 'folder', id: string) {
+  return http.post(`${BASE}/trash/restore`, { type, id })
+}
+
+export function purgeFromTrash(type: 'program' | 'folder', id: string) {
+  return http.post(`${BASE}/trash/purge`, { type, id })
 }

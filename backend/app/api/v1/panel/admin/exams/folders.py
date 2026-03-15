@@ -174,9 +174,62 @@ def update_program(program_id: int):
 
 @folders_bp.route('/programs/<int:program_id>', methods=['DELETE'])
 @admin_required
-def delete_program(program_id: int):
-    """DELETE — Delete a program and all its folders."""
-    deleted = ExamProgramRepository.delete_by_id(program_id)
-    if not deleted:
+def trash_program(program_id: int):
+    """DELETE — Move program to trash (soft-delete)."""
+    trashed = ExamProgramRepository.trash_by_id(program_id)
+    if not trashed:
         return jsonify({'error': 'Program not found'}), 404
-    return jsonify({'deleted': True}), 200
+    return jsonify({'trashed': True}), 200
+
+
+# ── Trash (Papierkorb) ───────────────────────────────────
+
+@folders_bp.route('/trash', methods=['GET'])
+@admin_required
+def list_trash():
+    """GET — List all trashed items (programs + folders)."""
+    from app.infrastructure.persistence.repositories.exams.folders import ArchiveFolderRepository
+    programs = ExamProgramRepository.find_trashed()
+    folders = ArchiveFolderRepository.find_trashed()
+    return jsonify({
+        'programs': [{'type': 'program', **p} for p in programs],
+        'folders': [{'type': 'folder', **f} for f in folders],
+    }), 200
+
+
+@folders_bp.route('/trash/restore', methods=['POST'])
+@admin_required
+def restore_item():
+    """POST — Restore item from trash."""
+    data = request.get_json()
+    item_type = data.get('type')
+    item_id = data.get('id')
+    if item_type == 'program':
+        restored = ExamProgramRepository.restore_by_id(int(item_id))
+    elif item_type == 'folder':
+        from app.infrastructure.persistence.repositories.exams.folders import ArchiveFolderRepository
+        restored = ArchiveFolderRepository.restore(item_id)
+    else:
+        return jsonify({'error': 'Invalid type'}), 400
+    if not restored:
+        return jsonify({'error': 'Item not found in trash'}), 404
+    return jsonify({'restored': True}), 200
+
+
+@folders_bp.route('/trash/purge', methods=['POST'])
+@admin_required
+def purge_item():
+    """POST — Permanently delete a trashed item."""
+    data = request.get_json()
+    item_type = data.get('type')
+    item_id = data.get('id')
+    if item_type == 'program':
+        purged = ExamProgramRepository.purge_by_id(int(item_id))
+    elif item_type == 'folder':
+        from app.infrastructure.persistence.repositories.exams.folders import ArchiveFolderRepository
+        purged = ArchiveFolderRepository.purge(item_id)
+    else:
+        return jsonify({'error': 'Invalid type'}), 400
+    if not purged:
+        return jsonify({'error': 'Item not found in trash'}), 404
+    return jsonify({'purged': True}), 200

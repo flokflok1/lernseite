@@ -20,10 +20,10 @@ from app.application.services.exams.question_helpers import (
     enrich_scenario_with_anlagen,
 )
 from app.application.services.exams.course_generator_builder_part2 import (
-    build_simulation_chapter as _build_simulation_chapter,
     build_chapter_metadata as _build_chapter_metadata,
     enrich_with_web_research as _enrich_with_web_research,
     chapter_title_from_plan as _chapter_title_from_plan,
+    select_representative_questions as _select_representative,
     _estimate_duration,
 )
 from app.infrastructure.persistence.repositories.courses.management.crud import (
@@ -121,9 +121,7 @@ class CourseGeneratorBuilder:
 
         return {
             'course_id': course_id,
-            'chapters_count': (
-                len(plan.chapters) + len(plan.simulation_exam_ids)
-            ),
+            'chapters_count': len(plan.chapters),
             'lm_count': total_lm_count,
             'tokens_used': total_tokens,
             'ai_plan_ids': ai_plan_ids,
@@ -152,7 +150,6 @@ def _create_course(
             'passing_percentage': 50,
             'source_exam_type': plan.exam_type,
             'source_region': plan.region,
-            'simulation_exam_ids': plan.simulation_exam_ids,
         },
     })
     course_id = str(course['course_id'])
@@ -185,7 +182,7 @@ def _build_all_chapters(
     options: Dict[str, Any],
     language: str,
 ) -> tuple:
-    """Build topic chapters + simulation chapters.
+    """Build topic chapters.
 
     Returns (lm_count, tokens, ai_plan_ids).
     """
@@ -202,10 +199,6 @@ def _build_all_chapters(
         total_tokens += result.get('tokens_used', 0)
         if result.get('ai_plan_id'):
             all_ai_plan_ids.append(result['ai_plan_id'])
-
-    for sim_exam_id in plan.simulation_exam_ids:
-        sim = _build_simulation_chapter(course_id, sim_exam_id, language)
-        total_lm += sim['lm_count']
 
     return total_lm, total_tokens, all_ai_plan_ids
 
@@ -354,8 +347,12 @@ def _create_static_lm_instances(
         if lm_type in ai_types:
             continue
 
+        # Limit questions per LM type — courses are for learning,
+        # the exam trainer handles the full question pool
+        lm_questions = _select_representative(questions)
+
         chunks = split_questions_into_chunks(
-            questions,
+            lm_questions,
             keep_scenarios_separate=lm_type in _SCENARIO_BOUND_LM_TYPES,
         )
         chapter_label = _chapter_title_from_plan(chapter_plan, language)

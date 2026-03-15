@@ -1,34 +1,11 @@
-"""Course Generator Builder Part 2 — simulation chapters and support functions.
+"""Course Generator Builder Part 2 — support functions.
 
 Split from course_generator_builder.py to comply with G01 (500 LOC limit).
 """
 import logging
-from typing import Dict, Any, List
+from typing import Dict, List
 
-from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, parse_label
-from app.domain.services.lm_content_mapper import LMContentMapper
-from app.application.services.exams.lesson_content_builder import (
-    build_lesson_markdown,
-)
-from app.application.services.exams.question_helpers import (
-    make_json_safe,
-    group_questions_by_scenario,
-)
-from app.infrastructure.persistence.repositories.courses.content.chapters import (
-    ChapterRepository,
-)
-from app.infrastructure.persistence.repositories.learning_method.execution.instances import (
-    LearningMethodInstanceRepository,
-)
-from app.infrastructure.persistence.repositories.exams.questions import (
-    ExamQuestionRepository,
-)
-from app.infrastructure.persistence.repositories.exams.core import (
-    ExamRepository,
-)
-from app.infrastructure.persistence.repositories.courses.content.lessons import (
-    LessonRepository,
-)
+from app.domain.models.exam_course_plan import ChapterPlan, parse_label
 
 logger = logging.getLogger(__name__)
 
@@ -46,93 +23,6 @@ def _estimate_duration(lm_type: int, item_count: int) -> int:
     }
     base = per_item.get(lm_type, 5)
     return max(2, base * max(1, item_count))
-
-
-def build_simulation_chapter(
-    course_id: str,
-    exam_id: str,
-    language: str = 'de',
-) -> Dict[str, Any]:
-    """Build simulation chapter with real exam structure.
-
-    One lesson per scenario, preserving GA1 question order with
-    time limit and point distribution metadata.
-    """
-    questions = ExamQuestionRepository.find_by_exam(exam_id)
-    if not questions:
-        return {'lm_count': 0}
-
-    exam = ExamRepository.find_by_id(exam_id)
-    exam_label = exam.get('title', 'Exam') if exam else 'Exam'
-    total_points = sum(float(q.get('points', 0) or 0) for q in questions)
-
-    scenario_groups = group_questions_by_scenario(questions)
-    if not scenario_groups:
-        return {'lm_count': 0}
-
-    sim_title = {
-        'de': f'Simulation: {exam_label}',
-        'en': f'Simulation: {exam_label}',
-    }
-    desc = {
-        'de': (f'{len(questions)} Aufgaben, {len(scenario_groups)} Szenarien, '
-               f'{int(total_points)} Punkte — 90 Minuten Bearbeitungszeit'),
-        'en': (f'{len(questions)} tasks, {len(scenario_groups)} scenarios, '
-               f'{int(total_points)} points — 90 minutes time limit'),
-    }
-    chapter = ChapterRepository.create({
-        'course_id': course_id,
-        'title': sim_title.get(language, sim_title['de']),
-        'description': desc.get(language, desc['de']),
-    })
-    chapter_id = str(chapter['chapter_id'])
-
-    lm_count = 0
-    for order_idx, (scenario_title, group_qs) in enumerate(scenario_groups):
-        tasks = LMContentMapper.map_to_ihk_tasks(group_qs, include_mcq=True)
-        if not tasks or not tasks.get('tasks'):
-            continue
-
-        scenario_pts = sum(float(q.get('points', 0) or 0) for q in group_qs)
-        lesson_title = scenario_title or f"Teil {order_idx + 1}"
-        sim_content = build_lesson_markdown(10, tasks, lesson_title, language)
-        duration = _estimate_duration(10, len(tasks.get('tasks', [])))
-
-        exam_config = {
-            'exam_id': exam_id,
-            'exam_title': exam_label,
-            'question_count': len(group_qs),
-            'scenario_points': scenario_pts,
-            'total_points': total_points,
-            'time_limit_minutes': 90,
-            'scenario_index': order_idx,
-            'total_scenarios': len(scenario_groups),
-            'mode': 'simulation',
-        }
-
-        lesson = LessonRepository.create({
-            'chapter_id': chapter_id,
-            'title': lesson_title,
-            'lesson_type': 'assignment',
-            'content': sim_content or None,
-            'duration_minutes': duration,
-            'published': True,
-        })
-        lesson_id = str(lesson['lesson_id'])
-
-        LearningMethodInstanceRepository.create({
-            'chapter_id': chapter_id,
-            'lesson_id': lesson_id,
-            'method_type': 10,
-            'title': lesson_title,
-            'data': make_json_safe({**tasks, 'exam_config': exam_config}),
-            'order_index': order_idx + 1,
-            'published': True,
-            'difficulty': 'hard',
-        })
-        lm_count += 1
-
-    return {'lm_count': lm_count, 'question_count': len(questions)}
 
 
 def build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
@@ -209,3 +99,45 @@ def chapter_title_from_plan(chapter_plan: ChapterPlan, language: str) -> str:
     """Derive chapter title from parent_label or topic key."""
     label = parse_label(chapter_plan.parent_label)
     return label.get(language, chapter_plan.topic.replace('_', ' ').title())
+
+
+# Maximum questions per LM type in a course chapter.
+# The full question pool is handled by the exam trainer — courses are for learning.
+MAX_QUESTIONS_PER_LM = 5
+MAX_PER_SCENARIO = 2
+
+
+def select_representative_questions(
+    questions: List[Dict], max_total: int = MAX_QUESTIONS_PER_LM,
+) -> List[Dict]:
+    """Pick a diverse subset of questions for course lessons.
+
+    Strategy:
+    1. Group by scenario_title (at most MAX_PER_SCENARIO per scenario)
+    2. Prefer higher-point questions (more substantial)
+    3. Return at most max_total questions
+
+    The full question pool stays in the exam trainer for practice.
+    """
+    if len(questions) <= max_total:
+        return questions
+
+    # Sort by points descending (most valuable first)
+    sorted_qs = sorted(
+        questions, key=lambda q: float(q.get('points', 0) or 0), reverse=True,
+    )
+
+    selected: List[Dict] = []
+    scenario_counts: Dict[str, int] = {}
+
+    for q in sorted_qs:
+        if len(selected) >= max_total:
+            break
+        scenario = q.get('scenario_title') or '_none_'
+        count = scenario_counts.get(scenario, 0)
+        if count >= MAX_PER_SCENARIO:
+            continue
+        selected.append(q)
+        scenario_counts[scenario] = count + 1
+
+    return selected

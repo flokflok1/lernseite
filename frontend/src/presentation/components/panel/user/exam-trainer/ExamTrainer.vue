@@ -20,7 +20,7 @@ const { t } = useI18n()
 // ----------------------------------------------------------------------------
 // State
 // ----------------------------------------------------------------------------
-type TabKey = 'exams' | 'topics' | 'practice'
+type TabKey = 'exams' | 'simulations' | 'topics' | 'practice'
 
 const activeTab = ref<TabKey>('exams')
 const isLoading = ref(false)
@@ -55,13 +55,18 @@ const currentQuestion = computed<TrainerQuestion | null>(() => {
   return questions.value[currentQuestionIndex.value] ?? null
 })
 
+const simulationExams = computed(() =>
+  exams.value.filter(e => e.analysis_status === 'ready' && e.question_count > 0)
+)
+
 const tabs = computed(() => {
-  const base = [
-    { key: 'exams' as TabKey, label: t('panel.examTrainer.tabs.exams') },
-    { key: 'topics' as TabKey, label: t('panel.examTrainer.tabs.topics') },
+  const base: { key: TabKey; label: string }[] = [
+    { key: 'exams', label: t('panel.examTrainer.tabs.exams') },
+    { key: 'simulations', label: t('panel.examTrainer.tabs.simulations') },
+    { key: 'topics', label: t('panel.examTrainer.tabs.topics') },
   ]
   if (questions.value.length > 0) {
-    base.push({ key: 'practice' as TabKey, label: t('panel.examTrainer.tabs.practice') })
+    base.push({ key: 'practice', label: t('panel.examTrainer.tabs.practice') })
   }
   return base
 })
@@ -276,6 +281,56 @@ onMounted(() => {
             @click="startExamPractice(exam)"
           >
             {{ t('panel.examTrainer.startExam') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Simulations -->
+    <div v-else-if="activeTab === 'simulations'">
+      <div class="mb-4">
+        <h2 class="text-lg font-semibold text-[var(--color-text)]">
+          {{ t('panel.examTrainer.simulations.title') }}
+        </h2>
+        <p class="text-sm text-[var(--color-text-secondary)]">
+          {{ t('panel.examTrainer.simulations.subtitle') }}
+        </p>
+      </div>
+      <p v-if="simulationExams.length === 0" class="text-center py-8 text-[var(--color-text-secondary)]">
+        {{ t('panel.examTrainer.noExams') }}
+      </p>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          v-for="exam in simulationExams"
+          :key="exam.exam_id"
+          class="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]
+                 hover:shadow-md transition-shadow"
+        >
+          <h3 class="font-semibold text-[var(--color-text)] mb-2">{{ exam.title }}</h3>
+          <div class="text-sm text-[var(--color-text-secondary)] space-y-1 mb-4">
+            <p>{{ exam.semester }} &middot; {{ exam.season }} {{ exam.year }}</p>
+            <div class="flex flex-wrap gap-3 mt-2">
+              <span class="inline-flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {{ t('panel.examTrainer.simulations.duration', { minutes: exam.duration_minutes || 90 }) }}
+              </span>
+              <span v-if="exam.total_points">
+                {{ t('panel.examTrainer.simulations.points', { count: exam.total_points }) }}
+              </span>
+              <span>
+                {{ t('panel.examTrainer.questions', { count: exam.question_count }) }}
+              </span>
+            </div>
+          </div>
+          <button
+            class="w-full px-4 py-2.5 rounded-lg font-medium text-sm transition-colors
+                   bg-emerald-600 text-white hover:bg-emerald-700"
+            @click="startExamPractice(exam)"
+          >
+            {{ t('panel.examTrainer.simulations.start') }}
           </button>
         </div>
       </div>

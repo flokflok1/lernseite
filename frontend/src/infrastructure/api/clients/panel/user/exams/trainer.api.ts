@@ -16,6 +16,9 @@ export interface TrainerExam {
   part: string
   question_count: number
   analysis_status: string
+  duration_minutes: number | null
+  total_points: number | null
+  passing_score: number | null
 }
 
 export interface TrainerQuestion {

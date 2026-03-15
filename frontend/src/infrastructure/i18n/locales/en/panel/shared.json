@@ -248,8 +248,16 @@
     "subtitle": "Practice with real exam questions",
     "tabs": {
       "exams": "Exams",
+      "simulations": "Simulations",
       "topics": "Topics",
       "practice": "Question"
+    },
+    "simulations": {
+      "title": "Exam Simulations",
+      "subtitle": "Complete exam under real-time conditions",
+      "start": "Start Simulation",
+      "duration": "{minutes} minutes",
+      "points": "{count} points"
     },
     "selectExam": "Select an exam to practice",
     "noExams": "No exams available. The admin needs to import and analyze exams first.",

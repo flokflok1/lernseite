@@ -248,8 +248,16 @@
     "subtitle": "Übe mit echten Prüfungsaufgaben",
     "tabs": {
       "exams": "Prüfungen",
+      "simulations": "Simulationen",
       "topics": "Themen",
       "practice": "Aufgabe"
+    },
+    "simulations": {
+      "title": "Prüfungssimulationen",
+      "subtitle": "Komplette Prüfung unter Echtzeitbedingungen",
+      "start": "Simulation starten",
+      "duration": "{minutes} Minuten",
+      "points": "{count} Punkte"
     },
     "selectExam": "Wähle eine Prüfung zum Üben",
     "noExams": "Keine Prüfungen verfügbar. Der Admin muss zuerst Prüfungen importieren und analysieren.",

@@ -143,11 +143,6 @@
         />
       </div>
 
-      <!-- Simulations -->
-      <div v-if="plan.simulation_exam_ids.length > 0" class="text-xs text-[var(--color-text-secondary)]">
-        + {{ plan.simulation_exam_ids.length }} {{ t('panel.examCourseGenerator.simulations') }}
-      </div>
-
       <!-- Generate Button -->
       <div class="flex items-center gap-3">
         <button

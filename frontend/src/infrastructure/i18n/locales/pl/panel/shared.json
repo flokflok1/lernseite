@@ -248,8 +248,16 @@
     "subtitle": "Ćwicz z prawdziwymi pytaniami egzaminacyjnymi",
     "tabs": {
       "exams": "Egzaminy",
+      "simulations": "Symulacje",
       "topics": "Tematy",
       "practice": "Pytanie"
+    },
+    "simulations": {
+      "title": "Symulacje egzaminów",
+      "subtitle": "Pełny egzamin w warunkach zbliżonych do rzeczywistych",
+      "start": "Rozpocznij symulację",
+      "duration": "{minutes} minut",
+      "points": "{count} punktów"
     },
     "selectExam": "Wybierz egzamin do ćwiczenia",
     "noExams": "Brak dostępnych egzaminów. Administrator musi najpierw zaimportować i przeanalizować egzaminy.",

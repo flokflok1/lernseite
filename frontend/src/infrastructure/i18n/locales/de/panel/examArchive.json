@@ -1,0 +1,55 @@
+{
+  "examArchive": {
+    "title": "Prüfungsarchiv",
+    "back": "Zurück",
+    "search": "Suche in Prüfungen...",
+    "uploadPdfs": "PDFs hochladen",
+    "newFolder": "Neuer Ordner",
+    "programs": "Prüfungsprogramme",
+    "folders": "Ordner",
+    "files": "Dateien",
+    "grid": "Grid",
+    "list": "Liste",
+    "contextMenu": {
+      "open": "Öffnen",
+      "rename": "Umbenennen",
+      "copy": "Kopieren",
+      "moveTo": "Verschieben nach...",
+      "newSubfolder": "Neuer Unterordner",
+      "uploadPdfs": "PDFs hochladen",
+      "analyzeAll": "Alle analysieren",
+      "analyze": "Analysieren",
+      "generateCourse": "Kurs generieren",
+      "delete": "Löschen",
+      "download": "Herunterladen",
+      "details": "Details"
+    },
+    "status": {
+      "connected": "Verbunden",
+      "analyzing": "Wird analysiert...",
+      "ready": "Analysiert",
+      "pending": "Ausstehend",
+      "failed": "Fehlgeschlagen",
+      "assigned": "Zugeordnet",
+      "new": "NEU"
+    },
+    "folderDialog": {
+      "editTitle": "Ordner bearbeiten",
+      "name": "Name",
+      "icon": "Icon",
+      "save": "Speichern",
+      "cancel": "Abbrechen"
+    },
+    "dropHint": "PDFs hier ablegen zum Hochladen",
+    "emptyFolder": "Dieser Ordner ist leer",
+    "confirmDelete": "Möchtest du diesen Ordner und alle Inhalte löschen?",
+    "lastSync": "Zuletzt synchronisiert",
+    "stats": "{folders} Ordner · {exams} Prüfungen · {questions} Fragen",
+    "defaultFolderName": "Neuer Ordner",
+    "pdfViewer": {
+      "title": "PDF Viewer",
+      "questions": "Extrahierte Fragen",
+      "noQuestions": "Noch keine Fragen extrahiert"
+    }
+  }
+}

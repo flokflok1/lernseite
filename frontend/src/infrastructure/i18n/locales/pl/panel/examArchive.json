@@ -1,0 +1,55 @@
+{
+  "examArchive": {
+    "title": "Archiwum egzaminów",
+    "back": "Wstecz",
+    "search": "Szukaj w egzaminach...",
+    "uploadPdfs": "Prześlij PDF-y",
+    "newFolder": "Nowy folder",
+    "programs": "Programy egzaminacyjne",
+    "folders": "Foldery",
+    "files": "Pliki",
+    "grid": "Siatka",
+    "list": "Lista",
+    "contextMenu": {
+      "open": "Otwórz",
+      "rename": "Zmień nazwę",
+      "copy": "Kopiuj",
+      "moveTo": "Przenieś do...",
+      "newSubfolder": "Nowy podfolder",
+      "uploadPdfs": "Prześlij PDF-y",
+      "analyzeAll": "Analizuj wszystkie",
+      "analyze": "Analizuj",
+      "generateCourse": "Generuj kurs",
+      "delete": "Usuń",
+      "download": "Pobierz",
+      "details": "Szczegóły"
+    },
+    "status": {
+      "connected": "Połączono",
+      "analyzing": "Analizowanie...",
+      "ready": "Przeanalizowano",
+      "pending": "Oczekujący",
+      "failed": "Niepowodzenie",
+      "assigned": "Przypisano",
+      "new": "NOWY"
+    },
+    "folderDialog": {
+      "editTitle": "Edytuj folder",
+      "name": "Nazwa",
+      "icon": "Ikona",
+      "save": "Zapisz",
+      "cancel": "Anuluj"
+    },
+    "dropHint": "Upuść PDF-y tutaj, aby przesłać",
+    "emptyFolder": "Ten folder jest pusty",
+    "confirmDelete": "Czy chcesz usunąć ten folder i całą jego zawartość?",
+    "lastSync": "Ostatnia synchronizacja",
+    "stats": "{folders} folderów · {exams} egzaminów · {questions} pytań",
+    "defaultFolderName": "Nowy folder",
+    "pdfViewer": {
+      "title": "Przeglądarka PDF",
+      "questions": "Wyodrębnione pytania",
+      "noQuestions": "Nie wyodrębniono jeszcze pytań"
+    }
+  }
+}

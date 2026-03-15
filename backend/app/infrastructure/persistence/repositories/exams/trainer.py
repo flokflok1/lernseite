@@ -250,7 +250,7 @@ class ExamTrainerRepository:
                 if isinstance(user_answer, (dict, list)) else user_answer,
             'is_correct': is_correct,
             'points_earned': points_earned,
-            'needs_review': needs_review,
+            'flagged_for_review': needs_review,
             'answered_at': datetime.utcnow()
         }
         return insert_returning(
@@ -317,8 +317,8 @@ class ExamTrainerRepository:
             'total_points': total_points,
             'percentage': percentage,
             'passed': passed,
-            'results_by_topic': json.dumps(results_by_topic),
-            'created_at': datetime.utcnow()
+            'details': json.dumps(results_by_topic),
+            'graded_at': datetime.utcnow()
         }
         return insert_returning(
             'exam_results', result_data, '*',
@@ -434,7 +434,7 @@ class ExamTrainerRepository:
         """Get full review data for a completed attempt (includes solutions)."""
         query = """
             SELECT ea.question_id, ea.user_answer, ea.is_correct,
-                   ea.points_earned, ea.needs_review,
+                   ea.points_earned, ea.flagged_for_review as needs_review,
                    eq.question_text, eq.question_type, eq.data,
                    eq.solution, eq.points as max_points,
                    eq.scenario_title, eq.scenario_text, eq.topics,

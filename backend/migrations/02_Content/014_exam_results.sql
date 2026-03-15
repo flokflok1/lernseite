@@ -76,5 +76,26 @@ CREATE INDEX IF NOT EXISTS idx_exam_answers_correct ON assessments.exam_answers(
 COMMENT ON TABLE assessments.exam_answers IS 'User answers to individual exam questions';
 
 -- ============================================================================
+-- Exam Trainer extensions (added 2026-03-15)
+-- ============================================================================
+
+-- Additional columns for timed exam attempts
+ALTER TABLE assessments.exam_attempts
+  ADD COLUMN IF NOT EXISTS time_limit_minutes INTEGER,
+  ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS score NUMERIC,
+  ADD COLUMN IF NOT EXISTS total_points NUMERIC,
+  ADD COLUMN IF NOT EXISTS passed BOOLEAN,
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+-- Extend status constraint to include 'completed'
+ALTER TABLE assessments.exam_attempts
+  DROP CONSTRAINT IF EXISTS chk_attempt_status;
+ALTER TABLE assessments.exam_attempts
+  ADD CONSTRAINT chk_attempt_status CHECK (
+    status IN ('in_progress', 'submitted', 'graded', 'cancelled', 'expired', 'completed')
+  );
+
+-- ============================================================================
 -- End of Migration: 014_exam_results.sql
 -- ============================================================================

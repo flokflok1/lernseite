@@ -31,30 +31,49 @@ const dragDrop = useDragDrop((item, targetFolderId) => {
 // ── Trash Panel ──
 const trashVisible = ref(false)
 
-// ── Confirm Dialog State ──
-const confirmDialog = ref({
+// ── Dialog State (used for confirm + input prompts) ──
+const dialog = ref({
   visible: false,
   title: '',
   message: '',
   icon: '🗑',
-  variant: 'danger' as 'danger' | 'warning' | 'info',
-  onConfirm: () => {},
+  variant: 'danger' as 'danger' | 'warning' | 'info' | 'create',
+  inputMode: false,
+  inputPlaceholder: '',
+  inputValue: '',
+  confirmLabel: '',
+  onConfirm: (_val?: string) => {},
 })
 
-function showConfirm(opts: { title: string; message: string; icon?: string; variant?: 'danger' | 'warning' | 'info'; onConfirm: () => void }) {
-  confirmDialog.value = {
-    visible: true,
-    title: opts.title,
-    message: opts.message,
-    icon: opts.icon || '🗑',
-    variant: opts.variant || 'danger',
+function showConfirm(opts: {
+  title: string; message: string; icon?: string;
+  variant?: 'danger' | 'warning' | 'info'; onConfirm: () => void
+}) {
+  dialog.value = {
+    visible: true, title: opts.title, message: opts.message,
+    icon: opts.icon || '🗑', variant: opts.variant || 'danger',
+    inputMode: false, inputPlaceholder: '', inputValue: '', confirmLabel: '',
     onConfirm: opts.onConfirm,
   }
 }
 
-function onConfirmOk() {
-  confirmDialog.value.onConfirm()
-  confirmDialog.value.visible = false
+function showInput(opts: {
+  title: string; message: string; icon?: string;
+  placeholder?: string; defaultValue?: string; confirmLabel?: string;
+  onConfirm: (value: string) => void
+}) {
+  dialog.value = {
+    visible: true, title: opts.title, message: opts.message,
+    icon: opts.icon || '📁', variant: 'create',
+    inputMode: true, inputPlaceholder: opts.placeholder || '',
+    inputValue: opts.defaultValue || '', confirmLabel: opts.confirmLabel || '',
+    onConfirm: (val?: string) => { if (val) opts.onConfirm(val) },
+  }
+}
+
+function onDialogConfirm(inputValue?: string) {
+  dialog.value.onConfirm(inputValue)
+  dialog.value.visible = false
 }
 
 // ── Context Menu Actions ──
@@ -70,34 +89,53 @@ async function handleContextAction(action: string) {
       break
     case 'rename':
       if (target.type === 'folder' && target.id) {
-        const name = prompt(t('panel.examArchive.contextMenu.rename'))
-        if (name) explorer.handleRenameFolder(target.id, name)
+        const folder = target.data as any
+        showInput({
+          title: t('panel.examArchive.contextMenu.rename'),
+          message: 'Neuer Name für den Ordner',
+          icon: '✏️', defaultValue: folder?.name || '',
+          confirmLabel: t('panel.examArchive.folderDialog.save'),
+          onConfirm: (name) => explorer.handleRenameFolder(target.id!, name),
+        })
       }
       if (target.type === 'program' && target.data) {
         const prog = target.data as any
-        const name = prompt(t('panel.examArchive.contextMenu.rename'), prog.display_name?.de || '')
-        if (name) {
-          const { updateProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
-          await updateProgram(target.id!, { display_name: { de: name, en: name } })
+        showInput({
+          title: t('panel.examArchive.contextMenu.rename'),
+          message: 'Neuer Name für das Prüfungsprogramm',
+          icon: '✏️', defaultValue: prog.display_name?.de || '',
+          confirmLabel: t('panel.examArchive.folderDialog.save'),
+          onConfirm: async (name) => {
+            const { updateProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
+            await updateProgram(target.id!, { display_name: { de: name, en: name } })
+            explorer.loadPrograms()
+          },
+        })
+      }
+      break
+    case 'newProgram':
+      showInput({
+        title: 'Neues Prüfungsprogramm',
+        message: 'Name des Prüfungsprogramms eingeben',
+        icon: '🎓', placeholder: 'z.B. Fachinformatiker, CompTIA A+...',
+        confirmLabel: 'Erstellen',
+        onConfirm: async (name) => {
+          const { createProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
+          await createProgram({ name })
           explorer.loadPrograms()
-        }
-      }
+        },
+      })
       break
-    case 'newProgram': {
-      const progName = prompt('Neues Prüfungsprogramm — Name:')
-      if (progName) {
-        const { createProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
-        await createProgram({ name: progName })
-        explorer.loadPrograms()
-      }
-      break
-    }
     case 'newSubfolder':
-    case 'newFolder': {
-      const folderName = prompt(t('panel.examArchive.newFolder'))
-      if (folderName) explorer.handleCreateFolder(folderName, target.id || undefined)
+    case 'newFolder':
+      showInput({
+        title: t('panel.examArchive.newFolder'),
+        message: 'Name des neuen Ordners',
+        icon: '📁', placeholder: t('panel.examArchive.defaultFolderName'),
+        confirmLabel: 'Erstellen',
+        onConfirm: (name) => explorer.handleCreateFolder(name, target.id || undefined),
+      })
       break
-    }
     case 'deleteProgram':
       if (target.type === 'program' && target.id) {
         const prog = target.data as any
@@ -209,7 +247,13 @@ function onOpenFile(examId: string) {
       </button>
       <button
         class="btn-primary"
-        @click="explorer.handleCreateFolder(t('panel.examArchive.defaultFolderName'))"
+        @click="showInput({
+          title: t('panel.examArchive.newFolder'),
+          message: 'Name des neuen Ordners',
+          icon: '📁', placeholder: t('panel.examArchive.defaultFolderName'),
+          confirmLabel: 'Erstellen',
+          onConfirm: (name) => explorer.handleCreateFolder(name),
+        })"
       >
         + {{ t('panel.examArchive.newFolder') }}
       </button>
@@ -288,15 +332,19 @@ function onOpenFile(examId: string) {
       @restored="trashVisible = false; explorer.loadPrograms()"
     />
 
-    <!-- Confirm Dialog -->
+    <!-- Universal Dialog (confirm + input) -->
     <ConfirmDialog
-      :visible="confirmDialog.visible"
-      :title="confirmDialog.title"
-      :message="confirmDialog.message"
-      :icon="confirmDialog.icon"
-      :variant="confirmDialog.variant"
-      @confirm="onConfirmOk"
-      @cancel="confirmDialog.visible = false"
+      :visible="dialog.visible"
+      :title="dialog.title"
+      :message="dialog.message"
+      :icon="dialog.icon"
+      :variant="dialog.variant"
+      :input-mode="dialog.inputMode"
+      :input-placeholder="dialog.inputPlaceholder"
+      :input-value="dialog.inputValue"
+      :confirm-label="dialog.confirmLabel"
+      @confirm="onDialogConfirm"
+      @cancel="dialog.visible = false"
     />
   </div>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 interface Props {
@@ -7,21 +8,50 @@ interface Props {
   message: string
   confirmLabel?: string
   cancelLabel?: string
-  variant?: 'danger' | 'warning' | 'info'
+  variant?: 'danger' | 'warning' | 'info' | 'create'
   icon?: string
+  /** If set, shows a text input and emits its value with confirm */
+  inputMode?: boolean
+  inputPlaceholder?: string
+  inputValue?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   variant: 'danger',
   icon: '🗑',
+  inputMode: false,
+  inputPlaceholder: '',
+  inputValue: '',
 })
 
 const emit = defineEmits<{
-  confirm: []
+  confirm: [inputValue?: string]
   cancel: []
 }>()
 
 const { t } = useI18n()
+
+const inputText = ref('')
+const inputRef = ref<HTMLInputElement | null>(null)
+
+watch(() => props.visible, (v) => {
+  if (v) {
+    inputText.value = props.inputValue || ''
+    nextTick(() => inputRef.value?.focus())
+  }
+})
+
+function handleConfirm() {
+  if (props.inputMode && !inputText.value.trim()) return
+  emit('confirm', props.inputMode ? inputText.value.trim() : undefined)
+}
+
+const variantStyles = {
+  danger: { bg: 'bg-red-500/15', btn: 'bg-red-600 hover:bg-red-500 text-white' },
+  warning: { bg: 'bg-yellow-500/15', btn: 'bg-yellow-600 hover:bg-yellow-500 text-white' },
+  info: { bg: 'bg-blue-500/15', btn: 'bg-blue-600 hover:bg-blue-500 text-white' },
+  create: { bg: 'bg-indigo-500/15', btn: 'bg-indigo-600 hover:bg-indigo-500 text-white' },
+}
 </script>
 
 <template>
@@ -41,18 +71,27 @@ const { t } = useI18n()
             <div class="flex items-start gap-4 mb-4">
               <div
                 class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
-                :class="{
-                  'bg-red-500/15': variant === 'danger',
-                  'bg-yellow-500/15': variant === 'warning',
-                  'bg-blue-500/15': variant === 'info',
-                }"
+                :class="variantStyles[variant].bg"
               >
                 {{ icon }}
               </div>
-              <div>
+              <div class="flex-1">
                 <h3 class="text-lg font-semibold text-white">{{ title }}</h3>
                 <p class="text-sm text-gray-400 mt-1">{{ message }}</p>
               </div>
+            </div>
+
+            <!-- Optional Input -->
+            <div v-if="inputMode" class="mt-4">
+              <input
+                ref="inputRef"
+                v-model="inputText"
+                :placeholder="inputPlaceholder"
+                class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2.5
+                       text-white outline-none focus:border-indigo-500 transition-colors"
+                @keydown.enter="handleConfirm"
+                @keydown.escape="emit('cancel')"
+              />
             </div>
 
             <!-- Actions -->
@@ -66,14 +105,11 @@ const { t } = useI18n()
               </button>
               <button
                 class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                :class="{
-                  'bg-red-600 hover:bg-red-500 text-white': variant === 'danger',
-                  'bg-yellow-600 hover:bg-yellow-500 text-white': variant === 'warning',
-                  'bg-blue-600 hover:bg-blue-500 text-white': variant === 'info',
-                }"
-                @click="emit('confirm')"
+                :class="variantStyles[variant].btn"
+                :disabled="inputMode && !inputText.trim()"
+                @click="handleConfirm"
               >
-                {{ confirmLabel || t('panel.examArchive.contextMenu.delete') }}
+                {{ confirmLabel || t('panel.examArchive.folderDialog.save') }}
               </button>
             </div>
           </div>
@@ -90,4 +126,5 @@ const { t } = useI18n()
 .scale-leave-active { transition: transform 0.1s ease-in; }
 .scale-enter-from { transform: scale(0.95); }
 .scale-leave-to { transform: scale(0.95); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>

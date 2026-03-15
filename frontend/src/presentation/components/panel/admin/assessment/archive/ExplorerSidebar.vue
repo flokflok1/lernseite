@@ -19,6 +19,7 @@ const emit = defineEmits<{
   selectFolder: [folderId: string]
   createFolder: [name: string, parentId?: string]
   programContextmenu: [event: MouseEvent, program: ExamProgram]
+  sidebarContextmenu: [event: MouseEvent]
   contextmenu: [event: MouseEvent, folder: ArchiveFolder]
   dragstart: [event: DragEvent, folder: ArchiveFolder]
   dragover: [event: DragEvent, folderId: string]
@@ -55,7 +56,10 @@ function cancelCreate() {
 </script>
 
 <template>
-  <aside class="w-[280px] bg-gray-900/60 border-r border-gray-700/50 overflow-y-auto flex-shrink-0">
+  <aside
+    class="w-[280px] bg-gray-900/60 border-r border-gray-700/50 overflow-y-auto flex-shrink-0 flex flex-col"
+    @contextmenu.prevent.self="emit('sidebarContextmenu', $event)"
+  >
     <!-- Header -->
     <div class="flex items-center justify-between px-4 pt-3.5 pb-2">
       <span class="text-[11px] uppercase tracking-wider text-gray-400">
@@ -128,5 +132,8 @@ function cancelCreate() {
         </div>
       </div>
     </div>
+
+    <!-- Fill remaining space (clickable for context menu) -->
+    <div class="flex-1" />
   </aside>
 </template>

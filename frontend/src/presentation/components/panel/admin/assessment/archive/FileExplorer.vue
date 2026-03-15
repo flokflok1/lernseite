@@ -171,6 +171,7 @@ function onOpenFile(examId: string) {
         @select-folder="explorer.navigateToFolder"
         @create-folder="(name) => explorer.handleCreateFolder(name)"
         @program-contextmenu="onProgramContextMenu"
+        @sidebar-contextmenu="onBackgroundContextMenu"
         @contextmenu="onFolderContextMenu"
         @dragstart="(ev, f) => dragDrop.onDragStart(ev, 'folder', String(f.folder_id))"
         @dragover="dragDrop.onDragOver"

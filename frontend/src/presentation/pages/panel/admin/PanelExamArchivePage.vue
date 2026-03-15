@@ -10,5 +10,5 @@ function goBack() {
 </script>
 
 <template>
-  <FileExplorer class="h-full" @close="goBack" />
+  <FileExplorer class="h-screen" @close="goBack" />
 </template>

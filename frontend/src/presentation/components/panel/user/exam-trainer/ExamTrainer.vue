@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TopicHeatmap from './TopicHeatmap.vue'
 import QuestionCard from './QuestionCard.vue'
+import SimulationMode from './SimulationMode.vue'
 import type { TrainerExam, TrainerQuestion, TopicStat, AnswerResult } from '@/infrastructure/api/clients/panel/user/exams'
 import {
   trainerListExams,
@@ -12,14 +13,10 @@ import {
   trainerStartExam,
   trainerCompleteAttempt,
   trainerPracticeSession,
-  generatePracticeExam,
 } from '@/infrastructure/api/clients/panel/user/exams'
 
 const { t } = useI18n()
 
-// ----------------------------------------------------------------------------
-// State
-// ----------------------------------------------------------------------------
 type TabKey = 'exams' | 'simulations' | 'topics' | 'practice'
 
 const activeTab = ref<TabKey>('exams')
@@ -40,16 +37,12 @@ const examComplete = ref(false)
 const examResult = ref<{ score: number; total_points: number; percentage: number; passed: boolean } | null>(null)
 const questionCardRef = ref<InstanceType<typeof QuestionCard> | null>(null)
 
-// New exam generation state
-const generatingNewExam = ref(false)
-const showNewExamOptions = ref(false)
-const newExamFocusWeakness = ref(false)
-const newExamDifficulty = ref('realistic')
+// Simulation mode
+const simulationActive = ref(false)
+const simulationExam = ref<TrainerExam | null>(null)
+
 const lastExamId = ref<string | null>(null)
 
-// ----------------------------------------------------------------------------
-// Computed
-// ----------------------------------------------------------------------------
 const currentQuestion = computed<TrainerQuestion | null>(() => {
   if (questions.value.length === 0) return null
   return questions.value[currentQuestionIndex.value] ?? null
@@ -71,9 +64,6 @@ const tabs = computed(() => {
   return base
 })
 
-// ----------------------------------------------------------------------------
-// Data Loading
-// ----------------------------------------------------------------------------
 const loadExams = async () => {
   isLoading.value = true
   error.value = null
@@ -98,9 +88,6 @@ const loadTopics = async () => {
   }
 }
 
-// ----------------------------------------------------------------------------
-// Actions
-// ----------------------------------------------------------------------------
 const startExamPractice = async (exam: TrainerExam) => {
   isLoading.value = true
   error.value = null
@@ -122,6 +109,32 @@ const startExamPractice = async (exam: TrainerExam) => {
   } finally {
     isLoading.value = false
   }
+}
+
+const startSimulation = async (exam: TrainerExam) => {
+  isLoading.value = true
+  error.value = null
+  try {
+    const [id, qs] = await Promise.all([
+      trainerStartExam(exam.exam_id),
+      trainerGetQuestions(exam.exam_id),
+    ])
+    attemptId.value = id
+    questions.value = qs
+    simulationExam.value = exam
+    simulationActive.value = true
+  } catch (e) {
+    error.value = String(e)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const exitSimulation = () => {
+  simulationActive.value = false
+  simulationExam.value = null
+  questions.value = []
+  attemptId.value = null
 }
 
 const startTopicPractice = async (topic: string) => {
@@ -186,36 +199,6 @@ const repeatSameExam = async () => {
   if (exam) await startExamPractice(exam)
 }
 
-const handleGenerateNewExam = async (options: {
-  focusWeakness: boolean
-  difficulty: string
-}) => {
-  generatingNewExam.value = true
-  error.value = null
-  try {
-    const data = await generatePracticeExam({
-      examType: 'ihk',
-      difficulty: options.difficulty,
-      focusWeakness: options.focusWeakness,
-      questionCount: 20,
-    })
-    questions.value = data.questions
-    currentQuestionIndex.value = 0
-    examComplete.value = false
-    examResult.value = null
-    attemptId.value = null
-    showNewExamOptions.value = false
-    activeTab.value = 'practice'
-  } catch (e) {
-    error.value = String(e)
-  } finally {
-    generatingNewExam.value = false
-  }
-}
-
-// ----------------------------------------------------------------------------
-// Lifecycle
-// ----------------------------------------------------------------------------
 onMounted(() => {
   loadExams()
   loadTopics()
@@ -223,7 +206,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <!-- Simulation Mode (full-screen takeover) -->
+  <SimulationMode
+    v-if="simulationActive && simulationExam && attemptId"
+    :exam="simulationExam"
+    :questions="questions"
+    :attempt-id="attemptId"
+    @exit="exitSimulation"
+    @retry="startSimulation(simulationExam!)"
+  />
+
+  <div v-else>
     <!-- Header -->
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-[var(--color-text)]">
@@ -332,7 +325,7 @@ onMounted(() => {
           <button
             class="w-full px-4 py-2.5 rounded-lg font-medium text-sm transition-colors
                    bg-emerald-600 text-white hover:bg-emerald-700"
-            @click="startExamPractice(exam)"
+            @click="startSimulation(exam)"
           >
             {{ t('panel.examTrainer.simulations.start') }}
           </button>
@@ -375,16 +368,8 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Generating overlay -->
-        <div v-if="generatingNewExam" class="text-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3" />
-          <p class="text-[var(--color-text-secondary)]">
-            {{ t('examSimulation.newExam.generating') }}
-          </p>
-        </div>
-
         <!-- Action Buttons -->
-        <div v-else class="max-w-md mx-auto space-y-3">
+        <div class="max-w-md mx-auto space-y-3">
           <button
             v-if="lastExamId"
             class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium
@@ -393,74 +378,6 @@ onMounted(() => {
           >
             {{ t('examSimulation.newExam.repeatSame') }}
           </button>
-          <button
-            class="w-full py-3 border border-blue-600 text-blue-600 rounded-lg font-medium
-                   hover:bg-blue-50 transition-colors"
-            @click="showNewExamOptions = !showNewExamOptions"
-          >
-            {{ t('examSimulation.newExam.generateNew') }}
-          </button>
-
-          <!-- New Exam Options Panel -->
-          <div
-            v-if="showNewExamOptions"
-            class="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-left"
-          >
-            <h4 class="font-medium mb-4">{{ t('examSimulation.newExam.options') }}</h4>
-
-            <!-- Focus Weakness Toggle -->
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <span class="text-sm font-medium">{{ t('examSimulation.newExam.focusWeakness') }}</span>
-                <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                  {{ t('examSimulation.newExam.focusWeaknessHint') }}
-                </p>
-              </div>
-              <button
-                @click="newExamFocusWeakness = !newExamFocusWeakness"
-                :class="[
-                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ml-3',
-                  newExamFocusWeakness ? 'bg-blue-600' : 'bg-gray-300'
-                ]"
-                role="switch"
-                :aria-checked="newExamFocusWeakness"
-              >
-                <span
-                  :class="[
-                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-                    newExamFocusWeakness ? 'translate-x-6' : 'translate-x-1'
-                  ]"
-                />
-              </button>
-            </div>
-
-            <!-- Difficulty Dropdown -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium mb-1">
-                {{ t('examSimulation.newExam.difficulty') }}
-              </label>
-              <select
-                v-model="newExamDifficulty"
-                class="w-full px-3 py-2 rounded-lg border border-[var(--color-border)]
-                       bg-[var(--color-surface)] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="easy">{{ t('examSimulation.newExam.difficultyEasy') }}</option>
-                <option value="medium">{{ t('examSimulation.newExam.difficultyMedium') }}</option>
-                <option value="hard">{{ t('examSimulation.newExam.difficultyHard') }}</option>
-                <option value="realistic">{{ t('examSimulation.newExam.difficultyRealistic') }}</option>
-              </select>
-            </div>
-
-            <!-- Generate Button -->
-            <button
-              class="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium
-                     hover:bg-blue-700 transition-colors"
-              @click="handleGenerateNewExam({ focusWeakness: newExamFocusWeakness, difficulty: newExamDifficulty })"
-            >
-              {{ t('examSimulation.newExam.generateButton') }}
-            </button>
-          </div>
-
           <button
             class="w-full py-3 border rounded-lg hover:bg-gray-50
                    text-[var(--color-text-secondary)] transition-colors"

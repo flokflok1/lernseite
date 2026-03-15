@@ -45,16 +45,17 @@ from app.infrastructure.persistence.repositories.courses.content.lessons import 
 
 logger = logging.getLogger(__name__)
 
-# LM type → lesson_type string for the lessons table
+# LM type → lesson_type (must match chk_lesson_type constraint:
+# text, video, quiz, interactive, assignment, discussion)
 _LM_LESSON_TYPE: Dict[int, str] = {
-    0: 'explanation',
-    1: 'step_by_step',
-    5: 'math_interactive',
-    6: 'flashcards',
-    7: 'drag_and_drop',
-    8: 'cloze_test',
-    10: 'ihk_tasks',
-    11: 'case_study',
+    0: 'text',              # Deep Explanation → text
+    1: 'text',              # Step by Step → text
+    5: 'interactive',       # Math Interactive → interactive
+    6: 'quiz',              # Flashcards → quiz
+    7: 'interactive',       # Drag & Drop → interactive
+    8: 'quiz',              # Cloze Test → quiz
+    10: 'assignment',       # IHK Tasks → assignment
+    11: 'assignment',       # Case Study → assignment
 }
 
 

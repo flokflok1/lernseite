@@ -113,7 +113,7 @@ def build_simulation_chapter(
         lesson = LessonRepository.create({
             'chapter_id': chapter_id,
             'title': lesson_title,
-            'lesson_type': 'ihk_tasks',
+            'lesson_type': 'assignment',
             'content': sim_content or None,
             'duration_minutes': duration,
             'published': True,

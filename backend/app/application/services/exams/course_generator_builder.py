@@ -284,11 +284,17 @@ def _create_static_lm_instances(
     lm_count = 0
     global_order = 0
 
+    # LM types where each scenario needs its own lesson (context-dependent)
+    _SCENARIO_BOUND_LM_TYPES = {5, 10, 11}
+
     for lm_type in chapter_plan.lm_types:
         if lm_type in ai_types:
             continue
 
-        chunks = split_questions_into_chunks(questions)
+        chunks = split_questions_into_chunks(
+            questions,
+            keep_scenarios_separate=lm_type in _SCENARIO_BOUND_LM_TYPES,
+        )
         chapter_label = _chapter_title_from_plan(chapter_plan, language)
 
         for chunk_idx, chunk in enumerate(chunks):

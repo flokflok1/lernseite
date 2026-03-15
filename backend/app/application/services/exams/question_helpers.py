@@ -102,16 +102,25 @@ def _deduplicate_by_text(questions: List[Dict]) -> List[Dict]:
 def split_questions_into_chunks(
     questions: List[Dict],
     max_per_chunk: int = MAX_QUESTIONS_PER_LESSON,
+    keep_scenarios_separate: bool = False,
 ) -> List[List[Dict]]:
     """Split questions into chunks, grouping by scenario_title.
 
     Questions sharing a scenario stay together.  If a scenario group
     exceeds *max_per_chunk* it becomes its own chunk.
+
+    When keep_scenarios_separate=True (for math, IHK tasks, case studies),
+    each scenario becomes its own chunk — never mixed with other scenarios.
+    This is essential because each scenario has unique context (company,
+    price lists, network diagrams) needed to solve its questions.
     """
     groups: OrderedDict = OrderedDict()
     for q in questions:
         key = q.get('scenario_title') or id(q)
         groups.setdefault(key, []).append(q)
+
+    if keep_scenarios_separate:
+        return list(groups.values()) if groups else []
 
     chunks: List[List[Dict]] = []
     current: List[Dict] = []

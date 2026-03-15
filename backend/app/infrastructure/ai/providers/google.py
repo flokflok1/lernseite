@@ -18,6 +18,14 @@ from ..exceptions import (
 )
 
 
+def _gen_config(temperature: float, max_tokens: Optional[int]) -> Dict[str, Any]:
+    """Build generationConfig, omitting maxOutputTokens when not set."""
+    cfg: Dict[str, Any] = {'temperature': temperature}
+    if max_tokens is not None and max_tokens > 0:
+        cfg['maxOutputTokens'] = max_tokens
+    return cfg
+
+
 class GoogleProvider:
     """Google provider implementation for Gemini models."""
 
@@ -66,10 +74,7 @@ class GoogleProvider:
             'contents': [{
                 'parts': [{'text': full_prompt}]
             }],
-            'generationConfig': {
-                'temperature': temperature,
-                'maxOutputTokens': max_tokens
-            }
+            'generationConfig': _gen_config(temperature, max_tokens)
         }
 
         return GoogleProvider._execute_request(url_with_key, payload, full_prompt, timeout)
@@ -120,10 +125,7 @@ class GoogleProvider:
 
         payload = {
             'contents': conversation_parts,
-            'generationConfig': {
-                'temperature': temperature,
-                'maxOutputTokens': max_tokens
-            }
+            'generationConfig': _gen_config(temperature, max_tokens)
         }
 
         if system_instruction:
@@ -173,10 +175,7 @@ class GoogleProvider:
         payload = {
             'contents': conversation_parts,
             'tools': tools,
-            'generationConfig': {
-                'temperature': temperature,
-                'maxOutputTokens': max_tokens
-            }
+            'generationConfig': _gen_config(temperature, max_tokens)
         }
 
         if system_instruction:

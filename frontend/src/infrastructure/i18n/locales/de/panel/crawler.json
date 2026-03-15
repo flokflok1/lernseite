@@ -42,7 +42,10 @@
       "errors": "Fehler",
       "duration": "Dauer",
       "progress": "Fortschritt",
-      "started": "Gestartet"
+      "started": "Gestartet",
+      "cancel": "Abbrechen",
+      "cancelConfirm": "Job wirklich abbrechen?",
+      "cancelled": "Job abgebrochen"
     },
     "pdfs": {
       "title": "PDF-Bibliothek",

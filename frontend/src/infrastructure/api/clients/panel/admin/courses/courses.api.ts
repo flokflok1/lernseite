@@ -1,5 +1,7 @@
 /**
  * Admin Course Management API
+ *
+ * Routes map to backend: /api/v1/course-editor/manual/courses/*
  */
 
 import http from '@/infrastructure/api/http'
@@ -11,6 +13,8 @@ import type {
   CoursesFilterParams,
   PaginatedResponse
 } from '../types'
+
+const PREFIX = '/course-editor/manual'
 
 export const adminGetCourses = async (
   params: CoursesFilterParams = {}
@@ -24,7 +28,7 @@ export const adminGetCourses = async (
       per_page: number
       total_pages: number
     }
-  }>('/admin/courses', { params })
+  }>(`${PREFIX}/courses`, { params })
 
   return {
     items: response.data.courses,
@@ -39,7 +43,7 @@ export const adminGetCourseDetail = async (courseId: string): Promise<AdminCours
   const response = await http.get<{
     success: boolean
     course: AdminCourseDetail
-  }>(`/admin/courses/${courseId}`)
+  }>(`${PREFIX}/courses/${courseId}`)
 
   return response.data.course
 }
@@ -50,7 +54,7 @@ export const adminCreateCourse = async (
   const response = await http.post<{
     success: boolean
     course: AdminCourseDetail
-  }>('/admin/courses', data)
+  }>(`${PREFIX}/courses`, data)
 
   return response.data.course
 }
@@ -62,7 +66,7 @@ export const adminUpdateCourse = async (
   const response = await http.patch<{
     success: boolean
     course: AdminCourseDetail
-  }>(`/admin/courses/${courseId}`, data)
+  }>(`${PREFIX}/courses/${courseId}`, data)
 
   return response.data.course
 }
@@ -75,7 +79,7 @@ export const adminChangeCourseStatus = async (
   const response = await http.post<{
     success: boolean
     status: string
-  }>(`/admin/courses/${courseId}/status`, {
+  }>(`${PREFIX}/courses/${courseId}/status`, {
     action,
     reason
   })
@@ -100,13 +104,13 @@ export const adminUnarchiveCourse = async (courseId: string, reason?: string): P
 }
 
 export const adminDeleteCourse = async (courseId: string, reason?: string): Promise<void> => {
-  await http.delete(`/admin/courses/${courseId}`, {
+  await http.delete(`${PREFIX}/courses/${courseId}`, {
     data: { reason }
   })
 }
 
 export const adminPermanentDeleteCourse = async (courseId: string, reason?: string): Promise<void> => {
-  await http.delete(`/admin/courses/${courseId}/permanent`, {
+  await http.delete(`${PREFIX}/courses/${courseId}/permanent`, {
     data: { confirm: true, reason }
   })
 }

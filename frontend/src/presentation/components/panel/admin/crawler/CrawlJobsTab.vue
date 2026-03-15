@@ -9,7 +9,7 @@ import type { CrawlJob } from '@/infrastructure/api/clients/panel/admin/crawler'
 const { t } = useI18n()
 const store = useCrawlManagement()
 const { jobs, domains, loading } = storeToRefs(store)
-const { loadJobs, loadDomains, triggerCrawl, startPolling, stopPolling } = store
+const { loadJobs, loadDomains, triggerCrawl, cancelJob, startPolling, stopPolling } = store
 
 const showStartDialog = ref(false)
 
@@ -112,6 +112,7 @@ function formatTime(dateStr: string | null): string {
             <th class="pb-2 pr-4 font-medium">{{ t('panel.crawler.jobs.progress') }}</th>
             <th class="pb-2 pr-4 font-medium">{{ t('panel.crawler.jobs.duration') }}</th>
             <th class="pb-2 font-medium">{{ t('panel.crawler.jobs.started') }}</th>
+            <th class="pb-2 font-medium w-10"></th>
           </tr>
         </thead>
         <tbody>
@@ -179,8 +180,22 @@ function formatTime(dateStr: string | null): string {
             </td>
 
             <!-- Started -->
-            <td class="py-3 text-[var(--color-text-secondary)] whitespace-nowrap">
+            <td class="py-3 pr-4 text-[var(--color-text-secondary)] whitespace-nowrap">
               {{ formatTime(job.started_at) }}
+            </td>
+
+            <!-- Cancel action -->
+            <td class="py-3">
+              <button
+                v-if="job.status === 'pending' || job.status === 'running'"
+                class="p-1 rounded text-red-500 hover:bg-red-50 transition-colors"
+                :title="t('panel.crawler.jobs.cancel')"
+                @click="cancelJob(job.job_id)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
             </td>
           </tr>
         </tbody>

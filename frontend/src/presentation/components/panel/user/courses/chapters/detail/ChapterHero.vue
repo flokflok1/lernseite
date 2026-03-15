@@ -119,7 +119,9 @@ const emit = defineEmits<{
 
 function typeEmoji(type: string): string {
   const map: Record<string, string> = {
-    text: '📝', video: '🎬', quiz: '❓', ai: '🤖', interactive: '🎮', mixed: '🔀'
+    text: '📝', video: '🎬', quiz: '❓', ai: '🤖', interactive: '🎮', mixed: '🔀',
+    explanation: '📖', math: '🔢', cloze: '✍️', ihk: '📋',
+    flashcards: '🎴', matching: '🔄', casestudy: '📊',
   }
   return map[type] || '📄'
 }

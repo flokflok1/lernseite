@@ -29,7 +29,7 @@
             <p class="lesson-name">{{ lesson.title }}</p>
             <div class="lesson-meta">
               <span class="lesson-type-badge">
-                {{ lessonTypeLabel(lesson.lesson_type) }}
+                {{ lessonTypeLabel(lesson.lesson_type, lesson.title) }}
               </span>
               <span v-if="lesson.duration_minutes" class="lesson-duration">
                 {{ lesson.duration_minutes }} {{ $t('courses.minutes_short') }}
@@ -79,14 +79,28 @@ function dotClass(lesson: Lesson): string {
   return 'dot--pending'
 }
 
-function lessonTypeLabel(type: string): string {
+// Category detection via shared composable (single source of truth)
+import { detectCategory } from '@/application/composables/panel/user/learning/usePageCategory'
+
+function lessonTypeLabel(type: string, title?: string): string {
+  if (type === 'text' && title) {
+    const detected = detectCategory(title)
+    if (detected) {
+      const labelKey = {
+        theory: 'lessonTimeline.categoryTheory',
+        practice: 'lessonTimeline.categoryPractice',
+        assessment: 'lessonTimeline.categoryAssessment',
+      }[detected.category]
+      return `${detected.icon} ${t(labelKey)}`
+    }
+  }
   const typeMap: Record<string, string> = {
     text: t('lesson.type_text'),
     video: t('lesson.type_video'),
     quiz: t('lesson.type_quiz'),
     ai: t('lesson.type_ai'),
     interactive: t('lesson.type_interactive'),
-    mixed: t('lesson.type_mixed')
+    mixed: t('lesson.type_mixed'),
   }
   return typeMap[type] || type
 }

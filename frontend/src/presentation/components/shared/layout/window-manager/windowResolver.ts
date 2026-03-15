@@ -39,6 +39,7 @@ const AdminLessonPreviewWindow = defineAsyncComponent(() => import('@/presentati
 
 // Assessment
 const AdminExamManagerWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/assessment/exams/ExamManager.vue'))
+const AdminPdfViewerWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/assessment/archive/PdfViewerWindow.vue'))
 
 // System Operations
 const AdminFilePreviewWindow = defineAsyncComponent(() => import('@/presentation/components/panel/admin/system/views/FilePreviewWindow.vue'))
@@ -97,6 +98,8 @@ export function resolveWindowComponent(type: string) {
       }
     case 'admin-exam-manager':
       return AdminExamManagerWindow
+    case 'admin-pdf-viewer':
+      return AdminPdfViewerWindow
     case 'admin-ai-job':
       return AdminAIJobWindow
     case 'admin-window-manager':

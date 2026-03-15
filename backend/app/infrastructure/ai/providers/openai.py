@@ -131,10 +131,11 @@ class OpenAIProvider:
             'temperature': temperature
         }
 
-        if any(model.startswith(m) for m in MODELS_USING_COMPLETION_TOKENS):
-            payload['max_completion_tokens'] = max_tokens
-        else:
-            payload['max_tokens'] = max_tokens
+        if max_tokens is not None and max_tokens > 0:
+            if any(model.startswith(m) for m in MODELS_USING_COMPLETION_TOKENS):
+                payload['max_completion_tokens'] = max_tokens
+            else:
+                payload['max_tokens'] = max_tokens
 
         try:
             response = requests.post(
@@ -204,11 +205,11 @@ class OpenAIProvider:
             'temperature': temperature
         }
 
-        # Use max_completion_tokens for newer models, max_tokens for legacy
-        if any(model.startswith(m) for m in MODELS_USING_COMPLETION_TOKENS):
-            payload['max_completion_tokens'] = max_tokens
-        else:
-            payload['max_tokens'] = max_tokens
+        if max_tokens is not None and max_tokens > 0:
+            if any(model.startswith(m) for m in MODELS_USING_COMPLETION_TOKENS):
+                payload['max_completion_tokens'] = max_tokens
+            else:
+                payload['max_tokens'] = max_tokens
 
         try:
             response = requests.post(

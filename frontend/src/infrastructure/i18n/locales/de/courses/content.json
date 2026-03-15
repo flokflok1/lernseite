@@ -23,7 +23,20 @@
   "lessonTimeline": {
     "statusCompleted": "Abgeschlossen",
     "statusCurrent": "Als Nächstes",
-    "statusLocked": "Gesperrt"
+    "statusRecommended": "Empfohlen",
+    "statusAvailable": "Verfügbar",
+    "statusLocked": "Gesperrt",
+    "stepOf": "Schritt {step} von {total}",
+    "categoryTheory": "Theorie",
+    "categoryPractice": "Übung",
+    "categoryAssessment": "Prüfung",
+    "descExplanation": "Grundlagen und Konzepte verstehen",
+    "descMath": "Rechenaufgaben praktisch üben",
+    "descCloze": "Wissen durch Lückentexte festigen",
+    "descIhk": "IHK-Prüfungsaufgaben bearbeiten",
+    "descFlashcards": "Begriffe mit Lernkarten einprägen",
+    "descMatching": "Zuordnungsaufgaben lösen",
+    "descCaseStudy": "Praxisnahe Fallstudien bearbeiten"
   },
   "chapterTheory": {
     "available": "{count} verfügbar",

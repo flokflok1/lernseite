@@ -1,5 +1,7 @@
 /**
  * Admin Chapter & Category Management API
+ *
+ * Chapter routes map to backend: /api/v1/course-editor/manual/*
  */
 
 import http from '@/infrastructure/api/http'
@@ -13,13 +15,15 @@ import type {
   CategoryFilterParams
 } from '../types'
 
+const PREFIX = '/course-editor/manual'
+
 // Chapter Management
 
 export const adminGetCourseChapters = async (courseId: string): Promise<AdminChapter[]> => {
   const response = await http.get<{
     success: boolean
     chapters: AdminChapter[]
-  }>(`/admin/courses/${courseId}/chapters`)
+  }>(`${PREFIX}/courses/${courseId}/chapters`)
 
   return response.data.chapters
 }
@@ -31,7 +35,7 @@ export const adminCreateChapter = async (
   const response = await http.post<{
     success: boolean
     chapter: AdminChapter
-  }>(`/admin/courses/${courseId}/chapters`, data)
+  }>(`${PREFIX}/courses/${courseId}/chapters`, data)
 
   return response.data.chapter
 }
@@ -43,13 +47,13 @@ export const adminUpdateChapter = async (
   const response = await http.patch<{
     success: boolean
     chapter: AdminChapter
-  }>(`/admin/chapters/${chapterId}`, data)
+  }>(`${PREFIX}/chapters/${chapterId}`, data)
 
   return response.data.chapter
 }
 
 export const adminDeleteChapter = async (chapterId: string, reason?: string): Promise<void> => {
-  await http.delete(`/admin/chapters/${chapterId}`, {
+  await http.delete(`${PREFIX}/chapters/${chapterId}`, {
     data: { reason }
   })
 }
@@ -58,7 +62,7 @@ export const adminReorderChapters = async (
   courseId: string,
   chapterIds: string[]
 ): Promise<void> => {
-  await http.post(`/admin/courses/${courseId}/chapters/reorder`, {
+  await http.post(`${PREFIX}/courses/${courseId}/chapters/reorder`, {
     chapter_ids: chapterIds
   })
 }

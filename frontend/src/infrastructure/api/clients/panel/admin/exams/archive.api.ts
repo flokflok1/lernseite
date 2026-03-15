@@ -106,40 +106,36 @@ export const archiveListRegions = async (): Promise<ExamRegion[]> => {
   return response.data.regions || []
 }
 
-// --- Session Grouping ---
+// --- Session Rows (flat data for client-side tree building) ---
 
-export interface ExamSession {
+export interface SessionRow {
+  program_key: string
+  program_name: Record<string, string>
+  provider: string
+  icon: string
+  program_sort: number
+  region: string
+  region_name: Record<string, string>
+  exam_type: string
+  type_display_name: Record<string, string>
+  type_sort: number
   session_id: string
   year: number
   season: string
-  tags: string[]
   exam_count: number
   ready_count: number
   total_questions: number
 }
 
-export interface SessionRegion {
-  region_code: string
-  region_name: Record<string, string> | null
-  sessions: ExamSession[]
-}
-
-export interface SessionGroup {
-  exam_type: string
-  display_name: Record<string, string>
-  parts: string[]
-  regions: Record<string, SessionRegion>
-}
-
 export const archiveListSessions = async (
-  examType?: string
-): Promise<SessionGroup[]> => {
-  const params = examType ? { exam_type: examType } : {}
-  const response = await http.get<{ groups: SessionGroup[] }>(
+  programKey?: string
+): Promise<SessionRow[]> => {
+  const params = programKey ? { program_key: programKey } : {}
+  const response = await http.get<{ rows: SessionRow[] }>(
     '/admin/exam-archive/sessions',
     { params }
   )
-  return response.data.groups
+  return response.data.rows || []
 }
 
 export const archiveSessionExams = async (
@@ -184,6 +180,44 @@ export const communityUploadExam = async (
     { headers: { 'Content-Type': 'multipart/form-data' } }
   )
   return response.data
+}
+
+// --- CRUD: Sessions (folders) ---
+
+export const archiveCreateSession = async (
+  examTypeKey: string,
+  year: number,
+  season: string,
+  region?: string
+): Promise<{ session_id: string }> => {
+  const response = await http.post<{ session_id: string }>(
+    '/admin/exam-archive/sessions',
+    { exam_type_key: examTypeKey, year, season, region }
+  )
+  return response.data
+}
+
+export const archiveDeleteSession = async (
+  sessionId: string
+): Promise<void> => {
+  await http.delete(`/admin/exam-archive/sessions/${sessionId}`)
+}
+
+// --- CRUD: Exams (files) ---
+
+export const archiveMoveExam = async (
+  examId: string,
+  targetSessionId: string
+): Promise<void> => {
+  await http.patch(`/admin/exam-archive/exams/${examId}/move`, {
+    target_session_id: targetSessionId,
+  })
+}
+
+export const archiveDeleteExam = async (
+  examId: string
+): Promise<void> => {
+  await http.delete(`/admin/exam-archive/exams/${examId}`)
 }
 
 // --- Admin Moderation ---

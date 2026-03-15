@@ -22,6 +22,8 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt
 )
+from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt.exceptions import PyJWTError
 
 from app.infrastructure.persistence.repositories.user import UserRepository
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
@@ -131,7 +133,7 @@ def token_required(fn: Callable) -> Callable:
 
             return fn(*args, **kwargs)
 
-        except Exception as e:
+        except (JWTExtendedException, PyJWTError):
             return error_response(ErrorCode.AUTH_TOKEN_INVALID, status=401)
 
     return wrapper

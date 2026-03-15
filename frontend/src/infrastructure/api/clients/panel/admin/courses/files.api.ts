@@ -1,5 +1,7 @@
 /**
  * Admin Course Files Management API
+ *
+ * Routes map to backend: /api/v1/course-editor/manual/courses/{id}/files
  */
 
 import http from '@/infrastructure/api/http'
@@ -12,6 +14,8 @@ import type {
   CourseFileCategory,
   CourseFileCategorySummary
 } from '../types'
+
+const PREFIX = '/course-editor/manual'
 
 export const adminListCourseFiles = async (
   courseId: string,
@@ -29,7 +33,7 @@ export const adminListCourseFiles = async (
     files: CourseFile[]
     total: number
     categories_summary: CourseFileCategorySummary[]
-  }>(`/admin/courses/${courseId}/files`, { params })
+  }>(`${PREFIX}/courses/${courseId}/files`, { params })
 
   return {
     files: response.data.files,
@@ -65,7 +69,7 @@ export const adminUploadCourseFile = async (
     already_exists?: boolean
     message?: string
   }>(
-    `/admin/courses/${courseId}/files`,
+    `${PREFIX}/courses/${courseId}/files`,
     formData,
     {
       headers: {
@@ -86,7 +90,7 @@ export const adminGetCourseFile = async (
   fileId: string
 ): Promise<CourseFile> => {
   const response = await http.get<{ success: boolean; file: CourseFile }>(
-    `/admin/courses/${courseId}/files/${fileId}`
+    `${PREFIX}/courses/${courseId}/files/${fileId}`
   )
   return response.data.file
 }
@@ -97,7 +101,7 @@ export const adminUpdateCourseFile = async (
   data: CourseFileUpdateRequest
 ): Promise<CourseFile> => {
   const response = await http.patch<{ success: boolean; file: CourseFile }>(
-    `/admin/courses/${courseId}/files/${fileId}`,
+    `${PREFIX}/courses/${courseId}/files/${fileId}`,
     data
   )
   return response.data.file
@@ -107,14 +111,14 @@ export const adminDeleteCourseFile = async (
   courseId: string,
   fileId: string
 ): Promise<void> => {
-  await http.delete(`/admin/courses/${courseId}/files/${fileId}`)
+  await http.delete(`${PREFIX}/courses/${courseId}/files/${fileId}`)
 }
 
 export const adminReorderCourseFiles = async (
   courseId: string,
   fileIds: string[]
 ): Promise<void> => {
-  await http.post(`/admin/courses/${courseId}/files/reorder`, {
+  await http.post(`${PREFIX}/courses/${courseId}/files/reorder`, {
     file_ids: fileIds
   })
 }

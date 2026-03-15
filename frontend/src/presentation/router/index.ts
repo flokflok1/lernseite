@@ -16,7 +16,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
 import { useAppStore } from '@/application/stores/modules/core/app.store'
-import { panelRoutes } from '@/presentation/pages/panel/admin/routes'
+import { panelRoutes, examArchiveRoute } from '@/presentation/pages/panel/admin/routes'
 import { editorRoutes } from '@/presentation/pages/panel/editor/routes'
 
 const routes: RouteRecordRaw[] = [
@@ -131,6 +131,9 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     // GBA handles feature visibility inside component
   },
+
+  // Exam Archive (fullscreen, no sidebar — MUST be before panelRoutes)
+  examArchiveRoute,
 
   // Panel Routes (System Administration)
   panelRoutes,

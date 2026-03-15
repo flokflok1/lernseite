@@ -74,6 +74,12 @@ class ChapterRepository(BaseRepository):
 
         params = {**defaults, **chapter_data}
 
+        # Wrap JSONB dict fields with psycopg Json adapter
+        from psycopg.types.json import Json
+        for key in ('ai_metadata',):
+            if key in params and isinstance(params[key], dict):
+                params[key] = Json(params[key])
+
         return insert_returning(
             'courses.chapters',
             params,

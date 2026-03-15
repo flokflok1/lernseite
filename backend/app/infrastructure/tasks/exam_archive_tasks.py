@@ -18,6 +18,10 @@ from app.infrastructure.persistence.repositories.exams.questions import (
 from app.domain.services.exam_topic_utils import normalize_topic
 from app.infrastructure.ai.adapter import AIAdapter
 from app.infrastructure.ai.exceptions import AIProviderError
+from app.application.services.exams.question_helpers import (
+    extract_anlagen_from_raw_text,
+    enrich_scenario_with_anlagen,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +58,19 @@ Analysiere den folgenden Prüfungstext und extrahiere ALLE Aufgaben strukturiert
    - fill_blank: {{"sentences": [{{"text": "... {{{{blank}}}} ...", "answers": ["..."]}}]}}
    - case_study: {{"scenario": "...", "questions": [{{"question": "...", "answer": "..."}}]}}
 
+## KRITISCH — Anlagen / Anhänge extrahieren:
+IHK-Prüfungen enthalten Anlagen (Anhänge) mit Datentabellen, Preislisten,
+technischen Daten, Angeboten, Netzwerkdiagrammen etc. Diese sind ESSENTIELL
+für das Verständnis der Aufgaben.
+
+6. Identifiziere ALLE Anlagen im Text (z.B. "Anlage 1", "Anlage 2", "Anhang A")
+7. Extrahiere den VOLLSTÄNDIGEN Inhalt jeder Anlage — inkl. aller Zahlen,
+   Preise, Tabellen, technische Daten. NICHTS weglassen oder zusammenfassen!
+8. Ordne jede Anlage dem zugehörigen Szenario zu (über die Anlage-Referenzen
+   im Aufgabentext)
+9. Bei Rechenaufgaben (calculation): Die Anlagen-Daten MÜSSEN im scenario
+   context stehen, damit die Aufgabe ohne Original-PDF lösbar ist
+
 ## Ausgabeformat (strenges JSON):
 ```json
 {{
@@ -61,7 +78,13 @@ Analysiere den folgenden Prüfungstext und extrahiere ALLE Aufgaben strukturiert
     {{
       "number": 1,
       "title": "Firmenszenario-Titel",
-      "context": "Beschreibung der Handlungssituation..."
+      "context": "Beschreibung der Handlungssituation...",
+      "anlagen": [
+        {{
+          "name": "Anlage 1: Angebot Firma XY",
+          "content": "VOLLSTÄNDIGER Inhalt der Anlage mit allen Zahlen, Preisen, Tabellen..."
+        }}
+      ]
     }}
   ],
   "questions": [
@@ -85,6 +108,10 @@ Analysiere den folgenden Prüfungstext und extrahiere ALLE Aufgaben strukturiert
 - Punkte möglichst aus dem Text übernehmen, sonst schätzen
 - renderer_data MUSS zum question_type passen
 - solution_text: Wenn Lösungstext vorhanden, übernehmen
+- Anlagen-Daten VOLLSTÄNDIG übernehmen — Preise, Mengen, Rabatte, Skonti,
+  Lieferkosten, technische Spezifikationen, IP-Adressen, Netzwerkpläne etc.
+- scenario.context MUSS alle relevanten Anlagen-Daten enthalten, sodass
+  die Fragen OHNE das Original-PDF beantwortet werden können
 
 {solution_section}
 
@@ -208,12 +235,12 @@ def analyze_exam_pdf_task(
         solution_section = ''
         if solution_text:
             solution_section = (
-                f"## Lösungstext (zur Zuordnung):\n{solution_text[:8000]}"
+                f"## Lösungstext (zur Zuordnung):\n{solution_text}"
             )
 
         prompt = _build_analysis_prompt(
             exam_type=exam_type,
-            exam_text=raw_text[:12000],
+            exam_text=raw_text,
             solution_section=solution_section,
         )
 
@@ -222,7 +249,6 @@ def analyze_exam_pdf_task(
             prompt=prompt,
             language='de',
             temperature=0.3,
-            max_tokens=8000,
         )
 
         output_text = response.get('output_text', '')
@@ -246,9 +272,14 @@ def analyze_exam_pdf_task(
             s['number']: s for s in scenarios
         }
 
+        # 6b. Pre-extract Anlagen from raw PDF text as fallback
+        # The AI often misses Anlage content — this ensures questions
+        # that reference "Anlage N" get the data appended to scenario_text
+        raw_anlagen = extract_anlagen_from_raw_text(raw_text)
+
         # 7. Insert questions via bulk_create
         question_records = _build_question_records(
-            exam_id, questions, scenario_map
+            exam_id, questions, scenario_map, raw_anlagen
         )
         success = ExamQuestionRepository.bulk_create_questions(
             question_records
@@ -331,6 +362,7 @@ def _build_question_records(
     exam_id: str,
     questions: List[Dict],
     scenario_map: Dict[int, Dict],
+    raw_anlagen: Optional[Dict[int, str]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Transform AI-extracted questions into DB-ready records.
@@ -339,11 +371,14 @@ def _build_question_records(
         exam_id: The parent exam UUID
         questions: Parsed question list from AI
         scenario_map: Mapping of scenario number to scenario data
+        raw_anlagen: Pre-extracted Anlage content from raw PDF text,
+                     used as fallback when AI misses Anlagen
 
     Returns:
         List of dicts ready for bulk_create_questions
     """
     records = []
+    anlagen_enriched = 0
     for idx, q in enumerate(questions):
         scenario_num = q.get('scenario_number')
         scenario = scenario_map.get(scenario_num, {})
@@ -355,20 +390,51 @@ def _build_question_records(
             except json.JSONDecodeError:
                 renderer_data = {}
 
+        # Build scenario_text: context + Anlagen data (if any)
+        scenario_text = scenario.get('context', '')
+        anlagen = scenario.get('anlagen', [])
+        if anlagen:
+            anlagen_parts = []
+            for anlage in anlagen:
+                name = anlage.get('name', '')
+                content = anlage.get('content', '')
+                if name and content:
+                    anlagen_parts.append(f"\n\n--- {name} ---\n{content}")
+                elif content:
+                    anlagen_parts.append(f"\n\n{content}")
+            if anlagen_parts:
+                scenario_text += ''.join(anlagen_parts)
+
+        # Fallback: enrich from raw PDF text if AI missed Anlagen
+        question_text = q.get('text', '')
+        if raw_anlagen:
+            before_len = len(scenario_text)
+            scenario_text = enrich_scenario_with_anlagen(
+                scenario_text, question_text, raw_anlagen,
+            )
+            if len(scenario_text) > before_len:
+                anlagen_enriched += 1
+
         record = {
             'exam_id': exam_id,
             'question_type': q.get('question_type', 'essay'),
-            'question_text': q.get('text', ''),
+            'question_text': question_text,
             'points': q.get('points', 5),
             'order_index': idx + 1,
             'data': renderer_data,
             'scenario_title': scenario.get('title', ''),
-            'scenario_text': scenario.get('context', ''),
+            'scenario_text': scenario_text,
             'question_number': q.get('question_number', str(idx + 1)),
             'topics': [normalize_topic(t) for t in (q.get('topics') or [])],
             'solution_text': q.get('solution_text', ''),
         }
         records.append(record)
+
+    if anlagen_enriched:
+        logger.info(
+            "Enriched %d/%d questions with Anlage data from raw PDF text",
+            anlagen_enriched, len(records),
+        )
 
     return records
 

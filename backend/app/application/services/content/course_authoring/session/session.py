@@ -20,7 +20,7 @@ from app.application.services.content.course_authoring.generation.tool_processor
 from app.application.services.content.course_authoring.validation.scope_guard import ScopeGuard
 from app.domain.ai.tool_definitions import AUTHORING_TOOLS
 from app.domain.ai.scope import OperationScope
-from app.application.services.content.course_authoring.session_finalize import FinalizeMixin
+from app.application.services.content.course_authoring.session.session_finalize import FinalizeMixin
 
 logger = logging.getLogger(__name__)
 

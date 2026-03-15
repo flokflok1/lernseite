@@ -15,6 +15,7 @@ import exam_goals from './exam-goals.json'
 import review from './review.json'
 import exam_cockpit from './exam-cockpit.json'
 import crawler from './crawler.json'
+import examArchive from './examArchive.json'
 
 export default {
   panel: {
@@ -33,6 +34,7 @@ export default {
     ...exam_goals,
     ...review,
     ...exam_cockpit,
-    ...crawler
+    ...crawler,
+    ...examArchive
   }
 }

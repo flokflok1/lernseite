@@ -94,7 +94,15 @@ defineEmits<{
 
 const { t } = useI18n()
 
+// Category detection via shared composable (single source of truth)
+import { usePageCategory } from '@/application/composables/panel/user/learning/usePageCategory'
+
+const lessonTitleRef = computed(() => props.lessonTitle || '')
+const lessonTypeRef = computed(() => props.lessonType || '')
+const { info: categoryInfo } = usePageCategory(lessonTitleRef, lessonTypeRef)
+
 const lessonTypeEmoji = computed(() => {
+  if (categoryInfo.value) return categoryInfo.value.icon
   const map: Record<string, string> = {
     text: '📝', video: '🎬', quiz: '❓', ai: '🤖', interactive: '🎮', mixed: '🔀'
   }
@@ -102,6 +110,7 @@ const lessonTypeEmoji = computed(() => {
 })
 
 const lessonTypeLabel = computed(() => {
+  if (categoryInfo.value) return categoryInfo.value.label
   if (!props.lessonType) return ''
   return t(`lesson.type_${props.lessonType}`)
 })

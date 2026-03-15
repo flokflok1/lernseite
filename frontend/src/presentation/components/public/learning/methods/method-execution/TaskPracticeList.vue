@@ -21,8 +21,7 @@
       >
         <span class="task-icon">{{ getIcon(task.method_type) }}</span>
         <div class="task-content">
-          <span class="task-title">{{ task.title }}</span>
-          <span class="task-method-name">{{ getName(task.method_type) }}</span>
+          <span class="task-title">{{ getName(task.method_type) }}</span>
         </div>
         <div class="task-meta">
           <span v-if="task.difficulty" class="task-difficulty" :class="`diff-${task.difficulty}`">

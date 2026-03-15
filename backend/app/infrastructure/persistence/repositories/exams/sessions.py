@@ -19,23 +19,31 @@ class ExamSessionRepository:
 
     @staticmethod
     def find_sessions_grouped(
-        exam_type_key: str = None,
+        program_key: str = None,
     ) -> List[Dict[str, Any]]:
-        """Grouped query: exam_type -> region -> sessions with counts."""
+        """Grouped query: program -> region -> exam_type -> sessions.
+
+        Returns rows with program info, region, exam type, session info,
+        and per-session aggregates. The API layer groups these into:
+          program -> region -> exam_type -> (year + season) sessions
+        """
         query = """
-            SELECT r.exam_type, r.display_name AS type_display_name,
-                   r.parts AS type_parts,
-                   s.session_id, s.region, s.year, s.season,
-                   s.tags, s.notes,
-                   reg.display_name AS region_name,
+            SELECT p.program_key, p.display_name AS program_name,
+                   p.provider, p.icon, p.sort_order AS program_sort,
+                   s.region, reg.display_name AS region_name,
+                   r.exam_type, r.display_name AS type_display_name,
+                   r.sort_order AS type_sort,
+                   s.session_id, s.year, s.season,
                    COUNT(e.exam_id) AS exam_count,
                    COUNT(e.exam_id) FILTER (
                        WHERE e.analysis_status = 'ready'
                    ) AS ready_count,
                    SUM(COALESCE(eq.q_count, 0)) AS total_questions
-            FROM assessments.exam_type_registry r
-            JOIN assessments.exam_sessions s
-                ON s.exam_type_key = r.exam_type
+            FROM assessments.exam_sessions s
+            JOIN assessments.exam_type_registry r
+                ON r.exam_type = s.exam_type_key
+            LEFT JOIN assessments.exam_programs p
+                ON p.program_id = r.program_id
             LEFT JOIN assessments.exam_regions reg
                 ON reg.region_code = s.region
             LEFT JOIN assessments.exams e
@@ -47,15 +55,17 @@ class ExamSessionRepository:
             ) eq ON TRUE
         """
         params: List = []
-        if exam_type_key:
-            query += " WHERE r.exam_type = %s"
-            params.append(exam_type_key)
+        if program_key:
+            query += " WHERE p.program_key = %s"
+            params.append(program_key)
 
         query += """
-            GROUP BY r.exam_type, r.display_name, r.parts,
-                     s.session_id, s.region, s.year, s.season,
-                     s.tags, s.notes, reg.display_name
-            ORDER BY r.exam_type, s.region, s.year DESC, s.season
+            GROUP BY p.program_key, p.display_name, p.provider, p.icon,
+                     p.sort_order, s.region, reg.display_name,
+                     r.exam_type, r.display_name,
+                     r.sort_order, s.session_id, s.year, s.season
+            ORDER BY p.sort_order, s.region, r.sort_order,
+                     s.year DESC, s.season DESC
         """
         return fetch_all(query, params)
 
@@ -87,7 +97,7 @@ class ExamSessionRepository:
                 'year': year,
                 'season': season,
             },
-            ['session_id', 'exam_type_key', 'region', 'year', 'season'],
+            'session_id, exam_type_key, region, year, season',
         )
 
     @staticmethod
@@ -155,3 +165,49 @@ class ExamSessionRepository:
                WHERE region_code = %s""",
             [region_code],
         )
+
+    @staticmethod
+    def delete_session(session_id: str) -> bool:
+        """Delete an empty session. Returns False if exams exist."""
+        count = fetch_one(
+            "SELECT COUNT(*) AS cnt FROM assessments.exams WHERE session_id = %s",
+            [session_id],
+        )
+        if count and count['cnt'] > 0:
+            return False
+        from app.infrastructure.persistence.database.connection import (
+            execute_query,
+        )
+        execute_query(
+            "DELETE FROM assessments.exam_sessions WHERE session_id = %s",
+            [session_id],
+        )
+        return True
+
+    @staticmethod
+    def move_exam(
+        exam_id: str, target_session_id: str,
+    ) -> Optional[Dict[str, Any]]:
+        """Move an exam to a different session."""
+        return fetch_one(
+            """UPDATE assessments.exams
+               SET session_id = %s, updated_at = NOW()
+               WHERE exam_id = %s RETURNING exam_id, session_id""",
+            [target_session_id, exam_id],
+        )
+
+    @staticmethod
+    def delete_exam(exam_id: str) -> bool:
+        """Delete an exam and its questions."""
+        from app.infrastructure.persistence.database.connection import (
+            execute_query,
+        )
+        execute_query(
+            "DELETE FROM assessments.exam_questions WHERE exam_id = %s",
+            [exam_id],
+        )
+        execute_query(
+            "DELETE FROM assessments.exams WHERE exam_id = %s",
+            [exam_id],
+        )
+        return True

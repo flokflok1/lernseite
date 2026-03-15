@@ -82,6 +82,21 @@ def get_crawl_job(job_id):
     return jsonify(job), 200
 
 
+@crawler_bp.route('/jobs/<job_id>/cancel', methods=['POST'])
+@admin_required
+def cancel_crawl_job(job_id):
+    """Cancel a pending or running crawl job.
+
+    Revokes the Celery task (if running) and marks the job as cancelled.
+    """
+    from app.application.services.web_research.crawl_service import CrawlService
+
+    cancelled = CrawlService.cancel_job(job_id)
+    if not cancelled:
+        return jsonify({'error': 'Job not found or already completed'}), 404
+    return jsonify({'cancelled': True, 'job_id': job_id}), 200
+
+
 @crawler_bp.route('/pdfs', methods=['GET'])
 @admin_required
 def list_crawler_pdfs():

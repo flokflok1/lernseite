@@ -23,7 +23,20 @@
   "lessonTimeline": {
     "statusCompleted": "Ukończone",
     "statusCurrent": "Następne",
-    "statusLocked": "Zablokowane"
+    "statusRecommended": "Zalecane",
+    "statusAvailable": "Dostępne",
+    "statusLocked": "Zablokowane",
+    "stepOf": "Krok {step} z {total}",
+    "categoryTheory": "Teoria",
+    "categoryPractice": "Ćwiczenia",
+    "categoryAssessment": "Egzamin",
+    "descExplanation": "Zrozum podstawy i koncepcje",
+    "descMath": "Ćwicz zadania matematyczne",
+    "descCloze": "Utrwal wiedzę uzupełniając luki",
+    "descIhk": "Rozwiąż pytania egzaminacyjne IHK",
+    "descFlashcards": "Zapamiętuj pojęcia z fiszkami",
+    "descMatching": "Rozwiąż zadania dopasowania",
+    "descCaseStudy": "Opracuj praktyczne studia przypadków"
   },
   "chapterTheory": {
     "available": "{count} dostępne",

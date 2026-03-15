@@ -60,7 +60,7 @@ class ExamQuestionRepository(BaseRepository):
         if 'solution' in question_data and isinstance(question_data['solution'], dict):
             question_data['solution'] = json.dumps(question_data['solution'])
 
-        return insert_returning('exam_questions', question_data, '*')
+        return insert_returning(cls.table_name, question_data, '*')
 
     @classmethod
     def bulk_create_questions(cls, questions: List[Dict[str, Any]]) -> bool:
@@ -83,13 +83,13 @@ class ExamQuestionRepository(BaseRepository):
             update_data['solution'] = json.dumps(update_data['solution'])
 
         where = "question_id = %s"
-        return update_returning('exam_questions', update_data, where, (question_id,), '*')
+        return update_returning(cls.table_name, update_data, where, (question_id,), '*')
 
     @classmethod
     def delete_question(cls, question_id: str) -> bool:
         """Delete exam question."""
         where = "question_id = %s"
-        result = delete_returning('exam_questions', where, (question_id,), 'question_id')
+        result = delete_returning(cls.table_name, where, (question_id,), 'question_id')
         return result is not None
 
     @classmethod
@@ -212,7 +212,7 @@ class ExamQuestionRepository(BaseRepository):
             for item in question_orders:
                 where = "question_id = %s AND exam_id = %s"
                 update_returning(
-                    'exam_questions',
+                    cls.table_name,
                     {'order_index': item['order_index']},
                     where,
                     (item['question_id'], exam_id),

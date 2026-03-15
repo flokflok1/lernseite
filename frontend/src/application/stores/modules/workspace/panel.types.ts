@@ -20,6 +20,7 @@ export type PanelType =
   | 'admin-lesson-editor'
   | 'admin-learning-method-editor'  // Phase D3.4: Learning Methods Editor (19 Content-LMs)
   | 'admin-exam-manager'
+  | 'admin-pdf-viewer'     // Exam Archive PDF Viewer
   | 'admin-ai-job'
   | 'admin-panel-manager'
   | 'admin-prompt-browser'

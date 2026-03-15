@@ -4,9 +4,20 @@ from typing import Dict, Any, Optional, List
 
 from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, parse_label
 from app.domain.services.lm_content_mapper import LMContentMapper
+from app.application.services.exams.lesson_content_builder import (
+    build_lesson_markdown,
+)
 from app.application.services.exams.course_plan_factory import (
     CoursePlanFactory,
     get_ai_lm_types,
+)
+from app.application.services.exams.question_helpers import (
+    filter_usable_questions,
+    split_questions_into_chunks,
+    lm_lesson_title,
+    make_json_safe,
+    group_questions_by_scenario,
+    build_static_lm_data,
 )
 from app.infrastructure.persistence.repositories.courses.management.crud import (
     CourseRepositoryCRUD,
@@ -26,30 +37,11 @@ from app.infrastructure.persistence.repositories.exams.core import (
 from app.infrastructure.persistence.repositories.ai.content_plans import (
     ContentPlanRepository,
 )
+from app.infrastructure.persistence.repositories.courses.content.lessons import (
+    LessonRepository,
+)
 
 logger = logging.getLogger(__name__)
-
-# LM type -> mapper function name (static content from exam data)
-LM_MAPPER: Dict[int, str] = {
-    5: 'map_to_math_interactive',
-    6: 'map_to_flashcards',
-    7: 'map_to_drag_drop',
-    8: 'map_to_cloze',
-    10: 'map_to_ihk_tasks',
-    11: 'map_to_multi_step',
-}
-
-# LM type -> English title suffix (language-neutral internal labels)
-LM_TITLE_SUFFIX: Dict[int, str] = {
-    0: 'Explanation',
-    1: 'Step by Step',
-    5: 'Math Exercises',
-    6: 'Flashcards',
-    7: 'Matching',
-    8: 'Cloze Tests',
-    10: 'Exam Tasks',
-    11: 'Case Studies',
-}
 
 
 class CourseGeneratorBuilder:
@@ -117,14 +109,8 @@ def _create_course(
 ) -> str:
     """Create the course record and return course_id."""
     desc_map = {
-        'de': (
-            f'Automatisch generiert aus {plan.total_questions} '
-            f'echten Aufgaben.'
-        ),
-        'en': (
-            f'Auto-generated from {plan.total_questions} '
-            f'real exam questions.'
-        ),
+        'de': f'Automatisch generiert aus {plan.total_questions} echten Aufgaben.',
+        'en': f'Auto-generated from {plan.total_questions} real exam questions.',
     }
     course = CourseRepositoryCRUD.create({
         'title': plan.title,
@@ -191,7 +177,7 @@ def _build_all_chapters(
             all_ai_plan_ids.append(result['ai_plan_id'])
 
     for sim_exam_id in plan.simulation_exam_ids:
-        sim = _build_simulation_chapter(course_id, sim_exam_id)
+        sim = _build_simulation_chapter(course_id, sim_exam_id, language)
         total_lm += sim['lm_count']
 
     return total_lm, total_tokens, all_ai_plan_ids
@@ -226,6 +212,14 @@ def _build_chapter(
     chapter_id = str(chapter['chapter_id'])
 
     questions = _fetch_chapter_questions(chapter_plan.question_ids)
+    questions = filter_usable_questions(questions)
+
+    if not questions:
+        logger.warning(
+            "Chapter '%s' has no usable questions after filtering",
+            chapter_plan.topic,
+        )
+        return {'lm_count': 0, 'tokens_used': 0}
 
     # Create static LM instances (types 5-11)
     result = _create_static_lm_instances(
@@ -243,10 +237,11 @@ def _build_chapter(
 
 
 def _fetch_chapter_questions(question_ids: List[str]) -> List[Dict]:
-    """Fetch full question data for a set of question IDs (batch)."""
+    """Fetch questions and make JSON-serializable (for JSONB LM data)."""
     if not question_ids:
         return []
-    return ExamQuestionRepository.find_by_ids(question_ids)
+    rows = ExamQuestionRepository.find_by_ids(question_ids)
+    return [make_json_safe(row) for row in rows]
 
 
 def _create_static_lm_instances(
@@ -255,30 +250,55 @@ def _create_static_lm_instances(
     questions: List[Dict],
     language: str,
 ) -> Dict[str, Any]:
-    """Create LM instances for static types only (skip AI-generated)."""
+    """Create LM instances for static types only (skip AI-generated).
+
+    Questions are split into batches of MAX_QUESTIONS_PER_LESSON so each
+    lesson stays manageable.  Each batch gets its own lesson + LM instance.
+    """
     ai_types = get_ai_lm_types(chapter_plan)
     lm_count = 0
+    global_order = 0
 
-    for lm_order, lm_type in enumerate(chapter_plan.lm_types):
-        # Skip AI-generated types -- handled by AI Editor pipeline
+    for lm_type in chapter_plan.lm_types:
         if lm_type in ai_types:
             continue
 
-        lm_data = _build_static_lm_data(lm_type, questions)
-        if lm_data is None:
-            continue
+        chunks = split_questions_into_chunks(questions)
+        chapter_label = _chapter_title_from_plan(chapter_plan, language)
 
-        title = _lm_title(chapter_plan, lm_type, language)
-        LearningMethodInstanceRepository.create({
-            'chapter_id': chapter_id,
-            'method_type': lm_type,
-            'title': title,
-            'data': lm_data,
-            'order_index': lm_order + 1,
-            'published': True,
-            'difficulty': 'medium',
-        })
-        lm_count += 1
+        for chunk_idx, chunk in enumerate(chunks):
+            lm_data = build_static_lm_data(lm_type, chunk)
+            if lm_data is None:
+                continue
+
+            title = lm_lesson_title(
+                chunk, lm_type, chunk_idx, len(chunks), language,
+            )
+            content = build_lesson_markdown(
+                lm_type, lm_data, chapter_label, language,
+            )
+
+            lesson = LessonRepository.create({
+                'chapter_id': chapter_id,
+                'title': title,
+                'lesson_type': 'text',
+                'content': content or None,
+                'published': True,
+            })
+            lesson_id = str(lesson['lesson_id'])
+
+            global_order += 1
+            LearningMethodInstanceRepository.create({
+                'chapter_id': chapter_id,
+                'lesson_id': lesson_id,
+                'method_type': lm_type,
+                'title': title,
+                'data': lm_data,
+                'order_index': global_order,
+                'published': True,
+                'difficulty': 'medium',
+            })
+            lm_count += 1
 
     return {'lm_count': lm_count, 'tokens_used': 0}
 
@@ -332,73 +352,71 @@ def _create_ai_plan_if_needed(
     return plan_id
 
 
-def _lm_title(
-    chapter_plan: ChapterPlan, lm_type: int, language: str = 'de',
-) -> str:
-    """Build an LM instance title with English suffix.
-
-    Uses parent_label (human-readable curriculum title) when available,
-    falls back to topic key for topic-based grouping.
-    """
-    suffix = LM_TITLE_SUFFIX.get(lm_type, '')
-    label = parse_label(chapter_plan.parent_label)
-    topic_label = (
-        label.get(language)
-        or label.get('de')
-        or chapter_plan.topic.replace('_', ' ').title()
-    )
-    return f'{topic_label} -- {suffix}' if suffix else topic_label
-
 
 def _build_simulation_chapter(
     course_id: str,
     exam_id: str,
+    language: str = 'de',
 ) -> Dict[str, Any]:
-    """Build a simulation chapter from a full exam."""
+    """Build simulation chapter — one lesson per scenario for rotation."""
     questions = ExamQuestionRepository.find_by_exam(exam_id)
     if not questions:
         return {'lm_count': 0}
 
-    # Map ALL question types for realistic exam simulation
-    tasks = LMContentMapper.map_to_ihk_tasks(questions, include_mcq=True)
-    if not tasks or not tasks.get('tasks'):
-        logger.warning(
-            "Simulation exam %s has no IHK-compatible questions, skipping",
-            exam_id,
-        )
-        return {'lm_count': 0}
-
-    # Get exam title from exams table (not from questions)
     exam = ExamRepository.find_by_id(exam_id)
     exam_label = exam.get('title', 'Exam') if exam else 'Exam'
-    title = f"Simulation -- {exam_label}"
+
+    scenario_groups = group_questions_by_scenario(questions)
+    if not scenario_groups:
+        return {'lm_count': 0}
 
     chapter = ChapterRepository.create({
         'course_id': course_id,
-        'title': title,
-        'description': f'Exam simulation -- {len(questions)} questions',
+        'title': f"Simulation — {exam_label}",
+        'description': f'{len(questions)} items, {len(scenario_groups)} scenarios',
     })
     chapter_id = str(chapter['chapter_id'])
 
-    question_count = len(questions)
-    exam_config = {
-        'exam_id': exam_id,
-        'question_count': question_count,
-        'time_limit_minutes': 90,
-        'passing_percentage': 50,
-        'mode': 'simulation',
-    }
+    lm_count = 0
+    for order_idx, (scenario_title, group_qs) in enumerate(scenario_groups):
+        tasks = LMContentMapper.map_to_ihk_tasks(group_qs, include_mcq=True)
+        if not tasks or not tasks.get('tasks'):
+            continue
 
-    LearningMethodInstanceRepository.create({
-        'chapter_id': chapter_id,
-        'method_type': 10,
-        'title': title,
-        'data': {**tasks, 'exam_config': exam_config},
-        'published': True,
-        'difficulty': 'hard',
-    })
+        lesson_title = scenario_title or f"Part {order_idx + 1}"
+        sim_content = build_lesson_markdown(10, tasks, lesson_title, language)
 
-    return {'lm_count': 1, 'question_count': question_count}
+        exam_config = {
+            'exam_id': exam_id,
+            'question_count': len(group_qs),
+            'scenario_index': order_idx,
+            'total_scenarios': len(scenario_groups),
+            'mode': 'simulation',
+        }
+
+        lesson = LessonRepository.create({
+            'chapter_id': chapter_id,
+            'title': lesson_title,
+            'lesson_type': 'text',
+            'content': sim_content or None,
+            'published': True,
+        })
+        lesson_id = str(lesson['lesson_id'])
+
+        LearningMethodInstanceRepository.create({
+            'chapter_id': chapter_id,
+            'lesson_id': lesson_id,
+            'method_type': 10,
+            'title': lesson_title,
+            'data': make_json_safe({**tasks, 'exam_config': exam_config}),
+            'order_index': order_idx + 1,
+            'published': True,
+            'difficulty': 'hard',
+        })
+        lm_count += 1
+
+    return {'lm_count': lm_count, 'question_count': len(questions)}
+
 
 
 def _build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
@@ -477,19 +495,3 @@ def _chapter_title_from_plan(chapter_plan: ChapterPlan, language: str) -> str:
     return label.get(language, chapter_plan.topic.replace('_', ' ').title())
 
 
-def _build_static_lm_data(lm_type: int, questions: List[Dict]) -> Optional[Dict[str, Any]]:
-    """Build JSONB data for a static LM type via LMContentMapper."""
-    mapper = LM_MAPPER.get(lm_type)
-    if not mapper:
-        return None
-    map_fn = getattr(LMContentMapper, mapper, None)
-    if not map_fn:
-        return None
-    data = map_fn(questions)
-    if not data:
-        return None
-    # Skip if content dict exists but all values are empty lists
-    items_key = next(iter(data), None)
-    if items_key is not None and len(data.get(items_key, [])) == 0:
-        return None
-    return data

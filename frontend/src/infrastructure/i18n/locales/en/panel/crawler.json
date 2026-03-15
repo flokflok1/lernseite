@@ -42,7 +42,10 @@
       "errors": "Errors",
       "duration": "Duration",
       "progress": "Progress",
-      "started": "Started"
+      "started": "Started",
+      "cancel": "Cancel",
+      "cancelConfirm": "Really cancel this job?",
+      "cancelled": "Job cancelled"
     },
     "pdfs": {
       "title": "PDF Library",

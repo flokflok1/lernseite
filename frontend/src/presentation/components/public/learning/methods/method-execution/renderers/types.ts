@@ -71,6 +71,9 @@ export interface MathProblem {
   question: string
   answer: string | number
   hint?: string
+  points?: number
+  scenario_title?: string
+  scenario_text?: string
 }
 
 export interface MathEquation {
@@ -134,9 +137,18 @@ export interface ClozeBlank {
   position: number
 }
 
+// Exam-generated sentence format (from LMContentMapper)
+export interface ClozeSentence {
+  text: string
+  answers: string[]
+  source_question_id?: string
+}
+
 export interface ClozeData {
   blanks?: ClozeBlank[]
   codeTemplate?: string
+  // Exam-style sentences (alternative to blanks+codeTemplate)
+  sentences?: ClozeSentence[]
 }
 
 export interface ClozeSolution {

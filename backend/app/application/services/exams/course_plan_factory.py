@@ -108,13 +108,19 @@ def _build_ai_steps(
             logger.warning("No skill code for AI LM type %d", lm_type)
             continue
 
+        # lm_type 0 (Deep Explanation): the lesson content IS the
+        # explanation — no separate method instance needed.  Keeping the
+        # step so the AI still generates the markdown lesson, but
+        # learning_methods=[] prevents a redundant task in the sidebar.
+        method_ids = [] if lm_type == 0 else [lm_type]
+
         steps.append({
             'step_id': f'0-{idx}',
             'skill_code': skill_code,
             'target_title': topic_label,
             'target_type': 'chapter',
             'target_id': chapter_id,
-            'learning_methods': [lm_type],
+            'learning_methods': method_ids,
             'parameters': {
                 'difficulty': 'medium',
                 'topic': topic_label,

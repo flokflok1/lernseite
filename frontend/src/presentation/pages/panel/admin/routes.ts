@@ -37,11 +37,7 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelExams',
       component: () => import('@/presentation/pages/panel/admin/PanelExamsPage.vue'),
     },
-    // Redirects for old routes
-    {
-      path: 'exam-archive',
-      redirect: '/panel/exams',
-    },
+    // exam-archive is a standalone fullscreen route (see examArchiveRoute below)
     {
       path: 'curriculum',
       redirect: '/panel/exams?tab=curriculum',
@@ -147,6 +143,14 @@ export const panelRoutes: RouteRecordRaw = {
       props: true,
     },
   ],
+}
+
+/** Standalone fullscreen route — no PanelLayout sidebar */
+export const examArchiveRoute: RouteRecordRaw = {
+  path: '/exam-archive',
+  name: 'PanelExamArchive',
+  component: () => import('@/presentation/pages/panel/admin/PanelExamArchivePage.vue'),
+  meta: { requiresAuth: true, requiresSystemAdmin: true },
 }
 
 export default panelRoutes

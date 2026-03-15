@@ -1,0 +1,55 @@
+{
+  "examArchive": {
+    "title": "Exam Archive",
+    "back": "Back",
+    "search": "Search exams...",
+    "uploadPdfs": "Upload PDFs",
+    "newFolder": "New Folder",
+    "programs": "Exam Programs",
+    "folders": "Folders",
+    "files": "Files",
+    "grid": "Grid",
+    "list": "List",
+    "contextMenu": {
+      "open": "Open",
+      "rename": "Rename",
+      "copy": "Copy",
+      "moveTo": "Move to...",
+      "newSubfolder": "New Subfolder",
+      "uploadPdfs": "Upload PDFs",
+      "analyzeAll": "Analyze All",
+      "analyze": "Analyze",
+      "generateCourse": "Generate Course",
+      "delete": "Delete",
+      "download": "Download",
+      "details": "Details"
+    },
+    "status": {
+      "connected": "Connected",
+      "analyzing": "Analyzing...",
+      "ready": "Analyzed",
+      "pending": "Pending",
+      "failed": "Failed",
+      "assigned": "Assigned",
+      "new": "NEW"
+    },
+    "folderDialog": {
+      "editTitle": "Edit Folder",
+      "name": "Name",
+      "icon": "Icon",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "dropHint": "Drop PDFs here to upload",
+    "emptyFolder": "This folder is empty",
+    "confirmDelete": "Do you want to delete this folder and all its contents?",
+    "lastSync": "Last synced",
+    "stats": "{folders} folders · {exams} exams · {questions} questions",
+    "defaultFolderName": "New Folder",
+    "pdfViewer": {
+      "title": "PDF Viewer",
+      "questions": "Extracted Questions",
+      "noQuestions": "No questions extracted yet"
+    }
+  }
+}

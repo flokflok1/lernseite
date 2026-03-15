@@ -70,6 +70,10 @@ export const getCrawlJob = async (jobId: string): Promise<CrawlJob> => {
   return response.data
 }
 
+export const cancelCrawlJob = async (jobId: string): Promise<void> => {
+  await http.post(`${BASE}/jobs/${jobId}/cancel`)
+}
+
 // --- PDFs ---
 
 export const getCrawlPdfs = async (params?: {

@@ -52,10 +52,32 @@ export function useChapterDetail(courseId: string, chapterId: string) {
     return lessons.value.reduce((sum, l) => sum + (l.duration_minutes || 0), 0)
   })
 
+  // Title-based classification for exam-generated text lessons
+  const TITLE_TYPE_MAP: Record<string, string> = {
+    'erklärung': 'explanation',
+    'rechenaufgaben': 'math',
+    'lückentext': 'cloze',
+    'ihk-prüfungsaufgaben': 'ihk',
+    'lernkarten': 'flashcards',
+    'zuordnung': 'matching',
+    'fallstudien': 'casestudy',
+  }
+
+  function classifyLesson(lesson: any): string {
+    const type = lesson.lesson_type || 'text'
+    if (type === 'text' && lesson.title) {
+      const lower = lesson.title.toLowerCase()
+      for (const [key, label] of Object.entries(TITLE_TYPE_MAP)) {
+        if (lower.includes(key)) return label
+      }
+    }
+    return type
+  }
+
   const lessonTypeBreakdown = computed(() => {
     const map: Record<string, number> = {}
     lessons.value.forEach(l => {
-      const type = l.lesson_type || 'text'
+      const type = classifyLesson(l)
       map[type] = (map[type] || 0) + 1
     })
     return map

@@ -23,7 +23,20 @@
   "lessonTimeline": {
     "statusCompleted": "Completed",
     "statusCurrent": "Up Next",
-    "statusLocked": "Locked"
+    "statusRecommended": "Recommended",
+    "statusAvailable": "Available",
+    "statusLocked": "Locked",
+    "stepOf": "Step {step} of {total}",
+    "categoryTheory": "Theory",
+    "categoryPractice": "Practice",
+    "categoryAssessment": "Assessment",
+    "descExplanation": "Understand fundamentals and concepts",
+    "descMath": "Practice math exercises",
+    "descCloze": "Reinforce knowledge with fill-in-the-blank",
+    "descIhk": "Work through IHK exam questions",
+    "descFlashcards": "Memorize terms with flashcards",
+    "descMatching": "Solve matching exercises",
+    "descCaseStudy": "Work through practical case studies"
   },
   "chapterTheory": {
     "available": "{count} available",

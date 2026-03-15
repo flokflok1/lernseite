@@ -146,7 +146,7 @@ class AnthropicProvider:
             'messages': conversation_messages,
             'tools': tools,
             'temperature': temperature,
-            'max_tokens': max_tokens
+            'max_tokens': max_tokens if max_tokens and max_tokens > 0 else 16384
         }
 
         if system_message:
@@ -220,7 +220,7 @@ class AnthropicProvider:
             'model': model,
             'messages': messages,
             'temperature': temperature,
-            'max_tokens': max_tokens
+            'max_tokens': max_tokens if max_tokens and max_tokens > 0 else 16384
         }
 
         if system_message:

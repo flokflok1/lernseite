@@ -2,8 +2,7 @@
 import logging
 from typing import Dict, Any, Optional, List
 
-from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan, parse_label
-from app.domain.services.lm_content_mapper import LMContentMapper
+from app.domain.models.exam_course_plan import ExamCoursePlan, ChapterPlan
 from app.application.services.exams.lesson_content_builder import (
     build_lesson_markdown,
 )
@@ -16,8 +15,14 @@ from app.application.services.exams.question_helpers import (
     split_questions_into_chunks,
     lm_lesson_title,
     make_json_safe,
-    group_questions_by_scenario,
     build_static_lm_data,
+)
+from app.application.services.exams.course_generator_builder_part2 import (
+    build_simulation_chapter as _build_simulation_chapter,
+    build_chapter_metadata as _build_chapter_metadata,
+    enrich_with_web_research as _enrich_with_web_research,
+    chapter_title_from_plan as _chapter_title_from_plan,
+    _estimate_duration,
 )
 from app.infrastructure.persistence.repositories.courses.management.crud import (
     CourseRepositoryCRUD,
@@ -31,9 +36,6 @@ from app.infrastructure.persistence.repositories.learning_method.execution.insta
 from app.infrastructure.persistence.repositories.exams.questions import (
     ExamQuestionRepository,
 )
-from app.infrastructure.persistence.repositories.exams.core import (
-    ExamRepository,
-)
 from app.infrastructure.persistence.repositories.ai.content_plans import (
     ContentPlanRepository,
 )
@@ -42,6 +44,28 @@ from app.infrastructure.persistence.repositories.courses.content.lessons import 
 )
 
 logger = logging.getLogger(__name__)
+
+# LM type → lesson_type string for the lessons table
+_LM_LESSON_TYPE: Dict[int, str] = {
+    0: 'explanation',
+    1: 'step_by_step',
+    5: 'math_interactive',
+    6: 'flashcards',
+    7: 'drag_and_drop',
+    8: 'cloze_test',
+    10: 'ihk_tasks',
+    11: 'case_study',
+}
+
+
+def _count_lm_items(lm_type: int, lm_data: Dict) -> int:
+    """Count items in LM data for duration estimation."""
+    key_map = {5: 'problems', 6: 'cards', 7: 'pairs', 8: 'sentences',
+               10: 'tasks', 11: 'steps'}
+    key = key_map.get(lm_type)
+    if key:
+        return len(lm_data.get(key, []))
+    return 1
 
 
 class CourseGeneratorBuilder:
@@ -278,11 +302,16 @@ def _create_static_lm_instances(
                 lm_type, lm_data, chapter_label, language,
             )
 
+            item_count = _count_lm_items(lm_type, lm_data)
+            duration = _estimate_duration(lm_type, item_count)
+            lesson_type = _LM_LESSON_TYPE.get(lm_type, 'text')
+
             lesson = LessonRepository.create({
                 'chapter_id': chapter_id,
                 'title': title,
-                'lesson_type': 'text',
+                'lesson_type': lesson_type,
                 'content': content or None,
+                'duration_minutes': duration,
                 'published': True,
             })
             lesson_id = str(lesson['lesson_id'])
@@ -350,148 +379,5 @@ def _create_ai_plan_if_needed(
         plan_id, chapter_id, chapter_plan.topic,
     )
     return plan_id
-
-
-
-def _build_simulation_chapter(
-    course_id: str,
-    exam_id: str,
-    language: str = 'de',
-) -> Dict[str, Any]:
-    """Build simulation chapter — one lesson per scenario for rotation."""
-    questions = ExamQuestionRepository.find_by_exam(exam_id)
-    if not questions:
-        return {'lm_count': 0}
-
-    exam = ExamRepository.find_by_id(exam_id)
-    exam_label = exam.get('title', 'Exam') if exam else 'Exam'
-
-    scenario_groups = group_questions_by_scenario(questions)
-    if not scenario_groups:
-        return {'lm_count': 0}
-
-    chapter = ChapterRepository.create({
-        'course_id': course_id,
-        'title': f"Simulation — {exam_label}",
-        'description': f'{len(questions)} items, {len(scenario_groups)} scenarios',
-    })
-    chapter_id = str(chapter['chapter_id'])
-
-    lm_count = 0
-    for order_idx, (scenario_title, group_qs) in enumerate(scenario_groups):
-        tasks = LMContentMapper.map_to_ihk_tasks(group_qs, include_mcq=True)
-        if not tasks or not tasks.get('tasks'):
-            continue
-
-        lesson_title = scenario_title or f"Part {order_idx + 1}"
-        sim_content = build_lesson_markdown(10, tasks, lesson_title, language)
-
-        exam_config = {
-            'exam_id': exam_id,
-            'question_count': len(group_qs),
-            'scenario_index': order_idx,
-            'total_scenarios': len(scenario_groups),
-            'mode': 'simulation',
-        }
-
-        lesson = LessonRepository.create({
-            'chapter_id': chapter_id,
-            'title': lesson_title,
-            'lesson_type': 'text',
-            'content': sim_content or None,
-            'published': True,
-        })
-        lesson_id = str(lesson['lesson_id'])
-
-        LearningMethodInstanceRepository.create({
-            'chapter_id': chapter_id,
-            'lesson_id': lesson_id,
-            'method_type': 10,
-            'title': lesson_title,
-            'data': make_json_safe({**tasks, 'exam_config': exam_config}),
-            'order_index': order_idx + 1,
-            'published': True,
-            'difficulty': 'hard',
-        })
-        lm_count += 1
-
-    return {'lm_count': lm_count, 'question_count': len(questions)}
-
-
-
-def _build_chapter_metadata(chapter_plan: ChapterPlan) -> dict:
-    """Build ai_metadata JSONB with intelligence data for frontend badges."""
-    meta = {
-        'coverage_source': chapter_plan.coverage_source,
-        'coverage_pct': chapter_plan.coverage_pct,
-        'intelligence_score': chapter_plan.intelligence_score,
-        'relevance_score': chapter_plan.relevance_score,
-        'prognosis_probability': chapter_plan.prognosis_probability,
-    }
-    if chapter_plan.prognosis_confidence:
-        meta['prognosis_confidence'] = chapter_plan.prognosis_confidence
-    if chapter_plan.user_proficiency is not None:
-        meta['user_proficiency'] = chapter_plan.user_proficiency
-        meta['user_severity'] = chapter_plan.user_severity
-    return meta
-
-
-def _enrich_with_web_research(
-    chapter_plan: ChapterPlan, plan_data: dict,
-    language: str = 'de', region: str = '', exam_type: str = '',
-) -> None:
-    """Enrich AI plan with web research (Grounding + PDFs) for validation."""
-    from app.domain.exceptions.web_research import WebResearchError
-
-    label = chapter_plan.curriculum_position_code or chapter_plan.topic
-    result = None
-    try:
-        result = _fetch_web_research(chapter_plan, language, region, exam_type)
-    except WebResearchError as e:
-        logger.warning("Grounding failed for %s: %s", label, e)
-    except Exception:
-        logger.exception("Web research failed for %s", label)
-
-    if result and result.get('summary'):
-        plan_data['web_research_context'] = result
-        plan_data['grounding_status'] = result.get('grounding_status', 'success')
-        plan_data['research_sources'] = result.get('sources', [])
-        logger.info("Web research enriched %s (grounding=%s, src=%d)",
-                     label, result.get('grounding_status', '?'),
-                     len(result.get('sources', [])))
-    else:
-        plan_data['grounding_status'] = 'failed'
-        plan_data['research_sources'] = []
-
-
-def _fetch_web_research(
-    chapter_plan: ChapterPlan, language: str,
-    region: str = '', exam_type: str = '',
-) -> dict:
-    """Fetch web research — curriculum-based or topic-based."""
-    if chapter_plan.curriculum_position_id:
-        from app.application.services.exams.gap_content_service import (
-            GapContentService,
-        )
-        results = GapContentService.generate_gap_content(
-            framework_id=0,
-            position_id=chapter_plan.curriculum_position_id,
-            language=language, region=region, exam_type=exam_type,
-        )
-        return results[0] if results else {}
-
-    from app.infrastructure.web_research.search_service import WebSearchService
-    topic_name = chapter_plan.topic.replace('_', ' ')
-    return WebSearchService.research_position(
-        position_id=0, position_title=topic_name,
-        objectives=[topic_name], language=language,
-        region=region, exam_type=exam_type,
-    )
-
-
-def _chapter_title_from_plan(chapter_plan: ChapterPlan, language: str) -> str:
-    """Derive chapter title from parent_label or topic key."""
-    label = parse_label(chapter_plan.parent_label)
-    return label.get(language, chapter_plan.topic.replace('_', ' ').title())
 
 

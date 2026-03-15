@@ -2,8 +2,8 @@
 
 Converts LM instance data (math problems, cloze sentences, IHK tasks, etc.)
 into readable markdown that renders in the center panel of the lesson player.
+Includes scenario context (company situations, Anlagen) when available.
 """
-import json
 from typing import Dict, List, Optional
 
 from app.domain.services.lm_content_mapper import get_lm_label
@@ -39,6 +39,25 @@ def build_lesson_markdown(
     return {'raw_text': md}
 
 
+def _render_scenario_contexts(data: Dict, lang: str) -> str:
+    """Render scenario_contexts block if present in LM data."""
+    contexts = data.get('scenario_contexts', [])
+    if not contexts:
+        return ''
+    header = {'de': 'Ausgangssituation', 'en': 'Scenario Context'}
+    lines = [f'\n## {header.get(lang, header["de"])}\n']
+    for ctx in contexts:
+        title = ctx.get('title', '')
+        text = ctx.get('text', '')
+        if title:
+            lines.append(f'**{title}**\n')
+        if text:
+            lines.append(f'{text}\n')
+        lines.append('')
+    lines.append('---\n')
+    return '\n'.join(lines)
+
+
 def _math_markdown(
     data: Dict, chapter: str, label: str, lang: str,
 ) -> str:
@@ -55,7 +74,11 @@ def _math_markdown(
               f'from real IHK exams on **{chapter}**.',
     }
 
-    lines = [f'# {label}\n', intro.get(lang, intro['de']), '\n---\n']
+    lines = [f'# {label}\n', intro.get(lang, intro['de']), '\n']
+    scenario_block = _render_scenario_contexts(data, lang)
+    if scenario_block:
+        lines.append(scenario_block)
+    lines.append('---\n')
 
     for i, p in enumerate(problems, 1):
         q = p.get('question', p.get('text', ''))
@@ -88,7 +111,11 @@ def _cloze_markdown(
               f'**{len(valid)} cloze sentences** on **{chapter}**.',
     }
 
-    lines = [f'# {label}\n', intro.get(lang, intro['de']), '\n---\n']
+    lines = [f'# {label}\n', intro.get(lang, intro['de']), '\n']
+    scenario_block = _render_scenario_contexts(data, lang)
+    if scenario_block:
+        lines.append(scenario_block)
+    lines.append('---\n')
 
     for i, s in enumerate(valid, 1):
         text = s.get('text', '')
@@ -119,7 +146,11 @@ def _ihk_tasks_markdown(
               f'Total: **{int(total_points)} points**.',
     }
 
-    lines = [f'# {label}\n', intro.get(lang, intro['de']), '\n---\n']
+    lines = [f'# {label}\n', intro.get(lang, intro['de']), '\n']
+    scenario_block = _render_scenario_contexts(data, lang)
+    if scenario_block:
+        lines.append(scenario_block)
+    lines.append('---\n')
 
     for i, t in enumerate(tasks, 1):
         q = t.get('question', '')

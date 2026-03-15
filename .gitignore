@@ -167,3 +167,4 @@ backend/ai_models/**/*.onnx
 .claude/settings.local.json
 .worktrees/
 .playwright-mcp/
+.superpowers/

@@ -47,7 +47,7 @@ class ExamTrainerRepository:
             SELECT e.exam_id, e.title, e.semester, e.part,
                    e.year, e.season, e.profession, e.region,
                    e.duration_minutes, e.passing_score,
-                   e.total_points,
+                   e.total_points, e.analysis_status,
                    COUNT(eq.question_id) as question_count
             FROM assessments.exams e
             LEFT JOIN assessments.exam_questions eq
@@ -163,8 +163,7 @@ class ExamTrainerRepository:
             'time_limit_minutes': time_limit_minutes
         }
         return insert_returning(
-            'exam_attempts', attempt_data, '*',
-            schema='assessments'
+            'assessments.exam_attempts', attempt_data, '*',
         )
 
     @classmethod
@@ -214,7 +213,7 @@ class ExamTrainerRepository:
         }
         where = "attempt_id = %s"
         return update_returning(
-            'exam_attempts', update_data, where,
+            'assessments.exam_attempts', update_data, where,
             (attempt_id,), '*'
         )
 
@@ -254,8 +253,7 @@ class ExamTrainerRepository:
             'answered_at': datetime.utcnow()
         }
         return insert_returning(
-            'exam_answers', answer_data, '*',
-            schema='assessments'
+            'assessments.exam_answers', answer_data, '*',
         )
 
     @classmethod
@@ -321,8 +319,7 @@ class ExamTrainerRepository:
             'graded_at': datetime.utcnow()
         }
         return insert_returning(
-            'exam_results', result_data, '*',
-            schema='assessments'
+            'assessments.exam_results', result_data, '*',
         )
 
     # ------------------------------------------------------------------

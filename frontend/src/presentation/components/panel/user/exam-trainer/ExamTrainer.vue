@@ -106,7 +106,6 @@ const startExamPractice = async (exam: TrainerExam) => {
     examComplete.value = false
     examResult.value = null
     lastExamId.value = exam.exam_id
-    showNewExamOptions.value = false
     activeTab.value = 'practice'
   } catch (e) {
     error.value = String(e)

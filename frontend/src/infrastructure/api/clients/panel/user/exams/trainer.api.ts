@@ -63,28 +63,28 @@ export interface GeneratedExamData {
 
 export const trainerListExams = async (): Promise<TrainerExam[]> => {
   const response = await http.get<{ success: boolean; exams: TrainerExam[] }>(
-    '/user/exams/trainer/exams'
+    '/user/exam-trainer/exams'
   )
   return response.data.exams
 }
 
 export const trainerGetQuestions = async (examId: string): Promise<TrainerQuestion[]> => {
   const response = await http.get<{ success: boolean; questions: TrainerQuestion[] }>(
-    `/user/exams/trainer/exams/${examId}/questions`
+    `/user/exam-trainer/exams/${examId}/questions`
   )
   return response.data.questions
 }
 
 export const trainerGetTopics = async (): Promise<TopicStat[]> => {
   const response = await http.get<{ success: boolean; topics: TopicStat[] }>(
-    '/user/exams/trainer/topics'
+    '/user/exam-trainer/topics'
   )
   return response.data.topics
 }
 
 export const trainerGetTopicQuestions = async (topic: string): Promise<TrainerQuestion[]> => {
   const response = await http.get<{ success: boolean; questions: TrainerQuestion[] }>(
-    `/user/exams/trainer/topics/${encodeURIComponent(topic)}/questions`
+    `/user/exam-trainer/topics/${encodeURIComponent(topic)}/questions`
   )
   return response.data.questions
 }
@@ -94,7 +94,7 @@ export const trainerSubmitAnswer = async (
   userAnswer: unknown
 ): Promise<AnswerResult> => {
   const response = await http.post<{ success: boolean } & AnswerResult>(
-    '/user/exams/trainer/submit-answer',
+    '/user/exam-trainer/submit-answer',
     { question_id: questionId, user_answer: userAnswer }
   )
   return response.data
@@ -102,14 +102,14 @@ export const trainerSubmitAnswer = async (
 
 export const trainerStartExam = async (examId: string): Promise<string> => {
   const response = await http.post<{ success: boolean; attempt_id: string }>(
-    `/user/exams/trainer/start-exam/${examId}`
+    `/user/exam-trainer/start-exam/${examId}`
   )
   return response.data.attempt_id
 }
 
 export const trainerCompleteAttempt = async (attemptId: string): Promise<AttemptResult> => {
   const response = await http.post<{ success: boolean } & AttemptResult>(
-    `/user/exams/trainer/complete-attempt/${attemptId}`
+    `/user/exam-trainer/complete-attempt/${attemptId}`
   )
   return response.data
 }
@@ -127,7 +127,7 @@ export const trainerPracticeSession = async (
     success: boolean
     questions: TrainerQuestion[]
     session_info: { total: number; topic: string | null }
-  }>('/user/exams/trainer/practice-session', {
+  }>('/user/exam-trainer/practice-session', {
     exam_type: params.examType,
     topic: params.topic,
     count: params.count ?? 15,
@@ -168,7 +168,7 @@ export const trainerGetAttemptReview = async (
   attemptId: string
 ): Promise<ReviewQuestion[]> => {
   const response = await http.get<{ success: boolean; questions: ReviewQuestion[] }>(
-    `/user/exams/trainer/attempt/${attemptId}/review`
+    `/user/exam-trainer/attempt/${attemptId}/review`
   )
   return response.data.questions
 }
@@ -177,7 +177,7 @@ export const trainerGetHistory = async (
   limit: number = 20
 ): Promise<AttemptHistoryEntry[]> => {
   const response = await http.get<{ success: boolean; attempts: AttemptHistoryEntry[] }>(
-    `/user/exams/trainer/history?limit=${limit}`
+    `/user/exam-trainer/history?limit=${limit}`
   )
   return response.data.attempts
 }

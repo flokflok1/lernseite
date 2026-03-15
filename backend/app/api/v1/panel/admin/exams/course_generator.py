@@ -35,6 +35,7 @@ def preview_course():
     language = data.get('language', 'de')
     framework_id = data.get('framework_id')
     sort_mode = data.get('sort_mode', 'relevance')
+    grouping_strategy = data.get('grouping_strategy', 'exam_practice')
     user_id = get_jwt_identity()
 
     plan = ExamCourseGeneratorService.preview(
@@ -42,6 +43,7 @@ def preview_course():
         framework_id=framework_id,
         sort_mode=sort_mode,
         user_id=user_id,
+        grouping_strategy=grouping_strategy,
     )
 
     return jsonify({
@@ -71,6 +73,7 @@ def generate_course():
     user_id = get_jwt_identity()
     framework_id = data.get('framework_id')
     sort_mode = data.get('sort_mode', 'relevance')
+    grouping_strategy = data.get('grouping_strategy', 'exam_practice')
 
     # First generate the plan (with intelligence scoring)
     plan = ExamCourseGeneratorService.preview(
@@ -78,6 +81,7 @@ def generate_course():
         framework_id=framework_id,
         sort_mode=sort_mode,
         user_id=user_id,
+        grouping_strategy=grouping_strategy,
     )
 
     if not plan.chapters:
@@ -109,3 +113,70 @@ def get_course_generation_progress(course_id):
     """
     progress = ExamCourseGeneratorService.get_generation_progress(course_id)
     return jsonify({'success': True, 'data': progress}), 200
+
+
+# ── Cluster Intelligence ──────────────────────────────────────
+
+
+@course_gen_bp.route('/clusters/suggest', methods=['POST'])
+@admin_required
+def suggest_clusters():
+    """AI-powered cluster suggestion for an exam type."""
+    from app.application.services.exams.cluster_intelligence import (
+        ClusterIntelligenceService,
+    )
+    data = request.get_json(silent=True) or {}
+    exam_type_key = data.get('exam_type_key')
+    if not exam_type_key:
+        return jsonify({'error': 'exam_type_key required'}), 400
+
+    result = ClusterIntelligenceService.suggest_clusters(
+        exam_type_key,
+        region=data.get('region', 'alle'),
+        options={
+            'provider': data.get('provider'),
+            'model': data.get('model'),
+        },
+    )
+    return jsonify(result)
+
+
+@course_gen_bp.route('/clusters/apply', methods=['POST'])
+@admin_required
+def apply_clusters():
+    """Save admin-approved clusters to DB."""
+    from app.application.services.exams.cluster_intelligence import (
+        ClusterIntelligenceService,
+    )
+    data = request.get_json(silent=True) or {}
+    exam_type_key = data.get('exam_type_key')
+    clusters = data.get('clusters')
+    if not exam_type_key or not clusters:
+        return jsonify({
+            'error': 'exam_type_key and clusters required',
+        }), 400
+
+    count = ClusterIntelligenceService.apply_suggestion(
+        exam_type_key, clusters,
+    )
+    return jsonify({'saved': count, 'exam_type_key': exam_type_key})
+
+
+@course_gen_bp.route('/clusters', methods=['GET'])
+@admin_required
+def get_clusters():
+    """Get current clusters for an exam type."""
+    from app.infrastructure.persistence.repositories.exams.topic_clusters import (
+        ExamTopicClusterRepository,
+    )
+    exam_type_key = request.args.get('exam_type_key')
+    if not exam_type_key:
+        return jsonify({'error': 'exam_type_key required'}), 400
+
+    clusters = ExamTopicClusterRepository.find_by_exam_type(
+        exam_type_key,
+    )
+    return jsonify({
+        'clusters': clusters,
+        'exam_type_key': exam_type_key,
+    })

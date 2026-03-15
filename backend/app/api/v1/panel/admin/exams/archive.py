@@ -1,14 +1,4 @@
-"""
-Exam Archive Admin API
-
-Endpoints for managing the exam archive:
-- Scan filesystem for exam PDFs and images
-- Import files into the database
-- Queue AI analysis for question extraction
-- List archive exams and their questions
-
-All endpoints require admin authentication.
-"""
+"""Exam Archive Admin API — scan, import, analyze, CRUD for exam sessions."""
 
 import os
 import logging
@@ -248,38 +238,38 @@ def list_regions():
 @archive_bp.route('/sessions', methods=['GET'])
 @admin_required
 def list_sessions():
-    """Grouped view: exam_type -> region -> sessions with counts."""
-    exam_type = request.args.get('exam_type')
-    rows = ExamSessionRepository.find_sessions_grouped(exam_type)
+    """Flat session rows for client-side tree building.
 
-    grouped = {}
-    for row in rows:
-        etype = row['exam_type']
-        if etype not in grouped:
-            grouped[etype] = {
-                'exam_type': etype,
-                'display_name': row['type_display_name'],
-                'parts': row['type_parts'],
-                'regions': {},
-            }
-        region = row['region']
-        if region not in grouped[etype]['regions']:
-            grouped[etype]['regions'][region] = {
-                'region_code': region,
-                'region_name': row['region_name'],
-                'sessions': [],
-            }
-        grouped[etype]['regions'][region]['sessions'].append({
-            'session_id': str(row['session_id']),
-            'year': row['year'],
-            'season': row['season'],
-            'tags': row['tags'] or [],
-            'exam_count': row['exam_count'],
-            'ready_count': row['ready_count'],
-            'total_questions': row['total_questions'] or 0,
-        })
+    Returns all sessions with full metadata (program, region, exam_type,
+    year, season, counts). The frontend builds the tree hierarchy based
+    on user-configured group levels.
+    """
+    program_key = request.args.get('program_key')
+    rows = ExamSessionRepository.find_sessions_grouped(program_key)
 
-    return jsonify({'groups': list(grouped.values())}), 200
+    return jsonify({
+        'rows': [
+            {
+                'program_key': r['program_key'] or '_unknown',
+                'program_name': r['program_name'] or {},
+                'provider': r['provider'] or '',
+                'icon': r['icon'] or '',
+                'program_sort': r['program_sort'] or 0,
+                'region': r['region'] or 'alle',
+                'region_name': r['region_name'] or {},
+                'exam_type': r['exam_type'],
+                'type_display_name': r['type_display_name'] or {},
+                'type_sort': r['type_sort'] or 0,
+                'session_id': str(r['session_id']),
+                'year': r['year'],
+                'season': r['season'],
+                'exam_count': r['exam_count'] or 0,
+                'ready_count': r['ready_count'] or 0,
+                'total_questions': r['total_questions'] or 0,
+            }
+            for r in rows
+        ],
+    }), 200
 
 
 @archive_bp.route('/sessions/<session_id>/exams', methods=['GET'])
@@ -358,41 +348,127 @@ def review_upload(exam_id):
     return jsonify({'status': action + 'd', 'exam_id': str(exam_id)}), 200
 
 
+@archive_bp.route('/sessions', methods=['POST'])
+@admin_required
+def create_session():
+    """Create a new exam session (folder).
+
+    JSON body: {exam_type_key, year, season, region?}
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
+
+    exam_type_key = data.get('exam_type_key')
+    year = data.get('year')
+    season = data.get('season')
+    region = data.get('region', 'alle')
+
+    if not exam_type_key or not year or not season:
+        return jsonify({
+            'error': 'exam_type_key, year, season required',
+        }), 400
+
+    try:
+        session = ExamSessionRepository.find_or_create(
+            exam_type_key, region, int(year), season,
+        )
+    except Exception:
+        logger.exception("Failed to create session")
+        return jsonify({'error': f'Invalid exam_type_key: {exam_type_key}'}), 400
+
+    return jsonify({
+        'session_id': str(session['session_id']),
+        'exam_type_key': session['exam_type_key'],
+        'year': session['year'],
+        'season': session['season'],
+    }), 201
+
+
+@archive_bp.route('/sessions/<session_id>', methods=['DELETE'])
+@admin_required
+def delete_session(session_id):
+    """Delete an empty session (folder). Fails if exams exist."""
+    session = ExamSessionRepository.find_by_id(session_id)
+    if not session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    ok = ExamSessionRepository.delete_session(session_id)
+    if not ok:
+        return jsonify({
+            'error': 'Session has exams — remove them first',
+        }), 409
+    return jsonify({'deleted': True}), 200
+
+
+@archive_bp.route('/exams/<exam_id>/move', methods=['PATCH'])
+@admin_required
+def move_exam(exam_id):
+    """Move an exam to a different session.
+
+    JSON body: {target_session_id}
+    """
+    data = request.get_json()
+    if not data or not data.get('target_session_id'):
+        return jsonify({'error': 'target_session_id required'}), 400
+
+    exam = ExamRepository.find_by_id(exam_id)
+    if not exam:
+        return jsonify({'error': 'Exam not found'}), 404
+
+    target_id = data['target_session_id']
+    target = ExamSessionRepository.find_by_id(target_id)
+    if not target:
+        return jsonify({'error': 'Target session not found'}), 404
+
+    result = ExamSessionRepository.move_exam(exam_id, target_id)
+    return jsonify({
+        'exam_id': str(result['exam_id']),
+        'session_id': str(result['session_id']),
+    }), 200
+
+
+@archive_bp.route('/exams/<exam_id>', methods=['DELETE'])
+@admin_required
+def delete_exam(exam_id):
+    """Delete an exam and its questions."""
+    exam = ExamRepository.find_by_id(exam_id)
+    if not exam:
+        return jsonify({'error': 'Exam not found'}), 404
+
+    ExamSessionRepository.delete_exam(exam_id)
+    logger.info("Deleted exam=%s by admin", exam_id)
+    return jsonify({'deleted': True}), 200
+
+
 def _serialize_exam_list(exams: list) -> list:
     """Serialize exam records for JSON response."""
-    result = []
-    for e in exams:
-        result.append({
-            'exam_id': str(e.get('exam_id', '')),
-            'title': e.get('title', ''),
-            'semester': e.get('semester'),
-            'year': e.get('year'),
-            'season': e.get('season'),
-            'part': e.get('part'),
-            'profession': e.get('profession'),
-            'analysis_status': e.get('analysis_status', 'pending'),
-            'question_count': e.get('question_count', 0),
-            'pdf_path': e.get('pdf_path'),
-            'created_at': (
-                e['created_at'].isoformat()
-                if e.get('created_at') else None
-            ),
-        })
-    return result
+    return [{
+        'exam_id': str(e.get('exam_id', '')),
+        'title': e.get('title', ''),
+        'semester': e.get('semester'), 'year': e.get('year'),
+        'season': e.get('season'), 'part': e.get('part'),
+        'profession': e.get('profession'),
+        'analysis_status': e.get('analysis_status', 'pending'),
+        'question_count': e.get('question_count', 0),
+        'pdf_path': e.get('pdf_path'),
+        'created_at': (
+            e['created_at'].isoformat() if e.get('created_at') else None
+        ),
+    } for e in exams]
 
 
 def _serialize_question_list(questions: list) -> list:
     """Serialize question records for JSON response."""
+    import json as _json
     result = []
     for q in questions:
         data = q.get('data')
         if isinstance(data, str):
             try:
-                import json
-                data = json.loads(data)
-            except (json.JSONDecodeError, TypeError):
+                data = _json.loads(data)
+            except (ValueError, TypeError):
                 pass
-
         result.append({
             'question_id': str(q.get('question_id', '')),
             'question_number': q.get('question_number', ''),

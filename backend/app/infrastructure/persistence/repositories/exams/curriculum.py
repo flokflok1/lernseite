@@ -461,7 +461,8 @@ class CurriculumFrameworkRepository(CurriculumMappingMixin):
                LEFT JOIN assessments.exam_questions q ON q.question_id = ct.question_id
                LEFT JOIN assessments.exams e ON e.exam_id = q.exam_id
                WHERE s.framework_id = %s
-               GROUP BY p.id, p.position_number, p.display_name, s.section_code
+               GROUP BY p.id, p.position_number, p.display_name,
+                        s.section_code, s.order_index, p.order_index
                ORDER BY s.order_index, p.order_index""",
             [framework_id],
         )

@@ -132,7 +132,7 @@ class ExamRepository(BaseRepository):
         if 'settings' in exam_data and isinstance(exam_data['settings'], dict):
             exam_data['settings'] = json.dumps(exam_data['settings'])
 
-        return insert_returning('exams', exam_data, '*')
+        return insert_returning(cls.table_name, exam_data, '*')
 
     @classmethod
     def update_exam(cls, exam_id: str, update_data: Dict[str, Any]) -> Optional[Dict]:
@@ -153,7 +153,7 @@ class ExamRepository(BaseRepository):
         update_data['updated_at'] = datetime.utcnow()
 
         where = "exam_id = %s"
-        return update_returning('exams', update_data, where, (exam_id,), '*')
+        return update_returning(cls.table_name, update_data, where, (exam_id,), '*')
 
     @classmethod
     def delete_exam(cls, exam_id: str) -> bool:
@@ -284,8 +284,9 @@ class ExamRepository(BaseRepository):
 
         Returns the most recent exams first (by session year/season)
         so simulations reflect current exam style.
+        When region='alle', returns all exams regardless of region.
         """
-        query = """
+        base = """
             SELECT DISTINCT ON (e.exam_id)
                    e.exam_id, s.year, s.season
             FROM assessments.exams e
@@ -293,22 +294,28 @@ class ExamRepository(BaseRepository):
                 ON e.session_id = s.session_id
             WHERE e.analysis_status = 'ready'
               AND (s.exam_type_key = %s OR e.exam_type_key = %s)
+        """
+        params: list = [exam_type_key, exam_type_key]
+
+        if region != 'alle':
+            base += """
               AND (
                   COALESCE(s.region, 'alle') = %s
                   OR COALESCE(s.region, 'alle') = 'alle'
               )
-            ORDER BY e.exam_id, s.year DESC NULLS LAST
-        """
-        # Wrap to re-sort by year descending after DISTINCT ON
+            """
+            params.append(region)
+
+        base += " ORDER BY e.exam_id, s.year DESC NULLS LAST"
+
         outer = f"""
             SELECT sub.exam_id
-            FROM ({query}) sub
+            FROM ({base}) sub
             ORDER BY sub.year DESC NULLS LAST, sub.exam_id
             LIMIT %s
         """
-        rows = fetch_all(
-            outer, (exam_type_key, exam_type_key, region, limit),
-        )
+        params.append(limit)
+        rows = fetch_all(outer, tuple(params))
         return [str(r['exam_id']) for r in rows]
 
 

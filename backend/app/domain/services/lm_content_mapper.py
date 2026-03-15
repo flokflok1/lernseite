@@ -27,6 +27,24 @@ EXAM_QUESTION_TYPE_TO_LM: Dict[str, List[int]] = {
 
 ALWAYS_INCLUDE = [0]  # Deep Explanation always added
 
+# LM type -> i18n display label (domain knowledge about method names)
+LM_TYPE_LABELS: Dict[int, Dict[str, str]] = {
+    0: {'de': 'Erklärung', 'en': 'Explanation'},
+    1: {'de': 'Schritt für Schritt', 'en': 'Step by Step'},
+    5: {'de': 'Rechenaufgaben', 'en': 'Math Exercises'},
+    6: {'de': 'Lernkarten', 'en': 'Flashcards'},
+    7: {'de': 'Zuordnung', 'en': 'Matching'},
+    8: {'de': 'Lückentext', 'en': 'Cloze Test'},
+    10: {'de': 'IHK-Prüfungsaufgaben', 'en': 'Exam Tasks'},
+    11: {'de': 'Fallstudien', 'en': 'Case Studies'},
+}
+
+
+def get_lm_label(lm_type: int, language: str = 'de') -> str:
+    """Get display label for an LM type in the given language."""
+    labels = LM_TYPE_LABELS.get(lm_type, {})
+    return labels.get(language, labels.get('de', f'Methode {lm_type}'))
+
 
 def _extract_correct_answer(item: Dict) -> str:
     """Extract the correct answer from a question item's options or answer field."""
@@ -86,16 +104,31 @@ class LMContentMapper:
 
     @staticmethod
     def map_to_cloze(questions: List[Dict]) -> Dict:
-        """Fill-blank questions -> cloze sentences."""
+        """Fill-blank questions -> cloze sentences.
+
+        Two formats:
+        - Multi-sentence: data.sentences[] with per-item text + answers
+        - Single-sentence: question_text at question level
+        """
         sentences = []
         for q in questions:
             if q.get('question_type') != 'fill_blank':
                 continue
             data = q.get('data', {})
-            for item in data.get('sentences', [data]):
+            sub_sentences = data.get('sentences')
+
+            if sub_sentences:
+                for item in sub_sentences:
+                    sentences.append({
+                        'text': item.get('text', ''),
+                        'answers': item.get('answers', [_extract_correct_answer(item)]),
+                        'source_question_id': q.get('question_id', ''),
+                    })
+            else:
+                # Single sentence: build from question_text + answer
                 sentences.append({
-                    'text': item.get('text', ''),
-                    'answers': item.get('answers', [_extract_correct_answer(item)]),
+                    'text': q.get('question_text', ''),
+                    'answers': [_extract_correct_answer(data)],
                     'source_question_id': q.get('question_id', ''),
                 })
         return {'sentences': sentences}
@@ -118,19 +151,47 @@ class LMContentMapper:
 
     @staticmethod
     def map_to_math_interactive(questions: List[Dict]) -> Dict:
-        """Calculation questions -> math interactive problems."""
+        """Calculation questions -> math interactive problems.
+
+        Two question formats exist:
+        - Multi-problem: data.problems[] array with per-item question text
+        - Single-problem: question_text at question level, no sub-items
+
+        Results are sorted by scenario_title so the frontend can group
+        all problems of the same scenario together.
+        """
         problems = []
         for q in questions:
             if q.get('question_type') != 'calculation':
                 continue
+            shared = {
+                'scenario_title': q.get('scenario_title') or '',
+                'scenario_text': q.get('scenario_text') or '',
+                'points': float(q.get('points', 0) or 0),
+                'source_question_id': q.get('question_id', ''),
+            }
             data = q.get('data', {})
-            for item in data.get('problems', [data]):
+            sub_problems = data.get('problems')
+
+            if sub_problems:
+                # Multi-problem: each sub-item has its own question text
+                for item in sub_problems:
+                    problems.append({
+                        'question': item.get('question', item.get('text', '')),
+                        'answer': _extract_correct_answer(item),
+                        'hint': item.get('hint', ''),
+                        **shared,
+                    })
+            else:
+                # Single-problem: question text lives at question level
                 problems.append({
-                    'question': item.get('question', item.get('text', '')),
-                    'answer': _extract_correct_answer(item),
-                    'hint': item.get('hint', ''),
-                    'source_question_id': q.get('question_id', ''),
+                    'question': q.get('question_text', ''),
+                    'answer': _extract_correct_answer(data),
+                    'hint': data.get('hint', ''),
+                    **shared,
                 })
+
+        problems.sort(key=lambda p: p['scenario_title'])
         return {'problems': problems}
 
     @staticmethod
@@ -139,9 +200,12 @@ class LMContentMapper:
     ) -> Dict:
         """Essay/code/case_study questions -> IHK-style tasks.
 
+        Two question formats:
+        - Multi-item: data contains tasks/questions/problems sub-array
+        - Single-item: question_text at question level, data has solution only
+
         When include_mcq=True (exam prep mode), also converts MCQ
-        questions into active-recall tasks where the student must
-        select/formulate the answer without seeing flashcard hints.
+        questions into active-recall tasks.
         """
         tasks = []
         valid_types = {'essay', 'code', 'case_study'}
@@ -152,11 +216,34 @@ class LMContentMapper:
             if qt not in valid_types:
                 continue
             data = q.get('data', {})
-            for item in data.get('tasks', data.get('questions', [data])):
+            sub_items = (
+                data.get('tasks')
+                or data.get('questions')
+                or data.get('problems')
+            )
+
+            if sub_items:
+                # Multi-item: each sub-item has its own question text
+                for item in sub_items:
+                    q_text = item.get('question') or item.get('text', '')
+                    if not q_text:
+                        continue
+                    tasks.append({
+                        'question': q_text,
+                        'points': item.get('points', q.get('points', 0)),
+                        'solution': item.get('solution', item.get('answer', _extract_correct_answer(item))),
+                        'question_type': qt,
+                        'source_question_id': q.get('question_id', ''),
+                    })
+            else:
+                # Single-item: question text at question level
+                q_text = q.get('question_text', '')
+                if not q_text:
+                    continue
                 tasks.append({
-                    'question': item.get('question', item.get('text', '')),
-                    'points': item.get('points', q.get('points', 0)),
-                    'solution': item.get('solution', _extract_correct_answer(item)),
+                    'question': q_text,
+                    'points': q.get('points', 0),
+                    'solution': data.get('solution', data.get('answer', _extract_correct_answer(data))),
                     'question_type': qt,
                     'source_question_id': q.get('question_id', ''),
                 })

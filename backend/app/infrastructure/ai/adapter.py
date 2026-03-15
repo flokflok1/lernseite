@@ -48,14 +48,14 @@ class AIAdapter:
     PROVIDERS = PROVIDERS
     MODELS_USING_COMPLETION_TOKENS = MODELS_USING_COMPLETION_TOKENS
 
-    def __init__(self, provider: str = 'openai', model: Optional[str] = None, timeout: int = 55):
+    def __init__(self, provider: str = 'openai', model: Optional[str] = None, timeout: int = 3600):
         """
         Initialize AI Adapter.
 
         Args:
             provider: AI provider ('openai', 'anthropic', 'google', 'cohere', 'huggingface')
             model: Model name (defaults to default model from DB)
-            timeout: Request timeout in seconds (default 55s, max 600s)
+            timeout: Request timeout in seconds (default 120s, no upper cap)
 
         Raises:
             ValueError: If provider is invalid or API key is missing
@@ -65,7 +65,7 @@ class AIAdapter:
 
         self.provider = provider
         self.provider_config = PROVIDERS[provider]
-        self.timeout = min(timeout, 600)
+        self.timeout = timeout
 
         # Try to get API key from database first, then fallback to environment
         self.api_key = self._get_api_key_from_db(provider)
@@ -171,11 +171,16 @@ class AIAdapter:
             return 'cohere'
         return 'openai'
 
-    def _resolve_max_tokens(self, max_tokens: Optional[int]) -> int:
-        """Resolve max_tokens: use model's actual limit if not explicitly set."""
+    def _resolve_max_tokens(self, max_tokens: Optional[int]) -> Optional[int]:
+        """Resolve max_tokens: use model's actual limit if not explicitly set.
+
+        Returns None when no limit is known — providers will use their
+        model's default maximum output, which is the desired behavior.
+        """
         if max_tokens is not None:
             return max_tokens
-        return self.pricing.get('max_tokens', 16000)
+        db_limit = self.pricing.get('max_tokens') or 0
+        return db_limit if db_limit > 0 else None
 
     def send_request(
         self,

@@ -29,10 +29,10 @@ def execute_plan_background(plan_id: str, plan: Dict[str, Any], user_id: str) ->
     from app.infrastructure.persistence.repositories.courses.content.chapters import ChapterRepository
 
     try:
+        app = current_app._get_current_object()
+    except RuntimeError:
         from app import create_app
         app = create_app()
-    except Exception:
-        app = current_app._get_current_object()
 
     with app.app_context():
         try:

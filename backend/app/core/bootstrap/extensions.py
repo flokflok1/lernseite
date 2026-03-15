@@ -31,7 +31,7 @@ db_pool = None
 
 def init_db_pool(database_url: str, min_size: int = 2, max_size: int = 10):
     """
-    Initialize PostgreSQL connection pool
+    Initialize PostgreSQL connection pool (idempotent).
 
     Args:
         database_url: PostgreSQL connection string
@@ -42,6 +42,8 @@ def init_db_pool(database_url: str, min_size: int = 2, max_size: int = 10):
         ConnectionPool: Configured connection pool
     """
     global db_pool
+    if db_pool is not None:
+        return db_pool
     db_pool = ConnectionPool(
         conninfo=database_url,
         min_size=min_size,
@@ -142,8 +144,25 @@ except Exception as e:
 celery = Celery(
     'lernsystemx',
     broker=os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/1'),
-    backend=os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/2')
+    backend=os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/2'),
+    include=[
+        'app.infrastructure.tasks.course_generation_tasks',
+        'app.infrastructure.tasks.exam_tasks',
+        'app.infrastructure.tasks.exam_archive_tasks',
+        'app.infrastructure.tasks.crawl_tasks',
+    ],
 )
+
+# Initialize Flask app context in Celery worker processes so tasks
+# have access to db_pool, redis, and other extensions.
+from celery.signals import worker_process_init
+
+@worker_process_init.connect
+def _init_celery_worker(**kwargs):
+    """Bootstrap Flask app when a Celery worker process starts."""
+    from app import create_app
+    app = create_app()
+    app.app_context().push()
 
 # Rate Limiting
 def rate_limit_key_func():

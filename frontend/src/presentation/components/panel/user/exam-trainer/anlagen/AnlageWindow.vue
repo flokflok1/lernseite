@@ -30,45 +30,9 @@ const functions = computed(() =>
   <Modal :show="show" :title="anlage?.title || ''" size="lg" @close="emit('close')">
     <div v-if="anlage" class="anlage-content">
 
-      <!-- OFFER RENDERER — Business Letter -->
+      <!-- OFFER RENDERER — render raw_text as realistic document -->
       <div v-if="isOffer" class="offer-letter">
-        <!-- Company Header -->
-        <div class="offer-header">
-          <div class="offer-company">{{ offerData.company || '' }}</div>
-          <div class="offer-type">{{ t('panel.examTrainer.anlagen.offer') }}</div>
-        </div>
-
-        <div class="offer-address-line">
-          {{ offerData.company }}
-        </div>
-
-        <!-- Recipient + Meta -->
-        <div class="offer-meta-row">
-          <div class="offer-recipient">
-            <template v-if="(offerData.recipient as Record<string, string>)?.name">
-              <div>{{ (offerData.recipient as Record<string, string>).name }}</div>
-              <div>{{ (offerData.recipient as Record<string, string>).address }}</div>
-            </template>
-          </div>
-          <div class="offer-numbers">
-            <div v-if="offerData.document_number">
-              <span class="offer-label">{{ t('panel.examTrainer.anlagen.offerNr') }}</span>
-              {{ offerData.document_number }}
-            </div>
-            <div v-if="offerData.customer_number">
-              <span class="offer-label">{{ t('panel.examTrainer.anlagen.customerNr') }}</span>
-              {{ offerData.customer_number }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Body text rendered as markdown -->
-        <div class="offer-body" v-html="renderMarkdown(String(offerData.body_text || ''))" />
-
-        <!-- Signer -->
-        <div v-if="offerData.signer" class="offer-signer">
-          <div class="offer-signature">{{ offerData.signer }}</div>
-        </div>
+        <div class="offer-body" v-html="renderMarkdown(anlage.raw_text)" />
       </div>
 
       <!-- API REFERENCE RENDERER -->

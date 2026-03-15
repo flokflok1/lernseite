@@ -34,7 +34,7 @@ def extract_anlagen(raw_text: str) -> List[Dict]:
             'number': number,
             'title': title,
             'type': anlage_type,
-            'raw_text': text.strip(),
+            'raw_text': _fix_pipe_tables(text.strip()),
             'data': data,
         })
 
@@ -237,3 +237,40 @@ def _parse_api_reference(text: str) -> Dict:
 def _parse_info_document(text: str) -> Dict:
     """Parse info document preserving sections."""
     return {'content': text.strip()}
+
+
+def _fix_pipe_tables(text: str) -> str:
+    """Insert markdown table separator after pipe-delimited header rows.
+
+    Markdown requires a `---|---|---` line after the header for table
+    rendering. IHK PDFs have pipes but no separator.
+    """
+    lines = text.split('\n')
+    result = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        result.append(line)
+        # If this line has 2+ pipes and looks like a table header,
+        # and the NEXT line also has pipes (data row) but no separator exists
+        # Normalize: ensure pipe rows start/end with |
+        if line.count('|') >= 2 and not line.strip().startswith('|'):
+            result[-1] = '| ' + line.strip() + ' |'
+            line = result[-1]
+        if line.count('|') >= 2 and i + 1 < len(lines):
+            next_line = lines[i + 1]
+            # Check next line is NOT already a separator
+            if next_line.count('|') >= 2 and '---' not in next_line:
+                # Check we haven't already added a separator
+                if not (result and '---' in result[-1]):
+                    cols = line.count('|') + 1
+                    sep = '| ' + ' | '.join(['---'] * cols) + ' |'
+                    result.append(sep)
+            elif next_line.strip() == '' and i + 2 < len(lines):
+                # Sometimes there's a blank line between header and data
+                if lines[i + 2].count('|') >= 2:
+                    cols = line.count('|') + 1
+                    sep = '| ' + ' | '.join(['---'] * cols) + ' |'
+                    result.append(sep)
+        i += 1
+    return '\n'.join(result)

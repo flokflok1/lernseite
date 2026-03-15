@@ -283,6 +283,13 @@
       "resultDetails": "{score} of {total} points · {count} questions completed",
       "retry": "Try again"
     },
+    "anlagen": {
+      "offer": "Offer",
+      "offerNr": "Offer No.:",
+      "customerNr": "Customer No.:",
+      "function": "Function",
+      "description": "Description"
+    },
     "review": {
       "title": "Question Review",
       "subtitle": "{correct}/{total} correct · {earned}/{max} points",

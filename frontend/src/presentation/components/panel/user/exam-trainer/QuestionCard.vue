@@ -2,17 +2,20 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
-import type { TrainerQuestion, AnswerResult } from '@/infrastructure/api/clients/panel/user/exams'
+import { AnlageBadge, AnlageWindow } from './anlagen'
+import type { TrainerQuestion, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {
   question: TrainerQuestion
   questionIndex?: number
   totalQuestions?: number
+  anlagen?: Anlage[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   questionIndex: 0,
   totalQuestions: 0,
+  anlagen: () => [],
 })
 
 const emit = defineEmits<{
@@ -21,6 +24,25 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// Anlage viewer state
+const showAnlage = ref(false)
+const activeAnlage = ref<Anlage | null>(null)
+
+const referencedAnlagen = computed(() => {
+  const text = (props.question.question_text || '') + ' ' + (props.question.scenario_text || '')
+  const matches = text.match(/Anlage[n]?\s+(\d+(?:\s*(?:und|,|bis)\s*\d+)*)/gi) || []
+  const numbers = new Set<number>()
+  for (const m of matches) {
+    for (const n of m.match(/\d+/g) || []) numbers.add(parseInt(n))
+  }
+  return props.anlagen.filter(a => numbers.has(a.number))
+})
+
+const openAnlage = (number: number) => {
+  activeAnlage.value = props.anlagen.find(a => a.number === number) || null
+  if (activeAnlage.value) showAnlage.value = true
+}
 
 const userAnswer = ref<unknown>('')
 const result = ref<AnswerResult | null>(null)
@@ -89,6 +111,24 @@ defineExpose({ setResult })
         v-html="renderMarkdown(question.scenario_text)"
       />
     </div>
+
+    <!-- Anlage Badges -->
+    <div v-if="referencedAnlagen.length > 0" class="flex flex-wrap gap-2 mb-4">
+      <AnlageBadge
+        v-for="a in referencedAnlagen"
+        :key="a.number"
+        :number="a.number"
+        :title="a.title"
+        @click="openAnlage"
+      />
+    </div>
+
+    <!-- Anlage Viewer Modal -->
+    <AnlageWindow
+      :show="showAnlage"
+      :anlage="activeAnlage"
+      @close="showAnlage = false"
+    />
 
     <!-- Question text -->
     <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4">

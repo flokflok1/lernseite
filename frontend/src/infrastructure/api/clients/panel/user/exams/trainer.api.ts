@@ -182,6 +182,21 @@ export const trainerGetHistory = async (
   return response.data.attempts
 }
 
+export interface Anlage {
+  number: number
+  title: string
+  type: 'offer' | 'api_reference' | 'info_document' | 'generic'
+  raw_text: string
+  data: Record<string, unknown>
+}
+
+export const trainerGetAnlagen = async (examId: string): Promise<Anlage[]> => {
+  const response = await http.get<{ success: boolean; anlagen: Anlage[] }>(
+    `/user/exam-trainer/exams/${examId}/anlagen`
+  )
+  return response.data.anlagen
+}
+
 export const generatePracticeExam = async (params: {
   examType: string
   difficulty: string

@@ -6,7 +6,7 @@ import QuestionCard from './QuestionCard.vue'
 import SimulationMode from './SimulationMode.vue'
 import ReviewMode from './ReviewMode.vue'
 import ProgressDashboard from './ProgressDashboard.vue'
-import type { TrainerExam, TrainerQuestion, TopicStat, AnswerResult } from '@/infrastructure/api/clients/panel/user/exams'
+import type { TrainerExam, TrainerQuestion, TopicStat, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 import {
   trainerListExams,
   trainerGetQuestions,
@@ -15,6 +15,7 @@ import {
   trainerStartExam,
   trainerCompleteAttempt,
   trainerPracticeSession,
+  trainerGetAnlagen,
 } from '@/infrastructure/api/clients/panel/user/exams'
 
 const { t } = useI18n()
@@ -44,6 +45,7 @@ const simulationActive = ref(false)
 const simulationExam = ref<TrainerExam | null>(null)
 
 const lastExamId = ref<string | null>(null)
+const examAnlagen = ref<Anlage[]>([])
 const reviewAttemptId = ref<string | null>(null)
 
 const currentQuestion = computed<TrainerQuestion | null>(() => {
@@ -96,12 +98,14 @@ const startExamPractice = async (exam: TrainerExam) => {
   isLoading.value = true
   error.value = null
   try {
-    const [id, qs] = await Promise.all([
+    const [id, qs, anlagen] = await Promise.all([
       trainerStartExam(exam.exam_id),
       trainerGetQuestions(exam.exam_id),
+      trainerGetAnlagen(exam.exam_id).catch(() => []),
     ])
     attemptId.value = id
     questions.value = qs
+    examAnlagen.value = anlagen
     currentQuestionIndex.value = 0
     examComplete.value = false
     examResult.value = null
@@ -118,12 +122,14 @@ const startSimulation = async (exam: TrainerExam) => {
   isLoading.value = true
   error.value = null
   try {
-    const [id, qs] = await Promise.all([
+    const [id, qs, anlagen] = await Promise.all([
       trainerStartExam(exam.exam_id),
       trainerGetQuestions(exam.exam_id),
+      trainerGetAnlagen(exam.exam_id).catch(() => []),
     ])
     attemptId.value = id
     questions.value = qs
+    examAnlagen.value = anlagen
     simulationExam.value = exam
     simulationActive.value = true
   } catch (e) {
@@ -214,6 +220,7 @@ onMounted(() => {
     v-if="simulationActive && simulationExam && attemptId"
     :exam="simulationExam"
     :questions="questions"
+    :anlagen="examAnlagen"
     :attempt-id="attemptId"
     @exit="exitSimulation"
     @retry="startSimulation(simulationExam!)"
@@ -414,6 +421,7 @@ onMounted(() => {
         :question="currentQuestion"
         :question-index="currentQuestionIndex"
         :total-questions="questions.length"
+        :anlagen="examAnlagen"
         @submit="handleSubmitAnswer"
         @next="handleNextQuestion"
       />

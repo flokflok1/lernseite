@@ -5,7 +5,7 @@ import FileExplorer from '@/presentation/components/panel/admin/assessment/archi
 const router = useRouter()
 
 function goBack() {
-  router.push({ name: 'PanelExams' })
+  router.push({ name: 'PanelDashboard' })
 }
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFileExplorer } from '@/application/composables/panel/admin/assessment/useFileExplorer'
 import { useContextMenu } from '@/application/composables/panel/admin/assessment/useContextMenu'
@@ -9,8 +9,10 @@ import ExplorerBreadcrumb from './ExplorerBreadcrumb.vue'
 import ExplorerContent from './ExplorerContent.vue'
 import ExplorerContextMenu from './ExplorerContextMenu.vue'
 import ExplorerStatusBar from './ExplorerStatusBar.vue'
-import FolderDetailDialog from './FolderDetailDialog.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 import type { ArchiveFolder, ArchiveFile } from '@/infrastructure/api/clients/panel/admin/exams/folders.api'
+
+// FolderDetailDialog imported when needed
 
 const emit = defineEmits<{
   close: []
@@ -25,6 +27,32 @@ const dragDrop = useDragDrop((item, targetFolderId) => {
   explorer.handleMoveItem(item.type, item.id, targetFolderId)
 })
 
+// ── Confirm Dialog State ──
+const confirmDialog = ref({
+  visible: false,
+  title: '',
+  message: '',
+  icon: '🗑',
+  variant: 'danger' as 'danger' | 'warning' | 'info',
+  onConfirm: () => {},
+})
+
+function showConfirm(opts: { title: string; message: string; icon?: string; variant?: 'danger' | 'warning' | 'info'; onConfirm: () => void }) {
+  confirmDialog.value = {
+    visible: true,
+    title: opts.title,
+    message: opts.message,
+    icon: opts.icon || '🗑',
+    variant: opts.variant || 'danger',
+    onConfirm: opts.onConfirm,
+  }
+}
+
+function onConfirmOk() {
+  confirmDialog.value.onConfirm()
+  confirmDialog.value.visible = false
+}
+
 // ── Context Menu Actions ──
 async function handleContextAction(action: string) {
   const target = ctxMenu.target.value
@@ -34,6 +62,7 @@ async function handleContextAction(action: string) {
   switch (action) {
     case 'open':
       if (target.type === 'folder') explorer.navigateToFolder(target.id!)
+      if (target.type === 'program') explorer.selectProgram(target.id!)
       break
     case 'rename':
       if (target.type === 'folder' && target.id) {
@@ -57,18 +86,29 @@ async function handleContextAction(action: string) {
       break
     case 'deleteProgram':
       if (target.type === 'program' && target.id) {
-        if (confirm(t('panel.examArchive.confirmDelete'))) {
-          const { deleteProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
-          await deleteProgram(target.id)
-          explorer.loadPrograms()
-        }
+        const prog = target.data as any
+        const name = prog?.display_name?.de || 'Programm'
+        showConfirm({
+          title: `${name} löschen?`,
+          message: t('panel.examArchive.confirmDelete'),
+          icon: '🗑',
+          onConfirm: async () => {
+            const { deleteProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
+            await deleteProgram(target.id!)
+            explorer.loadPrograms()
+          },
+        })
       }
       break
     case 'delete':
       if (target.type === 'folder' && target.id) {
-        if (confirm(t('panel.examArchive.confirmDelete'))) {
-          explorer.handleDeleteFolder(target.id)
-        }
+        const folder = target.data as any
+        showConfirm({
+          title: `"${folder?.name || 'Ordner'}" löschen?`,
+          message: t('panel.examArchive.confirmDelete'),
+          icon: '🗑',
+          onConfirm: () => explorer.handleDeleteFolder(target.id!),
+        })
       }
       break
   }
@@ -222,6 +262,17 @@ function onOpenFile(examId: string) {
       :position="ctxMenu.position.value"
       :target="ctxMenu.target.value"
       @action="handleContextAction"
+    />
+
+    <!-- Confirm Dialog -->
+    <ConfirmDialog
+      :visible="confirmDialog.visible"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      :icon="confirmDialog.icon"
+      :variant="confirmDialog.variant"
+      @confirm="onConfirmOk"
+      @cancel="confirmDialog.visible = false"
     />
   </div>
 </template>

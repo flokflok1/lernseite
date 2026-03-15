@@ -219,34 +219,46 @@ def _clean_pdf_artifacts(text: str) -> str:
     return text.strip()
 
 
+def _normalize_table_row(row: str) -> str:
+    """Ensure a pipe-separated row starts and ends with | for valid markdown."""
+    stripped = row.strip()
+    if not stripped.startswith('|'):
+        stripped = '| ' + stripped
+    if not stripped.endswith('|'):
+        stripped = stripped + ' |'
+    return stripped
+
+
 def _format_pipe_tables(text: str) -> str:
     """Ensure pipe-separated lines become valid markdown tables.
 
     Groups consecutive pipe-separated lines into table blocks,
-    inserts a separator row after the header if missing.
+    normalizes each row to start/end with |, and inserts a
+    separator row after the header if missing.
     """
     lines = text.split('\n')
     result: List[str] = []
     table_block: List[str] = []
 
+    def _is_separator(row: str) -> bool:
+        return all(c in '-| :' for c in row.strip())
+
     def _flush_table():
         if not table_block:
             return
-        # Check if second line is already a separator (---|---)
-        has_sep = (
-            len(table_block) > 1
-            and all(c in '-| :' for c in table_block[1].strip())
-        )
-        result.append(table_block[0])  # header
+        normalized = [_normalize_table_row(r) for r in table_block]
+        has_sep = len(normalized) > 1 and _is_separator(normalized[1])
+        result.append(normalized[0])  # header
         if has_sep:
-            # Keep existing separator, output remaining rows
-            for row in table_block[1:]:
+            for row in normalized[1:]:
                 result.append(row)
         else:
-            # Insert separator after header, then data rows
-            cols = len(table_block[0].split('|'))
+            cols = len(normalized[0].split('|')) - 2  # exclude empty edges
+            cols = max(cols, 2)
             result.append('| ' + ' | '.join(['---'] * cols) + ' |')
-            for row in table_block[1:]:
+            for row in normalized[1:]:
+                if _is_separator(row):
+                    continue
                 result.append(row)
         table_block.clear()
 

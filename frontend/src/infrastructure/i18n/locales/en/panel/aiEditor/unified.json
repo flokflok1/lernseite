@@ -12,6 +12,7 @@
       "prompts": "Prompts",
       "history": "History",
       "course": "Course",
+      "exam": "Exams",
       "contentPlaceholder": "Content tab will be integrated with existing content.",
       "promptsPlaceholder": "Prompt library will be integrated here."
     },

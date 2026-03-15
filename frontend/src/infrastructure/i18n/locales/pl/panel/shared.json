@@ -71,11 +71,18 @@
     "uptimeDesc": "System działa od"
   },
   "nav": {
+    "admin_panel": "Panel administracyjny",
     "ai_settings": "Ustawienia AI",
     "analytics": "Analizy",
     "audit_logs": "Logi audytu",
     "billing": "Rozliczenia",
     "categories": "Kategorie",
+    "category": {
+      "overview": "Przegląd",
+      "content": "Treści i kursy",
+      "users": "Użytkownicy i grupy",
+      "system": "System i analizy"
+    },
     "contentManagement": "Zarządzanie treścią",
     "back_to_panel": "Powrót do panelu",
     "courseEditor": "Edytor kursów",
@@ -99,7 +106,8 @@
   "exams": {
     "tabs": {
       "archive": "Archiwum",
-      "curriculum": "Plany ramowe"
+      "curriculum": "Plany ramowe",
+      "courses": "Wygenerowane kursy"
     }
   },
   "examArchive": {
@@ -160,6 +168,40 @@
       "notes": "Notatki moderacyjne",
       "approved": "Zatwierdzone",
       "rejected": "Odrzucone"
+    },
+    "crud": {
+      "createFolder": "Utwórz folder",
+      "deleteFolder": "Usuń folder",
+      "deleteExam": "Usuń egzamin",
+      "moveExam": "Przenieś egzamin",
+      "confirmDeleteFolder": "Usunąć ten folder?",
+      "confirmDeleteExam": "Usunąć egzamin i wszystkie pytania?",
+      "selectProgram": "Program",
+      "selectExamType": "Typ egzaminu",
+      "year": "Rok",
+      "season": "Sezon",
+      "create": "Utwórz",
+      "cancel": "Anuluj",
+      "moveTo": "Przenieś do...",
+      "selectTarget": "Folder docelowy",
+      "folderCreated": "Folder utworzony",
+      "folderDeleted": "Folder usunięty",
+      "examDeleted": "Egzamin usunięty",
+      "examMoved": "Egzamin przeniesiony",
+      "deleteError": "Usuwanie nie powiodło się",
+      "moveError": "Przenoszenie nie powiodło się",
+      "createError": "Tworzenie nie powiodło się",
+      "folderNotEmpty": "Folder zawiera egzaminy — najpierw je usuń"
+    },
+    "groupBy": {
+      "title": "Grupowanie",
+      "hint": "Dostosuj kolejność i widoczność poziomów folderów.",
+      "reset": "Resetuj",
+      "program": "Program",
+      "region": "Region",
+      "examType": "Typ egzaminu",
+      "year": "Rok",
+      "season": "Sezon"
     }
   },
   "examCourseGenerator": {

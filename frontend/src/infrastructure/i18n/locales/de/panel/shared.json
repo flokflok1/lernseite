@@ -71,11 +71,18 @@
     "uptimeDesc": "System läuft seit"
   },
   "nav": {
+    "admin_panel": "Admin Panel",
     "ai_settings": "KI-Einstellungen",
     "analytics": "Analytics",
     "audit_logs": "Audit Logs",
     "billing": "Billing",
     "categories": "Kategorien",
+    "category": {
+      "overview": "Übersicht",
+      "content": "Content & Kurse",
+      "users": "Benutzer & Gruppen",
+      "system": "System & Analyse"
+    },
     "contentManagement": "Inhaltsverwaltung",
     "back_to_panel": "Zurück zum Panel",
     "courseEditor": "Kurs-Editor",
@@ -99,7 +106,8 @@
   "exams": {
     "tabs": {
       "archive": "Archiv",
-      "curriculum": "Rahmenpläne"
+      "curriculum": "Rahmenpläne",
+      "courses": "Generierte Kurse"
     }
   },
   "examArchive": {
@@ -160,6 +168,40 @@
       "notes": "Moderationsnotizen",
       "approved": "Genehmigt",
       "rejected": "Abgelehnt"
+    },
+    "crud": {
+      "createFolder": "Ordner erstellen",
+      "deleteFolder": "Ordner löschen",
+      "deleteExam": "Prüfung löschen",
+      "moveExam": "Prüfung verschieben",
+      "confirmDeleteFolder": "Diesen Ordner wirklich löschen?",
+      "confirmDeleteExam": "Diese Prüfung und alle Aufgaben löschen?",
+      "selectProgram": "Programm",
+      "selectExamType": "Prüfungstyp",
+      "year": "Jahr",
+      "season": "Saison",
+      "create": "Erstellen",
+      "cancel": "Abbrechen",
+      "moveTo": "Verschieben nach...",
+      "selectTarget": "Zielordner",
+      "folderCreated": "Ordner erstellt",
+      "folderDeleted": "Ordner gelöscht",
+      "examDeleted": "Prüfung gelöscht",
+      "examMoved": "Prüfung verschoben",
+      "deleteError": "Löschen fehlgeschlagen",
+      "moveError": "Verschieben fehlgeschlagen",
+      "createError": "Erstellen fehlgeschlagen",
+      "folderNotEmpty": "Ordner hat Prüfungen — zuerst entfernen"
+    },
+    "groupBy": {
+      "title": "Gruppierung",
+      "hint": "Reihenfolge und Sichtbarkeit der Ordnerebenen anpassen.",
+      "reset": "Zurücksetzen",
+      "program": "Programm",
+      "region": "Region",
+      "examType": "Prüfungstyp",
+      "year": "Jahr",
+      "season": "Saison"
     }
   },
   "examCourseGenerator": {

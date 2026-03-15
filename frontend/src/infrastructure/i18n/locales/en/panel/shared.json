@@ -71,11 +71,18 @@
     "uptimeDesc": "System running since"
   },
   "nav": {
+    "admin_panel": "Admin Panel",
     "ai_settings": "AI Settings",
     "analytics": "Analytics",
     "audit_logs": "Audit Logs",
     "billing": "Billing",
     "categories": "Categories",
+    "category": {
+      "overview": "Overview",
+      "content": "Content & Courses",
+      "users": "Users & Groups",
+      "system": "System & Analytics"
+    },
     "contentManagement": "Content Management",
     "back_to_panel": "Back to Panel",
     "courseEditor": "Course Editor",
@@ -99,7 +106,8 @@
   "exams": {
     "tabs": {
       "archive": "Archive",
-      "curriculum": "Curriculum"
+      "curriculum": "Curriculum",
+      "courses": "Generated Courses"
     }
   },
   "examArchive": {
@@ -160,6 +168,40 @@
       "notes": "Moderation notes",
       "approved": "Approved",
       "rejected": "Rejected"
+    },
+    "crud": {
+      "createFolder": "Create Folder",
+      "deleteFolder": "Delete Folder",
+      "deleteExam": "Delete Exam",
+      "moveExam": "Move Exam",
+      "confirmDeleteFolder": "Delete this folder?",
+      "confirmDeleteExam": "Delete this exam and all its questions?",
+      "selectProgram": "Program",
+      "selectExamType": "Exam Type",
+      "year": "Year",
+      "season": "Season",
+      "create": "Create",
+      "cancel": "Cancel",
+      "moveTo": "Move to...",
+      "selectTarget": "Target Folder",
+      "folderCreated": "Folder created",
+      "folderDeleted": "Folder deleted",
+      "examDeleted": "Exam deleted",
+      "examMoved": "Exam moved",
+      "deleteError": "Delete failed",
+      "moveError": "Move failed",
+      "createError": "Create failed",
+      "folderNotEmpty": "Folder has exams — remove them first"
+    },
+    "groupBy": {
+      "title": "Grouping",
+      "hint": "Adjust order and visibility of folder levels.",
+      "reset": "Reset",
+      "program": "Program",
+      "region": "Region",
+      "examType": "Exam Type",
+      "year": "Year",
+      "season": "Season"
     }
   },
   "examCourseGenerator": {

@@ -42,7 +42,10 @@
       "errors": "Błędy",
       "duration": "Czas trwania",
       "progress": "Postęp",
-      "started": "Rozpoczęto"
+      "started": "Rozpoczęto",
+      "cancel": "Anuluj",
+      "cancelConfirm": "Naprawdę anulować to zadanie?",
+      "cancelled": "Zadanie anulowane"
     },
     "pdfs": {
       "title": "Biblioteka PDF",

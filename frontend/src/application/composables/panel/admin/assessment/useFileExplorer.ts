@@ -79,9 +79,9 @@ export function useFileExplorer() {
     error.value = null
     try {
       const res = await fetchPrograms()
-      programs.value = res.data.programs
+      programs.value = res.data
       if (programs.value.length > 0 && !currentProgramId.value) {
-        await selectProgram(programs.value[0].program_id)
+        await selectProgram(String(programs.value[0].program_id))
       }
     } catch (e) {
       error.value = 'Failed to load programs'
@@ -101,7 +101,7 @@ export function useFileExplorer() {
         fetchSidebarTree(programId),
         fetchProgramRoot(programId),
       ])
-      sidebarTree.value = treeRes.data.tree
+      sidebarTree.value = treeRes.data
       contents.value = contentsRes.data
     } catch (e) {
       error.value = 'Failed to load program'
@@ -155,7 +155,7 @@ export function useFileExplorer() {
     if (currentProgramId.value) {
       try {
         const treeRes = await fetchSidebarTree(currentProgramId.value)
-        sidebarTree.value = treeRes.data.tree
+        sidebarTree.value = treeRes.data
       } catch (e) {
         console.warn('[FileExplorer] sidebar refresh failed:', e)
       }

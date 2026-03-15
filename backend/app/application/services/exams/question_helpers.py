@@ -36,18 +36,21 @@ _FILE_REF_RE = re.compile(
 # ---------------------------------------------------------------------------
 
 def filter_usable_questions(questions: List[Dict]) -> List[Dict]:
-    """Remove questions that reference external files the student doesn't have.
+    """Remove unusable questions: external-file refs and near-duplicates.
 
-    Questions like "Öffnen Sie die Datei Kundenumsätze.xls" are unsolvable
-    without the actual file.  Questions that give all data inline are kept.
+    1. Drops questions referencing files the student can't access.
+    2. Deduplicates by normalized question_text — when the same question
+       appears across exam sessions, keeps the one with more points/context.
     """
     usable = [q for q in questions if not _requires_external_file(q)]
-    skipped = len(questions) - len(usable)
-    if skipped:
+    skipped_files = len(questions) - len(usable)
+    if skipped_files:
         logger.info(
             "Filtered %d/%d questions referencing external files",
-            skipped, len(questions),
+            skipped_files, len(questions),
         )
+
+    usable = _deduplicate_by_text(usable)
     return usable
 
 
@@ -55,6 +58,41 @@ def _requires_external_file(question: Dict) -> bool:
     """Check if question_text references files the student can't access."""
     text = question.get('question_text', '')
     return bool(_FILE_REF_RE.search(text))
+
+
+_DEDUP_STRIP_RE = re.compile(r'\s+')
+
+
+def _normalize_for_dedup(text: str) -> str:
+    """Normalize question text for dedup comparison."""
+    return _DEDUP_STRIP_RE.sub(' ', text.strip().lower())
+
+
+def _deduplicate_by_text(questions: List[Dict]) -> List[Dict]:
+    """Remove questions with identical normalized text, keep best version."""
+    seen: Dict[str, Dict] = {}
+    for q in questions:
+        raw = q.get('question_text', '')
+        key = _normalize_for_dedup(raw)
+        if not key:
+            continue
+        existing = seen.get(key)
+        if existing is None:
+            seen[key] = q
+        else:
+            # Keep the question with more points or longer scenario_text
+            new_pts = float(q.get('points', 0) or 0)
+            old_pts = float(existing.get('points', 0) or 0)
+            new_ctx = len(q.get('scenario_text', '') or '')
+            old_ctx = len(existing.get('scenario_text', '') or '')
+            if new_pts > old_pts or (new_pts == old_pts and new_ctx > old_ctx):
+                seen[key] = q
+
+    deduped = list(seen.values())
+    removed = len(questions) - len(deduped)
+    if removed:
+        logger.info("Deduplicated %d/%d questions by text", removed, len(questions))
+    return deduped
 
 
 # ---------------------------------------------------------------------------
@@ -101,21 +139,31 @@ def lm_lesson_title(
     total_chunks: int,
     language: str = 'de',
 ) -> str:
-    """Build a lesson title from scenario titles in the chunk."""
-    scenarios = list(dict.fromkeys(
-        (q.get('scenario_title', '') for q in chunk if q.get('scenario_title')),
-    ))
+    """Build a short, meaningful lesson title with LM type prefix.
 
-    if scenarios:
-        parts = [s[:50] for s in scenarios[:2]]
-        title = ', '.join(parts)
-        if len(scenarios) > 2:
-            title += f' (+{len(scenarios) - 2})'
+    Format: "LM-Label: Primary Scenario" (max 80 chars).
+    Chunk suffix only when multiple chunks exist.
+    """
+    lm_label = get_lm_label(lm_type, language)
+
+    # Extract primary scenario title (first unique one)
+    scenario = ''
+    for q in chunk:
+        s = (q.get('scenario_title') or '').strip()
+        if s:
+            scenario = s
+            break
+
+    if scenario:
+        # Budget: 80 total - lm_label - ": " - possible " (2/3)"
+        suffix = f' ({chunk_idx + 1}/{total_chunks})' if total_chunks > 1 else ''
+        budget = 80 - len(lm_label) - 2 - len(suffix)
+        if len(scenario) > budget:
+            scenario = scenario[:budget - 1].rstrip() + '…'
+        title = f'{lm_label}: {scenario}{suffix}'
     else:
-        title = get_lm_label(lm_type, language)
-
-    if total_chunks > 1:
-        title = f'{title} ({chunk_idx + 1}/{total_chunks})'
+        suffix = f' ({chunk_idx + 1}/{total_chunks})' if total_chunks > 1 else ''
+        title = f'{lm_label}{suffix}'
 
     return title
 
@@ -294,7 +342,11 @@ LM_MAPPER: Dict[int, str] = {
 
 
 def build_static_lm_data(lm_type: int, questions: List[Dict]) -> Optional[Dict[str, Any]]:
-    """Build JSONB data for a static LM type via LMContentMapper."""
+    """Build JSONB data for a static LM type via LMContentMapper.
+
+    Enriches the result with scenario_contexts from the source questions
+    so markdown builders can include the full scenario background.
+    """
     mapper = LM_MAPPER.get(lm_type)
     if not mapper:
         return None
@@ -308,4 +360,22 @@ def build_static_lm_data(lm_type: int, questions: List[Dict]) -> Optional[Dict[s
     items_key = next(iter(data), None)
     if items_key is not None and len(data.get(items_key, [])) == 0:
         return None
+    # Enrich with scenario contexts (P4 fix)
+    contexts = _extract_scenario_contexts(questions)
+    if contexts:
+        data['scenario_contexts'] = contexts
     return data
+
+
+def _extract_scenario_contexts(questions: List[Dict]) -> List[Dict[str, str]]:
+    """Extract unique scenario contexts from questions for markdown rendering."""
+    seen_titles: set = set()
+    contexts: List[Dict[str, str]] = []
+    for q in questions:
+        title = (q.get('scenario_title') or '').strip()
+        text = (q.get('scenario_text') or '').strip()
+        if not text or title in seen_titles:
+            continue
+        seen_titles.add(title)
+        contexts.append({'title': title, 'text': text[:3000]})
+    return contexts

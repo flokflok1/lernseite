@@ -57,7 +57,7 @@ export interface ExamProgram {
 // API Client
 // ---------------------------------------------------------------------------
 
-const BASE = '/api/v1/admin/exam-archive/folders'
+const BASE = '/admin/exam-archive/folders'
 
 export function fetchPrograms() {
   return http.get<{ programs: ExamProgram[] }>(`${BASE}/programs`)

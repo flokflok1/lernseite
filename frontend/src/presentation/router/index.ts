@@ -132,11 +132,11 @@ const routes: RouteRecordRaw[] = [
     // GBA handles feature visibility inside component
   },
 
+  // Exam Archive (fullscreen, no sidebar — MUST be before panelRoutes)
+  examArchiveRoute,
+
   // Panel Routes (System Administration)
   panelRoutes,
-
-  // Exam Archive (fullscreen, no sidebar)
-  examArchiveRoute,
 
   // Editor Routes (Course Authoring)
   editorRoutes,

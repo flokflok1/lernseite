@@ -55,7 +55,7 @@
             </span>
             <!-- Trend arrow -->
             <span v-if="chapter.relevance_trend" class="text-xs" :class="trendClass">
-              {{ trendIcon }} {{ t(`curriculum.coverage.trend${trendKey}`) }}
+              {{ trendIcon }} {{ t(`panel.curriculum.coverage.trend${trendKey}`) }}
             </span>
           </div>
           <!-- Appearance rate badge -->
@@ -69,20 +69,20 @@
               v-if="chapter.is_gap || chapter.coverage_source === 'ai_generated'"
               class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
             >
-              {{ t('curriculum.coverage.gapBadge') }}
+              {{ t('panel.curriculum.coverage.gapBadge') }}
             </span>
             <!-- No real questions hint for gap positions -->
             <span
               v-if="chapter.is_gap && !webContentSummary"
               class="text-xs text-red-600 dark:text-red-400"
             >
-              {{ t('curriculum.coverage.noRealQuestions') }}
+              {{ t('panel.curriculum.coverage.noRealQuestions') }}
             </span>
             <!-- Low confidence warning -->
             <span
               v-if="(chapter.ai_confidence ?? 1) < 0.7"
               class="text-xs text-orange-600 dark:text-orange-400 cursor-help"
-              :title="t('curriculum.coverage.lowConfidence')"
+              :title="t('panel.curriculum.coverage.lowConfidence')"
             >
               &#9888;
             </span>
@@ -202,9 +202,9 @@ const relevanceTextColor = computed(() => {
 
 const relevanceLabel = computed(() => {
   const score = props.chapter.relevance_score ?? 0
-  if (score > 0.7) return t('curriculum.coverage.relevanceHigh')
-  if (score >= 0.4) return t('curriculum.coverage.relevanceMedium')
-  return t('curriculum.coverage.relevanceLow')
+  if (score > 0.7) return t('panel.curriculum.coverage.relevanceHigh')
+  if (score >= 0.4) return t('panel.curriculum.coverage.relevanceMedium')
+  return t('panel.curriculum.coverage.relevanceLow')
 })
 
 const trendKey = computed(() => {

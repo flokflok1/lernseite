@@ -21,9 +21,12 @@
 
     <!-- Tab Content -->
     <div class="flex-1 overflow-hidden">
-      <ExamArchiveManager v-if="activeTab === 'archive'" />
+      <ExamArchiveManager v-if="activeTab === 'archive'" :key="0" />
       <div v-else-if="activeTab === 'curriculum'" class="h-full overflow-y-auto p-6">
         <CurriculumManager />
+      </div>
+      <div v-else-if="activeTab === 'courses'" class="h-full overflow-y-auto p-6">
+        <ExamCourseGenerator />
       </div>
     </div>
   </div>
@@ -35,16 +38,20 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import ExamArchiveManager from '@/presentation/components/panel/admin/assessment/archive/ExamArchiveManager.vue'
 import CurriculumManager from '@/presentation/components/panel/admin/assessment/curriculum/CurriculumManager.vue'
+import ExamCourseGenerator from '@/presentation/components/panel/admin/assessment/exams/ExamCourseGenerator.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 
-const activeTab = ref<'archive' | 'curriculum'>(
-  route.query.tab === 'curriculum' ? 'curriculum' : 'archive'
+type TabKey = 'archive' | 'curriculum' | 'courses'
+
+const activeTab = ref<TabKey>(
+  (route.query.tab as TabKey) || 'archive'
 )
 
 const tabs = computed(() => [
   { key: 'archive' as const, label: t('panel.exams.tabs.archive') },
   { key: 'curriculum' as const, label: t('panel.exams.tabs.curriculum') },
+  { key: 'courses' as const, label: t('panel.exams.tabs.courses') },
 ])
 </script>

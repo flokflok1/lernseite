@@ -217,7 +217,7 @@
         {{ result.tokens_used }} {{ t('panel.examCourseGenerator.tokens') }}
       </p>
       <a
-        :href="`/panel/courses/${result.course_id}/edit`"
+        :href="`/panel/courses/${result.course_id}`"
         class="inline-block mt-2 text-sm underline text-[var(--color-primary)]"
       >
         {{ t('panel.examCourseGenerator.openInEditor') }}

@@ -6,7 +6,7 @@ const ALLOWED_ATTR = ['href', 'title']
 
 /** Check if text contains markdown syntax */
 function isMarkdown(text: string): boolean {
-  return text.includes('# ') || text.includes('**') || text.includes('- ')
+  return text.includes('# ') || text.includes('**') || text.includes('- ') || /\|.*\|/.test(text)
 }
 
 /** Parse markdown to HTML if needed, sanitize the result */

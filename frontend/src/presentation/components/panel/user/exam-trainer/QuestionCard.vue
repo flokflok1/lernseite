@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
 import type { TrainerQuestion, AnswerResult } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {
@@ -82,9 +83,11 @@ defineExpose({ setResult })
         {{ t('panel.examTrainer.scenario') }}
         <span v-if="question.scenario_title">: {{ question.scenario_title }}</span>
       </h4>
-      <p v-if="question.scenario_text" class="text-sm text-blue-700 whitespace-pre-line">
-        {{ question.scenario_text }}
-      </p>
+      <div
+        v-if="question.scenario_text"
+        class="text-sm text-blue-700 whitespace-pre-line prose prose-sm prose-blue max-w-none"
+        v-html="renderMarkdown(question.scenario_text)"
+      />
     </div>
 
     <!-- Question text -->

@@ -1,31 +1,41 @@
 <template>
   <div>
-    <div v-for="(p, i) in problems" :key="i" class="problem-card">
-      <div class="problem-header">
-        <span class="problem-number">{{ i + 1 }}</span>
-        <h4 class="problem-title">{{ t('lesson.methodExecution.renderer.mathInteractive.problemLabel', { n: i + 1 }) }}</h4>
-        <span v-if="p.difficulty" class="difficulty-badge" :class="`diff--${p.difficulty}`">{{ p.difficulty }}</span>
+    <div v-for="(group, gi) in scenarioGroups" :key="gi" class="scenario-group">
+      <!-- Scenario context block (shown once per group) -->
+      <div v-if="group.scenario_title || group.scenario_text" class="scenario-block">
+        <h3 v-if="group.scenario_title" class="scenario-title">{{ group.scenario_title }}</h3>
+        <p v-if="group.scenario_text" class="scenario-text">{{ group.scenario_text }}</p>
       </div>
-      <p class="problem-text">{{ p.problem_text }}</p>
-      <div v-if="p.formula" class="formula-display">{{ p.formula }}</div>
-      <div class="answer-row">
-        <input
-          v-model="answers[i]"
-          type="text"
-          class="answer-input"
-          :placeholder="t('lesson.methodExecution.renderer.mathInteractive.yourAnswer')"
-          :disabled="checked"
-          :class="{ 'input--correct': checked && isCorrect(i), 'input--wrong': checked && !isCorrect(i) }"
-        />
-        <span v-if="checked" class="answer-status">{{ isCorrect(i) ? '✓' : '✗' }}</span>
-      </div>
-      <Transition name="fade">
-        <div v-if="checked && !isCorrect(i) && p.solution" class="correct-answer">
-          {{ t('lesson.methodExecution.renderer.mathInteractive.correctAnswer') }}: <strong>{{ p.solution }}</strong>
+
+      <!-- Problems within this scenario -->
+      <div v-for="p in group.problems" :key="p.globalIndex" class="problem-card">
+        <div class="problem-header">
+          <span class="problem-number">{{ p.globalIndex + 1 }}</span>
+          <h4 class="problem-title">{{ t('lesson.methodExecution.renderer.mathInteractive.problemLabel', { n: p.globalIndex + 1 }) }}</h4>
+          <span v-if="p.points" class="points-badge">{{ p.points }} P.</span>
         </div>
-      </Transition>
-      <p v-if="checked && p.explanation" class="problem-explanation">{{ p.explanation }}</p>
+        <p class="problem-text">{{ p.question }}</p>
+        <div v-if="p.formula" class="formula-display">{{ p.formula }}</div>
+        <div class="answer-row">
+          <input
+            v-model="answers[p.globalIndex]"
+            type="text"
+            class="answer-input"
+            :placeholder="t('lesson.methodExecution.renderer.mathInteractive.yourAnswer')"
+            :disabled="checked"
+            :class="{ 'input--correct': checked && isCorrect(p.globalIndex), 'input--wrong': checked && !isCorrect(p.globalIndex) }"
+          />
+          <span v-if="checked" class="answer-status">{{ isCorrect(p.globalIndex) ? '✓' : '✗' }}</span>
+        </div>
+        <Transition name="fade">
+          <div v-if="checked && !isCorrect(p.globalIndex) && p.answer" class="correct-answer">
+            {{ t('lesson.methodExecution.renderer.mathInteractive.correctAnswer') }}: <strong>{{ p.answer }}</strong>
+          </div>
+        </Transition>
+        <p v-if="checked && p.hint" class="problem-explanation">{{ p.hint }}</p>
+      </div>
     </div>
+
     <div class="actions">
       <button v-if="!checked" class="check-btn" :disabled="answers.some(a => !a.trim())" @click="checked = true">
         {{ t('lesson.methodExecution.renderer.mathInteractive.checkSolution') }}
@@ -41,7 +51,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { MathInteractiveData } from '../types'
+import type { MathInteractiveData, MathProblem } from '../types'
 
 const { t } = useI18n()
 const props = defineProps<{ data: MathInteractiveData | null }>()
@@ -49,8 +59,38 @@ const checked = ref(false)
 const problems = computed(() => props.data?.problems || [])
 const answers = ref<string[]>(problems.value.map(() => ''))
 
+interface IndexedProblem extends MathProblem {
+  globalIndex: number
+}
+
+interface ScenarioGroup {
+  scenario_title: string
+  scenario_text: string
+  problems: IndexedProblem[]
+}
+
+/** Group ALL problems by scenario — merges non-consecutive duplicates via Map. */
+const scenarioGroups = computed<ScenarioGroup[]>(() => {
+  const map = new Map<string, ScenarioGroup>()
+  const order: string[] = []
+
+  problems.value.forEach((p, i) => {
+    const key = p.scenario_title || ''
+    if (!map.has(key)) {
+      map.set(key, {
+        scenario_title: p.scenario_title || '',
+        scenario_text: p.scenario_text || '',
+        problems: [],
+      })
+      order.push(key)
+    }
+    map.get(key)!.problems.push({ ...p, globalIndex: i })
+  })
+  return order.map(k => map.get(k)!)
+})
+
 function isCorrect(i: number): boolean {
-  return answers.value[i]?.trim().toLowerCase() === String(problems.value[i]?.solution || '').trim().toLowerCase()
+  return answers.value[i]?.trim().toLowerCase() === String(problems.value[i]?.answer || '').trim().toLowerCase()
 }
 
 const correctCount = computed(() => problems.value.filter((_: any, i: number) => isCorrect(i)).length)
@@ -62,6 +102,38 @@ function reset() {
 </script>
 
 <style scoped>
+/* ── Scenario context ── */
+.scenario-group { margin-bottom: 1.5rem; }
+.scenario-group:last-child { margin-bottom: 0; }
+
+.scenario-block {
+  padding: 1rem 1.25rem;
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+:root.dark .scenario-block {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+.scenario-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.scenario-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+/* ── Problem cards ── */
 .problem-card {
   padding: 1.125rem;
   background: rgba(255, 255, 255, 0.025);
@@ -84,13 +156,11 @@ function reset() {
 
 .problem-title { margin: 0; font-size: 0.8125rem; font-weight: 600; color: var(--color-text-primary); flex: 1; }
 
-.difficulty-badge {
+.points-badge {
   font-size: 0.625rem; font-weight: 600; padding: 0.125rem 0.5rem;
-  border-radius: 1rem; text-transform: uppercase; letter-spacing: 0.04em;
+  border-radius: 1rem; background: rgba(99, 102, 241, 0.1);
+  color: var(--color-accent-light, #818cf8);
 }
-.diff--easy { background: rgba(16, 185, 129, 0.1); color: var(--color-success); }
-.diff--medium { background: rgba(245, 158, 11, 0.1); color: var(--color-warning); }
-.diff--hard { background: rgba(239, 68, 68, 0.1); color: var(--color-error); }
 
 .problem-text { margin: 0 0 0.75rem; font-size: 0.9375rem; line-height: 1.65; color: var(--color-text-primary); }
 

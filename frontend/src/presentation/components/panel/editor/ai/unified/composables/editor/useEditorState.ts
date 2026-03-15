@@ -66,6 +66,7 @@ export function useEditorState() {
     { id: 'skills', icon: '⚡', label: t('aiEditor.tabs.skills') },
     { id: 'prompts', icon: '📝', label: t('aiEditor.tabs.prompts') },
     { id: 'history', icon: '📊', label: t('aiEditor.tabs.history') },
+    { id: 'exam', icon: '📄', label: t('aiEditor.tabs.exam') },
   ])
 
   // ── Actions ─────────────────────────────────────────────────────

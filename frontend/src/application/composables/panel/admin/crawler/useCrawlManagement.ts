@@ -14,6 +14,7 @@ import {
   getCrawlPdfs,
   getCrawlDomains,
   startCrawl,
+  cancelCrawlJob,
   deleteCrawlPdf,
   createCrawlDomain,
   updateCrawlDomain,
@@ -171,6 +172,16 @@ export const useCrawlManagement = defineStore('crawlManagement', () => {
     }
   }
 
+  async function cancelJob(jobId: string): Promise<void> {
+    try {
+      await cancelCrawlJob(jobId)
+      await loadJobs()
+      await refreshDashboard()
+    } catch (e: unknown) {
+      error.value = e instanceof Error ? e.message : 'Failed to cancel job'
+    }
+  }
+
   // ==========================================================================
   // POLLING — merge updates instead of replacing job list
   // ==========================================================================
@@ -245,6 +256,7 @@ export const useCrawlManagement = defineStore('crawlManagement', () => {
     loadPdfs,
     loadDomains,
     triggerCrawl,
+    cancelJob,
     startPolling,
     stopPolling,
     loadTrends,

@@ -343,6 +343,25 @@ function handleReviseResult(): void {
   chatSession.addSystemMessage(t('aiEditor.result.revisePrompt'))
 }
 
+async function handleExamCourseCreated(courseId: string, courseTitle: string): Promise<void> {
+  // Add to local courses list and select it
+  const id = String(courseId)
+  if (!courses.value.find(c => c.id === id)) {
+    courses.value.push({ id, title: courseTitle })
+  }
+  selectedCourseId.value = id
+
+  // Load course structure in sidebar
+  chatSession.clearSession()
+  structureView.clearStructure()
+  workflowPhase.reset()
+
+  await Promise.all([
+    chatSession.loadOrCreateSession(id, getModelOptions()),
+    structureView.loadCourseStructure(id, courseTitle),
+  ])
+}
+
 function handleCourseDeleted(courseId: string): void {
   courses.value = courses.value.filter(c => c.id !== courseId)
   selectedCourseId.value = ''
@@ -352,20 +371,6 @@ function handleCourseDeleted(courseId: string): void {
   editorState.setTab('chat')
 }
 
-async function handleExamCourseCreated(courseId: string, courseTitle: string): Promise<void> {
-  const id = String(courseId)
-  if (!courses.value.find(c => c.id === id)) {
-    courses.value.push({ id, title: courseTitle })
-  }
-  selectedCourseId.value = id
-  chatSession.clearSession()
-  structureView.clearStructure()
-  workflowPhase.reset()
-  await Promise.all([
-    chatSession.loadOrCreateSession(id, getModelOptions()),
-    structureView.loadCourseStructure(id, courseTitle),
-  ])
-}
 </script>
 
 <style scoped>

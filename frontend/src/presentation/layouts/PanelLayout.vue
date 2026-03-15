@@ -14,7 +14,7 @@
       </div>
 
       <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto p-5">
+      <nav class="flex-1 overflow-y-auto p-5 sidebar-scroll">
         <!-- Back to User Dashboard -->
         <router-link
           to="/dashboard"
@@ -24,20 +24,35 @@
           <span>{{ t('nav.back_to_dashboard') }}</span>
         </router-link>
 
-        <div class="space-y-1.5">
-          <router-link
-            v-for="item in menuItems"
-            :key="item.path"
-            :to="item.path"
-            class="flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-base font-medium transition-colors"
-            :class="{
-              'bg-primary-100 text-primary-900': isActive(item.path),
-              'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]': !isActive(item.path)
-            }"
+        <div v-for="category in menuCategories" :key="category.key" class="mb-2">
+          <button
+            class="w-full flex items-center justify-between px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors rounded cursor-pointer"
+            @click="toggleCategory(category.key)"
           >
-            <span class="text-xl">{{ item.icon }}</span>
-            <span>{{ item.label }}</span>
-          </router-link>
+            <span>{{ category.label }}</span>
+            <span
+              class="text-[10px] transition-transform duration-200"
+              :class="{ 'rotate-180': !collapsedCategories.has(category.key) }"
+            >▼</span>
+          </button>
+          <div
+            class="category-items mt-1 space-y-0.5 overflow-hidden transition-all duration-200"
+            :class="collapsedCategories.has(category.key) ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'"
+          >
+            <router-link
+              v-for="item in category.items"
+              :key="item.path"
+              :to="item.path"
+              class="flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-base font-medium transition-colors"
+              :class="{
+                'bg-primary-100 text-primary-900': isActive(item.path),
+                'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]': !isActive(item.path)
+              }"
+            >
+              <span class="text-xl">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>
+            </router-link>
+          </div>
         </div>
       </nav>
 
@@ -99,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/application/stores/modules/core/auth.store'
@@ -145,7 +160,7 @@ onMounted(async () => {
 const sidebarTitle = computed(() => {
   // locale.value triggers reactivity on language change
   void locale.value
-  return t('panel.system_panel')
+  return t('panel.nav.admin_panel')
 })
 
 const userInitials = computed(() => {
@@ -154,34 +169,96 @@ const userInitials = computed(() => {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
 })
 
-const menuItems = computed(() => {
-  // locale.value triggers reactivity on language change
+interface MenuItem {
+  path: string
+  label: string
+  icon: string
+}
+
+interface MenuCategory {
+  key: string
+  label: string
+  items: MenuItem[]
+}
+
+const menuCategories = computed((): MenuCategory[] => {
   void locale.value
   return [
-    { path: '/panel', label: t('panel.nav.dashboard'), icon: '📊' },
-    { path: '/panel/users', label: t('panel.nav.users'), icon: '👥' },
-    { path: '/panel/groups', label: t('panel.nav.groups'), icon: '👥' },
-    { path: '/panel/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
-    { path: '/panel/admin/editor', label: t('panel.nav.courseEditor'), icon: '📝' },
-    { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
-    { path: '/panel/lm-routing', label: t('panel.nav.lmRouting'), icon: '📚' },
-    { path: '/panel/languages', label: t('panel.nav.languages'), icon: '🌐' },
-    // TODO: Fix i18n translations system (locales dir issue)
-    // { path: '/panel/translations', label: t('panel.nav.translations'), icon: '🌐' },
-    { path: '/panel/billing', label: t('panel.nav.billing'), icon: '💰' },
-    { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },
-    { path: '/panel/audit-logs', label: t('panel.nav.audit_logs'), icon: '📋' },
-    { path: '/panel/exams', label: t('panel.nav.exams'), icon: '📄' },
-    { path: '/panel/crawler', label: t('panel.nav.crawler'), icon: '🕷️' },
-    { path: '/panel/system-settings', label: t('panel.nav.settings'), icon: '⚙️' }
+    {
+      key: 'overview',
+      label: t('panel.nav.category.overview'),
+      items: [
+        { path: '/panel', label: t('panel.nav.dashboard'), icon: '📊' },
+      ],
+    },
+    {
+      key: 'content',
+      label: t('panel.nav.category.content'),
+      items: [
+        { path: '/panel/admin/editor', label: t('panel.nav.courseEditor'), icon: '📝' },
+        { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
+        { path: '/panel/lm-routing', label: t('panel.nav.lmRouting'), icon: '📚' },
+        { path: '/panel/exams', label: t('panel.nav.exams'), icon: '📄' },
+        { path: '/panel/crawler', label: t('panel.nav.crawler'), icon: '🕷️' },
+      ],
+    },
+    {
+      key: 'users',
+      label: t('panel.nav.category.users'),
+      items: [
+        { path: '/panel/users', label: t('panel.nav.users'), icon: '👥' },
+        { path: '/panel/groups', label: t('panel.nav.groups'), icon: '👥' },
+        { path: '/panel/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
+      ],
+    },
+    {
+      key: 'system',
+      label: t('panel.nav.category.system'),
+      items: [
+        { path: '/panel/languages', label: t('panel.nav.languages'), icon: '🌐' },
+        { path: '/panel/billing', label: t('panel.nav.billing'), icon: '💰' },
+        { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },
+        { path: '/panel/audit-logs', label: t('panel.nav.audit_logs'), icon: '📋' },
+        { path: '/panel/system-settings', label: t('panel.nav.settings'), icon: '⚙️' },
+      ],
+    },
   ]
 })
+
+// ============================================================================
+// Collapsible Categories
+// ============================================================================
+
+const collapsedCategories = ref<Set<string>>(new Set(['overview', 'content', 'users', 'system']))
+
+const toggleCategory = (key: string) => {
+  const next = new Set(collapsedCategories.value)
+  if (next.has(key)) {
+    next.delete(key)
+  } else {
+    next.add(key)
+  }
+  collapsedCategories.value = next
+}
+
+// Auto-expand the category containing the active route
+watch(() => route.path, (path) => {
+  const activeCategory = menuCategories.value.find(cat =>
+    cat.items.some(item => path === item.path || path.startsWith(item.path + '/'))
+  )
+  if (activeCategory && collapsedCategories.value.has(activeCategory.key)) {
+    const next = new Set(collapsedCategories.value)
+    next.delete(activeCategory.key)
+    collapsedCategories.value = next
+  }
+}, { immediate: true })
 
 // ============================================================================
 // Methods
 // ============================================================================
 
 const isActive = (path: string): boolean => {
+  if (path === '/panel') return route.path === '/panel'
   return route.path === path || route.path.startsWith(path + '/')
 }
 
@@ -194,5 +271,19 @@ const handleLogout = async () => {
 <style scoped>
 .panel-layout {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }
 </style>

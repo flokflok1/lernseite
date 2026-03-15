@@ -121,7 +121,15 @@ function act(action: string) {
         </button>
       </template>
 
-      <!-- Background actions -->
+      <!-- Sidebar actions (empty area in sidebar) -->
+      <template v-if="target.type === 'sidebar'">
+        <button class="ctx-item" @click="act('newProgram')">
+          <span class="ctx-icon">🎓</span>
+          Neues Prüfungsprogramm
+        </button>
+      </template>
+
+      <!-- Background actions (empty area in content) -->
       <template v-if="target.type === 'background'">
         <button class="ctx-item" @click="act('newFolder')">
           <span class="ctx-icon">📁</span>

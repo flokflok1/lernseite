@@ -83,11 +83,21 @@ async function handleContextAction(action: string) {
         }
       }
       break
+    case 'newProgram': {
+      const progName = prompt('Neues Prüfungsprogramm — Name:')
+      if (progName) {
+        const { createProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
+        await createProgram({ name: progName })
+        explorer.loadPrograms()
+      }
+      break
+    }
     case 'newSubfolder':
-    case 'newFolder':
+    case 'newFolder': {
       const folderName = prompt(t('panel.examArchive.newFolder'))
       if (folderName) explorer.handleCreateFolder(folderName, target.id || undefined)
       break
+    }
     case 'deleteProgram':
       if (target.type === 'program' && target.id) {
         const prog = target.data as any
@@ -218,7 +228,7 @@ function onOpenFile(examId: string) {
         @select-folder="explorer.navigateToFolder"
         @create-folder="(name) => explorer.handleCreateFolder(name)"
         @program-contextmenu="onProgramContextMenu"
-        @sidebar-contextmenu="onBackgroundContextMenu"
+        @sidebar-contextmenu="(ev: MouseEvent) => ctxMenu.show(ev, { type: 'sidebar', id: null, data: null })"
         @contextmenu="onFolderContextMenu"
         @dragstart="(ev, f) => dragDrop.onDragStart(ev, 'folder', String(f.folder_id))"
         @dragover="dragDrop.onDragOver"

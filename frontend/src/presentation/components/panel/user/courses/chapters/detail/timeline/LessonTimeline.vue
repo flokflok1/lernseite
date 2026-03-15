@@ -28,6 +28,7 @@
           :key="lesson.lesson_id"
           :lesson="lesson"
           :index="index"
+          :total="lessons.length"
           :status="getStatus(lesson, index)"
           :progress="getLessonProgress(lesson)"
           :is-last="index === lessons.length - 1"
@@ -45,9 +46,12 @@ interface Props {
   lessons: any[]
   lessonProgress: Record<string, any>
   completedLessons: number
+  sequential?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  sequential: true
+})
 
 const emit = defineEmits<{
   'lesson-select': [lesson: any, index: number]
@@ -59,14 +63,23 @@ function isLessonCompleted(lesson: any): boolean {
 }
 
 function isLessonLocked(lesson: any, index: number): boolean {
+  if (!props.sequential) return false
   if (index === 0) return false
   const prevLesson = props.lessons[index - 1]
   return !isLessonCompleted(prevLesson)
 }
 
-function getStatus(lesson: any, index: number): 'completed' | 'current' | 'locked' {
+function getStatus(lesson: any, index: number): 'completed' | 'current' | 'available' | 'locked' {
   if (isLessonCompleted(lesson)) return 'completed'
   if (isLessonLocked(lesson, index)) return 'locked'
+
+  // When not sequential, only the first incomplete lesson is "current" (recommended)
+  if (!props.sequential) {
+    const firstIncompleteIdx = props.lessons.findIndex(l => !isLessonCompleted(l))
+    if (index === firstIncompleteIdx) return 'current'
+    return 'available'
+  }
+
   return 'current'
 }
 

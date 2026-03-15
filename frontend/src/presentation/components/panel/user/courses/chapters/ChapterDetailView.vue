@@ -60,6 +60,7 @@
           :lessons="lessons"
           :lesson-progress="lessonProgress"
           :completed-lessons="completedLessons"
+          :sequential="false"
           @lesson-select="handleLessonSelect"
         />
       </div>
@@ -160,9 +161,7 @@ function handleContinueLearning() {
 // Lesson Actions
 // ============================================================================
 
-function handleLessonSelect(lesson: any, index: number) {
-  if (isLessonLocked(lesson, index)) return
-
+function handleLessonSelect(lesson: any, _index: number) {
   router.push({
     name: 'LessonPlayer',
     params: { courseId, chapterId, lessonId: lesson.lesson_id }

@@ -2,57 +2,74 @@
   <div class="lesson-player">
     <!-- Loading State -->
     <div v-if="playerStore.loading" class="loading-container">
-      <div class="loading-spinner"></div>
+      <div class="loading-spinner" />
     </div>
 
     <!-- Error State -->
     <div v-else-if="playerStore.error" class="error-container">
-      <div class="error-box">
-        {{ playerStore.error }}
-      </div>
+      <div class="error-box">{{ playerStore.error }}</div>
       <Button @click="$router.push({ name: 'Courses' })">{{ t('lesson.back_to_courses') }}</Button>
     </div>
 
-    <!-- Player Layout -->
-    <div v-else-if="playerStore.currentLesson" class="player-layout">
-      <!-- Hero Navigation Bar -->
-      <LessonPlayerTopBar
-        :course-title="playerStore.course?.title ?? ''"
-        :chapter-title="playerStore.currentChapter?.title ?? ''"
-        :lesson-title="playerStore.currentLesson?.title ?? ''"
-        :lesson-type="playerStore.currentLesson?.lesson_type"
-        :lesson-position="lessonPosition"
-        :progress-percentage="playerStore.lessonProgress?.progress_percentage ?? null"
-        :is-completed="playerStore.isLessonCompleted"
-        :duration-minutes="playerStore.currentLesson?.duration_minutes"
-        @back="goBackToCourse"
-        @complete="completeLesson"
+    <!-- Worksheet Layout -->
+    <div v-else-if="playerStore.currentLesson" class="worksheet-layout">
+      <!-- Minimal Top Bar -->
+      <header class="top-bar">
+        <button class="back-btn" @click="goBackToCourse">
+          <svg class="back-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          {{ t('chapter.backToCourse') }}
+        </button>
+
+        <div class="top-actions">
+          <Button
+            v-if="!playerStore.isLessonCompleted"
+            variant="primary"
+            size="sm"
+            @click="completeLesson"
+          >
+            {{ t('lesson.mark_completed') }}
+          </Button>
+          <span v-else class="completed-badge">
+            &#10003; {{ t('lesson.completed') }}
+          </span>
+        </div>
+      </header>
+
+      <!-- Progress Dots -->
+      <WorksheetProgressBar
+        v-if="playerStore.currentChapter?.lessons"
+        :lessons="playerStore.currentChapter.lessons"
+        :active-lesson-id="playerStore.currentLesson?.lesson_id"
+        :completed-lesson-ids="completedLessonIds"
+        @navigate="navigateToLesson"
       />
 
-      <!-- Main Content Area -->
-      <div class="main-area" :class="{ 'main-area--tasks-only': isInteractiveLesson }">
-        <!-- Left Sidebar: Chapter Navigation (hidden for interactive lessons) -->
-        <LessonPlayerSidebar
-          v-if="!isInteractiveLesson"
-          :lessons="playerStore.currentChapter?.lessons"
-          :active-lesson-id="playerStore.currentLesson?.lesson_id"
-          :completed-lesson-ids="completedLessonIds"
-          @navigate="navigateToLesson"
-        />
-
-        <!-- Center: Task Content (when a task is active) -->
-        <div v-if="playerStore.activeExecution && !isInteractiveLesson" class="content-center">
+      <!-- Scrollable Content Area -->
+      <div ref="contentRef" class="worksheet-scroll" @scroll="handleContentScroll">
+        <WorksheetPage
+          :chapter-title="playerStore.currentChapter?.title ?? ''"
+          :lesson-title="playerStore.currentLesson?.title ?? ''"
+          :lesson-type="playerStore.currentLesson?.lesson_type ?? 'text'"
+          :page-position="pagePosition"
+          :is-completed="playerStore.isLessonCompleted"
+          :has-previous="playerStore.hasPreviousLesson"
+          :has-next="playerStore.hasNextLesson"
+          :difficulty="activeDifficulty"
+          @previous="goToPreviousLesson"
+          @next="goToNextLesson"
+          @finish="goBackToCourse"
+        >
+          <!-- Practice/Assessment: render task directly on the worksheet -->
           <TaskContentPanel
+            v-if="playerStore.activeExecution"
             :execution="playerStore.activeExecution"
-            @close="playerStore.clearActiveTask()"
             @complete="handleTaskComplete"
           />
-        </div>
 
-        <!-- Center: Lesson Content (hidden for interactive lessons and active tasks) -->
-        <div v-else-if="!isInteractiveLesson" ref="contentRef" class="content-center" @scroll="handleContentScroll">
-          <div class="content-wrapper">
-            <!-- Lesson Content Component (Dynamic) -->
+          <!-- Theory: render lesson content -->
+          <template v-else>
             <component
               :is="lessonComponent"
               :lesson="playerStore.currentLesson"
@@ -62,50 +79,8 @@
               @completed="handleLessonCompleted"
               @continue="goToNextLesson"
             />
-
-            <!-- Navigation Buttons -->
-            <div class="nav-buttons">
-              <button
-                v-if="playerStore.hasPreviousLesson"
-                class="nav-btn nav-btn--outline"
-                @click="goToPreviousLesson"
-              >
-                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                {{ t('lesson.previous_lesson') }}
-              </button>
-              <div v-else></div>
-
-              <button
-                v-if="playerStore.hasNextLesson"
-                class="nav-btn nav-btn--primary"
-                @click="goToNextLesson"
-              >
-                {{ t('lesson.next_lesson') }}
-                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-              <button
-                v-else
-                class="nav-btn nav-btn--primary"
-                @click="goBackToCourse"
-              >
-                {{ t('lesson.finish_course') }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Sidebar: Learning Methods -->
-        <aside class="sidebar-right">
-          <MethodExecutionPanel
-            v-if="playerStore.currentLesson"
-            :lesson-id="playerStore.currentLesson.lesson_id"
-            :methods="playerStore.availableMethods"
-          />
-        </aside>
+          </template>
+        </WorksheetPage>
       </div>
 
       <!-- Completion Toast -->
@@ -128,10 +103,9 @@ import { useI18n } from 'vue-i18n'
 import { usePlayerStore } from '@/application/stores/modules/content/player.store'
 import { useTutorStore } from '@/application/stores/modules/learning/tutor.store'
 import Button from '@/presentation/components/shared/ui/Button.vue'
-import { MethodExecutionPanel } from '@/presentation/components/public/learning/methods'
 import { TaskContentPanel } from '@/presentation/components/public/learning/methods/method-execution'
-import LessonPlayerTopBar from '@/presentation/components/panel/user/learning/lesson/LessonPlayerTopBar.vue'
-import LessonPlayerSidebar from '@/presentation/components/panel/user/learning/lesson/LessonPlayerSidebar.vue'
+import WorksheetPage from '@/presentation/components/panel/user/learning/lesson/WorksheetPage.vue'
+import WorksheetProgressBar from '@/presentation/components/panel/user/learning/lesson/WorksheetProgressBar.vue'
 
 interface Props {
   courseId: string
@@ -146,17 +120,17 @@ const playerStore = usePlayerStore()
 const tutorStore = useTutorStore()
 const router = useRouter()
 
-// Lesson Components (Dynamic)
+// Dynamic lesson components
 const lessonComponents: Record<string, ReturnType<typeof defineAsyncComponent>> = {
   text: defineAsyncComponent(() => import('@/presentation/components/public/learning/methods/explanatory/TextLesson.vue')),
   video: defineAsyncComponent(() => import('@/presentation/components/public/learning/methods/explanatory/VideoLesson.vue')),
   quiz: defineAsyncComponent(() => import('@/presentation/components/public/learning/methods/quiz/QuizLesson.vue')),
   ai: defineAsyncComponent(() => import('@/presentation/components/public/learning/methods/explanatory/AiLesson.vue')),
   interactive: defineAsyncComponent(() => import('@/presentation/components/public/learning/methods/explanatory/AiLesson.vue')),
-  mixed: defineAsyncComponent(() => import('@/presentation/components/public/learning/methods/explanatory/TextLesson.vue'))
+  mixed: defineAsyncComponent(() => import('@/presentation/components/public/learning/methods/explanatory/TextLesson.vue')),
 }
 
-// Computed
+// ─── Computed ───
 const courseId = computed(() => props.courseId)
 const chapterId = computed(() => props.chapterId)
 const lessonId = computed(() => props.lessonId)
@@ -166,61 +140,59 @@ const lessonComponent = computed(() => {
   return lessonComponents[type] || lessonComponents.text
 })
 
-const isInteractiveLesson = computed(() => {
-  const type = playerStore.currentLesson?.lesson_type
-  return ['ai', 'interactive'].includes(type)
+// Exercise patterns — auto-activate the task on these lessons
+const EXERCISE_PATTERNS = [
+  'rechenaufgaben', 'lückentext', 'ihk-prüfungsaufgaben',
+  'lernkarten', 'zuordnung', 'fallstudien',
+]
+
+const isExerciseLesson = computed(() => {
+  const title = (playerStore.currentLesson?.title || '').toLowerCase()
+  return EXERCISE_PATTERNS.some(p => title.includes(p))
 })
 
-// Scroll-based progress tracking
+const pagePosition = computed(() => {
+  const lessons = playerStore.currentChapter?.lessons
+  if (!lessons || !playerStore.currentLesson) return { step: 1, total: 1 }
+  const idx = lessons.findIndex((l: any) => l.lesson_id === playerStore.currentLesson?.lesson_id)
+  return { step: Math.max(1, idx + 1), total: lessons.length }
+})
+
+const activeDifficulty = computed(() => {
+  return playerStore.activeExecution?.difficulty ?? undefined
+})
+
+// ─── State ───
 const contentRef = ref<HTMLElement | null>(null)
 const lastSyncedDepth = ref(0)
 const completedLessonIds = ref<number[]>([])
 const showCompletionToast = ref(false)
 let scrollDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-const lessonPosition = computed(() => {
-  const lessons = playerStore.currentChapter?.lessons
-  if (!lessons || !playerStore.currentLesson) return undefined
-  const idx = lessons.findIndex((l: any) => l.lesson_id === playerStore.currentLesson?.lesson_id)
-  if (idx === -1) return undefined
-  return { current: idx + 1, total: lessons.length }
-})
-
-// Navigation
+// ─── Navigation ───
 function goBackToCourse(): void {
-  router.push({
-    name: 'CourseOverview',
-    params: { courseId: courseId.value }
-  })
+  router.push({ name: 'CourseOverview', params: { courseId: courseId.value } })
 }
 
 function navigateToLesson(newLessonId: number): void {
   router.push({
     name: 'LessonPlayer',
-    params: {
-      courseId: courseId.value,
-      chapterId: chapterId.value,
-      lessonId: newLessonId
-    }
+    params: { courseId: courseId.value, chapterId: chapterId.value, lessonId: newLessonId },
   })
 }
 
 function goToNextLesson(): void {
-  if (playerStore.nextLesson) {
-    navigateToLesson(playerStore.nextLesson.lesson_id)
-  }
+  if (playerStore.nextLesson) navigateToLesson(playerStore.nextLesson.lesson_id)
 }
 
 function goToPreviousLesson(): void {
-  if (playerStore.previousLesson) {
-    navigateToLesson(playerStore.previousLesson.lesson_id)
-  }
+  if (playerStore.previousLesson) navigateToLesson(playerStore.previousLesson.lesson_id)
 }
 
+// ─── Completion ───
 async function completeLesson(): Promise<void> {
   try {
     await playerStore.markLessonCompleted(courseId.value, chapterId.value, lessonId.value)
-    // Issue #3: Track completed lesson for live sidebar dot update
     const lid = playerStore.currentLesson?.lesson_id
     if (lid && !completedLessonIds.value.includes(lid)) {
       completedLessonIds.value.push(lid)
@@ -233,46 +205,44 @@ async function completeLesson(): Promise<void> {
 }
 
 function handleLessonCompleted(): void {
-  if (!playerStore.isLessonCompleted) {
-    completeLesson()
-  }
+  if (!playerStore.isLessonCompleted) completeLesson()
 }
 
-// Issue #2: Scroll-depth progress sync
+// ─── Scroll Progress ───
 function handleContentScroll(): void {
   if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer)
   scrollDebounceTimer = setTimeout(() => {
     const el = contentRef.value
     if (!el) return
-
     const scrollDepth = el.scrollHeight - el.clientHeight
     if (scrollDepth <= 0) return
-
     const pct = Math.min(100, Math.round((el.scrollTop / scrollDepth) * 100))
-
-    // Sync at 25% increments to avoid excessive API calls
     const milestone = Math.floor(pct / 25) * 25
     if (milestone > lastSyncedDepth.value && milestone > 0) {
       lastSyncedDepth.value = milestone
-      playerStore.syncProgress(
-        courseId.value, chapterId.value, lessonId.value, milestone
-      )
+      playerStore.syncProgress(courseId.value, chapterId.value, lessonId.value, milestone)
     }
-
-    // Auto-complete when scrolled near bottom (>= 95%)
-    if (pct >= 95 && !playerStore.isLessonCompleted) {
-      completeLesson()
-    }
+    if (pct >= 95 && !playerStore.isLessonCompleted) completeLesson()
   }, 300)
 }
 
-// Issue #4: Handle task renderer @complete event — save score, refresh progress
-async function handleTaskComplete(score: number, maxScore: number): Promise<void> {
-  // Refresh the methods progress in the sidebar
+// ─── Task Handling ───
+async function handleTaskComplete(score: number, _maxScore: number): Promise<void> {
   await playerStore.refreshMethodsProgress(lessonId.value)
 }
 
-// Tutor context
+function autoActivateExerciseTask(): void {
+  if (!isExerciseLesson.value) return
+  if (playerStore.activeExecution) return
+  if (playerStore.availableMethods.length === 0) return
+  const firstMethod = playerStore.availableMethods[0]
+  playerStore.executeLearningMethod({
+    lesson_id: String(lessonId.value),
+    method_id: firstMethod.method_id,
+  }).catch(() => { /* silent — user sees theory content as fallback */ })
+}
+
+// ─── Tutor Context ───
 function updateTutorContext(): void {
   tutorStore.updateContext({
     page: 'lesson',
@@ -283,106 +253,83 @@ function updateTutorContext(): void {
     lessonId: playerStore.currentLesson?.lesson_id || null,
     lessonName: playerStore.currentLesson?.title || null,
     methodId: null,
-    methodType: null
+    methodType: null,
   })
 }
 
-function clearTutorContext(): void {
-  tutorStore.updateContext({
-    page: 'dashboard',
-    courseId: null,
-    courseName: null,
-    chapterId: null,
-    chapterName: null,
-    lessonId: null,
-    lessonName: null,
-    methodId: null,
-    methodType: null
-  })
-}
-
-// Issue #6: Keyboard shortcuts
+// ─── Keyboard Shortcuts ───
 function handleKeydown(e: KeyboardEvent): void {
-  // Don't intercept when typing in inputs
   const tag = (e.target as HTMLElement)?.tagName
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
-
   switch (e.key) {
-    case 'ArrowLeft':
-      if (playerStore.hasPreviousLesson) goToPreviousLesson()
-      break
-    case 'ArrowRight':
-      if (playerStore.hasNextLesson) goToNextLesson()
-      break
-    case 'Escape':
-      if (playerStore.activeExecution) {
-        playerStore.clearActiveTask()
-      } else {
-        goBackToCourse()
-      }
-      break
+    case 'ArrowLeft': if (playerStore.hasPreviousLesson) goToPreviousLesson(); break
+    case 'ArrowRight': if (playerStore.hasNextLesson) goToNextLesson(); break
+    case 'Escape': goBackToCourse(); break
   }
 }
 
-// Lifecycle
+// ─── Lifecycle ───
 onMounted(async () => {
-  // Launch all data loads in parallel (course, chapter, lesson are independent)
   const promises: Promise<void>[] = []
-
   if (!playerStore.hasCourse || playerStore.course?.course_id !== courseId.value) {
     promises.push(playerStore.loadCourse(courseId.value))
   }
-
   if (!playerStore.currentChapter || playerStore.currentChapter.chapter_id !== chapterId.value) {
     promises.push(playerStore.loadChapter(courseId.value, chapterId.value))
   }
-
   promises.push(playerStore.loadLesson(courseId.value, chapterId.value, lessonId.value))
-
   await Promise.all(promises)
   updateTutorContext()
-
+  autoActivateExerciseTask()
   window.addEventListener('keydown', handleKeydown)
 })
 
-// Reload lesson when route params change (same component, different lesson)
 watch(lessonId, async (newId, oldId) => {
   if (newId && newId !== oldId) {
     playerStore.clearActiveTask()
     lastSyncedDepth.value = 0
     await playerStore.loadLesson(courseId.value, chapterId.value, newId)
     updateTutorContext()
+    autoActivateExerciseTask()
   }
 })
 
 watch(() => playerStore.currentLesson, () => {
   updateTutorContext()
-  // Reset scroll tracking when lesson changes
   lastSyncedDepth.value = 0
 })
 
 onUnmounted(() => {
-  clearTutorContext()
+  tutorStore.updateContext({
+    page: 'dashboard', courseId: null, courseName: null,
+    chapterId: null, chapterName: null, lessonId: null,
+    lessonName: null, methodId: null, methodType: null,
+  })
   window.removeEventListener('keydown', handleKeydown)
   if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer)
 })
 </script>
 
 <style scoped>
-/* Base Layout */
+/* ─── Base Layout ─── */
 .lesson-player {
-  background-color: var(--color-bg, #f5f5f7);
+  background-color: var(--color-bg, #f0f1f3);
   color: var(--color-text-primary, #111827);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
 }
 
-.player-layout {
+:root.dark .lesson-player {
+  background-color: #0f172a;
+}
+
+.worksheet-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
 
-/* Loading State */
+/* ─── Loading / Error ─── */
 .loading-container {
   display: flex;
   justify-content: center;
@@ -399,11 +346,8 @@ onUnmounted(() => {
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* Error State */
 .error-container {
   max-width: 56rem;
   margin: 0 auto;
@@ -419,168 +363,91 @@ onUnmounted(() => {
   margin-bottom: 1.5rem;
 }
 
-/* Main Area */
-.main-area {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.main-area--tasks-only {
-  justify-content: center;
-}
-
-.main-area--tasks-only .sidebar-right {
-  flex: 0 0 600px;
-  max-width: 800px;
-}
-
-/* Center Content */
-.content-center {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem 2rem;
-  background-color: var(--color-surface, #ffffff);
-  border-left: 1px solid var(--color-border, #e5e7eb);
-  border-right: 1px solid var(--color-border, #e5e7eb);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
-}
-
-:root.dark .content-center {
-  background-color: #1e293b;
-  border-left-color: rgba(255, 255, 255, 0.06);
-  border-right-color: rgba(255, 255, 255, 0.06);
-}
-
-.content-wrapper {
-  max-width: 56rem;
-  margin: 0 auto;
-}
-
-.interactive-prompt {
-  padding: 1rem;
-  text-align: center;
-  color: var(--color-text-secondary, #64748b);
-  font-size: 0.9rem;
-}
-
-.lesson-component {
-  margin-bottom: 1.5rem;
-}
-
-/* Navigation Buttons */
-.nav-buttons {
+/* ─── Top Bar ─── */
+.top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid var(--color-border, #e5e7eb);
-  padding-top: 1.25rem;
+  padding: 0.5rem 1.25rem;
+  background: var(--color-surface, #fff);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  flex-shrink: 0;
 }
 
-.nav-btn {
+:root.dark .top-bar {
+  background: #1e293b;
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.back-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.5rem 1rem;
   font-size: 0.8125rem;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  transition: all 0.2s;
-  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  background: none;
   border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.15s;
 }
 
-.nav-btn--outline {
-  background-color: var(--color-surface, #ffffff);
-  color: var(--color-text-primary, #374151);
-  border: 1px solid var(--color-border, #d1d5db);
+.back-btn:hover {
+  color: var(--color-primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.06);
 }
 
-.nav-btn--outline:hover {
-  background-color: var(--color-surface-secondary, #f9fafb);
-  border-color: var(--color-text-secondary, #9ca3af);
-}
-
-.nav-btn--primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
-}
-
-.nav-btn--primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
-}
-
-.nav-icon {
+.back-icon {
   width: 1rem;
   height: 1rem;
 }
 
-/* Custom Scrollbar (global for this view) */
-.content-center::-webkit-scrollbar,
-.sidebar-right::-webkit-scrollbar {
-  width: 6px;
-}
-
-.content-center::-webkit-scrollbar-track,
-.sidebar-right::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.content-center::-webkit-scrollbar-thumb,
-.sidebar-right::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-}
-
-.content-center::-webkit-scrollbar-thumb:hover,
-.sidebar-right::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Right Sidebar */
-.sidebar-right {
-  width: 20rem;
-  flex-shrink: 0;
-  background-color: var(--color-surface, #ffffff);
-  border-left: 1px solid var(--color-border, #e5e7eb);
-  overflow-y: auto;
-  overflow-x: hidden;
+.top-actions {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.completed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 0.375rem;
+}
+
+/* ─── Scrollable Worksheet Area ─── */
+.worksheet-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 0 3rem;
   scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
+}
+
+:root.dark .worksheet-scroll {
   scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
 }
 
-:root.dark .sidebar-right {
-  background-color: #111827;
-  border-left-color: rgba(255, 255, 255, 0.06);
+.worksheet-scroll::-webkit-scrollbar { width: 6px; }
+.worksheet-scroll::-webkit-scrollbar-track { background: transparent; }
+.worksheet-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
 }
 
-.sidebar-right-header {
-  padding: 0.625rem 0.75rem;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
-  flex-shrink: 0;
+:root.dark .worksheet-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-:root.dark .sidebar-right-header {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  border-bottom-color: rgba(255, 255, 255, 0.06);
-}
-
-.sidebar-right-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-primary, #6366f1);
-  margin: 0;
-}
-
-/* Completion Toast */
+/* ─── Completion Toast ─── */
 .completion-toast {
   position: fixed;
   bottom: 1.5rem;
@@ -599,26 +466,20 @@ onUnmounted(() => {
   z-index: 50;
 }
 
-.toast-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-}
+.toast-icon { width: 1.25rem; height: 1.25rem; }
 
-.toast-enter-active {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
+.toast-enter-active { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.toast-leave-active { transition: all 0.3s ease-in; }
+.toast-enter-from { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.9); }
+.toast-leave-to { opacity: 0; transform: translateX(-50%) translateY(-10px); }
 
-.toast-leave-active {
-  transition: all 0.3s ease-in;
-}
+/* ─── Print ─── */
+@media print {
+  .top-bar,
+  .completion-toast { display: none; }
 
-.toast-enter-from {
-  opacity: 0;
-  transform: translateX(-50%) translateY(20px) scale(0.9);
-}
-
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-10px);
+  .worksheet-layout { height: auto; }
+  .worksheet-scroll { overflow: visible; padding: 0; }
+  .lesson-player { background: #fff; }
 }
 </style>

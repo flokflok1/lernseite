@@ -173,7 +173,7 @@ class LMContentMapper:
             data = q.get('data', {})
             sub_problems = data.get('problems')
 
-            if sub_problems:
+            if sub_problems and len(sub_problems) > 1:
                 # Multi-problem: each sub-item has its own question text
                 for item in sub_problems:
                     problems.append({
@@ -183,11 +183,13 @@ class LMContentMapper:
                         **shared,
                     })
             else:
-                # Single-problem: question text lives at question level
+                # Single-problem: prefer original question_text (PDF-faithful)
+                # over the simplified sub-problem text
+                item = sub_problems[0] if sub_problems else data
                 problems.append({
-                    'question': q.get('question_text', ''),
-                    'answer': _extract_correct_answer(data),
-                    'hint': data.get('hint', ''),
+                    'question': q.get('question_text', '') or item.get('question', ''),
+                    'answer': _extract_correct_answer(item),
+                    'hint': item.get('hint', ''),
                     **shared,
                 })
 
@@ -222,7 +224,7 @@ class LMContentMapper:
                 or data.get('problems')
             )
 
-            if sub_items:
+            if sub_items and len(sub_items) > 1:
                 # Multi-item: each sub-item has its own question text
                 for item in sub_items:
                     q_text = item.get('question') or item.get('text', '')
@@ -236,14 +238,15 @@ class LMContentMapper:
                         'source_question_id': q.get('question_id', ''),
                     })
             else:
-                # Single-item: question text at question level
-                q_text = q.get('question_text', '')
+                # Single-item: prefer original question_text (PDF-faithful)
+                item = sub_items[0] if sub_items else data
+                q_text = q.get('question_text', '') or item.get('question', item.get('text', ''))
                 if not q_text:
                     continue
                 tasks.append({
                     'question': q_text,
                     'points': q.get('points', 0),
-                    'solution': data.get('solution', data.get('answer', _extract_correct_answer(data))),
+                    'solution': item.get('solution', item.get('answer', _extract_correct_answer(item))),
                     'question_type': qt,
                     'source_question_id': q.get('question_id', ''),
                 })

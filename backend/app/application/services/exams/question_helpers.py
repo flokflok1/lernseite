@@ -201,9 +201,10 @@ def group_questions_by_scenario(questions: List[Dict]) -> List[tuple]:
 # Anlage (appendix) extraction from raw PDF text
 # ---------------------------------------------------------------------------
 
-# Matches headers like "Anlage 1 zu IT 1.3", "Anlage 2: zu Aufgabe 1", etc.
+# Matches Anlage headers: "Anlage 1", "Anlage 2: zu IT 1.3", "Anlage 3" etc.
+# Standalone line starting with "Anlage N" (with optional suffix).
 _ANLAGE_HEADER_RE = re.compile(
-    r'(?:^|\n)\s*(Anlage\s*(\d+)\s*[:\s]*(?:zu|Vorgabeblatt)[^\n]*)',
+    r'(?:^|\n)\s*(Anlage\s*(\d+)[^\n]*)',
     re.IGNORECASE,
 )
 

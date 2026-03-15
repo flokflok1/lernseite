@@ -1,2 +1,7 @@
 export { useExamArchiveTree } from './useExamArchiveTree'
 export type { GroupLevel, TreeNode, SessionLeaf } from './useExamArchiveTree'
+export { useFileExplorer } from './useFileExplorer'
+export { useContextMenu } from './useContextMenu'
+export type { ContextMenuTarget } from './useContextMenu'
+export { useDragDrop } from './useDragDrop'
+export type { DragItem } from './useDragDrop'

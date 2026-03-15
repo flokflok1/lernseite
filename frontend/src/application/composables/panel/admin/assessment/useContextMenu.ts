@@ -12,7 +12,7 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 // ---------------------------------------------------------------------------
 
 export interface ContextMenuTarget {
-  type: 'folder' | 'file' | 'background'
+  type: 'folder' | 'file' | 'background' | 'program'
   id: string | null
   data: unknown
 }

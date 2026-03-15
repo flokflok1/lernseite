@@ -18,6 +18,7 @@ const emit = defineEmits<{
   selectProgram: [programId: number]
   selectFolder: [folderId: string]
   createFolder: [name: string, parentId?: string]
+  programContextmenu: [event: MouseEvent, program: ExamProgram]
   contextmenu: [event: MouseEvent, folder: ArchiveFolder]
   dragstart: [event: DragEvent, folder: ArchiveFolder]
   dragover: [event: DragEvent, folderId: string]
@@ -73,6 +74,7 @@ function cancelCreate() {
             'hover:bg-gray-700/50': currentProgramId !== prog.program_id,
           }"
           @click="emit('selectProgram', prog.program_id)"
+          @contextmenu.prevent.stop="emit('programContextmenu', $event, prog)"
         >
           <span
             class="w-3.5 text-[10px] text-gray-400 flex-shrink-0 text-center"

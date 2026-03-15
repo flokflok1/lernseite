@@ -26,7 +26,7 @@ const dragDrop = useDragDrop((item, targetFolderId) => {
 })
 
 // ── Context Menu Actions ──
-function handleContextAction(action: string) {
+async function handleContextAction(action: string) {
   const target = ctxMenu.target.value
   if (!target) return
   ctxMenu.hide()
@@ -40,11 +40,29 @@ function handleContextAction(action: string) {
         const name = prompt(t('panel.examArchive.contextMenu.rename'))
         if (name) explorer.handleRenameFolder(target.id, name)
       }
+      if (target.type === 'program' && target.data) {
+        const prog = target.data as any
+        const name = prompt(t('panel.examArchive.contextMenu.rename'), prog.display_name?.de || '')
+        if (name) {
+          const { updateProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
+          await updateProgram(target.id!, { display_name: { de: name, en: name } })
+          explorer.loadPrograms()
+        }
+      }
       break
     case 'newSubfolder':
     case 'newFolder':
       const folderName = prompt(t('panel.examArchive.newFolder'))
       if (folderName) explorer.handleCreateFolder(folderName, target.id || undefined)
+      break
+    case 'deleteProgram':
+      if (target.type === 'program' && target.id) {
+        if (confirm(t('panel.examArchive.confirmDelete'))) {
+          const { deleteProgram } = await import('@/infrastructure/api/clients/panel/admin/exams/folders.api')
+          await deleteProgram(target.id)
+          explorer.loadPrograms()
+        }
+      }
       break
     case 'delete':
       if (target.type === 'folder' && target.id) {
@@ -73,6 +91,10 @@ onMounted(() => document.addEventListener('keydown', onKeydown))
 onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 
 // ── Sidebar event handlers ──
+function onProgramContextMenu(event: MouseEvent, program: any) {
+  ctxMenu.show(event, { type: 'program', id: String(program.program_id), data: program })
+}
+
 function onFolderContextMenu(event: MouseEvent, folder: ArchiveFolder) {
   ctxMenu.show(event, { type: 'folder', id: String(folder.folder_id), data: folder })
 }
@@ -148,6 +170,7 @@ function onOpenFile(examId: string) {
         @select-program="explorer.selectProgram"
         @select-folder="explorer.navigateToFolder"
         @create-folder="(name) => explorer.handleCreateFolder(name)"
+        @program-contextmenu="onProgramContextMenu"
         @contextmenu="onFolderContextMenu"
         @dragstart="(ev, f) => dragDrop.onDragStart(ev, 'folder', String(f.folder_id))"
         @dragover="dragDrop.onDragOver"

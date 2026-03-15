@@ -107,3 +107,17 @@ export function moveFileToFolder(examId: string, folderId: string) {
     folder_id: folderId
   })
 }
+
+// ── Program CRUD ──
+
+export function createProgram(params: { name: string; icon?: string; program_type?: string }) {
+  return http.post<ExamProgram>(`${BASE}/programs`, params)
+}
+
+export function updateProgram(programId: string, params: { display_name?: Record<string, string>; icon?: string }) {
+  return http.patch<ExamProgram>(`${BASE}/programs/${programId}`, params)
+}
+
+export function deleteProgram(programId: string) {
+  return http.delete<{ deleted: boolean }>(`${BASE}/programs/${programId}`)
+}

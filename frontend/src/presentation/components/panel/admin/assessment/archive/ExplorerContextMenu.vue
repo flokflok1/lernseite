@@ -99,6 +99,28 @@ function act(action: string) {
         </button>
       </template>
 
+      <!-- Program actions -->
+      <template v-if="target.type === 'program'">
+        <button class="ctx-item" @click="act('open')">
+          <span class="ctx-icon">📂</span>
+          {{ t('panel.examArchive.contextMenu.open') }}
+        </button>
+        <button class="ctx-item" @click="act('rename')">
+          <span class="ctx-icon">✏️</span>
+          {{ t('panel.examArchive.contextMenu.rename') }}
+        </button>
+        <div class="ctx-divider" />
+        <button class="ctx-item" @click="act('newFolder')">
+          <span class="ctx-icon">📁</span>
+          {{ t('panel.examArchive.contextMenu.newSubfolder') }}
+        </button>
+        <div class="ctx-divider" />
+        <button class="ctx-item text-red-400" @click="act('deleteProgram')">
+          <span class="ctx-icon">🗑</span>
+          {{ t('panel.examArchive.contextMenu.delete') }}
+        </button>
+      </template>
+
       <!-- Background actions -->
       <template v-if="target.type === 'background'">
         <button class="ctx-item" @click="act('newFolder')">

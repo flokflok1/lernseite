@@ -278,8 +278,17 @@ def _fetch_chapter_questions(question_ids: List[str]) -> List[Dict]:
 
 
 def _enrich_questions_with_anlagen(questions: List[Dict]) -> List[Dict]:
-    """Append Anlage content from exam raw_text to each question's scenario."""
-    # Group questions by exam_id to avoid re-parsing the same exam
+    """Append Anlage content from exam raw_text to scenario_text.
+
+    Strategy: For each scenario, collect ALL Anlage references from
+    any question in that scenario. Then append those Anlagen to ALL
+    questions in the scenario — because if one question references
+    "Anlage 1 und 2", sibling questions in the same scenario likely
+    need that data too.
+    """
+    from app.application.services.exams.question_helpers import (
+        find_anlage_references,
+    )
     exam_ids = {q.get('exam_id') for q in questions if q.get('exam_id')}
     if not exam_ids:
         return questions
@@ -292,15 +301,28 @@ def _enrich_questions_with_anlagen(questions: List[Dict]) -> List[Dict]:
         if raw:
             anlagen_cache[str(eid)] = extract_anlagen_from_raw_text(raw)
 
+    # Collect Anlage refs per scenario (across all questions)
+    scenario_refs: Dict[str, set] = {}
+    for q in questions:
+        key = (q.get('scenario_title') or '') + '|' + str(q.get('exam_id', ''))
+        refs = find_anlage_references(q.get('question_text', ''))
+        scenario_refs.setdefault(key, set()).update(refs)
+
     enriched_count = 0
     for q in questions:
         eid = str(q.get('exam_id', ''))
         anlagen = anlagen_cache.get(eid, {})
         if not anlagen:
             continue
+        key = (q.get('scenario_title') or '') + '|' + eid
+        all_refs = scenario_refs.get(key, set())
+        if not all_refs:
+            continue
+        # Build combined text from all scenario-level Anlage refs
         original = q.get('scenario_text', '') or ''
+        combined_text = ' '.join(f'Anlage {r}' for r in sorted(all_refs))
         q['scenario_text'] = enrich_scenario_with_anlagen(
-            original, q.get('question_text', ''), anlagen,
+            original, combined_text, anlagen,
         )
         if q['scenario_text'] != original:
             enriched_count += 1

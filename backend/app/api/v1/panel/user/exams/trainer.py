@@ -424,3 +424,34 @@ def get_attempt_history():
         return jsonify({
             'success': False, 'error': 'Failed to load history'
         }), 500
+
+
+@trainer_bp.route('/exams/<exam_id>/anlagen', methods=['GET'])
+@token_required
+def get_exam_anlagen(exam_id: str):
+    """Extract and return structured Anlagen for an exam.
+
+    Parses exam raw_text to find Anlage sections, classifies each
+    (offer, api_reference, info_document, generic), and returns
+    structured data for the frontend AnlageViewer.
+
+    Response 200:
+        {anlagen: [{number, title, type, raw_text, data}]}
+    """
+    try:
+        exam = ExamRepository.find_by_id(exam_id)
+        if not exam:
+            return jsonify({
+                'success': False, 'error': 'Exam not found'
+            }), 404
+
+        from app.application.services.exams.anlage_extractor import (
+            extract_anlagen,
+        )
+        anlagen = extract_anlagen(exam.get('raw_text', ''))
+        return jsonify({'success': True, 'anlagen': anlagen}), 200
+    except Exception:
+        logger.exception("Failed to extract Anlagen for exam %s", exam_id)
+        return jsonify({
+            'success': False, 'error': 'Failed to extract Anlagen'
+        }), 500

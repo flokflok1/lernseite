@@ -283,6 +283,13 @@
       "resultDetails": "{score} z {total} punktów · {count} pytań ukończonych",
       "retry": "Spróbuj ponownie"
     },
+    "anlagen": {
+      "offer": "Oferta",
+      "offerNr": "Nr oferty:",
+      "customerNr": "Nr klienta:",
+      "function": "Funkcja",
+      "description": "Opis"
+    },
     "review": {
       "title": "Przegląd pytań",
       "subtitle": "{correct}/{total} poprawnych · {earned}/{max} punktów",

@@ -5,7 +5,7 @@ import SimulationSidebar from './SimulationSidebar.vue'
 import SimulationResults from './SimulationResults.vue'
 import QuestionCard from './QuestionCard.vue'
 import Modal from '@/presentation/components/shared/ui/Modal.vue'
-import type { TrainerExam, TrainerQuestion, AnswerResult } from '@/infrastructure/api/clients/panel/user/exams'
+import type { TrainerExam, TrainerQuestion, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 import {
   trainerSubmitAnswer,
   trainerCompleteAttempt,
@@ -15,6 +15,7 @@ interface Props {
   exam: TrainerExam
   questions: TrainerQuestion[]
   attemptId: string
+  anlagen?: Anlage[]
 }
 
 const props = defineProps<Props>()
@@ -264,6 +265,7 @@ onUnmounted(() => {
             :question="currentQuestion"
             :question-index="currentIndex"
             :total-questions="questions.length"
+            :anlagen="anlagen || []"
             @submit="handleSubmitAnswer"
             @next="handleNextQuestion"
           />

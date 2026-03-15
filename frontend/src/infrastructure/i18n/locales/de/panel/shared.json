@@ -283,6 +283,13 @@
       "resultDetails": "{score} von {total} Punkten · {count} Aufgaben bearbeitet",
       "retry": "Nochmal versuchen"
     },
+    "anlagen": {
+      "offer": "Angebot",
+      "offerNr": "Angebots-Nr.:",
+      "customerNr": "Kunden-Nr.:",
+      "function": "Funktion",
+      "description": "Beschreibung"
+    },
     "review": {
       "title": "Aufgaben-Review",
       "subtitle": "{correct}/{total} richtig · {earned}/{max} Punkte",

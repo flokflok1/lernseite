@@ -201,17 +201,66 @@ def group_questions_by_scenario(questions: List[Dict]) -> List[tuple]:
 # Anlage (appendix) extraction from raw PDF text
 # ---------------------------------------------------------------------------
 
-# Regex to strip PDF layout artifacts (long underscores, dashes, pipes)
-_PDF_ARTIFACT_RE = re.compile(r'[_\-─═]{10,}')
+# Lines that are only underscores/dashes (no pipes = not a table separator)
+_DECORATIVE_LINE_RE = re.compile(r'^[\s_\-─═]+$', re.MULTILINE)
 # Collapse runs of 3+ blank lines to 2
 _MULTI_BLANK_RE = re.compile(r'\n{4,}')
+# Detect pipe-separated table row (at least 2 pipes)
+_PIPE_TABLE_RE = re.compile(r'^.+\|.+\|', re.MULTILINE)
 
 
 def _clean_pdf_artifacts(text: str) -> str:
-    """Remove PDF layout artifacts from extracted text."""
-    text = _PDF_ARTIFACT_RE.sub('', text)
+    """Clean PDF text: remove decorative lines, format tables as markdown."""
+    # Remove purely decorative lines (only underscores/dashes, no content)
+    text = _DECORATIVE_LINE_RE.sub('', text)
     text = _MULTI_BLANK_RE.sub('\n\n', text)
+    # Format pipe-separated tables as proper markdown
+    text = _format_pipe_tables(text)
     return text.strip()
+
+
+def _format_pipe_tables(text: str) -> str:
+    """Ensure pipe-separated lines become valid markdown tables.
+
+    Groups consecutive pipe-separated lines into table blocks,
+    inserts a separator row after the header if missing.
+    """
+    lines = text.split('\n')
+    result: List[str] = []
+    table_block: List[str] = []
+
+    def _flush_table():
+        if not table_block:
+            return
+        # Check if second line is already a separator (---|---)
+        has_sep = (
+            len(table_block) > 1
+            and all(c in '-| :' for c in table_block[1].strip())
+        )
+        result.append(table_block[0])  # header
+        if has_sep:
+            # Keep existing separator, output remaining rows
+            for row in table_block[1:]:
+                result.append(row)
+        else:
+            # Insert separator after header, then data rows
+            cols = len(table_block[0].split('|'))
+            result.append('| ' + ' | '.join(['---'] * cols) + ' |')
+            for row in table_block[1:]:
+                result.append(row)
+        table_block.clear()
+
+    for line in lines:
+        stripped = line.strip()
+        is_pipe_row = '|' in stripped and len(stripped.split('|')) >= 3
+        if is_pipe_row:
+            table_block.append(line)
+        else:
+            _flush_table()
+            result.append(line)
+
+    _flush_table()
+    return '\n'.join(result)
 
 
 # Matches Anlage headers: "Anlage 1", "Anlage 2: zu IT 1.3", "Anlage 3" etc.

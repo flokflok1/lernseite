@@ -30,13 +30,22 @@ const showAnlage = ref(false)
 const activeAnlage = ref<Anlage | null>(null)
 
 const referencedAnlagen = computed(() => {
-  const text = (props.question.question_text || '') + ' ' + (props.question.scenario_text || '')
+  // Check question_text + scenario_text + scenario_title for Anlage references
+  const text = [
+    props.question.question_text,
+    props.question.scenario_text,
+    props.question.scenario_title,
+  ].filter(Boolean).join(' ')
+
   const matches = text.match(/Anlage[n]?\s+(\d+(?:\s*(?:und|,|bis)\s*\d+)*)/gi) || []
   const numbers = new Set<number>()
   for (const m of matches) {
     for (const n of m.match(/\d+/g) || []) numbers.add(parseInt(n))
   }
-  return props.anlagen.filter(a => numbers.has(a.number))
+
+  const matched = props.anlagen.filter(a => numbers.has(a.number))
+  // If no specific refs found but anlagen exist, show all (exam-level appendices)
+  return matched.length > 0 ? matched : props.anlagen
 })
 
 const openAnlage = (number: number) => {

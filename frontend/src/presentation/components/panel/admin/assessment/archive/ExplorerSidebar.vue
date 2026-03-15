@@ -58,7 +58,6 @@ function cancelCreate() {
 <template>
   <aside
     class="w-[280px] bg-gray-900/60 border-r border-gray-700/50 overflow-y-auto flex-shrink-0 flex flex-col"
-    @contextmenu.prevent.self="emit('sidebarContextmenu', $event)"
   >
     <!-- Header -->
     <div class="flex items-center justify-between px-4 pt-3.5 pb-2">
@@ -133,7 +132,10 @@ function cancelCreate() {
       </div>
     </div>
 
-    <!-- Fill remaining space (clickable for context menu) -->
-    <div class="flex-1" />
+    <!-- Fill remaining space — right-click here for "Neues Programm" -->
+    <div
+      class="flex-1 min-h-[100px]"
+      @contextmenu.prevent="emit('sidebarContextmenu', $event)"
+    />
   </aside>
 </template>

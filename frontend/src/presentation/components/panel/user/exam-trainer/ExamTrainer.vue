@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n'
 import TopicHeatmap from './TopicHeatmap.vue'
 import QuestionCard from './QuestionCard.vue'
 import SimulationMode from './SimulationMode.vue'
+import ReviewMode from './ReviewMode.vue'
+import ProgressDashboard from './ProgressDashboard.vue'
 import type { TrainerExam, TrainerQuestion, TopicStat, AnswerResult } from '@/infrastructure/api/clients/panel/user/exams'
 import {
   trainerListExams,
@@ -17,7 +19,7 @@ import {
 
 const { t } = useI18n()
 
-type TabKey = 'exams' | 'simulations' | 'topics' | 'practice'
+type TabKey = 'exams' | 'simulations' | 'topics' | 'practice' | 'progress'
 
 const activeTab = ref<TabKey>('exams')
 const isLoading = ref(false)
@@ -42,6 +44,7 @@ const simulationActive = ref(false)
 const simulationExam = ref<TrainerExam | null>(null)
 
 const lastExamId = ref<string | null>(null)
+const reviewAttemptId = ref<string | null>(null)
 
 const currentQuestion = computed<TrainerQuestion | null>(() => {
   if (questions.value.length === 0) return null
@@ -57,6 +60,7 @@ const tabs = computed(() => {
     { key: 'exams', label: t('panel.examTrainer.tabs.exams') },
     { key: 'simulations', label: t('panel.examTrainer.tabs.simulations') },
     { key: 'topics', label: t('panel.examTrainer.tabs.topics') },
+    { key: 'progress', label: t('panel.examTrainer.tabs.progress') },
   ]
   if (questions.value.length > 0) {
     base.push({ key: 'practice', label: t('panel.examTrainer.tabs.practice') })
@@ -214,6 +218,7 @@ onMounted(() => {
     :attempt-id="attemptId"
     @exit="exitSimulation"
     @retry="startSimulation(simulationExam!)"
+    @review="(id: string) => { exitSimulation(); reviewAttemptId = id; activeTab = 'practice' }"
   />
 
   <div v-else>
@@ -371,6 +376,14 @@ onMounted(() => {
         <!-- Action Buttons -->
         <div class="max-w-md mx-auto space-y-3">
           <button
+            v-if="attemptId"
+            class="w-full py-3 bg-purple-600 text-white rounded-lg font-medium
+                   hover:bg-purple-700 transition-colors"
+            @click="reviewAttemptId = attemptId; activeTab = 'practice'"
+          >
+            {{ t('panel.examTrainer.review.viewReview') }}
+          </button>
+          <button
             v-if="lastExamId"
             class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium
                    hover:bg-blue-700 transition-colors"
@@ -388,6 +401,13 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- Review Mode -->
+      <ReviewMode
+        v-else-if="reviewAttemptId"
+        :attempt-id="reviewAttemptId"
+        @back="reviewAttemptId = null; backToOverview()"
+      />
+
       <!-- Active question -->
       <QuestionCard
         v-else-if="currentQuestion"
@@ -398,6 +418,11 @@ onMounted(() => {
         @submit="handleSubmitAnswer"
         @next="handleNextQuestion"
       />
+    </div>
+
+    <!-- Tab: Progress -->
+    <div v-else-if="activeTab === 'progress'">
+      <ProgressDashboard />
     </div>
   </div>
 </template>

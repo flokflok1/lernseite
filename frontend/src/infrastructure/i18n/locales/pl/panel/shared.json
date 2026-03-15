@@ -250,6 +250,7 @@
       "exams": "Egzaminy",
       "simulations": "Symulacje",
       "topics": "Tematy",
+      "progress": "Postęp",
       "practice": "Pytanie"
     },
     "simulations": {
@@ -281,6 +282,25 @@
       "confirmSubmit": "Złóż teraz",
       "resultDetails": "{score} z {total} punktów · {count} pytań ukończonych",
       "retry": "Spróbuj ponownie"
+    },
+    "review": {
+      "title": "Przegląd pytań",
+      "subtitle": "{correct}/{total} poprawnych · {earned}/{max} punktów",
+      "viewReview": "Zobacz odpowiedzi",
+      "yourAnswer": "Twoja odpowiedź",
+      "correctAnswer": "Prawidłowa odpowiedź",
+      "pts": "pkt",
+      "filterAll": "Wszystkie",
+      "filterCorrect": "Poprawne",
+      "filterWrong": "Błędne"
+    },
+    "progress": {
+      "noData": "Brak ukończonych prób",
+      "avgScore": "Średnia",
+      "passRate": "Zdawalność",
+      "trend": "Trend",
+      "chartTitle": "Historia wyników",
+      "historyTitle": "Ostatnie próby"
     },
     "selectExam": "Wybierz egzamin do ćwiczenia",
     "noExams": "Brak dostępnych egzaminów. Administrator musi najpierw zaimportować i przeanalizować egzaminy.",

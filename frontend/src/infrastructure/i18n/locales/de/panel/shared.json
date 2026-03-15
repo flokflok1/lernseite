@@ -250,6 +250,7 @@
       "exams": "Prüfungen",
       "simulations": "Simulationen",
       "topics": "Themen",
+      "progress": "Fortschritt",
       "practice": "Aufgabe"
     },
     "simulations": {
@@ -281,6 +282,25 @@
       "confirmSubmit": "Jetzt abgeben",
       "resultDetails": "{score} von {total} Punkten · {count} Aufgaben bearbeitet",
       "retry": "Nochmal versuchen"
+    },
+    "review": {
+      "title": "Aufgaben-Review",
+      "subtitle": "{correct}/{total} richtig · {earned}/{max} Punkte",
+      "viewReview": "Antworten anschauen",
+      "yourAnswer": "Deine Antwort",
+      "correctAnswer": "Richtige Antwort",
+      "pts": "Pkt",
+      "filterAll": "Alle",
+      "filterCorrect": "Richtig",
+      "filterWrong": "Falsch"
+    },
+    "progress": {
+      "noData": "Noch keine Versuche abgeschlossen",
+      "avgScore": "Durchschnitt",
+      "passRate": "Bestehensquote",
+      "trend": "Trend",
+      "chartTitle": "Score-Verlauf",
+      "historyTitle": "Letzte Versuche"
     },
     "selectExam": "Wähle eine Prüfung zum Üben",
     "noExams": "Keine Prüfungen verfügbar. Der Admin muss zuerst Prüfungen importieren und analysieren.",

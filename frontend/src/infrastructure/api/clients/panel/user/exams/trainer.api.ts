@@ -135,6 +135,53 @@ export const trainerPracticeSession = async (
   return response.data.questions
 }
 
+export interface ReviewQuestion {
+  question_id: string
+  question_text: string
+  question_type: string
+  question_number: string
+  scenario_title: string | null
+  scenario_text: string | null
+  topics: string[]
+  data: Record<string, unknown>
+  solution: Record<string, unknown> | null
+  user_answer: unknown
+  is_correct: boolean | null
+  points_earned: number
+  max_points: number
+  needs_review: boolean
+}
+
+export interface AttemptHistoryEntry {
+  attempt_id: string
+  exam_id: string
+  exam_title: string
+  score: number | null
+  total_points: number | null
+  percentage: number | null
+  passed: boolean | null
+  started_at: string
+  completed_at: string
+}
+
+export const trainerGetAttemptReview = async (
+  attemptId: string
+): Promise<ReviewQuestion[]> => {
+  const response = await http.get<{ success: boolean; questions: ReviewQuestion[] }>(
+    `/user/exams/trainer/attempt/${attemptId}/review`
+  )
+  return response.data.questions
+}
+
+export const trainerGetHistory = async (
+  limit: number = 20
+): Promise<AttemptHistoryEntry[]> => {
+  const response = await http.get<{ success: boolean; attempts: AttemptHistoryEntry[] }>(
+    `/user/exams/trainer/history?limit=${limit}`
+  )
+  return response.data.attempts
+}
+
 export const generatePracticeExam = async (params: {
   examType: string
   difficulty: string

@@ -22,6 +22,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   backToOverview: []
   retry: []
+  review: []
 }>()
 
 const { t } = useI18n()
@@ -107,6 +108,13 @@ const topicColor = (pct: number): string => {
         @click="emit('backToOverview')"
       >
         {{ t('panel.examTrainer.backToExams') }}
+      </button>
+      <button
+        class="px-5 py-2.5 rounded-lg font-medium text-sm bg-purple-600 text-white
+               hover:bg-purple-700 transition-colors"
+        @click="emit('review')"
+      >
+        {{ t('panel.examTrainer.review.viewReview') }}
       </button>
       <button
         class="px-5 py-2.5 rounded-lg font-medium text-sm bg-blue-600 text-white

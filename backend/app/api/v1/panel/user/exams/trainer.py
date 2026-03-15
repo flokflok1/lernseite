@@ -367,3 +367,60 @@ def practice_session():
         return jsonify({
             'success': False, 'error': 'Failed to create practice session'
         }), 500
+
+
+@trainer_bp.route('/attempt/<attempt_id>/review', methods=['GET'])
+@token_required
+def get_attempt_review(attempt_id: str):
+    """Get full review data for a completed attempt (with solutions).
+
+    Response 200:
+        {questions: [{question_id, question_text, user_answer,
+                      is_correct, solution, points_earned, max_points, ...}]}
+    """
+    try:
+        user = get_current_user()
+        attempt = ExamTrainerRepository.find_attempt(attempt_id)
+        if not attempt:
+            return jsonify({
+                'success': False, 'error': 'Attempt not found'
+            }), 404
+        if attempt['user_id'] != user['user_id']:
+            return jsonify({
+                'success': False, 'error': 'Not your attempt'
+            }), 403
+        if attempt.get('status') != 'completed':
+            return jsonify({
+                'success': False, 'error': 'Attempt not yet completed'
+            }), 400
+
+        review = ExamTrainerRepository.get_attempt_review(attempt_id)
+        return jsonify({'success': True, 'questions': review}), 200
+    except Exception:
+        logger.exception("Failed to get attempt review")
+        return jsonify({
+            'success': False, 'error': 'Failed to load review'
+        }), 500
+
+
+@trainer_bp.route('/history', methods=['GET'])
+@token_required
+def get_attempt_history():
+    """Get user's past attempt history for progress tracking.
+
+    Response 200:
+        {attempts: [{attempt_id, exam_title, score, percentage,
+                     passed, completed_at, ...}]}
+    """
+    try:
+        user = get_current_user()
+        limit = min(int(request.args.get('limit', 20)), 50)
+        attempts = ExamTrainerRepository.get_user_attempt_history(
+            str(user['user_id']), limit,
+        )
+        return jsonify({'success': True, 'attempts': attempts}), 200
+    except Exception:
+        logger.exception("Failed to get attempt history")
+        return jsonify({
+            'success': False, 'error': 'Failed to load history'
+        }), 500

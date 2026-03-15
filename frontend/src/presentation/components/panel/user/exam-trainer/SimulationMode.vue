@@ -22,6 +22,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   exit: []
   retry: []
+  review: [attemptId: string]
 }>()
 
 const { t } = useI18n()
@@ -284,6 +285,7 @@ onUnmounted(() => {
         :question-count="questions.length"
         @back-to-overview="emit('exit')"
         @retry="emit('retry')"
+        @review="emit('review', attemptId)"
       />
     </div>
 

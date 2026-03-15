@@ -429,6 +429,47 @@ class ExamTrainerRepository:
         )
 
 
+    @classmethod
+    def get_attempt_review(cls, attempt_id: str) -> List[Dict]:
+        """Get full review data for a completed attempt (includes solutions)."""
+        query = """
+            SELECT ea.question_id, ea.user_answer, ea.is_correct,
+                   ea.points_earned, ea.needs_review,
+                   eq.question_text, eq.question_type, eq.data,
+                   eq.solution, eq.points as max_points,
+                   eq.scenario_title, eq.scenario_text, eq.topics,
+                   eq.question_number
+            FROM assessments.exam_answers ea
+            JOIN assessments.exam_questions eq
+                ON ea.question_id = eq.question_id
+            WHERE ea.attempt_id = %s
+            ORDER BY eq.question_number, ea.answered_at
+        """
+        return fetch_all(query, (attempt_id,))
+
+    @classmethod
+    def get_user_attempt_history(
+        cls, user_id: str, limit: int = 20,
+    ) -> List[Dict]:
+        """Get past attempt summaries for progress tracking."""
+        query = """
+            SELECT a.attempt_id, a.exam_id, a.started_at,
+                   a.completed_at, a.status,
+                   r.score, r.total_points, r.percentage, r.passed,
+                   e.title as exam_title
+            FROM assessments.exam_attempts a
+            LEFT JOIN assessments.exam_results r
+                ON r.attempt_id = a.attempt_id
+            LEFT JOIN assessments.exams e
+                ON e.exam_id = a.exam_id
+            WHERE a.user_id = %s
+              AND a.status = 'completed'
+            ORDER BY a.completed_at DESC
+            LIMIT %s
+        """
+        return fetch_all(query, (user_id, limit))
+
+
 def _build_topic_filter(topic: Optional[str]):
     """Build SQL fragment + params for optional topic filtering."""
     if topic:

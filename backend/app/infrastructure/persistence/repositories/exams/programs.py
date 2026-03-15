@@ -85,6 +85,33 @@ class ExamProgramRepository:
         ))
 
     @staticmethod
+    def update(program_id: int, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Update a program's display fields."""
+        sets = []
+        params = []
+        if 'display_name' in data:
+            sets.append("display_name = %s")
+            params.append(json.dumps(data['display_name']))
+        if 'icon' in data:
+            sets.append("icon = %s")
+            params.append(data['icon'])
+        if 'provider' in data:
+            sets.append("provider = %s")
+            params.append(data['provider'])
+        if 'sort_order' in data:
+            sets.append("sort_order = %s")
+            params.append(data['sort_order'])
+        if not sets:
+            return None
+        params.append(program_id)
+        return fetch_one(f"""
+            UPDATE assessments.exam_programs
+            SET {', '.join(sets)}
+            WHERE program_id = %s
+            RETURNING *
+        """, tuple(params))
+
+    @staticmethod
     def delete(program_key: str) -> bool:
         """Delete a program by key."""
         execute_query(
@@ -92,3 +119,12 @@ class ExamProgramRepository:
             (program_key,),
         )
         return True
+
+    @staticmethod
+    def delete_by_id(program_id: int) -> bool:
+        """Delete a program by ID."""
+        result = fetch_one(
+            "DELETE FROM assessments.exam_programs WHERE program_id = %s RETURNING program_id",
+            (program_id,),
+        )
+        return result is not None

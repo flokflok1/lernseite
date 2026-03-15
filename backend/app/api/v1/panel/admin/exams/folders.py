@@ -9,6 +9,7 @@ import logging
 from flask import Blueprint, request, jsonify, g
 from app.api.middleware.auth import admin_required
 from app.application.services.exams.folder_service import FolderService
+from app.infrastructure.persistence.repositories.exams.programs import ExamProgramRepository
 
 logger = logging.getLogger(__name__)
 
@@ -131,3 +132,51 @@ def move_file():
         return jsonify({'error': 'exam_id required'}), 400
     FolderService.move_file_to_folder(exam_id, folder_id)
     return jsonify({'moved': True}), 200
+
+
+# ── Program CRUD ─────────────────────────────────────────
+
+@folders_bp.route('/programs', methods=['POST'])
+@admin_required
+def create_program():
+    """POST — Create a new exam program."""
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    if not name:
+        return jsonify({'error': 'Name is required'}), 400
+
+    import re
+    program_key = re.sub(r'[^a-z0-9_]', '_', name.lower().strip())
+
+    result = ExamProgramRepository.create({
+        'program_key': program_key,
+        'display_name': {'de': name, 'en': name},
+        'program_type': data.get('program_type', 'custom'),
+        'provider': data.get('provider'),
+        'icon': data.get('icon', '📁'),
+        'sort_order': data.get('sort_order', 99),
+    })
+    if not result:
+        return jsonify({'error': 'Failed to create program'}), 500
+    return jsonify(result), 201
+
+
+@folders_bp.route('/programs/<int:program_id>', methods=['PATCH'])
+@admin_required
+def update_program(program_id: int):
+    """PATCH — Update program (display_name, icon, provider)."""
+    data = request.get_json()
+    result = ExamProgramRepository.update(program_id, data)
+    if not result:
+        return jsonify({'error': 'Program not found'}), 404
+    return jsonify(result), 200
+
+
+@folders_bp.route('/programs/<int:program_id>', methods=['DELETE'])
+@admin_required
+def delete_program(program_id: int):
+    """DELETE — Delete a program and all its folders."""
+    deleted = ExamProgramRepository.delete_by_id(program_id)
+    if not deleted:
+        return jsonify({'error': 'Program not found'}), 404
+    return jsonify({'deleted': True}), 200

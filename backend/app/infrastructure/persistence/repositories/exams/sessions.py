@@ -148,10 +148,14 @@ class ExamSessionRepository:
     def find_type_display_name(
         exam_type_key: str,
     ) -> Optional[Dict[str, Any]]:
-        """Look up display_name for an exam type from registry."""
+        """Look up display_name for an exam type + its program name."""
         return fetch_one(
-            """SELECT display_name FROM assessments.exam_type_registry
-               WHERE exam_type = %s""",
+            """SELECT r.display_name,
+                      p.display_name AS program_display_name
+               FROM assessments.exam_type_registry r
+               LEFT JOIN assessments.exam_programs p
+                 ON p.program_id = r.program_id
+               WHERE r.exam_type = %s""",
             [exam_type_key],
         )
 

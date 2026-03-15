@@ -325,13 +325,36 @@ def _resolve_region_name(region: str, language: str = 'de', for_query: bool = Fa
 
 
 def _build_title(exam_type_key: str, region: str, language: str = 'de') -> str:
-    """Build a human-readable course title from DB display_name fields."""
+    """Build a human-readable course title from DB display_name fields.
+
+    Combines program name ("Fachinformatiker") + exam type ("AP1")
+    instead of just the generic exam type.
+    """
     type_row = ExamSessionRepository.find_type_display_name(exam_type_key)
+
+    # Resolve program name (e.g. "Fachinformatiker")
+    program_label = ''
+    if type_row and type_row.get('program_display_name'):
+        pdn = type_row['program_display_name']
+        program_label = pdn.get(language, pdn.get('de', '')) if isinstance(pdn, dict) else str(pdn)
+
+    # Resolve exam type name (e.g. "AP1 (gemeinsam)")
+    type_label = exam_type_key
     if type_row and type_row.get('display_name'):
         dn = type_row['display_name']
         type_label = dn.get(language, dn.get('de', exam_type_key)) if isinstance(dn, dict) else str(dn)
+
+    # Combine: "Fachinformatiker — AP1 (gemeinsam)"
+    if program_label:
+        title = f'{program_label} — {type_label}'
     else:
-        type_label = exam_type_key
-    return f'{type_label} — {_resolve_region_name(region, language)}'
+        title = type_label
+
+    # Only append region if it's specific (not "alle")
+    region_name = _resolve_region_name(region, language, for_query=True)
+    if region_name:
+        title = f'{title} ({region_name})'
+
+    return title
 
 

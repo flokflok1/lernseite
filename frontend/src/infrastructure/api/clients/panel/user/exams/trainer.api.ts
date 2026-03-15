@@ -114,6 +114,27 @@ export const trainerCompleteAttempt = async (attemptId: string): Promise<Attempt
   return response.data
 }
 
+export interface PracticeSessionParams {
+  examType: string
+  topic?: string
+  count?: number
+}
+
+export const trainerPracticeSession = async (
+  params: PracticeSessionParams
+): Promise<TrainerQuestion[]> => {
+  const response = await http.post<{
+    success: boolean
+    questions: TrainerQuestion[]
+    session_info: { total: number; topic: string | null }
+  }>('/user/exams/trainer/practice-session', {
+    exam_type: params.examType,
+    topic: params.topic,
+    count: params.count ?? 15,
+  })
+  return response.data.questions
+}
+
 export const generatePracticeExam = async (params: {
   examType: string
   difficulty: string

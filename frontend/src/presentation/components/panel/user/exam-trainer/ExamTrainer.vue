@@ -8,10 +8,10 @@ import {
   trainerListExams,
   trainerGetQuestions,
   trainerGetTopics,
-  trainerGetTopicQuestions,
   trainerSubmitAnswer,
   trainerStartExam,
   trainerCompleteAttempt,
+  trainerPracticeSession,
   generatePracticeExam,
 } from '@/infrastructure/api/clients/panel/user/exams'
 
@@ -128,7 +128,11 @@ const startTopicPractice = async (topic: string) => {
   isLoading.value = true
   error.value = null
   try {
-    const qs = await trainerGetTopicQuestions(topic)
+    const qs = await trainerPracticeSession({
+      examType: 'real',
+      topic,
+      count: 15,
+    })
     attemptId.value = null
     questions.value = qs
     currentQuestionIndex.value = 0

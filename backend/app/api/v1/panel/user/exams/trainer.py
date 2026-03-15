@@ -9,6 +9,7 @@ Endpoints:
 - POST /user/exam-trainer/submit-answer             — Submit and grade an answer
 - POST /user/exam-trainer/start-exam/<id>           — Start a timed attempt
 - POST /user/exam-trainer/complete-attempt/<id>     — Complete an attempt
+- POST /user/exam-trainer/practice-session          — Rotated practice session
 """
 
 import logging
@@ -311,4 +312,58 @@ def get_exam_cockpit():
         )
         return jsonify({
             'success': False, 'error': 'Failed to load cockpit data'
+        }), 500
+
+
+@trainer_bp.route('/practice-session', methods=['POST'])
+@token_required
+def practice_session():
+    """Create a rotated practice session with intelligent question selection.
+
+    Body:
+        {exam_type: str, topic?: str, count?: int (default 15)}
+
+    Uses rotation algorithm:
+    - ~40% never-seen questions
+    - ~30% weak questions (wrong answers)
+    - ~30% review questions (not seen in >7 days)
+
+    Response 200:
+        {questions: [...], session_info: {total, unseen, weak, review}}
+    """
+    try:
+        user = get_current_user()
+        data = request.get_json() or {}
+        exam_type = data.get('exam_type')
+        if not exam_type:
+            return jsonify({
+                'success': False, 'error': 'exam_type is required'
+            }), 400
+
+        topic = data.get('topic')
+        count = min(data.get('count', 15), 30)
+
+        from app.application.services.exams.rotation_service import (
+            RotationService,
+        )
+        questions = RotationService.build_practice_session(
+            user_id=str(user['user_id']),
+            exam_type=exam_type,
+            topic=topic,
+            count=count,
+        )
+        sanitized = strip_solutions(questions)
+
+        return jsonify({
+            'success': True,
+            'questions': sanitized,
+            'session_info': {
+                'total': len(sanitized),
+                'topic': topic,
+            },
+        }), 200
+    except Exception:
+        logger.exception("Failed to create practice session")
+        return jsonify({
+            'success': False, 'error': 'Failed to create practice session'
         }), 500

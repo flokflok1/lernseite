@@ -37,7 +37,7 @@ const VIEW_MODE_KEY = 'lsx:exam-archive:view-mode'
 export function useFileExplorer() {
   // ── State ──────────────────────────────────────────────────────────────
   const programs = ref<ExamProgram[]>([])
-  const currentProgramId = ref<string | null>(null)
+  const currentProgramId = ref<number | null>(null)
   const currentFolderId = ref<string | null>(null)
   const sidebarTree = ref<ArchiveFolder[]>([])
   const contents = ref<FolderContents | null>(null)
@@ -81,7 +81,7 @@ export function useFileExplorer() {
       const res = await fetchPrograms()
       programs.value = res.data
       if (programs.value.length > 0 && !currentProgramId.value) {
-        await selectProgram(String(programs.value[0].program_id))
+        await selectProgram(programs.value[0].program_id)
       }
     } catch (e) {
       error.value = 'Failed to load programs'
@@ -91,10 +91,10 @@ export function useFileExplorer() {
     }
   }
 
-  async function selectProgram(programId: string) {
+  async function selectProgram(programId: number | string) {
     loading.value = true
     error.value = null
-    currentProgramId.value = programId
+    currentProgramId.value = Number(programId)
     currentFolderId.value = null
     try {
       const [treeRes, contentsRes] = await Promise.all([

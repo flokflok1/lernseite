@@ -25,10 +25,12 @@ function act(action: string) {
   <Teleport to="body">
     <div
       v-if="visible && target"
+      data-context-menu
       class="fixed bg-gray-800 border border-gray-600/50 rounded-xl p-1.5 min-w-[210px]
              shadow-2xl shadow-black/40 z-[10000]"
       :style="{ left: `${position.x}px`, top: `${position.y}px` }"
       @click.stop
+      @mousedown.stop
     >
       <!-- Folder actions -->
       <template v-if="target.type === 'folder'">

@@ -45,7 +45,7 @@ const detail = computed(() => {
            hover:bg-gray-800/80 group"
     draggable="true"
     @click="emit('open', String(file.exam_id))"
-    @contextmenu.prevent="emit('contextmenu', $event, file)"
+    @contextmenu.prevent.stop="emit('contextmenu', $event, file)"
     @dragstart="emit('dragstart', $event, file)"
   >
     <span class="text-xl shrink-0">📄</span>

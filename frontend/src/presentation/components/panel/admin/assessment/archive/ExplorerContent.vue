@@ -34,7 +34,7 @@ const { t } = useI18n()
 <template>
   <div
     class="flex-1 overflow-y-auto p-5"
-    @contextmenu.prevent.self="emit('backgroundContextmenu', $event)"
+    @contextmenu.prevent="emit('backgroundContextmenu', $event)"
   >
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center h-40">

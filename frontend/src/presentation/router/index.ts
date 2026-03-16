@@ -115,6 +115,15 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
 
+  // Anlage standalone popout (opened via window.open from exam trainer)
+  {
+    path: '/exam-trainer/anlage/:examId/:anlageNumber',
+    name: 'AnlagePopout',
+    component: () => import('@/presentation/pages/panel/user/exam-trainer/AnlagePopoutPage.vue'),
+    meta: { requiresAuth: true, hideLayout: true },
+    props: true,
+  },
+
   // Exam Cockpit (personal exam dashboard)
   {
     path: '/exam-cockpit',

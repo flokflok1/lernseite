@@ -288,7 +288,19 @@
       "offerNr": "Angebots-Nr.:",
       "customerNr": "Kunden-Nr.:",
       "function": "Funktion",
-      "description": "Beschreibung"
+      "description": "Beschreibung",
+      "anlageNr": "Anlage {number}",
+      "tileWindows": "Nebeneinander",
+      "closeAll": "Alle schließen",
+      "popout": "In neuem Fenster öffnen"
+    },
+    "scratchPad": {
+      "title": "Rechenblatt",
+      "modeText": "Text",
+      "modeTable": "Tabelle",
+      "placeholder": "Notizen und Berechnungen hier eingeben...",
+      "tableHint": "Angebotsvergleich-Vorlage",
+      "reset": "Zurücksetzen"
     },
     "review": {
       "title": "Aufgaben-Review",

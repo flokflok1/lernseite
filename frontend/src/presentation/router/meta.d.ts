@@ -32,5 +32,8 @@ declare module 'vue-router' {
 
     /** Ignore setup wizard check (for setup routes) */
     ignoreSetupCheck?: boolean
+
+    /** Render page without layout wrapper (e.g. popout windows) */
+    hideLayout?: boolean
   }
 }

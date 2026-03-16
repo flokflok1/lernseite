@@ -288,7 +288,19 @@
       "offerNr": "Offer No.:",
       "customerNr": "Customer No.:",
       "function": "Function",
-      "description": "Description"
+      "description": "Description",
+      "anlageNr": "Appendix {number}",
+      "tileWindows": "Side by side",
+      "closeAll": "Close all",
+      "popout": "Open in new window"
+    },
+    "scratchPad": {
+      "title": "Scratch Pad",
+      "modeText": "Text",
+      "modeTable": "Table",
+      "placeholder": "Type notes and calculations here...",
+      "tableHint": "Offer comparison template",
+      "reset": "Reset"
     },
     "review": {
       "title": "Question Review",

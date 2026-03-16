@@ -50,6 +50,10 @@ const EditorManualWindow = defineAsyncComponent(() => import('@/presentation/pag
 const EditorAIEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/ai/unified/UnifiedAIEditorWindow.vue'))
 const ActivityEditorWindow = defineAsyncComponent(() => import('@/presentation/components/panel/editor/manual/activity-editors/ActivityEditorWindow.vue'))
 
+// Exam Trainer Windows
+const ExamAnlageWindow = defineAsyncComponent(() => import('@/presentation/components/panel/user/exam-trainer/anlagen/AnlagePanel.vue'))
+const ExamScratchPadWindow = defineAsyncComponent(() => import('@/presentation/components/panel/user/exam-trainer/ScratchPad.vue'))
+
 /**
  * Resolve window component based on type string.
  */
@@ -122,6 +126,10 @@ export function resolveWindowComponent(type: string) {
       return EditorAIEditorWindow
     case 'activity-editor':
       return ActivityEditorWindow
+    case 'exam-trainer-anlage':
+      return ExamAnlageWindow
+    case 'exam-trainer-scratchpad':
+      return ExamScratchPadWindow
     default:
       return {
         template: '<div class="p-4">{{ $t("common.unknown_window_type") }}</div>',

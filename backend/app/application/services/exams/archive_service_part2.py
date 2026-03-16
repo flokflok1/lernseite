@@ -1,11 +1,12 @@
 """
-ExamArchive Service - Text Extraction (Part 2)
+ExamArchive Service - Text Extraction & Vision Analysis (Part 2)
 
-Text extraction functions for PDF and image files.
+Text extraction and Vision AI analysis for PDF and image files.
 Split from archive_service.py for G01 compliance (<500 LOC).
 
-- PDF: Extracted via PDFService
+- PDF text: Extracted via PDFService (fallback)
 - Images (JPG/PNG): OCR via Vision-AI (provider from system config)
+- Vision pipeline: PDF pages → images → Vision AI → structured JSON
 """
 
 import os
@@ -55,15 +56,20 @@ def extract_pdf_text(filepath: str) -> Optional[str]:
         return None
 
 
-def resolve_vision_model() -> tuple:
+def resolve_vision_model(
+    provider: str | None = None, model: str | None = None,
+) -> tuple:
     """
     Resolve vision-capable AI provider and model from system config.
 
-    Fallback chain:
+    If caller provides both provider and model, those are used directly.
+    Otherwise falls back through:
     1. Default 'vision' category model from DB
     2. Default 'chat' category model (GPT-4o, Gemini Pro support vision)
     3. Hardcoded fallback: openai/gpt-4o
     """
+    if provider and model:
+        return (provider, model)
     try:
         from app.infrastructure.persistence.repositories.ai_models import (
             AIModelsRepository,
@@ -165,4 +171,170 @@ def extract_text_from_image(filepath: str) -> Optional[str]:
         logger.warning(
             "Vision OCR failed for %s: %s", filepath, e
         )
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Vision Pipeline: PDF → images → Vision AI → structured JSON
+# ---------------------------------------------------------------------------
+
+
+def convert_pdf_to_images(pdf_path: str, dpi: int = 200) -> list[str]:
+    """Convert PDF pages to base64-encoded PNG images for Vision AI.
+
+    Args:
+        pdf_path: Absolute path to PDF file
+        dpi: Resolution (200 = good quality/token balance)
+
+    Returns:
+        List of base64-encoded PNG strings (one per page)
+    """
+    from pdf2image import convert_from_path
+    import io
+
+    logger.info("Converting PDF to images: %s (dpi=%d)", pdf_path, dpi)
+    images = convert_from_path(pdf_path, dpi=dpi)
+    result = []
+    for img in images:
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+        result.append(b64)
+        buf.close()
+    logger.info("Converted %d pages to images", len(result))
+    return result
+
+
+def analyze_exam_with_vision(
+    page_images: list[str],
+    solution_text: str | None = None,
+    provider: str | None = None,
+    model: str | None = None,
+) -> dict | None:
+    """Analyze exam pages with Vision AI.
+
+    Sends all page images to a vision-capable model which extracts
+    complete scenarios, questions, tables, and Anlagen.
+
+    Args:
+        page_images: List of base64-encoded PNG images (one per page)
+        solution_text: Optional solution text for answer extraction
+        provider: AI provider (None = auto-resolve)
+        model: AI model (None = auto-resolve)
+
+    Returns:
+        Parsed dict with 'scenarios' and 'questions' keys, or None
+    """
+    if not page_images:
+        logger.warning("No page images provided for vision analysis")
+        return None
+
+    content = _build_vision_message_content(page_images, solution_text)
+    resolved_provider, resolved_model = resolve_vision_model(provider, model)
+
+    logger.info(
+        "Sending %d page images to Vision AI (%s/%s)",
+        len(page_images), resolved_provider, resolved_model,
+    )
+
+    from app.infrastructure.ai.adapter import AIAdapter
+    adapter = AIAdapter(provider=resolved_provider, model=resolved_model)
+
+    response = adapter.send_messages(
+        messages=[{"role": "user", "content": content}],
+        temperature=0.2,
+        max_tokens=16000,
+    )
+
+    output_text = response.get('output_text', '')
+    if not output_text:
+        logger.error("Vision AI returned empty response")
+        return None
+
+    return _parse_vision_response(output_text)
+
+
+def _build_vision_message_content(
+    page_images: list[str],
+    solution_text: str | None = None,
+) -> list[dict]:
+    """Build multi-part message content with text prompt and page images."""
+    content: list[dict] = [
+        {"type": "text", "text": _build_vision_prompt(solution_text)},
+    ]
+    for img_b64 in page_images:
+        content.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/png;base64,{img_b64}",
+                "detail": "high",
+            },
+        })
+    return content
+
+
+_VISION_PROMPT_BASE = (
+    "Du siehst die Seiten einer IHK-Abschlusspruefung als Bilder.\n"
+    "Extrahiere ALLE Informationen strukturiert als JSON.\n\n"
+    "WICHTIG:\n"
+    "- Erfasse JEDEN Szenario-Text VOLLSTAENDIG (keine Zusammenfassung)\n"
+    "- Erfasse ALLE Tabellen exakt mit allen Zahlen, Spalten und Zeilen\n"
+    "- Erfasse ALLE Anlagen mit VOLLSTAENDIGEM Inhalt\n"
+    "- Jede Teilaufgabe (1a, 1b, 2.1, 2.2, etc.) ist eine eigene Frage\n"
+    "- Punkte pro Aufgabe angeben\n\n"
+    "Antworte NUR mit validem JSON:\n"
+    '```json\n{{\n  "scenarios": [{{"number": 1, "title": "...", '
+    '"context": "...", "anlagen": [{{"name": "Anlage 1: ...", '
+    '"content": "..."}}]}}],\n  "questions": [{{"scenario_number": 1, '
+    '"question_number": "1a", "text": "...", "question_type": "essay", '
+    '"points": 5, "topics": ["netzwerk"], '
+    '"solution_text": "..."}}]\n}}\n```\n\n'
+    "question_type: mcq, essay, calculation, code, fill_blank, "
+    "case_study, ordering, matching\n\n"
+    "topics: projektmanagement, kalkulation, netzwerk, subnetting, "
+    "ipv4, routing, firewall, vpn, wlan, dhcp, sql, datenbanken, erm, "
+    "programmierung, python, java, html, json, xml, csv, it_sicherheit, "
+    "datenschutz, dsgvo, virtualisierung, cloud, backup, raid, hardware, "
+    "software, wirtschaft, vertragsrecht, arbeitsrecht, rechtsformen, "
+    "qualitaetsmanagement"
+)
+
+
+def _build_vision_prompt(solution_text: str | None = None) -> str:
+    """Build the Vision AI prompt for exam page analysis."""
+    if not solution_text:
+        return _VISION_PROMPT_BASE
+    return (
+        _VISION_PROMPT_BASE
+        + "\n\n--- LOESUNGSHINWEISE ---\n"
+        + solution_text
+        + "\n--- ENDE LOESUNGSHINWEISE ---\n\n"
+        "Nutze die Loesungshinweise um die Musterloesungen "
+        "den Aufgaben zuzuordnen."
+    )
+
+
+def _parse_vision_response(response: str) -> dict | None:
+    """Parse Vision AI JSON response."""
+    import json
+    import re
+
+    if not response:
+        return None
+
+    # Try to extract JSON from markdown code block
+    json_match = re.search(r'```json\s*(.*?)\s*```', response, re.DOTALL)
+    if json_match:
+        try:
+            return json.loads(json_match.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # Try to find JSON object directly
+    try:
+        start = response.index('{')
+        end = response.rindex('}') + 1
+        return json.loads(response[start:end])
+    except (ValueError, json.JSONDecodeError):
+        logger.error("Failed to parse Vision AI response as JSON")
         return None

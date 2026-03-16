@@ -400,54 +400,46 @@ class ExamTrainerRepository(ExamTrainerRotationMixin):
 
     @classmethod
     def find_programs(cls, user_id: int) -> List[Dict]:
-        """Find exam training programs (courses with learning chapters).
+        """Find exam training programs from exam data (not courses).
 
-        Args:
-            user_id: Current user's ID for progress stats
-
-        Returns:
-            List of course records with question pool stats and chapter count
+        Groups published exams by profession to build programs.
+        Independent of course existence.
         """
         query = """
             SELECT
-                c.course_id, c.title, c.description,
-                (SELECT count(*)
-                 FROM assessments.exam_questions eq
-                 JOIN assessments.exams e ON e.exam_id = eq.exam_id
-                 WHERE e.analysis_status = 'ready' AND e.published = true
-                ) AS total_questions,
+                COALESCE(e.profession, 'GENERAL') AS program_id,
+                CASE e.profession
+                    WHEN 'FISI' THEN 'Fachinformatiker Systemintegration — AP1'
+                    WHEN 'FIAE' THEN 'Fachinformatiker Anwendungsentwicklung — AP1'
+                    ELSE COALESCE(e.profession, 'Allgemein')
+                END AS title,
+                count(DISTINCT eq.question_id) AS total_questions,
+                count(DISTINCT e.exam_id) AS exam_count,
                 (SELECT count(*) FROM assessments.user_question_stats
                  WHERE user_id = %s) AS seen_questions,
                 (SELECT count(*) FROM assessments.user_question_stats
                  WHERE user_id = %s AND times_correct > 0
                  AND times_correct::float / GREATEST(times_seen, 1) >= 0.5
-                ) AS mastered_questions,
-                (SELECT count(*) FROM courses.chapters ch
-                 WHERE ch.course_id = c.course_id AND ch.chapter_type = 'learning'
-                ) AS chapter_count
-            FROM courses.courses c
-            WHERE EXISTS (
-                SELECT 1 FROM courses.chapters ch
-                WHERE ch.course_id = c.course_id AND ch.chapter_type = 'learning'
-            )
-            ORDER BY c.title
+                ) AS mastered_questions
+            FROM assessments.exams e
+            JOIN assessments.exam_questions eq ON eq.exam_id = e.exam_id
+            WHERE e.analysis_status = 'ready' AND e.published = true
+            GROUP BY e.profession
+            ORDER BY count(DISTINCT eq.question_id) DESC
         """
         return fetch_all(query, (user_id, user_id))
 
     @classmethod
-    def find_course_chapters(cls, course_id: str) -> List[Dict]:
-        """Get learning chapters for a course (used as topic categories).
-
-        Args:
-            course_id: Course UUID
-
-        Returns:
-            List of chapter records ordered by order_index
-        """
+    def find_exam_topics(cls) -> List[Dict]:
+        """Get distinct topics from exam questions as topic categories."""
         query = """
-            SELECT ch.chapter_id, ch.title, ch.order_index
-            FROM courses.chapters ch
-            WHERE ch.course_id = %s AND ch.chapter_type = 'learning'
-            ORDER BY ch.order_index
+            SELECT DISTINCT unnest(eq.topics) AS title,
+                   count(*) AS question_count
+            FROM assessments.exam_questions eq
+            JOIN assessments.exams e ON e.exam_id = eq.exam_id
+            WHERE e.analysis_status = 'ready'
+            GROUP BY unnest(eq.topics)
+            ORDER BY count(*) DESC
+            LIMIT 20
         """
-        return fetch_all(query, (course_id,))
+        return fetch_all(query)

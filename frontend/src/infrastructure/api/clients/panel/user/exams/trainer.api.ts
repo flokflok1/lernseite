@@ -198,13 +198,12 @@ export const trainerGetAnlagen = async (examId: string): Promise<Anlage[]> => {
 }
 
 export interface TrainerProgram {
-  course_id: string
+  program_id: string
   title: string
-  description: string | null
   total_questions: number
+  exam_count: number
   seen_questions: number
   mastered_questions: number
-  chapter_count: number
 }
 
 /** Dashboard response from GET /dashboard */

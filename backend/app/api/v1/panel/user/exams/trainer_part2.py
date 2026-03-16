@@ -253,18 +253,15 @@ def register_advanced_routes(bp):
                 user_id, limit=5,
             )
 
-            course_id = request.args.get('course_id')
-            chapters = (
-                ExamTrainerRepository.find_course_chapters(course_id)
-                if course_id else []
-            )
+            # Top topics from exam questions (no course dependency)
+            exam_topics = ExamTrainerRepository.find_exam_topics()
 
             return jsonify({
                 'success': True,
                 'pool': pool_stats,
                 'topics': topics,
                 'recent_attempts': history,
-                'chapters': chapters,
+                'chapters': exam_topics,
             }), 200
         except Exception:
             logger.exception("Failed to load dashboard data")

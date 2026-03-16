@@ -64,7 +64,7 @@ const selectProgram = async (prog: TrainerProgram) => {
   selectedProgram.value = prog
   isLoading.value = true
   try {
-    dashboard.value = await trainerGetDashboard(prog.course_id)
+    dashboard.value = await trainerGetDashboard()
     view.value = 'dashboard'
   } finally {
     isLoading.value = false
@@ -167,7 +167,7 @@ const handleReviewBack = () => {
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
           v-for="prog in programs"
-          :key="prog.course_id"
+          :key="prog.program_id"
           class="p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]
                  hover:shadow-lg hover:border-blue-500/50 transition-all cursor-pointer"
           @click="selectProgram(prog)"
@@ -175,7 +175,7 @@ const handleReviewBack = () => {
           <h3 class="text-lg font-semibold text-[var(--color-text)] mb-2">{{ prog.title }}</h3>
           <div class="text-sm text-[var(--color-text-secondary)] space-y-1">
             <p>{{ t('panel.examTrainer.adaptive.questionsCount', { count: prog.total_questions }) }}</p>
-            <p>{{ prog.chapter_count }} {{ t('panel.examTrainer.adaptive.chapters') }}</p>
+            <p>{{ prog.exam_count }} {{ t('panel.examTrainer.simulations.title') }}</p>
           </div>
           <div class="mt-4">
             <div class="h-2 bg-[var(--color-background)] rounded-full overflow-hidden">

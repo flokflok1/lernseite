@@ -399,6 +399,65 @@ class ExamArchiveService:
         )
         return summary
 
+    @staticmethod
+    def import_images_as_exam(
+        files: list,
+        folder_id: Optional[str],
+        title: str,
+        user_id: str,
+    ) -> Optional[Dict[str, Any]]:
+        """Import uploaded images as a single exam for Vision AI analysis."""
+        import uuid as uuid_mod
+        from werkzeug.utils import secure_filename
+
+        exam_id = str(uuid_mod.uuid4())
+
+        # Storage directory for this exam's images
+        upload_dir = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__))
+            ))),
+            '..', 'AP 1', 'uploads', exam_id,
+        ))
+        os.makedirs(upload_dir, exist_ok=True)
+
+        saved = []
+        for i, f in enumerate(files):
+            ext = os.path.splitext(secure_filename(f.filename))[1].lower()
+            safe_name = f"page_{i + 1:03d}{ext}"
+            path = os.path.join(upload_dir, safe_name)
+            f.save(path)
+            saved.append(path)
+            logger.info("Saved upload: %s", path)
+
+        exam_data: Dict[str, Any] = {
+            'exam_id': exam_id,
+            'title': title or f'Import ({len(files)} Bilder)',
+            'exam_type': 'real',
+            'analysis_status': 'pending',
+            'published': False,
+            'pdf_path': upload_dir,
+            'duration_minutes': 90,
+        }
+        if folder_id:
+            exam_data['folder_id'] = folder_id
+
+        ExamRepository.create_exam(exam_data)
+        logger.info("Created exam %s with %d images", exam_id, len(saved))
+
+        # Queue Vision AI analysis (provider/model use infra defaults)
+        from app.infrastructure.tasks.exam_archive_tasks import (
+            analyze_exam_pdf_task,
+        )
+        analyze_exam_pdf_task.delay(exam_id)
+
+        return {
+            'exam_id': exam_id,
+            'title': exam_data['title'],
+            'page_count': len(saved),
+            'status': 'pending',
+        }
+
 
 def _build_identity_key(meta: Dict) -> str:
     """Build a key for matching task PDFs with their solutions."""

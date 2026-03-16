@@ -4,7 +4,7 @@ import os
 import logging
 from flask import Blueprint, jsonify, request
 
-from app.api.middleware.auth import admin_required
+from app.api.middleware.auth import admin_required, get_current_user
 from app.application.services.exams.archive_service import ExamArchiveService
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
 from app.infrastructure.persistence.repositories.exams.questions import (
@@ -57,25 +57,37 @@ def _get_exam_folder() -> str:
     return _DEFAULT_EXAM_FOLDER
 
 
+def _serialize_session_row(r: dict) -> dict:
+    """Serialize a session row for the API response."""
+    return {
+        'program_key': r['program_key'] or '_unknown',
+        'program_name': r['program_name'] or {},
+        'provider': r['provider'] or '',
+        'icon': r['icon'] or '',
+        'program_sort': r['program_sort'] or 0,
+        'region': r['region'] or 'alle',
+        'region_name': r['region_name'] or {},
+        'exam_type': r['exam_type'],
+        'type_display_name': r['type_display_name'] or {},
+        'type_sort': r['type_sort'] or 0,
+        'session_id': str(r['session_id']),
+        'year': r['year'],
+        'season': r['season'],
+        'exam_count': r['exam_count'] or 0,
+        'ready_count': r['ready_count'] or 0,
+        'total_questions': r['total_questions'] or 0,
+    }
+
+
 @archive_bp.route('/scan', methods=['GET'])
 @admin_required
 def scan_folder():
-    """
-    Scan the exam folder for PDFs and images without importing.
-
-    Returns list of found papers with parsed metadata.
-    Query param: ?folder=/path (optional, defaults to AP 1/)
-    """
+    """Scan the exam folder for PDFs and images without importing."""
     folder = _get_exam_folder()
-
     if not os.path.isdir(folder):
-        return jsonify({
-            'success': False,
-            'error': f'Folder not found: {folder}',
-        }), 404
+        return jsonify({'success': False, 'error': f'Folder not found: {folder}'}), 404
 
     papers = ExamArchiveService.scan_folder(folder)
-
     return jsonify({
         'success': True,
         'folder': folder,
@@ -96,22 +108,12 @@ def scan_folder():
 @archive_bp.route('/import', methods=['POST'])
 @admin_required
 def import_folder():
-    """
-    Scan and import all exam files from the exam folder into the DB.
-
-    Skips duplicates (by pdf_path). Extracts text from each PDF.
-    Query param: ?folder=/path (optional, defaults to AP 1/)
-    """
+    """Scan and import all exam files from the exam folder into the DB."""
     folder = _get_exam_folder()
-
     if not os.path.isdir(folder):
-        return jsonify({
-            'success': False,
-            'error': f'Folder not found: {folder}',
-        }), 404
+        return jsonify({'success': False, 'error': f'Folder not found: {folder}'}), 404
 
     summary = ExamArchiveService.import_folder(folder)
-
     return jsonify({
         'success': True,
         'folder': folder,
@@ -122,18 +124,10 @@ def import_folder():
 @archive_bp.route('/analyze/<exam_id>', methods=['POST'])
 @admin_required
 def analyze_exam(exam_id):
-    """
-    Queue AI analysis for a single exam.
-
-    Extracts scenarios and questions from the exam's raw_text.
-    Optional JSON body: {"provider": "openai", "model": "gpt-4o"}
-    """
+    """Queue AI analysis for a single exam."""
     exam = ExamRepository.find_by_id(exam_id)
     if not exam:
-        return jsonify({
-            'success': False,
-            'error': 'Exam not found',
-        }), 404
+        return jsonify({'success': False, 'error': 'Exam not found'}), 404
 
     # Allow caller to specify provider/model (G07: no hardcoding)
     body = request.get_json(silent=True) or {}
@@ -143,24 +137,16 @@ def analyze_exam(exam_id):
     task = analyze_exam_pdf_task.delay(
         exam_id, provider=provider, model=model
     )
-
     return jsonify({
-        'success': True,
-        'exam_id': exam_id,
-        'task_id': task.id,
-        'message': 'Analysis queued',
+        'success': True, 'exam_id': exam_id,
+        'task_id': task.id, 'message': 'Analysis queued',
     })
 
 
 @archive_bp.route('/analyze-all', methods=['POST'])
 @admin_required
 def analyze_all():
-    """
-    Queue AI analysis for all pending archive exams.
-
-    Only queues exams with analysis_status='pending'.
-    Optional JSON body: {"provider": "openai", "model": "gpt-4o"}
-    """
+    """Queue AI analysis for all pending archive exams."""
     body = request.get_json(silent=True) or {}
     provider = body.get('provider', 'openai')
     model = body.get('model', 'gpt-4o')
@@ -208,20 +194,12 @@ def list_archive_exams():
 @archive_bp.route('/<exam_id>/questions', methods=['GET'])
 @admin_required
 def get_exam_questions(exam_id):
-    """
-    Get all extracted questions for an archive exam.
-
-    Returns questions ordered by order_index.
-    """
+    """Get all extracted questions for an archive exam."""
     exam = ExamRepository.find_by_id(exam_id)
     if not exam:
-        return jsonify({
-            'success': False,
-            'error': 'Exam not found',
-        }), 404
+        return jsonify({'success': False, 'error': 'Exam not found'}), 404
 
     questions = ExamQuestionRepository.find_by_exam(exam_id)
-
     return jsonify({
         'success': True,
         'exam_id': exam_id,
@@ -242,38 +220,10 @@ def list_regions():
 @archive_bp.route('/sessions', methods=['GET'])
 @admin_required
 def list_sessions():
-    """Flat session rows for client-side tree building.
-
-    Returns all sessions with full metadata (program, region, exam_type,
-    year, season, counts). The frontend builds the tree hierarchy based
-    on user-configured group levels.
-    """
+    """Flat session rows for client-side tree building."""
     program_key = request.args.get('program_key')
     rows = ExamSessionRepository.find_sessions_grouped(program_key)
-
-    return jsonify({
-        'rows': [
-            {
-                'program_key': r['program_key'] or '_unknown',
-                'program_name': r['program_name'] or {},
-                'provider': r['provider'] or '',
-                'icon': r['icon'] or '',
-                'program_sort': r['program_sort'] or 0,
-                'region': r['region'] or 'alle',
-                'region_name': r['region_name'] or {},
-                'exam_type': r['exam_type'],
-                'type_display_name': r['type_display_name'] or {},
-                'type_sort': r['type_sort'] or 0,
-                'session_id': str(r['session_id']),
-                'year': r['year'],
-                'season': r['season'],
-                'exam_count': r['exam_count'] or 0,
-                'ready_count': r['ready_count'] or 0,
-                'total_questions': r['total_questions'] or 0,
-            }
-            for r in rows
-        ],
-    }), 200
+    return jsonify({'rows': [_serialize_session_row(r) for r in rows]}), 200
 
 
 @archive_bp.route('/sessions/<session_id>/exams', methods=['GET'])
@@ -311,13 +261,7 @@ def update_session_tags(session_id):
 @archive_bp.route('/<exam_id>/review', methods=['POST'])
 @admin_required
 def review_upload(exam_id):
-    """
-    Moderate a community upload: approve or reject.
-
-    JSON body: {"action": "approve"|"reject", "notes": "..."}
-    Approve -> analysis_status='pending' (enters AI pipeline)
-    Reject  -> analysis_status='rejected'
-    """
+    """Moderate a community upload: approve or reject."""
     data = request.get_json()
     if not data:
         return jsonify({'error': 'JSON body required'}), 400
@@ -355,10 +299,7 @@ def review_upload(exam_id):
 @archive_bp.route('/sessions', methods=['POST'])
 @admin_required
 def create_session():
-    """Create a new exam session (folder).
-
-    JSON body: {exam_type_key, year, season, region?}
-    """
+    """Create a new exam session (folder)."""
     data = request.get_json()
     if not data:
         return jsonify({'error': 'JSON body required'}), 400
@@ -472,6 +413,40 @@ def re_analyze_all():
 
     logger.info("Re-analysis queued for %d exams", count)
     return jsonify({'status': 'queued', 'count': count}), 200
+
+
+@archive_bp.route('/import-images', methods=['POST'])
+@admin_required
+def import_images():
+    """Import multiple images as a single exam for Vision AI analysis.
+
+    Accepts multipart form data with files[], optional folder_id and title.
+    """
+    user = get_current_user()
+    files = request.files.getlist('files[]')
+    folder_id = request.form.get('folder_id') or None
+    title = request.form.get('title', '')
+
+    if not files:
+        return jsonify({'error': 'No files provided'}), 400
+
+    allowed_ext = {'.jpg', '.jpeg', '.png', '.pdf'}
+    for f in files:
+        ext = os.path.splitext(f.filename)[1].lower()
+        if ext not in allowed_ext:
+            return jsonify({'error': f'Unsupported file type: {ext}'}), 400
+
+    result = ExamArchiveService.import_images_as_exam(
+        files=files,
+        folder_id=folder_id,
+        title=title,
+        user_id=str(user['user_id']),
+    )
+
+    if not result:
+        return jsonify({'error': 'Import failed'}), 500
+
+    return jsonify(result), 201
 
 
 @archive_bp.route('/exams/<exam_id>', methods=['DELETE'])

@@ -196,6 +196,9 @@
       "createError": "Create failed",
       "folderNotEmpty": "Folder has exams — remove them first"
     },
+    "uploadFiles": "Upload files",
+    "importImagesConfirm": "Import {count} images as one exam?",
+    "importingImages": "Importing...",
     "groupBy": {
       "title": "Grouping",
       "hint": "Adjust order and visibility of folder levels.",

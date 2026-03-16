@@ -288,7 +288,10 @@
       "offerNr": "Angebots-Nr.:",
       "customerNr": "Kunden-Nr.:",
       "function": "Funktion",
-      "description": "Beschreibung"
+      "description": "Beschreibung",
+      "anlageNr": "Anlage {number}",
+      "tileWindows": "Nebeneinander",
+      "closeAll": "Alle schließen"
     },
     "review": {
       "title": "Aufgaben-Review",

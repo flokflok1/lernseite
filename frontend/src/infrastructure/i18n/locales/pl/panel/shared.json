@@ -288,7 +288,10 @@
       "offerNr": "Nr oferty:",
       "customerNr": "Nr klienta:",
       "function": "Funkcja",
-      "description": "Opis"
+      "description": "Opis",
+      "anlageNr": "Załącznik {number}",
+      "tileWindows": "Obok siebie",
+      "closeAll": "Zamknij wszystkie"
     },
     "review": {
       "title": "Przegląd pytań",

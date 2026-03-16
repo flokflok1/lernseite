@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
-import { AnlageBadge, AnlageWindow } from './anlagen'
+import { AnlageBadge, AnlagePanel } from './anlagen'
 import type { TrainerQuestion, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {
@@ -25,12 +25,14 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// Anlage viewer state
-const showAnlage = ref(false)
-const activeAnlage = ref<Anlage | null>(null)
+// --- Multi-panel Anlage viewer ---
+interface PanelState { x: number; y: number; w: number; h: number; z: number }
+const openPanels = reactive(new Map<number, PanelState>())
+let nextZ = 1000
+
+const hasOpenPanels = computed(() => openPanels.size > 0)
 
 const referencedAnlagen = computed(() => {
-  // Check question_text + scenario_text + scenario_title for Anlage references
   const text = [
     props.question.question_text,
     props.question.scenario_text,
@@ -44,15 +46,47 @@ const referencedAnlagen = computed(() => {
   }
 
   const matched = props.anlagen.filter(a => numbers.has(a.number))
-  // If no specific refs found but anlagen exist, show all (exam-level appendices)
   return matched.length > 0 ? matched : props.anlagen
 })
 
 const openAnlage = (number: number) => {
-  activeAnlage.value = props.anlagen.find(a => a.number === number) || null
-  if (activeAnlage.value) showAnlage.value = true
+  if (openPanels.has(number)) {
+    // Focus existing panel
+    const state = openPanels.get(number)!
+    state.z = ++nextZ
+    return
+  }
+  const offset = openPanels.size * 40
+  openPanels.set(number, {
+    x: 120 + offset,
+    y: 60 + offset,
+    w: 640,
+    h: Math.min(560, window.innerHeight - 100),
+    z: ++nextZ,
+  })
 }
 
+const tileAnlagen = () => {
+  const count = openPanels.size
+  if (count === 0) return
+  const pad = 16
+  const availW = window.innerWidth - pad * 2
+  const panelW = Math.floor((availW - (count - 1) * pad) / count)
+  const panelH = Math.floor(window.innerHeight * 0.78)
+  let i = 0
+  for (const [, state] of openPanels) {
+    state.x = pad + i * (panelW + pad)
+    state.y = Math.floor(window.innerHeight * 0.08)
+    state.w = panelW
+    state.h = panelH
+    state.z = ++nextZ
+    i++
+  }
+}
+
+const closeAllPanels = () => { openPanels.clear() }
+
+// --- Question answer state ---
 const userAnswer = ref<unknown>('')
 const result = ref<AnswerResult | null>(null)
 const isSubmitting = ref(false)
@@ -87,7 +121,6 @@ const handleNext = () => {
   emit('next')
 }
 
-/** Called by parent to set the answer result */
 const setResult = (answerResult: AnswerResult) => {
   result.value = answerResult
   isSubmitting.value = false
@@ -121,8 +154,8 @@ defineExpose({ setResult })
       />
     </div>
 
-    <!-- Anlage Badges -->
-    <div v-if="referencedAnlagen.length > 0" class="flex flex-wrap gap-2 mb-4">
+    <!-- Anlage Badges + toolbar -->
+    <div v-if="referencedAnlagen.length > 0" class="flex flex-wrap items-center gap-2 mb-4">
       <AnlageBadge
         v-for="a in referencedAnlagen"
         :key="a.number"
@@ -130,13 +163,41 @@ defineExpose({ setResult })
         :title="a.title"
         @click="openAnlage"
       />
+      <!-- Panel toolbar (shown when panels are open) -->
+      <div v-if="hasOpenPanels" class="flex gap-1 ml-2">
+        <button
+          class="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-secondary)]
+                 hover:bg-[var(--color-surface-elevated)] transition-colors"
+          :title="t('panel.examTrainer.anlagen.tileWindows')"
+          @click="tileAnlagen"
+        >
+          <svg class="w-3.5 h-3.5 inline-block mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5z" />
+          </svg>
+          {{ t('panel.examTrainer.anlagen.tileWindows') }}
+        </button>
+        <button
+          class="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-secondary)]
+                 hover:bg-[var(--color-surface-elevated)] transition-colors"
+          @click="closeAllPanels"
+        >
+          {{ t('panel.examTrainer.anlagen.closeAll') }}
+        </button>
+      </div>
     </div>
 
-    <!-- Anlage Viewer Modal -->
-    <AnlageWindow
-      :show="showAnlage"
-      :anlage="activeAnlage"
-      @close="showAnlage = false"
+    <!-- Floating Anlage Panels -->
+    <AnlagePanel
+      v-for="[number, state] in openPanels"
+      :key="number"
+      :anlage="anlagen.find(a => a.number === number)!"
+      :x="state.x"
+      :y="state.y"
+      :width="state.w"
+      :height="state.h"
+      :z-index="state.z"
+      @focus="state.z = ++nextZ"
+      @close="openPanels.delete(number)"
     />
 
     <!-- Question text -->

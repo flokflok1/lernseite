@@ -288,7 +288,10 @@
       "offerNr": "Offer No.:",
       "customerNr": "Customer No.:",
       "function": "Function",
-      "description": "Description"
+      "description": "Description",
+      "anlageNr": "Appendix {number}",
+      "tileWindows": "Side by side",
+      "closeAll": "Close all"
     },
     "review": {
       "title": "Question Review",

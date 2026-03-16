@@ -365,7 +365,11 @@
       "adaptiveExam": "Adaptive Exam",
       "weakFirst": "Weaknesses first",
       "passed": "passed",
-      "failed": "failed"
+      "failed": "failed",
+      "programsSubtitle": "Choose your exam program",
+      "backToPrograms": "Back to program selection",
+      "chapters": "Topics",
+      "questionsCount": "{count} questions"
     }
   },
   "title": "Administration"

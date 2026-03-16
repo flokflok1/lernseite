@@ -365,7 +365,11 @@
       "adaptiveExam": "Egzamin adaptacyjny",
       "weakFirst": "Najpierw słabe strony",
       "passed": "zdany",
-      "failed": "niezdany"
+      "failed": "niezdany",
+      "programsSubtitle": "Wybierz program egzaminacyjny",
+      "backToPrograms": "Powrót do wyboru programu",
+      "chapters": "Tematy",
+      "questionsCount": "{count} pytań"
     }
   },
   "title": "Administracja"

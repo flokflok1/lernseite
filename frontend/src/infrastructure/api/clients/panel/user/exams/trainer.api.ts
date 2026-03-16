@@ -197,6 +197,16 @@ export const trainerGetAnlagen = async (examId: string): Promise<Anlage[]> => {
   return response.data.anlagen
 }
 
+export interface TrainerProgram {
+  course_id: string
+  title: string
+  description: string | null
+  total_questions: number
+  seen_questions: number
+  mastered_questions: number
+  chapter_count: number
+}
+
 /** Dashboard response from GET /dashboard */
 export interface TrainerDashboard {
   pool: {
@@ -205,6 +215,7 @@ export interface TrainerDashboard {
     mastered_questions: number
   }
   topics: TopicStat[]
+  chapters: Array<{ chapter_id: string; title: string; order_index: number }>
   recent_attempts: AttemptHistoryEntry[]
 }
 
@@ -232,10 +243,19 @@ export async function trainerGenerateExam(
   return response.data
 }
 
+/** Get available exam programs */
+export async function trainerGetPrograms(): Promise<TrainerProgram[]> {
+  const response = await http.get<{ success: boolean; programs: TrainerProgram[] }>(
+    '/user/exam-trainer/programs'
+  )
+  return response.data.programs
+}
+
 /** Get dashboard data (pool stats + topics + recent attempts) */
-export async function trainerGetDashboard(): Promise<TrainerDashboard> {
+export async function trainerGetDashboard(courseId?: string): Promise<TrainerDashboard> {
+  const params = courseId ? `?course_id=${courseId}` : ''
   const response = await http.get<{ success: boolean } & TrainerDashboard>(
-    '/user/exam-trainer/dashboard'
+    `/user/exam-trainer/dashboard${params}`
   )
   return response.data
 }

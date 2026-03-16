@@ -365,7 +365,11 @@
       "adaptiveExam": "Adaptive Prüfung",
       "weakFirst": "Schwächen zuerst",
       "passed": "bestanden",
-      "failed": "nicht bestanden"
+      "failed": "nicht bestanden",
+      "programsSubtitle": "Wähle dein Prüfungsprogramm",
+      "backToPrograms": "Zurück zur Programmauswahl",
+      "chapters": "Themen",
+      "questionsCount": "{count} Fragen"
     }
   },
   "title": "Administration"

@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import TopicHeatmap from './TopicHeatmap.vue'
 import SimulationMode from './SimulationMode.vue'
 import ReviewMode from './ReviewMode.vue'
-import type { TrainerQuestion, TrainerExam, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
+import type { TrainerQuestion, TrainerExam, Anlage, TrainerProgram } from '@/infrastructure/api/clients/panel/user/exams'
 import type { TrainerDashboard } from '@/infrastructure/api/clients/panel/user/exams'
 import {
   trainerGetDashboard,
+  trainerGetPrograms,
   trainerGenerateExam,
   trainerGetAnlagen,
 } from '@/infrastructure/api/clients/panel/user/exams'
 
 const { t } = useI18n()
 
-type View = 'dashboard' | 'simulation' | 'review'
-const view = ref<View>('dashboard')
+type View = 'programs' | 'dashboard' | 'simulation' | 'review'
+const view = ref<View>('programs')
 const dashboard = ref<TrainerDashboard | null>(null)
+const programs = ref<TrainerProgram[]>([])
+const selectedProgram = ref<TrainerProgram | null>(null)
 const isLoading = ref(false)
 const isGenerating = ref(false)
 
@@ -51,11 +53,22 @@ const poolProgress = computed(() => {
 onMounted(async () => {
   isLoading.value = true
   try {
-    dashboard.value = await trainerGetDashboard()
+    programs.value = await trainerGetPrograms()
   } finally {
     isLoading.value = false
   }
 })
+
+const selectProgram = async (prog: TrainerProgram) => {
+  selectedProgram.value = prog
+  isLoading.value = true
+  try {
+    dashboard.value = await trainerGetDashboard(prog.course_id)
+    view.value = 'dashboard'
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const startAdaptiveExam = async () => {
   isGenerating.value = true
@@ -85,8 +98,9 @@ const startAdaptiveExam = async () => {
 
 const handleSimulationExit = () => {
   view.value = 'dashboard'
-  // Refresh dashboard stats
-  trainerGetDashboard().then(d => { dashboard.value = d })
+  if (selectedProgram.value) {
+    trainerGetDashboard(selectedProgram.value.course_id).then(d => { dashboard.value = d })
+  }
 }
 
 const handleSimulationReview = (attemptId: string) => {
@@ -97,7 +111,9 @@ const handleSimulationReview = (attemptId: string) => {
 const handleReviewBack = () => {
   reviewAttemptId.value = null
   view.value = 'dashboard'
-  trainerGetDashboard().then(d => { dashboard.value = d })
+  if (selectedProgram.value) {
+    trainerGetDashboard(selectedProgram.value.course_id).then(d => { dashboard.value = d })
+  }
 }
 </script>
 
@@ -127,16 +143,63 @@ const handleReviewBack = () => {
       @back="handleReviewBack"
     />
 
-    <!-- DASHBOARD (default) -->
-    <div v-else-if="dashboard" class="space-y-8">
-      <!-- Header -->
+    <!-- PROGRAMS (entry) -->
+    <div v-else-if="view === 'programs'" class="space-y-6">
       <div>
         <h1 class="text-2xl font-bold text-[var(--color-text)]">
           {{ t('panel.examTrainer.adaptive.title') }}
         </h1>
         <p class="text-[var(--color-text-secondary)] mt-1">
-          {{ t('panel.examTrainer.adaptive.subtitle') }}
+          {{ t('panel.examTrainer.adaptive.programsSubtitle') }}
         </p>
+      </div>
+      <div v-if="programs.length === 0" class="text-center py-8 text-[var(--color-text-secondary)]">
+        {{ t('panel.examTrainer.adaptive.noHistory') }}
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          v-for="prog in programs"
+          :key="prog.course_id"
+          class="p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]
+                 hover:shadow-lg hover:border-blue-500/50 transition-all cursor-pointer"
+          @click="selectProgram(prog)"
+        >
+          <h3 class="text-lg font-semibold text-[var(--color-text)] mb-2">{{ prog.title }}</h3>
+          <div class="text-sm text-[var(--color-text-secondary)] space-y-1">
+            <p>{{ t('panel.examTrainer.adaptive.questionsCount', { count: prog.total_questions }) }}</p>
+            <p>{{ prog.chapter_count }} {{ t('panel.examTrainer.adaptive.chapters') }}</p>
+          </div>
+          <div class="mt-4">
+            <div class="h-2 bg-[var(--color-background)] rounded-full overflow-hidden">
+              <div
+                class="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full"
+                :style="{ width: (prog.total_questions > 0 ? Math.round(prog.mastered_questions / prog.total_questions * 100) : 0) + '%' }"
+              />
+            </div>
+            <div class="text-xs text-[var(--color-text-secondary)] mt-1">
+              {{ prog.mastered_questions }}/{{ prog.total_questions }} {{ t('panel.examTrainer.adaptive.masteredQuestions') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div v-else-if="view === 'dashboard' && dashboard" class="space-y-8">
+      <!-- Header -->
+      <div>
+        <button
+          class="text-sm text-blue-400 hover:text-blue-300 transition-colors mb-2 flex items-center gap-1"
+          @click="view = 'programs'"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          {{ t('panel.examTrainer.adaptive.backToPrograms') }}
+        </button>
+        <h1 class="text-2xl font-bold text-[var(--color-text)]">
+          {{ selectedProgram?.title || t('panel.examTrainer.adaptive.title') }}
+        </h1>
       </div>
 
       <!-- Stats Bar -->
@@ -205,12 +268,20 @@ const handleReviewBack = () => {
         </div>
       </button>
 
-      <!-- Topic Heatmap -->
-      <div>
+      <!-- Chapter Topics -->
+      <div v-if="dashboard.chapters && dashboard.chapters.length > 0">
         <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
           {{ t('panel.examTrainer.adaptive.topicsTitle') }}
         </h2>
-        <TopicHeatmap :topics="dashboard.topics" />
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div
+            v-for="ch in dashboard.chapters"
+            :key="ch.chapter_id"
+            class="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]"
+          >
+            <div class="text-sm font-medium text-[var(--color-text)]">{{ ch.title }}</div>
+          </div>
+        </div>
       </div>
 
       <!-- Recent Attempts -->

@@ -208,7 +208,11 @@
       "examType": "Exam Type",
       "year": "Year",
       "season": "Season"
-    }
+    },
+    "analysisStatus": "Analysis Progress",
+    "statusAnalyzing": "analyzing",
+    "statusPending": "pending",
+    "statusFailed": "failed"
   },
   "examCourseGenerator": {
     "title": "Generate Exam Course",

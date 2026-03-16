@@ -200,6 +200,9 @@
         @move-exam="openMoveDialog"
       />
     </div>
+
+    <!-- Analysis Status Panel (floating bottom-right) -->
+    <AnalysisStatusPanel />
   </div>
 </template>
 
@@ -223,6 +226,7 @@ import { useExamArchiveTree } from '@/application/composables/panel/admin/assess
 import ExamUploadDialog from './ExamUploadDialog.vue'
 import ExamFolderExplorer from './ExamFolderExplorer.vue'
 import GroupConfigPanel from './GroupConfigPanel.vue'
+import AnalysisStatusPanel from './AnalysisStatusPanel.vue'
 
 const { t, locale } = useI18n()
 

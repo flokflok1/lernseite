@@ -79,6 +79,22 @@ def _serialize_session_row(r: dict) -> dict:
     }
 
 
+@archive_bp.route('/analysis-status', methods=['GET'])
+@admin_required
+def get_analysis_status():
+    """Get current analysis queue status."""
+    result = ExamRepository.get_analysis_status_summary()
+    result['queue'] = [
+        {
+            'exam_id': str(e['exam_id']),
+            'title': e['title'],
+            'status': e['analysis_status'],
+        }
+        for e in result['queue']
+    ]
+    return jsonify(result), 200
+
+
 @archive_bp.route('/scan', methods=['GET'])
 @admin_required
 def scan_folder():

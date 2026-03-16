@@ -208,7 +208,11 @@
       "examType": "Typ egzaminu",
       "year": "Rok",
       "season": "Sezon"
-    }
+    },
+    "analysisStatus": "Postęp analizy",
+    "statusAnalyzing": "analizowanie",
+    "statusPending": "oczekujące",
+    "statusFailed": "nieudane"
   },
   "examCourseGenerator": {
     "title": "Generuj kurs egzaminacyjny",

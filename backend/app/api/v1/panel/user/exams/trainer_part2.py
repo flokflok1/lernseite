@@ -28,6 +28,28 @@ logger = logging.getLogger(__name__)
 def register_advanced_routes(bp):
     """Register advanced trainer routes on the given blueprint."""
 
+    @bp.route('/programs', methods=['GET'])
+    @token_required
+    def get_programs():
+        """List available exam training programs.
+
+        Returns courses that have learning chapters, along with
+        question pool statistics for the current user.
+
+        Response 200:
+            {programs: [{course_id, title, description, total_questions,
+                         seen_questions, mastered_questions, chapter_count}]}
+        """
+        try:
+            user = get_current_user()
+            programs = ExamTrainerRepository.find_programs(user['user_id'])
+            return jsonify({'success': True, 'programs': programs}), 200
+        except Exception:
+            logger.exception("Failed to load programs")
+            return jsonify({
+                'success': False, 'error': 'Failed to load programs'
+            }), 500
+
     @bp.route('/practice-session', methods=['POST'])
     @token_required
     def practice_session():
@@ -184,9 +206,12 @@ def register_advanced_routes(bp):
     def get_dashboard():
         """Get adaptive trainer dashboard data.
 
+        Query params:
+            course_id: Optional course UUID to load chapters for
+
         Response 200:
             {pool: {total_questions, seen_questions, mastered_questions},
-             topics: [...], recent_attempts: [...]}
+             topics: [...], recent_attempts: [...], chapters: [...]}
         """
         try:
             user = get_current_user()
@@ -198,11 +223,18 @@ def register_advanced_routes(bp):
                 user_id, limit=5,
             )
 
+            course_id = request.args.get('course_id')
+            chapters = (
+                ExamTrainerRepository.find_course_chapters(course_id)
+                if course_id else []
+            )
+
             return jsonify({
                 'success': True,
                 'pool': pool_stats,
                 'topics': topics,
                 'recent_attempts': history,
+                'chapters': chapters,
             }), 200
         except Exception:
             logger.exception("Failed to load dashboard data")

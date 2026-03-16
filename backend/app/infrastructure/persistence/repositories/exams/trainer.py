@@ -397,3 +397,57 @@ class ExamTrainerRepository(ExamTrainerRotationMixin):
             'seen_questions': row.get('seen_questions', 0) or 0,
             'mastered_questions': row.get('mastered_questions', 0) or 0,
         }
+
+    @classmethod
+    def find_programs(cls, user_id: int) -> List[Dict]:
+        """Find exam training programs (courses with learning chapters).
+
+        Args:
+            user_id: Current user's ID for progress stats
+
+        Returns:
+            List of course records with question pool stats and chapter count
+        """
+        query = """
+            SELECT
+                c.course_id, c.title, c.description,
+                (SELECT count(*)
+                 FROM assessments.exam_questions eq
+                 JOIN assessments.exams e ON e.exam_id = eq.exam_id
+                 WHERE e.analysis_status = 'ready' AND e.published = true
+                ) AS total_questions,
+                (SELECT count(*) FROM assessments.user_question_stats
+                 WHERE user_id = %s) AS seen_questions,
+                (SELECT count(*) FROM assessments.user_question_stats
+                 WHERE user_id = %s AND times_correct > 0
+                 AND times_correct::float / GREATEST(times_seen, 1) >= 0.5
+                ) AS mastered_questions,
+                (SELECT count(*) FROM courses.chapters ch
+                 WHERE ch.course_id = c.course_id AND ch.chapter_type = 'learning'
+                ) AS chapter_count
+            FROM courses.courses c
+            WHERE EXISTS (
+                SELECT 1 FROM courses.chapters ch
+                WHERE ch.course_id = c.course_id AND ch.chapter_type = 'learning'
+            )
+            ORDER BY c.title
+        """
+        return fetch_all(query, (user_id, user_id))
+
+    @classmethod
+    def find_course_chapters(cls, course_id: str) -> List[Dict]:
+        """Get learning chapters for a course (used as topic categories).
+
+        Args:
+            course_id: Course UUID
+
+        Returns:
+            List of chapter records ordered by order_index
+        """
+        query = """
+            SELECT ch.chapter_id, ch.title, ch.order_index
+            FROM courses.chapters ch
+            WHERE ch.course_id = %s AND ch.chapter_type = 'learning'
+            ORDER BY ch.order_index
+        """
+        return fetch_all(query, (course_id,))

@@ -152,6 +152,21 @@ async function handleContextAction(action: string) {
         })
       }
       break
+    case 'reAnalyze':
+      if (target.type === 'file' && target.id) {
+        showConfirm({
+          title: t('panel.examArchive.reAnalyze'),
+          message: t('panel.examArchive.reAnalyzeConfirm'),
+          icon: '🔄',
+          variant: 'warning',
+          onConfirm: async () => {
+            const { archiveReAnalyzeExam } = await import('@/infrastructure/api/clients/panel/admin/exams/archive.api')
+            await archiveReAnalyzeExam(target.id!)
+            explorer.loadPrograms()
+          },
+        })
+      }
+      break
     case 'delete':
       if (target.type === 'folder' && target.id) {
         const folder = target.data as any

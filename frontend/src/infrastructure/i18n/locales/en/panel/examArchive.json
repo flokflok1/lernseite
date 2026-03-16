@@ -22,7 +22,8 @@
       "generateCourse": "Generate Course",
       "delete": "Delete",
       "download": "Download",
-      "details": "Details"
+      "details": "Details",
+      "reAnalyze": "Re-analyze"
     },
     "status": {
       "connected": "Connected",

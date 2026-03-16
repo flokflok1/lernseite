@@ -9,7 +9,10 @@ import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { TreeNode, SessionLeaf } from '@/application/composables/panel/admin/assessment'
 import type { ArchiveExam } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
-import { archiveSessionExams } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+import {
+  archiveSessionExams,
+  archiveReAnalyzeExam,
+} from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 
 interface Props {
   node: TreeNode
@@ -22,6 +25,7 @@ const emit = defineEmits<{
   deleteSession: [sessionId: string, examCount: number]
   deleteExam: [examId: string, title: string]
   moveExam: [examId: string, title: string]
+  reAnalyzeExam: [examId: string]
 }>()
 
 const { t } = useI18n()
@@ -52,6 +56,28 @@ async function toggleSession(session: SessionLeaf) {
     } finally {
       loadingSessions.value.delete(id)
     }
+  }
+}
+
+// --- Re-analyze ---
+const reAnalyzingExam = ref<string | null>(null)
+
+async function handleReAnalyze(examId: string, sessionId: string) {
+  if (!confirm(t('panel.examArchive.reAnalyzeConfirm'))) return
+  reAnalyzingExam.value = examId
+  try {
+    await archiveReAnalyzeExam(examId)
+    // Update local state to show pending
+    const exams = sessionExams.get(sessionId)
+    if (exams) {
+      const exam = exams.find(e => e.exam_id === examId)
+      if (exam) {
+        exam.analysis_status = 'pending'
+        exam.question_count = 0
+      }
+    }
+  } finally {
+    reAnalyzingExam.value = null
   }
 }
 
@@ -138,6 +164,7 @@ const statusIcons: Record<string, string> = {
         @delete-session="(sid, cnt) => emit('deleteSession', sid, cnt)"
         @delete-exam="(eid, title) => emit('deleteExam', eid, title)"
         @move-exam="(eid, title) => emit('moveExam', eid, title)"
+        @re-analyze-exam="(eid) => emit('reAnalyzeExam', eid)"
       />
     </div>
 
@@ -249,6 +276,17 @@ const statusIcons: Record<string, string> = {
               <span class="text-[10px] text-[var(--color-text-secondary)]">
                 {{ t('panel.examArchive.questions', { count: exam.question_count }) }}
               </span>
+              <!-- Re-Analyze -->
+              <button
+                @click.stop="handleReAnalyze(exam.exam_id, session.session_id)"
+                :disabled="reAnalyzingExam === exam.exam_id"
+                class="opacity-0 group-hover/exam:opacity-100 p-1 rounded hover:bg-[var(--color-warning-bg,#fef3c7)] text-[var(--color-text-secondary)] hover:text-[var(--color-warning-text,#92400e)] transition-all disabled:opacity-50"
+                :title="t('panel.examArchive.reAnalyze')"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182" />
+                </svg>
+              </button>
               <!-- Move -->
               <button
                 @click.stop="emit('moveExam', exam.exam_id, exam.title || exam.part || '')"

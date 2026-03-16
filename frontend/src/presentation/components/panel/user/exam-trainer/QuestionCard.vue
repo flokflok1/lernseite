@@ -11,12 +11,14 @@ interface Props {
   questionIndex?: number
   totalQuestions?: number
   anlagen?: Anlage[]
+  examId?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   questionIndex: 0,
   totalQuestions: 0,
   anlagen: () => [],
+  examId: '',
 })
 
 const emit = defineEmits<{
@@ -249,6 +251,7 @@ defineExpose({ setResult })
       v-for="[number, state] in openPanels"
       :key="number"
       :anlage="anlagen.find(a => a.number === number)!"
+      :exam-id="examId"
       :x="state.x"
       :y="state.y"
       :width="state.w"

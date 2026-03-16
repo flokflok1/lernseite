@@ -219,6 +219,11 @@ const _showTutor = computed(() => {
 
 // Determine which layout to use based on route
 const layout = computed(() => {
+  // Routes with hideLayout meta render without any layout wrapper
+  if (route.meta.hideLayout) {
+    return 'div'
+  }
+
   // Setup route has NO global layout (SetupWizardPage uses SetupLayout internally)
   if (route.path.startsWith('/setup')) {
     return 'div'

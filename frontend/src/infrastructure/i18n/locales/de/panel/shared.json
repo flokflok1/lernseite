@@ -291,7 +291,8 @@
       "description": "Beschreibung",
       "anlageNr": "Anlage {number}",
       "tileWindows": "Nebeneinander",
-      "closeAll": "Alle schließen"
+      "closeAll": "Alle schließen",
+      "popout": "In neuem Fenster öffnen"
     },
     "scratchPad": {
       "title": "Rechenblatt",

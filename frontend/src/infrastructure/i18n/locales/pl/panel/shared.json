@@ -291,7 +291,8 @@
       "description": "Opis",
       "anlageNr": "Załącznik {number}",
       "tileWindows": "Obok siebie",
-      "closeAll": "Zamknij wszystkie"
+      "closeAll": "Zamknij wszystkie",
+      "popout": "Otwórz w nowym oknie"
     },
     "scratchPad": {
       "title": "Brudnopis",

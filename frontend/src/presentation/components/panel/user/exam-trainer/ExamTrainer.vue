@@ -422,6 +422,7 @@ onMounted(() => {
         :question-index="currentQuestionIndex"
         :total-questions="questions.length"
         :anlagen="examAnlagen"
+        :exam-id="lastExamId || ''"
         @submit="handleSubmitAnswer"
         @next="handleNextQuestion"
       />

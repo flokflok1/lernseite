@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
+import { useAnlageRenderer } from './useAnlageRenderer'
 import type { Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {
   anlage: Anlage
+  examId?: string
   x: number
   y: number
   width: number
@@ -101,114 +103,20 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', stopResize)
 })
 
-// --- Anlage rendering ---
-const isOffer = computed(() => props.anlage?.type === 'offer')
-const isApiRef = computed(() => props.anlage?.type === 'api_reference')
-const offerData = computed(() => (props.anlage?.data || {}) as Record<string, unknown>)
-const functions = computed(() =>
-  ((props.anlage?.data as Record<string, unknown>)?.functions || []) as Array<{ name: string; description: string }>
-)
+// --- Popout to new browser window ---
+const popout = () => {
+  if (!props.examId) return
+  const url = `/exam-trainer/anlage/${props.examId}/${props.anlage.number}`
+  window.open(url, `anlage-${props.anlage.number}`, 'width=860,height=700,menubar=no,toolbar=no')
+}
 
-const rawLines = computed(() => (props.anlage?.raw_text || '').split('\n').map(l => l.trim()))
-
-const recipientLines = computed(() => {
-  const lines = rawLines.value
-  const start = lines.findIndex(l => l.startsWith('Systemhaus') || l.startsWith('An '))
-  if (start < 0) return []
-  const result: string[] = []
-  for (let i = start; i < Math.min(start + 4, lines.length); i++) {
-    if (lines[i] && !lines[i].includes('Angebots') && !lines[i].includes('Kunden')) result.push(lines[i])
-    else break
-  }
-  return result
-})
-
-const priceHeaders = computed(() => {
-  const line = rawLines.value.find(l => l.includes('|') && (l.includes('Pos') || l.includes('Beschreibung')))
-  if (!line) return []
-  return line.split('|').map(c => c.trim()).filter(Boolean)
-})
-
-const priceRows = computed(() => {
-  const lines = rawLines.value
-  const rows: string[][] = []
-  let inTable = false
-  for (const line of lines) {
-    if (line.includes('|') && (line.includes('Pos') || line.includes('Beschreibung'))) {
-      inTable = true
-      continue
-    }
-    if (line.includes('---')) continue
-    if (inTable && line.includes('|')) {
-      const cells = line.split('|').map(c => c.trim()).filter(Boolean)
-      if (cells.length >= 2) rows.push(cells)
-    } else if (inTable && !line.includes('|')) {
-      inTable = false
-    }
-  }
-  return rows
-})
-
-const totalLines = computed(() => {
-  return rawLines.value.filter(l =>
-    (l.includes('zzgl.') || l.includes('Gesamtsumme') || l.includes('Gesamtbetrag') ||
-     l.includes('Zwischensumme'))
-    && !l.includes('|') && !l.includes('USt. ID')
-  )
-})
-
-const bodyParagraphs = computed(() => {
-  const lines = rawLines.value
-  const result: string[] = []
-  const skipPatterns = [
-    /^TOPSICHERHEIT|^Heikvision|^ANGEBOT|^Topsicherheit|^Systemhaus|^Hans-Thoma/i,
-    /^\d{5}\s/,
-    /^Angebots|^Kunden|^Angebot-Nr/i,
-    /\|/,
-    /^zzgl|^Gesamtsumme|^Gesamtbetrag|^Zwischensumme|^\d+%\s*USt/i,
-    /^Mit freundlichen|^Schubert|^Thomas|^Petra|^Karlstraße|^Gartenstraße/i,
-    /^[\d+\s]*7121|^www\.|^Reutlinger|^Volksbank|^DE\s\d|^BIC|^USt\.|^Steuer/i,
-    /^Geschäftsführer/i,
-  ]
-  const greetIdx = lines.findIndex(l => l.startsWith('Sehr geehrte'))
-  if (greetIdx < 0) return []
-  const tableIdx = lines.findIndex(l => l.includes('|') && l.includes('Pos'))
-  const stopIdx = tableIdx > 0 ? tableIdx : lines.findIndex(l => l.includes('freundlichen Grüßen'))
-
-  let current = ''
-  for (let i = greetIdx; i < (stopIdx > 0 ? stopIdx : lines.length); i++) {
-    const line = lines[i]
-    if (skipPatterns.some(p => p.test(line))) continue
-    if (!line) {
-      if (current) { result.push(current); current = '' }
-    } else {
-      current = current ? current + ' ' + line : line
-    }
-  }
-  if (current) result.push(current)
-  return result
-})
-
-const conditionLines = computed(() => {
-  const lines = rawLines.value
-  const result: string[] = []
-  const totalIdx = lines.findIndex(l => l.includes('Gesamtsumme') || l.includes('Gesamtbetrag'))
-  const closingIdx = lines.findIndex(l => l.includes('freundlichen Grüßen'))
-  if (totalIdx < 0 || closingIdx < 0) return []
-
-  let current = ''
-  for (let i = totalIdx + 1; i < closingIdx; i++) {
-    const line = lines[i]
-    if (!line || line.includes('zzgl') || line.includes('USt') || line.includes('|')) continue
-    if (line.length < 10) continue
-    current = current ? current + ' ' + line : line
-    if (lines[i + 1] === '' || i === closingIdx - 1) {
-      if (current) { result.push(current); current = '' }
-    }
-  }
-  if (current) result.push(current)
-  return result
-})
+// --- Anlage rendering (shared composable) ---
+const anlageRef = toRef(props, 'anlage')
+const {
+  isOffer, isApiRef, offerData, functions,
+  recipientLines, priceHeaders, priceRows, totalLines,
+  bodyParagraphs, conditionLines,
+} = useAnlageRenderer(anlageRef)
 </script>
 
 <template>
@@ -224,6 +132,18 @@ const conditionLines = computed(() => {
           {{ t('panel.examTrainer.anlagen.anlageNr', { number: anlage.number }) }}
           — {{ anlage.title }}
         </span>
+        <button
+          v-if="examId"
+          class="anlage-panel-action"
+          :title="t('panel.examTrainer.anlagen.popout')"
+          @mousedown.stop
+          @click="popout"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </button>
         <button
           class="anlage-panel-close"
           aria-label="Close"
@@ -355,6 +275,7 @@ const conditionLines = computed(() => {
   text-overflow: ellipsis;
 }
 
+.anlage-panel-action,
 .anlage-panel-close {
   flex-shrink: 0;
   padding: 4px;
@@ -363,6 +284,7 @@ const conditionLines = computed(() => {
   transition: all 0.15s;
 }
 
+.anlage-panel-action:hover,
 .anlage-panel-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--color-text, #e2e4ea);

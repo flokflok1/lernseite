@@ -291,7 +291,8 @@
       "description": "Description",
       "anlageNr": "Appendix {number}",
       "tileWindows": "Side by side",
-      "closeAll": "Close all"
+      "closeAll": "Close all",
+      "popout": "Open in new window"
     },
     "scratchPad": {
       "title": "Scratch Pad",

@@ -16,8 +16,6 @@ from app.application.services.exams.question_helpers import (
     lm_lesson_title,
     make_json_safe,
     build_static_lm_data,
-    extract_anlagen_from_raw_text,
-    enrich_scenario_with_anlagen,
 )
 from app.application.services.exams.course_generator_builder_part2 import (
     build_chapter_metadata as _build_chapter_metadata,
@@ -257,72 +255,15 @@ def _build_chapter(
 
 
 def _fetch_chapter_questions(question_ids: List[str]) -> List[Dict]:
-    """Fetch questions, enrich with Anlage data, make JSON-serializable.
+    """Fetch questions and make JSON-serializable.
 
-    IHK questions often reference Anlagen (appendices with price tables,
-    network diagrams). This extracts Anlage content from the exam's
-    raw_text and appends it to each question's scenario_text.
+    Anlage content is now embedded in scenario_text by Vision AI during
+    import, so no post-hoc enrichment is needed.
     """
     if not question_ids:
         return []
     rows = ExamQuestionRepository.find_by_ids(question_ids)
-    questions = [make_json_safe(row) for row in rows]
-    return _enrich_questions_with_anlagen(questions)
-
-
-def _enrich_questions_with_anlagen(questions: List[Dict]) -> List[Dict]:
-    """Append Anlage content from exam raw_text to scenario_text.
-
-    Strategy: For each scenario, collect ALL Anlage references from
-    any question in that scenario. Then append those Anlagen to ALL
-    questions in the scenario — because if one question references
-    "Anlage 1 und 2", sibling questions in the same scenario likely
-    need that data too.
-    """
-    from app.application.services.exams.question_helpers import (
-        find_anlage_references,
-    )
-    exam_ids = {q.get('exam_id') for q in questions if q.get('exam_id')}
-    if not exam_ids:
-        return questions
-
-    from app.infrastructure.persistence.repositories.exams.core import ExamRepository
-    anlagen_cache: Dict[str, Dict[int, str]] = {}
-    for eid in exam_ids:
-        exam = ExamRepository.find_by_id(str(eid))
-        raw = (exam or {}).get('raw_text', '')
-        if raw:
-            anlagen_cache[str(eid)] = extract_anlagen_from_raw_text(raw)
-
-    # Collect Anlage refs per scenario (across all questions)
-    scenario_refs: Dict[str, set] = {}
-    for q in questions:
-        key = (q.get('scenario_title') or '') + '|' + str(q.get('exam_id', ''))
-        refs = find_anlage_references(q.get('question_text', ''))
-        scenario_refs.setdefault(key, set()).update(refs)
-
-    enriched_count = 0
-    for q in questions:
-        eid = str(q.get('exam_id', ''))
-        anlagen = anlagen_cache.get(eid, {})
-        if not anlagen:
-            continue
-        key = (q.get('scenario_title') or '') + '|' + eid
-        all_refs = scenario_refs.get(key, set())
-        if not all_refs:
-            continue
-        # Build combined text from all scenario-level Anlage refs
-        original = q.get('scenario_text', '') or ''
-        combined_text = ' '.join(f'Anlage {r}' for r in sorted(all_refs))
-        q['scenario_text'] = enrich_scenario_with_anlagen(
-            original, combined_text, anlagen,
-        )
-        if q['scenario_text'] != original:
-            enriched_count += 1
-
-    if enriched_count:
-        logger.info("Enriched %d questions with Anlage data", enriched_count)
-    return questions
+    return [make_json_safe(row) for row in rows]
 
 
 def _create_static_lm_instances(

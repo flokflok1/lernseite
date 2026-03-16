@@ -282,10 +282,27 @@ _VISION_PROMPT_BASE = (
     "- Erfasse ALLE Anlagen mit VOLLSTAENDIGEM Inhalt\n"
     "- Jede Teilaufgabe (1a, 1b, 2.1, 2.2, etc.) ist eine eigene Frage\n"
     "- Punkte pro Aufgabe angeben\n\n"
+    "Szenario-Kontext: Gib den vollstaendigen Szenario-Text als HTML zurueck.\n"
+    "Nutze <p> fuer Absaetze, <strong> fuer wichtige Begriffe, "
+    "<ul>/<ol> fuer Listen.\n\n"
+    "WICHTIG fuer Anlagen-Inhalt:\n"
+    "- Gib Anlagen-Inhalte als sauberes HTML zurueck (nicht als Plain Text)\n"
+    "- Tabellen als <table> mit <thead> und <tbody>\n"
+    "- Angebote/Briefe als strukturiertes HTML mit Absaetzen, "
+    "Ueberschriften, Tabellen\n"
+    "- Nutze CSS-Klassen: 'anlage-offer' fuer Angebote, 'anlage-table' "
+    "fuer Tabellen, 'anlage-ref' fuer Referenzen\n"
+    "- Kein inline CSS, nur CSS-Klassen\n"
+    "- Der HTML-Inhalt muss ohne das Original-PDF verstaendlich und "
+    "vollstaendig sein\n\n"
     "Antworte NUR mit validem JSON:\n"
     '```json\n{{\n  "scenarios": [{{"number": 1, "title": "...", '
-    '"context": "...", "anlagen": [{{"name": "Anlage 1: ...", '
-    '"content": "..."}}]}}],\n  "questions": [{{"scenario_number": 1, '
+    '"context": "<p>Vollstaendiger Szenario-Text...</p>", '
+    '"context_html": true, '
+    '"anlagen": [{{"name": "Anlage 1: ...", '
+    '"content_html": "<div class=\'anlage-offer\'>...'
+    '<table>...</table>...</div>"}}]}}],\n'
+    '  "questions": [{{"scenario_number": 1, '
     '"question_number": "1a", "text": "...", "question_type": "essay", '
     '"points": 5, "topics": ["netzwerk"], '
     '"solution_text": "..."}}]\n}}\n```\n\n'

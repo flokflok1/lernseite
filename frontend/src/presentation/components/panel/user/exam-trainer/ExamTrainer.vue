@@ -26,6 +26,7 @@ const isGenerating = ref(false)
 const simQuestions = ref<TrainerQuestion[]>([])
 const simAttemptId = ref('')
 const simAnlagen = ref<Anlage[]>([])
+const simDuration = ref(90)
 const reviewAttemptId = ref<string | null>(null)
 
 // Virtual exam object for SimulationMode compatibility
@@ -37,8 +38,8 @@ const virtualExam = computed<TrainerExam>(() => ({
   season: '',
   part: '',
   question_count: simQuestions.value.length,
-  total_points: simQuestions.value.reduce((s, q) => s + (q.points || 5), 0),
-  duration_minutes: 90,
+  total_points: simQuestions.value.reduce((s, q) => s + Number(q.points || 5), 0),
+  duration_minutes: simDuration.value,
   analysis_status: 'ready',
   passing_score: null,
 }))
@@ -70,10 +71,17 @@ const selectProgram = async (prog: TrainerProgram) => {
   }
 }
 
-const startAdaptiveExam = async () => {
+const examModes = [
+  { key: 'quick', icon: '\u26A1', labelKey: 'panel.examTrainer.adaptive.modeQuick', questions: 10, minutes: 30 },
+  { key: 'half', icon: '\uD83D\uDCDD', labelKey: 'panel.examTrainer.adaptive.modeHalf', questions: 20, minutes: 45 },
+  { key: 'full', icon: '\uD83C\uDFAF', labelKey: 'panel.examTrainer.adaptive.modeFull', questions: 40, minutes: 90 },
+]
+
+const startAdaptiveExam = async (questionCount: number = 20, durationMinutes: number = 90) => {
   isGenerating.value = true
+  simDuration.value = durationMinutes
   try {
-    const exam = await trainerGenerateExam(20, 90)
+    const exam = await trainerGenerateExam(questionCount, durationMinutes)
     simQuestions.value = exam.questions
     simAttemptId.value = exam.attempt_id
 
@@ -246,27 +254,33 @@ const handleReviewBack = () => {
         </div>
       </div>
 
-      <!-- CTA Button -->
-      <button
-        class="w-full p-6 rounded-xl font-semibold text-lg transition-all
-               bg-gradient-to-r from-blue-600 to-blue-700 text-white
-               hover:from-blue-700 hover:to-blue-800 hover:shadow-lg
-               disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="isGenerating || dashboard.pool.total_questions === 0"
-        @click="startAdaptiveExam"
-      >
-        <div v-if="isGenerating" class="flex items-center justify-center gap-3">
-          <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+      <!-- Exam Mode Selection -->
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
+          {{ t('panel.examTrainer.adaptive.startExam') }}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            v-for="mode in examModes"
+            :key="mode.key"
+            class="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]
+                   hover:border-blue-500/50 hover:shadow-lg transition-all text-left
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="isGenerating"
+            @click="startAdaptiveExam(mode.questions, mode.minutes)"
+          >
+            <div class="text-2xl mb-2">{{ mode.icon }}</div>
+            <div class="font-semibold text-[var(--color-text)] mb-1">{{ t(mode.labelKey) }}</div>
+            <div class="text-sm text-[var(--color-text-secondary)]">
+              {{ t('panel.examTrainer.adaptive.modeDesc', { count: mode.questions, minutes: mode.minutes }) }}
+            </div>
+          </button>
+        </div>
+        <div v-if="isGenerating" class="flex items-center justify-center gap-3 mt-4 text-[var(--color-text-secondary)]">
+          <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500" />
           {{ t('panel.examTrainer.adaptive.generating') }}
         </div>
-        <div v-else>
-          <div>{{ t('panel.examTrainer.adaptive.startExam') }}</div>
-          <div class="text-sm font-normal opacity-80 mt-1">
-            {{ t('panel.examTrainer.adaptive.startExamDesc', { count: 20, minutes: 90 }) }}
-            &middot; {{ t('panel.examTrainer.adaptive.weakFirst') }}
-          </div>
-        </div>
-      </button>
+      </div>
 
       <!-- Chapter Topics -->
       <div v-if="dashboard.chapters && dashboard.chapters.length > 0">

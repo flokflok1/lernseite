@@ -195,7 +195,7 @@ defineExpose({ setResult })
 
     <!-- Question text -->
     <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4">
-      {{ t('panel.examTrainer.question', { number: question.question_number }) }}
+      {{ t('panel.examTrainer.question', { number: totalQuestions > 0 ? questionIndex + 1 : question.question_number }) }}
     </h3>
     <p class="text-[var(--color-text)] mb-6 whitespace-pre-line">{{ question.question_text }}</p>
 

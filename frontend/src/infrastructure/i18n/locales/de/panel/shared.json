@@ -348,7 +348,25 @@
     "failed": "Nicht bestanden",
     "backToExams": "Zurück zur Übersicht",
     "points": "{count} Punkte",
-    "questionOf": "Aufgabe {current} von {total}"
+    "questionOf": "Aufgabe {current} von {total}",
+    "adaptive": {
+      "title": "Prüfungstrainer",
+      "subtitle": "Fachinformatiker — AP1 (gemeinsam)",
+      "totalQuestions": "Fragen im Pool",
+      "seenQuestions": "Bearbeitet",
+      "masteredQuestions": "Gemeistert",
+      "startExam": "Prüfung starten",
+      "startExamDesc": "{count} Fragen · {minutes} Minuten · Adaptiv",
+      "generating": "Prüfung wird erstellt...",
+      "topicsTitle": "Themen-Übersicht",
+      "recentTitle": "Letzte Ergebnisse",
+      "noHistory": "Noch keine Prüfungen absolviert",
+      "accuracy": "{pct}% richtig",
+      "adaptiveExam": "Adaptive Prüfung",
+      "weakFirst": "Schwächen zuerst",
+      "passed": "bestanden",
+      "failed": "nicht bestanden"
+    }
   },
   "title": "Administration"
 }

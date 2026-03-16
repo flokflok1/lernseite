@@ -348,7 +348,25 @@
     "failed": "Not passed",
     "backToExams": "Back to overview",
     "points": "{count} points",
-    "questionOf": "Question {current} of {total}"
+    "questionOf": "Question {current} of {total}",
+    "adaptive": {
+      "title": "Exam Trainer",
+      "subtitle": "IT Specialist — AP1 (shared)",
+      "totalQuestions": "Questions in Pool",
+      "seenQuestions": "Practiced",
+      "masteredQuestions": "Mastered",
+      "startExam": "Start Exam",
+      "startExamDesc": "{count} questions · {minutes} minutes · Adaptive",
+      "generating": "Generating exam...",
+      "topicsTitle": "Topics Overview",
+      "recentTitle": "Recent Results",
+      "noHistory": "No exams completed yet",
+      "accuracy": "{pct}% correct",
+      "adaptiveExam": "Adaptive Exam",
+      "weakFirst": "Weaknesses first",
+      "passed": "passed",
+      "failed": "failed"
+    }
   },
   "title": "Administration"
 }

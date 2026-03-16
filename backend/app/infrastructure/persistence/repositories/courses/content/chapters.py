@@ -110,27 +110,41 @@ class ChapterRepository(BaseRepository):
         return fetch_one(query, (chapter_id,))
 
     @classmethod
-    def find_by_course(cls, course_id: str) -> List[Dict[str, Any]]:
+    def find_by_course(
+        cls,
+        course_id: str,
+        exclude_chapter_types: Optional[List[str]] = None,
+    ) -> List[Dict[str, Any]]:
         """
         Find all chapters for a course, ordered by order_index
 
         Args:
             course_id: Course UUID
+            exclude_chapter_types: Optional list of chapter_type values to exclude
+                (e.g. ['simulation'] to hide simulation chapters from students)
 
         Returns:
             List of chapters with lesson counts
         """
-        query = """
+        params: list = [course_id]
+        type_filter = ""
+        if exclude_chapter_types:
+            placeholders = ", ".join(["%s"] * len(exclude_chapter_types))
+            type_filter = f"AND c.chapter_type NOT IN ({placeholders})"
+            params.extend(exclude_chapter_types)
+
+        query = f"""
             SELECT
                 c.*,
                 (SELECT COUNT(*) FROM courses.lessons WHERE chapter_id = c.chapter_id) AS lesson_count,
                 (SELECT SUM(duration_minutes) FROM courses.lessons WHERE chapter_id = c.chapter_id) AS total_lesson_duration
             FROM courses.chapters c
             WHERE c.course_id = %s
+            {type_filter}
             ORDER BY c.order_index ASC
         """
 
-        return fetch_all(query, (course_id,))
+        return fetch_all(query, tuple(params))
 
     @classmethod
     def update(cls, chapter_id: str, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:

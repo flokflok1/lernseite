@@ -22,73 +22,6 @@ from app.infrastructure.ai.exceptions import AIProviderError
 logger = logging.getLogger(__name__)
 
 
-_FALLBACK_TOPICS = (
-    'subnetting, kalkulation, sql, erm, schutzbedarfsanalyse, '
-    'osi_modell, dhcp, wlan, programmierung, itil, rechtsformen, '
-    'organisationsformen, raid, virtualisierung, datenschutz, '
-    'netzwerk, backup, it_sicherheit, projektmanagement, '
-    'qualitaetsmanagement, datenbanken, hardware, software, '
-    'cloud, verschluesselung, firewall, routing'
-)
-
-_ANALYSIS_PROMPT_TEMPLATE = (
-    "Du bist ein Experte fuer IHK-Pruefungen (Fachinformatiker AP1).\n"
-    "Analysiere den folgenden Pruefungstext und extrahiere ALLE Aufgaben strukturiert.\n\n"
-    "## Regeln:\n"
-    "1. Identifiziere jede Handlungssituation / jedes Firmenszenario\n"
-    "2. Extrahiere JEDE Teilfrage (1a, 1b, 2.1, 2.2 etc.)\n"
-    "3. question_type: mcq, calculation, essay, code, fill_blank, case_study\n"
-    "4. Topics aus: {topic_list}\n"
-    "5. renderer_data passend zum question_type generieren\n\n"
-    "## Anlagen extrahieren:\n"
-    "- ALLE Anlagen (Anlage 1, 2, Anhang A) VOLLSTAENDIG mit allen Zahlen, "
-    "Preisen, Tabellen, technischen Daten extrahieren\n"
-    "- Anlagen dem zugehoerigen Szenario zuordnen\n"
-    "- scenario.context MUSS alle Anlagen-Daten enthalten\n\n"
-    '## JSON-Format:\n```json\n{{\n'
-    '  "scenarios": [{{"number": 1, "title": "...", "context": "...", '
-    '"anlagen": [{{"name": "Anlage 1: ...", "content": "..."}}]}}],\n'
-    '  "questions": [{{"scenario_number": 1, "question_number": "1a", '
-    '"text": "...", "question_type": "essay", "points": 5, '
-    '"topics": ["netzwerk"], "renderer_data": {{}}, '
-    '"solution_text": "..."}}]\n}}\n```\n\n'
-    "NUR JSON ausgeben. ALLE Teilfragen extrahieren. "
-    "Anlagen-Daten VOLLSTAENDIG uebernehmen.\n\n"
-    "{solution_section}\n\n## Pruefungstext:\n{exam_text}"
-)
-
-
-def _build_topic_list(exam_type: str) -> str:
-    """Build topic list for ANALYSIS_PROMPT from taxonomy, with fallback."""
-    from app.infrastructure.persistence.repositories.exams.topic_taxonomy import (
-        TopicTaxonomyRepository,
-    )
-
-    try:
-        topics = TopicTaxonomyRepository.find_all_by_exam_type(exam_type)
-    except Exception:
-        logger.exception("Failed to load taxonomy for %s, using fallback", exam_type)
-        return _FALLBACK_TOPICS
-
-    if topics:
-        topic_keys = sorted(set(t['topic_key'] for t in topics))
-        return ', '.join(topic_keys)
-
-    return _FALLBACK_TOPICS
-
-
-def _build_analysis_prompt(
-    exam_type: str, exam_text: str, solution_section: str,
-) -> str:
-    """Build the full ANALYSIS_PROMPT with dynamic topic list."""
-    topic_list = _build_topic_list(exam_type)
-    return _ANALYSIS_PROMPT_TEMPLATE.format(
-        topic_list=topic_list,
-        exam_text=exam_text,
-        solution_section=solution_section,
-    )
-
-
 def _register_new_topics(
     exam_type: str, extracted_topics: List[str],
 ) -> None:
@@ -154,8 +87,6 @@ def analyze_exam_pdf_task(
             logger.error("Exam %s not found", exam_id)
             return {'success': False, 'error': 'Exam not found'}
 
-        raw_text = exam.get('raw_text')
-
         # 2. Get solution text from settings JSONB
         settings = exam.get('settings') or {}
         if isinstance(settings, str):
@@ -165,10 +96,9 @@ def analyze_exam_pdf_task(
         # 3. Mark as analyzing
         ExamRepository.update_analysis_status(exam_id, 'analyzing')
 
-        # 4. Analyze via Vision AI (primary) or text (fallback)
-        exam_type = exam.get('exam_type_key') or 'unknown'
-        parsed = _run_vision_or_text_analysis(
-            exam, raw_text, solution_text, exam_type, provider, model,
+        # 4. Analyze via Vision AI (no text fallback)
+        parsed = _run_vision_analysis(
+            exam, solution_text, provider, model,
         )
         tokens_used = 0  # Vision path doesn't return token counts
 
@@ -318,63 +248,27 @@ def _load_images_from_directory(dir_path: str) -> List[str]:
     return result
 
 
-def _analyze_via_text(
-    raw_text: str,
-    solution_text: str,
-    exam_type: str,
-    provider: str,
-    model: str,
-) -> Optional[Dict]:
-    """Fallback: text-based AI analysis for exams without PDF files."""
-    solution_section = ''
-    if solution_text:
-        solution_section = (
-            f"## Lösungstext (zur Zuordnung):\n{solution_text}"
-        )
-
-    prompt = _build_analysis_prompt(
-        exam_type=exam_type,
-        exam_text=raw_text,
-        solution_section=solution_section,
-    )
-
-    adapter = AIAdapter(provider=provider, model=model)
-    response = adapter.send_request(
-        prompt=prompt,
-        language='de',
-        temperature=0.3,
-    )
-
-    output_text = response.get('output_text', '')
-    return _parse_ai_json(output_text)
-
-
-def _run_vision_or_text_analysis(
+def _run_vision_analysis(
     exam: Dict,
-    raw_text: Optional[str],
     solution_text: str,
-    exam_type: str,
     provider: str,
     model: str,
 ) -> Optional[Dict]:
-    """Route to vision or text-based analysis depending on PDF availability."""
+    """Analyze exam via Vision AI. All exams must have a PDF or image path."""
     pdf_path = exam.get('pdf_path')
     full_pdf_path = _resolve_pdf_path(pdf_path) if pdf_path else None
 
-    if full_pdf_path:
-        logger.info("Using Vision pipeline for: %s", full_pdf_path)
-        return _analyze_via_vision(
-            full_pdf_path, solution_text, provider, model,
+    if not full_pdf_path:
+        logger.error(
+            "No PDF/image path for exam %s — cannot analyze",
+            exam.get('exam_id'),
         )
+        return None
 
-    if raw_text:
-        logger.info("Using text-based fallback (no PDF file available)")
-        return _analyze_via_text(
-            raw_text, solution_text, exam_type, provider, model,
-        )
-
-    logger.error("No PDF and no raw_text for exam %s", exam.get('id'))
-    return None
+    logger.info("Using Vision pipeline for: %s", full_pdf_path)
+    return _analyze_via_vision(
+        full_pdf_path, solution_text, provider, model,
+    )
 
 
 def _parse_ai_json(response_text: str) -> Optional[Dict]:

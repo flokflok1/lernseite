@@ -200,7 +200,19 @@ def analyze_exam_pdf_task(
             _mark_failed(exam_id, 'Failed to insert questions into DB')
             return {'success': False, 'error': 'DB insert failed'}
 
-        # 8. Register new topics discovered by AI analysis
+        # 8. Save Anlagen (appendices) from Vision AI to separate table
+        all_anlagen = []
+        for s in scenarios:
+            for i, a in enumerate(s.get('anlagen', [])):
+                a['number'] = a.get('number', i + 1)
+                all_anlagen.append(a)
+        if all_anlagen:
+            anlagen_count = ExamQuestionRepository.save_anlagen(
+                exam_id, all_anlagen,
+            )
+            logger.info("Saved %d anlagen for exam %s", anlagen_count, exam_id)
+
+        # 9. Register new topics discovered by AI analysis
         all_topics = []
         for q in questions:
             all_topics.extend(q.get('topics') or [])
@@ -427,24 +439,8 @@ def _build_question_records(
             except json.JSONDecodeError:
                 renderer_data = {}
 
-        # Build scenario_text: context + Anlagen HTML (from Vision AI)
+        # Scenario text = context only (Anlagen stored separately)
         scenario_text = scenario.get('context', '')
-        anlagen = scenario.get('anlagen', [])
-        if anlagen:
-            anlagen_parts = []
-            for anlage in anlagen:
-                name = anlage.get('name', '')
-                # Vision AI returns content_html; fall back to content
-                content = (
-                    anlage.get('content_html')
-                    or anlage.get('content', '')
-                )
-                if name and content:
-                    anlagen_parts.append(f"\n\n--- {name} ---\n{content}")
-                elif content:
-                    anlagen_parts.append(f"\n\n{content}")
-            if anlagen_parts:
-                scenario_text += ''.join(anlagen_parts)
 
         record = {
             'exam_id': exam_id,

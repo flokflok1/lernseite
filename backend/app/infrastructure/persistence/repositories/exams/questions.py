@@ -240,3 +240,45 @@ class ExamQuestionRepository(BaseRepository):
         except Exception:
             logger.exception("Error reordering questions")
             raise
+
+    @classmethod
+    def save_anlagen(cls, exam_id: str, anlagen: list) -> int:
+        """Save exam anlagen (appendices) to the exam_anlagen table.
+
+        Replaces existing anlagen for the exam.
+        """
+        # Delete existing
+        execute_query(
+            "DELETE FROM assessments.exam_anlagen WHERE exam_id = %s",
+            (exam_id,),
+        )
+        # Insert new
+        count = 0
+        for a in anlagen:
+            number = a.get('number', count + 1)
+            title = a.get('name', a.get('title', f'Anlage {number}'))
+            content = a.get('content_html') or a.get('content', '')
+            if not content:
+                continue
+            insert_returning(
+                'assessments.exam_anlagen',
+                {
+                    'exam_id': exam_id,
+                    'number': number,
+                    'title': title,
+                    'content_html': content,
+                },
+                'anlage_id',
+            )
+            count += 1
+        return count
+
+    @classmethod
+    def get_anlagen(cls, exam_id: str) -> list:
+        """Get anlagen for an exam from the exam_anlagen table."""
+        return fetch_all(
+            "SELECT number, title, content_html "
+            "FROM assessments.exam_anlagen "
+            "WHERE exam_id = %s ORDER BY number",
+            (exam_id,),
+        )

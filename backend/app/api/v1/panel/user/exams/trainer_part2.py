@@ -13,8 +13,6 @@ Endpoints:
 """
 
 import logging
-import re
-
 from flask import jsonify, request
 from app.api.middleware.auth import token_required, get_current_user
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
@@ -24,35 +22,6 @@ from app.infrastructure.persistence.repositories.exams.trainer import (
 from app.api.v1.panel.user.exams.trainer_helpers import strip_solutions
 
 logger = logging.getLogger(__name__)
-
-
-def _extract_anlagen_simple(raw_text: str) -> list:
-    """Extract Anlage sections from raw_text (HTML or plain text).
-
-    Simple header-based splitting — the content is already structured
-    by Vision AI (HTML) or is plain text from legacy imports.
-    """
-    if not raw_text:
-        return []
-
-    parts = re.split(r'(?=Anlage\s+\d+)', raw_text)
-    anlagen = []
-    for part in parts:
-        match = re.match(
-            r'Anlage\s+(\d+)\s*[:\-\u2014]?\s*(.*?)(?:\n|$)', part,
-        )
-        if match:
-            number = int(match.group(1))
-            title = match.group(2).strip() or f'Anlage {number}'
-            content = part[match.end():].strip()
-            anlagen.append({
-                'number': number,
-                'title': title,
-                'type': 'html',
-                'raw_text': content,
-                'data': {},
-            })
-    return anlagen
 
 
 def register_advanced_routes(bp):
@@ -273,22 +242,26 @@ def register_advanced_routes(bp):
     @bp.route('/exams/<exam_id>/anlagen', methods=['GET'])
     @token_required
     def get_exam_anlagen(exam_id: str):
-        """Return structured Anlagen for an exam.
-
-        Extracts Anlage sections from exam raw_text (HTML from Vision AI
-        or plain text fallback).
+        """Return Anlagen for an exam from the exam_anlagen table.
 
         Response 200:
             {anlagen: [{number, title, type, raw_text, data}]}
         """
         try:
-            exam = ExamRepository.find_by_id(exam_id)
-            if not exam:
-                return jsonify({
-                    'success': False, 'error': 'Exam not found'
-                }), 404
-
-            anlagen = _extract_anlagen_simple(exam.get('raw_text', ''))
+            from app.infrastructure.persistence.repositories.exams.questions import (
+                ExamQuestionRepository,
+            )
+            rows = ExamQuestionRepository.get_anlagen(exam_id)
+            anlagen = [
+                {
+                    'number': r['number'],
+                    'title': r['title'],
+                    'type': 'html',
+                    'raw_text': r['content_html'],
+                    'data': {},
+                }
+                for r in rows
+            ]
             return jsonify({'success': True, 'anlagen': anlagen}), 200
         except Exception:
             logger.exception(

@@ -18,10 +18,6 @@ from app.infrastructure.persistence.repositories.exams.questions import (
 from app.domain.services.exam_topic_utils import normalize_topic
 from app.infrastructure.ai.adapter import AIAdapter
 from app.infrastructure.ai.exceptions import AIProviderError
-from app.application.services.exams.question_helpers import (
-    extract_anlagen_from_raw_text,
-    enrich_scenario_with_anlagen,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -192,14 +188,9 @@ def analyze_exam_pdf_task(
             s['number']: s for s in scenarios
         }
 
-        # 6b. Pre-extract Anlagen from raw PDF text as fallback
-        # The AI often misses Anlage content — this ensures questions
-        # that reference "Anlage N" get the data appended to scenario_text
-        raw_anlagen = extract_anlagen_from_raw_text(raw_text)
-
         # 7. Insert questions via bulk_create
         question_records = _build_question_records(
-            exam_id, questions, scenario_map, raw_anlagen
+            exam_id, questions, scenario_map,
         )
         success = ExamQuestionRepository.bulk_create_questions(
             question_records
@@ -387,23 +378,22 @@ def _build_question_records(
     exam_id: str,
     questions: List[Dict],
     scenario_map: Dict[int, Dict],
-    raw_anlagen: Optional[Dict[int, str]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Transform AI-extracted questions into DB-ready records.
+
+    Vision AI now produces HTML content for scenarios and Anlagen,
+    so no post-processing enrichment is needed.
 
     Args:
         exam_id: The parent exam UUID
         questions: Parsed question list from AI
         scenario_map: Mapping of scenario number to scenario data
-        raw_anlagen: Pre-extracted Anlage content from raw PDF text,
-                     used as fallback when AI misses Anlagen
 
     Returns:
         List of dicts ready for bulk_create_questions
     """
     records = []
-    anlagen_enriched = 0
     for idx, q in enumerate(questions):
         scenario_num = q.get('scenario_number')
         scenario = scenario_map.get(scenario_num, {})
@@ -415,14 +405,18 @@ def _build_question_records(
             except json.JSONDecodeError:
                 renderer_data = {}
 
-        # Build scenario_text: context + Anlagen data (if any)
+        # Build scenario_text: context + Anlagen HTML (from Vision AI)
         scenario_text = scenario.get('context', '')
         anlagen = scenario.get('anlagen', [])
         if anlagen:
             anlagen_parts = []
             for anlage in anlagen:
                 name = anlage.get('name', '')
-                content = anlage.get('content', '')
+                # Vision AI returns content_html; fall back to content
+                content = (
+                    anlage.get('content_html')
+                    or anlage.get('content', '')
+                )
                 if name and content:
                     anlagen_parts.append(f"\n\n--- {name} ---\n{content}")
                 elif content:
@@ -430,20 +424,10 @@ def _build_question_records(
             if anlagen_parts:
                 scenario_text += ''.join(anlagen_parts)
 
-        # Fallback: enrich from raw PDF text if AI missed Anlagen
-        question_text = q.get('text', '')
-        if raw_anlagen:
-            before_len = len(scenario_text)
-            scenario_text = enrich_scenario_with_anlagen(
-                scenario_text, question_text, raw_anlagen,
-            )
-            if len(scenario_text) > before_len:
-                anlagen_enriched += 1
-
         record = {
             'exam_id': exam_id,
             'question_type': q.get('question_type', 'essay'),
-            'question_text': question_text,
+            'question_text': q.get('text', ''),
             'points': q.get('points', 5),
             'order_index': idx + 1,
             'data': renderer_data,
@@ -454,12 +438,6 @@ def _build_question_records(
             'solution_text': q.get('solution_text', ''),
         }
         records.append(record)
-
-    if anlagen_enriched:
-        logger.info(
-            "Enriched %d/%d questions with Anlage data from raw PDF text",
-            anlagen_enriched, len(records),
-        )
 
     return records
 

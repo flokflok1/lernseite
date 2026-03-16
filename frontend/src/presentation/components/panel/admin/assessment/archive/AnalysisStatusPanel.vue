@@ -14,7 +14,7 @@
         <div class="flex items-center gap-2">
           <div class="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent" />
           <span class="text-sm font-semibold text-[var(--color-text)]">
-            {{ t('examArchive.analysisStatus') }}
+            {{ t('panel.examArchive.analysisStatus') }}
           </span>
         </div>
         <span class="text-xs text-[var(--color-text-secondary)]">
@@ -34,15 +34,15 @@
       <div class="px-4 py-2 flex gap-4 text-xs text-[var(--color-text-secondary)]">
         <span v-if="analysisStatus.analyzing > 0" class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-          {{ analysisStatus.analyzing }} {{ t('examArchive.statusAnalyzing') }}
+          {{ analysisStatus.analyzing }} {{ t('panel.examArchive.statusAnalyzing') }}
         </span>
         <span v-if="analysisStatus.pending > 0" class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-amber-500" />
-          {{ analysisStatus.pending }} {{ t('examArchive.statusPending') }}
+          {{ analysisStatus.pending }} {{ t('panel.examArchive.statusPending') }}
         </span>
         <span v-if="analysisStatus.failed > 0" class="flex items-center gap-1 text-red-400">
           <span class="w-2 h-2 rounded-full bg-red-500" />
-          {{ analysisStatus.failed }} {{ t('examArchive.statusFailed') }}
+          {{ analysisStatus.failed }} {{ t('panel.examArchive.statusFailed') }}
         </span>
       </div>
 
@@ -61,8 +61,8 @@
               : 'bg-amber-500/20 text-amber-400'"
           >
             {{ item.status === 'analyzing'
-              ? t('examArchive.statusAnalyzing')
-              : t('examArchive.statusPending') }}
+              ? t('panel.examArchive.statusAnalyzing')
+              : t('panel.examArchive.statusPending') }}
           </span>
         </div>
       </div>

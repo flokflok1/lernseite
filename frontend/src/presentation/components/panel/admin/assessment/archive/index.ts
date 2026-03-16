@@ -1,1 +1,1 @@
-export { default as ExamArchiveManager } from './ExamArchiveManager.vue'
+export { default as FileExplorer } from './FileExplorer.vue'

@@ -21,7 +21,7 @@
 
     <!-- Tab Content -->
     <div class="flex-1 overflow-hidden">
-      <ExamArchiveManager v-if="activeTab === 'archive'" :key="0" />
+      <FileExplorer v-if="activeTab === 'archive'" :key="0" @close="() => {}" />
       <div v-else-if="activeTab === 'curriculum'" class="h-full overflow-y-auto p-6">
         <CurriculumManager />
       </div>
@@ -36,7 +36,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
-import ExamArchiveManager from '@/presentation/components/panel/admin/assessment/archive/ExamArchiveManager.vue'
+import FileExplorer from '@/presentation/components/panel/admin/assessment/archive/FileExplorer.vue'
 import CurriculumManager from '@/presentation/components/panel/admin/assessment/curriculum/CurriculumManager.vue'
 import ExamCourseGenerator from '@/presentation/components/panel/admin/assessment/exams/ExamCourseGenerator.vue'
 

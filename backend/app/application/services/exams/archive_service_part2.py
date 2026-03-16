@@ -273,48 +273,58 @@ def _build_vision_message_content(
     return content
 
 
-_VISION_PROMPT_BASE = (
-    "Du siehst die Seiten einer IHK-Abschlusspruefung als Bilder.\n"
-    "Extrahiere ALLE Informationen strukturiert als JSON.\n\n"
-    "WICHTIG:\n"
-    "- Erfasse JEDEN Szenario-Text VOLLSTAENDIG (keine Zusammenfassung)\n"
-    "- Erfasse ALLE Tabellen exakt mit allen Zahlen, Spalten und Zeilen\n"
-    "- Erfasse ALLE Anlagen mit VOLLSTAENDIGEM Inhalt\n"
-    "- Jede Teilaufgabe (1a, 1b, 2.1, 2.2, etc.) ist eine eigene Frage\n"
-    "- Punkte pro Aufgabe angeben\n\n"
-    "Szenario-Kontext: Gib den vollstaendigen Szenario-Text als HTML zurueck.\n"
-    "Nutze <p> fuer Absaetze, <strong> fuer wichtige Begriffe, "
-    "<ul>/<ol> fuer Listen.\n\n"
-    "WICHTIG fuer Anlagen-Inhalt:\n"
-    "- Gib Anlagen-Inhalte als sauberes HTML zurueck (nicht als Plain Text)\n"
-    "- Tabellen als <table> mit <thead> und <tbody>\n"
-    "- Angebote/Briefe als strukturiertes HTML mit Absaetzen, "
-    "Ueberschriften, Tabellen\n"
-    "- Nutze CSS-Klassen: 'anlage-offer' fuer Angebote, 'anlage-table' "
-    "fuer Tabellen, 'anlage-ref' fuer Referenzen\n"
-    "- Kein inline CSS, nur CSS-Klassen\n"
-    "- Der HTML-Inhalt muss ohne das Original-PDF verstaendlich und "
-    "vollstaendig sein\n\n"
-    "Antworte NUR mit validem JSON:\n"
-    '```json\n{{\n  "scenarios": [{{"number": 1, "title": "...", '
-    '"context": "<p>Vollstaendiger Szenario-Text...</p>", '
-    '"context_html": true, '
-    '"anlagen": [{{"name": "Anlage 1: ...", '
-    '"content_html": "<div class=\'anlage-offer\'>...'
-    '<table>...</table>...</div>"}}]}}],\n'
-    '  "questions": [{{"scenario_number": 1, '
-    '"question_number": "1a", "text": "...", "question_type": "essay", '
-    '"points": 5, "topics": ["netzwerk"], '
-    '"solution_text": "..."}}]\n}}\n```\n\n'
-    "question_type: mcq, essay, calculation, code, fill_blank, "
-    "case_study, ordering, matching\n\n"
-    "topics: projektmanagement, kalkulation, netzwerk, subnetting, "
-    "ipv4, routing, firewall, vpn, wlan, dhcp, sql, datenbanken, erm, "
-    "programmierung, python, java, html, json, xml, csv, it_sicherheit, "
-    "datenschutz, dsgvo, virtualisierung, cloud, backup, raid, hardware, "
-    "software, wirtschaft, vertragsrecht, arbeitsrecht, rechtsformen, "
-    "qualitaetsmanagement"
-)
+_VISION_PROMPT_BASE = """Du siehst die Seiten einer Pruefung oder eines Examens als Bilder.
+
+STRUKTUR EINER PRUEFUNG:
+- Eine Pruefung hat mehrere AUFGABEN (Aufgabe 1, 2, 3, 4 oder Question 1, 2, 3)
+- Jede Aufgabe kann eine HANDLUNGSSITUATION haben (= Szenario mit Kontext, Firma, Situation)
+- Jede Aufgabe hat TEILAUFGABEN (1.1, 1.2, 1a, 1b, 2.1 usw.) = die eigentlichen Fragen
+- Die PUNKTZAHL steht oft RECHTS neben jeder Frage (z.B. "5" oder "8 Punkte")
+- ANLAGEN/APPENDICES sind separate Dokumente (Tabellen, Angebote, Diagramme)
+
+REGELN:
+1. Jede AUFGABE = ein scenario (mit eigenem Szenario-Text)
+2. Jede TEILAUFGABE = eine question (verknuepft mit dem Szenario ueber scenario_number)
+3. MISCHE NIEMALS Szenarien verschiedener Aufgaben
+4. question_number = ORIGINAL-Nummer aus der Pruefung (z.B. "1.1", "2.3", "3.2.1")
+5. points = MUSS die echte Punktzahl sein (steht rechts). Wenn nicht lesbar: 5
+6. Anlagen NICHT in den Szenario-Text einbetten, sondern in das anlagen-Array
+7. Szenario-Text als HTML: <p>, <strong>, <ul>/<ol>
+8. Anlagen-Inhalt als HTML: <table> fuer Tabellen, <p> fuer Text
+
+JSON-FORMAT:
+```json
+{{
+  "scenarios": [
+    {{
+      "number": 1,
+      "title": "Firmenname oder Situationstitel",
+      "context": "<p>VOLLSTAENDIGER Handlungssituation-Text...</p>",
+      "context_html": true,
+      "anlagen": [
+        {{
+          "name": "Anlage 1: Titel der Anlage",
+          "content_html": "<table><thead>...</thead><tbody>...</tbody></table>"
+        }}
+      ]
+    }}
+  ],
+  "questions": [
+    {{
+      "scenario_number": 1,
+      "question_number": "1.1",
+      "text": "Exakter Aufgabentext",
+      "question_type": "essay",
+      "points": 5,
+      "topics": ["netzwerk"],
+      "solution_text": ""
+    }}
+  ]
+}}
+```
+
+question_type: mcq, essay, calculation, code, fill_blank, case_study, ordering, matching, short_answer
+topics: projektmanagement, kalkulation, netzwerk, subnetting, ipv4, routing, firewall, vpn, wlan, dhcp, sql, datenbanken, erm, programmierung, python, java, html, json, xml, csv, it_sicherheit, datenschutz, dsgvo, virtualisierung, cloud, backup, raid, hardware, software, wirtschaft, vertragsrecht, arbeitsrecht, rechtsformen, qualitaetsmanagement, organisationsformen, energiekosten"""
 
 
 def _build_vision_prompt(solution_text: str | None = None) -> str:

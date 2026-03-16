@@ -15,6 +15,7 @@ from app.infrastructure.persistence.database.connection import (
     insert_returning,
     update_returning,
     delete_returning,
+    execute_query,
 )
 
 logger = logging.getLogger(__name__)
@@ -205,6 +206,22 @@ class ExamQuestionRepository(BaseRepository):
                 {limit_clause}""",
             params,
         )
+
+    @classmethod
+    def delete_by_exam_id(cls, exam_id: str) -> int:
+        """Delete all questions for an exam.
+
+        Args:
+            exam_id: Exam UUID
+
+        Returns:
+            Number of rows deleted.
+        """
+        query = """
+            DELETE FROM assessments.exam_questions
+            WHERE exam_id = %s
+        """
+        return execute_query(query, (exam_id,))
 
     @classmethod
     def reorder_questions(cls, exam_id: str, question_orders: List[Dict[str, Any]]) -> bool:

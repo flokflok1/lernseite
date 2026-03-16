@@ -14,6 +14,10 @@ from app.infrastructure.persistence.repositories.exams.sessions import (
     ExamSessionRepository,
 )
 from app.infrastructure.tasks.exam_archive_tasks import analyze_exam_pdf_task
+from app.api.v1.panel.admin.exams.archive_serializers import (
+    serialize_exam_list,
+    serialize_question_list,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +201,7 @@ def list_archive_exams():
     return jsonify({
         'success': True,
         'count': len(exams),
-        'exams': _serialize_exam_list(exams),
+        'exams': serialize_exam_list(exams),
     })
 
 
@@ -223,7 +227,7 @@ def get_exam_questions(exam_id):
         'exam_id': exam_id,
         'exam_title': exam.get('title', ''),
         'count': len(questions),
-        'questions': _serialize_question_list(questions),
+        'questions': serialize_question_list(questions),
     })
 
 
@@ -428,6 +432,48 @@ def move_exam(exam_id):
     }), 200
 
 
+@archive_bp.route('/<exam_id>/re-analyze', methods=['PUT'])
+@admin_required
+def re_analyze_exam(exam_id):
+    """Delete existing questions and re-queue Vision AI analysis."""
+    exam = ExamRepository.find_by_id(exam_id)
+    if not exam:
+        return jsonify({'error': 'Exam not found'}), 404
+
+    ExamQuestionRepository.delete_by_exam_id(exam_id)
+    ExamRepository.update_analysis_status(exam_id, 'pending')
+
+    body = request.get_json(silent=True) or {}
+    analyze_exam_pdf_task.delay(
+        str(exam_id), provider=body.get('provider'), model=body.get('model'),
+    )
+    logger.info("Re-analysis queued for exam %s", exam_id)
+    return jsonify({'status': 'queued', 'exam_id': str(exam_id)}), 200
+
+
+@archive_bp.route('/re-analyze-all', methods=['PUT'])
+@admin_required
+def re_analyze_all():
+    """Re-analyze all ready exams — delete questions and re-queue."""
+    exams = ExamRepository.find_archive_exams(status='ready')
+    if not exams:
+        return jsonify({'status': 'queued', 'count': 0}), 200
+
+    body = request.get_json(silent=True) or {}
+    provider, model = body.get('provider'), body.get('model')
+
+    count = 0
+    for exam in exams:
+        eid = str(exam.get('exam_id'))
+        ExamQuestionRepository.delete_by_exam_id(eid)
+        ExamRepository.update_analysis_status(eid, 'pending')
+        analyze_exam_pdf_task.delay(eid, provider=provider, model=model)
+        count += 1
+
+    logger.info("Re-analysis queued for %d exams", count)
+    return jsonify({'status': 'queued', 'count': count}), 200
+
+
 @archive_bp.route('/exams/<exam_id>', methods=['DELETE'])
 @admin_required
 def delete_exam(exam_id):
@@ -441,45 +487,3 @@ def delete_exam(exam_id):
     return jsonify({'deleted': True}), 200
 
 
-def _serialize_exam_list(exams: list) -> list:
-    """Serialize exam records for JSON response."""
-    return [{
-        'exam_id': str(e.get('exam_id', '')),
-        'title': e.get('title', ''),
-        'semester': e.get('semester'), 'year': e.get('year'),
-        'season': e.get('season'), 'part': e.get('part'),
-        'profession': e.get('profession'),
-        'analysis_status': e.get('analysis_status', 'pending'),
-        'question_count': e.get('question_count', 0),
-        'pdf_path': e.get('pdf_path'),
-        'created_at': (
-            e['created_at'].isoformat() if e.get('created_at') else None
-        ),
-    } for e in exams]
-
-
-def _serialize_question_list(questions: list) -> list:
-    """Serialize question records for JSON response."""
-    import json as _json
-    result = []
-    for q in questions:
-        data = q.get('data')
-        if isinstance(data, str):
-            try:
-                data = _json.loads(data)
-            except (ValueError, TypeError):
-                pass
-        result.append({
-            'question_id': str(q.get('question_id', '')),
-            'question_number': q.get('question_number', ''),
-            'question_type': q.get('question_type', ''),
-            'question_text': q.get('question_text', ''),
-            'points': q.get('points', 0),
-            'order_index': q.get('order_index', 0),
-            'scenario_title': q.get('scenario_title', ''),
-            'scenario_text': q.get('scenario_text', ''),
-            'topics': q.get('topics', []),
-            'solution_text': q.get('solution_text', ''),
-            'renderer_data': data,
-        })
-    return result

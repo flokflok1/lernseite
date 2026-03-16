@@ -88,6 +88,10 @@ function act(action: string) {
           <span class="ctx-icon">🔍</span>
           {{ t('panel.examArchive.contextMenu.analyze') }}
         </button>
+        <button class="ctx-item" @click="act('reAnalyze')">
+          <span class="ctx-icon">🔄</span>
+          {{ t('panel.examArchive.contextMenu.reAnalyze') }}
+        </button>
         <button class="ctx-item" @click="act('moveTo')">
           <span class="ctx-icon">📎</span>
           {{ t('panel.examArchive.contextMenu.moveTo') }}

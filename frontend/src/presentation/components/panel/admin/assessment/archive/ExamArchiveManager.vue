@@ -21,6 +21,10 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" /></svg>
             {{ analyzingAll ? t('panel.examArchive.analyzing') : t('panel.examArchive.analyzeAll') }}
           </button>
+          <button v-if="hasReadyExams" @click="handleReAnalyzeAll" :disabled="reAnalyzingAll" class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed" style="background-color: var(--color-warning-text, #d97706);">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182" /></svg>
+            {{ reAnalyzingAll ? t('panel.examArchive.analyzing') : t('panel.examArchive.reAnalyzeAll') }}
+          </button>
           <button @click="showUploadDialog = true" class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-all bg-[var(--color-primary)] hover:opacity-90">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
             {{ t('panel.examArchive.upload.title') }}
@@ -211,6 +215,7 @@ import {
   archiveDeleteSession,
   archiveDeleteExam,
   archiveMoveExam,
+  archiveReAnalyzeAll,
 } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 import { useExamArchiveTree } from '@/application/composables/panel/admin/assessment'
 import ExamUploadDialog from './ExamUploadDialog.vue'
@@ -228,6 +233,7 @@ const loadingSessions = ref(false)
 const scanning = ref(false)
 const importing = ref(false)
 const analyzingAll = ref(false)
+const reAnalyzingAll = ref(false)
 const statusMessage = ref('')
 const showUploadDialog = ref(false)
 const folderExplorerRef = ref<InstanceType<typeof ExamFolderExplorer> | null>(null)
@@ -266,6 +272,10 @@ const hasPendingExams = computed(() =>
 
 const hasAnalyzingExams = computed(() =>
   exams.value.some((e) => e.analysis_status === 'analyzing')
+)
+
+const hasReadyExams = computed(() =>
+  exams.value.some((e) => e.analysis_status === 'ready')
 )
 
 const pendingReviewCount = computed(() =>
@@ -342,6 +352,25 @@ const handleAnalyzeAll = async () => {
     statusMessage.value = String(err)
   } finally {
     analyzingAll.value = false
+  }
+}
+
+const handleReAnalyzeAll = async () => {
+  if (!confirm(t('panel.examArchive.reAnalyzeConfirm'))) return
+  reAnalyzingAll.value = true
+  statusMessage.value = ''
+  try {
+    const result = await archiveReAnalyzeAll()
+    statusMessage.value = t('panel.examArchive.analyzeTriggered', {
+      count: result.count
+    })
+    await Promise.all([loadExams(), loadSessions()])
+    startAutoRefresh()
+  } catch (err) {
+    console.error('Re-analyze all failed:', err)
+    statusMessage.value = String(err)
+  } finally {
+    reAnalyzingAll.value = false
   }
 }
 

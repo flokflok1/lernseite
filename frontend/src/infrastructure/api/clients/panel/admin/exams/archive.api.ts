@@ -220,6 +220,21 @@ export const archiveDeleteExam = async (
   await http.delete(`/admin/exam-archive/exams/${examId}`)
 }
 
+// --- Re-Analyze ---
+
+export const archiveReAnalyzeExam = async (
+  examId: string
+): Promise<void> => {
+  await http.put(`/admin/exam-archive/${examId}/re-analyze`)
+}
+
+export const archiveReAnalyzeAll = async (): Promise<{ count: number }> => {
+  const { data } = await http.put<{ count: number }>(
+    '/admin/exam-archive/re-analyze-all'
+  )
+  return data
+}
+
 // --- Admin Moderation ---
 
 export const archiveReviewUpload = async (

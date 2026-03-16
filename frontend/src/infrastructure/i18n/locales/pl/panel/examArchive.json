@@ -22,7 +22,8 @@
       "generateCourse": "Generuj kurs",
       "delete": "Usuń",
       "download": "Pobierz",
-      "details": "Szczegóły"
+      "details": "Szczegóły",
+      "reAnalyze": "Ponowna analiza"
     },
     "status": {
       "connected": "Połączono",

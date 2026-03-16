@@ -348,7 +348,25 @@
     "failed": "Niezdany",
     "backToExams": "Powrót do przeglądu",
     "points": "{count} punktów",
-    "questionOf": "Pytanie {current} z {total}"
+    "questionOf": "Pytanie {current} z {total}",
+    "adaptive": {
+      "title": "Trener egzaminów",
+      "subtitle": "Informatyk — AP1 (wspólny)",
+      "totalQuestions": "Pytań w puli",
+      "seenQuestions": "Przećwiczone",
+      "masteredQuestions": "Opanowane",
+      "startExam": "Rozpocznij egzamin",
+      "startExamDesc": "{count} pytań · {minutes} minut · Adaptacyjny",
+      "generating": "Generowanie egzaminu...",
+      "topicsTitle": "Przegląd tematów",
+      "recentTitle": "Ostatnie wyniki",
+      "noHistory": "Brak ukończonych egzaminów",
+      "accuracy": "{pct}% poprawnych",
+      "adaptiveExam": "Egzamin adaptacyjny",
+      "weakFirst": "Najpierw słabe strony",
+      "passed": "zdany",
+      "failed": "niezdany"
+    }
   },
   "title": "Administracja"
 }

@@ -154,8 +154,8 @@ export interface ReviewQuestion {
 
 export interface AttemptHistoryEntry {
   attempt_id: string
-  exam_id: string
-  exam_title: string
+  exam_id: string | null
+  exam_title: string | null
   score: number | null
   total_points: number | null
   percentage: number | null
@@ -195,6 +195,49 @@ export const trainerGetAnlagen = async (examId: string): Promise<Anlage[]> => {
     `/user/exam-trainer/exams/${examId}/anlagen`
   )
   return response.data.anlagen
+}
+
+/** Dashboard response from GET /dashboard */
+export interface TrainerDashboard {
+  pool: {
+    total_questions: number
+    seen_questions: number
+    mastered_questions: number
+  }
+  topics: TopicStat[]
+  recent_attempts: AttemptHistoryEntry[]
+}
+
+/** Generated adaptive exam from POST /generate-exam */
+export interface GeneratedExam {
+  attempt_id: string
+  questions: TrainerQuestion[]
+  duration_minutes: number
+  total_points: number
+  question_count: number
+}
+
+/** Generate an adaptive exam using rotation algorithm */
+export async function trainerGenerateExam(
+  questionCount: number = 20,
+  durationMinutes: number = 90,
+): Promise<GeneratedExam> {
+  const response = await http.post<{ success: boolean } & GeneratedExam>(
+    '/user/exam-trainer/generate-exam',
+    {
+      question_count: questionCount,
+      duration_minutes: durationMinutes,
+    }
+  )
+  return response.data
+}
+
+/** Get dashboard data (pool stats + topics + recent attempts) */
+export async function trainerGetDashboard(): Promise<TrainerDashboard> {
+  const response = await http.get<{ success: boolean } & TrainerDashboard>(
+    '/user/exam-trainer/dashboard'
+  )
+  return response.data
 }
 
 export const generatePracticeExam = async (params: {

@@ -35,88 +35,31 @@ _FALLBACK_TOPICS = (
     'cloud, verschluesselung, firewall, routing'
 )
 
-_ANALYSIS_PROMPT_TEMPLATE = """Du bist ein Experte für IHK-Prüfungen (Fachinformatiker AP1).
-Analysiere den folgenden Prüfungstext und extrahiere ALLE Aufgaben strukturiert.
-
-## Regeln:
-1. Identifiziere jede Handlungssituation / jedes Firmenszenario
-2. Extrahiere JEDE Teilfrage (1a, 1b, 2.1, 2.2 etc.)
-3. Weise jedem Teilfrage einen question_type zu:
-   - "mcq" (Multiple Choice)
-   - "calculation" (Rechenaufgabe)
-   - "essay" (Freitext / Erklärung)
-   - "code" (Programmierung / SQL / Pseudocode)
-   - "fill_blank" (Lückentext / Zuordnung)
-   - "case_study" (Fallstudie / Szenario-Analyse)
-4. Tagge Topics aus dieser Liste (mehrere möglich):
-   {topic_list}
-5. Generiere renderer_data passend zum question_type:
-   - mcq: {{"questions": [{{"question": "...", "options": [...], "correctAnswers": [0], "explanation": "..."}}]}}
-   - calculation: {{"problems": [{{"question": "...", "answer": "...", "hint": "..."}}]}}
-   - essay: {{"question": "...", "hints": [...], "wordLimit": 300}}
-   - code: {{"question": "...", "language": "sql", "starterCode": "", "solution": "..."}}
-   - fill_blank: {{"sentences": [{{"text": "... {{{{blank}}}} ...", "answers": ["..."]}}]}}
-   - case_study: {{"scenario": "...", "questions": [{{"question": "...", "answer": "..."}}]}}
-
-## KRITISCH — Anlagen / Anhänge extrahieren:
-IHK-Prüfungen enthalten Anlagen (Anhänge) mit Datentabellen, Preislisten,
-technischen Daten, Angeboten, Netzwerkdiagrammen etc. Diese sind ESSENTIELL
-für das Verständnis der Aufgaben.
-
-6. Identifiziere ALLE Anlagen im Text (z.B. "Anlage 1", "Anlage 2", "Anhang A")
-7. Extrahiere den VOLLSTÄNDIGEN Inhalt jeder Anlage — inkl. aller Zahlen,
-   Preise, Tabellen, technische Daten. NICHTS weglassen oder zusammenfassen!
-8. Ordne jede Anlage dem zugehörigen Szenario zu (über die Anlage-Referenzen
-   im Aufgabentext)
-9. Bei Rechenaufgaben (calculation): Die Anlagen-Daten MÜSSEN im scenario
-   context stehen, damit die Aufgabe ohne Original-PDF lösbar ist
-
-## Ausgabeformat (strenges JSON):
-```json
-{{
-  "scenarios": [
-    {{
-      "number": 1,
-      "title": "Firmenszenario-Titel",
-      "context": "Beschreibung der Handlungssituation...",
-      "anlagen": [
-        {{
-          "name": "Anlage 1: Angebot Firma XY",
-          "content": "VOLLSTÄNDIGER Inhalt der Anlage mit allen Zahlen, Preisen, Tabellen..."
-        }}
-      ]
-    }}
-  ],
-  "questions": [
-    {{
-      "scenario_number": 1,
-      "question_number": "1a",
-      "text": "Die vollständige Fragestellung...",
-      "question_type": "mcq",
-      "points": 5,
-      "topics": ["netzwerk", "subnetting"],
-      "renderer_data": {{}},
-      "solution_text": "Musterlösung / Erwartungshorizont..."
-    }}
-  ]
-}}
-```
-
-## WICHTIG:
-- Gib NUR das JSON aus, keine zusätzliche Erklärung
-- Extrahiere ALLE Teilfragen, keine auslassen
-- Punkte möglichst aus dem Text übernehmen, sonst schätzen
-- renderer_data MUSS zum question_type passen
-- solution_text: Wenn Lösungstext vorhanden, übernehmen
-- Anlagen-Daten VOLLSTÄNDIG übernehmen — Preise, Mengen, Rabatte, Skonti,
-  Lieferkosten, technische Spezifikationen, IP-Adressen, Netzwerkpläne etc.
-- scenario.context MUSS alle relevanten Anlagen-Daten enthalten, sodass
-  die Fragen OHNE das Original-PDF beantwortet werden können
-
-{solution_section}
-
-## Prüfungstext:
-{exam_text}"""
+_ANALYSIS_PROMPT_TEMPLATE = (
+    "Du bist ein Experte fuer IHK-Pruefungen (Fachinformatiker AP1).\n"
+    "Analysiere den folgenden Pruefungstext und extrahiere ALLE Aufgaben strukturiert.\n\n"
+    "## Regeln:\n"
+    "1. Identifiziere jede Handlungssituation / jedes Firmenszenario\n"
+    "2. Extrahiere JEDE Teilfrage (1a, 1b, 2.1, 2.2 etc.)\n"
+    "3. question_type: mcq, calculation, essay, code, fill_blank, case_study\n"
+    "4. Topics aus: {topic_list}\n"
+    "5. renderer_data passend zum question_type generieren\n\n"
+    "## Anlagen extrahieren:\n"
+    "- ALLE Anlagen (Anlage 1, 2, Anhang A) VOLLSTAENDIG mit allen Zahlen, "
+    "Preisen, Tabellen, technischen Daten extrahieren\n"
+    "- Anlagen dem zugehoerigen Szenario zuordnen\n"
+    "- scenario.context MUSS alle Anlagen-Daten enthalten\n\n"
+    '## JSON-Format:\n```json\n{{\n'
+    '  "scenarios": [{{"number": 1, "title": "...", "context": "...", '
+    '"anlagen": [{{"name": "Anlage 1: ...", "content": "..."}}]}}],\n'
+    '  "questions": [{{"scenario_number": 1, "question_number": "1a", '
+    '"text": "...", "question_type": "essay", "points": 5, '
+    '"topics": ["netzwerk"], "renderer_data": {{}}, '
+    '"solution_text": "..."}}]\n}}\n```\n\n'
+    "NUR JSON ausgeben. ALLE Teilfragen extrahieren. "
+    "Anlagen-Daten VOLLSTAENDIG uebernehmen.\n\n"
+    "{solution_section}\n\n## Pruefungstext:\n{exam_text}"
+)
 
 
 def _build_topic_list(exam_type: str) -> str:
@@ -216,10 +159,6 @@ def analyze_exam_pdf_task(
             return {'success': False, 'error': 'Exam not found'}
 
         raw_text = exam.get('raw_text')
-        if not raw_text:
-            logger.error("Exam %s has no raw_text", exam_id)
-            _mark_failed(exam_id, 'No raw_text available')
-            return {'success': False, 'error': 'No raw_text available'}
 
         # 2. Get solution text from settings JSONB
         settings = exam.get('settings') or {}
@@ -230,32 +169,13 @@ def analyze_exam_pdf_task(
         # 3. Mark as analyzing
         ExamRepository.update_analysis_status(exam_id, 'analyzing')
 
-        # 4. Build prompt and call AI
+        # 4. Analyze via Vision AI (primary) or text (fallback)
         exam_type = exam.get('exam_type_key') or 'unknown'
-        solution_section = ''
-        if solution_text:
-            solution_section = (
-                f"## Lösungstext (zur Zuordnung):\n{solution_text}"
-            )
-
-        prompt = _build_analysis_prompt(
-            exam_type=exam_type,
-            exam_text=raw_text,
-            solution_section=solution_section,
+        parsed = _run_vision_or_text_analysis(
+            exam, raw_text, solution_text, exam_type, provider, model,
         )
+        tokens_used = 0  # Vision path doesn't return token counts
 
-        adapter = AIAdapter(provider=provider, model=model)
-        response = adapter.send_request(
-            prompt=prompt,
-            language='de',
-            temperature=0.3,
-        )
-
-        output_text = response.get('output_text', '')
-        tokens_used = response.get('total_tokens', 0)
-
-        # 5. Parse JSON from AI response
-        parsed = _parse_ai_json(output_text)
         if not parsed:
             _mark_failed(exam_id, 'Failed to parse AI response as JSON')
             return {'success': False, 'error': 'JSON parse failed'}
@@ -325,6 +245,111 @@ def analyze_exam_pdf_task(
         if self.request.retries < self.max_retries:
             raise self.retry(exc=e)
         return {'success': False, 'error': str(e)}
+
+
+def _resolve_pdf_path(pdf_path: str) -> Optional[str]:
+    """Resolve a potentially relative PDF path to an absolute one."""
+    import os
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    candidates = [
+        pdf_path,
+        os.path.join(base_dir, '..', pdf_path),
+        os.path.join(base_dir, '..', '..', pdf_path),
+    ]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return os.path.abspath(candidate)
+    return None
+
+
+def _analyze_via_vision(
+    full_path: str,
+    solution_text: str,
+    provider: str,
+    model: str,
+) -> Optional[Dict]:
+    """Run Vision AI analysis on a PDF or image file."""
+    import base64
+    from app.application.services.exams.archive_service_part2 import (
+        convert_pdf_to_images,
+        analyze_exam_with_vision,
+    )
+
+    lower = full_path.lower()
+    if lower.endswith(('.jpg', '.jpeg', '.png')):
+        # Single image file — already vision-ready
+        with open(full_path, 'rb') as f:
+            img_b64 = base64.b64encode(f.read()).decode('utf-8')
+        page_images = [img_b64]
+    else:
+        page_images = convert_pdf_to_images(full_path, dpi=200)
+
+    return analyze_exam_with_vision(
+        page_images=page_images,
+        solution_text=solution_text or None,
+        provider=provider,
+        model=model,
+    )
+
+
+def _analyze_via_text(
+    raw_text: str,
+    solution_text: str,
+    exam_type: str,
+    provider: str,
+    model: str,
+) -> Optional[Dict]:
+    """Fallback: text-based AI analysis for exams without PDF files."""
+    solution_section = ''
+    if solution_text:
+        solution_section = (
+            f"## Lösungstext (zur Zuordnung):\n{solution_text}"
+        )
+
+    prompt = _build_analysis_prompt(
+        exam_type=exam_type,
+        exam_text=raw_text,
+        solution_section=solution_section,
+    )
+
+    adapter = AIAdapter(provider=provider, model=model)
+    response = adapter.send_request(
+        prompt=prompt,
+        language='de',
+        temperature=0.3,
+    )
+
+    output_text = response.get('output_text', '')
+    return _parse_ai_json(output_text)
+
+
+def _run_vision_or_text_analysis(
+    exam: Dict,
+    raw_text: Optional[str],
+    solution_text: str,
+    exam_type: str,
+    provider: str,
+    model: str,
+) -> Optional[Dict]:
+    """Route to vision or text-based analysis depending on PDF availability."""
+    pdf_path = exam.get('pdf_path')
+    full_pdf_path = _resolve_pdf_path(pdf_path) if pdf_path else None
+
+    if full_pdf_path:
+        logger.info("Using Vision pipeline for: %s", full_pdf_path)
+        return _analyze_via_vision(
+            full_pdf_path, solution_text, provider, model,
+        )
+
+    if raw_text:
+        logger.info("Using text-based fallback (no PDF file available)")
+        return _analyze_via_text(
+            raw_text, solution_text, exam_type, provider, model,
+        )
+
+    logger.error("No PDF and no raw_text for exam %s", exam.get('id'))
+    return None
 
 
 def _parse_ai_json(response_text: str) -> Optional[Dict]:

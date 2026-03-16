@@ -406,25 +406,32 @@ class ExamTrainerRepository(ExamTrainerRotationMixin):
         Independent of course existence.
         """
         query = """
+            WITH normalized AS (
+                SELECT e.exam_id,
+                    CASE
+                        WHEN lower(e.profession) IN ('fisi', 'fachinformatiker systemintegration')
+                            THEN 'Fachinformatiker Systemintegration — AP1'
+                        WHEN lower(e.profession) IN ('fiae', 'fachinformatiker anwendungsentwicklung')
+                            THEN 'Fachinformatiker Anwendungsentwicklung — AP1'
+                        ELSE COALESCE(e.profession, 'Allgemein')
+                    END AS title
+                FROM assessments.exams e
+                WHERE e.analysis_status = 'ready' AND e.published = true
+            )
             SELECT
-                COALESCE(e.profession, 'GENERAL') AS program_id,
-                CASE e.profession
-                    WHEN 'FISI' THEN 'Fachinformatiker Systemintegration — AP1'
-                    WHEN 'FIAE' THEN 'Fachinformatiker Anwendungsentwicklung — AP1'
-                    ELSE COALESCE(e.profession, 'Allgemein')
-                END AS title,
+                n.title AS program_id,
+                n.title,
                 count(DISTINCT eq.question_id) AS total_questions,
-                count(DISTINCT e.exam_id) AS exam_count,
+                count(DISTINCT n.exam_id) AS exam_count,
                 (SELECT count(*) FROM assessments.user_question_stats
                  WHERE user_id = %s) AS seen_questions,
                 (SELECT count(*) FROM assessments.user_question_stats
                  WHERE user_id = %s AND times_correct > 0
                  AND times_correct::float / GREATEST(times_seen, 1) >= 0.5
                 ) AS mastered_questions
-            FROM assessments.exams e
-            JOIN assessments.exam_questions eq ON eq.exam_id = e.exam_id
-            WHERE e.analysis_status = 'ready' AND e.published = true
-            GROUP BY e.profession
+            FROM normalized n
+            JOIN assessments.exam_questions eq ON eq.exam_id = n.exam_id
+            GROUP BY n.title
             ORDER BY count(DISTINCT eq.question_id) DESC
         """
         return fetch_all(query, (user_id, user_id))

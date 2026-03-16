@@ -51,6 +51,10 @@
       "title": "Przeglądarka PDF",
       "questions": "Wyodrębnione pytania",
       "noQuestions": "Nie wyodrębniono jeszcze pytań"
-    }
+    },
+    "analysisStatus": "Postęp analizy",
+    "statusAnalyzing": "analizowanie",
+    "statusPending": "oczekujące",
+    "statusFailed": "nieudane"
   }
 }

@@ -51,6 +51,10 @@
       "title": "PDF Viewer",
       "questions": "Extracted Questions",
       "noQuestions": "No questions extracted yet"
-    }
+    },
+    "analysisStatus": "Analysis Progress",
+    "statusAnalyzing": "analyzing",
+    "statusPending": "pending",
+    "statusFailed": "failed"
   }
 }

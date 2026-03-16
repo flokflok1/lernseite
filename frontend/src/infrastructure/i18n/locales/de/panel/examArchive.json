@@ -51,6 +51,10 @@
       "title": "PDF Viewer",
       "questions": "Extrahierte Fragen",
       "noQuestions": "Noch keine Fragen extrahiert"
-    }
+    },
+    "analysisStatus": "Analyse-Fortschritt",
+    "statusAnalyzing": "wird analysiert",
+    "statusPending": "wartend",
+    "statusFailed": "fehlgeschlagen"
   }
 }

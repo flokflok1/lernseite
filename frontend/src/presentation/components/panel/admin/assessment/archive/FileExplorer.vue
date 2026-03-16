@@ -11,6 +11,7 @@ import ExplorerContextMenu from './ExplorerContextMenu.vue'
 import ExplorerStatusBar from './ExplorerStatusBar.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import TrashPanel from './TrashPanel.vue'
+import AnalysisStatusPanel from './AnalysisStatusPanel.vue'
 import type { ArchiveFolder, ArchiveFile } from '@/infrastructure/api/clients/panel/admin/exams/folders.api'
 
 // FolderDetailDialog imported when needed
@@ -361,6 +362,9 @@ function onOpenFile(examId: string) {
       @confirm="onDialogConfirm"
       @cancel="dialog.visible = false"
     />
+
+    <!-- Analysis Status Panel (floating bottom-right) -->
+    <AnalysisStatusPanel />
   </div>
 </template>
 

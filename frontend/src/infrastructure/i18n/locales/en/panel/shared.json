@@ -293,6 +293,14 @@
       "tileWindows": "Side by side",
       "closeAll": "Close all"
     },
+    "scratchPad": {
+      "title": "Scratch Pad",
+      "modeText": "Text",
+      "modeTable": "Table",
+      "placeholder": "Type notes and calculations here...",
+      "tableHint": "Offer comparison template",
+      "reset": "Reset"
+    },
     "review": {
       "title": "Question Review",
       "subtitle": "{correct}/{total} correct · {earned}/{max} points",

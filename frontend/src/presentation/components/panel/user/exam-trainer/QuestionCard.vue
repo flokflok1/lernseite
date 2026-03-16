@@ -3,6 +3,7 @@ import { ref, computed, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
 import { AnlageBadge, AnlagePanel } from './anlagen'
+import ScratchPad from './ScratchPad.vue'
 import type { TrainerQuestion, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {
@@ -86,6 +87,19 @@ const tileAnlagen = () => {
 
 const closeAllPanels = () => { openPanels.clear() }
 
+// --- Scratch Pad ---
+const showScratchPad = ref(false)
+const scratchPadState = reactive({ x: 0, y: 0, w: 420, h: 460, z: 1000 })
+
+const toggleScratchPad = () => {
+  if (!showScratchPad.value) {
+    scratchPadState.x = window.innerWidth - 460
+    scratchPadState.y = 60
+    scratchPadState.z = ++nextZ
+  }
+  showScratchPad.value = !showScratchPad.value
+}
+
 // --- Question answer state ---
 const userAnswer = ref<unknown>('')
 const result = ref<AnswerResult | null>(null)
@@ -163,8 +177,23 @@ defineExpose({ setResult })
         :title="a.title"
         @click="openAnlage"
       />
-      <!-- Panel toolbar (shown when panels are open) -->
-      <div v-if="hasOpenPanels" class="flex gap-1 ml-2">
+      <!-- Scratch pad + panel toolbar -->
+      <div class="flex gap-1 ml-2">
+        <button
+          class="px-2 py-1 text-xs rounded border border-amber-500/40 transition-colors"
+          :class="showScratchPad
+            ? 'bg-amber-500/20 text-amber-400 border-amber-500/60'
+            : 'text-amber-400/70 hover:bg-amber-500/10'"
+          @click="toggleScratchPad"
+        >
+          <svg class="w-3 h-3 inline-block mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          {{ t('panel.examTrainer.scratchPad.title') }}
+        </button>
+      </div>
+      <div v-if="hasOpenPanels" class="flex gap-1">
         <button
           class="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-secondary)]
                  hover:bg-[var(--color-surface-elevated)] transition-colors"
@@ -185,6 +214,35 @@ defineExpose({ setResult })
         </button>
       </div>
     </div>
+
+    <!-- Scratch Pad toggle (always visible) -->
+    <div v-if="referencedAnlagen.length === 0" class="flex items-center gap-2 mb-4">
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg
+               border border-amber-500/40 text-amber-400
+               hover:bg-amber-500/20 hover:border-amber-500/60 transition-all"
+        :class="showScratchPad ? 'bg-amber-500/20' : 'bg-amber-500/10'"
+        @click="toggleScratchPad"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        {{ t('panel.examTrainer.scratchPad.title') }}
+      </button>
+    </div>
+
+    <!-- Scratch Pad Panel -->
+    <ScratchPad
+      v-if="showScratchPad"
+      :x="scratchPadState.x"
+      :y="scratchPadState.y"
+      :width="scratchPadState.w"
+      :height="scratchPadState.h"
+      :z-index="scratchPadState.z"
+      @focus="scratchPadState.z = ++nextZ"
+      @close="showScratchPad = false"
+    />
 
     <!-- Floating Anlage Panels -->
     <AnlagePanel

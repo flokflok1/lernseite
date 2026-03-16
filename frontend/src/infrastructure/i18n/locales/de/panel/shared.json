@@ -293,6 +293,14 @@
       "tileWindows": "Nebeneinander",
       "closeAll": "Alle schließen"
     },
+    "scratchPad": {
+      "title": "Rechenblatt",
+      "modeText": "Text",
+      "modeTable": "Tabelle",
+      "placeholder": "Notizen und Berechnungen hier eingeben...",
+      "tableHint": "Angebotsvergleich-Vorlage",
+      "reset": "Zurücksetzen"
+    },
     "review": {
       "title": "Aufgaben-Review",
       "subtitle": "{correct}/{total} richtig · {earned}/{max} Punkte",

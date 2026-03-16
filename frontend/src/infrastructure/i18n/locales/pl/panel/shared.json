@@ -293,6 +293,14 @@
       "tileWindows": "Obok siebie",
       "closeAll": "Zamknij wszystkie"
     },
+    "scratchPad": {
+      "title": "Brudnopis",
+      "modeText": "Tekst",
+      "modeTable": "Tabela",
+      "placeholder": "Wpisz notatki i obliczenia tutaj...",
+      "tableHint": "Szablon porównania ofert",
+      "reset": "Resetuj"
+    },
     "review": {
       "title": "Przegląd pytań",
       "subtitle": "{correct}/{total} poprawnych · {earned}/{max} punktów",

@@ -438,6 +438,7 @@ class ExamArchiveService:
             'published': False,
             'pdf_path': upload_dir,
             'duration_minutes': 90,
+            'passing_score': 50,
         }
         if folder_id:
             exam_data['folder_id'] = folder_id

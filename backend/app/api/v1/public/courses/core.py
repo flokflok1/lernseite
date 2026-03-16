@@ -205,7 +205,9 @@ def get_course_chapters(course_id: str):
         if not course:
             return error_response(ErrorCode.COURSE_NOT_FOUND, 404)
 
-        chapters = ChapterRepository.find_by_course(course_id)
+        chapters = ChapterRepository.find_by_course(
+            course_id, exclude_chapter_types=['simulation'],
+        )
 
         return jsonify({
             'success': True,

@@ -25,6 +25,62 @@ class RotationService:
     """Selects questions for practice sessions using intelligent rotation."""
 
     @staticmethod
+    def generate_adaptive_exam(
+        user_id: str,
+        question_count: int = 20,
+        duration_minutes: int = 90,
+    ) -> Optional[Dict]:
+        """Generate an adaptive exam using the rotation algorithm.
+
+        Creates a proper exam_attempt for tracking.
+
+        Args:
+            user_id: Current user ID
+            question_count: Number of questions to include
+            duration_minutes: Time limit for the exam
+
+        Returns:
+            Dict with attempt_id, questions, duration_minutes,
+            total_points, question_count — or None if no questions available.
+        """
+        questions = RotationService.build_practice_session(
+            user_id=user_id,
+            exam_type='real',
+            topic=None,
+            count=question_count,
+        )
+
+        if not questions:
+            return None
+
+        total_points = sum(q.get('points', 5) for q in questions)
+
+        attempt = ExamTrainerRepository.create_adaptive_attempt(
+            user_id=user_id,
+            duration_minutes=duration_minutes,
+            total_points=total_points,
+        )
+
+        if not attempt:
+            logger.error(
+                "Failed to create adaptive attempt for user=%s", user_id,
+            )
+            return None
+
+        # Strip solutions so user cannot see answers
+        for q in questions:
+            q.pop('solution', None)
+            q.pop('solution_text', None)
+
+        return {
+            'attempt_id': attempt['attempt_id'],
+            'questions': questions,
+            'duration_minutes': duration_minutes,
+            'total_points': total_points,
+            'question_count': len(questions),
+        }
+
+    @staticmethod
     def build_practice_session(
         user_id: str,
         exam_type: str,

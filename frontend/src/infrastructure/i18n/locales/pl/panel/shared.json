@@ -196,6 +196,9 @@
       "createError": "Tworzenie nie powiodło się",
       "folderNotEmpty": "Folder zawiera egzaminy — najpierw je usuń"
     },
+    "uploadFiles": "Prześlij pliki",
+    "importImagesConfirm": "Zaimportować {count} obrazów jako jeden egzamin?",
+    "importingImages": "Importowanie...",
     "groupBy": {
       "title": "Grupowanie",
       "hint": "Dostosuj kolejność i widoczność poziomów folderów.",

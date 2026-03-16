@@ -196,6 +196,9 @@
       "createError": "Erstellen fehlgeschlagen",
       "folderNotEmpty": "Ordner hat Prüfungen — zuerst entfernen"
     },
+    "uploadFiles": "Dateien hochladen",
+    "importImagesConfirm": "{count} Bilder als eine Prüfung importieren?",
+    "importingImages": "Wird importiert...",
     "groupBy": {
       "title": "Gruppierung",
       "hint": "Reihenfolge und Sichtbarkeit der Ordnerebenen anpassen.",

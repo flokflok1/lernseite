@@ -244,3 +244,26 @@ export const archiveReviewUpload = async (
 ): Promise<void> => {
   await http.post(`/admin/exam-archive/${examId}/review`, { action, notes })
 }
+
+// --- Image Import ---
+
+/** Import multiple images as a single exam */
+export const archiveImportImages = async (
+  files: File[],
+  folderId?: string,
+  title?: string
+): Promise<{ exam_id: string; title: string; page_count: number; status: string }> => {
+  const form = new FormData()
+  files.forEach((f) => form.append('files[]', f))
+  if (folderId) form.append('folder_id', folderId)
+  if (title) form.append('title', title)
+  const { data } = await http.post<{
+    exam_id: string
+    title: string
+    page_count: number
+    status: string
+  }>('/admin/exam-archive/import-images', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data
+}

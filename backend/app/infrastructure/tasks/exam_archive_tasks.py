@@ -260,19 +260,23 @@ def _analyze_via_vision(
     provider: str,
     model: str,
 ) -> Optional[Dict]:
-    """Run Vision AI analysis on a PDF or image file."""
+    """Run Vision AI analysis on a PDF, image file, or directory of images."""
+    import os
     import base64
     from app.application.services.exams.archive_service_part2 import (
         convert_pdf_to_images,
         analyze_exam_with_vision,
     )
 
-    lower = full_path.lower()
-    if lower.endswith(('.jpg', '.jpeg', '.png')):
-        # Single image file — already vision-ready
+    if os.path.isdir(full_path):
+        page_images = _load_images_from_directory(full_path)
+        if not page_images:
+            logger.error("No images found in directory: %s", full_path)
+            return None
+        logger.info("Loaded %d images from directory", len(page_images))
+    elif full_path.lower().endswith(('.jpg', '.jpeg', '.png')):
         with open(full_path, 'rb') as f:
-            img_b64 = base64.b64encode(f.read()).decode('utf-8')
-        page_images = [img_b64]
+            page_images = [base64.b64encode(f.read()).decode('utf-8')]
     else:
         page_images = convert_pdf_to_images(full_path, dpi=200)
 
@@ -282,6 +286,24 @@ def _analyze_via_vision(
         provider=provider,
         model=model,
     )
+
+
+def _load_images_from_directory(dir_path: str) -> List[str]:
+    """Load all images from a directory as base64-encoded strings."""
+    import os
+    import base64
+
+    image_files = sorted([
+        os.path.join(dir_path, f)
+        for f in os.listdir(dir_path)
+        if f.lower().endswith(('.jpg', '.jpeg', '.png'))
+    ])
+
+    result = []
+    for img_path in image_files:
+        with open(img_path, 'rb') as fh:
+            result.append(base64.b64encode(fh.read()).decode('utf-8'))
+    return result
 
 
 def _analyze_via_text(

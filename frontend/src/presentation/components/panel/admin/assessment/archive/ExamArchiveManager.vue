@@ -25,10 +25,11 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182" /></svg>
             {{ reAnalyzingAll ? t('panel.examArchive.analyzing') : t('panel.examArchive.reAnalyzeAll') }}
           </button>
-          <button @click="showUploadDialog = true" class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-all bg-[var(--color-primary)] hover:opacity-90">
+          <button @click="fileInputRef?.click()" :disabled="isUploading" class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-all bg-[var(--color-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
-            {{ t('panel.examArchive.upload.title') }}
+            {{ isUploading ? t('panel.examArchive.importingImages') : t('panel.examArchive.uploadFiles') }}
           </button>
+          <input ref="fileInputRef" type="file" multiple accept=".pdf,.jpg,.jpeg,.png" class="hidden" @change="handleFileUpload" />
           <GroupConfigPanel
             :levels="groupLevels"
             @toggle="toggleLevel"
@@ -216,6 +217,7 @@ import {
   archiveDeleteExam,
   archiveMoveExam,
   archiveReAnalyzeAll,
+  archiveImportImages,
 } from '@/infrastructure/api/clients/panel/admin/exams/archive.api'
 import { useExamArchiveTree } from '@/application/composables/panel/admin/assessment'
 import ExamUploadDialog from './ExamUploadDialog.vue'
@@ -236,6 +238,8 @@ const analyzingAll = ref(false)
 const reAnalyzingAll = ref(false)
 const statusMessage = ref('')
 const showUploadDialog = ref(false)
+const isUploading = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 const folderExplorerRef = ref<InstanceType<typeof ExamFolderExplorer> | null>(null)
 
 // Dynamic tree builder
@@ -274,33 +278,21 @@ const hasAnalyzingExams = computed(() =>
   exams.value.some((e) => e.analysis_status === 'analyzing')
 )
 
-const hasReadyExams = computed(() =>
-  exams.value.some((e) => e.analysis_status === 'ready')
-)
-
-const pendingReviewCount = computed(() =>
-  exams.value.filter((e) => e.analysis_status === 'pending_review').length
-)
+const hasReadyExams = computed(() => exams.value.some((e) => e.analysis_status === 'ready'))
+const pendingReviewCount = computed(() => exams.value.filter((e) => e.analysis_status === 'pending_review').length)
 
 // Methods
 const loadExams = async () => {
-  try {
-    exams.value = await archiveListExams()
-  } catch (err) {
-    console.error('Failed to load archive exams:', err)
-  }
+  try { exams.value = await archiveListExams() }
+  catch (err) { console.error('Failed to load archive exams:', err) }
 }
-
 const loadSessions = async () => {
   loadingSessions.value = true
-  try {
-    sessionRows.value = await archiveListSessions()
-  } catch (err) {
-    console.error('Failed to load sessions:', err)
-  } finally {
-    loadingSessions.value = false
-  }
+  try { sessionRows.value = await archiveListSessions() }
+  catch (err) { console.error('Failed to load sessions:', err) }
+  finally { loadingSessions.value = false }
 }
+const refreshAll = () => Promise.all([loadExams(), loadSessions()])
 
 const handleScan = async () => {
   scanning.value = true
@@ -328,7 +320,7 @@ const handleImport = async () => {
       skipped: result.skipped
     })
     scannedPapers.value = []
-    await Promise.all([loadExams(), loadSessions()])
+    await refreshAll()
   } catch (err) {
     console.error('Import failed:', err)
     statusMessage.value = String(err)
@@ -345,7 +337,7 @@ const handleAnalyzeAll = async () => {
     statusMessage.value = t('panel.examArchive.analyzeTriggered', {
       count: result.triggered
     })
-    await Promise.all([loadExams(), loadSessions()])
+    await refreshAll()
     startAutoRefresh()
   } catch (err) {
     console.error('Analyze all failed:', err)
@@ -364,7 +356,7 @@ const handleReAnalyzeAll = async () => {
     statusMessage.value = t('panel.examArchive.analyzeTriggered', {
       count: result.count
     })
-    await Promise.all([loadExams(), loadSessions()])
+    await refreshAll()
     startAutoRefresh()
   } catch (err) {
     console.error('Re-analyze all failed:', err)
@@ -376,9 +368,29 @@ const handleReAnalyzeAll = async () => {
 
 const handleUploadComplete = async (_examId: string) => {
   statusMessage.value = t('panel.examArchive.upload.success')
-  await Promise.all([loadExams(), loadSessions()])
+  await refreshAll()
 }
-
+const handleFileUpload = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (!input.files?.length) return
+  const files = Array.from(input.files)
+  const hasImages = files.some((f) => /\.(jpg|jpeg|png)$/i.test(f.name))
+  const hasPdf = files.some((f) => /\.pdf$/i.test(f.name))
+  if (hasImages && !hasPdf) {
+    if (!window.confirm(t('panel.examArchive.importImagesConfirm', { count: files.length }))) {
+      input.value = ''; return
+    }
+    try {
+      isUploading.value = true; statusMessage.value = ''
+      await archiveImportImages(files)
+      await refreshAll()
+    } catch (e) {
+      console.error('Image import failed', e); statusMessage.value = String(e)
+    } finally { isUploading.value = false; input.value = '' }
+  } else if (hasPdf) {
+    showUploadDialog.value = true; input.value = ''
+  } else { input.value = '' }
+}
 // --- CRUD Handlers ---
 const handleDeleteSession = (sessionId: string, examCount: number) => {
   if (examCount > 0) {
@@ -413,7 +425,7 @@ const confirmDeleteExam = (examId: string, title: string) => {
         await archiveDeleteExam(examId)
         statusMessage.value = t('panel.examArchive.crud.examDeleted')
         folderExplorerRef.value?.clearExamCache()
-        await Promise.all([loadExams(), loadSessions()])
+        await refreshAll()
       } catch (err: any) {
         statusMessage.value = err?.response?.data?.error || t('panel.examArchive.crud.deleteError')
       }
@@ -422,14 +434,8 @@ const confirmDeleteExam = (examId: string, title: string) => {
 }
 
 const openMoveDialog = (examId: string, title: string) => {
-  moveDialog.value = {
-    visible: true,
-    examId,
-    examTitle: title,
-    targetSessionId: '',
-  }
+  moveDialog.value = { visible: true, examId, examTitle: title, targetSessionId: '' }
 }
-
 const handleMoveExam = async () => {
   const { examId, targetSessionId } = moveDialog.value
   if (!targetSessionId) return
@@ -438,41 +444,27 @@ const handleMoveExam = async () => {
     await archiveMoveExam(examId, targetSessionId)
     statusMessage.value = t('panel.examArchive.crud.examMoved')
     folderExplorerRef.value?.clearExamCache()
-    await Promise.all([loadExams(), loadSessions()])
+    await refreshAll()
   } catch (err: any) {
     statusMessage.value = err?.response?.data?.error || t('panel.examArchive.crud.moveError')
   }
 }
 
+const stopAutoRefresh = () => {
+  if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null }
+}
 const startAutoRefresh = () => {
   stopAutoRefresh()
   refreshInterval = setInterval(async () => {
-    await Promise.all([loadExams(), loadSessions()])
-    if (!hasAnalyzingExams.value) {
-      stopAutoRefresh()
-    }
+    await refreshAll()
+    if (!hasAnalyzingExams.value) stopAutoRefresh()
   }, 10000)
 }
-
-const stopAutoRefresh = () => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval)
-    refreshInterval = null
-  }
-}
-
-// Lifecycle
 onMounted(async () => {
   loading.value = true
-  await Promise.all([loadExams(), loadSessions()])
+  await refreshAll()
   loading.value = false
-
-  if (hasAnalyzingExams.value) {
-    startAutoRefresh()
-  }
+  if (hasAnalyzingExams.value) startAutoRefresh()
 })
-
-onUnmounted(() => {
-  stopAutoRefresh()
-})
+onUnmounted(() => stopAutoRefresh())
 </script>

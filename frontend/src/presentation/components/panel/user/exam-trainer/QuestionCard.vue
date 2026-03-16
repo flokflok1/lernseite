@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
-import { AnlageBadge, AnlagePanel } from './anlagen'
-import ScratchPad from './ScratchPad.vue'
+import { AnlageBadge } from './anlagen'
+import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import type { TrainerQuestion, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {
@@ -27,14 +27,9 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const windowStore = useWindowStore()
 
-// --- Multi-panel Anlage viewer ---
-interface PanelState { x: number; y: number; w: number; h: number; z: number }
-const openPanels = reactive(new Map<number, PanelState>())
-let nextZ = 1000
-
-const hasOpenPanels = computed(() => openPanels.size > 0)
-
+// --- Anlage references ---
 const referencedAnlagen = computed(() => {
   const text = [
     props.question.question_text,
@@ -52,54 +47,43 @@ const referencedAnlagen = computed(() => {
   return matched.length > 0 ? matched : props.anlagen
 })
 
+// --- Window management via windowStore ---
 const openAnlage = (number: number) => {
-  if (openPanels.has(number)) {
-    // Focus existing panel
-    const state = openPanels.get(number)!
-    state.z = ++nextZ
+  const a = props.anlagen.find(a => a.number === number)
+  if (!a) return
+
+  // Check if already open by searching panels of this type with matching anlage number
+  const existing = windowStore.getPanelsByType('exam-trainer-anlage')
+  const match = existing.find(p => (p.payload?.anlage as Anlage)?.number === number)
+  if (match) {
+    if (match.minimized) windowStore.restorePanel(match.id)
+    else windowStore.focusPanel(match.id)
     return
   }
-  const offset = openPanels.size * 40
-  openPanels.set(number, {
-    x: 120 + offset,
-    y: 60 + offset,
-    w: 640,
-    h: Math.min(560, window.innerHeight - 100),
-    z: ++nextZ,
+
+  windowStore.openWindow({
+    type: 'exam-trainer-anlage',
+    title: `${t('panel.examTrainer.anlagen.anlageNr', { number })} — ${a.title}`,
+    icon: '\u{1F4CE}',
+    payload: { examId: props.examId, anlage: a },
+    size: { width: 640, height: 520 },
   })
 }
 
-const tileAnlagen = () => {
-  const count = openPanels.size
-  if (count === 0) return
-  const pad = 16
-  const availW = window.innerWidth - pad * 2
-  const panelW = Math.floor((availW - (count - 1) * pad) / count)
-  const panelH = Math.floor(window.innerHeight * 0.78)
-  let i = 0
-  for (const [, state] of openPanels) {
-    state.x = pad + i * (panelW + pad)
-    state.y = Math.floor(window.innerHeight * 0.08)
-    state.w = panelW
-    state.h = panelH
-    state.z = ++nextZ
-    i++
+const openScratchPad = () => {
+  const existing = windowStore.getPanelsByType('exam-trainer-scratchpad')
+  if (existing.length > 0) {
+    const panel = existing[0]
+    if (panel.minimized) windowStore.restorePanel(panel.id)
+    else windowStore.focusPanel(panel.id)
+    return
   }
-}
-
-const closeAllPanels = () => { openPanels.clear() }
-
-// --- Scratch Pad ---
-const showScratchPad = ref(false)
-const scratchPadState = reactive({ x: 0, y: 0, w: 420, h: 460, z: 1000 })
-
-const toggleScratchPad = () => {
-  if (!showScratchPad.value) {
-    scratchPadState.x = window.innerWidth - 460
-    scratchPadState.y = 60
-    scratchPadState.z = ++nextZ
-  }
-  showScratchPad.value = !showScratchPad.value
+  windowStore.openWindow({
+    type: 'exam-trainer-scratchpad',
+    title: t('panel.examTrainer.scratchPad.title'),
+    icon: '\u{1F9EE}',
+    size: { width: 420, height: 460 },
+  })
 }
 
 // --- Question answer state ---
@@ -170,7 +154,7 @@ defineExpose({ setResult })
       />
     </div>
 
-    <!-- Anlage Badges + toolbar -->
+    <!-- Anlage Badges + scratch pad -->
     <div v-if="referencedAnlagen.length > 0" class="flex flex-wrap items-center gap-2 mb-4">
       <AnlageBadge
         v-for="a in referencedAnlagen"
@@ -179,52 +163,27 @@ defineExpose({ setResult })
         :title="a.title"
         @click="openAnlage"
       />
-      <!-- Scratch pad + panel toolbar -->
-      <div class="flex gap-1 ml-2">
-        <button
-          class="px-2 py-1 text-xs rounded border border-amber-500/40 transition-colors"
-          :class="showScratchPad
-            ? 'bg-amber-500/20 text-amber-400 border-amber-500/60'
-            : 'text-amber-400/70 hover:bg-amber-500/10'"
-          @click="toggleScratchPad"
-        >
-          <svg class="w-3 h-3 inline-block mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
-          {{ t('panel.examTrainer.scratchPad.title') }}
-        </button>
-      </div>
-      <div v-if="hasOpenPanels" class="flex gap-1">
-        <button
-          class="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-secondary)]
-                 hover:bg-[var(--color-surface-elevated)] transition-colors"
-          :title="t('panel.examTrainer.anlagen.tileWindows')"
-          @click="tileAnlagen"
-        >
-          <svg class="w-3.5 h-3.5 inline-block mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5z" />
-          </svg>
-          {{ t('panel.examTrainer.anlagen.tileWindows') }}
-        </button>
-        <button
-          class="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-secondary)]
-                 hover:bg-[var(--color-surface-elevated)] transition-colors"
-          @click="closeAllPanels"
-        >
-          {{ t('panel.examTrainer.anlagen.closeAll') }}
-        </button>
-      </div>
+      <button
+        class="inline-flex items-center gap-1.5 px-2 py-1 text-xs rounded-lg
+               border border-amber-500/40 text-amber-400/70
+               hover:bg-amber-500/10 hover:text-amber-400 transition-all"
+        @click="openScratchPad"
+      >
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        {{ t('panel.examTrainer.scratchPad.title') }}
+      </button>
     </div>
 
-    <!-- Scratch Pad toggle (always visible) -->
-    <div v-if="referencedAnlagen.length === 0" class="flex items-center gap-2 mb-4">
+    <!-- Scratch pad when no anlagen -->
+    <div v-else class="flex items-center gap-2 mb-4">
       <button
         class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg
-               border border-amber-500/40 text-amber-400
+               border border-amber-500/40 bg-amber-500/10 text-amber-400
                hover:bg-amber-500/20 hover:border-amber-500/60 transition-all"
-        :class="showScratchPad ? 'bg-amber-500/20' : 'bg-amber-500/10'"
-        @click="toggleScratchPad"
+        @click="openScratchPad"
       >
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -233,34 +192,6 @@ defineExpose({ setResult })
         {{ t('panel.examTrainer.scratchPad.title') }}
       </button>
     </div>
-
-    <!-- Scratch Pad Panel -->
-    <ScratchPad
-      v-if="showScratchPad"
-      :x="scratchPadState.x"
-      :y="scratchPadState.y"
-      :width="scratchPadState.w"
-      :height="scratchPadState.h"
-      :z-index="scratchPadState.z"
-      @focus="scratchPadState.z = ++nextZ"
-      @close="showScratchPad = false"
-    />
-
-    <!-- Floating Anlage Panels -->
-    <template v-for="[number, state] in openPanels" :key="number">
-    <AnlagePanel
-      v-if="anlagen.find(a => a.number === number)"
-      :anlage="anlagen.find(a => a.number === number)!"
-      :exam-id="examId"
-      :x="state.x"
-      :y="state.y"
-      :width="state.w"
-      :height="state.h"
-      :z-index="state.z"
-      @focus="state.z = ++nextZ"
-      @close="openPanels.delete(number)"
-    />
-    </template>
 
     <!-- Question text -->
     <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4">

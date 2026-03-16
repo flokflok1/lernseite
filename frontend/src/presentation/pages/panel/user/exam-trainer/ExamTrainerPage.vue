@@ -1,11 +1,12 @@
 <template>
-  <div class="min-h-screen bg-[var(--color-background)]">
-    <div class="max-w-6xl mx-auto p-6">
+  <WindowManager>
+    <div class="max-w-7xl mx-auto">
       <ExamTrainer />
     </div>
-  </div>
+  </WindowManager>
 </template>
 
 <script setup lang="ts">
 import ExamTrainer from '@/presentation/components/panel/user/exam-trainer/ExamTrainer.vue'
+import WindowManager from '@/presentation/components/shared/layout/window-manager/WindowManager.vue'
 </script>

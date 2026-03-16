@@ -36,6 +36,9 @@ export type PanelType =
   | 'editor-manual'        // Manual Course Editor
   | 'editor-ai-editor'     // AI-Assisted Course Editor
   | 'activity-editor'      // Floating LM Activity Editor
+  // Exam Trainer Windows
+  | 'exam-trainer-anlage'
+  | 'exam-trainer-scratchpad'
   // Lernmethoden-Formulare (Legacy: 00-31, aktiv: 19 Content-LMs) - Phase D3.5
   | 'learning-method-0-form'
   | 'learning-method-1-form'

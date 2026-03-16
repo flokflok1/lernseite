@@ -318,6 +318,37 @@ class ExamRepository(BaseRepository):
         rows = fetch_all(outer, tuple(params))
         return [str(r['exam_id']) for r in rows]
 
+    @classmethod
+    def get_analysis_status_summary(cls) -> dict:
+        """Get analysis status counts and processing queue.
+
+        Returns:
+            Dict with pending/analyzing/ready/failed counts,
+            total count, and queue of currently processing exams.
+        """
+        counts = fetch_all("""
+            SELECT analysis_status, count(*) as cnt
+            FROM assessments.exams
+            GROUP BY analysis_status
+        """)
+        queue = fetch_all("""
+            SELECT exam_id, title, analysis_status
+            FROM assessments.exams
+            WHERE analysis_status IN ('analyzing', 'pending')
+            ORDER BY
+                CASE analysis_status WHEN 'analyzing' THEN 0 ELSE 1 END,
+                updated_at ASC
+            LIMIT 20
+        """)
+        status_map = {r['analysis_status']: r['cnt'] for r in counts}
+        return {
+            'pending': status_map.get('pending', 0),
+            'analyzing': status_map.get('analyzing', 0),
+            'ready': status_map.get('ready', 0),
+            'failed': status_map.get('failed', 0),
+            'total': sum(status_map.values()),
+            'queue': queue,
+        }
 
 
 # ExamQuestionRepository moved to questions.py (G01 split)

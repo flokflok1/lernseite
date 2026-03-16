@@ -208,7 +208,11 @@
       "examType": "Prüfungstyp",
       "year": "Jahr",
       "season": "Saison"
-    }
+    },
+    "analysisStatus": "Analyse-Fortschritt",
+    "statusAnalyzing": "wird analysiert",
+    "statusPending": "wartend",
+    "statusFailed": "fehlgeschlagen"
   },
   "examCourseGenerator": {
     "title": "Prüfungskurs generieren",

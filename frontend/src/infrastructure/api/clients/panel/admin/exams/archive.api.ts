@@ -37,6 +37,22 @@ export interface ArchiveQuestion {
   points: number
 }
 
+// --- Analysis Status ---
+
+export interface AnalysisStatus {
+  pending: number
+  analyzing: number
+  ready: number
+  failed: number
+  total: number
+  queue: Array<{ exam_id: string; title: string; status: string }>
+}
+
+export async function archiveGetAnalysisStatus(): Promise<AnalysisStatus> {
+  const { data } = await http.get<AnalysisStatus>('/admin/exam-archive/analysis-status')
+  return data
+}
+
 export const archiveScanFolder = async (): Promise<ScannedPaper[]> => {
   const response = await http.get<{ success: boolean; papers: ScannedPaper[] }>(
     '/admin/exam-archive/scan'

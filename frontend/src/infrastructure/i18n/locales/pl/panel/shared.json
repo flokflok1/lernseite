@@ -369,7 +369,11 @@
       "programsSubtitle": "Wybierz program egzaminacyjny",
       "backToPrograms": "Powrót do wyboru programu",
       "chapters": "Tematy",
-      "questionsCount": "{count} pytań"
+      "questionsCount": "{count} pytań",
+      "modeQuick": "Szybka praktyka",
+      "modeHalf": "Połowa egzaminu",
+      "modeFull": "Pełna symulacja",
+      "modeDesc": "{count} pytań · {minutes} minut"
     }
   },
   "title": "Administracja"

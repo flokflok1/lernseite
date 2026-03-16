@@ -369,7 +369,11 @@
       "programsSubtitle": "Choose your exam program",
       "backToPrograms": "Back to program selection",
       "chapters": "Topics",
-      "questionsCount": "{count} questions"
+      "questionsCount": "{count} questions",
+      "modeQuick": "Quick Practice",
+      "modeHalf": "Half Exam",
+      "modeFull": "Full Simulation",
+      "modeDesc": "{count} questions · {minutes} minutes"
     }
   },
   "title": "Administration"

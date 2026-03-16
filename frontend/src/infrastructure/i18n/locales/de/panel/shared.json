@@ -369,7 +369,11 @@
       "programsSubtitle": "Wähle dein Prüfungsprogramm",
       "backToPrograms": "Zurück zur Programmauswahl",
       "chapters": "Themen",
-      "questionsCount": "{count} Fragen"
+      "questionsCount": "{count} Fragen",
+      "modeQuick": "Schnell-Übung",
+      "modeHalf": "Halbe Prüfung",
+      "modeFull": "Volle Simulation",
+      "modeDesc": "{count} Fragen · {minutes} Minuten"
     }
   },
   "title": "Administration"

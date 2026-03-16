@@ -247,9 +247,9 @@ defineExpose({ setResult })
     />
 
     <!-- Floating Anlage Panels -->
+    <template v-for="[number, state] in openPanels" :key="number">
     <AnlagePanel
-      v-for="[number, state] in openPanels"
-      :key="number"
+      v-if="anlagen.find(a => a.number === number)"
       :anlage="anlagen.find(a => a.number === number)!"
       :exam-id="examId"
       :x="state.x"
@@ -260,6 +260,7 @@ defineExpose({ setResult })
       @focus="state.z = ++nextZ"
       @close="openPanels.delete(number)"
     />
+    </template>
 
     <!-- Question text -->
     <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4">

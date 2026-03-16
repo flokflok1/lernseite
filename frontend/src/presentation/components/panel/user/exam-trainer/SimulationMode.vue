@@ -266,6 +266,7 @@ onUnmounted(() => {
             :question-index="currentIndex"
             :total-questions="questions.length"
             :anlagen="anlagen || []"
+            :exam-id="exam.exam_id"
             @submit="handleSubmitAnswer"
             @next="handleNextQuestion"
           />

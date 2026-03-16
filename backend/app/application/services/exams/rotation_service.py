@@ -53,7 +53,7 @@ class RotationService:
         if not questions:
             return None
 
-        total_points = sum(q.get('points', 5) for q in questions)
+        total_points = sum(q.get('points') or 5 for q in questions)
 
         attempt = ExamTrainerRepository.create_adaptive_attempt(
             user_id=user_id,

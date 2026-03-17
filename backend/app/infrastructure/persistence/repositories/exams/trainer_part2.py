@@ -40,8 +40,9 @@ class ExamTrainerRotationMixin:
         """
         topic_filter, params = _build_topic_filter(topic)
         query = f"""
-            SELECT eq.question_id, eq.question_number, eq.question_text,
-                   eq.question_type, eq.scenario_title, eq.scenario_text,
+            SELECT eq.question_id, eq.exam_id, eq.question_number,
+                   eq.question_text, eq.question_type,
+                   eq.scenario_title, eq.scenario_text,
                    eq.topics, eq.points, eq.data
             FROM assessments.exam_questions eq
             JOIN assessments.exams e ON e.exam_id = eq.exam_id
@@ -62,8 +63,9 @@ class ExamTrainerRotationMixin:
         """Find questions the user got wrong (correct rate < 50%)."""
         topic_filter, params = _build_topic_filter(topic)
         query = f"""
-            SELECT eq.question_id, eq.question_number, eq.question_text,
-                   eq.question_type, eq.scenario_title, eq.scenario_text,
+            SELECT eq.question_id, eq.exam_id, eq.question_number,
+                   eq.question_text, eq.question_type,
+                   eq.scenario_title, eq.scenario_text,
                    eq.topics, eq.points, eq.data,
                    uqs.times_seen, uqs.times_correct
             FROM assessments.exam_questions eq
@@ -87,8 +89,9 @@ class ExamTrainerRotationMixin:
         """Find questions not seen in N days (spaced repetition)."""
         topic_filter, params = _build_topic_filter(topic)
         query = f"""
-            SELECT eq.question_id, eq.question_number, eq.question_text,
-                   eq.question_type, eq.scenario_title, eq.scenario_text,
+            SELECT eq.question_id, eq.exam_id, eq.question_number,
+                   eq.question_text, eq.question_type,
+                   eq.scenario_title, eq.scenario_text,
                    eq.topics, eq.points, eq.data,
                    uqs.last_seen_at, uqs.times_correct
             FROM assessments.exam_questions eq

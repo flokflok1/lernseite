@@ -89,10 +89,12 @@ const startAdaptiveExam = async (questionCount: number = 20, durationMinutes: nu
     const examIds = [...new Set(
       exam.questions.map((q: TrainerQuestion & { exam_id?: string }) => q.exam_id).filter(Boolean)
     )] as string[]
-    const allAnlagen: Anlage[] = []
+    const allAnlagen: (Anlage & { exam_id?: string })[] = []
     for (const eid of examIds) {
       try {
         const a = await trainerGetAnlagen(eid)
+        // Tag each anlage with its source exam_id
+        a.forEach(anlage => { (anlage as Anlage & { exam_id?: string }).exam_id = eid })
         allAnlagen.push(...a)
       } catch { /* some exams may have no anlagen */ }
     }

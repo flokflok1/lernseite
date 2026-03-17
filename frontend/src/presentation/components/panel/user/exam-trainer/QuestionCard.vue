@@ -29,8 +29,18 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const windowStore = useWindowStore()
 
-// --- Anlage references ---
+// --- Anlage references (per question's source exam) ---
+const questionExamId = computed(() => (props.question as TrainerQuestion & { exam_id?: string }).exam_id || '')
+
+const questionAnlagen = computed(() => {
+  if (!questionExamId.value) return []
+  return props.anlagen.filter((a: Anlage & { exam_id?: string }) =>
+    !a.exam_id || a.exam_id === questionExamId.value
+  )
+})
+
 const referencedAnlagen = computed(() => {
+  const pool = questionAnlagen.value.length > 0 ? questionAnlagen.value : props.anlagen
   const text = [
     props.question.question_text,
     props.question.scenario_text,
@@ -43,8 +53,8 @@ const referencedAnlagen = computed(() => {
     for (const n of m.match(/\d+/g) || []) numbers.add(parseInt(n))
   }
 
-  const matched = props.anlagen.filter(a => numbers.has(a.number))
-  return matched.length > 0 ? matched : props.anlagen
+  const matched = pool.filter(a => numbers.has(a.number))
+  return matched.length > 0 ? matched : (matches.length > 0 ? [] : [])
 })
 
 // --- Window management via windowStore ---

@@ -344,9 +344,19 @@ def _build_question_records(
         # Scenario text = context only (Anlagen stored separately)
         scenario_text = scenario.get('context', '')
 
+        # Normalize question_type to allowed values
+        _ALLOWED_TYPES = {
+            'mcq', 'multiple_choice', 'true_false', 'fill_blank',
+            'essay', 'code', 'case_study', 'calculation',
+            'drag_drop', 'matching', 'ordering', 'short_answer',
+        }
+        q_type = q.get('question_type', 'essay')
+        if q_type not in _ALLOWED_TYPES:
+            q_type = 'essay'
+
         record = {
             'exam_id': exam_id,
-            'question_type': q.get('question_type', 'essay'),
+            'question_type': q_type,
             'question_text': q.get('text', ''),
             'points': q.get('points', 5),
             'order_index': idx + 1,

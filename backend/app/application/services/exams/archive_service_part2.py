@@ -288,9 +288,18 @@ REGELN:
 3. MISCHE NIEMALS Szenarien verschiedener Aufgaben
 4. question_number = ORIGINAL-Nummer aus der Pruefung (z.B. "1.1", "2.3", "3.2.1")
 5. points = MUSS die echte Punktzahl sein (steht rechts). Wenn nicht lesbar: 5
-6. Anlagen NICHT in den Szenario-Text einbetten, sondern in das anlagen-Array
-7. Szenario-Text als HTML: <p>, <strong>, <ul>/<ol>
-8. Anlagen-Inhalt als HTML: <table> fuer Tabellen, <p> fuer Text
+6. Szenario-Text als HTML: <p>, <strong>, <ul>/<ol>
+7. Anlagen-Inhalt als HTML: <table> fuer Tabellen, <p> fuer Text
+
+KRITISCH — ANLAGEN-EXTRAKTION:
+- Anlagen sind SEPARATE Dokumente am Ende der Pruefung (Anlage 1, Anlage 2, Appendix A usw.)
+- Anlagen enthalten: Angebote, Preistabellen, Netzwerkdiagramme, API-Referenzen, Formulare
+- JEDE Anlage MUSS als eigenes Objekt im "anlagen"-Array des zugehoerigen Szenarios stehen
+- NIEMALS Anlagen-Inhalt in den "context"-Text des Szenarios einbetten
+- Wenn eine Aufgabe sagt "Verwenden Sie Anlage 1", muss Anlage 1 im anlagen-Array sein
+- "name": Originaltitel (z.B. "Anlage 1: Angebot TOPSICHERHEIT AG")
+- "content_html": VOLLSTAENDIGER Inhalt als HTML mit <table>, <p>, <strong>
+- Auch Netzwerkdiagramme als Text-Beschreibung in content_html erfassen
 
 JSON-FORMAT:
 ```json

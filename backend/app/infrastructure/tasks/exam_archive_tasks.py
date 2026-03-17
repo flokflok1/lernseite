@@ -133,9 +133,16 @@ def analyze_exam_pdf_task(
         # 8. Save Anlagen (appendices) from Vision AI to separate table
         all_anlagen = []
         for s in scenarios:
-            for i, a in enumerate(s.get('anlagen', [])):
+            s_anlagen = s.get('anlagen', [])
+            logger.info(
+                "Scenario %s has %d anlagen (keys: %s)",
+                s.get('number'), len(s_anlagen),
+                list(s.keys()),
+            )
+            for i, a in enumerate(s_anlagen):
                 a['number'] = a.get('number', i + 1)
                 all_anlagen.append(a)
+        logger.info("Total anlagen found in AI output: %d", len(all_anlagen))
         if all_anlagen:
             anlagen_count = ExamQuestionRepository.save_anlagen(
                 exam_id, all_anlagen,

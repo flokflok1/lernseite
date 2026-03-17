@@ -252,10 +252,15 @@ class ExamQuestionRepository(BaseRepository):
             "DELETE FROM assessments.exam_anlagen WHERE exam_id = %s",
             (exam_id,),
         )
-        # Insert new
+        # Insert new (global numbering to avoid duplicates)
         count = 0
+        seen_numbers = set()
         for a in anlagen:
             number = a.get('number', count + 1)
+            # Ensure unique number per exam
+            while number in seen_numbers:
+                number += 1
+            seen_numbers.add(number)
             title = a.get('name', a.get('title', f'Anlage {number}'))
             content = a.get('content_html') or a.get('content', '')
             if not content:

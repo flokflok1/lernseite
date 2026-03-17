@@ -95,6 +95,7 @@ def analyze_exam_pdf_task(
 
         # 3. Mark as analyzing
         ExamRepository.update_analysis_status(exam_id, 'analyzing')
+        exam_type = exam.get('exam_type_key') or 'unknown'
 
         # 4. Analyze via Vision AI (no text fallback)
         parsed = _run_vision_analysis(

@@ -139,9 +139,12 @@ Zielgruppe: {context['target_audience']}"""
         ]
 
         # Call AI
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        tutor_provider, tutor_model = resolve_model_for_task('tutor')
         result = AIAdapter.chat_completion(
             messages=messages,
-            model='gpt-4o-mini',
+            provider=tutor_provider,
+            model=tutor_model,
             temperature=style_config['temperature'],
             user_id=user_id
         )
@@ -292,9 +295,12 @@ Zielgruppe: Fachinformatiker Systemintegration (FISI)"""
         ]
 
         # Call AI
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        tutor_provider, tutor_model = resolve_model_for_task('tutor')
         result = AIAdapter.chat_completion(
             messages=messages,
-            model='gpt-4o-mini',
+            provider=tutor_provider,
+            model=tutor_model,
             temperature=style_config['temperature'],
             user_id=user_id
         )

@@ -101,7 +101,11 @@ def chat_completion(
     if not provider and model:
         provider = AIAdapter.detect_provider(model)
 
-    # AIAdapter resolves default model from DB when model=None
+    # If neither provided, resolve from task defaults (tutor as default for chat)
+    if not provider and not model:
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        provider, model = resolve_model_for_task('default')
+
     adapter = AIAdapter(provider=provider, model=model) if provider else AIAdapter(model=model)
 
     # Prepare messages
@@ -157,7 +161,11 @@ def text_to_speech(
         AIProviderError: On other API errors
     """
     if not model:
-        model = DEFAULT_TTS_MODEL
+        try:
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+            _, model = resolve_model_for_task('tts')
+        except Exception:
+            model = DEFAULT_TTS_MODEL
 
     api_key = _get_openai_key()
 
@@ -227,7 +235,11 @@ def transcribe_audio(
         AIProviderError: On other API errors
     """
     if not model:
-        model = DEFAULT_WHISPER_MODEL
+        try:
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+            _, model = resolve_model_for_task('transcription')
+        except Exception:
+            model = DEFAULT_WHISPER_MODEL
 
     api_key = _get_openai_key()
 

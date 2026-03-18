@@ -37,8 +37,8 @@ class AITranslationGenerator:
         Returns:
             Result dict with success status and translation or error
         """
-        from app.application.services.ai.adapter import AIAdapter
-        from app.infrastructure.persistence.repositories.ai_models.defaults import AIModelsDefaultRepository
+        from app.infrastructure.ai.adapter import AIAdapter
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
 
         try:
             # Get key info and primary language source
@@ -53,13 +53,8 @@ class AITranslationGenerator:
             if not lang_info:
                 return {'success': False, 'error': 'Target language not found'}
 
-            # Resolve AI model from admin settings — NO fallback
-            model_info = AIModelsDefaultRepository.get_default_model('translation')
-            if not model_info:
-                return {'success': False, 'error': 'No default translation model configured. Configure in AI Settings.'}
-
-            provider = model_info['provider_name']
-            model_name = model_info['model_name']
+            # Resolve AI model from task defaults
+            provider, model_name = resolve_model_for_task('translation')
             source_lang_name = key_info.get('source_language_name', 'German')
 
             # Build AI prompt

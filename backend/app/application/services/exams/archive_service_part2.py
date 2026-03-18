@@ -63,34 +63,12 @@ def resolve_vision_model(
     Resolve vision-capable AI provider and model from system config.
 
     If caller provides both provider and model, those are used directly.
-    Otherwise falls back through:
-    1. Default 'vision' category model from DB
-    2. Default 'chat' category model (GPT-4o, Gemini Pro support vision)
-    3. Hardcoded fallback: openai/gpt-4o
+    Otherwise resolves from task defaults (category='vision').
     """
     if provider and model:
         return (provider, model)
-    try:
-        from app.infrastructure.persistence.repositories.ai_models import (
-            AIModelsRepository,
-        )
-        # Try vision-specific model first
-        vision = AIModelsRepository.get_default_model('vision')
-        if vision:
-            return (
-                vision.get('provider_name', 'openai'),
-                vision.get('model_name', 'gpt-4o'),
-            )
-        # Fall back to chat model (most chat models support vision)
-        chat = AIModelsRepository.get_default_model('chat')
-        if chat:
-            return (
-                chat.get('provider_name', 'openai'),
-                chat.get('model_name', 'gpt-4o'),
-            )
-    except Exception as e:
-        logger.debug("Could not resolve vision model from DB: %s", e)
-    return ('openai', 'gpt-4o')
+    from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+    return resolve_model_for_task('vision')
 
 
 def extract_text_from_image(filepath: str) -> Optional[str]:
@@ -333,7 +311,10 @@ JSON-FORMAT:
 ```
 
 question_type: mcq, essay, calculation, code, fill_blank, case_study, ordering, matching, short_answer
-topics: projektmanagement, kalkulation, netzwerk, subnetting, ipv4, routing, firewall, vpn, wlan, dhcp, sql, datenbanken, erm, programmierung, python, java, html, json, xml, csv, it_sicherheit, datenschutz, dsgvo, virtualisierung, cloud, backup, raid, hardware, software, wirtschaft, vertragsrecht, arbeitsrecht, rechtsformen, qualitaetsmanagement, organisationsformen, energiekosten"""
+Vergib passende Themen-Tags fuer jede Frage. Verwende kurze, lowercase
+Begriffe auf Deutsch (z.B. "netzwerk", "sql", "kalkulation", "it_sicherheit").
+Nutze existierende Tags wenn moeglich, erfinde neue nur wenn noetig.
+Trenne zusammengesetzte Begriffe mit Underscore (z.B. "it_sicherheit")."""
 
 
 def _build_vision_prompt(solution_text: str | None = None) -> str:

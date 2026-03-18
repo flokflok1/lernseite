@@ -325,11 +325,13 @@ def generate_tts_stream():
         voice = data.get('voice', DEFAULT_TUTOR_VOICE)
         speed = float(data.get('speed', 1.0))
 
-        # Generate audio
+        # Generate audio — model resolved from task defaults
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        _, tts_model_name = resolve_model_for_task('tts')
         audio_bytes = AIAdapter.text_to_speech(
             text=text,
             voice=voice,
-            model='tts-1',
+            model=tts_model_name,
             speed=speed
         )
 

@@ -167,17 +167,15 @@ def run_bulk_translate_step(job_id: str):
         AIJobRepository.fail_job(job_id, 'Missing target_language in job input_data')
         return jsonify({'success': False, 'error': 'Invalid job configuration'}), 400
 
-    # Resolve AI model — NO fallback
-    model_info = AIModelsDefaultRepository.get_default_model('translation')
-    if not model_info:
+    # Resolve AI model from task defaults
+    from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+    provider, model_name = resolve_model_for_task('translation')
+    if not provider or not model_name:
         AIJobRepository.fail_job(job_id, 'No default translation model configured')
         return jsonify({
             'success': False,
             'error': 'No default translation model configured. Configure in AI Settings.',
         }), 409
-
-    provider = model_info['provider_name']
-    model_name = model_info['model_name']
 
     translated_count = output_data.get('translated', 0)
     failed_count = output_data.get('failed', 0)

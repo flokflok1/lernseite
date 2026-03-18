@@ -279,6 +279,34 @@ class ExamQuestionRepository(BaseRepository):
         return count
 
     @classmethod
+    def save_generated_anlage(
+        cls, exam_id: str, number: int, title: str, content_html: str,
+    ) -> None:
+        """Save a KI-generated Anlage (solution template).
+
+        Skips insert if an Anlage with the same exam_id + number exists
+        (idempotent on retry).
+        """
+        existing = fetch_one(
+            "SELECT anlage_id FROM assessments.exam_anlagen "
+            "WHERE exam_id = %s AND number = %s",
+            (exam_id, number),
+        )
+        if existing:
+            return
+        insert_returning(
+            'assessments.exam_anlagen',
+            {
+                'exam_id': exam_id,
+                'number': number,
+                'title': title,
+                'content_html': content_html,
+                'is_generated': True,
+            },
+            'anlage_id',
+        )
+
+    @classmethod
     def get_anlagen(cls, exam_id: str) -> list:
         """Get anlagen for an exam from the exam_anlagen table."""
         return fetch_all(

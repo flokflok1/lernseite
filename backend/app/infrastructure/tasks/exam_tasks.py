@@ -46,7 +46,9 @@ def generate_exam_task(self, simulation_id: str) -> Dict[str, Any]:
 
         # 3. Call AI to generate exam
         try:
-            adapter = AIAdapter(provider='openai', model='gpt-4o')
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+            task_provider, task_model = resolve_model_for_task('content')
+            adapter = AIAdapter(provider=task_provider, model=task_model)
             response = adapter.send_request(
                 prompt=prompt,
                 context=f"Kurs: {sim['course_title']}",

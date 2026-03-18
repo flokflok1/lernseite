@@ -119,7 +119,10 @@ def analyze_exam_pdf_task(
             s['number']: s for s in scenarios
         }
 
-        # 7. Insert questions via bulk_create
+        # 7. Delete old questions (prevent duplicates on retry)
+        ExamQuestionRepository.delete_by_exam_id(exam_id)
+
+        # 8. Insert questions via bulk_create
         question_records = _build_question_records(
             exam_id, questions, scenario_map,
         )

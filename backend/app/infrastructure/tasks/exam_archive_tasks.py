@@ -153,6 +153,28 @@ def analyze_exam_pdf_task(
             )
             logger.info("Saved %d anlagen for exam %s", anlagen_count, exam_id)
 
+        # 9a. Generate missing solution templates
+        from app.application.services.exams.template_generator import (
+            find_missing_templates,
+            generate_template_html,
+        )
+        existing_nums = {a.get('number', 0) for a in all_anlagen}
+        missing_tpls = find_missing_templates(question_records, existing_nums)
+        for m in missing_tpls:
+            html = generate_template_html(
+                m['number'], m['question_text'], m['scenario_title'],
+            )
+            if html:
+                ExamQuestionRepository.save_generated_anlage(
+                    exam_id, m['number'],
+                    f"Vorlage {m['number']} (KI)",
+                    html,
+                )
+                logger.info(
+                    "Generated template %d for exam %s",
+                    m['number'], exam_id,
+                )
+
         # 9. Register new topics discovered by AI analysis
         all_topics = []
         for q in questions:

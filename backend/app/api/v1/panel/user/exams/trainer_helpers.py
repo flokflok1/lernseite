@@ -102,7 +102,28 @@ def grade_answer(question: dict, user_answer) -> dict:
             solution, user_answer, points, solution_text
         )
 
-    # Free-text / essay — needs manual review
+    # Try AI grading for free-text answers
+    if q_type in ('essay', 'short_answer', 'case_study'):
+        from app.application.services.exams.grading_service import (
+            GradingService,
+        )
+        ai_result = GradingService.grade_free_text(
+            question_text=question.get('question_text', ''),
+            solution_text=solution_text,
+            user_answer=str(user_answer),
+            max_points=float(points),
+            question_type=q_type,
+        )
+        if ai_result:
+            return {
+                'is_correct': ai_result['is_correct'],
+                'points_earned': ai_result['points_earned'],
+                'needs_review': False,
+                'correct_answer': solution_text or None,
+                'explanation': ai_result['explanation'],
+            }
+
+    # Free-text / essay — fallback: needs manual review
     return {
         'is_correct': None,
         'points_earned': 0,

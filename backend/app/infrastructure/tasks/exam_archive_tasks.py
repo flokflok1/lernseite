@@ -182,7 +182,24 @@ def analyze_exam_pdf_task(
         if all_topics:
             _register_new_topics(exam_type, all_topics)
 
-        # 9. Mark as ready
+        # 9b. Generate solutions for questions without solution_text
+        from app.application.services.exams.solution_generator import (
+            generate_solutions_for_exam,
+        )
+        try:
+            gen_count = generate_solutions_for_exam(exam_id)
+            if gen_count:
+                logger.info(
+                    "Generated %d KI solutions for exam %s",
+                    gen_count, exam_id,
+                )
+        except Exception:
+            logger.exception(
+                "Solution generation failed for exam %s (non-fatal)",
+                exam_id,
+            )
+
+        # 10. Mark as ready
         ExamRepository.update_analysis_status(exam_id, 'ready')
 
         logger.info(

@@ -9,6 +9,7 @@ Admin endpoints for exam archive management:
 """
 
 from .archive import archive_bp
+from . import archive_part2  # noqa: F401 — registers solution routes on archive_bp
 from .course_generator import course_gen_bp
 from .curriculum import curriculum_bp
 from .intelligence import intelligence_bp

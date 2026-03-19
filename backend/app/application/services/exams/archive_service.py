@@ -57,11 +57,14 @@ PART_PATTERNS = [
     (r'(?:^|[\s_\-(])wiso(?:[\s_\-.]|$)', 'WK'),
     (r'ap2[\s_\-]?wiso', 'WK'),
     (r'(?:^|[\s_\-(])asp(?:[\s_\-.]|$)', 'GA1'),
+    # AP Teil 1 / AP1 as combined exam (not split into GA1/GA2/WK)
+    (r'ap[\s_\-]?teil[\s_\-]?1', 'AP1'),
+    (r'(?:^|[\s_\-(])ap1(?:[\s_\-.]|$)', 'AP1'),
 ]
 
-# Solution markers (ö, oe, o variants + plural forms)
+# Solution markers (ö, oe, o variants + plural forms + abbreviation)
 SOLUTION_MARKERS = re.compile(
-    r'l(?:ö|oe|o)sung(?:en)?', re.IGNORECASE
+    r'l(?:ö|oe|o)sung(?:en|s)?|(?:^|[\s_\-])lsg(?:[\s_\-.]|$)', re.IGNORECASE
 )
 
 # Supported file extensions
@@ -80,9 +83,9 @@ def _parse_season_year_from_folder(folder_name: str) -> Dict[str, Any]:
     result: Dict[str, Any] = {}
     lower = folder_name.lower()
 
-    if 'sommer' in lower or 'summer' in lower:
+    if 'sommer' in lower or 'summer' in lower or 'frühjahr' in lower or 'fruhjahr' in lower:
         result['season'] = 'sommer'
-    elif 'winter' in lower:
+    elif 'winter' in lower or 'herbst' in lower:
         result['season'] = 'winter'
 
     # Extract year (first 4-digit number)
@@ -127,9 +130,9 @@ def _parse_filename(filename: str, parent_folder: str) -> Dict[str, Any]:
             break
 
     # --- Season detection from filename ---
-    if 'sommer' in lower or 'summer' in lower:
+    if 'sommer' in lower or 'summer' in lower or 'frühjahr' in lower or 'fruhjahr' in lower:
         meta['season'] = 'sommer'
-    elif 'winter' in lower:
+    elif 'winter' in lower or 'herbst' in lower:
         meta['season'] = 'winter'
     elif lower.startswith('w') and re.match(r'^w\d{4}', lower):
         meta['season'] = 'winter'

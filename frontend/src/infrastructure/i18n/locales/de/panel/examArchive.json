@@ -55,6 +55,9 @@
     "analysisStatus": "Analyse-Fortschritt",
     "statusAnalyzing": "wird analysiert",
     "statusPending": "wartend",
-    "statusFailed": "fehlgeschlagen"
+    "statusFailed": "fehlgeschlagen",
+    "uploadError": "Upload-Fehler",
+    "pdfOnly": "Nur PDF-Dateien erlaubt",
+    "uploadFailed": "Upload fehlgeschlagen. Bitte erneut versuchen."
   }
 }

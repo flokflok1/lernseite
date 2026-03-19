@@ -55,6 +55,9 @@
     "analysisStatus": "Postęp analizy",
     "statusAnalyzing": "analizowanie",
     "statusPending": "oczekujące",
-    "statusFailed": "nieudane"
+    "statusFailed": "nieudane",
+    "uploadError": "Błąd przesyłania",
+    "pdfOnly": "Dozwolone tylko pliki PDF",
+    "uploadFailed": "Przesyłanie nie powiodło się. Spróbuj ponownie."
   }
 }

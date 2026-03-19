@@ -182,6 +182,53 @@ async function handleContextAction(action: string) {
   }
 }
 
+// ── PDF Upload ──
+const pdfInput = ref<HTMLInputElement | null>(null)
+const isUploading = ref(false)
+
+function triggerPdfUpload() {
+  pdfInput.value?.click()
+}
+
+async function handlePdfUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = input.files
+  if (!files || files.length === 0) return
+
+  const fileList = Array.from(files)
+  const invalidFile = fileList.find(f => !f.name.toLowerCase().endsWith('.pdf'))
+  if (invalidFile) {
+    showConfirm({
+      title: t('panel.examArchive.uploadError'),
+      message: t('panel.examArchive.pdfOnly'),
+      icon: '⚠️', variant: 'warning',
+      onConfirm: () => {},
+    })
+    input.value = ''
+    return
+  }
+
+  isUploading.value = true
+  try {
+    const { archiveImportImages } = await import(
+      '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+    )
+    const folderId = explorer.currentFolderId.value || undefined
+    await archiveImportImages(fileList, folderId)
+    explorer.loadPrograms()
+  } catch {
+    showConfirm({
+      title: t('panel.examArchive.uploadError'),
+      message: t('panel.examArchive.uploadFailed'),
+      icon: '❌', variant: 'danger',
+      onConfirm: () => {},
+    })
+  } finally {
+    isUploading.value = false
+    input.value = ''
+  }
+}
+
 // ── Keyboard Shortcuts ──
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Backspace' && !isInputFocused()) {
@@ -258,8 +305,18 @@ function onOpenFile(examId: string) {
       <button class="btn-secondary" @click="trashVisible = true">
         🗑 Papierkorb
       </button>
-      <button class="btn-secondary">
-        ⬆ {{ t('panel.examArchive.uploadPdfs') }}
+      <input
+        ref="pdfInput"
+        type="file"
+        accept=".pdf"
+        multiple
+        class="hidden"
+        @change="handlePdfUpload"
+      />
+      <button class="btn-secondary" :disabled="isUploading" @click="triggerPdfUpload">
+        <span v-if="isUploading" class="animate-spin inline-block mr-1">⏳</span>
+        <span v-else>⬆</span>
+        {{ t('panel.examArchive.uploadPdfs') }}
       </button>
       <button
         class="btn-primary"

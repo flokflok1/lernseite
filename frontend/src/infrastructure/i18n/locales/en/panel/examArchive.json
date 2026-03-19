@@ -55,6 +55,9 @@
     "analysisStatus": "Analysis Progress",
     "statusAnalyzing": "analyzing",
     "statusPending": "pending",
-    "statusFailed": "failed"
+    "statusFailed": "failed",
+    "uploadError": "Upload Error",
+    "pdfOnly": "Only PDF files allowed",
+    "uploadFailed": "Upload failed. Please try again."
   }
 }

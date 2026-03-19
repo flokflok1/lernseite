@@ -76,6 +76,44 @@ def analyze_all_solutions():
     return jsonify({'status': 'done', 'total_updated': total}), 200
 
 
+@archive_bp.route('/<exam_id>/generate-solutions', methods=['PUT'])
+@admin_required
+def generate_solutions(exam_id):
+    """Generate AI solutions for questions without solution_text."""
+    exam = ExamRepository.find_by_id(exam_id)
+    if not exam:
+        return jsonify({'error': 'Exam not found'}), 404
+
+    from app.application.services.exams.solution_generator import (
+        generate_solutions_for_exam,
+    )
+    count = generate_solutions_for_exam(str(exam_id))
+    return jsonify({
+        'status': 'done',
+        'solutions_generated': count,
+    }), 200
+
+
+@archive_bp.route('/generate-all-solutions', methods=['PUT'])
+@admin_required
+def generate_all_solutions():
+    """Generate AI solutions for ALL exams with missing solutions."""
+    from app.application.services.exams.solution_generator import (
+        generate_solutions_for_exam,
+    )
+    exams = ExamRepository.find_archive_exams(status='ready')
+    total = 0
+    for exam in (exams or []):
+        count = generate_solutions_for_exam(str(exam['exam_id']))
+        if count:
+            total += count
+            logger.info(
+                "Generated %d solutions for %s",
+                count, exam.get('title'),
+            )
+    return jsonify({'status': 'done', 'total_generated': total}), 200
+
+
 @archive_bp.route('/quality-report', methods=['GET'])
 @admin_required
 def quality_report():

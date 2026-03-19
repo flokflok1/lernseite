@@ -145,7 +145,11 @@ def _call_vision_ai(
             temperature=0.2,
             max_tokens=16000,
         )
-        return _parse_response(response)
+        output_text = response.get('output_text', '')
+        if not output_text:
+            logger.error("Vision AI returned empty response for solutions")
+            return None
+        return _parse_response(output_text)
     except Exception:
         logger.exception("Vision AI call failed for solution analysis")
         return None

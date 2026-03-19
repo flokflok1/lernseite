@@ -339,14 +339,16 @@ class ExamQuestionRepository(BaseRepository):
             text = sol.get('solution_text', '')
             if not q_num or not text:
                 continue
-            result = execute_query(
+            row = execute_query(
                 "UPDATE assessments.exam_questions "
                 "SET solution_text = %s "
                 "WHERE exam_id = %s AND question_number = %s "
-                "AND (solution_text IS NULL OR solution_text = '')",
+                "AND (solution_text IS NULL OR solution_text = '') "
+                "RETURNING question_id",
                 (text, exam_id, q_num),
+                fetch_one=True,
             )
-            if result:
+            if row:
                 count += 1
         return count
 

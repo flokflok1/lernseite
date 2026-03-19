@@ -259,6 +259,22 @@ export async function trainerGetDashboard(courseId?: string): Promise<TrainerDas
   return response.data
 }
 
+export interface TopicFrequency {
+  topic: string
+  exam_count: number
+  question_count: number
+  latest_year: number | null
+  frequency_pct: number
+}
+
+/** Get topic frequency analysis across all exams */
+export async function trainerGetTopicFrequency(): Promise<{ total_exams: number; topics: TopicFrequency[] }> {
+  const response = await http.get<{ success: boolean; total_exams: number; topics: TopicFrequency[] }>(
+    '/user/exam-trainer/topic-frequency'
+  )
+  return { total_exams: response.data.total_exams, topics: response.data.topics }
+}
+
 export const generatePracticeExam = async (params: {
   examType: string
   difficulty: string

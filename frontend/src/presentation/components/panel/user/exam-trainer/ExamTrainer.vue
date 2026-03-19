@@ -5,6 +5,7 @@ import SimulationMode from './SimulationMode.vue'
 import ReviewMode from './ReviewMode.vue'
 import TopicHeatmap from './TopicHeatmap.vue'
 import ProgressDashboard from './ProgressDashboard.vue'
+import TopicPrognosis from './TopicPrognosis.vue'
 import type { TrainerQuestion, TrainerExam, Anlage, TrainerProgram } from '@/infrastructure/api/clients/panel/user/exams'
 import type { TrainerDashboard } from '@/infrastructure/api/clients/panel/user/exams'
 import {
@@ -295,6 +296,14 @@ const handleReviewBack = () => {
           :topics="dashboard.topics"
           @select-topic="() => {}"
         />
+      </div>
+
+      <!-- Topic Prognosis -->
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
+          {{ t('panel.examTrainer.prognosis.title') }}
+        </h2>
+        <TopicPrognosis />
       </div>
 
       <!-- Progress History -->

@@ -224,6 +224,14 @@ class ExamQuestionRepository(BaseRepository):
         return execute_query(query, (exam_id,))
 
     @classmethod
+    def delete_anlagen_by_exam_id(cls, exam_id: str) -> None:
+        """Delete all anlagen for an exam."""
+        execute_query(
+            "DELETE FROM assessments.exam_anlagen WHERE exam_id = %s",
+            (exam_id,),
+        )
+
+    @classmethod
     def reorder_questions(cls, exam_id: str, question_orders: List[Dict[str, Any]]) -> bool:
         """Reorder questions in an exam."""
         try:

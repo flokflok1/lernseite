@@ -398,6 +398,7 @@ def re_analyze_exam(exam_id):
         return jsonify({'error': 'Exam not found'}), 404
 
     ExamQuestionRepository.delete_by_exam_id(exam_id)
+    ExamQuestionRepository.delete_anlagen_by_exam_id(exam_id)
     ExamRepository.update_analysis_status(exam_id, 'pending')
 
     body = request.get_json(silent=True) or {}
@@ -423,6 +424,7 @@ def re_analyze_all():
     for exam in exams:
         eid = str(exam.get('exam_id'))
         ExamQuestionRepository.delete_by_exam_id(eid)
+        ExamQuestionRepository.delete_anlagen_by_exam_id(eid)
         ExamRepository.update_analysis_status(eid, 'pending')
         analyze_exam_pdf_task.delay(eid, provider=provider, model=model)
         count += 1

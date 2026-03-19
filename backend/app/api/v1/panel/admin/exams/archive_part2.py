@@ -74,3 +74,14 @@ def analyze_all_solutions():
             )
 
     return jsonify({'status': 'done', 'total_updated': total}), 200
+
+
+@archive_bp.route('/quality-report', methods=['GET'])
+@admin_required
+def quality_report():
+    """Generate quality report for all ready exams."""
+    from app.application.services.exams.quality_checker import (
+        generate_quality_report,
+    )
+    report = generate_quality_report()
+    return jsonify(report), 200

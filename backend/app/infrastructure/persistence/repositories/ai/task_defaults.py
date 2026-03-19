@@ -14,23 +14,18 @@ class AITaskDefaultsRepository:
 
     @classmethod
     def get_for_task(cls, category: str) -> Optional[Dict]:
-        """Get the configured model for a task category.
+        """Get the configured model for a specific task category.
 
-        Falls back to 'default' category if specific not found.
+        Returns None if not found — no internal fallback.
+        The resolver handles fallback to 'default' category.
         """
-        row = fetch_one(
+        return fetch_one(
             "SELECT d.category, d.model_name, p.name as provider_name "
             "FROM ai_pipeline.ai_task_defaults d "
             "JOIN ai_pipeline.ai_providers p ON p.provider_id = d.provider_id "
             "WHERE d.category = %s",
             (category,),
         )
-        if row:
-            return row
-        # Fallback to default
-        if category != 'default':
-            return cls.get_for_task('default')
-        return None
 
     @classmethod
     def get_all(cls) -> List[Dict]:

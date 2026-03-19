@@ -186,12 +186,9 @@ def _resolve_model(
         except Exception as e:
             logger.warning(f"LMModelResolver failed for {skill.code}: {e}")
 
-    # Fallback to system default
-    from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
-    default = AIModelsRepository.get_default_model()
-    if default:
-        return default.get('provider_name', 'openai'), default.get('model_name', 'gpt-4o-mini')
-    return 'openai', 'gpt-4o-mini'
+    # Fallback to system default via task defaults
+    from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+    return resolve_model_for_task('default')
 
 
 def _resolve_prompt(

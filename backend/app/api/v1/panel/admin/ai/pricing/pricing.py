@@ -154,10 +154,13 @@ def estimate_operation_cost() -> Tuple[Dict[str, Any], int]:
             if not model:
                 return error_response(ErrorCode.AI_MODEL_NOT_FOUND, 404, details={'model_id': model_id})
         else:
-            # Use default chat model
-            model = AIModelsRepository.get_default_model('chat')
+            # Resolve default model via task defaults
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+            _, model_name = resolve_model_for_task('default')
+            # Look up the model record by name for pricing info
+            model = AIModelsRepository.get_by_name(model_name)
             if not model:
-                return error_response(ErrorCode.NO_DEFAULT_MODEL, 400, details={'message': 'No default model configured for chat category'})
+                return error_response(ErrorCode.NO_DEFAULT_MODEL, 400, details={'message': f'Default model "{model_name}" not found in database'})
 
         # Get token estimates based on operation type
         complexity = data.get('complexity', 'medium')

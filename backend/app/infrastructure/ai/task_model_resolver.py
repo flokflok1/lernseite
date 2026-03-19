@@ -35,24 +35,17 @@ def resolve_model_for_task(category: str) -> Tuple[str, str]:
         _cache[category] = result
         return result
 
-    # Ultimate fallback — resolve from global default model in DB
-    logger.warning("No task default for '%s', using global default", category)
-    try:
-        from app.infrastructure.persistence.repositories.ai_models import (
-            AIModelsRepository,
-        )
-        default_model = AIModelsRepository.get_default_model()
-        if default_model:
-            result = (
-                default_model.get('provider_name', 'google'),
-                default_model.get('model_name', 'gemini-3.1-pro-preview'),
-            )
+    # Fallback: try the 'default' category if a specific category wasn't found
+    if category != 'default':
+        logger.warning("No task default for '%s', trying 'default' category", category)
+        row = AITaskDefaultsRepository.get_for_task('default')
+        if row:
+            result = (row['provider_name'], row['model_name'])
             _cache[category] = result
             return result
-    except Exception:
-        logger.exception("Failed to resolve global default model")
 
-    # Absolute last resort
+    # Absolute last resort (should not happen if task defaults are configured)
+    logger.error("No task default configured for '%s' or 'default'", category)
     return ('google', 'gemini-3.1-pro-preview')
 
 

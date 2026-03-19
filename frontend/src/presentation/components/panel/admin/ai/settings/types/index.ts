@@ -3,6 +3,4 @@ export type {
   TestResult,
   AIModel,
   ProviderModels,
-  SettingsResult,
-  DefaultSettings,
 } from './aiSettings.types'

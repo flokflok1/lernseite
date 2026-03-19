@@ -37,12 +37,3 @@ export interface ProviderModels {
   models: AIModel[]
 }
 
-export interface SettingsResult {
-  success: boolean
-  message: string
-}
-
-export interface DefaultSettings {
-  provider: string
-  model: string
-}

@@ -64,22 +64,6 @@
         />
       </div>
 
-      <!-- Default Model Selection -->
-      <AIDefaultModelSection
-        :selected-provider="defaultSettings.provider"
-        :selected-model="defaultSettings.model"
-        :available-models="availableModels"
-        :current-models="currentProviderModels"
-        :selected-model-info="selectedModelInfo"
-        :provider-icon="getProviderIcon(defaultSettings.provider)"
-        :is-saving="savingSettings"
-        :settings-result="settingsResult"
-        :format-price="formatPrice"
-        @provider-change="handleProviderChange"
-        @model-change="defaultSettings.model = $event"
-        @save="saveDefaultSettings"
-      />
-
       <!-- Task-specific Model Defaults -->
       <AITaskDefaultsSection
         :available-models="availableModels"
@@ -106,7 +90,7 @@ import { onMounted } from 'vue'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 
 import { useAISettingsManager } from '@/presentation/components/panel/admin/ai/settings/composables'
-import { AISettingsStatsBar, AIProviderCard, AIDefaultModelSection, AIModelsOverview, AITaskDefaultsSection } from '@/presentation/components/panel/admin/ai/settings/components'
+import { AISettingsStatsBar, AIProviderCard, AIModelsOverview, AITaskDefaultsSection } from '@/presentation/components/panel/admin/ai/settings/components'
 
 const windowStore = useWindowStore()
 
@@ -121,14 +105,9 @@ const {
   deletingKey,
   testResults,
   availableModels,
-  defaultSettings,
-  savingSettings,
-  settingsResult,
   activeProviders,
   configuredProviders,
   totalModelCount,
-  currentProviderModels,
-  selectedModelInfo,
   syncingModels,
   syncResult,
   loadProviders,
@@ -138,19 +117,11 @@ const {
   toggleActive,
   updatePriority,
   updateRateLimit,
-  onProviderChange,
-  saveDefaultSettings,
   getProviderIcon,
-  formatPrice,
   toggleShowApiKey,
   syncModelsFromProviders,
   initializeAll,
 } = useAISettingsManager()
-
-function handleProviderChange(value: string): void {
-  defaultSettings.value.provider = value
-  onProviderChange()
-}
 
 function openModelSelector(): void {
   windowStore.openWindow({

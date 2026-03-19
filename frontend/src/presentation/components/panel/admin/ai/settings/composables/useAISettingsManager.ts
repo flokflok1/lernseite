@@ -2,7 +2,7 @@
  * Composable for managing AI provider settings.
  *
  * Handles loading, saving, testing, and deleting provider API keys,
- * as well as model selection and default settings management.
+ * as well as model listing and provider configuration.
  */
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,8 +12,6 @@ import type {
   AIProvider,
   TestResult,
   ProviderModels,
-  SettingsResult,
-  DefaultSettings,
 } from '../types'
 
 export function useAISettingsManager() {
@@ -35,12 +33,6 @@ export function useAISettingsManager() {
   const testResults = ref<Record<number, TestResult>>({})
 
   const availableModels = ref<Record<string, ProviderModels>>({})
-  const defaultSettings = ref<DefaultSettings>({
-    provider: 'openai',
-    model: 'gpt-4o-mini',
-  })
-  const savingSettings = ref(false)
-  const settingsResult = ref<SettingsResult | null>(null)
   const syncingModels = ref(false)
   const syncResult = ref<{ success: boolean; message: string } | null>(null)
 
@@ -61,16 +53,6 @@ export function useAISettingsManager() {
       (sum, p) => sum + p.models.length,
       0
     )
-  })
-
-  const currentProviderModels = computed(() => {
-    const provider = defaultSettings.value.provider
-    return availableModels.value[provider]?.models || []
-  })
-
-  const selectedModelInfo = computed(() => {
-    const model = defaultSettings.value.model
-    return currentProviderModels.value.find(m => m.name === model) || null
   })
 
   // ============================================================================
@@ -155,22 +137,6 @@ export function useAISettingsManager() {
       }
     } catch (err) {
       console.error('Error loading models:', err)
-    }
-  }
-
-  async function loadSettings(): Promise<void> {
-    try {
-      const response = await axios.get(
-        '/api/v1/panel/settings/ai/models/default/chat',
-        { headers: getAuthHeaders() }
-      )
-
-      if (response.data.success && response.data.data) {
-        defaultSettings.value.provider = response.data.data.provider_name || 'openai'
-        defaultSettings.value.model = response.data.data.model_name || 'gpt-4o-mini'
-      }
-    } catch {
-      console.info('No default AI settings found, using defaults')
     }
   }
 
@@ -347,62 +313,6 @@ export function useAISettingsManager() {
   }
 
   // ============================================================================
-  // Default model operations
-  // ============================================================================
-
-  function onProviderChange(): void {
-    const models = currentProviderModels.value
-    if (models.length > 0) {
-      defaultSettings.value.model = models[0].name
-    }
-  }
-
-  async function saveDefaultSettings(): Promise<void> {
-    savingSettings.value = true
-    settingsResult.value = null
-
-    try {
-      const allModels = Object.values(availableModels.value).flatMap(p => p.models)
-      const selectedModel = allModels.find(m => m.name === defaultSettings.value.model)
-
-      if (!selectedModel?.model_id) {
-        settingsResult.value = {
-          success: false,
-          message: t('panel.aiSettingsPage.messages.modelNotFound'),
-        }
-        savingSettings.value = false
-        return
-      }
-
-      const response = await axios.put(
-        `/api/v1/panel/settings/ai/models/${selectedModel.model_id}/default`,
-        { category: 'chat' },
-        { headers: getAuthHeaders() }
-      )
-
-      if (response.data.success) {
-        settingsResult.value = {
-          success: true,
-          message: t('panel.aiSettingsPage.messages.settingsSaved'),
-        }
-      } else {
-        settingsResult.value = {
-          success: false,
-          message: response.data.error || t('panel.aiSettingsPage.messages.settingsSaveError'),
-        }
-      }
-    } catch (err: unknown) {
-      console.error('Error saving settings:', err)
-      settingsResult.value = {
-        success: false,
-        message: extractAxiosError(err, 'panel.aiSettingsPage.messages.unknownErrorGeneric'),
-      }
-    } finally {
-      savingSettings.value = false
-    }
-  }
-
-  // ============================================================================
   // Formatting helpers
   // ============================================================================
 
@@ -501,7 +411,7 @@ export function useAISettingsManager() {
   }
 
   async function initializeAll(): Promise<void> {
-    await Promise.all([loadProviders(), loadModels(), loadSettings()])
+    await Promise.all([loadProviders(), loadModels()])
   }
 
   return {
@@ -516,9 +426,6 @@ export function useAISettingsManager() {
     deletingKey,
     testResults,
     availableModels,
-    defaultSettings,
-    savingSettings,
-    settingsResult,
     syncingModels,
     syncResult,
 
@@ -526,8 +433,6 @@ export function useAISettingsManager() {
     activeProviders,
     configuredProviders,
     totalModelCount,
-    currentProviderModels,
-    selectedModelInfo,
 
     // Methods
     loadProviders,
@@ -537,8 +442,6 @@ export function useAISettingsManager() {
     toggleActive,
     updatePriority,
     updateRateLimit,
-    onProviderChange,
-    saveDefaultSettings,
     getProviderIcon,
     formatDate,
     formatPrice,

@@ -362,3 +362,30 @@ class ExamQuestionRepository(BaseRepository):
             "ORDER BY question_number",
             (exam_id,),
         )
+
+    @classmethod
+    def get_quality_report_data(cls) -> list:
+        """Get all questions with exam metadata for quality checking."""
+        return fetch_all(
+            """SELECT q.question_id, q.exam_id, q.question_number,
+                      q.question_text, q.solution_text, q.question_type,
+                      q.points, q.scenario_title,
+                      e.title as exam_title,
+                      e.solution_pdf_path,
+                      e.analysis_status
+               FROM assessments.exam_questions q
+               JOIN assessments.exams e ON e.exam_id = q.exam_id
+               WHERE e.analysis_status = 'ready'
+               ORDER BY e.title, q.order_index""",
+            (),
+        )
+
+    @classmethod
+    def get_anlagen_numbers_by_exam(cls) -> list:
+        """Get all anlagen numbers grouped by exam_id."""
+        return fetch_all(
+            """SELECT exam_id, array_agg(number ORDER BY number) as numbers
+               FROM assessments.exam_anlagen
+               GROUP BY exam_id""",
+            (),
+        )

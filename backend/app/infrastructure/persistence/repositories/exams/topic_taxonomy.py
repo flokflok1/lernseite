@@ -65,6 +65,7 @@ class TopicTaxonomyRepository:
             INSERT INTO assessments.exam_topic_taxonomy
                 (exam_type, topic_key, topic_label, parent_topic_id, weight)
             VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (exam_type, topic_key) DO NOTHING
             RETURNING *
         """
         return fetch_one(query, (

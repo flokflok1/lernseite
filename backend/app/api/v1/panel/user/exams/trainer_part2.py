@@ -270,3 +270,47 @@ def register_advanced_routes(bp):
             return jsonify({
                 'success': False, 'error': 'Failed to extract Anlagen'
             }), 500
+
+    @bp.route('/topic-frequency', methods=['GET'])
+    @token_required
+    def get_topic_frequency():
+        """Get topic frequency analysis across all exams.
+
+        Shows which topics appear most often — useful for exam prep focus.
+
+        Response 200:
+            {topics: [{topic, exam_count, question_count, latest_year,
+                       frequency_pct}]}
+        """
+        try:
+            rows = ExamTrainerRepository.get_topic_frequency()
+            total_exams = len(set(r.get('exam_count', 0) for r in rows))
+            # Count actual distinct exams for percentage
+            from app.infrastructure.persistence.repositories.exams.core import (
+                ExamRepository,
+            )
+            all_exams = ExamRepository.find_archive_exams(status='ready')
+            exam_total = len(all_exams) if all_exams else 1
+
+            topics = [
+                {
+                    'topic': r['topic'],
+                    'exam_count': r['exam_count'],
+                    'question_count': r['question_count'],
+                    'latest_year': r['latest_year'],
+                    'frequency_pct': round(
+                        r['exam_count'] / exam_total * 100, 1,
+                    ),
+                }
+                for r in rows
+            ]
+            return jsonify({
+                'success': True,
+                'total_exams': exam_total,
+                'topics': topics,
+            }), 200
+        except Exception:
+            logger.exception("Failed to get topic frequency")
+            return jsonify({
+                'success': False, 'error': 'Failed to load topic frequency',
+            }), 500

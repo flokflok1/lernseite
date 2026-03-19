@@ -331,6 +331,16 @@
       "chartTitle": "Score-Verlauf",
       "historyTitle": "Letzte Versuche"
     },
+    "prognosis": {
+      "title": "Themen-Prognose",
+      "basedOn": "Basierend auf {count} Prüfungen",
+      "veryLikely": "Sehr wahrscheinlich",
+      "likely": "Wahrscheinlich",
+      "possible": "Möglich",
+      "rare": "Selten",
+      "questions": "Fragen",
+      "noData": "Keine Themen-Daten verfügbar"
+    },
     "selectExam": "Wähle eine Prüfung zum Üben",
     "noExams": "Keine Prüfungen verfügbar. Der Admin muss zuerst Prüfungen importieren und analysieren.",
     "startExam": "Prüfung starten",

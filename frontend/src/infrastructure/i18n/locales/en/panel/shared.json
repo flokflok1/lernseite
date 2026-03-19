@@ -331,6 +331,16 @@
       "chartTitle": "Score history",
       "historyTitle": "Recent attempts"
     },
+    "prognosis": {
+      "title": "Topic Prognosis",
+      "basedOn": "Based on {count} exams",
+      "veryLikely": "Very likely",
+      "likely": "Likely",
+      "possible": "Possible",
+      "rare": "Rare",
+      "questions": "questions",
+      "noData": "No topic data available"
+    },
     "selectExam": "Select an exam to practice",
     "noExams": "No exams available. The admin needs to import and analyze exams first.",
     "startExam": "Start Exam",

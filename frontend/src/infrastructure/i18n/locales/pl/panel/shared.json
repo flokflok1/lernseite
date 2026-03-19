@@ -331,6 +331,16 @@
       "chartTitle": "Historia wyników",
       "historyTitle": "Ostatnie próby"
     },
+    "prognosis": {
+      "title": "Prognoza tematów",
+      "basedOn": "Na podstawie {count} egzaminów",
+      "veryLikely": "Bardzo prawdopodobne",
+      "likely": "Prawdopodobne",
+      "possible": "Możliwe",
+      "rare": "Rzadkie",
+      "questions": "pytań",
+      "noData": "Brak danych o tematach"
+    },
     "selectExam": "Wybierz egzamin do ćwiczenia",
     "noExams": "Brak dostępnych egzaminów. Administrator musi najpierw zaimportować i przeanalizować egzaminy.",
     "startExam": "Rozpocznij egzamin",

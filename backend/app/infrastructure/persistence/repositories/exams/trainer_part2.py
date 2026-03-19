@@ -171,3 +171,25 @@ class ExamTrainerRotationMixin:
             LIMIT %s
         """
         return fetch_all(query, (user_id, limit))
+
+    @staticmethod
+    def get_topic_frequency() -> list:
+        """Get topic frequency across all ready exams.
+
+        Returns list of {topic, exam_count, question_count, latest_year}
+        sorted by exam_count descending.
+        """
+        query = """
+            SELECT t.topic,
+                   COUNT(DISTINCT q.exam_id) as exam_count,
+                   COUNT(*) as question_count,
+                   MAX(e.year) as latest_year
+            FROM assessments.exam_questions q
+            JOIN assessments.exams e ON e.exam_id = q.exam_id,
+            LATERAL unnest(q.topics) as t(topic)
+            WHERE e.analysis_status = 'ready'
+              AND q.topics IS NOT NULL
+            GROUP BY t.topic
+            ORDER BY exam_count DESC, question_count DESC
+        """
+        return fetch_all(query, ())

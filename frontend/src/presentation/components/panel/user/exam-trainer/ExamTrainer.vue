@@ -3,6 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SimulationMode from './SimulationMode.vue'
 import ReviewMode from './ReviewMode.vue'
+import TopicHeatmap from './TopicHeatmap.vue'
+import ProgressDashboard from './ProgressDashboard.vue'
+import TopicPrognosis from './TopicPrognosis.vue'
 import type { TrainerQuestion, TrainerExam, Anlage, TrainerProgram } from '@/infrastructure/api/clients/panel/user/exams'
 import type { TrainerDashboard } from '@/infrastructure/api/clients/panel/user/exams'
 import {
@@ -284,20 +287,31 @@ const handleReviewBack = () => {
         </div>
       </div>
 
-      <!-- Chapter Topics -->
-      <div v-if="dashboard.chapters && dashboard.chapters.length > 0">
+      <!-- Topic Heatmap (Strengths / Weaknesses) -->
+      <div v-if="dashboard.topics && dashboard.topics.length > 0">
         <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
           {{ t('panel.examTrainer.adaptive.topicsTitle') }}
         </h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          <div
-            v-for="ch in dashboard.chapters"
-            :key="ch.chapter_id"
-            class="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]"
-          >
-            <div class="text-sm font-medium text-[var(--color-text)]">{{ ch.title }}</div>
-          </div>
-        </div>
+        <TopicHeatmap
+          :topics="dashboard.topics"
+          @select-topic="() => {}"
+        />
+      </div>
+
+      <!-- Topic Prognosis -->
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
+          {{ t('panel.examTrainer.prognosis.title') }}
+        </h2>
+        <TopicPrognosis />
+      </div>
+
+      <!-- Progress History -->
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
+          {{ t('panel.examTrainer.progress.chartTitle') }}
+        </h2>
+        <ProgressDashboard />
       </div>
 
       <!-- Recent Attempts -->

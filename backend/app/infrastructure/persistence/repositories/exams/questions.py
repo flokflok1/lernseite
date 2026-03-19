@@ -323,3 +323,40 @@ class ExamQuestionRepository(BaseRepository):
             "WHERE exam_id = %s ORDER BY number",
             (exam_id,),
         )
+
+    @classmethod
+    def update_solutions_batch(
+        cls, exam_id: str, solutions: list,
+    ) -> int:
+        """Update solution_text for questions by matching question_number.
+
+        Only updates questions that don't already have a solution.
+        Returns count of updated questions.
+        """
+        count = 0
+        for sol in solutions:
+            q_num = sol.get('question_number', '')
+            text = sol.get('solution_text', '')
+            if not q_num or not text:
+                continue
+            result = execute_query(
+                "UPDATE assessments.exam_questions "
+                "SET solution_text = %s "
+                "WHERE exam_id = %s AND question_number = %s "
+                "AND (solution_text IS NULL OR solution_text = '')",
+                (text, exam_id, q_num),
+            )
+            if result:
+                count += 1
+        return count
+
+    @classmethod
+    def get_questions_without_solutions(cls, exam_id: str) -> list:
+        """Get question numbers that have no solution_text."""
+        return fetch_all(
+            "SELECT question_number FROM assessments.exam_questions "
+            "WHERE exam_id = %s "
+            "AND (solution_text IS NULL OR solution_text = '') "
+            "ORDER BY question_number",
+            (exam_id,),
+        )

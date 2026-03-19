@@ -479,4 +479,3 @@ def delete_exam(exam_id):
     logger.info("Deleted exam=%s by admin", exam_id)
     return jsonify({'deleted': True}), 200
 
-

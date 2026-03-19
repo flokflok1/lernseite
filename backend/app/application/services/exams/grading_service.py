@@ -91,7 +91,9 @@ class GradingService:
 
         try:
             from app.infrastructure.ai.adapter import AIAdapter
-            adapter = AIAdapter()
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+            provider, model = resolve_model_for_task('grading')
+            adapter = AIAdapter(provider=provider, model=model)
             response = adapter.send_request(
                 prompt=prompt, language=language,
                 temperature=0.1, max_tokens=500,

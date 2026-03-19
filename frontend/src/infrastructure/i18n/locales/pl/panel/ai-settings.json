@@ -33,10 +33,14 @@
       "input": "Wejście",
       "output": "Wyjście",
       "perThousandTokens": "za 1K tokenów",
-      "saveSettings": "Zapisz ustawienia",
+      "saveSettings": "Zapisz",
       "savingSettings": "Zapisywanie...",
       "subtitle": "Wybierz domyślnego dostawcę i model dla operacji AI",
       "title": "Domyślny model AI"
+    },
+    "taskDefaults": {
+      "title": "Modele dla konkretnych zadań",
+      "subtitle": "Każda kategoria zadań AI może używać własnego modelu"
     },
     "loadingProviders": "Ładowanie dostawców...",
     "messages": {

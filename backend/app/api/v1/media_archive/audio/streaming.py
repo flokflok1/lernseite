@@ -155,10 +155,13 @@ Antworte im JSON-Format:
     "suggestions": ["<Verbesserungsvorschlag 1>", ...]
 }}"""
 
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+            feedback_prov, feedback_mod = resolve_model_for_task('grading')
             analysis_response = AIAdapter.chat_completion(
                 messages=[{'role': 'user', 'content': analysis_prompt}],
                 system_prompt="Du bist ein erfahrener Prüfer und Lehrer. Analysiere mündliche Erklärungen fair aber gründlich. Antworte ausschließlich im angeforderten JSON-Format.",
-                model='gpt-4o-mini',
+                provider=feedback_prov,
+                model=feedback_mod,
                 temperature=0.3,
                 user_id=user_id
             )

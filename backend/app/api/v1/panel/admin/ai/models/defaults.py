@@ -183,3 +183,67 @@ def get_default_model_for_category(category: str) -> Tuple[Dict[str, Any], int]:
         logger.error(f"Error getting default model for category {category}: {e}")
         return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
             details={'error': str(e)})
+
+
+# ---------------------------------------------------------------------------
+# Task-specific model defaults
+# ---------------------------------------------------------------------------
+
+
+@models_defaults_bp.route('/task-defaults', methods=['GET'])
+@permission_required('admin.system:read')
+def get_task_defaults() -> Tuple[Dict[str, Any], int]:
+    """Get all task-specific model defaults."""
+    try:
+        from app.infrastructure.persistence.repositories.ai.task_defaults import (
+            AITaskDefaultsRepository,
+        )
+        defaults = AITaskDefaultsRepository.get_all()
+        return jsonify({'success': True, 'data': defaults}), 200
+    except Exception as e:
+        logger.error("Error fetching task defaults: %s", e)
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})
+
+
+@models_defaults_bp.route('/task-defaults/<category>', methods=['PUT'])
+@permission_required('admin.system:write')
+def set_task_default(category: str) -> Tuple[Dict[str, Any], int]:
+    """Set model for a task category."""
+    try:
+        from app.infrastructure.persistence.repositories.ai.task_defaults import (
+            AITaskDefaultsRepository,
+        )
+        data = request.get_json()
+        if not data or 'provider' not in data or 'model' not in data:
+            return error_response(ErrorCode.VALIDATION_REQUIRED_FIELD, 400,
+                details={'field': 'provider and model'})
+
+        AITaskDefaultsRepository.set_for_task(
+            category, data['provider'], data['model'],
+        )
+
+        # Clear resolver cache
+        from app.infrastructure.ai.task_model_resolver import clear_cache
+        clear_cache()
+
+        # Audit log
+        AuditService.log_action(
+            user_id=g.current_user.get('user_id'),
+            action='set_task_default_model',
+            resource_type='ai_task_default',
+            resource_id=category,
+            details={
+                'provider': data['provider'],
+                'model': data['model'],
+            }
+        )
+
+        return jsonify({
+            'success': True,
+            'message': f'Default for {category} updated',
+        }), 200
+    except Exception as e:
+        logger.error("Error setting task default for %s: %s", category, e)
+        return error_response(ErrorCode.AI_GENERATION_FAILED, 500,
+            details={'error': str(e)})

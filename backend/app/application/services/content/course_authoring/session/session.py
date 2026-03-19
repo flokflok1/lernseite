@@ -153,18 +153,9 @@ class CourseAuthoringService(FinalizeMixin):
 
     @staticmethod
     def _resolve_default_model() -> tuple:
-        """Resolve default AI model from admin settings (G07 compliant)."""
-        try:
-            from app.infrastructure.persistence.repositories.ai_models import AIModelsRepository
-            default = AIModelsRepository.get_default_model()
-            if default:
-                return (
-                    default.get('provider_name', 'openai'),
-                    default.get('model_name', 'gpt-4o-mini'),
-                )
-        except Exception:
-            pass
-        return ('openai', 'gpt-4o-mini')
+        """Resolve default AI model from task defaults (G07 compliant)."""
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        return resolve_model_for_task('content')
 
     def create_session(
         self,

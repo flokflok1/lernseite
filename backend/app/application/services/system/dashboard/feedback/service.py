@@ -125,7 +125,8 @@ class FeedbackService:
 
         try:
             # Import AI adapter
-            from app.application.services.ai.adapter import AIAdapter
+            from app.infrastructure.ai.adapter import AIAdapter
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
 
             # Build prompt
             prompt = f"""Analysiere das folgende Nutzer-Feedback und extrahiere:
@@ -150,16 +151,18 @@ Antworte im JSON-Format:
     "tags": ["tag1", "tag2", ...]
 }}"""
 
-            result = AIAdapter.generate_content(
+            feedback_provider, feedback_model = resolve_model_for_task('feedback')
+            adapter = AIAdapter(provider=feedback_provider, model=feedback_model)
+            result_data = adapter.send_request(
                 prompt=prompt,
-                provider='anthropic',
-                temperature=0.3
+                temperature=0.3,
+                max_tokens=500,
             )
 
-            if result and result.get('content'):
+            if result_data and result_data.get('output_text'):
                 import json
                 # Parse AI response
-                content = result['content']
+                content = result_data['output_text']
 
                 # Try to extract JSON from response
                 try:
@@ -242,7 +245,8 @@ Antworte im JSON-Format:
             return None
 
         try:
-            from app.application.services.ai.adapter import AIAdapter
+            from app.infrastructure.ai.adapter import AIAdapter
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
 
             # Build feedback list for prompt
             feedback_texts = []
@@ -281,15 +285,17 @@ Antworte im JSON-Format:
     }}
 }}"""
 
-            result = AIAdapter.generate_content(
+            batch_provider, batch_model = resolve_model_for_task('feedback')
+            batch_adapter = AIAdapter(provider=batch_provider, model=batch_model)
+            batch_result = batch_adapter.send_request(
                 prompt=prompt,
-                provider='anthropic',
-                temperature=0.3
+                temperature=0.3,
+                max_tokens=2000,
             )
 
-            if result and result.get('content'):
+            if batch_result and batch_result.get('output_text'):
                 import json
-                content = result['content']
+                content = batch_result['output_text']
                 start = content.find('{')
                 end = content.rfind('}') + 1
                 if start >= 0 and end > start:

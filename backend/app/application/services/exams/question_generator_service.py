@@ -66,10 +66,12 @@ class QuestionGeneratorService:
             objectives, example_questions, context, count,
         )
 
-        ai_opts = {
-            k: v for k, v in {'provider': provider, 'model': model}.items() if v
-        }
-        adapter = AIAdapter(**ai_opts)
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        if not provider or not model:
+            resolved_provider, resolved_model = resolve_model_for_task('content')
+            provider = provider or resolved_provider
+            model = model or resolved_model
+        adapter = AIAdapter(provider=provider, model=model)
         response = adapter.send_request(
             prompt=prompt,
             temperature=0.7,

@@ -123,15 +123,18 @@ class TaxonomyBootstrapService:
 def _build_adapter(
     provider: Optional[str], model: Optional[str],
 ):
-    """Build AIAdapter with optional provider/model override (G07)."""
-    from app.application.services.ai.adapter import AIAdapter
+    """Build AIAdapter with optional provider/model override (G07).
 
-    kwargs: Dict[str, Any] = {}
-    if provider:
-        kwargs['provider'] = provider
-    if model:
-        kwargs['model'] = model
-    return AIAdapter(**kwargs)
+    Falls back to task-specific default for 'taxonomy' category.
+    """
+    from app.infrastructure.ai.adapter import AIAdapter
+    from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+
+    if not provider or not model:
+        resolved_provider, resolved_model = resolve_model_for_task('taxonomy')
+        provider = provider or resolved_provider
+        model = model or resolved_model
+    return AIAdapter(provider=provider, model=model)
 
 
 def _ai_group_topics(

@@ -22,6 +22,7 @@ from app.infrastructure.persistence.repositories.ai.tracking.usage import AIUsag
 from app.infrastructure.persistence.repositories.ai.exam_context import ExamContextRepository
 from app.infrastructure.persistence.repositories.ai.content_plans import ContentPlanRepository
 from app.infrastructure.persistence.repositories.ai.tracking.generation_log import GenerationLogRepository
+from app.infrastructure.persistence.repositories.ai.task_defaults import AITaskDefaultsRepository
 
 __all__ = [
     'AIJobRepository',
@@ -32,4 +33,5 @@ __all__ = [
     'ExamContextRepository',
     'ContentPlanRepository',
     'GenerationLogRepository',
+    'AITaskDefaultsRepository',
 ]

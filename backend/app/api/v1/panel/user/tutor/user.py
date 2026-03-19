@@ -134,10 +134,13 @@ def tutor_chat() -> Tuple[Dict[str, Any], int]:
         })
 
         # Call AI
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        tutor_provider, tutor_model = resolve_model_for_task('tutor')
         response = AIAdapter.chat_completion(
             messages=messages,
             system_prompt=system_prompt,
-            model='gpt-4o-mini',
+            provider=tutor_provider,
+            model=tutor_model,
             temperature=0.7,
             user_id=user_id
         )
@@ -202,11 +205,13 @@ def tutor_tts() -> Response:
             voice=voice
         )
 
-        # Generate TTS using OpenAI
+        # Generate TTS — model resolved from task defaults
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        _, tts_model = resolve_model_for_task('tts')
         audio_data = AIAdapter.text_to_speech(
             text=tts_request['text'],
             voice=tts_request['voice'],
-            model='tts-1'  # Use standard model (tts-1-hd for higher quality)
+            model=tts_model,
         )
 
         if not audio_data:

@@ -98,7 +98,9 @@ def generate_template_html(
 
     try:
         from app.infrastructure.ai.adapter import AIAdapter
-        adapter = AIAdapter()
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        provider, model = resolve_model_for_task('templates')
+        adapter = AIAdapter(provider=provider, model=model)
         response = adapter.send_request(
             prompt=prompt, language=language,
             temperature=0.3, max_tokens=2000,

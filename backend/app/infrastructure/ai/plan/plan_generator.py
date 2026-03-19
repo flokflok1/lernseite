@@ -31,23 +31,17 @@ logger = logging.getLogger(__name__)
 
 
 def _resolve_model_defaults() -> tuple[str, str]:
-    """Resolve provider/model from the DB default.
+    """Resolve provider/model from task defaults (category='content').
 
-    Raises ValueError if no default model is configured in the database.
-    Admin must configure at least one AI model as default via AI Settings.
+    Falls back to global default if no task-specific config exists.
+    Raises ValueError if nothing is configured.
     """
-    default_model = AIModelsRepository.get_default_model()
-    if not default_model:
+    from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+    provider, model = resolve_model_for_task('content')
+    if not provider or not model:
         raise ValueError(
             'No default AI model configured. '
             'Please configure a default model in AI Settings (Admin > AI).'
-        )
-    provider = default_model.get('provider_name')
-    model = default_model.get('model_name')
-    if not provider or not model:
-        raise ValueError(
-            'Default AI model is missing provider_name or model_name. '
-            'Please reconfigure the default model in AI Settings.'
         )
     return provider, model
 

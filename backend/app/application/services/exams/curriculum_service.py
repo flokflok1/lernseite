@@ -1,14 +1,6 @@
-"""
-Curriculum Service
+"""Curriculum Service — AI-powered PDF import, question mapping, performance profiles.
 
-Orchestrates curriculum framework operations:
-- AI-powered PDF import (parse exam framework documents)
-- Automatic question-to-curriculum mapping via AI
-- User curriculum performance profiles
-- Exam relevance / coverage statistics
-
-All DB access goes through CurriculumFrameworkRepository (G09).
-No hardcoded AI providers or models (G07).
+All DB access via CurriculumFrameworkRepository (G09). No hardcoded AI providers (G07).
 """
 
 import json
@@ -108,8 +100,12 @@ class CurriculumService:
             f"{pdf_text}"
         )
 
-        ai_opts = {k: v for k, v in {'provider': provider, 'model': model}.items() if v}
-        adapter = AIAdapter(timeout=300, **ai_opts)
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        if not provider or not model:
+            resolved_provider, resolved_model = resolve_model_for_task('content')
+            provider = provider or resolved_provider
+            model = model or resolved_model
+        adapter = AIAdapter(provider=provider, model=model, timeout=300)
         response = adapter.send_request(
             prompt=prompt,
             temperature=0.1,
@@ -313,7 +309,11 @@ class CurriculumService:
         )
 
         try:
-            adapter = AIAdapter(**(ai_kwargs or {}))
+            if not ai_kwargs:
+                from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+                _prov, _mod = resolve_model_for_task('content')
+                ai_kwargs = {'provider': _prov, 'model': _mod}
+            adapter = AIAdapter(**ai_kwargs)
             response = adapter.send_request(
                 prompt=prompt,
                 temperature=0.1,
@@ -491,5 +491,4 @@ def compute_trend(recent_count: int, older_count: int) -> str:
     if recent_rate < older_rate * 0.7:
         return 'declining'
     return 'stable'
-
 

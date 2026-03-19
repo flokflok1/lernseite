@@ -56,13 +56,14 @@ class ClusterIntelligenceService:
         prompt = _build_cluster_prompt(context)
 
         from app.infrastructure.ai.adapter import AIAdapter
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
         provider = options.get('provider')
         model = options.get('model')
-        adapter = AIAdapter(
-            **{k: v for k, v in {
-                'provider': provider, 'model': model,
-            }.items() if v}
-        )
+        if not provider or not model:
+            resolved_provider, resolved_model = resolve_model_for_task('taxonomy')
+            provider = provider or resolved_provider
+            model = model or resolved_model
+        adapter = AIAdapter(provider=provider, model=model)
 
         logger.info(
             "Requesting cluster suggestion for %s: "

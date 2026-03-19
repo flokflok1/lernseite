@@ -33,10 +33,14 @@
       "input": "Input",
       "output": "Output",
       "perThousandTokens": "pro 1K Token",
-      "saveSettings": "Einstellungen speichern",
+      "saveSettings": "Speichern",
       "savingSettings": "Speichert...",
       "subtitle": "Wählen Sie den Standard-Provider und das Modell für KI-Operationen",
       "title": "Standard KI-Modell"
+    },
+    "taskDefaults": {
+      "title": "Aufgaben-spezifische Modelle",
+      "subtitle": "Jede KI-Aufgabe kann ein eigenes Modell verwenden"
     },
     "loadingProviders": "Lade Provider...",
     "messages": {

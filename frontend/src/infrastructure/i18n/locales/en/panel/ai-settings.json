@@ -33,10 +33,14 @@
       "input": "Input",
       "output": "Output",
       "perThousandTokens": "per 1K tokens",
-      "saveSettings": "Save Settings",
+      "saveSettings": "Save",
       "savingSettings": "Saving...",
       "subtitle": "Select the default provider and model for AI operations",
       "title": "Default AI Model"
+    },
+    "taskDefaults": {
+      "title": "Task-specific Models",
+      "subtitle": "Each AI task category can use its own model"
     },
     "loadingProviders": "Loading providers...",
     "messages": {

@@ -80,6 +80,11 @@
         @save="saveDefaultSettings"
       />
 
+      <!-- Task-specific Model Defaults -->
+      <AITaskDefaultsSection
+        :available-models="availableModels"
+      />
+
       <!-- Models Overview + Sync -->
       <AIModelsOverview
         :available-models="availableModels"
@@ -101,7 +106,7 @@ import { onMounted } from 'vue'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 
 import { useAISettingsManager } from '@/presentation/components/panel/admin/ai/settings/composables'
-import { AISettingsStatsBar, AIProviderCard, AIDefaultModelSection, AIModelsOverview } from '@/presentation/components/panel/admin/ai/settings/components'
+import { AISettingsStatsBar, AIProviderCard, AIDefaultModelSection, AIModelsOverview, AITaskDefaultsSection } from '@/presentation/components/panel/admin/ai/settings/components'
 
 const windowStore = useWindowStore()
 

@@ -199,6 +199,7 @@ const menuCategories = computed((): MenuCategory[] => {
         { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
         { path: '/panel/lm-routing', label: t('panel.nav.lmRouting'), icon: '📚' },
         { path: '/panel/exams', label: t('panel.nav.exams'), icon: '📄' },
+        { path: '/panel/programs', label: t('panel.programs.admin.title'), icon: '🎓' },
         { path: '/panel/crawler', label: t('panel.nav.crawler'), icon: '🕷️' },
       ],
     },

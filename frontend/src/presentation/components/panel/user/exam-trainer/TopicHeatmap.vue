@@ -38,13 +38,13 @@ const topicDisplays = computed<TopicDisplay[]>(() => {
 const getLevelClasses = (level: TopicDisplay['level']): string => {
   switch (level) {
     case 'strong':
-      return 'bg-emerald-50 border-emerald-300 hover:border-emerald-400'
+      return 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
     case 'medium':
-      return 'bg-amber-50 border-amber-300 hover:border-amber-400'
+      return 'bg-amber-500/10 border-amber-500/30 hover:border-amber-500/50'
     case 'weak':
-      return 'bg-red-50 border-red-300 hover:border-red-400'
+      return 'bg-red-500/10 border-red-500/30 hover:border-red-500/50'
     default:
-      return 'bg-gray-50 border-gray-300 hover:border-gray-400'
+      return 'bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-text-secondary)]'
   }
 }
 

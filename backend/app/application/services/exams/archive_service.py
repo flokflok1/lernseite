@@ -35,6 +35,8 @@ from app.infrastructure.persistence.database.connection import execute_query
 from app.application.services.exams.archive_service_part2 import (
     extract_text,
     IMAGE_EXTENSIONS,
+    build_identity_key,
+    build_exam_title,
 )
 
 logger = logging.getLogger(__name__)
@@ -230,7 +232,7 @@ class ExamArchiveService:
                 }
 
                 # Build identity key for matching
-                identity = _build_identity_key(meta)
+                identity = build_identity_key(meta)
 
                 if meta['is_solution']:
                     solutions[identity] = entry
@@ -289,7 +291,7 @@ class ExamArchiveService:
             solution_text = _extract_text(solution_path)
 
         # Build title
-        title = _build_exam_title(meta, paper.get('filename', ''))
+        title = build_exam_title(meta, paper.get('filename', ''))
 
         # Build settings JSONB
         settings = {}
@@ -425,24 +427,52 @@ class ExamArchiveService:
         os.makedirs(upload_dir, exist_ok=True)
 
         saved = []
+        has_pdf = False
+        first_pdf_path = None
+        original_filename = ''
         for i, f in enumerate(files):
             ext = os.path.splitext(secure_filename(f.filename))[1].lower()
             safe_name = f"page_{i + 1:03d}{ext}"
             path = os.path.join(upload_dir, safe_name)
             f.save(path)
             saved.append(path)
+            if ext == '.pdf':
+                has_pdf = True
+                if not first_pdf_path:
+                    first_pdf_path = path
+                    original_filename = f.filename or ''
             logger.info("Saved upload: %s", path)
+
+        # For PDF uploads: parse metadata from filename
+        meta = _parse_filename(original_filename, '') if has_pdf else {}
+        auto_title = build_exam_title(meta, original_filename) if has_pdf else ''
+
+        # pdf_path: point to PDF file directly (not the folder)
+        pdf_path = first_pdf_path if has_pdf else upload_dir
 
         exam_data: Dict[str, Any] = {
             'exam_id': exam_id,
-            'title': title or f'Import ({len(files)} Bilder)',
+            'title': title or auto_title or f'Import ({len(files)} Dateien)',
             'exam_type': 'real',
             'analysis_status': 'pending',
             'published': False,
-            'pdf_path': upload_dir,
+            'pdf_path': pdf_path,
             'duration_minutes': 90,
             'passing_score': 50,
         }
+        # Set solution_pdf_path for PDFs (Solution Analyzer can extract)
+        if has_pdf and meta.get('is_solution'):
+            exam_data['solution_pdf_path'] = first_pdf_path
+        # Set metadata from filename parsing
+        if meta.get('year'):
+            exam_data['year'] = meta['year']
+        if meta.get('season'):
+            exam_data['season'] = meta['season']
+        if meta.get('part'):
+            exam_data['part'] = meta['part']
+        exam_data['exam_type_key'] = (
+            _resolve_exam_type_key(meta.get('profession', '')) or 'FI_AP1'
+        )
         if folder_id:
             exam_data['folder_id'] = folder_id
 
@@ -463,35 +493,4 @@ class ExamArchiveService:
         }
 
 
-def _build_identity_key(meta: Dict) -> str:
-    """Build a key for matching task PDFs with their solutions."""
-    parts = [
-        str(meta.get('year', '')),
-        str(meta.get('season', '')),
-        str(meta.get('part', '')),
-    ]
-    return '|'.join(parts).lower()
-
-
 _extract_text = extract_text  # Re-export for internal use
-
-
-def _build_exam_title(meta: Dict, filename: str) -> str:
-    """Build a human-readable exam title from metadata."""
-    parts = []
-
-    if meta.get('part'):
-        parts.append(meta['part'])
-
-    if meta.get('profession'):
-        parts.append(meta['profession'])
-
-    if meta.get('semester'):
-        parts.append(meta['semester'])
-    elif meta.get('year'):
-        parts.append(str(meta['year']))
-
-    if not parts:
-        return filename
-
-    return ' '.join(parts)

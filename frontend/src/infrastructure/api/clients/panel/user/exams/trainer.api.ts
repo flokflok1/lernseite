@@ -278,6 +278,58 @@ export async function trainerGetTopicFrequency(): Promise<{ total_exams: number;
   return { total_exams: response.data.total_exams, topics: response.data.topics }
 }
 
+// -- Question Browser types & API --
+
+export interface BrowseQuestion {
+  question_id: string
+  question_number: string
+  question_text: string
+  question_type: string
+  points: number
+  difficulty: string | null
+  scenario_title: string | null
+  topics: string[]
+  exam_id: string
+  exam_title: string
+  year: number
+  season: string
+  times_seen: number | null
+  times_correct: number | null
+  last_seen_at: string | null
+}
+
+export interface BrowseResult {
+  questions: BrowseQuestion[]
+  total: number
+  page: number
+  per_page: number
+}
+
+export async function trainerBrowseQuestions(params: {
+  topic?: string
+  exam_id?: string
+  status?: 'all' | 'unseen' | 'weak' | 'mastered'
+  page?: number
+  per_page?: number
+}): Promise<BrowseResult> {
+  const searchParams = new URLSearchParams()
+  if (params.topic) searchParams.set('topic', params.topic)
+  if (params.exam_id) searchParams.set('exam_id', params.exam_id)
+  if (params.status) searchParams.set('status', params.status)
+  if (params.page) searchParams.set('page', String(params.page))
+  if (params.per_page) searchParams.set('per_page', String(params.per_page))
+
+  const { data } = await http.get<{ success: boolean } & BrowseResult>(
+    `/user/exam-trainer/questions/browse?${searchParams.toString()}`
+  )
+  return {
+    questions: data.questions,
+    total: data.total,
+    page: data.page,
+    per_page: data.per_page,
+  }
+}
+
 export const generatePracticeExam = async (params: {
   examType: string
   difficulty: string

@@ -280,6 +280,36 @@ def register_advanced_routes(bp):
                 'success': False, 'error': 'Failed to extract Anlagen'
             }), 500
 
+    @bp.route('/questions/browse', methods=['GET'])
+    @token_required
+    def browse_questions():
+        """Browse all exam questions with filters.
+
+        Query params: topic, exam_id, status (all|unseen|weak|mastered),
+                      page, per_page
+        """
+        try:
+            user = get_current_user()
+            filters = {
+                'topic': request.args.get('topic'),
+                'exam_id': request.args.get('exam_id'),
+                'status': request.args.get('status', 'all'),
+                'page': int(request.args.get('page', 1)),
+                'per_page': int(request.args.get('per_page', 20)),
+            }
+            result = ExamTrainerRepository.find_questions_browse(
+                user['user_id'], filters,
+            )
+            for q in result['questions']:
+                q.pop('solution', None)
+                q.pop('solution_text', None)
+            return jsonify({'success': True, **result}), 200
+        except Exception:
+            logger.exception("Failed to browse questions")
+            return jsonify({
+                'success': False, 'error': 'Failed to browse questions',
+            }), 500
+
     @bp.route('/topic-frequency', methods=['GET'])
     @token_required
     def get_topic_frequency():

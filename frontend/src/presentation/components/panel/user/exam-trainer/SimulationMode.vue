@@ -31,11 +31,13 @@ const { t } = useI18n()
 // ---------------------------------------------------------------------------
 // Timer
 // ---------------------------------------------------------------------------
+const timerDisabled = computed(() => !props.exam.duration_minutes || props.exam.duration_minutes <= 0)
 const timeLimitSeconds = computed(() => (props.exam.duration_minutes || 90) * 60)
 const remainingSeconds = ref(timeLimitSeconds.value)
 let timerInterval: ReturnType<typeof setInterval> | null = null
 
 const timerText = computed(() => {
+  if (timerDisabled.value) return t('panel.examTrainer.adaptive.freeMode')
   const s = remainingSeconds.value
   const h = Math.floor(s / 3600)
   const m = Math.floor((s % 3600) / 60)
@@ -44,12 +46,14 @@ const timerText = computed(() => {
 })
 
 const timerClass = computed(() => {
+  if (timerDisabled.value) return 'text-emerald-500'
   if (remainingSeconds.value <= 300) return 'text-red-500 animate-pulse'
   if (remainingSeconds.value <= 600) return 'text-amber-500'
   return 'text-[var(--color-text)]'
 })
 
 const startTimer = () => {
+  if (timerDisabled.value) return
   timerInterval = setInterval(() => {
     if (remainingSeconds.value <= 0) {
       handleAutoSubmit()

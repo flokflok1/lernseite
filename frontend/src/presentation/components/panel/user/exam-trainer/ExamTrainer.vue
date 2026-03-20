@@ -6,6 +6,7 @@ import ReviewMode from './ReviewMode.vue'
 import TopicHeatmap from './TopicHeatmap.vue'
 import ProgressDashboard from './ProgressDashboard.vue'
 import TopicPrognosis from './TopicPrognosis.vue'
+import QuestionBrowser from './QuestionBrowser.vue'
 import type { TrainerQuestion, TrainerExam, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 import type { TrainerDashboard } from '@/infrastructure/api/clients/panel/user/exams'
 import {
@@ -119,6 +120,11 @@ const handleReviewBack = () => {
   view.value = 'dashboard'
   trainerGetDashboard().then(d => { dashboard.value = d })
 }
+
+const handlePracticeQuestion = (_questionId: string) => {
+  // Start a practice session (10 questions, no timer)
+  startAdaptiveExam(10, 0)
+}
 </script>
 
 <template>
@@ -230,6 +236,9 @@ const handleReviewBack = () => {
           {{ t('panel.examTrainer.adaptive.generating') }}
         </div>
       </div>
+
+      <!-- Question Browser -->
+      <QuestionBrowser @practice-question="handlePracticeQuestion" />
 
       <!-- Topic Heatmap (Strengths / Weaknesses) -->
       <div v-if="dashboard.topics && dashboard.topics.length > 0">

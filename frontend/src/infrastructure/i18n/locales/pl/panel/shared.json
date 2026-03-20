@@ -397,6 +397,27 @@
       "modeFull": "Pełna symulacja",
       "modeDesc": "{count} pytań · {minutes} minut",
       "freeMode": "Bez timera"
+    },
+    "questionBrowser": {
+      "title": "Przeglądarka pytań",
+      "searchPlaceholder": "Szukaj pytania...",
+      "filterTopic": "Temat",
+      "filterExam": "Egzamin",
+      "filterStatus": "Status",
+      "statusAll": "Wszystkie",
+      "statusUnseen": "Nierozwiązane",
+      "statusWeak": "Słabe",
+      "statusMastered": "Opanowane",
+      "allTopics": "Wszystkie tematy",
+      "allExams": "Wszystkie egzaminy",
+      "noResults": "Nie znaleziono pytań",
+      "questionCount": "{total} pytań",
+      "seen": "Widziane {count}x",
+      "correctRate": "{rate}% poprawnych",
+      "neverSeen": "Jeszcze nie ćwiczone",
+      "lastSeen": "Ostatnio: {date}",
+      "practice": "Ćwicz",
+      "page": "Strona {page} z {pages}"
     }
   },
   "title": "Administracja",

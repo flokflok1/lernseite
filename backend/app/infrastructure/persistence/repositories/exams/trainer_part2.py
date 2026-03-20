@@ -23,6 +23,49 @@ def _build_topic_filter(topic: Optional[str]):
     return "", ()
 
 
+def _build_browse_filters(filters: dict) -> tuple:
+    """Build WHERE clause + params for question browsing.
+
+    Returns: (where_clause_str, params_list)
+    """
+    conditions = [
+        "e.analysis_status = 'ready'",
+        "e.published = true",
+    ]
+    params: list = []
+
+    if filters.get('topic'):
+        conditions.append("""
+            (eq.topics && ARRAY[%s]::text[]
+             OR eq.topics && (
+                SELECT COALESCE(array_agg(n.topic_key), ARRAY[]::text[])
+                FROM assessments.exam_topic_nodes n
+                WHERE n.parent_key = %s
+             ))
+        """)
+        params.extend([filters['topic'], filters['topic']])
+
+    if filters.get('exam_id'):
+        conditions.append("eq.exam_id = %s")
+        params.append(filters['exam_id'])
+
+    status = filters.get('status', 'all')
+    if status == 'unseen':
+        conditions.append("uqs.question_id IS NULL")
+    elif status == 'weak':
+        conditions.append(
+            "uqs.times_seen > 0 AND "
+            "(uqs.times_correct::float / GREATEST(uqs.times_seen, 1)) < 0.5"
+        )
+    elif status == 'mastered':
+        conditions.append(
+            "uqs.times_correct > 0 AND "
+            "(uqs.times_correct::float / GREATEST(uqs.times_seen, 1)) >= 0.5"
+        )
+
+    return " AND ".join(conditions), params
+
+
 class ExamTrainerRotationMixin:
     """Mixin providing rotation queries and review/history for ExamTrainerRepository."""
 
@@ -171,6 +214,55 @@ class ExamTrainerRotationMixin:
             LIMIT %s
         """
         return fetch_all(query, (user_id, limit))
+
+    @classmethod
+    def find_questions_browse(cls, user_id: str, filters: dict) -> dict:
+        """Browse all exam questions with filters and user stats.
+
+        Args:
+            user_id: Current user
+            filters: {topic?, exam_id?, status?, page?, per_page?}
+                status: 'all' | 'unseen' | 'weak' | 'mastered'
+
+        Returns: {questions: [...], total: int, page: int, per_page: int}
+        """
+        where_clause, params = _build_browse_filters(filters)
+        page = max(1, filters.get('page', 1))
+        per_page = min(50, max(10, filters.get('per_page', 20)))
+        offset = (page - 1) * per_page
+
+        count_result = fetch_one(f"""
+            SELECT count(DISTINCT eq.question_id)
+            FROM assessments.exam_questions eq
+            JOIN assessments.exams e ON e.exam_id = eq.exam_id
+            LEFT JOIN assessments.user_question_stats uqs
+                ON uqs.question_id = eq.question_id AND uqs.user_id = %s
+            WHERE {where_clause}
+        """, (user_id, *params))
+        total = count_result['count'] if count_result else 0
+
+        questions = fetch_all(f"""
+            SELECT
+                eq.question_id, eq.question_number, eq.question_text,
+                eq.question_type, eq.points, eq.difficulty,
+                eq.scenario_title, eq.topics,
+                e.exam_id, e.title AS exam_title, e.year, e.season,
+                uqs.times_seen, uqs.times_correct, uqs.last_seen_at
+            FROM assessments.exam_questions eq
+            JOIN assessments.exams e ON e.exam_id = eq.exam_id
+            LEFT JOIN assessments.user_question_stats uqs
+                ON uqs.question_id = eq.question_id AND uqs.user_id = %s
+            WHERE {where_clause}
+            ORDER BY e.year DESC, e.season, eq.order_index
+            LIMIT %s OFFSET %s
+        """, (user_id, *params, per_page, offset))
+
+        return {
+            'questions': questions,
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+        }
 
     @staticmethod
     def get_topic_frequency() -> list:

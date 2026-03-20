@@ -22,7 +22,7 @@ const sanitizedContent = computed(() => {
       'ul', 'ol', 'li', 'dl', 'dt', 'dd',
       'div', 'span', 'section', 'article', 'header', 'footer',
       'blockquote', 'pre', 'code', 'hr', 'sup', 'sub', 'a', 'img'],
-    ALLOWED_ATTR: ['class', 'colspan', 'rowspan', 'href', 'title', 'alt', 'src', 'width', 'height'],
+    ALLOWED_ATTR: ['class', 'style', 'colspan', 'rowspan', 'href', 'title', 'alt', 'src', 'width', 'height'],
   })
 })
 
@@ -70,4 +70,11 @@ const popout = () => {
 .anlage-html-content :deep(.anlage-offer) { background: #fafaf8; color: #1a1a1a; border-radius: 4px; padding: 24px 28px; font-family: 'Georgia', serif; box-shadow: 0 1px 3px rgba(0,0,0,0.12); border: 1px solid #c8c8c4; }
 .anlage-html-content :deep(.anlage-offer table th) { background: #333; color: #fff; }
 .anlage-html-content :deep(.anlage-offer table td) { border-bottom-color: #ddd; color: #1a1a1a; }
+
+/* Diagram styles (CSS classes from Vision AI for network topologies, UML, etc.) */
+.anlage-html-content :deep(.diagram-node) { border: 2px solid var(--color-border); padding: 8px 12px; border-radius: 6px; text-align: center; background: var(--color-surface-elevated, #252840); display: inline-block; margin: 4px; font-size: 13px; color: var(--color-text); }
+.anlage-html-content :deep(.diagram-line) { border-top: 2px solid var(--color-border); width: 40px; display: inline-block; vertical-align: middle; margin: 0 4px; }
+.anlage-html-content :deep(.diagram-group) { border: 1px dashed var(--color-border); padding: 12px; margin: 8px 0; border-radius: 4px; }
+.anlage-html-content :deep(.diagram-label) { font-size: 0.85em; color: var(--color-text-secondary); }
+.anlage-html-content :deep(.diagram-row) { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
 </style>

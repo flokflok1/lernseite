@@ -276,8 +276,19 @@ KRITISCH — ANLAGEN-EXTRAKTION:
 - NIEMALS Anlagen-Inhalt in den "context"-Text des Szenarios einbetten
 - Wenn eine Aufgabe sagt "Verwenden Sie Anlage 1", muss Anlage 1 im anlagen-Array sein
 - "name": Originaltitel (z.B. "Anlage 1: Angebot TOPSICHERHEIT AG")
-- "content_html": VOLLSTAENDIGER Inhalt als HTML mit <table>, <p>, <strong>
-- Auch Netzwerkdiagramme als Text-Beschreibung in content_html erfassen
+- "content_html": VOLLSTAENDIGER Inhalt als HTML
+
+DIAGRAMME UND VISUELLE ANLAGEN:
+- Netzwerk-Topologien, UML-Diagramme, Schaubilder MUESSEN als visuelles HTML dargestellt werden
+- NICHT als Textbeschreibung, sondern als strukturiertes HTML
+- Verwende CSS-Klassen (KEINE inline-styles mit festen Farben):
+  * Geraete/Knoten: <div class="diagram-node">Geraetename<br><small>IP: 10.0.0.1</small></div>
+  * Verbindungslinien: <div class="diagram-line"></div>
+  * Container/Bereiche: <div class="diagram-group"><strong>Bereich</strong>...</div>
+  * Beschriftungen: <small class="diagram-label">Beschreibung</small>
+- Netzwerk-Topologien: Jedes Geraet (Router, Switch, Server, PC) als eigene diagram-node Box mit IP
+- Tabellen: <table> mit <thead>/<tbody>
+- WICHTIG: Struktur muss im Browser visuell verstaendlich sein, nicht nur Text
 
 JSON-FORMAT:
 ```json

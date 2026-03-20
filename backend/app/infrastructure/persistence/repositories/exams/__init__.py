@@ -27,6 +27,7 @@ from app.infrastructure.persistence.repositories.exams.performance_stats import 
 from app.infrastructure.persistence.repositories.exams.programs import ExamProgramRepository
 from app.infrastructure.persistence.repositories.exams.program_types import ProgramTypeRepository
 from app.infrastructure.persistence.repositories.exams.folders import ArchiveFolderRepository
+from app.infrastructure.persistence.repositories.exams.topic_nodes import TopicNodeRepository
 
 __all__ = [
     'ExamRepository',
@@ -40,4 +41,5 @@ __all__ = [
     'ExamProgramRepository',
     'ProgramTypeRepository',
     'ArchiveFolderRepository',
+    'TopicNodeRepository',
 ]

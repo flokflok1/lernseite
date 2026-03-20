@@ -59,6 +59,7 @@ from app.api.v1.panel.admin import courses as courses_admin  # Triggers admin ro
 from app.api.v1.panel.admin import exams as exams_admin  # Triggers exam archive blueprint registration
 from app.api.v1.panel.admin import crawler as crawler_admin  # noqa: F401 — triggers crawler blueprint registration
 from app.api.v1.panel.admin.programs import programs_admin_bp, program_types_bp
+from app.api.v1.panel.admin.topics import topics_admin_bp
 
 # Prompts Library (CRUD, actions, categories)
 from app.api.v1.panel.admin.prompts import crud as _prompts_crud, actions as _prompts_actions, categories as _prompts_categories  # noqa: F401 — triggers route registration
@@ -228,6 +229,9 @@ api_v1.register_blueprint(feature_config_audit_bp)
 api_v1.register_blueprint(programs_admin_bp)
 api_v1.register_blueprint(program_types_bp)
 
+# Topics admin (topic hierarchy management)
+api_v1.register_blueprint(topics_admin_bp)
+
 # Prompts Library
 api_v1.register_blueprint(prompts_crud_bp)
 api_v1.register_blueprint(prompts_actions_bp)
@@ -294,7 +298,7 @@ __all__ = [
     'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp',
     'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
-    'programs_admin_bp', 'program_types_bp',
+    'programs_admin_bp', 'program_types_bp', 'topics_admin_bp',
     'prompts_crud_bp', 'prompts_actions_bp', 'prompts_categories_bp',
     # Panel editor
     'course_editor_bp',

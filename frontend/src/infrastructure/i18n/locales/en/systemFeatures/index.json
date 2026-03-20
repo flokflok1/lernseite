@@ -9,6 +9,10 @@
       "title": "Whiteboard Engine",
       "description": "Interactive whiteboard for drawings and sketches"
     },
+    "structogramBuilder": {
+      "title": "Structogram Builder",
+      "description": "Interactive Nassi-Shneiderman editor for flowcharts"
+    },
     "itSandbox": {
       "title": "IT Sandbox",
       "description": "Safe environment for experimenting with IT systems"

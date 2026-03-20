@@ -399,5 +399,25 @@
       "freeMode": "Bez timera"
     }
   },
-  "title": "Administracja"
+  "title": "Administracja",
+  "structogramBuilder": {
+    "blocks": "Bloki",
+    "addSequence": "Instrukcja",
+    "descSequence": "Prosta akcja / polecenie",
+    "addIf": "Rozgałęzienie",
+    "descIf": "If / Else",
+    "addWhile": "Pętla",
+    "descWhile": "While / Dopóki",
+    "addSwitch": "Wybór",
+    "descSwitch": "Switch / Case",
+    "clear": "Wyczyść wszystko",
+    "yes": "Tak",
+    "no": "Nie",
+    "empty": "Kliknij typ bloku po lewej, aby zbudować strukturogram",
+    "emptyReadonly": "Brak strukturogramu",
+    "placeholderSequence": "Wprowadź instrukcję...",
+    "placeholderCondition": "Warunek ?",
+    "placeholderWhile": "Dopóki warunek",
+    "placeholderSwitch": "Sprawdź zmienną"
+  }
 }

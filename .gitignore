@@ -168,3 +168,8 @@ backend/ai_models/**/*.onnx
 .worktrees/
 .playwright-mcp/
 .superpowers/
+
+# Screenshots & temp files
+*.png
+*.pdf
+AP 1/

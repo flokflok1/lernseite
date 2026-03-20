@@ -399,5 +399,25 @@
       "freeMode": "No Timer"
     }
   },
-  "title": "Administration"
+  "title": "Administration",
+  "structogramBuilder": {
+    "blocks": "Blocks",
+    "addSequence": "Statement",
+    "descSequence": "Simple action / command",
+    "addIf": "Branch",
+    "descIf": "If / Else",
+    "addWhile": "Loop",
+    "descWhile": "While / Do",
+    "addSwitch": "Switch",
+    "descSwitch": "Switch / Case",
+    "clear": "Clear all",
+    "yes": "Yes",
+    "no": "No",
+    "empty": "Click a block type on the left to build the structogram",
+    "emptyReadonly": "No structogram available",
+    "placeholderSequence": "Enter statement...",
+    "placeholderCondition": "Condition ?",
+    "placeholderWhile": "While condition",
+    "placeholderSwitch": "Check variable"
+  }
 }

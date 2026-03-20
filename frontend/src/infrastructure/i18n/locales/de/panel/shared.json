@@ -399,5 +399,25 @@
       "freeMode": "Ohne Timer"
     }
   },
-  "title": "Administration"
+  "title": "Administration",
+  "structogramBuilder": {
+    "blocks": "Blöcke",
+    "addSequence": "Anweisung",
+    "descSequence": "Einfache Aktion / Befehl",
+    "addIf": "Verzweigung",
+    "descIf": "If / Else",
+    "addWhile": "Schleife",
+    "descWhile": "While / Solange",
+    "addSwitch": "Fallauswahl",
+    "descSwitch": "Switch / Case",
+    "clear": "Alles löschen",
+    "yes": "Ja",
+    "no": "Nein",
+    "empty": "Klicke links auf einen Block um das Struktogramm zu erstellen",
+    "emptyReadonly": "Kein Struktogramm vorhanden",
+    "placeholderSequence": "Anweisung eingeben...",
+    "placeholderCondition": "Bedingung ?",
+    "placeholderWhile": "Solange Bedingung",
+    "placeholderSwitch": "Variable prüfen"
+  }
 }

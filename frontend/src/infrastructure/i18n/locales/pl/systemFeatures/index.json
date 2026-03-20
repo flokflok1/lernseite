@@ -9,6 +9,10 @@
       "title": "Silnik tablicy",
       "description": "Interaktywna tablica do rysunków i szkiców"
     },
+    "structogramBuilder": {
+      "title": "Edytor strukturogramów",
+      "description": "Interaktywny edytor Nassi-Shneiderman dla diagramów przepływu"
+    },
     "itSandbox": {
       "title": "Piaskownica IT",
       "description": "Bezpieczne środowisko do eksperymentowania z systemami IT"

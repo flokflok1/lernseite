@@ -87,7 +87,9 @@ class TopicHierarchyService:
         )
 
         try:
-            adapter = AIAdapter()
+            from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+            provider, model = resolve_model_for_task('default')
+            adapter = AIAdapter(provider=provider, model=model)
             response = adapter.send_request(
                 prompt=prompt,
                 language='de',

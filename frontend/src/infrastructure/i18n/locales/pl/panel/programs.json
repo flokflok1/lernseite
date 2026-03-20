@@ -1,0 +1,41 @@
+{
+  "programs": {
+    "nav": {
+      "myProgram": "Moj program"
+    },
+    "tabs": {
+      "learningPath": "Sciezka nauki",
+      "trainer": "Trener egzaminacyjny",
+      "prognosis": "Prognoza",
+      "progress": "Postep",
+      "noCourse": "Brak przypisanego kursu"
+    },
+    "catalog": {
+      "title": "Wszystkie programy",
+      "search": "Szukaj programow...",
+      "enroll": "Zapisz sie",
+      "unenroll": "Wypisz sie",
+      "enrolled": "Zapisany",
+      "noPrograms": "Brak dostepnych programow",
+      "questions": "{count} pytan",
+      "exams": "{count} egzaminow"
+    },
+    "admin": {
+      "title": "Zarzadzaj programami",
+      "create": "Utworz program",
+      "edit": "Edytuj program",
+      "delete": "Usun program",
+      "confirmDelete": "Naprawde usunac ten program?",
+      "types": "Kategorie",
+      "createType": "Utworz kategorie",
+      "deleteType": "Usun kategorie",
+      "fields": {
+        "programKey": "Klucz",
+        "displayName": "Nazwa wyswietlana",
+        "programType": "Kategoria",
+        "provider": "Dostawca",
+        "icon": "Ikona"
+      }
+    }
+  }
+}

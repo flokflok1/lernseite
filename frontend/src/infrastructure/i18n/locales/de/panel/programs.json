@@ -1,0 +1,41 @@
+{
+  "programs": {
+    "nav": {
+      "myProgram": "Mein Programm"
+    },
+    "tabs": {
+      "learningPath": "Lernpfad",
+      "trainer": "Pruefungstrainer",
+      "prognosis": "Prognose",
+      "progress": "Fortschritt",
+      "noCourse": "Kein Kurs zugeordnet"
+    },
+    "catalog": {
+      "title": "Alle Programme",
+      "search": "Programme suchen...",
+      "enroll": "Einschreiben",
+      "unenroll": "Abmelden",
+      "enrolled": "Eingeschrieben",
+      "noPrograms": "Keine Programme verfuegbar",
+      "questions": "{count} Fragen",
+      "exams": "{count} Pruefungen"
+    },
+    "admin": {
+      "title": "Programme verwalten",
+      "create": "Programm erstellen",
+      "edit": "Programm bearbeiten",
+      "delete": "Programm loeschen",
+      "confirmDelete": "Programm wirklich loeschen?",
+      "types": "Kategorien",
+      "createType": "Kategorie erstellen",
+      "deleteType": "Kategorie loeschen",
+      "fields": {
+        "programKey": "Schluessel",
+        "displayName": "Anzeigename",
+        "programType": "Kategorie",
+        "provider": "Anbieter",
+        "icon": "Icon"
+      }
+    }
+  }
+}

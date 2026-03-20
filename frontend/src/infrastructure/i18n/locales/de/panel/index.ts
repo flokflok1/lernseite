@@ -16,6 +16,7 @@ import review from './review.json'
 import exam_cockpit from './exam-cockpit.json'
 import crawler from './crawler.json'
 import examArchive from './examArchive.json'
+import programs from './programs.json'
 
 export default {
   panel: {
@@ -35,6 +36,7 @@ export default {
     ...review,
     ...exam_cockpit,
     ...crawler,
-    ...examArchive
+    ...examArchive,
+    ...programs
   }
 }

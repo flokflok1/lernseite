@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import DOMPurify from 'dompurify'
 import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
+import { StructogramBuilder, useStructogram } from '@/presentation/components/public/system-features/interactive/structogram-builder'
+import type { StructogramData } from '@/presentation/components/public/system-features/interactive/structogram-builder'
 import { AnlageBadge } from './anlagen'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import type { TrainerQuestion, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
@@ -119,6 +121,21 @@ const isSubmitting = ref(false)
 
 const questionType = computed(() => props.question.question_type || 'free_text')
 
+// Detect structogram questions by type or keywords in question text
+const isStructogramQuestion = computed(() => {
+  if (questionType.value === 'structogram') return true
+  const text = (props.question.question_text || '').toLowerCase()
+  return text.includes('struktogramm') || text.includes('programmablaufdiagramm')
+    || text.includes('nassi') || text.includes('shneiderman')
+})
+
+const structogramData = ref<StructogramData>({ blocks: [] })
+function onStructogramUpdate(data: StructogramData) {
+  structogramData.value = data
+  const s = useStructogram(data)
+  userAnswer.value = s.toReadableText()
+}
+
 const mcqOptions = computed<string[]>(() => {
   const data = props.question.data
   if (data && Array.isArray(data.options)) {
@@ -131,6 +148,7 @@ const canSubmit = computed(() => {
   if (result.value) return false
   if (isSubmitting.value) return false
   if (questionType.value === 'mcq') return userAnswer.value !== ''
+  if (isStructogramQuestion.value) return structogramData.value.blocks.length > 0
   return typeof userAnswer.value === 'string' && userAnswer.value.trim() !== ''
 })
 
@@ -260,6 +278,13 @@ defineExpose({ setResult })
         class="w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]
                text-[var(--color-text)] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         :placeholder="t('panel.examTrainer.yourAnswer')"
+      />
+
+      <!-- Structogram Builder -->
+      <StructogramBuilder
+        v-else-if="isStructogramQuestion"
+        v-model="structogramData"
+        @update:model-value="onStructogramUpdate"
       />
 
       <!-- Essay / Free text / Default -->

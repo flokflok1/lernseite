@@ -355,3 +355,29 @@ def _parse_vision_response(response: str) -> dict | None:
     except (ValueError, json.JSONDecodeError):
         logger.error("Failed to parse Vision AI response as JSON")
         return None
+
+
+def build_identity_key(meta: dict) -> str:
+    """Build a key for matching task PDFs with their solutions."""
+    parts = [
+        str(meta.get('year', '')),
+        str(meta.get('season', '')),
+        str(meta.get('part', '')),
+    ]
+    return '|'.join(parts).lower()
+
+
+def build_exam_title(meta: dict, filename: str) -> str:
+    """Build a human-readable exam title from metadata."""
+    parts = []
+    if meta.get('part'):
+        parts.append(meta['part'])
+    if meta.get('profession'):
+        parts.append(meta['profession'])
+    if meta.get('semester'):
+        parts.append(meta['semester'])
+    elif meta.get('year'):
+        parts.append(str(meta['year']))
+    if not parts:
+        return filename
+    return ' '.join(parts)

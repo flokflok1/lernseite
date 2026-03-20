@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import DOMPurify from 'dompurify'
 import { renderMarkdown } from '@/presentation/components/public/learning/methods/method-execution/renderers/markdown'
 import { AnlageBadge } from './anlagen'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
@@ -28,6 +29,18 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const windowStore = useWindowStore()
+
+// --- Sanitized HTML rendering for question text ---
+const ALLOWED_TAGS = ['p', 'br', 'strong', 'em', 'b', 'i', 'ul', 'ol', 'li', 'table',
+  'thead', 'tbody', 'tr', 'th', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'span', 'div', 'pre', 'code']
+const sanitizedQuestionText = computed(() => {
+  const text = props.question.question_text || ''
+  if (text.includes('<') && text.includes('>')) {
+    return DOMPurify.sanitize(text, { ALLOWED_TAGS, ALLOWED_ATTR: ['href', 'title', 'class'] })
+  }
+  return ''
+})
+const isHtmlContent = computed(() => sanitizedQuestionText.value.length > 0)
 
 // --- Anlage references (per question's source exam) ---
 const questionExamId = computed(() => (props.question as TrainerQuestion & { exam_id?: string }).exam_id || '')
@@ -210,7 +223,8 @@ defineExpose({ setResult })
     <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4">
       {{ t('panel.examTrainer.question', { number: totalQuestions > 0 ? questionIndex + 1 : question.question_number }) }}
     </h3>
-    <p class="text-[var(--color-text)] mb-6 whitespace-pre-line">{{ question.question_text }}</p>
+    <div v-if="isHtmlContent" class="text-[var(--color-text)] mb-6 prose prose-invert max-w-none" v-html="sanitizedQuestionText" />
+    <p v-else class="text-[var(--color-text)] mb-6 whitespace-pre-line">{{ question.question_text }}</p>
 
     <!-- Answer input -->
     <div v-if="!result" class="mb-4">

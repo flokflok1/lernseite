@@ -13,7 +13,14 @@ const emit = defineEmits<{
   'select-topic': [topic: string]
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const topicLabel = (topic: TopicStat): string => {
+  if (topic.display_name) {
+    return topic.display_name[locale.value] || topic.display_name.de || topic.topic
+  }
+  return topic.topic
+}
 
 interface TopicDisplay extends TopicStat {
   correctRate: number
@@ -95,7 +102,7 @@ const getLevelDotClasses = (level: TopicDisplay['level']): string => {
         <div class="flex items-start gap-2">
           <span class="mt-1 w-2.5 h-2.5 rounded-full shrink-0" :class="getLevelDotClasses(topic.level)" />
           <div class="min-w-0 flex-1">
-            <p class="font-medium text-[var(--color-text)] truncate">{{ topic.topic }}</p>
+            <p class="font-medium text-[var(--color-text)] truncate">{{ topicLabel(topic) }}</p>
             <div class="mt-1 text-xs text-[var(--color-text-secondary)]">
               <span v-if="topic.attempts > 0">
                 {{ t('panel.examTrainer.correctRate', { rate: topic.correctRate }) }}

@@ -73,6 +73,7 @@ def find_missing_templates(
                         'number': num,
                         'question_text': q.get('question_text', '')[:500],
                         'scenario_title': q.get('scenario_title', ''),
+                        'scenario_text': q.get('scenario_text', '')[:2000],
                     }
     return list(missing.values())
 
@@ -81,6 +82,7 @@ def generate_template_html(
     number: int,
     question_text: str,
     scenario_title: str,
+    scenario_text: str = '',
     language: str = 'de',
 ) -> Optional[str]:
     """Generate HTML for a missing solution template using AI.
@@ -89,12 +91,15 @@ def generate_template_html(
         number: Template number (e.g. 1).
         question_text: The question referencing this template.
         scenario_title: Title of the scenario (context).
+        scenario_text: Full scenario text with data to pre-fill.
         language: Prompt language ('de', 'en').
 
     Returns:
         HTML string or None on failure.
     """
-    prompt = _build_prompt(number, question_text, scenario_title, language)
+    prompt = _build_prompt(
+        number, question_text, scenario_title, scenario_text, language,
+    )
 
     try:
         from app.infrastructure.ai.adapter import AIAdapter

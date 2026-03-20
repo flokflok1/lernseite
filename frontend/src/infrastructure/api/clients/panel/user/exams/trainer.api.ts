@@ -35,9 +35,11 @@ export interface TrainerQuestion {
 
 export interface TopicStat {
   topic: string
+  display_name?: Record<string, string>
   question_count: number
   attempts: number
   correct_count: number
+  child_topics?: string[]
 }
 
 export interface AnswerResult {
@@ -261,6 +263,7 @@ export async function trainerGetDashboard(courseId?: string): Promise<TrainerDas
 
 export interface TopicFrequency {
   topic: string
+  display_name?: Record<string, string>
   exam_count: number
   question_count: number
   latest_year: number | null

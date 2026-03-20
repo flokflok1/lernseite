@@ -4,7 +4,14 @@ import { useI18n } from 'vue-i18n'
 import type { TopicFrequency } from '@/infrastructure/api/clients/panel/user/exams'
 import { trainerGetTopicFrequency } from '@/infrastructure/api/clients/panel/user/exams'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const topicLabel = (topic: TopicFrequency): string => {
+  if (topic.display_name) {
+    return topic.display_name[locale.value] || topic.display_name.de || topic.topic
+  }
+  return topic.topic
+}
 
 const topics = ref<TopicFrequency[]>([])
 const totalExams = ref(0)
@@ -74,8 +81,8 @@ onMounted(async () => {
           :key="topic.topic"
           class="flex items-center gap-3"
         >
-          <div class="w-36 text-sm font-medium text-[var(--color-text)] truncate" :title="topic.topic">
-            {{ topic.topic }}
+          <div class="w-36 text-sm font-medium text-[var(--color-text)] truncate" :title="topicLabel(topic)">
+            {{ topicLabel(topic) }}
           </div>
           <div class="flex-1 h-6 bg-[var(--color-background)] rounded-full overflow-hidden relative">
             <div

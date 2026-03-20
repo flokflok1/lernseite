@@ -293,7 +293,6 @@ def register_advanced_routes(bp):
         """
         try:
             rows = ExamTrainerRepository.get_topic_frequency()
-            total_exams = len(set(r.get('exam_count', 0) for r in rows))
             # Count actual distinct exams for percentage
             from app.infrastructure.persistence.repositories.exams.core import (
                 ExamRepository,
@@ -301,18 +300,45 @@ def register_advanced_routes(bp):
             all_exams = ExamRepository.find_archive_exams(status='ready')
             exam_total = len(all_exams) if all_exams else 1
 
-            topics = [
-                {
-                    'topic': r['topic'],
-                    'exam_count': r['exam_count'],
-                    'question_count': r['question_count'],
-                    'latest_year': r['latest_year'],
-                    'frequency_pct': round(
-                        r['exam_count'] / exam_total * 100, 1,
-                    ),
-                }
-                for r in rows
-            ]
+            # Build display_name lookup from topic nodes
+            from app.infrastructure.persistence.repositories.exams.topic_nodes import (
+                TopicNodeRepository,
+            )
+            all_nodes = TopicNodeRepository.find_all()
+            node_map = {n['topic_key']: n for n in all_nodes}
+
+            # Aggregate by root parent if hierarchy exists
+            aggregated: dict = {}
+            for r in rows:
+                topic_key = r['topic']
+                node = node_map.get(topic_key)
+                # Find root: if has parent, use parent
+                root_key = topic_key
+                if node and node.get('parent_key'):
+                    root_key = node['parent_key']
+
+                if root_key not in aggregated:
+                    root_node = node_map.get(root_key)
+                    aggregated[root_key] = {
+                        'topic': root_key,
+                        'display_name': root_node.get('display_name', {}) if root_node else {},
+                        'exam_count': 0,
+                        'question_count': 0,
+                        'latest_year': None,
+                    }
+                agg = aggregated[root_key]
+                agg['exam_count'] = max(agg['exam_count'], r['exam_count'])
+                agg['question_count'] += r['question_count']
+                if r.get('latest_year'):
+                    if not agg['latest_year'] or r['latest_year'] > agg['latest_year']:
+                        agg['latest_year'] = r['latest_year']
+
+            topics = sorted(aggregated.values(), key=lambda x: x['exam_count'], reverse=True)
+            for t_item in topics:
+                t_item['frequency_pct'] = round(
+                    t_item['exam_count'] / exam_total * 100, 1,
+                )
+
             return jsonify({
                 'success': True,
                 'total_exams': exam_total,

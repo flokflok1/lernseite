@@ -390,10 +390,13 @@
       "backToPrograms": "Zurück zur Programmauswahl",
       "chapters": "Themen",
       "questionsCount": "{count} Fragen",
+      "modePractice": "Freies Üben",
+      "modePracticeDesc": "{count} Fragen · ohne Zeitlimit",
       "modeQuick": "Schnell-Übung",
       "modeHalf": "Halbe Prüfung",
       "modeFull": "Volle Simulation",
-      "modeDesc": "{count} Fragen · {minutes} Minuten"
+      "modeDesc": "{count} Fragen · {minutes} Minuten",
+      "freeMode": "Ohne Timer"
     }
   },
   "title": "Administration"

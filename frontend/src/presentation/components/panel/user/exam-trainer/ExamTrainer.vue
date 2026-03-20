@@ -75,6 +75,7 @@ const selectProgram = async (prog: TrainerProgram) => {
 }
 
 const examModes = [
+  { key: 'practice', icon: '\uD83D\uDCD6', labelKey: 'panel.examTrainer.adaptive.modePractice', questions: 10, minutes: 0 },
   { key: 'quick', icon: '\u26A1', labelKey: 'panel.examTrainer.adaptive.modeQuick', questions: 10, minutes: 30 },
   { key: 'half', icon: '\uD83D\uDCDD', labelKey: 'panel.examTrainer.adaptive.modeHalf', questions: 20, minutes: 45 },
   { key: 'full', icon: '\uD83C\uDFAF', labelKey: 'panel.examTrainer.adaptive.modeFull', questions: 40, minutes: 90 },
@@ -277,7 +278,10 @@ const handleReviewBack = () => {
             <div class="text-2xl mb-2">{{ mode.icon }}</div>
             <div class="font-semibold text-[var(--color-text)] mb-1">{{ t(mode.labelKey) }}</div>
             <div class="text-sm text-[var(--color-text-secondary)]">
-              {{ t('panel.examTrainer.adaptive.modeDesc', { count: mode.questions, minutes: mode.minutes }) }}
+              {{ mode.minutes > 0
+                ? t('panel.examTrainer.adaptive.modeDesc', { count: mode.questions, minutes: mode.minutes })
+                : t('panel.examTrainer.adaptive.modePracticeDesc', { count: mode.questions })
+              }}
             </div>
           </button>
         </div>

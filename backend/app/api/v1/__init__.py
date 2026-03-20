@@ -58,6 +58,7 @@ from app.api.v1.panel.admin.analytics import analytics_bp, org_analytics_bp
 from app.api.v1.panel.admin import courses as courses_admin  # Triggers admin route registration
 from app.api.v1.panel.admin import exams as exams_admin  # Triggers exam archive blueprint registration
 from app.api.v1.panel.admin import crawler as crawler_admin  # noqa: F401 — triggers crawler blueprint registration
+from app.api.v1.panel.admin.programs import programs_admin_bp, program_types_bp
 
 # Prompts Library (CRUD, actions, categories)
 from app.api.v1.panel.admin.prompts import crud as _prompts_crud, actions as _prompts_actions, categories as _prompts_categories  # noqa: F401 — triggers route registration
@@ -117,6 +118,7 @@ from app.api.v1.panel.user.exams import trainer_bp as exam_trainer_bp
 from app.api.v1.panel.user.exams import exam_upload_bp
 from app.api.v1.panel.user.exam_goals import exam_goals_bp
 from app.api.v1.panel.user.learning.reviews import review_bp
+from app.api.v1.panel.user.programs import programs_user_bp
 
 # =============================================================================
 # i18n ENDPOINTS — Reconstructed from 4 packages (was I18N_BLUEPRINTS list)
@@ -222,6 +224,10 @@ api_v1.register_blueprint(feature_config_rollout_bp)
 api_v1.register_blueprint(feature_config_ab_tests_bp)
 api_v1.register_blueprint(feature_config_audit_bp)
 
+# Programs admin
+api_v1.register_blueprint(programs_admin_bp)
+api_v1.register_blueprint(program_types_bp)
+
 # Prompts Library
 api_v1.register_blueprint(prompts_crud_bp)
 api_v1.register_blueprint(prompts_actions_bp)
@@ -246,6 +252,7 @@ api_v1.register_blueprint(exam_trainer_bp)
 api_v1.register_blueprint(exam_upload_bp)
 api_v1.register_blueprint(exam_goals_bp)
 api_v1.register_blueprint(review_bp)
+api_v1.register_blueprint(programs_user_bp)
 
 # i18n blueprints (reconstructed from 4 packages)
 for _i18n_bp in I18N_BLUEPRINTS:
@@ -287,6 +294,7 @@ __all__ = [
     'feature_flags_bp', 'rollout_plans_crud_bp', 'rollout_plans_actions_bp',
     'feature_config_core_bp', 'feature_config_core_part2_bp',
     'feature_config_rollout_bp', 'feature_config_ab_tests_bp', 'feature_config_audit_bp',
+    'programs_admin_bp', 'program_types_bp',
     'prompts_crud_bp', 'prompts_actions_bp', 'prompts_categories_bp',
     # Panel editor
     'course_editor_bp',
@@ -295,6 +303,7 @@ __all__ = [
     'tts_bp', 'tts_pronunciations_bp', 'audio_bp',
     'gamification_bp', 'widgets_registry_bp', 'widgets_instances_bp',
     'runner_sessions_bp', 'exam_trainer_bp', 'exam_goals_bp', 'review_bp',
+    'programs_user_bp',
     # i18n
     'I18N_BLUEPRINTS',
     # System features

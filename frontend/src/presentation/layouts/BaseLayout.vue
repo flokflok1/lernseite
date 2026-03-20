@@ -44,11 +44,11 @@
             📊 {{ t('nav.dashboard') }}
           </router-link>
           <router-link
-            to="/courses"
+            to="/programs"
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"
           >
-            📚 {{ t('nav.courses') }}
+            🎓 {{ t('panel.programs.nav.myProgram') }}
           </router-link>
           <router-link
             to="/profile"
@@ -63,14 +63,6 @@
             active-class="bg-primary-100 text-primary-700"
           >
             ⚙️ {{ t('nav.settings') }}
-          </router-link>
-          <!-- Exam Trainer -->
-          <router-link
-            to="/exam-trainer"
-            class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
-            active-class="bg-primary-100 text-primary-700"
-          >
-            📝 {{ t('nav.examTrainer') }}
           </router-link>
           <!-- Panel (System Admin) -->
           <router-link

@@ -25,6 +25,7 @@ from app.infrastructure.persistence.repositories.exams.curriculum import Curricu
 from app.infrastructure.persistence.repositories.exams.user_exam_goals import UserExamGoalsRepository
 from app.infrastructure.persistence.repositories.exams.performance_stats import PerformanceStatsRepository
 from app.infrastructure.persistence.repositories.exams.programs import ExamProgramRepository
+from app.infrastructure.persistence.repositories.exams.program_types import ProgramTypeRepository
 from app.infrastructure.persistence.repositories.exams.folders import ArchiveFolderRepository
 
 __all__ = [
@@ -37,5 +38,6 @@ __all__ = [
     'UserExamGoalsRepository',
     'PerformanceStatsRepository',
     'ExamProgramRepository',
+    'ProgramTypeRepository',
     'ArchiveFolderRepository',
 ]

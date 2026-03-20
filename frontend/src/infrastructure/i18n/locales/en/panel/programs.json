@@ -1,0 +1,41 @@
+{
+  "programs": {
+    "nav": {
+      "myProgram": "My Program"
+    },
+    "tabs": {
+      "learningPath": "Learning Path",
+      "trainer": "Exam Trainer",
+      "prognosis": "Prognosis",
+      "progress": "Progress",
+      "noCourse": "No course assigned"
+    },
+    "catalog": {
+      "title": "All Programs",
+      "search": "Search programs...",
+      "enroll": "Enroll",
+      "unenroll": "Unenroll",
+      "enrolled": "Enrolled",
+      "noPrograms": "No programs available",
+      "questions": "{count} questions",
+      "exams": "{count} exams"
+    },
+    "admin": {
+      "title": "Manage Programs",
+      "create": "Create Program",
+      "edit": "Edit Program",
+      "delete": "Delete Program",
+      "confirmDelete": "Really delete this program?",
+      "types": "Categories",
+      "createType": "Create Category",
+      "deleteType": "Delete Category",
+      "fields": {
+        "programKey": "Key",
+        "displayName": "Display Name",
+        "programType": "Category",
+        "provider": "Provider",
+        "icon": "Icon"
+      }
+    }
+  }
+}

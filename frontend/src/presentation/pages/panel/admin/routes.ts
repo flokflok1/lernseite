@@ -37,6 +37,11 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelExams',
       component: () => import('@/presentation/pages/panel/admin/PanelExamsPage.vue'),
     },
+    {
+      path: 'programs',
+      name: 'PanelPrograms',
+      component: () => import('@/presentation/components/panel/admin/programs/ProgramManager.vue'),
+    },
     // exam-archive is a standalone fullscreen route (see examArchiveRoute below)
     {
       path: 'curriculum',

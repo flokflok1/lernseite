@@ -71,12 +71,24 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
 
-  // Course Routes
+  // Programs (unified view: courses + exam trainer)
+  {
+    path: '/programs',
+    name: 'Programs',
+    component: () => import('@/presentation/pages/panel/user/programs/ProgramsPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/programs/:programId',
+    name: 'ProgramDetail',
+    component: () => import('@/presentation/pages/panel/user/programs/ProgramDetailPage.vue'),
+    meta: { requiresAuth: true },
+  },
+
+  // Course Routes (redirect to programs)
   {
     path: '/courses',
-    name: 'Courses',
-    component: () => import('@/presentation/pages/panel/user/courses/CoursesPage.vue'),
-    meta: { requiresAuth: true },
+    redirect: '/programs',
   },
   {
     path: '/course/:courseId',
@@ -107,12 +119,10 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
 
-  // Exam Trainer (IHK exam practice)
+  // Exam Trainer (redirect to programs, trainer is now embedded)
   {
     path: '/exam-trainer',
-    name: 'ExamTrainer',
-    component: () => import('@/presentation/pages/panel/user/exam-trainer/ExamTrainerPage.vue'),
-    meta: { requiresAuth: true },
+    redirect: '/programs',
   },
 
   // Anlage standalone popout (opened via window.open from exam trainer)

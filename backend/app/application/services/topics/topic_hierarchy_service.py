@@ -94,10 +94,18 @@ class TopicHierarchyService:
                 prompt=prompt,
                 language='de',
                 temperature=0.2,
-                max_tokens=8000,
             )
             text = response.get('output_text', '')
-            return TopicHierarchyService._parse_hierarchy_response(text)
+            logger.info("AI response length: %d chars", len(text))
+            if not text:
+                logger.warning("AI returned empty output_text. Keys: %s", list(response.keys()))
+                logger.debug("Full response: %s", str(response)[:500])
+            result = TopicHierarchyService._parse_hierarchy_response(text)
+            if result:
+                logger.info("Parsed %d root categories", len(result))
+            else:
+                logger.warning("Parse failed. FULL response: %s", text if text else 'EMPTY')
+            return result
         except Exception:
             logger.exception("AI hierarchy clustering failed")
             return None

@@ -418,6 +418,36 @@
       "lastSeen": "Zuletzt: {date}",
       "practice": "Üben",
       "page": "Seite {page} von {pages}"
+    },
+    "tutor": {
+      "title": "Prüfungscoach",
+      "open": "Hilfe vom Tutor",
+      "close": "Tutor schließen",
+      "send": "Senden",
+      "inputPlaceholder": "Frag mich was...",
+      "noResponse": "Entschuldigung, ich konnte keine Antwort generieren.",
+      "error": "Entschuldigung, es gab einen Fehler. Bitte versuche es nochmal.",
+      "greeting": "Hallo! Ich bin dein Prüfungscoach. Ich sehe du arbeitest an einer {type}-Aufgabe zum Thema \"{scenario}\". Wie kann ich dir helfen? Du kannst mich alles fragen — ich verrate dir nicht die Antwort, aber ich helfe dir den richtigen Weg zu finden.",
+      "buttons": {
+        "hint": "Hinweis",
+        "explain": "Thema erklären",
+        "example": "Beispiel"
+      },
+      "hints": {
+        "start": "Kannst du mir einen Hinweis geben? Ich weiß nicht wo ich anfangen soll.",
+        "specific": "Ich brauche einen konkreteren Tipp. Was genau wird hier gefragt?",
+        "explain": "Kannst du mir das Thema dahinter erklären? Ich verstehe den Zusammenhang nicht.",
+        "grading": "Wie würde ein Prüfer diese Aufgabe bewerten? Worauf muss ich achten?"
+      },
+      "actions": {
+        "explain": "Erkläre mir das Thema hinter dieser Aufgabe einfach und verständlich.",
+        "example": "Zeig mir ein ähnliches Beispiel aus einem anderen Kontext, damit ich das Prinzip verstehe."
+      },
+      "questionTypes": {
+        "code": "Programmier",
+        "calculation": "Rechen",
+        "text": "Text"
+      }
     }
   },
   "title": "Administration",

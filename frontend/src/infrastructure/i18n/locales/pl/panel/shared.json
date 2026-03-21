@@ -418,6 +418,36 @@
       "lastSeen": "Ostatnio: {date}",
       "practice": "Ćwicz",
       "page": "Strona {page} z {pages}"
+    },
+    "tutor": {
+      "title": "Korepetytor egzaminacyjny",
+      "open": "Pomoc korepetytora",
+      "close": "Zamknij korepetytora",
+      "send": "Wyślij",
+      "inputPlaceholder": "Zapytaj mnie o cokolwiek...",
+      "noResponse": "Przepraszam, nie mogłem wygenerować odpowiedzi.",
+      "error": "Przepraszam, wystąpił błąd. Spróbuj ponownie.",
+      "greeting": "Cześć! Jestem twoim korepetytorem egzaminacyjnym. Widzę, że pracujesz nad zadaniem typu {type} na temat \"{scenario}\". Jak mogę ci pomóc? Możesz mnie pytać o wszystko — nie zdradzę odpowiedzi, ale pomogę ci znaleźć właściwe podejście.",
+      "buttons": {
+        "hint": "Wskazówka",
+        "explain": "Wyjaśnij temat",
+        "example": "Przykład"
+      },
+      "hints": {
+        "start": "Czy możesz mi dać wskazówkę? Nie wiem od czego zacząć.",
+        "specific": "Potrzebuję bardziej konkretnej wskazówki. Co dokładnie jest tutaj pytane?",
+        "explain": "Czy możesz wyjaśnić temat stojący za tym pytaniem? Nie rozumiem powiązania.",
+        "grading": "Jak egzaminator oceniłby to zadanie? Na co powinienem zwrócić uwagę?"
+      },
+      "actions": {
+        "explain": "Wyjaśnij temat stojący za tym pytaniem w prosty sposób.",
+        "example": "Pokaż mi podobny przykład z innego kontekstu, żebym mógł zrozumieć zasadę."
+      },
+      "questionTypes": {
+        "code": "programowania",
+        "calculation": "obliczeniowym",
+        "text": "tekstowym"
+      }
     }
   },
   "title": "Administracja",

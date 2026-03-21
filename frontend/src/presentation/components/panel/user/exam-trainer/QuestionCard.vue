@@ -241,16 +241,6 @@ defineExpose({ setResult })
         </label>
       </div>
 
-      <!-- Calculation -->
-      <input
-        v-else-if="questionType === 'calculation'"
-        v-model="userAnswer"
-        type="text"
-        class="w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]
-               text-[var(--color-text)] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        :placeholder="t('panel.examTrainer.yourAnswer')"
-      />
-
       <!-- Structogram Builder -->
       <StructogramBuilder
         v-else-if="isStructogramQuestion"
@@ -258,15 +248,58 @@ defineExpose({ setResult })
         @update:model-value="onStructogramUpdate"
       />
 
+      <!-- Code / SQL Editor -->
+      <div v-else-if="questionType === 'code'" class="space-y-1">
+        <div class="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
+          <span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">CODE</span>
+          <span>SQL, Java, Python, Pseudocode...</span>
+        </div>
+        <textarea
+          v-model="userAnswer"
+          rows="10"
+          class="w-full p-4 rounded-lg border border-[var(--color-border)] bg-[#1a1b2e]
+                 text-emerald-300 font-mono text-sm leading-relaxed
+                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y
+                 placeholder:text-gray-600"
+          placeholder="-- Dein Code hier..."
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- Calculation (with room for Rechenweg) -->
+      <div v-else-if="questionType === 'calculation'" class="space-y-1">
+        <div class="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
+          <span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono">RECHNUNG</span>
+          <span>Rechenweg + Ergebnis</span>
+        </div>
+        <textarea
+          v-model="userAnswer"
+          rows="8"
+          class="w-full p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)]
+                 text-[var(--color-text)] font-mono text-sm leading-relaxed
+                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y
+                 placeholder:text-[var(--color-text-secondary)]"
+          placeholder="Rechenweg:&#10;76W - (2 × 9W + 3 × 3,5W) = ...&#10;&#10;Ergebnis: ..."
+        />
+      </div>
+
       <!-- Essay / Free text / Default -->
-      <textarea
-        v-else
-        v-model="userAnswer"
-        rows="5"
-        class="w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]
-               text-[var(--color-text)] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
-        :placeholder="t('panel.examTrainer.yourAnswer')"
-      />
+      <div v-else class="space-y-1">
+        <div v-if="questionType === 'short_answer'" class="text-xs text-[var(--color-text-secondary)]">
+          <span class="px-1.5 py-0.5 rounded bg-[var(--color-background)] text-[var(--color-text-secondary)]">Kurzantwort</span>
+        </div>
+        <textarea
+          v-model="userAnswer"
+          :rows="questionType === 'short_answer' ? 4 : 8"
+          class="w-full p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)]
+                 text-[var(--color-text)] text-sm leading-relaxed
+                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y
+                 placeholder:text-[var(--color-text-secondary)]"
+          :placeholder="questionType === 'short_answer'
+            ? 'Deine Antwort...'
+            : 'Deine Antwort...\n\nTipp: Strukturiere deine Antwort mit Aufzählungen (-, 1., 2.) für bessere Übersicht.'"
+        />
+      </div>
     </div>
 
     <!-- Submit button -->
@@ -276,7 +309,7 @@ defineExpose({ setResult })
       class="px-6 py-2.5 rounded-lg font-medium transition-colors"
       :class="canSubmit
         ? 'bg-blue-600 text-white hover:bg-blue-700'
-        : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
+        : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] cursor-not-allowed'"
       @click="handleSubmit"
     >
       <span v-if="isSubmitting">...</span>

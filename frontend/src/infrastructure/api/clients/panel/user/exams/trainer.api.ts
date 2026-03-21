@@ -246,6 +246,15 @@ export async function trainerGenerateExam(
   return response.data
 }
 
+/** Start a 1-question practice session for a specific question */
+export async function trainerPracticeSingle(questionId: string): Promise<GeneratedExam> {
+  const response = await http.post<{ success: boolean } & GeneratedExam>(
+    '/user/exam-trainer/practice-single',
+    { question_id: questionId },
+  )
+  return response.data
+}
+
 /** Get available exam programs */
 export async function trainerGetPrograms(): Promise<TrainerProgram[]> {
   const response = await http.get<{ success: boolean; programs: TrainerProgram[] }>(

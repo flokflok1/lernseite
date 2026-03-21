@@ -158,6 +158,60 @@ def register_advanced_routes(bp):
                 'success': False, 'error': 'Failed to load history'
             }), 500
 
+    @bp.route('/practice-single', methods=['POST'])
+    @token_required
+    def practice_single_question():
+        """Start a 1-question practice session for a specific question.
+
+        Body:
+            {question_id: str}
+
+        Response 200:
+            {attempt_id, questions: [single question], duration_minutes: 0,
+             total_points, question_count: 1}
+        """
+        try:
+            user = get_current_user()
+            data = request.get_json(silent=True) or {}
+            question_id = data.get('question_id')
+            if not question_id:
+                return jsonify({
+                    'success': False, 'error': 'question_id required',
+                }), 400
+
+            from app.infrastructure.persistence.repositories.exams.questions import (
+                ExamQuestionRepository,
+            )
+            questions = ExamQuestionRepository.find_by_ids([question_id])
+            if not questions:
+                return jsonify({
+                    'success': False, 'error': 'Question not found',
+                }), 404
+
+            q = questions[0]
+            # Create an adaptive attempt for tracking
+            attempt = ExamTrainerRepository.create_adaptive_attempt(
+                user_id=str(user['user_id']),
+                exam_id=q['exam_id'],
+                pool_size=1,
+            )
+            # Strip solution for the response
+            sanitized = strip_solutions([q])
+            return jsonify({
+                'success': True,
+                'attempt_id': attempt['attempt_id'],
+                'questions': sanitized,
+                'duration_minutes': 0,
+                'total_points': float(q.get('points', 5)),
+                'question_count': 1,
+            }), 200
+        except Exception:
+            logger.exception("Failed to start single question practice")
+            return jsonify({
+                'success': False,
+                'error': 'Failed to start practice',
+            }), 500
+
     @bp.route('/generate-exam', methods=['POST'])
     @token_required
     def generate_adaptive_exam():

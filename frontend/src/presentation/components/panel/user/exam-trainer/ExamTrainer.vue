@@ -13,6 +13,7 @@ import {
   trainerGetDashboard,
   trainerGenerateExam,
   trainerGetAnlagen,
+  trainerPracticeSingle,
 } from '@/infrastructure/api/clients/panel/user/exams'
 
 const props = withDefaults(defineProps<{
@@ -121,9 +122,26 @@ const handleReviewBack = () => {
   trainerGetDashboard().then(d => { dashboard.value = d })
 }
 
-const handlePracticeQuestion = (_questionId: string) => {
-  // Start a practice session (10 questions, no timer)
-  startAdaptiveExam(10, 0)
+const handlePracticeQuestion = async (questionId: string) => {
+  isGenerating.value = true
+  try {
+    const exam = await trainerPracticeSingle(questionId)
+    simQuestions.value = exam.questions
+    simAttemptId.value = exam.attempt_id
+    simDuration.value = 0
+    // Load anlagen for this question's exam
+    const examIds = [...new Set(
+      exam.questions.map((q: TrainerQuestion & { exam_id?: string }) => q.exam_id).filter(Boolean)
+    )] as string[]
+    const allAnlagen: Anlage[] = []
+    for (const eid of examIds) {
+      try { allAnlagen.push(...await trainerGetAnlagen(eid)) } catch { /* ok */ }
+    }
+    simAnlagen.value = allAnlagen
+    view.value = 'simulation'
+  } finally {
+    isGenerating.value = false
+  }
 }
 </script>
 

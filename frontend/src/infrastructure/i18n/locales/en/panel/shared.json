@@ -418,6 +418,36 @@
       "lastSeen": "Last: {date}",
       "practice": "Practice",
       "page": "Page {page} of {pages}"
+    },
+    "tutor": {
+      "title": "Exam Coach",
+      "open": "Get tutor help",
+      "close": "Close tutor",
+      "send": "Send",
+      "inputPlaceholder": "Ask me anything...",
+      "noResponse": "Sorry, I could not generate a response.",
+      "error": "Sorry, there was an error. Please try again.",
+      "greeting": "Hello! I'm your exam coach. I see you're working on a {type} question about \"{scenario}\". How can I help? You can ask me anything — I won't reveal the answer, but I'll help you find the right approach.",
+      "buttons": {
+        "hint": "Hint",
+        "explain": "Explain topic",
+        "example": "Example"
+      },
+      "hints": {
+        "start": "Can you give me a hint? I don't know where to start.",
+        "specific": "I need a more specific tip. What exactly is being asked?",
+        "explain": "Can you explain the underlying topic? I don't understand the connection.",
+        "grading": "How would an examiner grade this? What should I focus on?"
+      },
+      "actions": {
+        "explain": "Explain the topic behind this question in simple terms.",
+        "example": "Show me a similar example from a different context so I can understand the principle."
+      },
+      "questionTypes": {
+        "code": "coding",
+        "calculation": "calculation",
+        "text": "text"
+      }
     }
   },
   "title": "Administration",

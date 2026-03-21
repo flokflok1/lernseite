@@ -8,6 +8,7 @@ import type { StructogramData } from '@/presentation/components/public/system-fe
 import { AnlageBadge } from './anlagen'
 import { useWindowStore } from '@/application/stores/modules/ui/window.store'
 import type { TrainerQuestion, AnswerResult, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
+import ExamTutorPanel from './ExamTutorPanel.vue'
 
 interface Props {
   question: TrainerQuestion
@@ -84,6 +85,13 @@ const openScratchPad = () => {
     size: { width: 420, height: 460 },
   })
 }
+
+// --- AI Tutor state ---
+const showTutor = ref(false)
+const solutionHint = computed(() => {
+  const topics = props.question.topics || []
+  return topics.join(', ')
+})
 
 // --- Question answer state ---
 const userAnswer = ref<unknown>('')
@@ -300,6 +308,31 @@ defineExpose({ setResult })
             : 'Deine Antwort...\n\nTipp: Strukturiere deine Antwort mit Aufzählungen (-, 1., 2.) für bessere Übersicht.'"
         />
       </div>
+    </div>
+
+    <!-- Tutor Help Button -->
+    <div v-if="!result" class="flex items-center gap-3 mt-3">
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg
+               bg-indigo-500/10 text-indigo-400 border border-indigo-500/20
+               hover:bg-indigo-500/20 transition-colors"
+        @click="showTutor = !showTutor"
+      >
+        {{ showTutor ? t('panel.examTrainer.tutor.close') : t('panel.examTrainer.tutor.open') }}
+      </button>
+    </div>
+
+    <!-- Tutor Panel -->
+    <div v-if="showTutor && !result" class="mt-3">
+      <ExamTutorPanel
+        :question-text="question.question_text"
+        :scenario-title="question.scenario_title || ''"
+        :scenario-text="question.scenario_text || ''"
+        :solution-hint="solutionHint"
+        :question-type="question.question_type"
+        :points="question.points"
+        @close="showTutor = false"
+      />
     </div>
 
     <!-- Submit button -->

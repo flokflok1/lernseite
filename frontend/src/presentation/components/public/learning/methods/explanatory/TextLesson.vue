@@ -23,6 +23,7 @@
     <!-- Standard Lesson Content -->
     <div class="prose">
       <div v-if="content.html" v-html="sanitizedHtml"></div>
+      <div v-else-if="sanitizedContentHtml" v-html="sanitizedContentHtml"></div>
       <div v-else-if="renderedMarkdown" v-html="renderedMarkdown"></div>
       <div v-else-if="content.text" class="whitespace-pre-wrap">
         {{ content.text }}
@@ -118,8 +119,17 @@ const sanitizedHtml = computed(() => {
 })
 
 /**
+ * Pre-rendered HTML from content_html (new pipeline).
+ * AI generation now stores content as { content_html: "<h1>...</h1>" }.
+ */
+const sanitizedContentHtml = computed(() => {
+  if (!content.value.content_html) return ''
+  return DOMPurify.sanitize(content.value.content_html)
+})
+
+/**
  * Render markdown from raw_text (AI-generated) or markdown field.
- * AI plan execution stores content as { raw_text: "# Markdown..." }.
+ * Legacy: AI plan execution stored content as { raw_text: "# Markdown..." }.
  */
 const renderedMarkdown = computed(() => {
   let md = content.value.raw_text || content.value.markdown

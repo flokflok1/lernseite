@@ -15,12 +15,12 @@ STEP_PROMPTS = {
     'structure': (
         "\n\nAKTUELLER SCHRITT: NUR STRUKTUR.\n"
         "Erstelle Kapitel (add_chapter) und Lektionen (add_lesson) mit kurzem "
-        "Platzhalter-Text in content.raw_text. KEINE Lernmethoden in diesem Schritt."
+        "Platzhalter-Text in content.content_html. KEINE Lernmethoden in diesem Schritt."
     ),
     'content': (
         "\n\nAKTUELLER SCHRITT: NUR THEORIE-INHALTE.\n"
-        "Verwende update_lesson um content.raw_text mit vollstaendigem "
-        "Markdown-Theorieblatt zu fuellen. KEINE neuen Kapitel oder Methoden."
+        "Verwende update_lesson um content.content_html mit vollstaendigem "
+        "HTML-Theorieblatt zu fuellen. KEINE neuen Kapitel oder Methoden."
     ),
     'methods': (
         "\n\nAKTUELLER SCHRITT: NUR LERNMETHODEN.\n"
@@ -48,7 +48,9 @@ class GenerationPipeline:
             for ls in ch.get('lessons', []):
                 total += 1
                 content = ls.get('content', {})
-                raw = content.get('raw_text', '') if isinstance(content, dict) else ''
+                raw = (
+                    content.get('content_html') or content.get('raw_text', '')
+                ) if isinstance(content, dict) else ''
                 if len(raw) < 200:
                     needs_content += 1
                 elif not ls.get('methods'):
@@ -78,7 +80,7 @@ class GenerationPipeline:
             for ls in ch.get('lessons', []):
                 content = ls.get('content', {})
                 raw = (
-                    content.get('raw_text', '')
+                    (content.get('content_html') or content.get('raw_text', ''))
                     if isinstance(content, dict) else ''
                 )
                 if step == 'content' and len(raw) < 200:

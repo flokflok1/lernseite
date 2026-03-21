@@ -351,10 +351,12 @@ def _get_skill_instructions(skill_code: str, language: str) -> str:
 
 def _parse_output(output_text: str) -> Dict[str, Any]:
     """Parse AI output text, attempting JSON extraction."""
+    from app.infrastructure.utils.markdown_converter import markdown_to_html
+
     try:
         return json.loads(output_text)
     except (json.JSONDecodeError, TypeError):
-        return {'raw_text': output_text}
+        return {'content_html': markdown_to_html(output_text)}
 
 
 def _filter_by_active_features(skills: List[SkillDefinition]) -> List[Dict[str, Any]]:

@@ -28,10 +28,10 @@ import { renderMarkdown } from './markdown'
 import type { InteractiveTheoryData, InteractiveTheorySolution } from './types'
 
 const { t } = useI18n()
-const props = defineProps<{ data: (InteractiveTheoryData & { raw_text?: string }) | null; solution: InteractiveTheorySolution | null }>()
+const props = defineProps<{ data: (InteractiveTheoryData & { content_html?: string; raw_text?: string }) | null; solution: InteractiveTheorySolution | null }>()
 const answer = ref('')
 const showAnswer = ref(false)
-const renderedConcept = computed(() => renderMarkdown(props.data?.concept || props.data?.raw_text || ''))
+const renderedConcept = computed(() => renderMarkdown(props.data?.concept || props.data?.content_html || props.data?.raw_text || ''))
 const examples = computed(() => props.data?.examples || [])
 const question = computed(() => props.data?.interactiveQuestion || '')
 </script>

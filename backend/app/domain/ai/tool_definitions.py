@@ -82,7 +82,7 @@ TOOL_ADD_LESSON: Dict = {
     "name": "add_lesson",
     "description": (
         "Erstellt eine neue Lektion in einem Kapitel. "
-        "content.raw_text MUSS einen vollständigen Markdown-Text enthalten."
+        "content.content_html MUSS vollständigen HTML-Inhalt enthalten."
     ),
     "parameters": {
         "type": "object",
@@ -108,12 +108,12 @@ TOOL_ADD_LESSON: Dict = {
                 "type": "object",
                 "description": "Lektions-Inhalt mit Theorieblatt",
                 "properties": {
-                    "raw_text": {
+                    "content_html": {
                         "type": "string",
-                        "description": "Vollständiger Markdown-Text der Lektion"
+                        "description": "Vollständiger HTML-Inhalt der Lektion"
                     }
                 },
-                "required": ["raw_text"]
+                "required": ["content_html"]
             }
         },
         "required": ["chapter_id", "title", "content"]
@@ -124,7 +124,7 @@ TOOL_UPDATE_LESSON: Dict = {
     "name": "update_lesson",
     "description": (
         "Aktualisiert eine bestehende Lektion. "
-        "content.raw_text ist PFLICHT — immer den vollständigen Theorieblatt-Text liefern. "
+        "content.content_html ist PFLICHT — immer den vollständigen Theorieblatt-Inhalt liefern. "
         "Das Theorieblatt ist die Hauptzusammenfassung, die der Lernende sieht."
     ),
     "parameters": {
@@ -143,12 +143,12 @@ TOOL_UPDATE_LESSON: Dict = {
                 "type": "object",
                 "description": "Neuer Lektions-Inhalt",
                 "properties": {
-                    "raw_text": {
+                    "content_html": {
                         "type": "string",
-                        "description": "Vollständiger Markdown-Text des Theorieblatts"
+                        "description": "Vollständiger HTML-Inhalt des Theorieblatts"
                     }
                 },
-                "required": ["raw_text"]
+                "required": ["content_html"]
             }
         },
         "required": ["lesson_id", "content"]

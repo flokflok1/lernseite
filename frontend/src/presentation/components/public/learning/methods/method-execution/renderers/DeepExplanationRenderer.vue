@@ -29,10 +29,10 @@ import { renderMarkdown } from './markdown'
 import type { DeepExplanationData, DeepExplanationSolution } from './types'
 
 const { t } = useI18n()
-const props = defineProps<{ data: (DeepExplanationData & { raw_text?: string }) | null; solution: DeepExplanationSolution | null }>()
+const props = defineProps<{ data: (DeepExplanationData & { content_html?: string; raw_text?: string }) | null; solution: DeepExplanationSolution | null }>()
 const understood = ref(false)
 
-const renderedContent = computed(() => renderMarkdown(props.data?.content || props.data?.raw_text || ''))
+const renderedContent = computed(() => renderMarkdown(props.data?.content || props.data?.content_html || props.data?.raw_text || ''))
 const keyPoints = computed(() => props.data?.keyPoints || [])
 </script>
 

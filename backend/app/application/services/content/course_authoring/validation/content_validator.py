@@ -64,14 +64,16 @@ class ContentValidator:
     @classmethod
     def _check_lesson(cls, lesson, path, profile, issues):
         content = lesson.get('content', {})
-        raw_text = content.get('raw_text', '') if isinstance(content, dict) else ''
+        raw_text = (
+            content.get('content_html') or content.get('raw_text', '')
+        ) if isinstance(content, dict) else ''
 
-        if len(raw_text) < profile.min_raw_text_length:
+        if len(raw_text) < profile.min_content_length:
             issues.append({
                 'level': 'warning', 'path': path,
                 'message': (
                     f'Theorieblatt zu kurz ({len(raw_text)} Zeichen, '
-                    f'Minimum: {profile.min_raw_text_length})'
+                    f'Minimum: {profile.min_content_length})'
                 )
             })
 

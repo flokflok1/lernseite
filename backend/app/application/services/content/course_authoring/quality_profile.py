@@ -47,7 +47,7 @@ class QualityProfile:
 
     # --- Content Validation ---
     validate_content: bool          # Run ContentValidator?
-    min_raw_text_length: int        # Minimum lesson theory length (chars)
+    min_content_length: int        # Minimum lesson theory length (chars)
     min_quiz_questions: int         # Minimum questions per quiz
     min_flashcard_count: int        # Minimum cards per flashcard set
     require_exercise_solution: bool  # Require modelAnswer for exercises?
@@ -80,7 +80,7 @@ QUALITY_LEVELS: Dict[str, QualityProfile] = {
         history_char_limit=2000,
         history_message_char_limit=200,
         validate_content=True,
-        min_raw_text_length=30,
+        min_content_length=30,
         min_quiz_questions=1,
         min_flashcard_count=2,
         require_exercise_solution=False,
@@ -104,7 +104,7 @@ QUALITY_LEVELS: Dict[str, QualityProfile] = {
         history_char_limit=5000,
         history_message_char_limit=500,
         validate_content=True,
-        min_raw_text_length=50,
+        min_content_length=50,
         min_quiz_questions=2,
         min_flashcard_count=3,
         require_exercise_solution=True,
@@ -128,7 +128,7 @@ QUALITY_LEVELS: Dict[str, QualityProfile] = {
         history_char_limit=8000,
         history_message_char_limit=800,
         validate_content=True,
-        min_raw_text_length=100,
+        min_content_length=100,
         min_quiz_questions=3,
         min_flashcard_count=5,
         require_exercise_solution=True,
@@ -152,7 +152,7 @@ QUALITY_LEVELS: Dict[str, QualityProfile] = {
         history_char_limit=12000,
         history_message_char_limit=1000,
         validate_content=True,
-        min_raw_text_length=200,
+        min_content_length=200,
         min_quiz_questions=5,
         min_flashcard_count=5,
         require_exercise_solution=True,

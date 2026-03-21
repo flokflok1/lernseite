@@ -55,7 +55,7 @@ watch(() => route.params.programId, (newId) => {
     />
 
     <!-- Right: Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col min-h-0">
       <!-- Program title -->
       <div class="px-6 pt-4 pb-2">
         <h1 class="text-xl font-bold text-[var(--color-text)]">

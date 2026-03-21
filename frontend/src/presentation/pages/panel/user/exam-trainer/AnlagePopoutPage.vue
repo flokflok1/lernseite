@@ -32,7 +32,7 @@ onMounted(async () => {
 
 const sanitizedContent = computed(() => {
   if (!anlage.value) return ''
-  return DOMPurify.sanitize(anlage.value.raw_text || '', {
+  return DOMPurify.sanitize(anlage.value.content_html || '', {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
       'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption',
       'ul', 'ol', 'li', 'div', 'span', 'section',

@@ -254,7 +254,7 @@ def register_advanced_routes(bp):
         """Return Anlagen for an exam from the exam_anlagen table.
 
         Response 200:
-            {anlagen: [{number, title, type, raw_text, data}]}
+            {anlagen: [{number, title, type, content_html, data}]}
         """
         try:
             from app.infrastructure.persistence.repositories.exams.questions import (
@@ -266,7 +266,7 @@ def register_advanced_routes(bp):
                     'number': r['number'],
                     'title': r['title'],
                     'type': 'html',
-                    'raw_text': r['content_html'],
+                    'content_html': r['content_html'],
                     'data': {},
                 }
                 for r in rows

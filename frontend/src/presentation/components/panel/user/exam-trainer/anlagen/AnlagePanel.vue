@@ -15,7 +15,7 @@ const examId = computed(() => (props.window.payload?.examId as string) || '')
 
 const sanitizedContent = computed(() => {
   if (!anlage.value) return ''
-  const raw = anlage.value.raw_text || ''
+  const raw = anlage.value.content_html || ''
   return DOMPurify.sanitize(raw, {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
       'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption', 'colgroup', 'col',

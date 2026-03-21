@@ -188,7 +188,7 @@ export interface Anlage {
   number: number
   title: string
   type: 'offer' | 'api_reference' | 'info_document' | 'generic'
-  raw_text: string
+  content_html: string
   data: Record<string, unknown>
 }
 

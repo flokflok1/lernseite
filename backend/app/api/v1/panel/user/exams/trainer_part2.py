@@ -191,9 +191,9 @@ def register_advanced_routes(bp):
             q = questions[0]
             # Create an adaptive attempt for tracking
             attempt = ExamTrainerRepository.create_adaptive_attempt(
-                user_id=str(user['user_id']),
-                exam_id=q['exam_id'],
-                pool_size=1,
+                user_id=user['user_id'],
+                duration_minutes=0,
+                total_points=int(q.get('points', 5)),
             )
             # Strip solution for the response
             sanitized = strip_solutions([q])

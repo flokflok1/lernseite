@@ -76,30 +76,38 @@ const referencedAnlagen = computed(() => {
   return matched.length > 0 ? matched : pool
 })
 
-// --- Window management via windowStore ---
+// --- Anlage opening ---
 const openAnlage = (number: number) => {
-  // Find anlage from current question's exam, not from all exams
   const pool = questionAnlagen.value.length > 0 ? questionAnlagen.value : props.anlagen
   const a = pool.find(a => a.number === number)
   if (!a) return
 
-  // Unique key includes exam_id to avoid conflicts between exams
-  const anlageKey = `${questionExamId.value}-${number}`
-  const existing = windowStore.getPanelsByType('exam-trainer-anlage')
-  const match = existing.find(p => p.payload?.anlageKey === anlageKey)
-  if (match) {
-    if (match.minimized) windowStore.restorePanel(match.id)
-    else windowStore.focusPanel(match.id)
-    return
+  const examId = questionExamId.value
+  if (!examId) return
+
+  // Try WindowManager first (works in desktop mode), fallback to popout
+  if (windowStore && typeof windowStore.openWindow === 'function') {
+    const anlageKey = `${examId}-${number}`
+    const existing = windowStore.getPanelsByType('exam-trainer-anlage')
+    const match = existing.find(p => p.payload?.anlageKey === anlageKey)
+    if (match) {
+      if (match.minimized) windowStore.restorePanel(match.id)
+      else windowStore.focusPanel(match.id)
+      return
+    }
+
+    windowStore.openWindow({
+      type: 'exam-trainer-anlage',
+      title: `${t('panel.examTrainer.anlagen.anlageNr', { number })} — ${a.title}`,
+      icon: '\u{1F4CE}',
+      payload: { examId, anlage: a, anlageKey },
+      size: { width: 640, height: 520 },
+    })
   }
 
-  windowStore.openWindow({
-    type: 'exam-trainer-anlage',
-    title: `${t('panel.examTrainer.anlagen.anlageNr', { number })} — ${a.title}`,
-    icon: '\u{1F4CE}',
-    payload: { examId: questionExamId.value, anlage: a, anlageKey: `${questionExamId.value}-${number}` },
-    size: { width: 640, height: 520 },
-  })
+  // Always also open as popout window (works in all contexts)
+  const url = `/exam-trainer/anlage/${examId}/${number}`
+  window.open(url, `anlage-${examId}-${number}`, 'width=860,height=700,menubar=no,toolbar=no')
 }
 
 const openScratchPad = () => {

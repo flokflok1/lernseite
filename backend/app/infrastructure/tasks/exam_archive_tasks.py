@@ -114,7 +114,27 @@ def analyze_exam_pdf_task(
             _mark_failed(exam_id, 'AI returned no questions')
             return {'success': False, 'error': 'No questions extracted'}
 
-        # 6. Build scenario lookup for titles
+        # 6. Duplicate detection: check if questions match existing exam
+        from app.infrastructure.persistence.repositories.exams.questions import (
+            ExamQuestionRepository as EQR_dup,
+        )
+        dup_exam = _check_duplicate_exam(exam_id, questions)
+        if dup_exam:
+            logger.warning(
+                "Duplicate detected: exam %s matches existing exam '%s' (%d questions overlap). "
+                "Skipping import — mark as duplicate.",
+                exam_id, dup_exam['title'], dup_exam['overlap'],
+            )
+            _mark_failed(
+                exam_id,
+                f"Duplikat: {dup_exam['overlap']} Fragen identisch mit '{dup_exam['title']}'. Import abgebrochen.",
+            )
+            return {
+                'success': False,
+                'error': f"Duplicate of '{dup_exam['title']}' ({dup_exam['overlap']} matching questions)",
+            }
+
+        # Build scenario lookup for titles
         scenario_map = {
             s['number']: s for s in scenarios
         }
@@ -423,3 +443,50 @@ def _mark_failed(exam_id: str, error_message: str) -> None:
         logger.error(
             "Could not update status for exam %s: %s", exam_id, e
         )
+
+
+def _check_duplicate_exam(
+    exam_id: str, new_questions: List[Dict],
+) -> Optional[Dict]:
+    """Check if extracted questions duplicate an existing published exam.
+
+    Compares first 150 chars of question text against all published exams.
+    If >50% of new questions match an existing exam, it's a duplicate.
+
+    Returns:
+        {title, exam_id, overlap} if duplicate found, None otherwise.
+    """
+    if not new_questions:
+        return None
+
+    new_texts = set()
+    for q in new_questions:
+        text = (q.get('text', '') or q.get('question_text', '') or '')[:150].strip()
+        if len(text) > 20:
+            new_texts.add(text)
+
+    if not new_texts:
+        return None
+
+    from app.infrastructure.persistence.repositories.exams.questions import (
+        ExamQuestionRepository,
+    )
+    existing = ExamQuestionRepository.find_published_question_texts(exam_id)
+
+    # Group matches by exam
+    exam_matches: Dict[str, Dict] = {}
+    for row in existing:
+        existing_text = (row['text_prefix'] or '').strip()
+        if existing_text in new_texts:
+            eid = row['exam_id']
+            if eid not in exam_matches:
+                exam_matches[eid] = {'title': row['title'], 'overlap': 0}
+            exam_matches[eid]['overlap'] += 1
+
+    # Duplicate if >50% overlap (min 3 questions)
+    threshold = max(3, len(new_texts) * 0.5)
+    for eid, info in exam_matches.items():
+        if info['overlap'] >= threshold:
+            return {'exam_id': eid, 'title': info['title'], 'overlap': info['overlap']}
+
+    return None

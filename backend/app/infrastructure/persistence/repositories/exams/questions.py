@@ -422,3 +422,16 @@ class ExamQuestionRepository(BaseRepository):
             "SET content_html = %s WHERE anlage_id = %s",
             (content_html, anlage_id),
         )
+
+    @classmethod
+    def find_published_question_texts(cls, exclude_exam_id: str) -> list:
+        """Get question texts from all published exams (for duplicate detection)."""
+        return fetch_all("""
+            SELECT LEFT(eq.question_text, 150) AS text_prefix,
+                   e.exam_id, e.title
+            FROM assessments.exam_questions eq
+            JOIN assessments.exams e ON e.exam_id = eq.exam_id
+            WHERE e.analysis_status = 'ready' AND e.published = true
+              AND e.exam_id != %s
+              AND length(eq.question_text) > 20
+        """, (exclude_exam_id,))

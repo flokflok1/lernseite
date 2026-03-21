@@ -287,8 +287,43 @@ DIAGRAMME UND VISUELLE ANLAGEN:
   * Container/Bereiche: <div class="diagram-group"><strong>Bereich</strong>...</div>
   * Beschriftungen: <small class="diagram-label">Beschreibung</small>
 - Netzwerk-Topologien: Jedes Geraet (Router, Switch, Server, PC) als eigene diagram-node Box mit IP
+- Zeilen: <div class="diagram-row"> fuer horizontale Anordnung von Knoten und Linien
 - Tabellen: <table> mit <thead>/<tbody>
 - WICHTIG: Struktur muss im Browser visuell verstaendlich sein, nicht nur Text
+
+BEISPIEL NETZWERK-DIAGRAMM HTML:
+<div class="diagram-row">
+  <div class="diagram-node">Internet<br><small class="diagram-label">WAN</small></div>
+  <div class="diagram-line"></div>
+  <div class="diagram-node">Router<br><small class="diagram-label">192.168.0.1</small></div>
+</div>
+<div class="diagram-row">
+  <div class="diagram-line"></div>
+</div>
+<div class="diagram-group">
+  <strong>Subnetz 1 (192.168.1.0/24)</strong>
+  <div class="diagram-row">
+    <div class="diagram-node">Switch1</div>
+    <div class="diagram-line"></div>
+    <div class="diagram-node">PC1<br><small class="diagram-label">192.168.1.10</small></div>
+    <div class="diagram-line"></div>
+    <div class="diagram-node">PC2<br><small class="diagram-label">192.168.1.11</small></div>
+  </div>
+</div>
+
+BEISPIEL ERM/UML:
+<div class="diagram-row">
+  <div class="diagram-node"><strong>Mitarbeiter</strong><br><small class="diagram-label">PK: m_id<br>name<br>abteilung</small></div>
+  <div class="diagram-line"></div>
+  <small class="diagram-label">1:n</small>
+  <div class="diagram-line"></div>
+  <div class="diagram-node"><strong>Projekt</strong><br><small class="diagram-label">PK: p_id<br>titel<br>budget</small></div>
+</div>
+
+VERBOTEN fuer Diagramme:
+- <p>Das Diagramm zeigt...</p> (= Textbeschreibung, NICHT visuell)
+- <ul><li>Router verbunden mit...</li></ul> (= Aufzaehlung, NICHT visuell)
+- JEDES Diagramm MUSS diagram-node und diagram-row CSS-Klassen verwenden
 
 JSON-FORMAT:
 ```json

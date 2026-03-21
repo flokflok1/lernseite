@@ -55,25 +55,9 @@ const questionAnlagen = computed(() => {
 })
 
 const referencedAnlagen = computed(() => {
+  // Always show all anlagen from this exam — the student needs access to all materials
   const pool = questionAnlagen.value.length > 0 ? questionAnlagen.value : props.anlagen
-  if (!pool.length) return []
-
-  const text = [
-    props.question.question_text,
-    props.question.scenario_text,
-    props.question.scenario_title,
-  ].filter(Boolean).join(' ')
-
-  // Match: Anlage 1, Anlagen 2, Vorgabeblatt 1, Abbildung 3, Anhang 2
-  const matches = text.match(/(?:Anlage[n]?|Vorgabeblatt|Abbildung|Anhang)\s+(\d+(?:\s*(?:und|,|bis)\s*\d+)*)/gi) || []
-  const numbers = new Set<number>()
-  for (const m of matches) {
-    for (const n of m.match(/\d+/g) || []) numbers.add(parseInt(n))
-  }
-
-  const matched = pool.filter(a => numbers.has(a.number))
-  // If specific references found, show those; otherwise show all available
-  return matched.length > 0 ? matched : pool
+  return pool
 })
 
 // --- Anlage opening ---

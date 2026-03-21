@@ -91,7 +91,7 @@ def execute_learning_method(method_id: str):
         # Transform raw_text into structured data if needed
         raw_data = instance.get('data', {})
         method_type = instance.get('method_type')
-        if isinstance(raw_data, dict) and 'raw_text' in raw_data and method_type is not None:
+        if isinstance(raw_data, dict) and ('content_html' in raw_data or 'raw_text' in raw_data) and method_type is not None:
             from app.application.services.ai.plan.plan_execution import _transform_data_for_method
             structured_data = _transform_data_for_method(
                 method_type, raw_data, instance.get('title', '')

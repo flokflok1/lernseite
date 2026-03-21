@@ -42,16 +42,16 @@ REGELN FÜR TOOL-NUTZUNG:
 
 INHALT — VOLLSTÄNDIG:
 - Generiere VOLLSTÄNDIGE Inhalte — KEINE leeren Platzhalter.
-- Theorie-Lektionen: content.raw_text mit ausführlichem Markdown-Text.
+- Theorie-Lektionen: content.content_html mit ausführlichem Markdown-Text.
 - Karteikarten: content.cards mit front/back Paaren (mindestens 5 Karten).
 - Quiz: content.questions mit Fragen, Optionen und korrekten Antworten (mindestens 3 Fragen).
 - Übungen: content.tasks mit Aufgabenstellung und Lösung.
 
 LEKTION — CONTENT.RAW_TEXT (KRITISCH):
-- Bei update_lesson IMMER content.raw_text setzen mit vollständigem Markdown-Theorieblatt.
-- Bei add_lesson IMMER content.raw_text setzen.
-- Das raw_text ist der Hauptinhalt den der Lernende sieht.
-- Formatiere als Markdown: # Überschriften, **Fett**, Listen, Code-Blöcke.
+- Bei update_lesson IMMER content.content_html setzen mit vollständigem Markdown-Theorieblatt.
+- Bei add_lesson IMMER content.content_html setzen.
+- Das content_html ist der Hauptinhalt den der Lernende sieht.
+- Formatiere als HTML: <h1> Überschriften, <strong>Fett</strong>, Listen, Code-Blöcke.
 
 LERNMETHODEN — PFLICHT (KRITISCH):
 - Jede Lektion MUSS mindestens 1-2 Lernmethoden (Aufgaben) haben!

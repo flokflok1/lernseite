@@ -98,12 +98,15 @@ def grade_answer(question: dict, user_answer) -> dict:
 
     # Calculation / numeric grading
     if q_type in ('calculation', 'numeric'):
-        return _grade_calculation(
+        result = _grade_calculation(
             solution, user_answer, points, solution_text
         )
+        # If calculation has no numeric answer, fall through to AI grading
+        if not result.get('needs_review'):
+            return result
 
-    # Try AI grading for free-text answers
-    if q_type in ('essay', 'short_answer', 'case_study'):
+    # Try AI grading for free-text answers (and calculations without numeric solution)
+    if q_type in ('essay', 'short_answer', 'case_study', 'calculation', 'code', 'fill_blank'):
         from app.application.services.exams.grading_service import (
             GradingService,
         )

@@ -24,6 +24,7 @@ const totalTokens = computed(() => props.result.tokens_input + props.result.toke
 
 const contentPreview = computed(() => {
   const content = props.result.content
+  if (content.content_html) return content.content_html as string
   if (content.raw_text) return content.raw_text as string
   return JSON.stringify(content, null, 2)
 })

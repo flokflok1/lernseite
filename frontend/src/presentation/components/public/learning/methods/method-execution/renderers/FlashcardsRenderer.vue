@@ -35,16 +35,17 @@ import { useI18n } from 'vue-i18n'
 import type { FlashcardsData } from './types'
 
 const { t } = useI18n()
-const props = defineProps<{ data: (FlashcardsData & { raw_text?: string }) | null; solution: null }>()
+const props = defineProps<{ data: (FlashcardsData & { content_html?: string; raw_text?: string }) | null; solution: null }>()
 const emit = defineEmits<{ complete: [score: number, maxScore: number] }>()
 const current = ref(0)
 const flipped = ref(false)
 const known = ref(new Set<number>())
 const cards = computed(() => {
   if (props.data?.cards?.length) return props.data.cards
-  // Fallback: extract Q&A from raw_text headings
-  if (props.data?.raw_text) {
-    const sections = props.data.raw_text.split(/\n##\s+/)
+  // Fallback: extract Q&A from content_html or raw_text headings
+  const fallbackText = props.data?.content_html || props.data?.raw_text
+  if (fallbackText) {
+    const sections = fallbackText.split(/\n##\s+/)
     const extracted: { front: string; back: string }[] = []
     for (const sec of sections.slice(1)) {
       const lines = sec.trim().split('\n')

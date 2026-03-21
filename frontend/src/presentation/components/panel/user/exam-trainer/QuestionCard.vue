@@ -56,20 +56,24 @@ const questionAnlagen = computed(() => {
 
 const referencedAnlagen = computed(() => {
   const pool = questionAnlagen.value.length > 0 ? questionAnlagen.value : props.anlagen
+  if (!pool.length) return []
+
   const text = [
     props.question.question_text,
     props.question.scenario_text,
     props.question.scenario_title,
   ].filter(Boolean).join(' ')
 
-  const matches = text.match(/Anlage[n]?\s+(\d+(?:\s*(?:und|,|bis)\s*\d+)*)/gi) || []
+  // Match: Anlage 1, Anlagen 2, Vorgabeblatt 1, Abbildung 3, Anhang 2
+  const matches = text.match(/(?:Anlage[n]?|Vorgabeblatt|Abbildung|Anhang)\s+(\d+(?:\s*(?:und|,|bis)\s*\d+)*)/gi) || []
   const numbers = new Set<number>()
   for (const m of matches) {
     for (const n of m.match(/\d+/g) || []) numbers.add(parseInt(n))
   }
 
   const matched = pool.filter(a => numbers.has(a.number))
-  return matched.length > 0 ? matched : (matches.length > 0 ? [] : [])
+  // If specific references found, show those; otherwise show all available
+  return matched.length > 0 ? matched : pool
 })
 
 // --- Window management via windowStore ---
@@ -185,15 +189,15 @@ defineExpose({ setResult })
     <!-- Scenario -->
     <div
       v-if="question.scenario_title || question.scenario_text"
-      class="mb-4 p-4 rounded-lg bg-blue-50 border border-blue-200"
+      class="mb-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20"
     >
-      <h4 class="font-semibold text-blue-800 mb-1">
+      <h4 class="font-semibold text-blue-400 mb-1">
         {{ t('panel.examTrainer.scenario') }}
         <span v-if="question.scenario_title">: {{ question.scenario_title }}</span>
       </h4>
       <div
         v-if="question.scenario_text"
-        class="text-sm text-blue-700 whitespace-pre-line prose prose-sm prose-blue max-w-none"
+        class="text-sm text-[var(--color-text-secondary)] whitespace-pre-line prose prose-sm max-w-none"
         v-html="renderMarkdown(question.scenario_text)"
       />
     </div>
@@ -257,8 +261,8 @@ defineExpose({ setResult })
           :key="idx"
           class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors"
           :class="userAnswer === option
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-[var(--color-border)] hover:bg-gray-50'"
+            ? 'border-blue-500 bg-blue-500/10'
+            : 'border-[var(--color-border)] hover:bg-[var(--color-background)]'"
         >
           <input
             v-model="userAnswer"

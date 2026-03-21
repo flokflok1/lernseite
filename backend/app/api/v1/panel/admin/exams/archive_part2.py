@@ -123,3 +123,22 @@ def quality_report():
     )
     report = generate_quality_report()
     return jsonify(report), 200
+
+
+@archive_bp.route('/regenerate-diagrams', methods=['POST'])
+@admin_required
+def regenerate_diagrams():
+    """Regenerate text-description diagram Anlagen as visual HTML.
+
+    Finds Anlagen that contain prose descriptions of diagrams and
+    converts them to structured HTML using diagram CSS classes.
+    """
+    try:
+        from app.application.services.exams.diagram_regenerator import (
+            regenerate_all_text_diagrams,
+        )
+        result = regenerate_all_text_diagrams()
+        return jsonify({'success': True, **result}), 200
+    except Exception:
+        logger.exception("Failed to regenerate diagrams")
+        return jsonify({'success': False, 'error': 'Regeneration failed'}), 500

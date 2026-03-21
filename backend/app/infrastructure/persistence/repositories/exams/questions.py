@@ -389,3 +389,36 @@ class ExamQuestionRepository(BaseRepository):
                GROUP BY exam_id""",
             (),
         )
+
+    @classmethod
+    def find_text_diagram_anlagen(cls) -> list:
+        """Find Anlagen containing text descriptions of diagrams.
+
+        These contain prose descriptions instead of visual HTML using
+        diagram-node/diagram-line CSS classes and need conversion.
+        """
+        return fetch_all("""
+            SELECT a.anlage_id, a.exam_id, a.number, a.title,
+                   a.content_html, e.title AS exam_title
+            FROM assessments.exam_anlagen a
+            JOIN assessments.exams e ON e.exam_id = a.exam_id
+            WHERE a.content_html LIKE '%%Das Diagramm zeigt%%'
+               OR a.content_html LIKE '%%Netzwerkdiagramm mit%%'
+               OR a.content_html LIKE '%%zeigt folgende Netzwerkkomponenten%%'
+               OR a.content_html LIKE '%%Sterntopologie%%'
+               OR a.content_html LIKE '%%unverbundene Entit%%'
+               OR a.content_html LIKE '%%Beschreibung des Liniendiagramms%%'
+               OR a.content_html LIKE '%%Topologie:%%'
+            ORDER BY e.title, a.number
+        """)
+
+    @classmethod
+    def update_anlage_content(
+        cls, anlage_id: str, content_html: str,
+    ) -> None:
+        """Update the HTML content of an Anlage."""
+        execute_query(
+            "UPDATE assessments.exam_anlagen "
+            "SET content_html = %s WHERE anlage_id = %s",
+            (content_html, anlage_id),
+        )

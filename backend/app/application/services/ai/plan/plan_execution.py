@@ -307,12 +307,12 @@ def _transform_data_for_method(
     """Transform raw AI output into the structured format each renderer expects.
 
     If the data already has the right structure (e.g. ``cards`` for flashcards),
-    it is returned as-is.  Otherwise, ``raw_text`` is converted into the expected
-    shape so the frontend renderer can display it.
+    it is returned as-is.  Otherwise, ``content_html`` (or legacy ``raw_text``)
+    is converted into the expected shape so the frontend renderer can display it.
     """
     import re
 
-    raw_text = raw_data.get('raw_text', '')
+    raw_text = raw_data.get('content_html') or raw_data.get('raw_text', '')
     if not raw_text:
         return raw_data
 

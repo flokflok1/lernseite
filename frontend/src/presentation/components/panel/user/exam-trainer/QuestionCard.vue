@@ -316,18 +316,18 @@ defineExpose({ setResult })
     <div v-if="result" class="mt-4">
       <div
         class="p-4 rounded-lg mb-4"
-        :class="result.correct ? 'bg-emerald-50 border border-emerald-300' : 'bg-red-50 border border-red-300'"
+        :class="result.is_correct ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-red-500/10 border border-red-500/30'"
       >
-        <p class="font-semibold" :class="result.correct ? 'text-emerald-700' : 'text-red-700'">
-          {{ result.correct ? t('panel.examTrainer.correct') : t('panel.examTrainer.incorrect') }}
+        <p class="font-semibold" :class="result.is_correct ? 'text-emerald-400' : 'text-red-400'">
+          {{ result.is_correct ? t('panel.examTrainer.correct') : t('panel.examTrainer.incorrect') }}
         </p>
         <p class="text-sm mt-1 text-[var(--color-text-secondary)]">
-          {{ result.earned_points }}/{{ result.max_points }}
-          {{ t('panel.examTrainer.points', { count: result.max_points }) }}
+          {{ result.points_earned }}/{{ result.max_points || question.points }}
+          {{ t('panel.examTrainer.points', { count: result.max_points || question.points }) }}
         </p>
       </div>
 
-      <div v-if="result.explanation" class="p-4 rounded-lg bg-gray-50 border border-gray-200 mb-4">
+      <div v-if="result.explanation" class="p-4 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] mb-4">
         <h4 class="font-medium text-[var(--color-text)] mb-1">
           {{ t('panel.examTrainer.explanation') }}
         </h4>

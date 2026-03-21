@@ -43,10 +43,12 @@ export interface TopicStat {
 }
 
 export interface AnswerResult {
-  correct: boolean
-  earned_points: number
-  max_points: number
+  is_correct: boolean
+  points_earned: number
+  max_points?: number
   explanation: string | null
+  correct_answer?: string
+  needs_review?: boolean
 }
 
 export interface AttemptResult {

@@ -1,12 +1,13 @@
-"""Lesson Content Builder — generates markdown for exam practice lessons.
+"""Lesson Content Builder — generates HTML for exam practice lessons.
 
 Converts LM instance data (math problems, cloze sentences, IHK tasks, etc.)
-into readable markdown that renders in the center panel of the lesson player.
+into readable HTML that renders in the center panel of the lesson player.
 Includes scenario context (company situations, Anlagen) when available.
 """
 from typing import Dict, List, Optional
 
 from app.domain.services.lm_content_mapper import get_lm_label
+from app.infrastructure.utils.markdown_converter import markdown_to_html
 
 
 def build_lesson_markdown(
@@ -15,7 +16,7 @@ def build_lesson_markdown(
     chapter_label: str,
     language: str = 'de',
 ) -> Dict:
-    """Build lesson content JSONB with raw_text markdown.
+    """Build lesson content JSONB with content_html.
 
     Returns dict suitable for LessonRepository.create(content=...).
     """
@@ -36,7 +37,7 @@ def build_lesson_markdown(
     if not md:
         return {}
 
-    return {'raw_text': md}
+    return {'content_html': markdown_to_html(md)}
 
 
 def _render_scenario_contexts(data: Dict, lang: str) -> str:

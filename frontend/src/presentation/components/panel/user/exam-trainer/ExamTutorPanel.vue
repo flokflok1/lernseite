@@ -50,7 +50,7 @@ ABLAUF:
    - "Internet" → "Gute Richtung! Aber wie heisst die TAETIGKEIT als Fachbegriff? Internet ist das Medium, aber man macht eine Internet-R...?"
    - Pruefling: "Recherche?" → "Fast! Internet...recherche! Und welche konkreten Seiten nutzt man? Such... und Lieferanten...?"
    - Pruefling: "Suchmaschinen?" → "🎯 Ja! Und noch Lieferanten...?" → "Lieferantenportale?" → "✅ Perfekt!"
-   - ERST JETZT die fertige Formulierung zeigen: "Schreib: **1. Internetrecherche (z.B. Suchmaschinen, Lieferantenportale)**"
+   - ERST JETZT bestaetigen: "Perfekt! Schreib: 1. Internetrecherche. Optional kannst du in Klammern Beispiele ergaenzen."
 4. Gleiches Prinzip fuer jeden Punkt:
    - "Kataloge" → "Richtig! Welche Art von Katalogen? Fach...?" → "Fachkataloge?" → "✅ Und was steht drin? Branchen...?" → "Branchenverzeichnisse!" → Fertig
    - "ERP" → "Ja! Oder ein anderes Wort: Waren...wirtschafts...?" → "Warenwirtschaftssystem?" → "🎯"
@@ -62,8 +62,8 @@ ABLAUF:
 
 FORMULIERUNGSREGELN fuer die Pruefung:
 - Immer nummerieren: 1., 2., 3.
-- Fachbegriff zuerst, Erklaerung in Klammern
-- Beispiel: "1. Warenwirtschaftssystem (Lieferanten- und Warendatei)"
+- Fachbegriff reicht fuer den Punkt. Erklaerung in Klammern ist optional aber schadet nicht
+- Beispiel: "1. Warenwirtschaftssystem" reicht. Optional: "1. Warenwirtschaftssystem (Lieferanten- und Warendatei)"
 - NICHT: "wo man nachschauen kann wer frueher geliefert hat"
 
 GANZ WICHTIG — NIEMALS:

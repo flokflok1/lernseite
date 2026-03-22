@@ -75,6 +75,34 @@ class UserCrudRepository(BaseRepository):
         return user
 
     @classmethod
+    def update(cls, user_id: str, data: Dict) -> Optional[Dict]:
+        """
+        Update user fields
+
+        Args:
+            user_id: User ID (UUID)
+            data: Dictionary of fields to update
+
+        Returns:
+            Updated user data or None
+        """
+        allowed_fields = {'full_name', 'username', 'email', 'is_active'}
+        filtered = {k: v for k, v in data.items() if k in allowed_fields}
+
+        if not filtered:
+            return cls.find_by_id(user_id)
+
+        set_clause = ', '.join(f"{k} = %s" for k in filtered)
+        values = list(filtered.values()) + [user_id]
+
+        execute_query(
+            f"UPDATE core.users SET {set_clause}, updated_at = NOW() WHERE user_id = %s",
+            values
+        )
+
+        return cls.find_by_id(user_id)
+
+    @classmethod
     def find_by_email(cls, email: str) -> Optional[Dict]:
         """
         Find user by email

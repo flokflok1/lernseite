@@ -188,7 +188,7 @@ const menuCategories = computed((): MenuCategory[] => {
       key: 'overview',
       label: t('panel.nav.category.overview'),
       items: [
-        { path: '/panel', label: t('panel.nav.dashboard'), icon: '📊' },
+        { path: '/panel/admin', label: t('panel.nav.dashboard'), icon: '📊' },
       ],
     },
     {
@@ -196,31 +196,31 @@ const menuCategories = computed((): MenuCategory[] => {
       label: t('panel.nav.category.content'),
       items: [
         { path: '/panel/admin/editor', label: t('panel.nav.courseEditor'), icon: '📝' },
-        { path: '/panel/categories', label: t('panel.nav.categories'), icon: '📁' },
-        { path: '/panel/lm-routing', label: t('panel.nav.lmRouting'), icon: '📚' },
-        { path: '/panel/exams', label: t('panel.nav.exams'), icon: '📄' },
-        { path: '/panel/programs', label: t('panel.programs.admin.title'), icon: '🎓' },
-        { path: '/panel/crawler', label: t('panel.nav.crawler'), icon: '🕷️' },
+        { path: '/panel/admin/categories', label: t('panel.nav.categories'), icon: '📁' },
+        { path: '/panel/admin/lm-routing', label: t('panel.nav.lmRouting'), icon: '📚' },
+        { path: '/panel/admin/exams', label: t('panel.nav.exams'), icon: '📄' },
+        { path: '/panel/admin/programs', label: t('panel.programs.admin.title'), icon: '🎓' },
+        { path: '/panel/admin/crawler', label: t('panel.nav.crawler'), icon: '🕷️' },
       ],
     },
     {
       key: 'users',
       label: t('panel.nav.category.users'),
       items: [
-        { path: '/panel/users', label: t('panel.nav.users'), icon: '👥' },
-        { path: '/panel/groups', label: t('panel.nav.groups'), icon: '👥' },
-        { path: '/panel/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
+        { path: '/panel/admin/users', label: t('panel.nav.users'), icon: '👥' },
+        { path: '/panel/admin/groups', label: t('panel.nav.groups'), icon: '👥' },
+        { path: '/panel/admin/organisations', label: t('panel.nav.organisations'), icon: '🏢' },
       ],
     },
     {
       key: 'system',
       label: t('panel.nav.category.system'),
       items: [
-        { path: '/panel/languages', label: t('panel.nav.languages'), icon: '🌐' },
-        { path: '/panel/billing', label: t('panel.nav.billing'), icon: '💰' },
-        { path: '/panel/analytics', label: t('panel.nav.analytics'), icon: '📈' },
-        { path: '/panel/audit-logs', label: t('panel.nav.audit_logs'), icon: '📋' },
-        { path: '/panel/system-settings', label: t('panel.nav.settings'), icon: '⚙️' },
+        { path: '/panel/admin/languages', label: t('panel.nav.languages'), icon: '🌐' },
+        { path: '/panel/admin/billing', label: t('panel.nav.billing'), icon: '💰' },
+        { path: '/panel/admin/analytics', label: t('panel.nav.analytics'), icon: '📈' },
+        { path: '/panel/admin/audit-logs', label: t('panel.nav.audit_logs'), icon: '📋' },
+        { path: '/panel/admin/system-settings', label: t('panel.nav.settings'), icon: '⚙️' },
       ],
     },
   ]

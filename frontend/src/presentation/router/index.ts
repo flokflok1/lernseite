@@ -154,7 +154,7 @@ const routes: RouteRecordRaw[] = [
   // Exam Archive (fullscreen, no sidebar — MUST be before panelRoutes)
   examArchiveRoute,
 
-  // Panel Routes (System Administration)
+  // Panel Routes (System Administration) — /panel/admin/*
   panelRoutes,
 
   // Editor Routes (Course Authoring)

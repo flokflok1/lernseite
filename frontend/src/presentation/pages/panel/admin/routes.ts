@@ -1,14 +1,14 @@
 /**
- * Panel Routes - System Administration
+ * Panel Admin Routes - System Administration
  *
- * Feature-first routing for panel pages (formerly /admin)
+ * All admin routes under /panel/admin/
  * Uses PanelLayout wrapper with permission-based guards
  */
 
 import type { RouteRecordRaw } from 'vue-router'
 
 export const panelRoutes: RouteRecordRaw = {
-  path: '/panel',
+  path: '/panel/admin',
   component: () => import('@/presentation/layouts/PanelLayout.vue'),
   meta: { requiresAuth: true, requiresSystemAdmin: true },
   children: [
@@ -42,44 +42,9 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelPrograms',
       component: () => import('@/presentation/components/panel/admin/programs/ProgramManager.vue'),
     },
-    // exam-archive is a standalone fullscreen route (see examArchiveRoute below)
     {
       path: 'curriculum',
-      redirect: '/panel/exams?tab=curriculum',
-    },
-    // Legacy redirects → /panel/admin/editor
-    {
-      path: 'kurse',
-      redirect: '/panel/admin/editor',
-    },
-    {
-      path: 'roles',
-      redirect: '/panel/groups',
-    },
-    {
-      path: 'kurs-editor',
-      redirect: '/panel/admin/editor',
-    },
-    {
-      path: 'kurs-editor/:id',
-      redirect: (to) => `/panel/admin/editor/${to.params.id}`,
-    },
-    {
-      path: 'courses',
-      redirect: '/panel/admin/editor',
-    },
-    {
-      path: 'courses/:id',
-      redirect: (to) => `/panel/admin/editor/${to.params.id}`,
-    },
-    // Backward compat: /panel/editor → /panel/admin/editor
-    {
-      path: 'editor',
-      redirect: '/panel/admin/editor',
-    },
-    {
-      path: 'editor/:id',
-      redirect: (to) => `/panel/admin/editor/${to.params.id}`,
+      redirect: '/panel/admin/exams?tab=curriculum',
     },
     {
       path: 'categories',
@@ -122,10 +87,6 @@ export const panelRoutes: RouteRecordRaw = {
       component: () => import('@/presentation/pages/panel/admin/PanelGroupsPage.vue'),
     },
     {
-      path: 'ai-settings',
-      redirect: '/panel/system-settings',
-    },
-    {
       path: 'system-settings',
       name: 'PanelSystemSettings',
       component: () => import('@/presentation/pages/panel/admin/PanelSystemSettingsPage.vue'),
@@ -135,20 +96,20 @@ export const panelRoutes: RouteRecordRaw = {
       name: 'PanelCrawler',
       component: () => import('@/presentation/pages/panel/admin/PanelCrawlerPage.vue'),
     },
-    // Admin Course Editor (windowed interface within panel)
     {
-      path: 'admin/editor',
+      path: 'editor',
       name: 'PanelAdminEditor',
       component: () => import('@/presentation/pages/panel/editor/CourseEditorMain.vue'),
     },
     {
-      path: 'admin/editor/:id',
+      path: 'editor/:id',
       name: 'PanelAdminEditorDetail',
       component: () => import('@/presentation/pages/panel/admin/PanelCourseDetailPage.vue'),
       props: true,
     },
   ],
 }
+
 
 /** Standalone fullscreen route — no PanelLayout sidebar */
 export const examArchiveRoute: RouteRecordRaw = {

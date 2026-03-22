@@ -61,30 +61,12 @@ const referencedAnlagen = computed(() => {
   return pool
 })
 
-// --- Anlage inline toggle ---
-const openAnlagen = ref<Set<number>>(new Set())
-
-const toggleAnlage = (number: number) => {
-  if (openAnlagen.value.has(number)) {
-    openAnlagen.value.delete(number)
-  } else {
-    openAnlagen.value.add(number)
-  }
-  // Force reactivity
-  openAnlagen.value = new Set(openAnlagen.value)
-}
-
-const getAnlageHtml = (number: number): string => {
-  const pool = questionAnlagen.value.length > 0 ? questionAnlagen.value : props.anlagen
-  const a = pool.find(a => a.number === number)
-  if (!a) return ''
-  return DOMPurify.sanitize(a.content_html || '', {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-      'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption',
-      'ul', 'ol', 'li', 'div', 'span', 'blockquote', 'pre', 'code', 'hr', 'sup', 'sub', 'a',
-      'small', 'img'],
-    ALLOWED_ATTR: ['class', 'style', 'colspan', 'rowspan', 'href', 'title', 'alt', 'src', 'width', 'height'],
-  })
+// --- Anlage popout window ---
+const openAnlage = (number: number) => {
+  const examId = questionExamId.value
+  if (!examId) return
+  const url = `/exam-trainer/anlage/${examId}/${number}`
+  window.open(url, `anlage-${examId}-${number}`, 'width=860,height=700,menubar=no,toolbar=no')
 }
 
 const openScratchPad = () => {
@@ -201,8 +183,7 @@ defineExpose({ setResult })
         :key="a.number"
         :number="a.number"
         :title="a.title"
-        :class="openAnlagen.has(a.number) ? 'ring-2 ring-blue-500' : ''"
-        @click="toggleAnlage"
+        @click="openAnlage"
       />
       <button
         class="inline-flex items-center gap-1.5 px-2 py-1 text-xs rounded-lg
@@ -232,27 +213,6 @@ defineExpose({ setResult })
         </svg>
         {{ t('panel.examTrainer.scratchPad.title') }}
       </button>
-    </div>
-
-    <!-- Inline Anlage Content -->
-    <div v-for="a in referencedAnlagen" :key="'content-' + a.number">
-      <div
-        v-if="openAnlagen.has(a.number)"
-        class="mb-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] overflow-hidden"
-      >
-        <div class="flex items-center justify-between px-4 py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)]">
-          <span class="text-sm font-medium text-[var(--color-text)]">{{ a.title }}</span>
-          <button
-            class="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-            @click="toggleAnlage(a.number)"
-          >✕</button>
-        </div>
-        <div
-          class="p-4 text-sm text-[var(--color-text)] prose prose-invert prose-sm max-w-none overflow-auto"
-          style="max-height: 400px;"
-          v-html="getAnlageHtml(a.number)"
-        />
-      </div>
     </div>
 
     <!-- Question text -->

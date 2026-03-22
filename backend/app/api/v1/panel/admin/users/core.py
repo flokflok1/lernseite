@@ -280,18 +280,11 @@ def get_user(user_id: int):
                 'message': f'User with ID {user_id} does not exist'
             }), 404
 
-        # Check permissions: Users can view themselves, admins can view anyone, org admins can view users in their org
-        # RBAC 2.0: Use dynamic permission checking
-        from app.application.services.system.auth.permission import PermissionService
-        is_self = current_user['user_id'] == user_id
-        is_admin = PermissionService.check_threshold(current_user, 'users.view_all')
-        # hierarchy_level 5 = school_admin, company_admin
-        is_org_admin = (
-            current_user.get('hierarchy_level', 0) == 5 and
-            current_user.get('organisation_id') == user.get('organisation_id')
-        )
+        # Check permissions: Users can view themselves, admins can view anyone
+        is_self = str(current_user['user_id']) == str(user_id)
+        is_admin = current_user.get('hierarchy_level', 0) >= 500
 
-        if not (is_self or is_admin or is_org_admin):
+        if not (is_self or is_admin):
             return jsonify({
                 'success': False,
                 'error': 'Insufficient permissions',

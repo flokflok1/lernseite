@@ -119,35 +119,35 @@
 
     <!-- Ban User Modal -->
     <div v-if="showBanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.users.banUser') }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.users.banUser') }}</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ selectedUser?.full_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.banReason') }} *</label>
-            <textarea v-model="banForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" :placeholder="$t('panel.users.minChars')"></textarea>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.users.banReason') }} *</label>
+            <textarea v-model="banForm.reason" rows="3" class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
           <div class="mb-4">
             <label class="flex items-center">
-              <input v-model="banForm.permanent" type="checkbox" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
-              <span class="ml-2 text-sm text-gray-700">{{ $t('panel.users.permanentBan') }}</span>
+              <input v-model="banForm.permanent" type="checkbox" class="rounded border-[var(--color-border)] text-red-600 focus:ring-red-500" />
+              <span class="ml-2 text-sm text-[var(--color-text-primary)]">{{ $t('panel.users.permanentBan') }}</span>
             </label>
           </div>
           <div v-if="!banForm.permanent" class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.durationDays') }}</label>
-            <input v-model.number="banForm.duration_days" type="number" min="1" max="365" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="30" />
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.users.durationDays') }}</label>
+            <input v-model.number="banForm.duration_days" type="number" min="1" max="365" class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="30" />
           </div>
           <div class="mb-4">
             <label class="flex items-center">
-              <input v-model="banForm.notify_user" type="checkbox" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
-              <span class="ml-2 text-sm text-gray-700">{{ $t('panel.users.notifyByEmail') }}</span>
+              <input v-model="banForm.notify_user" type="checkbox" class="rounded border-[var(--color-border)] text-red-600 focus:ring-red-500" />
+              <span class="ml-2 text-sm text-[var(--color-text-primary)]">{{ $t('panel.users.notifyByEmail') }}</span>
             </label>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button @click="closeBanModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
+          <button @click="closeBanModal" class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:bg-[var(--color-surface-secondary)]">{{ $t('common.cancel') }}</button>
           <button @click="confirmBan" :disabled="!canSubmitBan" class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('panel.users.banUser') }}</button>
         </div>
       </div>
@@ -155,19 +155,19 @@
 
     <!-- Unban User Modal -->
     <div v-if="showUnbanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.users.unbanUser') }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.users.unbanUser') }}</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ selectedUser?.full_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.unbanReason') }} *</label>
-            <textarea v-model="unbanForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" :placeholder="$t('panel.users.minChars')"></textarea>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.users.unbanReason') }} *</label>
+            <textarea v-model="unbanForm.reason" rows="3" class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button @click="closeUnbanModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
+          <button @click="closeUnbanModal" class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:bg-[var(--color-surface-secondary)]">{{ $t('common.cancel') }}</button>
           <button @click="confirmUnban" :disabled="!canSubmitUnban" class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('panel.users.unbanUser') }}</button>
         </div>
       </div>
@@ -175,24 +175,24 @@
 
     <!-- Grant Tokens Modal -->
     <div v-if="showGrantTokensModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.users.grantTokens') }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ $t('panel.users.currentBalance') }}: {{ selectedUser?.token_balance || 0 }} Tokens</p>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.users.grantTokens') }}</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ selectedUser?.full_name }}</p>
+          <p class="text-xs text-[var(--color-text-secondary)] mt-1">{{ $t('panel.users.currentBalance') }}: {{ selectedUser?.token_balance || 0 }} Tokens</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.tokenAmount') }} *</label>
-            <input v-model.number="grantTokensForm.amount" type="number" min="1" max="1000000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="5000" />
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.users.tokenAmount') }} *</label>
+            <input v-model.number="grantTokensForm.amount" type="number" min="1" max="1000000" class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="5000" />
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.reason') }} *</label>
-            <textarea v-model="grantTokensForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" :placeholder="$t('panel.users.minChars')"></textarea>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.users.reason') }} *</label>
+            <textarea v-model="grantTokensForm.reason" rows="3" class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button @click="closeGrantTokensModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
+          <button @click="closeGrantTokensModal" class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:bg-[var(--color-surface-secondary)]">{{ $t('common.cancel') }}</button>
           <button @click="confirmGrantTokens" :disabled="!canSubmitGrantTokens" class="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('panel.users.grantTokens') }}</button>
         </div>
       </div>
@@ -200,26 +200,26 @@
 
     <!-- Verify Creator Modal -->
     <div v-if="showVerifyCreatorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.users.verifyCreator') }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</p>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.users.verifyCreator') }}</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ selectedUser?.full_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.action') }} *</label>
-            <select v-model="verifyCreatorForm.verified" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.users.action') }} *</label>
+            <select v-model="verifyCreatorForm.verified" class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
               <option :value="true">{{ $t('panel.users.verify') }}</option>
               <option :value="false">{{ $t('panel.users.revokeVerification') }}</option>
             </select>
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.users.reason') }} *</label>
-            <textarea v-model="verifyCreatorForm.reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" :placeholder="$t('panel.users.minChars')"></textarea>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.users.reason') }} *</label>
+            <textarea v-model="verifyCreatorForm.reason" rows="3" class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" :placeholder="$t('panel.users.minChars')"></textarea>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button @click="closeVerifyCreatorModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ $t('common.cancel') }}</button>
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
+          <button @click="closeVerifyCreatorModal" class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:bg-[var(--color-surface-secondary)]">{{ $t('common.cancel') }}</button>
           <button @click="confirmVerifyCreator" :disabled="!canSubmitVerifyCreator" class="px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed">
             {{ verifyCreatorForm.verified ? $t('panel.users.verify') : $t('panel.users.revoke') }}
           </button>

@@ -203,7 +203,7 @@ def create_user():
         return jsonify({'success': False, 'error': 'User creation failed', 'details': str(e)}), 500
 
 
-@users_bp.route('/<int:user_id>', methods=['DELETE'])
+@users_bp.route('/<user_id>', methods=['DELETE'])
 @admin_required
 def delete_user(user_id: int):
     """
@@ -255,7 +255,7 @@ def delete_user(user_id: int):
 # PROFILE OPERATIONS
 # =============================================================================
 
-@users_bp.route('/<int:user_id>', methods=['GET'])
+@users_bp.route('/<user_id>', methods=['GET'])
 @token_required
 def get_user(user_id: int):
     """
@@ -306,7 +306,7 @@ def get_user(user_id: int):
         return jsonify({'success': False, 'error': 'Failed to get user', 'details': str(e)}), 500
 
 
-@users_bp.route('/<int:user_id>', methods=['PUT'])
+@users_bp.route('/<user_id>', methods=['PUT'])
 @token_required
 def update_user(user_id: int):
     """

@@ -32,7 +32,7 @@ users_part2_bp = Blueprint('users_part2', __name__, url_prefix='/users')
 # STATUS MANAGEMENT
 # =============================================================================
 
-@users_part2_bp.route('/<int:user_id>/activate', methods=['POST'])
+@users_part2_bp.route('/<user_id>/activate', methods=['POST'])
 @admin_required
 def activate_user(user_id: int):
     """
@@ -72,7 +72,7 @@ def activate_user(user_id: int):
         return jsonify({'success': False, 'error': 'User activation failed', 'details': str(e)}), 500
 
 
-@users_part2_bp.route('/<int:user_id>/deactivate', methods=['POST'])
+@users_part2_bp.route('/<user_id>/deactivate', methods=['POST'])
 @admin_required
 def deactivate_user(user_id: int):
     """

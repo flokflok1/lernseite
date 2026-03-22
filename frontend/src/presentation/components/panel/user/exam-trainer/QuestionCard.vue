@@ -352,10 +352,22 @@ defineExpose({ setResult })
     <div v-if="result" class="mt-4">
       <div
         class="p-4 rounded-lg mb-4"
-        :class="result.is_correct ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-red-500/10 border border-red-500/30'"
+        :class="result.is_correct
+          ? 'bg-emerald-500/10 border border-emerald-500/30'
+          : result.points_earned > 0
+            ? 'bg-amber-500/10 border border-amber-500/30'
+            : 'bg-red-500/10 border border-red-500/30'"
       >
-        <p class="font-semibold" :class="result.is_correct ? 'text-emerald-400' : 'text-red-400'">
-          {{ result.is_correct ? t('panel.examTrainer.correct') : t('panel.examTrainer.incorrect') }}
+        <p class="font-semibold" :class="result.is_correct
+          ? 'text-emerald-400'
+          : result.points_earned > 0
+            ? 'text-amber-400'
+            : 'text-red-400'">
+          {{ result.is_correct
+            ? t('panel.examTrainer.correct')
+            : result.points_earned > 0
+              ? t('panel.examTrainer.partiallyCorrect')
+              : t('panel.examTrainer.incorrect') }}
         </p>
         <p class="text-sm mt-1 text-[var(--color-text-secondary)]">
           {{ result.points_earned }}/{{ result.max_points || question.points }}
@@ -369,6 +381,16 @@ defineExpose({ setResult })
         </h4>
         <p class="text-sm text-[var(--color-text-secondary)] whitespace-pre-line">
           {{ result.explanation }}
+        </p>
+      </div>
+
+      <!-- Musterlösung -->
+      <div v-if="result.correct_answer && !result.is_correct" class="p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20 mb-4">
+        <h4 class="font-medium text-emerald-400 mb-1">
+          Musterlösung
+        </h4>
+        <p class="text-sm text-[var(--color-text-secondary)] whitespace-pre-line">
+          {{ result.correct_answer }}
         </p>
       </div>
 

@@ -135,21 +135,25 @@ def tutor_chat() -> Tuple[Dict[str, Any], int]:
 
         # Call AI
         from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
-        tutor_provider, tutor_model = resolve_model_for_task('tutor')
-        response = AIAdapter.chat_completion(
-            messages=messages,
-            system_prompt=system_prompt,
-            provider=tutor_provider,
-            model=tutor_model,
+        try:
+            tutor_provider, tutor_model = resolve_model_for_task('tutor')
+        except RuntimeError:
+            tutor_provider, tutor_model = resolve_model_for_task('default')
+
+        # Prepend system prompt as first message
+        all_messages = [{'role': 'system', 'content': system_prompt}] + messages
+
+        adapter = AIAdapter(provider=tutor_provider, model=tutor_model)
+        response = adapter.send_messages(
+            messages=all_messages,
             temperature=0.7,
-            user_id=user_id
         )
 
         return jsonify({
             'success': True,
             'data': {
-                'message': response.get('content', ''),
-                'tokens_used': response.get('usage', {}).get('total_tokens', 0),
+                'message': response.get('output_text', ''),
+                'tokens_used': response.get('input_tokens', 0) + response.get('output_tokens', 0),
                 'context_used': context_used,
                 'session_id': session['session_id']
             }

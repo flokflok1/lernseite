@@ -14,7 +14,7 @@ interface Props {
   scenarioText: string
   solutionHint?: string  // NOT the full solution — just topic area
   questionType: string
-  points: number
+  points: number | string
 }
 
 const props = defineProps<Props>()

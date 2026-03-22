@@ -17,18 +17,18 @@ export const adminGetUsers = async (
 ): Promise<PaginatedResponse<AdminUser>> => {
   const response = await http.get<{
     success: boolean
-    users: AdminUser[]
+    items: AdminUser[]
     total: number
     page: number
-    limit: number
+    per_page: number
     total_pages: number
   }>('/users', { params })
 
   return {
-    items: response.data.users,
+    items: response.data.items,
     total: response.data.total,
     page: response.data.page,
-    limit: response.data.limit,
+    limit: response.data.per_page,
     total_pages: response.data.total_pages
   }
 }

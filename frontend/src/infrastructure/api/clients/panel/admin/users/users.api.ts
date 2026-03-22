@@ -22,7 +22,7 @@ export const adminGetUsers = async (
     page: number
     limit: number
     total_pages: number
-  }>('/admin/users', { params })
+  }>('/users', { params })
 
   return {
     items: response.data.users,
@@ -37,7 +37,7 @@ export const adminGetUserDetail = async (userId: string): Promise<AdminUser> => 
   const response = await http.get<{
     success: boolean
     user: AdminUser
-  }>(`/admin/users/${userId}`)
+  }>(`/users/${userId}`)
 
   return response.data.user
 }
@@ -46,34 +46,34 @@ export const adminUpdateUserRole = async (
   userId: string,
   role: string
 ): Promise<void> => {
-  await http.patch(`/admin/users/${userId}/role`, { role })
+  await http.patch(`/users/${userId}/role`, { role })
 }
 
 export const adminToggleUserActive = async (
   userId: string,
   isActive: boolean
 ): Promise<void> => {
-  await http.patch(`/admin/users/${userId}/status`, {
+  await http.patch(`/users/${userId}/status`, {
     is_active: isActive
   })
 }
 
 export const adminDeleteUser = async (userId: string): Promise<void> => {
-  await http.delete(`/admin/users/${userId}`)
+  await http.delete(`/users/${userId}`)
 }
 
 export const adminBanUser = async (
   userId: string,
   data: BanUserRequest
 ): Promise<void> => {
-  await http.post(`/admin/users/${userId}/ban`, data)
+  await http.post(`/users/${userId}/ban`, data)
 }
 
 export const adminUnbanUser = async (
   userId: string,
   reason: string
 ): Promise<void> => {
-  await http.post(`/admin/users/${userId}/unban`, { reason })
+  await http.post(`/users/${userId}/unban`, { reason })
 }
 
 export const adminCreateUser = async (userData: {
@@ -86,7 +86,7 @@ export const adminCreateUser = async (userData: {
   const response = await http.post<{
     success: boolean
     user: AdminUser
-  }>('/admin/users', userData)
+  }>('/users', userData)
 
   return response.data.user
 }
@@ -99,7 +99,7 @@ export const adminGrantTokens = async (
   const response = await http.post<{
     success: boolean
     new_balance: number
-  }>(`/admin/users/${userId}/tokens/grant`, {
+  }>(`/users/${userId}/tokens/grant`, {
     amount,
     reason
   })
@@ -112,7 +112,7 @@ export const adminVerifyCreator = async (
   verified: boolean,
   reason: string
 ): Promise<void> => {
-  await http.post(`/admin/users/${userId}/verify-creator`, {
+  await http.post(`/users/${userId}/verify-creator`, {
     verified,
     reason
   })

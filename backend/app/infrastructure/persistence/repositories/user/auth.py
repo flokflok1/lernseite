@@ -97,10 +97,10 @@ class UserAuthRepository(BaseRepository):
     @classmethod
     def authenticate(cls, email: str, password: str) -> Optional[Dict]:
         """
-        Authenticate user with email and password
+        Authenticate user with email or username and password
 
         Args:
-            email: User email
+            email: User email or username
             password: Plain text password
 
         Returns:
@@ -139,9 +139,9 @@ class UserAuthRepository(BaseRepository):
                     'user'
                 ) AS role
             FROM core.users u
-            WHERE u.email = %s
+            WHERE u.email = %s OR u.username = %s
             """,
-            (email,)
+            (email, email)
         )
 
         if not user:

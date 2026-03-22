@@ -3,7 +3,7 @@ set -e
 
 DOCKER_HOST="srv01-docker01-dockeradm"
 PROJECT_DIR="/home/pascal/Lernsystem"
-REMOTE_DIR="/opt/lsx"
+REMOTE_DIR="/opt/docker/apps/lsx"
 
 echo "=== LSX Deploy ==="
 echo "Syncing code to $DOCKER_HOST..."

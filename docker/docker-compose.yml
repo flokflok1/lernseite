@@ -23,9 +23,9 @@ services:
     restart: unless-stopped
     env_file: .env.docker
     volumes:
-      - lsx-uploads:/app/uploads
-      - lsx-logs:/app/logs
-      - lsx-data:/app/data
+      - /opt/docker-data/lsx/uploads:/app/uploads
+      - /opt/docker-data/lsx/logs:/app/logs
+      - /opt/docker-data/lsx/data:/app/data
     working_dir: /app
     networks:
       macvlan51:
@@ -45,21 +45,13 @@ services:
     restart: unless-stopped
     env_file: .env.docker
     volumes:
-      - lsx-uploads:/app/uploads
-      - lsx-logs:/app/logs
+      - /opt/docker-data/lsx/uploads:/app/uploads
+      - /opt/docker-data/lsx/logs:/app/logs
     working_dir: /app
     command: celery -A wsgi:celery worker --loglevel=info
     networks:
       macvlan53:
         ipv4_address: 10.0.53.3
-
-volumes:
-  lsx-uploads:
-    name: lsx-uploads
-  lsx-logs:
-    name: lsx-logs
-  lsx-data:
-    name: lsx-data
 
 networks:
   macvlan50:

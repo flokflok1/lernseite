@@ -1,0 +1,70 @@
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
+    container_name: lsx-frontend
+    restart: unless-stopped
+    networks:
+      macvlan50:
+        ipv4_address: 10.0.50.4
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend/Dockerfile
+    container_name: lsx-backend
+    restart: unless-stopped
+    env_file: .env.docker
+    volumes:
+      - lsx-uploads:/app/uploads
+      - lsx-logs:/app/logs
+      - lsx-data:/app/data
+    working_dir: /app
+    networks:
+      macvlan51:
+        ipv4_address: 10.0.51.4
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  celery:
+    build:
+      context: ..
+      dockerfile: docker/backend/Dockerfile
+    container_name: lsx-celery
+    restart: unless-stopped
+    env_file: .env.docker
+    volumes:
+      - lsx-uploads:/app/uploads
+      - lsx-logs:/app/logs
+    working_dir: /app
+    command: celery -A wsgi:celery worker --loglevel=info
+    networks:
+      macvlan53:
+        ipv4_address: 10.0.53.3
+
+volumes:
+  lsx-uploads:
+    name: lsx-uploads
+  lsx-logs:
+    name: lsx-logs
+  lsx-data:
+    name: lsx-data
+
+networks:
+  macvlan50:
+    external: true
+  macvlan51:
+    external: true
+  macvlan53:
+    external: true

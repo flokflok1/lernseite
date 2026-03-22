@@ -11,8 +11,9 @@ Pydantic models for user-related operations:
 ISO 27001:2013 compliant - Secure user data handling
 """
 
-from typing import Optional, List
+from typing import Optional, List, Union
 from datetime import datetime
+from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 import re
 
@@ -144,8 +145,15 @@ class UserResponse(UserBase):
         ...     created_at=datetime.now()
         ... )
     """
-    user_id: str = Field(..., description="User ID (UUID)")
-    organisation_id: Optional[str] = Field(None, description="Organisation ID (UUID)")
+    user_id: Union[str, UUID] = Field(..., description="User ID (UUID)")
+    organisation_id: Optional[Union[str, UUID]] = Field(None, description="Organisation ID (UUID)")
+
+    @field_validator('user_id', 'organisation_id', mode='before')
+    @classmethod
+    def coerce_uuid_to_str(cls, v):
+        if v is not None:
+            return str(v)
+        return v
     two_factor_enabled: bool = Field(default=False, description="2FA enabled")
     email_verified: bool = Field(default=False, description="Email verified")
     is_active: bool = Field(default=True, description="Account active status")

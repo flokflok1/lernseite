@@ -129,10 +129,16 @@ def import_folder():
     if not os.path.isdir(folder):
         return jsonify({'success': False, 'error': f'Folder not found: {folder}'}), 404
 
-    summary = ExamArchiveService.import_folder(folder)
+    # Optional exam_type_key from query or body (for AP2 imports)
+    exam_type_key = request.args.get('exam_type_key')
+    if not exam_type_key and request.is_json:
+        exam_type_key = request.get_json(silent=True).get('exam_type_key') if request.get_json(silent=True) else None
+
+    summary = ExamArchiveService.import_folder(folder, exam_type_key=exam_type_key)
     return jsonify({
         'success': True,
         'folder': folder,
+        'exam_type_key': exam_type_key,
         'summary': summary,
     })
 

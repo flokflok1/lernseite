@@ -62,6 +62,13 @@ PART_PATTERNS = [
     # AP Teil 1 / AP1 as combined exam (not split into GA1/GA2/WK)
     (r'ap[\s_\-]?teil[\s_\-]?1', 'AP1'),
     (r'(?:^|[\s_\-(])ap1(?:[\s_\-.]|$)', 'AP1'),
+    # AP2 parts (PB = Prüfungsbereich)
+    (r'(?:^|[\s_\-(])pb1(?:[\s_\-.]|$)', 'PB1'),
+    (r'(?:^|[\s_\-(])pb2(?:[\s_\-.]|$)', 'PB2'),
+    (r'(?:^|[\s_\-(])pb3(?:[\s_\-.]|$)', 'PB3'),
+    # AP2 content-based detection (for filenames like "Konzeption und Administration...")
+    (r'konzeption\s+und\s+administration', 'PB2'),
+    (r'analyse\s+und\s+entwicklung', 'PB3'),
 ]
 
 # Solution markers (ö, oe, o variants + plural forms + abbreviation)
@@ -98,6 +105,24 @@ def _parse_season_year_from_folder(folder_name: str) -> Dict[str, Any]:
     return result
 
 
+def _normalize_filename(filename: str) -> str:
+    """Fix mojibake encoding in filenames (CP1252/Latin-1 read as UTF-8)."""
+    replacements = {
+        '\u00c2\u00fc': 'ü', '\u00c3\u00bc': 'ü',
+        '\u00c2\u00f6': 'ö', '\u00c3\u00b6': 'ö',
+        '\u00c2\u00e4': 'ä', '\u00c3\u00a4': 'ä',
+        '\u00c2\u00dc': 'Ü', '\u00c3\u009c': 'Ü',
+        '\u00c2\u00d6': 'Ö', '\u00c3\u0096': 'Ö',
+        '\u00c2\u00c4': 'Ä', '\u00c3\u0084': 'Ä',
+        '┬ü': 'ü', '┬ö': 'ö', '┬ä': 'ä',
+        '┬Ü': 'Ü', '┬Ö': 'Ö', '┬Ä': 'Ä',
+        'µ®▓': 'ö', '´┐¢': 'ü',
+    }
+    for bad, good in replacements.items():
+        filename = filename.replace(bad, good)
+    return filename
+
+
 def _parse_filename(filename: str, parent_folder: str) -> Dict[str, Any]:
     """
     Parse an exam PDF filename to extract metadata.
@@ -110,6 +135,7 @@ def _parse_filename(filename: str, parent_folder: str) -> Dict[str, Any]:
         Dict with keys: part, season, year, profession, is_solution,
                         region, semester
     """
+    filename = _normalize_filename(filename)
     stem = os.path.splitext(filename)[0]
     lower = stem.lower()
 
@@ -259,7 +285,9 @@ class ExamArchiveService:
         return result
 
     @staticmethod
-    def import_paper(paper: Dict) -> Optional[str]:
+    def import_paper(
+        paper: Dict, exam_type_key: str | None = None,
+    ) -> Optional[str]:
         """
         Import a single exam paper into the database.
 
@@ -268,6 +296,8 @@ class ExamArchiveService:
 
         Args:
             paper: Dict from scan_folder() with filepath, meta, etc.
+            exam_type_key: Override exam type (e.g. FI_AP2_FISI).
+                           If None, resolves from profession or defaults to FI_AP1.
 
         Returns:
             exam_id if created, None if skipped (duplicate)
@@ -351,12 +381,15 @@ class ExamArchiveService:
         return None
 
     @classmethod
-    def import_folder(cls, folder_path: str) -> Dict[str, Any]:
+    def import_folder(
+        cls, folder_path: str, exam_type_key: str | None = None,
+    ) -> Dict[str, Any]:
         """
         Scan and import all exam PDFs from a folder.
 
         Args:
             folder_path: Absolute path to root exam folder
+            exam_type_key: Override exam type for all papers in folder
 
         Returns:
             Summary dict with imported, skipped, errors counts
@@ -372,7 +405,7 @@ class ExamArchiveService:
 
         for paper in papers:
             try:
-                exam_id = cls.import_paper(paper)
+                exam_id = cls.import_paper(paper, exam_type_key=exam_type_key)
                 if exam_id:
                     summary['imported'] += 1
                     summary['details'].append({
@@ -471,7 +504,9 @@ class ExamArchiveService:
         if meta.get('part'):
             exam_data['part'] = meta['part']
         exam_data['exam_type_key'] = (
-            _resolve_exam_type_key(meta.get('profession', '')) or 'FI_AP1'
+            exam_type_key
+            or _resolve_exam_type_key(meta.get('profession', ''))
+            or 'FI_AP1'
         )
         if folder_id:
             exam_data['folder_id'] = folder_id

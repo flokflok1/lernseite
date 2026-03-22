@@ -6,9 +6,9 @@
       <Input
         id="email"
         v-model="form.email"
-        type="email"
-        :label="t('auth.email')"
-        placeholder="user@example.com"
+        type="text"
+        :label="t('auth.emailOrUsername')"
+        :placeholder="t('auth.emailOrUsernamePlaceholder')"
         :required="true"
         :error="errors.email"
       />

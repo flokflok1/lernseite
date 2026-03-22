@@ -349,18 +349,24 @@ class ExamArchiveService:
             'settings': settings if settings else None,
         }
 
+        # Set exam_type_key
+        resolved_type = (
+            exam_type_key
+            or _resolve_exam_type_key(meta.get('profession', ''))
+            or 'FI_AP1'
+        )
+        exam_data['exam_type_key'] = resolved_type
+
         # Remove None values to let DB defaults apply
         exam_data = {k: v for k, v in exam_data.items() if v is not None}
 
         result = ExamRepository.create_exam(exam_data)
         if result:
             exam_id = result.get('exam_id')
-            logger.info("Imported exam: %s (id=%s)", title, exam_id)
+            logger.info("Imported exam: %s (id=%s, type=%s)", title, exam_id, resolved_type)
 
             # Assign to session if year+season+type available
-            type_key = _resolve_exam_type_key(
-                meta.get('profession', '')
-            )
+            type_key = resolved_type
             if meta.get('year') and meta.get('season') and type_key:
                 session = ExamSessionRepository.find_or_create(
                     exam_type_key=type_key,

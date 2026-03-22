@@ -68,7 +68,7 @@ PART_PATTERNS = [
     (r'(?:^|[\s_\-(])pb3(?:[\s_\-.]|$)', 'PB3'),
     # AP2 content-based detection (for filenames like "Konzeption und Administration...")
     (r'konzeption\s+und\s+administration', 'PB2'),
-    (r'analyse\s+und\s+entwicklung', 'PB3'),
+    (r'analyse\s+und\s+entwickl?e?ung', 'PB3'),
 ]
 
 # Solution markers (ö, oe, o variants + plural forms + abbreviation)
@@ -117,6 +117,7 @@ def _normalize_filename(filename: str) -> str:
         '┬ü': 'ü', '┬ö': 'ö', '┬ä': 'ä',
         '┬Ü': 'Ü', '┬Ö': 'Ö', '┬Ä': 'Ä',
         'µ®▓': 'ö', '´┐¢': 'ü',
+        'ÔÇØ': 'ö', 'ÔÇ£': 'ö',
     }
     for bad, good in replacements.items():
         filename = filename.replace(bad, good)

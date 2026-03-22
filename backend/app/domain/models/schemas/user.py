@@ -117,15 +117,13 @@ class UserUpdate(BaseModel):
 
 class UserLogin(BaseModel):
     """
-    User login model
+    User login model — accepts email or username
 
     Example:
-        >>> login_data = UserLogin(
-        ...     email="user@example.com",
-        ...     password="SecurePass123!"
-        ... )
+        >>> login_data = UserLogin(email="user@example.com", password="SecurePass123!")
+        >>> login_data = UserLogin(email="admin", password="SecurePass123!")
     """
-    email: EmailStr = Field(..., description="User email address")
+    email: str = Field(..., min_length=1, description="Email or username")
     password: str = Field(..., description="User password")
     totp_code: Optional[str] = Field(
         default=None,

@@ -6,27 +6,27 @@ PROJECT_DIR="/home/pascal/Lernsystem"
 REMOTE_DIR="/opt/docker/apps/lsx"
 
 echo "=== LSX Deploy ==="
-echo "Syncing code to $DOCKER_HOST..."
 
-# Sync code to Docker host (protect .env.docker on remote!)
+# 1. Build frontend locally
+echo "Building frontend..."
+cd "$PROJECT_DIR/frontend" && npm run build
+cd "$PROJECT_DIR"
+
+# 2. Sync code to Docker host
+echo "Syncing to $DOCKER_HOST..."
 rsync -avz --delete \
   --exclude='node_modules' \
   --exclude='venv' \
   --exclude='__pycache__' \
   --exclude='.git' \
-  --exclude='.env' \
-  --exclude='.env.docker' \
   --exclude='*.pyc' \
   --exclude='.superpowers' \
   --exclude='.worktrees' \
-  --exclude='backend/logs/*' \
-  --exclude='backend/uploads/*' \
   "$PROJECT_DIR/" "$DOCKER_HOST:$REMOTE_DIR/"
 
-echo "Building and restarting containers..."
-
-# Build images + restart containers on Docker host
-ssh "$DOCKER_HOST" "cd $REMOTE_DIR/docker && docker compose build --parallel && docker compose up -d"
+# 3. Restart containers (rebuild only if requirements.txt changed)
+echo "Restarting containers..."
+ssh "$DOCKER_HOST" "cd $REMOTE_DIR/docker && docker compose up -d --build"
 
 echo ""
 echo "=== Deploy complete ==="

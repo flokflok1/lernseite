@@ -7,19 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev gcc wget && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies first (cache layer)
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies (code comes via bind mount at runtime)
+COPY backend/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
-# Copy application code
-COPY backend/ .
-
-# Create data directories
-RUN mkdir -p uploads logs data
-
-EXPOSE 8000
-
-# Worker class controlled by GUNICORN_WORKER_CLASS env var (read in wsgi.py)
 ENV GUNICORN_WORKER_CLASS=eventlet
 
 CMD ["gunicorn", "-c", "config/gunicorn.conf.py", "wsgi:app"]

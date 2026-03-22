@@ -7,10 +7,13 @@ Creates and validates .lsx-installed marker file.
 ISO 9001:2015 compliant - Installation verification
 """
 
+import logging
 import os
 import json
 from typing import Dict, Optional
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 class InstallationChecker:
@@ -21,7 +24,7 @@ class InstallationChecker:
     File contains metadata about the installation.
     """
 
-    INSTALL_MARKER_FILE = '.lsx-installed'
+    INSTALL_MARKER_FILE = os.environ.get('LSX_INSTALL_MARKER', '.lsx-installed')
 
     @staticmethod
     def is_installed() -> bool:
@@ -37,6 +40,15 @@ class InstallationChecker:
             ... else:
             ...     print("Run setup wizard")
         """
+        # Docker: skip setup wizard if LSX_SKIP_SETUP=true (existing DB)
+        if os.environ.get('LSX_SKIP_SETUP', '').lower() == 'true':
+            # Auto-create marker if it doesn't exist
+            if not os.path.exists(InstallationChecker.INSTALL_MARKER_FILE):
+                InstallationChecker.mark_as_installed(
+                    version='docker-skip',
+                    database_version='existing'
+                )
+            return True
         return os.path.exists(InstallationChecker.INSTALL_MARKER_FILE)
 
     @staticmethod
@@ -60,7 +72,7 @@ class InstallationChecker:
             with open(InstallationChecker.INSTALL_MARKER_FILE, 'r') as f:
                 return json.load(f)
         except Exception as e:
-            print(f"Error reading install info: {e}")
+            logger.error(f"Error reading install info: {e}")
             return None
 
     @staticmethod
@@ -109,30 +121,31 @@ class InstallationChecker:
             # ALSO write marker to frontend/public/ for offline detection
             # This allows frontend to detect installation even when backend is down
             # Path: backend/app/setup/install_check.py -> ../../.. = backend/ -> ../frontend/public/
-            frontend_marker_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
-                'frontend', 'public', '.lsx-installed'
-            )
-
-            try:
-                os.makedirs(os.path.dirname(frontend_marker_path), exist_ok=True)
-                with open(frontend_marker_path, 'w') as f:
-                    # Write minimal info to frontend marker (no sensitive data)
-                    frontend_info = {
-                        'installed': True,
-                        'version': version,
-                        'installed_at': install_info['installed_at']
-                    }
-                    json.dump(frontend_info, f, indent=2)
-                print(f"[Install Check] Frontend marker created at {frontend_marker_path}")
-            except Exception as fe:
-                print(f"[Install Check] Warning: Could not create frontend marker: {fe}")
-                # Don't fail if frontend marker fails - backend marker is source of truth
+            # Skip frontend marker in Docker (frontend is a separate container)
+            if not os.environ.get('DOCKER'):
+                try:
+                    frontend_marker_path = os.path.join(
+                        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+                        'frontend', 'public', '.lsx-installed'
+                    )
+                    os.makedirs(os.path.dirname(frontend_marker_path), exist_ok=True)
+                    with open(frontend_marker_path, 'w') as f:
+                        # Write minimal info to frontend marker (no sensitive data)
+                        frontend_info = {
+                            'installed': True,
+                            'version': version,
+                            'installed_at': install_info['installed_at']
+                        }
+                        json.dump(frontend_info, f, indent=2)
+                    logger.info(f"[Install Check] Frontend marker created at {frontend_marker_path}")
+                except Exception as fe:
+                    logger.warning(f"[Install Check] Warning: Could not create frontend marker: {fe}")
+                    # Don't fail if frontend marker fails - backend marker is source of truth
 
             return True
 
         except Exception as e:
-            print(f"Error creating install marker: {e}")
+            logger.error(f"Error creating install marker: {e}")
             return False
 
     @staticmethod
@@ -162,13 +175,13 @@ class InstallationChecker:
             )
             if os.path.exists(frontend_marker_path):
                 os.remove(frontend_marker_path)
-                print(f"[Install Check] Frontend marker removed")
+                logger.info("[Install Check] Frontend marker removed")
                 removed = True
 
             return removed
 
         except Exception as e:
-            print(f"Error removing install marker: {e}")
+            logger.error(f"Error removing install marker: {e}")
             return False
 
     @staticmethod

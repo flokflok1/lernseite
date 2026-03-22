@@ -149,7 +149,8 @@ class InfrastructureVerificationChecks:
     @staticmethod
     def check_installation_marker() -> Dict:
         """Check .lsx-installed marker file exists"""
-        marker_file = '.lsx-installed'
+        from app.setup.diagnostics.install import InstallationChecker
+        marker_file = InstallationChecker.INSTALL_MARKER_FILE
 
         if not os.path.exists(marker_file):
             return {

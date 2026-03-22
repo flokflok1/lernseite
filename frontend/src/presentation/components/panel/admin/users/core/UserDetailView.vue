@@ -61,7 +61,37 @@
           <dl class="space-y-3">
             <div>
               <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.userId') }}</dt>
-              <dd class="text-sm text-[var(--color-text-primary)]">{{ user.user_id }}</dd>
+              <dd class="text-sm text-[var(--color-text-primary)] font-mono">{{ user.user_id }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.name') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">
+                <div v-if="!editingName" class="flex items-center gap-2">
+                  <span>{{ user.full_name }}</span>
+                  <button @click="startEditName" class="text-primary-500 hover:text-primary-600 text-xs">✎</button>
+                </div>
+                <div v-else class="flex items-center gap-2">
+                  <input v-model="editForm.full_name" class="px-2 py-1 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded w-full" />
+                  <button @click="saveField('full_name')" class="text-green-500 hover:text-green-600 text-sm">✓</button>
+                  <button @click="editingName = false" class="text-red-500 hover:text-red-600 text-sm">✗</button>
+                </div>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.users.username') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">
+                <div v-if="!editingUsername" class="flex items-center gap-2">
+                  <span class="font-mono">{{ user.username || '-' }}</span>
+                  <button @click="startEditUsername" class="text-primary-500 hover:text-primary-600 text-xs">✎</button>
+                </div>
+                <div v-else class="flex items-center gap-2">
+                  <input v-model="editForm.username" class="px-2 py-1 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded w-full font-mono" :placeholder="$t('panel.users.usernamePlaceholder')" />
+                  <button @click="saveField('username')" class="text-green-500 hover:text-green-600 text-sm">✓</button>
+                  <button @click="editingUsername = false" class="text-red-500 hover:text-red-600 text-sm">✗</button>
+                </div>
+                <p v-if="editingUsername" class="text-xs text-[var(--color-text-secondary)] mt-1">{{ $t('panel.users.usernameHint') }}</p>
+                <p v-if="editError" class="text-xs text-red-500 mt-1">{{ editError }}</p>
+              </dd>
             </div>
             <div>
               <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.role') }}</dt>
@@ -325,6 +355,45 @@ const panelStore = usePanelStore()
 const user = ref<AdminUser | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+// Inline editing
+const editingName = ref(false)
+const editingUsername = ref(false)
+const editError = ref<string | null>(null)
+const editForm = ref({ full_name: '', username: '' })
+
+const startEditName = () => {
+  editForm.value.full_name = user.value?.full_name || ''
+  editingName.value = true
+  editError.value = null
+}
+
+const startEditUsername = () => {
+  editForm.value.username = user.value?.username || ''
+  editingUsername.value = true
+  editError.value = null
+}
+
+const saveField = async (field: string) => {
+  try {
+    editError.value = null
+    const userId = route.params.userId as string
+    const data: Record<string, string> = {}
+    data[field] = editForm.value[field as keyof typeof editForm.value]
+
+    const http = (await import('@/infrastructure/api/http')).default
+    await http.put(`/users/${userId}`, data)
+
+    // Update local state
+    if (user.value) {
+      (user.value as any)[field] = data[field]
+    }
+    editingName.value = false
+    editingUsername.value = false
+  } catch (err: any) {
+    editError.value = err.response?.data?.details || err.response?.data?.error || t('panel.users.createUserError')
+  }
+}
 
 // Modal States
 const showBanModal = ref(false)

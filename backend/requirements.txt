@@ -16,7 +16,7 @@ celery[redis]==5.3.4
 # WebSocket Support
 Flask-SocketIO==5.3.5
 python-socketio==5.10.0
-eventlet==0.33.3
+eventlet>=0.35.2
 
 # Authentication & Security
 PyJWT==2.8.0

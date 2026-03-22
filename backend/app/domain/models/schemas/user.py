@@ -46,9 +46,17 @@ class UserCreate(UserBase):
         >>> user_data = UserCreate(
         ...     email="user@example.com",
         ...     password="SecurePass123!",
-        ...     full_name="John Doe"
+        ...     full_name="John Doe",
+        ...     username="johndoe"
         ... )
     """
+    username: Optional[str] = Field(
+        default=None,
+        min_length=3,
+        max_length=50,
+        pattern=r'^[a-zA-Z0-9_-]{3,50}$',
+        description="Username (3-50 chars, alphanumeric + _ -)"
+    )
     password: str = Field(
         ...,
         min_length=12,

@@ -6,6 +6,16 @@
       <p class="text-sm text-[var(--color-text-secondary)]">{{ $t('panel.users.subtitle') }}</p>
     </div>
 
+    <!-- Create User Button -->
+    <div class="mb-4 flex justify-end">
+      <button
+        @click="showCreateModal = true"
+        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+      >
+        + {{ $t('panel.users.createUser') }}
+      </button>
+    </div>
+
     <!-- Filters & Search -->
     <div class="bg-[var(--color-surface)] rounded-lg shadow-sm p-4 mb-6 border border-[var(--color-border)]">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -218,15 +228,102 @@
         </div>
       </div>
     </div>
+    <!-- Create User Modal -->
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.users.createUser') }}</h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{{ $t('panel.users.fullName') }} *</label>
+            <input v-model="createForm.full_name" type="text" class="w-full px-3 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('panel.users.fullNamePlaceholder')" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{{ $t('panel.users.username') }}</label>
+            <input v-model="createForm.username" type="text" class="w-full px-3 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('panel.users.usernamePlaceholder')" />
+            <p class="text-xs text-[var(--color-text-secondary)] mt-1">{{ $t('panel.users.usernameHint') }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{{ $t('auth.email') }} *</label>
+            <input v-model="createForm.email" type="email" class="w-full px-3 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('panel.users.emailPlaceholder')" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{{ $t('auth.password') }} *</label>
+            <input v-model="createForm.password" type="password" class="w-full px-3 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('panel.users.passwordPlaceholder')" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{{ $t('panel.users.role') }}</label>
+            <select v-model="createForm.role" class="w-full px-3 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg">
+              <option value="user">User</option>
+              <option value="premium">Premium</option>
+              <option value="creator">Creator</option>
+              <option value="teacher">Teacher</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div v-if="createError" class="text-red-500 text-sm">{{ createError }}</div>
+        </div>
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
+          <button @click="closeCreateModal" class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:opacity-80">{{ $t('common.cancel') }}</button>
+          <button @click="submitCreateUser" :disabled="!canSubmitCreate" class="px-4 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('panel.users.create') }}</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePanelStore } from '@/application/stores/modules/admin/panel.store'
 import { useUserManagement } from '@/presentation/components/panel/admin/users/composables/useUserManagement'
 
+const { t } = useI18n()
 const panelStore = usePanelStore()
+
+// Create User Modal
+const showCreateModal = ref(false)
+const createError = ref<string | null>(null)
+const createForm = ref({
+  full_name: '',
+  username: '',
+  email: '',
+  password: '',
+  role: 'user'
+})
+
+const canSubmitCreate = computed(() =>
+  createForm.value.full_name.length > 0 &&
+  createForm.value.email.length > 0 &&
+  createForm.value.password.length >= 12
+)
+
+const closeCreateModal = () => {
+  showCreateModal.value = false
+  createError.value = null
+  createForm.value = { full_name: '', username: '', email: '', password: '', role: 'user' }
+}
+
+const submitCreateUser = async () => {
+  try {
+    createError.value = null
+    const data: Record<string, string> = {
+      email: createForm.value.email,
+      password: createForm.value.password,
+      full_name: createForm.value.full_name,
+      role: createForm.value.role
+    }
+    if (createForm.value.username) {
+      data.username = createForm.value.username
+    }
+    await panelStore.createUser(data)
+    closeCreateModal()
+    loadUsers()
+  } catch (err: any) {
+    createError.value = err.response?.data?.details || err.response?.data?.error || err.message || t('panel.users.createUserError')
+  }
+}
 
 const {
   // Search & Filters

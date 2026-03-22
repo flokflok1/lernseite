@@ -181,8 +181,8 @@ def create_user():
         user = UserRepository.create_user(
             email=user_data.email,
             password=user_data.password,
-            first_name=user_data.first_name,
-            last_name=user_data.last_name,
+            full_name=user_data.full_name,
+            username=user_data.username,
             role=user_data.role,
             organisation_id=user_data.organisation_id
         )

@@ -100,6 +100,14 @@
     "unbanReason": "Grund für Entsperrung",
     "unbanUser": "Sperre aufheben",
     "verify": "Verifizieren",
-    "verifyCreator": "Creator verifizieren"
+    "verifyCreator": "Creator verifizieren",
+    "username": "Benutzername",
+    "usernameHint": "3-50 Zeichen, a-z, 0-9, _ und -",
+    "usernamePlaceholder": "max_mustermann",
+    "fullName": "Vollstaendiger Name",
+    "fullNamePlaceholder": "Max Mustermann",
+    "emailPlaceholder": "user@example.com",
+    "passwordPlaceholder": "Min. 12 Zeichen",
+    "minPassword": "Mindestens 12 Zeichen"
   }
 }

@@ -100,6 +100,14 @@
     "unbanReason": "Powód odblokowania",
     "unbanUser": "Odblokuj użytkownika",
     "verify": "Zweryfikuj",
-    "verifyCreator": "Zweryfikuj twórcę"
+    "verifyCreator": "Zweryfikuj twórcę",
+    "username": "Nazwa użytkownika",
+    "usernameHint": "3-50 znaków, a-z, 0-9, _ i -",
+    "usernamePlaceholder": "max_mustermann",
+    "fullName": "Imię i nazwisko",
+    "fullNamePlaceholder": "Max Mustermann",
+    "emailPlaceholder": "user@example.com",
+    "passwordPlaceholder": "Min. 12 znaków",
+    "minPassword": "Co najmniej 12 znaków"
   }
 }

@@ -79,8 +79,8 @@ export const adminUnbanUser = async (
 export const adminCreateUser = async (userData: {
   email: string
   password: string
-  first_name: string
-  last_name: string
+  full_name: string
+  username?: string
   role: string
 }): Promise<AdminUser> => {
   const response = await http.post<{

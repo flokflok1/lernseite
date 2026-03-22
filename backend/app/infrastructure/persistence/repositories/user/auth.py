@@ -27,8 +27,9 @@ class UserAuthRepository(BaseRepository):
         cls,
         email: str,
         password: str,
-        first_name: str,
-        last_name: str,
+        full_name: str,
+        username: Optional[str] = None,
+        role: Optional[str] = None,
         organisation_id: Optional[int] = None
     ) -> Optional[Dict]:
         """
@@ -37,28 +38,16 @@ class UserAuthRepository(BaseRepository):
         Args:
             email: User email (unique)
             password: Plain text password (will be hashed)
-            first_name: User first name
-            last_name: User last name
+            full_name: User display name
+            username: Username (optional, auto-generated from email if not provided)
+            role: Group to assign (optional, for GBA group assignment)
             organisation_id: Organization ID (optional)
 
         Returns:
             Created user as dictionary (without password_hash)
 
         Raises:
-            ValueError: If email already exists
-
-        Note:
-            PHASE B: Users no longer have a single role. Instead, they are assigned to groups
-            via the users_groups junction table. Admin status is determined by the is_owner flag
-            and membership in the system-admin group.
-
-        Example:
-            >>> user = UserAuthRepository.create_user(
-            ...     email='user@example.com',
-            ...     password='SecurePass123!',
-            ...     first_name='John',
-            ...     last_name='Doe'
-            ... )
+            ValueError: If email or username already exists
         """
         # Check if email already exists
         existing_user = fetch_one("SELECT user_id FROM core.users WHERE email = %s", (email,))
@@ -68,27 +57,26 @@ class UserAuthRepository(BaseRepository):
         # Hash password
         password_hash = cls._hash_password(password)
 
-        # Create user (PHASE B: no role column - users belong to groups instead)
-        # Combine first_name + last_name into full_name
-        full_name = f"{first_name} {last_name}".strip()
-
-        # Generate username from email (before @) or full_name
-        # Username must be 3-50 alphanumeric chars with _ and -
+        # Username: use provided or generate from email
         import re
-        base_username = email.split('@')[0].lower()
-        # Remove invalid characters (keep only alphanumeric, _, -)
-        username = re.sub(r'[^a-z0-9_-]', '', base_username)
-        # Ensure minimum length of 3
-        if len(username) < 3:
-            username = f"user_{username}"
-        # Ensure max length of 50
-        username = username[:50]
-
-        # Check if username exists, append number if needed
-        existing_username = fetch_one("SELECT user_id FROM core.users WHERE username = %s", (username,))
-        if existing_username:
-            import uuid
-            username = f"{username[:42]}_{str(uuid.uuid4())[:6]}"
+        if username:
+            # Validate provided username
+            if not re.match(r'^[a-zA-Z0-9_-]{3,50}$', username):
+                raise ValueError("Username must be 3-50 chars, alphanumeric + _ -")
+            existing_username = fetch_one("SELECT user_id FROM core.users WHERE username = %s", (username,))
+            if existing_username:
+                raise ValueError(f"Username '{username}' already exists")
+        else:
+            # Auto-generate from email
+            base_username = email.split('@')[0].lower()
+            username = re.sub(r'[^a-z0-9_-]', '', base_username)
+            if len(username) < 3:
+                username = f"user_{username}"
+            username = username[:50]
+            existing_username = fetch_one("SELECT user_id FROM core.users WHERE username = %s", (username,))
+            if existing_username:
+                import uuid
+                username = f"{username[:42]}_{str(uuid.uuid4())[:6]}"
 
         user = execute_query(
             """

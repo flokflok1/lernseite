@@ -100,6 +100,14 @@
     "unbanReason": "Reason for unban",
     "unbanUser": "Unban User",
     "verify": "Verify",
-    "verifyCreator": "Verify Creator"
+    "verifyCreator": "Verify Creator",
+    "username": "Username",
+    "usernameHint": "3-50 chars, a-z, 0-9, _ and -",
+    "usernamePlaceholder": "max_mustermann",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Max Mustermann",
+    "emailPlaceholder": "user@example.com",
+    "passwordPlaceholder": "Min. 12 characters",
+    "minPassword": "At least 12 characters"
   }
 }

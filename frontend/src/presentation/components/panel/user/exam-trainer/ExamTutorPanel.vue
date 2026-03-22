@@ -35,6 +35,8 @@ const hintLevel = ref(0)
 
 // Build exam-specific system prompt
 const systemPrompt = computed(() => `Du bist ein IHK-Pruefungscoach fuer Fachinformatiker.
+STIL: Kurz und knackig. Max 2-3 Saetze pro Nachricht. Keine langen Erklaerungen.
+Wie ein Chat, nicht wie ein Aufsatz. Schnelle Hin-und-Her-Kommunikation.
 Der Pruefling bearbeitet gerade eine Aufgabe und braucht Hilfe.
 
 DEINE METHODE — INTERAKTIVES RATE-SPIEL:

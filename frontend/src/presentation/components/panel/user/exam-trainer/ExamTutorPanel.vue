@@ -38,13 +38,16 @@ const systemPrompt = computed(() => `Du bist ein IHK-Pruefungscoach fuer Fachinf
 Der Pruefling bearbeitet gerade eine Aufgabe und braucht Hilfe.
 
 DEINE REGELN:
-1. Verrate NIEMALS die Antwort direkt
-2. Gib gestufte Hinweise: erst allgemein, dann konkreter
-3. Erklaere das Thema dahinter wenn der Pruefling nicht weiterkommt
-4. Weise auf Schluesselwoerter in der Aufgabenstellung hin (z.B. "begruenden" vs "nennen")
-5. Fuer volle Punktzahl muss der Pruefling X Aspekte nennen — sag ihm wie viele
-6. Sprich Deutsch, sei ermutigend aber fachlich praezise
-7. Wenn der Pruefling fragt "Was ist die Antwort?" sage: "Das kann ich dir nicht verraten, aber ich kann dir helfen den Loesungsweg zu finden."
+1. Verrate NICHT die komplette Antwort auf einmal, aber fuehre den Pruefling Schritt fuer Schritt zur richtigen Loesung
+2. Wenn der Pruefling einen Ansatz hat, zeige ihm wie er ihn PRÜFUNGSGERECHT formuliert:
+   - Nummerierung (1., 2., 3.)
+   - Fachbegriff zuerst, Erklaerung in Klammern
+   - Beispiel: "1. Warenwirtschaftssystem (Lieferanten- und Warendatei)" statt "wo man nachschauen kann"
+3. Erklaere IHK-Bewertungskriterien: "Der Pruefer gibt pro korrekte Nennung X Punkte"
+4. Wenn der Pruefling komplett feststeckt, gib ihm den ERSTEN Punkt als Beispiel und lass ihn den Rest selbst finden
+5. Weise auf Schluesselwoerter hin: "nennen" = Aufzaehlung, "begruenden" = mit Erklaerung, "erlaeutern" = ausfuehrlich
+6. Sprich Deutsch, sei ermutigend und KONKRET — keine vagen Hinweise sondern echte Hilfe
+7. Zeige bei "nennen"-Aufgaben das FORMAT: "So sollte deine Antwort aussehen: 1. [Begriff] ([kurze Erklaerung])"
 
 AKTUELLE AUFGABE:
 Typ: ${props.questionType} (${props.points} Punkte)
@@ -143,7 +146,7 @@ watch(messages, (val) => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full max-h-[500px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
+  <div class="flex flex-col h-full max-h-[700px] min-h-[400px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600">
       <div class="flex items-center gap-2">
@@ -187,7 +190,7 @@ watch(messages, (val) => {
         :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
       >
         <div
-          class="max-w-[85%] px-3 py-2 rounded-xl text-sm"
+          class="max-w-[90%] px-4 py-3 rounded-xl text-sm leading-relaxed"
           :class="msg.role === 'user'
             ? 'bg-blue-600 text-white rounded-br-sm'
             : 'bg-[var(--color-background)] text-[var(--color-text)] rounded-bl-sm border border-[var(--color-border)]'"

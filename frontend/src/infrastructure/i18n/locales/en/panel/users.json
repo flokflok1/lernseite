@@ -106,7 +106,7 @@
     "usernamePlaceholder": "max_mustermann",
     "fullName": "Full Name",
     "fullNamePlaceholder": "Max Mustermann",
-    "emailPlaceholder": "user@example.com",
+    "emailPlaceholder": "user{'@'}example.com",
     "passwordPlaceholder": "Min. 12 characters",
     "minPassword": "At least 12 characters"
   }

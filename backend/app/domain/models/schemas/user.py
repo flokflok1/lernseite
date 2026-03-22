@@ -154,6 +154,7 @@ class UserResponse(UserBase):
         ... )
     """
     user_id: Union[str, UUID] = Field(..., description="User ID (UUID)")
+    username: Optional[str] = Field(None, description="Username")
     organisation_id: Optional[Union[str, UUID]] = Field(None, description="Organisation ID (UUID)")
 
     @field_validator('user_id', 'organisation_id', mode='before')

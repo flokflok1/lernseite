@@ -70,19 +70,19 @@
         <thead class="bg-[var(--color-surface-secondary)] border-b border-[var(--color-border)]">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('panel.users.name') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('panel.users.username') }}</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('auth.email') }}</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('panel.users.role') }}</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('common.status') }}</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">Tokens</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('profile.organisation') }}</th>
             <th class="px-6 py-3 text-right text-xs font-medium text-[var(--color-text-secondary)] uppercase">{{ $t('common.actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border)]">
           <tr v-for="user in panelStore.users" :key="user.user_id" class="hover:bg-[var(--color-surface-secondary)]">
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="font-medium text-[var(--color-text-primary)]">{{ user.first_name }} {{ user.last_name }}</div>
+              <div class="font-medium text-[var(--color-text-primary)]">{{ user.full_name }}</div>
             </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">{{ user.username || '-' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">{{ user.email }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="px-2 py-1 text-xs font-medium rounded-full" :class="getRoleBadgeClass(user.role)">{{ user.role }}</span>
@@ -92,8 +92,6 @@
                 {{ user.is_active ? '\u2713 ' + $t('common.active') : '\u2717 ' + $t('common.inactive') }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">{{ user.token_balance || 0 }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-secondary)]">{{ user.organisation_name || '-' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex justify-end gap-3">
                 <button @click="viewUserDetail(user.user_id)" class="px-3 py-1 text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 rounded transition-colors" :title="$t('common.details')">{{ $t('common.details') }}</button>

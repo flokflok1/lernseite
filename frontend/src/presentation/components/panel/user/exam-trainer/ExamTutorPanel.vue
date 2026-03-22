@@ -37,17 +37,34 @@ const hintLevel = ref(0)
 const systemPrompt = computed(() => `Du bist ein IHK-Pruefungscoach fuer Fachinformatiker.
 Der Pruefling bearbeitet gerade eine Aufgabe und braucht Hilfe.
 
-DEINE REGELN:
-1. Verrate NICHT die komplette Antwort auf einmal, aber fuehre den Pruefling Schritt fuer Schritt zur richtigen Loesung
-2. Wenn der Pruefling einen Ansatz hat, zeige ihm wie er ihn PRÜFUNGSGERECHT formuliert:
-   - Nummerierung (1., 2., 3.)
-   - Fachbegriff zuerst, Erklaerung in Klammern
-   - Beispiel: "1. Warenwirtschaftssystem (Lieferanten- und Warendatei)" statt "wo man nachschauen kann"
-3. Erklaere IHK-Bewertungskriterien: "Der Pruefer gibt pro korrekte Nennung X Punkte"
-4. Wenn der Pruefling komplett feststeckt, gib ihm den ERSTEN Punkt als Beispiel und lass ihn den Rest selbst finden
-5. Weise auf Schluesselwoerter hin: "nennen" = Aufzaehlung, "begruenden" = mit Erklaerung, "erlaeutern" = ausfuehrlich
-6. Sprich Deutsch, sei ermutigend und KONKRET — keine vagen Hinweise sondern echte Hilfe
-7. Zeige bei "nennen"-Aufgaben das FORMAT: "So sollte deine Antwort aussehen: 1. [Begriff] ([kurze Erklaerung])"
+DEINE METHODE — INTERAKTIVES RATE-SPIEL:
+Du fuehrst den Pruefling wie bei einem Quiz Schritt fuer Schritt zur Antwort.
+
+ABLAUF:
+1. Zaehle wie viele Punkte die Aufgabe verlangt (z.B. "Du brauchst 4 Nennungen: je 2 interne und 2 externe")
+2. Frag nach dem ERSTEN Punkt: "Fangen wir an — faellt dir eine externe Bezugsquelle ein?"
+3. Wenn der Pruefling etwas nennt (auch umgangssprachlich):
+   - Bestaetigung: "Richtig gedacht! 🎯"
+   - Zeige die Pruefungsformulierung: "Schreib: **1. Internetrecherche (z.B. Suchmaschinen, Lieferantenportale)**"
+   - Dann frag nach dem naechsten: "Weiter — noch eine externe?"
+4. Wenn der Pruefling nicht weiterkommt:
+   - Gib einen kleinen Tipp wie beim Galgenmaennchen: "Der Begriff beginnt mit F... und hat mit gedruckten Verzeichnissen zu tun..."
+   - Wird es nicht: Noch ein Tipp: "Man kann sie in Buchhandlungen kaufen... Fach-K..."
+   - Immer noch nicht: Loesung zeigen: "Das waere: **Fachkataloge (Branchenverzeichnisse)**"
+5. Am Ende: "Fertig! Hier ist deine komplette Antwort zum Abschicken:" und zeige alle Punkte formatiert
+
+FORMULIERUNGSREGELN fuer die Pruefung:
+- Immer nummerieren: 1., 2., 3.
+- Fachbegriff zuerst, Erklaerung in Klammern
+- Beispiel: "1. Warenwirtschaftssystem (Lieferanten- und Warendatei)"
+- NICHT: "wo man nachschauen kann wer frueher geliefert hat"
+
+WICHTIG:
+- Sei ermutigend bei jedem richtigen Ansatz, auch wenn die Wortwahl noch nicht perfekt ist
+- "Google" → "Richtig! In der Pruefung heisst das: Internetrecherche"
+- "Kataloge" → "Genau! Pruefungsbegriff: Fachkataloge"
+- Verwende Emojis sparsam fuer Motivation (🎯 ✅ 💡)
+- Sprich Deutsch, locker aber fachlich
 
 AKTUELLE AUFGABE:
 Typ: ${props.questionType} (${props.points} Punkte)
@@ -104,24 +121,16 @@ const sendMessage = async (text?: string) => {
   }
 }
 
-const getHint = () => {
-  hintLevel.value++
-  const hints = [
-    t('panel.examTrainer.tutor.hints.start'),
-    t('panel.examTrainer.tutor.hints.specific'),
-    t('panel.examTrainer.tutor.hints.explain'),
-    t('panel.examTrainer.tutor.hints.grading'),
-  ]
-  const hint = hints[Math.min(hintLevel.value - 1, hints.length - 1)]
-  sendMessage(hint)
+const startGuidedSolving = () => {
+  sendMessage('Lass uns die Aufgabe zusammen lösen. Frag mich Schritt für Schritt nach jedem Punkt den ich nennen muss.')
 }
 
 const explainTopic = () => {
-  sendMessage(t('panel.examTrainer.tutor.actions.explain'))
+  sendMessage('Erkläre mir das Thema hinter dieser Aufgabe einfach und verständlich.')
 }
 
-const showExample = () => {
-  sendMessage(t('panel.examTrainer.tutor.actions.example'))
+const showFormattingHelp = () => {
+  sendMessage('Zeig mir wie ich meine Antwort für die IHK-Prüfung richtig formatiere.')
 }
 
 const questionLabel = computed(() => {
@@ -163,21 +172,21 @@ watch(messages, (val) => {
     <div class="flex gap-2 px-3 py-2 border-b border-[var(--color-border)] bg-[var(--color-background)]">
       <button
         class="px-2.5 py-1 text-xs rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors"
-        @click="getHint"
+        @click="startGuidedSolving"
       >
-        {{ t('panel.examTrainer.tutor.buttons.hint') }}
+        🎯 Gemeinsam lösen
       </button>
       <button
         class="px-2.5 py-1 text-xs rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
         @click="explainTopic"
       >
-        {{ t('panel.examTrainer.tutor.buttons.explain') }}
+        📚 Thema erklären
       </button>
       <button
         class="px-2.5 py-1 text-xs rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
-        @click="showExample"
+        @click="showFormattingHelp"
       >
-        {{ t('panel.examTrainer.tutor.buttons.example') }}
+        ✍️ Formulierung
       </button>
     </div>
 

@@ -86,7 +86,7 @@ class UserCrudRepository(BaseRepository):
         Returns:
             Updated user data or None
         """
-        allowed_fields = {'full_name', 'username', 'email', 'is_active'}
+        allowed_fields = {'full_name', 'username', 'email', 'is_active', 'password_hash'}
         filtered = {k: v for k, v in data.items() if k in allowed_fields}
 
         if not filtered:

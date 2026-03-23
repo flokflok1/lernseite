@@ -200,22 +200,16 @@ def admin_required(fn: Callable) -> Callable:
         user = g.current_user
         user_id = user.get('user_id')
 
-        # Check if user has admin permission via group membership (GBA)
-        from app.application.services.system.auth.permission import PermissionService
+        # Check admin access: hierarchy_level >= 500 (admin/owner) OR GBA permission
+        hierarchy_level = user.get('hierarchy_level', 0)
+        has_permission = hierarchy_level >= 500
 
-        # Ensure user has groups populated for permission check
-        # If 'groups' not in user dict, use 'role' as single group (from find_by_id)
-        if 'groups' not in user and 'role' in user:
-            user['groups'] = [user['role']]
-
-        # Check if user has admin system access permission (GBA)
-        # Uses admin.system:read as the baseline admin permission
-        has_permission = PermissionService.check_permission(user, 'admin.system:read')
-
-        # Fallback: If no permission via groups, check by user_id directly
-        if not has_permission and user_id:
-            user_perms = PermissionService.get_user_permissions(user_id)
-            has_permission = 'admin.system:read' in user_perms
+        if not has_permission:
+            # Fallback: check GBA permission
+            from app.application.services.system.auth.permission import PermissionService
+            if 'groups' not in user and 'role' in user:
+                user['groups'] = [user['role']]
+            has_permission = PermissionService.check_permission(user, 'admin.system:read')
 
         if not has_permission:
             user_groups = user.get('groups', [])

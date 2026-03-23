@@ -7,6 +7,7 @@ import TopicHeatmap from './TopicHeatmap.vue'
 import ProgressDashboard from './ProgressDashboard.vue'
 import TopicPrognosis from './TopicPrognosis.vue'
 import QuestionBrowser from './QuestionBrowser.vue'
+import PracticeConfigPanel from './PracticeConfigPanel.vue'
 import type { TrainerQuestion, TrainerExam, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
 import type { TrainerDashboard } from '@/infrastructure/api/clients/panel/user/exams'
 import {
@@ -14,6 +15,8 @@ import {
   trainerGenerateExam,
   trainerGetAnlagen,
   trainerPracticeSingle,
+  practiceStartSession,
+  type PracticeSessionConfig,
 } from '@/infrastructure/api/clients/panel/user/exams'
 
 const props = withDefaults(defineProps<{
@@ -71,7 +74,6 @@ onMounted(async () => {
 })
 
 const examModes = [
-  { key: 'practice', icon: '\uD83D\uDCD6', labelKey: 'panel.examTrainer.adaptive.modePractice', questions: 10, minutes: 0 },
   { key: 'quick', icon: '\u26A1', labelKey: 'panel.examTrainer.adaptive.modeQuick', questions: 10, minutes: 30 },
   { key: 'half', icon: '\uD83D\uDCDD', labelKey: 'panel.examTrainer.adaptive.modeHalf', questions: 20, minutes: 45 },
   { key: 'full', icon: '\uD83C\uDFAF', labelKey: 'panel.examTrainer.adaptive.modeFull', questions: 40, minutes: 90 },
@@ -101,6 +103,25 @@ const startAdaptiveExam = async (questionCount: number = 20, durationMinutes: nu
     simAnlagen.value = allAnlagen
 
     view.value = 'simulation'
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+const startPracticeSession = async (config: PracticeSessionConfig) => {
+  isGenerating.value = true
+  try {
+    const result = await practiceStartSession(config)
+    if (!result.attempt_id) return
+    simQuestions.value = result.questions as unknown as TrainerQuestion[]
+    simAttemptId.value = result.attempt_id
+    simDuration.value = config.time_limit_minutes || 0
+    const examIds = [...new Set(result.questions.map(q => q.exam_id))]
+    const anlagenArrays = await Promise.all(examIds.map(id => trainerGetAnlagen(id)))
+    simAnlagen.value = anlagenArrays.flat()
+    view.value = 'simulation'
+  } catch (e) {
+    console.error('Practice session failed:', e)
   } finally {
     isGenerating.value = false
   }
@@ -229,7 +250,11 @@ const handlePracticeQuestion = async (questionId: string) => {
         <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
           {{ t('panel.examTrainer.adaptive.startExam') }}
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Practice Config Panel -->
+        <PracticeConfigPanel :disabled="isGenerating" @start="startPracticeSession" />
+
+        <!-- Timed Exam Modes -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <button
             v-for="mode in examModes"
             :key="mode.key"
@@ -242,10 +267,7 @@ const handlePracticeQuestion = async (questionId: string) => {
             <div class="text-2xl mb-2">{{ mode.icon }}</div>
             <div class="font-semibold text-[var(--color-text)] mb-1">{{ t(mode.labelKey) }}</div>
             <div class="text-sm text-[var(--color-text-secondary)]">
-              {{ mode.minutes > 0
-                ? t('panel.examTrainer.adaptive.modeDesc', { count: mode.questions, minutes: mode.minutes })
-                : t('panel.examTrainer.adaptive.modePracticeDesc', { count: mode.questions })
-              }}
+              {{ t('panel.examTrainer.adaptive.modeDesc', { count: mode.questions, minutes: mode.minutes }) }}
             </div>
           </button>
         </div>

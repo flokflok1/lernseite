@@ -114,6 +114,21 @@ class UserCrudRepository(BaseRepository):
         return cls.find_by_id(user_id)
 
     @classmethod
+    def hard_delete(cls, user_id: str) -> bool:
+        """
+        Permanently delete user and all related data
+
+        Args:
+            user_id: User ID (UUID)
+
+        Returns:
+            True if deleted
+        """
+        execute_query("DELETE FROM core.users_groups WHERE user_id = %s", (user_id,))
+        execute_query("DELETE FROM core.users WHERE user_id = %s", (user_id,))
+        return True
+
+    @classmethod
     def find_by_email(cls, email: str) -> Optional[Dict]:
         """
         Find user by email

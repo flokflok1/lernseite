@@ -242,8 +242,8 @@ def delete_user(user_id: int):
                 'message': f'User with ID {user_id} does not exist'
             }), 404
 
-        # Soft delete: deactivate user
-        UserRepository.update(user_id, {'is_active': False})
+        # Hard delete
+        UserRepository.hard_delete(user_id)
 
         return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
 

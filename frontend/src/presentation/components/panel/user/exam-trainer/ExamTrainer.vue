@@ -8,12 +8,12 @@ import ProgressDashboard from './ProgressDashboard.vue'
 import TopicPrognosis from './TopicPrognosis.vue'
 import QuestionBrowser from './QuestionBrowser.vue'
 import PracticeConfigPanel from './PracticeConfigPanel.vue'
-import type { TrainerQuestion, TrainerExam, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
+import { usePracticeAnlagen } from '@/application/composables/panel/user/exam-trainer/usePracticeAnlagen'
+import type { TrainerQuestion, TrainerExam } from '@/infrastructure/api/clients/panel/user/exams'
 import type { TrainerDashboard } from '@/infrastructure/api/clients/panel/user/exams'
 import {
   trainerGetDashboard,
   trainerGenerateExam,
-  trainerGetAnlagen,
   trainerPracticeSingle,
   practiceStartSession,
   type PracticeSessionConfig,
@@ -37,10 +37,20 @@ const isGenerating = ref(false)
 // Simulation state
 const simQuestions = ref<TrainerQuestion[]>([])
 const simAttemptId = ref('')
-const simAnlagen = ref<Anlage[]>([])
 const simDuration = ref(90)
 const simTitle = ref('')
 const reviewAttemptId = ref<string | null>(null)
+const currentSimIndex = ref(0)
+
+// Dynamic Anlagen loading — composable handles caching + prefetch
+const { currentAnlagen, reset: resetAnlagen } = usePracticeAnlagen(
+  simQuestions as any,
+  currentSimIndex,
+)
+
+const onSimIndexChange = (index: number) => {
+  currentSimIndex.value = index
+}
 
 // Virtual exam object for SimulationMode compatibility
 const virtualExam = computed<TrainerExam>(() => ({
@@ -88,22 +98,8 @@ const startAdaptiveExam = async (questionCount: number = 20, durationMinutes: nu
     const exam = await trainerGenerateExam(questionCount, durationMinutes)
     simQuestions.value = exam.questions
     simAttemptId.value = exam.attempt_id
-
-    // Load anlagen from all source exams
-    const examIds = [...new Set(
-      exam.questions.map((q: TrainerQuestion & { exam_id?: string }) => q.exam_id).filter(Boolean)
-    )] as string[]
-    const allAnlagen: (Anlage & { exam_id?: string })[] = []
-    for (const eid of examIds) {
-      try {
-        const a = await trainerGetAnlagen(eid)
-        // Tag each anlage with its source exam_id
-        a.forEach(anlage => { (anlage as Anlage & { exam_id?: string }).exam_id = eid })
-        allAnlagen.push(...a)
-      } catch { /* some exams may have no anlagen */ }
-    }
-    simAnlagen.value = allAnlagen
-
+    currentSimIndex.value = 0
+    resetAnlagen()
     view.value = 'simulation'
   } finally {
     isGenerating.value = false
@@ -122,9 +118,8 @@ const startPracticeSession = async (config: PracticeSessionConfig) => {
       ? t('panel.examTrainer.practice.orderSequential')
       : t('panel.examTrainer.practice.orderMixed')
     simTitle.value = `${t('panel.examTrainer.practice.title')} — ${orderLabel}`
-    const examIds = [...new Set(result.questions.map(q => q.exam_id))]
-    const anlagenArrays = await Promise.all(examIds.map(id => trainerGetAnlagen(id)))
-    simAnlagen.value = anlagenArrays.flat()
+    currentSimIndex.value = 0
+    resetAnlagen()
     view.value = 'simulation'
   } catch (e) {
     console.error('Practice session failed:', e)
@@ -135,6 +130,7 @@ const startPracticeSession = async (config: PracticeSessionConfig) => {
 
 const handleSimulationExit = () => {
   view.value = 'dashboard'
+  resetAnlagen()
   trainerGetDashboard().then(d => { dashboard.value = d })
 }
 
@@ -156,15 +152,9 @@ const handlePracticeQuestion = async (questionId: string) => {
     simQuestions.value = exam.questions
     simAttemptId.value = exam.attempt_id
     simDuration.value = 0
-    // Load anlagen for this question's exam
-    const examIds = [...new Set(
-      exam.questions.map((q: TrainerQuestion & { exam_id?: string }) => q.exam_id).filter(Boolean)
-    )] as string[]
-    const allAnlagen: Anlage[] = []
-    for (const eid of examIds) {
-      try { allAnlagen.push(...await trainerGetAnlagen(eid)) } catch { /* ok */ }
-    }
-    simAnlagen.value = allAnlagen
+    simTitle.value = ''
+    currentSimIndex.value = 0
+    resetAnlagen()
     view.value = 'simulation'
   } finally {
     isGenerating.value = false
@@ -185,10 +175,11 @@ const handlePracticeQuestion = async (questionId: string) => {
       :exam="virtualExam"
       :questions="simQuestions"
       :attempt-id="simAttemptId"
-      :anlagen="simAnlagen"
+      :anlagen="currentAnlagen"
       @exit="handleSimulationExit"
       @retry="startAdaptiveExam"
       @review="handleSimulationReview"
+      @index-change="onSimIndexChange"
     />
 
     <!-- REVIEW MODE -->

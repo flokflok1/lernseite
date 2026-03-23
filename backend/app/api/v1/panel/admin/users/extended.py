@@ -121,6 +121,62 @@ def deactivate_user(user_id: int):
 
 
 # =============================================================================
+# PASSWORD MANAGEMENT
+# =============================================================================
+
+@users_part2_bp.route('/<user_id>/change-password', methods=['POST'])
+@admin_required
+def change_user_password(user_id):
+    """
+    Change user password (admin only)
+
+    Request Body:
+        {"new_password": "NewSecurePass123!"}
+    """
+    try:
+        current_user = g.current_user
+        data = request.get_json()
+        new_password = data.get('new_password', '')
+
+        if len(new_password) < 12:
+            return jsonify({
+                'success': False,
+                'error': 'Password too short',
+                'message': 'Passwort muss mindestens 12 Zeichen haben'
+            }), 400
+
+        target_user = UserRepository.find_by_id(user_id)
+        if not target_user:
+            return jsonify({
+                'success': False,
+                'error': 'User not found'
+            }), 404
+
+        # Admin can change any password, user can change own
+        is_self = str(current_user['user_id']) == str(user_id)
+        is_admin = current_user.get('hierarchy_level', 0) >= 500
+        if not (is_self or is_admin):
+            return jsonify({
+                'success': False,
+                'error': 'Insufficient permissions'
+            }), 403
+
+        UserRepository.update_password(user_id, new_password)
+
+        return jsonify({
+            'success': True,
+            'message': 'Passwort erfolgreich geaendert'
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': 'Password change failed',
+            'details': str(e)
+        }), 500
+
+
+# =============================================================================
 # SEARCH AND STATISTICS
 # =============================================================================
 

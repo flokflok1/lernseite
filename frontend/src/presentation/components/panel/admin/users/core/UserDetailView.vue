@@ -118,6 +118,24 @@
               <dd class="text-sm text-[var(--color-text-primary)]">{{ user.last_login_at ? formatDate(user.last_login_at) : $t('panel.userDetail.never') }}</dd>
             </div>
           </dl>
+
+          <!-- Password Change -->
+          <div class="mt-4 pt-4 border-t border-[var(--color-border)]">
+            <button v-if="!showPasswordForm" @click="showPasswordForm = true" class="text-sm text-primary-500 hover:text-primary-600">
+              {{ $t('panel.userDetail.changePassword') || 'Passwort aendern' }}
+            </button>
+            <div v-else class="space-y-3">
+              <h4 class="text-sm font-medium text-[var(--color-text-primary)]">{{ $t('panel.userDetail.changePassword') || 'Passwort aendern' }}</h4>
+              <input v-model="passwordForm.newPassword" type="password" class="w-full px-3 py-2 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('panel.users.passwordPlaceholder')" />
+              <input v-model="passwordForm.confirmPassword" type="password" class="w-full px-3 py-2 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('auth.confirm_password')" />
+              <p v-if="passwordError" class="text-xs text-red-500">{{ passwordError }}</p>
+              <p v-if="passwordSuccess" class="text-xs text-green-500">{{ passwordSuccess }}</p>
+              <div class="flex gap-2">
+                <button @click="savePassword" :disabled="!canSavePassword" class="px-3 py-1 text-sm text-white bg-primary-600 rounded hover:bg-primary-700 disabled:opacity-50">{{ $t('common.save') }}</button>
+                <button @click="showPasswordForm = false; passwordError = ''; passwordSuccess = ''" class="px-3 py-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{{ $t('common.cancel') }}</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Token Info -->
@@ -355,6 +373,38 @@ const panelStore = usePanelStore()
 const user = ref<AdminUser | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+// Password change
+const showPasswordForm = ref(false)
+const passwordError = ref('')
+const passwordSuccess = ref('')
+const passwordForm = ref({ newPassword: '', confirmPassword: '' })
+
+const canSavePassword = computed(() =>
+  passwordForm.value.newPassword.length >= 12 &&
+  passwordForm.value.newPassword === passwordForm.value.confirmPassword
+)
+
+const savePassword = async () => {
+  try {
+    passwordError.value = ''
+    passwordSuccess.value = ''
+    if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+      passwordError.value = t('auth.password_mismatch') || 'Passwoerter stimmen nicht ueberein'
+      return
+    }
+    const userId = route.params.userId as string
+    const http = (await import('@/infrastructure/api/http')).default
+    await http.post(`/users/${userId}/change-password`, {
+      new_password: passwordForm.value.newPassword
+    })
+    passwordSuccess.value = t('panel.userDetail.passwordChanged') || 'Passwort erfolgreich geaendert'
+    passwordForm.value = { newPassword: '', confirmPassword: '' }
+    setTimeout(() => { showPasswordForm.value = false; passwordSuccess.value = '' }, 2000)
+  } catch (err: any) {
+    passwordError.value = err.response?.data?.details || err.response?.data?.error || 'Fehler'
+  }
+}
 
 // Inline editing
 const editingName = ref(false)

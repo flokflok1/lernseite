@@ -57,7 +57,9 @@
     "unbanUser": "Unban User",
     "userId": "User ID",
     "changePassword": "Change Password",
-    "passwordChanged": "Password changed successfully"
+    "passwordChanged": "Password changed successfully",
+    "confirmDelete": "Really delete user \"{name}\"?",
+    "deleteError": "Failed to delete user"
   },
   "userGroupManagement": {
     "roles": "Roles",

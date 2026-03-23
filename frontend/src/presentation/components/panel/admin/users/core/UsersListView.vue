@@ -99,6 +99,7 @@
                 <button v-else @click="openUnbanModal(user)" class="px-3 py-1 text-green-600 hover:text-white hover:bg-green-600 border border-green-600 rounded transition-colors" :title="$t('panel.users.unbanUser')">{{ $t('panel.users.unban') }}</button>
                 <button @click="openGrantTokensModal(user)" class="px-3 py-1 text-purple-600 hover:text-white hover:bg-purple-600 border border-purple-600 rounded transition-colors" :title="$t('panel.users.grantTokens')">Tokens</button>
                 <button v-if="user.role === 'creator'" @click="openVerifyCreatorModal(user)" class="px-3 py-1 text-yellow-600 hover:text-white hover:bg-yellow-600 border border-yellow-600 rounded transition-colors" :title="$t('panel.users.verifyCreator')">{{ $t('panel.users.verify') }}</button>
+                <button v-if="user.role !== 'owner'" @click="confirmDeleteUser(user)" class="px-3 py-1 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded transition-colors" :title="$t('panel.users.delete')">{{ $t('common.delete') }}</button>
               </div>
             </td>
           </tr>
@@ -296,6 +297,16 @@ const canSubmitCreate = computed(() =>
   createForm.value.email.length > 0 &&
   createForm.value.password.length >= 12
 )
+
+const confirmDeleteUser = async (user: any) => {
+  if (!confirm(t('panel.users.confirmDelete', { name: user.full_name || user.email }))) return
+  try {
+    await panelStore.deleteUser(user.user_id)
+    loadUsers()
+  } catch (err: any) {
+    alert(err.response?.data?.error || t('panel.users.deleteError'))
+  }
+}
 
 const closeCreateModal = () => {
   showCreateModal.value = false

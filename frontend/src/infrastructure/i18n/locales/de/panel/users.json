@@ -57,7 +57,9 @@
     "unbanUser": "Sperre aufheben",
     "userId": "Benutzer-ID",
     "changePassword": "Passwort ändern",
-    "passwordChanged": "Passwort erfolgreich geaendert"
+    "passwordChanged": "Passwort erfolgreich geändert",
+    "confirmDelete": "Benutzer \"{name}\" wirklich löschen?",
+    "deleteError": "Fehler beim Löschen des Benutzers"
   },
   "userGroupManagement": {
     "roles": "Rollen",

@@ -57,7 +57,9 @@
     "unbanUser": "Odblokuj użytkownika",
     "userId": "ID użytkownika",
     "changePassword": "Zmien haslo",
-    "passwordChanged": "Haslo zostalo zmienione"
+    "passwordChanged": "Hasło zostało zmienione",
+    "confirmDelete": "Na pewno usunąć użytkownika \"{name}\"?",
+    "deleteError": "Błąd podczas usuwania użytkownika"
   },
   "userGroupManagement": {
     "roles": "Role",

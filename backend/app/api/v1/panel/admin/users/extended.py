@@ -165,7 +165,7 @@ def change_user_password(user_id):
 
         return jsonify({
             'success': True,
-            'message': 'Passwort erfolgreich geaendert'
+            'message': 'Password changed successfully'
         }), 200
 
     except Exception as e:

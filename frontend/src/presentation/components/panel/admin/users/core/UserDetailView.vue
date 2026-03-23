@@ -122,10 +122,10 @@
           <!-- Password Change -->
           <div class="mt-4 pt-4 border-t border-[var(--color-border)]">
             <button v-if="!showPasswordForm" @click="showPasswordForm = true" class="text-sm text-primary-500 hover:text-primary-600">
-              {{ $t('panel.userDetail.changePassword') || 'Passwort aendern' }}
+              {{ $t('panel.userDetail.changePassword') || 'Passwort ändern' }}
             </button>
             <div v-else class="space-y-3">
-              <h4 class="text-sm font-medium text-[var(--color-text-primary)]">{{ $t('panel.userDetail.changePassword') || 'Passwort aendern' }}</h4>
+              <h4 class="text-sm font-medium text-[var(--color-text-primary)]">{{ $t('panel.userDetail.changePassword') || 'Passwort ändern' }}</h4>
               <input v-model="passwordForm.newPassword" type="password" class="w-full px-3 py-2 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('panel.users.passwordPlaceholder')" />
               <input v-model="passwordForm.confirmPassword" type="password" class="w-full px-3 py-2 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('auth.confirm_password')" />
               <p v-if="passwordError" class="text-xs text-red-500">{{ passwordError }}</p>
@@ -390,7 +390,7 @@ const savePassword = async () => {
     passwordError.value = ''
     passwordSuccess.value = ''
     if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-      passwordError.value = t('auth.password_mismatch') || 'Passwoerter stimmen nicht ueberein'
+      passwordError.value = t('auth.password_mismatch') || 'Passwörter stimmen nicht überein'
       return
     }
     const userId = route.params.userId as string
@@ -398,7 +398,7 @@ const savePassword = async () => {
     await http.post(`/users/${userId}/change-password`, {
       new_password: passwordForm.value.newPassword
     })
-    passwordSuccess.value = t('panel.userDetail.passwordChanged') || 'Passwort erfolgreich geaendert'
+    passwordSuccess.value = t('panel.userDetail.passwordChanged') || 'Passwort erfolgreich geändert'
     passwordForm.value = { newPassword: '', confirmPassword: '' }
     setTimeout(() => { showPasswordForm.value = false; passwordSuccess.value = '' }, 2000)
   } catch (err: any) {

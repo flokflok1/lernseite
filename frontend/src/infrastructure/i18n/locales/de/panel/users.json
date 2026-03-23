@@ -56,7 +56,7 @@
     },
     "unbanUser": "Sperre aufheben",
     "userId": "Benutzer-ID",
-    "changePassword": "Passwort aendern",
+    "changePassword": "Passwort ändern",
     "passwordChanged": "Passwort erfolgreich geaendert"
   },
   "userGroupManagement": {
@@ -106,7 +106,7 @@
     "username": "Benutzername",
     "usernameHint": "3-50 Zeichen, a-z, 0-9, _ und -",
     "usernamePlaceholder": "max_mustermann",
-    "fullName": "Vollstaendiger Name",
+    "fullName": "Vollständiger Name",
     "fullNamePlaceholder": "Max Mustermann",
     "emailPlaceholder": "user{'@'}example.com",
     "passwordPlaceholder": "Min. 12 Zeichen",

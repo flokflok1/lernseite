@@ -159,7 +159,9 @@ def create_user():
         user_data = UserCreate(**data)
 
         # Owner/Admin can assign any role
-        is_owner_or_admin = current_user.get('hierarchy_level', 0) >= 500
+        hierarchy = current_user.get('hierarchy_level') or 0
+        role = current_user.get('role', '')
+        is_owner_or_admin = hierarchy >= 500 or role in ('owner', 'admin', 'superadmin')
         if not is_owner_or_admin:
             accessible_groups = get_accessible_groups(current_user)
             accessible_group_names = [g.get('frontend_role') or g.get('name') for g in accessible_groups]

@@ -12,8 +12,11 @@ Core endpoints (this file):
 - GET  /user/exam-trainer/weaknesses                — User weakness map
 - GET  /user/exam-trainer/cockpit                   — Exam cockpit dashboard
 
+Practice endpoints (practice.py):
+- GET  /user/exam-trainer/practice-config/count      — Available question count
+- POST /user/exam-trainer/practice-session           — Configurable practice session
+
 Advanced endpoints (trainer_part2.py):
-- POST /user/exam-trainer/practice-session          — Rotated practice session
 - POST /user/exam-trainer/generate-exam             — Adaptive exam generation
 - GET  /user/exam-trainer/dashboard                 — Adaptive trainer dashboard
 - GET  /user/exam-trainer/attempt/<id>/review       — Review completed attempt
@@ -47,6 +50,10 @@ trainer_bp = Blueprint(
 # Register advanced routes from part2
 from app.api.v1.panel.user.exams.trainer_part2 import register_advanced_routes
 register_advanced_routes(trainer_bp)
+
+# Register practice session routes (configurable practice mode)
+from app.api.v1.panel.user.exams.practice import register_practice_routes
+register_practice_routes(trainer_bp)
 
 
 @trainer_bp.route('/exams', methods=['GET'])

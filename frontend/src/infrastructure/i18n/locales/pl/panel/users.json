@@ -57,9 +57,7 @@
     "unbanUser": "Odblokuj użytkownika",
     "userId": "ID użytkownika",
     "changePassword": "Zmien haslo",
-    "passwordChanged": "Hasło zostało zmienione",
-    "confirmDelete": "Na pewno usunąć użytkownika \"{name}\"?",
-    "deleteError": "Błąd podczas usuwania użytkownika"
+    "passwordChanged": "Hasło zostało zmienione"
   },
   "userGroupManagement": {
     "roles": "Role",
@@ -112,6 +110,8 @@
     "fullNamePlaceholder": "Max Mustermann",
     "emailPlaceholder": "user{'@'}example.com",
     "passwordPlaceholder": "Min. 12 znaków",
-    "minPassword": "Co najmniej 12 znaków"
+    "minPassword": "Co najmniej 12 znaków",
+    "confirmDelete": "Na pewno usunąć użytkownika \"{name}\"?",
+    "deleteError": "Błąd podczas usuwania użytkownika"
   }
 }

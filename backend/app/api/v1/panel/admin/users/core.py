@@ -158,16 +158,18 @@ def create_user():
         data = request.get_json()
         user_data = UserCreate(**data)
 
-        # Check if admin can assign this role (GBA - group-based)
-        accessible_groups = get_accessible_groups(current_user)
-        accessible_group_names = [g['frontend_role'] or g['name'] for g in accessible_groups]
-        if user_data.role not in accessible_group_names:
-            return jsonify({
-                'success': False,
-                'error': 'Insufficient permissions',
-                'message': f'You cannot assign the role "{user_data.role}"',
-                'accessible_roles': accessible_group_names
-            }), 403
+        # Owner/Admin can assign any role
+        is_owner_or_admin = current_user.get('hierarchy_level', 0) >= 500
+        if not is_owner_or_admin:
+            accessible_groups = get_accessible_groups(current_user)
+            accessible_group_names = [g.get('frontend_role') or g.get('name') for g in accessible_groups]
+            if user_data.role and user_data.role not in accessible_group_names:
+                return jsonify({
+                    'success': False,
+                    'error': 'Insufficient permissions',
+                    'message': f'You cannot assign the role "{user_data.role}"',
+                    'accessible_roles': accessible_group_names
+                }), 403
 
         # Organisation admins can only create users in their organisation
         if current_user['role'] in ['school_admin', 'company_admin']:
@@ -196,10 +198,12 @@ def create_user():
         }), 201
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return jsonify({'success': False, 'error': 'Validation error', 'details': str(e)}), 400
     except ValueError as e:
-        return jsonify({'success': False, 'error': str(e)}), 400
+        return jsonify({'success': False, 'error': 'Validation error', 'details': str(e)}), 400
     except Exception as e:
+        import traceback
+        current_app.logger.error(f"User creation failed: {traceback.format_exc()}")
         return jsonify({'success': False, 'error': 'User creation failed', 'details': str(e)}), 500
 
 

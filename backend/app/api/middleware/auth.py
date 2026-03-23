@@ -200,9 +200,10 @@ def admin_required(fn: Callable) -> Callable:
         user = g.current_user
         user_id = user.get('user_id')
 
-        # Check admin access: hierarchy_level >= 500 (admin/owner) OR GBA permission
-        hierarchy_level = user.get('hierarchy_level', 0)
-        has_permission = hierarchy_level >= 500
+        # Check admin access: hierarchy_level >= 500 OR role is admin/owner
+        hierarchy_level = user.get('hierarchy_level') or 0
+        role = user.get('role', '')
+        has_permission = hierarchy_level >= 500 or role in ('owner', 'admin', 'superadmin')
 
         if not has_permission:
             # Fallback: check GBA permission

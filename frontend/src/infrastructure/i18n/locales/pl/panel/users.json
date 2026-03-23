@@ -55,7 +55,9 @@
       "title": "Odblokuj użytkownika"
     },
     "unbanUser": "Odblokuj użytkownika",
-    "userId": "ID użytkownika"
+    "userId": "ID użytkownika",
+    "changePassword": "Zmien haslo",
+    "passwordChanged": "Haslo zostalo zmienione"
   },
   "userGroupManagement": {
     "roles": "Role",

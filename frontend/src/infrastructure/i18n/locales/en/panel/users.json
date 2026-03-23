@@ -55,7 +55,9 @@
       "title": "Unban User"
     },
     "unbanUser": "Unban User",
-    "userId": "User ID"
+    "userId": "User ID",
+    "changePassword": "Change Password",
+    "passwordChanged": "Password changed successfully"
   },
   "userGroupManagement": {
     "roles": "Roles",

@@ -55,7 +55,9 @@
       "title": "Sperre aufheben"
     },
     "unbanUser": "Sperre aufheben",
-    "userId": "Benutzer-ID"
+    "userId": "Benutzer-ID",
+    "changePassword": "Passwort aendern",
+    "passwordChanged": "Passwort erfolgreich geaendert"
   },
   "userGroupManagement": {
     "roles": "Rollen",

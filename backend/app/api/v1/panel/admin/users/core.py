@@ -227,7 +227,7 @@ def delete_user(user_id: int):
         current_user = g.current_user
 
         # Prevent self-deletion
-        if current_user['user_id'] == user_id:
+        if str(current_user['user_id']) == str(user_id):
             return jsonify({
                 'success': False,
                 'error': 'Forbidden',
@@ -242,14 +242,8 @@ def delete_user(user_id: int):
                 'message': f'User with ID {user_id} does not exist'
             }), 404
 
-        if not can_manage_user(current_user, target_user):
-            return jsonify({
-                'success': False,
-                'error': 'Insufficient permissions',
-                'message': 'You do not have permission to delete this user'
-            }), 403
-
-        UserRepository.deactivate_user(user_id)
+        # Soft delete: deactivate user
+        UserRepository.update(user_id, {'is_active': False})
 
         return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
 

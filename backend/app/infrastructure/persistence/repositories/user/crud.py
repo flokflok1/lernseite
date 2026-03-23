@@ -56,7 +56,18 @@ class UserCrudRepository(BaseRepository):
                      ORDER BY g.hierarchy_level DESC
                      LIMIT 1),
                     'user'
-                ) AS role
+                ) AS role,
+                COALESCE(
+                    (SELECT g.hierarchy_level
+                     FROM core.users_groups ug
+                     JOIN core.groups g ON ug.group_id = g.id
+                     WHERE ug.user_id = u.user_id
+                       AND ug.is_active = TRUE
+                       AND ug.left_at IS NULL
+                     ORDER BY g.hierarchy_level DESC
+                     LIMIT 1),
+                    0
+                ) AS hierarchy_level
             FROM core.users u
             WHERE u.user_id = %s
             """,

@@ -449,6 +449,46 @@
         "calculation": "Rechen",
         "text": "Text"
       }
+    },
+    "practice": {
+      "title": "Freies Ueben",
+      "modeDiscover": "Entdecken",
+      "modeStrengthen": "Festigen",
+      "modeExamReady": "Pruefungsreif",
+      "orderSequential": "Sequentiell",
+      "orderMixed": "Gemischt",
+      "questionCount": "Fragenanzahl",
+      "countAll": "Alle ({count})",
+      "countEndless": "Endlos",
+      "timeLimit": "Zeitlimit",
+      "timeLimitNone": "Ohne",
+      "filter": "Filter",
+      "allExams": "Alle Pruefungen",
+      "allTopics": "Alle Themen",
+      "startButton": "Uebung starten",
+      "learningMode": "Lernmodus",
+      "streakAlert": "{count}x falsch bei {topic} - {extra} Extra-Fragen dazu?",
+      "streakAccept": "Ja",
+      "streakDecline": "Nein",
+      "spacedRepeat": "Wiederholung",
+      "difficultyUp": "Schwierigkeit gestiegen",
+      "difficultyDown": "Schwierigkeit gesenkt",
+      "summary": {
+        "title": "Zusammenfassung",
+        "strongestTopic": "Staerkstes Thema",
+        "weakestTopic": "Schwaechstes Thema",
+        "overallScore": "Gesamtergebnis",
+        "timeSpent": "Dauer",
+        "backToDashboard": "Zurueck zum Dashboard",
+        "topicBreakdown": "Themen-Aufschluesselung",
+        "correct": "Richtig",
+        "total": "Gesamt"
+      },
+      "recommendation": {
+        "strengthenFocus": "Naechstes Mal: Festigen mit Fokus {topic}",
+        "discoverMore": "Naechstes Mal: Neue Themen entdecken",
+        "examReady": "Pruefungsreif-Training empfohlen"
+      }
     }
   },
   "title": "Administration",

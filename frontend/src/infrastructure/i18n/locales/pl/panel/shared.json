@@ -449,6 +449,46 @@
         "calculation": "obliczeniowym",
         "text": "tekstowym"
       }
+    },
+    "practice": {
+      "title": "Wolna praktyka",
+      "modeDiscover": "Odkrywaj",
+      "modeStrengthen": "Utrwalaj",
+      "modeExamReady": "Gotowy na egzamin",
+      "orderSequential": "Sekwencyjny",
+      "orderMixed": "Losowy",
+      "questionCount": "Liczba pytan",
+      "countAll": "Wszystkie ({count})",
+      "countEndless": "Bez konca",
+      "timeLimit": "Limit czasu",
+      "timeLimitNone": "Brak",
+      "filter": "Filtr",
+      "allExams": "Wszystkie egzaminy",
+      "allTopics": "Wszystkie tematy",
+      "startButton": "Rozpocznij cwiczenie",
+      "learningMode": "Tryb nauki",
+      "streakAlert": "{count}x zle w {topic} - {extra} dodatkowych pytan?",
+      "streakAccept": "Tak",
+      "streakDecline": "Nie",
+      "spacedRepeat": "Powtorka",
+      "difficultyUp": "Trudnosc wzrosla",
+      "difficultyDown": "Trudnosc spadla",
+      "summary": {
+        "title": "Podsumowanie",
+        "strongestTopic": "Najmocniejszy temat",
+        "weakestTopic": "Najslabszy temat",
+        "overallScore": "Wynik ogolny",
+        "timeSpent": "Czas trwania",
+        "backToDashboard": "Powrot do pulpitu",
+        "topicBreakdown": "Podzial tematow",
+        "correct": "Poprawne",
+        "total": "Razem"
+      },
+      "recommendation": {
+        "strengthenFocus": "Nastepnym razem: Utrwalaj z naciskiem na {topic}",
+        "discoverMore": "Nastepnym razem: Odkryj nowe tematy",
+        "examReady": "Zalecany trening Gotowy na egzamin"
+      }
     }
   },
   "title": "Administracja",

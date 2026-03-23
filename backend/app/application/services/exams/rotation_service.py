@@ -190,10 +190,14 @@ def _empty_practice_result(config: PracticeConfig) -> dict:
 def _calculate_batch_size(
     question_count: Optional[int], total: int,
 ) -> int:
-    """Determine how many questions to fetch for this batch."""
+    """Determine how many questions to fetch for this batch.
+
+    Endless mode (question_count=None): batch of 50.
+    Fixed count: load all at once (no batching needed for finite sessions).
+    """
     if question_count is None:
         return min(50, total)
-    return min(question_count, total, 50)
+    return min(question_count, total)
 
 
 def _fetch_practice_questions(

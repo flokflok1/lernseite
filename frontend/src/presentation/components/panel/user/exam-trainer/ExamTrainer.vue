@@ -39,12 +39,13 @@ const simQuestions = ref<TrainerQuestion[]>([])
 const simAttemptId = ref('')
 const simAnlagen = ref<Anlage[]>([])
 const simDuration = ref(90)
+const simTitle = ref('')
 const reviewAttemptId = ref<string | null>(null)
 
 // Virtual exam object for SimulationMode compatibility
 const virtualExam = computed<TrainerExam>(() => ({
   exam_id: 'adaptive',
-  title: t('panel.examTrainer.adaptive.adaptiveExam'),
+  title: simTitle.value || t('panel.examTrainer.adaptive.adaptiveExam'),
   semester: '',
   year: new Date().getFullYear(),
   season: '',
@@ -82,6 +83,7 @@ const examModes = [
 const startAdaptiveExam = async (questionCount: number = 20, durationMinutes: number = 90) => {
   isGenerating.value = true
   simDuration.value = durationMinutes
+  simTitle.value = ''
   try {
     const exam = await trainerGenerateExam(questionCount, durationMinutes)
     simQuestions.value = exam.questions
@@ -116,6 +118,10 @@ const startPracticeSession = async (config: PracticeSessionConfig) => {
     simQuestions.value = result.questions as unknown as TrainerQuestion[]
     simAttemptId.value = result.attempt_id
     simDuration.value = config.time_limit_minutes || 0
+    const orderLabel = config.order === 'sequential'
+      ? t('panel.examTrainer.practice.orderSequential')
+      : t('panel.examTrainer.practice.orderMixed')
+    simTitle.value = `${t('panel.examTrainer.practice.title')} — ${orderLabel}`
     const examIds = [...new Set(result.questions.map(q => q.exam_id))]
     const anlagenArrays = await Promise.all(examIds.map(id => trainerGetAnlagen(id)))
     simAnlagen.value = anlagenArrays.flat()

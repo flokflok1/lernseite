@@ -1,4 +1,4 @@
-"""Exam Archive Admin API — solution analysis endpoints.
+"""Exam Archive Admin API — solution analysis + folder-level analysis endpoints.
 
 Split from archive.py per G01 (500 LOC limit).
 """
@@ -10,6 +10,13 @@ from flask import jsonify, request
 
 from app.api.middleware.auth import admin_required
 from app.infrastructure.persistence.repositories.exams.core import ExamRepository
+from app.infrastructure.persistence.repositories.exams.questions import (
+    ExamQuestionRepository,
+)
+from app.infrastructure.persistence.repositories.exams.folders import (
+    ArchiveFolderRepository,
+)
+from app.infrastructure.tasks.exam_archive_tasks import analyze_exam_pdf_task
 from app.api.v1.panel.admin.exams.archive import archive_bp
 
 logger = logging.getLogger(__name__)
@@ -142,3 +149,57 @@ def regenerate_diagrams():
     except Exception:
         logger.exception("Failed to regenerate diagrams")
         return jsonify({'success': False, 'error': 'Regeneration failed'}), 500
+
+
+# ── Folder-Level Analysis ──────────────────────────────────
+
+
+@archive_bp.route('/folders/<folder_id>/analyze', methods=['POST'])
+@admin_required
+def analyze_folder(folder_id):
+    """Queue AI analysis for all pending exams in a folder (recursive)."""
+    files = ArchiveFolderRepository.find_files_in_folder_recursive(folder_id)
+    logger.info("Folder %s: found %d total files", folder_id, len(files))
+    pending = [f for f in files if f.get('analysis_status') == 'pending']
+    logger.info("Folder %s: %d pending files", folder_id, len(pending))
+
+    if not pending:
+        return jsonify({'status': 'queued', 'count': 0}), 200
+
+    body = request.get_json(silent=True) or {}
+    provider = body.get('provider')
+    model = body.get('model')
+
+    count = 0
+    for f in pending:
+        eid = str(f['exam_id'])
+        analyze_exam_pdf_task.delay(eid, provider=provider, model=model)
+        count += 1
+
+    logger.info("Folder %s: queued analysis for %d pending exams", folder_id, count)
+    return jsonify({'status': 'queued', 'count': count}), 200
+
+
+@archive_bp.route('/folders/<folder_id>/re-analyze', methods=['PUT'])
+@admin_required
+def re_analyze_folder(folder_id):
+    """Re-analyze all exams in a folder (recursive) — delete questions and re-queue."""
+    files = ArchiveFolderRepository.find_files_in_folder_recursive(folder_id)
+    if not files:
+        return jsonify({'status': 'queued', 'count': 0}), 200
+
+    body = request.get_json(silent=True) or {}
+    provider = body.get('provider')
+    model = body.get('model')
+
+    count = 0
+    for f in files:
+        eid = str(f['exam_id'])
+        ExamQuestionRepository.delete_by_exam_id(eid)
+        ExamQuestionRepository.delete_anlagen_by_exam_id(eid)
+        ExamRepository.update_analysis_status(eid, 'pending')
+        analyze_exam_pdf_task.delay(eid, provider=provider, model=model)
+        count += 1
+
+    logger.info("Folder %s: re-analysis queued for %d exams", folder_id, count)
+    return jsonify({'status': 'queued', 'count': count}), 200

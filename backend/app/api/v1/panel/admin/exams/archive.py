@@ -151,10 +151,10 @@ def analyze_exam(exam_id):
     if not exam:
         return jsonify({'success': False, 'error': 'Exam not found'}), 404
 
-    # Allow caller to specify provider/model (G07: no hardcoding)
+    # Provider/model resolved from system config (G07: no hardcoding)
     body = request.get_json(silent=True) or {}
-    provider = body.get('provider', 'openai')
-    model = body.get('model', 'gpt-4o')
+    provider = body.get('provider') or None
+    model = body.get('model') or None
 
     task = analyze_exam_pdf_task.delay(
         exam_id, provider=provider, model=model
@@ -170,8 +170,8 @@ def analyze_exam(exam_id):
 def analyze_all():
     """Queue AI analysis for all pending archive exams."""
     body = request.get_json(silent=True) or {}
-    provider = body.get('provider', 'openai')
-    model = body.get('model', 'gpt-4o')
+    provider = body.get('provider') or None
+    model = body.get('model') or None
 
     pending_exams = ExamRepository.find_archive_exams(status='pending')
     task_ids = []

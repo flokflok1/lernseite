@@ -153,12 +153,27 @@ async function handleContextAction(action: string) {
         })
       }
       break
+    case 'analyzeAll':
+      if (target.type === 'folder' && target.id) {
+        showConfirm({
+          title: t('panel.examArchive.analyzeFolder'),
+          message: t('panel.examArchive.analyzeFolderConfirm'),
+          icon: '\u{1F50D}',
+          variant: 'info',
+          onConfirm: async () => {
+            const { archiveAnalyzeFolder } = await import('@/infrastructure/api/clients/panel/admin/exams/archive.api')
+            await archiveAnalyzeFolder(target.id!)
+            explorer.refresh()
+          },
+        })
+      }
+      break
     case 'reAnalyze':
       if (target.type === 'file' && target.id) {
         showConfirm({
           title: t('panel.examArchive.reAnalyze'),
           message: t('panel.examArchive.reAnalyzeConfirm'),
-          icon: '🔄',
+          icon: '\u{1F504}',
           variant: 'warning',
           onConfirm: async () => {
             const { archiveReAnalyzeExam } = await import('@/infrastructure/api/clients/panel/admin/exams/archive.api')
@@ -180,6 +195,61 @@ async function handleContextAction(action: string) {
       }
       break
   }
+}
+
+// ── Folder Analysis ──
+const isAnalyzing = ref(false)
+
+async function handleAnalyzeFolder() {
+  const folderId = explorer.currentFolderId.value
+  if (!folderId) return
+
+  showConfirm({
+    title: t('panel.examArchive.analyzeFolder'),
+    message: t('panel.examArchive.analyzeFolderConfirm'),
+    icon: '\u{1F50D}',
+    variant: 'info',
+    onConfirm: async () => {
+      isAnalyzing.value = true
+      try {
+        const { archiveAnalyzeFolder } = await import(
+          '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+        )
+        await archiveAnalyzeFolder(folderId)
+        explorer.refresh()
+      } catch {
+        // analysis status panel shows progress
+      } finally {
+        isAnalyzing.value = false
+      }
+    },
+  })
+}
+
+async function handleReAnalyzeFolder() {
+  const folderId = explorer.currentFolderId.value
+  if (!folderId) return
+
+  showConfirm({
+    title: t('panel.examArchive.reAnalyzeFolder'),
+    message: t('panel.examArchive.reAnalyzeFolderConfirm'),
+    icon: '\u{1F504}',
+    variant: 'warning',
+    onConfirm: async () => {
+      isAnalyzing.value = true
+      try {
+        const { archiveReAnalyzeFolder } = await import(
+          '@/infrastructure/api/clients/panel/admin/exams/archive.api'
+        )
+        await archiveReAnalyzeFolder(folderId)
+        explorer.refresh()
+      } catch {
+        // analysis status panel shows progress
+      } finally {
+        isAnalyzing.value = false
+      }
+    },
+  })
 }
 
 // ── PDF Upload ──
@@ -370,6 +440,7 @@ function onOpenFile(examId: string) {
           :loading="explorer.loading.value"
           :is-empty="explorer.isEmpty.value"
           :drop-target-id="dragDrop.dropTargetId.value"
+          :is-analyzing="isAnalyzing"
           @open-folder="explorer.navigateToFolder"
           @open-file="onOpenFile"
           @folder-contextmenu="onFolderContextMenu"
@@ -380,6 +451,8 @@ function onOpenFile(examId: string) {
           @dragover="dragDrop.onDragOver"
           @dragleave="dragDrop.onDragLeave"
           @drop="dragDrop.handleDrop"
+          @analyze-folder="handleAnalyzeFolder"
+          @re-analyze-folder="handleReAnalyzeFolder"
         />
 
         <ExplorerStatusBar

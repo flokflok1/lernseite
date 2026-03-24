@@ -245,7 +245,7 @@ const layout = computed(() => {
   }
 
   // Exam Archive is fullscreen (no layout)
-  if (route.path.startsWith('/exam-archive')) {
+  if (route.path.startsWith('/admin/exam-archive')) {
     return 'div'
   }
 

@@ -85,7 +85,7 @@ let statusInterval: ReturnType<typeof setInterval> | null = null
 
 const hasActiveAnalysis = computed(() =>
   analysisStatus.value != null
-  && (analysisStatus.value.pending > 0 || analysisStatus.value.analyzing > 0),
+  && analysisStatus.value.analyzing > 0,
 )
 
 const progressPercent = computed(() => {

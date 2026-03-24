@@ -360,7 +360,9 @@ question_type: mcq, essay, calculation, code, fill_blank, case_study, ordering, 
 Vergib passende Themen-Tags fuer jede Frage. Verwende kurze, lowercase
 Begriffe auf Deutsch (z.B. "netzwerk", "sql", "kalkulation", "it_sicherheit").
 Nutze existierende Tags wenn moeglich, erfinde neue nur wenn noetig.
-Trenne zusammengesetzte Begriffe mit Underscore (z.B. "it_sicherheit")."""
+Trenne zusammengesetzte Begriffe mit Underscore (z.B. "it_sicherheit").
+
+WICHTIG: Antworte AUSSCHLIESSLICH mit dem JSON-Objekt. Kein erklaehrender Text davor oder danach. Nur valides JSON."""
 
 
 def _build_vision_prompt(solution_text: str | None = None) -> str:

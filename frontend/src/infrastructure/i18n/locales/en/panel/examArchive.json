@@ -58,6 +58,13 @@
     "statusFailed": "failed",
     "uploadError": "Upload Error",
     "pdfOnly": "Only PDF files allowed",
-    "uploadFailed": "Upload failed. Please try again."
+    "uploadFailed": "Upload failed. Please try again.",
+    "analyzeFolder": "Analyze All",
+    "reAnalyzeFolder": "Re-analyze All",
+    "analyzeFolderConfirm": "Analyze all pending PDFs in this folder?",
+    "reAnalyzeFolderConfirm": "Re-analyze all PDFs in this folder? Existing questions will be deleted.",
+    "analyzeQueued": "{count} exams queued for analysis",
+    "reAnalyze": "Re-analyze",
+    "reAnalyzeConfirm": "Re-analyze this exam? Existing questions will be deleted."
   }
 }

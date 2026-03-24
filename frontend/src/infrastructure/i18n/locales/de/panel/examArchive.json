@@ -58,6 +58,13 @@
     "statusFailed": "fehlgeschlagen",
     "uploadError": "Upload-Fehler",
     "pdfOnly": "Nur PDF-Dateien erlaubt",
-    "uploadFailed": "Upload fehlgeschlagen. Bitte erneut versuchen."
+    "uploadFailed": "Upload fehlgeschlagen. Bitte erneut versuchen.",
+    "analyzeFolder": "Alle analysieren",
+    "reAnalyzeFolder": "Alle neu analysieren",
+    "analyzeFolderConfirm": "Alle ausstehenden PDFs in diesem Ordner analysieren?",
+    "reAnalyzeFolderConfirm": "Alle PDFs in diesem Ordner neu analysieren? Bestehende Fragen werden gelöscht.",
+    "analyzeQueued": "{count} Prüfungen zur Analyse eingereiht",
+    "reAnalyze": "Neu analysieren",
+    "reAnalyzeConfirm": "Diese Prüfung neu analysieren? Bestehende Fragen werden gelöscht."
   }
 }

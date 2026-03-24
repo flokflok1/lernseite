@@ -30,10 +30,16 @@ services:
       - ../backend:/app
       - /opt/docker-data/lsx/uploads:/app/uploads
       - /opt/docker-data/lsx/logs:/app/logs
+      - "../AP 1:/exam-data/AP 1:ro"
+      - ../AP2:/exam-data/AP2:ro
+      - /usr/bin/pdftoppm:/usr/local/bin/pdftoppm:ro
+      - /usr/bin/pdfinfo:/usr/local/bin/pdfinfo:ro
+      - /usr/lib/x86_64-linux-gnu:/usr/lib/host-libs:ro
     working_dir: /app
     environment:
       - DOCKER=1
       - GUNICORN_WORKER_CLASS=eventlet
+      - LD_LIBRARY_PATH=/usr/lib/host-libs
     networks:
       macvlan51:
         ipv4_address: 10.0.51.4
@@ -57,11 +63,16 @@ services:
       - ../backend:/app
       - /opt/docker-data/lsx/uploads:/app/uploads
       - /opt/docker-data/lsx/logs:/app/logs
+      - "../AP 1:/exam-data/AP 1:ro"
+      - ../AP2:/exam-data/AP2:ro
+      - /usr/bin/pdftoppm:/usr/local/bin/pdftoppm:ro
+      - /usr/bin/pdfinfo:/usr/local/bin/pdfinfo:ro
+      - /usr/lib/x86_64-linux-gnu:/usr/lib/host-libs:ro
     working_dir: /app
     environment:
       - DOCKER=1
-      - GUNICORN_WORKER_CLASS=eventlet
-    command: celery -A wsgi:celery worker --loglevel=info
+      - LD_LIBRARY_PATH=/usr/lib/host-libs
+    command: celery -A celery_worker:celery worker --pool=prefork --concurrency=4 --loglevel=info
     networks:
       macvlan53:
         ipv4_address: 10.0.53.3

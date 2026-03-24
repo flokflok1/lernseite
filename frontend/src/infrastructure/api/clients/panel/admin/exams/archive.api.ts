@@ -251,6 +251,26 @@ export const archiveReAnalyzeAll = async (): Promise<{ count: number }> => {
   return data
 }
 
+// --- Folder-Level Analysis ---
+
+export const archiveAnalyzeFolder = async (
+  folderId: string
+): Promise<{ count: number }> => {
+  const { data } = await http.post<{ status: string; count: number }>(
+    `/admin/exam-archive/folders/${folderId}/analyze`
+  )
+  return { count: data.count }
+}
+
+export const archiveReAnalyzeFolder = async (
+  folderId: string
+): Promise<{ count: number }> => {
+  const { data } = await http.put<{ status: string; count: number }>(
+    `/admin/exam-archive/folders/${folderId}/re-analyze`
+  )
+  return { count: data.count }
+}
+
 // --- Admin Moderation ---
 
 export const archiveReviewUpload = async (

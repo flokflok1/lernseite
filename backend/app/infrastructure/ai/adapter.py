@@ -48,18 +48,21 @@ class AIAdapter:
     PROVIDERS = PROVIDERS
     MODELS_USING_COMPLETION_TOKENS = MODELS_USING_COMPLETION_TOKENS
 
-    def __init__(self, provider: str = 'openai', model: Optional[str] = None, timeout: int = 3600):
+    def __init__(self, provider: str = None, model: Optional[str] = None, timeout: int = 3600):
         """
         Initialize AI Adapter.
 
         Args:
-            provider: AI provider ('openai', 'anthropic', 'google', 'cohere', 'huggingface')
-            model: Model name (defaults to default model from DB)
-            timeout: Request timeout in seconds (default 120s, no upper cap)
+            provider: AI provider name (None = resolve from DB config)
+            model: Model name (None = resolve from DB config)
+            timeout: Request timeout in seconds (default 3600s)
 
         Raises:
             ValueError: If provider is invalid or API key is missing
         """
+        if provider is None:
+            provider = self._resolve_default_provider()
+
         if provider not in PROVIDERS:
             raise ValueError(f'Invalid provider: {provider}. Must be one of: {", ".join(PROVIDERS.keys())}')
 
@@ -86,6 +89,24 @@ class AIAdapter:
 
         # Pricing from DB
         self.pricing = self._get_model_pricing(provider, self.model)
+
+    @staticmethod
+    def _resolve_default_provider() -> str:
+        """Resolve the highest-priority active provider from DB via Repository."""
+        try:
+            from app.infrastructure.persistence.repositories.ai.config.providers import (
+                AIProviderRepository,
+            )
+            row = AIProviderRepository.get_active_provider()
+            if row:
+                return row['name']
+        except Exception:
+            pass
+        import logging
+        logging.getLogger(__name__).warning(
+            "Could not resolve default AI provider from DB — no active provider found"
+        )
+        return 'openai'
 
     @staticmethod
     def _get_api_key_from_db(provider: str) -> Optional[str]:

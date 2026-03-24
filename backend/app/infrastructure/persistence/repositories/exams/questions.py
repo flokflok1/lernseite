@@ -424,8 +424,28 @@ class ExamQuestionRepository(BaseRepository):
         )
 
     @classmethod
-    def find_published_question_texts(cls, exclude_exam_id: str) -> list:
-        """Get question texts from all published exams (for duplicate detection)."""
+    def find_published_question_texts(
+        cls, exclude_exam_id: str, exam_type_key: str = None,
+    ) -> list:
+        """Get question texts from published exams (for duplicate detection).
+
+        Args:
+            exclude_exam_id: Exam to exclude from comparison.
+            exam_type_key: If set, only compare within the same exam type
+                (e.g. 'ap1' vs 'ap2' are different types and should not
+                flag each other as duplicates).
+        """
+        if exam_type_key:
+            return fetch_all("""
+                SELECT LEFT(eq.question_text, 150) AS text_prefix,
+                       e.exam_id, e.title
+                FROM assessments.exam_questions eq
+                JOIN assessments.exams e ON e.exam_id = eq.exam_id
+                WHERE e.analysis_status = 'ready' AND e.published = true
+                  AND e.exam_id != %s
+                  AND e.exam_type_key = %s
+                  AND length(eq.question_text) > 20
+            """, (exclude_exam_id, exam_type_key))
         return fetch_all("""
             SELECT LEFT(eq.question_text, 150) AS text_prefix,
                    e.exam_id, e.title

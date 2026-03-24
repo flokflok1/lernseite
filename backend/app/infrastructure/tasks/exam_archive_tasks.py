@@ -64,8 +64,8 @@ def _register_new_topics(
 def analyze_exam_pdf_task(
     self,
     exam_id: str,
-    provider: str = 'openai',
-    model: str = 'gpt-4o'
+    provider: str = None,
+    model: str = None,
 ) -> Dict[str, Any]:
     """
     Analyze a real IHK exam PDF using AI to extract structured questions.
@@ -104,8 +104,14 @@ def analyze_exam_pdf_task(
         tokens_used = 0  # Vision path doesn't return token counts
 
         if not parsed:
-            _mark_failed(exam_id, 'Failed to parse AI response as JSON')
-            return {'success': False, 'error': 'JSON parse failed'}
+            # Retry once — sometimes AI returns prose instead of JSON
+            logger.warning("JSON parse failed for exam %s — retrying", exam_id)
+            parsed = _run_vision_analysis(
+                exam, solution_text, provider, model,
+            )
+            if not parsed:
+                _mark_failed(exam_id, 'Failed to parse AI response as JSON (after retry)')
+                return {'success': False, 'error': 'JSON parse failed'}
 
         scenarios = parsed.get('scenarios', [])
         questions = parsed.get('questions', [])
@@ -118,7 +124,7 @@ def analyze_exam_pdf_task(
         from app.infrastructure.persistence.repositories.exams.questions import (
             ExamQuestionRepository as EQR_dup,
         )
-        dup_exam = _check_duplicate_exam(exam_id, questions)
+        dup_exam = _check_duplicate_exam(exam_id, questions, exam_type_key=exam_type)
         if dup_exam:
             logger.warning(
                 "Duplicate detected: exam %s matches existing exam '%s' (%d questions overlap). "
@@ -446,11 +452,12 @@ def _mark_failed(exam_id: str, error_message: str) -> None:
 
 
 def _check_duplicate_exam(
-    exam_id: str, new_questions: List[Dict],
+    exam_id: str, new_questions: List[Dict], exam_type_key: str = None,
 ) -> Optional[Dict]:
     """Check if extracted questions duplicate an existing published exam.
 
-    Compares first 150 chars of question text against all published exams.
+    Compares first 150 chars of question text against published exams
+    of the same exam type (AP1 vs AP2 are different types).
     If >50% of new questions match an existing exam, it's a duplicate.
 
     Returns:
@@ -471,7 +478,9 @@ def _check_duplicate_exam(
     from app.infrastructure.persistence.repositories.exams.questions import (
         ExamQuestionRepository,
     )
-    existing = ExamQuestionRepository.find_published_question_texts(exam_id)
+    existing = ExamQuestionRepository.find_published_question_texts(
+        exam_id, exam_type_key=exam_type_key,
+    )
 
     # Group matches by exam
     exam_matches: Dict[str, Dict] = {}

@@ -159,7 +159,20 @@ from celery.signals import worker_process_init
 
 @worker_process_init.connect
 def _init_celery_worker(**kwargs):
-    """Bootstrap Flask app when a Celery worker process starts."""
+    """Bootstrap Flask app when a Celery worker process starts.
+
+    After fork, the parent's db_pool has stale connections that are
+    not safe to use. We must close the inherited pool and let
+    create_app() build a fresh one.
+    """
+    global db_pool
+    if db_pool is not None:
+        try:
+            db_pool.close()
+        except Exception:
+            pass
+        db_pool = None
+
     from app import create_app
     app = create_app()
     app.app_context().push()

@@ -58,6 +58,13 @@
     "statusFailed": "nieudane",
     "uploadError": "Błąd przesyłania",
     "pdfOnly": "Dozwolone tylko pliki PDF",
-    "uploadFailed": "Przesyłanie nie powiodło się. Spróbuj ponownie."
+    "uploadFailed": "Przesyłanie nie powiodło się. Spróbuj ponownie.",
+    "analyzeFolder": "Analizuj wszystkie",
+    "reAnalyzeFolder": "Ponownie analizuj wszystkie",
+    "analyzeFolderConfirm": "Analizować wszystkie oczekujące PDF-y w tym folderze?",
+    "reAnalyzeFolderConfirm": "Ponownie przeanalizować wszystkie PDF-y? Istniejące pytania zostaną usunięte.",
+    "analyzeQueued": "{count} egzaminów w kolejce do analizy",
+    "reAnalyze": "Ponowna analiza",
+    "reAnalyzeConfirm": "Ponownie przeanalizować ten egzamin? Istniejące pytania zostaną usunięte."
   }
 }

@@ -260,3 +260,24 @@ class ArchiveFolderRepository:
             WHERE e.folder_id = %s
             ORDER BY e.title, e.created_at
         """, (folder_id,))
+
+    @staticmethod
+    def find_files_in_folder_recursive(folder_id: str) -> List[Dict[str, Any]]:
+        """Get exams/files in a folder AND all subfolders (recursive)."""
+        return fetch_all("""
+            WITH RECURSIVE subtree AS (
+                SELECT folder_id FROM assessments.archive_folders
+                WHERE folder_id = %s
+                UNION ALL
+                SELECT f.folder_id FROM assessments.archive_folders f
+                JOIN subtree s ON f.parent_folder_id = s.folder_id
+                WHERE f.trashed_at IS NULL
+            )
+            SELECT e.exam_id, e.title, e.pdf_path, e.analysis_status,
+                   e.created_at, e.year, e.season, e.part,
+                   (SELECT COUNT(*) FROM assessments.exam_questions q
+                    WHERE q.exam_id = e.exam_id) AS question_count
+            FROM assessments.exams e
+            WHERE e.folder_id IN (SELECT folder_id FROM subtree)
+            ORDER BY e.title, e.created_at
+        """, (folder_id,))

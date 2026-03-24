@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderCard from './FolderCard.vue'
 import FileRow from './FileRow.vue'
@@ -11,9 +12,18 @@ interface Props {
   loading: boolean
   isEmpty: boolean
   dropTargetId?: string | null
+  isAnalyzing?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const hasPendingFiles = computed(() =>
+  props.files.some(f => f.analysis_status === 'pending')
+)
+
+const hasReadyFiles = computed(() =>
+  props.files.some(f => f.analysis_status === 'ready')
+)
 
 const emit = defineEmits<{
   openFolder: [folderId: string]
@@ -26,6 +36,8 @@ const emit = defineEmits<{
   dragover: [event: DragEvent, folderId: string]
   dragleave: [event: DragEvent]
   drop: [event: DragEvent, folderId: string]
+  analyzeFolder: []
+  reAnalyzeFolder: []
 }>()
 
 const { t } = useI18n()
@@ -91,8 +103,31 @@ const { t } = useI18n()
 
       <!-- Files section -->
       <div v-if="files.length > 0">
-        <div class="text-[11px] uppercase tracking-wider text-gray-400 mb-2.5 pb-1.5 border-b border-gray-700/50">
-          {{ t('panel.examArchive.files') }} — {{ files.length }}
+        <div class="flex items-center gap-3 mb-2.5 pb-1.5 border-b border-gray-700/50">
+          <span class="text-[11px] uppercase tracking-wider text-gray-400">
+            {{ t('panel.examArchive.files') }} — {{ files.length }}
+          </span>
+          <div class="flex-1" />
+          <button
+            v-if="hasPendingFiles"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium
+                   bg-indigo-600 text-white hover:bg-indigo-500 transition-colors"
+            :disabled="isAnalyzing"
+            @click.stop="emit('analyzeFolder')"
+          >
+            <span v-if="isAnalyzing" class="animate-spin">&#x23F3;</span>
+            <span v-else>&#x1F50D;</span>
+            {{ t('panel.examArchive.analyzeFolder') }}
+          </button>
+          <button
+            v-if="hasReadyFiles"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium
+                   border border-amber-500/50 text-amber-400 hover:bg-amber-500/10 transition-colors"
+            :disabled="isAnalyzing"
+            @click.stop="emit('reAnalyzeFolder')"
+          >
+            &#x1F504; {{ t('panel.examArchive.reAnalyzeFolder') }}
+          </button>
         </div>
         <div>
           <FileRow

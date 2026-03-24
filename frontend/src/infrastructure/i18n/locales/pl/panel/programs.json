@@ -35,6 +35,28 @@
         "programType": "Kategoria",
         "provider": "Dostawca",
         "icon": "Ikona"
+      },
+      "examTypes": {
+        "title": "Czesci egzaminu",
+        "create": "Dodaj czesc egzaminu",
+        "edit": "Edytuj",
+        "delete": "Usun",
+        "confirmDelete": "Usunac ta czesc egzaminu?",
+        "hasExams": "Nie mozna usunac — ma przypisane egzaminy",
+        "noFolder": "Brak folderu",
+        "empty": "Brak czesci egzaminu",
+        "fields": {
+          "examType": "Klucz",
+          "displayName": "Etykieta",
+          "passingScore": "Wynik zaliczajacy (%)",
+          "appliesTo": "Dotyczy (np. FISI,FIAE)",
+          "archiveFolder": "Folder archiwum",
+          "sortOrder": "Kolejnosc"
+        },
+        "stats": {
+          "exams": "{count} egzaminow",
+          "questions": "{count} pytan"
+        }
       }
     }
   }

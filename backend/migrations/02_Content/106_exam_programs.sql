@@ -71,8 +71,16 @@ ALTER TABLE assessments.exam_type_registry
 ALTER TABLE assessments.exam_type_registry
     ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
+ALTER TABLE assessments.exam_type_registry
+    ADD COLUMN IF NOT EXISTS archive_folder_id UUID
+        REFERENCES assessments.archive_folders(folder_id) ON DELETE SET NULL;
+
 CREATE INDEX IF NOT EXISTS idx_exam_type_registry_program
     ON assessments.exam_type_registry(program_id);
+
+CREATE INDEX IF NOT EXISTS idx_exam_type_registry_archive_folder
+    ON assessments.exam_type_registry(archive_folder_id)
+    WHERE archive_folder_id IS NOT NULL;
 
 -- ============================================================
 -- 4. Insert NEW exam types with new keys (idempotent)

@@ -35,6 +35,28 @@
         "programType": "Kategorie",
         "provider": "Anbieter",
         "icon": "Icon"
+      },
+      "examTypes": {
+        "title": "Pruefungsteile",
+        "create": "Pruefungsteil erstellen",
+        "edit": "Bearbeiten",
+        "delete": "Loeschen",
+        "confirmDelete": "Pruefungsteil wirklich loeschen?",
+        "hasExams": "Kann nicht geloescht werden — hat zugeordnete Pruefungen",
+        "noFolder": "Kein Ordner",
+        "empty": "Noch keine Pruefungsteile",
+        "fields": {
+          "examType": "Kuerzel",
+          "displayName": "Bezeichnung",
+          "passingScore": "Bestehensgrenze (%)",
+          "appliesTo": "Gilt fuer (z.B. FISI,FIAE)",
+          "archiveFolder": "Archivordner",
+          "sortOrder": "Reihenfolge"
+        },
+        "stats": {
+          "exams": "{count} Pruefungen",
+          "questions": "{count} Fragen"
+        }
       }
     }
   }

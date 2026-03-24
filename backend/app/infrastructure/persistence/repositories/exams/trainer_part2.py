@@ -257,7 +257,7 @@ class ExamTrainerRotationMixin:
             LEFT JOIN assessments.user_question_stats uqs
                 ON uqs.question_id = eq.question_id AND uqs.user_id = %s
             WHERE {where_clause}
-            ORDER BY e.year DESC, e.season, eq.order_index
+            ORDER BY e.year DESC, e.season, e.exam_id, eq.order_index
             LIMIT %s OFFSET %s
         """, (user_id, *params, per_page, offset))
 

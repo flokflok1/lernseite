@@ -4,8 +4,11 @@ import { useI18n } from 'vue-i18n'
 import {
   getAdminPrograms, createProgram, updateProgram, deleteProgram,
   getProgramTypes, createProgramType, deleteProgramType,
-  type AdminProgram, type ProgramType,
+  getExamTypes, deleteExamType,
+  type AdminProgram, type ProgramType, type ExamType,
 } from '@/infrastructure/api/clients/panel/admin/programs.api'
+import ExamTypeRow from './ExamTypeRow.vue'
+import ExamTypeEditDialog from './ExamTypeEditDialog.vue'
 
 const { t, locale } = useI18n()
 
@@ -131,6 +134,56 @@ const handleDeleteType = async (key: string) => {
     await loadData()
   } catch (e) { error.value = String(e) }
 }
+
+// Exam Types
+const expandedPrograms = ref<Set<number>>(new Set())
+const examTypesByProgram = ref<Record<number, ExamType[]>>({})
+const showExamTypeDialog = ref(false)
+const editingExamType = ref<ExamType | null>(null)
+const dialogProgramId = ref<number | null>(null)
+
+const loadExamTypes = async (programId: number) => {
+  const types = await getExamTypes(programId)
+  examTypesByProgram.value = { ...examTypesByProgram.value, [programId]: types }
+}
+
+const toggleExpand = async (programId: number) => {
+  if (expandedPrograms.value.has(programId)) {
+    expandedPrograms.value.delete(programId)
+    expandedPrograms.value = new Set(expandedPrograms.value)
+  } else {
+    expandedPrograms.value.add(programId)
+    expandedPrograms.value = new Set(expandedPrograms.value)
+    if (!examTypesByProgram.value[programId]) {
+      await loadExamTypes(programId)
+    }
+  }
+}
+
+const handleCreateExamType = (programId: number) => {
+  dialogProgramId.value = programId
+  editingExamType.value = null
+  showExamTypeDialog.value = true
+}
+
+const handleEditExamType = (et: ExamType) => {
+  dialogProgramId.value = et.program_id
+  editingExamType.value = et
+  showExamTypeDialog.value = true
+}
+
+const handleDeleteExamType = async (et: ExamType) => {
+  if (!confirm(t('panel.programs.admin.examTypes.confirmDelete'))) return
+  try {
+    await deleteExamType(et.exam_type)
+    if (et.program_id !== null) await loadExamTypes(et.program_id)
+  } catch (e) { error.value = String(e) }
+}
+
+const handleExamTypeSaved = async () => {
+  showExamTypeDialog.value = false
+  if (dialogProgramId.value !== null) await loadExamTypes(dialogProgramId.value)
+}
 </script>
 
 <template>
@@ -207,12 +260,13 @@ const handleDeleteType = async (key: string) => {
             <th class="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.fields.displayName') }}</th>
             <th class="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.fields.programType') }}</th>
             <th class="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.fields.provider') }}</th>
+            <th class="text-left px-4 py-3 text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.examTypes.title') }}</th>
             <th class="text-right px-4 py-3 text-[var(--color-text-secondary)] font-medium">{{ t('common.actions') }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="programs.length === 0">
-            <td colspan="5" class="px-4 py-8 text-center text-[var(--color-text-secondary)]">{{ t('panel.programs.catalog.noPrograms') }}</td>
+            <td colspan="6" class="px-4 py-8 text-center text-[var(--color-text-secondary)]">{{ t('panel.programs.catalog.noPrograms') }}</td>
           </tr>
           <template v-for="prog in programs" :key="prog.program_id">
             <!-- Display row -->
@@ -224,14 +278,61 @@ const handleDeleteType = async (key: string) => {
               </td>
               <td class="px-4 py-3 text-[var(--color-text-secondary)]">{{ prog.program_type }}</td>
               <td class="px-4 py-3 text-[var(--color-text-secondary)]">{{ prog.provider || '--' }}</td>
+              <td class="px-4 py-3">
+                <button
+                  class="text-xs px-2 py-1 rounded border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors"
+                  @click="toggleExpand(prog.program_id)"
+                >
+                  {{ expandedPrograms.has(prog.program_id) ? '▲' : '▼' }}
+                  {{ prog.parts?.length ?? 0 }}
+                </button>
+              </td>
               <td class="px-4 py-3 text-right space-x-2">
                 <button class="text-primary-600 hover:text-primary-800 text-sm" @click="startEdit(prog)">{{ t('panel.programs.admin.edit') }}</button>
                 <button class="text-red-600 hover:text-red-800 text-sm" @click="handleDelete(prog.program_id)">{{ t('panel.programs.admin.delete') }}</button>
               </td>
             </tr>
+            <!-- Exam types expansion row -->
+            <tr v-if="editingId !== prog.program_id && expandedPrograms.has(prog.program_id)" class="bg-[var(--color-background)]">
+              <td colspan="6" class="px-4 py-3">
+                <div class="border border-[var(--color-border)] rounded-lg overflow-hidden">
+                  <div class="flex items-center justify-between px-3 py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)]">
+                    <span class="text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">{{ t('panel.programs.admin.examTypes.title') }}</span>
+                    <button
+                      class="text-xs px-2 py-1 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors"
+                      @click="handleCreateExamType(prog.program_id)"
+                    >+ {{ t('panel.programs.admin.examTypes.create') }}</button>
+                  </div>
+                  <table v-if="examTypesByProgram[prog.program_id]?.length" class="w-full text-sm">
+                    <thead>
+                      <tr class="border-b border-[var(--color-border)]">
+                        <th class="text-left px-3 py-2 text-xs text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.examTypes.fields.examType') }}</th>
+                        <th class="text-left px-3 py-2 text-xs text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.examTypes.fields.displayName') }}</th>
+                        <th class="text-center px-3 py-2 text-xs text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.examTypes.fields.passingScore') }}</th>
+                        <th class="text-left px-3 py-2 text-xs text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.admin.examTypes.fields.appliesTo') }}</th>
+                        <th class="text-left px-3 py-2 text-xs text-[var(--color-text-secondary)] font-medium">{{ t('panel.programs.catalog.exams') }}</th>
+                        <th class="text-right px-3 py-2 text-xs text-[var(--color-text-secondary)] font-medium">{{ t('common.actions') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ExamTypeRow
+                        v-for="et in examTypesByProgram[prog.program_id]"
+                        :key="et.exam_type"
+                        :exam-type="et"
+                        @edit="handleEditExamType"
+                        @delete="handleDeleteExamType"
+                      />
+                    </tbody>
+                  </table>
+                  <div v-else class="px-4 py-4 text-center text-xs text-[var(--color-text-secondary)]">
+                    {{ t('panel.programs.admin.examTypes.empty') }}
+                  </div>
+                </div>
+              </td>
+            </tr>
             <!-- Inline edit row -->
-            <tr v-else class="border-b border-[var(--color-border)] bg-[var(--color-background)]">
-              <td colspan="5" class="px-4 py-3">
+            <tr v-if="editingId === prog.program_id" class="border-b border-[var(--color-border)] bg-[var(--color-background)]">
+              <td colspan="6" class="px-4 py-3">
                 <div class="grid grid-cols-3 gap-3">
                   <div>
                     <label :class="labelCls">{{ t('panel.programs.admin.fields.displayName') }} (DE)</label>
@@ -325,4 +426,13 @@ const handleDeleteType = async (key: string) => {
       </div>
     </div>
   </div>
+
+  <!-- Exam Type Create/Edit Dialog -->
+  <ExamTypeEditDialog
+    v-if="showExamTypeDialog && dialogProgramId !== null"
+    :program-id="dialogProgramId"
+    :exam-type="editingExamType"
+    @saved="handleExamTypeSaved"
+    @cancelled="showExamTypeDialog = false"
+  />
 </template>

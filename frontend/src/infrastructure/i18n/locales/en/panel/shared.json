@@ -449,6 +449,46 @@
         "calculation": "calculation",
         "text": "text"
       }
+    },
+    "practice": {
+      "title": "Free Practice",
+      "modeDiscover": "Discover",
+      "modeStrengthen": "Strengthen",
+      "modeExamReady": "Exam Ready",
+      "orderSequential": "Sequential",
+      "orderMixed": "Mixed",
+      "questionCount": "Question Count",
+      "countAll": "All ({count})",
+      "countEndless": "Endless",
+      "timeLimit": "Time Limit",
+      "timeLimitNone": "None",
+      "filter": "Filter",
+      "allExams": "All Exams",
+      "allTopics": "All Topics",
+      "startButton": "Start Practice",
+      "learningMode": "Learning Mode",
+      "streakAlert": "{count}x wrong at {topic} - {extra} extra questions?",
+      "streakAccept": "Yes",
+      "streakDecline": "No",
+      "spacedRepeat": "Repeat",
+      "difficultyUp": "Difficulty increased",
+      "difficultyDown": "Difficulty decreased",
+      "summary": {
+        "title": "Summary",
+        "strongestTopic": "Strongest Topic",
+        "weakestTopic": "Weakest Topic",
+        "overallScore": "Overall Score",
+        "timeSpent": "Duration",
+        "backToDashboard": "Back to Dashboard",
+        "topicBreakdown": "Topic Breakdown",
+        "correct": "Correct",
+        "total": "Total"
+      },
+      "recommendation": {
+        "strengthenFocus": "Next time: Strengthen with focus on {topic}",
+        "discoverMore": "Next time: Discover new topics",
+        "examReady": "Exam Ready training recommended"
+      }
     }
   },
   "title": "Administration",

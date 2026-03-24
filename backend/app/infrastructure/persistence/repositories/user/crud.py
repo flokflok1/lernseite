@@ -56,7 +56,18 @@ class UserCrudRepository(BaseRepository):
                      ORDER BY g.hierarchy_level DESC
                      LIMIT 1),
                     'user'
-                ) AS role
+                ) AS role,
+                COALESCE(
+                    (SELECT g.hierarchy_level
+                     FROM core.users_groups ug
+                     JOIN core.groups g ON ug.group_id = g.id
+                     WHERE ug.user_id = u.user_id
+                       AND ug.is_active = TRUE
+                       AND ug.left_at IS NULL
+                     ORDER BY g.hierarchy_level DESC
+                     LIMIT 1),
+                    0
+                ) AS hierarchy_level
             FROM core.users u
             WHERE u.user_id = %s
             """,
@@ -73,6 +84,49 @@ class UserCrudRepository(BaseRepository):
                 user['organisation_id'] = str(user['organisation_id'])
 
         return user
+
+    @classmethod
+    def update(cls, user_id: str, data: Dict) -> Optional[Dict]:
+        """
+        Update user fields
+
+        Args:
+            user_id: User ID (UUID)
+            data: Dictionary of fields to update
+
+        Returns:
+            Updated user data or None
+        """
+        allowed_fields = {'full_name', 'username', 'email', 'is_active', 'password_hash'}
+        filtered = {k: v for k, v in data.items() if k in allowed_fields}
+
+        if not filtered:
+            return cls.find_by_id(user_id)
+
+        set_clause = ', '.join(f"{k} = %s" for k in filtered)
+        values = list(filtered.values()) + [user_id]
+
+        execute_query(
+            f"UPDATE core.users SET {set_clause}, updated_at = NOW() WHERE user_id = %s",
+            values
+        )
+
+        return cls.find_by_id(user_id)
+
+    @classmethod
+    def hard_delete(cls, user_id: str) -> bool:
+        """
+        Permanently delete user and all related data
+
+        Args:
+            user_id: User ID (UUID)
+
+        Returns:
+            True if deleted
+        """
+        execute_query("DELETE FROM core.users_groups WHERE user_id = %s", (user_id,))
+        execute_query("DELETE FROM core.users WHERE user_id = %s", (user_id,))
+        return True
 
     @classmethod
     def find_by_email(cls, email: str) -> Optional[Dict]:

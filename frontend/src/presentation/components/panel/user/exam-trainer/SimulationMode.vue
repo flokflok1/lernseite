@@ -24,6 +24,7 @@ const emit = defineEmits<{
   exit: []
   retry: []
   review: [attemptId: string]
+  'index-change': [index: number]
 }>()
 
 const { t } = useI18n()
@@ -119,6 +120,9 @@ const navigateTo = (index: number) => {
     currentIndex.value = index
   }
 }
+
+// Notify parent when question index changes (for dynamic Anlagen loading)
+watch(currentIndex, (idx) => emit('index-change', idx), { immediate: true })
 
 const toggleReview = () => {
   if (!currentQuestion.value) return

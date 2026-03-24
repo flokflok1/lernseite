@@ -7,13 +7,16 @@ import TopicHeatmap from './TopicHeatmap.vue'
 import ProgressDashboard from './ProgressDashboard.vue'
 import TopicPrognosis from './TopicPrognosis.vue'
 import QuestionBrowser from './QuestionBrowser.vue'
-import type { TrainerQuestion, TrainerExam, Anlage } from '@/infrastructure/api/clients/panel/user/exams'
+import PracticeConfigPanel from './PracticeConfigPanel.vue'
+import { usePracticeAnlagen } from '@/application/composables/panel/user/exam-trainer/usePracticeAnlagen'
+import type { TrainerQuestion, TrainerExam } from '@/infrastructure/api/clients/panel/user/exams'
 import type { TrainerDashboard } from '@/infrastructure/api/clients/panel/user/exams'
 import {
   trainerGetDashboard,
   trainerGenerateExam,
-  trainerGetAnlagen,
   trainerPracticeSingle,
+  practiceStartSession,
+  type PracticeSessionConfig,
 } from '@/infrastructure/api/clients/panel/user/exams'
 
 const props = withDefaults(defineProps<{
@@ -34,14 +37,25 @@ const isGenerating = ref(false)
 // Simulation state
 const simQuestions = ref<TrainerQuestion[]>([])
 const simAttemptId = ref('')
-const simAnlagen = ref<Anlage[]>([])
 const simDuration = ref(90)
+const simTitle = ref('')
 const reviewAttemptId = ref<string | null>(null)
+const currentSimIndex = ref(0)
+
+// Dynamic Anlagen loading — composable handles caching + prefetch
+const { currentAnlagen, reset: resetAnlagen } = usePracticeAnlagen(
+  simQuestions as any,
+  currentSimIndex,
+)
+
+const onSimIndexChange = (index: number) => {
+  currentSimIndex.value = index
+}
 
 // Virtual exam object for SimulationMode compatibility
 const virtualExam = computed<TrainerExam>(() => ({
   exam_id: 'adaptive',
-  title: t('panel.examTrainer.adaptive.adaptiveExam'),
+  title: simTitle.value || t('panel.examTrainer.adaptive.adaptiveExam'),
   semester: '',
   year: new Date().getFullYear(),
   season: '',
@@ -71,7 +85,6 @@ onMounted(async () => {
 })
 
 const examModes = [
-  { key: 'practice', icon: '\uD83D\uDCD6', labelKey: 'panel.examTrainer.adaptive.modePractice', questions: 10, minutes: 0 },
   { key: 'quick', icon: '\u26A1', labelKey: 'panel.examTrainer.adaptive.modeQuick', questions: 10, minutes: 30 },
   { key: 'half', icon: '\uD83D\uDCDD', labelKey: 'panel.examTrainer.adaptive.modeHalf', questions: 20, minutes: 45 },
   { key: 'full', icon: '\uD83C\uDFAF', labelKey: 'panel.examTrainer.adaptive.modeFull', questions: 40, minutes: 90 },
@@ -80,27 +93,36 @@ const examModes = [
 const startAdaptiveExam = async (questionCount: number = 20, durationMinutes: number = 90) => {
   isGenerating.value = true
   simDuration.value = durationMinutes
+  simTitle.value = ''
   try {
     const exam = await trainerGenerateExam(questionCount, durationMinutes)
     simQuestions.value = exam.questions
     simAttemptId.value = exam.attempt_id
-
-    // Load anlagen from all source exams
-    const examIds = [...new Set(
-      exam.questions.map((q: TrainerQuestion & { exam_id?: string }) => q.exam_id).filter(Boolean)
-    )] as string[]
-    const allAnlagen: (Anlage & { exam_id?: string })[] = []
-    for (const eid of examIds) {
-      try {
-        const a = await trainerGetAnlagen(eid)
-        // Tag each anlage with its source exam_id
-        a.forEach(anlage => { (anlage as Anlage & { exam_id?: string }).exam_id = eid })
-        allAnlagen.push(...a)
-      } catch { /* some exams may have no anlagen */ }
-    }
-    simAnlagen.value = allAnlagen
-
+    currentSimIndex.value = 0
+    resetAnlagen()
     view.value = 'simulation'
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+const startPracticeSession = async (config: PracticeSessionConfig) => {
+  isGenerating.value = true
+  try {
+    const result = await practiceStartSession(config)
+    if (!result.attempt_id) return
+    simQuestions.value = result.questions as unknown as TrainerQuestion[]
+    simAttemptId.value = result.attempt_id
+    simDuration.value = config.time_limit_minutes || 0
+    const orderLabel = config.order === 'sequential'
+      ? t('panel.examTrainer.practice.orderSequential')
+      : t('panel.examTrainer.practice.orderMixed')
+    simTitle.value = `${t('panel.examTrainer.practice.title')} — ${orderLabel}`
+    currentSimIndex.value = 0
+    resetAnlagen()
+    view.value = 'simulation'
+  } catch (e) {
+    console.error('Practice session failed:', e)
   } finally {
     isGenerating.value = false
   }
@@ -108,6 +130,7 @@ const startAdaptiveExam = async (questionCount: number = 20, durationMinutes: nu
 
 const handleSimulationExit = () => {
   view.value = 'dashboard'
+  resetAnlagen()
   trainerGetDashboard().then(d => { dashboard.value = d })
 }
 
@@ -129,15 +152,9 @@ const handlePracticeQuestion = async (questionId: string) => {
     simQuestions.value = exam.questions
     simAttemptId.value = exam.attempt_id
     simDuration.value = 0
-    // Load anlagen for this question's exam
-    const examIds = [...new Set(
-      exam.questions.map((q: TrainerQuestion & { exam_id?: string }) => q.exam_id).filter(Boolean)
-    )] as string[]
-    const allAnlagen: Anlage[] = []
-    for (const eid of examIds) {
-      try { allAnlagen.push(...await trainerGetAnlagen(eid)) } catch { /* ok */ }
-    }
-    simAnlagen.value = allAnlagen
+    simTitle.value = ''
+    currentSimIndex.value = 0
+    resetAnlagen()
     view.value = 'simulation'
   } finally {
     isGenerating.value = false
@@ -158,10 +175,11 @@ const handlePracticeQuestion = async (questionId: string) => {
       :exam="virtualExam"
       :questions="simQuestions"
       :attempt-id="simAttemptId"
-      :anlagen="simAnlagen"
+      :anlagen="currentAnlagen"
       @exit="handleSimulationExit"
       @retry="startAdaptiveExam"
       @review="handleSimulationReview"
+      @index-change="onSimIndexChange"
     />
 
     <!-- REVIEW MODE -->
@@ -229,7 +247,11 @@ const handlePracticeQuestion = async (questionId: string) => {
         <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
           {{ t('panel.examTrainer.adaptive.startExam') }}
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Practice Config Panel -->
+        <PracticeConfigPanel :disabled="isGenerating" @start="startPracticeSession" />
+
+        <!-- Timed Exam Modes -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <button
             v-for="mode in examModes"
             :key="mode.key"
@@ -242,10 +264,7 @@ const handlePracticeQuestion = async (questionId: string) => {
             <div class="text-2xl mb-2">{{ mode.icon }}</div>
             <div class="font-semibold text-[var(--color-text)] mb-1">{{ t(mode.labelKey) }}</div>
             <div class="text-sm text-[var(--color-text-secondary)]">
-              {{ mode.minutes > 0
-                ? t('panel.examTrainer.adaptive.modeDesc', { count: mode.questions, minutes: mode.minutes })
-                : t('panel.examTrainer.adaptive.modePracticeDesc', { count: mode.questions })
-              }}
+              {{ t('panel.examTrainer.adaptive.modeDesc', { count: mode.questions, minutes: mode.minutes }) }}
             </div>
           </button>
         </div>

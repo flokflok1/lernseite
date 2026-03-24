@@ -338,6 +338,7 @@ class ExamTrainerRepository(ExamTrainerRotationMixin):
         user_id: int,
         duration_minutes: int,
         total_points: int,
+        metadata: Optional[Dict] = None,
     ) -> Optional[Dict]:
         """Create an exam attempt for an adaptive session (no fixed exam).
 
@@ -345,6 +346,7 @@ class ExamTrainerRepository(ExamTrainerRotationMixin):
             user_id: User ID
             duration_minutes: Time limit in minutes
             total_points: Maximum possible points
+            metadata: Optional JSONB metadata (e.g. practice_state)
 
         Returns:
             Created attempt record or None
@@ -358,8 +360,31 @@ class ExamTrainerRepository(ExamTrainerRotationMixin):
             'time_limit_minutes': duration_minutes,
             'total_points': total_points,
         }
+        if metadata is not None:
+            attempt_data['metadata'] = json.dumps(metadata)
         return insert_returning(
             'assessments.exam_attempts', attempt_data, '*',
+        )
+
+    @classmethod
+    def update_attempt_metadata(
+        cls, attempt_id: str, metadata: Dict,
+    ) -> Optional[Dict]:
+        """Update the metadata JSONB on an existing attempt.
+
+        Args:
+            attempt_id: Attempt UUID
+            metadata: Dict to store as JSONB
+
+        Returns:
+            Updated attempt record or None
+        """
+        return update_returning(
+            'assessments.exam_attempts',
+            {'metadata': json.dumps(metadata), 'updated_at': datetime.utcnow()},
+            "attempt_id = %s",
+            (attempt_id,),
+            '*',
         )
 
     @classmethod

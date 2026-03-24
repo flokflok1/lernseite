@@ -4,6 +4,18 @@
  */
 import http from '@/infrastructure/api/http'
 
+export interface ExamType {
+  exam_type: string
+  display_name: Record<string, string>
+  passing_score: number
+  applies_to: string[]
+  sort_order: number
+  program_id: number | null
+  archive_folder_id: string | null
+  exam_count?: number
+  question_count?: number
+}
+
 export interface AdminProgram {
   program_id: number
   program_key: string
@@ -12,13 +24,7 @@ export interface AdminProgram {
   provider: string | null
   icon: string | null
   sort_order: number
-  parts: Array<{
-    exam_type: string
-    display_name: Record<string, string>
-    passing_score: number
-    applies_to: string[]
-    sort_order: number
-  }>
+  parts: ExamType[]
 }
 
 export interface ProgramType {
@@ -76,4 +82,29 @@ export async function updateProgramType(key: string, payload: Record<string, unk
 
 export async function deleteProgramType(key: string): Promise<void> {
   await http.delete(`/admin/program-types/${key}`)
+}
+
+export async function getExamTypes(programId: number): Promise<ExamType[]> {
+  const { data } = await http.get<{ success: boolean; exam_types: ExamType[] }>(
+    '/admin/exam-types', { params: { program_id: programId } },
+  )
+  return data.exam_types
+}
+
+export async function createExamType(payload: Record<string, unknown>): Promise<ExamType> {
+  const { data } = await http.post<{ success: boolean; exam_type: ExamType }>(
+    '/admin/exam-types', payload,
+  )
+  return data.exam_type
+}
+
+export async function updateExamType(key: string, payload: Record<string, unknown>): Promise<ExamType> {
+  const { data } = await http.put<{ success: boolean; exam_type: ExamType }>(
+    `/admin/exam-types/${key}`, payload,
+  )
+  return data.exam_type
+}
+
+export async function deleteExamType(key: string): Promise<void> {
+  await http.delete(`/admin/exam-types/${key}`)
 }

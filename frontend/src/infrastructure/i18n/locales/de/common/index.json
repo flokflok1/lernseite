@@ -30,7 +30,9 @@
     "register_success": "Registrierung erfolgreich! Sie werden in Kürze weitergeleitet...",
     "remember_me": "Angemeldet bleiben",
     "session_expired": "Ihre Sitzung ist abgelaufen",
-    "username": "Benutzername"
+    "username": "Benutzername",
+    "emailOrUsername": "E-Mail oder Benutzername",
+    "emailOrUsernamePlaceholder": "E-Mail oder Benutzername"
   },
   "common": {
     "actions": "Aktionen",

@@ -285,3 +285,75 @@ class ExamTrainerRotationMixin:
             ORDER BY exam_count DESC, question_count DESC
         """
         return fetch_all(query, ())
+
+    @staticmethod
+    def find_questions_sequential(
+        exam_filter: list | None = None,
+        topic_filter: list | None = None,
+        offset: int = 0,
+        limit: int = 50,
+    ) -> list:
+        """
+        Fetch questions in sequential order (by exam year desc, season, question number).
+
+        Used for sequential practice mode — user works through exams one by one.
+        Supports pagination via offset/limit for batch loading.
+        """
+        conditions = [
+            "e.analysis_status = 'ready'",
+            "e.published = true",
+        ]
+        params: list = []
+
+        if exam_filter:
+            conditions.append("e.exam_id = ANY(%s)")
+            params.append(exam_filter)
+
+        if topic_filter:
+            conditions.append("eq.topics && %s")
+            params.append(topic_filter)
+
+        where = " AND ".join(conditions)
+        query = f"""
+            SELECT eq.question_id, eq.exam_id, eq.question_number,
+                   eq.question_text, eq.question_type, eq.points,
+                   eq.topics, eq.data, eq.scenario_title, eq.scenario_text,
+                   e.title AS exam_title, e.year, e.season, e.semester
+            FROM assessments.exam_questions eq
+            JOIN assessments.exams e ON e.exam_id = eq.exam_id
+            WHERE {where}
+            ORDER BY e.year DESC, e.season DESC, eq.question_number ASC
+            OFFSET %s LIMIT %s
+        """
+        params.extend([offset, limit])
+        return fetch_all(query, params)
+
+    @staticmethod
+    def count_available_questions(
+        exam_filter: list | None = None,
+        topic_filter: list | None = None,
+    ) -> int:
+        """Count total available questions matching optional filters."""
+        conditions = [
+            "e.analysis_status = 'ready'",
+            "e.published = true",
+        ]
+        params: list = []
+
+        if exam_filter:
+            conditions.append("e.exam_id = ANY(%s)")
+            params.append(exam_filter)
+
+        if topic_filter:
+            conditions.append("eq.topics && %s")
+            params.append(topic_filter)
+
+        where = " AND ".join(conditions)
+        query = f"""
+            SELECT COUNT(*) AS cnt
+            FROM assessments.exam_questions eq
+            JOIN assessments.exams e ON e.exam_id = eq.exam_id
+            WHERE {where}
+        """
+        row = fetch_one(query, params)
+        return row['cnt'] if row else 0

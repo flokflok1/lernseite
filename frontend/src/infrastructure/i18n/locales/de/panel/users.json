@@ -55,7 +55,9 @@
       "title": "Sperre aufheben"
     },
     "unbanUser": "Sperre aufheben",
-    "userId": "Benutzer-ID"
+    "userId": "Benutzer-ID",
+    "changePassword": "Passwort ändern",
+    "passwordChanged": "Passwort erfolgreich geändert"
   },
   "userGroupManagement": {
     "roles": "Rollen",
@@ -104,10 +106,12 @@
     "username": "Benutzername",
     "usernameHint": "3-50 Zeichen, a-z, 0-9, _ und -",
     "usernamePlaceholder": "max_mustermann",
-    "fullName": "Vollstaendiger Name",
+    "fullName": "Vollständiger Name",
     "fullNamePlaceholder": "Max Mustermann",
     "emailPlaceholder": "user{'@'}example.com",
     "passwordPlaceholder": "Min. 12 Zeichen",
-    "minPassword": "Mindestens 12 Zeichen"
+    "minPassword": "Mindestens 12 Zeichen",
+    "confirmDelete": "Benutzer \"{name}\" wirklich löschen?",
+    "deleteError": "Fehler beim Löschen des Benutzers"
   }
 }

@@ -158,16 +158,20 @@ def create_user():
         data = request.get_json()
         user_data = UserCreate(**data)
 
-        # Check if admin can assign this role (GBA - group-based)
-        accessible_groups = get_accessible_groups(current_user)
-        accessible_group_names = [g['frontend_role'] or g['name'] for g in accessible_groups]
-        if user_data.role not in accessible_group_names:
-            return jsonify({
-                'success': False,
-                'error': 'Insufficient permissions',
-                'message': f'You cannot assign the role "{user_data.role}"',
-                'accessible_roles': accessible_group_names
-            }), 403
+        # Owner/Admin can assign any role
+        hierarchy = current_user.get('hierarchy_level') or 0
+        role = current_user.get('role', '')
+        is_owner_or_admin = hierarchy >= 500 or role in ('owner', 'admin', 'superadmin')
+        if not is_owner_or_admin:
+            accessible_groups = get_accessible_groups(current_user)
+            accessible_group_names = [g.get('frontend_role') or g.get('name') for g in accessible_groups]
+            if user_data.role and user_data.role not in accessible_group_names:
+                return jsonify({
+                    'success': False,
+                    'error': 'Insufficient permissions',
+                    'message': f'You cannot assign the role "{user_data.role}"',
+                    'accessible_roles': accessible_group_names
+                }), 403
 
         # Organisation admins can only create users in their organisation
         if current_user['role'] in ['school_admin', 'company_admin']:
@@ -196,10 +200,12 @@ def create_user():
         }), 201
 
     except ValidationError as e:
-        return jsonify({'success': False, 'error': 'Validation error', 'details': e.errors()}), 400
+        return jsonify({'success': False, 'error': 'Validation error', 'details': str(e)}), 400
     except ValueError as e:
-        return jsonify({'success': False, 'error': str(e)}), 400
+        return jsonify({'success': False, 'error': 'Validation error', 'details': str(e)}), 400
     except Exception as e:
+        import traceback
+        current_app.logger.error(f"User creation failed: {traceback.format_exc()}")
         return jsonify({'success': False, 'error': 'User creation failed', 'details': str(e)}), 500
 
 
@@ -221,7 +227,7 @@ def delete_user(user_id: int):
         current_user = g.current_user
 
         # Prevent self-deletion
-        if current_user['user_id'] == user_id:
+        if str(current_user['user_id']) == str(user_id):
             return jsonify({
                 'success': False,
                 'error': 'Forbidden',
@@ -236,14 +242,8 @@ def delete_user(user_id: int):
                 'message': f'User with ID {user_id} does not exist'
             }), 404
 
-        if not can_manage_user(current_user, target_user):
-            return jsonify({
-                'success': False,
-                'error': 'Insufficient permissions',
-                'message': 'You do not have permission to delete this user'
-            }), 403
-
-        UserRepository.deactivate_user(user_id)
+        # Hard delete
+        UserRepository.hard_delete(user_id)
 
         return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
 

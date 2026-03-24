@@ -35,6 +35,28 @@
         "programType": "Category",
         "provider": "Provider",
         "icon": "Icon"
+      },
+      "examTypes": {
+        "title": "Exam Parts",
+        "create": "Add Exam Part",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Delete this exam part?",
+        "hasExams": "Cannot delete — has linked exams",
+        "noFolder": "No folder",
+        "empty": "No exam parts yet",
+        "fields": {
+          "examType": "Key",
+          "displayName": "Label",
+          "passingScore": "Passing Score (%)",
+          "appliesTo": "Applies to (e.g. FISI,FIAE)",
+          "archiveFolder": "Archive Folder",
+          "sortOrder": "Sort Order"
+        },
+        "stats": {
+          "exams": "{count} exams",
+          "questions": "{count} questions"
+        }
       }
     }
   }

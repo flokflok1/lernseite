@@ -29,6 +29,7 @@ from flask_jwt_extended import (
 from pydantic import ValidationError
 from datetime import timedelta
 import logging
+import os
 
 from app.infrastructure.i18n.error_codes import ErrorCode, error_response
 
@@ -60,6 +61,17 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    """
+    Register new user (disabled during beta — invite code required in future)
+    """
+    # BETA: Registration disabled — users are created by admin via /panel/admin/users
+    if not os.environ.get('REGISTRATION_ENABLED', '').lower() == 'true':
+        return jsonify({
+            'success': False,
+            'error': 'Registration disabled',
+            'message': 'Registrierung ist derzeit deaktiviert. Kontaktiere den Administrator.'
+        }), 403
+
     """
     Register new user
 

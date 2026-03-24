@@ -12,7 +12,7 @@
         </button>
         <div>
           <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">
-            {{ user?.first_name }} {{ user?.last_name }}
+            {{ user?.full_name }}
           </h1>
           <p class="text-sm text-[var(--color-text-secondary)]">{{ user?.email }}</p>
         </div>
@@ -56,15 +56,45 @@
       <!-- User Info Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Basic Info -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('panel.userDetail.basicInfo') }}</h3>
+        <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('panel.userDetail.basicInfo') }}</h3>
           <dl class="space-y-3">
             <div>
-              <dt class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.userId') }}</dt>
-              <dd class="text-sm text-gray-900">{{ user.user_id }}</dd>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.userId') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)] font-mono">{{ user.user_id }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.role') }}</dt>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.name') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">
+                <div v-if="!editingName" class="flex items-center gap-2">
+                  <span>{{ user.full_name }}</span>
+                  <button @click="startEditName" class="text-primary-500 hover:text-primary-600 text-xs">✎</button>
+                </div>
+                <div v-else class="flex items-center gap-2">
+                  <input v-model="editForm.full_name" class="px-2 py-1 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded w-full" />
+                  <button @click="saveField('full_name')" class="text-green-500 hover:text-green-600 text-sm">✓</button>
+                  <button @click="editingName = false" class="text-red-500 hover:text-red-600 text-sm">✗</button>
+                </div>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.users.username') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">
+                <div v-if="!editingUsername" class="flex items-center gap-2">
+                  <span class="font-mono">{{ user.username || '-' }}</span>
+                  <button @click="startEditUsername" class="text-primary-500 hover:text-primary-600 text-xs">✎</button>
+                </div>
+                <div v-else class="flex items-center gap-2">
+                  <input v-model="editForm.username" class="px-2 py-1 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded w-full font-mono" :placeholder="$t('panel.users.usernamePlaceholder')" />
+                  <button @click="saveField('username')" class="text-green-500 hover:text-green-600 text-sm">✓</button>
+                  <button @click="editingUsername = false" class="text-red-500 hover:text-red-600 text-sm">✗</button>
+                </div>
+                <p v-if="editingUsername" class="text-xs text-[var(--color-text-secondary)] mt-1">{{ $t('panel.users.usernameHint') }}</p>
+                <p v-if="editError" class="text-xs text-red-500 mt-1">{{ editError }}</p>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.role') }}</dt>
               <dd class="text-sm">
                 <span class="px-2 py-1 text-xs font-medium rounded-full" :class="getRoleBadgeClass(user.role)">
                   {{ user.role }}
@@ -72,7 +102,7 @@
               </dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.status') }}</dt>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.status') }}</dt>
               <dd class="text-sm">
                 <span :class="user.is_active ? 'text-green-600' : 'text-red-600'">
                   {{ user.is_active ? '✓ ' + $t('panel.userDetail.active') : '✗ ' + $t('panel.userDetail.inactive') }}
@@ -80,24 +110,42 @@
               </dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.createdAt') }}</dt>
-              <dd class="text-sm text-gray-900">{{ formatDate(user.created_at) }}</dd>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.createdAt') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">{{ formatDate(user.created_at) }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.lastLogin') }}</dt>
-              <dd class="text-sm text-gray-900">{{ user.last_login ? formatDate(user.last_login) : $t('panel.userDetail.never') }}</dd>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.lastLogin') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">{{ user.last_login_at ? formatDate(user.last_login_at) : $t('panel.userDetail.never') }}</dd>
             </div>
           </dl>
+
+          <!-- Password Change -->
+          <div class="mt-4 pt-4 border-t border-[var(--color-border)]">
+            <button v-if="!showPasswordForm" @click="showPasswordForm = true" class="text-sm text-primary-500 hover:text-primary-600">
+              {{ $t('panel.userDetail.changePassword') || 'Passwort ändern' }}
+            </button>
+            <div v-else class="space-y-3">
+              <h4 class="text-sm font-medium text-[var(--color-text-primary)]">{{ $t('panel.userDetail.changePassword') || 'Passwort ändern' }}</h4>
+              <input v-model="passwordForm.newPassword" type="password" class="w-full px-3 py-2 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('panel.users.passwordPlaceholder')" />
+              <input v-model="passwordForm.confirmPassword" type="password" class="w-full px-3 py-2 text-sm border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] rounded-lg" :placeholder="$t('auth.confirm_password')" />
+              <p v-if="passwordError" class="text-xs text-red-500">{{ passwordError }}</p>
+              <p v-if="passwordSuccess" class="text-xs text-green-500">{{ passwordSuccess }}</p>
+              <div class="flex gap-2">
+                <button @click="savePassword" :disabled="!canSavePassword" class="px-3 py-1 text-sm text-white bg-primary-600 rounded hover:bg-primary-700 disabled:opacity-50">{{ $t('common.save') }}</button>
+                <button @click="showPasswordForm = false; passwordError = ''; passwordSuccess = ''" class="px-3 py-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">{{ $t('common.cancel') }}</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Token Info -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('panel.userDetail.tokenBalance') }}</h3>
+        <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('panel.userDetail.tokenBalance') }}</h3>
           <div class="text-center py-4">
             <div class="text-4xl font-bold text-purple-600">
               {{ user.token_balance || 0 }}
             </div>
-            <div class="text-sm text-gray-500 mt-1">{{ $t('panel.userDetail.availableTokens') }}</div>
+            <div class="text-sm text-[var(--color-text-secondary)] mt-1">{{ $t('panel.userDetail.availableTokens') }}</div>
           </div>
           <button
             @click="openGrantTokensModal"
@@ -108,16 +156,16 @@
         </div>
 
         <!-- Organisation Info -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('panel.userDetail.organisation') }}</h3>
+        <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{{ $t('panel.userDetail.organisation') }}</h3>
           <dl class="space-y-3">
             <div>
-              <dt class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.name') }}</dt>
-              <dd class="text-sm text-gray-900">{{ user.organisation_name || $t('panel.userDetail.noOrganisation') }}</dd>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.name') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">{{ user.organisation_name || $t('panel.userDetail.noOrganisation') }}</dd>
             </div>
             <div v-if="user.organisation_id">
-              <dt class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.organisationId') }}</dt>
-              <dd class="text-sm text-gray-900">{{ user.organisation_id }}</dd>
+              <dt class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.organisationId') }}</dt>
+              <dd class="text-sm text-[var(--color-text-primary)]">{{ user.organisation_id }}</dd>
             </div>
           </dl>
         </div>
@@ -125,31 +173,31 @@
 
       <!-- Statistics Row -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.coursesCreated') }}</div>
-          <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
+        <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <div class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.coursesCreated') }}</div>
+          <div class="text-2xl font-bold text-[var(--color-text-primary)] mt-1">0</div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.coursesEnrolled') }}</div>
-          <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
+        <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <div class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.coursesEnrolled') }}</div>
+          <div class="text-2xl font-bold text-[var(--color-text-primary)] mt-1">0</div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.tokensUsed') }}</div>
-          <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
+        <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <div class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.tokensUsed') }}</div>
+          <div class="text-2xl font-bold text-[var(--color-text-primary)] mt-1">0</div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="text-sm font-medium text-gray-500">{{ $t('panel.userDetail.logins30d') }}</div>
-          <div class="text-2xl font-bold text-gray-900 mt-1">0</div>
+        <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] p-6">
+          <div class="text-sm font-medium text-[var(--color-text-secondary)]">{{ $t('panel.userDetail.logins30d') }}</div>
+          <div class="text-2xl font-bold text-[var(--color-text-primary)] mt-1">0</div>
         </div>
       </div>
 
       <!-- Action History -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.userDetail.actionHistory') }}</h3>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)]">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.userDetail.actionHistory') }}</h3>
         </div>
         <div class="p-6">
-          <p class="text-sm text-gray-500 text-center py-8">
+          <p class="text-sm text-[var(--color-text-secondary)] text-center py-8">
             {{ $t('panel.userDetail.noActions') }}
           </p>
         </div>
@@ -158,18 +206,18 @@
 
     <!-- Ban User Modal -->
     <div v-if="showBanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.userDetail.banModal.title') }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ user?.first_name }} {{ user?.last_name }}</p>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.userDetail.banModal.title') }}</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ user?.full_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.userDetail.banModal.reasonLabel') }}</label>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.userDetail.banModal.reasonLabel') }}</label>
             <textarea
               v-model="banForm.reason"
               rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               :placeholder="$t('panel.userDetail.banModal.reasonPlaceholder')"
             ></textarea>
           </div>
@@ -178,19 +226,19 @@
               <input
                 v-model="banForm.permanent"
                 type="checkbox"
-                class="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                class="rounded border-[var(--color-border)] text-red-600 focus:ring-red-500"
               />
-              <span class="ml-2 text-sm text-gray-700">{{ $t('panel.userDetail.banModal.permanent') }}</span>
+              <span class="ml-2 text-sm text-[var(--color-text-primary)]">{{ $t('panel.userDetail.banModal.permanent') }}</span>
             </label>
           </div>
           <div v-if="!banForm.permanent" class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.userDetail.banModal.durationLabel') }}</label>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.userDetail.banModal.durationLabel') }}</label>
             <input
               v-model.number="banForm.duration_days"
               type="number"
               min="1"
               max="365"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               :placeholder="$t('panel.userDetail.banModal.durationPlaceholder')"
             />
           </div>
@@ -199,16 +247,16 @@
               <input
                 v-model="banForm.notify_user"
                 type="checkbox"
-                class="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                class="rounded border-[var(--color-border)] text-red-600 focus:ring-red-500"
               />
-              <span class="ml-2 text-sm text-gray-700">{{ $t('panel.userDetail.banModal.notifyUser') }}</span>
+              <span class="ml-2 text-sm text-[var(--color-text-primary)]">{{ $t('panel.userDetail.banModal.notifyUser') }}</span>
             </label>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
           <button
             @click="closeBanModal"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+            class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:bg-[var(--color-surface-secondary)]"
           >
             {{ $t('panel.userDetail.banModal.cancel') }}
           </button>
@@ -225,26 +273,26 @@
 
     <!-- Unban User Modal -->
     <div v-if="showUnbanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.userDetail.unbanModal.title') }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ user?.first_name }} {{ user?.last_name }}</p>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.userDetail.unbanModal.title') }}</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ user?.full_name }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.userDetail.unbanModal.reasonLabel') }}</label>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.userDetail.unbanModal.reasonLabel') }}</label>
             <textarea
               v-model="unbanForm.reason"
               rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               :placeholder="$t('panel.userDetail.unbanModal.reasonPlaceholder')"
             ></textarea>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
           <button
             @click="closeUnbanModal"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+            class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:bg-[var(--color-surface-secondary)]"
           >
             {{ $t('panel.userDetail.unbanModal.cancel') }}
           </button>
@@ -261,38 +309,38 @@
 
     <!-- Grant Tokens Modal -->
     <div v-if="showGrantTokensModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('panel.userDetail.grantTokensModal.title') }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ user?.first_name }} {{ user?.last_name }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ $t('panel.userDetail.grantTokensModal.currentBalance', { balance: user?.token_balance || 0 }) }}</p>
+      <div class="bg-[var(--color-surface)] rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ $t('panel.userDetail.grantTokensModal.title') }}</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ user?.full_name }}</p>
+          <p class="text-xs text-[var(--color-text-secondary)] mt-1">{{ $t('panel.userDetail.grantTokensModal.currentBalance', { balance: user?.token_balance || 0 }) }}</p>
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.userDetail.grantTokensModal.amountLabel') }}</label>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.userDetail.grantTokensModal.amountLabel') }}</label>
             <input
               v-model.number="grantTokensForm.amount"
               type="number"
               min="1"
               max="1000000"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               :placeholder="$t('panel.userDetail.grantTokensModal.amountPlaceholder')"
             />
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('panel.userDetail.grantTokensModal.reasonLabel') }}</label>
+            <label class="block text-sm font-medium text-[var(--color-text-primary)] mb-2">{{ $t('panel.userDetail.grantTokensModal.reasonLabel') }}</label>
             <textarea
               v-model="grantTokensForm.reason"
               rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               :placeholder="$t('panel.userDetail.grantTokensModal.reasonPlaceholder')"
             ></textarea>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <div class="px-6 py-4 border-t border-[var(--color-border)] flex justify-end gap-3">
           <button
             @click="closeGrantTokensModal"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+            class="px-4 py-2 text-[var(--color-text-primary)] bg-[var(--color-surface-secondary)] rounded-lg hover:bg-[var(--color-surface-secondary)]"
           >
             {{ $t('panel.userDetail.grantTokensModal.cancel') }}
           </button>
@@ -325,6 +373,77 @@ const panelStore = usePanelStore()
 const user = ref<AdminUser | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+// Password change
+const showPasswordForm = ref(false)
+const passwordError = ref('')
+const passwordSuccess = ref('')
+const passwordForm = ref({ newPassword: '', confirmPassword: '' })
+
+const canSavePassword = computed(() =>
+  passwordForm.value.newPassword.length >= 12 &&
+  passwordForm.value.newPassword === passwordForm.value.confirmPassword
+)
+
+const savePassword = async () => {
+  try {
+    passwordError.value = ''
+    passwordSuccess.value = ''
+    if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+      passwordError.value = t('auth.password_mismatch') || 'Passwörter stimmen nicht überein'
+      return
+    }
+    const userId = route.params.userId as string
+    const http = (await import('@/infrastructure/api/http')).default
+    await http.post(`/users/${userId}/change-password`, {
+      new_password: passwordForm.value.newPassword
+    })
+    passwordSuccess.value = t('panel.userDetail.passwordChanged') || 'Passwort erfolgreich geändert'
+    passwordForm.value = { newPassword: '', confirmPassword: '' }
+    setTimeout(() => { showPasswordForm.value = false; passwordSuccess.value = '' }, 2000)
+  } catch (err: any) {
+    passwordError.value = err.response?.data?.details || err.response?.data?.error || 'Fehler'
+  }
+}
+
+// Inline editing
+const editingName = ref(false)
+const editingUsername = ref(false)
+const editError = ref<string | null>(null)
+const editForm = ref({ full_name: '', username: '' })
+
+const startEditName = () => {
+  editForm.value.full_name = user.value?.full_name || ''
+  editingName.value = true
+  editError.value = null
+}
+
+const startEditUsername = () => {
+  editForm.value.username = user.value?.username || ''
+  editingUsername.value = true
+  editError.value = null
+}
+
+const saveField = async (field: string) => {
+  try {
+    editError.value = null
+    const userId = route.params.userId as string
+    const data: Record<string, string> = {}
+    data[field] = editForm.value[field as keyof typeof editForm.value]
+
+    const http = (await import('@/infrastructure/api/http')).default
+    await http.put(`/users/${userId}`, data)
+
+    // Update local state
+    if (user.value) {
+      (user.value as any)[field] = data[field]
+    }
+    editingName.value = false
+    editingUsername.value = false
+  } catch (err: any) {
+    editError.value = err.response?.data?.details || err.response?.data?.error || t('panel.users.createUserError')
+  }
+}
 
 // Modal States
 const showBanModal = ref(false)
@@ -449,13 +568,13 @@ const confirmGrantTokens = async () => {
 // Utility
 const getRoleBadgeClass = (role: string): string => {
   const classes: Record<string, string> = {
-    user: 'bg-gray-100 text-gray-800',
+    user: 'bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)]',
     premium: 'bg-yellow-100 text-yellow-800',
     creator: 'bg-blue-100 text-blue-800',
     teacher: 'bg-green-100 text-green-800',
     admin: 'bg-red-100 text-red-800'
   }
-  return classes[role] || 'bg-gray-100 text-gray-800'
+  return classes[role] || 'bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)]'
 }
 
 const formatDate = (dateString: string): string => {

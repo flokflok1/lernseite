@@ -30,7 +30,9 @@
     "register_success": "Registration successful! You will be redirected shortly...",
     "remember_me": "Remember me",
     "session_expired": "Your session has expired",
-    "username": "Username"
+    "username": "Username",
+    "emailOrUsername": "Email or Username",
+    "emailOrUsernamePlaceholder": "Email or username"
   },
   "common": {
     "actions": "Actions",

@@ -107,6 +107,7 @@ class UserUpdate(BaseModel):
     """
     email: Optional[EmailStr] = None
     full_name: Optional[str] = Field(None, min_length=1, max_length=255)
+    username: Optional[str] = Field(None, min_length=3, max_length=50, pattern=r'^[a-zA-Z0-9_-]{3,50}$')
     role: Optional[str] = None
     organisation_id: Optional[int] = None
     is_active: Optional[bool] = None
@@ -116,15 +117,13 @@ class UserUpdate(BaseModel):
 
 class UserLogin(BaseModel):
     """
-    User login model
+    User login model — accepts email or username
 
     Example:
-        >>> login_data = UserLogin(
-        ...     email="user@example.com",
-        ...     password="SecurePass123!"
-        ... )
+        >>> login_data = UserLogin(email="user@example.com", password="SecurePass123!")
+        >>> login_data = UserLogin(email="admin", password="SecurePass123!")
     """
-    email: EmailStr = Field(..., description="User email address")
+    email: str = Field(..., min_length=1, description="Email or username")
     password: str = Field(..., description="User password")
     totp_code: Optional[str] = Field(
         default=None,

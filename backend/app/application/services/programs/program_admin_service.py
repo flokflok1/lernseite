@@ -68,3 +68,37 @@ class ProgramAdminService:
             ProgramTypeRepository,
         )
         return ProgramTypeRepository.delete(type_key)
+
+    # --- Exam Types ---
+
+    @staticmethod
+    def list_exam_types(program_id: int) -> List[Dict[str, Any]]:
+        from app.infrastructure.persistence.repositories.exams.exam_type_registry import (
+            ExamTypeRegistryRepository,
+        )
+        return ExamTypeRegistryRepository.find_by_program(program_id)
+
+    @staticmethod
+    def create_exam_type(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        from app.infrastructure.persistence.repositories.exams.exam_type_registry import (
+            ExamTypeRegistryRepository,
+        )
+        return ExamTypeRegistryRepository.create(data)
+
+    @staticmethod
+    def update_exam_type(exam_type: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        from app.infrastructure.persistence.repositories.exams.exam_type_registry import (
+            ExamTypeRegistryRepository,
+        )
+        return ExamTypeRegistryRepository.update(exam_type, data)
+
+    @staticmethod
+    def delete_exam_type(exam_type: str) -> bool:
+        from app.infrastructure.persistence.repositories.exams.exam_type_registry import (
+            ExamTypeRegistryRepository,
+        )
+        if ExamTypeRegistryRepository.has_dependent_exams(exam_type):
+            raise ValueError(
+                f'Exam type {exam_type!r} has dependent exams — cannot delete'
+            )
+        return ExamTypeRegistryRepository.delete(exam_type)

@@ -11,6 +11,9 @@ Target mix: ~40% unseen, ~30% weak, ~30% review
 import logging
 from typing import Dict, List, Optional
 
+from app.domain.models.practice_session import (
+    PracticeConfig, PracticeOrder, PracticeMode,
+)
 from app.infrastructure.persistence.repositories.exams.trainer import (
     ExamTrainerRepository,
 )
@@ -112,6 +115,128 @@ class RotationService:
 
         return selected
 
+    @classmethod
+    def generate_practice_session(
+        cls, user_id: int, config: PracticeConfig,
+    ) -> dict:
+        """Create a practice session based on user configuration.
+
+        For SEQUENTIAL order: fetches questions sorted by exam + number.
+        For MIXED order: placeholder (Phase 2 adds topic-balanced selection).
+
+        Returns dict with attempt_id, questions, total_available,
+        has_more, config.
+        """
+        total = ExamTrainerRepository.count_available_questions(
+            exam_filter=config.exam_filter or None,
+            topic_filter=config.topic_filter or None,
+        )
+
+        if total == 0:
+            return _empty_practice_result(config)
+
+        batch_size = _calculate_batch_size(config.question_count, total)
+        questions = _fetch_practice_questions(config, batch_size)
+        clean_questions = _strip_solutions(questions)
+
+        total_points = sum(q.get('points', 0) for q in questions)
+        duration = config.time_limit_minutes or 0
+
+        practice_state = _build_practice_state(config, batch_size)
+        attempt = ExamTrainerRepository.create_adaptive_attempt(
+            user_id=user_id,
+            duration_minutes=duration,
+            total_points=total_points,
+            metadata={'practice_state': practice_state},
+        )
+
+        if not attempt:
+            logger.error(
+                "Failed to create practice attempt for user=%s", user_id,
+            )
+            return _empty_practice_result(config)
+
+        attempt_id = str(attempt['attempt_id'])
+        effective_count = config.question_count or total
+        has_more = batch_size < effective_count and batch_size < total
+
+        return {
+            'attempt_id': attempt_id,
+            'questions': clean_questions,
+            'total_available': total,
+            'has_more': has_more,
+            'config': {
+                'mode': config.mode.value,
+                'order': config.order.value,
+                'question_count': config.question_count,
+            },
+        }
+
+
+def _empty_practice_result(config: PracticeConfig) -> dict:
+    """Return an empty result when no questions are available."""
+    return {
+        'attempt_id': None,
+        'questions': [],
+        'total_available': 0,
+        'has_more': False,
+        'config': {
+            'mode': config.mode.value,
+            'order': config.order.value,
+        },
+    }
+
+
+def _calculate_batch_size(
+    question_count: Optional[int], total: int,
+) -> int:
+    """Determine how many questions to fetch for this batch.
+
+    Endless mode (question_count=None): batch of 50.
+    Fixed count: load all at once (no batching needed for finite sessions).
+    """
+    if question_count is None:
+        return min(50, total)
+    return min(question_count, total)
+
+
+def _fetch_practice_questions(
+    config: PracticeConfig, batch_size: int,
+) -> list:
+    """Fetch questions based on order strategy."""
+    # Both SEQUENTIAL and MIXED use sequential fetch for now.
+    # Phase 2 will add topic-balanced selection for MIXED.
+    return ExamTrainerRepository.find_questions_sequential(
+        exam_filter=config.exam_filter or None,
+        topic_filter=config.topic_filter or None,
+        offset=0,
+        limit=batch_size,
+    )
+
+
+def _build_practice_state(
+    config: PracticeConfig, batch_size: int,
+) -> dict:
+    """Build initial practice state for persistence in attempt metadata."""
+    return {
+        'config': {
+            'mode': config.mode.value,
+            'order': config.order.value,
+            'question_count': config.question_count,
+            'exam_filter': config.exam_filter,
+            'topic_filter': config.topic_filter,
+        },
+        'current_position': 0,
+        'batch_offset': batch_size,
+        'spaced_queue': [],
+        'adaptive': {
+            'recent_results': [],
+            'current_shift': 'stay',
+            'avg_points': 0,
+        },
+        'streak_tracking': {},
+    }
+
 
 def _fetch_rotation_buckets(
     user_id: str, exam_type: str, topic: Optional[str],
@@ -179,3 +304,31 @@ def _select_from_buckets(buckets: Dict, count: int) -> List[Dict]:
     buckets['review_used'] = len(picked_review)
 
     return selected
+
+
+def _strip_solutions(questions: list) -> list:
+    """Remove solution fields so users cannot see answers.
+
+    Whitelist-based: only includes safe fields from question dicts.
+    """
+    sanitized = []
+    for q in questions:
+        clean = {
+            'question_id': q.get('question_id'),
+            'exam_id': q.get('exam_id'),
+            'question_text': q.get('question_text', ''),
+            'question_type': q.get('question_type', ''),
+            'data': q.get('data'),
+            'points': q.get('points', 1),
+            'scenario_title': q.get('scenario_title', ''),
+            'scenario_text': q.get('scenario_text', ''),
+            'question_number': q.get('question_number', ''),
+            'topics': q.get('topics', []),
+        }
+        if 'exam_title' in q:
+            clean['exam_title'] = q['exam_title']
+            clean['semester'] = q.get('semester', '')
+            clean['year'] = q.get('year')
+            clean['season'] = q.get('season', '')
+        sanitized.append(clean)
+    return sanitized

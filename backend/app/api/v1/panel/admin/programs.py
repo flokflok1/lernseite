@@ -1,14 +1,18 @@
-"""Admin Programs API — CRUD for programs and program types.
+"""Admin Programs API — CRUD for programs, program types, and exam types.
 
 Endpoints:
-- GET    /admin/programs           — List all programs with parts
-- POST   /admin/programs           — Create program
-- PUT    /admin/programs/<id>      — Update program
-- DELETE /admin/programs/<id>      — Soft-delete program
-- GET    /admin/program-types      — List types
-- POST   /admin/program-types      — Create type
-- PUT    /admin/program-types/<key> — Update type
-- DELETE /admin/program-types/<key> — Delete type
+- GET    /admin/programs                           — List all programs with parts
+- POST   /admin/programs                           — Create program
+- PUT    /admin/programs/<id>                      — Update program
+- DELETE /admin/programs/<id>                      — Soft-delete program
+- GET    /admin/program-types                      — List types
+- POST   /admin/program-types                      — Create type
+- PUT    /admin/program-types/<key>                — Update type
+- DELETE /admin/program-types/<key>                — Delete type
+- GET    /admin/exam-types?program_id=<id>         — List exam types for a program
+- POST   /admin/exam-types                         — Create exam type
+- PUT    /admin/exam-types/<exam_type>             — Update exam type
+- DELETE /admin/exam-types/<exam_type>             — Delete exam type
 """
 import logging
 from flask import Blueprint, jsonify, request
@@ -23,6 +27,10 @@ programs_admin_bp = Blueprint(
 
 program_types_bp = Blueprint(
     'program_types_admin', __name__, url_prefix='/admin/program-types',
+)
+
+exam_types_bp = Blueprint(
+    'exam_types_admin', __name__, url_prefix='/admin/exam-types',
 )
 
 
@@ -108,3 +116,51 @@ def delete_type(type_key: str):
     from app.application.services.programs.program_admin_service import ProgramAdminService
     ProgramAdminService.delete_type(type_key)
     return jsonify({'success': True}), 200
+
+
+# --- Exam Types ---
+
+@exam_types_bp.route('', methods=['GET'])
+@admin_required
+def list_exam_types():
+    """List exam types for a program (?program_id=<id>)."""
+    from app.application.services.programs.program_admin_service import ProgramAdminService
+    program_id = request.args.get('program_id', type=int)
+    if not program_id:
+        return jsonify({'success': False, 'error': 'program_id required'}), 400
+    types = ProgramAdminService.list_exam_types(program_id)
+    return jsonify({'success': True, 'exam_types': types}), 200
+
+
+@exam_types_bp.route('', methods=['POST'])
+@admin_required
+def create_exam_type():
+    """Create a new exam type."""
+    from app.application.services.programs.program_admin_service import ProgramAdminService
+    data = request.get_json() or {}
+    if not data.get('exam_type') or not data.get('display_name'):
+        return jsonify({'success': False, 'error': 'exam_type and display_name required'}), 400
+    et = ProgramAdminService.create_exam_type(data)
+    return jsonify({'success': True, 'exam_type': et}), 201
+
+
+@exam_types_bp.route('/<exam_type_key>', methods=['PUT'])
+@admin_required
+def update_exam_type(exam_type_key: str):
+    """Update an existing exam type."""
+    from app.application.services.programs.program_admin_service import ProgramAdminService
+    data = request.get_json() or {}
+    et = ProgramAdminService.update_exam_type(exam_type_key, data)
+    return jsonify({'success': True, 'exam_type': et}), 200
+
+
+@exam_types_bp.route('/<exam_type_key>', methods=['DELETE'])
+@admin_required
+def delete_exam_type(exam_type_key: str):
+    """Delete an exam type (blocked if dependent exams exist)."""
+    from app.application.services.programs.program_admin_service import ProgramAdminService
+    try:
+        ProgramAdminService.delete_exam_type(exam_type_key)
+        return jsonify({'success': True}), 200
+    except ValueError as exc:
+        return jsonify({'success': False, 'error': str(exc)}), 409

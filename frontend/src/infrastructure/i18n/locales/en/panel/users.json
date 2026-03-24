@@ -55,7 +55,9 @@
       "title": "Unban User"
     },
     "unbanUser": "Unban User",
-    "userId": "User ID"
+    "userId": "User ID",
+    "changePassword": "Change Password",
+    "passwordChanged": "Password changed successfully"
   },
   "userGroupManagement": {
     "roles": "Roles",
@@ -108,6 +110,8 @@
     "fullNamePlaceholder": "Max Mustermann",
     "emailPlaceholder": "user{'@'}example.com",
     "passwordPlaceholder": "Min. 12 characters",
-    "minPassword": "At least 12 characters"
+    "minPassword": "At least 12 characters",
+    "confirmDelete": "Really delete user \"{name}\"?",
+    "deleteError": "Failed to delete user"
   }
 }

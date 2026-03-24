@@ -327,12 +327,17 @@ def register_advanced_routes(bp):
                        frequency_pct}]}
         """
         try:
-            rows = ExamTrainerRepository.get_topic_frequency()
+            exam_type_key = request.args.get('exam_type_key')
+            rows = ExamTrainerRepository.get_topic_frequency(
+                exam_type_key=exam_type_key,
+            )
             # Count actual distinct exams for percentage
             from app.infrastructure.persistence.repositories.exams.core import (
                 ExamRepository,
             )
             all_exams = ExamRepository.find_archive_exams(status='ready')
+            if exam_type_key:
+                all_exams = [e for e in all_exams if e.get('exam_type_key') == exam_type_key]
             exam_total = len(all_exams) if all_exams else 1
 
             # Build display_name lookup from topic nodes
@@ -341,16 +346,21 @@ def register_advanced_routes(bp):
             )
             all_nodes = TopicNodeRepository.find_all()
             node_map = {n['topic_key']: n for n in all_nodes}
+            # Only proper root nodes (parent_key IS NULL)
+            root_keys = {n['topic_key'] for n in all_nodes if not n.get('parent_key')}
 
-            # Aggregate by root parent if hierarchy exists
+            # Aggregate by root parent, skip orphans not in hierarchy
             aggregated: dict = {}
             for r in rows:
                 topic_key = r['topic']
                 node = node_map.get(topic_key)
-                # Find root: if has parent, use parent
                 root_key = topic_key
                 if node and node.get('parent_key'):
                     root_key = node['parent_key']
+
+                # Skip topics that are not in the hierarchy as proper roots
+                if root_key not in root_keys:
+                    continue
 
                 if root_key not in aggregated:
                     root_node = node_map.get(root_key)

@@ -285,9 +285,10 @@ export interface TopicFrequency {
 }
 
 /** Get topic frequency analysis across all exams */
-export async function trainerGetTopicFrequency(): Promise<{ total_exams: number; topics: TopicFrequency[] }> {
+export async function trainerGetTopicFrequency(examTypeKey?: string): Promise<{ total_exams: number; topics: TopicFrequency[] }> {
+  const params = examTypeKey ? `?exam_type_key=${examTypeKey}` : ''
   const response = await http.get<{ success: boolean; total_exams: number; topics: TopicFrequency[] }>(
-    '/user/exam-trainer/topic-frequency'
+    `/user/exam-trainer/topic-frequency${params}`
   )
   return { total_exams: response.data.total_exams, topics: response.data.topics }
 }

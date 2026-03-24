@@ -33,6 +33,7 @@ const view = ref<View>(props.initialView)
 const dashboard = ref<TrainerDashboard | null>(null)
 const isLoading = ref(false)
 const isGenerating = ref(false)
+const selectedExamType = ref('')
 
 // Simulation state
 const simQuestions = ref<TrainerQuestion[]>([])
@@ -275,7 +276,10 @@ const handlePracticeQuestion = async (questionId: string) => {
       </div>
 
       <!-- Question Browser -->
-      <QuestionBrowser @practice-question="handlePracticeQuestion" />
+      <QuestionBrowser
+        @practice-question="handlePracticeQuestion"
+        @update:exam-type="selectedExamType = $event"
+      />
 
       <!-- Topic Heatmap (Strengths / Weaknesses) -->
       <div v-if="dashboard.topics && dashboard.topics.length > 0">
@@ -293,7 +297,7 @@ const handlePracticeQuestion = async (questionId: string) => {
         <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">
           {{ t('panel.examTrainer.prognosis.title') }}
         </h2>
-        <TopicPrognosis />
+        <TopicPrognosis :exam-type-key="selectedExamType || undefined" />
       </div>
 
       <!-- Progress History -->

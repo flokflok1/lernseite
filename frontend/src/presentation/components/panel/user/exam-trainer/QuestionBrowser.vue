@@ -11,6 +11,7 @@ import {
 
 const emit = defineEmits<{
   'practice-question': [questionId: string]
+  'update:examType': [examType: string]
 }>()
 
 const { t, locale } = useI18n()
@@ -86,9 +87,10 @@ const loadQuestions = async () => {
   }
 }
 
-watch(selectedExamType, () => {
+watch(selectedExamType, (val) => {
   selectedTopic.value = ''
   loadTopics()
+  emit('update:examType', val)
 })
 
 watch([selectedTopic, selectedExam, selectedExamType, selectedStatus], () => {

@@ -410,6 +410,7 @@
       "statusWeak": "Schwach",
       "statusMastered": "Gemeistert",
       "allTopics": "Alle Themen",
+      "allExamTypes": "Alle Prüfungsteile",
       "allExams": "Alle Prüfungen",
       "noResults": "Keine Fragen gefunden",
       "questionCount": "{total} Fragen",

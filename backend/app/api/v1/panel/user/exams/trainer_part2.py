@@ -294,6 +294,7 @@ def register_advanced_routes(bp):
             filters = {
                 'topic': request.args.get('topic'),
                 'exam_id': request.args.get('exam_id'),
+                'exam_type_key': request.args.get('exam_type_key'),
                 'status': request.args.get('status', 'all'),
                 'page': int(request.args.get('page', 1)),
                 'per_page': int(request.args.get('per_page', 20)),

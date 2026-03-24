@@ -410,6 +410,7 @@
       "statusWeak": "Weak",
       "statusMastered": "Mastered",
       "allTopics": "All Topics",
+      "allExamTypes": "All Exam Parts",
       "allExams": "All Exams",
       "noResults": "No questions found",
       "questionCount": "{total} questions",

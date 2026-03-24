@@ -410,6 +410,7 @@
       "statusWeak": "Słabe",
       "statusMastered": "Opanowane",
       "allTopics": "Wszystkie tematy",
+      "allExamTypes": "Wszystkie części egzaminu",
       "allExams": "Wszystkie egzaminy",
       "noResults": "Nie znaleziono pytań",
       "questionCount": "{total} pytań",

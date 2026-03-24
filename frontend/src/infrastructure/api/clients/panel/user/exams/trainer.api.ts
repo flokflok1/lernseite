@@ -319,6 +319,7 @@ export interface BrowseResult {
 export async function trainerBrowseQuestions(params: {
   topic?: string
   exam_id?: string
+  exam_type_key?: string
   status?: 'all' | 'unseen' | 'weak' | 'mastered'
   page?: number
   per_page?: number
@@ -326,6 +327,7 @@ export async function trainerBrowseQuestions(params: {
   const searchParams = new URLSearchParams()
   if (params.topic) searchParams.set('topic', params.topic)
   if (params.exam_id) searchParams.set('exam_id', params.exam_id)
+  if (params.exam_type_key) searchParams.set('exam_type_key', params.exam_type_key)
   if (params.status) searchParams.set('status', params.status)
   if (params.page) searchParams.set('page', String(params.page))
   if (params.per_page) searchParams.set('per_page', String(params.per_page))

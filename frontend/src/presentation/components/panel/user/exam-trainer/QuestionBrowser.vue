@@ -25,7 +25,14 @@ const isLoading = ref(false)
 // Filters
 const selectedTopic = ref('')
 const selectedExam = ref('')
+const selectedExamType = ref('')
 const selectedStatus = ref<'all' | 'unseen' | 'weak' | 'mastered'>('all')
+
+const examTypeOptions = [
+  { key: 'FI_AP1', label: 'AP1' },
+  { key: 'FI_AP2_FISI', label: 'AP2 FISI' },
+  { key: 'FI_AP2_FIAE', label: 'AP2 FIAE' },
+]
 
 // Options for dropdowns
 const topicOptions = ref<Array<{ key: string; label: string }>>([])
@@ -59,6 +66,7 @@ const loadQuestions = async () => {
     const result = await trainerBrowseQuestions({
       topic: selectedTopic.value || undefined,
       exam_id: selectedExam.value || undefined,
+      exam_type_key: selectedExamType.value || undefined,
       status: selectedStatus.value,
       page: page.value,
       per_page: perPage.value,
@@ -70,7 +78,7 @@ const loadQuestions = async () => {
   }
 }
 
-watch([selectedTopic, selectedExam, selectedStatus], () => {
+watch([selectedTopic, selectedExam, selectedExamType, selectedStatus], () => {
   page.value = 1
   loadQuestions()
 })
@@ -131,6 +139,18 @@ const correctPercent = (q: BrowseQuestion) => {
         <option value="">{{ t('panel.examTrainer.questionBrowser.allTopics') }}</option>
         <option v-for="opt in topicOptions" :key="opt.key" :value="opt.key">
           {{ opt.label }}
+        </option>
+      </select>
+
+      <!-- Exam type dropdown -->
+      <select
+        v-model="selectedExamType"
+        class="px-3 py-2 text-sm rounded-lg border border-[var(--color-border)]
+               bg-[var(--color-surface)] text-[var(--color-text)]"
+      >
+        <option value="">{{ t('panel.examTrainer.questionBrowser.allExamTypes') }}</option>
+        <option v-for="et in examTypeOptions" :key="et.key" :value="et.key">
+          {{ et.label }}
         </option>
       </select>
 

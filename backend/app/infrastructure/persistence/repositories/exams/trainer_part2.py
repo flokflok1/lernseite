@@ -49,6 +49,10 @@ def _build_browse_filters(filters: dict) -> tuple:
         conditions.append("eq.exam_id = %s")
         params.append(filters['exam_id'])
 
+    if filters.get('exam_type_key'):
+        conditions.append("e.exam_type_key = %s")
+        params.append(filters['exam_type_key'])
+
     status = filters.get('status', 'all')
     if status == 'unseen':
         conditions.append("uqs.question_id IS NULL")

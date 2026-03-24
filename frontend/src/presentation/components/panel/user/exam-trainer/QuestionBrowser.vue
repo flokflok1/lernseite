@@ -47,6 +47,14 @@ const statusTabs = computed(() => [
   { key: 'mastered' as const, label: t('panel.examTrainer.questionBrowser.statusMastered') },
 ])
 
+const loadTopics = async () => {
+  const dashboard = await trainerGetDashboard(undefined, selectedExamType.value || undefined)
+  topicOptions.value = (dashboard.topics || []).map((tp: { topic: string; display_name?: Record<string, string> }) => ({
+    key: tp.topic,
+    label: tp.display_name?.[locale.value] || tp.display_name?.de || tp.topic,
+  }))
+}
+
 onMounted(async () => {
   const [dashboard, exams] = await Promise.all([
     trainerGetDashboard(),
@@ -77,6 +85,11 @@ const loadQuestions = async () => {
     isLoading.value = false
   }
 }
+
+watch(selectedExamType, () => {
+  selectedTopic.value = ''
+  loadTopics()
+})
 
 watch([selectedTopic, selectedExam, selectedExamType, selectedStatus], () => {
   page.value = 1

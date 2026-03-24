@@ -219,6 +219,7 @@ def register_advanced_routes(bp):
 
             pool_stats = ExamTrainerRepository.count_pool_stats(user_id)
             topics = ExamTrainerRepository.find_topics_with_stats(user_id)
+            exam_type_key = request.args.get('exam_type_key')
 
             # Use aggregated topic stats if hierarchy exists
             from app.application.services.topics.topic_hierarchy_service import (
@@ -226,7 +227,9 @@ def register_advanced_routes(bp):
             )
             hierarchy = TopicHierarchyService.get_hierarchy()
             if hierarchy:
-                topics = TopicHierarchyService.get_aggregated_stats(user_id)
+                topics = TopicHierarchyService.get_aggregated_stats(
+                    user_id, exam_type_key=exam_type_key,
+                )
 
             history = ExamTrainerRepository.get_user_attempt_history(
                 user_id, limit=5,

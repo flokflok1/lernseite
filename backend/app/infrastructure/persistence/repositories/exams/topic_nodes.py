@@ -147,13 +147,22 @@ class TopicNodeRepository:
         """)
 
     @staticmethod
-    def get_topic_stats_aggregated(user_id: str) -> List[Dict[str, Any]]:
+    def get_topic_stats_aggregated(
+        user_id: str, exam_type_key: str = None
+    ) -> List[Dict[str, Any]]:
         """Get topic stats aggregated by root parent.
 
         For each root topic, sums up question counts and user stats
-        from all child topics.
+        from all child topics. Only includes topics that are in the
+        hierarchy (have a display_name), orphan sub-topics are excluded.
+
+        Args:
+            user_id: Current user ID
+            exam_type_key: Optional filter by exam type (e.g. 'FI_AP1')
         """
-        return fetch_all("""
+        exam_type_filter = "AND e.exam_type_key = %s" if exam_type_key else ""
+        params = (exam_type_key, user_id) if exam_type_key else (user_id,)
+        return fetch_all(f"""
             WITH topic_roots AS (
                 -- Map each topic to its root ancestor
                 SELECT
@@ -166,6 +175,7 @@ class TopicNodeRepository:
                 FROM assessments.exam_questions eq
                 JOIN assessments.exams e ON e.exam_id = eq.exam_id
                 WHERE e.analysis_status = 'ready' AND e.published = true
+                {exam_type_filter}
             ),
             aggregated AS (
                 SELECT
@@ -196,7 +206,8 @@ class TopicNodeRepository:
                  WHERE c.parent_key = a.root_topic
                 ) AS child_topics
             FROM aggregated a
-            LEFT JOIN assessments.exam_topic_nodes rn
+            JOIN assessments.exam_topic_nodes rn
                 ON rn.topic_key = a.root_topic
+               AND rn.parent_key IS NULL
             ORDER BY a.question_count DESC
-        """, (user_id,))
+        """, params)

@@ -197,7 +197,7 @@ class TopicNodeRepository:
             )
             SELECT
                 a.root_topic AS topic,
-                COALESCE(rn.display_name, '{}'::jsonb) AS display_name,
+                COALESCE(rn.display_name, '{{}}'::jsonb) AS display_name,
                 a.question_count,
                 a.attempted AS attempts,
                 a.correct_count,

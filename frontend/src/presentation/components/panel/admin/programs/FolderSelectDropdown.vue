@@ -36,7 +36,7 @@ function flattenTree(nodes: ArchiveFolder[], depth = 0): FlatFolder[] {
 const loadFolders = async () => {
   try {
     const { data } = await fetchSidebarTree(String(props.programId))
-    folders.value = flattenTree(data.tree || [])
+    folders.value = flattenTree((data as unknown as ArchiveFolder[]) || [])
   } catch {
     folders.value = []
   }

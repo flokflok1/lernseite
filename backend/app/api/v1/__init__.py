@@ -117,6 +117,7 @@ from app.api.v1.panel.user.dashboard import widgets_registry_bp, widgets_instanc
 from app.api.v1.panel.user.runner import sessions_bp as runner_sessions_bp
 from app.api.v1.panel.user.exams import trainer_bp as exam_trainer_bp
 from app.api.v1.panel.user.exams import exam_upload_bp
+from app.api.v1.panel.user.exams import ap2_trainer_bp
 from app.api.v1.panel.user.exam_goals import exam_goals_bp
 from app.api.v1.panel.user.learning.reviews import review_bp
 from app.api.v1.panel.user.programs import programs_user_bp
@@ -255,6 +256,7 @@ api_v1.register_blueprint(widgets_instances_bp)
 api_v1.register_blueprint(runner_sessions_bp)
 api_v1.register_blueprint(exam_trainer_bp)
 api_v1.register_blueprint(exam_upload_bp)
+api_v1.register_blueprint(ap2_trainer_bp)
 api_v1.register_blueprint(exam_goals_bp)
 api_v1.register_blueprint(review_bp)
 api_v1.register_blueprint(programs_user_bp)
@@ -307,7 +309,7 @@ __all__ = [
     'profile_bp', 'tokens_bp', 'tutor_bp', 'agents_bp',
     'tts_bp', 'tts_pronunciations_bp', 'audio_bp',
     'gamification_bp', 'widgets_registry_bp', 'widgets_instances_bp',
-    'runner_sessions_bp', 'exam_trainer_bp', 'exam_goals_bp', 'review_bp',
+    'runner_sessions_bp', 'exam_trainer_bp', 'ap2_trainer_bp', 'exam_goals_bp', 'review_bp',
     'programs_user_bp',
     # i18n
     'I18N_BLUEPRINTS',

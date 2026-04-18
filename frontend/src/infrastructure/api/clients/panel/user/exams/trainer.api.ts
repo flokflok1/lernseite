@@ -264,8 +264,11 @@ export async function trainerGetPrograms(): Promise<TrainerProgram[]> {
 }
 
 /** Get dashboard data (pool stats + topics + recent attempts) */
-export async function trainerGetDashboard(courseId?: string): Promise<TrainerDashboard> {
-  const params = courseId ? `?course_id=${courseId}` : ''
+export async function trainerGetDashboard(courseId?: string, examTypeKey?: string): Promise<TrainerDashboard> {
+  const searchParams = new URLSearchParams()
+  if (courseId) searchParams.set('course_id', courseId)
+  if (examTypeKey) searchParams.set('exam_type_key', examTypeKey)
+  const params = searchParams.toString() ? `?${searchParams.toString()}` : ''
   const response = await http.get<{ success: boolean } & TrainerDashboard>(
     `/user/exam-trainer/dashboard${params}`
   )
@@ -282,9 +285,10 @@ export interface TopicFrequency {
 }
 
 /** Get topic frequency analysis across all exams */
-export async function trainerGetTopicFrequency(): Promise<{ total_exams: number; topics: TopicFrequency[] }> {
+export async function trainerGetTopicFrequency(examTypeKey?: string): Promise<{ total_exams: number; topics: TopicFrequency[] }> {
+  const params = examTypeKey ? `?exam_type_key=${examTypeKey}` : ''
   const response = await http.get<{ success: boolean; total_exams: number; topics: TopicFrequency[] }>(
-    '/user/exam-trainer/topic-frequency'
+    `/user/exam-trainer/topic-frequency${params}`
   )
   return { total_exams: response.data.total_exams, topics: response.data.topics }
 }

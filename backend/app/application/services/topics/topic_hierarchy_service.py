@@ -165,12 +165,16 @@ class TopicHierarchyService:
         return TopicNodeRepository.find_tree()
 
     @staticmethod
-    def get_aggregated_stats(user_id: str) -> List[Dict[str, Any]]:
+    def get_aggregated_stats(
+        user_id: str, exam_type_key: str = None
+    ) -> List[Dict[str, Any]]:
         """Get topic stats aggregated by root category."""
         from app.infrastructure.persistence.repositories.exams.topic_nodes import (
             TopicNodeRepository,
         )
-        return TopicNodeRepository.get_topic_stats_aggregated(user_id)
+        return TopicNodeRepository.get_topic_stats_aggregated(
+            user_id, exam_type_key=exam_type_key
+        )
 
     @staticmethod
     def move_topic(topic_key: str, new_parent: Optional[str]) -> bool:

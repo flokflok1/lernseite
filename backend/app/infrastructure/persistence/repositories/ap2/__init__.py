@@ -1,0 +1,21 @@
+"""AP2 Trainer Repositories — psycopg3, parameterized queries only."""
+
+from .topics import Ap2TopicRepository
+from .anlagen import Ap2AnlageRepository
+from .items import Ap2LearningItemRepository
+from .attempts import Ap2AttemptRepository
+from .scheduling import Ap2ReviewScheduleRepository
+from .mastery import Ap2TopicMasteryRepository
+from .cheatsheets import Ap2CheatsheetRepository
+from .sessions import Ap2StudySessionRepository
+
+__all__ = [
+    'Ap2TopicRepository',
+    'Ap2AnlageRepository',
+    'Ap2LearningItemRepository',
+    'Ap2AttemptRepository',
+    'Ap2ReviewScheduleRepository',
+    'Ap2TopicMasteryRepository',
+    'Ap2CheatsheetRepository',
+    'Ap2StudySessionRepository',
+]

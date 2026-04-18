@@ -125,6 +125,58 @@ const routes: RouteRecordRaw[] = [
     redirect: '/programs',
   },
 
+  // AP2 Trainer (FISI FA 235 BW) — Vollausbau mit 7 Sub-Views
+  {
+    path: '/ap2-training',
+    component: () => import('@/presentation/pages/panel/user/ap2/AP2TrainingPage.vue'),
+    meta: { requiresAuth: true },
+    redirect: '/ap2-training/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Ap2Dashboard',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/DashboardView.vue'),
+      },
+      {
+        path: 'study',
+        name: 'Ap2Study',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/StudyView.vue'),
+      },
+      {
+        path: 'study/:topicSlug',
+        name: 'Ap2StudyTopic',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/StudyView.vue'),
+        props: true,
+      },
+      {
+        path: 'review',
+        name: 'Ap2Review',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ReviewQueueView.vue'),
+      },
+      {
+        path: 'exam',
+        name: 'Ap2Exam',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ExamSimulationView.vue'),
+      },
+      {
+        path: 'cheatsheet',
+        name: 'Ap2Cheatsheet',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/CheatsheetView.vue'),
+      },
+      {
+        path: 'cheatsheet/:topicSlug',
+        name: 'Ap2CheatsheetTopic',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/CheatsheetView.vue'),
+        props: true,
+      },
+      {
+        path: 'anlagen',
+        name: 'Ap2Anlagen',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/AnlagenLibraryView.vue'),
+      },
+    ],
+  },
+
   // Anlage standalone popout (opened via window.open from exam trainer)
   {
     path: '/exam-trainer/anlage/:examId/:anlageNumber',

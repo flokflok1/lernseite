@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { TopicFrequency } from '@/infrastructure/api/clients/panel/user/exams'
 import { trainerGetTopicFrequency } from '@/infrastructure/api/clients/panel/user/exams'
+
+const props = defineProps<{ examTypeKey?: string }>()
 
 const { t, locale } = useI18n()
 
@@ -33,9 +35,10 @@ const barLabel = (pct: number): string => {
   return t('panel.examTrainer.prognosis.rare')
 }
 
-onMounted(async () => {
+const loadData = async () => {
+  isLoading.value = true
   try {
-    const data = await trainerGetTopicFrequency()
+    const data = await trainerGetTopicFrequency(props.examTypeKey || undefined)
     topics.value = data.topics
     totalExams.value = data.total_exams
   } catch {
@@ -43,7 +46,10 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
-})
+}
+
+onMounted(loadData)
+watch(() => props.examTypeKey, loadData)
 </script>
 
 <template>

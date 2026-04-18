@@ -269,13 +269,15 @@ class ExamTrainerRotationMixin:
         }
 
     @staticmethod
-    def get_topic_frequency() -> list:
+    def get_topic_frequency(exam_type_key: str = None) -> list:
         """Get topic frequency across all ready exams.
 
         Returns list of {topic, exam_count, question_count, latest_year}
         sorted by exam_count descending.
         """
-        query = """
+        exam_type_filter = "AND e.exam_type_key = %s" if exam_type_key else ""
+        params = (exam_type_key,) if exam_type_key else ()
+        query = f"""
             SELECT t.topic,
                    COUNT(DISTINCT q.exam_id) as exam_count,
                    COUNT(*) as question_count,
@@ -284,11 +286,13 @@ class ExamTrainerRotationMixin:
             JOIN assessments.exams e ON e.exam_id = q.exam_id,
             LATERAL unnest(q.topics) as t(topic)
             WHERE e.analysis_status = 'ready'
+              AND e.published = true
               AND q.topics IS NOT NULL
+              {exam_type_filter}
             GROUP BY t.topic
             ORDER BY exam_count DESC, question_count DESC
         """
-        return fetch_all(query, ())
+        return fetch_all(query, params)
 
     @staticmethod
     def find_questions_sequential(

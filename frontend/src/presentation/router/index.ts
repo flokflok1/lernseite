@@ -125,6 +125,14 @@ const routes: RouteRecordRaw[] = [
     redirect: '/programs',
   },
 
+  // AP1 Training (Interactive Practice)
+  {
+    path: '/ap1-training',
+    name: 'AP1Training',
+    component: () => import('@/presentation/pages/panel/user/ap1/AP1TrainingPage.vue'),
+    meta: { requiresAuth: true },
+  },
+
   // AP2 Trainer (FISI FA 235 BW) — Vollausbau mit 7 Sub-Views
   {
     path: '/ap2-training',

@@ -58,6 +58,20 @@
             👤 {{ t('nav.profile') }}
           </router-link>
           <router-link
+            to="/ap1-training"
+            class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
+            active-class="bg-primary-100 text-primary-700"
+          >
+            🎯 AP1 Training
+          </router-link>
+          <router-link
+            to="/ap2-training"
+            class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
+            active-class="bg-primary-100 text-primary-700"
+          >
+            📝 AP2 Training
+          </router-link>
+          <router-link
             to="/settings"
             class="block px-4 py-2 rounded-lg hover:bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] transition-colors"
             active-class="bg-primary-100 text-primary-700"

@@ -125,19 +125,25 @@ socketio = SocketIO(
     engineio_logger=True
 )
 
+_redis_logger = logging.getLogger(__name__)
+
 # Redis Client (lazy initialization - will be None during setup)
 try:
-    redis_client = redis.Redis(
-        host=os.getenv('REDIS_HOST', 'localhost'),
-        port=int(os.getenv('REDIS_PORT', 6379)),
-        db=int(os.getenv('REDIS_DB', 0)),
-        decode_responses=True,
-        socket_connect_timeout=2  # Fast fail if Redis not available
-    )
+    _redis_kwargs = {
+        'host': os.getenv('REDIS_HOST', 'localhost'),
+        'port': int(os.getenv('REDIS_PORT', 6379)),
+        'db': int(os.getenv('REDIS_DB', 0)),
+        'decode_responses': True,
+        'socket_connect_timeout': 2,  # Fast fail if Redis not available
+    }
+    _redis_password = os.getenv('REDIS_PASSWORD')
+    if _redis_password:
+        _redis_kwargs['password'] = _redis_password
+    redis_client = redis.Redis(**_redis_kwargs)
     # Test connection
     redis_client.ping()
 except Exception as e:
-    print(f"Warning: Redis not available (normal during setup): {e}")
+    _redis_logger.warning("Redis not available (normal during setup): %s", e)
     redis_client = None
 
 # Celery Task Queue

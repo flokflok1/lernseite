@@ -110,6 +110,9 @@ const topicMastery = computed(() => {
 
 const filteredTopics = computed(() => {
   if (filter.value === 'all') return topics.value
+  // WISO ist eine separate Prüfung (eigener Tag) — 'both' bedeutet PB2+PB3,
+  // nicht WISO. Deshalb WISO-Tab zeigt NUR WISO-Topics.
+  if (filter.value === 'WISO') return topics.value.filter((t) => t.bereich === 'WISO')
   return topics.value.filter(
     (t) => t.bereich === filter.value || t.bereich === 'both'
   )

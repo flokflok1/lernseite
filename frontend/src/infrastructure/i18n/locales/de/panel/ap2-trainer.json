@@ -123,9 +123,20 @@
       }
     },
     "review": {
-      "title": "🔁 Heute fällig (Review Queue)",
-      "subtitle": "SM-2 Spaced Repetition: zeigt Items deren next_review_at ≤ heute",
-      "stubText": "Backend-Endpoint /review/queue läuft bereits. View wird in Kürze hier angezeigt."
+      "title": "🔁 Heute fällig",
+      "subtitle": "SM-2 Spaced Repetition · Items mit next_review_at ≤ heute",
+      "loading": "Lade Review-Queue …",
+      "empty": {
+        "title": "✨ Alles gemacht!",
+        "subtitle": "Heute sind keine Reviews fällig. Komm später wieder oder starte ein neues Thema."
+      },
+      "totalDue": "{n} Items insgesamt fällig",
+      "card": {
+        "rep": "Wiederholung {n}",
+        "estimated": "ca. {n} sec",
+        "points": "{n} P"
+      },
+      "startBtn": "Üben"
     },
     "exam": {
       "title": "📝 Prüfungssimulation",
@@ -134,8 +145,20 @@
     },
     "cheatsheet": {
       "title": "📋 Cheatsheets",
-      "subtitle": "Eigene Markdown-Zusammenfassungen pro Thema (Generation Effect)",
-      "stubText": "Backend-API existiert (GET/PUT /cheatsheets). UI mit Markdown-Editor + Preview kommt."
+      "subtitle": "Eigene Markdown-Zusammenfassungen pro Thema",
+      "selectTopic": "Wähle ein Thema",
+      "noTopic": "Wähle links ein Thema um dein Cheatsheet zu schreiben.",
+      "loading": "Lade Cheatsheet …",
+      "wordCount": "{n} Wörter",
+      "lastUpdated": "Zuletzt: {date}",
+      "saveBtn": "Speichern",
+      "savingBtn": "Speichere …",
+      "savedAt": "Gespeichert {time}",
+      "placeholder": "# Mein Cheatsheet zum Thema …",
+      "previewToggle": "Vorschau",
+      "editToggle": "Bearbeiten",
+      "splitToggle": "Geteilt",
+      "tip": "Tipp: Eigenes Aufschreiben verankert Wissen tiefer als Lesen (Generation Effect). Vor der Prüfung als PDF drucken."
     },
     "anlagen": {
       "title": "📎 Anlagen-Bibliothek",

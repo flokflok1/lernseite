@@ -123,9 +123,20 @@
       }
     },
     "review": {
-      "title": "🔁 Due Today (Review Queue)",
-      "subtitle": "SM-2 Spaced Repetition: items with next_review_at ≤ today",
-      "stubText": "Backend endpoint /review/queue is already running. View will appear here shortly."
+      "title": "🔁 Due Today",
+      "subtitle": "SM-2 Spaced Repetition · items with next_review_at ≤ today",
+      "loading": "Loading review queue …",
+      "empty": {
+        "title": "✨ All done!",
+        "subtitle": "No reviews due today. Come back later or start a new topic."
+      },
+      "totalDue": "{n} items due in total",
+      "card": {
+        "rep": "Repetition {n}",
+        "estimated": "~{n} sec",
+        "points": "{n} pts"
+      },
+      "startBtn": "Practice"
     },
     "exam": {
       "title": "📝 Exam Simulation",
@@ -134,8 +145,20 @@
     },
     "cheatsheet": {
       "title": "📋 Cheatsheets",
-      "subtitle": "Own markdown summaries per topic (Generation Effect)",
-      "stubText": "Backend API exists (GET/PUT /cheatsheets). UI with markdown editor + preview is coming."
+      "subtitle": "Own markdown summaries per topic",
+      "selectTopic": "Choose a topic",
+      "noTopic": "Pick a topic on the left to write your cheatsheet.",
+      "loading": "Loading cheatsheet …",
+      "wordCount": "{n} words",
+      "lastUpdated": "Last: {date}",
+      "saveBtn": "Save",
+      "savingBtn": "Saving …",
+      "savedAt": "Saved {time}",
+      "placeholder": "# My cheatsheet on …",
+      "previewToggle": "Preview",
+      "editToggle": "Edit",
+      "splitToggle": "Split",
+      "tip": "Tip: Writing it yourself anchors knowledge deeper than reading (Generation Effect). Print as PDF before exam."
     },
     "anlagen": {
       "title": "📎 Appendix Library",

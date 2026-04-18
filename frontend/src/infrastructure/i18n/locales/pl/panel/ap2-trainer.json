@@ -123,9 +123,20 @@
       }
     },
     "review": {
-      "title": "🔁 Na dziś (kolejka powtórek)",
+      "title": "🔁 Na dziś",
       "subtitle": "SM-2 Spaced Repetition",
-      "stubText": "Endpoint /review/queue już działa. Widok wkrótce."
+      "loading": "Ładowanie kolejki …",
+      "empty": {
+        "title": "✨ Wszystko zrobione!",
+        "subtitle": "Brak powtórek na dziś. Wróć później lub zacznij nowy temat."
+      },
+      "totalDue": "{n} elementów łącznie",
+      "card": {
+        "rep": "Powtórzenie {n}",
+        "estimated": "ok. {n} sek",
+        "points": "{n} pkt"
+      },
+      "startBtn": "Ćwicz"
     },
     "exam": {
       "title": "📝 Symulacja egzaminu",
@@ -135,7 +146,19 @@
     "cheatsheet": {
       "title": "📋 Ściągi",
       "subtitle": "Własne notatki markdown na temat",
-      "stubText": "API backendu istnieje. UI z edytorem markdown + podgląd wkrótce."
+      "selectTopic": "Wybierz temat",
+      "noTopic": "Wybierz temat po lewej.",
+      "loading": "Ładowanie …",
+      "wordCount": "{n} słów",
+      "lastUpdated": "Ostatnio: {date}",
+      "saveBtn": "Zapisz",
+      "savingBtn": "Zapisywanie …",
+      "savedAt": "Zapisano {time}",
+      "placeholder": "# Moja ściąga …",
+      "previewToggle": "Podgląd",
+      "editToggle": "Edytuj",
+      "splitToggle": "Podział",
+      "tip": "Wskazówka: Pisanie własnoręczne zakorzenia wiedzę głębiej (Generation Effect)."
     },
     "anlagen": {
       "title": "📎 Biblioteka załączników",

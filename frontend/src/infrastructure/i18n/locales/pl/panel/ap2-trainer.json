@@ -57,7 +57,70 @@
     "study": {
       "title": "🎯 Trening tematów",
       "subtitle": "3-fazowe Active Recall na temat",
-      "stubText": "Ten widok pojawi się jako następny — pokaże tematy + 3-fazowy przepływ."
+      "filterAll": "Wszystkie",
+      "loading": "Ładowanie tematów …",
+      "noItems": "Brak elementów dla tego tematu",
+      "topicCard": {
+        "expectedPts": "{n} pkt gdy obecny",
+        "examCount": "w {n}/5 egzaminów",
+        "noMastery": "nie rozpoczęte",
+        "mastery": "Mastery {n}%",
+        "best": "Najlepiej {n}%",
+        "regression": "↘ słabiej niż wcześniej"
+      },
+      "phases": {
+        "blurt": "Blurting",
+        "cued": "Fiszki",
+        "application": "Zadanie",
+        "done": "Gotowe"
+      },
+      "blurt": {
+        "title": "Faza 1: Blurting",
+        "instruction": "Napisz WSZYSTKO co wiesz o tym temacie.",
+        "promptLabel": "Zadanie",
+        "answerPlaceholder": "Pisz wszystko …",
+        "submit": "Oceń",
+        "submitting": "Egzaminator AI ocenia …",
+        "skipBtn": "Pomiń"
+      },
+      "cued": {
+        "title": "Faza 2: Fiszki ({current} / {total})",
+        "instruction": "Odpowiadaj precyzyjnie.",
+        "answerPlaceholder": "Twoja odpowiedź …",
+        "submit": "Oceń",
+        "next": "Następna karta",
+        "finish": "Zakończ fazę"
+      },
+      "application": {
+        "title": "Faza 3: Prawdziwe zadanie",
+        "instruction": "Rozwiąż to zadanie kompletnie.",
+        "answerPlaceholder": "Twoje rozwiązanie …",
+        "submit": "Prześlij",
+        "next": "Następne zadanie",
+        "finish": "Zakończ fazę"
+      },
+      "feedback": {
+        "title": "Ocena",
+        "score": "Wynik",
+        "earned": "Zdobyte punkty",
+        "modelAnswer": "Wzorcowa odpowiedź",
+        "summary": "Podsumowanie",
+        "correct": "Rozpoznane",
+        "missing": "Brakuje",
+        "partial": "Częściowo",
+        "incorrect": "Niepoprawne",
+        "suggestions": "Wskazówki",
+        "next": "Dalej",
+        "masteryAfter": "Mastery teraz: {n}%"
+      },
+      "complete": {
+        "title": "🎉 Temat ukończony",
+        "subtitle": "Wszystkie fazy ukończone.",
+        "stats": "Zdobyłeś {earned} z {total} punktów.",
+        "writeCheatsheet": "📋 Napisz ściągę",
+        "backToStudy": "Inny temat",
+        "backToDashboard": "Powrót do pulpitu"
+      }
     },
     "review": {
       "title": "🔁 Na dziś (kolejka powtórek)",

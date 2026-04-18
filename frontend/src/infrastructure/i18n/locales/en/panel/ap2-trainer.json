@@ -57,7 +57,70 @@
     "study": {
       "title": "🎯 Topic Training",
       "subtitle": "3-Phase Active Recall per topic",
-      "stubText": "This view is coming next — it shows your topics + the 3-phase flow (Blurting → Cued Recall → Application)."
+      "filterAll": "All",
+      "loading": "Loading topics …",
+      "noItems": "No items available for this topic",
+      "topicCard": {
+        "expectedPts": "{n} pts when present",
+        "examCount": "in {n}/5 exams",
+        "noMastery": "not started",
+        "mastery": "Mastery {n}%",
+        "best": "Best {n}%",
+        "regression": "↘ weaker than before"
+      },
+      "phases": {
+        "blurt": "Blurting",
+        "cued": "Flashcards",
+        "application": "Exercise",
+        "done": "Done"
+      },
+      "blurt": {
+        "title": "Phase 1: Blurting (Free Recall)",
+        "instruction": "Write down EVERYTHING you know about this topic.",
+        "promptLabel": "Task",
+        "answerPlaceholder": "Write everything that comes to mind …",
+        "submit": "Evaluate",
+        "submitting": "AI examiner is grading …",
+        "skipBtn": "Skip"
+      },
+      "cued": {
+        "title": "Phase 2: Flashcards ({current} / {total})",
+        "instruction": "Answer precisely with technical terms.",
+        "answerPlaceholder": "Your answer …",
+        "submit": "Evaluate",
+        "next": "Next card",
+        "finish": "Finish phase"
+      },
+      "application": {
+        "title": "Phase 3: Real Exam Task",
+        "instruction": "Solve this original task as completely as you can.",
+        "answerPlaceholder": "Your solution …",
+        "submit": "Submit",
+        "next": "Next task",
+        "finish": "Finish phase"
+      },
+      "feedback": {
+        "title": "Evaluation",
+        "score": "Score",
+        "earned": "Points earned",
+        "modelAnswer": "Model answer",
+        "summary": "Summary",
+        "correct": "Correctly identified",
+        "missing": "Still missing",
+        "partial": "Partially correct",
+        "incorrect": "Incorrect",
+        "suggestions": "Tips",
+        "next": "Continue",
+        "masteryAfter": "Mastery now: {n}%"
+      },
+      "complete": {
+        "title": "🎉 Topic complete",
+        "subtitle": "All phases for this topic completed.",
+        "stats": "You scored {earned} of {total} points in this session.",
+        "writeCheatsheet": "📋 Write cheatsheet",
+        "backToStudy": "Other topic",
+        "backToDashboard": "Back to dashboard"
+      }
     },
     "review": {
       "title": "🔁 Due Today (Review Queue)",

@@ -57,7 +57,70 @@
     "study": {
       "title": "🎯 Themen-Training",
       "subtitle": "3-Phasen Active Recall pro Thema",
-      "stubText": "Diese Ansicht kommt als nächstes — sie zeigt deine Themen + den 3-Phasen-Flow (Blurting → Cued Recall → Application)."
+      "filterAll": "Alle",
+      "loading": "Lade Themen …",
+      "noItems": "Keine Items für dieses Thema verfügbar",
+      "topicCard": {
+        "expectedPts": "{n} P bei Vorkommen",
+        "examCount": "in {n}/5 Prüfungen",
+        "noMastery": "noch nicht angefangen",
+        "mastery": "Mastery {n} %",
+        "best": "Best {n} %",
+        "regression": "↘ schwächer als zuvor"
+      },
+      "phases": {
+        "blurt": "Blurting",
+        "cued": "Karteikarten",
+        "application": "Aufgabe",
+        "done": "Fertig"
+      },
+      "blurt": {
+        "title": "Phase 1: Blurting (Freies Abrufen)",
+        "instruction": "Schreibe ALLES auf was du zu diesem Thema weißt. Keine Hilfe, keine Hinweise — nur was aus deinem Kopf kommt.",
+        "promptLabel": "Aufgabe",
+        "answerPlaceholder": "Hier alles reinschreiben was dir einfällt …",
+        "submit": "Bewerten",
+        "submitting": "KI-Prüfer bewertet …",
+        "skipBtn": "Überspringen"
+      },
+      "cued": {
+        "title": "Phase 2: Karteikarten ({current} / {total})",
+        "instruction": "Antworte präzise und mit Fachbegriffen.",
+        "answerPlaceholder": "Deine Antwort …",
+        "submit": "Bewerten",
+        "next": "Nächste Karte",
+        "finish": "Phase abschließen"
+      },
+      "application": {
+        "title": "Phase 3: Echte Prüfungsaufgabe",
+        "instruction": "Bearbeite diese Originalaufgabe so vollständig wie du kannst.",
+        "answerPlaceholder": "Deine Lösung (Berechnungen, Begründungen, Skizzen-Beschreibung) …",
+        "submit": "Einreichen",
+        "next": "Nächste Aufgabe",
+        "finish": "Phase abschließen"
+      },
+      "feedback": {
+        "title": "Bewertung",
+        "score": "Score",
+        "earned": "Erreichte Punkte",
+        "modelAnswer": "Musterlösung",
+        "summary": "Zusammenfassung",
+        "correct": "Richtig erkannt",
+        "missing": "Fehlt noch",
+        "partial": "Teilweise richtig",
+        "incorrect": "Falsch",
+        "suggestions": "Tipps",
+        "next": "Weiter",
+        "masteryAfter": "Mastery jetzt: {n} %"
+      },
+      "complete": {
+        "title": "🎉 Thema abgeschlossen",
+        "subtitle": "Alle Phasen für dieses Thema durchlaufen.",
+        "stats": "Du hast {earned} von {total} Punkten in dieser Session erreicht.",
+        "writeCheatsheet": "📋 Cheatsheet schreiben",
+        "backToStudy": "Anderes Thema",
+        "backToDashboard": "Zurück zum Dashboard"
+      }
     },
     "review": {
       "title": "🔁 Heute fällig (Review Queue)",

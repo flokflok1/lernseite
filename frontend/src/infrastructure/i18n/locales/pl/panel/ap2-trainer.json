@@ -163,7 +163,14 @@
     "anlagen": {
       "title": "📎 Biblioteka załączników",
       "subtitle": "Wszystkie załączniki egzaminacyjne — z możliwością oznaczania",
-      "stubText": "Backend gotowy. Po digitalizacji pierwszych 10 załączników pojawi się galeria."
+      "anlageNr": "Załącznik {n}",
+      "withHotspots": "oznaczalny",
+      "emptyTitle": "Brak przesłanych załączników",
+      "emptySubtitle": "Galeria pokazuje zdigitalizowane załączniki z prawdziwych egzaminów IHK od 2022.",
+      "emptyHintTitle": "Jak pojawiają się załączniki:",
+      "emptyHint1": "Upload administratora (planowany)",
+      "emptyHint2": "Strony PDF wyodrębniane z folderu AP2",
+      "emptyHint3": "Hotspoty pozycjonowane ręcznie"
     }
   }
 }

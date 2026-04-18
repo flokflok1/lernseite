@@ -163,7 +163,14 @@
     "anlagen": {
       "title": "📎 Appendix Library",
       "subtitle": "All exam appendices (network plans, ER models, datasheets) — annotatable",
-      "stubText": "Backend is ready (GET /anlagen). Once the first 10 appendices are digitised with hotspots, a gallery will appear here."
+      "anlageNr": "Appendix {n}",
+      "withHotspots": "annotatable",
+      "emptyTitle": "No appendices uploaded yet",
+      "emptySubtitle": "The gallery shows digitised appendices from real IHK exams since 2022.",
+      "emptyHintTitle": "How appendices get in:",
+      "emptyHint1": "Admin upload via a future tool (planned)",
+      "emptyHint2": "PDF pages extracted from AP2 folder",
+      "emptyHint3": "Hotspots positioned manually for labeling practice"
     }
   }
 }

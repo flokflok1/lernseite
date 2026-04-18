@@ -30,10 +30,25 @@ def _row_to_topic(row: dict) -> Topic:
 class Ap2TopicRepository:
     """Repository für assessments.ap2_topics."""
 
+    _PRIORITY_ORDER_SQL = """
+        CASE priority
+            WHEN 'sehr-hoch' THEN 1
+            WHEN 'hoch'      THEN 2
+            WHEN 'mittel'    THEN 3
+            WHEN 'niedrig'   THEN 4
+            ELSE 5
+        END
+    """
+
     @classmethod
     def find_all(cls) -> list[Topic]:
         rows = fetch_all(
-            "SELECT * FROM assessments.ap2_topics ORDER BY priority, name_de"
+            f"""
+            SELECT * FROM assessments.ap2_topics
+            ORDER BY {cls._PRIORITY_ORDER_SQL},
+                     expected_points DESC NULLS LAST,
+                     name_de
+            """
         )
         return [_row_to_topic(r) for r in (rows or [])]
 
@@ -56,10 +71,12 @@ class Ap2TopicRepository:
     @classmethod
     def find_by_bereich(cls, bereich: Bereich) -> list[Topic]:
         rows = fetch_all(
-            """
+            f"""
             SELECT * FROM assessments.ap2_topics
             WHERE bereich = %s OR bereich = 'both'
-            ORDER BY priority, name_de
+            ORDER BY {cls._PRIORITY_ORDER_SQL},
+                     expected_points DESC NULLS LAST,
+                     name_de
             """,
             (bereich.value,),
         )

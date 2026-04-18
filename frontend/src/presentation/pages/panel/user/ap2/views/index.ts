@@ -1,0 +1,6 @@
+export { default as DashboardView } from './DashboardView.vue'
+export { default as StudyView } from './StudyView.vue'
+export { default as ReviewQueueView } from './ReviewQueueView.vue'
+export { default as ExamSimulationView } from './ExamSimulationView.vue'
+export { default as CheatsheetView } from './CheatsheetView.vue'
+export { default as AnlagenLibraryView } from './AnlagenLibraryView.vue'

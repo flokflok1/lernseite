@@ -17,6 +17,7 @@ import exam_cockpit from './exam-cockpit.json'
 import crawler from './crawler.json'
 import examArchive from './examArchive.json'
 import programs from './programs.json'
+import ap2_trainer from './ap2-trainer.json'
 
 export default {
   panel: {
@@ -37,6 +38,7 @@ export default {
     ...exam_cockpit,
     ...crawler,
     ...examArchive,
-    ...programs
+    ...programs,
+    ...ap2_trainer
   }
 }

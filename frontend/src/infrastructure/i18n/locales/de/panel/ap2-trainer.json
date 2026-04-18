@@ -1,0 +1,83 @@
+{
+  "ap2Trainer": {
+    "shell": {
+      "badge": "FISI · FA 235 · BW",
+      "title": "AP2 Prüfungstraining",
+      "nav": {
+        "dashboard": "Dashboard",
+        "study": "Themen",
+        "review": "Heute fällig",
+        "exam": "Prüfung",
+        "cheatsheet": "Cheatsheets",
+        "anlagen": "Anlagen"
+      },
+      "countdown": { "wiso": "Tage WISO", "ap2": "Tage AP2" }
+    },
+    "dashboard": {
+      "loading": "Lade Statistiken …",
+      "error": "Stats konnten nicht geladen werden",
+      "empty": {
+        "title": "Willkommen — noch keine Versuche",
+        "subtitle": "Starte mit einem Thema oder schau dir die fälligen Items an:",
+        "ctaStudy": "🎯 Themen-Training starten",
+        "ctaReview": "🔁 Heute fällig"
+      },
+      "stats": {
+        "attempted": "Bearbeitet",
+        "correct": "Richtig",
+        "wrong": "Falsch",
+        "overall": "Gesamtquote",
+        "due": "Heute fällig"
+      },
+      "prognose": {
+        "title": "Bestehens-Prognose",
+        "target": "Ziel: ≥ 50 % je Bereich",
+        "passed": "Bestanden",
+        "endangered": "Gefährdet",
+        "noData": "Zu wenig Daten"
+      },
+      "bereich": {
+        "title": "Prüfungsbereiche",
+        "PB2": "Konzeption und Administration",
+        "PB3": "Analyse und Entwicklung",
+        "WISO": "Wirtschafts- und Sozialkunde",
+        "noData": "—"
+      },
+      "miniWeak": {
+        "title": "⚠️ Mini-Schwächen erkannt",
+        "subtitle": "Items wo dein letzter Versuch schwächer war als zuvor:",
+        "delta": "−{n} Pp"
+      },
+      "topWeak": { "title": "🔥 Schwerpunkte für heute" }
+    },
+    "stub": {
+      "inDevBadge": "⚠️ in Entwicklung",
+      "back": "← Zurück zum Dashboard"
+    },
+    "study": {
+      "title": "🎯 Themen-Training",
+      "subtitle": "3-Phasen Active Recall pro Thema",
+      "stubText": "Diese Ansicht kommt als nächstes — sie zeigt deine Themen + den 3-Phasen-Flow (Blurting → Cued Recall → Application)."
+    },
+    "review": {
+      "title": "🔁 Heute fällig (Review Queue)",
+      "subtitle": "SM-2 Spaced Repetition: zeigt Items deren next_review_at ≤ heute",
+      "stubText": "Backend-Endpoint /review/queue läuft bereits. View wird in Kürze hier angezeigt."
+    },
+    "exam": {
+      "title": "📝 Prüfungssimulation",
+      "subtitle": "90-Min IHK-Stil Prüfung (FA 235 Layout)",
+      "stubText": "Hier kommt die Prüfungssimulation mit IHK-Stil-Layout (Serif, A4, Punkte-Spalte rechts) plus 90-Min-Timer und allen Original-AP2-Prüfungen ab S2022."
+    },
+    "cheatsheet": {
+      "title": "📋 Cheatsheets",
+      "subtitle": "Eigene Markdown-Zusammenfassungen pro Thema (Generation Effect)",
+      "stubText": "Backend-API existiert (GET/PUT /cheatsheets). UI mit Markdown-Editor + Preview kommt."
+    },
+    "anlagen": {
+      "title": "📎 Anlagen-Bibliothek",
+      "subtitle": "Alle Prüfungs-Anlagen (Netzpläne, ER-Modelle, Datenblätter) — beschriftbar",
+      "stubText": "Backend ist da (GET /anlagen). Sobald die ersten 10 Anlagen digitalisiert + mit Hotspots versehen sind, taucht hier eine Galerie auf."
+    }
+  }
+}

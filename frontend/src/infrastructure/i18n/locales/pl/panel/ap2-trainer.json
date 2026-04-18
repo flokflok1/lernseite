@@ -1,0 +1,83 @@
+{
+  "ap2Trainer": {
+    "shell": {
+      "badge": "FISI · FA 235 · BW",
+      "title": "Trening egzaminu AP2",
+      "nav": {
+        "dashboard": "Pulpit",
+        "study": "Tematy",
+        "review": "Na dziś",
+        "exam": "Egzamin",
+        "cheatsheet": "Ściągi",
+        "anlagen": "Załączniki"
+      },
+      "countdown": { "wiso": "Dni WISO", "ap2": "Dni AP2" }
+    },
+    "dashboard": {
+      "loading": "Ładowanie statystyk …",
+      "error": "Nie można załadować statystyk",
+      "empty": {
+        "title": "Witaj — brak prób",
+        "subtitle": "Zacznij od tematu lub zobacz elementy na dziś:",
+        "ctaStudy": "🎯 Rozpocznij trening",
+        "ctaReview": "🔁 Na dziś"
+      },
+      "stats": {
+        "attempted": "Wykonane",
+        "correct": "Poprawne",
+        "wrong": "Błędne",
+        "overall": "Łącznie %",
+        "due": "Na dziś"
+      },
+      "prognose": {
+        "title": "Prognoza zdania",
+        "target": "Cel: ≥ 50 % na sekcję",
+        "passed": "Zdane",
+        "endangered": "Zagrożone",
+        "noData": "Za mało danych"
+      },
+      "bereich": {
+        "title": "Sekcje egzaminu",
+        "PB2": "Projektowanie i administracja",
+        "PB3": "Analiza i rozwój",
+        "WISO": "Ekonomia i nauki społeczne",
+        "noData": "—"
+      },
+      "miniWeak": {
+        "title": "⚠️ Wykryto mini-słabości",
+        "subtitle": "Elementy, w których ostatnia próba była słabsza niż wcześniej:",
+        "delta": "−{n} pp"
+      },
+      "topWeak": { "title": "🔥 Priorytety na dziś" }
+    },
+    "stub": {
+      "inDevBadge": "⚠️ w rozwoju",
+      "back": "← Powrót do pulpitu"
+    },
+    "study": {
+      "title": "🎯 Trening tematów",
+      "subtitle": "3-fazowe Active Recall na temat",
+      "stubText": "Ten widok pojawi się jako następny — pokaże tematy + 3-fazowy przepływ."
+    },
+    "review": {
+      "title": "🔁 Na dziś (kolejka powtórek)",
+      "subtitle": "SM-2 Spaced Repetition",
+      "stubText": "Endpoint /review/queue już działa. Widok wkrótce."
+    },
+    "exam": {
+      "title": "📝 Symulacja egzaminu",
+      "subtitle": "90-min egzamin w stylu IHK (układ FA 235)",
+      "stubText": "Symulacja egzaminu w stylu IHK + timer 90 min + wszystkie oryginalne AP2 od S2022."
+    },
+    "cheatsheet": {
+      "title": "📋 Ściągi",
+      "subtitle": "Własne notatki markdown na temat",
+      "stubText": "API backendu istnieje. UI z edytorem markdown + podgląd wkrótce."
+    },
+    "anlagen": {
+      "title": "📎 Biblioteka załączników",
+      "subtitle": "Wszystkie załączniki egzaminacyjne — z możliwością oznaczania",
+      "stubText": "Backend gotowy. Po digitalizacji pierwszych 10 załączników pojawi się galeria."
+    }
+  }
+}

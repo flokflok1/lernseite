@@ -1,0 +1,83 @@
+{
+  "ap2Trainer": {
+    "shell": {
+      "badge": "FISI · FA 235 · BW",
+      "title": "AP2 Exam Trainer",
+      "nav": {
+        "dashboard": "Dashboard",
+        "study": "Topics",
+        "review": "Due today",
+        "exam": "Exam",
+        "cheatsheet": "Cheatsheets",
+        "anlagen": "Appendices"
+      },
+      "countdown": { "wiso": "Days WISO", "ap2": "Days AP2" }
+    },
+    "dashboard": {
+      "loading": "Loading stats …",
+      "error": "Stats could not be loaded",
+      "empty": {
+        "title": "Welcome — no attempts yet",
+        "subtitle": "Start with a topic or look at items due today:",
+        "ctaStudy": "🎯 Start topic training",
+        "ctaReview": "🔁 Due today"
+      },
+      "stats": {
+        "attempted": "Attempted",
+        "correct": "Correct",
+        "wrong": "Wrong",
+        "overall": "Overall %",
+        "due": "Due today"
+      },
+      "prognose": {
+        "title": "Pass Prediction",
+        "target": "Target: ≥ 50 % per section",
+        "passed": "Passed",
+        "endangered": "At risk",
+        "noData": "Not enough data"
+      },
+      "bereich": {
+        "title": "Exam Sections",
+        "PB2": "Design and Administration",
+        "PB3": "Analysis and Development",
+        "WISO": "Economics and Social Sciences",
+        "noData": "—"
+      },
+      "miniWeak": {
+        "title": "⚠️ Mini-weaknesses detected",
+        "subtitle": "Items where your last attempt was weaker than before:",
+        "delta": "−{n} pp"
+      },
+      "topWeak": { "title": "🔥 Focus areas today" }
+    },
+    "stub": {
+      "inDevBadge": "⚠️ in development",
+      "back": "← Back to dashboard"
+    },
+    "study": {
+      "title": "🎯 Topic Training",
+      "subtitle": "3-Phase Active Recall per topic",
+      "stubText": "This view is coming next — it shows your topics + the 3-phase flow (Blurting → Cued Recall → Application)."
+    },
+    "review": {
+      "title": "🔁 Due Today (Review Queue)",
+      "subtitle": "SM-2 Spaced Repetition: items with next_review_at ≤ today",
+      "stubText": "Backend endpoint /review/queue is already running. View will appear here shortly."
+    },
+    "exam": {
+      "title": "📝 Exam Simulation",
+      "subtitle": "90-Min IHK-style exam (FA 235 layout)",
+      "stubText": "This will host the exam simulation with IHK-style layout (Serif, A4, points column on right), 90-min timer, and all original AP2 exams from S2022."
+    },
+    "cheatsheet": {
+      "title": "📋 Cheatsheets",
+      "subtitle": "Own markdown summaries per topic (Generation Effect)",
+      "stubText": "Backend API exists (GET/PUT /cheatsheets). UI with markdown editor + preview is coming."
+    },
+    "anlagen": {
+      "title": "📎 Appendix Library",
+      "subtitle": "All exam appendices (network plans, ER models, datasheets) — annotatable",
+      "stubText": "Backend is ready (GET /anlagen). Once the first 10 appendices are digitised with hotspots, a gallery will appear here."
+    }
+  }
+}

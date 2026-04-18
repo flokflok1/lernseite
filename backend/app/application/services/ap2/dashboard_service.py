@@ -50,6 +50,11 @@ class Ap2DashboardService:
         )
         weaknesses = [cls._serialize_weakness(r) for r in weakness_rows]
 
+        regression_rows = Ap2TopicMasteryRepository.find_recent_regressions(
+            user_id, limit=10
+        )
+        recent_regressions = [cls._serialize_regression(r) for r in regression_rows]
+
         overall = cls._build_overall(attempts_count, topic_rows, bereich_pass)
         review_count = Ap2ReviewScheduleRepository.count_due_for_user(user_id)
 
@@ -59,6 +64,7 @@ class Ap2DashboardService:
             'bereich_pass': bereich_pass,
             'topic_stats': topic_stats,
             'weaknesses': weaknesses,
+            'recent_regressions': recent_regressions,
             'review_queue_count': review_count,
         }
 
@@ -143,4 +149,21 @@ class Ap2DashboardService:
             'mastery_score': float(r['mastery_score']),
             'attempts_count': r['attempts_count'],
             'gap': round(WEAKNESS_THRESHOLD - float(r['mastery_score']), 2),
+        }
+
+    @staticmethod
+    def _serialize_regression(r: dict) -> dict:
+        """Mini-Schwäche: Item heute schwächer als beim letzten Mal."""
+        return {
+            'item_id': str(r['item_id']),
+            'topic_slug': r['topic_slug'],
+            'topic_name': r['topic_name'],
+            'item_type': r['item_type'],
+            'item_prompt': r['item_prompt'][:120],   # gekürzt für Dashboard
+            'last_pct': r['last_pct'],
+            'prev_pct': r['prev_pct'],
+            'regression_size': r['regression_size'],
+            'last_attempt_at': (
+                r['last_attempt_at'].isoformat() if r['last_attempt_at'] else None
+            ),
         }

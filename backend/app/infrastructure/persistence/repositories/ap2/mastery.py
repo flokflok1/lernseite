@@ -23,6 +23,9 @@ def _row_to_mastery(row: dict) -> TopicMastery:
         correct_count=row['correct_count'],
         total_points_earned=float(row['total_points_earned']),
         total_points_possible=float(row['total_points_possible']),
+        best_pct=row.get('best_pct', 0),
+        best_pct_date=row.get('best_pct_date'),
+        regression_streak=row.get('regression_streak', 0),
         last_attempt_at=row.get('last_attempt_at'),
         last_review_at=row.get('last_review_at'),
         created_at=row.get('created_at'),
@@ -51,14 +54,18 @@ class Ap2TopicMasteryRepository:
             INSERT INTO assessments.ap2_topic_mastery
                 (user_id, topic_id, mastery_score, attempts_count,
                  correct_count, total_points_earned, total_points_possible,
+                 best_pct, best_pct_date, regression_streak,
                  last_attempt_at, last_review_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (user_id, topic_id) DO UPDATE SET
                 mastery_score = EXCLUDED.mastery_score,
                 attempts_count = EXCLUDED.attempts_count,
                 correct_count = EXCLUDED.correct_count,
                 total_points_earned = EXCLUDED.total_points_earned,
                 total_points_possible = EXCLUDED.total_points_possible,
+                best_pct = EXCLUDED.best_pct,
+                best_pct_date = EXCLUDED.best_pct_date,
+                regression_streak = EXCLUDED.regression_streak,
                 last_attempt_at = EXCLUDED.last_attempt_at,
                 last_review_at = EXCLUDED.last_review_at
             """,
@@ -66,8 +73,27 @@ class Ap2TopicMasteryRepository:
              mastery.mastery_score, mastery.attempts_count,
              mastery.correct_count, mastery.total_points_earned,
              mastery.total_points_possible,
+             mastery.best_pct, mastery.best_pct_date, mastery.regression_streak,
              mastery.last_attempt_at, mastery.last_review_at),
         )
+
+    @classmethod
+    def find_recent_regressions(cls, user_id: UUID, limit: int = 10) -> list[dict]:
+        """Items wo letzter Attempt schlechter war als der vorletzte (>=5%-Punkte).
+
+        Aus assessments.ap2_recent_regressions View — siehe Migration 122.
+        """
+        rows = fetch_all(
+            """
+            SELECT *
+            FROM assessments.ap2_recent_regressions
+            WHERE user_id = %s
+            ORDER BY regression_size DESC, last_attempt_at DESC
+            LIMIT %s
+            """,
+            (str(user_id), limit),
+        )
+        return list(rows or [])
 
     @classmethod
     def find_all_for_user(cls, user_id: UUID) -> list[dict]:

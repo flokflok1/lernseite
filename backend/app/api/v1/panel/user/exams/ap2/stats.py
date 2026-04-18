@@ -113,4 +113,5 @@ def _item_to_dict_safe(item) -> dict:
         'anlage_id': str(item.anlage_id) if item.anlage_id else None,
         'difficulty': item.difficulty,
         'estimated_time_sec': item.estimated_time_sec,
+        'calculator_hint': item.calculator_hint,
     }

@@ -53,6 +53,7 @@ class LearningItem:
     difficulty: int = 3                      # 1-5
     estimated_time_sec: int = 120
     is_active: bool = True
+    calculator_hint: Optional[dict] = None   # Casio FX-991DE X Step-Guide
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

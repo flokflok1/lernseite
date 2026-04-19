@@ -9,7 +9,8 @@
         "review": "Heute fällig",
         "exam": "Prüfung",
         "cheatsheet": "Cheatsheets",
-        "anlagen": "Anlagen"
+        "anlagen": "Anlagen",
+        "prefs": "Einstellungen"
       },
       "countdown": { "wiso": "Tage WISO", "ap2": "Tage AP2" }
     },
@@ -172,6 +173,79 @@
       "editToggle": "Bearbeiten",
       "splitToggle": "Geteilt",
       "tip": "Tipp: Eigenes Aufschreiben verankert Wissen tiefer als Lesen (Generation Effect). Vor der Prüfung als PDF drucken."
+    },
+    "moduleDetail": {
+      "title": "📊 Modul-Detail",
+      "back": "← Zurück",
+      "loading": "Lade …",
+      "startBtn": "▶ Modul starten",
+      "statsHeader": "Fortschritt",
+      "stats": {
+        "mastered": "Gemeistert",
+        "in_progress": "In Arbeit",
+        "recovery": "Recovery",
+        "total_attempts": "Versuche",
+        "stuetzrad_uses": "Stützrad benutzt",
+        "total": "Items"
+      },
+      "progressBar": "{done} / {total} Items sitzen",
+      "itemsHeader": "Alle Items",
+      "filterAll": "Alle",
+      "filterMastered": "Gemeistert",
+      "filterInProgress": "In Arbeit",
+      "filterRecovery": "Recovery",
+      "filterFresh": "Noch nicht versucht",
+      "item": {
+        "kopfSerie": "Kopf-Serie: {done} / {target}",
+        "mastered": "✅ sitzt",
+        "recovery": "⚠️ Recovery",
+        "stuetzradUses": "🪄 {n}×",
+        "notStarted": "noch nicht versucht",
+        "lastScore": "Letzter Versuch: {pct}%",
+        "snoozed": "💤 ausgeblendet bis {time}"
+      }
+    },
+    "modulesList": {
+      "itemsProgress": "{mastered} / {total}",
+      "openDetail": "📊 Details"
+    },
+    "prefs": {
+      "title": "🎛 Lern-Einstellungen",
+      "subtitle": "Feinabstimmung für den Stützrad-Modus und Modul-Mastery. Gilt für alle Module — pro Item kannst du das Stützrad im Runner jederzeit an/aus schalten.",
+      "loading": "Lade …",
+      "loadError": "Konnte Einstellungen nicht laden.",
+      "saveError": "Speichern fehlgeschlagen.",
+      "saveBtn": "💾 Speichern",
+      "savingBtn": "Speichere …",
+      "savedOk": "✓ gespeichert",
+      "targets": {
+        "title": "🎯 Kopf-Serie-Ziel",
+        "hint": "Wie viele richtige Antworten in Folge (Stützrad AUS) bis ein Item sitzt. Bei Fehlern wird das Ziel adaptiv erhöht bis {max}.",
+        "base": "Basis-Ziel",
+        "max": "Max-Ziel (Cap im Recovery)",
+        "rangeHint": "Ziel-Range: {base} – {max} Treffer in Folge"
+      },
+      "recovery": {
+        "title": "🔧 Recovery-Verhalten bei Fehlern",
+        "hint": "Wie stark wird das Ziel erhöht, wenn du ein Item nicht bestehst? Ab dem 2. Fehler wird Recovery aktiv.",
+        "plus_one": "+1 pro Fehler (sanft)",
+        "plus_two": "+2 pro Fehler (normal)",
+        "multiply_1_5": "× 1,5 pro Fehler (hart)"
+      },
+      "stuetzrad": {
+        "title": "🪄 Stützrad-Standard",
+        "hint": "Soll das Stützrad beim Öffnen eines Items automatisch AN sein?",
+        "off": "Immer aus",
+        "per_item": "Pro Item entscheiden",
+        "first_two_on": "Erste 2 Versuche AN"
+      },
+      "mastery": {
+        "title": "🏆 Modul-Mastery — wie streng?",
+        "hint": "Wann gilt ein Modul als bewältigt?",
+        "express": "Express — 80 % der Items reichen",
+        "standard": "Standard — 100 % der Items",
+        "strict": "Strict — 100 % + Same-Day-Recall ohne Stützrad"
+      }
     },
     "anlagen": {
       "title": "📎 Anlagen-Bibliothek",

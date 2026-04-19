@@ -193,6 +193,17 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/presentation/pages/panel/user/ap2/views/ModuleRunnerView.vue'),
         props: true,
       },
+      {
+        path: 'modules/:slug/detail',
+        name: 'Ap2ModuleDetail',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ModuleDetailView.vue'),
+        props: true,
+      },
+      {
+        path: 'preferences',
+        name: 'Ap2Preferences',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/PreferencesView.vue'),
+      },
     ],
   },
 

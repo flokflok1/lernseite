@@ -56,6 +56,7 @@ const navLinks = computed(() => [
   { to: '/ap2-training/exam',       icon: '📝', label: t('ap2Trainer.shell.nav.exam'),       badge: '' },
   { to: '/ap2-training/cheatsheet', icon: '📋', label: t('ap2Trainer.shell.nav.cheatsheet'), badge: '' },
   { to: '/ap2-training/anlagen',    icon: '📎', label: t('ap2Trainer.shell.nav.anlagen'),    badge: '' },
+  { to: '/ap2-training/preferences', icon: '🎛', label: t('ap2Trainer.shell.nav.prefs'),     badge: '' },
 ])
 </script>
 

@@ -28,6 +28,15 @@ export interface ModuleProgress {
   next_spotcheck_at: string | null
 }
 
+export interface ItemStats {
+  total: number
+  mastered: number
+  in_progress: number
+  recovery: number
+  total_attempts: number
+  stuetzrad_uses: number
+}
+
 export interface ModuleCard {
   module_id: string
   slug: string
@@ -38,6 +47,23 @@ export interface ModuleCard {
   sort_order: number
   prerequisite_slugs: string[]
   progress: ModuleProgress | null
+  item_stats?: ItemStats
+}
+
+export interface ItemSkillState {
+  kopf_serie_count: number
+  fail_count: number
+  effective_target: number | null
+  total_attempts: number
+  stuetzrad_uses: number
+  is_mastered: boolean
+  mastered_at: string | null
+  snoozed_until: string | null
+  last_attempt_at: string | null
+  last_score_pct: number | null
+  is_in_recovery: boolean
+  should_suggest_stuetzrad: boolean
+  should_suggest_pause: boolean
 }
 
 export interface ModuleItem {
@@ -60,6 +86,17 @@ export interface ModuleSubmitResponse {
   pct: number
   passed: boolean
   points_earned: number
+  stuetzrad_used: boolean
+  model_answer: string | null
+  skill: {
+    kopf_serie_count: number
+    effective_target: number
+    fail_count: number
+    stuetzrad_uses: number
+    is_mastered: boolean
+    should_suggest_stuetzrad: boolean
+    should_suggest_pause: boolean
+  }
   feedback: {
     summary: string
     correct_aspects: string[]
@@ -70,6 +107,36 @@ export interface ModuleSubmitResponse {
   }
   progress: ModuleProgress
   next_item: ModuleItem | null
+}
+
+export interface ModuleDetailResponse {
+  module: ModuleCard
+  theory_markdown: string | null
+  item_stats: ItemStats
+  items: Array<ModuleItem & { skill: ItemSkillState }>
+}
+
+export type RecoveryMode = 'plus_one' | 'plus_two' | 'multiply_1_5'
+export type StuetzradDefault = 'off' | 'per_item' | 'first_two_on'
+export type MasteryStrictness = 'express' | 'standard' | 'strict'
+
+export interface UserPreferences {
+  base_target: number
+  max_target: number
+  recovery_mode: RecoveryMode
+  stuetzrad_default: StuetzradDefault
+  mastery_strictness: MasteryStrictness
+}
+
+export interface PreferencesResponse {
+  preferences: UserPreferences
+  meta: {
+    recovery_modes: RecoveryMode[]
+    stuetzrad_defaults: StuetzradDefault[]
+    mastery_strictness_levels: MasteryStrictness[]
+    abs_min_target: number
+    abs_max_target: number
+  }
 }
 
 export async function listModules(): Promise<ModuleCard[]> {
@@ -86,11 +153,33 @@ export async function submitModuleAnswer(
   moduleId: string,
   itemId: string,
   answer: string,
+  stuetzrad = false,
 ): Promise<ModuleSubmitResponse> {
   const res = await http.post<ModuleSubmitResponse>(
     `${BASE}/${moduleId}/submit`,
-    { item_id: itemId, answer },
+    { item_id: itemId, answer, stuetzrad },
   )
+  return res.data
+}
+
+export async function getModuleDetail(
+  moduleId: string,
+): Promise<ModuleDetailResponse> {
+  const res = await http.get<ModuleDetailResponse>(`${BASE}/${moduleId}/detail`)
+  return res.data
+}
+
+const PREFS_BASE = '/user/exam-trainer/ap2/preferences'
+
+export async function getPreferences(): Promise<PreferencesResponse> {
+  const res = await http.get<PreferencesResponse>(PREFS_BASE)
+  return res.data
+}
+
+export async function updatePreferences(
+  body: Partial<UserPreferences>,
+): Promise<PreferencesResponse> {
+  const res = await http.put<PreferencesResponse>(PREFS_BASE, body)
   return res.data
 }
 

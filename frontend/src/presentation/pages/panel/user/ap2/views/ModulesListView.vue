@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   listModules,
   type ModuleCard,
   type ModuleStatus,
 } from '@/infrastructure/api/clients/panel/user/exams/ap2-modules.api'
+
+const { t: _t } = useI18n()
 
 const router = useRouter()
 const modules = ref<ModuleCard[]>([])
@@ -36,6 +39,17 @@ async function refresh() {
 function open(m: ModuleCard) {
   if (m.progress?.status === 'locked') return
   router.push(`/ap2-training/modules/${m.slug}`)
+}
+
+function openDetail(m: ModuleCard, e: Event) {
+  e.stopPropagation()
+  router.push(`/ap2-training/modules/${m.slug}/detail`)
+}
+
+function itemsPct(m: ModuleCard): number {
+  const s = m.item_stats
+  if (!s || !s.total) return 0
+  return Math.round((s.mastered / s.total) * 100)
 }
 
 function statusOf(m: ModuleCard): ModuleStatus {
@@ -129,6 +143,27 @@ onMounted(refresh)
 
         <h3 class="mod-name">{{ m.name_de }}</h3>
         <p v-if="m.description" class="mod-desc">{{ m.description }}</p>
+
+        <div v-if="m.item_stats && m.item_stats.total > 0" class="mod-items-bar">
+          <div class="mod-items-track">
+            <div class="mod-items-fill" :style="{ width: itemsPct(m) + '%' }" />
+          </div>
+          <div class="mod-items-label">
+            <span>
+              {{ $t('ap2Trainer.modulesList.itemsProgress', {
+                mastered: m.item_stats.mastered,
+                total: m.item_stats.total,
+              }) }}
+            </span>
+            <button
+              type="button"
+              class="mod-items-detail"
+              @click="(e) => openDetail(m, e)"
+            >
+              {{ $t('ap2Trainer.modulesList.openDetail') }}
+            </button>
+          </div>
+        </div>
 
         <footer class="mod-footer">
           <div v-if="statusOf(m) === 'learning' && m.progress" class="mod-streak">
@@ -287,4 +322,39 @@ onMounted(refresh)
 .mod-spot { color: #86efac; }
 .mod-locked-hint { color: #94a3b8; font-size: 0.78rem; font-style: italic; }
 .mod-cta { color: #60a5fa; font-weight: 600; }
+
+.mod-items-bar {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed #334155;
+}
+.mod-items-track {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+.mod-items-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #16a34a 0%, #86efac 100%);
+  transition: width 0.3s;
+}
+.mod-items-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+.mod-items-detail {
+  background: transparent;
+  border: 0;
+  color: #60a5fa;
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 600;
+}
+.mod-items-detail:hover { color: #93c5fd; text-decoration: underline; }
 </style>

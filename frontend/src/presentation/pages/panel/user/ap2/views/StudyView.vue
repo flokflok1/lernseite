@@ -91,13 +91,12 @@ const stats = useAp2Stats(false)   // manuell laden
 
 const topics = ref<Ap2Topic[]>([])
 const loading = ref(false)
-const filter = ref<'all' | 'PB2' | 'PB3' | 'WISO'>('all')
+const filter = ref<'all' | 'AP2' | 'WISO'>('all')
 
 const bereichFilters = computed(() => [
   { key: 'all' as const, label: t('ap2Trainer.study.filterAll') },
-  { key: 'PB2' as const, label: 'PB2' },
-  { key: 'PB3' as const, label: 'PB3' },
-  { key: 'WISO' as const, label: 'WISO' },
+  { key: 'AP2' as const, label: 'AP2 · 12.05.' },
+  { key: 'WISO' as const, label: 'WISO · 11.05.' },
 ])
 
 const topicMastery = computed(() => {
@@ -110,9 +109,10 @@ const topicMastery = computed(() => {
 
 const filteredTopics = computed(() => {
   if (filter.value === 'all') return topics.value
-  return topics.value.filter(
-    (t) => t.bereich === filter.value || t.bereich === 'both'
-  )
+  // WISO: 11.05. (eigener Tag in Ulm). AP2: 12.05. (Fach 1 + Fach 2 kombiniert,
+  // deshalb PB2 + PB3 + both alle im AP2-Filter).
+  if (filter.value === 'WISO') return topics.value.filter((t) => t.bereich === 'WISO')
+  return topics.value.filter((t) => t.bereich !== 'WISO')
 })
 
 async function loadTopics() {

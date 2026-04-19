@@ -50,6 +50,7 @@ def _row_to_item(row: dict) -> LearningItem:
         difficulty=row.get('difficulty', 3),
         estimated_time_sec=row.get('estimated_time_sec', 120),
         is_active=row.get('is_active', True),
+        calculator_hint=row.get('calculator_hint'),
         created_at=row.get('created_at'),
         updated_at=row.get('updated_at'),
     )
@@ -65,6 +66,20 @@ class Ap2LearningItemRepository:
             (str(item_id),),
         )
         return _row_to_item(row) if row else None
+
+    @classmethod
+    def find_by_ids(cls, item_ids: list[UUID]) -> list[LearningItem]:
+        """Bulk-Load mehrerer Items via ANY(uuid[])."""
+        if not item_ids:
+            return []
+        rows = fetch_all(
+            """
+            SELECT * FROM assessments.ap2_learning_items
+            WHERE item_id = ANY(%s::uuid[])
+            """,
+            ([str(i) for i in item_ids],),
+        )
+        return [_row_to_item(r) for r in (rows or [])]
 
     @classmethod
     def find_by_topic(

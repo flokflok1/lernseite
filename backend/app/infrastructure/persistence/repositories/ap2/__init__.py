@@ -8,6 +8,8 @@ from .scheduling import Ap2ReviewScheduleRepository
 from .mastery import Ap2TopicMasteryRepository
 from .cheatsheets import Ap2CheatsheetRepository
 from .sessions import Ap2StudySessionRepository
+from .modules import Ap2ModuleRepository, Ap2ModuleProgressRepository
+from .skill import Ap2UserPrefsRepository, Ap2ItemSkillRepository
 
 __all__ = [
     'Ap2TopicRepository',
@@ -18,4 +20,8 @@ __all__ = [
     'Ap2TopicMasteryRepository',
     'Ap2CheatsheetRepository',
     'Ap2StudySessionRepository',
+    'Ap2ModuleRepository',
+    'Ap2ModuleProgressRepository',
+    'Ap2UserPrefsRepository',
+    'Ap2ItemSkillRepository',
 ]

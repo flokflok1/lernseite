@@ -195,6 +195,7 @@ def _due_item_to_dict(r: dict) -> dict:
         'points': float(r['points']),
         'difficulty': r['difficulty'],
         'estimated_time_sec': r['estimated_time_sec'],
+        'calculator_hint': r.get('calculator_hint'),
         'next_review_at': r['next_review_at'].isoformat() if r['next_review_at'] else None,
         'repetitions': r['repetitions'],
     }

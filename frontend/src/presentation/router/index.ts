@@ -125,6 +125,14 @@ const routes: RouteRecordRaw[] = [
     redirect: '/programs',
   },
 
+  // AP1 Training (Interactive Practice)
+  {
+    path: '/ap1-training',
+    name: 'AP1Training',
+    component: () => import('@/presentation/pages/panel/user/ap1/AP1TrainingPage.vue'),
+    meta: { requiresAuth: true },
+  },
+
   // AP2 Trainer (FISI FA 235 BW) — Vollausbau mit 7 Sub-Views
   {
     path: '/ap2-training',
@@ -173,6 +181,28 @@ const routes: RouteRecordRaw[] = [
         path: 'anlagen',
         name: 'Ap2Anlagen',
         component: () => import('@/presentation/pages/panel/user/ap2/views/AnlagenLibraryView.vue'),
+      },
+      {
+        path: 'modules',
+        name: 'Ap2Modules',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ModulesListView.vue'),
+      },
+      {
+        path: 'modules/:slug',
+        name: 'Ap2ModuleRunner',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ModuleRunnerView.vue'),
+        props: true,
+      },
+      {
+        path: 'modules/:slug/detail',
+        name: 'Ap2ModuleDetail',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ModuleDetailView.vue'),
+        props: true,
+      },
+      {
+        path: 'preferences',
+        name: 'Ap2Preferences',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/PreferencesView.vue'),
       },
     ],
   },

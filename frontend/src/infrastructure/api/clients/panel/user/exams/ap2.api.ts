@@ -26,6 +26,19 @@ export interface Ap2Topic {
   is_critical: boolean
 }
 
+export interface CalculatorStep {
+  keys: string
+  result: string
+  note: string
+}
+
+export interface CalculatorHint {
+  mode?: string
+  setup_note?: string
+  steps: CalculatorStep[]
+  exam_tip?: string
+}
+
 export interface Ap2Item {
   item_id: string
   item_type: ItemType
@@ -35,6 +48,7 @@ export interface Ap2Item {
   anlage_id: string | null
   difficulty: number
   estimated_time_sec: number
+  calculator_hint?: CalculatorHint | null
 }
 
 export interface Ap2BereichStat {

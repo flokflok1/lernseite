@@ -75,16 +75,25 @@ class Ap2EvaluationService:
                 API-Layer für HTTP-Statusbehandlung.
         """
         user_prompt = cls._build_user_prompt(item, phase, answer_text, anlage)
-        adapter = AIAdapter()
+        # Task-spezifisches Modell aus Admin-Config holen ('grading' = Bewertung)
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        try:
+            provider, model = resolve_model_for_task('grading')
+            adapter = AIAdapter(provider=provider, model=model)
+        except Exception:
+            logger.warning('grading-Task nicht konfiguriert, fallback auf default')
+            adapter = AIAdapter()
 
         try:
+            # 8000 Tokens reichen für Reasoning + JSON-Antwort. Bei klassischen
+            # Chat-Modellen kostet das nichts extra — es ist nur eine Obergrenze.
             response = adapter.send_messages(
                 messages=[
                     {'role': 'system', 'content': IHK_PRUEFER_SYSTEM_PROMPT},
                     {'role': 'user', 'content': user_prompt},
                 ],
                 temperature=0.2,
-                max_tokens=2000,
+                max_tokens=8000,
             )
             content = response.get('content', '').strip()
             parsed = cls._parse_json_response(content)
@@ -160,15 +169,54 @@ class Ap2EvaluationService:
 
     @staticmethod
     def _parse_json_response(content: str) -> dict:
-        """Extrahiert JSON aus KI-Antwort, auch wenn in Markdown-Fence.
+        """Extrahiert JSON aus KI-Antwort, robust gegen Markdown-Fences,
+        Vor-/Nachlauftext und Code-Blöcke.
 
-        Raises: json.JSONDecodeError wenn Content kein gültiges JSON ist —
-        der Aufrufer fängt und loggt.
+        Strategie:
+        1. ```json … ``` Block → bevorzugt
+        2. ``` … ``` Block → falls JSON-formatiert
+        3. Erstes { … } Substring → letzter Fallback
+
+        Raises: json.JSONDecodeError nur wenn KEINE Variante JSON parst.
         """
+        if not content:
+            raise json.JSONDecodeError('Empty response', content or '', 0)
+
+        # 1. Markdown-Fence ```json
         if '```json' in content:
-            content = content.split('```json', 1)[1]
+            inner = content.split('```json', 1)[1]
+            if '```' in inner:
+                inner = inner.split('```', 1)[0]
+            try:
+                return json.loads(inner.strip())
+            except json.JSONDecodeError:
+                pass
+
+        # 2. Generic ```-Fence
         if '```' in content:
-            content = content.split('```', 1)[0]
+            parts = content.split('```')
+            for i in range(1, len(parts), 2):
+                candidate = parts[i].strip()
+                # ggf. Sprach-Tag wie "json\n" weg
+                if '\n' in candidate:
+                    first_line, rest = candidate.split('\n', 1)
+                    if first_line.lower().strip() in ('json', 'jsonc', 'js'):
+                        candidate = rest
+                try:
+                    return json.loads(candidate.strip())
+                except json.JSONDecodeError:
+                    continue
+
+        # 3. Erstes { ... } im Text greedy matchen
+        first = content.find('{')
+        last = content.rfind('}')
+        if first != -1 and last > first:
+            try:
+                return json.loads(content[first:last + 1])
+            except json.JSONDecodeError:
+                pass
+
+        # 4. Direkter Versuch
         return json.loads(content.strip())
 
     @staticmethod

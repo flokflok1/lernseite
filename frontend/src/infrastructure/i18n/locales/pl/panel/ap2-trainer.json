@@ -9,7 +9,8 @@
         "review": "Na dziś",
         "exam": "Egzamin",
         "cheatsheet": "Ściągi",
-        "anlagen": "Załączniki"
+        "anlagen": "Załączniki",
+        "prefs": "Preferencje"
       },
       "countdown": { "wiso": "Dni WISO", "ap2": "Dni AP2" }
     },
@@ -160,10 +161,90 @@
       "splitToggle": "Podział",
       "tip": "Wskazówka: Pisanie własnoręczne zakorzenia wiedzę głębiej (Generation Effect)."
     },
+    "moduleDetail": {
+      "title": "📊 Szczegóły modułu",
+      "back": "← Wróć",
+      "loading": "Ładowanie …",
+      "startBtn": "▶ Start modułu",
+      "statsHeader": "Postęp",
+      "stats": {
+        "mastered": "Opanowane",
+        "in_progress": "W toku",
+        "recovery": "Recovery",
+        "total_attempts": "Próby",
+        "stuetzrad_uses": "Użyto kółek",
+        "total": "Items"
+      },
+      "progressBar": "{done} / {total} items opanowanych",
+      "itemsHeader": "Wszystkie items",
+      "filterAll": "Wszystkie",
+      "filterMastered": "Opanowane",
+      "filterInProgress": "W toku",
+      "filterRecovery": "Recovery",
+      "filterFresh": "Nie rozpoczęte",
+      "item": {
+        "kopfSerie": "Seria: {done} / {target}",
+        "mastered": "✅ opanowane",
+        "recovery": "⚠️ recovery",
+        "stuetzradUses": "🪄 {n}×",
+        "notStarted": "nie rozpoczęte",
+        "lastScore": "Ostatnia próba: {pct}%",
+        "snoozed": "💤 wyciszone do {time}"
+      }
+    },
+    "modulesList": {
+      "itemsProgress": "{mastered} / {total}",
+      "openDetail": "📊 Szczegóły"
+    },
+    "prefs": {
+      "title": "🎛 Preferencje nauki",
+      "subtitle": "Dostrojenie trybu kółek i mastery modułu. Dotyczy wszystkich modułów — dla każdego zadania możesz włączyć/wyłączyć kółka w trenerze.",
+      "loading": "Ładowanie …",
+      "loadError": "Nie udało się wczytać preferencji.",
+      "saveError": "Zapis nie powiódł się.",
+      "saveBtn": "💾 Zapisz",
+      "savingBtn": "Zapisuję …",
+      "savedOk": "✓ zapisano",
+      "targets": {
+        "title": "🎯 Cel serii",
+        "hint": "Ile poprawnych odpowiedzi z rzędu (kółka wyłączone) aż zadanie się utrwali. Po błędach cel rośnie adaptacyjnie do {max}.",
+        "base": "Cel bazowy",
+        "max": "Cel maks. (limit w recovery)",
+        "rangeHint": "Zakres celu: {base} – {max} trafień z rzędu"
+      },
+      "recovery": {
+        "title": "🔧 Recovery przy błędach",
+        "hint": "O ile rośnie cel przy niezaliczeniu? Recovery aktywuje się od 2. błędu.",
+        "plus_one": "+1 za błąd (łagodnie)",
+        "plus_two": "+2 za błąd (normalnie)",
+        "multiply_1_5": "× 1,5 za błąd (ostro)"
+      },
+      "stuetzrad": {
+        "title": "🪄 Domyślne kółka",
+        "hint": "Czy kółka mają być automatycznie WŁĄCZONE przy otwieraniu zadania?",
+        "off": "Zawsze wyłączone",
+        "per_item": "Decyduj dla zadania",
+        "first_two_on": "Pierwsze 2 próby WŁ"
+      },
+      "mastery": {
+        "title": "🏆 Mastery modułu — jak ostro?",
+        "hint": "Kiedy moduł jest zaliczony?",
+        "express": "Express — 80 % zadań wystarczy",
+        "standard": "Standard — 100 % zadań",
+        "strict": "Strict — 100 % + Same-Day-Recall bez kółek"
+      }
+    },
     "anlagen": {
       "title": "📎 Biblioteka załączników",
       "subtitle": "Wszystkie załączniki egzaminacyjne — z możliwością oznaczania",
-      "stubText": "Backend gotowy. Po digitalizacji pierwszych 10 załączników pojawi się galeria."
+      "anlageNr": "Załącznik {n}",
+      "withHotspots": "oznaczalny",
+      "emptyTitle": "Brak przesłanych załączników",
+      "emptySubtitle": "Galeria pokazuje zdigitalizowane załączniki z prawdziwych egzaminów IHK od 2022.",
+      "emptyHintTitle": "Jak pojawiają się załączniki:",
+      "emptyHint1": "Upload administratora (planowany)",
+      "emptyHint2": "Strony PDF wyodrębniane z folderu AP2",
+      "emptyHint3": "Hotspoty pozycjonowane ręcznie"
     }
   }
 }

@@ -1,0 +1,6 @@
+export { default as IHKExamLayout } from './IHKExamLayout.vue'
+export { default as IHKDeckblatt } from './IHKDeckblatt.vue'
+export { default as IHKAufgabeBlock } from './IHKAufgabeBlock.vue'
+export { default as IHKProjektKontext } from './IHKProjektKontext.vue'
+export { default as IHKAnlage } from './IHKAnlage.vue'
+export { default as IHKAnlageRef } from './IHKAnlageRef.vue'

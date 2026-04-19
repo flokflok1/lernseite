@@ -14,6 +14,7 @@
       <div v-if="item.anlage_id" class="ap2-app-anlage-hint">
         📎 Diese Aufgabe hat eine Anlage (kommt in Phase 4)
       </div>
+      <CalculatorHintPanel :hint="item.calculator_hint ?? null" />
     </div>
 
     <textarea
@@ -48,6 +49,7 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AttemptFeedback from './AttemptFeedback.vue'
+import CalculatorHintPanel from './CalculatorHintPanel.vue'
 import type { Ap2Item, Ap2SubmitResponse } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {

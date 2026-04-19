@@ -121,6 +121,8 @@
           </RouterLink>
         </div>
       </section>
+
+      <TelegramConnectCard />
     </template>
 
     <div v-if="error" class="ap2-error">
@@ -134,6 +136,7 @@ import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAp2Stats } from '../composables'
+import TelegramConnectCard from '../components/TelegramConnectCard.vue'
 
 const { t } = useI18n()
 const {

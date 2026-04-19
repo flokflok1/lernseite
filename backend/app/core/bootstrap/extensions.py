@@ -125,19 +125,25 @@ socketio = SocketIO(
     engineio_logger=True
 )
 
+_redis_logger = logging.getLogger(__name__)
+
 # Redis Client (lazy initialization - will be None during setup)
 try:
-    redis_client = redis.Redis(
-        host=os.getenv('REDIS_HOST', 'localhost'),
-        port=int(os.getenv('REDIS_PORT', 6379)),
-        db=int(os.getenv('REDIS_DB', 0)),
-        decode_responses=True,
-        socket_connect_timeout=2  # Fast fail if Redis not available
-    )
+    _redis_kwargs = {
+        'host': os.getenv('REDIS_HOST', 'localhost'),
+        'port': int(os.getenv('REDIS_PORT', 6379)),
+        'db': int(os.getenv('REDIS_DB', 0)),
+        'decode_responses': True,
+        'socket_connect_timeout': 2,  # Fast fail if Redis not available
+    }
+    _redis_password = os.getenv('REDIS_PASSWORD')
+    if _redis_password:
+        _redis_kwargs['password'] = _redis_password
+    redis_client = redis.Redis(**_redis_kwargs)
     # Test connection
     redis_client.ping()
 except Exception as e:
-    print(f"Warning: Redis not available (normal during setup): {e}")
+    _redis_logger.warning("Redis not available (normal during setup): %s", e)
     redis_client = None
 
 # Celery Task Queue
@@ -150,7 +156,30 @@ celery = Celery(
         'app.infrastructure.tasks.exam_tasks',
         'app.infrastructure.tasks.exam_archive_tasks',
         'app.infrastructure.tasks.crawl_tasks',
+        'app.infrastructure.tasks.ap2_module_tasks',
     ],
+)
+
+# AP2-Modul Beat-Schedule (Telegram-Pings) — alte Celery-Setting-Namen
+# weil Projekt schon andere CELERY_* Settings im alten Stil nutzt
+from celery.schedules import crontab as _crontab
+celery.conf.update(
+    CELERYBEAT_SCHEDULE={
+        'ap2-send-due-recalls-every-5min': {
+            'task': 'ap2.send_due_recalls',
+            'schedule': 300.0,
+        },
+        'ap2-send-due-spotchecks-every-30min': {
+            'task': 'ap2.send_due_spotchecks',
+            'schedule': 1800.0,
+        },
+        'ap2-daily-morning-summary-09-de': {
+            'task': 'ap2.daily_morning_summary',
+            # 09:00 lokal (Berlin Sommerzeit = UTC+2) → 07:00 UTC
+            'schedule': _crontab(hour=7, minute=0),
+        },
+    },
+    CELERY_TIMEZONE='UTC',
 )
 
 # Initialize Flask app context in Celery worker processes so tasks

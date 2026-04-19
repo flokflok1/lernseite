@@ -9,7 +9,8 @@
         "review": "Due today",
         "exam": "Exam",
         "cheatsheet": "Cheatsheets",
-        "anlagen": "Appendices"
+        "anlagen": "Appendices",
+        "prefs": "Preferences"
       },
       "countdown": { "wiso": "Days WISO", "ap2": "Days AP2" }
     },
@@ -160,10 +161,90 @@
       "splitToggle": "Split",
       "tip": "Tip: Writing it yourself anchors knowledge deeper than reading (Generation Effect). Print as PDF before exam."
     },
+    "moduleDetail": {
+      "title": "📊 Module detail",
+      "back": "← Back",
+      "loading": "Loading …",
+      "startBtn": "▶ Start module",
+      "statsHeader": "Progress",
+      "stats": {
+        "mastered": "Mastered",
+        "in_progress": "In progress",
+        "recovery": "Recovery",
+        "total_attempts": "Attempts",
+        "stuetzrad_uses": "Wheels used",
+        "total": "Items"
+      },
+      "progressBar": "{done} / {total} items mastered",
+      "itemsHeader": "All items",
+      "filterAll": "All",
+      "filterMastered": "Mastered",
+      "filterInProgress": "In progress",
+      "filterRecovery": "Recovery",
+      "filterFresh": "Not started",
+      "item": {
+        "kopfSerie": "Head streak: {done} / {target}",
+        "mastered": "✅ mastered",
+        "recovery": "⚠️ recovery",
+        "stuetzradUses": "🪄 {n}×",
+        "notStarted": "not started",
+        "lastScore": "Last attempt: {pct}%",
+        "snoozed": "💤 snoozed until {time}"
+      }
+    },
+    "modulesList": {
+      "itemsProgress": "{mastered} / {total}",
+      "openDetail": "📊 Details"
+    },
+    "prefs": {
+      "title": "🎛 Learning Preferences",
+      "subtitle": "Fine-tune the training-wheels mode and module mastery. Applies to all modules — per item you can still toggle training wheels on/off in the runner.",
+      "loading": "Loading …",
+      "loadError": "Could not load preferences.",
+      "saveError": "Save failed.",
+      "saveBtn": "💾 Save",
+      "savingBtn": "Saving …",
+      "savedOk": "✓ saved",
+      "targets": {
+        "title": "🎯 Head-streak target",
+        "hint": "How many correct answers in a row (wheels off) until an item sticks. On failures the target adapts up to {max}.",
+        "base": "Base target",
+        "max": "Max target (recovery cap)",
+        "rangeHint": "Target range: {base} – {max} hits in a row"
+      },
+      "recovery": {
+        "title": "🔧 Recovery behavior on failures",
+        "hint": "How much does the target rise when you fail an item? Recovery kicks in from the 2nd failure.",
+        "plus_one": "+1 per failure (gentle)",
+        "plus_two": "+2 per failure (normal)",
+        "multiply_1_5": "× 1.5 per failure (hard)"
+      },
+      "stuetzrad": {
+        "title": "🪄 Training-wheels default",
+        "hint": "Should training wheels be ON automatically when you open an item?",
+        "off": "Always off",
+        "per_item": "Decide per item",
+        "first_two_on": "First 2 attempts ON"
+      },
+      "mastery": {
+        "title": "🏆 Module mastery — how strict?",
+        "hint": "When does a module count as completed?",
+        "express": "Express — 80 % of items is enough",
+        "standard": "Standard — 100 % of items",
+        "strict": "Strict — 100 % + same-day recall without wheels"
+      }
+    },
     "anlagen": {
       "title": "📎 Appendix Library",
       "subtitle": "All exam appendices (network plans, ER models, datasheets) — annotatable",
-      "stubText": "Backend is ready (GET /anlagen). Once the first 10 appendices are digitised with hotspots, a gallery will appear here."
+      "anlageNr": "Appendix {n}",
+      "withHotspots": "annotatable",
+      "emptyTitle": "No appendices uploaded yet",
+      "emptySubtitle": "The gallery shows digitised appendices from real IHK exams since 2022.",
+      "emptyHintTitle": "How appendices get in:",
+      "emptyHint1": "Admin upload via a future tool (planned)",
+      "emptyHint2": "PDF pages extracted from AP2 folder",
+      "emptyHint3": "Hotspots positioned manually for labeling practice"
     }
   }
 }

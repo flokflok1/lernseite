@@ -10,6 +10,8 @@
       <div class="ap2-card-meta">{{ item.points }} P · {{ item.estimated_time_sec }} sec</div>
     </div>
 
+    <CalculatorHintPanel v-if="item" :hint="item.calculator_hint ?? null" />
+
     <textarea
       v-model="answer"
       class="ap2-phase-textarea"
@@ -42,6 +44,7 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AttemptFeedback from './AttemptFeedback.vue'
+import CalculatorHintPanel from './CalculatorHintPanel.vue'
 import type { Ap2Item, Ap2SubmitResponse } from '@/infrastructure/api/clients/panel/user/exams'
 
 interface Props {

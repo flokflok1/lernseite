@@ -118,6 +118,7 @@ from app.api.v1.panel.user.runner import sessions_bp as runner_sessions_bp
 from app.api.v1.panel.user.exams import trainer_bp as exam_trainer_bp
 from app.api.v1.panel.user.exams import exam_upload_bp
 from app.api.v1.panel.user.exams import ap2_trainer_bp
+from app.api.v1.public.telegram_webhook import telegram_webhook_bp
 from app.api.v1.panel.user.exam_goals import exam_goals_bp
 from app.api.v1.panel.user.learning.reviews import review_bp
 from app.api.v1.panel.user.programs import programs_user_bp
@@ -257,6 +258,7 @@ api_v1.register_blueprint(runner_sessions_bp)
 api_v1.register_blueprint(exam_trainer_bp)
 api_v1.register_blueprint(exam_upload_bp)
 api_v1.register_blueprint(ap2_trainer_bp)
+api_v1.register_blueprint(telegram_webhook_bp)
 api_v1.register_blueprint(exam_goals_bp)
 api_v1.register_blueprint(review_bp)
 api_v1.register_blueprint(programs_user_bp)

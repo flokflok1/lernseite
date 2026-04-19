@@ -156,7 +156,30 @@ celery = Celery(
         'app.infrastructure.tasks.exam_tasks',
         'app.infrastructure.tasks.exam_archive_tasks',
         'app.infrastructure.tasks.crawl_tasks',
+        'app.infrastructure.tasks.ap2_module_tasks',
     ],
+)
+
+# AP2-Modul Beat-Schedule (Telegram-Pings) — alte Celery-Setting-Namen
+# weil Projekt schon andere CELERY_* Settings im alten Stil nutzt
+from celery.schedules import crontab as _crontab
+celery.conf.update(
+    CELERYBEAT_SCHEDULE={
+        'ap2-send-due-recalls-every-5min': {
+            'task': 'ap2.send_due_recalls',
+            'schedule': 300.0,
+        },
+        'ap2-send-due-spotchecks-every-30min': {
+            'task': 'ap2.send_due_spotchecks',
+            'schedule': 1800.0,
+        },
+        'ap2-daily-morning-summary-09-de': {
+            'task': 'ap2.daily_morning_summary',
+            # 09:00 lokal (Berlin Sommerzeit = UTC+2) → 07:00 UTC
+            'schedule': _crontab(hour=7, minute=0),
+        },
+    },
+    CELERY_TIMEZONE='UTC',
 )
 
 # Initialize Flask app context in Celery worker processes so tasks

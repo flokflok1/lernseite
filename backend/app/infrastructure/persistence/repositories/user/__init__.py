@@ -27,6 +27,9 @@ from app.infrastructure.persistence.repositories.user.roles import UserRoleRepos
 from app.infrastructure.persistence.repositories.user.admin import UserAdminRepository
 from app.infrastructure.persistence.repositories.user.admin_part2 import UserAdminModerationRepository
 from app.infrastructure.persistence.repositories.user.profile import UserProfileRepository
+from app.infrastructure.persistence.repositories.user.telegram_link import (
+    TelegramLinkRepository, generate_link_code
+)
 
 
 class UserRepository(
@@ -54,4 +57,6 @@ __all__ = [
     'UserAdminRepository',
     'UserAdminModerationRepository',
     'UserProfileRepository',
+    'TelegramLinkRepository',
+    'generate_link_code',
 ]

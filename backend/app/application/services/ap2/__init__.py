@@ -9,6 +9,12 @@ from .mastery_service import Ap2MasteryService
 from .attempt_service import Ap2AttemptService
 from .dashboard_service import Ap2DashboardService
 from .session_service import Ap2SessionService
+from .module_progress_service import (
+    ModuleProgressService,
+    ModuleNotAvailableError,
+    ModulePoolEmptyError,
+)
+from .telegram_session_service import TelegramSessionService
 
 __all__ = [
     'Ap2EvaluationService',
@@ -17,4 +23,8 @@ __all__ = [
     'Ap2AttemptService',
     'Ap2DashboardService',
     'Ap2SessionService',
+    'ModuleProgressService',
+    'ModuleNotAvailableError',
+    'ModulePoolEmptyError',
+    'TelegramSessionService',
 ]

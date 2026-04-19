@@ -19,11 +19,13 @@ from .study import register_study_routes      # noqa: E402
 from .anlagen import register_anlagen_routes  # noqa: E402
 from .cheatsheets import register_cheatsheet_routes  # noqa: E402
 from .modules import register_module_routes   # noqa: E402
+from .preferences import register_preferences_routes  # noqa: E402
 
 register_stats_routes(ap2_trainer_bp)
 register_study_routes(ap2_trainer_bp)
 register_anlagen_routes(ap2_trainer_bp)
 register_cheatsheet_routes(ap2_trainer_bp)
 register_module_routes(ap2_trainer_bp)
+register_preferences_routes(ap2_trainer_bp)
 
 __all__ = ['ap2_trainer_bp']

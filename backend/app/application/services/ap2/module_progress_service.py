@@ -121,15 +121,18 @@ class ModuleProgressService:
         item_id: UUID,
         user_answer: str,
         source: AttemptSource = AttemptSource.WEBAPP,
+        stuetzrad_used: bool = False,
     ) -> dict:
         """Verarbeitet eine User-Antwort.
 
-        - Bewertet via KI
-        - Loggt Versuch
-        - Updated ModuleProgress (Streak/Status/Recall/Spotcheck)
-        - Liefert: pct, passed, feedback, neuer status, next_item
+        Wenn ``stuetzrad_used=True``:
+        - KI wird trotzdem aufgerufen (User hat geschrieben, soll Feedback bekommen)
+        - Aber: kein Streak-Update, kein Fail-Zähler, nur Zähler für Stützrad-Nutzung
+        - Item wird NICHT zu 'used' markiert (bleibt im Pool)
 
-        Returns dict mit allen Informationen für UI/Bot-Antwort.
+        Sonst (Stützrad aus):
+        - Streng: ≥80% → kopf_serie_count++, Fail → count=0 + fail++, effective_target+
+        - Module-Progress (Streak für Modul-Mastery) wird ebenfalls aktualisiert
         """
         progress = Ap2ModuleProgressRepository.find_by_user_module(
             user_id, module_id
@@ -144,7 +147,7 @@ class ModuleProgressService:
         # Phase aus Modul-Status ableiten
         phase = cls._derive_attempt_phase(progress)
 
-        # KI-Bewertung
+        # KI-Bewertung (immer — auch bei Stützrad, damit User Feedback bekommt)
         try:
             pct, points_earned, feedback, model_used = Ap2EvaluationService.evaluate(
                 item=item,
@@ -160,7 +163,7 @@ class ModuleProgressService:
 
         passed = pct >= MASTERY_PASS_THRESHOLD
 
-        # Audit-Log
+        # Audit-Log (immer — auch bei Stützrad)
         Ap2ModuleProgressRepository.log_attempt(ModuleAttemptLog(
             attempt_log_id=UUID(int=0),
             user_id=user_id,
@@ -179,23 +182,41 @@ class ModuleProgressService:
                 'incorrect': feedback.incorrect_aspects,
                 'suggestions': feedback.suggestions,
                 'model': model_used,
+                'stuetzrad_used': stuetzrad_used,
             },
         ))
 
-        # Domain-Logik anwenden
-        progress.apply_attempt(float(pct), phase)
-        # Item als verbraucht markieren (damit nicht 2× direkt nochmal kommt)
-        if item_id not in progress.used_item_ids:
-            progress.used_item_ids.append(item_id)
-        progress = Ap2ModuleProgressRepository.upsert(progress)
+        # Item-Skill (Stützrad-System) aktualisieren — ruhig auch bei Stützrad
+        from app.infrastructure.persistence.repositories.ap2 import (
+            Ap2UserPrefsRepository, Ap2ItemSkillRepository,
+        )
+        prefs = Ap2UserPrefsRepository.get_or_create(user_id)
+        skill = Ap2ItemSkillRepository.get_or_init(
+            user_id, item_id, initial_target=prefs.base_target,
+        )
+        skill.record_submission(
+            passed=passed, score_pct=float(pct),
+            stuetzrad_used=stuetzrad_used, prefs=prefs,
+        )
+        skill = Ap2ItemSkillRepository.upsert(skill)
 
-        # Voraussetzungs-Module bei MASTERED freischalten
-        if progress.status == ModuleStatus.MASTERED:
-            cls._unlock_dependent_modules(user_id, module_id)
+        # Module-Level Streak NUR bei Stützrad-aus aktualisieren
+        if not stuetzrad_used:
+            progress.apply_attempt(float(pct), phase)
+            if item_id not in progress.used_item_ids:
+                progress.used_item_ids.append(item_id)
+            progress = Ap2ModuleProgressRepository.upsert(progress)
 
-        # Nächstes Item ermitteln (falls noch im Loop)
+            if progress.status == ModuleStatus.MASTERED:
+                cls._unlock_dependent_modules(user_id, module_id)
+
+        # Nächstes Item ermitteln (bei Stützrad das GLEICHE Item nochmal, sonst neues)
         next_item = None
-        if progress.status == ModuleStatus.LEARNING:
+        if stuetzrad_used:
+            # User will das Item ggf. direkt nochmal ohne Stützrad — System bietet
+            # standardmäßig ein anderes Pool-Item an, UI kann aber "Nochmal" zeigen
+            next_item = cls._pick_next_item(progress, use_in='mastery')
+        elif progress.status == ModuleStatus.LEARNING:
             next_item = cls._pick_next_item(progress, use_in='mastery')
 
         return {
@@ -206,6 +227,9 @@ class ModuleProgressService:
             'progress': progress,
             'next_item': next_item,
             'model_used': model_used,
+            'skill': skill,
+            'stuetzrad_used': stuetzrad_used,
+            'model_answer': item.model_answer if stuetzrad_used or not passed else None,
         }
 
     @classmethod

@@ -68,6 +68,20 @@ class Ap2LearningItemRepository:
         return _row_to_item(row) if row else None
 
     @classmethod
+    def find_by_ids(cls, item_ids: list[UUID]) -> list[LearningItem]:
+        """Bulk-Load mehrerer Items via ANY(uuid[])."""
+        if not item_ids:
+            return []
+        rows = fetch_all(
+            """
+            SELECT * FROM assessments.ap2_learning_items
+            WHERE item_id = ANY(%s::uuid[])
+            """,
+            ([str(i) for i in item_ids],),
+        )
+        return [_row_to_item(r) for r in (rows or [])]
+
+    @classmethod
     def find_by_topic(
         cls,
         topic_id: UUID,

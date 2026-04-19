@@ -26,6 +26,7 @@ from app.application.services.ap2 import (
 )
 from app.infrastructure.persistence.repositories.ap2 import (
     Ap2ModuleRepository, Ap2ModuleProgressRepository,
+    Ap2ItemSkillRepository, Ap2LearningItemRepository,
 )
 from app.infrastructure.persistence.repositories.user import (
     TelegramLinkRepository,
@@ -82,6 +83,50 @@ def _item_to_dict(item) -> dict:
     }
 
 
+def _skill_to_dict(s) -> dict:
+    if not s:
+        return {
+            'kopf_serie_count': 0,
+            'fail_count': 0,
+            'effective_target': None,
+            'total_attempts': 0,
+            'stuetzrad_uses': 0,
+            'is_mastered': False,
+            'mastered_at': None,
+            'snoozed_until': None,
+            'last_attempt_at': None,
+            'last_score_pct': None,
+            'is_in_recovery': False,
+            'should_suggest_stuetzrad': False,
+            'should_suggest_pause': False,
+        }
+    return {
+        'kopf_serie_count': s.kopf_serie_count,
+        'fail_count': s.fail_count,
+        'effective_target': s.effective_target,
+        'total_attempts': s.total_attempts,
+        'stuetzrad_uses': s.stuetzrad_uses,
+        'is_mastered': s.is_mastered,
+        'mastered_at': s.mastered_at.isoformat() if s.mastered_at else None,
+        'snoozed_until': (
+            s.snoozed_until.isoformat() if s.snoozed_until else None
+        ),
+        'last_attempt_at': (
+            s.last_attempt_at.isoformat() if s.last_attempt_at else None
+        ),
+        'last_score_pct': s.last_score_pct,
+        'is_in_recovery': s.is_in_recovery,
+        'should_suggest_stuetzrad': s.should_suggest_stuetzrad,
+        'should_suggest_pause': s.should_suggest_pause,
+    }
+
+
+def _item_with_skill_dict(item, skill) -> dict:
+    base = _item_to_dict(item) or {}
+    base['skill'] = _skill_to_dict(skill)
+    return base
+
+
 def register_module_routes(bp):
     """Registriert Modul-Routes am ap2_trainer_bp."""
 
@@ -97,12 +142,16 @@ def register_module_routes(bp):
         result = []
         for m in modules:
             p = progress_by_module.get(m.module_id)
+            pool_ids = Ap2ModuleRepository.get_pool_item_ids(
+                m.module_id, use_in='mastery',
+            )
+            item_stats = Ap2ItemSkillRepository.module_stats(user_id, pool_ids)
             if not p:
                 from app.application.services.ap2.module_progress_service import (
                     ModuleProgressService as MPS,
                 )
                 init_status = MPS._compute_initial_status(user_id, m)
-                result.append({
+                entry = {
                     **_module_to_dict(m),
                     'progress': {
                         'status': init_status.value,
@@ -115,11 +164,43 @@ def register_module_routes(bp):
                         'spotcheck_stage': 0,
                         'next_spotcheck_at': None,
                     },
-                })
+                }
             else:
-                result.append(_module_to_dict(m, p))
+                entry = _module_to_dict(m, p)
+            entry['item_stats'] = item_stats
+            result.append(entry)
 
         return jsonify({'modules': result}), 200
+
+    @bp.route('/modules/<module_id>/detail', methods=['GET'])
+    @token_required
+    def module_detail(module_id):
+        """Item-Drilldown: alle Pool-Items + Skill-Status pro User."""
+        user = get_current_user()
+        user_id = user['user_id']
+        try:
+            mid = UUID(module_id)
+        except ValueError:
+            return jsonify({'error': 'invalid module_id'}), 400
+
+        module = Ap2ModuleRepository.find_by_id(mid)
+        if not module:
+            return jsonify({'error': 'module not found'}), 404
+
+        pool_ids = Ap2ModuleRepository.get_pool_item_ids(mid, use_in='mastery')
+        items = Ap2LearningItemRepository.find_by_ids(pool_ids)
+        skill_by_item = Ap2ItemSkillRepository.find_for_items(user_id, pool_ids)
+        progress = Ap2ModuleProgressRepository.find_by_user_module(user_id, mid)
+
+        return jsonify({
+            'module': _module_to_dict(module, progress),
+            'theory_markdown': module.theory_markdown,
+            'item_stats': Ap2ItemSkillRepository.module_stats(user_id, pool_ids),
+            'items': [
+                _item_with_skill_dict(i, skill_by_item.get(i.item_id))
+                for i in items
+            ],
+        }), 200
 
     @bp.route('/modules/<module_id>/start', methods=['POST'])
     @token_required
@@ -162,6 +243,8 @@ def register_module_routes(bp):
         if not answer:
             return jsonify({'error': 'answer required'}), 400
 
+        stuetzrad_used = bool(body.get('stuetzrad', False))
+
         try:
             result = ModuleProgressService.submit_answer(
                 user_id=user_id,
@@ -169,6 +252,7 @@ def register_module_routes(bp):
                 item_id=iid,
                 user_answer=answer,
                 source=AttemptSource.WEBAPP,
+                stuetzrad_used=stuetzrad_used,
             )
         except ModuleNotAvailableError as e:
             return jsonify({'error': str(e)}), 409
@@ -179,10 +263,22 @@ def register_module_routes(bp):
             return jsonify({'error': 'evaluation failed'}), 500
 
         feedback = result['feedback']
+        skill = result['skill']
         return jsonify({
             'pct': result['pct'],
             'passed': result['passed'],
             'points_earned': result['points_earned'],
+            'stuetzrad_used': result.get('stuetzrad_used', False),
+            'model_answer': result.get('model_answer'),
+            'skill': {
+                'kopf_serie_count': skill.kopf_serie_count,
+                'effective_target': skill.effective_target,
+                'fail_count': skill.fail_count,
+                'stuetzrad_uses': skill.stuetzrad_uses,
+                'is_mastered': skill.is_mastered,
+                'should_suggest_stuetzrad': skill.should_suggest_stuetzrad,
+                'should_suggest_pause': skill.should_suggest_pause,
+            },
             'feedback': {
                 'summary': feedback.summary,
                 'correct_aspects': feedback.correct_aspects,

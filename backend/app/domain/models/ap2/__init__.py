@@ -36,6 +36,20 @@ from .module import (
     SAME_DAY_RECALL_DELAY_HOURS,
     SPOTCHECK_SCHEDULE_DAYS,
 )
+from .skill import (
+    UserLearningPrefs,
+    ItemSkill,
+    RecoveryMode,
+    StuetzradDefault,
+    MasteryStrictness,
+    ABS_MIN_TARGET,
+    ABS_MAX_TARGET,
+    DEFAULT_BASE_TARGET,
+    DEFAULT_MAX_TARGET,
+    SOFT_FAIL_THRESHOLD,
+    AUTO_STUETZRAD_THRESHOLD,
+    PAUSE_HINT_THRESHOLD,
+)
 
 __all__ = [
     # Enums
@@ -49,7 +63,12 @@ __all__ = [
     'ReviewScheduleEntry', 'SM2Result',
     'TopicMastery', 'Cheatsheet', 'StudySession',
     'Module', 'ModuleProgress', 'ModuleAttemptLog',
+    'UserLearningPrefs', 'ItemSkill',
+    'RecoveryMode', 'StuetzradDefault', 'MasteryStrictness',
     # Constants
     'MASTERY_PASS_THRESHOLD', 'MASTERY_STREAK_REQUIRED',
     'SAME_DAY_RECALL_DELAY_HOURS', 'SPOTCHECK_SCHEDULE_DAYS',
+    'ABS_MIN_TARGET', 'ABS_MAX_TARGET',
+    'DEFAULT_BASE_TARGET', 'DEFAULT_MAX_TARGET',
+    'SOFT_FAIL_THRESHOLD', 'AUTO_STUETZRAD_THRESHOLD', 'PAUSE_HINT_THRESHOLD',
 ]

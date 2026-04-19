@@ -75,7 +75,14 @@ class Ap2EvaluationService:
                 API-Layer für HTTP-Statusbehandlung.
         """
         user_prompt = cls._build_user_prompt(item, phase, answer_text, anlage)
-        adapter = AIAdapter()
+        # Task-spezifisches Modell aus Admin-Config holen ('grading' = Bewertung)
+        from app.infrastructure.ai.task_model_resolver import resolve_model_for_task
+        try:
+            provider, model = resolve_model_for_task('grading')
+            adapter = AIAdapter(provider=provider, model=model)
+        except Exception:
+            logger.warning('grading-Task nicht konfiguriert, fallback auf default')
+            adapter = AIAdapter()
 
         try:
             response = adapter.send_messages(

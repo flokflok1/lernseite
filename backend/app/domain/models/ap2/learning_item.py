@@ -54,6 +54,8 @@ class LearningItem:
     estimated_time_sec: int = 120
     is_active: bool = True
     calculator_hint: Optional[dict] = None   # Casio FX-991DE X Step-Guide
+    sub_area: Optional[str] = None           # z.B. 'notation' | 'eui64' | 'comparison'
+    tags: list[str] = field(default_factory=list)
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

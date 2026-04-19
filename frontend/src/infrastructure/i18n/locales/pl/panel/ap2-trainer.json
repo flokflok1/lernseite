@@ -161,6 +161,32 @@
       "splitToggle": "Podział",
       "tip": "Wskazówka: Pisanie własnoręczne zakorzenia wiedzę głębiej (Generation Effect)."
     },
+    "calculator": {
+      "heading": "🧮 Pomoc z kalkulatorem",
+      "model": "Model",
+      "mode": "Tryb",
+      "formula": "Wzór",
+      "example": "Przykład",
+      "steps": "Sekwencja klawiszy",
+      "keys": "Klawisze",
+      "display": "Wyświetlacz",
+      "hide": "Ukryj",
+      "show": "Pokaż pomoc kalkulatora"
+    },
+    "heatmap": {
+      "title": "🔥 Mapa słabości (wg podobszaru)",
+      "legend": {
+        "mastered": "Opanowane",
+        "in_progress": "W toku",
+        "recovery": "Recovery",
+        "fresh": "Nie rozpoczęte"
+      },
+      "cell": {
+        "totalLabel": "{n} items",
+        "avgScore": "śr. {pct}%"
+      },
+      "empty": "Brak otagowanych podobszarów w tym module."
+    },
     "moduleDetail": {
       "title": "📊 Szczegóły modułu",
       "back": "← Wróć",

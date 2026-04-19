@@ -73,7 +73,45 @@ export interface ModuleItem {
   points: number
   difficulty: number
   estimated_time_sec: number
-  calculator_hint: unknown
+  calculator_hint: CalculatorHint | null
+  sub_area?: string | null
+  tags?: string[]
+}
+
+export interface CalculatorHintStep {
+  label: string
+  keys?: string          // "MODE 2" oder "SHIFT + log"
+  display?: string       // Beispiel-Display-Output
+  note?: string
+}
+
+export interface CalculatorHint {
+  model?: string         // z.B. 'Casio FX-991DE X'
+  mode?: string          // z.B. 'COMP (MODE 1)'
+  summary?: string
+  steps?: CalculatorHintStep[]
+  formula?: string       // LaTeX oder Plain
+  example?: string
+}
+
+export interface SubAreaStat {
+  sub_area: string
+  total: number
+  mastered: number
+  in_progress: number
+  recovery: number
+  fresh: number
+  avg_score_pct: number
+  meta?: {
+    module_id: string
+    sub_area: string
+    label_de: string
+    label_en?: string | null
+    sort_order: number
+    icon?: string | null
+    color?: string | null
+    description?: string | null
+  } | null
 }
 
 export interface ModuleStartResponse {
@@ -113,6 +151,7 @@ export interface ModuleDetailResponse {
   module: ModuleCard
   theory_markdown: string | null
   item_stats: ItemStats
+  sub_areas: SubAreaStat[]
   items: Array<ModuleItem & { skill: ItemSkillState }>
 }
 

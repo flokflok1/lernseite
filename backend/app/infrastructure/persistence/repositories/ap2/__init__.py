@@ -10,6 +10,7 @@ from .cheatsheets import Ap2CheatsheetRepository
 from .sessions import Ap2StudySessionRepository
 from .modules import Ap2ModuleRepository, Ap2ModuleProgressRepository
 from .skill import Ap2UserPrefsRepository, Ap2ItemSkillRepository
+from .sub_areas import Ap2ModuleSubAreaRepository
 
 __all__ = [
     'Ap2TopicRepository',
@@ -24,4 +25,5 @@ __all__ = [
     'Ap2ModuleProgressRepository',
     'Ap2UserPrefsRepository',
     'Ap2ItemSkillRepository',
+    'Ap2ModuleSubAreaRepository',
 ]

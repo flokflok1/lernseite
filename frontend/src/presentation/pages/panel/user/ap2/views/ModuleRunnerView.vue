@@ -17,6 +17,7 @@ import {
 } from '@/infrastructure/api/clients/panel/user/exams/ap2-modules.api'
 import ModuleFeedbackPanel from '../components/active-recall/ModuleFeedbackPanel.vue'
 import StuetzradControls from '../components/active-recall/StuetzradControls.vue'
+import CalculatorHint from '../components/active-recall/CalculatorHint.vue'
 
 interface Props { slug: string }
 const props = defineProps<Props>()
@@ -245,6 +246,7 @@ watch(() => props.slug, () => {
       <div class="task-prompt">
         <pre class="task-text">{{ item.prompt }}</pre>
       </div>
+      <CalculatorHint :hint="item.calculator_hint" />
       <textarea
         v-model="answer"
         class="task-textarea"

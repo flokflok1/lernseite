@@ -161,6 +161,32 @@
       "splitToggle": "Split",
       "tip": "Tip: Writing it yourself anchors knowledge deeper than reading (Generation Effect). Print as PDF before exam."
     },
+    "calculator": {
+      "heading": "🧮 Calculator help",
+      "model": "Model",
+      "mode": "Mode",
+      "formula": "Formula",
+      "example": "Example",
+      "steps": "Key sequence",
+      "keys": "Keys",
+      "display": "Display",
+      "hide": "Hide",
+      "show": "Show calculator help"
+    },
+    "heatmap": {
+      "title": "🔥 Weakness heatmap (per sub-area)",
+      "legend": {
+        "mastered": "Mastered",
+        "in_progress": "In progress",
+        "recovery": "Recovery",
+        "fresh": "Not started"
+      },
+      "cell": {
+        "totalLabel": "{n} items",
+        "avgScore": "avg {pct}%"
+      },
+      "empty": "No sub-areas tagged yet for this module."
+    },
     "moduleDetail": {
       "title": "📊 Module detail",
       "back": "← Back",

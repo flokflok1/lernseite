@@ -253,3 +253,60 @@ class Ap2ItemSkillRepository:
             'total_attempts': int(row['total_attempts']) if row else 0,
             'stuetzrad_uses': int(row['stuetzrad_uses']) if row else 0,
         }
+
+    @classmethod
+    def sub_area_stats(
+        cls, user_id: UUID, module_id: UUID,
+    ) -> list[dict]:
+        """Aggregat pro Sub-Area innerhalb eines Moduls (Heatmap-Basis).
+
+        Liefert für jede Sub-Area im Modul: total/mastered/in_progress/
+        recovery/fresh Counts. Items ohne sub_area werden unter 'uncategorized'
+        gruppiert.
+        """
+        rows = fetch_all(
+            """
+            SELECT
+                COALESCE(i.sub_area, 'uncategorized') AS sub_area,
+                COUNT(*) AS total,
+                COUNT(*) FILTER (
+                    WHERE s.is_mastered = TRUE
+                ) AS mastered,
+                COUNT(*) FILTER (
+                    WHERE s.is_mastered = FALSE
+                      AND s.kopf_serie_count > 0
+                      AND s.fail_count < 2
+                ) AS in_progress,
+                COUNT(*) FILTER (
+                    WHERE s.is_mastered = FALSE
+                      AND s.fail_count >= 2
+                ) AS recovery,
+                COUNT(*) FILTER (
+                    WHERE s.user_id IS NULL OR s.total_attempts = 0
+                ) AS fresh,
+                COALESCE(AVG(s.last_score_pct) FILTER (
+                    WHERE s.last_score_pct IS NOT NULL
+                ), 0) AS avg_score_pct
+            FROM assessments.ap2_module_items mi
+            JOIN assessments.ap2_learning_items i ON i.item_id = mi.item_id
+            LEFT JOIN assessments.ap2_module_item_skill s
+                ON s.item_id = mi.item_id AND s.user_id = %s
+            WHERE mi.module_id = %s
+              AND i.is_active = TRUE
+            GROUP BY COALESCE(i.sub_area, 'uncategorized')
+            ORDER BY sub_area
+            """,
+            (str(user_id), str(module_id)),
+        )
+        out: list[dict] = []
+        for r in (rows or []):
+            out.append({
+                'sub_area': r['sub_area'],
+                'total': int(r['total']),
+                'mastered': int(r['mastered']),
+                'in_progress': int(r['in_progress']),
+                'recovery': int(r['recovery']),
+                'fresh': int(r['fresh']),
+                'avg_score_pct': float(r['avg_score_pct']),
+            })
+        return out

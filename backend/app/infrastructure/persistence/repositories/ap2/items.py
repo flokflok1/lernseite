@@ -51,6 +51,8 @@ def _row_to_item(row: dict) -> LearningItem:
         estimated_time_sec=row.get('estimated_time_sec', 120),
         is_active=row.get('is_active', True),
         calculator_hint=row.get('calculator_hint'),
+        sub_area=row.get('sub_area'),
+        tags=list(row.get('tags') or []),
         created_at=row.get('created_at'),
         updated_at=row.get('updated_at'),
     )

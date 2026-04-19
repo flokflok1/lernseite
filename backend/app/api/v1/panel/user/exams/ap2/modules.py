@@ -27,6 +27,7 @@ from app.application.services.ap2 import (
 from app.infrastructure.persistence.repositories.ap2 import (
     Ap2ModuleRepository, Ap2ModuleProgressRepository,
     Ap2ItemSkillRepository, Ap2LearningItemRepository,
+    Ap2ModuleSubAreaRepository,
 )
 from app.infrastructure.persistence.repositories.user import (
     TelegramLinkRepository,
@@ -80,6 +81,8 @@ def _item_to_dict(item) -> dict:
         'difficulty': item.difficulty,
         'estimated_time_sec': item.estimated_time_sec,
         'calculator_hint': item.calculator_hint,
+        'sub_area': getattr(item, 'sub_area', None),
+        'tags': list(getattr(item, 'tags', []) or []),
     }
 
 
@@ -191,11 +194,19 @@ def register_module_routes(bp):
         items = Ap2LearningItemRepository.find_by_ids(pool_ids)
         skill_by_item = Ap2ItemSkillRepository.find_for_items(user_id, pool_ids)
         progress = Ap2ModuleProgressRepository.find_by_user_module(user_id, mid)
+        sub_area_stats = Ap2ItemSkillRepository.sub_area_stats(user_id, mid)
+        sub_area_meta = Ap2ModuleSubAreaRepository.find_by_module(mid)
+        meta_by_key = {m['sub_area']: m for m in sub_area_meta}
+        enriched_sub_areas = [
+            {**s, 'meta': meta_by_key.get(s['sub_area'])}
+            for s in sub_area_stats
+        ]
 
         return jsonify({
             'module': _module_to_dict(module, progress),
             'theory_markdown': module.theory_markdown,
             'item_stats': Ap2ItemSkillRepository.module_stats(user_id, pool_ids),
+            'sub_areas': enriched_sub_areas,
             'items': [
                 _item_with_skill_dict(i, skill_by_item.get(i.item_id))
                 for i in items

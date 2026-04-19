@@ -9,6 +9,7 @@ import {
   type ModuleItem,
   type ItemSkillState,
 } from '@/infrastructure/api/clients/panel/user/exams/ap2-modules.api'
+import SubAreaHeatmap from '../components/active-recall/SubAreaHeatmap.vue'
 
 interface Props { slug: string }
 const props = defineProps<Props>()
@@ -22,6 +23,11 @@ const error = ref<string | null>(null)
 
 type FilterKey = 'all' | 'mastered' | 'in_progress' | 'recovery' | 'fresh'
 const filter = ref<FilterKey>('all')
+const subAreaFilter = ref<string | null>(null)
+
+function selectSubArea(sa: string) {
+  subAreaFilter.value = subAreaFilter.value === sa ? null : sa
+}
 
 const filters: Array<{ key: FilterKey; labelKey: string }> = [
   { key: 'all',         labelKey: 'ap2Trainer.moduleDetail.filterAll' },
@@ -58,8 +64,14 @@ function skillCategory(s: ItemSkillState): FilterKey {
 
 const filteredItems = computed(() => {
   if (!detail.value) return []
-  if (filter.value === 'all') return detail.value.items
-  return detail.value.items.filter(i => skillCategory(i.skill) === filter.value)
+  let items = detail.value.items
+  if (subAreaFilter.value) {
+    items = items.filter(i =>
+      (i.sub_area || 'uncategorized') === subAreaFilter.value,
+    )
+  }
+  if (filter.value === 'all') return items
+  return items.filter(i => skillCategory(i.skill) === filter.value)
 })
 
 const progressPct = computed(() => {
@@ -184,10 +196,26 @@ watch(() => props.slug, load)
         </div>
       </section>
 
+      <!-- SUB-AREA HEATMAP -->
+      <SubAreaHeatmap
+        :sub-areas="detail.sub_areas || []"
+        @select="selectSubArea"
+      />
+
       <!-- ITEMS -->
       <section class="md-items">
         <div class="md-items-head">
-          <h3>{{ $t('ap2Trainer.moduleDetail.itemsHeader') }}</h3>
+          <h3>
+            {{ $t('ap2Trainer.moduleDetail.itemsHeader') }}
+            <button
+              v-if="subAreaFilter"
+              type="button"
+              class="md-subarea-chip"
+              @click="subAreaFilter = null"
+            >
+              {{ subAreaFilter }} ✕
+            </button>
+          </h3>
           <div class="md-filters">
             <button
               v-for="f in filters"
@@ -310,6 +338,19 @@ watch(() => props.slug, load)
 .md-stat-recovery { border-color: rgba(220,38,38,0.5); }
 .md-stat-value { font-size: 1.3rem; font-weight: 700; color: #f1f5f9; }
 .md-stat-label { font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem; }
+
+.md-subarea-chip {
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  background: rgba(139,92,246,0.2);
+  border: 1px solid #8b5cf6;
+  border-radius: 999px;
+  color: #c4b5fd;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.md-subarea-chip:hover { background: rgba(139,92,246,0.3); }
 
 .md-items-head {
   display: flex; justify-content: space-between;

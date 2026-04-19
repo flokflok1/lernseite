@@ -182,6 +182,17 @@ const routes: RouteRecordRaw[] = [
         name: 'Ap2Anlagen',
         component: () => import('@/presentation/pages/panel/user/ap2/views/AnlagenLibraryView.vue'),
       },
+      {
+        path: 'modules',
+        name: 'Ap2Modules',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ModulesListView.vue'),
+      },
+      {
+        path: 'modules/:slug',
+        name: 'Ap2ModuleRunner',
+        component: () => import('@/presentation/pages/panel/user/ap2/views/ModuleRunnerView.vue'),
+        props: true,
+      },
     ],
   },
 

@@ -50,6 +50,7 @@ const { reviewQueueCount } = useAp2Stats()
 
 const navLinks = computed(() => [
   { to: '/ap2-training/dashboard',  icon: '📊', label: t('ap2Trainer.shell.nav.dashboard'),  badge: '' },
+  { to: '/ap2-training/modules',    icon: '📚', label: 'Module',                              badge: 'NEU' },
   { to: '/ap2-training/study',      icon: '🎯', label: t('ap2Trainer.shell.nav.study'),      badge: '' },
   { to: '/ap2-training/review',     icon: '🔁', label: t('ap2Trainer.shell.nav.review'),     badge: reviewQueueCount.value > 0 ? String(reviewQueueCount.value) : '' },
   { to: '/ap2-training/exam',       icon: '📝', label: t('ap2Trainer.shell.nav.exam'),       badge: '' },

@@ -10,6 +10,7 @@ Endpoints:
 
 - POST /telegram/link-code         — Neuen Verknüpfungs-Code generieren
 - DELETE /telegram/link            — Verknüpfung lösen
+- GET /telegram/status             — Verknüpfungs-Status
 
 DDD: API-Layer. Keine SQL, keine Geschäftslogik (nur Service-Aufrufe).
 """
@@ -29,7 +30,7 @@ from app.infrastructure.persistence.repositories.ap2 import (
 from app.infrastructure.persistence.repositories.user import (
     TelegramLinkRepository,
 )
-from app.domain.models.ap2 import AttemptSource, ModuleStatus
+from app.domain.models.ap2 import AttemptSource
 
 logger = logging.getLogger(__name__)
 
@@ -88,24 +89,32 @@ def register_module_routes(bp):
     @token_required
     def list_modules():
         user = get_current_user()
+        user_id = user['user_id']
         modules = Ap2ModuleRepository.find_all_active()
-        all_progress = Ap2ModuleProgressRepository.find_all_for_user(user.user_id)
+        all_progress = Ap2ModuleProgressRepository.find_all_for_user(user_id)
         progress_by_module = {p.module_id: p for p in all_progress}
 
         result = []
         for m in modules:
             p = progress_by_module.get(m.module_id)
             if not p:
-                # Init lazy: nur Status berechnen, nicht persistieren
                 from app.application.services.ap2.module_progress_service import (
                     ModuleProgressService as MPS,
                 )
-                # Wir geben einen "virtuellen" Status zurück
-                init_status = MPS._compute_initial_status(user.user_id, m)
+                init_status = MPS._compute_initial_status(user_id, m)
                 result.append({
                     **_module_to_dict(m),
-                    'progress': {'status': init_status.value, 'streak_count': 0,
-                                 'mastered_at': None, 'next_spotcheck_at': None},
+                    'progress': {
+                        'status': init_status.value,
+                        'streak_count': 0,
+                        'total_attempts': 0,
+                        'passed_attempts': 0,
+                        'cooldown_until': None,
+                        'same_day_recall_due_at': None,
+                        'mastered_at': None,
+                        'spotcheck_stage': 0,
+                        'next_spotcheck_at': None,
+                    },
                 })
             else:
                 result.append(_module_to_dict(m, p))
@@ -116,15 +125,14 @@ def register_module_routes(bp):
     @token_required
     def start_module(module_id):
         user = get_current_user()
+        user_id = user['user_id']
         try:
             mid = UUID(module_id)
         except ValueError:
             return jsonify({'error': 'invalid module_id'}), 400
 
         try:
-            progress, first_item = ModuleProgressService.start_module(
-                user.user_id, mid
-            )
+            progress, first_item = ModuleProgressService.start_module(user_id, mid)
         except ModuleNotAvailableError as e:
             return jsonify({'error': str(e)}), 409
         except ValueError as e:
@@ -141,6 +149,7 @@ def register_module_routes(bp):
     @token_required
     def submit_module_answer(module_id):
         user = get_current_user()
+        user_id = user['user_id']
         body = request.get_json() or {}
 
         try:
@@ -155,7 +164,7 @@ def register_module_routes(bp):
 
         try:
             result = ModuleProgressService.submit_answer(
-                user_id=user.user_id,
+                user_id=user_id,
                 module_id=mid,
                 item_id=iid,
                 user_answer=answer,
@@ -190,22 +199,24 @@ def register_module_routes(bp):
     @token_required
     def get_recall_item(module_id):
         user = get_current_user()
+        user_id = user['user_id']
         try:
             mid = UUID(module_id)
         except ValueError:
             return jsonify({'error': 'invalid module_id'}), 400
-        item = ModuleProgressService.get_recall_item(user.user_id, mid)
+        item = ModuleProgressService.get_recall_item(user_id, mid)
         return jsonify({'item': _item_to_dict(item)}), 200
 
     @bp.route('/modules/<module_id>/spotcheck-item', methods=['GET'])
     @token_required
     def get_spotcheck_item(module_id):
         user = get_current_user()
+        user_id = user['user_id']
         try:
             mid = UUID(module_id)
         except ValueError:
             return jsonify({'error': 'invalid module_id'}), 400
-        item = ModuleProgressService.get_spotcheck_item(user.user_id, mid)
+        item = ModuleProgressService.get_spotcheck_item(user_id, mid)
         return jsonify({'item': _item_to_dict(item)}), 200
 
     # ============================================================
@@ -216,7 +227,8 @@ def register_module_routes(bp):
     @token_required
     def generate_telegram_link_code():
         user = get_current_user()
-        code, expires = TelegramLinkRepository.create_link_code(user.user_id)
+        user_id = user['user_id']
+        code, expires = TelegramLinkRepository.create_link_code(user_id)
         return jsonify({
             'code': code,
             'expires_at': expires.isoformat(),
@@ -230,14 +242,16 @@ def register_module_routes(bp):
     @token_required
     def unlink_telegram():
         user = get_current_user()
-        TelegramLinkRepository.unlink_chat(user.user_id)
+        user_id = user['user_id']
+        TelegramLinkRepository.unlink_chat(user_id)
         return jsonify({'ok': True}), 200
 
     @bp.route('/telegram/status', methods=['GET'])
     @token_required
     def telegram_status():
         user = get_current_user()
-        chat_id = TelegramLinkRepository.get_chat_id(user.user_id)
+        user_id = user['user_id']
+        chat_id = TelegramLinkRepository.get_chat_id(user_id)
         return jsonify({
             'linked': chat_id is not None,
             'bot_username': 'Jozek2026Bot',

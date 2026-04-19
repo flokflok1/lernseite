@@ -85,13 +85,15 @@ class Ap2EvaluationService:
             adapter = AIAdapter()
 
         try:
+            # 8000 Tokens reichen für Reasoning + JSON-Antwort. Bei klassischen
+            # Chat-Modellen kostet das nichts extra — es ist nur eine Obergrenze.
             response = adapter.send_messages(
                 messages=[
                     {'role': 'system', 'content': IHK_PRUEFER_SYSTEM_PROMPT},
                     {'role': 'user', 'content': user_prompt},
                 ],
                 temperature=0.2,
-                max_tokens=2000,
+                max_tokens=8000,
             )
             content = response.get('content', '').strip()
             parsed = cls._parse_json_response(content)

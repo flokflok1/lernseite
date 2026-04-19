@@ -40,7 +40,6 @@ from app.infrastructure.ai.exceptions import (
 
 # Configuration (moved to infrastructure layer)
 from app.infrastructure.ai.config import (
-    MODELS_USING_COMPLETION_TOKENS,
     DEFAULT_TTS_MODEL,
     DEFAULT_WHISPER_MODEL,
 )
@@ -79,9 +78,6 @@ __all__ = [
     'AIQuotaExceededError',
     'AIInvalidKeyError',
     'AITimeoutError',
-
-    # Configuration
-    'MODELS_USING_COMPLETION_TOKENS',
 
     # Static methods
     'chat_completion',

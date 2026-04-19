@@ -42,13 +42,8 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
 DEFAULT_TTS_MODEL = 'tts-1'
 DEFAULT_WHISPER_MODEL = 'whisper-1'
 
-# Models that require max_completion_tokens instead of max_tokens
-# (GPT-5 series, O-series reasoning models, O4 series)
-MODELS_USING_COMPLETION_TOKENS = [
-    'gpt-5', 'gpt-5.1', 'gpt-5-mini', 'gpt-5-nano', 'gpt-5-pro',
-    'gpt-5.1-chat-latest', 'gpt-5-chat-latest',
-    'gpt-5.1-codex', 'gpt-5-codex', 'gpt-5.1-codex-mini',
-    'o1', 'o1-pro', 'o1-mini', 'o1-preview',
-    'o3', 'o3-pro', 'o3-mini', 'o3-deep-research',
-    'o4-mini', 'o4-mini-deep-research'
-]
+# Modell-Capabilities (z.B. ob ein Modell max_completion_tokens braucht)
+# werden zur Laufzeit aus ai_models.capabilities gelesen — siehe
+# infrastructure/ai/model_capabilities.py. Lazy auto-discovery:
+# erstes Auftreten eines neuen Modells lernt sich selbst, persistiert in DB.
+# Keine hardcoded Modell-Liste mehr.

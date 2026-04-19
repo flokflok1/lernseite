@@ -26,7 +26,7 @@ from .exceptions import (
     AIInvalidKeyError,
     AITimeoutError
 )
-from .config import PROVIDERS, MODELS_USING_COMPLETION_TOKENS
+from .config import PROVIDERS
 from .providers.openai import OpenAIProvider
 from .providers.anthropic import AnthropicProvider
 from .providers.google import GoogleProvider
@@ -46,7 +46,6 @@ class AIAdapter:
 
     # Expose configuration as class attributes for backwards compatibility
     PROVIDERS = PROVIDERS
-    MODELS_USING_COMPLETION_TOKENS = MODELS_USING_COMPLETION_TOKENS
 
     def __init__(self, provider: str = None, model: Optional[str] = None, timeout: int = 3600):
         """

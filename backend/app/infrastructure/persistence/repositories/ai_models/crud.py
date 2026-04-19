@@ -6,8 +6,9 @@ Handles Create, Read, Update, Delete and Upsert operations for AI models.
 Phase KI-Architektur - Model Management
 """
 
+import json
 from typing import Optional, Dict, Any
-from app.infrastructure.persistence.database.connection import fetch_one
+from app.infrastructure.persistence.database.connection import fetch_one, execute_query
 
 
 class AIModelsCRUDRepository:
@@ -215,3 +216,88 @@ class AIModelsCRUDRepository:
             RETURNING model_id, model_name
         """
         return fetch_one(query, (model_id,))
+
+    # ================================================================
+    # Capability persistence (lazy auto-discovery from providers)
+    # ================================================================
+
+    @classmethod
+    def get_capability(
+        cls,
+        model_name: str,
+        capability_key: str,
+        provider_name: Optional[str] = None,
+    ) -> Optional[Any]:
+        """Read a single key from the capabilities JSONB.
+
+        Returns None when the key is not set or the model is unknown.
+        """
+        if provider_name:
+            row = fetch_one(
+                """
+                SELECT m.capabilities -> %s AS value
+                FROM ai_pipeline.ai_models m
+                JOIN ai_pipeline.ai_providers p ON p.provider_id = m.provider_id
+                WHERE m.model_name = %s AND p.name = %s
+                LIMIT 1
+                """,
+                (capability_key, model_name, provider_name),
+            )
+        else:
+            row = fetch_one(
+                """
+                SELECT capabilities -> %s AS value
+                FROM ai_pipeline.ai_models
+                WHERE model_name = %s
+                LIMIT 1
+                """,
+                (capability_key, model_name),
+            )
+        if not row:
+            return None
+        raw = row.get('value')
+        if raw is None:
+            return None
+        # JSONB -> kann string sein wenn nicht parsed
+        if isinstance(raw, (bool, int, float, list, dict)):
+            return raw
+        try:
+            return json.loads(raw)
+        except (TypeError, ValueError):
+            return raw
+
+    @classmethod
+    def set_capability(
+        cls,
+        model_name: str,
+        capability_key: str,
+        value: Any,
+        provider_name: Optional[str] = None,
+    ) -> None:
+        """Merge a single key into the capabilities JSONB. Persists immediately."""
+        json_value = json.dumps(value)
+        if provider_name:
+            execute_query(
+                """
+                UPDATE ai_pipeline.ai_models m
+                SET capabilities =
+                    COALESCE(m.capabilities, '{}'::jsonb)
+                    || jsonb_build_object(%s, %s::jsonb)
+                FROM ai_pipeline.ai_providers p
+                WHERE p.provider_id = m.provider_id
+                  AND m.model_name = %s
+                  AND p.name = %s
+                """,
+                (capability_key, json_value, model_name, provider_name),
+            )
+        else:
+            execute_query(
+                """
+                UPDATE ai_pipeline.ai_models
+                SET capabilities =
+                    COALESCE(capabilities, '{}'::jsonb)
+                    || jsonb_build_object(%s, %s::jsonb)
+                WHERE model_name = %s
+                """,
+                (capability_key, json_value, model_name),
+            )

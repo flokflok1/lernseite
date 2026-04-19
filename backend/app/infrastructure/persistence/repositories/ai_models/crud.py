@@ -235,7 +235,7 @@ class AIModelsCRUDRepository:
         if provider_name:
             row = fetch_one(
                 """
-                SELECT m.capabilities -> %s AS value
+                SELECT m.capability_flags -> %s AS value
                 FROM ai_pipeline.ai_models m
                 JOIN ai_pipeline.ai_providers p ON p.provider_id = m.provider_id
                 WHERE m.model_name = %s AND p.name = %s
@@ -246,7 +246,7 @@ class AIModelsCRUDRepository:
         else:
             row = fetch_one(
                 """
-                SELECT capabilities -> %s AS value
+                SELECT capability_flags -> %s AS value
                 FROM ai_pipeline.ai_models
                 WHERE model_name = %s
                 LIMIT 1
@@ -280,8 +280,8 @@ class AIModelsCRUDRepository:
             execute_query(
                 """
                 UPDATE ai_pipeline.ai_models m
-                SET capabilities =
-                    COALESCE(m.capabilities, '{}'::jsonb)
+                SET capability_flags =
+                    COALESCE(m.capability_flags, '{}'::jsonb)
                     || jsonb_build_object(%s, %s::jsonb)
                 FROM ai_pipeline.ai_providers p
                 WHERE p.provider_id = m.provider_id
@@ -294,8 +294,8 @@ class AIModelsCRUDRepository:
             execute_query(
                 """
                 UPDATE ai_pipeline.ai_models
-                SET capabilities =
-                    COALESCE(capabilities, '{}'::jsonb)
+                SET capability_flags =
+                    COALESCE(capability_flags, '{}'::jsonb)
                     || jsonb_build_object(%s, %s::jsonb)
                 WHERE model_name = %s
                 """,

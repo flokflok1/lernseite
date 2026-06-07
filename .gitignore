@@ -108,6 +108,11 @@ test_*.json
 *.key
 credentials.json
 secrets.json
+db_credentials.txt
+*_credentials.txt
+.mcp.json
+.env.backup*
+.claude/
 
 # Database
 *.sqlite3

@@ -92,10 +92,21 @@ npm run dev
 docker compose up
 ```
 
+## Weiterentwicklung & Lessons Learned
+
+Dieses Projekt war ein bewusster Lernschritt. Was ich daraus mitgenommen habe und in meinem
+**aktuellen Projekt** von Anfang an besser umsetze:
+
+- **Atomare Commits** — kleine, fokussierte Einheiten; Umbenennungen/Moves getrennt von Logik­änderungen (statt großer gemischter Restructure-Commits).
+- **CI ab Tag 1** — Lint / Build / Test als verpflichtendes Merge-Gate, nicht nachträglich.
+- **Tests & ADRs** — automatisierte Tests und dokumentierte Architektur-Entscheidungen (ADRs) für strukturelle Änderungen.
+- **Repo-Hygiene** — keine Binär-Assets oder Secrets im Git-Verlauf (Assets extern / als Release-Artefakte, gehärtete `.gitignore`).
+- **Konsequente Code-Sprache** — durchgängig Englisch in Code und Commit-Messages.
+
 ## Status & Lizenz
 
-**Work in Progress — nicht abgeschlossen.** Als Arbeitsprobe für Architektur und
-Umsetzung gedacht; einzelne Bereiche sind unfertig oder experimentell.
+**Pausiertes Projekt — nicht abgeschlossen.** Aktueller Fokus liegt auf einem anderen Projekt.
+Als Arbeitsprobe für Architektur und Umsetzung gedacht; einzelne Bereiche sind unfertig oder experimentell.
 Code einsehbar; für eine Nachnutzung bitte Rücksprache.
 
 © 2026 Pascal Kozlowski

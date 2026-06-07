@@ -3,7 +3,7 @@
 > Web-Plattform zum strukturierten Lernen von **Schul- und Ausbildungsmaterial jeder Art**
 > — Kurse, adaptive Lernpfade, Prüfungssimulationen, KI-Tutor, mehrsprachig.
 > Full-Stack-Eigenentwicklung: Vue 3 + TypeScript Frontend, Python/Flask-Backend mit
-> Domain-Driven-Design, Docker-deploybar. **Work in Progress / persönliches Lernprojekt.**
+> Domain-Driven-Design, Docker-deploybar. **Pausiertes Lernprojekt — aktueller Fokus liegt auf einem anderen Projekt.**
 
 ![Vue](https://img.shields.io/badge/Vue-3-42b883)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6)
@@ -21,11 +21,11 @@ Kurse, adaptive Lernpfade, Prüfungssimulationen, ein KI-gestützter Tutor und m
 Inhalte (DE/EN/PL). Als erster konkreter Anwendungsfall ist die Vorbereitung auf die
 **IHK-Abschlussprüfungen (Fachinformatiker AP1/AP2)** ausgebaut.
 
-> **Status:** Persönliches Lern- und Portfolio-Projekt, **Work in Progress — nicht abgeschlossen.**
+> **Status: Pausiertes Projekt.** Persönliches Lern- und Portfolio-Projekt, bewusst nicht abgeschlossen.
 > Aktivster Entwicklungszeitraum **Dez 2025 – Apr 2026** (854 Commits, 66 aktive Tage) parallel zur
-> laufenden Umschulung; seither bewusst pausiert zugunsten der IHK-Prüfungsphase. Roadmap offen.
-> Der Fokus liegt auf Architektur und sauberer Umsetzung, nicht auf Feature-Vollständigkeit.
-> Konfiguration ausschließlich über `.env` (siehe `.env.example`) — **keine Secrets im Repository**.
+> Umschulung; **aktuell pausiert, da ich derzeit an einem anderen Projekt arbeite.** Als Architektur-
+> und Code-Arbeitsprobe einsehbar — der Fokus liegt auf sauberer Umsetzung, nicht auf
+> Feature-Vollständigkeit. Konfiguration über `.env` (siehe `.env.example`), **keine Secrets im Repository**.
 
 ## Umgesetzte Features (Auszug)
 
